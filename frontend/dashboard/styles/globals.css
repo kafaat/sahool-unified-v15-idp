@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --sahool-primary: #059669;
+  --sahool-secondary: #0891b2;
+  --sahool-accent: #d97706;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  direction: rtl;
+}
+
+/* Map Container */
+.map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #059669;
+  border-radius: 3px;
+}
+
+/* Status Colors */
+.status-open { @apply bg-blue-100 text-blue-800; }
+.status-in_progress { @apply bg-yellow-100 text-yellow-800; }
+.status-done { @apply bg-green-100 text-green-800; }
+.status-canceled { @apply bg-gray-100 text-gray-800; }
+
+/* Priority Colors */
+.priority-low { @apply border-l-4 border-gray-400; }
+.priority-medium { @apply border-l-4 border-blue-500; }
+.priority-high { @apply border-l-4 border-orange-500; }
+.priority-urgent { @apply border-l-4 border-red-500; }
+
+/* Event Type Colors */
+.event-task { @apply bg-emerald-50 border-emerald-200; }
+.event-weather { @apply bg-sky-50 border-sky-200; }
+.event-disease { @apply bg-rose-50 border-rose-200; }
+.event-ndvi { @apply bg-lime-50 border-lime-200; }
+
+/* Animation */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.live-indicator {
+  animation: pulse-dot 2s ease-in-out infinite;
+}

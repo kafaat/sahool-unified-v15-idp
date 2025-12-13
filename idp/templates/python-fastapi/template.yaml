@@ -1,0 +1,39 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sahool-python-fastapi
+  title: SAHOOL Service (Python FastAPI)
+  description: Golden path for a SAHOOL microservice with OTel + /metrics + GitOps wiring files.
+spec:
+  owner: group:sahool-platform
+  type: service
+  parameters:
+    - title: Service settings
+      required: [name, port, layer]
+      properties:
+        name:
+          title: Service name
+          type: string
+          description: kebab-case, e.g. ndvi-engine
+        port:
+          title: HTTP port
+          type: integer
+          default: 8080
+        layer:
+          title: Layer
+          type: string
+          enum: [signal-producer, decision, action]
+  steps:
+    - id: fetch
+      name: Fetch base
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          port: ${{ parameters.port }}
+          layer: ${{ parameters.layer }}
+  output:
+    links:
+      - title: Open service folder
+        url: .

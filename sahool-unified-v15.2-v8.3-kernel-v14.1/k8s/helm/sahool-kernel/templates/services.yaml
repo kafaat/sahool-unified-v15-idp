@@ -1,0 +1,4 @@
+{{- range $k, $svc := .Values.services }}
+{{- include "sahool.workload" (dict "root" $ "svc" $svc) }}
+{{- include "sahool.svc" (dict "root" $ "svc" $svc) }}
+{{- end }}

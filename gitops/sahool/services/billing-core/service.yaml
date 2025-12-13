@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-core
+  namespace: sahool
+spec:
+  selector: { app: billing-core }
+  ports:
+    - name: http
+      port: 8087
+      targetPort: 8087

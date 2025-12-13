@@ -1,0 +1,690 @@
+version: '3.8'
+
+# SAHOOL Kernel v14.1 - Complete Docker Compose
+# Production-ready agricultural IoT platform
+
+x-common-env: &common-env
+  NATS_URL: nats://nats:4222
+  REDIS_URL: redis://redis:6379
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+  LOG_LEVEL: INFO
+
+x-healthcheck: &default-healthcheck
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 40s
+
+services:
+  # ============================================================================
+  # Infrastructure Services
+  # ============================================================================
+  
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-postgres
+    environment:
+      POSTGRES_USER: sahool
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool_secure_pass}
+      POSTGRES_DB: sahool
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sahool"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: sahool-nats
+    command: 
+      - "--jetstream"
+      - "--store_dir=/data"
+      - "--http_port=8222"
+      - "--max_payload=8MB"
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - nats_data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: sahool-redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  # ============================================================================
+  # Layer 1: Platform Core Services
+  # ============================================================================
+
+  auth:
+    build:
+      context: .
+      dockerfile: services/auth/Dockerfile
+    container_name: sahool-auth
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_auth
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      JWT_ALGORITHM: RS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      REFRESH_TOKEN_EXPIRE_DAYS: 7
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  tenant:
+    build:
+      context: .
+      dockerfile: services/tenant/Dockerfile
+    container_name: sahool-tenant
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_tenant
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  user:
+    build:
+      context: .
+      dockerfile: services/user/Dockerfile
+    container_name: sahool-user
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_user
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  geo-core:
+    build:
+      context: .
+      dockerfile: services/geo-core/Dockerfile
+    container_name: sahool-geo-core
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_geo
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  crop-lifecycle:
+    build:
+      context: .
+      dockerfile: services/crop-lifecycle/Dockerfile
+    container_name: sahool-crop-lifecycle
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_crop
+    ports:
+      - "8091:8091"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  # ============================================================================
+  # Layer 2: Signal Producers
+  # ============================================================================
+
+  weather:
+    build:
+      context: .
+      dockerfile: services/weather/Dockerfile
+    container_name: sahool-weather
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_weather
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
+      WEATHER_UPDATE_INTERVAL: 3600
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  ndvi:
+    build:
+      context: .
+      dockerfile: services/ndvi/Dockerfile
+    container_name: sahool-ndvi
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_ndvi
+      SENTINEL_HUB_CLIENT_ID: ${SENTINEL_HUB_CLIENT_ID:-}
+      SENTINEL_HUB_CLIENT_SECRET: ${SENTINEL_HUB_CLIENT_SECRET:-}
+    ports:
+      - "8086:8086"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  soil:
+    build:
+      context: .
+      dockerfile: services/soil/Dockerfile
+    container_name: sahool-soil
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_soil
+    ports:
+      - "8092:8092"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  astro-agri:
+    build:
+      context: .
+      dockerfile: services/astro-agri/Dockerfile
+    container_name: sahool-astro-agri
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_astro
+    ports:
+      - "8093:8093"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8093/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  image-diagnosis:
+    build:
+      context: .
+      dockerfile: services/image-diagnosis/Dockerfile
+    container_name: sahool-image-diagnosis
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_diagnosis
+      MODEL_PATH: /app/models
+    ports:
+      - "8094:8094"
+    volumes:
+      - ./models:/app/models:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8094/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  # ============================================================================
+  # Layer 3: Decision Services
+  # ============================================================================
+
+  disease-risk:
+    build:
+      context: .
+      dockerfile: services/disease-risk/Dockerfile
+    container_name: sahool-disease-risk
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_disease
+    ports:
+      - "8095:8095"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8095/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  irrigation-advisor:
+    build:
+      context: .
+      dockerfile: services/irrigation-advisor/Dockerfile
+    container_name: sahool-irrigation-advisor
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_irrigation
+    ports:
+      - "8096:8096"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  advisor-core:
+    build:
+      context: .
+      dockerfile: services/advisor-core/Dockerfile
+    container_name: sahool-advisor-core
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_advisor
+    ports:
+      - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  market:
+    build:
+      context: .
+      dockerfile: services/market/Dockerfile
+    container_name: sahool-market
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_market
+    ports:
+      - "8097:8097"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8097/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  # ============================================================================
+  # Layer 4: Execution Services
+  # ============================================================================
+
+  tasks:
+    build:
+      context: .
+      dockerfile: services/tasks/Dockerfile
+    container_name: sahool-tasks
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_tasks
+    ports:
+      - "8087:8087"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  alerts:
+    build:
+      context: .
+      dockerfile: services/alerts/Dockerfile
+    container_name: sahool-alerts
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_alerts
+    ports:
+      - "8088:8088"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  notification:
+    build:
+      context: .
+      dockerfile: services/notification/Dockerfile
+    container_name: sahool-notification
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_notification
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      FCM_CREDENTIALS_PATH: /app/config/firebase-credentials.json
+      WHATSAPP_API_KEY: ${WHATSAPP_API_KEY:-}
+    ports:
+      - "8098:8098"
+    volumes:
+      - ./config:/app/config:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8098/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  equipment:
+    build:
+      context: .
+      dockerfile: services/equipment/Dockerfile
+    container_name: sahool-equipment
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_equipment
+    ports:
+      - "8089:8089"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  # ============================================================================
+  # Support Services
+  # ============================================================================
+
+  process-manager:
+    build:
+      context: .
+      dockerfile: services/process-manager/Dockerfile
+    container_name: sahool-process-manager
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_process
+    ports:
+      - "8099:8099"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8099/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  schema-registry:
+    build:
+      context: .
+      dockerfile: services/schema-registry/Dockerfile
+    container_name: sahool-schema-registry
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgresql+asyncpg://sahool:${POSTGRES_PASSWORD:-sahool_secure_pass}@postgres:5432/sahool_schema
+    ports:
+      - "8100:8100"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  # ============================================================================
+  # API Gateway
+  # ============================================================================
+
+  api-gateway:
+    image: kong:3.5
+    container_name: sahool-api-gateway
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    volumes:
+      - ./infrastructure/kong/kong.yml:/kong/kong.yml:ro
+    ports:
+      - "80:8000"
+      - "443:8443"
+      - "8001:8001"
+    depends_on:
+      - auth
+      - tenant
+      - user
+      - geo-core
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      <<: *default-healthcheck
+    networks:
+      - sahool-network
+
+  # ============================================================================
+  # Observability Stack
+  # ============================================================================
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.96.0
+    container_name: sahool-otel-collector
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./infrastructure/observability/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus metrics
+    depends_on:
+      - tempo
+      - loki
+    networks:
+      - sahool-network
+
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    container_name: sahool-prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./infrastructure/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - sahool-network
+
+  tempo:
+    image: grafana/tempo:2.4.0
+    container_name: sahool-tempo
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./infrastructure/observability/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo_data:/tmp/tempo
+    ports:
+      - "3200:3200"
+      - "9095:9095"
+    networks:
+      - sahool-network
+
+  loki:
+    image: grafana/loki:2.9.4
+    container_name: sahool-loki
+    command: ["-config.file=/etc/loki/loki-config.yaml"]
+    volumes:
+      - ./infrastructure/observability/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - sahool-network
+
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: sahool-grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-sahool_grafana}
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - ./infrastructure/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infrastructure/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - tempo
+      - loki
+    networks:
+      - sahool-network
+
+# ============================================================================
+# Networks
+# ============================================================================
+
+networks:
+  sahool-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ============================================================================
+# Volumes
+# ============================================================================
+
+volumes:
+  postgres_data:
+    driver: local
+  nats_data:
+    driver: local
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  tempo_data:
+    driver: local
+  loki_data:
+    driver: local
+  grafana_data:
+    driver: local

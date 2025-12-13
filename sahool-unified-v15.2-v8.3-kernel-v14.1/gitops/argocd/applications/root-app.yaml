@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: sahool-root
+  namespace: argocd
+spec:
+  project: sahool
+  source:
+    repoURL: REPLACE_WITH_YOUR_REPO_URL
+    targetRevision: HEAD
+    path: gitops/argocd/applications
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

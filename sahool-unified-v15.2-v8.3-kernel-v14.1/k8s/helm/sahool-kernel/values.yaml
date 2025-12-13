@@ -1,0 +1,154 @@
+image:
+  repository: sahool
+  tag: "15.2"
+  pullPolicy: IfNotPresent
+
+env:
+  LOG_LEVEL: "info"
+
+prometheus:
+  scrape: true
+
+resources:
+  requests:
+    cpu: "50m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+
+redis:
+  enabled: true
+
+nats:
+  enabled: true
+
+rollouts:
+  enabled: true
+  revisionHistoryLimit: 2
+  canary:
+    maxSurge: "25%"
+    maxUnavailable: 0
+    steps:
+      - setWeight: 20
+        pause:
+          duration: 30s
+        analysis: true
+      - setWeight: 50
+        pause:
+          duration: 60s
+        analysis: true
+      - setWeight: 100
+        analysis: false
+
+  analysis:
+    enabled: true
+    prometheusAddress: "http://prometheus-kube-prometheus-prometheus.monitoring.svc:9090"
+    interval: "30s"
+    count: 4
+
+    cpu:
+      # Success if cpu-per-pod < 0.7 cores
+      successCondition: "result < 0.7"
+      failureCondition: "result >= 0.9"
+
+    http5xx:
+      # Optional: requires http_requests_total with label code
+      successCondition: "result < 0.05"
+      failureCondition: "result >= 0.10"
+
+    latency:
+      # Optional: requires http_request_duration_seconds_bucket
+      successCondition: "result < 1.0"
+      failureCondition: "result >= 2.0"
+
+services:
+  auth-service:
+    enabled: true
+    name: "auth-service"
+    port: 8001
+    replicas: 2
+    healthPath: "/healthz"
+    metricsPath: "/metrics"
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 70
+
+  api-gateway:
+    enabled: true
+    name: "api-gateway"
+    port: 8080
+    replicas: 2
+    healthPath: "/healthz"
+    metricsPath: "/metrics"
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilizationPercentage: 65
+
+  weather-signal:
+    enabled: true
+    name: "weather-signal"
+    port: 8010
+    replicas: 1
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: false
+
+  ndvi-signal:
+    enabled: true
+    name: "ndvi-signal"
+    port: 8011
+    replicas: 1
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: false
+
+  astronomical-calendar-signal:
+    enabled: true
+    name: "astronomical-calendar-signal"
+    port: 8012
+    replicas: 1
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: false
+
+  crop-advisor:
+    enabled: true
+    name: "crop-advisor"
+    port: 8020
+    replicas: 1
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: false
+
+  task-manager:
+    enabled: true
+    name: "task-manager"
+    port: 8030
+    replicas: 1
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: false
+
+  alert-dispatcher:
+    enabled: true
+    name: "alert-dispatcher"
+    port: 8040
+    replicas: 1
+    rollout:
+      enabled: true
+    autoscaling:
+      enabled: false

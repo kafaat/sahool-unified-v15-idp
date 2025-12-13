@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "sahool-services"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "host.docker.internal:8085"
+          - "host.docker.internal:8086"
+          - "host.docker.internal:8088"
+          - "host.docker.internal:8090"
+          - "host.docker.internal:8089"

@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sahool
+  namespace: argocd
+spec:
+  description: SAHOOL Project (GitOps)
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: sahool
+      server: https://kubernetes.default.svc
+    - namespace: observability
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

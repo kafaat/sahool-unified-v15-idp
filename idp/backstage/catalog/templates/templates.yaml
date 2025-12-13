@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: sahool-templates
+spec:
+  targets:
+    - ./python-fastapi/template.yaml
+    - ./node-service/template.yaml

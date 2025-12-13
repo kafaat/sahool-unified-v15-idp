@@ -1,0 +1,47 @@
+services:
+  tempo:
+    image: grafana/tempo:2.5.0
+    command: ["-config.file=/etc/tempo.yml"]
+    volumes:
+      - ./tempo.yml:/etc/tempo.yml:ro
+    ports:
+      - "3200:3200"
+
+  loki:
+    image: grafana/loki:2.9.6
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    ports:
+      - "3100:3100"
+
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    command: ["--config.file=/etc/prometheus/prometheus.yml"]
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.98.0
+    command: ["--config=/etc/otel-collector.yml"]
+    volumes:
+      - ./otel-collector.yml:/etc/otel-collector.yml:ro
+    ports:
+      - "4318:4318"
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin123
+      GF_INSTALL_PLUGINS: grafana-tempo-datasource,grafana-loki-datasource
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage:

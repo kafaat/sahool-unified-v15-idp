@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: billing-core
+  namespace: argocd
+spec:
+  project: sahool
+  source:
+    repoURL: REPLACE_WITH_YOUR_REPO_URL
+    targetRevision: main
+    path: gitops/sahool/services/billing-core
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

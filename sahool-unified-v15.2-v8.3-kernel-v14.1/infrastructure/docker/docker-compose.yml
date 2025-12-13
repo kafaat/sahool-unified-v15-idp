@@ -1,0 +1,477 @@
+version: '3.9'
+
+services:
+  # ============================================
+  # INFRASTRUCTURE SERVICES
+  # ============================================
+  
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-postgres
+    environment:
+      POSTGRES_USER: sahool
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sahool_secret}
+      POSTGRES_DB: sahool_main
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../tools/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sahool"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sahool-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: sahool-redis
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secret}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sahool-network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: sahool-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: sahool
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-rabbitmq_secret}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - sahool-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: sahool-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-sahool_minio}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minio_secret}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - sahool-network
+
+  # ============================================
+  # LAYER 1: PLATFORM CORE
+  # ============================================
+
+  api-gateway:
+    build:
+      context: ../../platform-core/api-gateway
+      dockerfile: Dockerfile
+    container_name: sahool-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      AUTH_SERVICE_URL: http://auth-service:3001
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+    depends_on:
+      - redis
+      - auth-service
+    networks:
+      - sahool-network
+
+  auth-service:
+    build:
+      context: ../../platform-core/auth-service
+      dockerfile: Dockerfile
+    container_name: sahool-auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+      JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
+      JWT_PUBLIC_KEY_PATH: /app/keys/public.pem
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./keys:/app/keys:ro
+    networks:
+      - sahool-network
+
+  tenant-service:
+    build:
+      context: ../../platform-core/tenant-service
+      dockerfile: Dockerfile
+    container_name: sahool-tenant-service
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - sahool-network
+
+  notification-service:
+    build:
+      context: ../../platform-core/notification-service
+      dockerfile: Dockerfile
+    container_name: sahool-notification-service
+    ports:
+      - "3003:3003"
+    environment:
+      NODE_ENV: development
+      PORT: 3003
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - sahool-network
+
+  # ============================================
+  # LAYER 2: SIGNAL PRODUCERS
+  # ============================================
+
+  weather-signal:
+    build:
+      context: ../../signal-producers/weather-signal
+      dockerfile: Dockerfile
+    container_name: sahool-weather-signal
+    ports:
+      - "3010:3010"
+    environment:
+      NODE_ENV: development
+      PORT: 3010
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY}
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - sahool-network
+
+  ndvi-signal:
+    build:
+      context: ../../signal-producers/ndvi-signal
+      dockerfile: Dockerfile
+    container_name: sahool-ndvi-signal
+    ports:
+      - "3011:3011"
+    environment:
+      NODE_ENV: development
+      PORT: 3011
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      MINIO_ENDPOINT: minio:9000
+      SENTINEL_API_KEY: ${SENTINEL_API_KEY}
+    depends_on:
+      - postgres
+      - rabbitmq
+      - minio
+    networks:
+      - sahool-network
+
+  iot-signal:
+    build:
+      context: ../../signal-producers/iot-signal
+      dockerfile: Dockerfile
+    container_name: sahool-iot-signal
+    ports:
+      - "3012:3012"
+      - "1883:1883"
+    environment:
+      NODE_ENV: development
+      PORT: 3012
+      MQTT_PORT: 1883
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - sahool-network
+
+  astronomical-calendar-signal:
+    build:
+      context: ../../signal-producers/astronomical-calendar-signal
+      dockerfile: Dockerfile
+    container_name: sahool-astronomical-calendar
+    ports:
+      - "3013:3013"
+    environment:
+      NODE_ENV: development
+      PORT: 3013
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    networks:
+      - sahool-network
+
+  # ============================================
+  # LAYER 3: DECISION SERVICES
+  # ============================================
+
+  crop-advisor:
+    build:
+      context: ../../decision-services/crop-advisor
+      dockerfile: Dockerfile
+    container_name: sahool-crop-advisor
+    ports:
+      - "3020:3020"
+    environment:
+      NODE_ENV: development
+      PORT: 3020
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      - postgres
+      - rabbitmq
+      - redis
+    networks:
+      - sahool-network
+
+  irrigation-planner:
+    build:
+      context: ../../decision-services/irrigation-planner
+      dockerfile: Dockerfile
+    container_name: sahool-irrigation-planner
+    ports:
+      - "3021:3021"
+    environment:
+      NODE_ENV: development
+      PORT: 3021
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - sahool-network
+
+  pest-detector:
+    build:
+      context: ../../decision-services/pest-detector
+      dockerfile: Dockerfile
+    container_name: sahool-pest-detector
+    ports:
+      - "3022:3022"
+    environment:
+      NODE_ENV: development
+      PORT: 3022
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      MODEL_PATH: /app/models
+    depends_on:
+      - postgres
+      - rabbitmq
+    volumes:
+      - pest_models:/app/models
+    networks:
+      - sahool-network
+
+  yield-predictor:
+    build:
+      context: ../../decision-services/yield-predictor
+      dockerfile: Dockerfile
+    container_name: sahool-yield-predictor
+    ports:
+      - "3023:3023"
+    environment:
+      NODE_ENV: development
+      PORT: 3023
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - sahool-network
+
+  market-analyzer:
+    build:
+      context: ../../decision-services/market-analyzer
+      dockerfile: Dockerfile
+    container_name: sahool-market-analyzer
+    ports:
+      - "3024:3024"
+    environment:
+      NODE_ENV: development
+      PORT: 3024
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - sahool-network
+
+  # ============================================
+  # LAYER 4: EXECUTION SERVICES
+  # ============================================
+
+  task-manager:
+    build:
+      context: ../../execution-services/task-manager
+      dockerfile: Dockerfile
+    container_name: sahool-task-manager
+    ports:
+      - "3030:3030"
+    environment:
+      NODE_ENV: development
+      PORT: 3030
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - sahool-network
+
+  alert-dispatcher:
+    build:
+      context: ../../execution-services/alert-dispatcher
+      dockerfile: Dockerfile
+    container_name: sahool-alert-dispatcher
+    ports:
+      - "3031:3031"
+    environment:
+      NODE_ENV: development
+      PORT: 3031
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
+      FCM_KEY: ${FCM_KEY}
+      TWILIO_SID: ${TWILIO_SID}
+      TWILIO_TOKEN: ${TWILIO_TOKEN}
+    depends_on:
+      - rabbitmq
+      - redis
+    networks:
+      - sahool-network
+
+  report-generator:
+    build:
+      context: ../../execution-services/report-generator
+      dockerfile: Dockerfile
+    container_name: sahool-report-generator
+    ports:
+      - "3032:3032"
+    environment:
+      NODE_ENV: development
+      PORT: 3032
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_USER:-sahool_minio}
+      MINIO_SECRET_KEY: ${MINIO_PASSWORD:-minio_secret}
+    depends_on:
+      - postgres
+      - minio
+    networks:
+      - sahool-network
+
+  integration-hub:
+    build:
+      context: ../../execution-services/integration-hub
+      dockerfile: Dockerfile
+    container_name: sahool-integration-hub
+    ports:
+      - "3033:3033"
+    environment:
+      NODE_ENV: development
+      PORT: 3033
+      DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
+      RABBITMQ_URL: amqp://sahool:${RABBITMQ_PASSWORD:-rabbitmq_secret}@rabbitmq:5672
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - sahool-network
+
+  # ============================================
+  # MONITORING
+  # ============================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: sahool-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - sahool-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: sahool-grafana
+    ports:
+      - "3100:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    networks:
+      - sahool-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  pest_models:
+
+networks:
+  sahool-network:
+    driver: bridge

@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: sahool-platform
+  description: SAHOOL Smart Agriculture Platform (Microservices + SaaS)
+spec:
+  owner: group:sahool-platform
+  domain: agriculture

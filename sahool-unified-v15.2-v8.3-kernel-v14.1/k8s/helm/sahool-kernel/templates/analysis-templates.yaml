@@ -1,0 +1,79 @@
+{{- if .Values.rollouts.analysis.enabled }}
+{{- range $k, $svc := .Values.services }}
+{{- if and $svc.enabled (default true $svc.rollout.enabled) }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ $.Release.Name }}-{{ $svc.name }}-analysis
+  labels:
+    {{- include "sahool.labels" $ | nindent 4 }}
+    sahool/service: {{ $svc.name }}
+spec:
+  args:
+    - name: namespace
+    - name: podRegex
+  metrics:
+    # 1) CPU safety check (works with kube-prometheus-stack)
+    - name: cpu-per-pod
+      interval: {{ $.Values.rollouts.analysis.interval | quote }}
+      count: {{ $.Values.rollouts.analysis.count }}
+      successCondition: {{ $.Values.rollouts.analysis.cpu.successCondition | quote }}
+      failureCondition: {{ $.Values.rollouts.analysis.cpu.failureCondition | quote }}
+      provider:
+        prometheus:
+          address: {{ $.Values.rollouts.analysis.prometheusAddress | quote }}
+          query: |
+            avg(
+              rate(container_cpu_usage_seconds_total{
+                namespace="{{`{{args.namespace}}`}}",
+                pod=~"{{`{{args.podRegex}}`}}",
+                container!="POD"
+              }[2m])
+            )
+
+    # 2) Optional HTTP 5xx ratio (requires your services/ingress to expose http_requests_total)
+    - name: http-5xx-ratio
+      interval: {{ $.Values.rollouts.analysis.interval | quote }}
+      count: {{ $.Values.rollouts.analysis.count }}
+      successCondition: {{ $.Values.rollouts.analysis.http5xx.successCondition | quote }}
+      failureCondition: {{ $.Values.rollouts.analysis.http5xx.failureCondition | quote }}
+      provider:
+        prometheus:
+          address: {{ $.Values.rollouts.analysis.prometheusAddress | quote }}
+          query: |
+            (
+              sum(rate(http_requests_total{
+                namespace="{{`{{args.namespace}}`}}",
+                pod=~"{{`{{args.podRegex}}`}}",
+                code=~"5.."
+              }[2m]))
+            )
+            /
+            clamp_min(
+              sum(rate(http_requests_total{
+                namespace="{{`{{args.namespace}}`}}",
+                pod=~"{{`{{args.podRegex}}`}}"
+              }[2m])),
+              1
+            )
+
+    # 3) Optional latency p95 (requires histogram http_request_duration_seconds_bucket)
+    - name: http-latency-p95
+      interval: {{ $.Values.rollouts.analysis.interval | quote }}
+      count: {{ $.Values.rollouts.analysis.count }}
+      successCondition: {{ $.Values.rollouts.analysis.latency.successCondition | quote }}
+      failureCondition: {{ $.Values.rollouts.analysis.latency.failureCondition | quote }}
+      provider:
+        prometheus:
+          address: {{ $.Values.rollouts.analysis.prometheusAddress | quote }}
+          query: |
+            histogram_quantile(0.95,
+              sum(rate(http_request_duration_seconds_bucket{
+                namespace="{{`{{args.namespace}}`}}",
+                pod=~"{{`{{args.podRegex}}`}}"
+              }[5m])) by (le)
+            )
+---
+{{- end }}
+{{- end }}
+{{- end }}

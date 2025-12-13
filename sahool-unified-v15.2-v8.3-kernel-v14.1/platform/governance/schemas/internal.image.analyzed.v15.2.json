@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "internal.image.analyzed v15.2",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "tenant_id",
+    "timestamp",
+    "correlation_id",
+    "payload",
+    "schema_version"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "const": "internal.image.analyzed"
+    },
+    "tenant_id": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "trace": {
+      "type": "object",
+      "properties": {
+        "trace_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "span_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "schema_version": {
+      "const": "v15.2"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "analysis_id",
+        "crop_type",
+        "diagnosis_count",
+        "model_version",
+        "all_diagnoses"
+      ],
+      "properties": {
+        "analysis_id": {
+          "type": "string"
+        },
+        "field_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "crop_type": {
+          "type": "string"
+        },
+        "diagnosis_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model_version": {
+          "type": "string"
+        },
+        "primary_diagnosis": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "all_diagnoses": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

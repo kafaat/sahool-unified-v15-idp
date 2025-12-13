@@ -1,0 +1,30 @@
+{
+  "name": "@sahool/ndvi-signal",
+  "version": "8.3.0",
+  "private": true,
+  "description": "ndvi-signal signal producer",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "node -e \"console.log('no tests yet')\""
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0",
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.4.0",
+    "tsx": "^4.7.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0"
+  }
+}

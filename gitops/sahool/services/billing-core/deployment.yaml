@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-core
+  namespace: sahool
+  labels: { app: billing-core }
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: billing-core } }
+  template:
+    metadata:
+      labels: { app: billing-core }
+    spec:
+      containers:
+        - name: billing-core
+          image: REPLACE_WITH_IMAGE_REPO/billing-core:0.1.0
+          ports: [{ containerPort: 8087 }]
+          readinessProbe:
+            httpGet: { path: /readyz, port: 8087 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: 8087 }
+            initialDelaySeconds: 10
+            periodSeconds: 15

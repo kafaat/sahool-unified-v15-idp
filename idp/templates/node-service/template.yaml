@@ -1,0 +1,24 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sahool-node-service
+  title: SAHOOL Service (Node/TS)
+  description: Golden path Node service with /metrics and health endpoints.
+spec:
+  owner: group:sahool-platform
+  type: service
+  parameters:
+    - title: Service settings
+      required: [name, port]
+      properties:
+        name: { type: string, title: Service name }
+        port: { type: integer, title: HTTP port, default: 8080 }
+  steps:
+    - id: fetch
+      name: Fetch base
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          port: ${{ parameters.port }}

@@ -1,0 +1,14 @@
+global:
+  environment: preview
+
+ingress:
+  enabled: true
+
+autoscaling:
+  enabled: false
+
+services:
+  api-gateway:
+    enabled: true
+    service:
+      port: 80

@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flagd
+  namespace: feature-flags
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: flagd }
+  template:
+    metadata:
+      labels: { app: flagd }
+    spec:
+      containers:
+        - name: flagd
+          image: ghcr.io/open-feature/flagd:latest
+          args: ["start", "--uri", "file:/etc/flagd/flags.json"]
+          ports:
+            - containerPort: 8013
+          volumeMounts:
+            - name: cfg
+              mountPath: /etc/flagd/flags.json
+              subPath: flags.json
+      volumes:
+        - name: cfg
+          configMap:
+            name: flagd-config

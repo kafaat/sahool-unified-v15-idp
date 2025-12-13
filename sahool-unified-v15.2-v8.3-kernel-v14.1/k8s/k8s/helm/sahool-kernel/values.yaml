@@ -1,0 +1,34 @@
+image:
+  repository: sahool
+  tag: "15.2"
+  pullPolicy: IfNotPresent
+
+env:
+  SAHOOL_ENV: production
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4318"
+  SAHOOL_AUTH_ENABLED: "false"
+
+services:
+  imageDiagnosis:
+    enabled: true
+    port: 8085
+  diseaseRisk:
+    enabled: true
+    port: 8086
+
+nats:
+  enabled: true
+  image: nats:2.10
+  port: 4222
+redis:
+  enabled: true
+  image: redis:7-alpine
+  port: 6379
+
+resources:
+  limits:
+    cpu: "500m"
+    memory: "512Mi"
+  requests:
+    cpu: "100m"
+    memory: "128Mi"

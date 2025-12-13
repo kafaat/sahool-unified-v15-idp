@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-preview
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: sahool-internal-ca
+spec:
+  tls:
+    - hosts:
+        - pr-{{ .Values.global.environment }}.sahool.internal
+      secretName: pr-{{ .Values.global.environment }}-tls
+  rules:
+    - host: pr-{{ .Values.global.environment }}.sahool.internal
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port:
+                  number: 80

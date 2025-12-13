@@ -1,0 +1,399 @@
+# ╔════════════════════════════════════════════════════════════════╗
+# ║           🌾 SAHOOL Kernel v14.1 - Docker Compose 🌾           ║
+# ║              Executable Platform Kernel                        ║
+# ╚════════════════════════════════════════════════════════════════╝
+
+version: '3.8'
+
+services:
+  # ============================================
+  # Infrastructure Services
+  # ============================================
+  
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: sahool-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sahool}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool_secret_dev}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./data/seeds:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sahool-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: sahool-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sahool-network
+
+  # ============================================
+  # Event Bus - NATS JetStream
+  # ============================================
+  
+  nats:
+    image: nats:2.10-alpine
+    container_name: sahool-nats
+    ports:
+      - "${NATS_PORT:-4222}:4222"      # Client connections
+      - "${NATS_MONITOR_PORT:-8222}:8222"  # HTTP monitoring
+      - "6222:6222"                     # Cluster routing
+    command:
+      - "--jetstream"
+      - "--store_dir=/data"
+      - "--http_port=8222"
+      - "--name=sahool-nats"
+    volumes:
+      - nats_data:/data
+      - ./infrastructure/nats/nats.conf:/etc/nats/nats.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sahool-network
+
+  # ============================================
+  # Observability Stack
+  # ============================================
+  
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: sahool-prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./infrastructure/docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    networks:
+      - sahool-network
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: sahool-grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - sahool-network
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.50
+    container_name: sahool-jaeger
+    ports:
+      - "${JAEGER_UI_PORT:-16686}:16686"
+      - "${JAEGER_THRIFT_PORT:-6831}:6831/udp"
+      - "${JAEGER_HTTP_PORT:-14268}:14268"
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+    networks:
+      - sahool-network
+
+  # ============================================
+  # Layer 1: Platform Core Services
+  # ============================================
+  
+  kong:
+    image: kong:3.4
+    container_name: sahool-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    ports:
+      - "${KONG_PROXY_PORT:-8000}:8000"
+      - "${KONG_ADMIN_PORT:-8001}:8001"
+      - "${KONG_SSL_PORT:-8443}:8443"
+    volumes:
+      - ./infrastructure/docker/kong.yml:/kong/declarative/kong.yml:ro
+    depends_on:
+      - nats
+    networks:
+      - sahool-network
+
+  process-manager:
+    build:
+      context: .
+      dockerfile: services/process-manager/Dockerfile
+    container_name: sahool-process-manager
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool_secret_dev}@postgres:5432/process_manager
+      NATS_URL: nats://nats:4222
+      REDIS_URL: redis://redis:6379
+      SERVICE_NAME: process-manager
+      SERVICE_LAYER: platform-core
+      PROCESS_MANAGER_PORT: 8081
+      ENV: ${ENV:-development}
+    ports:
+      - "${PROCESS_MANAGER_PORT:-8081}:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8081/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+  schema-registry:
+    build:
+      context: .
+      dockerfile: services/schema-registry/Dockerfile
+    container_name: sahool-schema-registry
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool_secret_dev}@postgres:5432/schema_registry
+      SERVICE_NAME: schema-registry
+      SERVICE_LAYER: platform-core
+      SCHEMA_REGISTRY_PORT: 8082
+      ENV: ${ENV:-development}
+    ports:
+      - "${SCHEMA_REGISTRY_PORT:-8082}:8082"
+    volumes:
+      - ./shared/schemas:/app/shared/schemas:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8082/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+  # ============================================
+  # Layer 2: Signal Producers (NO PUBLIC PORTS)
+  # ============================================
+  
+  astro-agri:
+    build:
+      context: ../..
+      dockerfile: services/astro-agri/Dockerfile
+    container_name: sahool-astro-agri
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool_secret_dev}@postgres:5432/astro_agri
+      NATS_URL: nats://nats:4222
+      REDIS_URL: redis://redis:6379
+      SERVICE_NAME: astro-agri-service
+      SERVICE_LAYER: signal-producer
+      PORT: 8083
+      ENV: ${ENV:-development}
+    expose:
+      - "8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8083/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+  weather-service:
+    build:
+      context: ../..
+      dockerfile: services/weather-service/Dockerfile
+    container_name: sahool-weather
+    environment:
+      NATS_URL: nats://nats:4222
+      REDIS_URL: redis://redis:6379
+      SERVICE_NAME: weather-service
+      SERVICE_LAYER: signal-producer
+      WEATHER_PORT: 8084
+      ENV: ${ENV:-development}
+    expose:
+      - "8084"
+    depends_on:
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8084/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+  ndvi-service:
+    build:
+      context: ../..
+      dockerfile: services/ndvi-service/Dockerfile
+    container_name: sahool-ndvi
+    environment:
+      NATS_URL: nats://nats:4222
+      REDIS_URL: redis://redis:6379
+      SERVICE_NAME: ndvi-service
+      SERVICE_LAYER: signal-producer
+      NDVI_PORT: 8085
+      ENV: ${ENV:-development}
+    expose:
+      - "8085"
+    depends_on:
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8085/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+  # ============================================
+  # Layer 3: Decision Services
+  # ============================================
+
+  crop-lifecycle:
+    build:
+      context: ../..
+      dockerfile: services/crop-lifecycle/Dockerfile
+    container_name: sahool-crop-lifecycle
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool_secret_dev}@postgres:5432/crop_lifecycle
+      NATS_URL: nats://nats:4222
+      REDIS_URL: redis://redis:6379
+      SERVICE_NAME: crop-lifecycle
+      SERVICE_LAYER: decision
+      CROP_LIFECYCLE_PORT: 8086
+      ENV: ${ENV:-development}
+    ports:
+      - "${CROP_LIFECYCLE_PORT:-8086}:8086"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8086/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+  # ============================================
+  # Layer 4: Execution Services
+  # ============================================
+
+  tasks-service:
+    build:
+      context: ../..
+      dockerfile: services/tasks-service/Dockerfile
+    container_name: sahool-tasks
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool_secret_dev}@postgres:5432/tasks
+      NATS_URL: nats://nats:4222
+      REDIS_URL: redis://redis:6379
+      SERVICE_NAME: tasks-service
+      SERVICE_LAYER: execution
+      TASKS_PORT: 8089
+      ENV: ${ENV:-development}
+    ports:
+      - "${TASKS_PORT:-8089}:8089"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8089/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+  alerts-service:
+    build:
+      context: ../..
+      dockerfile: services/alerts-service/Dockerfile
+    container_name: sahool-alerts
+    environment:
+      NATS_URL: nats://nats:4222
+      REDIS_URL: redis://redis:6379
+      SERVICE_NAME: alerts-service
+      SERVICE_LAYER: execution
+      ALERTS_PORT: 8090
+      ENV: ${ENV:-development}
+    ports:
+      - "${ALERTS_PORT:-8090}:8090"
+    depends_on:
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-network
+
+# ============================================
+# Networks
+# ============================================
+
+networks:
+  sahool-network:
+    driver: bridge
+    name: sahool-network
+
+# ============================================
+# Volumes
+# ============================================
+
+volumes:
+  postgres_data:
+    name: sahool-postgres-data
+  redis_data:
+    name: sahool-redis-data
+  nats_data:
+    name: sahool-nats-data
+  prometheus_data:
+    name: sahool-prometheus-data
+  grafana_data:
+    name: sahool-grafana-data

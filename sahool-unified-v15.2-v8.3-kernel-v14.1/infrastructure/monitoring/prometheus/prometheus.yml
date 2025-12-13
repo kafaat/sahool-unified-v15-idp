@@ -1,0 +1,175 @@
+# ============================================
+# SAHOOL Platform - Prometheus Configuration
+# ============================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'sahool-monitor'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Rule files
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ============================================
+  # LAYER 1: PLATFORM CORE
+  # ============================================
+  
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:3000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:3001']
+    metrics_path: '/metrics'
+
+  - job_name: 'tenant-service'
+    static_configs:
+      - targets: ['tenant-service:3002']
+    metrics_path: '/metrics'
+
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:3003']
+    metrics_path: '/metrics'
+
+  # ============================================
+  # LAYER 2: SIGNAL PRODUCERS
+  # ============================================
+
+  - job_name: 'weather-signal'
+    static_configs:
+      - targets: ['weather-signal:3010']
+    metrics_path: '/metrics'
+
+  - job_name: 'ndvi-signal'
+    static_configs:
+      - targets: ['ndvi-signal:3011']
+    metrics_path: '/metrics'
+
+  - job_name: 'iot-signal'
+    static_configs:
+      - targets: ['iot-signal:3012']
+    metrics_path: '/metrics'
+
+  - job_name: 'astronomical-calendar-signal'
+    static_configs:
+      - targets: ['astronomical-calendar-signal:3013']
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'astronomical-calendar'
+
+  # ============================================
+  # LAYER 3: DECISION SERVICES
+  # ============================================
+
+  - job_name: 'crop-advisor'
+    static_configs:
+      - targets: ['crop-advisor:3020']
+    metrics_path: '/metrics'
+    scrape_interval: 30s  # AI services may be slower
+
+  - job_name: 'irrigation-planner'
+    static_configs:
+      - targets: ['irrigation-planner:3021']
+    metrics_path: '/metrics'
+
+  - job_name: 'pest-detector'
+    static_configs:
+      - targets: ['pest-detector:3022']
+    metrics_path: '/metrics'
+
+  - job_name: 'yield-predictor'
+    static_configs:
+      - targets: ['yield-predictor:3023']
+    metrics_path: '/metrics'
+
+  - job_name: 'market-analyzer'
+    static_configs:
+      - targets: ['market-analyzer:3024']
+    metrics_path: '/metrics'
+
+  # ============================================
+  # LAYER 4: EXECUTION SERVICES
+  # ============================================
+
+  - job_name: 'task-manager'
+    static_configs:
+      - targets: ['task-manager:3030']
+    metrics_path: '/metrics'
+
+  - job_name: 'alert-dispatcher'
+    static_configs:
+      - targets: ['alert-dispatcher:3031']
+    metrics_path: '/metrics'
+
+  - job_name: 'report-generator'
+    static_configs:
+      - targets: ['report-generator:3032']
+    metrics_path: '/metrics'
+
+  - job_name: 'integration-hub'
+    static_configs:
+      - targets: ['integration-hub:3033']
+    metrics_path: '/metrics'
+
+  # ============================================
+  # INFRASTRUCTURE
+  # ============================================
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  - job_name: 'rabbitmq'
+    static_configs:
+      - targets: ['rabbitmq:15692']
+    metrics_path: '/metrics'
+
+  - job_name: 'minio'
+    static_configs:
+      - targets: ['minio:9000']
+    metrics_path: '/minio/v2/metrics/cluster'
+
+  # ============================================
+  # NODE EXPORTERS (if running on VMs/bare metal)
+  # ============================================
+
+  # - job_name: 'node'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
+
+# ============================================
+# RECORDING RULES
+# ============================================
+
+# recording_rules:
+#   - name: sahool_aggregations
+#     rules:
+#       - record: job:sahool_http_requests:rate5m
+#         expr: sum(rate(http_requests_total[5m])) by (job)

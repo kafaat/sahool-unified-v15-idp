@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: sahool-catalog
+spec:
+  targets:
+    - ./systems/sahool-system.yaml
+    - ./templates/templates.yaml

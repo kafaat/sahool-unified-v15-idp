@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: sahool-pr-previews
+  namespace: argocd
+spec:
+  generators:
+    - pullRequest:
+        github:
+          owner: REPLACE_WITH_GITHUB_OWNER
+          repo: REPLACE_WITH_GITHUB_REPO
+          tokenRef:
+            secretName: github-pr-generator
+            key: token
+        requeueAfterSeconds: 180
+  template:
+    metadata:
+      name: 'sahool-pr-{{number}}'
+      labels:
+        sahool/pr: '{{number}}'
+    spec:
+      project: sahool
+      source:
+        repoURL: REPLACE_WITH_YOUR_REPO_URL
+        targetRevision: '{{head_sha}}'
+        path: k8s/helm/sahool-kernel
+        helm:
+          valueFiles:
+            - gitops/environments/preview/values.yaml
+          parameters:
+            - name: global.environment
+              value: pr-{{number}}
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'pr-{{number}}-sahool'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

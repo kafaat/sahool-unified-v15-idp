@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../domain/entities/task.dart';
-import '../providers/tasks_provider.dart';
+import '../domain/entities/task.dart' show FieldTask, TaskPriority, TaskStatus;
 
 /// شاشة إنشاء مهمة جديدة
 /// Create New Task Screen
@@ -432,7 +431,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
   }
 }
 
-/// أنواع المهام
+/// أنواع المهام - Task Types
 enum TaskType {
   irrigation,
   fertilization,
@@ -458,27 +457,6 @@ enum TaskType {
         return 'صيانة';
       case other:
         return 'أخرى';
-    }
-  }
-}
-
-/// أولويات المهام
-enum TaskPriority {
-  urgent,
-  high,
-  medium,
-  low;
-
-  String get arabicLabel {
-    switch (this) {
-      case urgent:
-        return 'عاجل';
-      case high:
-        return 'مهم';
-      case medium:
-        return 'متوسط';
-      case low:
-        return 'منخفض';
     }
   }
 }

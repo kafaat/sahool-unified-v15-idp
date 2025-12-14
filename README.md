@@ -93,6 +93,19 @@ flutter pub get
 flutter run
 ```
 
+### 🛡️ Enterprise Patch Generator (v2.0)
+
+To quickly set up a patched Flutter mobile application with all Enterprise-grade fixes (Drift Singleton fix, Conflict Schema, Native Configs), use the following script:
+
+```bash
+./generate_sahool_v2.sh
+```
+
+This script ensures:
+*   Background stability (Drift Isolate fix).
+*   Conflict-ready schema (Outbox, SyncEvents).
+*   Correct native configurations (Android/iOS Workmanager).
+
 ### Database Access
 
 ```bash

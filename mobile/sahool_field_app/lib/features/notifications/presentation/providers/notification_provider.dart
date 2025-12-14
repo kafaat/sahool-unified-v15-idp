@@ -126,9 +126,12 @@ class SettingsState {
 class SettingsNotifier extends StateNotifier<SettingsState> {
   final NotificationService _service;
 
-  SettingsNotifier(this._service) : super(const SettingsState());
+  SettingsNotifier(this._service) : super(const SettingsState()) {
+    _loadInitialSettings(); // ✅ تحميل الإعدادات في الـ constructor
+  }
 
-  void loadSettings() {
+  /// تحميل الإعدادات الأولية (آمن - خارج build)
+  void _loadInitialSettings() {
     final settings = _service.getSettings();
     state = state.copyWith(settings: settings);
   }

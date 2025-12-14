@@ -4,7 +4,6 @@ Real-time communication hub for all platform events
 Port: 8090
 """
 
-import asyncio
 import json
 import os
 from contextlib import asynccontextmanager

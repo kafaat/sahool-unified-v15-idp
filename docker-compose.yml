@@ -272,6 +272,25 @@ services:
     networks:
       - sahool-network
 
+  crop_health:
+    build:
+      context: ./kernel/services/crop_health
+      dockerfile: Dockerfile
+    container_name: sahool-crop-health
+    environment:
+      - CDN_BASE_URL=${CDN_BASE_URL:-https://cdn.sahool.io}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Networks
 # ─────────────────────────────────────────────────────────────────────────────

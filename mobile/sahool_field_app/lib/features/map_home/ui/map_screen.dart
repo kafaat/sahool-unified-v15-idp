@@ -4,6 +4,7 @@ import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
 import '../../field/domain/entities/field.dart';
+import '../../tasks/ui/widgets/daily_tasks_sheet.dart';
 import 'widgets/field_context_panel.dart';
 
 /// SAHOOL Map Screen - "Cockpit View"
@@ -116,9 +117,47 @@ class _MapScreenState extends State<MapScreen> {
           // 6. زر الطوارئ/SOS
           _buildEmergencyButton(),
 
-          // 7. البطاقة السفلية: Context Panel أو Summary Card
-          _buildBottomCard(),
+          // 7. لوحة المهام المنزلقة (تظهر فقط عندما لا يكون هناك حقل محدد)
+          if (_selectedField == null) DailyTasksSheet(),
+
+          // 8. لوحة تفاصيل الحقل (تغطي الشاشة عند تحديد حقل)
+          if (_selectedField != null) _buildFieldContextPanel(),
         ],
+      ),
+    );
+  }
+
+  /// لوحة تفاصيل الحقل
+  Widget _buildFieldContextPanel() {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
+            child: child,
+          );
+        },
+        child: FieldContextPanel(
+          key: ValueKey('panel-${_selectedField!.id}'),
+          field: _selectedField!,
+          onClose: () => setState(() => _selectedField = null),
+          onDetails: () {
+            context.push('/field/${_selectedField!.id}');
+          },
+          onAddTask: () {
+            _showAddTaskDialog();
+          },
+        ),
       ),
     );
   }
@@ -259,43 +298,6 @@ class _MapScreenState extends State<MapScreen> {
         isOnline: _isOnline,
         pendingCount: _pendingSync,
         onTap: () => context.push('/sync'),
-      ),
-    );
-  }
-
-  /// البطاقة السفلية (Context Panel أو Summary)
-  Widget _buildBottomCard() {
-    return Positioned(
-      bottom: 24,
-      left: 0,
-      right: 0,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 1),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-            )),
-            child: child,
-          );
-        },
-        child: _selectedField != null
-            ? FieldContextPanel(
-                key: ValueKey('panel-${_selectedField!.id}'),
-                field: _selectedField!,
-                onClose: () => setState(() => _selectedField = null),
-                onDetails: () {
-                  context.push('/field/${_selectedField!.id}');
-                },
-                onAddTask: () {
-                  _showAddTaskDialog();
-                },
-              )
-            : _buildSummaryCard(),
       ),
     );
   }

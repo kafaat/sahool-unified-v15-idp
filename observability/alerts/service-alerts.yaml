@@ -1,0 +1,121 @@
+# SAHOOL Service-Level Alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sahool-service-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sahool-service-alerts
+    sahool.io/component: observability
+spec:
+  groups:
+    # ═══════════════════════════════════════════════════════════════════
+    # HTTP Service Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.service.http.alerts
+      rules:
+        - alert: HighErrorRate
+          expr: |
+            (
+              sum by (service, tier) (rate(http_requests_total{namespace="sahool", status=~"5.."}[5m]))
+              /
+              sum by (service, tier) (rate(http_requests_total{namespace="sahool"}[5m]))
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "High HTTP error rate for {{ $labels.service }}"
+            description: "Error rate is {{ $value | humanizePercentage }} for service {{ $labels.service }} ({{ $labels.tier }})"
+
+        - alert: HighLatency
+          expr: |
+            histogram_quantile(0.95,
+              sum by (service, tier, le) (
+                rate(http_request_duration_seconds_bucket{namespace="sahool"}[5m])
+              )
+            ) > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High latency for {{ $labels.service }}"
+            description: "P95 latency is {{ $value }}s for service {{ $labels.service }}"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Database Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.service.database.alerts
+      rules:
+        - alert: DatabaseConnectionPoolExhausted
+          expr: |
+            pg_stat_activity_count{namespace="sahool"}
+            /
+            pg_settings_max_connections{namespace="sahool"}
+            > 0.9
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Database connection pool nearly exhausted"
+            description: "{{ $value | humanizePercentage }} of database connections in use"
+
+        - alert: SlowQueries
+          expr: |
+            rate(pg_stat_activity_max_tx_duration{namespace="sahool"}[5m]) > 30
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Slow database queries detected"
+            description: "Long-running queries exceeding 30s"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Message Queue Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.service.queue.alerts
+      rules:
+        - alert: QueueBacklogHigh
+          expr: |
+            nats_consumer_num_pending{namespace="sahool"} > 10000
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "NATS consumer backlog is high"
+            description: "Consumer {{ $labels.consumer }} has {{ $value }} pending messages"
+
+        - alert: QueueConsumerLag
+          expr: |
+            nats_consumer_num_ack_pending{namespace="sahool"} > 1000
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "NATS consumer is lagging"
+            description: "Consumer {{ $labels.consumer }} has {{ $value }} unacked messages"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Health Check Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.service.health.alerts
+      rules:
+        - alert: ServiceUnhealthy
+          expr: |
+            up{namespace="sahool"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Service {{ $labels.job }} is unhealthy"
+            description: "Service {{ $labels.job }} has been down for more than 2 minutes"
+
+        - alert: PodRestartingFrequently
+          expr: |
+            increase(kube_pod_container_status_restarts_total{namespace="sahool"}[1h]) > 3
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} is restarting frequently"
+            description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last hour"

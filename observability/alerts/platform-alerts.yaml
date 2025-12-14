@@ -1,0 +1,121 @@
+# SAHOOL Platform Alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sahool-platform-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sahool-platform-alerts
+    sahool.io/component: observability
+spec:
+  groups:
+    # ═══════════════════════════════════════════════════════════════════
+    # Governance Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.governance.alerts
+      rules:
+        - alert: ServiceWithoutOwner
+          expr: sahool:governance:services_without_owner > 0
+          for: 5m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Services found without owner label"
+            description: "{{ $value }} services are running without sahool.io/owner label"
+            runbook_url: "https://docs.sahool.io/runbooks/governance/missing-owner"
+
+        - alert: GoldenPathAdoptionLow
+          expr: sahool:governance:golden_path_adoption_rate < 90
+          for: 1h
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Golden Path adoption below 90%"
+            description: "Only {{ $value }}% of services follow Golden Path standards"
+            runbook_url: "https://docs.sahool.io/runbooks/governance/golden-path"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Deployment Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.deployment.alerts
+      rules:
+        - alert: DeploymentSuccessRateLow
+          expr: sahool:deployment:success_rate_24h < 95
+          for: 30m
+          labels:
+            severity: critical
+            team: devops
+          annotations:
+            summary: "Deployment success rate below 95%"
+            description: "Deployment success rate is {{ $value }}% in last 24h"
+            runbook_url: "https://docs.sahool.io/runbooks/deployment/failures"
+
+        - alert: DeploymentSyncSlow
+          expr: sahool:deployment:avg_sync_time_seconds > 300
+          for: 15m
+          labels:
+            severity: warning
+            team: devops
+          annotations:
+            summary: "Average deployment sync time exceeds 5 minutes"
+            description: "Average sync time is {{ $value }}s"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Availability Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.availability.alerts
+      rules:
+        - alert: Tier1ServiceDown
+          expr: sahool:availability:tier1_up_ratio < 100
+          for: 1m
+          labels:
+            severity: critical
+            team: platform
+            pagerduty: "true"
+          annotations:
+            summary: "Tier-1 critical service is down"
+            description: "Tier-1 availability is {{ $value }}%"
+            runbook_url: "https://docs.sahool.io/runbooks/availability/tier1-down"
+
+        - alert: Tier2ServiceDown
+          expr: sahool:availability:tier2_up_ratio < 100
+          for: 5m
+          labels:
+            severity: warning
+            team: platform
+          annotations:
+            summary: "Tier-2 service is down"
+            description: "Tier-2 availability is {{ $value }}%"
+
+    # ═══════════════════════════════════════════════════════════════════
+    # Resource Alerts
+    # ═══════════════════════════════════════════════════════════════════
+    - name: sahool.resources.alerts
+      rules:
+        - alert: HighCPUUsage
+          expr: |
+            sum by (pod, tier) (
+              rate(container_cpu_usage_seconds_total{namespace="sahool"}[5m])
+            ) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High CPU usage detected"
+            description: "Pod {{ $labels.pod }} ({{ $labels.tier }}) CPU usage is {{ $value }}"
+
+        - alert: HighMemoryUsage
+          expr: |
+            sum by (pod, tier) (
+              container_memory_usage_bytes{namespace="sahool"}
+              /
+              container_spec_memory_limit_bytes{namespace="sahool"}
+            ) > 0.85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "High memory usage detected"
+            description: "Pod {{ $labels.pod }} ({{ $labels.tier }}) memory usage is {{ $value | humanizePercentage }}"

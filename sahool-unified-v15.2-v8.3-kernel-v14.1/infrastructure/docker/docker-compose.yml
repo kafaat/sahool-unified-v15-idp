@@ -114,15 +114,13 @@ services:
       PORT: 3001
       DATABASE_URL: postgresql://sahool:${DB_PASSWORD:-sahool_secret}@postgres:5432/sahool_main
       REDIS_URL: redis://:${REDIS_PASSWORD:-redis_secret}@redis:6379
-      JWT_PRIVATE_KEY_PATH: /app/keys/private.pem
-      JWT_PUBLIC_KEY_PATH: /app/keys/public.pem
+      JWT_PRIVATE_KEY: ${JWT_PRIVATE_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ./keys:/app/keys:ro
     networks:
       - sahool-network
 

@@ -177,6 +177,69 @@ services:
 
 ## Secret Management
 
+### JWT Keys Configuration
+
+**IMPORTANT**: JWT keys are now configured via environment variables instead of file paths to improve security.
+
+#### Setting Up JWT Keys
+
+1. **Generate RSA key pair**:
+```bash
+# Generate private key
+openssl genrsa -out jwt_private.pem 2048
+
+# Extract public key
+openssl rsa -in jwt_private.pem -pubout -out jwt_public.pem
+```
+
+2. **Set environment variables**:
+```bash
+# Export keys as single-line strings (replace newlines with \n)
+export JWT_PRIVATE_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' jwt_private.pem)
+export JWT_PUBLIC_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' jwt_public.pem)
+```
+
+3. **For Docker Compose**:
+```bash
+# Create .env file (DO NOT commit to git!)
+echo "JWT_PRIVATE_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' jwt_private.pem)" >> .env
+echo "JWT_PUBLIC_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' jwt_public.pem)" >> .env
+```
+
+4. **For Kubernetes**:
+```bash
+# Create secret
+kubectl create secret generic jwt-keys \
+  --from-file=private-key=jwt_private.pem \
+  --from-file=public-key=jwt_public.pem
+
+# Reference in deployment
+env:
+  - name: JWT_PRIVATE_KEY
+    valueFrom:
+      secretKeyRef:
+        name: jwt-keys
+        key: private-key
+  - name: JWT_PUBLIC_KEY
+    valueFrom:
+      secretKeyRef:
+        name: jwt-keys
+        key: public-key
+```
+
+5. **For GitHub Actions / CI/CD**:
+```bash
+# Add as GitHub repository secrets:
+# - JWT_PRIVATE_KEY
+# - JWT_PUBLIC_KEY
+```
+
+**Security Notes**:
+- Never commit `.pem`, `.key` files to git (they are in `.gitignore`)
+- Use different keys for development, staging, and production
+- Store production keys in a secret manager (Vault, AWS Secrets Manager, etc.)
+- Rotate keys periodically (recommended: quarterly)
+
 ### Rotate Secrets
 
 ```bash
@@ -190,13 +253,24 @@ services:
 
 ### Secret Storage
 
-Secrets are stored in:
-- `secrets/jwt/` - JWT keys
-- `secrets/database/` - Database passwords
-- `secrets/nats/` - NATS credentials
-- `secrets/encryption/` - Encryption keys
+Secrets should be stored securely and **never committed to git**:
 
-**Never commit secrets to git!**
+- **Development**: Use `.env` files (excluded by `.gitignore`)
+- **CI/CD**: Use GitHub Secrets or equivalent CI secret storage
+- **Production**: Use dedicated secret managers:
+  - HashiCorp Vault
+  - AWS Secrets Manager
+  - Azure Key Vault
+  - Google Secret Manager
+  - Kubernetes Secrets (with encryption at rest)
+
+**Important**: The repository `.gitignore` automatically excludes:
+- `*.pem` - Private/public key files
+- `*.key` - Key files
+- `.env` - Environment files
+- `.env.local` - Local environment files
+- `secrets/` - Secrets directory
+- `keys/` - Keys directory
 
 ### Production Secret Management
 

@@ -38,24 +38,24 @@ class AuditLog(Model):
     Indexed for fast queries on common access patterns.
     """
 
-    id = fields.UUIDField(primary_key=True)
+    id = fields.UUIDField(pk=True)
 
     # Identity
-    tenant_id = fields.CharField(max_length=64, db_index=True)
-    user_id = fields.CharField(max_length=64, db_index=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    user_id = fields.CharField(max_length=64, index=True)
 
     # Action
-    action = fields.CharField(max_length=128, db_index=True)
-    category = fields.CharField(max_length=32, db_index=True)
+    action = fields.CharField(max_length=128, index=True)
+    category = fields.CharField(max_length=32, index=True)
     severity = fields.CharField(max_length=16, default="info")
 
     # Resource
-    resource_type = fields.CharField(max_length=64, null=True, db_index=True)
+    resource_type = fields.CharField(max_length=64, null=True, index=True)
     resource_id = fields.CharField(max_length=128, null=True)
 
     # Context
-    correlation_id = fields.CharField(max_length=64, null=True, db_index=True)
-    session_id = fields.CharField(max_length=64, null=True, db_index=True)
+    correlation_id = fields.CharField(max_length=64, null=True, index=True)
+    session_id = fields.CharField(max_length=64, null=True, index=True)
 
     # Request info
     ip_address = fields.CharField(max_length=64, null=True)
@@ -74,7 +74,7 @@ class AuditLog(Model):
     error_message = fields.TextField(null=True)
 
     # Timestamp
-    created_at = fields.DatetimeField(auto_now_add=True, db_index=True)
+    created_at = fields.DatetimeField(auto_now_add=True, index=True)
 
     class Meta:
         table = "security_audit_logs"
@@ -96,9 +96,9 @@ class AuditLogSummary(Model):
     Used for dashboards and reports.
     """
 
-    id = fields.UUIDField(primary_key=True)
-    tenant_id = fields.CharField(max_length=64, db_index=True)
-    date = fields.DateField(db_index=True)
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    date = fields.DateField(index=True)
 
     # Counts
     total_events = fields.IntField(default=0)
@@ -126,10 +126,10 @@ class SessionLog(Model):
     User session tracking for security monitoring.
     """
 
-    id = fields.UUIDField(primary_key=True)
-    tenant_id = fields.CharField(max_length=64, db_index=True)
-    user_id = fields.CharField(max_length=64, db_index=True)
-    session_id = fields.CharField(max_length=64, unique=True, db_index=True)
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    user_id = fields.CharField(max_length=64, index=True)
+    session_id = fields.CharField(max_length=64, unique=True, index=True)
 
     # Session info
     ip_address = fields.CharField(max_length=64, null=True)

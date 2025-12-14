@@ -25,10 +25,10 @@ class ChatThread(Model):
     Threads are created on-demand when first message is sent.
     """
 
-    id = fields.UUIDField(primary_key=True)
-    tenant_id = fields.CharField(max_length=64, db_index=True)
-    scope_type = fields.CharField(max_length=16, db_index=True)  # field|task|incident
-    scope_id = fields.CharField(max_length=128, db_index=True)
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    scope_type = fields.CharField(max_length=16, index=True)  # field|task|incident
+    scope_id = fields.CharField(max_length=128, index=True)
     created_by = fields.CharField(max_length=64)
     created_at = fields.DatetimeField(auto_now_add=True)
 
@@ -58,10 +58,10 @@ class ChatMessage(Model):
     All messages are immutable for audit purposes.
     """
 
-    id = fields.UUIDField(primary_key=True)
-    tenant_id = fields.CharField(max_length=64, db_index=True)
-    thread_id = fields.UUIDField(db_index=True)
-    sender_id = fields.CharField(max_length=64, db_index=True)
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    thread_id = fields.UUIDField(index=True)
+    sender_id = fields.CharField(max_length=64, index=True)
 
     # Content
     text = fields.TextField(null=True)
@@ -97,10 +97,10 @@ class ChatParticipant(Model):
     Tracks who has access and their last read position.
     """
 
-    id = fields.UUIDField(primary_key=True)
-    tenant_id = fields.CharField(max_length=64, db_index=True)
-    thread_id = fields.UUIDField(db_index=True)
-    user_id = fields.CharField(max_length=64, db_index=True)
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    thread_id = fields.UUIDField(index=True)
+    user_id = fields.CharField(max_length=64, index=True)
 
     # Read tracking
     last_read_at = fields.DatetimeField(null=True)
@@ -126,9 +126,9 @@ class ChatAttachment(Model):
     Stores file metadata; actual files stored in object storage.
     """
 
-    id = fields.UUIDField(primary_key=True)
-    tenant_id = fields.CharField(max_length=64, db_index=True)
-    message_id = fields.UUIDField(db_index=True)
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    message_id = fields.UUIDField(index=True)
 
     # File info
     file_name = fields.CharField(max_length=255)

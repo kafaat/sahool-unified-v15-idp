@@ -12,6 +12,7 @@ from dataclasses import dataclass, asdict
 @dataclass
 class NormalizedReading:
     """Standardized sensor reading"""
+
     device_id: str
     field_id: str
     sensor_type: str
@@ -32,7 +33,6 @@ SENSOR_TYPE_ALIASES = {
     "soil_temperature": ["soil_temp", "st", "ground_temp"],
     "soil_ec": ["ec", "conductivity", "electrical_conductivity", "salinity"],
     "soil_ph": ["ph", "acidity"],
-
     # Weather sensors
     "air_temperature": ["temp", "temperature", "air_temp", "at"],
     "air_humidity": ["humidity", "rh", "relative_humidity", "air_humidity"],
@@ -41,13 +41,11 @@ SENSOR_TYPE_ALIASES = {
     "rainfall": ["rain", "precipitation", "precip"],
     "solar_radiation": ["solar", "radiation", "sr", "light"],
     "atmospheric_pressure": ["pressure", "atm", "baro"],
-
     # Water sensors
     "water_level": ["level", "wl", "tank_level"],
     "water_flow": ["flow", "flow_rate", "wf"],
     "water_pressure": ["water_press", "wp"],
     "water_quality": ["wq", "tds"],
-
     # Plant sensors
     "leaf_wetness": ["lw", "leaf_wet", "wetness"],
     "canopy_temperature": ["canopy_temp", "ct"],
@@ -138,11 +136,11 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
 
     # Extract device_id (try multiple field names)
     device_id = (
-        raw.get("device_id") or
-        raw.get("deviceId") or
-        raw.get("d") or
-        raw.get("id") or
-        _extract_device_from_topic(topic)
+        raw.get("device_id")
+        or raw.get("deviceId")
+        or raw.get("d")
+        or raw.get("id")
+        or _extract_device_from_topic(topic)
     )
 
     if not device_id:
@@ -150,11 +148,11 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
 
     # Extract field_id
     field_id = (
-        raw.get("field_id") or
-        raw.get("fieldId") or
-        raw.get("f") or
-        raw.get("field") or
-        _extract_field_from_topic(topic)
+        raw.get("field_id")
+        or raw.get("fieldId")
+        or raw.get("f")
+        or raw.get("field")
+        or _extract_field_from_topic(topic)
     )
 
     if not field_id:
@@ -162,11 +160,11 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
 
     # Extract sensor type
     sensor_type_raw = (
-        raw.get("type") or
-        raw.get("sensor_type") or
-        raw.get("sensorType") or
-        raw.get("t") or
-        _extract_type_from_topic(topic)
+        raw.get("type")
+        or raw.get("sensor_type")
+        or raw.get("sensorType")
+        or raw.get("t")
+        or _extract_type_from_topic(topic)
     )
 
     if not sensor_type_raw:
@@ -190,10 +188,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
 
     # Extract timestamp
     timestamp_raw = (
-        raw.get("timestamp") or
-        raw.get("ts") or
-        raw.get("time") or
-        raw.get("t")
+        raw.get("timestamp") or raw.get("ts") or raw.get("time") or raw.get("t")
     )
 
     if timestamp_raw:
@@ -202,7 +197,9 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
             timestamp = timestamp_raw
         elif isinstance(timestamp_raw, (int, float)):
             # Assume Unix timestamp
-            timestamp = datetime.fromtimestamp(timestamp_raw, tz=timezone.utc).isoformat()
+            timestamp = datetime.fromtimestamp(
+                timestamp_raw, tz=timezone.utc
+            ).isoformat()
         else:
             timestamp = datetime.now(timezone.utc).isoformat()
     else:

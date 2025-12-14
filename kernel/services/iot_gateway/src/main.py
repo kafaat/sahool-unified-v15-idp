@@ -90,7 +90,8 @@ async def check_offline_devices():
                     device_id=device.device_id,
                     field_id=device.field_id,
                     status=DeviceStatus.OFFLINE.value,
-                    last_seen=device.last_seen or datetime.now(timezone.utc).isoformat(),
+                    last_seen=device.last_seen
+                    or datetime.now(timezone.utc).isoformat(),
                 )
 
                 # Also publish alert
@@ -172,6 +173,7 @@ app = FastAPI(
 
 # ============== Health Check ==============
 
+
 @app.get("/healthz")
 def health():
     stats = publisher.get_stats() if publisher else {}
@@ -192,6 +194,7 @@ def health():
 
 
 # ============== Request/Response Models ==============
+
 
 class SensorReadingRequest(BaseModel):
     device_id: str
@@ -221,6 +224,7 @@ class DeviceRegisterRequest(BaseModel):
 
 
 # ============== Sensor Endpoints ==============
+
 
 @app.post("/sensor/reading")
 async def post_sensor_reading(req: SensorReadingRequest):
@@ -312,6 +316,7 @@ async def post_batch_readings(req: BatchReadingRequest):
 
 # ============== Device Endpoints ==============
 
+
 @app.post("/device/register")
 async def register_device(req: DeviceRegisterRequest):
     """Register a new device"""
@@ -398,6 +403,7 @@ def delete_device(device_id: str):
 
 # ============== Field Endpoints ==============
 
+
 @app.get("/field/{field_id}/devices")
 def get_field_devices(field_id: str):
     """Get all devices for a field"""
@@ -417,12 +423,14 @@ def get_field_latest_readings(field_id: str):
     readings = []
     for device in devices:
         if device.last_reading:
-            readings.append({
-                "device_id": device.device_id,
-                "device_type": device.device_type,
-                **device.last_reading,
-                "last_seen": device.last_seen,
-            })
+            readings.append(
+                {
+                    "device_id": device.device_id,
+                    "device_type": device.device_type,
+                    **device.last_reading,
+                    "last_seen": device.last_seen,
+                }
+            )
 
     return {
         "field_id": field_id,
@@ -432,6 +440,7 @@ def get_field_latest_readings(field_id: str):
 
 
 # ============== Stats ==============
+
 
 @app.get("/stats")
 def get_stats():

@@ -46,7 +46,10 @@ class TestSingleSensorRules:
         result = rule_from_sensor("air_temperature", 40)
 
         assert result is not None
-        assert "temperature" in result.title_en.lower() or "temp" in result.title_en.lower()
+        assert (
+            "temperature" in result.title_en.lower()
+            or "temp" in result.title_en.lower()
+        )
 
     def test_critical_temperature_emergency(self):
         """Test critical temperature triggers emergency"""

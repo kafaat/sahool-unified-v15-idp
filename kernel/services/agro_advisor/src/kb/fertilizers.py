@@ -18,7 +18,6 @@ FERTILIZERS = {
         "precautions_en": ["Do not mix with lime", "Apply before irrigation"],
         "price_tier": "low",
     },
-
     "ammonium_sulfate": {
         "name_ar": "سلفات الأمونيوم",
         "name_en": "Ammonium Sulfate",
@@ -32,7 +31,6 @@ FERTILIZERS = {
         "precautions_en": ["Acidic - lowers soil pH"],
         "price_tier": "low",
     },
-
     "calcium_nitrate": {
         "name_ar": "نترات الكالسيوم",
         "name_en": "Calcium Nitrate",
@@ -46,7 +44,6 @@ FERTILIZERS = {
         "precautions_en": ["Hygroscopic - store dry"],
         "price_tier": "medium",
     },
-
     # === PHOSPHORUS FERTILIZERS ===
     "tsp": {
         "name_ar": "سوبر فوسفات ثلاثي",
@@ -61,7 +58,6 @@ FERTILIZERS = {
         "precautions_en": ["Apply before planting"],
         "price_tier": "medium",
     },
-
     "dap": {
         "name_ar": "داي أمونيوم فوسفات",
         "name_en": "Di-Ammonium Phosphate (DAP)",
@@ -75,7 +71,6 @@ FERTILIZERS = {
         "precautions_en": ["Do not place near seeds"],
         "price_tier": "medium",
     },
-
     # === POTASSIUM FERTILIZERS ===
     "potassium_sulfate": {
         "name_ar": "سلفات البوتاسيوم",
@@ -90,7 +85,6 @@ FERTILIZERS = {
         "precautions_en": ["Suitable for chloride-sensitive crops"],
         "price_tier": "high",
     },
-
     "potassium_chloride": {
         "name_ar": "كلوريد البوتاسيوم",
         "name_en": "Potassium Chloride (MOP)",
@@ -104,7 +98,6 @@ FERTILIZERS = {
         "precautions_en": ["Avoid for tomatoes and vegetables"],
         "price_tier": "low",
     },
-
     # === NPK COMPOUND ===
     "npk_20_20_20": {
         "name_ar": "NPK متوازن",
@@ -119,7 +112,6 @@ FERTILIZERS = {
         "precautions_en": ["For drip irrigation"],
         "price_tier": "high",
     },
-
     "npk_15_15_15": {
         "name_ar": "NPK 15-15-15",
         "name_en": "NPK 15-15-15",
@@ -133,7 +125,6 @@ FERTILIZERS = {
         "precautions_en": ["General purpose fertilizer"],
         "price_tier": "medium",
     },
-
     "npk_12_12_36": {
         "name_ar": "NPK عالي البوتاسيوم",
         "name_en": "NPK 12-12-36 High-K",
@@ -147,7 +138,6 @@ FERTILIZERS = {
         "precautions_en": ["For fruiting stage"],
         "price_tier": "high",
     },
-
     # === MICRONUTRIENTS ===
     "iron_chelate": {
         "name_ar": "حديد مخلبي",
@@ -162,7 +152,6 @@ FERTILIZERS = {
         "precautions_en": ["For alkaline soils"],
         "price_tier": "high",
     },
-
     "zinc_sulfate": {
         "name_ar": "سلفات الزنك",
         "name_en": "Zinc Sulfate",
@@ -176,7 +165,6 @@ FERTILIZERS = {
         "precautions_en": ["Foliar spray 0.5%"],
         "price_tier": "low",
     },
-
     "magnesium_sulfate": {
         "name_ar": "سلفات المغنيسيوم (ملح إبسوم)",
         "name_en": "Magnesium Sulfate (Epsom Salt)",
@@ -190,7 +178,6 @@ FERTILIZERS = {
         "precautions_en": ["Foliar spray 2%"],
         "price_tier": "low",
     },
-
     # === ORGANIC ===
     "compost": {
         "name_ar": "كمبوست",
@@ -215,11 +202,7 @@ def get_fertilizer(fertilizer_id: str) -> dict | None:
 
 def get_fertilizers_by_type(fert_type: str) -> list[dict]:
     """Get all fertilizers of a specific type"""
-    return [
-        {"id": k, **v}
-        for k, v in FERTILIZERS.items()
-        if v["type"] == fert_type
-    ]
+    return [{"id": k, **v} for k, v in FERTILIZERS.items() if v["type"] == fert_type]
 
 
 def get_fertilizers_for_nutrient(nutrient: str) -> list[dict]:
@@ -227,16 +210,16 @@ def get_fertilizers_for_nutrient(nutrient: str) -> list[dict]:
     results = []
     for fert_id, fert in FERTILIZERS.items():
         if nutrient in fert["analysis"] and fert["analysis"][nutrient] > 0:
-            results.append({
-                "id": fert_id,
-                **fert,
-                "nutrient_content": fert["analysis"][nutrient]
-            })
+            results.append(
+                {"id": fert_id, **fert, "nutrient_content": fert["analysis"][nutrient]}
+            )
     # Sort by nutrient content descending
     return sorted(results, key=lambda x: x["nutrient_content"], reverse=True)
 
 
-def calculate_dose(fertilizer_id: str, nutrient: str, target_kg_ha: float) -> float | None:
+def calculate_dose(
+    fertilizer_id: str, nutrient: str, target_kg_ha: float
+) -> float | None:
     """
     Calculate fertilizer dose needed to supply target kg/ha of nutrient
     Returns kg/ha of fertilizer needed

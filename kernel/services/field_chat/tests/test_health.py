@@ -13,6 +13,7 @@ class TestHealthEndpoints:
     def client(self):
         """Create test client"""
         from src.main import app
+
         return TestClient(app)
 
     def test_health_check(self, client):
@@ -44,16 +45,20 @@ class TestThreadEndpoints:
     def client(self):
         """Create test client"""
         from src.main import app
+
         return TestClient(app)
 
     def test_create_thread_validation(self, client):
         """Test thread creation validates scope_type"""
-        response = client.post("/chat/threads", json={
-            "tenant_id": "tenant-1",
-            "scope_type": "invalid_type",
-            "scope_id": "123",
-            "created_by": "user-1",
-        })
+        response = client.post(
+            "/chat/threads",
+            json={
+                "tenant_id": "tenant-1",
+                "scope_type": "invalid_type",
+                "scope_id": "123",
+                "created_by": "user-1",
+            },
+        )
 
         assert response.status_code == 400
         data = response.json()
@@ -76,6 +81,7 @@ class TestMessageEndpoints:
     def client(self):
         """Create test client"""
         from src.main import app
+
         return TestClient(app)
 
     def test_send_message_thread_not_found(self, client):
@@ -108,6 +114,7 @@ class TestUnreadCounts:
     def client(self):
         """Create test client"""
         from src.main import app
+
         return TestClient(app)
 
     def test_get_unread_counts(self, client):

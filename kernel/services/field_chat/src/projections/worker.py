@@ -104,14 +104,17 @@ class ChatProjectionWorker:
             logger.info(f"Thread created: {thread_id}")
 
             # Broadcast to subscribers
-            await self._broadcast(thread_id, {
-                "type": "thread_created",
-                "thread_id": thread_id,
-                "scope_type": payload.get("scope_type"),
-                "scope_id": payload.get("scope_id"),
-                "created_by": payload.get("created_by"),
-                "timestamp": data.get("timestamp"),
-            })
+            await self._broadcast(
+                thread_id,
+                {
+                    "type": "thread_created",
+                    "thread_id": thread_id,
+                    "scope_type": payload.get("scope_type"),
+                    "scope_id": payload.get("scope_id"),
+                    "created_by": payload.get("created_by"),
+                    "timestamp": data.get("timestamp"),
+                },
+            )
 
         except Exception as e:
             logger.error(f"Error handling thread_created: {e}")
@@ -127,16 +130,19 @@ class ChatProjectionWorker:
             logger.info(f"Message sent: {message_id} in thread {thread_id}")
 
             # Broadcast to WebSocket clients
-            await self._broadcast(thread_id, {
-                "type": "new_message",
-                "thread_id": thread_id,
-                "message_id": message_id,
-                "sender_id": payload.get("sender_id"),
-                "text": payload.get("text"),
-                "attachments": payload.get("attachments", []),
-                "reply_to_id": payload.get("reply_to_id"),
-                "timestamp": data.get("timestamp"),
-            })
+            await self._broadcast(
+                thread_id,
+                {
+                    "type": "new_message",
+                    "thread_id": thread_id,
+                    "message_id": message_id,
+                    "sender_id": payload.get("sender_id"),
+                    "text": payload.get("text"),
+                    "attachments": payload.get("attachments", []),
+                    "reply_to_id": payload.get("reply_to_id"),
+                    "timestamp": data.get("timestamp"),
+                },
+            )
 
             # Could trigger push notifications here
             await self._trigger_notifications(
@@ -155,16 +161,21 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(f"Message edited: {payload.get('message_id')} in thread {thread_id}")
+            logger.info(
+                f"Message edited: {payload.get('message_id')} in thread {thread_id}"
+            )
 
-            await self._broadcast(thread_id, {
-                "type": "message_edited",
-                "thread_id": thread_id,
-                "message_id": payload.get("message_id"),
-                "edited_by": payload.get("edited_by"),
-                "new_text": payload.get("new_text"),
-                "timestamp": data.get("timestamp"),
-            })
+            await self._broadcast(
+                thread_id,
+                {
+                    "type": "message_edited",
+                    "thread_id": thread_id,
+                    "message_id": payload.get("message_id"),
+                    "edited_by": payload.get("edited_by"),
+                    "new_text": payload.get("new_text"),
+                    "timestamp": data.get("timestamp"),
+                },
+            )
 
         except Exception as e:
             logger.error(f"Error handling message_edited: {e}")
@@ -176,15 +187,20 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(f"Participant joined: {payload.get('user_id')} in thread {thread_id}")
+            logger.info(
+                f"Participant joined: {payload.get('user_id')} in thread {thread_id}"
+            )
 
-            await self._broadcast(thread_id, {
-                "type": "participant_joined",
-                "thread_id": thread_id,
-                "user_id": payload.get("user_id"),
-                "added_by": payload.get("added_by"),
-                "timestamp": data.get("timestamp"),
-            })
+            await self._broadcast(
+                thread_id,
+                {
+                    "type": "participant_joined",
+                    "thread_id": thread_id,
+                    "user_id": payload.get("user_id"),
+                    "added_by": payload.get("added_by"),
+                    "timestamp": data.get("timestamp"),
+                },
+            )
 
         except Exception as e:
             logger.error(f"Error handling participant_joined: {e}")
@@ -196,14 +212,19 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(f"Participant left: {payload.get('user_id')} from thread {thread_id}")
+            logger.info(
+                f"Participant left: {payload.get('user_id')} from thread {thread_id}"
+            )
 
-            await self._broadcast(thread_id, {
-                "type": "participant_left",
-                "thread_id": thread_id,
-                "user_id": payload.get("user_id"),
-                "timestamp": data.get("timestamp"),
-            })
+            await self._broadcast(
+                thread_id,
+                {
+                    "type": "participant_left",
+                    "thread_id": thread_id,
+                    "user_id": payload.get("user_id"),
+                    "timestamp": data.get("timestamp"),
+                },
+            )
 
         except Exception as e:
             logger.error(f"Error handling participant_left: {e}")
@@ -215,16 +236,21 @@ class ChatProjectionWorker:
             payload = data.get("payload", {})
             thread_id = payload.get("thread_id")
 
-            logger.info(f"Messages read by: {payload.get('user_id')} in thread {thread_id}")
+            logger.info(
+                f"Messages read by: {payload.get('user_id')} in thread {thread_id}"
+            )
 
             # Broadcast read receipt
-            await self._broadcast(thread_id, {
-                "type": "read_receipt",
-                "thread_id": thread_id,
-                "user_id": payload.get("user_id"),
-                "last_read_message_id": payload.get("last_read_message_id"),
-                "timestamp": data.get("timestamp"),
-            })
+            await self._broadcast(
+                thread_id,
+                {
+                    "type": "read_receipt",
+                    "thread_id": thread_id,
+                    "user_id": payload.get("user_id"),
+                    "last_read_message_id": payload.get("last_read_message_id"),
+                    "timestamp": data.get("timestamp"),
+                },
+            )
 
         except Exception as e:
             logger.error(f"Error handling messages_read: {e}")
@@ -249,7 +275,9 @@ class ChatProjectionWorker:
     ):
         """Trigger push notifications for new messages"""
         # Placeholder - integrate with notification service
-        logger.debug(f"Would notify participants of thread {thread_id} about message from {sender_id}")
+        logger.debug(
+            f"Would notify participants of thread {thread_id} about message from {sender_id}"
+        )
 
     def _truncate(self, text: str, max_length: int) -> str:
         """Truncate text with ellipsis"""
@@ -261,6 +289,7 @@ class ChatProjectionWorker:
 # ─────────────────────────────────────────────────────────────────────────────
 # Standalone runner
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 async def main():
     """Run the projection worker standalone"""

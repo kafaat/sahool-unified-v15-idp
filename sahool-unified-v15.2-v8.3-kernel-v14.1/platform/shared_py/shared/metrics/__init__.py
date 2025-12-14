@@ -14,12 +14,15 @@ EVENTS_CONSUMED = Counter(
     ["service", "event_type", "tenant_id"],
 )
 
+
 def init_service_info(service_name: str, version: str, layer: str) -> None:
     # placeholder hook for future gauges/labels
     return
 
+
 def get_metrics() -> bytes:
     return generate_latest()
+
 
 def get_metrics_content_type() -> str:
     return CONTENT_TYPE_LATEST

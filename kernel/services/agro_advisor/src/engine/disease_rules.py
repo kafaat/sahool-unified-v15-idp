@@ -77,7 +77,9 @@ def assess_from_image_event(
     urgency = disease["urgency_hours"]
 
     if weather_context:
-        severity, urgency = _adjust_for_weather(disease, weather_context, severity, urgency)
+        severity, urgency = _adjust_for_weather(
+            disease, weather_context, severity, urgency
+        )
 
     # Build assessment
     return DiseaseAssessment(
@@ -125,7 +127,8 @@ def assess_from_symptoms(
         # Calculate symptom match score
         disease_symptoms = [s.lower() for s in disease[symptoms_field]]
         matches = sum(
-            1 for symptom in symptoms_lower
+            1
+            for symptom in symptoms_lower
             if any(symptom in ds or ds in symptom for ds in disease_symptoms)
         )
 

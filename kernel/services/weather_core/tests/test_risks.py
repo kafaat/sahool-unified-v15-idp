@@ -2,7 +2,6 @@
 Tests for Weather Risk Assessment Module
 """
 
-
 from src.risks import (
     assess_weather,
     get_irrigation_adjustment,

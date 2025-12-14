@@ -21,6 +21,7 @@ bearer_scheme = HTTPBearer(auto_error=False)
 # Principal Dependencies
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def get_principal(
     request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
@@ -98,6 +99,7 @@ async def get_optional_principal(
 # Tenant Dependencies
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def get_tenant_id(principal: dict = Depends(get_principal)) -> str:
     """
     Extract tenant ID from authenticated principal.
@@ -120,6 +122,7 @@ async def get_user_id(principal: dict = Depends(get_principal)) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 # Header-based Tenant (for service-to-service)
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 async def get_tenant_from_header(
     x_tenant_id: str = Header(None, alias="X-Tenant-ID"),
@@ -146,6 +149,7 @@ async def get_tenant_from_header(
 # ─────────────────────────────────────────────────────────────────────────────
 # API Key Authentication (for external integrations)
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 async def get_api_key(
     x_api_key: str = Header(None, alias="X-API-Key"),

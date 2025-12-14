@@ -11,6 +11,7 @@ from enum import Enum
 
 class DeviceStatus(Enum):
     """Device status states"""
+
     ONLINE = "online"
     OFFLINE = "offline"
     WARNING = "warning"
@@ -20,6 +21,7 @@ class DeviceStatus(Enum):
 
 class DeviceType(Enum):
     """Device types"""
+
     SOIL_SENSOR = "soil_sensor"
     WEATHER_STATION = "weather_station"
     WATER_SENSOR = "water_sensor"
@@ -33,6 +35,7 @@ class DeviceType(Enum):
 @dataclass
 class Device:
     """Device registration record"""
+
     device_id: str
     tenant_id: str
     field_id: str
@@ -47,8 +50,12 @@ class Device:
     signal_strength: Optional[int] = None  # RSSI in dBm
     location: Optional[dict] = None  # {"lat": ..., "lng": ...}
     metadata: dict = field(default_factory=dict)
-    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-    updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    created_at: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
+    updated_at: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
 
     def to_dict(self) -> dict:
         return asdict(self)

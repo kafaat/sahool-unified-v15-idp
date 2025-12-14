@@ -10,6 +10,7 @@ from enum import Enum
 
 class ScopeType(str, Enum):
     """Scope types for chat threads"""
+
     FIELD = "field"
     TASK = "task"
     INCIDENT = "incident"
@@ -22,6 +23,7 @@ class ChatThread(Model):
     Each scope (field/task/incident) has exactly one thread.
     Threads are created on-demand when first message is sent.
     """
+
     id = fields.UUIDField(pk=True)
     tenant_id = fields.CharField(max_length=64, index=True)
     scope_type = fields.CharField(max_length=16, index=True)  # field|task|incident
@@ -54,6 +56,7 @@ class ChatMessage(Model):
     Supports text, attachments (URLs), and metadata.
     All messages are immutable for audit purposes.
     """
+
     id = fields.UUIDField(pk=True)
     tenant_id = fields.CharField(max_length=64, index=True)
     thread_id = fields.UUIDField(index=True)
@@ -65,7 +68,9 @@ class ChatMessage(Model):
 
     # Metadata
     reply_to_id = fields.UUIDField(null=True)  # For threaded replies
-    message_type = fields.CharField(max_length=32, default="text")  # text|image|file|system
+    message_type = fields.CharField(
+        max_length=32, default="text"
+    )  # text|image|file|system
     is_edited = fields.BooleanField(default=False)
     edited_at = fields.DatetimeField(null=True)
 
@@ -90,6 +95,7 @@ class ChatParticipant(Model):
 
     Tracks who has access and their last read position.
     """
+
     id = fields.UUIDField(pk=True)
     tenant_id = fields.CharField(max_length=64, index=True)
     thread_id = fields.UUIDField(index=True)
@@ -118,6 +124,7 @@ class ChatAttachment(Model):
 
     Stores file metadata; actual files stored in object storage.
     """
+
     id = fields.UUIDField(pk=True)
     tenant_id = fields.CharField(max_length=64, index=True)
     message_id = fields.UUIDField(index=True)

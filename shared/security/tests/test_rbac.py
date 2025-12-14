@@ -2,7 +2,6 @@
 Tests for RBAC Module
 """
 
-
 from shared.security.rbac import (
     has_permission,
     has_any_permission,

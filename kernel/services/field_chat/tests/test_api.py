@@ -2,7 +2,6 @@
 Tests for Field Chat API
 """
 
-
 from src.models import ScopeType
 
 

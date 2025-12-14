@@ -10,6 +10,7 @@ from dataclasses import dataclass
 @dataclass
 class TaskRecommendation:
     """Task recommendation from IoT rule"""
+
     title_ar: str
     title_en: str
     description_ar: str
@@ -99,7 +100,11 @@ def rule_from_sensor(
                 task_type="irrigation",
                 priority="urgent",
                 urgency_hours=2,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
         elif value < threshold.get("low", 20):
             return TaskRecommendation(
@@ -110,7 +115,11 @@ def rule_from_sensor(
                 task_type="irrigation",
                 priority="high",
                 urgency_hours=6,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
         elif value > threshold.get("high", 80):
             return TaskRecommendation(
@@ -121,7 +130,11 @@ def rule_from_sensor(
                 task_type="inspection",
                 priority="medium",
                 urgency_hours=24,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
 
     # === AIR TEMPERATURE RULES ===
@@ -135,7 +148,11 @@ def rule_from_sensor(
                 task_type="emergency",
                 priority="urgent",
                 urgency_hours=1,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
         elif value > threshold.get("high", 38):
             return TaskRecommendation(
@@ -146,7 +163,11 @@ def rule_from_sensor(
                 task_type="inspection",
                 priority="high",
                 urgency_hours=4,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
         elif value < threshold.get("low", 5):
             return TaskRecommendation(
@@ -157,7 +178,11 @@ def rule_from_sensor(
                 task_type="emergency",
                 priority="urgent",
                 urgency_hours=2,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
 
     # === SOIL TEMPERATURE RULES ===
@@ -171,7 +196,11 @@ def rule_from_sensor(
                 task_type="manual",
                 priority="high",
                 urgency_hours=6,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
         elif value > threshold.get("high", 35):
             return TaskRecommendation(
@@ -182,7 +211,11 @@ def rule_from_sensor(
                 task_type="irrigation",
                 priority="medium",
                 urgency_hours=12,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
 
     # === SOIL EC (SALINITY) RULES ===
@@ -196,7 +229,11 @@ def rule_from_sensor(
                 task_type="irrigation",
                 priority="urgent",
                 urgency_hours=4,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
         elif value > threshold.get("high", 4.0):
             return TaskRecommendation(
@@ -207,7 +244,11 @@ def rule_from_sensor(
                 task_type="irrigation",
                 priority="high",
                 urgency_hours=12,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
 
     # === AIR HUMIDITY RULES ===
@@ -221,7 +262,11 @@ def rule_from_sensor(
                 task_type="inspection",
                 priority="medium",
                 urgency_hours=24,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
         elif value < threshold.get("low", 30):
             return TaskRecommendation(
@@ -232,7 +277,11 @@ def rule_from_sensor(
                 task_type="inspection",
                 priority="low",
                 urgency_hours=48,
-                metadata={"sensor_type": sensor_type, "value": value, "threshold": threshold},
+                metadata={
+                    "sensor_type": sensor_type,
+                    "value": value,
+                    "threshold": threshold,
+                },
             )
 
     # === WATER FLOW RULES ===
@@ -293,7 +342,9 @@ def evaluate_combined_rules(
         threshold = get_threshold("soil_moisture", crop)
         temp_threshold = get_threshold("air_temperature", crop)
 
-        if air_temp > temp_threshold.get("high", 35) and soil_moisture < threshold.get("low", 25):
+        if air_temp > temp_threshold.get("high", 35) and soil_moisture < threshold.get(
+            "low", 25
+        ):
             recommendations.append(
                 TaskRecommendation(
                     title_ar="ري + حرارة عالية - حالة طارئة",

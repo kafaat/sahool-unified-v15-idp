@@ -14,30 +14,29 @@ DISEASES = {
             "بقع مائية على الأوراق",
             "بقع بنية داكنة",
             "عفن أبيض على السطح السفلي",
-            "تعفن الثمار"
+            "تعفن الثمار",
         ],
         "symptoms_en": [
             "Water-soaked lesions on leaves",
             "Dark brown spots",
             "White mold on leaf undersides",
-            "Fruit rot"
+            "Fruit rot",
         ],
         "conditions": {
             "humidity_min": 80,
             "temp_range": [15, 25],
-            "spread": "rain_splash"
+            "spread": "rain_splash",
         },
         "actions": [
             "spray_copper",
             "spray_mancozeb",
             "remove_infected_parts",
             "avoid_overhead_irrigation",
-            "improve_air_circulation"
+            "improve_air_circulation",
         ],
         "severity_default": "high",
         "urgency_hours": 24,
     },
-
     "tomato_early_blight": {
         "name_ar": "اللفحة المبكرة",
         "name_en": "Early Blight",
@@ -46,57 +45,47 @@ DISEASES = {
         "symptoms_ar": [
             "بقع بنية دائرية مع حلقات متحدة المركز",
             "اصفرار الأوراق",
-            "تساقط الأوراق السفلية"
+            "تساقط الأوراق السفلية",
         ],
         "symptoms_en": [
             "Brown circular spots with concentric rings",
             "Leaf yellowing",
-            "Lower leaf drop"
+            "Lower leaf drop",
         ],
         "conditions": {
             "humidity_min": 60,
             "temp_range": [24, 29],
-            "spread": "wind_rain"
+            "spread": "wind_rain",
         },
         "actions": [
             "spray_chlorothalonil",
             "remove_lower_leaves",
             "mulching",
-            "crop_rotation"
+            "crop_rotation",
         ],
         "severity_default": "medium",
         "urgency_hours": 48,
     },
-
     "tomato_powdery_mildew": {
         "name_ar": "البياض الدقيقي",
         "name_en": "Powdery Mildew",
         "crop": "tomato",
         "pathogen": "Oidium neolycopersici",
-        "symptoms_ar": [
-            "بقع بيضاء دقيقية على الأوراق",
-            "تجعد الأوراق",
-            "ضعف النمو"
-        ],
+        "symptoms_ar": ["بقع بيضاء دقيقية على الأوراق", "تجعد الأوراق", "ضعف النمو"],
         "symptoms_en": [
             "White powdery spots on leaves",
             "Leaf curling",
-            "Stunted growth"
+            "Stunted growth",
         ],
-        "conditions": {
-            "humidity_min": 50,
-            "temp_range": [20, 30],
-            "spread": "wind"
-        },
+        "conditions": {"humidity_min": 50, "temp_range": [20, 30], "spread": "wind"},
         "actions": [
             "spray_sulfur",
             "spray_potassium_bicarbonate",
-            "improve_ventilation"
+            "improve_ventilation",
         ],
         "severity_default": "medium",
         "urgency_hours": 72,
     },
-
     # === WHEAT DISEASES ===
     "wheat_rust": {
         "name_ar": "صدأ القمح",
@@ -106,58 +95,44 @@ DISEASES = {
         "symptoms_ar": [
             "بثرات برتقالية أو بنية على الأوراق",
             "اصفرار الأوراق",
-            "ضعف الحبوب"
+            "ضعف الحبوب",
         ],
         "symptoms_en": [
             "Orange or brown pustules on leaves",
             "Leaf yellowing",
-            "Poor grain fill"
+            "Poor grain fill",
         ],
-        "conditions": {
-            "humidity_min": 70,
-            "temp_range": [15, 25],
-            "spread": "wind"
-        },
+        "conditions": {"humidity_min": 70, "temp_range": [15, 25], "spread": "wind"},
         "actions": [
             "spray_propiconazole",
             "spray_tebuconazole",
-            "use_resistant_varieties"
+            "use_resistant_varieties",
         ],
         "severity_default": "high",
         "urgency_hours": 24,
     },
-
     # === POTATO DISEASES ===
     "potato_late_blight": {
         "name_ar": "اللفحة المتأخرة للبطاطس",
         "name_en": "Potato Late Blight",
         "crop": "potato",
         "pathogen": "Phytophthora infestans",
-        "symptoms_ar": [
-            "بقع مائية داكنة على الأوراق",
-            "عفن الدرنات",
-            "رائحة كريهة"
-        ],
-        "symptoms_en": [
-            "Dark water-soaked leaf spots",
-            "Tuber rot",
-            "Foul smell"
-        ],
+        "symptoms_ar": ["بقع مائية داكنة على الأوراق", "عفن الدرنات", "رائحة كريهة"],
+        "symptoms_en": ["Dark water-soaked leaf spots", "Tuber rot", "Foul smell"],
         "conditions": {
             "humidity_min": 80,
             "temp_range": [12, 22],
-            "spread": "rain_splash"
+            "spread": "rain_splash",
         },
         "actions": [
             "spray_copper",
             "spray_mancozeb",
             "destroy_infected_plants",
-            "improve_drainage"
+            "improve_drainage",
         ],
         "severity_default": "high",
         "urgency_hours": 24,
     },
-
     # === GENERAL PESTS ===
     "aphid_infestation": {
         "name_ar": "إصابة المن",
@@ -168,29 +143,24 @@ DISEASES = {
             "حشرات صغيرة خضراء أو سوداء",
             "تجعد الأوراق",
             "إفرازات لزجة (الندوة العسلية)",
-            "نمو فطري أسود"
+            "نمو فطري أسود",
         ],
         "symptoms_en": [
             "Small green or black insects",
             "Leaf curling",
             "Sticky secretions (honeydew)",
-            "Black sooty mold"
+            "Black sooty mold",
         ],
-        "conditions": {
-            "humidity_min": 40,
-            "temp_range": [18, 28],
-            "spread": "flight"
-        },
+        "conditions": {"humidity_min": 40, "temp_range": [18, 28], "spread": "flight"},
         "actions": [
             "spray_neem_oil",
             "spray_insecticidal_soap",
             "introduce_ladybugs",
-            "remove_heavily_infested_parts"
+            "remove_heavily_infested_parts",
         ],
         "severity_default": "medium",
         "urgency_hours": 48,
     },
-
     "whitefly_infestation": {
         "name_ar": "إصابة الذبابة البيضاء",
         "name_en": "Whitefly Infestation",
@@ -200,24 +170,20 @@ DISEASES = {
             "حشرات بيضاء صغيرة طائرة",
             "اصفرار الأوراق",
             "ندوة عسلية",
-            "انتقال الفيروسات"
+            "انتقال الفيروسات",
         ],
         "symptoms_en": [
             "Small white flying insects",
             "Leaf yellowing",
             "Honeydew",
-            "Virus transmission"
+            "Virus transmission",
         ],
-        "conditions": {
-            "humidity_min": 50,
-            "temp_range": [20, 35],
-            "spread": "flight"
-        },
+        "conditions": {"humidity_min": 50, "temp_range": [20, 35], "spread": "flight"},
         "actions": [
             "use_yellow_sticky_traps",
             "spray_neem_oil",
             "spray_pyriproxyfen",
-            "remove_weeds"
+            "remove_weeds",
         ],
         "severity_default": "high",
         "urgency_hours": 24,

@@ -33,6 +33,7 @@ NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 @dataclass
 class EventEnvelope:
     """Standard event envelope"""
+
     event_id: str
     event_type: str
     version: int

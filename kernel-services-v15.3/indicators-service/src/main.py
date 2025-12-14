@@ -13,13 +13,14 @@ import uuid
 app = FastAPI(
     title="SAHOOL Agricultural Indicators | خدمة المؤشرات الزراعية",
     version="15.3.0",
-    description="Comprehensive agricultural indicators dashboard - KPIs, trends, alerts"
+    description="Comprehensive agricultural indicators dashboard - KPIs, trends, alerts",
 )
 
 
 # =============================================================================
 # Enums & Models
 # =============================================================================
+
 
 class IndicatorCategory(str, Enum):
     VEGETATION = "vegetation"
@@ -109,24 +110,30 @@ INDICATOR_DEFINITIONS = {
         "name_en": "NDVI",
         "category": IndicatorCategory.VEGETATION,
         "unit": "index",
-        "min": -1.0, "max": 1.0,
-        "optimal_min": 0.4, "optimal_max": 0.8
+        "min": -1.0,
+        "max": 1.0,
+        "optimal_min": 0.4,
+        "optimal_max": 0.8,
     },
     "evi": {
         "name_ar": "مؤشر النباتات المحسن",
         "name_en": "Enhanced Vegetation Index",
         "category": IndicatorCategory.VEGETATION,
         "unit": "index",
-        "min": -1.0, "max": 1.0,
-        "optimal_min": 0.3, "optimal_max": 0.7
+        "min": -1.0,
+        "max": 1.0,
+        "optimal_min": 0.3,
+        "optimal_max": 0.7,
     },
     "lai": {
         "name_ar": "مؤشر مساحة الأوراق",
         "name_en": "Leaf Area Index",
         "category": IndicatorCategory.VEGETATION,
         "unit": "m²/m²",
-        "min": 0, "max": 8,
-        "optimal_min": 2.5, "optimal_max": 5.0
+        "min": 0,
+        "max": 8,
+        "optimal_min": 2.5,
+        "optimal_max": 5.0,
     },
     # Water Indicators
     "ndwi": {
@@ -134,24 +141,30 @@ INDICATOR_DEFINITIONS = {
         "name_en": "Water Index",
         "category": IndicatorCategory.WATER,
         "unit": "index",
-        "min": -1.0, "max": 1.0,
-        "optimal_min": 0.0, "optimal_max": 0.4
+        "min": -1.0,
+        "max": 1.0,
+        "optimal_min": 0.0,
+        "optimal_max": 0.4,
     },
     "soil_moisture": {
         "name_ar": "رطوبة التربة",
         "name_en": "Soil Moisture",
         "category": IndicatorCategory.WATER,
         "unit": "%",
-        "min": 0, "max": 100,
-        "optimal_min": 40, "optimal_max": 70
+        "min": 0,
+        "max": 100,
+        "optimal_min": 40,
+        "optimal_max": 70,
     },
     "irrigation_efficiency": {
         "name_ar": "كفاءة الري",
         "name_en": "Irrigation Efficiency",
         "category": IndicatorCategory.WATER,
         "unit": "%",
-        "min": 0, "max": 100,
-        "optimal_min": 75, "optimal_max": 95
+        "min": 0,
+        "max": 100,
+        "optimal_min": 75,
+        "optimal_max": 95,
     },
     # Soil Indicators
     "soil_ph": {
@@ -159,32 +172,40 @@ INDICATOR_DEFINITIONS = {
         "name_en": "Soil pH",
         "category": IndicatorCategory.SOIL,
         "unit": "pH",
-        "min": 0, "max": 14,
-        "optimal_min": 6.0, "optimal_max": 7.5
+        "min": 0,
+        "max": 14,
+        "optimal_min": 6.0,
+        "optimal_max": 7.5,
     },
     "nitrogen_level": {
         "name_ar": "مستوى النيتروجين",
         "name_en": "Nitrogen Level",
         "category": IndicatorCategory.SOIL,
         "unit": "kg/ha",
-        "min": 0, "max": 300,
-        "optimal_min": 80, "optimal_max": 150
+        "min": 0,
+        "max": 300,
+        "optimal_min": 80,
+        "optimal_max": 150,
     },
     "phosphorus_level": {
         "name_ar": "مستوى الفوسفور",
         "name_en": "Phosphorus Level",
         "category": IndicatorCategory.SOIL,
         "unit": "kg/ha",
-        "min": 0, "max": 200,
-        "optimal_min": 30, "optimal_max": 80
+        "min": 0,
+        "max": 200,
+        "optimal_min": 30,
+        "optimal_max": 80,
     },
     "potassium_level": {
         "name_ar": "مستوى البوتاسيوم",
         "name_en": "Potassium Level",
         "category": IndicatorCategory.SOIL,
         "unit": "kg/ha",
-        "min": 0, "max": 400,
-        "optimal_min": 100, "optimal_max": 250
+        "min": 0,
+        "max": 400,
+        "optimal_min": 100,
+        "optimal_max": 250,
     },
     # Weather Indicators
     "temperature": {
@@ -192,24 +213,30 @@ INDICATOR_DEFINITIONS = {
         "name_en": "Temperature",
         "category": IndicatorCategory.WEATHER,
         "unit": "°C",
-        "min": -10, "max": 50,
-        "optimal_min": 20, "optimal_max": 32
+        "min": -10,
+        "max": 50,
+        "optimal_min": 20,
+        "optimal_max": 32,
     },
     "humidity": {
         "name_ar": "الرطوبة النسبية",
         "name_en": "Relative Humidity",
         "category": IndicatorCategory.WEATHER,
         "unit": "%",
-        "min": 0, "max": 100,
-        "optimal_min": 50, "optimal_max": 75
+        "min": 0,
+        "max": 100,
+        "optimal_min": 50,
+        "optimal_max": 75,
     },
     "rainfall": {
         "name_ar": "هطول الأمطار",
         "name_en": "Rainfall",
         "category": IndicatorCategory.WEATHER,
         "unit": "mm",
-        "min": 0, "max": 500,
-        "optimal_min": 20, "optimal_max": 100
+        "min": 0,
+        "max": 500,
+        "optimal_min": 20,
+        "optimal_max": 100,
     },
     # Crop Health Indicators
     "disease_risk": {
@@ -217,24 +244,30 @@ INDICATOR_DEFINITIONS = {
         "name_en": "Disease Risk",
         "category": IndicatorCategory.CROP_HEALTH,
         "unit": "%",
-        "min": 0, "max": 100,
-        "optimal_min": 0, "optimal_max": 20
+        "min": 0,
+        "max": 100,
+        "optimal_min": 0,
+        "optimal_max": 20,
     },
     "pest_pressure": {
         "name_ar": "ضغط الآفات",
         "name_en": "Pest Pressure",
         "category": IndicatorCategory.CROP_HEALTH,
         "unit": "index",
-        "min": 0, "max": 10,
-        "optimal_min": 0, "optimal_max": 2
+        "min": 0,
+        "max": 10,
+        "optimal_min": 0,
+        "optimal_max": 2,
     },
     "growth_rate": {
         "name_ar": "معدل النمو",
         "name_en": "Growth Rate",
         "category": IndicatorCategory.CROP_HEALTH,
         "unit": "cm/week",
-        "min": 0, "max": 30,
-        "optimal_min": 5, "optimal_max": 15
+        "min": 0,
+        "max": 30,
+        "optimal_min": 5,
+        "optimal_max": 15,
     },
     # Productivity Indicators
     "yield_estimate": {
@@ -242,16 +275,20 @@ INDICATOR_DEFINITIONS = {
         "name_en": "Yield Estimate",
         "category": IndicatorCategory.PRODUCTIVITY,
         "unit": "kg/ha",
-        "min": 0, "max": 50000,
-        "optimal_min": 15000, "optimal_max": 35000
+        "min": 0,
+        "max": 50000,
+        "optimal_min": 15000,
+        "optimal_max": 35000,
     },
     "crop_stage_progress": {
         "name_ar": "تقدم مرحلة المحصول",
         "name_en": "Crop Stage Progress",
         "category": IndicatorCategory.PRODUCTIVITY,
         "unit": "%",
-        "min": 0, "max": 100,
-        "optimal_min": None, "optimal_max": None  # Depends on expected timing
+        "min": 0,
+        "max": 100,
+        "optimal_min": None,
+        "optimal_max": None,  # Depends on expected timing
     },
     # Financial Indicators
     "cost_per_hectare": {
@@ -259,16 +296,20 @@ INDICATOR_DEFINITIONS = {
         "name_en": "Cost per Hectare",
         "category": IndicatorCategory.FINANCIAL,
         "unit": "YER",
-        "min": 0, "max": 1000000,
-        "optimal_min": 50000, "optimal_max": 200000
+        "min": 0,
+        "max": 1000000,
+        "optimal_min": 50000,
+        "optimal_max": 200000,
     },
     "roi_estimate": {
         "name_ar": "العائد المتوقع",
         "name_en": "ROI Estimate",
         "category": IndicatorCategory.FINANCIAL,
         "unit": "%",
-        "min": -100, "max": 500,
-        "optimal_min": 50, "optimal_max": 200
+        "min": -100,
+        "max": 500,
+        "optimal_min": 50,
+        "optimal_max": 200,
     },
 }
 
@@ -277,8 +318,10 @@ INDICATOR_DEFINITIONS = {
 # Helper Functions
 # =============================================================================
 
-def determine_status(value: float, optimal_min: float, optimal_max: float,
-                     min_val: float, max_val: float) -> str:
+
+def determine_status(
+    value: float, optimal_min: float, optimal_max: float, min_val: float, max_val: float
+) -> str:
     """Determine indicator status based on value and thresholds"""
     if optimal_min is None or optimal_max is None:
         return "info"
@@ -286,14 +329,24 @@ def determine_status(value: float, optimal_min: float, optimal_max: float,
     if optimal_min <= value <= optimal_max:
         return "optimal"
     elif value < optimal_min:
-        distance = (optimal_min - value) / (optimal_min - min_val) if optimal_min != min_val else 0
+        distance = (
+            (optimal_min - value) / (optimal_min - min_val)
+            if optimal_min != min_val
+            else 0
+        )
         return "critical" if distance > 0.5 else "warning"
     else:  # value > optimal_max
-        distance = (value - optimal_max) / (max_val - optimal_max) if max_val != optimal_max else 0
+        distance = (
+            (value - optimal_max) / (max_val - optimal_max)
+            if max_val != optimal_max
+            else 0
+        )
         return "critical" if distance > 0.5 else "warning"
 
 
-def generate_indicator_value(definition: dict, base_health: float = 0.7) -> tuple[float, TrendDirection, float]:
+def generate_indicator_value(
+    definition: dict, base_health: float = 0.7
+) -> tuple[float, TrendDirection, float]:
     """Generate realistic indicator value based on definition and base health"""
     import random
 
@@ -322,17 +375,27 @@ def generate_indicator_value(definition: dict, base_health: float = 0.7) -> tupl
     trend_options = [TrendDirection.UP, TrendDirection.DOWN, TrendDirection.STABLE]
     weights = [0.4, 0.3, 0.3] if base_health > 0.6 else [0.2, 0.5, 0.3]
     trend = random.choices(trend_options, weights=weights)[0]
-    trend_percent = random.uniform(0, 15) if trend != TrendDirection.STABLE else random.uniform(0, 3)
+    trend_percent = (
+        random.uniform(0, 15)
+        if trend != TrendDirection.STABLE
+        else random.uniform(0, 3)
+    )
 
     return round(value, 2), trend, round(trend_percent, 1)
 
 
-def create_alert_if_needed(indicator: Indicator, field_id: str) -> Optional[IndicatorAlert]:
+def create_alert_if_needed(
+    indicator: Indicator, field_id: str
+) -> Optional[IndicatorAlert]:
     """Create alert if indicator is in warning or critical state"""
     if indicator.status == "optimal":
         return None
 
-    severity = AlertSeverity.CRITICAL if indicator.status == "critical" else AlertSeverity.WARNING
+    severity = (
+        AlertSeverity.CRITICAL
+        if indicator.status == "critical"
+        else AlertSeverity.WARNING
+    )
 
     # Find the threshold that was exceeded
     defn = INDICATOR_DEFINITIONS.get(indicator.id)
@@ -358,9 +421,13 @@ def create_alert_if_needed(indicator: Indicator, field_id: str) -> Optional[Indi
         message_en=f"{indicator.name_en}: Current value ({indicator.value} {indicator.unit}) is {direction_en} optimal threshold ({threshold})",
         current_value=indicator.value,
         threshold_value=threshold,
-        recommended_action_ar=get_recommendation_ar(indicator.id, indicator.value, threshold),
-        recommended_action_en=get_recommendation_en(indicator.id, indicator.value, threshold),
-        created_at=datetime.utcnow()
+        recommended_action_ar=get_recommendation_ar(
+            indicator.id, indicator.value, threshold
+        ),
+        recommended_action_en=get_recommendation_en(
+            indicator.id, indicator.value, threshold
+        ),
+        created_at=datetime.utcnow(),
     )
 
 
@@ -387,12 +454,15 @@ def get_recommendation_en(indicator_id: str, value: float, threshold: float) -> 
         "temperature": "Provide shade for crops or improve ventilation",
         "irrigation_efficiency": "Check irrigation system and fix leaks",
     }
-    return recommendations.get(indicator_id, "Review field condition and take appropriate action")
+    return recommendations.get(
+        indicator_id, "Review field condition and take appropriate action"
+    )
 
 
 # =============================================================================
 # API Endpoints
 # =============================================================================
+
 
 @app.get("/healthz")
 def health():
@@ -400,7 +470,7 @@ def health():
         "status": "ok",
         "service": "indicators-service",
         "version": "15.3.0",
-        "indicators_count": len(INDICATOR_DEFINITIONS)
+        "indicators_count": len(INDICATOR_DEFINITIONS),
     }
 
 
@@ -416,19 +486,19 @@ def get_indicator_definitions():
                 "category": defn["category"].value,
                 "unit": defn["unit"],
                 "range": {"min": defn["min"], "max": defn["max"]},
-                "optimal_range": {"min": defn["optimal_min"], "max": defn["optimal_max"]}
+                "optimal_range": {
+                    "min": defn["optimal_min"],
+                    "max": defn["optimal_max"],
+                },
             }
             for ind_id, defn in INDICATOR_DEFINITIONS.items()
         ],
-        "categories": [cat.value for cat in IndicatorCategory]
+        "categories": [cat.value for cat in IndicatorCategory],
     }
 
 
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
-def get_field_indicators(
-    field_id: str,
-    category: Optional[IndicatorCategory] = None
-):
+def get_field_indicators(field_id: str, category: Optional[IndicatorCategory] = None):
     """الحصول على مؤشرات حقل معين"""
     import random
 
@@ -448,7 +518,7 @@ def get_field_indicators(
             defn.get("optimal_min"),
             defn.get("optimal_max"),
             defn["min"],
-            defn["max"]
+            defn["max"],
         )
 
         indicator = Indicator(
@@ -465,7 +535,7 @@ def get_field_indicators(
             trend=trend,
             trend_percent=trend_percent,
             status=status,
-            last_updated=datetime.utcnow()
+            last_updated=datetime.utcnow(),
         )
         indicators.append(indicator)
 
@@ -485,14 +555,13 @@ def get_field_indicators(
         crop_type=random.choice(["طماطم", "قمح", "بن", "قات", "خيار", "موز"]),
         indicators=indicators,
         overall_score=round(overall_score, 1),
-        alerts=alerts
+        alerts=alerts,
     )
 
 
 @app.get("/v1/dashboard/{tenant_id}", response_model=DashboardSummary)
 def get_dashboard_summary(
-    tenant_id: str,
-    num_fields: int = Query(default=10, ge=1, le=100)
+    tenant_id: str, num_fields: int = Query(default=10, ge=1, le=100)
 ):
     """لوحة المعلومات الرئيسية للمستأجر"""
     import random
@@ -516,15 +585,21 @@ def get_dashboard_summary(
     for cat in IndicatorCategory:
         cat_indicators = []
         for field in fields_data:
-            cat_indicators.extend([ind for ind in field.indicators if ind.category == cat])
+            cat_indicators.extend(
+                [ind for ind in field.indicators if ind.category == cat]
+            )
 
         if cat_indicators:
             avg_value = sum(ind.value for ind in cat_indicators) / len(cat_indicators)
-            optimal_pct = sum(1 for ind in cat_indicators if ind.status == "optimal") / len(cat_indicators) * 100
+            optimal_pct = (
+                sum(1 for ind in cat_indicators if ind.status == "optimal")
+                / len(cat_indicators)
+                * 100
+            )
             category_summary[cat.value] = {
                 "average_value": round(avg_value, 2),
                 "optimal_percentage": round(optimal_pct, 1),
-                "indicators_count": len(cat_indicators)
+                "indicators_count": len(cat_indicators),
             }
 
     # Sort fields by score
@@ -541,14 +616,26 @@ def get_dashboard_summary(
         active_alerts=len(all_alerts),
         critical_alerts=critical_alerts,
         top_performing_fields=[
-            {"field_id": f.field_id, "name": f.field_name, "score": f.overall_score, "crop": f.crop_type}
+            {
+                "field_id": f.field_id,
+                "name": f.field_name,
+                "score": f.overall_score,
+                "crop": f.crop_type,
+            }
             for f in fields_data[:3]
         ],
         attention_needed_fields=[
-            {"field_id": f.field_id, "name": f.field_name, "score": f.overall_score, "crop": f.crop_type, "alerts": len(f.alerts)}
-            for f in fields_data[-3:] if f.overall_score < 60
+            {
+                "field_id": f.field_id,
+                "name": f.field_name,
+                "score": f.overall_score,
+                "crop": f.crop_type,
+                "alerts": len(f.alerts),
+            }
+            for f in fields_data[-3:]
+            if f.overall_score < 60
         ],
-        generated_at=datetime.utcnow()
+        generated_at=datetime.utcnow(),
     )
 
 
@@ -556,7 +643,7 @@ def get_dashboard_summary(
 def get_tenant_alerts(
     tenant_id: str,
     severity: Optional[AlertSeverity] = None,
-    limit: int = Query(default=50, ge=1, le=200)
+    limit: int = Query(default=50, ge=1, le=200),
 ):
     """الحصول على تنبيهات المستأجر"""
     import random
@@ -568,36 +655,36 @@ def get_tenant_alerts(
         defn = INDICATOR_DEFINITIONS[ind_id]
         sev = severity or random.choice(list(AlertSeverity))
 
-        alerts.append({
-            "alert_id": str(uuid.uuid4()),
-            "field_id": f"field_{uuid.uuid4().hex[:8]}",
-            "indicator_id": ind_id,
-            "indicator_name_ar": defn["name_ar"],
-            "indicator_name_en": defn["name_en"],
-            "severity": sev.value,
-            "message_ar": f"تنبيه: {defn['name_ar']} خارج النطاق المثالي",
-            "message_en": f"Alert: {defn['name_en']} outside optimal range",
-            "created_at": (datetime.utcnow() - timedelta(hours=random.randint(0, 48))).isoformat()
-        })
+        alerts.append(
+            {
+                "alert_id": str(uuid.uuid4()),
+                "field_id": f"field_{uuid.uuid4().hex[:8]}",
+                "indicator_id": ind_id,
+                "indicator_name_ar": defn["name_ar"],
+                "indicator_name_en": defn["name_en"],
+                "severity": sev.value,
+                "message_ar": f"تنبيه: {defn['name_ar']} خارج النطاق المثالي",
+                "message_en": f"Alert: {defn['name_en']} outside optimal range",
+                "created_at": (
+                    datetime.utcnow() - timedelta(hours=random.randint(0, 48))
+                ).isoformat(),
+            }
+        )
 
-    return {
-        "tenant_id": tenant_id,
-        "total_alerts": len(alerts),
-        "alerts": alerts
-    }
+    return {"tenant_id": tenant_id, "total_alerts": len(alerts), "alerts": alerts}
 
 
 @app.get("/v1/trends/{field_id}/{indicator_id}")
 def get_indicator_trends(
-    field_id: str,
-    indicator_id: str,
-    days: int = Query(default=30, ge=7, le=365)
+    field_id: str, indicator_id: str, days: int = Query(default=30, ge=7, le=365)
 ):
     """الحصول على اتجاهات مؤشر معين"""
     import random
 
     if indicator_id not in INDICATOR_DEFINITIONS:
-        raise HTTPException(status_code=404, detail=f"Indicator {indicator_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Indicator {indicator_id} not found"
+        )
 
     defn = INDICATOR_DEFINITIONS[indicator_id]
     opt_min = defn.get("optimal_min", defn["min"])
@@ -609,18 +696,22 @@ def get_indicator_trends(
     current_value = optimal_mid + random.uniform(-0.2, 0.2) * (opt_max - opt_min)
 
     for i in range(days):
-        date_point = datetime.utcnow() - timedelta(days=days-i-1)
+        date_point = datetime.utcnow() - timedelta(days=days - i - 1)
         # Random walk with mean reversion
         change = random.gauss(0, (opt_max - opt_min) * 0.05)
         reversion = (optimal_mid - current_value) * 0.1
         current_value += change + reversion
         current_value = max(defn["min"], min(defn["max"], current_value))
 
-        data_points.append({
-            "date": date_point.date().isoformat(),
-            "value": round(current_value, 2),
-            "status": determine_status(current_value, opt_min, opt_max, defn["min"], defn["max"])
-        })
+        data_points.append(
+            {
+                "date": date_point.date().isoformat(),
+                "value": round(current_value, 2),
+                "status": determine_status(
+                    current_value, opt_min, opt_max, defn["min"], defn["max"]
+                ),
+            }
+        )
 
     # Calculate statistics
     values = [dp["value"] for dp in data_points]
@@ -634,20 +725,29 @@ def get_indicator_trends(
             "id": indicator_id,
             "name_ar": defn["name_ar"],
             "name_en": defn["name_en"],
-            "unit": defn["unit"]
+            "unit": defn["unit"],
         },
         "period_days": days,
         "statistics": {
             "average": round(avg_value, 2),
             "minimum": round(min_value, 2),
             "maximum": round(max_value, 2),
-            "optimal_range": {"min": opt_min, "max": opt_max}
+            "optimal_range": {"min": opt_min, "max": opt_max},
         },
         "data_points": data_points,
-        "overall_trend": TrendDirection.UP.value if values[-1] > values[0] else TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value
+        "overall_trend": (
+            TrendDirection.UP.value
+            if values[-1] > values[0]
+            else (
+                TrendDirection.DOWN.value
+                if values[-1] < values[0]
+                else TrendDirection.STABLE.value
+            )
+        ),
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8091)

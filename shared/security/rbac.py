@@ -10,11 +10,13 @@ from enum import Enum
 # Permission Definitions
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class Permission(str, Enum):
     """
     All permissions in the system.
     Format: service:resource.action
     """
+
     # FieldOps
     FIELDOPS_TASK_READ = "fieldops:task.read"
     FIELDOPS_TASK_CREATE = "fieldops:task.create"
@@ -70,8 +72,10 @@ class Permission(str, Enum):
 # Role Definitions
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class Role(str, Enum):
     """System roles"""
+
     VIEWER = "viewer"
     WORKER = "worker"
     SUPERVISOR = "supervisor"
@@ -96,7 +100,6 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         Permission.AGRO_RECOMMENDATION_READ,
         Permission.REPORTS_READ,
     },
-
     # Worker: Field operations
     Role.WORKER: {
         # All viewer permissions
@@ -116,7 +119,6 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         Permission.FIELDOPS_TASK_COMPLETE,
         Permission.CHAT_WRITE,
     },
-
     # Supervisor: Team lead
     Role.SUPERVISOR: {
         # All worker permissions
@@ -139,7 +141,6 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         Permission.FIELDOPS_TASK_ASSIGN,
         Permission.IOT_DEVICE_UPDATE,
     },
-
     # Manager: Full operational control
     Role.MANAGER: {
         # All supervisor permissions plus
@@ -170,7 +171,6 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         Permission.REPORTS_READ,
         Permission.REPORTS_EXPORT,
     },
-
     # Admin: Tenant administration
     Role.ADMIN: {
         # All manager permissions plus admin
@@ -206,7 +206,6 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         Permission.ADMIN_USERS_DELETE,
         Permission.ADMIN_AUDIT_READ,
     },
-
     # Super Admin: Full system access
     Role.SUPER_ADMIN: {
         # Everything
@@ -249,6 +248,7 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
 # ─────────────────────────────────────────────────────────────────────────────
 # Permission Check Functions
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def get_role_permissions(role: str) -> set[str]:
     """Get all permissions for a role"""

@@ -10,6 +10,7 @@ from dataclasses import dataclass
 @dataclass
 class TaskRule:
     """Task generation rule result"""
+
     title_ar: str
     title_en: str
     description_ar: str
@@ -24,6 +25,7 @@ class TaskRule:
 
 
 # ============== NDVI Rules ==============
+
 
 def rule_from_ndvi(ndvi_mean: float, trend_7d: float) -> Optional[TaskRule]:
     """
@@ -92,6 +94,7 @@ def rule_from_ndvi(ndvi_mean: float, trend_7d: float) -> Optional[TaskRule]:
 
 
 # ============== Weather Rules ==============
+
 
 def rule_from_weather(alert_type: str, severity: str) -> Optional[TaskRule]:
     """
@@ -227,6 +230,7 @@ def rule_from_weather(alert_type: str, severity: str) -> Optional[TaskRule]:
 
 # ============== Combined Rules ==============
 
+
 def rule_from_ndvi_weather(
     ndvi_mean: float,
     ndvi_trend: float,
@@ -266,6 +270,7 @@ def rule_from_ndvi_weather(
 
 
 # ============== Irrigation Adjustment Rules ==============
+
 
 def rule_from_irrigation_adjustment(
     adjustment_factor: float,

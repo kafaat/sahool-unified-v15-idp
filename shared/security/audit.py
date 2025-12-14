@@ -18,8 +18,10 @@ logger = logging.getLogger(__name__)
 # Audit Action Constants
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class AuditAction(str, Enum):
     """Standard audit actions"""
+
     # Auth
     LOGIN_SUCCESS = "auth.login.success"
     LOGIN_FAILED = "auth.login.failed"
@@ -69,6 +71,7 @@ class AuditAction(str, Enum):
 # ─────────────────────────────────────────────────────────────────────────────
 # Audit Logger
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 async def audit_log(
     *,
@@ -142,6 +145,7 @@ async def audit_log(
 # ─────────────────────────────────────────────────────────────────────────────
 # Convenience Functions
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 async def audit_auth(
     tenant_id: str,
@@ -262,6 +266,7 @@ async def audit_permission_denied(
 # Query Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def get_user_audit_trail(
     tenant_id: str,
     user_id: str,
@@ -282,11 +287,15 @@ async def get_resource_audit_trail(
     limit: int = 100,
 ) -> list[AuditLog]:
     """Get audit logs for a specific resource"""
-    return await AuditLog.filter(
-        tenant_id=tenant_id,
-        resource_type=resource_type,
-        resource_id=resource_id,
-    ).order_by("-created_at").limit(limit)
+    return (
+        await AuditLog.filter(
+            tenant_id=tenant_id,
+            resource_type=resource_type,
+            resource_id=resource_id,
+        )
+        .order_by("-created_at")
+        .limit(limit)
+    )
 
 
 async def get_security_events(
@@ -294,10 +303,14 @@ async def get_security_events(
     limit: int = 100,
 ) -> list[AuditLog]:
     """Get recent security events"""
-    return await AuditLog.filter(
-        tenant_id=tenant_id,
-        category=AuditCategory.SECURITY,
-    ).order_by("-created_at").limit(limit)
+    return (
+        await AuditLog.filter(
+            tenant_id=tenant_id,
+            category=AuditCategory.SECURITY,
+        )
+        .order_by("-created_at")
+        .limit(limit)
+    )
 
 
 async def get_failed_logins(
@@ -307,10 +320,15 @@ async def get_failed_logins(
 ) -> list[AuditLog]:
     """Get failed login attempts"""
     from datetime import timedelta
+
     cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
 
-    return await AuditLog.filter(
-        tenant_id=tenant_id,
-        action=AuditAction.LOGIN_FAILED,
-        created_at__gte=cutoff,
-    ).order_by("-created_at").limit(limit)
+    return (
+        await AuditLog.filter(
+            tenant_id=tenant_id,
+            action=AuditAction.LOGIN_FAILED,
+            created_at__gte=cutoff,
+        )
+        .order_by("-created_at")
+        .limit(limit)
+    )

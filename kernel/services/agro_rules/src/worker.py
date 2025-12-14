@@ -102,7 +102,9 @@ class AgroRulesWorker:
             correlation_id = env.get("correlation_id")
             payload = env.get("payload", {})
 
-            print(f"📥 NDVI computed: field={field_id}, ndvi={payload.get('ndvi_mean')}")
+            print(
+                f"📥 NDVI computed: field={field_id}, ndvi={payload.get('ndvi_mean')}"
+            )
 
             # Store for combined rules
             self._recent_ndvi[field_id] = payload
@@ -126,7 +128,9 @@ class AgroRulesWorker:
                     humidity_pct=weather.get("humidity_pct", 50),
                 )
                 if combined_rule:
-                    await self._create_task(tenant_id, field_id, combined_rule, correlation_id)
+                    await self._create_task(
+                        tenant_id, field_id, combined_rule, correlation_id
+                    )
 
         except Exception as e:
             print(f"❌ Error handling NDVI event: {e}")
@@ -150,7 +154,9 @@ class AgroRulesWorker:
             severity = payload.get("severity")
             z_score = payload.get("z_score", 0)
 
-            print(f"🚨 NDVI anomaly: field={field_id}, type={anomaly_type}, severity={severity}")
+            print(
+                f"🚨 NDVI anomaly: field={field_id}, type={anomaly_type}, severity={severity}"
+            )
 
             # Create inspection task for anomalies
             if severity in ("medium", "high"):
@@ -186,7 +192,9 @@ class AgroRulesWorker:
             alert_type = payload.get("alert_type")
             severity = payload.get("severity")
 
-            print(f"🌤️ Weather alert: field={field_id}, type={alert_type}, severity={severity}")
+            print(
+                f"🌤️ Weather alert: field={field_id}, type={alert_type}, severity={severity}"
+            )
 
             # Store for combined rules
             self._recent_weather[field_id] = {
@@ -222,7 +230,9 @@ class AgroRulesWorker:
 
             adjustment_factor = payload.get("adjustment_factor", 1.0)
 
-            print(f"💧 Irrigation adjustment: field={field_id}, factor={adjustment_factor}")
+            print(
+                f"💧 Irrigation adjustment: field={field_id}, factor={adjustment_factor}"
+            )
 
             # Apply rules
             task_rule = rule_from_irrigation_adjustment(adjustment_factor, field_id)

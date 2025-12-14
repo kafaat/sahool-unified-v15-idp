@@ -9,9 +9,9 @@ import sys
 from unittest.mock import MagicMock
 
 # Mock NATS before importing main
-sys.modules['nats'] = MagicMock()
-sys.modules['nats.aio'] = MagicMock()
-sys.modules['nats.aio.client'] = MagicMock()
+sys.modules["nats"] = MagicMock()
+sys.modules["nats.aio"] = MagicMock()
+sys.modules["nats.aio.client"] = MagicMock()
 
 from kernel.services.iot_gateway.src.normalizer import (  # noqa: E402
     normalize,
@@ -27,7 +27,7 @@ class TestNormalizer:
 
     def test_normalize_standard_payload(self):
         """Test normalization of standard payload"""
-        payload = '''
+        payload = """
         {
             "device_id": "sensor_001",
             "field_id": "field_123",
@@ -35,7 +35,7 @@ class TestNormalizer:
             "value": 45.5,
             "unit": "%"
         }
-        '''
+        """
 
         result = normalize(payload)
 
@@ -47,14 +47,14 @@ class TestNormalizer:
 
     def test_normalize_compact_payload(self):
         """Test normalization of compact payload"""
-        payload = '''
+        payload = """
         {
             "d": "sensor_002",
             "f": "field_456",
             "t": "temperature",
             "v": 28.3
         }
-        '''
+        """
 
         result = normalize(payload)
 
@@ -65,7 +65,7 @@ class TestNormalizer:
 
     def test_normalize_with_metadata(self):
         """Test normalization with battery and RSSI"""
-        payload = '''
+        payload = """
         {
             "device_id": "sensor_003",
             "field_id": "field_789",
@@ -75,7 +75,7 @@ class TestNormalizer:
             "battery": 85,
             "rssi": -65
         }
-        '''
+        """
 
         result = normalize(payload)
 
@@ -84,28 +84,28 @@ class TestNormalizer:
 
     def test_normalize_sensor_type_alias(self):
         """Test sensor type alias mapping"""
-        payload = '''
+        payload = """
         {
             "device_id": "sensor_004",
             "field_id": "field_001",
             "type": "sm",
             "value": 30
         }
-        '''
+        """
 
         result = normalize(payload)
         assert result.sensor_type == "soil_moisture"
 
     def test_normalize_missing_device_id_raises(self):
         """Test that missing device_id raises error"""
-        payload = '''{"field_id": "f1", "type": "temp", "value": 25}'''
+        payload = """{"field_id": "f1", "type": "temp", "value": 25}"""
 
         with pytest.raises(ValueError, match="device_id"):
             normalize(payload)
 
     def test_normalize_from_topic(self):
         """Test extraction from MQTT topic"""
-        payload = '''{"type": "soil_moisture", "value": 40}'''
+        payload = """{"type": "soil_moisture", "value": 40}"""
         topic = "sahool/sensors/sensor_005/field_abc/soil_moisture"
 
         result = normalize(payload, topic)

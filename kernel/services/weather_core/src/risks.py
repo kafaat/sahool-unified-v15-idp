@@ -27,6 +27,7 @@ class AlertType(Enum):
 @dataclass
 class WeatherAlert:
     """Weather alert"""
+
     alert_type: str
     severity: str
     title_ar: str

@@ -15,9 +15,11 @@ from .events.publish import ChatPublisher
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
+
 # Dependency injection
 def get_repository() -> ChatRepository:
     return ChatRepository()
+
 
 def get_publisher() -> ChatPublisher:
     return ChatPublisher()
@@ -27,18 +29,23 @@ def get_publisher() -> ChatPublisher:
 # Request/Response Models
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class CreateThreadRequest(BaseModel):
     """Request to create a new chat thread"""
+
     tenant_id: str = Field(..., description="Tenant identifier")
     scope_type: str = Field(..., description="Scope type: field|task|incident")
     scope_id: str = Field(..., description="ID of the scope entity")
     created_by: str = Field(..., description="User ID creating the thread")
     title: Optional[str] = Field(None, description="Optional thread title")
-    correlation_id: Optional[str] = Field(None, description="Correlation ID for tracing")
+    correlation_id: Optional[str] = Field(
+        None, description="Correlation ID for tracing"
+    )
 
 
 class ThreadResponse(BaseModel):
     """Thread response model"""
+
     thread_id: str
     tenant_id: str
     scope_type: str
@@ -53,16 +60,22 @@ class ThreadResponse(BaseModel):
 
 class SendMessageRequest(BaseModel):
     """Request to send a message"""
+
     tenant_id: str = Field(..., description="Tenant identifier")
     sender_id: str = Field(..., description="User ID sending the message")
     text: Optional[str] = Field(None, description="Message text")
-    attachments: Optional[list[str]] = Field(None, description="List of attachment URLs")
+    attachments: Optional[list[str]] = Field(
+        None, description="List of attachment URLs"
+    )
     reply_to_id: Optional[str] = Field(None, description="Message ID being replied to")
-    correlation_id: Optional[str] = Field(None, description="Correlation ID for tracing")
+    correlation_id: Optional[str] = Field(
+        None, description="Correlation ID for tracing"
+    )
 
 
 class MessageResponse(BaseModel):
     """Message response model"""
+
     message_id: str
     thread_id: str
     sender_id: str
@@ -75,12 +88,16 @@ class MessageResponse(BaseModel):
 
 class MarkReadRequest(BaseModel):
     """Request to mark messages as read"""
+
     user_id: str = Field(..., description="User ID marking as read")
-    last_read_message_id: Optional[str] = Field(None, description="Last read message ID")
+    last_read_message_id: Optional[str] = Field(
+        None, description="Last read message ID"
+    )
 
 
 class AddParticipantRequest(BaseModel):
     """Request to add participant to thread"""
+
     tenant_id: str
     user_id: str = Field(..., description="User ID to add")
     added_by: Optional[str] = Field(None, description="User ID who added them")
@@ -90,6 +107,7 @@ class AddParticipantRequest(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 # Thread Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @router.post("/threads", response_model=ThreadResponse)
 async def create_thread(
@@ -140,7 +158,9 @@ async def create_thread(
         title=thread.title,
         is_archived=thread.is_archived,
         message_count=thread.message_count,
-        last_message_at=thread.last_message_at.isoformat() if thread.last_message_at else None,
+        last_message_at=(
+            thread.last_message_at.isoformat() if thread.last_message_at else None
+        ),
         created_at=thread.created_at.isoformat(),
     )
 
@@ -172,7 +192,9 @@ async def get_thread(
         title=thread.title,
         is_archived=thread.is_archived,
         message_count=thread.message_count,
-        last_message_at=thread.last_message_at.isoformat() if thread.last_message_at else None,
+        last_message_at=(
+            thread.last_message_at.isoformat() if thread.last_message_at else None
+        ),
         created_at=thread.created_at.isoformat(),
     )
 
@@ -205,7 +227,9 @@ async def get_thread_by_scope(
         title=thread.title,
         is_archived=thread.is_archived,
         message_count=thread.message_count,
-        last_message_at=thread.last_message_at.isoformat() if thread.last_message_at else None,
+        last_message_at=(
+            thread.last_message_at.isoformat() if thread.last_message_at else None
+        ),
         created_at=thread.created_at.isoformat(),
     )
 
@@ -238,7 +262,9 @@ async def list_threads(
             title=t.title,
             is_archived=t.is_archived,
             message_count=t.message_count,
-            last_message_at=t.last_message_at.isoformat() if t.last_message_at else None,
+            last_message_at=(
+                t.last_message_at.isoformat() if t.last_message_at else None
+            ),
             created_at=t.created_at.isoformat(),
         )
         for t in threads
@@ -280,6 +306,7 @@ async def archive_thread(
 # ─────────────────────────────────────────────────────────────────────────────
 # Message Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @router.post("/threads/{thread_id}/messages", response_model=MessageResponse)
 async def send_message(
@@ -370,8 +397,12 @@ async def list_messages(
     thread_id: UUID,
     tenant_id: str = Query(..., description="Tenant identifier"),
     limit: int = Query(50, ge=1, le=100),
-    before: Optional[datetime] = Query(None, description="Get messages before this timestamp"),
-    after: Optional[datetime] = Query(None, description="Get messages after this timestamp"),
+    before: Optional[datetime] = Query(
+        None, description="Get messages before this timestamp"
+    ),
+    after: Optional[datetime] = Query(
+        None, description="Get messages after this timestamp"
+    ),
     repo: ChatRepository = Depends(get_repository),
 ):
     """List messages in a thread with pagination"""
@@ -434,6 +465,7 @@ async def search_messages(
 # ─────────────────────────────────────────────────────────────────────────────
 # Participant Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @router.post("/threads/{thread_id}/participants")
 async def add_participant(

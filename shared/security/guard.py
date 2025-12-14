@@ -9,7 +9,12 @@ from functools import wraps
 
 from fastapi import HTTPException
 
-from .rbac import has_permission, has_any_permission, has_all_permissions, is_same_tenant
+from .rbac import (
+    has_permission,
+    has_any_permission,
+    has_all_permissions,
+    is_same_tenant,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +22,7 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 # Basic Guards
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def require(principal: dict, perm: str) -> None:
     """
@@ -97,6 +103,7 @@ def require_all(principal: dict, perms: list[str]) -> None:
 # Tenant Guards
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def require_tenant(principal: dict, tenant_id: str) -> None:
     """
     Require principal belongs to the specified tenant.
@@ -141,6 +148,7 @@ def require_resource_access(
 # ─────────────────────────────────────────────────────────────────────────────
 # Role Guards
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def require_role(principal: dict, role: str) -> None:
     """
@@ -197,6 +205,7 @@ def require_any_role(principal: dict, roles: list[str]) -> None:
 # Ownership Guards
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def require_owner_or_permission(
     principal: dict,
     owner_id: str,
@@ -223,6 +232,7 @@ def require_owner_or_permission(
 # Decorator Guards
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def requires(perm: str):
     """
     Decorator to require permission on a route handler.
@@ -235,6 +245,7 @@ def requires(perm: str):
 
     Note: The handler must accept 'principal' as a parameter.
     """
+
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -243,7 +254,9 @@ def requires(perm: str):
                 raise HTTPException(status_code=401, detail="authentication_required")
             require(principal, perm)
             return await func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -257,6 +270,7 @@ def requires_role(role: str):
         async def delete_user(user_id: str, principal: dict = Depends(get_principal)):
             ...
     """
+
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -265,5 +279,7 @@ def requires_role(role: str):
                 raise HTTPException(status_code=401, detail="authentication_required")
             require_role(principal, role)
             return await func(*args, **kwargs)
+
         return wrapper
+
     return decorator

@@ -63,12 +63,14 @@ app = FastAPI(
 
 # ============== Health Check ==============
 
+
 @app.get("/healthz")
 def health():
     return {"status": "ok", "service": "agro_advisor", "version": "15.3.3"}
 
 
 # ============== Request/Response Models ==============
+
 
 class DiseaseAssessRequest(BaseModel):
     tenant_id: str
@@ -122,6 +124,7 @@ class FertilizerPlanRequest(BaseModel):
 
 
 # ============== Disease Endpoints ==============
+
 
 @app.post("/disease/assess")
 async def assess_disease(req: DiseaseAssessRequest):
@@ -236,6 +239,7 @@ def search_disease(q: str, lang: str = "ar"):
 
 # ============== Nutrient Endpoints ==============
 
+
 @app.post("/nutrient/ndvi")
 async def assess_from_ndvi_endpoint(req: NDVIAssessRequest):
     """Assess nutrient deficiency from NDVI data"""
@@ -319,6 +323,7 @@ def get_deficiency_info(deficiency_id: str):
 
 # ============== Fertilizer Endpoints ==============
 
+
 @app.post("/fertilizer/plan")
 async def create_fertilizer_plan(req: FertilizerPlanRequest):
     """Generate fertilizer plan for crop and stage"""
@@ -370,6 +375,7 @@ def get_fertilizers_by_nutrient(nutrient: str):
 
 # ============== Crop Information ==============
 
+
 @app.get("/crops")
 def list_crops():
     """List supported crops"""
@@ -399,6 +405,7 @@ def get_crop_requirements(crop: str):
 
 
 # ============== Actions ==============
+
 
 @app.get("/actions/{action_id}")
 def get_action(action_id: str, lang: str = "ar"):

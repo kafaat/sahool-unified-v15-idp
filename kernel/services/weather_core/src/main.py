@@ -60,12 +60,14 @@ app = FastAPI(
 
 # ============== Health Check ==============
 
+
 @app.get("/healthz")
 def health():
     return {"status": "ok", "service": "weather_core", "version": "15.3.3"}
 
 
 # ============== Request Models ==============
+
 
 class WeatherAssessRequest(BaseModel):
     tenant_id: str
@@ -97,6 +99,7 @@ class IrrigationRequest(BaseModel):
 
 
 # ============== Weather Endpoints ==============
+
 
 @app.post("/weather/assess")
 async def assess(req: WeatherAssessRequest):
@@ -287,5 +290,6 @@ def check_heat_stress(temp_c: float):
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.getenv("PORT", 8098))
     uvicorn.run(app, host="0.0.0.0", port=port)

@@ -22,8 +22,7 @@ logger = logging.getLogger(__name__)
 
 # Database configuration
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgres://sahool:sahool@postgres:5432/sahool"
+    "DATABASE_URL", "postgres://sahool:sahool@postgres:5432/sahool"
 )
 
 TORTOISE_ORM = {
@@ -47,6 +46,7 @@ async def lifespan(app: FastAPI):
 
     # Initialize Tortoise ORM
     from tortoise import Tortoise
+
     await Tortoise.init(config=TORTOISE_ORM)
     logger.info("Database connected")
 
@@ -81,6 +81,7 @@ app.include_router(router)
 # ─────────────────────────────────────────────────────────────────────────────
 # Health Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @app.get("/healthz")
 async def health_check():
@@ -133,6 +134,7 @@ async def root():
 # ─────────────────────────────────────────────────────────────────────────────
 # WebSocket Support (placeholder for real-time)
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 # Simple in-memory connection manager
 class ConnectionManager:

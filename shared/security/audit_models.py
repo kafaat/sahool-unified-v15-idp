@@ -10,6 +10,7 @@ from enum import Enum
 
 class AuditSeverity(str, Enum):
     """Audit event severity levels"""
+
     DEBUG = "debug"
     INFO = "info"
     WARNING = "warning"
@@ -19,6 +20,7 @@ class AuditSeverity(str, Enum):
 
 class AuditCategory(str, Enum):
     """Audit event categories"""
+
     AUTH = "auth"  # Login, logout, token refresh
     ACCESS = "access"  # Resource access
     DATA = "data"  # Data changes (CRUD)
@@ -34,6 +36,7 @@ class AuditLog(Model):
     Immutable record of security-relevant events.
     Indexed for fast queries on common access patterns.
     """
+
     id = fields.UUIDField(pk=True)
 
     # Identity
@@ -91,6 +94,7 @@ class AuditLogSummary(Model):
     Aggregated audit statistics per tenant/day.
     Used for dashboards and reports.
     """
+
     id = fields.UUIDField(pk=True)
     tenant_id = fields.CharField(max_length=64, index=True)
     date = fields.DateField(index=True)
@@ -120,6 +124,7 @@ class SessionLog(Model):
     """
     User session tracking for security monitoring.
     """
+
     id = fields.UUIDField(pk=True)
     tenant_id = fields.CharField(max_length=64, index=True)
     user_id = fields.CharField(max_length=64, index=True)

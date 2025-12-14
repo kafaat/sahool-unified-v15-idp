@@ -48,12 +48,14 @@ app = FastAPI(
 
 # ============== Health Check ==============
 
+
 @app.get("/healthz")
 def health():
     return {"status": "ok", "service": "ndvi_engine", "version": "15.3.3"}
 
 
 # ============== Request Models ==============
+
 
 class NdviComputeRequest(BaseModel):
     tenant_id: str
@@ -86,6 +88,7 @@ class AnomalyRequest(BaseModel):
 
 
 # ============== NDVI Endpoints ==============
+
 
 @app.post("/ndvi/compute")
 async def compute_ndvi(req: NdviComputeRequest):
@@ -237,5 +240,6 @@ def get_health_status(ndvi_value: float):
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.getenv("PORT", 8097))
     uvicorn.run(app, host="0.0.0.0", port=port)

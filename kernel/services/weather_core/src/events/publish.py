@@ -39,8 +39,15 @@ class EventEnvelope:
         self.payload = payload
 
     @classmethod
-    def create(cls, event_type: str, version: int, aggregate_id: str,
-               tenant_id: str, correlation_id: str, payload: dict):
+    def create(
+        cls,
+        event_type: str,
+        version: int,
+        aggregate_id: str,
+        tenant_id: str,
+        correlation_id: str,
+        payload: dict,
+    ):
         return cls(
             event_id=str(uuid.uuid4()),
             event_type=event_type,
@@ -127,7 +134,9 @@ class WeatherPublisher:
         subject = get_subject(WEATHER_ALERT)
         await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
 
-        print(f"🌤️ Published weather_alert: field={field_id}, type={alert_type}, severity={severity}")
+        print(
+            f"🌤️ Published weather_alert: field={field_id}, type={alert_type}, severity={severity}"
+        )
         return env.event_id
 
     async def publish_irrigation_adjustment(
@@ -162,7 +171,9 @@ class WeatherPublisher:
         subject = get_subject(IRRIGATION_ADJUSTMENT)
         await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
 
-        print(f"💧 Published irrigation_adjustment: field={field_id}, factor={adjustment_factor}")
+        print(
+            f"💧 Published irrigation_adjustment: field={field_id}, factor={adjustment_factor}"
+        )
         return env.event_id
 
 

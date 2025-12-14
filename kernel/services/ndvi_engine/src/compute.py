@@ -12,6 +12,7 @@ import random
 @dataclass
 class NdviResult:
     """NDVI computation result"""
+
     field_id: str
     ndvi_mean: float
     ndvi_min: float
@@ -31,6 +32,7 @@ class NdviResult:
 @dataclass
 class NdviZone:
     """NDVI zone classification"""
+
     zone_id: str
     zone_name_ar: str
     zone_name_en: str
@@ -255,9 +257,19 @@ def detect_anomalies(
             "type": anomaly_type,
             "severity": severity,
             "z_score": round(z_score, 2),
-            "deviation_pct": round((current_ndvi - historical_mean) / historical_mean * 100, 1),
-            "message_ar": "انحراف إيجابي عن المعدل" if anomaly_type == "positive" else "انحراف سلبي عن المعدل",
-            "message_en": "Positive deviation from mean" if anomaly_type == "positive" else "Negative deviation from mean",
+            "deviation_pct": round(
+                (current_ndvi - historical_mean) / historical_mean * 100, 1
+            ),
+            "message_ar": (
+                "انحراف إيجابي عن المعدل"
+                if anomaly_type == "positive"
+                else "انحراف سلبي عن المعدل"
+            ),
+            "message_en": (
+                "Positive deviation from mean"
+                if anomaly_type == "positive"
+                else "Negative deviation from mean"
+            ),
         }
 
     return None

@@ -161,7 +161,9 @@ def fertilizer_plan(
     stage_needs = {k: v * fertility_factor for k, v in stage_needs.items()}
 
     # Select fertilizers based on irrigation type
-    applications = _select_fertilizers(stage_needs, field_size_ha, irrigation_type, budget_constraint)
+    applications = _select_fertilizers(
+        stage_needs, field_size_ha, irrigation_type, budget_constraint
+    )
 
     # Add notes
     notes = []
@@ -205,14 +207,16 @@ def _select_fertilizers(
         if npk:
             avg_need = (n_need + p_need + k_need) / 3
             dose = (avg_need / 20) * 100  # Assuming 20% content
-            applications.append({
-                "product": npk["name_en"],
-                "product_ar": npk["name_ar"],
-                "dose_kg_per_ha": round(dose, 1),
-                "total_kg": round(dose * field_size_ha, 1),
-                "timing_days": 0,
-                "method": "fertigation" if prefer_soluble else "broadcast",
-            })
+            applications.append(
+                {
+                    "product": npk["name_en"],
+                    "product_ar": npk["name_ar"],
+                    "dose_kg_per_ha": round(dose, 1),
+                    "total_kg": round(dose * field_size_ha, 1),
+                    "timing_days": 0,
+                    "method": "fertigation" if prefer_soluble else "broadcast",
+                }
+            )
             return applications
 
     # Otherwise, use individual fertilizers
@@ -225,40 +229,46 @@ def _select_fertilizers(
             dose = (n_need / 46) * 100
 
         if fert:
-            applications.append({
-                "product": fert["name_en"],
-                "product_ar": fert["name_ar"],
-                "dose_kg_per_ha": round(dose, 1),
-                "total_kg": round(dose * field_size_ha, 1),
-                "timing_days": 0,
-                "method": "fertigation" if prefer_soluble else "side_dress",
-            })
+            applications.append(
+                {
+                    "product": fert["name_en"],
+                    "product_ar": fert["name_ar"],
+                    "dose_kg_per_ha": round(dose, 1),
+                    "total_kg": round(dose * field_size_ha, 1),
+                    "timing_days": 0,
+                    "method": "fertigation" if prefer_soluble else "side_dress",
+                }
+            )
 
     if p_need > 5:
         fert = get_fertilizer("dap")
         if fert:
             dose = (p_need / 46) * 100
-            applications.append({
-                "product": fert["name_en"],
-                "product_ar": fert["name_ar"],
-                "dose_kg_per_ha": round(dose, 1),
-                "total_kg": round(dose * field_size_ha, 1),
-                "timing_days": 0,
-                "method": "banding" if not prefer_soluble else "fertigation",
-            })
+            applications.append(
+                {
+                    "product": fert["name_en"],
+                    "product_ar": fert["name_ar"],
+                    "dose_kg_per_ha": round(dose, 1),
+                    "total_kg": round(dose * field_size_ha, 1),
+                    "timing_days": 0,
+                    "method": "banding" if not prefer_soluble else "fertigation",
+                }
+            )
 
     if k_need > 10:
         fert = get_fertilizer("potassium_sulfate")
         if fert:
             dose = (k_need / 50) * 100
-            applications.append({
-                "product": fert["name_en"],
-                "product_ar": fert["name_ar"],
-                "dose_kg_per_ha": round(dose, 1),
-                "total_kg": round(dose * field_size_ha, 1),
-                "timing_days": 3,  # Stagger K application
-                "method": "fertigation" if prefer_soluble else "broadcast",
-            })
+            applications.append(
+                {
+                    "product": fert["name_en"],
+                    "product_ar": fert["name_ar"],
+                    "dose_kg_per_ha": round(dose, 1),
+                    "total_kg": round(dose * field_size_ha, 1),
+                    "timing_days": 3,  # Stagger K application
+                    "method": "fertigation" if prefer_soluble else "broadcast",
+                }
+            )
 
     return applications
 
@@ -298,9 +308,21 @@ def get_stage_timeline(crop: str) -> list[dict]:
 
     # Typical durations (simplified)
     STAGE_DURATIONS = {
-        "tomato": {"transplant": 14, "vegetative": 30, "flowering": 21, "fruiting": 45, "harvest": 30},
+        "tomato": {
+            "transplant": 14,
+            "vegetative": 30,
+            "flowering": 21,
+            "fruiting": 45,
+            "harvest": 30,
+        },
         "wheat": {"planting": 21, "tillering": 35, "booting": 21, "heading": 28},
-        "potato": {"planting": 21, "vegetative": 28, "tuber_init": 21, "bulking": 35, "maturation": 21},
+        "potato": {
+            "planting": 21,
+            "vegetative": 28,
+            "tuber_init": 21,
+            "bulking": 35,
+            "maturation": 21,
+        },
     }
 
     durations = STAGE_DURATIONS.get(crop, {})
@@ -309,12 +331,14 @@ def get_stage_timeline(crop: str) -> list[dict]:
 
     for stage in stages:
         duration = durations.get(stage, 21)
-        timeline.append({
-            "stage": stage,
-            "start_day": day,
-            "duration_days": duration,
-            "nutrient_focus": list(crop_data["stages"][stage].keys()),
-        })
+        timeline.append(
+            {
+                "stage": stage,
+                "start_day": day,
+                "duration_days": duration,
+                "nutrient_focus": list(crop_data["stages"][stage].keys()),
+            }
+        )
         day += duration
 
     return timeline

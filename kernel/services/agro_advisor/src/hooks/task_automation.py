@@ -286,7 +286,9 @@ class TaskAutomationHook:
             corrections = payload.get("corrections", [])
 
             # Create inspection task
-            due_date = datetime.now(timezone.utc) + timedelta(hours=24 if severity == "high" else 48)
+            due_date = datetime.now(timezone.utc) + timedelta(
+                hours=24 if severity == "high" else 48
+            )
 
             await self.fieldops.create_task(
                 tenant_id=tenant_id,
@@ -344,6 +346,7 @@ async def run_hook():
     try:
         # Keep running
         import asyncio
+
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
@@ -352,4 +355,5 @@ async def run_hook():
 
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(run_hook())

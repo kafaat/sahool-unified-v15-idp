@@ -2,7 +2,6 @@
 Tests for Agro Rules Module
 """
 
-
 from src.rules import (
     rule_from_ndvi,
     rule_from_weather,

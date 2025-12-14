@@ -30,6 +30,7 @@ JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
 
 class AuthError(Exception):
     """Authentication error"""
+
     def __init__(self, message: str, code: str = "auth_error"):
         self.message = message
         self.code = code
@@ -39,6 +40,7 @@ class AuthError(Exception):
 @dataclass
 class TokenPayload:
     """Decoded token payload"""
+
     sub: str  # user_id
     tid: str  # tenant_id
     roles: list[str]
@@ -54,6 +56,7 @@ class TokenPayload:
 # ─────────────────────────────────────────────────────────────────────────────
 # Token Verification
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def _get_verify_key() -> str:
     """Get the key for verification"""
@@ -131,6 +134,7 @@ def decode_token_unsafe(token: str) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 # Token Creation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def create_token(
     user_id: str,

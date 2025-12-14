@@ -39,8 +39,15 @@ class EventEnvelope:
         self.payload = payload
 
     @classmethod
-    def create(cls, event_type: str, version: int, aggregate_id: str,
-               tenant_id: str, correlation_id: str, payload: dict):
+    def create(
+        cls,
+        event_type: str,
+        version: int,
+        aggregate_id: str,
+        tenant_id: str,
+        correlation_id: str,
+        payload: dict,
+    ):
         return cls(
             event_id=str(uuid.uuid4()),
             event_type=event_type,

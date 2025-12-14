@@ -235,7 +235,9 @@ def assess_from_soil_test(
                         details={
                             "soil_value": value,
                             "optimal_range": ranges,
-                            "deficit_pct": round((1 - value / ranges["optimal"]) * 100, 1),
+                            "deficit_pct": round(
+                                (1 - value / ranges["optimal"]) * 100, 1
+                            ),
                         },
                     )
                 )
@@ -269,27 +271,36 @@ def get_correction_plan(
 
             # Find matching fertilizer
             fert_info = next(
-                (f for f in fertilizers if f["id"] == product_id or product_id in f["name_en"].lower()),
-                None
+                (
+                    f
+                    for f in fertilizers
+                    if f["id"] == product_id or product_id in f["name_en"].lower()
+                ),
+                None,
             )
 
             if fert_info:
-                plan.append({
-                    "type": "fertilizer",
-                    "product_id": fert_info["id"],
-                    "product_name_ar": fert_info["name_ar"],
-                    "product_name_en": fert_info["name_en"],
-                    "dose_kg_per_ha": dose_per_ha,
-                    "total_kg": round(dose_per_ha * field_size_ha, 1),
-                    "application_method": preferred_method or fert_info["application_methods"][0],
-                    "timing": "immediate",
-                })
+                plan.append(
+                    {
+                        "type": "fertilizer",
+                        "product_id": fert_info["id"],
+                        "product_name_ar": fert_info["name_ar"],
+                        "product_name_en": fert_info["name_en"],
+                        "dose_kg_per_ha": dose_per_ha,
+                        "total_kg": round(dose_per_ha * field_size_ha, 1),
+                        "application_method": preferred_method
+                        or fert_info["application_methods"][0],
+                        "timing": "immediate",
+                    }
+                )
 
         elif correction["type"] == "practice":
-            plan.append({
-                "type": "practice",
-                "action": correction["action"],
-                "timing": "immediate",
-            })
+            plan.append(
+                {
+                    "type": "practice",
+                    "action": correction["action"],
+                    "timing": "immediate",
+                }
+            )
 
     return plan

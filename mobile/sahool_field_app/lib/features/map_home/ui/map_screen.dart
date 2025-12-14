@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/ui/field_status_mapper.dart';
+import '../../../core/ui/sync_indicator.dart';
+import '../../field/domain/entities/field.dart';
+import 'widgets/field_context_panel.dart';
 
 /// SAHOOL Map Screen - "Cockpit View"
 /// شاشة الخريطة الاحترافية بأسلوب غرفة العمليات
@@ -16,11 +21,76 @@ class _MapScreenState extends State<MapScreen> {
   int _selectedLayerIndex = 0;
   bool _isSearchExpanded = false;
 
+  // حالة الاتصال (للتجربة)
+  bool _isOnline = true;
+  int _pendingSync = 3;
+
+  // الحقل المحدد (null = لا يوجد حقل محدد)
+  Field? _selectedField;
+
   final List<MapLayerOption> _layers = [
     MapLayerOption('القمر الصناعي', Icons.satellite_alt, true),
     MapLayerOption('الخريطة', Icons.map, false),
     MapLayerOption('NDVI', Icons.grass, false),
     MapLayerOption('الرطوبة', Icons.water_drop, false),
+  ];
+
+  // بيانات وهمية للحقول (Mock Data)
+  final List<Field> _mockFields = [
+    const Field(
+      id: '1',
+      name: 'القطعة الشمالية',
+      cropType: 'قمح',
+      areaHa: 2.4,
+      ndvi: 0.78,
+      status: FieldStatus.healthy,
+      pendingTasks: 1,
+    ),
+    const Field(
+      id: '2',
+      name: 'حقل الذرة',
+      cropType: 'ذرة',
+      areaHa: 3.1,
+      ndvi: 0.65,
+      status: FieldStatus.healthy,
+      pendingTasks: 0,
+    ),
+    const Field(
+      id: '3',
+      name: 'البستان الغربي',
+      cropType: 'عنب',
+      areaHa: 1.8,
+      ndvi: 0.52,
+      status: FieldStatus.stressed,
+      pendingTasks: 2,
+    ),
+    const Field(
+      id: '4',
+      name: 'حقل الطماطم',
+      cropType: 'طماطم',
+      areaHa: 0.9,
+      ndvi: 0.35,
+      status: FieldStatus.critical,
+      pendingTasks: 4,
+    ),
+    const Field(
+      id: '5',
+      name: 'المنطقة الجنوبية',
+      cropType: 'برسيم',
+      areaHa: 4.2,
+      ndvi: 0.71,
+      status: FieldStatus.healthy,
+      pendingTasks: 0,
+    ),
+    const Field(
+      id: '6',
+      name: 'حقل البطاطا',
+      cropType: 'بطاطا',
+      areaHa: 1.5,
+      ndvi: 0.48,
+      status: FieldStatus.stressed,
+      pendingTasks: 1,
+    ),
   ];
 
   @override
@@ -40,11 +110,14 @@ class _MapScreenState extends State<MapScreen> {
           // 4. محدد الطبقات
           _buildLayerSelector(),
 
-          // 5. بطاقة الملخص السفلية (Bottom Sheet)
-          _buildSummaryCard(),
+          // 5. Sync Indicator (جديد)
+          _buildSyncIndicator(),
 
-          // 6. زر الطوارئ/SOS (اختياري)
+          // 6. زر الطوارئ/SOS
           _buildEmergencyButton(),
+
+          // 7. البطاقة السفلية: Context Panel أو Summary Card
+          _buildBottomCard(),
         ],
       ),
     );
@@ -52,76 +125,177 @@ class _MapScreenState extends State<MapScreen> {
 
   /// الخريطة - Placeholder (استبدلها بـ FlutterMap لاحقاً)
   Widget _buildMapPlaceholder() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFF87CEEB), // سماء
-            Color(0xFF90EE90), // أرض خضراء
+    return GestureDetector(
+      onTap: () {
+        // إلغاء التحديد عند الضغط على مكان فارغ
+        if (_selectedField != null) {
+          setState(() => _selectedField = null);
+        }
+      },
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF87CEEB), // سماء
+              Color(0xFF90EE90), // أرض خضراء
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // علامات الحقول
+            ...List.generate(_mockFields.length, (index) {
+              final field = _mockFields[index];
+              return Positioned(
+                left: 30.0 + (index % 3) * 120,
+                top: 200.0 + (index ~/ 3) * 150,
+                child: _buildFieldMarker(field),
+              );
+            }),
           ],
         ),
-      ),
-      child: Stack(
-        children: [
-          // شبكة وهمية للحقول
-          ...List.generate(6, (index) {
-            return Positioned(
-              left: 30.0 + (index % 3) * 120,
-              top: 200.0 + (index ~/ 3) * 150,
-              child: _buildFieldMarker(
-                'حقل ${index + 1}',
-                index == 0 ? SahoolColors.healthExcellent :
-                index == 3 ? SahoolColors.healthPoor : SahoolColors.healthGood,
-              ),
-            );
-          }),
-        ],
       ),
     );
   }
 
   /// علامة الحقل على الخريطة
-  Widget _buildFieldMarker(String name, Color healthColor) {
+  Widget _buildFieldMarker(Field field) {
+    final isSelected = _selectedField?.id == field.id;
+
     return GestureDetector(
-      onTap: () => _showFieldDetails(name),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: SahoolShadows.medium,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: healthColor,
-                    shape: BoxShape.circle,
+      onTap: () => _selectField(field),
+      child: AnimatedScale(
+        scale: isSelected ? 1.1 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? field.statusColor : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: field.statusColor.withOpacity(0.4),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : SahoolShadows.medium,
+                border: isSelected
+                    ? Border.all(color: Colors.white, width: 2)
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white : field.statusColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+                  const SizedBox(width: 6),
+                  Text(
+                    field.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: isSelected ? Colors.white : Colors.black87,
+                    ),
                   ),
-                ),
-              ],
+                  if (field.pendingTasks > 0) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.white : Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${field.pendingTasks}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? field.statusColor : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-          ),
-          CustomPaint(
-            size: const Size(20, 10),
-            painter: _TrianglePainter(),
-          ),
-        ],
+            CustomPaint(
+              size: const Size(20, 10),
+              painter: _TrianglePainter(
+                color: isSelected ? field.statusColor : Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// تحديد حقل
+  void _selectField(Field field) {
+    setState(() {
+      _selectedField = _selectedField?.id == field.id ? null : field;
+      _isSearchExpanded = false;
+    });
+  }
+
+  /// Sync Indicator
+  Widget _buildSyncIndicator() {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 80,
+      right: 70,
+      child: SyncIndicator(
+        isOnline: _isOnline,
+        pendingCount: _pendingSync,
+        onTap: () => context.push('/sync'),
+      ),
+    );
+  }
+
+  /// البطاقة السفلية (Context Panel أو Summary)
+  Widget _buildBottomCard() {
+    return Positioned(
+      bottom: 24,
+      left: 0,
+      right: 0,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+            )),
+            child: child,
+          );
+        },
+        child: _selectedField != null
+            ? FieldContextPanel(
+                key: ValueKey('panel-${_selectedField!.id}'),
+                field: _selectedField!,
+                onClose: () => setState(() => _selectedField = null),
+                onDetails: () {
+                  context.push('/field/${_selectedField!.id}');
+                },
+                onAddTask: () {
+                  _showAddTaskDialog();
+                },
+              )
+            : _buildSummaryCard(),
       ),
     );
   }
@@ -289,10 +463,9 @@ class _MapScreenState extends State<MapScreen> {
 
   /// بطاقة الملخص السفلية
   Widget _buildSummaryCard() {
-    return Positioned(
-      bottom: 24,
-      left: 16,
-      right: 16,
+    return Padding(
+      key: const ValueKey('summary'),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -317,22 +490,22 @@ class _MapScreenState extends State<MapScreen> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildStatItem('مهام', '3', SahoolColors.info, Icons.task_alt)),
-                Expanded(child: _buildStatItem('تنبيهات', '1', SahoolColors.danger, Icons.warning_amber)),
-                Expanded(child: _buildStatItem('حقول', '12', SahoolColors.success, Icons.grass)),
+                Expanded(child: _buildStatItem('مهام', '${_getTotalTasks()}', SahoolColors.info, Icons.task_alt)),
+                Expanded(child: _buildStatItem('تنبيهات', '${_getCriticalCount()}', SahoolColors.danger, Icons.warning_amber)),
+                Expanded(child: _buildStatItem('حقول', '${_mockFields.length}', SahoolColors.success, Icons.grass)),
               ],
             ),
             const SizedBox(height: 16),
             // شريط التقدم
             Row(
               children: [
-                const Text('تقدم اليوم', style: TextStyle(fontSize: 12, color: SahoolColors.textSecondary)),
+                const Text('صحة الحقول', style: TextStyle(fontSize: 12, color: SahoolColors.textSecondary)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: LinearProgressIndicator(
-                      value: 0.65,
+                      value: _getAverageHealth(),
                       backgroundColor: Colors.grey[200],
                       valueColor: const AlwaysStoppedAnimation(SahoolColors.primary),
                       minHeight: 8,
@@ -340,13 +513,22 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Text('65%', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('${(_getAverageHealth() * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  int _getTotalTasks() => _mockFields.fold(0, (sum, f) => sum + f.pendingTasks);
+
+  int _getCriticalCount() => _mockFields.where((f) => f.needsAttention).length;
+
+  double _getAverageHealth() {
+    if (_mockFields.isEmpty) return 0;
+    return _mockFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _mockFields.length;
   }
 
   Widget _buildWeatherBadge() {
@@ -398,9 +580,10 @@ class _MapScreenState extends State<MapScreen> {
   /// زر الطوارئ
   Widget _buildEmergencyButton() {
     return Positioned(
-      bottom: 200,
+      bottom: _selectedField != null ? 280 : 200,
       right: 16,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFFFF5252), SahoolColors.danger],
@@ -424,54 +607,28 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  void _showFieldDetails(String fieldName) {
-    showModalBottomSheet(
+  void _showAddTaskDialog() {
+    showDialog(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (context) => AlertDialog(
+        title: Row(
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(fieldName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            const Text('قمح - 15 هكتار', style: TextStyle(color: SahoolColors.textSecondary)),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.visibility),
-                    label: const Text('عرض التفاصيل'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.navigation),
-                  label: const Text('اذهب'),
-                ),
-              ],
-            ),
+            const Icon(Icons.add_task, color: SahoolColors.primary),
+            const SizedBox(width: 8),
+            const Text('إضافة مهمة'),
           ],
         ),
+        content: Text('إضافة مهمة جديدة لحقل "${_selectedField?.name}"'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إضافة'),
+          ),
+        ],
       ),
     );
   }
@@ -512,10 +669,14 @@ class MapLayerOption {
 
 /// رسام المثلث للعلامات
 class _TrianglePainter extends CustomPainter {
+  final Color color;
+
+  _TrianglePainter({this.color = Colors.white});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white
+      ..color = color
       ..style = PaintingStyle.fill;
 
     final path = Path()
@@ -528,5 +689,5 @@ class _TrianglePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _TrianglePainter oldDelegate) => color != oldDelegate.color;
 }

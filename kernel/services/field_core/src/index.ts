@@ -402,6 +402,235 @@ app.get("/api/v1/fields/nearby", async (req: Request, res: Response) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// NDVI Analysis Endpoints
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/v1/fields/:id/ndvi
+ * Get NDVI analysis for a specific field
+ */
+app.get("/api/v1/fields/:id/ndvi", async (req: Request, res: Response) => {
+    try {
+        const fieldRepo = AppDataSource.getRepository(Field);
+        const field = await fieldRepo.findOne({
+            where: { id: req.params.id }
+        });
+
+        if (!field) {
+            return res.status(404).json({
+                success: false,
+                error: "Field not found"
+            });
+        }
+
+        // Generate mock NDVI history (in production, this would come from satellite data)
+        const history = generateMockNdviHistory(30);
+        const current = history[history.length - 1].value;
+        const values = history.map(h => h.value);
+        const average = values.reduce((a, b) => a + b, 0) / values.length;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+
+        // Calculate trend
+        const firstHalf = values.slice(0, Math.floor(values.length / 2));
+        const secondHalf = values.slice(Math.floor(values.length / 2));
+        const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+        const secondAvg = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+        const trend = secondAvg - firstAvg;
+
+        // Determine health category
+        const healthCategory = getNdviCategory(current);
+
+        res.json({
+            success: true,
+            data: {
+                fieldId: field.id,
+                fieldName: field.name,
+                current: {
+                    value: current,
+                    category: healthCategory,
+                    date: new Date().toISOString()
+                },
+                statistics: {
+                    average: Math.round(average * 100) / 100,
+                    min: Math.round(min * 100) / 100,
+                    max: Math.round(max * 100) / 100,
+                    trend: Math.round(trend * 100) / 100,
+                    trendDirection: trend > 0.05 ? 'improving' : trend < -0.05 ? 'declining' : 'stable'
+                },
+                history: history,
+                lastUpdated: new Date().toISOString()
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching NDVI data:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to fetch NDVI data"
+        });
+    }
+});
+
+/**
+ * PUT /api/v1/fields/:id/ndvi
+ * Update NDVI value for a field (from external source)
+ */
+app.put("/api/v1/fields/:id/ndvi", async (req: Request, res: Response) => {
+    try {
+        const fieldRepo = AppDataSource.getRepository(Field);
+        const { value, source } = req.body;
+
+        if (typeof value !== 'number' || value < -1 || value > 1) {
+            return res.status(400).json({
+                success: false,
+                error: "NDVI value must be between -1 and 1"
+            });
+        }
+
+        const field = await fieldRepo.findOne({
+            where: { id: req.params.id }
+        });
+
+        if (!field) {
+            return res.status(404).json({
+                success: false,
+                error: "Field not found"
+            });
+        }
+
+        // Update NDVI value
+        field.ndviValue = value;
+        field.healthScore = calculateHealthScore(value);
+        await fieldRepo.save(field);
+
+        // Generate ETag for updated field
+        const etag = generateETag(field.id, field.version);
+        res.locals.etag = etag;
+
+        res.json({
+            success: true,
+            data: {
+                fieldId: field.id,
+                ndviValue: value,
+                healthScore: field.healthScore,
+                category: getNdviCategory(value),
+                source: source || 'manual',
+                updatedAt: new Date().toISOString()
+            },
+            etag: etag,
+            message: "تم تحديث مؤشر NDVI بنجاح"
+        });
+    } catch (error) {
+        console.error("Error updating NDVI:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to update NDVI"
+        });
+    }
+});
+
+/**
+ * GET /api/v1/ndvi/summary
+ * Get NDVI summary for all fields (tenant-wide analytics)
+ */
+app.get("/api/v1/ndvi/summary", async (req: Request, res: Response) => {
+    try {
+        const { tenantId } = req.query;
+
+        if (!tenantId) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing required parameter: tenantId"
+            });
+        }
+
+        const result = await AppDataSource.query(`
+            SELECT
+                COUNT(*) as total_fields,
+                AVG(ndvi_value) as average_ndvi,
+                AVG(health_score) as average_health,
+                SUM(area_hectares) as total_area,
+                COUNT(*) FILTER (WHERE ndvi_value >= 0.6) as healthy_count,
+                COUNT(*) FILTER (WHERE ndvi_value >= 0.4 AND ndvi_value < 0.6) as moderate_count,
+                COUNT(*) FILTER (WHERE ndvi_value >= 0.2 AND ndvi_value < 0.4) as stressed_count,
+                COUNT(*) FILTER (WHERE ndvi_value < 0.2) as critical_count
+            FROM fields
+            WHERE tenant_id = $1 AND ndvi_value IS NOT NULL
+        `, [tenantId]);
+
+        const summary = result[0];
+
+        res.json({
+            success: true,
+            data: {
+                tenantId,
+                totalFields: parseInt(summary.total_fields) || 0,
+                averageNdvi: parseFloat(summary.average_ndvi) || 0,
+                averageHealth: parseFloat(summary.average_health) || 0,
+                totalAreaHectares: parseFloat(summary.total_area) || 0,
+                distribution: {
+                    healthy: parseInt(summary.healthy_count) || 0,
+                    moderate: parseInt(summary.moderate_count) || 0,
+                    stressed: parseInt(summary.stressed_count) || 0,
+                    critical: parseInt(summary.critical_count) || 0
+                },
+                timestamp: new Date().toISOString()
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching NDVI summary:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to fetch NDVI summary"
+        });
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NDVI Helper Functions
+// ─────────────────────────────────────────────────────────────────────────────
+
+function generateMockNdviHistory(days: number) {
+    const history = [];
+    const baseValue = 0.4 + Math.random() * 0.3;
+
+    for (let i = days; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+
+        // Add some variation
+        const variation = (Math.random() - 0.5) * 0.15;
+        const trend = (days - i) * 0.003; // Slight upward trend
+        const value = Math.max(-1, Math.min(1, baseValue + variation + trend));
+
+        history.push({
+            date: date.toISOString().split('T')[0],
+            value: Math.round(value * 100) / 100,
+            cloudCover: Math.round(Math.random() * 30)
+        });
+    }
+
+    return history;
+}
+
+function getNdviCategory(value: number): { name: string; nameAr: string; color: string } {
+    if (value < 0) return { name: 'non-vegetation', nameAr: 'غير نباتي', color: '#1565C0' };
+    if (value < 0.2) return { name: 'bare-soil', nameAr: 'تربة جرداء', color: '#8D6E63' };
+    if (value < 0.4) return { name: 'stressed', nameAr: 'إجهاد', color: '#FF5722' };
+    if (value < 0.6) return { name: 'moderate', nameAr: 'متوسط', color: '#FFEB3B' };
+    if (value < 0.8) return { name: 'healthy', nameAr: 'صحي', color: '#8BC34A' };
+    return { name: 'very-healthy', nameAr: 'ممتاز', color: '#2E7D32' };
+}
+
+function calculateHealthScore(ndviValue: number): number {
+    // Convert NDVI (-1 to 1) to health score (0 to 1)
+    // Focus on vegetation range (0.2 to 0.8)
+    if (ndviValue < 0.2) return 0;
+    if (ndviValue > 0.8) return 1;
+    return (ndviValue - 0.2) / 0.6;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Error Handler
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -444,6 +673,11 @@ AppDataSource.initialize()
             console.log("    PUT  /api/v1/fields/:id    - Update field (If-Match → 409)");
             console.log("    DELETE /api/v1/fields/:id  - Delete field");
             console.log("    GET  /api/v1/fields/nearby - Geospatial query");
+            console.log("");
+            console.log("  🌿 NDVI Analysis:");
+            console.log("    GET  /api/v1/fields/:id/ndvi  - Field NDVI analysis");
+            console.log("    PUT  /api/v1/fields/:id/ndvi  - Update NDVI value");
+            console.log("    GET  /api/v1/ndvi/summary     - Tenant-wide NDVI summary");
             console.log("");
             console.log("  🔐 ETag Conflict Resolution:");
             console.log("    • GET returns ETag header + body.etag");

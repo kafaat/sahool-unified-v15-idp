@@ -1,0 +1,141 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform Makefile
+# Professional development and deployment commands
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: help up down restart logs ps clean db-shell test lint mobile-run
+
+# Default target
+.DEFAULT_GOAL := help
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Help
+# ─────────────────────────────────────────────────────────────────────────────
+
+help: ## Show this help message
+	@echo "═══════════════════════════════════════════════════════════════════"
+	@echo "  SAHOOL Platform v15.3.2 - Development Commands"
+	@echo "═══════════════════════════════════════════════════════════════════"
+	@echo ""
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Docker Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+up: ## Start all services
+	@echo "🚀 Starting SAHOOL Platform..."
+	docker-compose up -d
+	@echo "✅ Platform is running!"
+	@echo "   - API Gateway: http://localhost:8000"
+	@echo "   - Field Ops:   http://localhost:8080"
+	@echo "   - NATS:        http://localhost:8222"
+
+down: ## Stop all services
+	@echo "🛑 Stopping SAHOOL Platform..."
+	docker-compose down
+	@echo "✅ Platform stopped."
+
+restart: down up ## Restart all services
+
+logs: ## Follow logs from all services
+	docker-compose logs -f
+
+logs-service: ## Follow logs from specific service (usage: make logs-service SERVICE=field_ops)
+	docker-compose logs -f $(SERVICE)
+
+ps: ## List running services
+	docker-compose ps
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Database Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+db-shell: ## Connect to PostgreSQL shell
+	@echo "🗄️  Connecting to SAHOOL Database..."
+	docker exec -it sahool-postgres psql -U sahool -d sahool
+
+db-migrate: ## Run database migrations
+	@echo "📦 Running migrations..."
+	./tools/env/migrate.sh
+
+db-backup: ## Backup database
+	@echo "💾 Creating database backup..."
+	docker exec sahool-postgres pg_dump -U sahool sahool > backup_$(shell date +%Y%m%d_%H%M%S).sql
+	@echo "✅ Backup created!"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Development Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+clean: ## Clean up containers, volumes, and build artifacts
+	@echo "🧹 Cleaning up..."
+	docker-compose down -v --remove-orphans
+	docker system prune -f
+	@echo "✅ Cleanup complete!"
+
+build: ## Build all Docker images
+	@echo "🔨 Building Docker images..."
+	docker-compose build --no-cache
+	@echo "✅ Build complete!"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Mobile App Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+mobile-run: ## Run Flutter mobile app
+	@echo "📱 Starting Mobile App..."
+	cd mobile/sahool_field_app && flutter run
+
+mobile-build-apk: ## Build Android APK
+	@echo "📦 Building Android APK..."
+	cd mobile/sahool_field_app && flutter build apk --release
+
+mobile-build-ios: ## Build iOS app
+	@echo "📦 Building iOS App..."
+	cd mobile/sahool_field_app && flutter build ios --release
+
+mobile-clean: ## Clean Flutter build
+	@echo "🧹 Cleaning Flutter build..."
+	cd mobile/sahool_field_app && flutter clean && flutter pub get
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Testing Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+test: ## Run all tests
+	@echo "🧪 Running tests..."
+	./tools/release/smoke_test.sh
+
+test-mobile: ## Run Flutter tests
+	@echo "🧪 Running Flutter tests..."
+	cd mobile/sahool_field_app && flutter test
+
+lint: ## Run linters
+	@echo "🔍 Running linters..."
+	cd kernel && ruff check .
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Infrastructure Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+k8s-deploy: ## Deploy to Kubernetes
+	@echo "☸️  Deploying to Kubernetes..."
+	kubectl apply -f gitops/argocd/applications/
+
+kong-reload: ## Reload Kong configuration
+	@echo "🔄 Reloading Kong configuration..."
+	docker exec sahool-kong kong reload
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Release Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+release: ## Create a new release
+	@echo "📦 Creating release..."
+	./tools/release/release_v15_3_2.sh
+
+smoke-test: ## Run smoke tests
+	@echo "💨 Running smoke tests..."
+	./tools/release/smoke_test.sh

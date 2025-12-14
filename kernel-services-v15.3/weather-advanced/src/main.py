@@ -3,10 +3,10 @@
 خدمة الطقس المتقدمة - 7-Day Forecasting & Agricultural Alerts
 """
 
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
+from fastapi import FastAPI, Query
+from pydantic import BaseModel
+from datetime import datetime, timedelta
+from typing import List
 from enum import Enum
 import uuid
 import math

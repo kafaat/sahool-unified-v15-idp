@@ -3,9 +3,9 @@
 خدمة المؤشرات الزراعية - Dashboard & Analytics
 """
 
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
+from fastapi import FastAPI, Query
+from pydantic import BaseModel
+from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
 from enum import Enum
 import uuid
@@ -495,7 +495,6 @@ def get_dashboard_summary(
     num_fields: int = Query(default=10, ge=1, le=100)
 ):
     """لوحة المعلومات الرئيسية للمستأجر"""
-    import random
 
     # Generate mock data for multiple fields
     fields_data = []

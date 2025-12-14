@@ -3,9 +3,9 @@
 خدمة مستشار السماد - NPK Recommendations & Soil Analysis
 """
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI
 from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
 from enum import Enum
 import uuid

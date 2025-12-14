@@ -3,13 +3,11 @@
 خدمة الأقمار الصناعية - Sentinel-2, Landsat, MODIS Integration
 """
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
 from typing import Optional, List
 from enum import Enum
-import asyncio
-import json
 import uuid
 
 app = FastAPI(
@@ -194,7 +192,7 @@ def calculate_lai(ndvi: float) -> float:
     try:
         lai = -math.log((0.69 - min(ndvi, 0.68)) / 0.59) / 0.91
         return round(max(0, min(lai, 8)), 2)
-    except:
+    except Exception:
         return 0.0
 
 
@@ -400,19 +398,16 @@ async def analyze_field(request: ImageryRequest):
     # Map to standard names based on satellite
     if request.satellite == SatelliteSource.SENTINEL2:
         red = bands_dict.get("B04", 0.1)
-        green = bands_dict.get("B03", 0.1)
         blue = bands_dict.get("B02", 0.05)
         nir = bands_dict.get("B08", 0.3)
         swir1 = bands_dict.get("B11", 0.2)
     elif request.satellite in [SatelliteSource.LANDSAT8, SatelliteSource.LANDSAT9]:
         red = bands_dict.get("B4", 0.1)
-        green = bands_dict.get("B3", 0.1)
         blue = bands_dict.get("B2", 0.05)
         nir = bands_dict.get("B5", 0.3)
         swir1 = bands_dict.get("B6", 0.2)
     else:  # MODIS
         red = bands_dict.get("B01", 0.1)
-        green = bands_dict.get("B04", 0.1)
         blue = bands_dict.get("B03", 0.05)
         nir = bands_dict.get("B02", 0.3)
         swir1 = 0.2  # MODIS doesn't have SWIR at this resolution

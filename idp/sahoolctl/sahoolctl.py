@@ -7,7 +7,7 @@ Features:
 - generate Helm values snippet for the service
 """
 
-import argparse, os, shutil, re
+import argparse, os, re
 from pathlib import Path
 
 TEMPLATES = {

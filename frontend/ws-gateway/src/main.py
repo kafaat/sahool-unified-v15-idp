@@ -6,12 +6,10 @@
 import asyncio
 import json
 import logging
-from typing import Set, Dict, Any
-from datetime import datetime
+from typing import Set, Dict
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-import nats
 from nats.aio.client import Client as NATS
 
 # Configure logging

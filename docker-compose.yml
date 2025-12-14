@@ -8,8 +8,9 @@ services:
   # Infrastructure Services
   # ─────────────────────────────────────────────────────────────────────────────
 
+  # قاعدة البيانات المكانية (PostGIS)
   postgres:
-    image: postgres:15-alpine
+    image: postgis/postgis:15-3.3
     container_name: sahool-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sahool}
@@ -24,6 +25,27 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # API Gateway (Kong)
+  kong:
+    image: kong:3.4
+    container_name: sahool-kong
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    volumes:
+      - ./infra/kong/kong.yml:/kong/declarative/kong.yml
     restart: unless-stopped
     networks:
       - sahool-network

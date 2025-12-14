@@ -20,3 +20,10 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 "**/tests/*" = ["E402"]
 "**/__init__.py" = ["F401"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["kernel", "shared"]
+filterwarnings = [
+    "ignore::DeprecationWarning:tortoise.*",
+]

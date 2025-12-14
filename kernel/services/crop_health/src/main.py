@@ -33,16 +33,22 @@ from .decision_engine import (
 
 class IndicesIn(BaseModel):
     """مؤشرات الغطاء النباتي المدخلة"""
-    ndvi: float = Field(..., ge=-1, le=1, description="Normalized Difference Vegetation Index")
+
+    ndvi: float = Field(
+        ..., ge=-1, le=1, description="Normalized Difference Vegetation Index"
+    )
     evi: float = Field(..., ge=-1, le=1, description="Enhanced Vegetation Index")
     ndre: float = Field(..., ge=-1, le=1, description="Normalized Difference Red Edge")
     lci: float = Field(..., ge=-1, le=1, description="Leaf Chlorophyll Index")
-    ndwi: float = Field(..., ge=-1, le=1, description="Normalized Difference Water Index")
+    ndwi: float = Field(
+        ..., ge=-1, le=1, description="Normalized Difference Water Index"
+    )
     savi: float = Field(..., ge=-1, le=1, description="Soil-Adjusted Vegetation Index")
 
 
 class ObservationIn(BaseModel):
     """طلب تسجيل رصد جديد"""
+
     captured_at: datetime = Field(..., description="وقت الالتقاط")
     source: Literal["sentinel-2", "drone", "planet", "landsat", "other"] = Field(
         ..., description="مصدر البيانات"
@@ -55,6 +61,7 @@ class ObservationIn(BaseModel):
 
 class ObservationOut(BaseModel):
     """استجابة تسجيل الرصد"""
+
     observation_id: str
     status: Literal["stored"]
     zone_id: str
@@ -63,6 +70,7 @@ class ObservationOut(BaseModel):
 
 class ActionOut(BaseModel):
     """إجراء موصى به"""
+
     zone_id: str
     type: Literal["irrigation", "fertilization", "scouting", "none"]
     priority: Literal["P0", "P1", "P2", "P3"]
@@ -78,6 +86,7 @@ class ActionOut(BaseModel):
 
 class SummaryOut(BaseModel):
     """ملخص تشخيص الحقل"""
+
     zones_total: int
     zones_critical: int
     zones_warning: int
@@ -86,6 +95,7 @@ class SummaryOut(BaseModel):
 
 class MapLayersOut(BaseModel):
     """روابط طبقات الخريطة"""
+
     ndvi_raster_url: Optional[str] = None
     ndwi_raster_url: Optional[str] = None
     ndre_raster_url: Optional[str] = None
@@ -94,6 +104,7 @@ class MapLayersOut(BaseModel):
 
 class FieldDiagnosisOut(BaseModel):
     """استجابة تشخيص الحقل الكاملة"""
+
     field_id: str
     date: str
     summary: SummaryOut
@@ -103,6 +114,7 @@ class FieldDiagnosisOut(BaseModel):
 
 class TimelinePoint(BaseModel):
     """نقطة في السلسلة الزمنية"""
+
     date: str
     ndvi: float
     evi: Optional[float] = None
@@ -114,6 +126,7 @@ class TimelinePoint(BaseModel):
 
 class ZoneTimelineOut(BaseModel):
     """السلسلة الزمنية للمنطقة"""
+
     zone_id: str
     field_id: str
     series: List[TimelinePoint]
@@ -121,6 +134,7 @@ class ZoneTimelineOut(BaseModel):
 
 class ZoneCreate(BaseModel):
     """إنشاء منطقة جديدة"""
+
     name: str
     name_ar: Optional[str] = None
     geometry: Optional[Dict[str, Any]] = None
@@ -129,6 +143,7 @@ class ZoneCreate(BaseModel):
 
 class VRTFeature(BaseModel):
     """خاصية VRT للتصدير"""
+
     type: str = "Feature"
     properties: Dict[str, Any]
     geometry: Optional[Dict[str, Any]] = None
@@ -136,6 +151,7 @@ class VRTFeature(BaseModel):
 
 class VRTExportOut(BaseModel):
     """تصدير VRT كـ GeoJSON FeatureCollection"""
+
     type: str = "FeatureCollection"
     features: List[VRTFeature]
     metadata: Dict[str, Any]
@@ -186,8 +202,12 @@ def _init_sample_data():
                 "source": "sentinel-2",
                 "growth_stage": "mid",
                 "indices": {
-                    "ndvi": 0.78, "evi": 0.62, "ndre": 0.21,
-                    "lci": 0.32, "ndwi": -0.05, "savi": 0.65
+                    "ndvi": 0.78,
+                    "evi": 0.62,
+                    "ndre": 0.21,
+                    "lci": 0.32,
+                    "ndwi": -0.05,
+                    "savi": 0.65,
                 },
                 "cloud_pct": 5.0,
             }
@@ -198,8 +218,12 @@ def _init_sample_data():
                 "source": "sentinel-2",
                 "growth_stage": "mid",
                 "indices": {
-                    "ndvi": 0.65, "evi": 0.52, "ndre": 0.35,
-                    "lci": 0.28, "ndwi": 0.02, "savi": 0.55
+                    "ndvi": 0.65,
+                    "evi": 0.52,
+                    "ndre": 0.35,
+                    "lci": 0.28,
+                    "ndwi": 0.02,
+                    "savi": 0.55,
                 },
                 "cloud_pct": 5.0,
             }
@@ -210,8 +234,12 @@ def _init_sample_data():
                 "source": "sentinel-2",
                 "growth_stage": "mid",
                 "indices": {
-                    "ndvi": 0.41, "evi": 0.32, "ndre": 0.18,
-                    "lci": 0.15, "ndwi": -0.12, "savi": 0.35
+                    "ndvi": 0.41,
+                    "evi": 0.32,
+                    "ndre": 0.18,
+                    "lci": 0.15,
+                    "ndwi": -0.12,
+                    "savi": 0.35,
                 },
                 "cloud_pct": 5.0,
             }
@@ -295,10 +323,7 @@ def list_zones(field_id: str):
     if field_id not in ZONES:
         return {"zones": [], "count": 0}
 
-    zones = [
-        {"zone_id": zid, **zdata}
-        for zid, zdata in ZONES[field_id].items()
-    ]
+    zones = [{"zone_id": zid, **zdata} for zid, zdata in ZONES[field_id].items()]
     return {"zones": zones, "count": len(zones)}
 
 
@@ -310,17 +335,19 @@ def get_zones_geojson(field_id: str):
 
     features = []
     for zone_id, zone_data in ZONES[field_id].items():
-        features.append({
-            "type": "Feature",
-            "id": zone_id,
-            "properties": {
-                "zone_id": zone_id,
-                "name": zone_data.get("name"),
-                "name_ar": zone_data.get("name_ar"),
-                "area_hectares": zone_data.get("area_hectares"),
-            },
-            "geometry": zone_data.get("geometry"),
-        })
+        features.append(
+            {
+                "type": "Feature",
+                "id": zone_id,
+                "properties": {
+                    "zone_id": zone_id,
+                    "name": zone_data.get("name"),
+                    "name_ar": zone_data.get("name_ar"),
+                    "area_hectares": zone_data.get("area_hectares"),
+                },
+                "geometry": zone_data.get("geometry"),
+            }
+        )
 
     return {
         "type": "FeatureCollection",
@@ -401,8 +428,7 @@ def get_field_diagnosis(
         target = date.fromisoformat(date_str)
     except ValueError:
         raise HTTPException(
-            status_code=400,
-            detail="تنسيق تاريخ غير صالح، استخدم YYYY-MM-DD"
+            status_code=400, detail="تنسيق تاريخ غير صالح، استخدم YYYY-MM-DD"
         )
 
     if field_id not in OBSERVATIONS:
@@ -417,7 +443,8 @@ def get_field_diagnosis(
 
         # اختر آخر رصد في التاريخ المطلوب أو آخر رصد متاح
         same_day = [
-            o for o in obs_list
+            o
+            for o in obs_list
             if datetime.fromisoformat(o["captured_at"]).date() == target
         ]
         chosen = same_day[-1] if same_day else obs_list[-1]
@@ -518,15 +545,17 @@ def get_zone_timeline(
         obs_date = datetime.fromisoformat(obs["captured_at"]).date()
         if start <= obs_date <= end:
             idx = obs["indices"]
-            series.append({
-                "date": obs_date.isoformat(),
-                "ndvi": idx["ndvi"],
-                "evi": idx.get("evi"),
-                "ndre": idx.get("ndre"),
-                "ndwi": idx.get("ndwi"),
-                "lci": idx.get("lci"),
-                "savi": idx.get("savi"),
-            })
+            series.append(
+                {
+                    "date": obs_date.isoformat(),
+                    "ndvi": idx["ndvi"],
+                    "evi": idx.get("evi"),
+                    "ndre": idx.get("ndre"),
+                    "ndwi": idx.get("ndwi"),
+                    "lci": idx.get("lci"),
+                    "savi": idx.get("savi"),
+                }
+            )
 
     # ترتيب زمني
     series.sort(key=lambda x: x["date"])
@@ -548,8 +577,7 @@ def export_vrt(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
     action_type: Optional[str] = Query(
-        default=None,
-        description="نوع الإجراء: irrigation, fertilization, all"
+        default=None, description="نوع الإجراء: irrigation, fertilization, all"
     ),
 ):
     """
@@ -578,15 +606,20 @@ def export_vrt(
 
         # آخر رصد
         same_day = [
-            o for o in obs_list
+            o
+            for o in obs_list
             if datetime.fromisoformat(o["captured_at"]).date() == target
         ]
         chosen = same_day[-1] if same_day else obs_list[-1]
 
         idx_in = chosen["indices"]
         idx = Indices(
-            ndvi=idx_in["ndvi"], evi=idx_in["evi"], ndre=idx_in["ndre"],
-            lci=idx_in["lci"], ndwi=idx_in["ndwi"], savi=idx_in["savi"]
+            ndvi=idx_in["ndvi"],
+            evi=idx_in["evi"],
+            ndre=idx_in["ndre"],
+            lci=idx_in["lci"],
+            ndwi=idx_in["ndwi"],
+            savi=idx_in["savi"],
         )
 
         zone_obs = ZoneObservation(
@@ -617,12 +650,14 @@ def export_vrt(
             "ndwi": idx.ndwi,
         }
 
-        features.append({
-            "type": "Feature",
-            "id": zone_id,
-            "properties": vrt_props,
-            "geometry": z_meta.get("geometry"),
-        })
+        features.append(
+            {
+                "type": "Feature",
+                "id": zone_id,
+                "properties": vrt_props,
+                "geometry": z_meta.get("geometry"),
+            }
+        )
 
     return {
         "type": "FeatureCollection",
@@ -675,5 +710,6 @@ def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp"
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.getenv("PORT", 8100))
     uvicorn.run(app, host="0.0.0.0", port=port)

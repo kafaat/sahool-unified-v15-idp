@@ -77,7 +77,14 @@ check_prerequisites() {
     local missing=()
 
     command -v docker &>/dev/null || missing+=("docker")
-    command -v docker-compose &>/dev/null || command -v "docker compose" &>/dev/null || missing+=("docker-compose")
+
+    # Check for Docker Compose v2 (preferred)
+    if ! docker compose version &>/dev/null; then
+        log_error "Docker Compose v2 is required (docker compose)"
+        log_info "Install with: Docker Desktop or docker-compose-plugin"
+        exit 1
+    fi
+
     command -v openssl &>/dev/null || missing+=("openssl")
     command -v zip &>/dev/null || missing+=("zip")
 
@@ -87,6 +94,7 @@ check_prerequisites() {
     fi
 
     log_success "All prerequisites satisfied"
+    log_info "Docker Compose version: $(docker compose version --short)"
 }
 
 generate_env() {
@@ -204,12 +212,7 @@ start_infrastructure() {
 
     # Start infrastructure services first
     log_info "Starting postgres, nats, redis, mqtt..."
-
-    if command -v "docker compose" &>/dev/null; then
-        docker compose up -d postgres nats redis mqtt
-    else
-        docker-compose up -d postgres nats redis mqtt
-    fi
+    docker compose up -d postgres nats redis mqtt
 
     # Wait for services
     log_info "Waiting for infrastructure to be ready..."
@@ -217,12 +220,7 @@ start_infrastructure() {
 
     # Start application services
     log_info "Starting application services..."
-
-    if command -v "docker compose" &>/dev/null; then
-        docker compose up -d
-    else
-        docker-compose up -d
-    fi
+    docker compose up -d
 
     log_success "All services started"
 }

@@ -4,6 +4,7 @@ import {
     Column,
     CreateDateColumn,
     UpdateDateColumn,
+    VersionColumn,
     Index
 } from "typeorm";
 
@@ -12,12 +13,21 @@ import {
  *
  * Stores field boundaries as PostGIS POLYGON geometry
  * with SRID 4326 (WGS84 - GPS coordinate system)
+ *
+ * Supports optimistic locking via version column for ETag-based conflict resolution
  */
 @Entity("fields")
 export class Field {
 
     @PrimaryGeneratedColumn("uuid")
     id!: string;
+
+    /**
+     * Version for optimistic locking (auto-incremented on each update)
+     * Used to generate ETag for conflict resolution
+     */
+    @VersionColumn()
+    version!: number;
 
     @Column({ length: 255 })
     name!: string;

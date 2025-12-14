@@ -99,6 +99,38 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Core Geospatial Service (NEW)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # خدمة الحقول الجغرافية (Field Core)
+  field_core:
+    build:
+      context: ./kernel/services/field_core
+      dockerfile: Dockerfile
+    container_name: sahool-field-core
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-sahool}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-sahool}
+      - DB_NAME=${POSTGRES_DB:-sahool}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Application Services
   # ─────────────────────────────────────────────────────────────────────────────
 

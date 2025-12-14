@@ -1,0 +1,117 @@
+# SAHOOL Platform KPIs - Prometheus Recording Rules
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sahool-platform-kpis
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sahool-platform-kpis
+    sahool.io/component: observability
+spec:
+  groups:
+    - name: sahool.platform.kpis
+      interval: 1m
+      rules:
+        # ═══════════════════════════════════════════════════════════════════
+        # Governance KPIs
+        # ═══════════════════════════════════════════════════════════════════
+
+        # Services without owner label
+        - record: sahool:governance:services_without_owner
+          expr: |
+            count(
+              kube_pod_labels{namespace="sahool"}
+              unless on(pod)
+              kube_pod_labels{label_sahool_io_owner!=""}
+            ) or vector(0)
+
+        # Services without tier label
+        - record: sahool:governance:services_without_tier
+          expr: |
+            count(
+              kube_pod_labels{namespace="sahool"}
+              unless on(pod)
+              kube_pod_labels{label_sahool_io_tier!=""}
+            ) or vector(0)
+
+        # Golden Path adoption rate
+        - record: sahool:governance:golden_path_adoption_rate
+          expr: |
+            (
+              count(kube_pod_labels{namespace="sahool", label_sahool_io_tier=~"tier-.*"})
+              /
+              count(kube_pod_labels{namespace="sahool"})
+            ) * 100 or vector(0)
+
+        # ═══════════════════════════════════════════════════════════════════
+        # Deployment KPIs
+        # ═══════════════════════════════════════════════════════════════════
+
+        # Deployment success rate (last 24h)
+        - record: sahool:deployment:success_rate_24h
+          expr: |
+            (
+              sum(increase(argocd_app_sync_total{dest_namespace="sahool", phase="Succeeded"}[24h]))
+              /
+              sum(increase(argocd_app_sync_total{dest_namespace="sahool"}[24h]))
+            ) * 100 or vector(100)
+
+        # Average deployment time
+        - record: sahool:deployment:avg_sync_time_seconds
+          expr: |
+            avg(argocd_app_reconcile_duration_seconds{namespace="sahool"}) or vector(0)
+
+        # ═══════════════════════════════════════════════════════════════════
+        # Service Health KPIs
+        # ═══════════════════════════════════════════════════════════════════
+
+        # Service availability by tier
+        - record: sahool:availability:tier1_up_ratio
+          expr: |
+            (
+              sum(up{namespace="sahool", tier="tier-1"})
+              /
+              count(up{namespace="sahool", tier="tier-1"})
+            ) * 100 or vector(100)
+
+        - record: sahool:availability:tier2_up_ratio
+          expr: |
+            (
+              sum(up{namespace="sahool", tier="tier-2"})
+              /
+              count(up{namespace="sahool", tier="tier-2"})
+            ) * 100 or vector(100)
+
+        # ═══════════════════════════════════════════════════════════════════
+        # Resource KPIs
+        # ═══════════════════════════════════════════════════════════════════
+
+        # CPU usage by tier
+        - record: sahool:resources:cpu_usage_by_tier
+          expr: |
+            sum by (tier) (
+              rate(container_cpu_usage_seconds_total{namespace="sahool"}[5m])
+            )
+
+        # Memory usage by tier
+        - record: sahool:resources:memory_usage_by_tier
+          expr: |
+            sum by (tier) (
+              container_memory_usage_bytes{namespace="sahool"}
+            )
+
+        # ═══════════════════════════════════════════════════════════════════
+        # Platform Summary
+        # ═══════════════════════════════════════════════════════════════════
+
+        # Total services count
+        - record: sahool:platform:total_services
+          expr: |
+            count(kube_deployment_labels{namespace="sahool"}) or vector(0)
+
+        # Services by lifecycle
+        - record: sahool:platform:services_by_lifecycle
+          expr: |
+            count by (label_sahool_io_lifecycle) (
+              kube_pod_labels{namespace="sahool"}
+            )

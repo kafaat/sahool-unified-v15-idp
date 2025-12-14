@@ -5,18 +5,85 @@ Features:
 - scaffold a new service from a golden path template
 - generate GitOps application stub
 - generate Helm values snippet for the service
+- ENFORCE governance fields (owner, team, lifecycle, tier)
 """
 
-import argparse, os, shutil, re
+import argparse
+import json
+import os
+import re
+import sys
 from pathlib import Path
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Golden Path Templates
+# ═══════════════════════════════════════════════════════════════════════════════
+
 TEMPLATES = {
+    "backend-service": "governance/templates/backend-service/skeleton",
+    "worker-service": "governance/templates/worker-service/skeleton",
+    "api-extension": "governance/templates/api-extension/skeleton",
     "python-fastapi": "idp/templates/python-fastapi/skeleton",
     "node-service": "idp/templates/node-service/skeleton",
 }
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Governance Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+REQUIRED_GOVERNANCE_FIELDS = ["owner", "team", "lifecycle", "tier"]
+
+VALID_LIFECYCLES = ["experimental", "internal", "production", "deprecated", "retired"]
+VALID_TIERS = ["tier-1", "tier-2", "tier-3"]
+VALID_TEAMS = ["platform", "kernel", "frontend", "data", "devops", "agro", "iot"]
+
+
+class GovernanceError(Exception):
+    """Raised when governance validation fails"""
+
+    pass
+
+
+def validate_governance(inputs: dict) -> None:
+    """
+    Validate governance fields are present and valid.
+    Raises GovernanceError if validation fails.
+    """
+    missing = [f for f in REQUIRED_GOVERNANCE_FIELDS if not inputs.get(f)]
+    if missing:
+        raise GovernanceError(
+            f"❌ Missing required governance fields: {', '.join(missing)}\n"
+            f"   All services MUST have: {', '.join(REQUIRED_GOVERNANCE_FIELDS)}"
+        )
+
+    # Validate lifecycle
+    lifecycle = inputs.get("lifecycle", "").lower()
+    if lifecycle not in VALID_LIFECYCLES:
+        raise GovernanceError(
+            f"❌ Invalid lifecycle: '{lifecycle}'\n"
+            f"   Valid options: {', '.join(VALID_LIFECYCLES)}"
+        )
+
+    # Validate tier
+    tier = inputs.get("tier", "").lower()
+    if tier not in VALID_TIERS:
+        raise GovernanceError(
+            f"❌ Invalid tier: '{tier}'\n" f"   Valid options: {', '.join(VALID_TIERS)}"
+        )
+
+    # Validate team (warning only)
+    team = inputs.get("team", "").lower()
+    if team not in VALID_TEAMS:
+        print(f"⚠️  Warning: Team '{team}' is not in standard list: {VALID_TEAMS}")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Utility Functions
+# ═══════════════════════════════════════════════════════════════════════════════
+
 
 def kebab(s: str) -> str:
+    """Convert string to kebab-case"""
     s = s.strip().lower()
     s = re.sub(r"[^a-z0-9]+", "-", s)
     s = re.sub(r"-{2,}", "-", s).strip("-")
@@ -24,12 +91,20 @@ def kebab(s: str) -> str:
 
 
 def render(text: str, values: dict) -> str:
+    """Simple template rendering"""
     for k, v in values.items():
         text = text.replace("{{" + k + "}}", str(v))
+        text = text.replace("${{ values." + k + " }}", str(v))
     return text
 
 
 def copy_template(src: Path, dst: Path, values: dict):
+    """Copy and render template files"""
+    if not src.exists():
+        print(f"⚠️  Template not found: {src}, creating minimal structure")
+        dst.mkdir(parents=True, exist_ok=True)
+        return
+
     for root, dirs, files in os.walk(src):
         rel = Path(root).relative_to(src)
         (dst / rel).mkdir(parents=True, exist_ok=True)
@@ -40,53 +115,280 @@ def copy_template(src: Path, dst: Path, values: dict):
             dp.write_text(render(content, values), encoding="utf-8")
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("name", help="service name (kebab-case recommended)")
-    ap.add_argument("--template", choices=TEMPLATES.keys(), default="python-fastapi")
-    ap.add_argument("--port", type=int, default=8080)
-    ap.add_argument(
-        "--layer", default="decision", choices=["signal-producer", "decision", "action"]
-    )
-    ap.add_argument("--out", default="apps")
-    args = ap.parse_args()
+# ═══════════════════════════════════════════════════════════════════════════════
+# Generator Functions
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    name = kebab(args.name)
-    out = Path(args.out) / name
-    if out.exists():
-        raise SystemExit(f"Destination exists: {out}")
 
-    src = Path(TEMPLATES[args.template])
-    values = {"name": name, "port": args.port, "layer": args.layer}
-    copy_template(src, out, values)
+def generate_helm_values(values: dict) -> str:
+    """Generate Helm values with governance configuration"""
+    return f"""# Auto-generated by sahoolctl
+# Service: {values['name']}
+# Owner: {values['owner']}
+# Team: {values['team']}
 
-    # write a Helm values snippet
-    (out / "deploy").mkdir(exist_ok=True)
-    (out / "deploy" / "values.snippet.yaml").write_text(
-        render(
-            """services:
-  {{name}}:
+services:
+  {values['name']}:
     enabled: true
     image:
-      repository: REPLACE_WITH_IMAGE_REPO/{{name}}
+      repository: sahool/{values['name']}
       tag: "0.1.0"
-    service:
-      port: {{port}}
-    rollouts:
-      enabled: true
-      strategy: canary
-    autoscaling:
-      enabled: true
-      minReplicas: 2
-      maxReplicas: 10
-""",
-            values,
-        ),
-        encoding="utf-8",
+    port: {values['port']}
+    replicaCount: {2 if values['tier'] == 'tier-1' else 1}
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
+
+# Governance (REQUIRED)
+governance:
+  owner: "{values['owner']}"
+  team: "{values['team']}"
+  lifecycle: "{values['lifecycle']}"
+  tier: "{values['tier']}"
+  labels:
+    sahool.io/owner: "{values['owner']}"
+    sahool.io/team: "{values['team']}"
+    sahool.io/lifecycle: "{values['lifecycle']}"
+    sahool.io/tier: "{values['tier']}"
+"""
+
+
+def generate_catalog_info(values: dict) -> str:
+    """Generate Backstage catalog-info.yaml"""
+    return f"""apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: {values['name']}
+  description: {values.get('description', f"SAHOOL {values['name']} service")}
+  annotations:
+    github.com/project-slug: kafaat/{values['name']}
+    backstage.io/techdocs-ref: dir:.
+  labels:
+    sahool.io/owner: {values['owner']}
+    sahool.io/team: {values['team']}
+    sahool.io/lifecycle: {values['lifecycle']}
+    sahool.io/tier: {values['tier']}
+  tags:
+    - python
+    - {values['template']}
+    - governed
+spec:
+  type: service
+  owner: {values['owner']}
+  lifecycle: {values['lifecycle']}
+  system: sahool
+"""
+
+
+def generate_gitops_app(values: dict) -> str:
+    """Generate ArgoCD Application manifest"""
+    return f"""apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {values['name']}
+  namespace: argocd
+  labels:
+    sahool.io/owner: {values['owner']}
+    sahool.io/team: {values['team']}
+    sahool.io/lifecycle: {values['lifecycle']}
+    sahool.io/tier: {values['tier']}
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp.git
+    targetRevision: main
+    path: apps/{values['name']}/deploy
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+"""
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CLI Commands
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def cmd_create(args):
+    """Create a new service with governance enforcement"""
+    name = kebab(args.name)
+
+    # Build values dict
+    values = {
+        "name": name,
+        "port": args.port,
+        "layer": args.layer,
+        "owner": args.owner,
+        "team": args.team,
+        "lifecycle": args.lifecycle,
+        "tier": args.tier,
+        "template": args.template,
+        "description": args.description or f"SAHOOL {name} service",
+    }
+
+    # ENFORCE GOVERNANCE
+    try:
+        validate_governance(values)
+    except GovernanceError as e:
+        print(e)
+        print("\n💡 Usage: sahoolctl create myservice --owner team-x --team kernel --lifecycle production --tier tier-2")
+        sys.exit(1)
+
+    print(f"🔍 Governance validation passed")
+    print(f"   Owner: {values['owner']}")
+    print(f"   Team: {values['team']}")
+    print(f"   Lifecycle: {values['lifecycle']}")
+    print(f"   Tier: {values['tier']}")
+
+    # Create output directory
+    out = Path(args.out) / name
+    if out.exists():
+        raise SystemExit(f"❌ Destination exists: {out}")
+
+    # Copy template
+    src = Path(TEMPLATES.get(args.template, TEMPLATES["python-fastapi"]))
+    copy_template(src, out, values)
+
+    # Create deploy directory
+    deploy_dir = out / "deploy"
+    deploy_dir.mkdir(exist_ok=True)
+
+    # Generate Helm values
+    (deploy_dir / "values.yaml").write_text(
+        generate_helm_values(values), encoding="utf-8"
     )
 
-    print(f"✅ Created service: {out}")
-    print("Next: add it to Git, wire CI build, and add GitOps application/values.")
+    # Generate catalog-info.yaml
+    (out / "catalog-info.yaml").write_text(
+        generate_catalog_info(values), encoding="utf-8"
+    )
+
+    # Generate GitOps application
+    gitops_dir = Path("gitops/argocd/applications")
+    gitops_dir.mkdir(parents=True, exist_ok=True)
+    (gitops_dir / f"{name}.yaml").write_text(
+        generate_gitops_app(values), encoding="utf-8"
+    )
+
+    print(f"\n✅ Created governed service: {out}")
+    print(f"   📁 Service code: {out}")
+    print(f"   📁 Helm values: {deploy_dir}/values.yaml")
+    print(f"   📁 Catalog info: {out}/catalog-info.yaml")
+    print(f"   📁 GitOps app: gitops/argocd/applications/{name}.yaml")
+    print("\n📋 Next steps:")
+    print("   1. git add -A && git commit -m 'Add {name} service'")
+    print("   2. git push")
+    print("   3. ArgoCD will auto-deploy")
+
+
+def cmd_validate(args):
+    """Validate governance of existing service"""
+    catalog_path = Path(args.path) / "catalog-info.yaml"
+
+    if not catalog_path.exists():
+        print(f"❌ No catalog-info.yaml found at {args.path}")
+        sys.exit(1)
+
+    # Simple YAML parsing (no external deps)
+    content = catalog_path.read_text()
+    values = {}
+    for field in REQUIRED_GOVERNANCE_FIELDS:
+        match = re.search(rf"sahool\.io/{field}:\s*(\S+)", content)
+        if match:
+            values[field] = match.group(1)
+
+    try:
+        validate_governance(values)
+        print(f"✅ Governance validation passed for {args.path}")
+    except GovernanceError as e:
+        print(e)
+        sys.exit(1)
+
+
+def cmd_list_templates(args):
+    """List available Golden Path templates"""
+    print("🛤️  Available Golden Path Templates:\n")
+    for name, path in TEMPLATES.items():
+        exists = "✅" if Path(path).exists() else "⚠️"
+        print(f"  {exists} {name:20} → {path}")
+    print("\n💡 Use: sahoolctl create myservice --template <template-name>")
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        description="SAHOOL Internal Developer Platform CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  sahoolctl create my-service --owner agro-team --team kernel --lifecycle production --tier tier-1
+  sahoolctl validate ./apps/my-service
+  sahoolctl templates
+        """,
+    )
+
+    subparsers = ap.add_subparsers(dest="command", help="Commands")
+
+    # Create command
+    create_parser = subparsers.add_parser("create", help="Create a new governed service")
+    create_parser.add_argument("name", help="Service name (kebab-case)")
+    create_parser.add_argument(
+        "--template",
+        choices=TEMPLATES.keys(),
+        default="backend-service",
+        help="Golden Path template",
+    )
+    create_parser.add_argument("--port", type=int, default=8080, help="Service port")
+    create_parser.add_argument(
+        "--layer",
+        default="decision",
+        choices=["signal-producer", "decision", "action"],
+        help="Architecture layer",
+    )
+    create_parser.add_argument("--out", default="apps", help="Output directory")
+    create_parser.add_argument("--description", help="Service description")
+
+    # GOVERNANCE FIELDS (REQUIRED)
+    create_parser.add_argument(
+        "--owner", required=True, help="Service owner (REQUIRED)"
+    )
+    create_parser.add_argument("--team", required=True, help="Team name (REQUIRED)")
+    create_parser.add_argument(
+        "--lifecycle",
+        required=True,
+        choices=VALID_LIFECYCLES,
+        help="Lifecycle stage (REQUIRED)",
+    )
+    create_parser.add_argument(
+        "--tier", required=True, choices=VALID_TIERS, help="Service tier (REQUIRED)"
+    )
+
+    # Validate command
+    validate_parser = subparsers.add_parser(
+        "validate", help="Validate governance of existing service"
+    )
+    validate_parser.add_argument("path", help="Path to service directory")
+
+    # Templates command
+    subparsers.add_parser("templates", help="List available templates")
+
+    args = ap.parse_args()
+
+    if args.command == "create":
+        cmd_create(args)
+    elif args.command == "validate":
+        cmd_validate(args)
+    elif args.command == "templates":
+        cmd_list_templates(args)
+    else:
+        ap.print_help()
 
 
 if __name__ == "__main__":

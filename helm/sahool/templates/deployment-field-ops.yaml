@@ -1,0 +1,79 @@
+{{- if .Values.services.fieldOps.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sahool.fullname" . }}-field-ops
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: field-ops
+spec:
+  replicas: {{ .Values.services.fieldOps.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "sahool.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: field-ops
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "sahool.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: field-ops
+    spec:
+      serviceAccountName: {{ include "sahool.serviceAccountName" . }}
+      containers:
+        - name: field-ops
+          image: "{{ .Values.services.fieldOps.image.repository }}:{{ .Values.services.fieldOps.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.services.fieldOps.port }}
+              protocol: TCP
+          env:
+            - name: DATABASE_URL
+              value: {{ include "sahool.databaseUrl" . | quote }}
+            - name: NATS_URL
+              value: {{ include "sahool.natsUrl" . | quote }}
+            - name: REDIS_URL
+              value: {{ include "sahool.redisUrl" . | quote }}
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "sahool.fullname" . }}-secrets
+                  key: jwt-secret-key
+          envFrom:
+            - configMapRef:
+                name: {{ include "sahool.fullname" . }}-config
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml (.Values.services.fieldOps.resources | default .Values.resources) | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sahool.fullname" . }}-field-ops
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: field-ops
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.services.fieldOps.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sahool.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: field-ops
+{{- end }}

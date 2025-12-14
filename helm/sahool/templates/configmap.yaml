@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sahool.fullname" . }}-config
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+data:
+  SAHOOL_VERSION: {{ .Chart.AppVersion | quote }}
+  LOG_LEVEL: {{ .Values.logLevel | default "INFO" | quote }}
+  LOG_FORMAT: "json"
+
+  # JWT Configuration
+  JWT_ALGORITHM: {{ .Values.security.jwt.algorithm | quote }}
+  JWT_ISSUER: {{ .Values.security.jwt.issuer | quote }}
+  JWT_AUDIENCE: {{ .Values.security.jwt.audience | quote }}
+  JWT_ACCESS_EXPIRE_MINUTES: {{ .Values.security.jwt.accessExpireMinutes | quote }}
+  JWT_REFRESH_EXPIRE_DAYS: {{ .Values.security.jwt.refreshExpireDays | quote }}
+
+  # Feature Flags
+  ENABLE_SECURITY: {{ .Values.features.enableSecurity | quote }}
+  ENABLE_AUDIT_LOGGING: {{ .Values.features.enableAuditLogging | quote }}
+  ENABLE_RATE_LIMITING: {{ .Values.features.enableRateLimiting | quote }}
+  ENABLE_METRICS: {{ .Values.features.enableMetrics | quote }}

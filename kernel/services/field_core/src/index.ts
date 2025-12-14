@@ -3,6 +3,13 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { AppDataSource } from "./data-source";
 import { Field } from "./entity/Field";
+import {
+    generateETag,
+    validateIfMatch,
+    createConflictResponse,
+    setETagHeader,
+    getIfMatchHeader
+} from "./middleware/etag";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000");
@@ -14,9 +21,14 @@ const PORT = parseInt(process.env.PORT || "3000");
 app.use(cors());
 app.use(express.json());
 
-// Request logging
+// ETag header middleware
+app.use(setETagHeader);
+
+// Request logging with ETag info
 app.use((req: Request, _res: Response, next: NextFunction) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    const ifMatch = getIfMatchHeader(req);
+    const etagInfo = ifMatch ? ` [If-Match: ${ifMatch}]` : "";
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}${etagInfo}`);
     next();
 });
 
@@ -101,6 +113,7 @@ app.get("/api/v1/fields", async (req: Request, res: Response) => {
 /**
  * GET /api/v1/fields/:id
  * Get a single field by ID
+ * Returns ETag header for optimistic locking
  */
 app.get("/api/v1/fields/:id", async (req: Request, res: Response) => {
     try {
@@ -116,7 +129,15 @@ app.get("/api/v1/fields/:id", async (req: Request, res: Response) => {
             });
         }
 
-        res.json({ success: true, data: field });
+        // Generate and set ETag from field ID and version
+        const etag = generateETag(field.id, field.version);
+        res.locals.etag = etag;
+
+        res.json({
+            success: true,
+            data: field,
+            etag: etag // Also include in body for mobile clients
+        });
     } catch (error) {
         console.error("Error fetching field:", error);
         res.status(500).json({
@@ -207,9 +228,16 @@ app.post("/api/v1/fields", async (req: Request, res: Response) => {
             where: { id: savedField.id }
         });
 
+        // Generate ETag for newly created field
+        const etag = finalField ? generateETag(finalField.id, finalField.version) : null;
+        if (etag) {
+            res.locals.etag = etag;
+        }
+
         res.status(201).json({
             success: true,
             data: finalField,
+            etag: etag,
             message: "حقل جديد تم إنشاؤه بنجاح" // New field created successfully
         });
     } catch (error) {
@@ -223,7 +251,15 @@ app.post("/api/v1/fields", async (req: Request, res: Response) => {
 
 /**
  * PUT /api/v1/fields/:id
- * Update an existing field
+ * Update an existing field with optimistic locking
+ *
+ * Headers:
+ *   If-Match: ETag from previous GET request
+ *
+ * Returns:
+ *   200: Success with new ETag
+ *   404: Field not found
+ *   409: Conflict - field was modified by another user
  */
 app.put("/api/v1/fields/:id", async (req: Request, res: Response) => {
     try {
@@ -239,6 +275,18 @@ app.put("/api/v1/fields/:id", async (req: Request, res: Response) => {
             });
         }
 
+        // Validate If-Match header for optimistic locking
+        const ifMatch = getIfMatchHeader(req);
+        if (ifMatch && !validateIfMatch(ifMatch, field.id, field.version)) {
+            // 409 Conflict - the field was modified by another user
+            const currentETag = generateETag(field.id, field.version);
+            console.log(`⚠️ 409 Conflict: Field ${field.id} - Client ETag: ${ifMatch}, Server ETag: ${currentETag}`);
+
+            return res.status(409).json(
+                createConflictResponse(field, currentETag, "field")
+            );
+        }
+
         // Update allowed fields
         const allowedUpdates = [
             "name", "cropType", "status", "irrigationType",
@@ -251,11 +299,17 @@ app.put("/api/v1/fields/:id", async (req: Request, res: Response) => {
             }
         }
 
+        // Save will auto-increment the version column (optimistic lock)
         const updatedField = await fieldRepo.save(field);
+
+        // Generate new ETag with updated version
+        const newETag = generateETag(updatedField.id, updatedField.version);
+        res.locals.etag = newETag;
 
         res.json({
             success: true,
             data: updatedField,
+            etag: newETag,
             message: "تم تحديث الحقل بنجاح" // Field updated successfully
         });
     } catch (error) {
@@ -381,15 +435,20 @@ AppDataSource.initialize()
             console.log(`  🚀 Field Core Service running on port ${PORT}`);
             console.log("═══════════════════════════════════════════════════════════");
             console.log("");
-            console.log("  Available endpoints:");
+            console.log("  📡 Available endpoints:");
             console.log("    GET  /healthz              - Health check");
             console.log("    GET  /readyz               - Readiness check");
             console.log("    GET  /api/v1/fields        - List fields");
-            console.log("    GET  /api/v1/fields/:id    - Get field");
-            console.log("    POST /api/v1/fields        - Create field");
-            console.log("    PUT  /api/v1/fields/:id    - Update field");
+            console.log("    GET  /api/v1/fields/:id    - Get field (+ ETag)");
+            console.log("    POST /api/v1/fields        - Create field (+ ETag)");
+            console.log("    PUT  /api/v1/fields/:id    - Update field (If-Match → 409)");
             console.log("    DELETE /api/v1/fields/:id  - Delete field");
             console.log("    GET  /api/v1/fields/nearby - Geospatial query");
+            console.log("");
+            console.log("  🔐 ETag Conflict Resolution:");
+            console.log("    • GET returns ETag header + body.etag");
+            console.log("    • PUT with If-Match header validates version");
+            console.log("    • 409 Conflict returns serverData for resolution");
             console.log("");
         });
     })

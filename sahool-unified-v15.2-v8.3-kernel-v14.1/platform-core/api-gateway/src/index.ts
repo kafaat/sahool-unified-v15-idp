@@ -14,7 +14,6 @@ dotenv.config();
 const PORT = parseInt(process.env.PORT || "3000", 10);
 const REDIS_URL = process.env.REDIS_URL || "redis://localhost:6379";
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://localhost:3001";
-const JWT_PUBLIC_KEY_PATH = process.env.JWT_PUBLIC_KEY_PATH || "./keys/public.pem";
 
 const SERVICES: Record<string, string> = {
   auth: AUTH_SERVICE_URL,
@@ -26,7 +25,18 @@ const SERVICES: Record<string, string> = {
   alert: process.env.ALERT_SERVICE_URL || "http://localhost:3031"
 };
 
-const publicKey = fs.readFileSync(JWT_PUBLIC_KEY_PATH, "utf8");
+// Support both environment variable directly OR file path
+let publicKey: string;
+
+if (process.env.JWT_PUBLIC_KEY) {
+  // Key provided directly as environment variable (preferred for security)
+  publicKey = process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n');
+} else {
+  // Fallback to file path (for backward compatibility)
+  const JWT_PUBLIC_KEY_PATH = process.env.JWT_PUBLIC_KEY_PATH || "./keys/public.pem";
+  publicKey = fs.readFileSync(JWT_PUBLIC_KEY_PATH, "utf8");
+}
+
 const redis = new Redis(REDIS_URL);
 
 type TokenPayload = {

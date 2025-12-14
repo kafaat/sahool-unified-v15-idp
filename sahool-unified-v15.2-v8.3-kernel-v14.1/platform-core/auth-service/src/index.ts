@@ -19,11 +19,22 @@ const DATABASE_URL = process.env.DATABASE_URL || "postgresql://sahool:sahool@loc
 const JWT_ISSUER = process.env.JWT_ISSUER || "sahool";
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || "sahool-clients";
 const PASSWORD_PEPPER = process.env.PASSWORD_PEPPER || "change_me";
-const JWT_PRIVATE_KEY_PATH = process.env.JWT_PRIVATE_KEY_PATH || "./keys/private.pem";
-const JWT_PUBLIC_KEY_PATH = process.env.JWT_PUBLIC_KEY_PATH || "./keys/public.pem";
 
-const privateKey = fs.readFileSync(JWT_PRIVATE_KEY_PATH, "utf8");
-const publicKey = fs.readFileSync(JWT_PUBLIC_KEY_PATH, "utf8");
+// Support both environment variable directly OR file path
+let privateKey: string;
+let publicKey: string;
+
+if (process.env.JWT_PRIVATE_KEY && process.env.JWT_PUBLIC_KEY) {
+  // Keys provided directly as environment variables (preferred for security)
+  privateKey = process.env.JWT_PRIVATE_KEY.replace(/\\n/g, '\n');
+  publicKey = process.env.JWT_PUBLIC_KEY.replace(/\\n/g, '\n');
+} else {
+  // Fallback to file paths (for backward compatibility)
+  const JWT_PRIVATE_KEY_PATH = process.env.JWT_PRIVATE_KEY_PATH || "./keys/private.pem";
+  const JWT_PUBLIC_KEY_PATH = process.env.JWT_PUBLIC_KEY_PATH || "./keys/public.pem";
+  privateKey = fs.readFileSync(JWT_PRIVATE_KEY_PATH, "utf8");
+  publicKey = fs.readFileSync(JWT_PUBLIC_KEY_PATH, "utf8");
+}
 
 const pool = new Pool({ connectionString: DATABASE_URL });
 

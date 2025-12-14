@@ -10,7 +10,7 @@ WORKDIR /app
 
 # Install dependencies first (better caching)
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # Copy source and build
 COPY tsconfig.json ./
@@ -28,7 +28,7 @@ RUN apk add --no-cache curl
 # Copy built files and production dependencies
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm ci --production
+RUN npm install --production
 
 # Environment
 ENV NODE_ENV=production

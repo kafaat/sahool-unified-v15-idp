@@ -1,0 +1,132 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Kong API Gateway Configuration
+# Declarative configuration for DB-less mode
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_format_version: "3.0"
+_transform: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Services Definition
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  # Field Operations Service
+  - name: field-ops-service
+    url: http://sahool-field-ops:8080
+    routes:
+      - name: field-ops-route
+        paths:
+          - /api/v1/fields
+          - /api/v1/tasks
+          - /api/v1/assignments
+        strip_path: false
+
+  # NDVI Engine Service
+  - name: ndvi-engine-service
+    url: http://sahool-ndvi-engine:8097
+    routes:
+      - name: ndvi-route
+        paths:
+          - /api/v1/ndvi
+          - /api/v1/satellite
+        strip_path: false
+
+  # Weather Core Service
+  - name: weather-service
+    url: http://sahool-weather-core:8098
+    routes:
+      - name: weather-route
+        paths:
+          - /api/v1/weather
+          - /api/v1/forecast
+        strip_path: false
+
+  # Field Chat Service
+  - name: chat-service
+    url: http://sahool-field-chat:8099
+    routes:
+      - name: chat-route
+        paths:
+          - /api/v1/chat
+          - /api/v1/messages
+        strip_path: false
+
+  # IoT Gateway Service
+  - name: iot-service
+    url: http://sahool-iot-gateway:8094
+    routes:
+      - name: iot-route
+        paths:
+          - /api/v1/iot
+          - /api/v1/sensors
+          - /api/v1/devices
+        strip_path: false
+
+  # Agro Advisor Service
+  - name: advisor-service
+    url: http://sahool-agro-advisor:8095
+    routes:
+      - name: advisor-route
+        paths:
+          - /api/v1/advisor
+          - /api/v1/recommendations
+        strip_path: false
+
+  # WebSocket Gateway Service
+  - name: ws-gateway-service
+    url: http://sahool-ws-gateway:8090
+    routes:
+      - name: ws-route
+        paths:
+          - /ws
+          - /api/v1/realtime
+        strip_path: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Global Plugins
+# ─────────────────────────────────────────────────────────────────────────────
+
+plugins:
+  # Rate Limiting
+  - name: rate-limiting
+    config:
+      minute: 100
+      hour: 5000
+      policy: local
+
+  # CORS
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Authorization
+        - Content-Type
+        - X-Tenant-ID
+        - X-Request-ID
+      exposed_headers:
+        - X-Request-ID
+      credentials: true
+      max_age: 3600
+
+  # Request/Response Logging
+  - name: file-log
+    config:
+      path: /dev/stdout
+      reopen: true
+
+  # Request ID
+  - name: correlation-id
+    config:
+      header_name: X-Request-ID
+      generator: uuid
+      echo_downstream: true

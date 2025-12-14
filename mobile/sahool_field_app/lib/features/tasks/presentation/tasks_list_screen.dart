@@ -5,6 +5,7 @@ import '../../../core/config/theme.dart';
 import '../domain/entities/task.dart';
 import '../providers/tasks_provider.dart';
 import 'task_details_screen.dart';
+import 'create_task_screen.dart';
 import 'widgets/task_card.dart';
 
 /// Tasks List Screen - Main tasks view
@@ -57,12 +58,14 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('المهام'),
+        backgroundColor: SahoolTheme.primary,
+        foregroundColor: Colors.white,
         actions: [
           // Filter button
           PopupMenuButton<TaskStatus?>(
             icon: Icon(
               Icons.filter_list,
-              color: _statusFilter != null ? SahoolTheme.primaryGreen : null,
+              color: _statusFilter != null ? Colors.amber : Colors.white,
             ),
             onSelected: (status) {
               setState(() => _statusFilter = status);
@@ -161,7 +164,7 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createTask,
-        backgroundColor: SahoolTheme.primaryGreen,
+        backgroundColor: SahoolTheme.primary,
         child: const Icon(Icons.add),
       ),
     );
@@ -187,7 +190,7 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تم تحديث حالة المهمة إلى ${status.arabicLabel}'),
-            backgroundColor: Colors.green,
+            backgroundColor: SahoolTheme.primary,
           ),
         );
       }
@@ -204,10 +207,10 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
   }
 
   void _createTask() {
-    // TODO: Navigate to create task screen
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('إنشاء مهمة جديدة - قريباً'),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CreateTaskScreen(fieldId: widget.fieldId),
       ),
     );
   }

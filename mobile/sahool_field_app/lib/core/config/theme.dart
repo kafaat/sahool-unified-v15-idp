@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// SAHOOL Theme Configuration
 /// تكوين ثيم سهول
 class SahoolTheme {
+  // Font Family Name
+  static String get fontFamily => GoogleFonts.ibmPlexSansArabic().fontFamily!;
   // Brand Colors - ألوان العلامة التجارية
   static const Color primary = Color(0xFF367C2B);       // SAHOOL Green
   static const Color primaryLight = Color(0xFF4A9A3D);  // Light Green
@@ -39,7 +42,7 @@ class SahoolTheme {
   static ThemeData get light => ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    fontFamily: 'IBMPlexSansArabic',
+    fontFamily: fontFamily,
 
     colorScheme: const ColorScheme.light(
       primary: primary,
@@ -57,13 +60,13 @@ class SahoolTheme {
     scaffoldBackgroundColor: backgroundLight,
 
     // AppBar
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: primary,
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: true,
       titleTextStyle: TextStyle(
-        fontFamily: 'IBMPlexSansArabic',
+        fontFamily: fontFamily,
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: Colors.white,
@@ -99,8 +102,8 @@ class SahoolTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        textStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+        textStyle: TextStyle(
+          fontFamily: fontFamily,
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
@@ -121,8 +124,8 @@ class SahoolTheme {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: primary,
-        textStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+        textStyle: TextStyle(
+          fontFamily: fontFamily,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -165,7 +168,7 @@ class SahoolTheme {
     chipTheme: ChipThemeData(
       backgroundColor: Colors.grey[200],
       selectedColor: primary.withOpacity(0.2),
-      labelStyle: const TextStyle(fontSize: 13, fontFamily: 'Cairo'),
+      labelStyle: TextStyle(fontSize: 13, fontFamily: fontFamily),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
@@ -186,11 +189,11 @@ class SahoolTheme {
     ),
 
     // Tab Bar
-    tabBarTheme: const TabBarTheme(
+    tabBarTheme: TabBarTheme(
       labelColor: Colors.white,
       unselectedLabelColor: Colors.white70,
       indicatorColor: Colors.white,
-      labelStyle: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold),
+      labelStyle: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.bold),
     ),
 
     // Dialog
@@ -198,11 +201,11 @@ class SahoolTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      titleTextStyle: const TextStyle(
-        fontFamily: 'IBMPlexSansArabic',
+      titleTextStyle: TextStyle(
+        fontFamily: fontFamily,
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color: Color(0xFF1A1A1A),
+        color: const Color(0xFF1A1A1A),
       ),
     ),
 
@@ -219,7 +222,7 @@ class SahoolTheme {
   static ThemeData get dark => ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    fontFamily: 'IBMPlexSansArabic',
+    fontFamily: fontFamily,
 
     colorScheme: const ColorScheme.dark(
       primary: primaryLight,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
@@ -99,8 +101,10 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. الخريطة (الطبقة الخلفية) - Placeholder
-          _buildMapPlaceholder(),
+          // 1. ✅ الخريطة تملأ الشاشة بالكامل (Positioned.fill)
+          Positioned.fill(
+            child: _buildMapPlaceholder(),
+          ),
 
           // 2. شريط البحث العائم (في الأعلى)
           _buildFloatingSearchBar(),
@@ -162,40 +166,51 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  /// الخريطة - Placeholder (استبدلها بـ FlutterMap لاحقاً)
+  // إحداثيات وهمية للحقول (اليمن - صنعاء)
+  final List<LatLng> _fieldLocations = const [
+    LatLng(15.3694, 44.1910), // القطعة الشمالية
+    LatLng(15.3550, 44.2050), // حقل الذرة
+    LatLng(15.3800, 44.1750), // البستان الغربي
+    LatLng(15.3450, 44.1850), // حقل الطماطم
+    LatLng(15.3300, 44.2100), // المنطقة الجنوبية
+    LatLng(15.3600, 44.1600), // حقل البطاطا
+  ];
+
+  /// الخريطة الحقيقية - FlutterMap
   Widget _buildMapPlaceholder() {
-    return GestureDetector(
-      onTap: () {
-        // إلغاء التحديد عند الضغط على مكان فارغ
-        if (_selectedField != null) {
-          setState(() => _selectedField = null);
-        }
-      },
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF87CEEB), // سماء
-              Color(0xFF90EE90), // أرض خضراء
-            ],
-          ),
-        ),
-        child: Stack(
-          children: [
-            // علامات الحقول
-            ...List.generate(_mockFields.length, (index) {
-              final field = _mockFields[index];
-              return Positioned(
-                left: 30.0 + (index % 3) * 120,
-                top: 200.0 + (index ~/ 3) * 150,
-                child: _buildFieldMarker(field),
-              );
-            }),
-          ],
-        ),
+    return FlutterMap(
+      options: MapOptions(
+        initialCenter: const LatLng(15.3694, 44.1910), // صنعاء
+        initialZoom: 12,
+        onTap: (tapPosition, point) {
+          // إلغاء التحديد عند الضغط على مكان فارغ
+          if (_selectedField != null) {
+            setState(() => _selectedField = null);
+          }
+        },
       ),
+      children: [
+        // طبقة الخرائط الأساسية
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.sahool.field',
+          maxZoom: 19,
+        ),
+
+        // طبقة علامات الحقول
+        MarkerLayer(
+          markers: List.generate(_mockFields.length, (index) {
+            final field = _mockFields[index];
+            final location = _fieldLocations[index];
+            return Marker(
+              point: location,
+              width: 150,
+              height: 60,
+              child: _buildFieldMarker(field),
+            );
+          }),
+        ),
+      ],
     );
   }
 

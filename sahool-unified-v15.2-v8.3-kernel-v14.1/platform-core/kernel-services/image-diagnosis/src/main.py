@@ -18,24 +18,22 @@ import os
 import sys
 import json
 import base64
-import asyncio
 from datetime import datetime
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, Any, List
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from enum import Enum
-from pathlib import Path
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File
 import uvicorn
 import nats
 from PIL import Image
 import io
 
 sys.path.insert(0, '/app')
-from shared.events.base_event import create_event, EventTypes
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import EVENTS_PUBLISHED, init_service_info
+from shared.events.base_event import create_event, EventTypes  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import EVENTS_PUBLISHED, init_service_info  # noqa: E402
 
 configure_logging(service_name="image-diagnosis-service")
 logger = get_logger(__name__)
@@ -435,7 +433,7 @@ class ImageDiagnosisService:
                 return
             
             image_data = base64.b64decode(image_b64)
-            results = await self.analyze_and_publish(
+            await self.analyze_and_publish(
                 image_data, crop_type, field_id, tenant_id
             )
             

@@ -6,20 +6,18 @@ Purpose: Soil data collection, analysis, and recommendations
 """
 
 import os
-import asyncio
 from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict, Any, Tuple
 from contextlib import asynccontextmanager
 import uuid
-import json
 from dataclasses import dataclass
 
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
-from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Integer, Float, Date, select, func
+from pydantic import BaseModel
+from sqlalchemy import Column, String, DateTime, Text, JSON, ForeignKey, Integer, Float, Date, select
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import UUID
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
 import structlog
@@ -28,10 +26,10 @@ import enum
 # Shared imports
 import sys
 sys.path.insert(0, '/app/shared')
-from database import Database, BaseModel as DBBaseModel
-from events.base_event import BaseEvent, EventBus
-from utils.logging import setup_logging
-from metrics import MetricsManager
+from database import Database, BaseModel as DBBaseModel  # noqa: E402
+from events.base_event import BaseEvent, EventBus  # noqa: E402
+from utils.logging import setup_logging  # noqa: E402
+from metrics import MetricsManager  # noqa: E402
 
 # ============================================================================
 # Configuration

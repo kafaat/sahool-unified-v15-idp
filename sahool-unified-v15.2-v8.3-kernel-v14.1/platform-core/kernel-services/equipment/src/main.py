@@ -6,20 +6,18 @@ Purpose: Equipment tracking, maintenance scheduling, IoT device integration
 """
 
 import os
-import asyncio
 from datetime import datetime, timedelta, date
 from typing import Optional, List, Dict, Any, Tuple
 from contextlib import asynccontextmanager
 import uuid
-import json
 
-from fastapi import FastAPI, HTTPException, Depends, status, Query
+from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
-from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Integer, Float, Date, select, update, delete, func, and_, or_
-from sqlalchemy.orm import relationship, selectinload
+from pydantic import BaseModel, Field
+from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Integer, Float, Date, select, update, func, and_, or_
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, generate_latest, CONTENT_TYPE_LATEST
 from starlette.responses import Response
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -29,10 +27,10 @@ import enum
 # Shared imports
 import sys
 sys.path.insert(0, '/app/shared')
-from database import Database, BaseModel as DBBaseModel
-from events.base_event import BaseEvent, EventBus
-from utils.logging import setup_logging
-from metrics import MetricsManager
+from database import Database, BaseModel as DBBaseModel  # noqa: E402
+from events.base_event import BaseEvent, EventBus  # noqa: E402
+from utils.logging import setup_logging  # noqa: E402
+from metrics import MetricsManager  # noqa: E402
 
 # ============================================================================
 # Configuration
@@ -1089,7 +1087,6 @@ class EquipmentService:
 async def handle_task_assigned(event: Dict[str, Any], service: EquipmentService):
     """Handle task assignment - may need equipment"""
     # This could auto-assign equipment if specified in task
-    pass
 
 # ============================================================================
 # Dependencies

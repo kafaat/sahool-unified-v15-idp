@@ -6,22 +6,20 @@ Purpose: Field management, geographic boundaries, PostGIS integration, spatial q
 """
 
 import os
-import asyncio
 from datetime import datetime, date
 from typing import Optional, List, Dict, Any, Tuple
 from contextlib import asynccontextmanager
 import uuid
-import json
 
-from fastapi import FastAPI, HTTPException, Depends, status, Query, Body
+from fastapi import FastAPI, HTTPException, status, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, validator
-from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Integer, Float, Date, select, update, func, delete
+from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Float, Date, select, func
 from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from geoalchemy2 import Geometry
-from geoalchemy2.shape import to_shape, from_shape
-from shapely.geometry import shape, mapping, Point, Polygon, MultiPolygon
+from geoalchemy2.shape import to_shape
+from shapely.geometry import shape, mapping, Point, Polygon
 from shapely.ops import transform
 import pyproj
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
@@ -32,10 +30,10 @@ import enum
 # Shared imports
 import sys
 sys.path.insert(0, '/app/shared')
-from database import Database, BaseModel as DBBaseModel
-from events.base_event import BaseEvent, EventBus
-from utils.logging import setup_logging
-from metrics import MetricsManager
+from database import Database, BaseModel as DBBaseModel  # noqa: E402
+from events.base_event import BaseEvent, EventBus  # noqa: E402
+from utils.logging import setup_logging  # noqa: E402
+from metrics import MetricsManager  # noqa: E402
 
 # ============================================================================
 # Configuration

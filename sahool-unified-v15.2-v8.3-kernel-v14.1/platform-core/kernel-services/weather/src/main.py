@@ -16,25 +16,26 @@ Events Produced:
 
 import os
 import sys
-import json
-import asyncio
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List
-from contextlib import asynccontextmanager
-from dataclasses import dataclass, asdict
-from enum import Enum
-
-from fastapi import FastAPI
-import uvicorn
-import httpx
-import nats
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.triggers.cron import CronTrigger
-
 sys.path.insert(0, '/app')
-from shared.events.base_event import create_event, EventTypes
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import EVENTS_PUBLISHED, init_service_info
+
+import json  # noqa: E402
+import asyncio  # noqa: E402
+from datetime import datetime  # noqa: E402
+from typing import Optional, Dict, Any, List  # noqa: E402
+from contextlib import asynccontextmanager  # noqa: E402
+from dataclasses import dataclass  # noqa: E402
+from enum import Enum  # noqa: E402
+
+from fastapi import FastAPI  # noqa: E402
+import uvicorn  # noqa: E402
+import httpx  # noqa: E402
+import nats  # noqa: E402
+from apscheduler.schedulers.asyncio import AsyncIOScheduler  # noqa: E402
+from apscheduler.triggers.cron import CronTrigger  # noqa: E402
+
+from shared.events.base_event import create_event, EventTypes  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import EVENTS_PUBLISHED, init_service_info  # noqa: E402
 
 configure_logging(service_name="weather-service")
 logger = get_logger(__name__)

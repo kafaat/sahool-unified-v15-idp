@@ -26,13 +26,11 @@ Events Produced:
 import os
 import sys
 import json
-import asyncio
-from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List
+from datetime import datetime
+from typing import Optional, Dict
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from enum import Enum
-from collections import defaultdict
 
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -40,9 +38,9 @@ import uvicorn
 import nats
 
 sys.path.insert(0, '/app')
-from shared.events.base_event import create_event, EventTypes
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import EVENTS_PUBLISHED, EVENTS_CONSUMED, init_service_info
+from shared.events.base_event import create_event, EventTypes  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import EVENTS_PUBLISHED, EVENTS_CONSUMED, init_service_info  # noqa: E402
 
 configure_logging(service_name="irrigation-advisor-service")
 logger = get_logger(__name__)

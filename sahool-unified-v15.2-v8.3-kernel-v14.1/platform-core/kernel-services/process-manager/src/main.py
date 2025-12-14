@@ -17,7 +17,7 @@ import sys
 import json
 import asyncio
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, List
 from contextlib import asynccontextmanager
 from enum import Enum
 from dataclasses import dataclass, asdict
@@ -27,13 +27,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import nats
-from nats.js.api import StreamConfig, ConsumerConfig, DeliverPolicy, AckPolicy
 
 # Add shared to path
 sys.path.insert(0, '/app')
-from shared.events.base_event import Event, create_event
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import EVENTS_PROCESSED, SAGAS_ACTIVE, SAGAS_COMPLETED, SAGAS_FAILED
+from shared.events.base_event import Event, create_event  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import EVENTS_PROCESSED, SAGAS_ACTIVE, SAGAS_COMPLETED, SAGAS_FAILED  # noqa: E402
 
 # Configure logging
 configure_logging(service_name="process-manager")

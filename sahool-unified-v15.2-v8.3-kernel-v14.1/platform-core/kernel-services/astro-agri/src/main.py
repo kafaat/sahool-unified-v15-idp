@@ -10,11 +10,10 @@ Knowledge Signal System for Traditional Agricultural Calendar
 
 import os
 import sys
-from datetime import datetime, date
 from typing import Optional, List
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
@@ -23,8 +22,8 @@ import uvicorn
 sys.path.insert(0, '/app')
 
 # ✅ Unified logging with structlog
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.utils.events import NATSPublisher, Event, EventType
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.utils.events import NATSPublisher, Event, EventType  # noqa: E402
 
 # Configure logging FIRST
 configure_logging(

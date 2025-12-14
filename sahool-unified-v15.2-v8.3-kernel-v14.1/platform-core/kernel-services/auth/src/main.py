@@ -6,7 +6,6 @@ Purpose: Centralized authentication, authorization, and token management
 """
 
 import os
-import asyncio
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any
 from contextlib import asynccontextmanager
@@ -15,16 +14,16 @@ import hashlib
 import base64
 
 from fastapi import FastAPI, HTTPException, Depends, status, Security, Request, Header
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, Field, validator
 import jwt
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
 import bcrypt
 import redis.asyncio as redis
-from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Table, Integer, Enum as SQLEnum
+from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Table, Integer
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
@@ -36,10 +35,10 @@ import enum
 # Shared imports
 import sys
 sys.path.insert(0, '/app/shared')
-from database import Database, BaseModel as DBBaseModel
-from events.base_event import BaseEvent, EventBus
-from utils.logging import setup_logging
-from metrics import MetricsManager
+from database import Database, BaseModel as DBBaseModel  # noqa: E402
+from events.base_event import BaseEvent, EventBus  # noqa: E402
+from utils.logging import setup_logging  # noqa: E402
+from metrics import MetricsManager  # noqa: E402
 
 # ============================================================================
 # Configuration
@@ -542,7 +541,6 @@ class JWTManager:
     
     def get_jwks(self) -> Dict:
         """Get JWKS (JSON Web Key Set) for public key distribution"""
-        from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
         
         numbers = self.public_key.public_numbers()
         

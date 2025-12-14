@@ -18,7 +18,7 @@ import sys
 import json
 import asyncio
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, List, Tuple
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from enum import Enum
@@ -33,9 +33,9 @@ from apscheduler.triggers.cron import CronTrigger
 
 # Add shared to path
 sys.path.insert(0, '/app')
-from shared.events.base_event import EventTypes, create_event
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import EVENTS_PUBLISHED, init_service_info, get_metrics, get_metrics_content_type
+from shared.events.base_event import EventTypes, create_event  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import EVENTS_PUBLISHED, init_service_info, get_metrics, get_metrics_content_type  # noqa: E402
 
 # Configure
 configure_logging(service_name="ndvi-service")
@@ -584,7 +584,6 @@ class NDVIService:
         """Check for new satellite imagery availability"""
         logger.info("checking_new_imagery")
         # In production, query STAC API for new Sentinel-2 scenes
-        pass
     
     def _get_recommendations(self, reading: NDVIReading) -> List[dict]:
         """Get recommendations based on NDVI reading"""

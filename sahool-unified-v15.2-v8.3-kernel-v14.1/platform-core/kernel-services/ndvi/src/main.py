@@ -36,9 +36,9 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 sys.path.insert(0, '/app')
-from shared.events.base_event import create_event, EventTypes
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import EVENTS_PUBLISHED, init_service_info
+from shared.events.base_event import create_event, EventTypes  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import EVENTS_PUBLISHED, init_service_info  # noqa: E402
 
 configure_logging(service_name="ndvi-service")
 logger = get_logger(__name__)

@@ -20,7 +20,7 @@ from typing import Optional, Dict, List
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
@@ -29,7 +29,7 @@ from jsonschema import validate, ValidationError
 
 # Add shared to path
 sys.path.insert(0, '/app')
-from shared.utils.logging import configure_logging, get_logger
+from shared.utils.logging import configure_logging, get_logger  # noqa: E402
 
 # Configure logging
 configure_logging(service_name="schema-registry")

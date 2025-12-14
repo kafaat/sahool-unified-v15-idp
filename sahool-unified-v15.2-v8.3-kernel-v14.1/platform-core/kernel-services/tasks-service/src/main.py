@@ -19,20 +19,20 @@ import asyncio
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import nats
 
 sys.path.insert(0, '/app')
-from shared.events.base_event import EventTypes, create_event
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import EVENTS_PUBLISHED, EVENTS_CONSUMED, TASKS_PENDING, init_service_info, get_metrics, get_metrics_content_type
+from shared.events.base_event import EventTypes, create_event  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import EVENTS_PUBLISHED, EVENTS_CONSUMED, TASKS_PENDING, init_service_info, get_metrics, get_metrics_content_type  # noqa: E402
 
 configure_logging(service_name="tasks-service")
 logger = get_logger(__name__)
@@ -240,7 +240,7 @@ class TaskService:
         if deadline_str:
             try:
                 due_date = datetime.fromisoformat(deadline_str.replace("Z", "+00:00"))
-            except:
+            except Exception:
                 due_date = datetime.utcnow() + timedelta(days=3)
         else:
             # Default based on priority

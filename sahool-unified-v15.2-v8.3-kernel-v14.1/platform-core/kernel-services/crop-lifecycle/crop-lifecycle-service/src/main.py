@@ -26,21 +26,20 @@ import sys
 import json
 import asyncio
 from datetime import datetime, date, timedelta
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, List
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, asdict
 from enum import Enum
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import Response
-from pydantic import BaseModel
 import uvicorn
 import nats
 
 sys.path.insert(0, '/app')
-from shared.events.base_event import create_event, EventTypes, Event
-from shared.utils.logging import configure_logging, get_logger, EventLogger
-from shared.metrics import (
+from shared.events.base_event import create_event, EventTypes, Event  # noqa: E402
+from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
+from shared.metrics import (  # noqa: E402
     EVENTS_PUBLISHED, EVENTS_CONSUMED, EVENTS_PROCESSED,
     init_service_info, get_metrics, get_metrics_content_type,
     track_event_processing
@@ -400,7 +399,7 @@ class CropLifecycleEngine:
         anomaly = weather_data.get("anomaly", {})
         if anomaly:
             anomaly_type = anomaly.get("anomaly_type", "")
-            region = weather_data.get("region", "")
+            weather_data.get("region", "")
             
             actions = CropKnowledgeBase.get_weather_actions(anomaly_type)
             

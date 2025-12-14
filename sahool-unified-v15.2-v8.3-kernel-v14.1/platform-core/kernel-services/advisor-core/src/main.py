@@ -5,32 +5,30 @@ Layer: Decision Services (Layer 3)
 Purpose: AI-powered agricultural recommendations combining all signals
 """
 
-import os
-import asyncio
-from datetime import datetime, timedelta, date
-from typing import Optional, List, Dict, Any, Tuple
-from contextlib import asynccontextmanager
-import uuid
-import json
+import sys
+sys.path.insert(0, '/app/shared')  # noqa: E402
 
-from fastapi import FastAPI, HTTPException, Depends, status, Query
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Integer, Float, Date, select, update, delete, func, and_, or_
-from sqlalchemy.orm import relationship, selectinload
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
-from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
-from starlette.responses import Response
-import structlog
-import enum
+import os  # noqa: E402
+from datetime import datetime, timedelta  # noqa: E402
+from typing import Optional, List, Dict, Any, Tuple  # noqa: E402
+from contextlib import asynccontextmanager  # noqa: E402
+import uuid  # noqa: E402
+
+from fastapi import FastAPI, HTTPException, status, Query  # noqa: E402
+from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
+from pydantic import BaseModel, Field  # noqa: E402
+from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Float, select, delete, func  # noqa: E402
+from sqlalchemy.orm import relationship  # noqa: E402
+from sqlalchemy.dialects.postgresql import UUID  # noqa: E402
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST  # noqa: E402
+from starlette.responses import Response  # noqa: E402
+import structlog  # noqa: E402
+import enum  # noqa: E402
 
 # Shared imports
-import sys
-sys.path.insert(0, '/app/shared')
-from database import Database, BaseModel as DBBaseModel
-from events.base_event import BaseEvent, EventBus
-from utils.logging import setup_logging
-from metrics import MetricsManager
+from database import Database, BaseModel as DBBaseModel  # noqa: E402
+from events.base_event import EventBus  # noqa: E402
+from utils.logging import setup_logging  # noqa: E402
 
 # ============================================================================
 # Configuration

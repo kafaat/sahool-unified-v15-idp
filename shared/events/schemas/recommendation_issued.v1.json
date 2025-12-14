@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.kafaat.dev/schemas/recommendation_issued.v1.json",
+  "title": "RecommendationIssued",
+  "description": "Event emitted when an agricultural recommendation is issued",
+  "type": "object",
+  "required": [
+    "field_id",
+    "category",
+    "severity",
+    "title_ar",
+    "title_en",
+    "actions",
+    "confidence"
+  ],
+  "properties": {
+    "field_id": {
+      "type": "string",
+      "description": "The field ID this recommendation applies to"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["disease", "pest", "nutrient_deficiency", "irrigation", "general"],
+      "description": "Category of the recommendation"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "description": "Severity level of the issue"
+    },
+    "title_ar": {
+      "type": "string",
+      "description": "Arabic title of the recommendation"
+    },
+    "title_en": {
+      "type": "string",
+      "description": "English title of the recommendation"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of recommended action IDs"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Confidence score (0-1)"
+    },
+    "urgency_hours": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Hours until action should be taken"
+    },
+    "details": {
+      "type": "object",
+      "description": "Additional details about the recommendation"
+    }
+  }
+}

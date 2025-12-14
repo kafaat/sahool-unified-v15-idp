@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.kafaat.dev/schemas/fertilizer_plan_issued.v1.json",
+  "title": "FertilizerPlanIssued",
+  "description": "Event emitted when a fertilizer plan is generated",
+  "type": "object",
+  "required": [
+    "field_id",
+    "crop",
+    "stage",
+    "plan"
+  ],
+  "properties": {
+    "field_id": {
+      "type": "string",
+      "description": "The field ID this plan applies to"
+    },
+    "crop": {
+      "type": "string",
+      "description": "Crop type"
+    },
+    "stage": {
+      "type": "string",
+      "description": "Current growth stage"
+    },
+    "plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["product", "dose_kg_per_ha", "timing_days"],
+        "properties": {
+          "product": {
+            "type": "string",
+            "description": "Fertilizer product name"
+          },
+          "product_ar": {
+            "type": "string",
+            "description": "Arabic product name"
+          },
+          "dose_kg_per_ha": {
+            "type": "number",
+            "description": "Dose in kg per hectare"
+          },
+          "total_kg": {
+            "type": "number",
+            "description": "Total kg for field"
+          },
+          "timing_days": {
+            "type": "integer",
+            "description": "Days from now to apply"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["broadcast", "banding", "fertigation", "foliar", "side_dress"],
+            "description": "Application method"
+          }
+        }
+      },
+      "description": "List of fertilizer applications"
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional notes and warnings"
+    },
+    "field_size_ha": {
+      "type": "number",
+      "description": "Field size in hectares"
+    }
+  }
+}

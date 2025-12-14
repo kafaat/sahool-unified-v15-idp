@@ -30,17 +30,29 @@ class Tasks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Outbox Table (for offline-first sync)
+/// Outbox Table (for offline-first sync with ETag support)
 class Outbox extends Table {
-  TextColumn get id => text()();
-  TextColumn get type => text()(); // e.g., "task_complete"
-  TextColumn get payloadJson => text()();
-  DateTimeColumn get createdAt => dateTime()();
-  IntColumn get retryCount => integer().withDefault(const Constant(0))();
-  BoolColumn get completed => boolean().withDefault(const Constant(false))();
+  IntColumn get id => integer().autoIncrement()();
 
-  @override
-  Set<Column> get primaryKey => {id};
+  // Tenant isolation
+  TextColumn get tenantId => text()();
+
+  // Entity targeting (for conflict handling)
+  TextColumn get entityType => text()(); // 'field', 'task', etc.
+  TextColumn get entityId => text()();
+
+  // API request details
+  TextColumn get apiEndpoint => text()();
+  TextColumn get method => text().withDefault(const Constant('POST'))(); // POST/PUT/DELETE
+  TextColumn get payload => text()(); // JSON payload
+
+  // ETag for optimistic locking (PUT requests)
+  TextColumn get ifMatch => text().nullable()();
+
+  // Sync metadata
+  IntColumn get retryCount => integer().withDefault(const Constant(0))();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// Fields Cache Table (GIS-enabled)
@@ -104,7 +116,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3; // v3: ETag + SyncEvents
+  int get schemaVersion => 4; // v4: Unified Outbox schema
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -122,6 +134,12 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(fields, fields.etag);
             await m.addColumn(fields, fields.serverUpdatedAt);
             await m.createTable(syncEvents);
+          }
+          if (from < 4) {
+            // Migration to v4: Unified Outbox schema with ETag support
+            // Recreate outbox table with new structure
+            await m.deleteTable('outbox');
+            await m.createTable(outbox);
           }
         },
       );
@@ -223,7 +241,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // ============================================================
-  // Outbox Operations
+  // Outbox Operations (ETag-enabled for Conflict Resolution)
   // ============================================================
 
   /// Add item to outbox
@@ -231,33 +249,68 @@ class AppDatabase extends _$AppDatabase {
     return into(outbox).insert(item);
   }
 
-  /// Get pending outbox items
+  /// Add entity operation to outbox (helper method)
+  Future<void> queueOutboxItem({
+    required String tenantId,
+    required String entityType,
+    required String entityId,
+    required String apiEndpoint,
+    required String method,
+    required String payload,
+    String? ifMatch,
+  }) {
+    return into(outbox).insert(OutboxCompanion.insert(
+      tenantId: tenantId,
+      entityType: entityType,
+      entityId: entityId,
+      apiEndpoint: apiEndpoint,
+      method: Value(method),
+      payload: payload,
+      ifMatch: Value(ifMatch),
+    ));
+  }
+
+  /// Get pending outbox items (not synced)
   Future<List<OutboxData>> getPendingOutbox({int limit = 50}) {
     return (select(outbox)
-      ..where((o) => o.completed.equals(false))
+      ..where((o) => o.isSynced.equals(false))
       ..orderBy([(o) => OrderingTerm.asc(o.createdAt)])
       ..limit(limit)
     ).get();
   }
 
-  /// Mark outbox item as done
-  Future<void> markOutboxDone(String id) async {
+  /// Mark outbox item as done (synced)
+  Future<void> markOutboxDone(int id) async {
     await (update(outbox)..where((o) => o.id.equals(id))).write(
-      const OutboxCompanion(completed: Value(true)),
+      const OutboxCompanion(isSynced: Value(true)),
     );
   }
 
   /// Increment retry count
-  Future<void> bumpOutboxRetry(String id) async {
+  Future<void> bumpOutboxRetry(int id) async {
     await customStatement(
       'UPDATE outbox SET retry_count = retry_count + 1 WHERE id = ?',
       [id],
     );
   }
 
-  /// Delete completed outbox items
+  /// Delete synced outbox items (cleanup)
   Future<void> cleanupOutbox() async {
-    await (delete(outbox)..where((o) => o.completed.equals(true))).go();
+    await (delete(outbox)..where((o) => o.isSynced.equals(true))).go();
+  }
+
+  /// Get outbox item by ID
+  Future<OutboxData?> getOutboxItemById(int id) {
+    return (select(outbox)..where((o) => o.id.equals(id))).getSingleOrNull();
+  }
+
+  /// Delete outbox items older than given duration
+  Future<void> cleanupOldOutbox({Duration olderThan = const Duration(days: 7)}) async {
+    final cutoff = DateTime.now().subtract(olderThan);
+    await (delete(outbox)
+      ..where((o) => o.isSynced.equals(true))
+      ..where((o) => o.createdAt.isSmallerThanValue(cutoff))
+    ).go();
   }
 
   // ============================================================

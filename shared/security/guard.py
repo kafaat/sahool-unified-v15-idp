@@ -4,7 +4,7 @@ FastAPI-compatible permission enforcement helpers
 """
 
 import logging
-from typing import Optional, Callable
+from typing import Callable
 from functools import wraps
 
 from fastapi import HTTPException

@@ -3,9 +3,8 @@ NDVI Computation Engine - SAHOOL
 Remote sensing NDVI calculation and analysis
 """
 
-import os
 from dataclasses import dataclass, asdict
-from datetime import date, datetime, timedelta
+from datetime import date
 from typing import Optional
 import random
 

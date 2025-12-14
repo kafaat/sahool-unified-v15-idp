@@ -3,13 +3,10 @@ Audit Logging Service
 Database + Event logging for security audit trail
 """
 
-import os
-import json
 import logging
 from uuid import uuid4
 from datetime import datetime, timezone
-from typing import Optional, Any
-from dataclasses import dataclass, asdict
+from typing import Optional
 from enum import Enum
 
 from .audit_models import AuditLog, AuditCategory, AuditSeverity

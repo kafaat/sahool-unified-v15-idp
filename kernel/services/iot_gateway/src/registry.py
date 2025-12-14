@@ -3,8 +3,6 @@ Device Registry - SAHOOL IoT Gateway
 Lightweight device management and status tracking
 """
 
-import os
-import json
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 from dataclasses import dataclass, asdict, field
@@ -63,7 +61,7 @@ class Device:
             last = datetime.fromisoformat(self.last_seen.replace("Z", "+00:00"))
             threshold = datetime.now(timezone.utc) - timedelta(minutes=timeout_minutes)
             return last > threshold
-        except:
+        except (ValueError, TypeError):
             return False
 
 
@@ -174,7 +172,6 @@ class DeviceRegistry:
     def check_offline_devices(self) -> list[Device]:
         """Check for devices that have gone offline"""
         offline = []
-        now = datetime.now(timezone.utc)
 
         for device in self._devices.values():
             if device.status == DeviceStatus.OFFLINE.value:

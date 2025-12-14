@@ -80,7 +80,7 @@ class NdviPublisher:
         self.nc = NATS()
         await self.nc.connect(self.nats_url)
         self._connected = True
-        print(f"📡 NDVI Publisher connected to NATS")
+        print("📡 NDVI Publisher connected to NATS")
 
     async def close(self):
         """Close connection"""

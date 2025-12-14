@@ -6,16 +6,15 @@ Port: 8096
 
 import asyncio
 import os
-import uuid
 from contextlib import asynccontextmanager
 from typing import Optional
 from datetime import datetime, timezone
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
-from pydantic import BaseModel, Field
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 from .mqtt_client import MqttClient, MqttMessage
-from .normalizer import normalize, normalize_batch, NormalizedReading
+from .normalizer import normalize
 from .registry import get_registry, DeviceRegistry, DeviceStatus
 from .events import IoTPublisher, get_publisher
 
@@ -43,7 +42,7 @@ async def handle_mqtt_message(msg: MqttMessage):
         reading = normalize(msg.payload, msg.topic)
 
         # Auto-register device if not known
-        device = registry.auto_register(
+        registry.auto_register(
             device_id=reading.device_id,
             tenant_id=DEFAULT_TENANT,
             field_id=reading.field_id,

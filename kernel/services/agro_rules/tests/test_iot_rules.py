@@ -2,7 +2,6 @@
 IoT Rules Tests - Agro Rules
 """
 
-import pytest
 from kernel.services.agro_rules.src.iot_rules import (
     rule_from_sensor,
     evaluate_combined_rules,

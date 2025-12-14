@@ -3,27 +3,22 @@ Health Check Tests - IoT Gateway
 """
 
 import pytest
-from fastapi.testclient import TestClient
 
 # Import will fail without NATS, so we mock
 import sys
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
 
 # Mock NATS before importing main
 sys.modules['nats'] = MagicMock()
 sys.modules['nats.aio'] = MagicMock()
 sys.modules['nats.aio.client'] = MagicMock()
 
-from kernel.services.iot_gateway.src.normalizer import (
+from kernel.services.iot_gateway.src.normalizer import (  # noqa: E402
     normalize,
-    normalize_batch,
-    NormalizedReading,
 )
-from kernel.services.iot_gateway.src.registry import (
+from kernel.services.iot_gateway.src.registry import (  # noqa: E402
     DeviceRegistry,
-    Device,
     DeviceStatus,
-    DeviceType,
 )
 
 

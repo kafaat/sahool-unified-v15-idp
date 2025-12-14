@@ -2,8 +2,6 @@
 Tests for Field Chat API
 """
 
-import pytest
-from uuid import uuid4
 
 from src.models import ScopeType
 
@@ -35,7 +33,6 @@ class TestEventTypes:
             CHAT_MESSAGE_EDITED,
             CHAT_PARTICIPANT_JOINED,
             CHAT_PARTICIPANT_LEFT,
-            SUBJECTS,
         )
 
         assert CHAT_THREAD_CREATED == "chat_thread_created"

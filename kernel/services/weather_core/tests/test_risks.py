@@ -2,12 +2,10 @@
 Tests for Weather Risk Assessment Module
 """
 
-import pytest
 
 from src.risks import (
     assess_weather,
     get_irrigation_adjustment,
-    WeatherAlert,
 )
 
 

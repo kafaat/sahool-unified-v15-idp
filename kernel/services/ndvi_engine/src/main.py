@@ -5,7 +5,6 @@ Port: 8097
 """
 
 import os
-import uuid
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -19,9 +18,8 @@ from .compute import (
     classify_ndvi_health,
     calculate_vegetation_indices,
     detect_anomalies,
-    NdviResult,
 )
-from .events import NdviPublisher, get_publisher
+from .events import get_publisher
 
 
 @asynccontextmanager

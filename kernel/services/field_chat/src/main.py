@@ -6,8 +6,9 @@ Main FastAPI application entry point
 import os
 import logging
 from contextlib import asynccontextmanager
+from typing import Dict, List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
 from .api import router
@@ -132,9 +133,6 @@ async def root():
 # ─────────────────────────────────────────────────────────────────────────────
 # WebSocket Support (placeholder for real-time)
 # ─────────────────────────────────────────────────────────────────────────────
-
-from fastapi import WebSocket, WebSocketDisconnect
-from typing import Dict, List
 
 # Simple in-memory connection manager
 class ConnectionManager:

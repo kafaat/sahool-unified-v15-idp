@@ -5,7 +5,7 @@ REST API for chat thread and message operations
 
 from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel, Field
-from uuid import UUID, uuid4
+from uuid import UUID
 from datetime import datetime
 from typing import Optional
 
@@ -447,7 +447,7 @@ async def add_participant(
     if not thread:
         raise HTTPException(status_code=404, detail="thread_not_found")
 
-    participant = await repo.add_participant(req.tenant_id, thread_id, req.user_id)
+    await repo.add_participant(req.tenant_id, thread_id, req.user_id)
 
     await pub.publish_participant_joined(
         tenant_id=req.tenant_id,

@@ -80,7 +80,7 @@ class WeatherPublisher:
         self.nc = NATS()
         await self.nc.connect(self.nats_url)
         self._connected = True
-        print(f"📡 Weather Publisher connected to NATS")
+        print("📡 Weather Publisher connected to NATS")
 
     async def close(self):
         """Close connection"""

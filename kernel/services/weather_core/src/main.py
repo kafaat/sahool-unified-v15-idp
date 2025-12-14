@@ -5,7 +5,6 @@ Port: 8098
 """
 
 import os
-import uuid
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -14,7 +13,7 @@ from pydantic import BaseModel, Field
 
 from .providers import OpenMeteoProvider, MockWeatherProvider
 from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
-from .events import WeatherPublisher, get_publisher
+from .events import get_publisher
 
 
 # Configuration

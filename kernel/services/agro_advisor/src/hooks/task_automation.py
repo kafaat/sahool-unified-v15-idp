@@ -5,7 +5,6 @@ Automatically creates FieldOps tasks from recommendations and plans
 
 import os
 import json
-import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 

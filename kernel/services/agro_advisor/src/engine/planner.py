@@ -3,8 +3,7 @@ Fertilizer Planner - SAHOOL Agro Advisor
 Crop-stage-based fertilizer planning for Yemen agriculture
 """
 
-from typing import Optional
-from ..kb.fertilizers import FERTILIZERS, get_fertilizer
+from ..kb.fertilizers import get_fertilizer
 
 
 # Crop nutrient requirements (kg/ha for target yield)

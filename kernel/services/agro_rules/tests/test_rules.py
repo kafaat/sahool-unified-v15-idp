@@ -2,7 +2,6 @@
 Tests for Agro Rules Module
 """
 
-import pytest
 
 from src.rules import (
     rule_from_ndvi,

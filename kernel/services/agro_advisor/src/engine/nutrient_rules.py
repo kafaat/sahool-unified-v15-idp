@@ -3,14 +3,13 @@ Nutrient Rules Engine - SAHOOL Agro Advisor
 Rule-based nutrient deficiency assessment
 """
 
-from typing import Optional
 from ..kb.nutrients import (
     NUTRIENT_DEFICIENCIES,
     get_deficiency,
     get_deficiency_by_nutrient,
     diagnose_from_ndvi,
 )
-from ..kb.fertilizers import get_fertilizers_for_nutrient, calculate_dose
+from ..kb.fertilizers import get_fertilizers_for_nutrient
 
 
 class NutrientAssessment:
@@ -153,7 +152,6 @@ def assess_from_visual(
         if score >= 3:  # Minimum match threshold
             confidence = min(0.9, 0.3 + (score * 0.1))
 
-            name_field = "name_ar" if lang == "ar" else "name_en"
             symptoms_field = "symptoms_ar" if lang == "ar" else "symptoms_en"
 
             assessments.append(

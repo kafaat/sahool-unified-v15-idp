@@ -5,7 +5,6 @@ Port: 8095
 """
 
 import os
-import uuid
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -26,12 +25,11 @@ from .engine import (
     assess_from_ndvi,
     assess_from_visual,
     get_action_details,
-    get_correction_plan,
     fertilizer_plan,
     get_stage_timeline,
     CROP_REQUIREMENTS,
 )
-from .events import AdvisorPublisher, get_publisher
+from .events import get_publisher
 
 
 # Lifespan context manager

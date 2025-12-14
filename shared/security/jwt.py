@@ -6,7 +6,7 @@ RS256/HS256 support with standard claims
 import os
 import logging
 from datetime import datetime, timezone, timedelta
-from typing import Optional, Any
+from typing import Optional
 from dataclasses import dataclass
 
 import jwt

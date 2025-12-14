@@ -2,19 +2,16 @@
 Tests for RBAC Module
 """
 
-import pytest
 
 from shared.security.rbac import (
     has_permission,
     has_any_permission,
     has_all_permissions,
     get_role_permissions,
-    get_all_permissions,
     is_same_tenant,
     can_access_resource,
     Permission,
     Role,
-    ROLE_PERMISSIONS,
 )
 
 

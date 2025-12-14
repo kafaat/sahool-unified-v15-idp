@@ -3,7 +3,6 @@ Role-Based Access Control (RBAC) Policy Engine
 Simple and effective permission management
 """
 
-from typing import Optional
 from enum import Enum
 
 

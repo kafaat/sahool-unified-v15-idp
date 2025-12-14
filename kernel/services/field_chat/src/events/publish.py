@@ -6,9 +6,9 @@ NATS JetStream publisher for chat events
 import os
 import json
 import logging
-from uuid import UUID, uuid4
+from uuid import uuid4
 from datetime import datetime
-from typing import Optional, Any
+from typing import Optional
 from dataclasses import dataclass, asdict
 
 import nats

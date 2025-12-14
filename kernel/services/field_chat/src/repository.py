@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 from datetime import datetime
 from typing import Optional
 
-from .models import ChatThread, ChatMessage, ChatParticipant, ScopeType
+from .models import ChatThread, ChatMessage, ChatParticipant
 
 
 class ChatRepository:
@@ -275,8 +275,8 @@ class ChatRepository:
     def _generate_title(self, scope_type: str, scope_id: str) -> str:
         """Generate default thread title"""
         titles = {
-            "field": f"محادثة الحقل | Field Chat",
-            "task": f"محادثة المهمة | Task Chat",
-            "incident": f"محادثة الحادثة | Incident Chat",
+            "field": "محادثة الحقل | Field Chat",
+            "task": "محادثة المهمة | Task Chat",
+            "incident": "محادثة الحادثة | Incident Chat",
         }
         return titles.get(scope_type, "محادثة | Chat")

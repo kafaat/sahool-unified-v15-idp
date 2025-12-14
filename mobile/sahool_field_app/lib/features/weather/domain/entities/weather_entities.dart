@@ -1,5 +1,6 @@
 /// SAHOOL Weather Domain Entities
 /// نماذج بيانات الطقس
+import 'dart:ui' show Color;
 
 /// حالة الطقس الحالية
 class CurrentWeather {
@@ -272,8 +273,3 @@ class WeatherData {
   }
 }
 
-// Extension for Color (used in WeatherAlert)
-class Color {
-  final int value;
-  const Color(this.value);
-}

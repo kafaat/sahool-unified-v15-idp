@@ -1,7 +1,9 @@
+import 'package:latlong2/latlong.dart';
+
 /// Field Domain Entity
 /// كيان الحقل - Domain Layer نظيف (بدون Flutter)
 ///
-/// يمثل الحقل الزراعي مع جميع خصائصه
+/// يمثل الحقل الزراعي مع جميع خصائصه GIS
 
 /// حالة صحة الحقل
 enum FieldStatus {
@@ -18,62 +20,111 @@ enum FieldStatus {
   unknown,
 }
 
-/// كيان الحقل الزراعي
+/// كيان الحقل الزراعي (GIS-enabled)
 class Field {
-  /// معرف فريد
+  /// معرف فريد محلي
   final String id;
+
+  /// معرف السيرفر (PostGIS)
+  final String? remoteId;
+
+  /// معرف المستأجر
+  final String tenantId;
+
+  /// معرف المزرعة
+  final String? farmId;
 
   /// اسم الحقل
   final String name;
 
   /// نوع المحصول
-  final String cropType;
+  final String? cropType;
 
-  /// المساحة بالهكتار
-  final double areaHa;
+  /// حدود الحقل (GIS Polygon)
+  final List<LatLng> boundary;
 
-  /// قيمة NDVI (0.0 - 1.0)
-  final double ndvi;
+  /// مركز الحقل (GIS Point)
+  final LatLng? centroid;
 
-  /// حالة الحقل
-  final FieldStatus status;
+  /// المساحة بالهكتار (محسوبة من الحدود)
+  final double areaHectares;
 
-  /// إحداثيات المركز (latitude, longitude)
-  final double? centerLat;
-  final double? centerLng;
+  /// حالة الحقل (active, fallow, etc.)
+  final String? status;
 
-  /// عدد المهام المعلقة
+  /// قيمة NDVI الحالية (0.0 - 1.0)
+  final double? ndviCurrent;
+
+  /// تاريخ تحديث NDVI
+  final DateTime? ndviUpdatedAt;
+
+  /// هل تم المزامنة مع السيرفر؟
+  final bool synced;
+
+  /// هل تم حذفه (Soft Delete)؟
+  final bool isDeleted;
+
+  /// تاريخ الإنشاء
+  final DateTime createdAt;
+
+  /// تاريخ التحديث
+  final DateTime updatedAt;
+
+  /// عدد المهام المعلقة (UI convenience)
   final int pendingTasks;
-
-  /// آخر تحديث للبيانات
-  final DateTime? lastUpdate;
-
-  /// ملاحظات إضافية
-  final String? notes;
 
   const Field({
     required this.id,
+    this.remoteId,
+    required this.tenantId,
+    this.farmId,
     required this.name,
-    required this.cropType,
-    required this.areaHa,
-    required this.ndvi,
-    required this.status,
-    this.centerLat,
-    this.centerLng,
+    this.cropType,
+    this.boundary = const [],
+    this.centroid,
+    this.areaHectares = 0,
+    this.status,
+    this.ndviCurrent,
+    this.ndviUpdatedAt,
+    this.synced = false,
+    this.isDeleted = false,
+    required this.createdAt,
+    required this.updatedAt,
     this.pendingTasks = 0,
-    this.lastUpdate,
-    this.notes,
   });
+
+  // ============================================================
+  // Computed Properties (UI Convenience)
+  // ============================================================
+
+  /// قيمة NDVI للعرض
+  double get ndvi => ndviCurrent ?? 0.0;
+
+  /// المساحة (للتوافق مع الكود القديم)
+  double get areaHa => areaHectares;
+
+  /// إحداثيات المركز (للتوافق مع الكود القديم)
+  double? get centerLat => centroid?.latitude;
+  double? get centerLng => centroid?.longitude;
+
+  /// حالة الصحة المحسوبة من NDVI
+  FieldStatus get healthStatus => statusFromNdvi(ndvi);
 
   /// هل الحقل يحتاج انتباه عاجل؟
   bool get needsAttention =>
-      status == FieldStatus.critical || status == FieldStatus.stressed;
+      healthStatus == FieldStatus.critical || healthStatus == FieldStatus.stressed;
 
   /// هل الحقل في حالة حرجة؟
-  bool get isCritical => status == FieldStatus.critical;
+  bool get isCritical => healthStatus == FieldStatus.critical;
 
   /// تقييم الصحة كنسبة مئوية
   int get healthPercentage => (ndvi * 100).round();
+
+  /// هل الحدود معرفة؟
+  bool get hasBoundary => boundary.isNotEmpty;
+
+  /// عدد نقاط الحدود
+  int get boundaryPointCount => boundary.length;
 
   /// حساب الحالة من قيمة NDVI
   static FieldStatus statusFromNdvi(double ndvi) {
@@ -83,70 +134,135 @@ class Field {
     return FieldStatus.unknown;
   }
 
-  /// إنشاء حقل من JSON
+  /// إنشاء حقل من JSON (GeoJSON Feature)
   factory Field.fromJson(Map<String, dynamic> json) {
-    final ndvi = (json['ndvi'] as num?)?.toDouble() ?? 0.0;
+    // Parse GeoJSON geometry if present
+    List<LatLng> boundary = [];
+    LatLng? centroid;
+
+    final geometry = json['geometry'];
+    if (geometry != null && geometry['type'] == 'Polygon') {
+      final coords = (geometry['coordinates'] as List?)?.first as List?;
+      if (coords != null) {
+        boundary = coords.map((c) {
+          final coord = c as List;
+          return LatLng(
+            (coord[1] as num).toDouble(),
+            (coord[0] as num).toDouble(),
+          );
+        }).toList();
+
+        // Calculate centroid
+        if (boundary.isNotEmpty) {
+          double sumLat = 0, sumLng = 0;
+          for (final p in boundary) {
+            sumLat += p.latitude;
+            sumLng += p.longitude;
+          }
+          centroid = LatLng(sumLat / boundary.length, sumLng / boundary.length);
+        }
+      }
+    }
+
+    final props = json['properties'] as Map<String, dynamic>? ?? json;
+    final now = DateTime.now();
+
     return Field(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      cropType: json['crop_type'] as String? ?? 'غير محدد',
-      areaHa: (json['area_ha'] as num?)?.toDouble() ?? 0.0,
-      ndvi: ndvi,
-      status: FieldStatus.values.firstWhere(
-        (s) => s.name == json['status'],
-        orElse: () => statusFromNdvi(ndvi),
-      ),
-      centerLat: (json['center_lat'] as num?)?.toDouble(),
-      centerLng: (json['center_lng'] as num?)?.toDouble(),
-      pendingTasks: json['pending_tasks'] as int? ?? 0,
-      lastUpdate: json['last_update'] != null
-          ? DateTime.parse(json['last_update'] as String)
+      id: json['id']?.toString() ?? props['id']?.toString() ?? '',
+      remoteId: json['remote_id']?.toString(),
+      tenantId: props['tenant_id']?.toString() ?? '',
+      farmId: props['farm_id']?.toString(),
+      name: props['name'] as String? ?? 'غير محدد',
+      cropType: props['crop_type'] as String?,
+      boundary: boundary,
+      centroid: centroid,
+      areaHectares: (props['area_hectares'] as num?)?.toDouble() ?? 0.0,
+      status: props['status'] as String?,
+      ndviCurrent: (props['ndvi_current'] as num?)?.toDouble(),
+      ndviUpdatedAt: props['ndvi_updated_at'] != null
+          ? DateTime.parse(props['ndvi_updated_at'] as String)
           : null,
-      notes: json['notes'] as String?,
+      synced: props['synced'] as bool? ?? true,
+      isDeleted: props['is_deleted'] as bool? ?? false,
+      createdAt: props['created_at'] != null
+          ? DateTime.parse(props['created_at'] as String)
+          : now,
+      updatedAt: props['updated_at'] != null
+          ? DateTime.parse(props['updated_at'] as String)
+          : now,
+      pendingTasks: props['pending_tasks'] as int? ?? 0,
     );
   }
 
-  /// تحويل إلى JSON
+  /// تحويل إلى JSON (GeoJSON Feature)
   Map<String, dynamic> toJson() => {
+        'type': 'Feature',
         'id': id,
-        'name': name,
-        'crop_type': cropType,
-        'area_ha': areaHa,
-        'ndvi': ndvi,
-        'status': status.name,
-        'center_lat': centerLat,
-        'center_lng': centerLng,
-        'pending_tasks': pendingTasks,
-        'last_update': lastUpdate?.toIso8601String(),
-        'notes': notes,
+        'geometry': hasBoundary
+            ? {
+                'type': 'Polygon',
+                'coordinates': [
+                  boundary.map((p) => [p.longitude, p.latitude]).toList(),
+                ],
+              }
+            : null,
+        'properties': {
+          'id': id,
+          'remote_id': remoteId,
+          'tenant_id': tenantId,
+          'farm_id': farmId,
+          'name': name,
+          'crop_type': cropType,
+          'area_hectares': areaHectares,
+          'status': status,
+          'ndvi_current': ndviCurrent,
+          'ndvi_updated_at': ndviUpdatedAt?.toIso8601String(),
+          'synced': synced,
+          'is_deleted': isDeleted,
+          'created_at': createdAt.toIso8601String(),
+          'updated_at': updatedAt.toIso8601String(),
+          'pending_tasks': pendingTasks,
+        },
       };
 
   /// نسخة معدلة
   Field copyWith({
     String? id,
+    String? remoteId,
+    String? tenantId,
+    String? farmId,
     String? name,
     String? cropType,
-    double? areaHa,
-    double? ndvi,
-    FieldStatus? status,
-    double? centerLat,
-    double? centerLng,
+    List<LatLng>? boundary,
+    LatLng? centroid,
+    double? areaHectares,
+    String? status,
+    double? ndviCurrent,
+    DateTime? ndviUpdatedAt,
+    bool? synced,
+    bool? isDeleted,
+    DateTime? createdAt,
+    DateTime? updatedAt,
     int? pendingTasks,
-    DateTime? lastUpdate,
-    String? notes,
   }) {
     return Field(
       id: id ?? this.id,
+      remoteId: remoteId ?? this.remoteId,
+      tenantId: tenantId ?? this.tenantId,
+      farmId: farmId ?? this.farmId,
       name: name ?? this.name,
       cropType: cropType ?? this.cropType,
-      areaHa: areaHa ?? this.areaHa,
-      ndvi: ndvi ?? this.ndvi,
+      boundary: boundary ?? this.boundary,
+      centroid: centroid ?? this.centroid,
+      areaHectares: areaHectares ?? this.areaHectares,
       status: status ?? this.status,
-      centerLat: centerLat ?? this.centerLat,
-      centerLng: centerLng ?? this.centerLng,
+      ndviCurrent: ndviCurrent ?? this.ndviCurrent,
+      ndviUpdatedAt: ndviUpdatedAt ?? this.ndviUpdatedAt,
+      synced: synced ?? this.synced,
+      isDeleted: isDeleted ?? this.isDeleted,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       pendingTasks: pendingTasks ?? this.pendingTasks,
-      lastUpdate: lastUpdate ?? this.lastUpdate,
-      notes: notes ?? this.notes,
     );
   }
 
@@ -159,5 +275,6 @@ class Field {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() => 'Field($id: $name, NDVI: $ndvi, Status: ${status.name})';
+  String toString() =>
+      'Field($id: $name, Area: ${areaHectares.toStringAsFixed(2)}ha, NDVI: ${ndvi.toStringAsFixed(2)})';
 }

@@ -1,0 +1,119 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sahool-worker-service-governed
+  title: SAHOOL Worker Service (Governed)
+  description: Create a new governed async worker service (no ingress, queue-based)
+  tags:
+    - python
+    - worker
+    - async
+    - governed
+    - sahool
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Service Governance
+      required:
+        - name
+        - owner
+        - team
+        - lifecycle
+        - tier
+      properties:
+        name:
+          title: Worker Name
+          type: string
+          description: Unique worker name (kebab-case)
+          pattern: "^[a-z][a-z0-9-]*-worker$"
+          ui:autofocus: true
+        owner:
+          title: Owner
+          type: string
+          description: Service owner (user or group)
+          ui:field: OwnerPicker
+        team:
+          title: Team
+          type: string
+          enum:
+            - platform
+            - kernel
+            - frontend
+            - data
+            - devops
+        lifecycle:
+          title: Lifecycle
+          type: string
+          default: experimental
+          enum:
+            - experimental
+            - internal
+            - production
+        tier:
+          title: Tier
+          type: string
+          default: tier-3
+          enum:
+            - tier-1
+            - tier-2
+            - tier-3
+
+    - title: Worker Configuration
+      properties:
+        queueType:
+          title: Queue Type
+          type: string
+          default: nats
+          enum:
+            - nats
+            - redis
+            - rabbitmq
+          enumNames:
+            - NATS JetStream
+            - Redis Streams
+            - RabbitMQ
+        concurrency:
+          title: Concurrency
+          type: integer
+          default: 5
+          description: Number of concurrent workers
+
+  steps:
+    - id: fetch
+      name: Fetch Base Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          team: ${{ parameters.team }}
+          lifecycle: ${{ parameters.lifecycle }}
+          tier: ${{ parameters.tier }}
+          queueType: ${{ parameters.queueType }}
+          concurrency: ${{ parameters.concurrency }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ["github.com"]
+        repoUrl: github.com?owner=kafaat&repo=${{ parameters.name }}
+        defaultBranch: main
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

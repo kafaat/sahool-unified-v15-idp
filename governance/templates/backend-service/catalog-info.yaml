@@ -1,0 +1,26 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.name }}
+  description: ${{ values.description | default("SAHOOL Backend Service") }}
+  annotations:
+    github.com/project-slug: kafaat/${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
+    sahool.io/lifecycle: ${{ values.lifecycle }}
+    sahool.io/tier: ${{ values.tier }}
+  labels:
+    sahool.io/owner: ${{ values.owner }}
+    sahool.io/team: ${{ values.team }}
+    sahool.io/lifecycle: ${{ values.lifecycle }}
+    sahool.io/tier: ${{ values.tier }}
+  tags:
+    - python
+    - fastapi
+    - governed
+spec:
+  type: service
+  owner: ${{ values.owner }}
+  lifecycle: ${{ values.lifecycle }}
+  system: sahool
+  providesApis:
+    - ${{ values.name }}-api

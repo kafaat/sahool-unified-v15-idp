@@ -1,0 +1,45 @@
+# governance/policies/kyverno/baseline-security.yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: baseline-security
+  annotations:
+    policies.kyverno.io/title: Baseline Security
+    policies.kyverno.io/category: Pod Security Standards
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: >-
+      Privileged mode disables most security mechanisms and must not be allowed.
+      This policy ensures Pods do not run with privileged security context.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: disallow-privileged
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      validate:
+        message: "الحاويات privileged ممنوعة - Privileged containers are not allowed."
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  privileged: "false"
+            initContainers:
+              - securityContext:
+                  privileged: "false"
+    - name: disallow-host-namespaces
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      validate:
+        message: "Host namespaces are not allowed."
+        pattern:
+          spec:
+            hostNetwork: "false"
+            hostIPC: "false"
+            hostPID: "false"

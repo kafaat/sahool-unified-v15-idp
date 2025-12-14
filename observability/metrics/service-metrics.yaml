@@ -1,0 +1,62 @@
+# SAHOOL Service Metrics - Standard Labels Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sahool-metrics-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: sahool-metrics
+    sahool.io/component: observability
+data:
+  # Standard labels that ALL services must expose
+  required-labels.yaml: |
+    # These labels are REQUIRED on all Prometheus metrics
+    required_labels:
+      - service      # Service name
+      - owner        # Service owner
+      - team         # Responsible team
+      - lifecycle    # experimental/internal/production
+      - tier         # tier-1/tier-2/tier-3
+
+    # Example metric with required labels:
+    # http_requests_total{service="ndvi-engine", owner="agro-team", team="kernel", lifecycle="production", tier="tier-1"} 1234
+
+  # Prometheus relabeling for Kubernetes pods
+  relabeling.yaml: |
+    # Add governance labels from pod labels to metrics
+    - source_labels: [__meta_kubernetes_pod_label_sahool_io_owner]
+      target_label: owner
+    - source_labels: [__meta_kubernetes_pod_label_sahool_io_team]
+      target_label: team
+    - source_labels: [__meta_kubernetes_pod_label_sahool_io_lifecycle]
+      target_label: lifecycle
+    - source_labels: [__meta_kubernetes_pod_label_sahool_io_tier]
+      target_label: tier
+
+  # ServiceMonitor template
+  service-monitor-template.yaml: |
+    apiVersion: monitoring.coreos.com/v1
+    kind: ServiceMonitor
+    metadata:
+      name: sahool-services
+      namespace: monitoring
+    spec:
+      namespaceSelector:
+        matchNames:
+          - sahool
+      selector:
+        matchLabels:
+          sahool.io/monitored: "true"
+      endpoints:
+        - port: http
+          path: /metrics
+          interval: 30s
+          relabelings:
+            - sourceLabels: [__meta_kubernetes_pod_label_sahool_io_owner]
+              targetLabel: owner
+            - sourceLabels: [__meta_kubernetes_pod_label_sahool_io_team]
+              targetLabel: team
+            - sourceLabels: [__meta_kubernetes_pod_label_sahool_io_lifecycle]
+              targetLabel: lifecycle
+            - sourceLabels: [__meta_kubernetes_pod_label_sahool_io_tier]
+              targetLabel: tier

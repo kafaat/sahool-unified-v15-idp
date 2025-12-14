@@ -1,0 +1,31 @@
+# governance/policies/kyverno/require-governance-labels.yaml
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-governance-labels
+  annotations:
+    policies.kyverno.io/title: Require Governance Labels
+    policies.kyverno.io/category: SAHOOL Governance
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: >-
+      All Pods must have governance labels for ownership tracking,
+      lifecycle management, and tier classification.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-labels
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      validate:
+        message: "يجب وجود labels الحوكمة (owner/team/lifecycle/tier) - Governance labels are required."
+        pattern:
+          metadata:
+            labels:
+              sahool.io/owner: "?*"
+              sahool.io/team: "?*"
+              sahool.io/lifecycle: "?*"
+              sahool.io/tier: "?*"

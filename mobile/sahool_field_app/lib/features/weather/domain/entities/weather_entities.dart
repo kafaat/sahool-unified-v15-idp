@@ -1,6 +1,12 @@
 /// SAHOOL Weather Domain Entities
 /// نماذج بيانات الطقس
-import 'dart:ui' show Color;
+///
+/// Domain Layer - لا يعتمد على Flutter
+/// يستخدم WeatherColor بدلاً من dart:ui Color
+
+import '../value_objects/weather_color.dart';
+import '../value_objects/alert_severity.dart';
+import '../value_objects/weather_severity.dart';
 
 /// حالة الطقس الحالية
 class CurrentWeather {
@@ -163,18 +169,11 @@ class WeatherAlert {
     );
   }
 
-  Color get severityColor {
-    switch (severity) {
-      case 'warning':
-        return const Color(0xFFEF4444);
-      case 'watch':
-        return const Color(0xFFF59E0B);
-      case 'advisory':
-        return const Color(0xFF3B82F6);
-      default:
-        return const Color(0xFF6B7280);
-    }
-  }
+  /// الحصول على AlertSeverity enum
+  AlertSeverity get alertSeverity => AlertSeverityColor.fromString(severity);
+
+  /// الحصول على لون الشدة (Domain Color)
+  WeatherColor get severityColor => alertSeverity.color;
 }
 
 /// تأثير الطقس على الزراعة
@@ -202,6 +201,23 @@ class AgriculturalImpact {
       reasons: List<String>.from(json['reasons'] ?? []),
     );
   }
+
+  /// الحصول على WeatherSeverity enum
+  WeatherSeverity get weatherSeverity {
+    switch (status.toLowerCase()) {
+      case 'favorable':
+        return WeatherSeverity.favorable;
+      case 'caution':
+        return WeatherSeverity.caution;
+      case 'unfavorable':
+        return WeatherSeverity.unfavorable;
+      default:
+        return WeatherSeverity.caution;
+    }
+  }
+
+  /// الحصول على لون الحالة (Domain Color)
+  WeatherColor get statusColor => weatherSeverity.color;
 
   String get categoryIcon {
     switch (category) {
@@ -272,4 +288,3 @@ class WeatherData {
     );
   }
 }
-

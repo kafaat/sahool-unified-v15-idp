@@ -70,6 +70,10 @@ class Fields extends Table {
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
+  // ETag for Conflict Resolution (v3)
+  TextColumn get etag => text().nullable()();
+  DateTimeColumn get serverUpdatedAt => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -83,12 +87,24 @@ class SyncLogs extends Table {
   DateTimeColumn get timestamp => dateTime()();
 }
 
-@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs])
+/// Sync Events Table - أحداث المزامنة والتعارضات
+class SyncEvents extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get tenantId => text()();
+  TextColumn get type => text()(); // CONFLICT/INFO/ERROR
+  TextColumn get entityType => text().nullable()(); // field, task
+  TextColumn get entityId => text().nullable()();
+  TextColumn get message => text()();
+  BoolColumn get isRead => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; // v2: GIS-enabled Fields table
+  int get schemaVersion => 3; // v3: ETag + SyncEvents
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -100,6 +116,12 @@ class AppDatabase extends _$AppDatabase {
             // Migration from v1 to v2: recreate fields table with GIS columns
             await m.deleteTable('fields');
             await m.createTable(fields);
+          }
+          if (from < 3) {
+            // Migration to v3: Add ETag support + SyncEvents
+            await m.addColumn(fields, fields.etag);
+            await m.addColumn(fields, fields.serverUpdatedAt);
+            await m.createTable(syncEvents);
           }
         },
       );
@@ -432,6 +454,75 @@ class AppDatabase extends _$AppDatabase {
         );
       }
     });
+  }
+
+  // ============================================================
+  // SyncEvents Operations (Conflict Notifications)
+  // ============================================================
+
+  /// Get unread sync events for tenant
+  Future<List<SyncEvent>> getUnreadSyncEvents(String tenantId) {
+    return (select(syncEvents)
+      ..where((e) => e.tenantId.equals(tenantId))
+      ..where((e) => e.isRead.equals(false))
+      ..orderBy([(e) => OrderingTerm.desc(e.createdAt)])
+    ).get();
+  }
+
+  /// Watch unread sync events count
+  Stream<int> watchUnreadEventsCount(String tenantId) {
+    final query = selectOnly(syncEvents)
+      ..where(syncEvents.tenantId.equals(tenantId))
+      ..where(syncEvents.isRead.equals(false))
+      ..addColumns([syncEvents.id.count()]);
+    return query.map((row) => row.read(syncEvents.id.count()) ?? 0).watchSingle();
+  }
+
+  /// Add sync event
+  Future<void> addSyncEvent({
+    required String tenantId,
+    required String type,
+    required String message,
+    String? entityType,
+    String? entityId,
+  }) {
+    return into(syncEvents).insert(SyncEventsCompanion.insert(
+      tenantId: tenantId,
+      type: type,
+      message: message,
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+    ));
+  }
+
+  /// Mark sync event as read
+  Future<void> markSyncEventRead(int eventId) async {
+    await (update(syncEvents)..where((e) => e.id.equals(eventId))).write(
+      const SyncEventsCompanion(isRead: Value(true)),
+    );
+  }
+
+  /// Mark all sync events as read for tenant
+  Future<void> markAllSyncEventsRead(String tenantId) async {
+    await (update(syncEvents)
+      ..where((e) => e.tenantId.equals(tenantId))
+      ..where((e) => e.isRead.equals(false))
+    ).write(const SyncEventsCompanion(isRead: Value(true)));
+  }
+
+  /// Update field with ETag from server
+  Future<void> updateFieldWithEtag({
+    required String fieldId,
+    required String etag,
+    DateTime? serverUpdatedAt,
+  }) async {
+    await (update(fields)..where((f) => f.id.equals(fieldId))).write(
+      FieldsCompanion(
+        etag: Value(etag),
+        serverUpdatedAt: Value(serverUpdatedAt ?? DateTime.now()),
+        synced: const Value(true),
+      ),
+    );
   }
 }
 

@@ -1,0 +1,126 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: sahool-backend-service-governed
+  title: SAHOOL Backend Service (Governed)
+  description: Create a new governed backend service with all required governance labels
+  tags:
+    - python
+    - fastapi
+    - governed
+    - sahool
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Service Governance
+      required:
+        - name
+        - owner
+        - team
+        - lifecycle
+        - tier
+      properties:
+        name:
+          title: Service Name
+          type: string
+          description: Unique service name (kebab-case)
+          pattern: "^[a-z][a-z0-9-]*$"
+          ui:autofocus: true
+        owner:
+          title: Owner
+          type: string
+          description: Service owner (user or group)
+          ui:field: OwnerPicker
+          ui:options:
+            allowedKinds:
+              - User
+              - Group
+        team:
+          title: Team
+          type: string
+          description: Responsible team
+          enum:
+            - platform
+            - kernel
+            - frontend
+            - data
+            - devops
+        lifecycle:
+          title: Lifecycle
+          type: string
+          description: Service lifecycle stage
+          default: experimental
+          enum:
+            - experimental
+            - internal
+            - production
+          enumNames:
+            - Experimental (تجريبي)
+            - Internal (داخلي)
+            - Production (إنتاج)
+        tier:
+          title: Tier
+          type: string
+          description: Service criticality tier
+          default: tier-3
+          enum:
+            - tier-1
+            - tier-2
+            - tier-3
+          enumNames:
+            - Tier 1 (Critical - حرج)
+            - Tier 2 (Important - مهم)
+            - Tier 3 (Standard - عادي)
+
+    - title: Service Configuration
+      properties:
+        port:
+          title: Port
+          type: integer
+          default: 8080
+          description: Service port number
+        description:
+          title: Description
+          type: string
+          description: Brief service description
+
+  steps:
+    - id: fetch
+      name: Fetch Base Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          team: ${{ parameters.team }}
+          lifecycle: ${{ parameters.lifecycle }}
+          tier: ${{ parameters.tier }}
+          port: ${{ parameters.port }}
+          description: ${{ parameters.description }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ["github.com"]
+        repoUrl: github.com?owner=kafaat&repo=${{ parameters.name }}
+        description: ${{ parameters.description }}
+        defaultBranch: main
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repository
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Open in Catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

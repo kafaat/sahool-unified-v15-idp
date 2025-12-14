@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/schemas/service-metadata.json",
+  "title": "SAHOOL Service Metadata",
+  "description": "Schema for SAHOOL platform service metadata governance",
+  "type": "object",
+  "required": ["name", "owner", "team", "lifecycle", "tier"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Service name (kebab-case)",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 3,
+      "maxLength": 63
+    },
+    "owner": {
+      "type": "string",
+      "description": "Service owner (user or group)",
+      "minLength": 1
+    },
+    "team": {
+      "type": "string",
+      "description": "Team responsible for the service",
+      "minLength": 1
+    },
+    "lifecycle": {
+      "type": "string",
+      "description": "Service lifecycle stage",
+      "enum": ["experimental", "internal", "production", "deprecated", "retired"]
+    },
+    "tier": {
+      "type": "string",
+      "description": "Service tier (criticality level)",
+      "enum": ["tier-1", "tier-2", "tier-3"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Service description",
+      "maxLength": 500
+    },
+    "system": {
+      "type": "string",
+      "description": "Parent system name",
+      "default": "sahool"
+    },
+    "dependsOn": {
+      "type": "array",
+      "description": "List of service dependencies",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Service tags for categorization",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

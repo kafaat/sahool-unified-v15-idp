@@ -230,3 +230,18 @@ features:
   enableAuditLogging: true
   enableRateLimiting: true
   enableMetrics: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Governance Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+governance:
+  owner: "platform"
+  team: "sahool"
+  lifecycle: "production"
+  tier: "tier-1"
+  labels:
+    sahool.io/owner: "platform"
+    sahool.io/team: "sahool"
+    sahool.io/lifecycle: "production"
+    sahool.io/tier: "tier-1"

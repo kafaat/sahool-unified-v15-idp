@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/schemas/template-input.json",
+  "title": "SAHOOL Template Input",
+  "description": "Schema for Backstage template input validation",
+  "type": "object",
+  "required": ["name", "owner", "team", "lifecycle", "tier"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Service name",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 3,
+      "maxLength": 63
+    },
+    "owner": {
+      "type": "string",
+      "description": "Service owner",
+      "minLength": 1
+    },
+    "team": {
+      "type": "string",
+      "description": "Team name",
+      "minLength": 1
+    },
+    "lifecycle": {
+      "type": "string",
+      "description": "Lifecycle stage",
+      "enum": ["experimental", "internal", "production"]
+    },
+    "tier": {
+      "type": "string",
+      "description": "Service tier",
+      "enum": ["tier-1", "tier-2", "tier-3"]
+    },
+    "port": {
+      "type": "integer",
+      "description": "Service port",
+      "minimum": 1024,
+      "maximum": 65535,
+      "default": 8080
+    },
+    "replicas": {
+      "type": "integer",
+      "description": "Number of replicas",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 2
+    }
+  },
+  "additionalProperties": false
+}

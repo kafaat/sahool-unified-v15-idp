@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/map/offline_map_manager.dart';
+import '../../../core/map/widgets/map_download_dialog.dart';
 
 /// Sync Center Screen - مركز المزامنة
 /// إدارة البيانات المحلية والمزامنة مع السيرفر
@@ -15,6 +17,23 @@ class _SyncScreenState extends State<SyncScreen> {
   bool _isOnline = false;
   bool _isSyncing = false;
   double _syncProgress = 0;
+
+  // Map Manager
+  final _mapManager = OfflineMapManager();
+  String _mapCacheSize = '...';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMapCacheSize();
+  }
+
+  Future<void> _loadMapCacheSize() async {
+    final size = await _mapManager.getCacheSizeFormatted();
+    if (mounted) {
+      setState(() => _mapCacheSize = size);
+    }
+  }
 
   final List<_PendingItem> _pendingItems = [
     _PendingItem(type: 'task', title: 'تسميد حقل القمح', time: DateTime.now().subtract(const Duration(hours: 2))),
@@ -380,7 +399,7 @@ class _SyncScreenState extends State<SyncScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          _buildStorageItem('الخرائط المحملة', '45 MB', Icons.map),
+          _buildStorageItem('الخرائط المحملة', _mapCacheSize, Icons.map),
           _buildStorageItem('صور الحقول', '128 MB', Icons.photo_library),
           _buildStorageItem('بيانات NDVI', '23 MB', Icons.satellite_alt),
           _buildStorageItem('قاعدة البيانات', '12 MB', Icons.table_chart),
@@ -399,13 +418,78 @@ class _SyncScreenState extends State<SyncScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(Icons.download),
-            label: const Text('تحميل خرائط إضافية'),
-            style: OutlinedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _showMapDownloadDialog,
+                  icon: const Icon(Icons.download),
+                  label: const Text('تحميل خرائط'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              OutlinedButton(
+                onPressed: _showClearMapCacheDialog,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  foregroundColor: SahoolColors.danger,
+                  side: const BorderSide(color: SahoolColors.danger),
+                ),
+                child: const Icon(Icons.delete_outline),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showMapDownloadDialog() async {
+    await showMapDownloadDialog(context);
+    // Refresh cache size after download
+    _loadMapCacheSize();
+  }
+
+  void _showClearMapCacheDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.delete_outline, color: SahoolColors.danger),
+            SizedBox(width: 12),
+            Text('مسح كاش الخرائط'),
+          ],
+        ),
+        content: const Text(
+          'سيتم حذف جميع الخرائط المحملة. ستحتاج لتحميلها مرة أخرى للعمل بدون إنترنت.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _mapManager.clearCache();
+              _loadMapCacheSize();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم مسح كاش الخرائط'),
+                    backgroundColor: SahoolColors.success,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: SahoolColors.danger,
             ),
+            child: const Text('مسح'),
           ),
         ],
       ),

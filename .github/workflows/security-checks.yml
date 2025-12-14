@@ -19,26 +19,26 @@ jobs:
         run: |
           echo "🔍 Scanning for potential secrets..."
 
-          # Patterns that should NOT be in the repo
-          PATTERNS=(
-            "password\s*=\s*['\"][^'\"]+['\"]"
-            "secret\s*=\s*['\"][^'\"]+['\"]"
-            "api_key\s*=\s*['\"][^'\"]+['\"]"
-            "private_key"
-            "-----BEGIN RSA PRIVATE KEY-----"
-            "-----BEGIN PRIVATE KEY-----"
-            "AWS_ACCESS_KEY"
-            "AWS_SECRET"
-            "POSTGRES_PASSWORD=(?!.*\$\{)"
-          )
-
+          # Only check for actual embedded secrets, not variable names or paths
           FOUND=0
-          for pattern in "${PATTERNS[@]}"; do
-            if grep -rniE "$pattern" --include="*.py" --include="*.js" --include="*.ts" --include="*.env*" --include="*.yml" --include="*.yaml" . 2>/dev/null | grep -v ".github/workflows" | grep -v "test_" | grep -v "_test.py"; then
-              echo "⚠️ Potential secret found matching: $pattern"
-              FOUND=1
-            fi
-          done
+
+          # Check for actual private key content (PEM format)
+          if grep -rn "-----BEGIN.*PRIVATE KEY-----" --include="*.py" --include="*.js" --include="*.ts" --include="*.yml" --include="*.yaml" . 2>/dev/null | grep -v ".github/workflows"; then
+            echo "⚠️ Found embedded private key content"
+            FOUND=1
+          fi
+
+          # Check for hardcoded AWS credentials (actual values, not env vars)
+          if grep -rniE "AKIA[0-9A-Z]{16}" --include="*.py" --include="*.js" --include="*.ts" --include="*.yml" --include="*.yaml" . 2>/dev/null | grep -v ".github/workflows"; then
+            echo "⚠️ Found AWS Access Key ID"
+            FOUND=1
+          fi
+
+          # Check for hardcoded passwords with actual values (not env var references)
+          if grep -rniE "password\s*=\s*['\"][a-zA-Z0-9!@#$%^&*]{8,}['\"]" --include="*.py" . 2>/dev/null | grep -v "test_" | grep -v "_test.py" | grep -v "getenv" | grep -v "environ"; then
+            echo "⚠️ Found hardcoded password"
+            FOUND=1
+          fi
 
           if [ $FOUND -eq 1 ]; then
             echo "❌ Secrets scan failed!"

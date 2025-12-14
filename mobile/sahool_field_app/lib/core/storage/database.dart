@@ -30,17 +30,29 @@ class Tasks extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Outbox Table (for offline-first sync)
+/// Outbox Table (for offline-first sync with ETag support)
 class Outbox extends Table {
-  TextColumn get id => text()();
-  TextColumn get type => text()(); // e.g., "task_complete"
-  TextColumn get payloadJson => text()();
-  DateTimeColumn get createdAt => dateTime()();
-  IntColumn get retryCount => integer().withDefault(const Constant(0))();
-  BoolColumn get completed => boolean().withDefault(const Constant(false))();
+  IntColumn get id => integer().autoIncrement()();
 
-  @override
-  Set<Column> get primaryKey => {id};
+  // Tenant isolation
+  TextColumn get tenantId => text()();
+
+  // Entity targeting (for conflict handling)
+  TextColumn get entityType => text()(); // 'field', 'task', etc.
+  TextColumn get entityId => text()();
+
+  // API request details
+  TextColumn get apiEndpoint => text()();
+  TextColumn get method => text().withDefault(const Constant('POST'))(); // POST/PUT/DELETE
+  TextColumn get payload => text()(); // JSON payload
+
+  // ETag for optimistic locking (PUT requests)
+  TextColumn get ifMatch => text().nullable()();
+
+  // Sync metadata
+  IntColumn get retryCount => integer().withDefault(const Constant(0))();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 /// Fields Cache Table (GIS-enabled)
@@ -70,6 +82,10 @@ class Fields extends Table {
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
+  // ETag for Conflict Resolution (v3)
+  TextColumn get etag => text().nullable()();
+  DateTimeColumn get serverUpdatedAt => dateTime().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -83,12 +99,24 @@ class SyncLogs extends Table {
   DateTimeColumn get timestamp => dateTime()();
 }
 
-@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs])
+/// Sync Events Table - أحداث المزامنة والتعارضات
+class SyncEvents extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get tenantId => text()();
+  TextColumn get type => text()(); // CONFLICT/INFO/ERROR
+  TextColumn get entityType => text().nullable()(); // field, task
+  TextColumn get entityId => text().nullable()();
+  TextColumn get message => text()();
+  BoolColumn get isRead => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; // v2: GIS-enabled Fields table
+  int get schemaVersion => 4; // v4: Unified Outbox schema
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -100,6 +128,18 @@ class AppDatabase extends _$AppDatabase {
             // Migration from v1 to v2: recreate fields table with GIS columns
             await m.deleteTable('fields');
             await m.createTable(fields);
+          }
+          if (from < 3) {
+            // Migration to v3: Add ETag support + SyncEvents
+            await m.addColumn(fields, fields.etag);
+            await m.addColumn(fields, fields.serverUpdatedAt);
+            await m.createTable(syncEvents);
+          }
+          if (from < 4) {
+            // Migration to v4: Unified Outbox schema with ETag support
+            // Recreate outbox table with new structure
+            await m.deleteTable('outbox');
+            await m.createTable(outbox);
           }
         },
       );
@@ -201,7 +241,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // ============================================================
-  // Outbox Operations
+  // Outbox Operations (ETag-enabled for Conflict Resolution)
   // ============================================================
 
   /// Add item to outbox
@@ -209,33 +249,68 @@ class AppDatabase extends _$AppDatabase {
     return into(outbox).insert(item);
   }
 
-  /// Get pending outbox items
+  /// Add entity operation to outbox (helper method)
+  Future<void> queueOutboxItem({
+    required String tenantId,
+    required String entityType,
+    required String entityId,
+    required String apiEndpoint,
+    required String method,
+    required String payload,
+    String? ifMatch,
+  }) {
+    return into(outbox).insert(OutboxCompanion.insert(
+      tenantId: tenantId,
+      entityType: entityType,
+      entityId: entityId,
+      apiEndpoint: apiEndpoint,
+      method: Value(method),
+      payload: payload,
+      ifMatch: Value(ifMatch),
+    ));
+  }
+
+  /// Get pending outbox items (not synced)
   Future<List<OutboxData>> getPendingOutbox({int limit = 50}) {
     return (select(outbox)
-      ..where((o) => o.completed.equals(false))
+      ..where((o) => o.isSynced.equals(false))
       ..orderBy([(o) => OrderingTerm.asc(o.createdAt)])
       ..limit(limit)
     ).get();
   }
 
-  /// Mark outbox item as done
-  Future<void> markOutboxDone(String id) async {
+  /// Mark outbox item as done (synced)
+  Future<void> markOutboxDone(int id) async {
     await (update(outbox)..where((o) => o.id.equals(id))).write(
-      const OutboxCompanion(completed: Value(true)),
+      const OutboxCompanion(isSynced: Value(true)),
     );
   }
 
   /// Increment retry count
-  Future<void> bumpOutboxRetry(String id) async {
+  Future<void> bumpOutboxRetry(int id) async {
     await customStatement(
       'UPDATE outbox SET retry_count = retry_count + 1 WHERE id = ?',
       [id],
     );
   }
 
-  /// Delete completed outbox items
+  /// Delete synced outbox items (cleanup)
   Future<void> cleanupOutbox() async {
-    await (delete(outbox)..where((o) => o.completed.equals(true))).go();
+    await (delete(outbox)..where((o) => o.isSynced.equals(true))).go();
+  }
+
+  /// Get outbox item by ID
+  Future<OutboxData?> getOutboxItemById(int id) {
+    return (select(outbox)..where((o) => o.id.equals(id))).getSingleOrNull();
+  }
+
+  /// Delete outbox items older than given duration
+  Future<void> cleanupOldOutbox({Duration olderThan = const Duration(days: 7)}) async {
+    final cutoff = DateTime.now().subtract(olderThan);
+    await (delete(outbox)
+      ..where((o) => o.isSynced.equals(true))
+      ..where((o) => o.createdAt.isSmallerThanValue(cutoff))
+    ).go();
   }
 
   // ============================================================
@@ -432,6 +507,75 @@ class AppDatabase extends _$AppDatabase {
         );
       }
     });
+  }
+
+  // ============================================================
+  // SyncEvents Operations (Conflict Notifications)
+  // ============================================================
+
+  /// Get unread sync events for tenant
+  Future<List<SyncEvent>> getUnreadSyncEvents(String tenantId) {
+    return (select(syncEvents)
+      ..where((e) => e.tenantId.equals(tenantId))
+      ..where((e) => e.isRead.equals(false))
+      ..orderBy([(e) => OrderingTerm.desc(e.createdAt)])
+    ).get();
+  }
+
+  /// Watch unread sync events count
+  Stream<int> watchUnreadEventsCount(String tenantId) {
+    final query = selectOnly(syncEvents)
+      ..where(syncEvents.tenantId.equals(tenantId))
+      ..where(syncEvents.isRead.equals(false))
+      ..addColumns([syncEvents.id.count()]);
+    return query.map((row) => row.read(syncEvents.id.count()) ?? 0).watchSingle();
+  }
+
+  /// Add sync event
+  Future<void> addSyncEvent({
+    required String tenantId,
+    required String type,
+    required String message,
+    String? entityType,
+    String? entityId,
+  }) {
+    return into(syncEvents).insert(SyncEventsCompanion.insert(
+      tenantId: tenantId,
+      type: type,
+      message: message,
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+    ));
+  }
+
+  /// Mark sync event as read
+  Future<void> markSyncEventRead(int eventId) async {
+    await (update(syncEvents)..where((e) => e.id.equals(eventId))).write(
+      const SyncEventsCompanion(isRead: Value(true)),
+    );
+  }
+
+  /// Mark all sync events as read for tenant
+  Future<void> markAllSyncEventsRead(String tenantId) async {
+    await (update(syncEvents)
+      ..where((e) => e.tenantId.equals(tenantId))
+      ..where((e) => e.isRead.equals(false))
+    ).write(const SyncEventsCompanion(isRead: Value(true)));
+  }
+
+  /// Update field with ETag from server
+  Future<void> updateFieldWithEtag({
+    required String fieldId,
+    required String etag,
+    DateTime? serverUpdatedAt,
+  }) async {
+    await (update(fields)..where((f) => f.id.equals(fieldId))).write(
+      FieldsCompanion(
+        etag: Value(etag),
+        serverUpdatedAt: Value(serverUpdatedAt ?? DateTime.now()),
+        synced: const Value(true),
+      ),
+    );
   }
 }
 

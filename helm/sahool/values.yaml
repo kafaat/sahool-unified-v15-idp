@@ -1,0 +1,232 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Helm Chart Values
+# v15.3.2
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Common Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+nameOverride: ""
+fullnameOverride: ""
+
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Infrastructure Dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+
+postgresql:
+  enabled: true
+  auth:
+    username: sahool
+    password: sahool
+    database: sahool
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+nats:
+  enabled: true
+  nats:
+    jetstream:
+      enabled: true
+      memStorage:
+        enabled: true
+        size: 1Gi
+      fileStorage:
+        enabled: true
+        size: 5Gi
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Application Services
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  fieldOps:
+    enabled: true
+    name: field-ops
+    image:
+      repository: sahool/field-ops
+      tag: "15.3.2"
+    port: 8080
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+
+  ndviEngine:
+    enabled: true
+    name: ndvi-engine
+    image:
+      repository: sahool/ndvi-engine
+      tag: "15.3.2"
+    port: 8097
+    replicaCount: 1
+
+  weatherCore:
+    enabled: true
+    name: weather-core
+    image:
+      repository: sahool/weather-core
+      tag: "15.3.2"
+    port: 8098
+    replicaCount: 1
+
+  fieldChat:
+    enabled: true
+    name: field-chat
+    image:
+      repository: sahool/field-chat
+      tag: "15.3.2"
+    port: 8099
+    replicaCount: 2
+
+  iotGateway:
+    enabled: true
+    name: iot-gateway
+    image:
+      repository: sahool/iot-gateway
+      tag: "15.3.2"
+    port: 8094
+    replicaCount: 1
+
+  agroAdvisor:
+    enabled: true
+    name: agro-advisor
+    image:
+      repository: sahool/agro-advisor
+      tag: "15.3.2"
+    port: 8095
+    replicaCount: 1
+
+  wsGateway:
+    enabled: true
+    name: ws-gateway
+    image:
+      repository: sahool/ws-gateway
+      tag: "15.3.2"
+    port: 8090
+    replicaCount: 2
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Ingress Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+  hosts:
+    - host: sahool.local
+      paths:
+        - path: /api/fieldops
+          pathType: Prefix
+          service: field-ops
+        - path: /api/ndvi
+          pathType: Prefix
+          service: ndvi-engine
+        - path: /api/weather
+          pathType: Prefix
+          service: weather-core
+        - path: /api/chat
+          pathType: Prefix
+          service: field-chat
+        - path: /api/iot
+          pathType: Prefix
+          service: iot-gateway
+        - path: /api/agro
+          pathType: Prefix
+          service: agro-advisor
+        - path: /ws
+          pathType: Prefix
+          service: ws-gateway
+  tls: []
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Security Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+security:
+  jwt:
+    algorithm: HS256
+    issuer: sahool-idp
+    audience: sahool-platform
+    accessExpireMinutes: 30
+    refreshExpireDays: 7
+
+  rbac:
+    enabled: true
+
+  audit:
+    enabled: true
+
+  mtls:
+    enabled: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Monitoring (Optional)
+# ─────────────────────────────────────────────────────────────────────────────
+
+monitoring:
+  enabled: false
+  prometheus:
+    enabled: false
+  grafana:
+    enabled: false
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Feature Flags
+# ─────────────────────────────────────────────────────────────────────────────
+
+features:
+  enableSecurity: true
+  enableAuditLogging: true
+  enableRateLimiting: true
+  enableMetrics: false

@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.kafaat.dev/schemas/sensor_reading.v1.json",
+  "title": "SensorReading",
+  "description": "Event emitted when a sensor reading is received",
+  "type": "object",
+  "required": [
+    "device_id",
+    "field_id",
+    "sensor_type",
+    "value",
+    "unit",
+    "timestamp"
+  ],
+  "properties": {
+    "device_id": {
+      "type": "string",
+      "description": "Unique identifier of the sensor device"
+    },
+    "field_id": {
+      "type": "string",
+      "description": "The field ID where the sensor is located"
+    },
+    "sensor_type": {
+      "type": "string",
+      "enum": [
+        "soil_moisture",
+        "soil_temperature",
+        "soil_ec",
+        "soil_ph",
+        "air_temperature",
+        "air_humidity",
+        "wind_speed",
+        "wind_direction",
+        "rainfall",
+        "solar_radiation",
+        "atmospheric_pressure",
+        "water_level",
+        "water_flow",
+        "water_pressure",
+        "leaf_wetness",
+        "canopy_temperature"
+      ],
+      "description": "Type of sensor reading"
+    },
+    "value": {
+      "type": "number",
+      "description": "The sensor reading value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement (%, °C, mm, etc.)"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the reading"
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "battery": {
+          "type": "number",
+          "description": "Battery level percentage"
+        },
+        "rssi": {
+          "type": "integer",
+          "description": "Signal strength in dBm"
+        },
+        "raw_value": {
+          "type": "number",
+          "description": "Raw sensor value before calibration"
+        }
+      },
+      "description": "Additional sensor metadata"
+    }
+  }
+}

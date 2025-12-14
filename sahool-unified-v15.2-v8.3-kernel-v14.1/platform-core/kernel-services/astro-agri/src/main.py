@@ -4,7 +4,7 @@ Layer 2: Signal Producer
 
 ⚠️  NO PUBLIC API ENDPOINTS
     Internal endpoints only (/internal/*)
-    
+
 Knowledge Signal System for Traditional Agricultural Calendar
 """
 
@@ -20,7 +20,7 @@ from pydantic import BaseModel
 import uvicorn
 
 # Add shared to path
-sys.path.insert(0, '/app')
+sys.path.insert(0, "/app")
 
 # ✅ Unified logging with structlog
 from shared.utils.logging import configure_logging, get_logger, EventLogger
@@ -28,15 +28,16 @@ from shared.utils.events import NATSPublisher, Event, EventType
 
 # Configure logging FIRST
 configure_logging(
-    service_name="astro-agri-service",
-    json_format=os.getenv("ENV") != "development"
+    service_name="astro-agri-service", json_format=os.getenv("ENV") != "development"
 )
 
 logger = get_logger(__name__)
 event_logger = EventLogger("astro-agri")
 
 # Configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://sahool:sahool_secret@localhost:5432/astro_agri")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://sahool:sahool_secret@localhost:5432/astro_agri"
+)
 NATS_URL = os.getenv("NATS_URL", "nats://localhost:4222")
 SERVICE_NAME = "astro-agri-service"
 SERVICE_LAYER = "signal-producer"
@@ -48,6 +49,7 @@ publisher: Optional[NATSPublisher] = None
 # ============================================
 # Response Models
 # ============================================
+
 
 class StarResponse(BaseModel):
     id: str
@@ -83,24 +85,25 @@ class CurrentCalendarResponse(BaseModel):
 # Application Lifecycle
 # ============================================
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager"""
     global publisher
-    
+
     logger.info("service_starting", layer=SERVICE_LAYER)
-    
+
     # Connect to NATS
     publisher = NATSPublisher(NATS_URL)
     await publisher.connect()
-    
+
     # TODO: Connect to database
     # TODO: Start scheduler
-    
+
     logger.info("service_started")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("service_stopping")
     await publisher.disconnect()
@@ -113,7 +116,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
     # ❌ NO OpenAPI docs for Layer 2 in production
-    openapi_url=None if os.getenv("ENV") != "development" else "/openapi.json"
+    openapi_url=None if os.getenv("ENV") != "development" else "/openapi.json",
 )
 
 app.add_middleware(
@@ -127,6 +130,7 @@ app.add_middleware(
 # ============================================
 # Health & Metrics Endpoints (Required)
 # ============================================
+
 
 @app.get("/healthz")
 async def health_check():
@@ -153,19 +157,20 @@ async def metrics():
 # ❌ NO /api/* routes - this is Layer 2
 # ============================================
 
+
 @app.get("/internal/stars/current", response_model=CurrentCalendarResponse)
 async def get_current_calendar(
     region: str = Query(default="المرتفعات", description="المنطقة"),
-    tenant_id: str = Query(..., description="Tenant ID")
+    tenant_id: str = Query(..., description="Tenant ID"),
 ):
     """
     الحصول على حالة التقويم الحالية
     Get current calendar state including current star, proverbs, and advice
-    
+
     NOTE: Internal endpoint only - not exposed via API Gateway
     """
     logger.info("calendar_requested", region=region, tenant_id=tenant_id)
-    
+
     # TODO: Implement with repository
     # For now, return mock data
     return CurrentCalendarResponse(
@@ -178,7 +183,7 @@ async def get_current_calendar(
             end_date="2025-07-28",
             duration_days=13,
             mansions=["الذراع"],
-            is_current=True
+            is_current=True,
         ),
         next_star=StarResponse(
             id="star_nathra",
@@ -189,7 +194,7 @@ async def get_current_calendar(
             end_date="2025-08-10",
             duration_days=13,
             mansions=["النثرة"],
-            is_current=False
+            is_current=False,
         ),
         days_remaining=5,
         season="خريف",
@@ -201,16 +206,16 @@ async def get_current_calendar(
                 star_name="العلب",
                 crops=["ذرة"],
                 regions=["المرتفعات"],
-                reliability_score=0.9
+                reliability_score=0.9,
             )
-        ]
+        ],
     )
 
 
 @app.get("/internal/stars")
 async def list_stars(
     season: Optional[str] = Query(None, description="فلترة بالفصل"),
-    tenant_id: str = Query(..., description="Tenant ID")
+    tenant_id: str = Query(..., description="Tenant ID"),
 ):
     """
     قائمة النجوم الزراعية
@@ -226,13 +231,19 @@ async def list_proverbs(
     star_id: Optional[str] = Query(None, description="فلترة بالنجم"),
     crop: Optional[str] = Query(None, description="فلترة بالمحصول"),
     region: Optional[str] = Query(None, description="فلترة بالمنطقة"),
-    tenant_id: str = Query(..., description="Tenant ID")
+    tenant_id: str = Query(..., description="Tenant ID"),
 ):
     """
     قائمة الأمثال الشعبية
     List folk proverbs with filters
     """
-    logger.info("proverbs_listed", star_id=star_id, crop=crop, region=region, tenant_id=tenant_id)
+    logger.info(
+        "proverbs_listed",
+        star_id=star_id,
+        crop=crop,
+        region=region,
+        tenant_id=tenant_id,
+    )
     # TODO: Implement
     return {"message": "Not implemented"}
 
@@ -241,7 +252,7 @@ async def list_proverbs(
 async def publish_star_rising(
     star_id: str = Query(...),
     region: str = Query(default="المرتفعات"),
-    tenant_id: str = Query(...)
+    tenant_id: str = Query(...),
 ):
     """
     نشر حدث طلوع نجم
@@ -252,15 +263,15 @@ async def publish_star_rising(
         payload={
             "star": {"id": star_id, "name_ar": "العلب"},
             "region": region,
-            "proverbs": []
+            "proverbs": [],
         },
-        tenant_id=tenant_id
+        tenant_id=tenant_id,
     )
-    
+
     event_id = await publisher.publish(event)
-    
+
     logger.info("star_rising_published", event_id=event_id, star_id=star_id)
-    
+
     return {"event_id": event_id, "event_type": event.event_type}
 
 
@@ -273,5 +284,5 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=int(os.getenv("PORT", "8080")),
-        reload=os.getenv("ENV", "development") == "development"
+        reload=os.getenv("ENV", "development") == "development",
     )

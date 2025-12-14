@@ -24,6 +24,7 @@ dependencies:
 
   # Network
   dio: ^5.4.1
+  http: ^1.2.0
   connectivity_plus: ^5.0.2
 
   # Storage

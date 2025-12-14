@@ -1,4 +1,4 @@
-name: CI
+name: SAHOOL CI
 
 on:
   push:
@@ -23,17 +23,16 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install linters
-        run: |
-          pip install ruff black isort
+        run: pip install ruff black isort
 
-      - name: Run ruff
-        run: ruff check kernel/ shared/ --output-format=github
+      - name: Check imports with isort
+        run: isort --check-only kernel/ shared/
 
       - name: Check formatting with black
         run: black --check kernel/ shared/
 
-      - name: Check imports with isort
-        run: isort --check-only kernel/ shared/
+      - name: Run ruff
+        run: ruff check kernel/ shared/ --output-format=github
 
   test:
     name: Test
@@ -122,10 +121,28 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  verify-docker:
+    name: Verify Docker Compose v2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Docker & Compose
+        run: |
+          echo "Docker version:"
+          docker --version
+          echo ""
+          echo "Docker Compose version:"
+          docker compose version
+          echo ""
+          if ! docker compose version >/dev/null 2>&1; then
+            echo "[ERROR] Docker Compose v2 is required"
+            exit 1
+          fi
+          echo "Docker Compose v2 verified"
+
   integration:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build, verify-docker]
     steps:
       - uses: actions/checkout@v4
 

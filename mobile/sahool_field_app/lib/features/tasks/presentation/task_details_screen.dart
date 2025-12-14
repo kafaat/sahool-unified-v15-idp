@@ -260,7 +260,7 @@ class _TaskDetailsBody extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () => _completeTask(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: SahoolTheme.primary,
+                  backgroundColor: SahoolTheme.primaryGreen,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: const Text(

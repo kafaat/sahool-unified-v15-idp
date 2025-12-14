@@ -288,7 +288,7 @@ class _CompleteTaskScreenState extends ConsumerState<CompleteTaskScreen> {
         child: ElevatedButton(
           onPressed: _isSubmitting ? null : _submit,
           style: ElevatedButton.styleFrom(
-            backgroundColor: SahoolTheme.primary,
+            backgroundColor: SahoolTheme.primaryGreen,
             padding: const EdgeInsets.symmetric(vertical: 16),
             disabledBackgroundColor: Colors.grey,
           ),

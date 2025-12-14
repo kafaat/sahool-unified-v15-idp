@@ -39,7 +39,7 @@ class SahoolTheme {
   static ThemeData get light => ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    fontFamily: 'IBMPlexSansArabic',
+    fontFamily: 'Cairo',
 
     colorScheme: const ColorScheme.light(
       primary: primary,
@@ -63,7 +63,7 @@ class SahoolTheme {
       elevation: 0,
       centerTitle: true,
       titleTextStyle: TextStyle(
-        fontFamily: 'IBMPlexSansArabic',
+        fontFamily: 'Cairo',
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: Colors.white,
@@ -100,7 +100,7 @@ class SahoolTheme {
           borderRadius: BorderRadius.circular(12),
         ),
         textStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+          fontFamily: 'Cairo',
           fontSize: 16,
           fontWeight: FontWeight.bold,
         ),
@@ -122,7 +122,7 @@ class SahoolTheme {
       style: TextButton.styleFrom(
         foregroundColor: primary,
         textStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+          fontFamily: 'Cairo',
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -190,7 +190,7 @@ class SahoolTheme {
       labelColor: Colors.white,
       unselectedLabelColor: Colors.white70,
       indicatorColor: Colors.white,
-      labelStyle: TextStyle(fontFamily: 'IBMPlexSansArabic', fontWeight: FontWeight.bold),
+      labelStyle: TextStyle(fontFamily: 'Cairo', fontWeight: FontWeight.bold),
     ),
 
     // Dialog
@@ -199,7 +199,7 @@ class SahoolTheme {
         borderRadius: BorderRadius.circular(20),
       ),
       titleTextStyle: const TextStyle(
-        fontFamily: 'IBMPlexSansArabic',
+        fontFamily: 'Cairo',
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: Color(0xFF1A1A1A),
@@ -219,7 +219,7 @@ class SahoolTheme {
   static ThemeData get dark => ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    fontFamily: 'IBMPlexSansArabic',
+    fontFamily: 'Cairo',
 
     colorScheme: const ColorScheme.dark(
       primary: primaryLight,

@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Query
+from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
 
@@ -92,6 +92,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats
+
             nc = await nats.connect(nats_url)
             app.state.nc = nc
             app.state.nats_connected = True
@@ -133,9 +134,9 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
-    if hasattr(app.state, 'nats_sub'):
+    if hasattr(app.state, "nats_sub"):
         await app.state.nats_sub.unsubscribe()
-    if hasattr(app.state, 'nc') and app.state.nc:
+    if hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.close()
     print("👋 WebSocket Gateway shutting down")
 
@@ -165,7 +166,7 @@ def health():
 def readiness():
     return {
         "status": "ok",
-        "nats": getattr(app.state, 'nats_connected', False),
+        "nats": getattr(app.state, "nats_connected", False),
         "connections": manager.stats,
     }
 
@@ -175,7 +176,7 @@ def get_stats():
     """Get gateway statistics"""
     return {
         "connections": manager.stats,
-        "nats_connected": getattr(app.state, 'nats_connected', False),
+        "nats_connected": getattr(app.state, "nats_connected", False),
     }
 
 
@@ -203,12 +204,14 @@ async def websocket_endpoint(
     await manager.connect(websocket, connection_id, tenant_id)
 
     # Send connection confirmation
-    await websocket.send_json({
-        "type": "connected",
-        "connection_id": connection_id,
-        "tenant_id": tenant_id,
-        "timestamp": datetime.utcnow().isoformat(),
-    })
+    await websocket.send_json(
+        {
+            "type": "connected",
+            "connection_id": connection_id,
+            "tenant_id": tenant_id,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+    )
 
     try:
         while True:
@@ -230,44 +233,59 @@ async def handle_client_message(connection_id: str, tenant_id: str, data: dict):
         topics = data.get("topics", [])
         for topic in topics:
             manager.subscribe(connection_id, topic)
-        await manager.send_personal(connection_id, {
-            "type": "subscribed",
-            "topics": topics,
-        })
+        await manager.send_personal(
+            connection_id,
+            {
+                "type": "subscribed",
+                "topics": topics,
+            },
+        )
 
     elif msg_type == "unsubscribe":
         # Unsubscribe from topics
         topics = data.get("topics", [])
         for topic in topics:
             manager.unsubscribe(connection_id, topic)
-        await manager.send_personal(connection_id, {
-            "type": "unsubscribed",
-            "topics": topics,
-        })
+        await manager.send_personal(
+            connection_id,
+            {
+                "type": "unsubscribed",
+                "topics": topics,
+            },
+        )
 
     elif msg_type == "ping":
         # Respond to ping
-        await manager.send_personal(connection_id, {
-            "type": "pong",
-            "timestamp": datetime.utcnow().isoformat(),
-        })
+        await manager.send_personal(
+            connection_id,
+            {
+                "type": "pong",
+                "timestamp": datetime.utcnow().isoformat(),
+            },
+        )
 
     elif msg_type == "broadcast":
         # Broadcast message to tenant (if authorized)
         message = data.get("message", {})
-        await manager.broadcast_to_tenant(tenant_id, {
-            "type": "broadcast",
-            "from": connection_id,
-            "message": message,
-            "timestamp": datetime.utcnow().isoformat(),
-        })
+        await manager.broadcast_to_tenant(
+            tenant_id,
+            {
+                "type": "broadcast",
+                "from": connection_id,
+                "message": message,
+                "timestamp": datetime.utcnow().isoformat(),
+            },
+        )
 
     else:
         # Unknown message type
-        await manager.send_personal(connection_id, {
-            "type": "error",
-            "message": f"Unknown message type: {msg_type}",
-        })
+        await manager.send_personal(
+            connection_id,
+            {
+                "type": "error",
+                "message": f"Unknown message type: {msg_type}",
+            },
+        )
 
 
 # ============== REST API for sending messages ==============
@@ -298,5 +316,6 @@ async def broadcast_message(req: BroadcastRequest):
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.getenv("PORT", 8090))
     uvicorn.run(app, host="0.0.0.0", port=port)

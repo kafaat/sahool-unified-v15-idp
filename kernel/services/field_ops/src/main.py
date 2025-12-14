@@ -26,7 +26,10 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url, min_size=2, max_size=10
+            )
             app.state.db_connected = True
             print("✅ Database connected")
         except Exception as e:
@@ -38,6 +41,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats
+
             app.state.nc = await nats.connect(nats_url)
             app.state.nats_connected = True
             print("✅ NATS connected")
@@ -49,9 +53,9 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
-    if hasattr(app.state, 'db_pool') and app.state.db_pool:
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
-    if hasattr(app.state, 'nc') and app.state.nc:
+    if hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.close()
     print("👋 Field Operations shutting down")
 
@@ -81,8 +85,8 @@ def health():
 def readiness():
     return {
         "status": "ok",
-        "database": getattr(app.state, 'db_connected', False),
-        "nats": getattr(app.state, 'nats_connected', False),
+        "database": getattr(app.state, "db_connected", False),
+        "nats": getattr(app.state, "nats_connected", False),
     }
 
 
@@ -170,12 +174,15 @@ async def create_field(field: FieldCreate):
     _fields[field_id] = field_data
 
     # Publish event if NATS connected
-    if hasattr(app.state, 'nc') and app.state.nc:
+    if hasattr(app.state, "nc") and app.state.nc:
         try:
             import json
+
             await app.state.nc.publish(
                 "sahool.fields.created",
-                json.dumps({"field_id": field_id, "tenant_id": field.tenant_id}).encode()
+                json.dumps(
+                    {"field_id": field_id, "tenant_id": field.tenant_id}
+                ).encode(),
             )
         except Exception:
             pass
@@ -200,7 +207,7 @@ async def list_fields(
     """List fields for a tenant"""
     tenant_fields = [f for f in _fields.values() if f["tenant_id"] == tenant_id]
     return {
-        "items": tenant_fields[skip:skip + limit],
+        "items": tenant_fields[skip : skip + limit],
         "total": len(tenant_fields),
         "skip": skip,
         "limit": limit,
@@ -284,7 +291,7 @@ async def list_operations(
         field_ops = [o for o in field_ops if o["status"] == status]
 
     return {
-        "items": field_ops[skip:skip + limit],
+        "items": field_ops[skip : skip + limit],
         "total": len(field_ops),
         "skip": skip,
         "limit": limit,
@@ -303,16 +310,19 @@ async def complete_operation(operation_id: str):
     _operations[operation_id] = op_data
 
     # Publish event if NATS connected
-    if hasattr(app.state, 'nc') and app.state.nc:
+    if hasattr(app.state, "nc") and app.state.nc:
         try:
             import json
+
             await app.state.nc.publish(
                 "sahool.operations.completed",
-                json.dumps({
-                    "operation_id": operation_id,
-                    "field_id": op_data["field_id"],
-                    "operation_type": op_data["operation_type"],
-                }).encode()
+                json.dumps(
+                    {
+                        "operation_id": operation_id,
+                        "field_id": op_data["field_id"],
+                        "operation_type": op_data["operation_type"],
+                    }
+                ).encode(),
             )
         except Exception:
             pass
@@ -343,5 +353,6 @@ async def get_tenant_stats(tenant_id: str):
 
 if __name__ == "__main__":
     import uvicorn
+
     port = int(os.getenv("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)

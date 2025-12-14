@@ -19,18 +19,25 @@ SAHOOL is a comprehensive agricultural platform combining field operations manag
 ## Quick Start
 
 ```bash
-# Generate environment
-./tools/release/release_v15_3_2.sh --env-only
+# 1. Set up JWT keys (REQUIRED)
+# See docs/SECURITY.md for detailed instructions
+openssl genrsa -out jwt_private.pem 2048
+openssl rsa -in jwt_private.pem -pubout -out jwt_public.pem
+export JWT_PRIVATE_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' jwt_private.pem)
+export JWT_PUBLIC_KEY=$(awk 'NF {sub(/\r/, ""); printf "%s\\n",$0;}' jwt_public.pem)
 
-# Start services
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your configuration
+
+# 3. Start services
 docker compose up -d
 
-# Run migrations
-./tools/env/migrate.sh
-
-# Verify health
+# 4. Verify health
 ./tools/release/smoke_test.sh
 ```
+
+**Note:** Never commit `.pem` or `.key` files. They are excluded by `.gitignore`.
 
 ## Services
 

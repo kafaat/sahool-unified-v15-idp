@@ -15,13 +15,14 @@ import uuid
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
     version="15.3.0",
-    description="Multi-satellite agricultural monitoring - Sentinel-2, Landsat-8/9, MODIS"
+    description="Multi-satellite agricultural monitoring - Sentinel-2, Landsat-8/9, MODIS",
 )
 
 
 # =============================================================================
 # Enums & Models
 # =============================================================================
+
 
 class SatelliteSource(str, Enum):
     SENTINEL2 = "sentinel-2"
@@ -109,7 +110,7 @@ SATELLITE_CONFIGS = {
             "B08": {"name": "NIR", "wavelength": "842nm", "resolution": 10},
             "B11": {"name": "SWIR1", "wavelength": "1610nm", "resolution": 20},
             "B12": {"name": "SWIR2", "wavelength": "2190nm", "resolution": 20},
-        }
+        },
     },
     SatelliteSource.LANDSAT8: {
         "name": "Landsat-8 OLI/TIRS",
@@ -123,7 +124,7 @@ SATELLITE_CONFIGS = {
             "B5": {"name": "NIR", "wavelength": "865nm", "resolution": 30},
             "B6": {"name": "SWIR1", "wavelength": "1609nm", "resolution": 30},
             "B10": {"name": "Thermal", "wavelength": "10895nm", "resolution": 100},
-        }
+        },
     },
     SatelliteSource.MODIS: {
         "name": "MODIS Terra/Aqua",
@@ -135,8 +136,8 @@ SATELLITE_CONFIGS = {
             "B02": {"name": "NIR", "wavelength": "858nm", "resolution": 250},
             "B03": {"name": "Blue", "wavelength": "469nm", "resolution": 500},
             "B04": {"name": "Green", "wavelength": "555nm", "resolution": 500},
-        }
-    }
+        },
+    },
 }
 
 # Yemen regions monitoring
@@ -155,6 +156,7 @@ YEMEN_REGIONS = {
 # =============================================================================
 # Calculation Functions
 # =============================================================================
+
 
 def calculate_ndvi(nir: float, red: float) -> float:
     """NDVI = (NIR - Red) / (NIR + Red)"""
@@ -191,6 +193,7 @@ def calculate_lai(ndvi: float) -> float:
         return 0.0
     # LAI = -ln((0.69 - NDVI) / 0.59) / 0.91
     import math
+
     try:
         lai = -math.log((0.69 - min(ndvi, 0.68)) / 0.59) / 0.91
         return round(max(0, min(lai, 8)), 2)
@@ -205,7 +208,9 @@ def calculate_ndmi(nir: float, swir: float) -> float:
     return round((nir - swir) / (nir + swir), 4)
 
 
-def assess_vegetation_health(indices: VegetationIndices) -> tuple[float, str, List[str]]:
+def assess_vegetation_health(
+    indices: VegetationIndices,
+) -> tuple[float, str, List[str]]:
     """Assess crop health based on vegetation indices"""
     anomalies = []
     score = 50.0  # Base score
@@ -263,18 +268,26 @@ def assess_vegetation_health(indices: VegetationIndices) -> tuple[float, str, Li
     return score, status, anomalies
 
 
-def generate_recommendations(indices: VegetationIndices, anomalies: List[str]) -> tuple[List[str], List[str]]:
+def generate_recommendations(
+    indices: VegetationIndices, anomalies: List[str]
+) -> tuple[List[str], List[str]]:
     """Generate bilingual recommendations based on analysis"""
     recommendations_ar = []
     recommendations_en = []
 
     if "low_vegetation_cover" in anomalies:
-        recommendations_ar.append("🌱 الغطاء النباتي منخفض - تحقق من صحة المحصول أو أعد الزراعة")
-        recommendations_en.append("🌱 Low vegetation cover - check crop health or consider replanting")
+        recommendations_ar.append(
+            "🌱 الغطاء النباتي منخفض - تحقق من صحة المحصول أو أعد الزراعة"
+        )
+        recommendations_en.append(
+            "🌱 Low vegetation cover - check crop health or consider replanting"
+        )
 
     if "water_stress_detected" in anomalies:
         recommendations_ar.append("💧 إجهاد مائي - زيادة الري فوراً")
-        recommendations_en.append("💧 Water stress detected - increase irrigation immediately")
+        recommendations_en.append(
+            "💧 Water stress detected - increase irrigation immediately"
+        )
 
     if "moisture_deficit" in anomalies:
         recommendations_ar.append("🌡️ نقص الرطوبة - ري تكميلي مطلوب")
@@ -282,14 +295,22 @@ def generate_recommendations(indices: VegetationIndices, anomalies: List[str]) -
 
     if "poor_canopy_structure" in anomalies:
         recommendations_ar.append("🍃 بنية المظلة ضعيفة - تحقق من التسميد والآفات")
-        recommendations_en.append("🍃 Poor canopy structure - check fertilization and pests")
+        recommendations_en.append(
+            "🍃 Poor canopy structure - check fertilization and pests"
+        )
 
     if "sparse_leaf_coverage" in anomalies:
-        recommendations_ar.append("🌿 تغطية الأوراق متناثرة - قد يحتاج المحصول تسميد نيتروجيني")
-        recommendations_en.append("🌿 Sparse leaf coverage - crop may need nitrogen fertilization")
+        recommendations_ar.append(
+            "🌿 تغطية الأوراق متناثرة - قد يحتاج المحصول تسميد نيتروجيني"
+        )
+        recommendations_en.append(
+            "🌿 Sparse leaf coverage - crop may need nitrogen fertilization"
+        )
 
     if not anomalies:
-        recommendations_ar.append("✅ المحصول في حالة صحية جيدة - استمر في الممارسات الحالية")
+        recommendations_ar.append(
+            "✅ المحصول في حالة صحية جيدة - استمر في الممارسات الحالية"
+        )
         recommendations_en.append("✅ Crop is healthy - continue current practices")
 
     return recommendations_ar, recommendations_en
@@ -299,13 +320,14 @@ def generate_recommendations(indices: VegetationIndices, anomalies: List[str]) -
 # API Endpoints
 # =============================================================================
 
+
 @app.get("/healthz")
 def health():
     return {
         "status": "ok",
         "service": "satellite-service",
         "version": "15.3.0",
-        "satellites": list(SATELLITE_CONFIGS.keys())
+        "satellites": list(SATELLITE_CONFIGS.keys()),
     }
 
 
@@ -320,7 +342,7 @@ def list_satellites():
                 "operator": config["operator"],
                 "revisit_days": config["revisit_days"],
                 "resolution_m": config["resolution_m"],
-                "bands_count": len(config["bands"])
+                "bands_count": len(config["bands"]),
             }
             for sat, config in SATELLITE_CONFIGS.items()
         ]
@@ -336,7 +358,7 @@ def list_monitored_regions():
                 "id": region_id,
                 "name_ar": data["name_ar"],
                 "latitude": data["lat"],
-                "longitude": data["lon"]
+                "longitude": data["lon"],
             }
             for region_id, data in YEMEN_REGIONS.items()
         ]
@@ -366,12 +388,14 @@ async def request_imagery(request: ImageryRequest):
     for band_id, band_info in config["bands"].items():
         band_type = band_info["name"].lower()
         value = band_values.get(band_type, random.uniform(0.05, 0.3))
-        bands.append(SatelliteBand(
-            band_name=band_id,
-            wavelength_nm=band_info["wavelength"],
-            resolution_m=band_info["resolution"],
-            value=round(value, 4)
-        ))
+        bands.append(
+            SatelliteBand(
+                band_name=band_id,
+                wavelength_nm=band_info["wavelength"],
+                resolution_m=band_info["resolution"],
+                value=round(value, 4),
+            )
+        )
 
     return SatelliteImagery(
         imagery_id=str(uuid.uuid4()),
@@ -383,7 +407,9 @@ async def request_imagery(request: ImageryRequest):
         bands=bands,
         scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{random.randint(1000,9999)}",
         tile_id=f"T{random.randint(30,40)}Q{chr(random.randint(65,90))}{chr(random.randint(65,90))}",
-        processing_level="L2A" if request.satellite == SatelliteSource.SENTINEL2 else "L2"
+        processing_level=(
+            "L2A" if request.satellite == SatelliteSource.SENTINEL2 else "L2"
+        ),
     )
 
 
@@ -424,14 +450,16 @@ async def analyze_field(request: ImageryRequest):
         evi=calculate_evi(nir, red, blue),
         savi=calculate_savi(nir, red),
         lai=calculate_lai(calculate_ndvi(nir, red)),
-        ndmi=calculate_ndmi(nir, swir1)
+        ndmi=calculate_ndmi(nir, swir1),
     )
 
     # Assess health
     health_score, health_status, anomalies = assess_vegetation_health(indices)
 
     # Generate recommendations
-    recommendations_ar, recommendations_en = generate_recommendations(indices, anomalies)
+    recommendations_ar, recommendations_en = generate_recommendations(
+        indices, anomalies
+    )
 
     return FieldAnalysis(
         field_id=request.field_id,
@@ -443,7 +471,7 @@ async def analyze_field(request: ImageryRequest):
         health_status=health_status,
         anomalies=anomalies,
         recommendations_ar=recommendations_ar,
-        recommendations_en=recommendations_en
+        recommendations_en=recommendations_en,
     )
 
 
@@ -451,7 +479,7 @@ async def analyze_field(request: ImageryRequest):
 async def get_timeseries(
     field_id: str,
     days: int = Query(default=30, ge=7, le=365),
-    satellite: SatelliteSource = SatelliteSource.SENTINEL2
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
 ):
     """الحصول على سلسلة زمنية للمؤشرات النباتية"""
 
@@ -462,18 +490,20 @@ async def get_timeseries(
     base_ndvi = random.uniform(0.3, 0.5)
 
     for i in range(0, days, SATELLITE_CONFIGS[satellite]["revisit_days"]):
-        date_point = datetime.utcnow() - timedelta(days=days-i)
+        date_point = datetime.utcnow() - timedelta(days=days - i)
         # Add realistic variation
         ndvi = base_ndvi + random.uniform(-0.1, 0.15) + (i / days) * 0.2
         ndvi = max(0, min(1, ndvi))
 
-        timeseries.append({
-            "date": date_point.isoformat(),
-            "ndvi": round(ndvi, 4),
-            "ndwi": round(random.uniform(-0.2, 0.4), 4),
-            "evi": round(ndvi * 0.8, 4),
-            "cloud_cover": round(random.uniform(0, 30), 1)
-        })
+        timeseries.append(
+            {
+                "date": date_point.isoformat(),
+                "ndvi": round(ndvi, 4),
+                "ndwi": round(random.uniform(-0.2, 0.4), 4),
+                "evi": round(ndvi * 0.8, 4),
+                "cloud_cover": round(random.uniform(0, 30), 1),
+            }
+        )
 
     return {
         "field_id": field_id,
@@ -481,10 +511,15 @@ async def get_timeseries(
         "period_days": days,
         "data_points": len(timeseries),
         "timeseries": timeseries,
-        "trend": "improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining"
+        "trend": (
+            "improving"
+            if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"]
+            else "declining"
+        ),
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8090)

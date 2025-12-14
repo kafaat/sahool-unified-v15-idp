@@ -21,22 +21,26 @@ REQUIRED_SCHEMAS = [
     "decision.disease.risk_assessed.v15.2.json",
 ]
 
+
 def _load_yaml(path: Path):
     try:
         return yaml.safe_load(path.read_text(encoding="utf-8"))
     except Exception as e:
         raise SystemExit(f"YAML parse error in {path}: {e}")
 
+
 def check_exists(rel: str):
     p = ROOT / rel
     if not p.exists():
         raise SystemExit(f"Missing required file: {rel}")
+
 
 def check_yaml_valid(rel: str):
     p = ROOT / rel
     if not p.exists():
         raise SystemExit(f"Missing YAML: {rel}")
     _load_yaml(p)
+
 
 def check_service_has_metrics(rel: str):
     p = ROOT / rel
@@ -46,9 +50,11 @@ def check_service_has_metrics(rel: str):
     if "/healthz" not in txt:
         raise SystemExit(f"Missing /healthz endpoint in {rel}")
 
+
 def check_schemas():
     for s in REQUIRED_SCHEMAS:
         check_exists(f"governance/schemas/{s}")
+
 
 def main():
     # governance
@@ -70,6 +76,7 @@ def main():
     check_service_has_metrics("kernel/services/disease-risk/src/main.py")
 
     print("✅ SAHOOL audit passed (v15.2 governed)")
+
 
 if __name__ == "__main__":
     main()

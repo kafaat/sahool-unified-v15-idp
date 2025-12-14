@@ -14,13 +14,14 @@ import math
 app = FastAPI(
     title="SAHOOL Smart Irrigation Service | خدمة الري الذكي",
     version="15.3.0",
-    description="AI-powered irrigation scheduling, water conservation, and smart recommendations"
+    description="AI-powered irrigation scheduling, water conservation, and smart recommendations",
 )
 
 
 # =============================================================================
 # Enums & Models
 # =============================================================================
+
 
 class CropType(str, Enum):
     TOMATO = "tomato"
@@ -267,7 +268,10 @@ WATER_COST_PER_M3 = 150
 # Calculation Functions
 # =============================================================================
 
-def calculate_et0(temperature: float, humidity: float, wind_speed: float, solar_radiation: float = 20) -> float:
+
+def calculate_et0(
+    temperature: float, humidity: float, wind_speed: float, solar_radiation: float = 20
+) -> float:
     """Calculate reference evapotranspiration (Hargreaves method)"""
     # Simplified ET0 = 0.0023 * Ra * (T + 17.8) * TD^0.5
     # Where TD = daily temperature range (assumed 10°C)
@@ -312,7 +316,7 @@ def calculate_water_need(
     days_since_irrigation: int,
     temperature: float = 30,
     humidity: float = 50,
-    rainfall_forecast: float = 0
+    rainfall_forecast: float = 0,
 ) -> Dict[str, Any]:
     """Calculate irrigation water requirements"""
 
@@ -341,7 +345,9 @@ def calculate_water_need(
     # Adjust for soil moisture if available
     if current_moisture is not None:
         soil_capacity = SOIL_WATER_CAPACITY[soil_type]
-        moisture_deficit = (70 - current_moisture) / 100 * soil_capacity * 0.3  # Top 30cm
+        moisture_deficit = (
+            (70 - current_moisture) / 100 * soil_capacity * 0.3
+        )  # Top 30cm
         accumulated_need_mm = max(accumulated_need_mm, moisture_deficit)
 
     # Apply irrigation efficiency
@@ -377,7 +383,7 @@ def calculate_water_need(
         "water_liters": round(water_liters, 0),
         "urgency": urgency,
         "efficiency": efficiency,
-        "savings_percent": round(savings_percent, 1)
+        "savings_percent": round(savings_percent, 1),
     }
 
 
@@ -402,7 +408,7 @@ def generate_reasoning(
     stage: GrowthStage,
     urgency: UrgencyLevel,
     water_need: Dict[str, Any],
-    days_since_irrigation: int
+    days_since_irrigation: int,
 ) -> tuple[str, str]:
     """Generate bilingual reasoning for irrigation recommendation"""
 
@@ -419,7 +425,9 @@ def generate_reasoning(
         reason_ar = f"🟡 {crop_ar} يحتاج ري خلال 24 ساعة. مرحلة {stage_ar} تتطلب {water_need['daily_et_mm']} ملم/يوم."
         reason_en = f"🟡 {crop.value} needs irrigation within 24 hours. {stage.value} stage requires {water_need['daily_et_mm']} mm/day."
     else:
-        reason_ar = f"🟢 {crop_ar} في حالة جيدة. الري الوقائي مُوصى به للحفاظ على رطوبة مثالية."
+        reason_ar = (
+            f"🟢 {crop_ar} في حالة جيدة. الري الوقائي مُوصى به للحفاظ على رطوبة مثالية."
+        )
         reason_en = f"🟢 {crop.value} is in good condition. Preventive irrigation recommended to maintain optimal moisture."
 
     return reason_ar, reason_en
@@ -429,13 +437,14 @@ def generate_reasoning(
 # API Endpoints
 # =============================================================================
 
+
 @app.get("/healthz")
 def health():
     return {
         "status": "ok",
         "service": "irrigation-smart",
         "version": "15.3.0",
-        "crops_supported": len(CROP_WATER_REQUIREMENTS)
+        "crops_supported": len(CROP_WATER_REQUIREMENTS),
     }
 
 
@@ -447,7 +456,7 @@ def list_crops():
             {
                 "id": crop.value,
                 "name_ar": CROP_TRANSLATIONS[crop],
-                "water_requirements_mm_day": CROP_WATER_REQUIREMENTS[crop]
+                "water_requirements_mm_day": CROP_WATER_REQUIREMENTS[crop],
             }
             for crop in CropType
         ]
@@ -462,7 +471,7 @@ def list_irrigation_methods():
             {
                 "id": method.value,
                 "name_ar": METHOD_TRANSLATIONS[method],
-                "efficiency_percent": int(IRRIGATION_EFFICIENCY[method] * 100)
+                "efficiency_percent": int(IRRIGATION_EFFICIENCY[method] * 100),
             }
             for method in IrrigationMethod
         ]
@@ -501,7 +510,7 @@ def calculate_irrigation(request: IrrigationRequest):
         days_since_irrigation=days_since,
         temperature=temperature,
         humidity=humidity,
-        rainfall_forecast=rainfall
+        rainfall_forecast=rainfall,
     )
 
     # Generate schedules (split if large amount)
@@ -531,28 +540,30 @@ def calculate_irrigation(request: IrrigationRequest):
             request.growth_stage,
             water_need["urgency"],
             water_need,
-            days_since
+            days_since,
         )
 
-        schedules.append(IrrigationSchedule(
-            schedule_id=str(uuid.uuid4()),
-            field_id=request.field_id,
-            crop=request.crop,
-            crop_name_ar=CROP_TRANSLATIONS[request.crop],
-            irrigation_date=schedule_date,
-            start_time=start_time,
-            duration_minutes=duration,
-            water_amount_liters=round(session_water, 0),
-            water_amount_m3=round(session_water / 1000, 2),
-            urgency=water_need["urgency"],
-            urgency_ar=URGENCY_TRANSLATIONS[water_need["urgency"]],
-            method=request.irrigation_method,
-            method_ar=METHOD_TRANSLATIONS[request.irrigation_method],
-            reasoning_ar=reason_ar,
-            reasoning_en=reason_en,
-            weather_adjusted=rainfall > 0,
-            savings_percent=water_need["savings_percent"]
-        ))
+        schedules.append(
+            IrrigationSchedule(
+                schedule_id=str(uuid.uuid4()),
+                field_id=request.field_id,
+                crop=request.crop,
+                crop_name_ar=CROP_TRANSLATIONS[request.crop],
+                irrigation_date=schedule_date,
+                start_time=start_time,
+                duration_minutes=duration,
+                water_amount_liters=round(session_water, 0),
+                water_amount_m3=round(session_water / 1000, 2),
+                urgency=water_need["urgency"],
+                urgency_ar=URGENCY_TRANSLATIONS[water_need["urgency"]],
+                method=request.irrigation_method,
+                method_ar=METHOD_TRANSLATIONS[request.irrigation_method],
+                reasoning_ar=reason_ar,
+                reasoning_en=reason_en,
+                weather_adjusted=rainfall > 0,
+                savings_percent=water_need["savings_percent"],
+            )
+        )
 
         schedule_date += timedelta(days=1)
 
@@ -577,11 +588,15 @@ def calculate_irrigation(request: IrrigationRequest):
 
     if water_need["urgency"] == UrgencyLevel.CRITICAL:
         recommendations_ar.append("⚠️ ري فوري مطلوب - تجنب تأخير أكثر من 6 ساعات")
-        recommendations_en.append("⚠️ Immediate irrigation required - avoid delay beyond 6 hours")
+        recommendations_en.append(
+            "⚠️ Immediate irrigation required - avoid delay beyond 6 hours"
+        )
 
     if request.irrigation_method == IrrigationMethod.FLOOD:
         recommendations_ar.append("💡 التحويل للري بالتنقيط يوفر حتى 45% من المياه")
-        recommendations_en.append("💡 Switching to drip irrigation can save up to 45% water")
+        recommendations_en.append(
+            "💡 Switching to drip irrigation can save up to 45% water"
+        )
 
     if temperature > 35:
         recommendations_ar.append("🌡️ ري في الصباح الباكر فقط لتقليل التبخر")
@@ -589,10 +604,16 @@ def calculate_irrigation(request: IrrigationRequest):
 
     if request.current_soil_moisture and request.current_soil_moisture < 30:
         recommendations_ar.append("🔴 رطوبة التربة منخفضة جداً - زيادة تواتر الري")
-        recommendations_en.append("🔴 Soil moisture very low - increase irrigation frequency")
+        recommendations_en.append(
+            "🔴 Soil moisture very low - increase irrigation frequency"
+        )
 
-    recommendations_ar.append(f"💧 كفاءة الري الحالية: {int(water_need['efficiency'] * 100)}%")
-    recommendations_en.append(f"💧 Current irrigation efficiency: {int(water_need['efficiency'] * 100)}%")
+    recommendations_ar.append(
+        f"💧 كفاءة الري الحالية: {int(water_need['efficiency'] * 100)}%"
+    )
+    recommendations_en.append(
+        f"💧 Current irrigation efficiency: {int(water_need['efficiency'] * 100)}%"
+    )
 
     # Alerts
     alerts_ar = []
@@ -620,7 +641,7 @@ def calculate_irrigation(request: IrrigationRequest):
         recommendations_ar=recommendations_ar,
         recommendations_en=recommendations_en,
         alerts_ar=alerts_ar,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
 
@@ -628,7 +649,7 @@ def calculate_irrigation(request: IrrigationRequest):
 def get_water_balance(
     field_id: str,
     crop: CropType = Query(default=CropType.TOMATO),
-    days: int = Query(default=14, ge=7, le=60)
+    days: int = Query(default=14, ge=7, le=60),
 ):
     """الميزان المائي للحقل"""
     import random
@@ -648,16 +669,18 @@ def get_water_balance(
         daily_deficit = max(0, et - rainfall - irrigation)
         cumulative_deficit += daily_deficit
 
-        balance_data.append(WaterBalance(
-            field_id=field_id,
-            date=balance_date,
-            et_mm=round(et, 2),
-            rainfall_mm=round(rainfall, 2),
-            irrigation_mm=round(irrigation, 2),
-            soil_moisture_change_mm=round(net_change, 2),
-            water_deficit_mm=round(daily_deficit, 2),
-            cumulative_deficit_mm=round(cumulative_deficit, 2)
-        ))
+        balance_data.append(
+            WaterBalance(
+                field_id=field_id,
+                date=balance_date,
+                et_mm=round(et, 2),
+                rainfall_mm=round(rainfall, 2),
+                irrigation_mm=round(irrigation, 2),
+                soil_moisture_change_mm=round(net_change, 2),
+                water_deficit_mm=round(daily_deficit, 2),
+                cumulative_deficit_mm=round(cumulative_deficit, 2),
+            )
+        )
 
     # Summary statistics
     total_et = sum(b.et_mm for b in balance_data)
@@ -672,11 +695,17 @@ def get_water_balance(
             "total_et_mm": round(total_et, 2),
             "total_rainfall_mm": round(total_rainfall, 2),
             "total_irrigation_mm": round(total_irrigation, 2),
-            "net_water_balance_mm": round(total_rainfall + total_irrigation - total_et, 2),
-            "cumulative_deficit_mm": round(cumulative_deficit, 2)
+            "net_water_balance_mm": round(
+                total_rainfall + total_irrigation - total_et, 2
+            ),
+            "cumulative_deficit_mm": round(cumulative_deficit, 2),
         },
         "daily_data": [b.dict() for b in balance_data],
-        "recommendation_ar": "💧 يُنصح بري تعويضي" if cumulative_deficit > 30 else "✅ الميزان المائي متوازن"
+        "recommendation_ar": (
+            "💧 يُنصح بري تعويضي"
+            if cumulative_deficit > 30
+            else "✅ الميزان المائي متوازن"
+        ),
     }
 
 
@@ -710,7 +739,7 @@ def record_sensor_reading(reading: SoilMoistureReading):
         "status": status,
         "action_ar": action_ar,
         "action_en": action_en,
-        "recorded_at": datetime.utcnow().isoformat()
+        "recorded_at": datetime.utcnow().isoformat(),
     }
 
 
@@ -718,7 +747,7 @@ def record_sensor_reading(reading: SoilMoistureReading):
 def get_efficiency_report(
     field_id: str,
     current_method: IrrigationMethod = IrrigationMethod.TRADITIONAL,
-    area_hectares: float = Query(default=1.0, gt=0)
+    area_hectares: float = Query(default=1.0, gt=0),
 ):
     """تقرير كفاءة الري ومقارنة الطرق"""
 
@@ -742,18 +771,22 @@ def get_efficiency_report(
         if method != current_method:
             water_saved = current_water - method_water
             cost_saved = current_cost - method_cost
-            savings_percent = (water_saved / current_water) * 100 if current_water > 0 else 0
+            savings_percent = (
+                (water_saved / current_water) * 100 if current_water > 0 else 0
+            )
 
-            comparisons.append({
-                "method": method.value,
-                "method_ar": METHOD_TRANSLATIONS[method],
-                "efficiency_percent": int(IRRIGATION_EFFICIENCY[method] * 100),
-                "annual_water_m3": round(method_water, 0),
-                "annual_cost_yer": round(method_cost, 0),
-                "water_saved_m3": round(water_saved, 0),
-                "cost_saved_yer": round(cost_saved, 0),
-                "savings_percent": round(savings_percent, 1)
-            })
+            comparisons.append(
+                {
+                    "method": method.value,
+                    "method_ar": METHOD_TRANSLATIONS[method],
+                    "efficiency_percent": int(IRRIGATION_EFFICIENCY[method] * 100),
+                    "annual_water_m3": round(method_water, 0),
+                    "annual_cost_yer": round(method_cost, 0),
+                    "water_saved_m3": round(water_saved, 0),
+                    "cost_saved_yer": round(cost_saved, 0),
+                    "savings_percent": round(savings_percent, 1),
+                }
+            )
 
     # Sort by water saved
     comparisons.sort(key=lambda x: x["water_saved_m3"], reverse=True)
@@ -766,14 +799,23 @@ def get_efficiency_report(
             "method_ar": METHOD_TRANSLATIONS[current_method],
             "efficiency_percent": int(IRRIGATION_EFFICIENCY[current_method] * 100),
             "annual_water_m3": round(current_water, 0),
-            "annual_cost_yer": round(current_cost, 0)
+            "annual_cost_yer": round(current_cost, 0),
         },
         "alternatives": comparisons,
-        "recommendation_ar": f"💡 التحويل إلى الري بالتنقيط يوفر {comparisons[0]['water_saved_m3']} م³ سنوياً ({comparisons[0]['savings_percent']}%)" if comparisons else "✅ أنت تستخدم أكفأ طريقة",
-        "roi_months": round(50000 / (comparisons[0]["cost_saved_yer"] / 12), 0) if comparisons and comparisons[0]["cost_saved_yer"] > 0 else None
+        "recommendation_ar": (
+            f"💡 التحويل إلى الري بالتنقيط يوفر {comparisons[0]['water_saved_m3']} م³ سنوياً ({comparisons[0]['savings_percent']}%)"
+            if comparisons
+            else "✅ أنت تستخدم أكفأ طريقة"
+        ),
+        "roi_months": (
+            round(50000 / (comparisons[0]["cost_saved_yer"] / 12), 0)
+            if comparisons and comparisons[0]["cost_saved_yer"] > 0
+            else None
+        ),
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8094)

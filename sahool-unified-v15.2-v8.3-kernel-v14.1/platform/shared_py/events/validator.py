@@ -20,11 +20,24 @@ def _load_schema(event_type: str, schema_version: str) -> Dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def validate_event(event: Dict[str, Any], *, expect_type: Optional[str] = None, expect_version: str = "v15.2") -> Tuple[bool, str]:
+def validate_event(
+    event: Dict[str, Any],
+    *,
+    expect_type: Optional[str] = None,
+    expect_version: str = "v15.2",
+) -> Tuple[bool, str]:
     if not isinstance(event, dict):
         return False, "event_not_object"
 
-    required = ["event_id","event_type","tenant_id","timestamp","correlation_id","payload","schema_version"]
+    required = [
+        "event_id",
+        "event_type",
+        "tenant_id",
+        "timestamp",
+        "correlation_id",
+        "payload",
+        "schema_version",
+    ]
     for k in required:
         if k not in event:
             return False, f"missing_{k}"
@@ -37,7 +50,7 @@ def validate_event(event: Dict[str, Any], *, expect_type: Optional[str] = None, 
 
     # lightweight schema file presence check
     try:
-        _load_schema(event.get("event_type",""), event.get("schema_version",""))
+        _load_schema(event.get("event_type", ""), event.get("schema_version", ""))
     except Exception as e:
         return False, f"schema_missing_or_invalid:{e}"
 

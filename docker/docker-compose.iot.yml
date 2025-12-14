@@ -1,0 +1,76 @@
+version: '3.8'
+
+# SAHOOL IoT Services - Docker Compose
+# Includes MQTT broker and IoT Gateway
+
+services:
+  # MQTT Broker (Mosquitto)
+  mqtt-broker:
+    image: eclipse-mosquitto:2
+    container_name: sahool-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - mqtt-data:/mosquitto/data
+      - mqtt-log:/mosquitto/log
+    networks:
+      - sahool-network
+    restart: unless-stopped
+
+  # IoT Gateway Service
+  iot-gateway:
+    build:
+      context: ../kernel/services/iot_gateway
+      dockerfile: Dockerfile
+    container_name: sahool-iot-gateway
+    ports:
+      - "8096:8096"
+    environment:
+      - MQTT_BROKER=mqtt-broker
+      - MQTT_PORT=1883
+      - MQTT_TOPIC=sahool/sensors/#
+      - NATS_URL=nats://nats:4222
+      - DEFAULT_TENANT=default
+    depends_on:
+      - mqtt-broker
+      - nats
+    networks:
+      - sahool-network
+    restart: unless-stopped
+
+  # IoT Rules Worker
+  iot-rules-worker:
+    build:
+      context: ../kernel/services/agro_rules
+      dockerfile: Dockerfile.iot
+    container_name: sahool-iot-rules
+    environment:
+      - NATS_URL=nats://nats:4222
+      - FIELDOPS_URL=http://fieldops:8080
+    depends_on:
+      - nats
+    networks:
+      - sahool-network
+    restart: unless-stopped
+
+  # NATS (if not already running)
+  nats:
+    image: nats:2.10-alpine
+    container_name: sahool-nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: ["-js", "-m", "8222"]
+    networks:
+      - sahool-network
+    restart: unless-stopped
+
+volumes:
+  mqtt-data:
+  mqtt-log:
+
+networks:
+  sahool-network:
+    driver: bridge

@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="SAHOOL WebSocket Gateway",
     version="15.3.0",
-    description="Real-time event bridge from NATS to WebSocket clients"
+    description="Real-time event bridge from NATS to WebSocket clients",
 )
 
 # CORS
@@ -32,6 +32,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Connection manager
 class ConnectionManager:
@@ -57,7 +58,9 @@ class ConnectionManager:
         await websocket.accept()
         self.active_connections[client_id] = websocket
         self.subscriptions[client_id] = set()
-        logger.info(f"Client {client_id} connected. Total: {len(self.active_connections)}")
+        logger.info(
+            f"Client {client_id} connected. Total: {len(self.active_connections)}"
+        )
 
     def disconnect(self, client_id: str):
         """Handle WebSocket disconnection"""
@@ -65,7 +68,9 @@ class ConnectionManager:
             del self.active_connections[client_id]
         if client_id in self.subscriptions:
             del self.subscriptions[client_id]
-        logger.info(f"Client {client_id} disconnected. Total: {len(self.active_connections)}")
+        logger.info(
+            f"Client {client_id} disconnected. Total: {len(self.active_connections)}"
+        )
 
     async def subscribe(self, client_id: str, subjects: list[str]):
         """Subscribe client to NATS subjects"""
@@ -80,10 +85,9 @@ class ConnectionManager:
         # Send confirmation
         websocket = self.active_connections.get(client_id)
         if websocket:
-            await websocket.send_json({
-                "type": "subscribed",
-                "subjects": list(self.subscriptions[client_id])
-            })
+            await websocket.send_json(
+                {"type": "subscribed", "subjects": list(self.subscriptions[client_id])}
+            )
 
     async def broadcast_event(self, subject: str, event_data: dict):
         """Broadcast event to all subscribed clients"""
@@ -95,20 +99,20 @@ class ConnectionManager:
             # Check if client is subscribed to this subject
             should_send = False
             for sub in client_subs:
-                if sub == subject or (sub.endswith('.*') and subject.startswith(sub[:-2])):
+                if sub == subject or (
+                    sub.endswith(".*") and subject.startswith(sub[:-2])
+                ):
                     should_send = True
                     break
-                if sub.endswith('.>') and subject.startswith(sub[:-2]):
+                if sub.endswith(".>") and subject.startswith(sub[:-2]):
                     should_send = True
                     break
 
             if should_send:
                 try:
-                    await websocket.send_json({
-                        "type": "event",
-                        "subject": subject,
-                        "data": event_data
-                    })
+                    await websocket.send_json(
+                        {"type": "event", "subject": subject, "data": event_data}
+                    )
                 except Exception as e:
                     logger.error(f"Failed to send to {client_id}: {e}")
                     disconnected.append(client_id)
@@ -188,7 +192,7 @@ def health():
         "service": "ws-gateway",
         "version": "15.3.0",
         "nats_connected": manager.nats_connected,
-        "active_connections": len(manager.active_connections)
+        "active_connections": len(manager.active_connections),
     }
 
 
@@ -196,6 +200,7 @@ def health():
 async def websocket_endpoint(websocket: WebSocket):
     """WebSocket endpoint for real-time events"""
     import uuid
+
     client_id = str(uuid.uuid4())
 
     await manager.connect(websocket, client_id)
@@ -220,10 +225,7 @@ async def websocket_endpoint(websocket: WebSocket):
                     await websocket.send_json({"type": "pong"})
 
             except json.JSONDecodeError:
-                await websocket.send_json({
-                    "type": "error",
-                    "message": "Invalid JSON"
-                })
+                await websocket.send_json({"type": "error", "message": "Invalid JSON"})
 
     except WebSocketDisconnect:
         manager.disconnect(client_id)
@@ -239,9 +241,8 @@ def get_stats():
         "active_connections": len(manager.active_connections),
         "nats_connected": manager.nats_connected,
         "subscriptions": {
-            client_id: list(subs)
-            for client_id, subs in manager.subscriptions.items()
-        }
+            client_id: list(subs) for client_id, subs in manager.subscriptions.items()
+        },
     }
 
 
@@ -256,4 +257,5 @@ async def broadcast_test(event: dict):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8081)

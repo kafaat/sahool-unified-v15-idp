@@ -1,0 +1,300 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL v15.3.2 Docker Compose
+# Complete platform deployment configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "3.9"
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure Services
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: sahool-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sahool}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  nats:
+    image: nats:2.10-alpine
+    container_name: sahool-nats
+    command: ["--jetstream", "--store_dir=/data", "-m", "8222"]
+    volumes:
+      - nats_data:/data
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: sahool-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: sahool-mqtt
+    volumes:
+      - mqtt_data:/mosquitto/data
+      - mqtt_logs:/mosquitto/log
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Application Services
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  field_ops:
+    build:
+      context: ./kernel/services/field_ops
+      dockerfile: Dockerfile
+    container_name: sahool-field-ops
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  ndvi_engine:
+    build:
+      context: ./kernel/services/ndvi_engine
+      dockerfile: Dockerfile
+    container_name: sahool-ndvi-engine
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8097:8097"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8097/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  weather_core:
+    build:
+      context: ./kernel/services/weather_core
+      dockerfile: Dockerfile
+    container_name: sahool-weather-core
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8098:8098"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  field_chat:
+    build:
+      context: ./kernel/services/field_chat
+      dockerfile: Dockerfile
+    container_name: sahool-field-chat
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8099:8099"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8099/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  iot_gateway:
+    build:
+      context: ./kernel/services/iot_gateway
+      dockerfile: Dockerfile
+    container_name: sahool-iot-gateway
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - MQTT_BROKER_URL=mqtt://mqtt:1883
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8094:8094"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8094/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  agro_advisor:
+    build:
+      context: ./kernel/services/agro_advisor
+      dockerfile: Dockerfile
+    container_name: sahool-agro-advisor
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8095:8095"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  ws_gateway:
+    build:
+      context: ./kernel/services/ws_gateway
+      dockerfile: Dockerfile
+    container_name: sahool-ws-gateway
+    environment:
+      - NATS_URL=nats://nats:4222
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-dev-secret}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8090:8090"
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────────────────────────
+
+networks:
+  sahool-network:
+    driver: bridge
+    name: sahool-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes
+# ─────────────────────────────────────────────────────────────────────────────
+
+volumes:
+  postgres_data:
+    name: sahool-postgres-data
+  nats_data:
+    name: sahool-nats-data
+  redis_data:
+    name: sahool-redis-data
+  mqtt_data:
+    name: sahool-mqtt-data
+  mqtt_logs:
+    name: sahool-mqtt-logs

@@ -1,1 +1,1 @@
-from .jwt import JWTAuth
+from .jwt import JWTAuth  # noqa: F401

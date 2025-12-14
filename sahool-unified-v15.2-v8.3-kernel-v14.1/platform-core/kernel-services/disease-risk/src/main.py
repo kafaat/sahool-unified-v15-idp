@@ -35,7 +35,7 @@ import uvicorn
 import nats
 
 sys.path.insert(0, '/app')
-from shared.events.base_event import create_event, EventTypes, Event  # noqa: E402
+from shared.events.base_event import create_event, EventTypes  # noqa: E402
 from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
 from shared.metrics import EVENTS_PUBLISHED, EVENTS_CONSUMED, init_service_info  # noqa: E402
 

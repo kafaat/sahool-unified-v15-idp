@@ -30,9 +30,9 @@ import nats
 
 # Add shared to path
 sys.path.insert(0, '/app')
-from shared.events.base_event import Event, create_event  # noqa: E402
+from shared.events.base_event import create_event  # noqa: E402
 from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
-from shared.metrics import EVENTS_PROCESSED, SAGAS_ACTIVE, SAGAS_COMPLETED, SAGAS_FAILED  # noqa: E402
+from shared.metrics import EVENTS_PROCESSED, SAGAS_ACTIVE, SAGAS_COMPLETED  # noqa: E402
 
 # Configure logging
 configure_logging(service_name="process-manager")

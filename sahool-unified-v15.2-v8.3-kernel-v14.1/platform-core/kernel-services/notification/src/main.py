@@ -31,9 +31,9 @@ import httpx
 import sys
 sys.path.insert(0, '/app/shared')
 from database import Database, BaseModel as DBBaseModel  # noqa: E402
-from events.base_event import BaseEvent, EventBus  # noqa: E402
+from events.base_event import EventBus  # noqa: E402
 from utils.logging import setup_logging  # noqa: E402
-from metrics import MetricsManager  # noqa: E402
+
 
 # ============================================================================
 # Configuration

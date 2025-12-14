@@ -37,12 +37,12 @@ import uvicorn
 import nats
 
 sys.path.insert(0, '/app')
-from shared.events.base_event import create_event, EventTypes, Event  # noqa: E402
+from shared.events.base_event import create_event, EventTypes  # noqa: E402
 from shared.utils.logging import configure_logging, get_logger, EventLogger  # noqa: E402
 from shared.metrics import (  # noqa: E402
-    EVENTS_PUBLISHED, EVENTS_CONSUMED, EVENTS_PROCESSED,
-    init_service_info, get_metrics, get_metrics_content_type,
-    track_event_processing
+    EVENTS_PUBLISHED, EVENTS_CONSUMED,
+    init_service_info, get_metrics, get_metrics_content_type
+)
 )
 
 configure_logging(service_name="crop-lifecycle-service")

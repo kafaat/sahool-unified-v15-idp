@@ -16,8 +16,8 @@ import uuid  # noqa: E402
 
 from fastapi import FastAPI, HTTPException, status, Query  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
-from pydantic import BaseModel, Field  # noqa: E402
-from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Float, select, delete, func  # noqa: E402
+from pydantic import BaseModel  # noqa: E402
+from sqlalchemy import Column, String, Boolean, DateTime, Text, JSON, ForeignKey, Float, select, func  # noqa: E402
 from sqlalchemy.orm import relationship  # noqa: E402
 from sqlalchemy.dialects.postgresql import UUID  # noqa: E402
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST  # noqa: E402

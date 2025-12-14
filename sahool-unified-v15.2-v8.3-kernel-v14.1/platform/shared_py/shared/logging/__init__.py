@@ -1,1 +1,1 @@
-from .init import configure_logging, get_logger, EventLogger
+from .init import configure_logging, get_logger, EventLogger  # noqa: F401

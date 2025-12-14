@@ -367,11 +367,7 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    ref.read(settingsProvider.notifier).loadSettings();
-  }
+  // ✅ لا حاجة لـ initState - الإعدادات تُحمّل تلقائياً في constructor الـ Notifier
 
   @override
   Widget build(BuildContext context) {

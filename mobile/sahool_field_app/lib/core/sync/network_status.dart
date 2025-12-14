@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 /// Network Status Monitor
+/// مراقب حالة الشبكة
 class NetworkStatus {
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? _subscription;
@@ -26,12 +27,13 @@ class NetworkStatus {
 
   void _updateStatus(List<ConnectivityResult> results) {
     final wasOnline = _isOnline;
+
+    // Check if any result indicates connectivity
     _isOnline = results.isNotEmpty &&
-        !results.contains(ConnectivityResult.none);
+        results.any((result) => result != ConnectivityResult.none);
 
     if (wasOnline != _isOnline) {
       _onlineController.add(_isOnline);
-      print('📶 Network: ${_isOnline ? "Online" : "Offline"}');
     }
   }
 

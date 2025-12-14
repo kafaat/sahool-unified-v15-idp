@@ -25,7 +25,8 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
   @override
   void initState() {
     super.initState();
-    _refresh();
+    // ✅ تأخير التحميل لما بعد البناء
+    Future.microtask(() => _refresh());
   }
 
   Future<void> _refresh() async {

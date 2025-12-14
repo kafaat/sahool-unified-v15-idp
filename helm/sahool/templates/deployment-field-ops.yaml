@@ -19,12 +19,28 @@ spec:
       labels:
         {{- include "sahool.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: field-ops
+        {{- if .Values.governance }}
+        sahool.io/owner: {{ .Values.governance.owner | quote }}
+        sahool.io/team: {{ .Values.governance.team | quote }}
+        sahool.io/lifecycle: {{ .Values.governance.lifecycle | quote }}
+        sahool.io/tier: {{ .Values.governance.tier | quote }}
+        {{- end }}
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
       serviceAccountName: {{ include "sahool.serviceAccountName" . }}
       containers:
         - name: field-ops
           image: "{{ .Values.services.fieldOps.image.repository }}:{{ .Values.services.fieldOps.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            privileged: false
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
           ports:
             - name: http
               containerPort: {{ .Values.services.fieldOps.port }}

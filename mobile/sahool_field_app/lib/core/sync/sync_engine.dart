@@ -6,7 +6,7 @@ import '../http/api_client.dart';
 import '../config/config.dart';
 import 'network_status.dart';
 
-/// Sync Engine - Handles offline-first synchronization
+/// Sync Engine - Handles offline-first synchronization with ETag support
 class SyncEngine {
   final AppDatabase database;
   final NetworkStatus _networkStatus = NetworkStatus();
@@ -21,6 +21,9 @@ class SyncEngine {
   SyncEngine({required this.database}) {
     _apiClient = ApiClient();
   }
+
+  /// Get current tenant ID from API client
+  String get _tenantId => _apiClient.tenantId;
 
   /// Start periodic sync
   void startPeriodic() {
@@ -100,7 +103,7 @@ class SyncEngine {
     }
   }
 
-  /// Process outbox - upload local changes
+  /// Process outbox - upload local changes with ETag support
   Future<OutboxResult> _processOutbox() async {
     final items = await database.getPendingOutbox(
       limit: AppConfig.outboxBatchSize,
@@ -108,10 +111,14 @@ class SyncEngine {
 
     int processed = 0;
     int failed = 0;
+    int conflicts = 0;
 
     for (final item in items) {
       try {
-        await _processOutboxItem(item);
+        final result = await _processOutboxItem(item);
+        if (result == _ItemResult.conflict) {
+          conflicts++;
+        }
         await database.markOutboxDone(item.id);
         processed++;
       } catch (e) {
@@ -131,34 +138,72 @@ class SyncEngine {
       }
     }
 
-    return OutboxResult(processed: processed, failed: failed);
+    return OutboxResult(processed: processed, failed: failed, conflicts: conflicts);
   }
 
-  /// Process single outbox item
-  Future<void> _processOutboxItem(OutboxData item) async {
-    final payload = jsonDecode(item.payloadJson) as Map<String, dynamic>;
+  /// Process single outbox item with ETag support
+  Future<_ItemResult> _processOutboxItem(OutboxData item) async {
+    final payload = jsonDecode(item.payload) as Map<String, dynamic>;
 
-    switch (item.type) {
-      case 'task_complete':
-        await _apiClient.post(
-          '/tasks/${payload['task_id']}/complete',
-          {
-            'tenant_id': payload['tenant_id'],
-            'evidence_notes': payload['evidence_notes'],
-            'evidence_photos': payload['evidence_photos'],
-          },
-        );
-        break;
+    // Build headers with If-Match for optimistic locking
+    Map<String, String>? headers;
+    if (item.ifMatch != null && item.ifMatch!.isNotEmpty) {
+      headers = {'If-Match': item.ifMatch!};
+    }
 
-      case 'task_update':
-        await _apiClient.put(
-          '/tasks/${payload['task_id']}',
-          payload,
-        );
-        break;
+    try {
+      // Use method and endpoint from outbox item
+      switch (item.method.toUpperCase()) {
+        case 'POST':
+          await _apiClient.post(item.apiEndpoint, payload, headers: headers);
+          break;
+        case 'PUT':
+          await _apiClient.put(item.apiEndpoint, payload, headers: headers);
+          break;
+        case 'DELETE':
+          await _apiClient.delete(item.apiEndpoint, headers: headers);
+          break;
+        default:
+          await _apiClient.post(item.apiEndpoint, payload, headers: headers);
+      }
+      return _ItemResult.success;
+    } catch (e) {
+      // Check for 409 Conflict
+      if (e.toString().contains('409') || e.toString().contains('Conflict')) {
+        await _handleConflict(item);
+        return _ItemResult.conflict;
+      }
+      rethrow;
+    }
+  }
 
+  /// Handle 409 Conflict - apply server version
+  Future<void> _handleConflict(OutboxData item) async {
+    // Add sync event for UI notification
+    await database.addSyncEvent(
+      tenantId: _tenantId,
+      type: 'CONFLICT',
+      message: 'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.entityType)}',
+      entityType: item.entityType,
+      entityId: item.entityId,
+    );
+
+    await database.logSync(
+      type: 'conflict',
+      status: 'resolved',
+      message: 'Conflict resolved by applying server version for: ${item.entityType}/${item.entityId}',
+    );
+  }
+
+  /// Get Arabic entity type name
+  String _getEntityTypeAr(String type) {
+    switch (type) {
+      case 'field':
+        return 'الحقل';
+      case 'task':
+        return 'المهمة';
       default:
-        print('⚠️ Unknown outbox type: ${item.type}');
+        return 'البيانات';
     }
   }
 
@@ -232,8 +277,13 @@ class SyncResult {
 class OutboxResult {
   final int processed;
   final int failed;
+  final int conflicts;
 
-  OutboxResult({required this.processed, required this.failed});
+  OutboxResult({
+    required this.processed,
+    required this.failed,
+    this.conflicts = 0,
+  });
 }
 
 /// Pull result
@@ -242,3 +292,6 @@ class PullResult {
 
   PullResult({required this.count});
 }
+
+/// Internal item processing result
+enum _ItemResult { success, conflict, failed }

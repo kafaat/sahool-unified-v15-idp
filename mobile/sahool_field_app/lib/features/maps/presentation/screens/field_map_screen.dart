@@ -24,10 +24,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   bool _showZones = true;
   bool _showNdvi = false;
   bool _showNdwi = false;
-  bool _showGpsTrack = false;
-  bool _isTracking = false;
   String? _selectedZoneId;
-  double _currentZoom = 15.0;
 
   @override
   Widget build(BuildContext context) {
@@ -94,119 +91,64 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     // Placeholder for MapLibre map
     // In production, use maplibre_gl package
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.green[100]!,
-            Colors.green[200]!,
-          ],
-        ),
-      ),
-      child: Stack(
-        children: [
-          // خلفية محاكاة للخريطة
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _MapGridPainter(),
+      color: Colors.grey[200],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.map,
+              size: 100,
+              color: Colors.grey[400],
             ),
-          ),
-          // محتوى الخريطة
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(height: 16),
+            Text(
+              'خريطة الحقل',
+              style: TextStyle(
+                fontSize: 24,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Field ID: ${widget.fieldId}',
+              style: TextStyle(color: Colors.grey[500]),
+            ),
+            const SizedBox(height: 24),
+            // عرض الطبقات النشطة
+            Wrap(
+              spacing: 8,
               children: [
-                // أيقونة الموقع مع حركة
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  child: Icon(
-                    _isTracking ? Icons.my_location : Icons.location_on,
-                    size: 60,
-                    color: _isTracking ? Colors.blue : const Color(0xFF367C2B),
+                if (_showZones)
+                  Chip(
+                    avatar: const Icon(Icons.crop_square, size: 18),
+                    label: const Text('المناطق'),
+                    backgroundColor: Colors.blue[100],
                   ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  widget.fieldName ?? 'خريطة الحقل',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: Color(0xFF367C2B),
-                    fontWeight: FontWeight.bold,
+                if (_showNdvi)
+                  Chip(
+                    avatar: const Icon(Icons.grass, size: 18),
+                    label: const Text('NDVI'),
+                    backgroundColor: Colors.green[100],
                   ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'تكبير: ${_currentZoom.toStringAsFixed(1)}x',
-                    style: TextStyle(color: Colors.grey[700], fontSize: 12),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                // عرض الطبقات النشطة
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    if (_showZones)
-                      _buildActiveLayerChip('المناطق', Icons.crop_square, Colors.blue),
-                    if (_showNdvi)
-                      _buildActiveLayerChip('NDVI', Icons.grass, Colors.green),
-                    if (_showNdwi)
-                      _buildActiveLayerChip('NDWI', Icons.water_drop, Colors.cyan),
-                    if (_showGpsTrack)
-                      _buildActiveLayerChip('GPS', Icons.gps_fixed, Colors.orange),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                if (_isTracking)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.blue),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'جاري تتبع الموقع...',
-                          style: TextStyle(color: Colors.blue),
-                        ),
-                      ],
-                    ),
+                if (_showNdwi)
+                  Chip(
+                    avatar: const Icon(Icons.water_drop, size: 18),
+                    label: const Text('NDWI'),
+                    backgroundColor: Colors.blue[100],
                   ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 32),
+            const Text(
+              '🗺️ MapLibre سيتم تفعيله\nبعد إضافة مفتاح API',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildActiveLayerChip(String label, IconData icon, Color color) {
-    return Chip(
-      avatar: Icon(icon, size: 16, color: color),
-      label: Text(label, style: TextStyle(fontSize: 12, color: color)),
-      backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color.withOpacity(0.3)),
-      padding: EdgeInsets.zero,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }
 
@@ -221,16 +163,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           children: [
             _buildToolButton(
               icon: Icons.add,
-              onPressed: () => setState(() {
-                if (_currentZoom < 20) _currentZoom += 1;
-              }),
+              onPressed: () {},
               tooltip: 'تكبير',
             ),
             _buildToolButton(
               icon: Icons.remove,
-              onPressed: () => setState(() {
-                if (_currentZoom > 5) _currentZoom -= 1;
-              }),
+              onPressed: () {},
               tooltip: 'تصغير',
             ),
             const Divider(height: 16),
@@ -252,21 +190,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               onPressed: () => setState(() => _showNdwi = !_showNdwi),
               tooltip: 'NDWI',
             ),
-            const Divider(height: 16),
-            _buildToolButton(
-              icon: Icons.gps_fixed,
-              isActive: _showGpsTrack,
-              activeColor: Colors.orange,
-              onPressed: () => setState(() => _showGpsTrack = !_showGpsTrack),
-              tooltip: 'تتبع GPS',
-            ),
-            _buildToolButton(
-              icon: _isTracking ? Icons.gps_off : Icons.my_location,
-              isActive: _isTracking,
-              activeColor: Colors.blue,
-              onPressed: () => setState(() => _isTracking = !_isTracking),
-              tooltip: _isTracking ? 'إيقاف التتبع' : 'بدء التتبع',
-            ),
           ],
         ),
       ),
@@ -278,19 +201,19 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     required VoidCallback onPressed,
     required String tooltip,
     bool isActive = false,
-    Color? activeColor,
   }) {
-    final color = activeColor ?? const Color(0xFF367C2B);
     return Tooltip(
       message: tooltip,
       child: IconButton(
         icon: Icon(
           icon,
-          color: isActive ? color : Colors.grey[600],
+          color: isActive ? const Color(0xFF367C2B) : Colors.grey[600],
         ),
         onPressed: onPressed,
         style: IconButton.styleFrom(
-          backgroundColor: isActive ? color.withOpacity(0.1) : Colors.transparent,
+          backgroundColor: isActive
+              ? const Color(0xFF367C2B).withOpacity(0.1)
+              : Colors.transparent,
         ),
       ),
     );
@@ -568,60 +491,4 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       arguments: {'fieldId': widget.fieldId},
     );
   }
-}
-
-/// رسام شبكة الخريطة
-class _MapGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.green.withOpacity(0.1)
-      ..strokeWidth = 1;
-
-    // رسم خطوط أفقية
-    for (var i = 0; i < size.height; i += 30) {
-      canvas.drawLine(
-        Offset(0, i.toDouble()),
-        Offset(size.width, i.toDouble()),
-        paint,
-      );
-    }
-
-    // رسم خطوط عمودية
-    for (var i = 0; i < size.width; i += 30) {
-      canvas.drawLine(
-        Offset(i.toDouble(), 0),
-        Offset(i.toDouble(), size.height),
-        paint,
-      );
-    }
-
-    // رسم بعض المربعات لمحاكاة الحقول
-    final fieldPaint = Paint()
-      ..color = Colors.green.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-
-    final fieldRects = [
-      Rect.fromLTWH(size.width * 0.2, size.height * 0.3, 100, 80),
-      Rect.fromLTWH(size.width * 0.5, size.height * 0.2, 120, 100),
-      Rect.fromLTWH(size.width * 0.3, size.height * 0.6, 90, 70),
-    ];
-
-    for (final rect in fieldRects) {
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-        fieldPaint,
-      );
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, const Radius.circular(8)),
-        Paint()
-          ..color = Colors.green
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

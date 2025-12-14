@@ -4,10 +4,10 @@ Connects to MQTT broker and forwards messages
 """
 
 import asyncio
-import os
 import json
-from typing import Callable, Optional, Any
+import os
 from dataclasses import dataclass
+from typing import Any, Callable, Optional
 
 # Using aiomqtt (formerly asyncio-mqtt)
 try:

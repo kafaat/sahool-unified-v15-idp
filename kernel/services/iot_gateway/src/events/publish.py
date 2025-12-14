@@ -12,13 +12,13 @@ from typing import Optional
 from nats.aio.client import Client as NATS
 
 from .types import (
-    get_subject,
-    get_sensor_subject,
-    get_version,
-    SENSOR_READING,
-    DEVICE_STATUS,
-    DEVICE_REGISTERED,
     DEVICE_ALERT,
+    DEVICE_REGISTERED,
+    DEVICE_STATUS,
+    SENSOR_READING,
+    get_sensor_subject,
+    get_subject,
+    get_version,
 )
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")

@@ -3,8 +3,8 @@ IoT Rules Engine - SAHOOL Agro Rules
 Rule-based automation from sensor readings
 """
 
-from typing import Optional
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass

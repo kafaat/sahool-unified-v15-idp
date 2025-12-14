@@ -3,26 +3,26 @@ Chat Event Publisher
 NATS JetStream publisher for chat events
 """
 
-import os
 import json
 import logging
-from uuid import uuid4
+import os
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from typing import Optional
-from dataclasses import dataclass, asdict
+from uuid import uuid4
 
 import nats
 from nats.aio.client import Client as NATS
 
 from .types import (
-    SUBJECTS,
-    CHAT_THREAD_CREATED,
-    CHAT_MESSAGE_SENT,
     CHAT_MESSAGE_EDITED,
+    CHAT_MESSAGE_SENT,
+    CHAT_MESSAGES_READ,
     CHAT_PARTICIPANT_JOINED,
     CHAT_PARTICIPANT_LEFT,
     CHAT_THREAD_ARCHIVED,
-    CHAT_MESSAGES_READ,
+    CHAT_THREAD_CREATED,
+    SUBJECTS,
 )
 
 logger = logging.getLogger(__name__)

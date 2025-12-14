@@ -4,6 +4,7 @@ Rule-based disease assessment and recommendation generation
 """
 
 from typing import Optional
+
 from ..kb.diseases import DISEASES, get_disease
 
 

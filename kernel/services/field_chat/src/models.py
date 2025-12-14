@@ -3,9 +3,10 @@ Field Chat Data Models
 Tortoise ORM models for chat threads and messages
 """
 
+from enum import Enum
+
 from tortoise import fields
 from tortoise.models import Model
-from enum import Enum
 
 
 class ScopeType(str, Enum):

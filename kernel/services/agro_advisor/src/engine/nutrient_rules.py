@@ -3,13 +3,13 @@ Nutrient Rules Engine - SAHOOL Agro Advisor
 Rule-based nutrient deficiency assessment
 """
 
+from ..kb.fertilizers import get_fertilizers_for_nutrient
 from ..kb.nutrients import (
     NUTRIENT_DEFICIENCIES,
+    diagnose_from_ndvi,
     get_deficiency,
     get_deficiency_by_nutrient,
-    diagnose_from_ndvi,
 )
-from ..kb.fertilizers import get_fertilizers_for_nutrient
 
 
 class NutrientAssessment:

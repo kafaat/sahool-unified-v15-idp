@@ -3,23 +3,23 @@ Chat Projection Worker
 Subscribes to chat events and updates read models / broadcasts to WebSockets
 """
 
-import os
+import asyncio
 import json
 import logging
-import asyncio
-from typing import Optional, Callable, Any
+import os
+from typing import Any, Callable, Optional
 
 import nats
 from nats.aio.client import Client as NATS
 
 from ..events.types import (
-    SUBJECTS,
-    CHAT_THREAD_CREATED,
-    CHAT_MESSAGE_SENT,
     CHAT_MESSAGE_EDITED,
+    CHAT_MESSAGE_SENT,
+    CHAT_MESSAGES_READ,
     CHAT_PARTICIPANT_JOINED,
     CHAT_PARTICIPANT_LEFT,
-    CHAT_MESSAGES_READ,
+    CHAT_THREAD_CREATED,
+    SUBJECTS,
 )
 
 logger = logging.getLogger(__name__)

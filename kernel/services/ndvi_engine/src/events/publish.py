@@ -10,7 +10,7 @@ from typing import Optional
 
 from nats.aio.client import Client as NATS
 
-from .types import get_subject, get_version, NDVI_COMPUTED, NDVI_ANOMALY_DETECTED
+from .types import NDVI_ANOMALY_DETECTED, NDVI_COMPUTED, get_subject, get_version
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 

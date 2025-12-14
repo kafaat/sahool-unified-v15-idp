@@ -3,19 +3,19 @@ SAHOOL Agro Advisor - Events
 Event types and publishing
 """
 
+from .publish import (
+    AdvisorPublisher,
+    EventEnvelope,
+    get_publisher,
+)
 from .types import (
-    RECOMMENDATION_ISSUED,
+    DISEASE_DETECTED,
     FERTILIZER_PLAN_ISSUED,
     NUTRIENT_ASSESSMENT_ISSUED,
-    DISEASE_DETECTED,
+    RECOMMENDATION_ISSUED,
     SUBJECTS,
     get_subject,
     get_version,
-)
-from .publish import (
-    EventEnvelope,
-    AdvisorPublisher,
-    get_publisher,
 )
 
 __all__ = [

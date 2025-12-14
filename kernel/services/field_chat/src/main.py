@@ -3,8 +3,8 @@ SAHOOL Field Chat Service
 Main FastAPI application entry point
 """
 
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
 from typing import Dict, List
 

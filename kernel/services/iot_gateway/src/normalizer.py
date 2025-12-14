@@ -4,9 +4,9 @@ Converts various sensor payloads to standard format
 """
 
 import json
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from typing import Optional
-from dataclasses import dataclass, asdict
 
 
 @dataclass

@@ -5,7 +5,6 @@ Crop-stage-based fertilizer planning for Yemen agriculture
 
 from ..kb.fertilizers import get_fertilizer
 
-
 # Crop nutrient requirements (kg/ha for target yield)
 CROP_REQUIREMENTS = {
     "tomato": {

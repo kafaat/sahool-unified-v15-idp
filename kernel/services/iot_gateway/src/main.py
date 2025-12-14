@@ -7,17 +7,16 @@ Port: 8096
 import asyncio
 import os
 from contextlib import asynccontextmanager
-from typing import Optional
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
-from .registry import get_registry, DeviceRegistry, DeviceStatus
-from .events import IoTPublisher, get_publisher
-
+from .registry import DeviceRegistry, DeviceStatus, get_registry
 
 # Configuration
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")

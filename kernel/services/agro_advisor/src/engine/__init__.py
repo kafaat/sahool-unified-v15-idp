@@ -12,15 +12,15 @@ from .disease_rules import (
 from .nutrient_rules import (
     NutrientAssessment,
     assess_from_ndvi,
-    assess_from_visual,
     assess_from_soil_test,
+    assess_from_visual,
     get_correction_plan,
 )
 from .planner import (
+    CROP_REQUIREMENTS,
     FertilizerPlan,
     fertilizer_plan,
     get_stage_timeline,
-    CROP_REQUIREMENTS,
 )
 
 __all__ = [

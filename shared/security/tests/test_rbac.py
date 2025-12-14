@@ -3,14 +3,14 @@ Tests for RBAC Module
 """
 
 from shared.security.rbac import (
-    has_permission,
-    has_any_permission,
-    has_all_permissions,
-    get_role_permissions,
-    is_same_tenant,
-    can_access_resource,
     Permission,
     Role,
+    can_access_resource,
+    get_role_permissions,
+    has_all_permissions,
+    has_any_permission,
+    has_permission,
+    is_same_tenant,
 )
 
 

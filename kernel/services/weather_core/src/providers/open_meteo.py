@@ -3,10 +3,11 @@ Open-Meteo Weather Provider - SAHOOL Weather Core
 Free weather API integration for Yemen
 """
 
-import httpx
 from dataclasses import dataclass
-from datetime import datetime, date
+from datetime import date, datetime
 from typing import Optional
+
+import httpx
 
 
 @dataclass

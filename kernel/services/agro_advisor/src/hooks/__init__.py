@@ -3,7 +3,7 @@ SAHOOL Agro Advisor - Hooks
 Event-driven automation hooks
 """
 
-from .task_automation import TaskAutomationHook, FieldOpsClient, run_hook
+from .task_automation import FieldOpsClient, TaskAutomationHook, run_hook
 
 __all__ = [
     "TaskAutomationHook",

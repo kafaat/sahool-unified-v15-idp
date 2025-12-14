@@ -11,10 +11,9 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from .providers import OpenMeteoProvider, MockWeatherProvider
-from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
 from .events import get_publisher
-
+from .providers import MockWeatherProvider, OpenMeteoProvider
+from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
 
 # Configuration
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"

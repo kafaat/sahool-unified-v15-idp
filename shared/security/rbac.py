@@ -5,7 +5,6 @@ Simple and effective permission management
 
 from enum import Enum
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Permission Definitions
 # ─────────────────────────────────────────────────────────────────────────────

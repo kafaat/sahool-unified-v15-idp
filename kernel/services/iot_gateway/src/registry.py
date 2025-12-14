@@ -3,10 +3,10 @@ Device Registry - SAHOOL IoT Gateway
 Lightweight device management and status tracking
 """
 
-from datetime import datetime, timezone, timedelta
-from typing import Optional
-from dataclasses import dataclass, asdict, field
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timedelta, timezone
 from enum import Enum
+from typing import Optional
 
 
 class DeviceStatus(Enum):

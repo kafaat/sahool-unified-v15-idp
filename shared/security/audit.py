@@ -4,12 +4,12 @@ Database + Event logging for security audit trail
 """
 
 import logging
-from uuid import uuid4
 from datetime import datetime, timezone
-from typing import Optional
 from enum import Enum
+from typing import Optional
+from uuid import uuid4
 
-from .audit_models import AuditLog, AuditCategory, AuditSeverity
+from .audit_models import AuditCategory, AuditLog, AuditSeverity
 
 logger = logging.getLogger(__name__)
 

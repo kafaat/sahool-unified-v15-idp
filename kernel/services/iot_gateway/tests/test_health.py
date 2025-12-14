@@ -2,11 +2,11 @@
 Health Check Tests - IoT Gateway
 """
 
-import pytest
-
 # Import will fail without NATS, so we mock
 import sys
 from unittest.mock import MagicMock
+
+import pytest
 
 # Mock NATS before importing main
 sys.modules["nats"] = MagicMock()

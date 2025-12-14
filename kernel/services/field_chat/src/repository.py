@@ -3,11 +3,11 @@ Field Chat Repository
 Data access layer for chat operations
 """
 
-from uuid import UUID, uuid4
 from datetime import datetime
 from typing import Optional
+from uuid import UUID, uuid4
 
-from .models import ChatThread, ChatMessage, ChatParticipant
+from .models import ChatMessage, ChatParticipant, ChatThread
 
 
 class ChatRepository:

@@ -11,25 +11,25 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from .kb import (
-    get_disease,
-    get_diseases_by_crop,
-    search_diseases,
-    get_deficiency,
-    get_fertilizer,
-    get_fertilizers_for_nutrient,
-)
 from .engine import (
-    assess_from_image_event,
-    assess_from_symptoms,
-    assess_from_ndvi,
-    assess_from_visual,
-    get_action_details,
-    fertilizer_plan,
-    get_stage_timeline,
     CROP_REQUIREMENTS,
+    assess_from_image_event,
+    assess_from_ndvi,
+    assess_from_symptoms,
+    assess_from_visual,
+    fertilizer_plan,
+    get_action_details,
+    get_stage_timeline,
 )
 from .events import get_publisher
+from .kb import (
+    get_deficiency,
+    get_disease,
+    get_diseases_by_crop,
+    get_fertilizer,
+    get_fertilizers_for_nutrient,
+    search_diseases,
+)
 
 
 # Lifespan context manager

@@ -3,10 +3,10 @@ IoT Rules Tests - Agro Rules
 """
 
 from kernel.services.agro_rules.src.iot_rules import (
-    rule_from_sensor,
+    TaskRecommendation,
     evaluate_combined_rules,
     get_threshold,
-    TaskRecommendation,
+    rule_from_sensor,
 )
 
 

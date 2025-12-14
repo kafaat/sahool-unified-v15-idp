@@ -2,22 +2,23 @@
 Tests for JWT Module
 """
 
-import pytest
-from datetime import timedelta
 import os
+from datetime import timedelta
+
+import pytest
 
 # Set test environment
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests"
 os.environ["JWT_ALGORITHM"] = "HS256"
 
 from shared.security.jwt import (
-    create_token,
+    AuthError,
     create_access_token,
     create_refresh_token,
+    create_token,
     create_token_pair,
-    verify_token,
     decode_token_unsafe,
-    AuthError,
+    verify_token,
 )
 
 

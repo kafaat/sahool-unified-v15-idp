@@ -4,12 +4,12 @@ Authentication and authorization dependencies for route handlers
 """
 
 import logging
-from typing import Optional, Annotated
+from typing import Annotated, Optional
 
-from fastapi import Header, HTTPException, Depends, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends, Header, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from .jwt import verify_token, AuthError
+from .jwt import AuthError, verify_token
 
 logger = logging.getLogger(__name__)
 

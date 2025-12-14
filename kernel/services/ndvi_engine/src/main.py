@@ -12,11 +12,11 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from .compute import (
-    compute_mock,
-    compute_from_sentinel,
     analyze_ndvi_zones,
-    classify_ndvi_health,
     calculate_vegetation_indices,
+    classify_ndvi_health,
+    compute_from_sentinel,
+    compute_mock,
     detect_anomalies,
 )
 from .events import get_publisher

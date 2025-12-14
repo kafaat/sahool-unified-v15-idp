@@ -6,14 +6,13 @@ Subscribes to sensor events and creates tasks
 import asyncio
 import json
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import httpx
 from nats.aio.client import Client as NATS
 
-from .iot_rules import rule_from_sensor, evaluate_combined_rules, TaskRecommendation
-
+from .iot_rules import TaskRecommendation, evaluate_combined_rules, rule_from_sensor
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://fieldops:8080")

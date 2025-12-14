@@ -10,15 +10,14 @@ from typing import Optional
 
 from nats.aio.client import Client as NATS
 
-from .rules import (
-    rule_from_ndvi,
-    rule_from_weather,
-    rule_from_ndvi_weather,
-    rule_from_irrigation_adjustment,
-    TaskRule,
-)
 from .fieldops_client import FieldOpsClient
-
+from .rules import (
+    TaskRule,
+    rule_from_irrigation_adjustment,
+    rule_from_ndvi,
+    rule_from_ndvi_weather,
+    rule_from_weather,
+)
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://fieldops:8080")

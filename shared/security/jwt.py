@@ -3,11 +3,11 @@ JWT Token Verification and Creation
 RS256/HS256 support with standard claims
 """
 
-import os
 import logging
-from datetime import datetime, timezone, timedelta
-from typing import Optional
+import os
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
+from typing import Optional
 
 import jwt
 from jwt import PyJWTError

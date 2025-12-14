@@ -3,15 +3,15 @@ Field Chat API Endpoints
 REST API for chat thread and message operations
 """
 
-from fastapi import APIRouter, HTTPException, Query, Depends
-from pydantic import BaseModel, Field
-from uuid import UUID
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
-from .repository import ChatRepository
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
+
 from .events.publish import ChatPublisher
-
+from .repository import ChatRepository
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 

@@ -10,7 +10,7 @@ from typing import Optional
 
 from nats.aio.client import Client as NATS
 
-from .types import get_subject, get_version, WEATHER_ALERT, IRRIGATION_ADJUSTMENT
+from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, get_subject, get_version
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 

@@ -4,11 +4,10 @@ HTTP client for creating tasks in FieldOps service
 """
 
 import os
+from datetime import datetime, timedelta, timezone
 from typing import Optional
-from datetime import datetime, timezone, timedelta
 
 import httpx
-
 
 FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://fieldops:8080")
 

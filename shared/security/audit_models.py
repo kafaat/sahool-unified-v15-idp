@@ -3,9 +3,10 @@ Audit Log Database Models
 Tortoise ORM models for security audit trail
 """
 
+from enum import Enum
+
 from tortoise import fields
 from tortoise.models import Model
-from enum import Enum
 
 
 class AuditSeverity(str, Enum):

@@ -7,13 +7,13 @@ from fastapi import HTTPException
 
 from shared.security.guard import (
     require,
-    require_any,
     require_all,
-    require_tenant,
-    require_resource_access,
-    require_role,
+    require_any,
     require_any_role,
     require_owner_or_permission,
+    require_resource_access,
+    require_role,
+    require_tenant,
 )
 from shared.security.rbac import Permission
 

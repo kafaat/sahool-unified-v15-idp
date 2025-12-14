@@ -3,8 +3,8 @@ Agro Rules - SAHOOL
 Event-driven rules for automatic task generation
 """
 
-from typing import Optional, Tuple
 from dataclasses import dataclass
+from typing import Optional, Tuple
 
 
 @dataclass

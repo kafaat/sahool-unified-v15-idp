@@ -27,11 +27,11 @@ class TestEventTypes:
     def test_event_types_defined(self):
         """Test all event types are defined"""
         from src.events.types import (
-            CHAT_THREAD_CREATED,
-            CHAT_MESSAGE_SENT,
             CHAT_MESSAGE_EDITED,
+            CHAT_MESSAGE_SENT,
             CHAT_PARTICIPANT_JOINED,
             CHAT_PARTICIPANT_LEFT,
+            CHAT_THREAD_CREATED,
         )
 
         assert CHAT_THREAD_CREATED == "chat_thread_created"
@@ -42,7 +42,7 @@ class TestEventTypes:
 
     def test_subjects_defined(self):
         """Test all subjects are defined"""
-        from src.events.types import SUBJECTS, CHAT_MESSAGE_SENT
+        from src.events.types import CHAT_MESSAGE_SENT, SUBJECTS
 
         assert CHAT_MESSAGE_SENT in SUBJECTS
         assert SUBJECTS[CHAT_MESSAGE_SENT] == "chat.chat_message_sent"

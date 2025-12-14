@@ -3,11 +3,11 @@ Tests for Agro Rules Module
 """
 
 from src.rules import (
-    rule_from_ndvi,
-    rule_from_weather,
-    rule_from_ndvi_weather,
-    rule_from_irrigation_adjustment,
     TaskRule,
+    rule_from_irrigation_adjustment,
+    rule_from_ndvi,
+    rule_from_ndvi_weather,
+    rule_from_weather,
 )
 
 

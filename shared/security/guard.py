@@ -4,15 +4,15 @@ FastAPI-compatible permission enforcement helpers
 """
 
 import logging
-from typing import Callable
 from functools import wraps
+from typing import Callable
 
 from fastapi import HTTPException
 
 from .rbac import (
-    has_permission,
-    has_any_permission,
     has_all_permissions,
+    has_any_permission,
+    has_permission,
     is_same_tenant,
 )
 

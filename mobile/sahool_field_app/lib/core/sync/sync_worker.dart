@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import '../storage/database.dart';
 import '../sync/network_status.dart';
 import '../auth/user_context.dart';
+import '../config/api_config.dart';
 
 /// Sync Worker - عامل المزامنة مع دعم ETag و Conflict Resolution
 ///
@@ -12,6 +13,8 @@ import '../auth/user_context.dart';
 /// - If-Match header لتجنب التعارضات
 /// - 409 Conflict handling مع تطبيق نسخة السيرفر
 /// - SyncEvents للإشعارات
+/// - Timeout مناسب للمناطق النائية
+/// - Retry مع exponential backoff
 class SyncWorker {
   final AppDatabase _db;
   final NetworkStatus _net;
@@ -23,13 +26,23 @@ class SyncWorker {
     required AppDatabase db,
     required NetworkStatus net,
     required UserContext auth,
-    required String baseUrl,
+    String? baseUrl,
     Dio? dio,
   })  : _db = db,
         _net = net,
         _auth = auth,
-        _baseUrl = baseUrl,
-        _dio = dio ?? Dio();
+        _baseUrl = baseUrl ?? ApiConfig.effectiveBaseUrl,
+        _dio = dio ?? _createDio();
+
+  /// Create Dio instance with proper configuration
+  static Dio _createDio() {
+    return Dio(BaseOptions(
+      connectTimeout: ApiConfig.connectTimeout,
+      sendTimeout: ApiConfig.sendTimeout,
+      receiveTimeout: ApiConfig.receiveTimeout,
+      headers: ApiConfig.defaultHeaders,
+    ));
+  }
 
   /// تشغيل المزامنة
   Future<SyncResult> run() async {

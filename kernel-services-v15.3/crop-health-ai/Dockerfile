@@ -1,46 +1,77 @@
+# ═══════════════════════════════════════════════════════════════════════════════
 # Sahool Vision - Crop Health AI Service
 # خدمة سهول فيجن للذكاء الاصطناعي
+#
+# Multi-stage build for optimized production image
+# ═══════════════════════════════════════════════════════════════════════════════
 
-FROM python:3.11-slim
+# ───────────────────────────────────────────────────────────────────────────────
+# Stage 1: Builder - Install dependencies
+# ───────────────────────────────────────────────────────────────────────────────
+FROM python:3.11-slim AS builder
 
-LABEL maintainer="Sahool Team"
-LABEL service="crop-health-ai"
-LABEL version="1.0.0"
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
-
-WORKDIR /app
-
-# Install system dependencies for image processing
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxrender1 \
-    libxext6 \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Stage 2: Production - Minimal runtime image
+# ───────────────────────────────────────────────────────────────────────────────
+FROM python:3.11-slim AS production
+
+LABEL maintainer="Sahool Team <dev@sahool.io>"
+LABEL service="crop-health-ai"
+LABEL version="2.2.0"
+LABEL description="AI-powered plant disease detection for Yemen agriculture"
+
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    PORT=8095 \
+    LOG_LEVEL=INFO
+
+WORKDIR /app
+
+# Install only runtime system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy application code
 COPY src/ ./src/
-COPY models/ ./models/
+
+# Create directories for uploads and models
+RUN mkdir -p /app/static/uploads /app/models
 
 # Create non-root user for security
-RUN useradd -m -u 1000 sahool && chown -R sahool:sahool /app
+RUN useradd --create-home --shell /bin/bash --uid 1000 sahool && \
+    chown -R sahool:sahool /app
 USER sahool
 
 # Expose port
 EXPOSE 8095
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8095/healthz')" || exit 1
+# Health check using curl (more reliable than Python)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8095/healthz || exit 1
 
 # Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8095"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8095", "--workers", "2"]

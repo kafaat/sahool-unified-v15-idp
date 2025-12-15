@@ -187,15 +187,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8107
     ports:
-      - "8097:8097"
+      - "8107:8107"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8097/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8107/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -215,15 +216,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8108
     ports:
-      - "8098:8098"
+      - "8108:8108"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8108/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -277,8 +279,9 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8106
     ports:
-      - "8096:8096"
+      - "8106:8106"
     depends_on:
       postgres:
         condition: service_healthy
@@ -287,7 +290,7 @@ services:
       mqtt:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8106/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -307,15 +310,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8105
     ports:
-      - "8095:8095"
+      - "8105:8105"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8105/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3

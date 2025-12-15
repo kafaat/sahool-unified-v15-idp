@@ -13,6 +13,7 @@ class ServicePorts {
   static const int weather = 8092;
   static const int fertilizer = 8093;
   static const int irrigation = 8094;
+  static const int cropHealth = 8095; // Sahool Vision AI
   static const int equipment = 8101;
   static const int gateway = 8000; // Kong API Gateway
 }
@@ -44,6 +45,7 @@ class ApiConfig {
   static String get weatherServiceUrl => 'http://$_host:${ServicePorts.weather}';
   static String get fertilizerServiceUrl => 'http://$_host:${ServicePorts.fertilizer}';
   static String get irrigationServiceUrl => 'http://$_host:${ServicePorts.irrigation}';
+  static String get cropHealthServiceUrl => 'http://$_host:${ServicePorts.cropHealth}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
 
   /// Production base URL (Kong Gateway)
@@ -166,6 +168,22 @@ class ApiConfig {
   static String get irrigationSchedule => '$_irrigationBase/v1/schedule';
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // Crop Health AI Service Endpoints (port 8095)
+  // سهول فيجن - الذكاء الاصطناعي لصحة المحاصيل
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _cropHealthBase => useDirectServices ? cropHealthServiceUrl : effectiveBaseUrl;
+
+  /// Crop health AI diagnosis endpoints
+  static String get diagnose => '$_cropHealthBase/v1/diagnose';
+  static String get diagnoseBatch => '$_cropHealthBase/v1/diagnose/batch';
+  static String get supportedCrops => '$_cropHealthBase/v1/crops';
+  static String get diseases => '$_cropHealthBase/v1/diseases';
+  static String treatmentDetails(String diseaseId) => '$_cropHealthBase/v1/treatment/$diseaseId';
+  static String get expertReview => '$_cropHealthBase/v1/expert-review';
+  static String get cropHealthHealthz => '$_cropHealthBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // Equipment Service Endpoints (port 8101)
   // خدمة المعدات
   // ─────────────────────────────────────────────────────────────────────────────
@@ -239,6 +257,7 @@ class ApiConfig {
     'weather': healthCheck(weatherServiceUrl),
     'fertilizer': healthCheck(fertilizerServiceUrl),
     'irrigation': healthCheck(irrigationServiceUrl),
+    'cropHealth': healthCheck(cropHealthServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
   };
 }

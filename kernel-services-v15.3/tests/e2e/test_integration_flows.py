@@ -191,11 +191,14 @@ class TestMultiLocationWeatherComparison:
         assert len(weather_data) >= 3
 
         # Highland locations (Sana'a) should generally be cooler than coastal (Aden)
-        if "sana'a" in weather_data and "aden" in weather_data:
+        sanaa_key = "sana'a"
+        if sanaa_key in weather_data and "aden" in weather_data:
             # Not always true, but typically
+            sanaa_temp = weather_data[sanaa_key]['temperature']
+            aden_temp = weather_data['aden']['temperature']
             print(f"✅ Regional Weather Comparison:")
-            print(f"   Sana'a (Highland): {weather_data['sana'a']['temperature']}°C")
-            print(f"   Aden (Coastal): {weather_data['aden']['temperature']}°C")
+            print(f"   Sana'a (Highland): {sanaa_temp}°C")
+            print(f"   Aden (Coastal): {aden_temp}°C")
 
 
 class TestCropHealthMonitoringFlow:

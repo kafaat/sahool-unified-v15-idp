@@ -767,7 +767,7 @@ app.post("/api/v1/fields/sync/batch", async (req: Request, res: Response) => {
                         ...fieldData,
                         tenantId,
                         status: fieldData.status || "active"
-                    });
+                    } as Partial<Field>);
 
                     // Handle boundary
                     if (fieldData.coordinates && Array.isArray(fieldData.coordinates)) {
@@ -775,13 +775,13 @@ app.post("/api/v1/fields/sync/batch", async (req: Request, res: Response) => {
                         if (JSON.stringify(closedCoords[0]) !== JSON.stringify(closedCoords[closedCoords.length - 1])) {
                             closedCoords.push(closedCoords[0]);
                         }
-                        newField.boundary = {
+                        (newField as Field).boundary = {
                             type: "Polygon",
                             coordinates: [closedCoords]
-                        };
+                        } as any;
                     }
 
-                    const saved = await fieldRepo.save(newField);
+                    const saved = await fieldRepo.save(newField as Field);
 
                     results.push({
                         clientId: id || "new",

@@ -7,12 +7,36 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - name: field-core
+            path: kernel/services/field_core
+          - name: field-chat
+            path: kernel/services/field_chat
+          - name: agro-advisor
+            path: kernel/services/agro_advisor
+          - name: weather-core
+            path: kernel/services/weather_core
+      fail-fast: false
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Check if Dockerfile exists
+      id: check_dockerfile
+      run: |
+        if [ -f "${{ matrix.service.path }}/Dockerfile" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      if: steps.check_dockerfile.outputs.exists == 'true'
+      run: |
+        docker build ${{ matrix.service.path }} \
+          --file ${{ matrix.service.path }}/Dockerfile \
+          --tag sahool/${{ matrix.service.name }}:${{ github.sha }}

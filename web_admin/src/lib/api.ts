@@ -15,6 +15,7 @@ const PORTS = {
   cropHealth: 8095,
   virtualSensors: 8096,
   communityChat: 8097,
+  yieldEngine: 8098,
   equipment: 8101,
 };
 
@@ -36,6 +37,7 @@ export const API_URLS = {
   cropHealth: getServiceUrl(PORTS.cropHealth),
   virtualSensors: getServiceUrl(PORTS.virtualSensors),
   communityChat: getServiceUrl(PORTS.communityChat),
+  yieldEngine: getServiceUrl(PORTS.yieldEngine),
   equipment: getServiceUrl(PORTS.equipment),
 };
 

@@ -560,6 +560,27 @@ services:
       - sahool-network
 
 
+  # Yield Engine - ML Crop Yield Prediction (Python + FastAPI)
+  yield_engine:
+    build:
+      context: ./kernel-services-v15.3/yield-engine
+      dockerfile: Dockerfile
+    container_name: sahool-yield-engine
+    environment:
+      - PORT=8098
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8098:8098"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Admin Dashboard (Next.js)
   # لوحة تحكم المشرفين

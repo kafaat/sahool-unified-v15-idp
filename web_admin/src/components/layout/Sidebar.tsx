@@ -17,12 +17,14 @@ import {
   LogOut,
   Leaf,
   MessageCircle,
+  TrendingUp,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
   { name: 'المزارع', href: '/farms', icon: MapPin },
   { name: 'مركز الوباء', href: '/diseases', icon: Bug },
+  { name: 'حاسبة الإنتاجية', href: '/yield', icon: TrendingUp },
   { name: 'الدعم الفني', href: '/support', icon: MessageCircle, badge: 5 },
   { name: 'المستشعرات الافتراضية', href: '/sensors', icon: Thermometer },
   { name: 'التنبيهات', href: '/alerts', icon: Bell },

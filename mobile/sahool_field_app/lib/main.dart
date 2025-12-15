@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'core/sync/sync_engine.dart';
+import 'core/sync/background_sync_task.dart';
 import 'core/storage/database.dart';
 
 void main() async {
@@ -13,6 +14,10 @@ void main() async {
   // Initialize sync engine
   final syncEngine = SyncEngine(database: database);
 
+  // Initialize background sync with Workmanager
+  await BackgroundSyncManager.initialize();
+  await BackgroundSyncManager.registerPeriodicSync();
+
   runApp(
     ProviderScope(
       overrides: [
@@ -23,7 +28,7 @@ void main() async {
     ),
   );
 
-  // Start background sync
+  // Start foreground sync when app is active
   syncEngine.startPeriodic();
 }
 

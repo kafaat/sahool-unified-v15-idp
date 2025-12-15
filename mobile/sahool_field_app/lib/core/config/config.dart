@@ -20,9 +20,17 @@ class AppConfig {
   static const bool enableOfflineMode = true;
   static const bool enablePhotoCapture = true;
   static const bool enablePushNotifications = false; // PR later
+  static const bool enableBackgroundSync = true;
+
+  // Debug Mode
+  static const bool isDebug = bool.fromEnvironment('DEBUG', defaultValue: true);
 
   // Tenant (will be dynamic later)
   static const String defaultTenantId = 'tenant_1';
+
+  // Background Sync Configuration
+  static const Duration backgroundSyncInterval = Duration(minutes: 15);
+  static const int backgroundSyncBatchSize = 25;
 }
 
 /// Environment Configuration

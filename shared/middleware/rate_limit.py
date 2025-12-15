@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse
 @dataclass
 class RateLimitConfig:
     """Rate limit configuration for different tiers"""
+
     requests_per_minute: int = 60
     requests_per_hour: int = 1000
     burst_limit: int = 10  # Max requests in 1 second
@@ -24,26 +25,27 @@ class RateLimitConfig:
 @dataclass
 class TierConfig:
     """Tiered rate limiting configuration"""
-    free: RateLimitConfig = field(default_factory=lambda: RateLimitConfig(
-        requests_per_minute=30,
-        requests_per_hour=500,
-        burst_limit=5
-    ))
-    standard: RateLimitConfig = field(default_factory=lambda: RateLimitConfig(
-        requests_per_minute=60,
-        requests_per_hour=2000,
-        burst_limit=10
-    ))
-    premium: RateLimitConfig = field(default_factory=lambda: RateLimitConfig(
-        requests_per_minute=120,
-        requests_per_hour=5000,
-        burst_limit=20
-    ))
-    internal: RateLimitConfig = field(default_factory=lambda: RateLimitConfig(
-        requests_per_minute=1000,
-        requests_per_hour=50000,
-        burst_limit=100
-    ))
+
+    free: RateLimitConfig = field(
+        default_factory=lambda: RateLimitConfig(
+            requests_per_minute=30, requests_per_hour=500, burst_limit=5
+        )
+    )
+    standard: RateLimitConfig = field(
+        default_factory=lambda: RateLimitConfig(
+            requests_per_minute=60, requests_per_hour=2000, burst_limit=10
+        )
+    )
+    premium: RateLimitConfig = field(
+        default_factory=lambda: RateLimitConfig(
+            requests_per_minute=120, requests_per_hour=5000, burst_limit=20
+        )
+    )
+    internal: RateLimitConfig = field(
+        default_factory=lambda: RateLimitConfig(
+            requests_per_minute=1000, requests_per_hour=50000, burst_limit=100
+        )
+    )
 
 
 class TokenBucket:
@@ -85,16 +87,14 @@ class RateLimiter:
             # Refill rate = requests_per_minute / 60 seconds
             self._buckets[key] = TokenBucket(
                 capacity=config.burst_limit,
-                refill_rate=config.requests_per_minute / 60.0
+                refill_rate=config.requests_per_minute / 60.0,
             )
         return self._buckets[key]
 
     def _clean_old_requests(self, key: str, window_seconds: int):
         """Remove requests older than the window"""
         cutoff = time.time() - window_seconds
-        self._request_counts[key] = [
-            t for t in self._request_counts[key] if t > cutoff
-        ]
+        self._request_counts[key] = [t for t in self._request_counts[key] if t > cutoff]
 
     def _get_tier(self, request: Request) -> str:
         """Get rate limit tier from request headers or default"""
@@ -150,14 +150,12 @@ class RateLimiter:
         return True, self._build_headers(key, config, tier, exceeded=False)
 
     def _build_headers(
-        self,
-        key: str,
-        config: RateLimitConfig,
-        tier: str,
-        exceeded: bool
+        self, key: str, config: RateLimitConfig, tier: str, exceeded: bool
     ) -> dict:
         """Build rate limit response headers"""
-        remaining = max(0, config.requests_per_minute - len(self._request_counts.get(key, [])))
+        remaining = max(
+            0, config.requests_per_minute - len(self._request_counts.get(key, []))
+        )
 
         headers = {
             "X-RateLimit-Limit": str(config.requests_per_minute),
@@ -194,7 +192,7 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
                 "message": "Too many requests. Please try again later.",
                 "message_ar": "طلبات كثيرة جداً. يرجى المحاولة لاحقاً.",
             },
-            headers=headers
+            headers=headers,
         )
 
     response = await call_next(request)
@@ -207,9 +205,7 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
 
 
 def rate_limit(
-    requests_per_minute: int = 60,
-    requests_per_hour: int = 1000,
-    burst_limit: int = 10
+    requests_per_minute: int = 60, requests_per_hour: int = 1000, burst_limit: int = 10
 ):
     """
     Decorator for endpoint-specific rate limiting
@@ -223,7 +219,7 @@ def rate_limit(
     config = RateLimitConfig(
         requests_per_minute=requests_per_minute,
         requests_per_hour=requests_per_hour,
-        burst_limit=burst_limit
+        burst_limit=burst_limit,
     )
 
     limiter = RateLimiter()
@@ -243,10 +239,11 @@ def rate_limit(
                         "error": "Rate limit exceeded",
                         "error_ar": "تم تجاوز حد الطلبات",
                     },
-                    headers=headers
+                    headers=headers,
                 )
 
             return await func(request, *args, **kwargs)
 
         return wrapper
+
     return decorator

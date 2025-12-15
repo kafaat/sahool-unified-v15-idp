@@ -22,10 +22,7 @@ class MetricsRegistry:
         self._start_time = time.time()
 
     def counter(
-        self,
-        name: str,
-        description: str,
-        labels: Optional[dict] = None
+        self, name: str, description: str, labels: Optional[dict] = None
     ) -> "Counter":
         """Create or get a counter metric"""
         key = self._make_key(name, labels)
@@ -34,15 +31,12 @@ class MetricsRegistry:
                 "name": name,
                 "description": description,
                 "labels": labels or {},
-                "value": 0
+                "value": 0,
             }
         return Counter(self._counters[key])
 
     def gauge(
-        self,
-        name: str,
-        description: str,
-        labels: Optional[dict] = None
+        self, name: str, description: str, labels: Optional[dict] = None
     ) -> "Gauge":
         """Create or get a gauge metric"""
         key = self._make_key(name, labels)
@@ -51,7 +45,7 @@ class MetricsRegistry:
                 "name": name,
                 "description": description,
                 "labels": labels or {},
-                "value": 0
+                "value": 0,
             }
         return Gauge(self._gauges[key])
 
@@ -60,12 +54,24 @@ class MetricsRegistry:
         name: str,
         description: str,
         buckets: Optional[list[float]] = None,
-        labels: Optional[dict] = None
+        labels: Optional[dict] = None,
     ) -> "Histogram":
         """Create or get a histogram metric"""
         key = self._make_key(name, labels)
         if key not in self._histograms:
-            default_buckets = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+            default_buckets = [
+                0.005,
+                0.01,
+                0.025,
+                0.05,
+                0.1,
+                0.25,
+                0.5,
+                1.0,
+                2.5,
+                5.0,
+                10.0,
+            ]
             self._histograms[key] = {
                 "name": name,
                 "description": description,
@@ -73,7 +79,7 @@ class MetricsRegistry:
                 "buckets": buckets or default_buckets,
                 "bucket_counts": {b: 0 for b in (buckets or default_buckets)},
                 "sum": 0,
-                "count": 0
+                "count": 0,
             }
         return Histogram(self._histograms[key])
 
@@ -95,7 +101,9 @@ class MetricsRegistry:
 
         # Add service info
         lines.append(f"# SAHOOL {self.service_name} Metrics")
-        lines.append(f"# Generated at {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}")
+        lines.append(
+            f"# Generated at {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}"
+        )
         lines.append("")
 
         # Export counters
@@ -127,20 +135,30 @@ class MetricsRegistry:
             for bucket in sorted(metric["buckets"]):
                 cumulative += metric["bucket_counts"].get(bucket, 0)
                 bucket_labels = {**base_labels, "le": str(bucket)}
-                lines.append(f"{name}_bucket{self._format_labels(bucket_labels)} {cumulative}")
+                lines.append(
+                    f"{name}_bucket{self._format_labels(bucket_labels)} {cumulative}"
+                )
 
             # +Inf bucket
             inf_labels = {**base_labels, "le": "+Inf"}
-            lines.append(f"{name}_bucket{self._format_labels(inf_labels)} {metric['count']}")
+            lines.append(
+                f"{name}_bucket{self._format_labels(inf_labels)} {metric['count']}"
+            )
 
             # Sum and count
-            lines.append(f"{name}_sum{self._format_labels(base_labels)} {metric['sum']}")
-            lines.append(f"{name}_count{self._format_labels(base_labels)} {metric['count']}")
+            lines.append(
+                f"{name}_sum{self._format_labels(base_labels)} {metric['sum']}"
+            )
+            lines.append(
+                f"{name}_count{self._format_labels(base_labels)} {metric['count']}"
+            )
             lines.append("")
 
         # Add uptime gauge
         uptime = time.time() - self._start_time
-        lines.append(f"# HELP {self.service_name}_uptime_seconds Service uptime in seconds")
+        lines.append(
+            f"# HELP {self.service_name}_uptime_seconds Service uptime in seconds"
+        )
         lines.append(f"# TYPE {self.service_name}_uptime_seconds gauge")
         lines.append(f"{self.service_name}_uptime_seconds {uptime:.2f}")
 
@@ -229,27 +247,23 @@ def setup_metrics(app: FastAPI, service_name: str = "sahool"):
 
     # Create standard metrics
     request_counter = registry.counter(
-        "http_requests_total",
-        "Total HTTP requests",
-        {"service": service_name}
+        "http_requests_total", "Total HTTP requests", {"service": service_name}
     )
 
     request_latency = registry.histogram(
         "http_request_duration_seconds",
         "HTTP request latency in seconds",
-        labels={"service": service_name}
+        labels={"service": service_name},
     )
 
     active_requests = registry.gauge(
         "http_requests_active",
         "Currently active HTTP requests",
-        {"service": service_name}
+        {"service": service_name},
     )
 
     error_counter = registry.counter(
-        "http_errors_total",
-        "Total HTTP errors",
-        {"service": service_name}
+        "http_errors_total", "Total HTTP errors", {"service": service_name}
     )
 
     @app.middleware("http")
@@ -289,19 +303,14 @@ def track_db_query(func: Callable):
     """Decorator to track database query metrics"""
     registry = get_registry()
 
-    query_counter = registry.counter(
-        "db_queries_total",
-        "Total database queries"
-    )
+    query_counter = registry.counter("db_queries_total", "Total database queries")
 
     query_latency = registry.histogram(
-        "db_query_duration_seconds",
-        "Database query latency in seconds"
+        "db_query_duration_seconds", "Database query latency in seconds"
     )
 
     query_errors = registry.counter(
-        "db_query_errors_total",
-        "Total database query errors"
+        "db_query_errors_total", "Total database query errors"
     )
 
     @wraps(func)
@@ -324,21 +333,19 @@ def track_external_call(service_name: str):
     registry = get_registry()
 
     call_counter = registry.counter(
-        "external_calls_total",
-        "Total external service calls",
-        {"target": service_name}
+        "external_calls_total", "Total external service calls", {"target": service_name}
     )
 
     call_latency = registry.histogram(
         "external_call_duration_seconds",
         "External call latency in seconds",
-        labels={"target": service_name}
+        labels={"target": service_name},
     )
 
     call_errors = registry.counter(
         "external_call_errors_total",
         "Total external call errors",
-        {"target": service_name}
+        {"target": service_name},
     )
 
     def decorator(func: Callable):
@@ -355,4 +362,5 @@ def track_external_call(service_name: str):
                 raise
 
         return wrapper
+
     return decorator

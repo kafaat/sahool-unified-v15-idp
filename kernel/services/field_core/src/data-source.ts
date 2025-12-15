@@ -1,6 +1,8 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { Field } from "./entity/Field";
+import { FieldBoundaryHistory } from "./entity/FieldBoundaryHistory";
+import { SyncStatus } from "./entity/SyncStatus";
 
 /**
  * SAHOOL Field Core - Database Configuration
@@ -18,7 +20,7 @@ export const AppDataSource = new DataSource({
     synchronize: process.env.NODE_ENV !== "production",
     logging: process.env.NODE_ENV !== "production",
 
-    entities: [Field],
+    entities: [Field, FieldBoundaryHistory, SyncStatus],
     migrations: ["dist/migrations/*.js"],
     subscribers: [],
 

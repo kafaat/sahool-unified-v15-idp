@@ -140,16 +140,41 @@ SATELLITE_CONFIGS = {
     },
 }
 
-# Yemen regions monitoring
+# Yemen regions monitoring - جميع محافظات اليمن الـ 22
 YEMEN_REGIONS = {
-    "sana'a": {"lat": 15.3694, "lon": 44.1910, "name_ar": "صنعاء"},
-    "aden": {"lat": 12.7855, "lon": 45.0187, "name_ar": "عدن"},
-    "taiz": {"lat": 13.5789, "lon": 44.0219, "name_ar": "تعز"},
-    "hodeidah": {"lat": 14.7979, "lon": 42.9540, "name_ar": "الحديدة"},
-    "ibb": {"lat": 13.9667, "lon": 44.1667, "name_ar": "إب"},
-    "dhamar": {"lat": 14.5500, "lon": 44.4000, "name_ar": "ذمار"},
-    "hajjah": {"lat": 15.6917, "lon": 43.6028, "name_ar": "حجة"},
-    "lahij": {"lat": 13.0500, "lon": 44.8833, "name_ar": "لحج"},
+    # المنطقة الشمالية
+    "sana'a": {"lat": 15.3694, "lon": 44.1910, "name_ar": "صنعاء", "region": "highland"},
+    "amanat_al_asimah": {"lat": 15.3556, "lon": 44.2067, "name_ar": "أمانة العاصمة", "region": "highland"},
+    "amran": {"lat": 15.6594, "lon": 43.9439, "name_ar": "عمران", "region": "highland"},
+    "saadah": {"lat": 16.9400, "lon": 43.7614, "name_ar": "صعدة", "region": "highland"},
+    "al_jawf": {"lat": 16.5833, "lon": 45.5000, "name_ar": "الجوف", "region": "desert"},
+    "hajjah": {"lat": 15.6917, "lon": 43.6028, "name_ar": "حجة", "region": "highland"},
+    "al_mahwit": {"lat": 15.4700, "lon": 43.5447, "name_ar": "المحويت", "region": "highland"},
+
+    # المنطقة الوسطى
+    "dhamar": {"lat": 14.5500, "lon": 44.4000, "name_ar": "ذمار", "region": "highland"},
+    "ibb": {"lat": 13.9667, "lon": 44.1667, "name_ar": "إب", "region": "highland"},
+    "taiz": {"lat": 13.5789, "lon": 44.0219, "name_ar": "تعز", "region": "highland"},
+    "al_bayda": {"lat": 13.9833, "lon": 45.5667, "name_ar": "البيضاء", "region": "highland"},
+    "raymah": {"lat": 14.6333, "lon": 43.7167, "name_ar": "ريمة", "region": "highland"},
+    "marib": {"lat": 15.4667, "lon": 45.3333, "name_ar": "مأرب", "region": "desert"},
+
+    # المنطقة الساحلية الغربية
+    "hodeidah": {"lat": 14.7979, "lon": 42.9540, "name_ar": "الحديدة", "region": "coastal"},
+
+    # المنطقة الجنوبية
+    "aden": {"lat": 12.7855, "lon": 45.0187, "name_ar": "عدن", "region": "coastal"},
+    "lahij": {"lat": 13.0500, "lon": 44.8833, "name_ar": "لحج", "region": "highland"},
+    "ad_dali": {"lat": 13.7000, "lon": 44.7333, "name_ar": "الضالع", "region": "highland"},
+    "abyan": {"lat": 13.0167, "lon": 45.3667, "name_ar": "أبين", "region": "coastal"},
+
+    # المنطقة الشرقية
+    "hadramaut": {"lat": 15.9500, "lon": 48.7833, "name_ar": "حضرموت", "region": "desert"},
+    "shabwah": {"lat": 14.5333, "lon": 46.8333, "name_ar": "شبوة", "region": "desert"},
+    "al_mahrah": {"lat": 16.0667, "lon": 52.2333, "name_ar": "المهرة", "region": "coastal"},
+
+    # الجزر
+    "socotra": {"lat": 12.4634, "lon": 53.8237, "name_ar": "سقطرى", "region": "island"},
 }
 
 

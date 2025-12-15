@@ -7,9 +7,21 @@
     "start": "node dist/index.js",
     "build": "tsc",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "typeorm": "typeorm-ts-node-commonjs"
+    "typeorm": "typeorm-ts-node-commonjs",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:status": "prisma migrate status",
+    "prisma:migrate:reset": "prisma migrate reset",
+    "prisma:db:push": "prisma db push",
+    "prisma:db:pull": "prisma db pull",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "ts-node prisma/seed.ts",
+    "db:setup": "npm run prisma:migrate:deploy && npm run prisma:generate",
+    "db:reset": "npm run prisma:migrate:reset -- --force"
   },
   "dependencies": {
+    "@prisma/client": "^5.7.0",
     "express": "^4.18.2",
     "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
@@ -19,6 +31,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "prisma": "^5.7.0",
     "typescript": "^5.2.2",
     "@types/node": "^20.5.9",
     "@types/express": "^4.17.17",
@@ -26,6 +39,10 @@
     "@types/uuid": "^9.0.2",
     "ts-node-dev": "^2.0.0",
     "ts-node": "^10.9.1"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "ts-node prisma/seed.ts"
   },
   "engines": {
     "node": ">=18.0.0"

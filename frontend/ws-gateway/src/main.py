@@ -24,13 +24,23 @@ app = FastAPI(
     description="Real-time event bridge from NATS to WebSocket clients",
 )
 
-# CORS
+# CORS - Configure allowed origins from environment
+import os
+
+ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:8080,https://sahool.io,https://*.sahool.io"
+).split(",")
+
+# Filter out empty strings and strip whitespace
+ALLOWED_ORIGINS = [origin.strip() for origin in ALLOWED_ORIGINS if origin.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
 
 

@@ -49,9 +49,12 @@ affinity: {}
 postgresql:
   enabled: true
   auth:
+    # IMPORTANT: Override these in your values-production.yaml or via --set
+    # Never use default passwords in production!
     username: sahool
-    password: sahool
+    # password: "" # Must be set via existingSecret or --set
     database: sahool
+    existingSecret: "sahool-postgresql-secret"  # Create this secret with key "password"
   primary:
     persistence:
       enabled: true
@@ -72,7 +75,8 @@ nats:
 redis:
   enabled: true
   auth:
-    enabled: false
+    enabled: true
+    existingSecret: "sahool-redis-secret"  # Create this secret with key "redis-password"
   master:
     persistence:
       enabled: true
@@ -187,7 +191,10 @@ ingress:
         - path: /ws
           pathType: Prefix
           service: ws-gateway
-  tls: []
+  tls:
+    - secretName: sahool-tls
+      hosts:
+        - sahool.local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Security Configuration
@@ -195,11 +202,13 @@ ingress:
 
 security:
   jwt:
-    algorithm: HS256
+    algorithm: RS256  # RS256 is more secure than HS256
     issuer: sahool-idp
     audience: sahool-platform
     accessExpireMinutes: 30
     refreshExpireDays: 7
+    # Keys must be provided via secrets, not values
+    existingSecret: "sahool-jwt-secret"  # Must contain jwt-private-key and jwt-public-key
 
   rbac:
     enabled: true

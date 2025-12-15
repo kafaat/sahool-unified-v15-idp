@@ -1,21 +1,33 @@
+/// Equipment Screen - شاشة إدارة المعدات
+/// متكاملة مع FastAPI Equipment Service
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
+import '../data/equipment_models.dart';
+import '../providers/equipment_providers.dart';
 
 /// شاشة إدارة المعدات والأصول الزراعية
 /// مستوحاة من تصميم John Deere Operations Center
-class EquipmentScreen extends StatefulWidget {
+class EquipmentScreen extends ConsumerStatefulWidget {
   const EquipmentScreen({super.key});
 
   @override
-  State<EquipmentScreen> createState() => _EquipmentScreenState();
+  ConsumerState<EquipmentScreen> createState() => _EquipmentScreenState();
 }
 
-class _EquipmentScreenState extends State<EquipmentScreen> {
-  String _selectedCategory = 'all';
+class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
+  EquipmentType? _selectedType;
 
   @override
   Widget build(BuildContext context) {
+    // Watch providers
+    final filter = EquipmentFilter(type: _selectedType);
+    final equipmentAsync = ref.watch(equipmentListProvider(filter));
+    final statsAsync = ref.watch(equipmentStatsProvider);
+    final alertsAsync = ref.watch(maintenanceAlertsProvider(false));
+
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
       appBar: AppBar(
@@ -36,121 +48,94 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(equipmentListProvider);
+          ref.invalidate(equipmentStatsProvider);
+          ref.invalidate(maintenanceAlertsProvider);
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            // 1. ملخص الحالة (Dashboard Row)
+            _buildStatsRow(statsAsync),
+
+            const SizedBox(height: 24),
+
+            // 2. فلاتر الفئات
+            _buildCategoryFilters(),
+
+            const SizedBox(height: 24),
+
+            // 3. قائمة المعدات
+            const Text(
+              "أسطول المعدات",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: SahoolColors.forestGreen,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Equipment List
+            _buildEquipmentList(equipmentAsync),
+
+            const SizedBox(height: 24),
+
+            // 4. تنبيهات الصيانة
+            _buildMaintenanceAlerts(alertsAsync),
+
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatsRow(AsyncValue<EquipmentStats> statsAsync) {
+    return statsAsync.when(
+      data: (stats) => Row(
         children: [
-          // 1. ملخص الحالة (Dashboard Row)
-          Row(
-            children: [
-              Expanded(
-                child: _StatusBox(
-                  icon: Icons.agriculture,
-                  count: "5",
-                  label: "معدات",
-                  color: SahoolColors.forestGreen,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StatusBox(
-                  icon: Icons.check_circle,
-                  count: "3",
-                  label: "جاهزة",
-                  color: Colors.green,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StatusBox(
-                  icon: Icons.build,
-                  count: "2",
-                  label: "صيانة",
-                  color: SahoolColors.harvestGold,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // 2. فلاتر الفئات
-          _buildCategoryFilters(),
-
-          const SizedBox(height: 24),
-
-          // 3. قائمة المعدات
-          const Text(
-            "أسطول المعدات",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
+          Expanded(
+            child: _StatusBox(
+              icon: Icons.agriculture,
+              count: stats.total.toString(),
+              label: "معدات",
               color: SahoolColors.forestGreen,
             ),
           ),
-          const SizedBox(height: 16),
-
-          _EquipmentItem(
-            name: "John Deere 8R 410",
-            type: "جرار زراعي",
-            status: EquipmentStatus.operational,
-            location: "الحقل الشمالي",
-            fuelLevel: 75,
-            hoursUsed: 1250,
-            imageAsset: Icons.agriculture,
-            onTap: () => _showEquipmentDetails(context),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _StatusBox(
+              icon: Icons.check_circle,
+              count: stats.operational.toString(),
+              label: "جاهزة",
+              color: Colors.green,
+            ),
           ),
-          const SizedBox(height: 16),
-          _EquipmentItem(
-            name: "DJI Agras T40",
-            type: "طائرة رش زراعية",
-            status: EquipmentStatus.maintenance,
-            location: "الورشة",
-            fuelLevel: 100,
-            hoursUsed: 320,
-            imageAsset: Icons.flight,
-            onTap: () => _showEquipmentDetails(context),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _StatusBox(
+              icon: Icons.build,
+              count: stats.maintenance.toString(),
+              label: "صيانة",
+              color: SahoolColors.harvestGold,
+            ),
           ),
-          const SizedBox(height: 16),
-          _EquipmentItem(
-            name: "مضخة غاطسة Grundfos",
-            type: "نظام ري",
-            status: EquipmentStatus.operational,
-            location: "البئر رقم 1",
-            fuelLevel: null,
-            hoursUsed: 8500,
-            imageAsset: Icons.water,
-            onTap: () => _showEquipmentDetails(context),
-          ),
-          const SizedBox(height: 16),
-          _EquipmentItem(
-            name: "حاصدة New Holland",
-            type: "آلة حصاد",
-            status: EquipmentStatus.inactive,
-            location: "المخزن",
-            fuelLevel: 40,
-            hoursUsed: 890,
-            imageAsset: Icons.grass,
-            onTap: () => _showEquipmentDetails(context),
-          ),
-          const SizedBox(height: 16),
-          _EquipmentItem(
-            name: "رشاش محوري Valley",
-            type: "نظام ري محوري",
-            status: EquipmentStatus.operational,
-            location: "الحقل الجنوبي",
-            fuelLevel: null,
-            hoursUsed: 15000,
-            imageAsset: Icons.rotate_right,
-            onTap: () => _showEquipmentDetails(context),
-          ),
-
-          const SizedBox(height: 24),
-
-          // 4. تنبيهات الصيانة
-          _buildMaintenanceAlerts(),
-
-          const SizedBox(height: 80),
         ],
+      ),
+      loading: () => Row(
+        children: [
+          Expanded(child: _StatusBox(icon: Icons.agriculture, count: "-", label: "معدات", color: SahoolColors.forestGreen)),
+          const SizedBox(width: 12),
+          Expanded(child: _StatusBox(icon: Icons.check_circle, count: "-", label: "جاهزة", color: Colors.green)),
+          const SizedBox(width: 12),
+          Expanded(child: _StatusBox(icon: Icons.build, count: "-", label: "صيانة", color: SahoolColors.harvestGold)),
+        ],
+      ),
+      error: (error, _) => Center(
+        child: Text('خطأ في تحميل الإحصائيات', style: TextStyle(color: SahoolColors.danger)),
       ),
     );
   }
@@ -163,279 +148,190 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
           _CategoryChip(
             label: "الكل",
             icon: Icons.apps,
-            isSelected: _selectedCategory == 'all',
-            onTap: () => setState(() => _selectedCategory = 'all'),
+            isSelected: _selectedType == null,
+            onTap: () => setState(() => _selectedType = null),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
             label: "جرارات",
             icon: Icons.agriculture,
-            isSelected: _selectedCategory == 'tractors',
-            onTap: () => setState(() => _selectedCategory = 'tractors'),
+            isSelected: _selectedType == EquipmentType.tractor,
+            onTap: () => setState(() => _selectedType = EquipmentType.tractor),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "ري",
+            label: "مضخات",
             icon: Icons.water,
-            isSelected: _selectedCategory == 'irrigation',
-            onTap: () => setState(() => _selectedCategory = 'irrigation'),
+            isSelected: _selectedType == EquipmentType.pump,
+            onTap: () => setState(() => _selectedType = EquipmentType.pump),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
             label: "درونز",
             icon: Icons.flight,
-            isSelected: _selectedCategory == 'drones',
-            onTap: () => setState(() => _selectedCategory = 'drones'),
+            isSelected: _selectedType == EquipmentType.drone,
+            onTap: () => setState(() => _selectedType = EquipmentType.drone),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "حصاد",
+            label: "حاصدات",
             icon: Icons.grass,
-            isSelected: _selectedCategory == 'harvest',
-            onTap: () => setState(() => _selectedCategory = 'harvest'),
+            isSelected: _selectedType == EquipmentType.harvester,
+            onTap: () => setState(() => _selectedType = EquipmentType.harvester),
+          ),
+          const SizedBox(width: 8),
+          _CategoryChip(
+            label: "رشاشات",
+            icon: Icons.rotate_right,
+            isSelected: _selectedType == EquipmentType.pivot,
+            onTap: () => setState(() => _selectedType = EquipmentType.pivot),
+          ),
+          const SizedBox(width: 8),
+          _CategoryChip(
+            label: "حساسات",
+            icon: Icons.sensors,
+            isSelected: _selectedType == EquipmentType.sensor,
+            onTap: () => setState(() => _selectedType = EquipmentType.sensor),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMaintenanceAlerts() {
-    return OrganicCard(
-      color: SahoolColors.harvestGold.withOpacity(0.1),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: SahoolColors.harvestGold.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.warning_amber,
-                  color: SahoolColors.harvestGold,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                "تنبيهات الصيانة",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _MaintenanceAlert(
-            equipment: "John Deere 8R",
-            alert: "تغيير زيت المحرك",
-            dueIn: "بعد 50 ساعة",
-            priority: "متوسط",
-          ),
-          const Divider(height: 24),
-          _MaintenanceAlert(
-            equipment: "DJI Agras T40",
-            alert: "فحص البطارية",
-            dueIn: "متأخر 2 يوم",
-            priority: "عالي",
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEquipmentDetails(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Header
-            Row(
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: SahoolColors.paleOlive,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.agriculture,
-                    size: 40,
-                    color: SahoolColors.forestGreen,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "John Deere 8R 410",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Text(
-                        "جرار زراعي • 410 حصان",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      const SizedBox(height: 8),
-                      StatusBadge(
-                        label: "جاهز للعمل",
-                        color: SahoolColors.forestGreen,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Stats Grid
-            Row(
-              children: [
-                Expanded(
-                  child: _StatBox(
-                    icon: Icons.local_gas_station,
-                    value: "75%",
-                    label: "الوقود",
-                    color: Colors.orange,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatBox(
-                    icon: Icons.timer,
-                    value: "1,250",
-                    label: "ساعات التشغيل",
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatBox(
-                    icon: Icons.speed,
-                    value: "12",
-                    label: "كم/س",
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Location
-            OrganicCard(
-              color: SahoolColors.paleOlive.withOpacity(0.5),
-              child: Row(
+  Widget _buildEquipmentList(AsyncValue<List<Equipment>> equipmentAsync) {
+    return equipmentAsync.when(
+      data: (equipmentList) {
+        if (equipmentList.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
                 children: [
-                  const Icon(Icons.location_on, color: SahoolColors.forestGreen),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "الموقع الحالي",
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
-                        Text(
-                          "الحقل الشمالي - القطاع C",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text("عرض على الخريطة"),
+                  Icon(Icons.agriculture, size: 64, color: Colors.grey[300]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'لا توجد معدات',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 16),
                   ),
                 ],
               ),
             ),
+          );
+        }
 
-            const Spacer(),
-
-            // Actions
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.history),
-                    label: const Text("السجل"),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: SahoolColors.forestGreen),
-                      foregroundColor: SahoolColors.forestGreen,
-                    ),
-                  ),
+        return Column(
+          children: equipmentList.map((equipment) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: _EquipmentItem(
+                equipment: equipment,
+                onTap: () => _showEquipmentDetails(context, equipment),
+              ),
+            );
+          }).toList(),
+        );
+      },
+      loading: () => const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(color: SahoolColors.forestGreen),
+        ),
+      ),
+      error: (error, _) => Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            children: [
+              Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
+              const SizedBox(height: 16),
+              Text(
+                error.toString(),
+                style: TextStyle(color: SahoolColors.danger),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(equipmentListProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('إعادة المحاولة'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SahoolColors.forestGreen,
+                  foregroundColor: Colors.white,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.build),
-                    label: const Text("صيانة"),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: SahoolColors.harvestGold),
-                      foregroundColor: SahoolColors.harvestGold,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text("تشغيل"),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: SahoolColors.forestGreen,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
+  Widget _buildMaintenanceAlerts(AsyncValue<List<MaintenanceAlert>> alertsAsync) {
+    return alertsAsync.when(
+      data: (alerts) {
+        if (alerts.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return OrganicCard(
+          color: SahoolColors.harvestGold.withOpacity(0.1),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: SahoolColors.harvestGold.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.warning_amber,
+                      color: SahoolColors.harvestGold,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    "تنبيهات الصيانة (${alerts.length})",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...alerts.take(5).map((alert) {
+                final isLast = alert == alerts.take(5).last;
+                return Column(
+                  children: [
+                    _MaintenanceAlertWidget(alert: alert),
+                    if (!isLast) const Divider(height: 24),
+                  ],
+                );
+              }),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  void _showEquipmentDetails(BuildContext context, Equipment equipment) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _EquipmentDetailsSheet(equipment: equipment),
+    );
+  }
+
   void _showQrScanner(BuildContext context) {
+    // TODO: Integrate with mobile_scanner package
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("سيتم فتح ماسح QR لتحديد المعدة"),
@@ -449,94 +345,402 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.7,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
+      builder: (context) => const _AddEquipmentSheet(),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Equipment Details Bottom Sheet
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _EquipmentDetailsSheet extends ConsumerWidget {
+  final Equipment equipment;
+
+  const _EquipmentDetailsSheet({required this.equipment});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.8,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Header
+          Row(
+            children: [
+              Container(
+                width: 80,
+                height: 80,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
+                  color: SahoolColors.paleOlive,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  _getEquipmentIcon(equipment.equipmentType),
+                  size: 40,
+                  color: SahoolColors.forestGreen,
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              "إضافة معدة جديدة",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              decoration: InputDecoration(
-                labelText: "اسم المعدة",
-                hintText: "مثال: John Deere 8R",
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      equipment.getDisplayName('ar'),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      "${equipment.equipmentType.nameAr} • ${equipment.horsepower ?? '-'} حصان",
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    StatusBadge(
+                      label: equipment.status.nameAr,
+                      color: _getStatusColor(equipment.status),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: "نوع المعدة",
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'tractor', child: Text('جرار')),
-                DropdownMenuItem(value: 'pump', child: Text('مضخة')),
-                DropdownMenuItem(value: 'drone', child: Text('درون')),
-                DropdownMenuItem(value: 'harvester', child: Text('حاصدة')),
-                DropdownMenuItem(value: 'sprayer', child: Text('رشاش')),
-              ],
-              onChanged: (value) {},
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                labelText: "الرقم التسلسلي",
-                filled: true,
-                fillColor: Colors.grey[100],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const Spacer(),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: SahoolColors.forestGreen,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Stats Grid
+          Row(
+            children: [
+              if (equipment.currentFuelPercent != null)
+                Expanded(
+                  child: _StatBox(
+                    icon: Icons.local_gas_station,
+                    value: "${equipment.currentFuelPercent!.toInt()}%",
+                    label: "الوقود",
+                    color: equipment.isLowFuel ? Colors.orange : Colors.green,
                   ),
                 ),
-                child: const Text("إضافة المعدة", style: TextStyle(fontSize: 16)),
+              if (equipment.currentFuelPercent != null) const SizedBox(width: 12),
+              Expanded(
+                child: _StatBox(
+                  icon: Icons.timer,
+                  value: equipment.currentHours?.toStringAsFixed(0) ?? '-',
+                  label: "ساعات التشغيل",
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _StatBox(
+                  icon: Icons.calendar_today,
+                  value: equipment.year?.toString() ?? '-',
+                  label: "سنة الصنع",
+                  color: Colors.purple,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Location
+          if (equipment.locationName != null || equipment.currentLat != null)
+            OrganicCard(
+              color: SahoolColors.paleOlive.withOpacity(0.5),
+              child: Row(
+                children: [
+                  const Icon(Icons.location_on, color: SahoolColors.forestGreen),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "الموقع الحالي",
+                          style: TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        Text(
+                          equipment.locationName ?? 'غير محدد',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        if (equipment.currentLat != null && equipment.currentLon != null)
+                          Text(
+                            '${equipment.currentLat!.toStringAsFixed(4)}, ${equipment.currentLon!.toStringAsFixed(4)}',
+                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                          ),
+                      ],
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // TODO: Navigate to map
+                    },
+                    child: const Text("عرض على الخريطة"),
+                  ),
+                ],
+              ),
+            ),
+
+          // Maintenance Info
+          if (equipment.needsMaintenanceSoon) ...[
+            const SizedBox(height: 16),
+            OrganicCard(
+              color: SahoolColors.harvestGold.withOpacity(0.1),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning_amber, color: SahoolColors.harvestGold),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "صيانة قادمة",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        if (equipment.nextMaintenanceAt != null)
+                          Text(
+                            'موعد الصيانة: ${_formatDate(equipment.nextMaintenanceAt!)}',
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-        ),
+
+          const Spacer(),
+
+          // Actions
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    // TODO: Show history
+                  },
+                  icon: const Icon(Icons.history),
+                  label: const Text("السجل"),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: SahoolColors.forestGreen),
+                    foregroundColor: SahoolColors.forestGreen,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _showAddMaintenanceRecord(context, ref, equipment.equipmentId);
+                  },
+                  icon: const Icon(Icons.build),
+                  label: const Text("صيانة"),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: SahoolColors.harvestGold),
+                    foregroundColor: SahoolColors.harvestGold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final controller = ref.read(equipmentControllerProvider.notifier);
+                    final newStatus = equipment.status == EquipmentStatus.operational
+                        ? EquipmentStatus.inactive
+                        : EquipmentStatus.operational;
+                    await controller.updateStatus(equipment.equipmentId, newStatus);
+                    if (context.mounted) Navigator.pop(context);
+                  },
+                  icon: Icon(equipment.status == EquipmentStatus.operational
+                      ? Icons.stop
+                      : Icons.play_arrow),
+                  label: Text(equipment.status == EquipmentStatus.operational
+                      ? "إيقاف"
+                      : "تشغيل"),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: equipment.status == EquipmentStatus.operational
+                        ? Colors.red
+                        : SahoolColors.forestGreen,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddMaintenanceRecord(BuildContext context, WidgetRef ref, String equipmentId) {
+    // TODO: Implement maintenance record form
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('نموذج إضافة سجل الصيانة')),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Add Equipment Bottom Sheet
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _AddEquipmentSheet extends ConsumerStatefulWidget {
+  const _AddEquipmentSheet();
+
+  @override
+  ConsumerState<_AddEquipmentSheet> createState() => _AddEquipmentSheetState();
+}
+
+class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
+  final _nameController = TextEditingController();
+  final _serialController = TextEditingController();
+  EquipmentType _selectedType = EquipmentType.tractor;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _serialController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            "إضافة معدة جديدة",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+          TextField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: "اسم المعدة",
+              hintText: "مثال: John Deere 8R",
+              filled: true,
+              fillColor: Colors.grey[100],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          DropdownButtonFormField<EquipmentType>(
+            value: _selectedType,
+            decoration: InputDecoration(
+              labelText: "نوع المعدة",
+              filled: true,
+              fillColor: Colors.grey[100],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+            items: EquipmentType.values.map((type) {
+              return DropdownMenuItem(
+                value: type,
+                child: Text(type.nameAr),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _selectedType = value);
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _serialController,
+            decoration: InputDecoration(
+              labelText: "الرقم التسلسلي",
+              filled: true,
+              fillColor: Colors.grey[100],
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () async {
+                if (_nameController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('الرجاء إدخال اسم المعدة')),
+                  );
+                  return;
+                }
+
+                // TODO: Call repository to create equipment
+                Navigator.pop(context);
+                ref.invalidate(equipmentListProvider);
+                ref.invalidate(equipmentStatsProvider);
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: SahoolColors.forestGreen,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text("إضافة المعدة", style: TextStyle(fontSize: 16)),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -546,7 +750,41 @@ class _EquipmentScreenState extends State<EquipmentScreen> {
 // Helper Widgets
 // ═══════════════════════════════════════════════════════════════════════════
 
-enum EquipmentStatus { operational, maintenance, inactive }
+IconData _getEquipmentIcon(EquipmentType type) {
+  switch (type) {
+    case EquipmentType.tractor:
+      return Icons.agriculture;
+    case EquipmentType.pump:
+      return Icons.water;
+    case EquipmentType.drone:
+      return Icons.flight;
+    case EquipmentType.harvester:
+      return Icons.grass;
+    case EquipmentType.sprayer:
+      return Icons.shower;
+    case EquipmentType.pivot:
+      return Icons.rotate_right;
+    case EquipmentType.sensor:
+      return Icons.sensors;
+    case EquipmentType.vehicle:
+      return Icons.local_shipping;
+    case EquipmentType.other:
+      return Icons.build;
+  }
+}
+
+Color _getStatusColor(EquipmentStatus status) {
+  switch (status) {
+    case EquipmentStatus.operational:
+      return SahoolColors.forestGreen;
+    case EquipmentStatus.maintenance:
+      return SahoolColors.harvestGold;
+    case EquipmentStatus.inactive:
+      return Colors.grey;
+    case EquipmentStatus.repair:
+      return SahoolColors.danger;
+  }
+}
 
 class _StatusBox extends StatelessWidget {
   final IconData icon;
@@ -645,45 +883,17 @@ class _CategoryChip extends StatelessWidget {
 }
 
 class _EquipmentItem extends StatelessWidget {
-  final String name;
-  final String type;
-  final String location;
-  final EquipmentStatus status;
-  final IconData imageAsset;
-  final int? fuelLevel;
-  final int hoursUsed;
+  final Equipment equipment;
   final VoidCallback onTap;
 
   const _EquipmentItem({
-    required this.name,
-    required this.type,
-    required this.location,
-    required this.status,
-    required this.imageAsset,
-    required this.fuelLevel,
-    required this.hoursUsed,
+    required this.equipment,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor;
-    String statusText;
-
-    switch (status) {
-      case EquipmentStatus.operational:
-        statusColor = SahoolColors.forestGreen;
-        statusText = "جاهز";
-        break;
-      case EquipmentStatus.maintenance:
-        statusColor = SahoolColors.harvestGold;
-        statusText = "صيانة";
-        break;
-      case EquipmentStatus.inactive:
-        statusColor = Colors.grey;
-        statusText = "متوقف";
-        break;
-    }
+    final statusColor = _getStatusColor(equipment.status);
 
     return GestureDetector(
       onTap: onTap,
@@ -699,7 +909,11 @@ class _EquipmentItem extends StatelessWidget {
                 color: SahoolColors.paleOlive.withOpacity(0.5),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(imageAsset, size: 32, color: SahoolColors.forestGreen),
+              child: Icon(
+                _getEquipmentIcon(equipment.equipmentType),
+                size: 32,
+                color: SahoolColors.forestGreen,
+              ),
             ),
             const SizedBox(width: 16),
 
@@ -711,19 +925,23 @@ class _EquipmentItem extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          name,
+                          equipment.getDisplayName('ar'),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
                         ),
                       ),
-                      StatusBadge(label: statusText, color: statusColor, isSmall: true),
+                      StatusBadge(
+                        label: equipment.status.nameAr,
+                        color: statusColor,
+                        isSmall: true,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    type,
+                    equipment.equipmentType.nameAr,
                     style: const TextStyle(color: Colors.grey, fontSize: 13),
                   ),
                   const SizedBox(height: 8),
@@ -732,22 +950,22 @@ class _EquipmentItem extends StatelessWidget {
                       Icon(Icons.location_on, size: 14, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
-                        location,
+                        equipment.locationName ?? 'غير محدد',
                         style: const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       const SizedBox(width: 16),
-                      if (fuelLevel != null) ...[
+                      if (equipment.currentFuelPercent != null) ...[
                         Icon(
                           Icons.local_gas_station,
                           size: 14,
-                          color: fuelLevel! > 30 ? Colors.green : Colors.orange,
+                          color: equipment.isLowFuel ? Colors.orange : Colors.green,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          "$fuelLevel%",
+                          "${equipment.currentFuelPercent!.toInt()}%",
                           style: TextStyle(
                             fontSize: 12,
-                            color: fuelLevel! > 30 ? Colors.green : Colors.orange,
+                            color: equipment.isLowFuel ? Colors.orange : Colors.green,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -756,7 +974,7 @@ class _EquipmentItem extends StatelessWidget {
                       Icon(Icons.timer, size: 14, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
-                        "${hoursUsed}h",
+                        "${equipment.currentHours?.toStringAsFixed(0) ?? '-'}h",
                         style: const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
@@ -774,22 +992,14 @@ class _EquipmentItem extends StatelessWidget {
   }
 }
 
-class _MaintenanceAlert extends StatelessWidget {
-  final String equipment;
-  final String alert;
-  final String dueIn;
-  final String priority;
+class _MaintenanceAlertWidget extends StatelessWidget {
+  final MaintenanceAlert alert;
 
-  const _MaintenanceAlert({
-    required this.equipment,
-    required this.alert,
-    required this.dueIn,
-    required this.priority,
-  });
+  const _MaintenanceAlertWidget({required this.alert});
 
   @override
   Widget build(BuildContext context) {
-    final isOverdue = dueIn.contains("متأخر");
+    final priorityColor = _getPriorityColor(alert.priority);
 
     return Row(
       children: [
@@ -798,11 +1008,11 @@ class _MaintenanceAlert extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                equipment,
+                alert.equipmentName,
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(
-                alert,
+                alert.getDescription('ar'),
                 style: const TextStyle(color: Colors.grey, fontSize: 13),
               ),
             ],
@@ -811,28 +1021,29 @@ class _MaintenanceAlert extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text(
-              dueIn,
-              style: TextStyle(
-                fontSize: 12,
-                color: isOverdue ? SahoolColors.danger : Colors.grey,
-                fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+            if (alert.dueAt != null)
+              Text(
+                alert.isOverdue
+                    ? "متأخر ${DateTime.now().difference(alert.dueAt!).inDays} يوم"
+                    : "بعد ${alert.dueAt!.difference(DateTime.now()).inDays} يوم",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: alert.isOverdue ? SahoolColors.danger : Colors.grey,
+                  fontWeight: alert.isOverdue ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
-            ),
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: isOverdue
-                    ? SahoolColors.danger.withOpacity(0.1)
-                    : SahoolColors.harvestGold.withOpacity(0.1),
+                color: priorityColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                priority,
+                alert.priority.nameAr,
                 style: TextStyle(
                   fontSize: 10,
-                  color: isOverdue ? SahoolColors.danger : SahoolColors.harvestGold,
+                  color: priorityColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -841,6 +1052,19 @@ class _MaintenanceAlert extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Color _getPriorityColor(MaintenancePriority priority) {
+    switch (priority) {
+      case MaintenancePriority.low:
+        return Colors.green;
+      case MaintenancePriority.medium:
+        return SahoolColors.harvestGold;
+      case MaintenancePriority.high:
+        return Colors.orange;
+      case MaintenancePriority.critical:
+        return SahoolColors.danger;
+    }
   }
 }
 

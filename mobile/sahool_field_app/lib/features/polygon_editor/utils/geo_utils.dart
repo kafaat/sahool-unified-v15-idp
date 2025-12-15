@@ -252,3 +252,128 @@ enum AreaUnit {
 
   double convert(double sqMeters) => sqMeters * factor;
 }
+
+// ─────────────────────────────────────────────────────────────────
+// GeoJSON Conversion Utilities
+// تحويل البيانات لصيغة GeoJSON للتواصل مع PostGIS
+// ─────────────────────────────────────────────────────────────────
+
+/// تحويل قائمة نقاط إلى GeoJSON Polygon
+/// PostGIS يتوقع: [Longitude, Latitude] (عكس جوجل مابس)
+/// ويجب أن تكون الحلقة مغلقة (أول نقطة = آخر نقطة)
+Map<String, dynamic> toGeoJsonPolygon(List<LatLng> points) {
+  if (points.isEmpty) {
+    return {
+      "type": "Polygon",
+      "coordinates": [[]]
+    };
+  }
+
+  // تحويل إلى [longitude, latitude] format
+  final coordinates = points.map((p) => [p.longitude, p.latitude]).toList();
+
+  // إغلاق المضلع إذا لم يكن مغلقاً
+  if (coordinates.isNotEmpty &&
+      (coordinates.first[0] != coordinates.last[0] ||
+       coordinates.first[1] != coordinates.last[1])) {
+    coordinates.add(List.from(coordinates.first));
+  }
+
+  return {
+    "type": "Polygon",
+    "coordinates": [coordinates] // مصفوفة داخل مصفوفة (لأن المضلع قد يحتوي ثقوباً)
+  };
+}
+
+/// تحويل نقطة إلى GeoJSON Point
+Map<String, dynamic> toGeoJsonPoint(LatLng point) {
+  return {
+    "type": "Point",
+    "coordinates": [point.longitude, point.latitude]
+  };
+}
+
+/// تحويل GeoJSON Polygon إلى قائمة نقاط
+List<LatLng> fromGeoJsonPolygon(Map<String, dynamic> geoJson) {
+  if (geoJson['type'] != 'Polygon' || geoJson['coordinates'] == null) {
+    return [];
+  }
+
+  final coordinates = geoJson['coordinates'] as List;
+  if (coordinates.isEmpty) return [];
+
+  final ring = coordinates[0] as List; // أول حلقة (الحدود الخارجية)
+
+  return ring.map<LatLng>((coord) {
+    final c = coord as List;
+    return LatLng(c[1] as double, c[0] as double); // [lon, lat] -> LatLng(lat, lon)
+  }).toList();
+}
+
+/// تحويل GeoJSON Point إلى LatLng
+LatLng? fromGeoJsonPoint(Map<String, dynamic> geoJson) {
+  if (geoJson['type'] != 'Point' || geoJson['coordinates'] == null) {
+    return null;
+  }
+
+  final coords = geoJson['coordinates'] as List;
+  if (coords.length < 2) return null;
+
+  return LatLng(coords[1] as double, coords[0] as double);
+}
+
+/// إنشاء Feature كامل للحقل
+Map<String, dynamic> createFieldGeoJsonFeature({
+  required String id,
+  required String name,
+  required String cropType,
+  required String userId,
+  required List<LatLng> boundary,
+  Map<String, dynamic>? metadata,
+}) {
+  return {
+    "type": "Feature",
+    "id": id,
+    "geometry": toGeoJsonPolygon(boundary),
+    "properties": {
+      "id": id,
+      "name": name,
+      "cropType": cropType,
+      "userId": userId,
+      "area_hectares": GeoUtils.calculateAreaHectares(boundary),
+      "perimeter_meters": GeoUtils.calculatePerimeter(boundary),
+      ...?metadata,
+    }
+  };
+}
+
+/// تحويل حقل Drift إلى Payload جاهز للسيرفر
+Map<String, dynamic> fieldToApiPayload({
+  required String id,
+  required String name,
+  required String cropType,
+  required String userId,
+  required List<LatLng> boundary,
+  String? tenantId,
+  String? irrigationType,
+  String? soilType,
+  DateTime? plantingDate,
+  DateTime? expectedHarvest,
+  Map<String, dynamic>? metadata,
+}) {
+  return {
+    "id": id,
+    "name": name,
+    "cropType": cropType,
+    "userId": userId,
+    "tenantId": tenantId ?? "default",
+    "boundary": toGeoJsonPolygon(boundary),
+    "coordinates": boundary.map((p) => [p.longitude, p.latitude]).toList(),
+    if (irrigationType != null) "irrigationType": irrigationType,
+    if (soilType != null) "soilType": soilType,
+    if (plantingDate != null) "plantingDate": plantingDate.toIso8601String(),
+    if (expectedHarvest != null) "expectedHarvest": expectedHarvest.toIso8601String(),
+    if (metadata != null) "metadata": metadata,
+  };
+}
+

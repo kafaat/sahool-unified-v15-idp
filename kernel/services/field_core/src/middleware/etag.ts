@@ -52,30 +52,44 @@ export function validateIfMatch(
 
 /**
  * Interface for conflict response
+ * Enhanced for mobile sync with server_version
  */
 export interface ConflictResponse {
     success: false;
     error: "Conflict";
+    code: "CONFLICT_VERSION_MISMATCH";
     message: string;
+    messageAr: string;
     serverData: object;
     serverETag: string;
+    server_version: number;
+    serverTime: string;
 }
 
 /**
- * Create 409 Conflict response with server data
+ * Create 409 Conflict response with server data and version
  * This allows the client to see the current server state and resolve the conflict
+ *
+ * Enhanced for mobile sync:
+ * - Includes server_version for version comparison
+ * - Includes serverTime for sync tracking
+ * - Includes Arabic message for mobile UI
  */
 export function createConflictResponse(
-    serverEntity: object,
+    serverEntity: object & { version?: number },
     serverETag: string,
     entityType: string = "field"
 ): ConflictResponse {
     return {
         success: false,
         error: "Conflict",
+        code: "CONFLICT_VERSION_MISMATCH",
         message: `The ${entityType} has been modified by another user. Please refresh and try again.`,
+        messageAr: `تم تعديل ${entityType === "field" ? "الحقل" : entityType} بواسطة مستخدم آخر. يرجى التحديث والمحاولة مجدداً.`,
         serverData: serverEntity,
-        serverETag: serverETag
+        serverETag: serverETag,
+        server_version: serverEntity.version || 0,
+        serverTime: new Date().toISOString()
     };
 }
 

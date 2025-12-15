@@ -1553,7 +1553,7 @@ class SyncEvent extends DataClass implements Insertable<SyncEvent> {
 
   @override
   String toString() {
-    return 'SyncEvent(id: $id, tenantId: $tenantId, type: $type, message: $message, isRead: $isRead)';
+    return 'SyncEvent(id: $id, tenantId: $tenantId, type: $type, entityType: $entityType, entityId: $entityId, message: $message, isRead: $isRead, createdAt: $createdAt)';
   }
 
   @override

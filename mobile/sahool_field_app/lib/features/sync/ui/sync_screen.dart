@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/map/offline_map_manager.dart';
 import '../../../core/map/widgets/map_download_dialog.dart';
+import '../../../core/ui/sync_indicator.dart';
+import '../../../core/sync/queue_manager.dart';
+import '../../../core/storage/database.dart';
+import '../../../main.dart';
+import '../providers/sync_events_provider.dart';
+import 'conflict_resolution_dialog.dart';
 
 /// Sync Center Screen - مركز المزامنة
 /// إدارة البيانات المحلية والمزامنة مع السيرفر
-class SyncScreen extends StatefulWidget {
+class SyncScreen extends ConsumerStatefulWidget {
   const SyncScreen({super.key});
 
   @override
-  State<SyncScreen> createState() => _SyncScreenState();
+  ConsumerState<SyncScreen> createState() => _SyncScreenState();
 }
 
-class _SyncScreenState extends State<SyncScreen> {
-  bool _isOnline = false;
-  bool _isSyncing = false;
-  double _syncProgress = 0;
-
+class _SyncScreenState extends ConsumerState<SyncScreen> {
   // Map Manager
   final _mapManager = OfflineMapManager();
   String _mapCacheSize = '...';
@@ -35,16 +38,11 @@ class _SyncScreenState extends State<SyncScreen> {
     }
   }
 
-  final List<_PendingItem> _pendingItems = [
-    _PendingItem(type: 'task', title: 'تسميد حقل القمح', time: DateTime.now().subtract(const Duration(hours: 2))),
-    _PendingItem(type: 'report', title: 'تقرير فحص الآفات', time: DateTime.now().subtract(const Duration(hours: 5))),
-    _PendingItem(type: 'photo', title: '3 صور ميدانية', time: DateTime.now().subtract(const Duration(days: 1))),
-    _PendingItem(type: 'reading', title: 'قراءات رطوبة التربة', time: DateTime.now().subtract(const Duration(days: 1))),
-    _PendingItem(type: 'task', title: 'إكمال مهمة الري', time: DateTime.now().subtract(const Duration(days: 2))),
-  ];
-
   void _startSync() async {
-    if (!_isOnline) {
+    final syncStatus = ref.read(syncStatusProvider.notifier);
+    final statusState = ref.read(syncStatusProvider);
+
+    if (!statusState.isOnline) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('لا يوجد اتصال بالإنترنت'),
@@ -54,35 +52,53 @@ class _SyncScreenState extends State<SyncScreen> {
       return;
     }
 
-    setState(() {
-      _isSyncing = true;
-      _syncProgress = 0;
-    });
-
-    // Simulate sync
-    for (var i = 0; i < 100; i++) {
-      await Future.delayed(const Duration(milliseconds: 50));
-      if (mounted) {
-        setState(() => _syncProgress = (i + 1) / 100);
-      }
-    }
+    final result = await syncStatus.syncNow();
 
     if (mounted) {
-      setState(() {
-        _isSyncing = false;
-        _pendingItems.clear();
-      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تمت المزامنة بنجاح'),
+        SnackBar(
+          content: Text(result.success ? 'تمت المزامنة بنجاح' : 'فشل في المزامنة: ${result.message}'),
+          backgroundColor: result.success ? SahoolColors.success : SahoolColors.danger,
+        ),
+      );
+    }
+  }
+
+  void _showConflictDialog(SyncEvent conflict) async {
+    final choice = await showConflictResolutionDialog(
+      context: context,
+      conflict: conflict,
+    );
+
+    if (choice != null && mounted) {
+      final eventsNotifier = ref.read(syncEventsProvider.notifier);
+      await eventsNotifier.markAsRead(conflict.id);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_getChoiceMessage(choice)),
           backgroundColor: SahoolColors.success,
         ),
       );
     }
   }
 
+  String _getChoiceMessage(ConflictChoice choice) {
+    switch (choice) {
+      case ConflictChoice.keepLocal:
+        return 'تم الاحتفاظ بالنسخة المحلية';
+      case ConflictChoice.acceptServer:
+        return 'تم قبول نسخة السيرفر';
+      case ConflictChoice.reviewManually:
+        return 'يرجى مراجعة البيانات يدوياً';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final syncStatus = ref.watch(syncStatusProvider);
+    final eventsState = ref.watch(syncEventsProvider);
+
     return Scaffold(
       backgroundColor: SahoolColors.background,
       appBar: AppBar(
@@ -91,185 +107,107 @@ class _SyncScreenState extends State<SyncScreen> {
           onPressed: () => context.pop(),
         ),
         title: const Text('مركز المزامنة'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Connection status
-          _buildConnectionCard(),
-
-          const SizedBox(height: 20),
-
-          // Sync status
-          _buildSyncStatusCard(),
-
-          const SizedBox(height: 20),
-
-          // Pending items
-          _buildPendingSection(),
-
-          const SizedBox(height: 20),
-
-          // Offline data management
-          _buildOfflineDataSection(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildConnectionCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: _isOnline
-            ? SahoolColors.primaryGradient
-            : LinearGradient(
-                colors: [Colors.grey[600]!, Colors.grey[700]!],
-              ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: SahoolShadows.medium,
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  shape: BoxShape.circle,
+        actions: [
+          if (eventsState.hasConflicts)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Badge(
+                label: Text('${eventsState.unreadCount}'),
+                child: IconButton(
+                  icon: const Icon(Icons.warning_amber_rounded),
+                  onPressed: () => _scrollToConflicts(),
                 ),
-                child: Icon(
-                  _isOnline ? Icons.wifi : Icons.wifi_off,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _isOnline ? 'متصل بالإنترنت' : 'غير متصل',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _isOnline
-                          ? 'جميع البيانات محدثة'
-                          : 'البيانات محفوظة محلياً',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Switch(
-                value: _isOnline,
-                onChanged: (value) => setState(() => _isOnline = value),
-                activeColor: Colors.white,
-                activeTrackColor: Colors.white.withOpacity(0.3),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSyncStatusCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: SahoolShadows.small,
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.sync,
-                    color: _isSyncing ? SahoolColors.warning : SahoolColors.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    _isSyncing ? 'جارٍ المزامنة...' : 'حالة المزامنة',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-              if (!_isSyncing)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _pendingItems.isEmpty
-                        ? SahoolColors.success.withOpacity(0.1)
-                        : SahoolColors.warning.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    _pendingItems.isEmpty ? 'محدث' : '${_pendingItems.length} معلق',
-                    style: TextStyle(
-                      color: _pendingItems.isEmpty ? SahoolColors.success : SahoolColors.warning,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          if (_isSyncing) ...[
-            const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: _syncProgress,
-                backgroundColor: Colors.grey[200],
-                valueColor: const AlwaysStoppedAnimation(SahoolColors.primary),
-                minHeight: 8,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
-              '${(_syncProgress * 100).toInt()}%',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontWeight: FontWeight.bold,
-              ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(syncEventsProvider.notifier).refresh();
+          await ref.read(queueManagerProvider).notifyStatsChanged();
+        },
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Connection status card using SyncStatusCard
+            SyncStatusCard(
+              onSyncTap: _startSync,
+              onConflictsTap: () => _scrollToConflicts(),
             ),
+
+            const SizedBox(height: 20),
+
+            // Conflicts Section (if any)
+            if (eventsState.hasConflicts) ...[
+              _buildConflictsSection(eventsState),
+              const SizedBox(height: 20),
+            ],
+
+            // Pending items from real queue
+            _buildPendingSection(),
+
+            const SizedBox(height: 20),
+
+            // Offline data management
+            _buildOfflineDataSection(),
+
+            const SizedBox(height: 20),
+
+            // Background sync info
+            _buildBackgroundSyncInfo(),
           ],
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: _isSyncing ? null : _startSync,
-              icon: Icon(_isSyncing ? Icons.hourglass_empty : Icons.sync),
-              label: Text(_isSyncing ? 'جارٍ المزامنة' : 'مزامنة الآن'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
+    );
+  }
+
+  void _scrollToConflicts() {
+    // Could implement scrolling to conflicts section
+  }
+
+  Widget _buildConflictsSection(SyncEventsState eventsState) {
+    final conflicts = eventsState.events.where((e) => e.type == 'CONFLICT').toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.warning_amber_rounded, color: Colors.amber[700], size: 20),
+                const SizedBox(width: 8),
+                const Text(
+                  'التعارضات',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+            if (conflicts.isNotEmpty)
+              TextButton(
+                onPressed: () => ref.read(syncEventsProvider.notifier).markAllAsRead(),
+                child: const Text('تجاهل الكل'),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...conflicts.map((conflict) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: ConflictListItem(
+                conflict: conflict,
+                onTap: () => _showConflictDialog(conflict),
+                onDismiss: () => ref.read(syncEventsProvider.notifier).markAsRead(conflict.id),
+              ),
+            )),
+      ],
     );
   }
 
   Widget _buildPendingSection() {
+    final queueManager = ref.watch(queueManagerProvider);
+    final stats = queueManager.currentStats;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -280,15 +218,26 @@ class _SyncScreenState extends State<SyncScreen> {
               'العمليات المعلقة',
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
-            if (_pendingItems.isNotEmpty)
-              TextButton(
-                onPressed: () {},
-                child: const Text('مسح الكل'),
+            if (stats.totalPending > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: SahoolColors.warning.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${stats.totalPending}',
+                  style: const TextStyle(
+                    color: SahoolColors.warning,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
               ),
           ],
         ),
         const SizedBox(height: 12),
-        if (_pendingItems.isEmpty)
+        if (stats.isEmpty)
           Container(
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
@@ -301,79 +250,94 @@ class _SyncScreenState extends State<SyncScreen> {
                   Icon(Icons.check_circle, size: 48, color: SahoolColors.success),
                   const SizedBox(height: 12),
                   const Text('لا توجد عمليات معلقة'),
+                  const SizedBox(height: 4),
+                  Text(
+                    'جميع البيانات متزامنة',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  ),
                 ],
               ),
             ),
           )
         else
-          ...List.generate(_pendingItems.length, (index) {
-            final item = _pendingItems[index];
-            return _buildPendingItem(item, index);
-          }),
-      ],
-    );
-  }
-
-  Widget _buildPendingItem(_PendingItem item, int index) {
-    IconData icon;
-    Color color;
-
-    switch (item.type) {
-      case 'task':
-        icon = Icons.task_alt;
-        color = SahoolColors.info;
-        break;
-      case 'report':
-        icon = Icons.description;
-        color = SahoolColors.warning;
-        break;
-      case 'photo':
-        icon = Icons.photo_camera;
-        color = SahoolColors.primary;
-        break;
-      default:
-        icon = Icons.sensors;
-        color = SahoolColors.secondary;
-    }
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: SahoolShadows.small,
-      ),
-      child: Row(
-        children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: SahoolShadows.small,
             ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  item.title,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
+                _buildQueueStatRow(
+                  icon: Icons.cloud_upload,
+                  label: 'في انتظار الرفع',
+                  value: stats.totalPending,
+                  color: SahoolColors.info,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  _formatTime(item.time),
-                  style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                if (stats.totalFailed > 0) ...[
+                  const Divider(height: 24),
+                  _buildQueueStatRow(
+                    icon: Icons.error_outline,
+                    label: 'فشل في المزامنة',
+                    value: stats.totalFailed,
+                    color: SahoolColors.danger,
+                  ),
+                ],
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    if (stats.totalFailed > 0)
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () async {
+                            final retried = await queueManager.retryFailed();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('تم إعادة محاولة $retried عنصر')),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.refresh, size: 18),
+                          label: const Text('إعادة المحاولة'),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
           ),
-          Icon(Icons.cloud_upload, color: Colors.grey[400], size: 20),
-        ],
-      ),
+      ],
+    );
+  }
+
+  Widget _buildQueueStatRow({
+    required IconData icon,
+    required String label,
+    required int value,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+        const SizedBox(width: 12),
+        Expanded(child: Text(label)),
+        Text(
+          '$value',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color,
+            fontSize: 18,
+          ),
+        ),
+      ],
     );
   }
 
@@ -447,9 +411,49 @@ class _SyncScreenState extends State<SyncScreen> {
     );
   }
 
+  Widget _buildBackgroundSyncInfo() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: SahoolColors.info.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: SahoolColors.info.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: SahoolColors.info.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.sync, color: SahoolColors.info, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'المزامنة التلقائية مفعّلة',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'يتم مزامنة البيانات تلقائياً في الخلفية كل 15 دقيقة',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.check_circle, color: SahoolColors.success, size: 24),
+        ],
+      ),
+    );
+  }
+
   void _showMapDownloadDialog() async {
     await showMapDownloadDialog(context);
-    // Refresh cache size after download
     _loadMapCacheSize();
   }
 
@@ -509,23 +513,4 @@ class _SyncScreenState extends State<SyncScreen> {
       ),
     );
   }
-
-  String _formatTime(DateTime time) {
-    final diff = DateTime.now().difference(time);
-    if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} دقيقة';
-    if (diff.inHours < 24) return 'منذ ${diff.inHours} ساعة';
-    return 'منذ ${diff.inDays} يوم';
-  }
-}
-
-class _PendingItem {
-  final String type;
-  final String title;
-  final DateTime time;
-
-  _PendingItem({
-    required this.type,
-    required this.title,
-    required this.time,
-  });
 }

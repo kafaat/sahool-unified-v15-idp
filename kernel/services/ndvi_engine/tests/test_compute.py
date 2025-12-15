@@ -93,7 +93,7 @@ class TestAnomalyDetection:
         """Test anomaly detected for sudden NDVI drop"""
         historical_mean = 0.66
         historical_std = 0.02
-        current = 0.35  # Significant drop (>2 sigma away)
+        current = 0.35  # Significant drop (15.5 sigma below mean)
 
         anomaly = detect_anomalies(current, historical_mean, historical_std, threshold_sigma=2.0)
 

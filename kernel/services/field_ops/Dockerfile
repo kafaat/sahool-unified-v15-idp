@@ -3,8 +3,8 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Create non-root user for security
-RUN groupadd --gid 1000 sahool && \
-    useradd --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install curl for healthcheck
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*

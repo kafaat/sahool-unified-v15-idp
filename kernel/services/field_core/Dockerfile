@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Field Core Service - Dockerfile
-# Geospatial Field Management with PostGIS Support
+# Geospatial Field Management with PostGIS & Prisma Support
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Stage 1: Build
@@ -11,6 +11,10 @@ WORKDIR /app
 # Install dependencies first (better caching)
 COPY package*.json ./
 RUN npm install
+
+# Copy Prisma schema and generate client
+COPY prisma ./prisma
+RUN npx prisma generate
 
 # Copy source and build
 COPY tsconfig.json ./
@@ -29,10 +33,12 @@ RUN addgroup --system sahool && \
 # Install curl for healthcheck
 RUN apk add --no-cache curl
 
-# Copy built files and production dependencies
+# Copy built files, Prisma, and production dependencies
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm ci --only=production --silent
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+RUN npm ci --only=production --silent && npx prisma generate
 
 # Set ownership
 RUN chown -R sahool:sahool /app

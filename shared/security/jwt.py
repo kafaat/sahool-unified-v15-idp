@@ -18,14 +18,48 @@ logger = logging.getLogger(__name__)
 # Configuration
 # ─────────────────────────────────────────────────────────────────────────────
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-change-in-production")
+# ─────────────────────────────────────────────────────────────────────────────
+# Security: JWT_SECRET_KEY is REQUIRED in production - no default value
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _get_required_env(key: str, default: Optional[str] = None) -> str:
+    """Get required environment variable, raise error if missing in production"""
+    value = os.getenv(key, default)
+    env = os.getenv("ENVIRONMENT", "development")
+
+    if not value and env in ("production", "staging"):
+        raise RuntimeError(f"Required environment variable {key} is not set")
+
+    if not value:
+        logger.warning(f"Using default value for {key} - NOT SAFE FOR PRODUCTION")
+        return default or ""
+
+    return value
+
+
+JWT_SECRET_KEY = _get_required_env("JWT_SECRET_KEY", "")
 JWT_PUBLIC_KEY = os.getenv("JWT_PUBLIC_KEY", "")
 JWT_PRIVATE_KEY = os.getenv("JWT_PRIVATE_KEY", "")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")  # HS256 for dev, RS256 for prod
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "RS256")  # RS256 is more secure
 JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-idp")
 JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-platform")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
 JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
+
+
+def validate_jwt_configuration() -> bool:
+    """Validate JWT configuration on startup"""
+    env = os.getenv("ENVIRONMENT", "development")
+
+    if env in ("production", "staging"):
+        if JWT_ALGORITHM.startswith("RS"):
+            if not JWT_PUBLIC_KEY or not JWT_PRIVATE_KEY:
+                raise RuntimeError("RS256 algorithm requires JWT_PUBLIC_KEY and JWT_PRIVATE_KEY")
+        else:
+            if not JWT_SECRET_KEY or len(JWT_SECRET_KEY) < 32:
+                raise RuntimeError("JWT_SECRET_KEY must be at least 32 characters in production")
+
+    return True
 
 
 class AuthError(Exception):

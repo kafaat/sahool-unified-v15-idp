@@ -1446,6 +1446,342 @@ class $SyncLogsTable extends SyncLogs with TableInfo<$SyncLogsTable, SyncLog> {
 }
 
 // ============================================================
+// SyncEvents Table
+// ============================================================
+
+class SyncEvent extends DataClass implements Insertable<SyncEvent> {
+  final int id;
+  final String tenantId;
+  final String type;
+  final String? entityType;
+  final String? entityId;
+  final String message;
+  final bool isRead;
+  final DateTime createdAt;
+
+  const SyncEvent({
+    required this.id,
+    required this.tenantId,
+    required this.type,
+    this.entityType,
+    this.entityId,
+    required this.message,
+    required this.isRead,
+    required this.createdAt,
+  });
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['tenant_id'] = Variable<String>(tenantId);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || entityType != null) {
+      map['entity_type'] = Variable<String>(entityType);
+    }
+    if (!nullToAbsent || entityId != null) {
+      map['entity_id'] = Variable<String>(entityId);
+    }
+    map['message'] = Variable<String>(message);
+    map['is_read'] = Variable<bool>(isRead);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  SyncEventsCompanion toCompanion(bool nullToAbsent) {
+    return SyncEventsCompanion(
+      id: Value(id),
+      tenantId: Value(tenantId),
+      type: Value(type),
+      entityType: entityType == null && nullToAbsent ? const Value.absent() : Value(entityType),
+      entityId: entityId == null && nullToAbsent ? const Value.absent() : Value(entityId),
+      message: Value(message),
+      isRead: Value(isRead),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SyncEvent.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncEvent(
+      id: serializer.fromJson<int>(json['id']),
+      tenantId: serializer.fromJson<String>(json['tenantId']),
+      type: serializer.fromJson<String>(json['type']),
+      entityType: serializer.fromJson<String?>(json['entityType']),
+      entityId: serializer.fromJson<String?>(json['entityId']),
+      message: serializer.fromJson<String>(json['message']),
+      isRead: serializer.fromJson<bool>(json['isRead']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'tenantId': serializer.toJson<String>(tenantId),
+      'type': serializer.toJson<String>(type),
+      'entityType': serializer.toJson<String?>(entityType),
+      'entityId': serializer.toJson<String?>(entityId),
+      'message': serializer.toJson<String>(message),
+      'isRead': serializer.toJson<bool>(isRead),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  SyncEvent copyWith({
+    int? id,
+    String? tenantId,
+    String? type,
+    Value<String?> entityType = const Value.absent(),
+    Value<String?> entityId = const Value.absent(),
+    String? message,
+    bool? isRead,
+    DateTime? createdAt,
+  }) =>
+      SyncEvent(
+        id: id ?? this.id,
+        tenantId: tenantId ?? this.tenantId,
+        type: type ?? this.type,
+        entityType: entityType.present ? entityType.value : this.entityType,
+        entityId: entityId.present ? entityId.value : this.entityId,
+        message: message ?? this.message,
+        isRead: isRead ?? this.isRead,
+        createdAt: createdAt ?? this.createdAt,
+      );
+
+  @override
+  String toString() {
+    return 'SyncEvent(id: $id, tenantId: $tenantId, type: $type, entityType: $entityType, entityId: $entityId, message: $message, isRead: $isRead, createdAt: $createdAt)';
+  }
+
+  @override
+  int get hashCode => Object.hash(id, tenantId, type, entityType, entityId, message, isRead, createdAt);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncEvent &&
+          other.id == id &&
+          other.tenantId == tenantId &&
+          other.type == type &&
+          other.entityType == entityType &&
+          other.entityId == entityId &&
+          other.message == message &&
+          other.isRead == isRead &&
+          other.createdAt == createdAt);
+}
+
+class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
+  final Value<int> id;
+  final Value<String> tenantId;
+  final Value<String> type;
+  final Value<String?> entityType;
+  final Value<String?> entityId;
+  final Value<String> message;
+  final Value<bool> isRead;
+  final Value<DateTime> createdAt;
+
+  const SyncEventsCompanion({
+    this.id = const Value.absent(),
+    this.tenantId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.message = const Value.absent(),
+    this.isRead = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+
+  SyncEventsCompanion.insert({
+    this.id = const Value.absent(),
+    required String tenantId,
+    required String type,
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    required String message,
+    this.isRead = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  })  : tenantId = Value(tenantId),
+        type = Value(type),
+        message = Value(message);
+
+  static Insertable<SyncEvent> custom({
+    Expression<int>? id,
+    Expression<String>? tenantId,
+    Expression<String>? type,
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<String>? message,
+    Expression<bool>? isRead,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tenantId != null) 'tenant_id': tenantId,
+      if (type != null) 'type': type,
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (message != null) 'message': message,
+      if (isRead != null) 'is_read': isRead,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  SyncEventsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? tenantId,
+    Value<String>? type,
+    Value<String?>? entityType,
+    Value<String?>? entityId,
+    Value<String>? message,
+    Value<bool>? isRead,
+    Value<DateTime>? createdAt,
+  }) {
+    return SyncEventsCompanion(
+      id: id ?? this.id,
+      tenantId: tenantId ?? this.tenantId,
+      type: type ?? this.type,
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      message: message ?? this.message,
+      isRead: isRead ?? this.isRead,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) map['id'] = Variable<int>(id.value);
+    if (tenantId.present) map['tenant_id'] = Variable<String>(tenantId.value);
+    if (type.present) map['type'] = Variable<String>(type.value);
+    if (entityType.present) map['entity_type'] = Variable<String>(entityType.value);
+    if (entityId.present) map['entity_id'] = Variable<String>(entityId.value);
+    if (message.present) map['message'] = Variable<String>(message.value);
+    if (isRead.present) map['is_read'] = Variable<bool>(isRead.value);
+    if (createdAt.present) map['created_at'] = Variable<DateTime>(createdAt.value);
+    return map;
+  }
+
+  @override
+  String toString() {
+    return 'SyncEventsCompanion(id: $id, tenantId: $tenantId, type: $type, entityType: $entityType, entityId: $entityId, message: $message, isRead: $isRead, createdAt: $createdAt)';
+  }
+}
+
+class $SyncEventsTable extends SyncEvents with TableInfo<$SyncEventsTable, SyncEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+
+  $SyncEventsTable(this.attachedDatabase, [this._alias]);
+
+  static const VerificationMeta _idMeta = VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>('id', aliasedName, false, hasAutoIncrement: true, type: DriftSqlType.int, requiredDuringInsert: false, defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+
+  static const VerificationMeta _tenantIdMeta = VerificationMeta('tenantId');
+  @override
+  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>('tenant_id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _typeMeta = VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>('type', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _entityTypeMeta = VerificationMeta('entityType');
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>('entity_type', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _entityIdMeta = VerificationMeta('entityId');
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>('entity_id', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _messageMeta = VerificationMeta('message');
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>('message', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _isReadMeta = VerificationMeta('isRead');
+  @override
+  late final GeneratedColumn<bool> isRead = GeneratedColumn<bool>('is_read', aliasedName, false, type: DriftSqlType.bool, requiredDuringInsert: false, defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("is_read" IN (0, 1))'), defaultValue: const Constant(false));
+
+  static const VerificationMeta _createdAtMeta = VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>('created_at', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: false, defaultValue: currentDateAndTime);
+
+  @override
+  List<GeneratedColumn> get $columns => [id, tenantId, type, entityType, entityId, message, isRead, createdAt];
+
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_events';
+
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncEvent> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('tenant_id')) {
+      context.handle(_tenantIdMeta, tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
+    } else if (isInserting) {
+      context.missing(_tenantIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(_typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(_entityTypeMeta, entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta));
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(_entityIdMeta, entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    }
+    if (data.containsKey('message')) {
+      context.handle(_messageMeta, message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+    } else if (isInserting) {
+      context.missing(_messageMeta);
+    }
+    if (data.containsKey('is_read')) {
+      context.handle(_isReadMeta, isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+
+  @override
+  SyncEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncEvent(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      tenantId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
+      type: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      entityType: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}entity_type']),
+      entityId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}entity_id']),
+      message: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}message'])!,
+      isRead: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}is_read'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $SyncEventsTable createAlias(String alias) {
+    return $SyncEventsTable(attachedDatabase, alias);
+  }
+}
+
+// ============================================================
 // Database Mixin
 // ============================================================
 
@@ -1456,10 +1792,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $OutboxTable outbox = $OutboxTable(this);
   late final $FieldsTable fields = $FieldsTable(this);
   late final $SyncLogsTable syncLogs = $SyncLogsTable(this);
+  late final $SyncEventsTable syncEvents = $SyncEventsTable(this);
 
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
 
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [tasks, outbox, fields, syncLogs];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [tasks, outbox, fields, syncLogs, syncEvents];
 }

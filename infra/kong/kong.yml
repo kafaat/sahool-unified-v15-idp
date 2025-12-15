@@ -102,6 +102,37 @@ services:
           - /api/v1/fields/batch
         strip_path: false
 
+  # Task Service (NEW)
+  - name: task-service
+    url: http://sahool-task-service:8103
+    routes:
+      - name: task-route
+        paths:
+          - /api/v1/tasks
+        strip_path: false
+
+  # Equipment Service (NEW)
+  - name: equipment-service
+    url: http://sahool-equipment-service:8101
+    routes:
+      - name: equipment-route
+        paths:
+          - /api/v1/equipment
+        strip_path: false
+
+  # Community Service (NEW)
+  - name: community-service
+    url: http://sahool-community-service:8102
+    routes:
+      - name: community-route
+        paths:
+          - /api/v1/posts
+          - /api/v1/comments
+          - /api/v1/stories
+          - /api/v1/community
+          - /api/v1/experts
+        strip_path: false
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins
 # ─────────────────────────────────────────────────────────────────────────────

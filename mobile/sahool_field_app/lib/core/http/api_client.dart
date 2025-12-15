@@ -56,12 +56,14 @@ class ApiClient {
     String path,
     dynamic data, {
     Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
   }) async {
     try {
       final response = await _dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
+        options: headers != null ? Options(headers: headers) : null,
       );
       return response.data;
     } on DioException catch (e) {
@@ -74,12 +76,14 @@ class ApiClient {
     String path,
     dynamic data, {
     Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
   }) async {
     try {
       final response = await _dio.put(
         path,
         data: data,
         queryParameters: queryParameters,
+        options: headers != null ? Options(headers: headers) : null,
       );
       return response.data;
     } on DioException catch (e) {
@@ -91,11 +95,13 @@ class ApiClient {
   Future<dynamic> delete(
     String path, {
     Map<String, dynamic>? queryParameters,
+    Map<String, String>? headers,
   }) async {
     try {
       final response = await _dio.delete(
         path,
         queryParameters: queryParameters,
+        options: headers != null ? Options(headers: headers) : null,
       );
       return response.data;
     } on DioException catch (e) {

@@ -85,18 +85,18 @@ class TasksRepo {
     if (task == null) return;
 
     // 3. Add to outbox for sync
-    await _db.addToOutbox(
-      OutboxCompanion.insert(
-        id: _uuid.v4(),
-        type: 'task_complete',
-        payloadJson: jsonEncode({
-          'task_id': taskId,
-          'tenant_id': task.tenantId,
-          'evidence_notes': notes,
-          'evidence_photos': photos ?? [],
-        }),
-        createdAt: DateTime.now(),
-      ),
+    await _db.queueOutboxItem(
+      tenantId: task.tenantId,
+      entityType: 'task',
+      entityId: taskId,
+      apiEndpoint: '/api/v1/tasks/$taskId/complete',
+      method: 'PUT',
+      payload: jsonEncode({
+        'task_id': taskId,
+        'tenant_id': task.tenantId,
+        'evidence_notes': notes,
+        'evidence_photos': photos ?? [],
+      }),
     );
 
     print('✅ Task $taskId marked done locally + queued for sync');
@@ -122,17 +122,17 @@ class TasksRepo {
     if (task == null) return;
 
     // 3. Add to outbox
-    await _db.addToOutbox(
-      OutboxCompanion.insert(
-        id: _uuid.v4(),
-        type: 'task_update',
-        payloadJson: jsonEncode({
-          'task_id': taskId,
-          'tenant_id': task.tenantId,
-          'status': status.value,
-        }),
-        createdAt: DateTime.now(),
-      ),
+    await _db.queueOutboxItem(
+      tenantId: task.tenantId,
+      entityType: 'task',
+      entityId: taskId,
+      apiEndpoint: '/api/v1/tasks/$taskId',
+      method: 'PUT',
+      payload: jsonEncode({
+        'task_id': taskId,
+        'tenant_id': task.tenantId,
+        'status': status.value,
+      }),
     );
   }
 
@@ -181,13 +181,13 @@ class TasksRepo {
     );
 
     // 2. Add to outbox for sync
-    await _db.addToOutbox(
-      OutboxCompanion.insert(
-        id: _uuid.v4(),
-        type: 'task_create',
-        payloadJson: jsonEncode(task.toJson()),
-        createdAt: now,
-      ),
+    await _db.queueOutboxItem(
+      tenantId: tenantId,
+      entityType: 'task',
+      entityId: taskId,
+      apiEndpoint: '/api/v1/tasks',
+      method: 'POST',
+      payload: jsonEncode(task.toJson()),
     );
 
     return task;

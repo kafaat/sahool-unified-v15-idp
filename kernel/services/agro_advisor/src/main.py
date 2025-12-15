@@ -35,7 +35,8 @@ from .kb import (
 # Lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
+    # Startup - initialize state first to avoid AttributeError
+    app.state.publisher = None
     print("🌱 Starting Agro Advisor Service...")
     try:
         publisher = await get_publisher()
@@ -43,12 +44,11 @@ async def lifespan(app: FastAPI):
         print("✅ Agro Advisor ready on port 8095")
     except Exception as e:
         print(f"⚠️ NATS connection failed (running without events): {e}")
-        app.state.publisher = None
 
     yield
 
     # Shutdown
-    if app.state.publisher:
+    if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
     print("👋 Agro Advisor shutting down")
 
@@ -145,7 +145,7 @@ async def assess_disease(req: DiseaseAssessRequest):
 
     # Publish event
     event_id = None
-    if app.state.publisher:
+    if getattr(app.state, "publisher", None):
         event_id = await app.state.publisher.publish_recommendation(
             tenant_id=req.tenant_id,
             field_id=req.field_id,
@@ -185,7 +185,7 @@ async def assess_symptoms(req: SymptomAssessRequest):
 
     # Publish top result as recommendation
     event_id = None
-    if app.state.publisher and assessments:
+    if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
         if top.confidence >= 0.5:
             event_id = await app.state.publisher.publish_recommendation(
@@ -207,6 +207,21 @@ async def assess_symptoms(req: SymptomAssessRequest):
     }
 
 
+# NOTE: Static routes MUST come before dynamic routes to avoid path matching issues
+@app.get("/disease/search")
+def search_disease(q: str, lang: str = "ar"):
+    """Search diseases by name or symptoms"""
+    results = search_diseases(q, lang)
+    return {"query": q, "results": results, "count": len(results)}
+
+
+@app.get("/disease/crop/{crop}")
+def get_crop_diseases(crop: str):
+    """Get all diseases for a specific crop"""
+    diseases = get_diseases_by_crop(crop)
+    return {"crop": crop, "diseases": diseases, "count": len(diseases)}
+
+
 @app.get("/disease/{disease_id}")
 def get_disease_info(disease_id: str, lang: str = "ar"):
     """Get disease information by ID"""
@@ -221,20 +236,6 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
             get_action_details(action, lang) for action in disease["actions"]
         ],
     }
-
-
-@app.get("/disease/crop/{crop}")
-def get_crop_diseases(crop: str):
-    """Get all diseases for a specific crop"""
-    diseases = get_diseases_by_crop(crop)
-    return {"crop": crop, "diseases": diseases, "count": len(diseases)}
-
-
-@app.get("/disease/search")
-def search_disease(q: str, lang: str = "ar"):
-    """Search diseases by name or symptoms"""
-    results = search_diseases(q, lang)
-    return {"query": q, "results": results, "count": len(results)}
 
 
 # ============== Nutrient Endpoints ==============
@@ -252,7 +253,7 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest):
 
     # Publish top result
     event_id = None
-    if app.state.publisher and assessments:
+    if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
         event_id = await app.state.publisher.publish_nutrient_assessment(
             tenant_id=req.tenant_id,
@@ -288,7 +289,7 @@ async def assess_visual_endpoint(req: VisualAssessRequest):
 
     # Publish top result
     event_id = None
-    if app.state.publisher and assessments:
+    if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
         event_id = await app.state.publisher.publish_nutrient_assessment(
             tenant_id=req.tenant_id,
@@ -337,7 +338,7 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest):
 
     # Publish event
     event_id = None
-    if app.state.publisher:
+    if getattr(app.state, "publisher", None):
         event_id = await app.state.publisher.publish_fertilizer_plan(
             tenant_id=req.tenant_id,
             field_id=req.field_id,

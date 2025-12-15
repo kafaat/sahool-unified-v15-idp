@@ -54,7 +54,7 @@ services:
 
   # IoT Gateway Service
   - name: iot-service
-    url: http://sahool-iot-gateway:8094
+    url: http://sahool-iot-gateway:8096
     routes:
       - name: iot-route
         paths:
@@ -81,6 +81,25 @@ services:
         paths:
           - /ws
           - /api/v1/realtime
+        strip_path: false
+
+  # Crop Health Service
+  - name: crop-health-service
+    url: http://sahool-crop-health:8100/api/v1
+    routes:
+      - name: crop-health-route
+        paths:
+          - /api/v1/crop-health
+        strip_path: true
+
+  # Field Core Service (Advanced field management)
+  - name: field-core-service
+    url: http://sahool-field-core:3000
+    routes:
+      - name: field-core-route
+        paths:
+          - /api/v1/fields/sync
+          - /api/v1/fields/batch
         strip_path: false
 
 # ─────────────────────────────────────────────────────────────────────────────

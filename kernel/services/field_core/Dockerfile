@@ -22,13 +22,23 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Create non-root user for security
+RUN addgroup --gid 1000 sahool && \
+    adduser --uid 1000 --ingroup sahool --disabled-password --gecos "" sahool
+
 # Install curl for healthcheck
 RUN apk add --no-cache curl
 
 # Copy built files and production dependencies
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
-RUN npm install --production
+RUN npm ci --only=production --silent
+
+# Set ownership
+RUN chown -R sahool:sahool /app
+
+# Switch to non-root user
+USER sahool
 
 # Environment
 ENV NODE_ENV=production

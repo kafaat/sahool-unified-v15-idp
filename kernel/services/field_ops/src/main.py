@@ -6,7 +6,7 @@ Port: 8080
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import uuid4
 
@@ -14,9 +14,19 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🌾 Starting Field Operations Service...")
+    logger.info("Starting Field Operations Service...")
     # Initialize connections
     app.state.db_connected = False
     app.state.nats_connected = False
@@ -31,9 +41,9 @@ async def lifespan(app: FastAPI):
                 db_url, min_size=2, max_size=10
             )
             app.state.db_connected = True
-            print("✅ Database connected")
+            logger.info("Database connected")
         except Exception as e:
-            print(f"⚠️ Database connection failed: {e}")
+            logger.warning(f"Database connection failed: {e}")
             app.state.db_pool = None
 
     # Try NATS connection
@@ -44,12 +54,12 @@ async def lifespan(app: FastAPI):
 
             app.state.nc = await nats.connect(nats_url)
             app.state.nats_connected = True
-            print("✅ NATS connected")
+            logger.info("NATS connected")
         except Exception as e:
-            print(f"⚠️ NATS connection failed: {e}")
+            logger.warning(f"NATS connection failed: {e}")
             app.state.nc = None
 
-    print("✅ Field Operations ready on port 8080")
+    logger.info("Field Operations ready on port 8080")
     yield
 
     # Cleanup
@@ -57,7 +67,7 @@ async def lifespan(app: FastAPI):
         await app.state.db_pool.close()
     if hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.close()
-    print("👋 Field Operations shutting down")
+    logger.info("Field Operations shutting down")
 
 
 app = FastAPI(
@@ -77,7 +87,7 @@ def health():
         "status": "ok",
         "service": "field_ops",
         "version": "15.3.3",
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -156,7 +166,7 @@ _operations: dict = {}
 async def create_field(field: FieldCreate):
     """Create a new agricultural field"""
     field_id = str(uuid4())
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     field_data = {
         "id": field_id,
@@ -250,7 +260,7 @@ async def delete_field(field_id: str):
 async def create_operation(op: OperationCreate):
     """Create a field operation"""
     op_id = str(uuid4())
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     op_data = {
         "id": op_id,

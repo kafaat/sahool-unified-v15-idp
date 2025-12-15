@@ -1,8 +1,8 @@
 /// SAHOOL Field App Configuration
 class AppConfig {
-  // API Configuration
-  static const String apiBaseUrl = 'http://localhost:8080/api/v1';
-  static const String wsBaseUrl = 'ws://localhost:8081';
+  // API Configuration (via Kong API Gateway)
+  static const String apiBaseUrl = 'http://localhost:8000/api/v1';
+  static const String wsBaseUrl = 'ws://localhost:8090';
 
   // Sync Configuration
   static const Duration syncInterval = Duration(seconds: 20);
@@ -49,8 +49,8 @@ class EnvConfig {
 
   static const development = EnvConfig(
     env: Environment.development,
-    apiUrl: 'http://10.0.2.2:8080/api/v1', // Android emulator localhost
-    wsUrl: 'ws://10.0.2.2:8081',
+    apiUrl: 'http://10.0.2.2:8000/api/v1', // Android emulator via Kong
+    wsUrl: 'ws://10.0.2.2:8090',
   );
 
   static const staging = EnvConfig(

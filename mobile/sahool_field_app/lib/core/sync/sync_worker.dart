@@ -73,7 +73,8 @@ class SyncWorker {
       }
     }
 
-    await _log('INFO', 'Sync completed: $synced synced, $conflicts conflicts, $failed failed');
+    await _log('INFO',
+        'Sync completed: $synced synced, $conflicts conflicts, $failed failed');
     return SyncResult(synced: synced, failed: failed, conflicts: conflicts);
   }
 
@@ -88,7 +89,7 @@ class SyncWorker {
 
       // Add If-Match for field updates if we have an ETag
       if (item.type.startsWith('field_') && item.type.contains('update')) {
-        final payload = jsonDecode(item.payloadJson) as Map<String, dynamic>;
+        final payload = jsonDecode(item.payload) as Map<String, dynamic>;
         final fieldId = payload['id']?.toString();
         if (fieldId != null) {
           final field = await _db.getFieldById(fieldId);
@@ -104,14 +105,14 @@ class SyncWorker {
 
       final resp = await _dio.request(
         '$_baseUrl$endpoint',
-        data: jsonDecode(item.payloadJson),
+        data: jsonDecode(item.payload),
         options: Options(method: method, headers: headers),
       );
 
       // Handle ETag from response
       final newEtag = resp.headers.value('etag') ?? resp.headers.value('ETag');
       if (newEtag != null && item.type.startsWith('field_')) {
-        final payload = jsonDecode(item.payloadJson) as Map<String, dynamic>;
+        final payload = jsonDecode(item.payload) as Map<String, dynamic>;
         final fieldId = payload['id']?.toString();
         if (fieldId != null) {
           await _db.updateFieldWithEtag(
@@ -146,7 +147,8 @@ class SyncWorker {
     }
   }
 
-  Future<void> _handleConflict(OutboxData item, dynamic serverBody, String tenantId) async {
+  Future<void> _handleConflict(
+      OutboxData item, dynamic serverBody, String tenantId) async {
     // Parse server response: { "serverData": {...}, "message": "Conflict" }
     Map<String, dynamic>? serverData;
     if (serverBody is Map<String, dynamic>) {
@@ -171,12 +173,14 @@ class SyncWorker {
     await _db.addSyncEvent(
       tenantId: tenantId,
       type: 'CONFLICT',
-      message: 'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.type)}',
+      message:
+          'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(item.type)}',
       entityType: _getEntityType(item.type),
-      entityId: _extractEntityId(item.payloadJson),
+      entityId: _extractEntityId(item.payload),
     );
 
-    await _log('INFO', 'Conflict resolved by applying server version for: ${item.type}');
+    await _log('INFO',
+        'Conflict resolved by applying server version for: ${item.type}');
   }
 
   String _getEndpoint(String type) {
@@ -204,9 +208,9 @@ class SyncWorker {
     return 'البيانات';
   }
 
-  String? _extractEntityId(String payloadJson) {
+  String? _extractEntityId(String payloadStr) {
     try {
-      final payload = jsonDecode(payloadJson) as Map<String, dynamic>;
+      final payload = jsonDecode(payloadStr) as Map<String, dynamic>;
       return payload['id']?.toString();
     } catch (_) {
       return null;
@@ -214,7 +218,8 @@ class SyncWorker {
   }
 
   Future<void> _log(String level, String message) async {
-    await _db.logSync(type: 'sync_worker', status: level.toLowerCase(), message: message);
+    await _db.logSync(
+        type: 'sync_worker', status: level.toLowerCase(), message: message);
   }
 }
 
@@ -236,7 +241,8 @@ class SyncResult {
   bool get isSuccess => failed == 0;
 
   @override
-  String toString() => 'SyncResult(synced: $synced, failed: $failed, conflicts: $conflicts)';
+  String toString() =>
+      'SyncResult(synced: $synced, failed: $failed, conflicts: $conflicts)';
 }
 
 /// Extension helper

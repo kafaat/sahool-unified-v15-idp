@@ -43,7 +43,8 @@ class Outbox extends Table {
 
   // API request details
   TextColumn get apiEndpoint => text()();
-  TextColumn get method => text().withDefault(const Constant('POST'))(); // POST/PUT/DELETE
+  TextColumn get method =>
+      text().withDefault(const Constant('POST'))(); // POST/PUT/DELETE
   TextColumn get payload => text()(); // JSON payload
 
   // ETag for optimistic locking (PUT requests)
@@ -131,9 +132,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 3) {
             // Migration to v3: Add ETag support + SyncEvents
-            await m.addColumn(fields, fields.etag);
-            await m.addColumn(fields, fields.serverUpdatedAt);
-            await m.createTable(syncEvents);
+            await m.addColumn(this.fields, this.fields.etag);
+            await m.addColumn(this.fields, this.fields.serverUpdatedAt);
+            await m.createTable(this.syncEvents);
           }
           if (from < 4) {
             // Migration to v4: Unified Outbox schema with ETag support
@@ -151,29 +152,29 @@ class AppDatabase extends _$AppDatabase {
   /// Get all tasks for a field
   Future<List<Task>> getTasksForField(String fieldId) {
     return (select(tasks)
-      ..where((t) => t.fieldId.equals(fieldId))
-      ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
-    ).get();
+          ..where((t) => t.fieldId.equals(fieldId))
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+        .get();
   }
 
   /// Get all tasks for tenant
   Future<List<Task>> getAllTasks(String tenantId) {
     return (select(tasks)
-      ..where((t) => t.tenantId.equals(tenantId))
-      ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
-    ).get();
+          ..where((t) => t.tenantId.equals(tenantId))
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+        .get();
   }
 
   /// Get pending tasks (open or in_progress)
   Future<List<Task>> getPendingTasks(String tenantId) {
     return (select(tasks)
-      ..where((t) => t.tenantId.equals(tenantId))
-      ..where((t) => t.status.isIn(['open', 'in_progress']))
-      ..orderBy([
-        (t) => OrderingTerm.asc(t.dueDate),
-        (t) => OrderingTerm.desc(t.priority),
-      ])
-    ).get();
+          ..where((t) => t.tenantId.equals(tenantId))
+          ..where((t) => t.status.isIn(['open', 'in_progress']))
+          ..orderBy([
+            (t) => OrderingTerm.asc(t.dueDate),
+            (t) => OrderingTerm.desc(t.priority),
+          ]))
+        .get();
   }
 
   /// Get task by ID
@@ -214,10 +215,10 @@ class AppDatabase extends _$AppDatabase {
             synced: const Value(true),
           ),
           onConflict: DoUpdate((old) => TasksCompanion(
-            status: Value(item['status'] ?? 'open'),
-            updatedAt: Value(DateTime.parse(item['updated_at'])),
-            synced: const Value(true),
-          )),
+                status: Value(item['status'] ?? 'open'),
+                updatedAt: Value(DateTime.parse(item['updated_at'])),
+                synced: const Value(true),
+              )),
         );
       }
     });
@@ -273,10 +274,10 @@ class AppDatabase extends _$AppDatabase {
   /// Get pending outbox items (not synced)
   Future<List<OutboxData>> getPendingOutbox({int limit = 50}) {
     return (select(outbox)
-      ..where((o) => o.isSynced.equals(false))
-      ..orderBy([(o) => OrderingTerm.asc(o.createdAt)])
-      ..limit(limit)
-    ).get();
+          ..where((o) => o.isSynced.equals(false))
+          ..orderBy([(o) => OrderingTerm.asc(o.createdAt)])
+          ..limit(limit))
+        .get();
   }
 
   /// Mark outbox item as done (synced)
@@ -305,12 +306,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Delete outbox items older than given duration
-  Future<void> cleanupOldOutbox({Duration olderThan = const Duration(days: 7)}) async {
+  Future<void> cleanupOldOutbox(
+      {Duration olderThan = const Duration(days: 7)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
     await (delete(outbox)
-      ..where((o) => o.isSynced.equals(true))
-      ..where((o) => o.createdAt.isSmallerThanValue(cutoff))
-    ).go();
+          ..where((o) => o.isSynced.equals(true))
+          ..where((o) => o.createdAt.isSmallerThanValue(cutoff)))
+        .go();
   }
 
   // ============================================================
@@ -334,9 +336,9 @@ class AppDatabase extends _$AppDatabase {
   /// Get recent sync logs
   Future<List<SyncLog>> getRecentSyncLogs({int limit = 20}) {
     return (select(syncLogs)
-      ..orderBy([(l) => OrderingTerm.desc(l.timestamp)])
-      ..limit(limit)
-    ).get();
+          ..orderBy([(l) => OrderingTerm.desc(l.timestamp)])
+          ..limit(limit))
+        .get();
   }
 
   // ============================================================
@@ -346,32 +348,33 @@ class AppDatabase extends _$AppDatabase {
   /// Get all fields for tenant (excluding soft-deleted)
   Future<List<Field>> getAllFields(String tenantId) {
     return (select(fields)
-      ..where((f) => f.tenantId.equals(tenantId))
-      ..where((f) => f.isDeleted.equals(false))
-      ..orderBy([(f) => OrderingTerm.desc(f.updatedAt)])
-    ).get();
+          ..where((f) => f.tenantId.equals(tenantId))
+          ..where((f) => f.isDeleted.equals(false))
+          ..orderBy([(f) => OrderingTerm.desc(f.updatedAt)]))
+        .get();
   }
 
   /// Watch all fields for tenant (live stream)
   Stream<List<Field>> watchAllFields(String tenantId) {
     return (select(fields)
-      ..where((f) => f.tenantId.equals(tenantId))
-      ..where((f) => f.isDeleted.equals(false))
-      ..orderBy([(f) => OrderingTerm.desc(f.updatedAt)])
-    ).watch();
+          ..where((f) => f.tenantId.equals(tenantId))
+          ..where((f) => f.isDeleted.equals(false))
+          ..orderBy([(f) => OrderingTerm.desc(f.updatedAt)]))
+        .watch();
   }
 
   /// Get field by ID
   Future<Field?> getFieldById(String fieldId) {
-    return (select(fields)..where((f) => f.id.equals(fieldId))).getSingleOrNull();
+    return (select(fields)..where((f) => f.id.equals(fieldId)))
+        .getSingleOrNull();
   }
 
   /// Get fields for a farm
   Future<List<Field>> getFieldsForFarm(String farmId) {
     return (select(fields)
-      ..where((f) => f.farmId.equals(farmId))
-      ..where((f) => f.isDeleted.equals(false))
-    ).get();
+          ..where((f) => f.farmId.equals(farmId))
+          ..where((f) => f.isDeleted.equals(false)))
+        .get();
   }
 
   /// Insert or update field
@@ -439,9 +442,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Get unsynced fields
   Future<List<Field>> getUnsyncedFields() {
-    return (select(fields)
-      ..where((f) => f.synced.equals(false))
-    ).get();
+    return (select(fields)..where((f) => f.synced.equals(false))).get();
   }
 
   /// Bulk insert fields from server
@@ -470,7 +471,8 @@ class AppDatabase extends _$AppDatabase {
               sumLat += p.latitude;
               sumLng += p.longitude;
             }
-            centroid = LatLng(sumLat / boundary.length, sumLng / boundary.length);
+            centroid =
+                LatLng(sumLat / boundary.length, sumLng / boundary.length);
           }
         }
 
@@ -496,14 +498,15 @@ class AppDatabase extends _$AppDatabase {
             synced: const Value(true),
           ),
           onConflict: DoUpdate((old) => FieldsCompanion(
-            name: Value(item['name']),
-            boundary: Value(boundary),
-            centroid: Value(centroid),
-            areaHectares: Value((item['area_hectares'] as num?)?.toDouble() ?? 0),
-            ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
-            updatedAt: Value(DateTime.parse(item['updated_at'])),
-            synced: const Value(true),
-          )),
+                name: Value(item['name']),
+                boundary: Value(boundary),
+                centroid: Value(centroid),
+                areaHectares:
+                    Value((item['area_hectares'] as num?)?.toDouble() ?? 0),
+                ndviCurrent: Value((item['ndvi_current'] as num?)?.toDouble()),
+                updatedAt: Value(DateTime.parse(item['updated_at'])),
+                synced: const Value(true),
+              )),
         );
       }
     });
@@ -516,10 +519,10 @@ class AppDatabase extends _$AppDatabase {
   /// Get unread sync events for tenant
   Future<List<SyncEvent>> getUnreadSyncEvents(String tenantId) {
     return (select(syncEvents)
-      ..where((e) => e.tenantId.equals(tenantId))
-      ..where((e) => e.isRead.equals(false))
-      ..orderBy([(e) => OrderingTerm.desc(e.createdAt)])
-    ).get();
+          ..where((e) => e.tenantId.equals(tenantId))
+          ..where((e) => e.isRead.equals(false))
+          ..orderBy([(e) => OrderingTerm.desc(e.createdAt)]))
+        .get();
   }
 
   /// Watch unread sync events count
@@ -528,7 +531,9 @@ class AppDatabase extends _$AppDatabase {
       ..where(syncEvents.tenantId.equals(tenantId))
       ..where(syncEvents.isRead.equals(false))
       ..addColumns([syncEvents.id.count()]);
-    return query.map((row) => row.read(syncEvents.id.count()) ?? 0).watchSingle();
+    return query
+        .map((row) => row.read(syncEvents.id.count()) ?? 0)
+        .watchSingle();
   }
 
   /// Add sync event
@@ -558,9 +563,9 @@ class AppDatabase extends _$AppDatabase {
   /// Mark all sync events as read for tenant
   Future<void> markAllSyncEventsRead(String tenantId) async {
     await (update(syncEvents)
-      ..where((e) => e.tenantId.equals(tenantId))
-      ..where((e) => e.isRead.equals(false))
-    ).write(const SyncEventsCompanion(isRead: Value(true)));
+          ..where((e) => e.tenantId.equals(tenantId))
+          ..where((e) => e.isRead.equals(false)))
+        .write(const SyncEventsCompanion(isRead: Value(true)));
   }
 
   /// Update field with ETag from server

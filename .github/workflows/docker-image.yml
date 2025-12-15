@@ -30,6 +30,8 @@ jobs:
             path: kernel/services/field_ops
           - name: ndvi-engine
             path: kernel/services/ndvi_engine
+          - name: agro-rules
+            path: kernel/services/agro_rules
       fail-fast: false
 
     steps:

@@ -97,7 +97,12 @@ jobs:
       - name: Run tests
         run: |
           if [ -d "${{ matrix.service }}/tests" ]; then
-            pytest ${{ matrix.service }}/tests -v --tb=short
+            # Check if there are actual test files
+            if find "${{ matrix.service }}/tests" -name "test_*.py" -o -name "*_test.py" | grep -q .; then
+              pytest ${{ matrix.service }}/tests -v --tb=short
+            else
+              echo "No test files found in ${{ matrix.service }}/tests - skipping tests"
+            fi
           else
             echo "No tests directory found for ${{ matrix.service }}"
           fi

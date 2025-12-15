@@ -133,6 +133,16 @@ services:
           - /api/v1/experts
         strip_path: false
 
+  # Provider Configuration Service (NEW)
+  - name: provider-config-service
+    url: http://sahool-provider-config:8104
+    routes:
+      - name: provider-config-route
+        paths:
+          - /api/v1/providers
+          - /api/v1/config
+        strip_path: false
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins
 # ─────────────────────────────────────────────────────────────────────────────

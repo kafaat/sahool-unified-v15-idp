@@ -489,6 +489,86 @@ services:
     networks:
       - sahool-network
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Sahool Vision & Virtual Sensors (AI Services)
+  # سهول فيجن ومحرك المستشعرات الافتراضية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Sahool Vision AI - Crop Health Detection (Python + TensorFlow)
+  crop_health_ai:
+    build:
+      context: ./kernel-services-v15.3/crop-health-ai
+      dockerfile: Dockerfile
+    container_name: sahool-crop-health-ai
+    environment:
+      - PORT=8095
+      - MODEL_PATH=/app/models/plant_disease.tflite
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8095:8095"
+    volumes:
+      - ./models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Virtual Sensors Engine - FAO-56 ET0 Calculations (Python + FastAPI)
+  virtual_sensors:
+    build:
+      context: ./kernel-services-v15.3/virtual-sensors
+      dockerfile: Dockerfile
+    container_name: sahool-virtual-sensors
+    environment:
+      - PORT=8096
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8096:8096"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Admin Dashboard (Next.js)
+  # لوحة تحكم المشرفين
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  admin_dashboard:
+    build:
+      context: ./web_admin
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost
+    container_name: sahool-admin-dashboard
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost
+    ports:
+      - "3001:3001"
+    depends_on:
+      - field_core
+      - crop_health_ai
+      - virtual_sensors
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Networks
 # ─────────────────────────────────────────────────────────────────────────────

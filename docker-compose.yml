@@ -269,7 +269,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8094:8094"
+      - "8096:8096"
     depends_on:
       postgres:
         condition: service_healthy
@@ -278,7 +278,7 @@ services:
       mqtt:
         condition: service_started
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8094/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -358,6 +358,26 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Agro Rules Worker - NATS event-driven worker
+  agro_rules:
+    build:
+      context: ./kernel/services/agro_rules
+      dockerfile: Dockerfile
+    container_name: sahool-agro-rules
+    environment:
+      - NATS_URL=nats://nats:4222
+      - FIELDOPS_URL=http://field_ops:8080
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    depends_on:
+      nats:
+        condition: service_healthy
+      field_ops:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - sahool-network

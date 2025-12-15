@@ -1,260 +1,11 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// Run: dart run build_runner build --delete-conflicting-outputs
 
 part of 'database.dart';
 
-// ignore_for_file: type=lint
-class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TasksTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _tenantIdMeta =
-      const VerificationMeta('tenantId');
-  @override
-  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>(
-      'tenant_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _fieldIdMeta =
-      const VerificationMeta('fieldId');
-  @override
-  late final GeneratedColumn<String> fieldId = GeneratedColumn<String>(
-      'field_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _farmIdMeta = const VerificationMeta('farmId');
-  @override
-  late final GeneratedColumn<String> farmId = GeneratedColumn<String>(
-      'farm_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _titleMeta = const VerificationMeta('title');
-  @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-      'title', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _descriptionMeta =
-      const VerificationMeta('description');
-  @override
-  late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'description', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-      'status', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('open'));
-  static const VerificationMeta _priorityMeta =
-      const VerificationMeta('priority');
-  @override
-  late final GeneratedColumn<String> priority = GeneratedColumn<String>(
-      'priority', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('medium'));
-  static const VerificationMeta _dueDateMeta =
-      const VerificationMeta('dueDate');
-  @override
-  late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>(
-      'due_date', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _assignedToMeta =
-      const VerificationMeta('assignedTo');
-  @override
-  late final GeneratedColumn<String> assignedTo = GeneratedColumn<String>(
-      'assigned_to', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _evidenceNotesMeta =
-      const VerificationMeta('evidenceNotes');
-  @override
-  late final GeneratedColumn<String> evidenceNotes = GeneratedColumn<String>(
-      'evidence_notes', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _evidencePhotosMeta =
-      const VerificationMeta('evidencePhotos');
-  @override
-  late final GeneratedColumn<String> evidencePhotos = GeneratedColumn<String>(
-      'evidence_photos', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
-  @override
-  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
-      'synced', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        tenantId,
-        fieldId,
-        farmId,
-        title,
-        description,
-        status,
-        priority,
-        dueDate,
-        assignedTo,
-        evidenceNotes,
-        evidencePhotos,
-        createdAt,
-        updatedAt,
-        synced
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'tasks';
-  @override
-  VerificationContext validateIntegrity(Insertable<Task> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('tenant_id')) {
-      context.handle(_tenantIdMeta,
-          tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
-    } else if (isInserting) {
-      context.missing(_tenantIdMeta);
-    }
-    if (data.containsKey('field_id')) {
-      context.handle(_fieldIdMeta,
-          fieldId.isAcceptableOrUnknown(data['field_id']!, _fieldIdMeta));
-    } else if (isInserting) {
-      context.missing(_fieldIdMeta);
-    }
-    if (data.containsKey('farm_id')) {
-      context.handle(_farmIdMeta,
-          farmId.isAcceptableOrUnknown(data['farm_id']!, _farmIdMeta));
-    }
-    if (data.containsKey('title')) {
-      context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
-    } else if (isInserting) {
-      context.missing(_titleMeta);
-    }
-    if (data.containsKey('description')) {
-      context.handle(
-          _descriptionMeta,
-          description.isAcceptableOrUnknown(
-              data['description']!, _descriptionMeta));
-    }
-    if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
-    }
-    if (data.containsKey('priority')) {
-      context.handle(_priorityMeta,
-          priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
-    }
-    if (data.containsKey('due_date')) {
-      context.handle(_dueDateMeta,
-          dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta));
-    }
-    if (data.containsKey('assigned_to')) {
-      context.handle(
-          _assignedToMeta,
-          assignedTo.isAcceptableOrUnknown(
-              data['assigned_to']!, _assignedToMeta));
-    }
-    if (data.containsKey('evidence_notes')) {
-      context.handle(
-          _evidenceNotesMeta,
-          evidenceNotes.isAcceptableOrUnknown(
-              data['evidence_notes']!, _evidenceNotesMeta));
-    }
-    if (data.containsKey('evidence_photos')) {
-      context.handle(
-          _evidencePhotosMeta,
-          evidencePhotos.isAcceptableOrUnknown(
-              data['evidence_photos']!, _evidencePhotosMeta));
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    if (data.containsKey('synced')) {
-      context.handle(_syncedMeta,
-          synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Task map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Task(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      tenantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
-      fieldId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}field_id'])!,
-      farmId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}farm_id']),
-      title: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      description: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}description']),
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
-      priority: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}priority'])!,
-      dueDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}due_date']),
-      assignedTo: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}assigned_to']),
-      evidenceNotes: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}evidence_notes']),
-      evidencePhotos: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}evidence_photos']),
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
-      synced: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
-    );
-  }
-
-  @override
-  $TasksTable createAlias(String alias) {
-    return $TasksTable(attachedDatabase, alias);
-  }
-}
+// **************************************************************************
+// DriftDatabaseGenerator
+// **************************************************************************
 
 class Task extends DataClass implements Insertable<Task> {
   final String id;
@@ -272,22 +23,25 @@ class Task extends DataClass implements Insertable<Task> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final bool synced;
-  const Task(
-      {required this.id,
-      required this.tenantId,
-      required this.fieldId,
-      this.farmId,
-      required this.title,
-      this.description,
-      required this.status,
-      required this.priority,
-      this.dueDate,
-      this.assignedTo,
-      this.evidenceNotes,
-      this.evidencePhotos,
-      required this.createdAt,
-      required this.updatedAt,
-      required this.synced});
+
+  const Task({
+    required this.id,
+    required this.tenantId,
+    required this.fieldId,
+    this.farmId,
+    required this.title,
+    this.description,
+    required this.status,
+    required this.priority,
+    this.dueDate,
+    this.assignedTo,
+    this.evidenceNotes,
+    this.evidencePhotos,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.synced,
+  });
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -326,34 +80,22 @@ class Task extends DataClass implements Insertable<Task> {
       id: Value(id),
       tenantId: Value(tenantId),
       fieldId: Value(fieldId),
-      farmId:
-          farmId == null && nullToAbsent ? const Value.absent() : Value(farmId),
+      farmId: farmId == null && nullToAbsent ? const Value.absent() : Value(farmId),
       title: Value(title),
-      description: description == null && nullToAbsent
-          ? const Value.absent()
-          : Value(description),
+      description: description == null && nullToAbsent ? const Value.absent() : Value(description),
       status: Value(status),
       priority: Value(priority),
-      dueDate: dueDate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(dueDate),
-      assignedTo: assignedTo == null && nullToAbsent
-          ? const Value.absent()
-          : Value(assignedTo),
-      evidenceNotes: evidenceNotes == null && nullToAbsent
-          ? const Value.absent()
-          : Value(evidenceNotes),
-      evidencePhotos: evidencePhotos == null && nullToAbsent
-          ? const Value.absent()
-          : Value(evidencePhotos),
+      dueDate: dueDate == null && nullToAbsent ? const Value.absent() : Value(dueDate),
+      assignedTo: assignedTo == null && nullToAbsent ? const Value.absent() : Value(assignedTo),
+      evidenceNotes: evidenceNotes == null && nullToAbsent ? const Value.absent() : Value(evidenceNotes),
+      evidencePhotos: evidencePhotos == null && nullToAbsent ? const Value.absent() : Value(evidencePhotos),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       synced: Value(synced),
     );
   }
 
-  factory Task.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory Task.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Task(
       id: serializer.fromJson<String>(json['id']),
@@ -373,6 +115,7 @@ class Task extends DataClass implements Insertable<Task> {
       synced: serializer.fromJson<bool>(json['synced']),
     );
   }
+
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -395,22 +138,23 @@ class Task extends DataClass implements Insertable<Task> {
     };
   }
 
-  Task copyWith(
-          {String? id,
-          String? tenantId,
-          String? fieldId,
-          Value<String?> farmId = const Value.absent(),
-          String? title,
-          Value<String?> description = const Value.absent(),
-          String? status,
-          String? priority,
-          Value<DateTime?> dueDate = const Value.absent(),
-          Value<String?> assignedTo = const Value.absent(),
-          Value<String?> evidenceNotes = const Value.absent(),
-          Value<String?> evidencePhotos = const Value.absent(),
-          DateTime? createdAt,
-          DateTime? updatedAt,
-          bool? synced}) =>
+  Task copyWith({
+    String? id,
+    String? tenantId,
+    String? fieldId,
+    Value<String?> farmId = const Value.absent(),
+    String? title,
+    Value<String?> description = const Value.absent(),
+    String? status,
+    String? priority,
+    Value<DateTime?> dueDate = const Value.absent(),
+    Value<String?> assignedTo = const Value.absent(),
+    Value<String?> evidenceNotes = const Value.absent(),
+    Value<String?> evidencePhotos = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    bool? synced,
+  }) =>
       Task(
         id: id ?? this.id,
         tenantId: tenantId ?? this.tenantId,
@@ -422,98 +166,40 @@ class Task extends DataClass implements Insertable<Task> {
         priority: priority ?? this.priority,
         dueDate: dueDate.present ? dueDate.value : this.dueDate,
         assignedTo: assignedTo.present ? assignedTo.value : this.assignedTo,
-        evidenceNotes:
-            evidenceNotes.present ? evidenceNotes.value : this.evidenceNotes,
-        evidencePhotos:
-            evidencePhotos.present ? evidencePhotos.value : this.evidencePhotos,
+        evidenceNotes: evidenceNotes.present ? evidenceNotes.value : this.evidenceNotes,
+        evidencePhotos: evidencePhotos.present ? evidencePhotos.value : this.evidencePhotos,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         synced: synced ?? this.synced,
       );
-  Task copyWithCompanion(TasksCompanion data) {
-    return Task(
-      id: data.id.present ? data.id.value : this.id,
-      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
-      fieldId: data.fieldId.present ? data.fieldId.value : this.fieldId,
-      farmId: data.farmId.present ? data.farmId.value : this.farmId,
-      title: data.title.present ? data.title.value : this.title,
-      description:
-          data.description.present ? data.description.value : this.description,
-      status: data.status.present ? data.status.value : this.status,
-      priority: data.priority.present ? data.priority.value : this.priority,
-      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
-      assignedTo:
-          data.assignedTo.present ? data.assignedTo.value : this.assignedTo,
-      evidenceNotes: data.evidenceNotes.present
-          ? data.evidenceNotes.value
-          : this.evidenceNotes,
-      evidencePhotos: data.evidencePhotos.present
-          ? data.evidencePhotos.value
-          : this.evidencePhotos,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      synced: data.synced.present ? data.synced.value : this.synced,
-    );
-  }
 
   @override
   String toString() {
-    return (StringBuffer('Task(')
-          ..write('id: $id, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('fieldId: $fieldId, ')
-          ..write('farmId: $farmId, ')
-          ..write('title: $title, ')
-          ..write('description: $description, ')
-          ..write('status: $status, ')
-          ..write('priority: $priority, ')
-          ..write('dueDate: $dueDate, ')
-          ..write('assignedTo: $assignedTo, ')
-          ..write('evidenceNotes: $evidenceNotes, ')
-          ..write('evidencePhotos: $evidencePhotos, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('synced: $synced')
-          ..write(')'))
-        .toString();
+    return 'Task(id: $id, title: $title, status: $status)';
   }
 
   @override
-  int get hashCode => Object.hash(
-      id,
-      tenantId,
-      fieldId,
-      farmId,
-      title,
-      description,
-      status,
-      priority,
-      dueDate,
-      assignedTo,
-      evidenceNotes,
-      evidencePhotos,
-      createdAt,
-      updatedAt,
-      synced);
+  int get hashCode => Object.hash(id, tenantId, fieldId, farmId, title, description, status, priority, dueDate, assignedTo, evidenceNotes, evidencePhotos, createdAt, updatedAt, synced);
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Task &&
-          other.id == this.id &&
-          other.tenantId == this.tenantId &&
-          other.fieldId == this.fieldId &&
-          other.farmId == this.farmId &&
-          other.title == this.title &&
-          other.description == this.description &&
-          other.status == this.status &&
-          other.priority == this.priority &&
-          other.dueDate == this.dueDate &&
-          other.assignedTo == this.assignedTo &&
-          other.evidenceNotes == this.evidenceNotes &&
-          other.evidencePhotos == this.evidencePhotos &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.synced == this.synced);
+          other.id == id &&
+          other.tenantId == tenantId &&
+          other.fieldId == fieldId &&
+          other.farmId == farmId &&
+          other.title == title &&
+          other.description == description &&
+          other.status == status &&
+          other.priority == priority &&
+          other.dueDate == dueDate &&
+          other.assignedTo == assignedTo &&
+          other.evidenceNotes == evidenceNotes &&
+          other.evidencePhotos == evidencePhotos &&
+          other.createdAt == createdAt &&
+          other.updatedAt == updatedAt &&
+          other.synced == synced);
 }
 
 class TasksCompanion extends UpdateCompanion<Task> {
@@ -532,7 +218,7 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<bool> synced;
-  final Value<int> rowid;
+
   const TasksCompanion({
     this.id = const Value.absent(),
     this.tenantId = const Value.absent(),
@@ -549,8 +235,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.synced = const Value.absent(),
-    this.rowid = const Value.absent(),
   });
+
   TasksCompanion.insert({
     required String id,
     required String tenantId,
@@ -567,13 +253,13 @@ class TasksCompanion extends UpdateCompanion<Task> {
     required DateTime createdAt,
     required DateTime updatedAt,
     this.synced = const Value.absent(),
-    this.rowid = const Value.absent(),
   })  : id = Value(id),
         tenantId = Value(tenantId),
         fieldId = Value(fieldId),
         title = Value(title),
         createdAt = Value(createdAt),
         updatedAt = Value(updatedAt);
+
   static Insertable<Task> custom({
     Expression<String>? id,
     Expression<String>? tenantId,
@@ -590,7 +276,6 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<bool>? synced,
-    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -608,27 +293,26 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (synced != null) 'synced': synced,
-      if (rowid != null) 'rowid': rowid,
     });
   }
 
-  TasksCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? tenantId,
-      Value<String>? fieldId,
-      Value<String?>? farmId,
-      Value<String>? title,
-      Value<String?>? description,
-      Value<String>? status,
-      Value<String>? priority,
-      Value<DateTime?>? dueDate,
-      Value<String?>? assignedTo,
-      Value<String?>? evidenceNotes,
-      Value<String?>? evidencePhotos,
-      Value<DateTime>? createdAt,
-      Value<DateTime>? updatedAt,
-      Value<bool>? synced,
-      Value<int>? rowid}) {
+  TasksCompanion copyWith({
+    Value<String>? id,
+    Value<String>? tenantId,
+    Value<String>? fieldId,
+    Value<String?>? farmId,
+    Value<String>? title,
+    Value<String?>? description,
+    Value<String>? status,
+    Value<String>? priority,
+    Value<DateTime?>? dueDate,
+    Value<String?>? assignedTo,
+    Value<String?>? evidenceNotes,
+    Value<String?>? evidencePhotos,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<bool>? synced,
+  }) {
     return TasksCompanion(
       id: id ?? this.id,
       tenantId: tenantId ?? this.tenantId,
@@ -645,85 +329,394 @@ class TasksCompanion extends UpdateCompanion<Task> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       synced: synced ?? this.synced,
-      rowid: rowid ?? this.rowid,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (tenantId.present) {
-      map['tenant_id'] = Variable<String>(tenantId.value);
-    }
-    if (fieldId.present) {
-      map['field_id'] = Variable<String>(fieldId.value);
-    }
-    if (farmId.present) {
-      map['farm_id'] = Variable<String>(farmId.value);
-    }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
-    }
-    if (description.present) {
-      map['description'] = Variable<String>(description.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (priority.present) {
-      map['priority'] = Variable<String>(priority.value);
-    }
-    if (dueDate.present) {
-      map['due_date'] = Variable<DateTime>(dueDate.value);
-    }
-    if (assignedTo.present) {
-      map['assigned_to'] = Variable<String>(assignedTo.value);
-    }
-    if (evidenceNotes.present) {
-      map['evidence_notes'] = Variable<String>(evidenceNotes.value);
-    }
-    if (evidencePhotos.present) {
-      map['evidence_photos'] = Variable<String>(evidencePhotos.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (synced.present) {
-      map['synced'] = Variable<bool>(synced.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
+    if (id.present) map['id'] = Variable<String>(id.value);
+    if (tenantId.present) map['tenant_id'] = Variable<String>(tenantId.value);
+    if (fieldId.present) map['field_id'] = Variable<String>(fieldId.value);
+    if (farmId.present) map['farm_id'] = Variable<String>(farmId.value);
+    if (title.present) map['title'] = Variable<String>(title.value);
+    if (description.present) map['description'] = Variable<String>(description.value);
+    if (status.present) map['status'] = Variable<String>(status.value);
+    if (priority.present) map['priority'] = Variable<String>(priority.value);
+    if (dueDate.present) map['due_date'] = Variable<DateTime>(dueDate.value);
+    if (assignedTo.present) map['assigned_to'] = Variable<String>(assignedTo.value);
+    if (evidenceNotes.present) map['evidence_notes'] = Variable<String>(evidenceNotes.value);
+    if (evidencePhotos.present) map['evidence_photos'] = Variable<String>(evidencePhotos.value);
+    if (createdAt.present) map['created_at'] = Variable<DateTime>(createdAt.value);
+    if (updatedAt.present) map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    if (synced.present) map['synced'] = Variable<bool>(synced.value);
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('TasksCompanion(')
-          ..write('id: $id, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('fieldId: $fieldId, ')
-          ..write('farmId: $farmId, ')
-          ..write('title: $title, ')
-          ..write('description: $description, ')
-          ..write('status: $status, ')
-          ..write('priority: $priority, ')
-          ..write('dueDate: $dueDate, ')
-          ..write('assignedTo: $assignedTo, ')
-          ..write('evidenceNotes: $evidenceNotes, ')
-          ..write('evidencePhotos: $evidencePhotos, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('synced: $synced, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
+    return 'TasksCompanion(id: $id, tenantId: $tenantId, fieldId: $fieldId, farmId: $farmId, title: $title, description: $description, status: $status, priority: $priority, dueDate: $dueDate, assignedTo: $assignedTo, evidenceNotes: $evidenceNotes, evidencePhotos: $evidencePhotos, createdAt: $createdAt, updatedAt: $updatedAt, synced: $synced)';
+  }
+}
+
+class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+
+  $TasksTable(this.attachedDatabase, [this._alias]);
+
+  static const VerificationMeta _idMeta = VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _tenantIdMeta = VerificationMeta('tenantId');
+  @override
+  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>('tenant_id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _fieldIdMeta = VerificationMeta('fieldId');
+  @override
+  late final GeneratedColumn<String> fieldId = GeneratedColumn<String>('field_id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _farmIdMeta = VerificationMeta('farmId');
+  @override
+  late final GeneratedColumn<String> farmId = GeneratedColumn<String>('farm_id', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _titleMeta = VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>('title', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _descriptionMeta = VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>('description', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _statusMeta = VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>('status', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: false, defaultValue: const Constant('open'));
+
+  static const VerificationMeta _priorityMeta = VerificationMeta('priority');
+  @override
+  late final GeneratedColumn<String> priority = GeneratedColumn<String>('priority', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: false, defaultValue: const Constant('medium'));
+
+  static const VerificationMeta _dueDateMeta = VerificationMeta('dueDate');
+  @override
+  late final GeneratedColumn<DateTime> dueDate = GeneratedColumn<DateTime>('due_date', aliasedName, true, type: DriftSqlType.dateTime, requiredDuringInsert: false);
+
+  static const VerificationMeta _assignedToMeta = VerificationMeta('assignedTo');
+  @override
+  late final GeneratedColumn<String> assignedTo = GeneratedColumn<String>('assigned_to', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _evidenceNotesMeta = VerificationMeta('evidenceNotes');
+  @override
+  late final GeneratedColumn<String> evidenceNotes = GeneratedColumn<String>('evidence_notes', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _evidencePhotosMeta = VerificationMeta('evidencePhotos');
+  @override
+  late final GeneratedColumn<String> evidencePhotos = GeneratedColumn<String>('evidence_photos', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _createdAtMeta = VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>('created_at', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: true);
+
+  static const VerificationMeta _updatedAtMeta = VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>('updated_at', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: true);
+
+  static const VerificationMeta _syncedMeta = VerificationMeta('synced');
+  @override
+  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>('synced', aliasedName, false, type: DriftSqlType.bool, requiredDuringInsert: false, defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'), defaultValue: const Constant(false));
+
+  @override
+  List<GeneratedColumn> get $columns => [id, tenantId, fieldId, farmId, title, description, status, priority, dueDate, assignedTo, evidenceNotes, evidencePhotos, createdAt, updatedAt, synced];
+
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tasks';
+
+  @override
+  VerificationContext validateIntegrity(Insertable<Task> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('tenant_id')) {
+      context.handle(_tenantIdMeta, tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
+    } else if (isInserting) {
+      context.missing(_tenantIdMeta);
+    }
+    if (data.containsKey('field_id')) {
+      context.handle(_fieldIdMeta, fieldId.isAcceptableOrUnknown(data['field_id']!, _fieldIdMeta));
+    } else if (isInserting) {
+      context.missing(_fieldIdMeta);
+    }
+    if (data.containsKey('farm_id')) {
+      context.handle(_farmIdMeta, farmId.isAcceptableOrUnknown(data['farm_id']!, _farmIdMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(_titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(_descriptionMeta, description.isAcceptableOrUnknown(data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta, status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('priority')) {
+      context.handle(_priorityMeta, priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta));
+    }
+    if (data.containsKey('due_date')) {
+      context.handle(_dueDateMeta, dueDate.isAcceptableOrUnknown(data['due_date']!, _dueDateMeta));
+    }
+    if (data.containsKey('assigned_to')) {
+      context.handle(_assignedToMeta, assignedTo.isAcceptableOrUnknown(data['assigned_to']!, _assignedToMeta));
+    }
+    if (data.containsKey('evidence_notes')) {
+      context.handle(_evidenceNotesMeta, evidenceNotes.isAcceptableOrUnknown(data['evidence_notes']!, _evidenceNotesMeta));
+    }
+    if (data.containsKey('evidence_photos')) {
+      context.handle(_evidencePhotosMeta, evidencePhotos.isAcceptableOrUnknown(data['evidence_photos']!, _evidencePhotosMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('synced')) {
+      context.handle(_syncedMeta, synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+
+  @override
+  Task map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Task(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      tenantId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
+      fieldId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}field_id'])!,
+      farmId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}farm_id']),
+      title: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      description: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}description']),
+      status: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      priority: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}priority'])!,
+      dueDate: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}due_date']),
+      assignedTo: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}assigned_to']),
+      evidenceNotes: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}evidence_notes']),
+      evidencePhotos: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}evidence_photos']),
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      synced: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
+    );
+  }
+
+  @override
+  $TasksTable createAlias(String alias) {
+    return $TasksTable(attachedDatabase, alias);
+  }
+}
+
+// ============================================================
+// Outbox Table
+// ============================================================
+
+class OutboxData extends DataClass implements Insertable<OutboxData> {
+  final String id;
+  final String type;
+  final String payloadJson;
+  final DateTime createdAt;
+  final int retryCount;
+  final bool completed;
+
+  const OutboxData({
+    required this.id,
+    required this.type,
+    required this.payloadJson,
+    required this.createdAt,
+    required this.retryCount,
+    required this.completed,
+  });
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['type'] = Variable<String>(type);
+    map['payload_json'] = Variable<String>(payloadJson);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['retry_count'] = Variable<int>(retryCount);
+    map['completed'] = Variable<bool>(completed);
+    return map;
+  }
+
+  OutboxCompanion toCompanion(bool nullToAbsent) {
+    return OutboxCompanion(
+      id: Value(id),
+      type: Value(type),
+      payloadJson: Value(payloadJson),
+      createdAt: Value(createdAt),
+      retryCount: Value(retryCount),
+      completed: Value(completed),
+    );
+  }
+
+  factory OutboxData.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OutboxData(
+      id: serializer.fromJson<String>(json['id']),
+      type: serializer.fromJson<String>(json['type']),
+      payloadJson: serializer.fromJson<String>(json['payloadJson']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      retryCount: serializer.fromJson<int>(json['retryCount']),
+      completed: serializer.fromJson<bool>(json['completed']),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'type': serializer.toJson<String>(type),
+      'payloadJson': serializer.toJson<String>(payloadJson),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'retryCount': serializer.toJson<int>(retryCount),
+      'completed': serializer.toJson<bool>(completed),
+    };
+  }
+
+  OutboxData copyWith({
+    String? id,
+    String? type,
+    String? payloadJson,
+    DateTime? createdAt,
+    int? retryCount,
+    bool? completed,
+  }) =>
+      OutboxData(
+        id: id ?? this.id,
+        type: type ?? this.type,
+        payloadJson: payloadJson ?? this.payloadJson,
+        createdAt: createdAt ?? this.createdAt,
+        retryCount: retryCount ?? this.retryCount,
+        completed: completed ?? this.completed,
+      );
+
+  @override
+  String toString() {
+    return 'OutboxData(id: $id, type: $type, completed: $completed)';
+  }
+
+  @override
+  int get hashCode => Object.hash(id, type, payloadJson, createdAt, retryCount, completed);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OutboxData &&
+          other.id == id &&
+          other.type == type &&
+          other.payloadJson == payloadJson &&
+          other.createdAt == createdAt &&
+          other.retryCount == retryCount &&
+          other.completed == completed);
+}
+
+class OutboxCompanion extends UpdateCompanion<OutboxData> {
+  final Value<String> id;
+  final Value<String> type;
+  final Value<String> payloadJson;
+  final Value<DateTime> createdAt;
+  final Value<int> retryCount;
+  final Value<bool> completed;
+
+  const OutboxCompanion({
+    this.id = const Value.absent(),
+    this.type = const Value.absent(),
+    this.payloadJson = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.retryCount = const Value.absent(),
+    this.completed = const Value.absent(),
+  });
+
+  OutboxCompanion.insert({
+    required String id,
+    required String type,
+    required String payloadJson,
+    required DateTime createdAt,
+    this.retryCount = const Value.absent(),
+    this.completed = const Value.absent(),
+  })  : id = Value(id),
+        type = Value(type),
+        payloadJson = Value(payloadJson),
+        createdAt = Value(createdAt);
+
+  static Insertable<OutboxData> custom({
+    Expression<String>? id,
+    Expression<String>? type,
+    Expression<String>? payloadJson,
+    Expression<DateTime>? createdAt,
+    Expression<int>? retryCount,
+    Expression<bool>? completed,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (type != null) 'type': type,
+      if (payloadJson != null) 'payload_json': payloadJson,
+      if (createdAt != null) 'created_at': createdAt,
+      if (retryCount != null) 'retry_count': retryCount,
+      if (completed != null) 'completed': completed,
+    });
+  }
+
+  OutboxCompanion copyWith({
+    Value<String>? id,
+    Value<String>? type,
+    Value<String>? payloadJson,
+    Value<DateTime>? createdAt,
+    Value<int>? retryCount,
+    Value<bool>? completed,
+  }) {
+    return OutboxCompanion(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      payloadJson: payloadJson ?? this.payloadJson,
+      createdAt: createdAt ?? this.createdAt,
+      retryCount: retryCount ?? this.retryCount,
+      completed: completed ?? this.completed,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) map['id'] = Variable<String>(id.value);
+    if (type.present) map['type'] = Variable<String>(type.value);
+    if (payloadJson.present) map['payload_json'] = Variable<String>(payloadJson.value);
+    if (createdAt.present) map['created_at'] = Variable<DateTime>(createdAt.value);
+    if (retryCount.present) map['retry_count'] = Variable<int>(retryCount.value);
+    if (completed.present) map['completed'] = Variable<bool>(completed.value);
+    return map;
+  }
+
+  @override
+  String toString() {
+    return 'OutboxCompanion(id: $id, type: $type, payloadJson: $payloadJson, createdAt: $createdAt, retryCount: $retryCount, completed: $completed)';
   }
 }
 
@@ -731,199 +724,89 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
+
   $OutboxTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
+
+  static const VerificationMeta _idMeta = VerificationMeta('id');
   @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _tenantIdMeta =
-      const VerificationMeta('tenantId');
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _typeMeta = VerificationMeta('type');
   @override
-  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>(
-      'tenant_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _entityTypeMeta =
-      const VerificationMeta('entityType');
+  late final GeneratedColumn<String> type = GeneratedColumn<String>('type', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _payloadJsonMeta = VerificationMeta('payloadJson');
   @override
-  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
-      'entity_type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _entityIdMeta =
-      const VerificationMeta('entityId');
+  late final GeneratedColumn<String> payloadJson = GeneratedColumn<String>('payload_json', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _createdAtMeta = VerificationMeta('createdAt');
   @override
-  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
-      'entity_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _apiEndpointMeta =
-      const VerificationMeta('apiEndpoint');
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>('created_at', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: true);
+
+  static const VerificationMeta _retryCountMeta = VerificationMeta('retryCount');
   @override
-  late final GeneratedColumn<String> apiEndpoint = GeneratedColumn<String>(
-      'api_endpoint', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _methodMeta = const VerificationMeta('method');
+  late final GeneratedColumn<int> retryCount = GeneratedColumn<int>('retry_count', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: false, defaultValue: const Constant(0));
+
+  static const VerificationMeta _completedMeta = VerificationMeta('completed');
   @override
-  late final GeneratedColumn<String> method = GeneratedColumn<String>(
-      'method', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultValue: const Constant('POST'));
-  static const VerificationMeta _payloadMeta =
-      const VerificationMeta('payload');
+  late final GeneratedColumn<bool> completed = GeneratedColumn<bool>('completed', aliasedName, false, type: DriftSqlType.bool, requiredDuringInsert: false, defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("completed" IN (0, 1))'), defaultValue: const Constant(false));
+
   @override
-  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
-      'payload', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _ifMatchMeta =
-      const VerificationMeta('ifMatch');
-  @override
-  late final GeneratedColumn<String> ifMatch = GeneratedColumn<String>(
-      'if_match', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _retryCountMeta =
-      const VerificationMeta('retryCount');
-  @override
-  late final GeneratedColumn<int> retryCount = GeneratedColumn<int>(
-      'retry_count', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultValue: const Constant(0));
-  static const VerificationMeta _isSyncedMeta =
-      const VerificationMeta('isSynced');
-  @override
-  late final GeneratedColumn<bool> isSynced = GeneratedColumn<bool>(
-      'is_synced', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_synced" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        tenantId,
-        entityType,
-        entityId,
-        apiEndpoint,
-        method,
-        payload,
-        ifMatch,
-        retryCount,
-        isSynced,
-        createdAt
-      ];
+  List<GeneratedColumn> get $columns => [id, type, payloadJson, createdAt, retryCount, completed];
+
   @override
   String get aliasedName => _alias ?? actualTableName;
+
   @override
   String get actualTableName => $name;
   static const String $name = 'outbox';
+
   @override
-  VerificationContext validateIntegrity(Insertable<OutboxData> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(Insertable<OutboxData> instance, {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('tenant_id')) {
-      context.handle(_tenantIdMeta,
-          tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
     } else if (isInserting) {
-      context.missing(_tenantIdMeta);
+      context.missing(_idMeta);
     }
-    if (data.containsKey('entity_type')) {
-      context.handle(
-          _entityTypeMeta,
-          entityType.isAcceptableOrUnknown(
-              data['entity_type']!, _entityTypeMeta));
+    if (data.containsKey('type')) {
+      context.handle(_typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
-      context.missing(_entityTypeMeta);
+      context.missing(_typeMeta);
     }
-    if (data.containsKey('entity_id')) {
-      context.handle(_entityIdMeta,
-          entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    if (data.containsKey('payload_json')) {
+      context.handle(_payloadJsonMeta, payloadJson.isAcceptableOrUnknown(data['payload_json']!, _payloadJsonMeta));
     } else if (isInserting) {
-      context.missing(_entityIdMeta);
-    }
-    if (data.containsKey('api_endpoint')) {
-      context.handle(
-          _apiEndpointMeta,
-          apiEndpoint.isAcceptableOrUnknown(
-              data['api_endpoint']!, _apiEndpointMeta));
-    } else if (isInserting) {
-      context.missing(_apiEndpointMeta);
-    }
-    if (data.containsKey('method')) {
-      context.handle(_methodMeta,
-          method.isAcceptableOrUnknown(data['method']!, _methodMeta));
-    }
-    if (data.containsKey('payload')) {
-      context.handle(_payloadMeta,
-          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
-    } else if (isInserting) {
-      context.missing(_payloadMeta);
-    }
-    if (data.containsKey('if_match')) {
-      context.handle(_ifMatchMeta,
-          ifMatch.isAcceptableOrUnknown(data['if_match']!, _ifMatchMeta));
-    }
-    if (data.containsKey('retry_count')) {
-      context.handle(
-          _retryCountMeta,
-          retryCount.isAcceptableOrUnknown(
-              data['retry_count']!, _retryCountMeta));
-    }
-    if (data.containsKey('is_synced')) {
-      context.handle(_isSyncedMeta,
-          isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta));
+      context.missing(_payloadJsonMeta);
     }
     if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('retry_count')) {
+      context.handle(_retryCountMeta, retryCount.isAcceptableOrUnknown(data['retry_count']!, _retryCountMeta));
+    }
+    if (data.containsKey('completed')) {
+      context.handle(_completedMeta, completed.isAcceptableOrUnknown(data['completed']!, _completedMeta));
     }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+
   @override
   OutboxData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return OutboxData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      tenantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
-      entityType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}entity_type'])!,
-      entityId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}entity_id'])!,
-      apiEndpoint: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}api_endpoint'])!,
-      method: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}method'])!,
-      payload: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
-      ifMatch: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}if_match']),
-      retryCount: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}retry_count'])!,
-      isSynced: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_synced'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      type: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      payloadJson: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}payload_json'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      retryCount: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}retry_count'])!,
+      completed: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}completed'])!,
     );
   }
 
@@ -933,336 +816,253 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
   }
 }
 
-class OutboxData extends DataClass implements Insertable<OutboxData> {
-  final int id;
+// ============================================================
+// Fields Table
+// ============================================================
+
+class Field extends DataClass implements Insertable<Field> {
+  final String id;
   final String tenantId;
-  final String entityType;
-  final String entityId;
-  final String apiEndpoint;
-  final String method;
-  final String payload;
-  final String? ifMatch;
-  final int retryCount;
-  final bool isSynced;
-  final DateTime createdAt;
-  const OutboxData(
-      {required this.id,
-      required this.tenantId,
-      required this.entityType,
-      required this.entityId,
-      required this.apiEndpoint,
-      required this.method,
-      required this.payload,
-      this.ifMatch,
-      required this.retryCount,
-      required this.isSynced,
-      required this.createdAt});
+  final String? farmId;
+  final String name;
+  final double? areaHectares;
+  final String? cropType;
+  final String? status;
+  final double? ndviCurrent;
+  final DateTime lastUpdated;
+
+  const Field({
+    required this.id,
+    required this.tenantId,
+    this.farmId,
+    required this.name,
+    this.areaHectares,
+    this.cropType,
+    this.status,
+    this.ndviCurrent,
+    required this.lastUpdated,
+  });
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
+    map['id'] = Variable<String>(id);
     map['tenant_id'] = Variable<String>(tenantId);
-    map['entity_type'] = Variable<String>(entityType);
-    map['entity_id'] = Variable<String>(entityId);
-    map['api_endpoint'] = Variable<String>(apiEndpoint);
-    map['method'] = Variable<String>(method);
-    map['payload'] = Variable<String>(payload);
-    if (!nullToAbsent || ifMatch != null) {
-      map['if_match'] = Variable<String>(ifMatch);
+    if (!nullToAbsent || farmId != null) {
+      map['farm_id'] = Variable<String>(farmId);
     }
-    map['retry_count'] = Variable<int>(retryCount);
-    map['is_synced'] = Variable<bool>(isSynced);
-    map['created_at'] = Variable<DateTime>(createdAt);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || areaHectares != null) {
+      map['area_hectares'] = Variable<double>(areaHectares);
+    }
+    if (!nullToAbsent || cropType != null) {
+      map['crop_type'] = Variable<String>(cropType);
+    }
+    if (!nullToAbsent || status != null) {
+      map['status'] = Variable<String>(status);
+    }
+    if (!nullToAbsent || ndviCurrent != null) {
+      map['ndvi_current'] = Variable<double>(ndviCurrent);
+    }
+    map['last_updated'] = Variable<DateTime>(lastUpdated);
     return map;
   }
 
-  OutboxCompanion toCompanion(bool nullToAbsent) {
-    return OutboxCompanion(
+  FieldsCompanion toCompanion(bool nullToAbsent) {
+    return FieldsCompanion(
       id: Value(id),
       tenantId: Value(tenantId),
-      entityType: Value(entityType),
-      entityId: Value(entityId),
-      apiEndpoint: Value(apiEndpoint),
-      method: Value(method),
-      payload: Value(payload),
-      ifMatch: ifMatch == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ifMatch),
-      retryCount: Value(retryCount),
-      isSynced: Value(isSynced),
-      createdAt: Value(createdAt),
+      farmId: farmId == null && nullToAbsent ? const Value.absent() : Value(farmId),
+      name: Value(name),
+      areaHectares: areaHectares == null && nullToAbsent ? const Value.absent() : Value(areaHectares),
+      cropType: cropType == null && nullToAbsent ? const Value.absent() : Value(cropType),
+      status: status == null && nullToAbsent ? const Value.absent() : Value(status),
+      ndviCurrent: ndviCurrent == null && nullToAbsent ? const Value.absent() : Value(ndviCurrent),
+      lastUpdated: Value(lastUpdated),
     );
   }
 
-  factory OutboxData.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory Field.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return OutboxData(
-      id: serializer.fromJson<int>(json['id']),
+    return Field(
+      id: serializer.fromJson<String>(json['id']),
       tenantId: serializer.fromJson<String>(json['tenantId']),
-      entityType: serializer.fromJson<String>(json['entityType']),
-      entityId: serializer.fromJson<String>(json['entityId']),
-      apiEndpoint: serializer.fromJson<String>(json['apiEndpoint']),
-      method: serializer.fromJson<String>(json['method']),
-      payload: serializer.fromJson<String>(json['payload']),
-      ifMatch: serializer.fromJson<String?>(json['ifMatch']),
-      retryCount: serializer.fromJson<int>(json['retryCount']),
-      isSynced: serializer.fromJson<bool>(json['isSynced']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      farmId: serializer.fromJson<String?>(json['farmId']),
+      name: serializer.fromJson<String>(json['name']),
+      areaHectares: serializer.fromJson<double?>(json['areaHectares']),
+      cropType: serializer.fromJson<String?>(json['cropType']),
+      status: serializer.fromJson<String?>(json['status']),
+      ndviCurrent: serializer.fromJson<double?>(json['ndviCurrent']),
+      lastUpdated: serializer.fromJson<DateTime>(json['lastUpdated']),
     );
   }
+
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<String>(id),
       'tenantId': serializer.toJson<String>(tenantId),
-      'entityType': serializer.toJson<String>(entityType),
-      'entityId': serializer.toJson<String>(entityId),
-      'apiEndpoint': serializer.toJson<String>(apiEndpoint),
-      'method': serializer.toJson<String>(method),
-      'payload': serializer.toJson<String>(payload),
-      'ifMatch': serializer.toJson<String?>(ifMatch),
-      'retryCount': serializer.toJson<int>(retryCount),
-      'isSynced': serializer.toJson<bool>(isSynced),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'farmId': serializer.toJson<String?>(farmId),
+      'name': serializer.toJson<String>(name),
+      'areaHectares': serializer.toJson<double?>(areaHectares),
+      'cropType': serializer.toJson<String?>(cropType),
+      'status': serializer.toJson<String?>(status),
+      'ndviCurrent': serializer.toJson<double?>(ndviCurrent),
+      'lastUpdated': serializer.toJson<DateTime>(lastUpdated),
     };
   }
 
-  OutboxData copyWith(
-          {int? id,
-          String? tenantId,
-          String? entityType,
-          String? entityId,
-          String? apiEndpoint,
-          String? method,
-          String? payload,
-          Value<String?> ifMatch = const Value.absent(),
-          int? retryCount,
-          bool? isSynced,
-          DateTime? createdAt}) =>
-      OutboxData(
+  Field copyWith({
+    String? id,
+    String? tenantId,
+    Value<String?> farmId = const Value.absent(),
+    String? name,
+    Value<double?> areaHectares = const Value.absent(),
+    Value<String?> cropType = const Value.absent(),
+    Value<String?> status = const Value.absent(),
+    Value<double?> ndviCurrent = const Value.absent(),
+    DateTime? lastUpdated,
+  }) =>
+      Field(
         id: id ?? this.id,
         tenantId: tenantId ?? this.tenantId,
-        entityType: entityType ?? this.entityType,
-        entityId: entityId ?? this.entityId,
-        apiEndpoint: apiEndpoint ?? this.apiEndpoint,
-        method: method ?? this.method,
-        payload: payload ?? this.payload,
-        ifMatch: ifMatch.present ? ifMatch.value : this.ifMatch,
-        retryCount: retryCount ?? this.retryCount,
-        isSynced: isSynced ?? this.isSynced,
-        createdAt: createdAt ?? this.createdAt,
+        farmId: farmId.present ? farmId.value : this.farmId,
+        name: name ?? this.name,
+        areaHectares: areaHectares.present ? areaHectares.value : this.areaHectares,
+        cropType: cropType.present ? cropType.value : this.cropType,
+        status: status.present ? status.value : this.status,
+        ndviCurrent: ndviCurrent.present ? ndviCurrent.value : this.ndviCurrent,
+        lastUpdated: lastUpdated ?? this.lastUpdated,
       );
-  OutboxData copyWithCompanion(OutboxCompanion data) {
-    return OutboxData(
-      id: data.id.present ? data.id.value : this.id,
-      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
-      entityType:
-          data.entityType.present ? data.entityType.value : this.entityType,
-      entityId: data.entityId.present ? data.entityId.value : this.entityId,
-      apiEndpoint:
-          data.apiEndpoint.present ? data.apiEndpoint.value : this.apiEndpoint,
-      method: data.method.present ? data.method.value : this.method,
-      payload: data.payload.present ? data.payload.value : this.payload,
-      ifMatch: data.ifMatch.present ? data.ifMatch.value : this.ifMatch,
-      retryCount:
-          data.retryCount.present ? data.retryCount.value : this.retryCount,
-      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-    );
-  }
 
   @override
   String toString() {
-    return (StringBuffer('OutboxData(')
-          ..write('id: $id, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('entityType: $entityType, ')
-          ..write('entityId: $entityId, ')
-          ..write('apiEndpoint: $apiEndpoint, ')
-          ..write('method: $method, ')
-          ..write('payload: $payload, ')
-          ..write('ifMatch: $ifMatch, ')
-          ..write('retryCount: $retryCount, ')
-          ..write('isSynced: $isSynced, ')
-          ..write('createdAt: $createdAt')
-          ..write(')'))
-        .toString();
+    return 'Field(id: $id, name: $name, cropType: $cropType)';
   }
 
   @override
-  int get hashCode => Object.hash(id, tenantId, entityType, entityId,
-      apiEndpoint, method, payload, ifMatch, retryCount, isSynced, createdAt);
+  int get hashCode => Object.hash(id, tenantId, farmId, name, areaHectares, cropType, status, ndviCurrent, lastUpdated);
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is OutboxData &&
-          other.id == this.id &&
-          other.tenantId == this.tenantId &&
-          other.entityType == this.entityType &&
-          other.entityId == this.entityId &&
-          other.apiEndpoint == this.apiEndpoint &&
-          other.method == this.method &&
-          other.payload == this.payload &&
-          other.ifMatch == this.ifMatch &&
-          other.retryCount == this.retryCount &&
-          other.isSynced == this.isSynced &&
-          other.createdAt == this.createdAt);
+      (other is Field &&
+          other.id == id &&
+          other.tenantId == tenantId &&
+          other.farmId == farmId &&
+          other.name == name &&
+          other.areaHectares == areaHectares &&
+          other.cropType == cropType &&
+          other.status == status &&
+          other.ndviCurrent == ndviCurrent &&
+          other.lastUpdated == lastUpdated);
 }
 
-class OutboxCompanion extends UpdateCompanion<OutboxData> {
-  final Value<int> id;
+class FieldsCompanion extends UpdateCompanion<Field> {
+  final Value<String> id;
   final Value<String> tenantId;
-  final Value<String> entityType;
-  final Value<String> entityId;
-  final Value<String> apiEndpoint;
-  final Value<String> method;
-  final Value<String> payload;
-  final Value<String?> ifMatch;
-  final Value<int> retryCount;
-  final Value<bool> isSynced;
-  final Value<DateTime> createdAt;
-  const OutboxCompanion({
+  final Value<String?> farmId;
+  final Value<String> name;
+  final Value<double?> areaHectares;
+  final Value<String?> cropType;
+  final Value<String?> status;
+  final Value<double?> ndviCurrent;
+  final Value<DateTime> lastUpdated;
+
+  const FieldsCompanion({
     this.id = const Value.absent(),
     this.tenantId = const Value.absent(),
-    this.entityType = const Value.absent(),
-    this.entityId = const Value.absent(),
-    this.apiEndpoint = const Value.absent(),
-    this.method = const Value.absent(),
-    this.payload = const Value.absent(),
-    this.ifMatch = const Value.absent(),
-    this.retryCount = const Value.absent(),
-    this.isSynced = const Value.absent(),
-    this.createdAt = const Value.absent(),
+    this.farmId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.areaHectares = const Value.absent(),
+    this.cropType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.ndviCurrent = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
   });
-  OutboxCompanion.insert({
-    this.id = const Value.absent(),
+
+  FieldsCompanion.insert({
+    required String id,
     required String tenantId,
-    required String entityType,
-    required String entityId,
-    required String apiEndpoint,
-    this.method = const Value.absent(),
-    required String payload,
-    this.ifMatch = const Value.absent(),
-    this.retryCount = const Value.absent(),
-    this.isSynced = const Value.absent(),
-    this.createdAt = const Value.absent(),
-  })  : tenantId = Value(tenantId),
-        entityType = Value(entityType),
-        entityId = Value(entityId),
-        apiEndpoint = Value(apiEndpoint),
-        payload = Value(payload);
-  static Insertable<OutboxData> custom({
-    Expression<int>? id,
+    this.farmId = const Value.absent(),
+    required String name,
+    this.areaHectares = const Value.absent(),
+    this.cropType = const Value.absent(),
+    this.status = const Value.absent(),
+    this.ndviCurrent = const Value.absent(),
+    required DateTime lastUpdated,
+  })  : id = Value(id),
+        tenantId = Value(tenantId),
+        name = Value(name),
+        lastUpdated = Value(lastUpdated);
+
+  static Insertable<Field> custom({
+    Expression<String>? id,
     Expression<String>? tenantId,
-    Expression<String>? entityType,
-    Expression<String>? entityId,
-    Expression<String>? apiEndpoint,
-    Expression<String>? method,
-    Expression<String>? payload,
-    Expression<String>? ifMatch,
-    Expression<int>? retryCount,
-    Expression<bool>? isSynced,
-    Expression<DateTime>? createdAt,
+    Expression<String>? farmId,
+    Expression<String>? name,
+    Expression<double>? areaHectares,
+    Expression<String>? cropType,
+    Expression<String>? status,
+    Expression<double>? ndviCurrent,
+    Expression<DateTime>? lastUpdated,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (tenantId != null) 'tenant_id': tenantId,
-      if (entityType != null) 'entity_type': entityType,
-      if (entityId != null) 'entity_id': entityId,
-      if (apiEndpoint != null) 'api_endpoint': apiEndpoint,
-      if (method != null) 'method': method,
-      if (payload != null) 'payload': payload,
-      if (ifMatch != null) 'if_match': ifMatch,
-      if (retryCount != null) 'retry_count': retryCount,
-      if (isSynced != null) 'is_synced': isSynced,
-      if (createdAt != null) 'created_at': createdAt,
+      if (farmId != null) 'farm_id': farmId,
+      if (name != null) 'name': name,
+      if (areaHectares != null) 'area_hectares': areaHectares,
+      if (cropType != null) 'crop_type': cropType,
+      if (status != null) 'status': status,
+      if (ndviCurrent != null) 'ndvi_current': ndviCurrent,
+      if (lastUpdated != null) 'last_updated': lastUpdated,
     });
   }
 
-  OutboxCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? tenantId,
-      Value<String>? entityType,
-      Value<String>? entityId,
-      Value<String>? apiEndpoint,
-      Value<String>? method,
-      Value<String>? payload,
-      Value<String?>? ifMatch,
-      Value<int>? retryCount,
-      Value<bool>? isSynced,
-      Value<DateTime>? createdAt}) {
-    return OutboxCompanion(
+  FieldsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? tenantId,
+    Value<String?>? farmId,
+    Value<String>? name,
+    Value<double?>? areaHectares,
+    Value<String?>? cropType,
+    Value<String?>? status,
+    Value<double?>? ndviCurrent,
+    Value<DateTime>? lastUpdated,
+  }) {
+    return FieldsCompanion(
       id: id ?? this.id,
       tenantId: tenantId ?? this.tenantId,
-      entityType: entityType ?? this.entityType,
-      entityId: entityId ?? this.entityId,
-      apiEndpoint: apiEndpoint ?? this.apiEndpoint,
-      method: method ?? this.method,
-      payload: payload ?? this.payload,
-      ifMatch: ifMatch ?? this.ifMatch,
-      retryCount: retryCount ?? this.retryCount,
-      isSynced: isSynced ?? this.isSynced,
-      createdAt: createdAt ?? this.createdAt,
+      farmId: farmId ?? this.farmId,
+      name: name ?? this.name,
+      areaHectares: areaHectares ?? this.areaHectares,
+      cropType: cropType ?? this.cropType,
+      status: status ?? this.status,
+      ndviCurrent: ndviCurrent ?? this.ndviCurrent,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (tenantId.present) {
-      map['tenant_id'] = Variable<String>(tenantId.value);
-    }
-    if (entityType.present) {
-      map['entity_type'] = Variable<String>(entityType.value);
-    }
-    if (entityId.present) {
-      map['entity_id'] = Variable<String>(entityId.value);
-    }
-    if (apiEndpoint.present) {
-      map['api_endpoint'] = Variable<String>(apiEndpoint.value);
-    }
-    if (method.present) {
-      map['method'] = Variable<String>(method.value);
-    }
-    if (payload.present) {
-      map['payload'] = Variable<String>(payload.value);
-    }
-    if (ifMatch.present) {
-      map['if_match'] = Variable<String>(ifMatch.value);
-    }
-    if (retryCount.present) {
-      map['retry_count'] = Variable<int>(retryCount.value);
-    }
-    if (isSynced.present) {
-      map['is_synced'] = Variable<bool>(isSynced.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
+    if (id.present) map['id'] = Variable<String>(id.value);
+    if (tenantId.present) map['tenant_id'] = Variable<String>(tenantId.value);
+    if (farmId.present) map['farm_id'] = Variable<String>(farmId.value);
+    if (name.present) map['name'] = Variable<String>(name.value);
+    if (areaHectares.present) map['area_hectares'] = Variable<double>(areaHectares.value);
+    if (cropType.present) map['crop_type'] = Variable<String>(cropType.value);
+    if (status.present) map['status'] = Variable<String>(status.value);
+    if (ndviCurrent.present) map['ndvi_current'] = Variable<double>(ndviCurrent.value);
+    if (lastUpdated.present) map['last_updated'] = Variable<DateTime>(lastUpdated.value);
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('OutboxCompanion(')
-          ..write('id: $id, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('entityType: $entityType, ')
-          ..write('entityId: $entityId, ')
-          ..write('apiEndpoint: $apiEndpoint, ')
-          ..write('method: $method, ')
-          ..write('payload: $payload, ')
-          ..write('ifMatch: $ifMatch, ')
-          ..write('retryCount: $retryCount, ')
-          ..write('isSynced: $isSynced, ')
-          ..write('createdAt: $createdAt')
-          ..write(')'))
-        .toString();
+    return 'FieldsCompanion(id: $id, tenantId: $tenantId, farmId: $farmId, name: $name, areaHectares: $areaHectares, cropType: $cropType, status: $status, ndviCurrent: $ndviCurrent, lastUpdated: $lastUpdated)';
   }
 }
 
@@ -1270,147 +1070,57 @@ class $FieldsTable extends Fields with TableInfo<$FieldsTable, Field> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
+
   $FieldsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
+
+  static const VerificationMeta _idMeta = VerificationMeta('id');
   @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _remoteIdMeta =
-      const VerificationMeta('remoteId');
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _tenantIdMeta = VerificationMeta('tenantId');
   @override
-  late final GeneratedColumn<String> remoteId = GeneratedColumn<String>(
-      'remote_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _tenantIdMeta =
-      const VerificationMeta('tenantId');
+  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>('tenant_id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _farmIdMeta = VerificationMeta('farmId');
   @override
-  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>(
-      'tenant_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _farmIdMeta = const VerificationMeta('farmId');
+  late final GeneratedColumn<String> farmId = GeneratedColumn<String>('farm_id', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _nameMeta = VerificationMeta('name');
   @override
-  late final GeneratedColumn<String> farmId = GeneratedColumn<String>(
-      'farm_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  late final GeneratedColumn<String> name = GeneratedColumn<String>('name', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _areaHectaresMeta = VerificationMeta('areaHectares');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
-  static const VerificationMeta _cropTypeMeta =
-      const VerificationMeta('cropType');
+  late final GeneratedColumn<double> areaHectares = GeneratedColumn<double>('area_hectares', aliasedName, true, type: DriftSqlType.double, requiredDuringInsert: false);
+
+  static const VerificationMeta _cropTypeMeta = VerificationMeta('cropType');
   @override
-  late final GeneratedColumn<String> cropType = GeneratedColumn<String>(
-      'crop_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
+  late final GeneratedColumn<String> cropType = GeneratedColumn<String>('crop_type', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _statusMeta = VerificationMeta('status');
   @override
-  late final GeneratedColumnWithTypeConverter<List<LatLng>, String> boundary =
-      GeneratedColumn<String>('boundary', aliasedName, false,
-              type: DriftSqlType.string, requiredDuringInsert: true)
-          .withConverter<List<LatLng>>($FieldsTable.$converterboundary);
+  late final GeneratedColumn<String> status = GeneratedColumn<String>('status', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _ndviCurrentMeta = VerificationMeta('ndviCurrent');
   @override
-  late final GeneratedColumnWithTypeConverter<LatLng?, String> centroid =
-      GeneratedColumn<String>('centroid', aliasedName, true,
-              type: DriftSqlType.string, requiredDuringInsert: false)
-          .withConverter<LatLng?>($FieldsTable.$convertercentroid);
-  static const VerificationMeta _areaHectaresMeta =
-      const VerificationMeta('areaHectares');
+  late final GeneratedColumn<double> ndviCurrent = GeneratedColumn<double>('ndvi_current', aliasedName, true, type: DriftSqlType.double, requiredDuringInsert: false);
+
+  static const VerificationMeta _lastUpdatedMeta = VerificationMeta('lastUpdated');
   @override
-  late final GeneratedColumn<double> areaHectares = GeneratedColumn<double>(
-      'area_hectares', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  late final GeneratedColumn<DateTime> lastUpdated = GeneratedColumn<DateTime>('last_updated', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: true);
+
   @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-      'status', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _ndviCurrentMeta =
-      const VerificationMeta('ndviCurrent');
-  @override
-  late final GeneratedColumn<double> ndviCurrent = GeneratedColumn<double>(
-      'ndvi_current', aliasedName, true,
-      type: DriftSqlType.double, requiredDuringInsert: false);
-  static const VerificationMeta _ndviUpdatedAtMeta =
-      const VerificationMeta('ndviUpdatedAt');
-  @override
-  late final GeneratedColumn<DateTime> ndviUpdatedAt =
-      GeneratedColumn<DateTime>('ndvi_updated_at', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _syncedMeta = const VerificationMeta('synced');
-  @override
-  late final GeneratedColumn<bool> synced = GeneratedColumn<bool>(
-      'synced', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("synced" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _isDeletedMeta =
-      const VerificationMeta('isDeleted');
-  @override
-  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
-      'is_deleted', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _updatedAtMeta =
-      const VerificationMeta('updatedAt');
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-      'updated_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _etagMeta = const VerificationMeta('etag');
-  @override
-  late final GeneratedColumn<String> etag = GeneratedColumn<String>(
-      'etag', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _serverUpdatedAtMeta =
-      const VerificationMeta('serverUpdatedAt');
-  @override
-  late final GeneratedColumn<DateTime> serverUpdatedAt =
-      GeneratedColumn<DateTime>('server_updated_at', aliasedName, true,
-          type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns => [
-        id,
-        remoteId,
-        tenantId,
-        farmId,
-        name,
-        cropType,
-        boundary,
-        centroid,
-        areaHectares,
-        status,
-        ndviCurrent,
-        ndviUpdatedAt,
-        synced,
-        isDeleted,
-        createdAt,
-        updatedAt,
-        etag,
-        serverUpdatedAt
-      ];
+  List<GeneratedColumn> get $columns => [id, tenantId, farmId, name, areaHectares, cropType, status, ndviCurrent, lastUpdated];
+
   @override
   String get aliasedName => _alias ?? actualTableName;
+
   @override
   String get actualTableName => $name;
   static const String $name = 'fields';
+
   @override
-  VerificationContext validateIntegrity(Insertable<Field> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(Insertable<Field> instance, {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -1418,131 +1128,55 @@ class $FieldsTable extends Fields with TableInfo<$FieldsTable, Field> {
     } else if (isInserting) {
       context.missing(_idMeta);
     }
-    if (data.containsKey('remote_id')) {
-      context.handle(_remoteIdMeta,
-          remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta));
-    }
     if (data.containsKey('tenant_id')) {
-      context.handle(_tenantIdMeta,
-          tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
+      context.handle(_tenantIdMeta, tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
     } else if (isInserting) {
       context.missing(_tenantIdMeta);
     }
     if (data.containsKey('farm_id')) {
-      context.handle(_farmIdMeta,
-          farmId.isAcceptableOrUnknown(data['farm_id']!, _farmIdMeta));
+      context.handle(_farmIdMeta, farmId.isAcceptableOrUnknown(data['farm_id']!, _farmIdMeta));
     }
     if (data.containsKey('name')) {
-      context.handle(
-          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('crop_type')) {
-      context.handle(_cropTypeMeta,
-          cropType.isAcceptableOrUnknown(data['crop_type']!, _cropTypeMeta));
-    }
     if (data.containsKey('area_hectares')) {
-      context.handle(
-          _areaHectaresMeta,
-          areaHectares.isAcceptableOrUnknown(
-              data['area_hectares']!, _areaHectaresMeta));
-    } else if (isInserting) {
-      context.missing(_areaHectaresMeta);
+      context.handle(_areaHectaresMeta, areaHectares.isAcceptableOrUnknown(data['area_hectares']!, _areaHectaresMeta));
+    }
+    if (data.containsKey('crop_type')) {
+      context.handle(_cropTypeMeta, cropType.isAcceptableOrUnknown(data['crop_type']!, _cropTypeMeta));
     }
     if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+      context.handle(_statusMeta, status.isAcceptableOrUnknown(data['status']!, _statusMeta));
     }
     if (data.containsKey('ndvi_current')) {
-      context.handle(
-          _ndviCurrentMeta,
-          ndviCurrent.isAcceptableOrUnknown(
-              data['ndvi_current']!, _ndviCurrentMeta));
+      context.handle(_ndviCurrentMeta, ndviCurrent.isAcceptableOrUnknown(data['ndvi_current']!, _ndviCurrentMeta));
     }
-    if (data.containsKey('ndvi_updated_at')) {
-      context.handle(
-          _ndviUpdatedAtMeta,
-          ndviUpdatedAt.isAcceptableOrUnknown(
-              data['ndvi_updated_at']!, _ndviUpdatedAtMeta));
-    }
-    if (data.containsKey('synced')) {
-      context.handle(_syncedMeta,
-          synced.isAcceptableOrUnknown(data['synced']!, _syncedMeta));
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(_isDeletedMeta,
-          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    if (data.containsKey('last_updated')) {
+      context.handle(_lastUpdatedMeta, lastUpdated.isAcceptableOrUnknown(data['last_updated']!, _lastUpdatedMeta));
     } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(_updatedAtMeta,
-          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
-    } else if (isInserting) {
-      context.missing(_updatedAtMeta);
-    }
-    if (data.containsKey('etag')) {
-      context.handle(
-          _etagMeta, etag.isAcceptableOrUnknown(data['etag']!, _etagMeta));
-    }
-    if (data.containsKey('server_updated_at')) {
-      context.handle(
-          _serverUpdatedAtMeta,
-          serverUpdatedAt.isAcceptableOrUnknown(
-              data['server_updated_at']!, _serverUpdatedAtMeta));
+      context.missing(_lastUpdatedMeta);
     }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+
   @override
   Field map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Field(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      remoteId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}remote_id']),
-      tenantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
-      farmId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}farm_id']),
-      name: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      cropType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}crop_type']),
-      boundary: $FieldsTable.$converterboundary.fromSql(attachedDatabase
-          .typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}boundary'])!),
-      centroid: $FieldsTable.$convertercentroid.fromSql(attachedDatabase
-          .typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}centroid'])),
-      areaHectares: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}area_hectares'])!,
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status']),
-      ndviCurrent: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}ndvi_current']),
-      ndviUpdatedAt: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}ndvi_updated_at']),
-      synced: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}synced'])!,
-      isDeleted: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-      updatedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
-      etag: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}etag']),
-      serverUpdatedAt: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}server_updated_at']),
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      tenantId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
+      farmId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}farm_id']),
+      name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      areaHectares: attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}area_hectares']),
+      cropType: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}crop_type']),
+      status: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}status']),
+      ndviCurrent: attachedDatabase.typeMapping.read(DriftSqlType.double, data['${effectivePrefix}ndvi_current']),
+      lastUpdated: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}last_updated'])!,
     );
   }
 
@@ -1550,671 +1184,11 @@ class $FieldsTable extends Fields with TableInfo<$FieldsTable, Field> {
   $FieldsTable createAlias(String alias) {
     return $FieldsTable(attachedDatabase, alias);
   }
-
-  static TypeConverter<List<LatLng>, String> $converterboundary =
-      const GeoPolygonConverter();
-  static TypeConverter<LatLng?, String?> $convertercentroid =
-      const GeoPointConverter();
 }
 
-class Field extends DataClass implements Insertable<Field> {
-  final String id;
-  final String? remoteId;
-  final String tenantId;
-  final String? farmId;
-  final String name;
-  final String? cropType;
-  final List<LatLng> boundary;
-  final LatLng? centroid;
-  final double areaHectares;
-  final String? status;
-  final double? ndviCurrent;
-  final DateTime? ndviUpdatedAt;
-  final bool synced;
-  final bool isDeleted;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final String? etag;
-  final DateTime? serverUpdatedAt;
-  const Field(
-      {required this.id,
-      this.remoteId,
-      required this.tenantId,
-      this.farmId,
-      required this.name,
-      this.cropType,
-      required this.boundary,
-      this.centroid,
-      required this.areaHectares,
-      this.status,
-      this.ndviCurrent,
-      this.ndviUpdatedAt,
-      required this.synced,
-      required this.isDeleted,
-      required this.createdAt,
-      required this.updatedAt,
-      this.etag,
-      this.serverUpdatedAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    if (!nullToAbsent || remoteId != null) {
-      map['remote_id'] = Variable<String>(remoteId);
-    }
-    map['tenant_id'] = Variable<String>(tenantId);
-    if (!nullToAbsent || farmId != null) {
-      map['farm_id'] = Variable<String>(farmId);
-    }
-    map['name'] = Variable<String>(name);
-    if (!nullToAbsent || cropType != null) {
-      map['crop_type'] = Variable<String>(cropType);
-    }
-    {
-      map['boundary'] =
-          Variable<String>($FieldsTable.$converterboundary.toSql(boundary));
-    }
-    if (!nullToAbsent || centroid != null) {
-      map['centroid'] =
-          Variable<String>($FieldsTable.$convertercentroid.toSql(centroid));
-    }
-    map['area_hectares'] = Variable<double>(areaHectares);
-    if (!nullToAbsent || status != null) {
-      map['status'] = Variable<String>(status);
-    }
-    if (!nullToAbsent || ndviCurrent != null) {
-      map['ndvi_current'] = Variable<double>(ndviCurrent);
-    }
-    if (!nullToAbsent || ndviUpdatedAt != null) {
-      map['ndvi_updated_at'] = Variable<DateTime>(ndviUpdatedAt);
-    }
-    map['synced'] = Variable<bool>(synced);
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    if (!nullToAbsent || etag != null) {
-      map['etag'] = Variable<String>(etag);
-    }
-    if (!nullToAbsent || serverUpdatedAt != null) {
-      map['server_updated_at'] = Variable<DateTime>(serverUpdatedAt);
-    }
-    return map;
-  }
-
-  FieldsCompanion toCompanion(bool nullToAbsent) {
-    return FieldsCompanion(
-      id: Value(id),
-      remoteId: remoteId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(remoteId),
-      tenantId: Value(tenantId),
-      farmId:
-          farmId == null && nullToAbsent ? const Value.absent() : Value(farmId),
-      name: Value(name),
-      cropType: cropType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(cropType),
-      boundary: Value(boundary),
-      centroid: centroid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(centroid),
-      areaHectares: Value(areaHectares),
-      status:
-          status == null && nullToAbsent ? const Value.absent() : Value(status),
-      ndviCurrent: ndviCurrent == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ndviCurrent),
-      ndviUpdatedAt: ndviUpdatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(ndviUpdatedAt),
-      synced: Value(synced),
-      isDeleted: Value(isDeleted),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-      etag: etag == null && nullToAbsent ? const Value.absent() : Value(etag),
-      serverUpdatedAt: serverUpdatedAt == null && nullToAbsent
-          ? const Value.absent()
-          : Value(serverUpdatedAt),
-    );
-  }
-
-  factory Field.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Field(
-      id: serializer.fromJson<String>(json['id']),
-      remoteId: serializer.fromJson<String?>(json['remoteId']),
-      tenantId: serializer.fromJson<String>(json['tenantId']),
-      farmId: serializer.fromJson<String?>(json['farmId']),
-      name: serializer.fromJson<String>(json['name']),
-      cropType: serializer.fromJson<String?>(json['cropType']),
-      boundary: serializer.fromJson<List<LatLng>>(json['boundary']),
-      centroid: serializer.fromJson<LatLng?>(json['centroid']),
-      areaHectares: serializer.fromJson<double>(json['areaHectares']),
-      status: serializer.fromJson<String?>(json['status']),
-      ndviCurrent: serializer.fromJson<double?>(json['ndviCurrent']),
-      ndviUpdatedAt: serializer.fromJson<DateTime?>(json['ndviUpdatedAt']),
-      synced: serializer.fromJson<bool>(json['synced']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-      etag: serializer.fromJson<String?>(json['etag']),
-      serverUpdatedAt: serializer.fromJson<DateTime?>(json['serverUpdatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'remoteId': serializer.toJson<String?>(remoteId),
-      'tenantId': serializer.toJson<String>(tenantId),
-      'farmId': serializer.toJson<String?>(farmId),
-      'name': serializer.toJson<String>(name),
-      'cropType': serializer.toJson<String?>(cropType),
-      'boundary': serializer.toJson<List<LatLng>>(boundary),
-      'centroid': serializer.toJson<LatLng?>(centroid),
-      'areaHectares': serializer.toJson<double>(areaHectares),
-      'status': serializer.toJson<String?>(status),
-      'ndviCurrent': serializer.toJson<double?>(ndviCurrent),
-      'ndviUpdatedAt': serializer.toJson<DateTime?>(ndviUpdatedAt),
-      'synced': serializer.toJson<bool>(synced),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-      'etag': serializer.toJson<String?>(etag),
-      'serverUpdatedAt': serializer.toJson<DateTime?>(serverUpdatedAt),
-    };
-  }
-
-  Field copyWith(
-          {String? id,
-          Value<String?> remoteId = const Value.absent(),
-          String? tenantId,
-          Value<String?> farmId = const Value.absent(),
-          String? name,
-          Value<String?> cropType = const Value.absent(),
-          List<LatLng>? boundary,
-          Value<LatLng?> centroid = const Value.absent(),
-          double? areaHectares,
-          Value<String?> status = const Value.absent(),
-          Value<double?> ndviCurrent = const Value.absent(),
-          Value<DateTime?> ndviUpdatedAt = const Value.absent(),
-          bool? synced,
-          bool? isDeleted,
-          DateTime? createdAt,
-          DateTime? updatedAt,
-          Value<String?> etag = const Value.absent(),
-          Value<DateTime?> serverUpdatedAt = const Value.absent()}) =>
-      Field(
-        id: id ?? this.id,
-        remoteId: remoteId.present ? remoteId.value : this.remoteId,
-        tenantId: tenantId ?? this.tenantId,
-        farmId: farmId.present ? farmId.value : this.farmId,
-        name: name ?? this.name,
-        cropType: cropType.present ? cropType.value : this.cropType,
-        boundary: boundary ?? this.boundary,
-        centroid: centroid.present ? centroid.value : this.centroid,
-        areaHectares: areaHectares ?? this.areaHectares,
-        status: status.present ? status.value : this.status,
-        ndviCurrent: ndviCurrent.present ? ndviCurrent.value : this.ndviCurrent,
-        ndviUpdatedAt:
-            ndviUpdatedAt.present ? ndviUpdatedAt.value : this.ndviUpdatedAt,
-        synced: synced ?? this.synced,
-        isDeleted: isDeleted ?? this.isDeleted,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-        etag: etag.present ? etag.value : this.etag,
-        serverUpdatedAt: serverUpdatedAt.present
-            ? serverUpdatedAt.value
-            : this.serverUpdatedAt,
-      );
-  Field copyWithCompanion(FieldsCompanion data) {
-    return Field(
-      id: data.id.present ? data.id.value : this.id,
-      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
-      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
-      farmId: data.farmId.present ? data.farmId.value : this.farmId,
-      name: data.name.present ? data.name.value : this.name,
-      cropType: data.cropType.present ? data.cropType.value : this.cropType,
-      boundary: data.boundary.present ? data.boundary.value : this.boundary,
-      centroid: data.centroid.present ? data.centroid.value : this.centroid,
-      areaHectares: data.areaHectares.present
-          ? data.areaHectares.value
-          : this.areaHectares,
-      status: data.status.present ? data.status.value : this.status,
-      ndviCurrent:
-          data.ndviCurrent.present ? data.ndviCurrent.value : this.ndviCurrent,
-      ndviUpdatedAt: data.ndviUpdatedAt.present
-          ? data.ndviUpdatedAt.value
-          : this.ndviUpdatedAt,
-      synced: data.synced.present ? data.synced.value : this.synced,
-      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-      etag: data.etag.present ? data.etag.value : this.etag,
-      serverUpdatedAt: data.serverUpdatedAt.present
-          ? data.serverUpdatedAt.value
-          : this.serverUpdatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Field(')
-          ..write('id: $id, ')
-          ..write('remoteId: $remoteId, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('farmId: $farmId, ')
-          ..write('name: $name, ')
-          ..write('cropType: $cropType, ')
-          ..write('boundary: $boundary, ')
-          ..write('centroid: $centroid, ')
-          ..write('areaHectares: $areaHectares, ')
-          ..write('status: $status, ')
-          ..write('ndviCurrent: $ndviCurrent, ')
-          ..write('ndviUpdatedAt: $ndviUpdatedAt, ')
-          ..write('synced: $synced, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('etag: $etag, ')
-          ..write('serverUpdatedAt: $serverUpdatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      id,
-      remoteId,
-      tenantId,
-      farmId,
-      name,
-      cropType,
-      boundary,
-      centroid,
-      areaHectares,
-      status,
-      ndviCurrent,
-      ndviUpdatedAt,
-      synced,
-      isDeleted,
-      createdAt,
-      updatedAt,
-      etag,
-      serverUpdatedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Field &&
-          other.id == this.id &&
-          other.remoteId == this.remoteId &&
-          other.tenantId == this.tenantId &&
-          other.farmId == this.farmId &&
-          other.name == this.name &&
-          other.cropType == this.cropType &&
-          other.boundary == this.boundary &&
-          other.centroid == this.centroid &&
-          other.areaHectares == this.areaHectares &&
-          other.status == this.status &&
-          other.ndviCurrent == this.ndviCurrent &&
-          other.ndviUpdatedAt == this.ndviUpdatedAt &&
-          other.synced == this.synced &&
-          other.isDeleted == this.isDeleted &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt &&
-          other.etag == this.etag &&
-          other.serverUpdatedAt == this.serverUpdatedAt);
-}
-
-class FieldsCompanion extends UpdateCompanion<Field> {
-  final Value<String> id;
-  final Value<String?> remoteId;
-  final Value<String> tenantId;
-  final Value<String?> farmId;
-  final Value<String> name;
-  final Value<String?> cropType;
-  final Value<List<LatLng>> boundary;
-  final Value<LatLng?> centroid;
-  final Value<double> areaHectares;
-  final Value<String?> status;
-  final Value<double?> ndviCurrent;
-  final Value<DateTime?> ndviUpdatedAt;
-  final Value<bool> synced;
-  final Value<bool> isDeleted;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<String?> etag;
-  final Value<DateTime?> serverUpdatedAt;
-  final Value<int> rowid;
-  const FieldsCompanion({
-    this.id = const Value.absent(),
-    this.remoteId = const Value.absent(),
-    this.tenantId = const Value.absent(),
-    this.farmId = const Value.absent(),
-    this.name = const Value.absent(),
-    this.cropType = const Value.absent(),
-    this.boundary = const Value.absent(),
-    this.centroid = const Value.absent(),
-    this.areaHectares = const Value.absent(),
-    this.status = const Value.absent(),
-    this.ndviCurrent = const Value.absent(),
-    this.ndviUpdatedAt = const Value.absent(),
-    this.synced = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.etag = const Value.absent(),
-    this.serverUpdatedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  FieldsCompanion.insert({
-    required String id,
-    this.remoteId = const Value.absent(),
-    required String tenantId,
-    this.farmId = const Value.absent(),
-    required String name,
-    this.cropType = const Value.absent(),
-    required List<LatLng> boundary,
-    this.centroid = const Value.absent(),
-    required double areaHectares,
-    this.status = const Value.absent(),
-    this.ndviCurrent = const Value.absent(),
-    this.ndviUpdatedAt = const Value.absent(),
-    this.synced = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    required DateTime createdAt,
-    required DateTime updatedAt,
-    this.etag = const Value.absent(),
-    this.serverUpdatedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        tenantId = Value(tenantId),
-        name = Value(name),
-        boundary = Value(boundary),
-        areaHectares = Value(areaHectares),
-        createdAt = Value(createdAt),
-        updatedAt = Value(updatedAt);
-  static Insertable<Field> custom({
-    Expression<String>? id,
-    Expression<String>? remoteId,
-    Expression<String>? tenantId,
-    Expression<String>? farmId,
-    Expression<String>? name,
-    Expression<String>? cropType,
-    Expression<String>? boundary,
-    Expression<String>? centroid,
-    Expression<double>? areaHectares,
-    Expression<String>? status,
-    Expression<double>? ndviCurrent,
-    Expression<DateTime>? ndviUpdatedAt,
-    Expression<bool>? synced,
-    Expression<bool>? isDeleted,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<String>? etag,
-    Expression<DateTime>? serverUpdatedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (remoteId != null) 'remote_id': remoteId,
-      if (tenantId != null) 'tenant_id': tenantId,
-      if (farmId != null) 'farm_id': farmId,
-      if (name != null) 'name': name,
-      if (cropType != null) 'crop_type': cropType,
-      if (boundary != null) 'boundary': boundary,
-      if (centroid != null) 'centroid': centroid,
-      if (areaHectares != null) 'area_hectares': areaHectares,
-      if (status != null) 'status': status,
-      if (ndviCurrent != null) 'ndvi_current': ndviCurrent,
-      if (ndviUpdatedAt != null) 'ndvi_updated_at': ndviUpdatedAt,
-      if (synced != null) 'synced': synced,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (etag != null) 'etag': etag,
-      if (serverUpdatedAt != null) 'server_updated_at': serverUpdatedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  FieldsCompanion copyWith(
-      {Value<String>? id,
-      Value<String?>? remoteId,
-      Value<String>? tenantId,
-      Value<String?>? farmId,
-      Value<String>? name,
-      Value<String?>? cropType,
-      Value<List<LatLng>>? boundary,
-      Value<LatLng?>? centroid,
-      Value<double>? areaHectares,
-      Value<String?>? status,
-      Value<double?>? ndviCurrent,
-      Value<DateTime?>? ndviUpdatedAt,
-      Value<bool>? synced,
-      Value<bool>? isDeleted,
-      Value<DateTime>? createdAt,
-      Value<DateTime>? updatedAt,
-      Value<String?>? etag,
-      Value<DateTime?>? serverUpdatedAt,
-      Value<int>? rowid}) {
-    return FieldsCompanion(
-      id: id ?? this.id,
-      remoteId: remoteId ?? this.remoteId,
-      tenantId: tenantId ?? this.tenantId,
-      farmId: farmId ?? this.farmId,
-      name: name ?? this.name,
-      cropType: cropType ?? this.cropType,
-      boundary: boundary ?? this.boundary,
-      centroid: centroid ?? this.centroid,
-      areaHectares: areaHectares ?? this.areaHectares,
-      status: status ?? this.status,
-      ndviCurrent: ndviCurrent ?? this.ndviCurrent,
-      ndviUpdatedAt: ndviUpdatedAt ?? this.ndviUpdatedAt,
-      synced: synced ?? this.synced,
-      isDeleted: isDeleted ?? this.isDeleted,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      etag: etag ?? this.etag,
-      serverUpdatedAt: serverUpdatedAt ?? this.serverUpdatedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (remoteId.present) {
-      map['remote_id'] = Variable<String>(remoteId.value);
-    }
-    if (tenantId.present) {
-      map['tenant_id'] = Variable<String>(tenantId.value);
-    }
-    if (farmId.present) {
-      map['farm_id'] = Variable<String>(farmId.value);
-    }
-    if (name.present) {
-      map['name'] = Variable<String>(name.value);
-    }
-    if (cropType.present) {
-      map['crop_type'] = Variable<String>(cropType.value);
-    }
-    if (boundary.present) {
-      map['boundary'] = Variable<String>(
-          $FieldsTable.$converterboundary.toSql(boundary.value));
-    }
-    if (centroid.present) {
-      map['centroid'] = Variable<String>(
-          $FieldsTable.$convertercentroid.toSql(centroid.value));
-    }
-    if (areaHectares.present) {
-      map['area_hectares'] = Variable<double>(areaHectares.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (ndviCurrent.present) {
-      map['ndvi_current'] = Variable<double>(ndviCurrent.value);
-    }
-    if (ndviUpdatedAt.present) {
-      map['ndvi_updated_at'] = Variable<DateTime>(ndviUpdatedAt.value);
-    }
-    if (synced.present) {
-      map['synced'] = Variable<bool>(synced.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (etag.present) {
-      map['etag'] = Variable<String>(etag.value);
-    }
-    if (serverUpdatedAt.present) {
-      map['server_updated_at'] = Variable<DateTime>(serverUpdatedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('FieldsCompanion(')
-          ..write('id: $id, ')
-          ..write('remoteId: $remoteId, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('farmId: $farmId, ')
-          ..write('name: $name, ')
-          ..write('cropType: $cropType, ')
-          ..write('boundary: $boundary, ')
-          ..write('centroid: $centroid, ')
-          ..write('areaHectares: $areaHectares, ')
-          ..write('status: $status, ')
-          ..write('ndviCurrent: $ndviCurrent, ')
-          ..write('ndviUpdatedAt: $ndviUpdatedAt, ')
-          ..write('synced: $synced, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('etag: $etag, ')
-          ..write('serverUpdatedAt: $serverUpdatedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $SyncLogsTable extends SyncLogs with TableInfo<$SyncLogsTable, SyncLog> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $SyncLogsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _typeMeta = const VerificationMeta('type');
-  @override
-  late final GeneratedColumn<String> type = GeneratedColumn<String>(
-      'type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _statusMeta = const VerificationMeta('status');
-  @override
-  late final GeneratedColumn<String> status = GeneratedColumn<String>(
-      'status', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _messageMeta =
-      const VerificationMeta('message');
-  @override
-  late final GeneratedColumn<String> message = GeneratedColumn<String>(
-      'message', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _timestampMeta =
-      const VerificationMeta('timestamp');
-  @override
-  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
-      'timestamp', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns => [id, type, status, message, timestamp];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'sync_logs';
-  @override
-  VerificationContext validateIntegrity(Insertable<SyncLog> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('type')) {
-      context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
-    } else if (isInserting) {
-      context.missing(_typeMeta);
-    }
-    if (data.containsKey('status')) {
-      context.handle(_statusMeta,
-          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
-    } else if (isInserting) {
-      context.missing(_statusMeta);
-    }
-    if (data.containsKey('message')) {
-      context.handle(_messageMeta,
-          message.isAcceptableOrUnknown(data['message']!, _messageMeta));
-    }
-    if (data.containsKey('timestamp')) {
-      context.handle(_timestampMeta,
-          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
-    } else if (isInserting) {
-      context.missing(_timestampMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  SyncLog map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SyncLog(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      type: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
-      status: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
-      message: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}message']),
-      timestamp: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
-    );
-  }
-
-  @override
-  $SyncLogsTable createAlias(String alias) {
-    return $SyncLogsTable(attachedDatabase, alias);
-  }
-}
+// ============================================================
+// SyncLogs Table
+// ============================================================
 
 class SyncLog extends DataClass implements Insertable<SyncLog> {
   final int id;
@@ -2222,12 +1196,15 @@ class SyncLog extends DataClass implements Insertable<SyncLog> {
   final String status;
   final String? message;
   final DateTime timestamp;
-  const SyncLog(
-      {required this.id,
-      required this.type,
-      required this.status,
-      this.message,
-      required this.timestamp});
+
+  const SyncLog({
+    required this.id,
+    required this.type,
+    required this.status,
+    this.message,
+    required this.timestamp,
+  });
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2246,15 +1223,12 @@ class SyncLog extends DataClass implements Insertable<SyncLog> {
       id: Value(id),
       type: Value(type),
       status: Value(status),
-      message: message == null && nullToAbsent
-          ? const Value.absent()
-          : Value(message),
+      message: message == null && nullToAbsent ? const Value.absent() : Value(message),
       timestamp: Value(timestamp),
     );
   }
 
-  factory SyncLog.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory SyncLog.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SyncLog(
       id: serializer.fromJson<int>(json['id']),
@@ -2264,6 +1238,7 @@ class SyncLog extends DataClass implements Insertable<SyncLog> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
     );
   }
+
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -2276,12 +1251,13 @@ class SyncLog extends DataClass implements Insertable<SyncLog> {
     };
   }
 
-  SyncLog copyWith(
-          {int? id,
-          String? type,
-          String? status,
-          Value<String?> message = const Value.absent(),
-          DateTime? timestamp}) =>
+  SyncLog copyWith({
+    int? id,
+    String? type,
+    String? status,
+    Value<String?> message = const Value.absent(),
+    DateTime? timestamp,
+  }) =>
       SyncLog(
         id: id ?? this.id,
         type: type ?? this.type,
@@ -2289,39 +1265,24 @@ class SyncLog extends DataClass implements Insertable<SyncLog> {
         message: message.present ? message.value : this.message,
         timestamp: timestamp ?? this.timestamp,
       );
-  SyncLog copyWithCompanion(SyncLogsCompanion data) {
-    return SyncLog(
-      id: data.id.present ? data.id.value : this.id,
-      type: data.type.present ? data.type.value : this.type,
-      status: data.status.present ? data.status.value : this.status,
-      message: data.message.present ? data.message.value : this.message,
-      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
-    );
-  }
 
   @override
   String toString() {
-    return (StringBuffer('SyncLog(')
-          ..write('id: $id, ')
-          ..write('type: $type, ')
-          ..write('status: $status, ')
-          ..write('message: $message, ')
-          ..write('timestamp: $timestamp')
-          ..write(')'))
-        .toString();
+    return 'SyncLog(id: $id, type: $type, status: $status)';
   }
 
   @override
   int get hashCode => Object.hash(id, type, status, message, timestamp);
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SyncLog &&
-          other.id == this.id &&
-          other.type == this.type &&
-          other.status == this.status &&
-          other.message == this.message &&
-          other.timestamp == this.timestamp);
+          other.id == id &&
+          other.type == type &&
+          other.status == status &&
+          other.message == message &&
+          other.timestamp == timestamp);
 }
 
 class SyncLogsCompanion extends UpdateCompanion<SyncLog> {
@@ -2330,6 +1291,7 @@ class SyncLogsCompanion extends UpdateCompanion<SyncLog> {
   final Value<String> status;
   final Value<String?> message;
   final Value<DateTime> timestamp;
+
   const SyncLogsCompanion({
     this.id = const Value.absent(),
     this.type = const Value.absent(),
@@ -2337,6 +1299,7 @@ class SyncLogsCompanion extends UpdateCompanion<SyncLog> {
     this.message = const Value.absent(),
     this.timestamp = const Value.absent(),
   });
+
   SyncLogsCompanion.insert({
     this.id = const Value.absent(),
     required String type,
@@ -2346,6 +1309,7 @@ class SyncLogsCompanion extends UpdateCompanion<SyncLog> {
   })  : type = Value(type),
         status = Value(status),
         timestamp = Value(timestamp);
+
   static Insertable<SyncLog> custom({
     Expression<int>? id,
     Expression<String>? type,
@@ -2362,12 +1326,13 @@ class SyncLogsCompanion extends UpdateCompanion<SyncLog> {
     });
   }
 
-  SyncLogsCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? type,
-      Value<String>? status,
-      Value<String?>? message,
-      Value<DateTime>? timestamp}) {
+  SyncLogsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? type,
+    Value<String>? status,
+    Value<String?>? message,
+    Value<DateTime>? timestamp,
+  }) {
     return SyncLogsCompanion(
       id: id ?? this.id,
       type: type ?? this.type,
@@ -2380,183 +1345,109 @@ class SyncLogsCompanion extends UpdateCompanion<SyncLog> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (type.present) {
-      map['type'] = Variable<String>(type.value);
-    }
-    if (status.present) {
-      map['status'] = Variable<String>(status.value);
-    }
-    if (message.present) {
-      map['message'] = Variable<String>(message.value);
-    }
-    if (timestamp.present) {
-      map['timestamp'] = Variable<DateTime>(timestamp.value);
-    }
+    if (id.present) map['id'] = Variable<int>(id.value);
+    if (type.present) map['type'] = Variable<String>(type.value);
+    if (status.present) map['status'] = Variable<String>(status.value);
+    if (message.present) map['message'] = Variable<String>(message.value);
+    if (timestamp.present) map['timestamp'] = Variable<DateTime>(timestamp.value);
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('SyncLogsCompanion(')
-          ..write('id: $id, ')
-          ..write('type: $type, ')
-          ..write('status: $status, ')
-          ..write('message: $message, ')
-          ..write('timestamp: $timestamp')
-          ..write(')'))
-        .toString();
+    return 'SyncLogsCompanion(id: $id, type: $type, status: $status, message: $message, timestamp: $timestamp)';
   }
 }
 
-class $SyncEventsTable extends SyncEvents
-    with TableInfo<$SyncEventsTable, SyncEvent> {
+class $SyncLogsTable extends SyncLogs with TableInfo<$SyncLogsTable, SyncLog> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $SyncEventsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
+
+  $SyncLogsTable(this.attachedDatabase, [this._alias]);
+
+  static const VerificationMeta _idMeta = VerificationMeta('id');
   @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _tenantIdMeta =
-      const VerificationMeta('tenantId');
+  late final GeneratedColumn<int> id = GeneratedColumn<int>('id', aliasedName, false, hasAutoIncrement: true, type: DriftSqlType.int, requiredDuringInsert: false, defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+
+  static const VerificationMeta _typeMeta = VerificationMeta('type');
   @override
-  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>(
-      'tenant_id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  late final GeneratedColumn<String> type = GeneratedColumn<String>('type', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _statusMeta = VerificationMeta('status');
   @override
-  late final GeneratedColumn<String> type = GeneratedColumn<String>(
-      'type', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _entityTypeMeta =
-      const VerificationMeta('entityType');
+  late final GeneratedColumn<String> status = GeneratedColumn<String>('status', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _messageMeta = VerificationMeta('message');
   @override
-  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
-      'entity_type', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _entityIdMeta =
-      const VerificationMeta('entityId');
+  late final GeneratedColumn<String> message = GeneratedColumn<String>('message', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _timestampMeta = VerificationMeta('timestamp');
   @override
-  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
-      'entity_id', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _messageMeta =
-      const VerificationMeta('message');
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>('timestamp', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: true);
+
   @override
-  late final GeneratedColumn<String> message = GeneratedColumn<String>(
-      'message', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _isReadMeta = const VerificationMeta('isRead');
-  @override
-  late final GeneratedColumn<bool> isRead = GeneratedColumn<bool>(
-      'is_read', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_read" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, tenantId, type, entityType, entityId, message, isRead, createdAt];
+  List<GeneratedColumn> get $columns => [id, type, status, message, timestamp];
+
   @override
   String get aliasedName => _alias ?? actualTableName;
+
   @override
   String get actualTableName => $name;
-  static const String $name = 'sync_events';
+  static const String $name = 'sync_logs';
+
   @override
-  VerificationContext validateIntegrity(Insertable<SyncEvent> instance,
-      {bool isInserting = false}) {
+  VerificationContext validateIntegrity(Insertable<SyncLog> instance, {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('tenant_id')) {
-      context.handle(_tenantIdMeta,
-          tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
-    } else if (isInserting) {
-      context.missing(_tenantIdMeta);
-    }
     if (data.containsKey('type')) {
-      context.handle(
-          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+      context.handle(_typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
     } else if (isInserting) {
       context.missing(_typeMeta);
     }
-    if (data.containsKey('entity_type')) {
-      context.handle(
-          _entityTypeMeta,
-          entityType.isAcceptableOrUnknown(
-              data['entity_type']!, _entityTypeMeta));
-    }
-    if (data.containsKey('entity_id')) {
-      context.handle(_entityIdMeta,
-          entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta, status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    } else if (isInserting) {
+      context.missing(_statusMeta);
     }
     if (data.containsKey('message')) {
-      context.handle(_messageMeta,
-          message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+      context.handle(_messageMeta, message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta, timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
     } else if (isInserting) {
-      context.missing(_messageMeta);
-    }
-    if (data.containsKey('is_read')) {
-      context.handle(_isReadMeta,
-          isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta));
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+      context.missing(_timestampMeta);
     }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+
   @override
-  SyncEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+  SyncLog map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SyncEvent(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      tenantId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
-      type: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
-      entityType: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}entity_type']),
-      entityId: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}entity_id']),
-      message: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}message'])!,
-      isRead: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_read'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    return SyncLog(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      type: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      status: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      message: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}message']),
+      timestamp: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
     );
   }
 
   @override
-  $SyncEventsTable createAlias(String alias) {
-    return $SyncEventsTable(attachedDatabase, alias);
+  $SyncLogsTable createAlias(String alias) {
+    return $SyncLogsTable(attachedDatabase, alias);
   }
 }
+
+// ============================================================
+// SyncEvents Table
+// ============================================================
 
 class SyncEvent extends DataClass implements Insertable<SyncEvent> {
   final int id;
@@ -2567,15 +1458,18 @@ class SyncEvent extends DataClass implements Insertable<SyncEvent> {
   final String message;
   final bool isRead;
   final DateTime createdAt;
-  const SyncEvent(
-      {required this.id,
-      required this.tenantId,
-      required this.type,
-      this.entityType,
-      this.entityId,
-      required this.message,
-      required this.isRead,
-      required this.createdAt});
+
+  const SyncEvent({
+    required this.id,
+    required this.tenantId,
+    required this.type,
+    this.entityType,
+    this.entityId,
+    required this.message,
+    required this.isRead,
+    required this.createdAt,
+  });
+
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2599,20 +1493,15 @@ class SyncEvent extends DataClass implements Insertable<SyncEvent> {
       id: Value(id),
       tenantId: Value(tenantId),
       type: Value(type),
-      entityType: entityType == null && nullToAbsent
-          ? const Value.absent()
-          : Value(entityType),
-      entityId: entityId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(entityId),
+      entityType: entityType == null && nullToAbsent ? const Value.absent() : Value(entityType),
+      entityId: entityId == null && nullToAbsent ? const Value.absent() : Value(entityId),
       message: Value(message),
       isRead: Value(isRead),
       createdAt: Value(createdAt),
     );
   }
 
-  factory SyncEvent.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
+  factory SyncEvent.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SyncEvent(
       id: serializer.fromJson<int>(json['id']),
@@ -2625,6 +1514,7 @@ class SyncEvent extends DataClass implements Insertable<SyncEvent> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
+
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
@@ -2640,15 +1530,16 @@ class SyncEvent extends DataClass implements Insertable<SyncEvent> {
     };
   }
 
-  SyncEvent copyWith(
-          {int? id,
-          String? tenantId,
-          String? type,
-          Value<String?> entityType = const Value.absent(),
-          Value<String?> entityId = const Value.absent(),
-          String? message,
-          bool? isRead,
-          DateTime? createdAt}) =>
+  SyncEvent copyWith({
+    int? id,
+    String? tenantId,
+    String? type,
+    Value<String?> entityType = const Value.absent(),
+    Value<String?> entityId = const Value.absent(),
+    String? message,
+    bool? isRead,
+    DateTime? createdAt,
+  }) =>
       SyncEvent(
         id: id ?? this.id,
         tenantId: tenantId ?? this.tenantId,
@@ -2659,50 +1550,27 @@ class SyncEvent extends DataClass implements Insertable<SyncEvent> {
         isRead: isRead ?? this.isRead,
         createdAt: createdAt ?? this.createdAt,
       );
-  SyncEvent copyWithCompanion(SyncEventsCompanion data) {
-    return SyncEvent(
-      id: data.id.present ? data.id.value : this.id,
-      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
-      type: data.type.present ? data.type.value : this.type,
-      entityType:
-          data.entityType.present ? data.entityType.value : this.entityType,
-      entityId: data.entityId.present ? data.entityId.value : this.entityId,
-      message: data.message.present ? data.message.value : this.message,
-      isRead: data.isRead.present ? data.isRead.value : this.isRead,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-    );
-  }
 
   @override
   String toString() {
-    return (StringBuffer('SyncEvent(')
-          ..write('id: $id, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('type: $type, ')
-          ..write('entityType: $entityType, ')
-          ..write('entityId: $entityId, ')
-          ..write('message: $message, ')
-          ..write('isRead: $isRead, ')
-          ..write('createdAt: $createdAt')
-          ..write(')'))
-        .toString();
+    return 'SyncEvent(id: $id, tenantId: $tenantId, type: $type, entityType: $entityType, entityId: $entityId, message: $message, isRead: $isRead, createdAt: $createdAt)';
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, tenantId, type, entityType, entityId, message, isRead, createdAt);
+  int get hashCode => Object.hash(id, tenantId, type, entityType, entityId, message, isRead, createdAt);
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SyncEvent &&
-          other.id == this.id &&
-          other.tenantId == this.tenantId &&
-          other.type == this.type &&
-          other.entityType == this.entityType &&
-          other.entityId == this.entityId &&
-          other.message == this.message &&
-          other.isRead == this.isRead &&
-          other.createdAt == this.createdAt);
+          other.id == id &&
+          other.tenantId == tenantId &&
+          other.type == type &&
+          other.entityType == entityType &&
+          other.entityId == entityId &&
+          other.message == message &&
+          other.isRead == isRead &&
+          other.createdAt == createdAt);
 }
 
 class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
@@ -2714,6 +1582,7 @@ class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
   final Value<String> message;
   final Value<bool> isRead;
   final Value<DateTime> createdAt;
+
   const SyncEventsCompanion({
     this.id = const Value.absent(),
     this.tenantId = const Value.absent(),
@@ -2724,6 +1593,7 @@ class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
     this.isRead = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
+
   SyncEventsCompanion.insert({
     this.id = const Value.absent(),
     required String tenantId,
@@ -2736,6 +1606,7 @@ class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
   })  : tenantId = Value(tenantId),
         type = Value(type),
         message = Value(message);
+
   static Insertable<SyncEvent> custom({
     Expression<int>? id,
     Expression<String>? tenantId,
@@ -2758,15 +1629,16 @@ class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
     });
   }
 
-  SyncEventsCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? tenantId,
-      Value<String>? type,
-      Value<String?>? entityType,
-      Value<String?>? entityId,
-      Value<String>? message,
-      Value<bool>? isRead,
-      Value<DateTime>? createdAt}) {
+  SyncEventsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? tenantId,
+    Value<String>? type,
+    Value<String?>? entityType,
+    Value<String?>? entityId,
+    Value<String>? message,
+    Value<bool>? isRead,
+    Value<DateTime>? createdAt,
+  }) {
     return SyncEventsCompanion(
       id: id ?? this.id,
       tenantId: tenantId ?? this.tenantId,
@@ -2782,1374 +1654,149 @@ class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (tenantId.present) {
-      map['tenant_id'] = Variable<String>(tenantId.value);
-    }
-    if (type.present) {
-      map['type'] = Variable<String>(type.value);
-    }
-    if (entityType.present) {
-      map['entity_type'] = Variable<String>(entityType.value);
-    }
-    if (entityId.present) {
-      map['entity_id'] = Variable<String>(entityId.value);
-    }
-    if (message.present) {
-      map['message'] = Variable<String>(message.value);
-    }
-    if (isRead.present) {
-      map['is_read'] = Variable<bool>(isRead.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
+    if (id.present) map['id'] = Variable<int>(id.value);
+    if (tenantId.present) map['tenant_id'] = Variable<String>(tenantId.value);
+    if (type.present) map['type'] = Variable<String>(type.value);
+    if (entityType.present) map['entity_type'] = Variable<String>(entityType.value);
+    if (entityId.present) map['entity_id'] = Variable<String>(entityId.value);
+    if (message.present) map['message'] = Variable<String>(message.value);
+    if (isRead.present) map['is_read'] = Variable<bool>(isRead.value);
+    if (createdAt.present) map['created_at'] = Variable<DateTime>(createdAt.value);
     return map;
   }
 
   @override
   String toString() {
-    return (StringBuffer('SyncEventsCompanion(')
-          ..write('id: $id, ')
-          ..write('tenantId: $tenantId, ')
-          ..write('type: $type, ')
-          ..write('entityType: $entityType, ')
-          ..write('entityId: $entityId, ')
-          ..write('message: $message, ')
-          ..write('isRead: $isRead, ')
-          ..write('createdAt: $createdAt')
-          ..write(')'))
-        .toString();
+    return 'SyncEventsCompanion(id: $id, tenantId: $tenantId, type: $type, entityType: $entityType, entityId: $entityId, message: $message, isRead: $isRead, createdAt: $createdAt)';
   }
 }
 
+class $SyncEventsTable extends SyncEvents with TableInfo<$SyncEventsTable, SyncEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+
+  $SyncEventsTable(this.attachedDatabase, [this._alias]);
+
+  static const VerificationMeta _idMeta = VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>('id', aliasedName, false, hasAutoIncrement: true, type: DriftSqlType.int, requiredDuringInsert: false, defaultConstraints: GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+
+  static const VerificationMeta _tenantIdMeta = VerificationMeta('tenantId');
+  @override
+  late final GeneratedColumn<String> tenantId = GeneratedColumn<String>('tenant_id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _typeMeta = VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>('type', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _entityTypeMeta = VerificationMeta('entityType');
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>('entity_type', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _entityIdMeta = VerificationMeta('entityId');
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>('entity_id', aliasedName, true, type: DriftSqlType.string, requiredDuringInsert: false);
+
+  static const VerificationMeta _messageMeta = VerificationMeta('message');
+  @override
+  late final GeneratedColumn<String> message = GeneratedColumn<String>('message', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+
+  static const VerificationMeta _isReadMeta = VerificationMeta('isRead');
+  @override
+  late final GeneratedColumn<bool> isRead = GeneratedColumn<bool>('is_read', aliasedName, false, type: DriftSqlType.bool, requiredDuringInsert: false, defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("is_read" IN (0, 1))'), defaultValue: const Constant(false));
+
+  static const VerificationMeta _createdAtMeta = VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>('created_at', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: false, defaultValue: currentDateAndTime);
+
+  @override
+  List<GeneratedColumn> get $columns => [id, tenantId, type, entityType, entityId, message, isRead, createdAt];
+
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_events';
+
+  @override
+  VerificationContext validateIntegrity(Insertable<SyncEvent> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('tenant_id')) {
+      context.handle(_tenantIdMeta, tenantId.isAcceptableOrUnknown(data['tenant_id']!, _tenantIdMeta));
+    } else if (isInserting) {
+      context.missing(_tenantIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(_typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(_entityTypeMeta, entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta));
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(_entityIdMeta, entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    }
+    if (data.containsKey('message')) {
+      context.handle(_messageMeta, message.isAcceptableOrUnknown(data['message']!, _messageMeta));
+    } else if (isInserting) {
+      context.missing(_messageMeta);
+    }
+    if (data.containsKey('is_read')) {
+      context.handle(_isReadMeta, isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+
+  @override
+  SyncEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncEvent(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      tenantId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}tenant_id'])!,
+      type: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      entityType: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}entity_type']),
+      entityId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}entity_id']),
+      message: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}message'])!,
+      isRead: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}is_read'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $SyncEventsTable createAlias(String alias) {
+    return $SyncEventsTable(attachedDatabase, alias);
+  }
+}
+
+// ============================================================
+// Database Mixin
+// ============================================================
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
-  $AppDatabaseManager get managers => $AppDatabaseManager(this);
+
   late final $TasksTable tasks = $TasksTable(this);
   late final $OutboxTable outbox = $OutboxTable(this);
   late final $FieldsTable fields = $FieldsTable(this);
   late final $SyncLogsTable syncLogs = $SyncLogsTable(this);
   late final $SyncEventsTable syncEvents = $SyncEventsTable(this);
+
   @override
-  Iterable<TableInfo<Table, Object?>> get allTables =>
-      allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+  Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
+
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [tasks, outbox, fields, syncLogs, syncEvents];
-}
-
-typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
-  required String id,
-  required String tenantId,
-  required String fieldId,
-  Value<String?> farmId,
-  required String title,
-  Value<String?> description,
-  Value<String> status,
-  Value<String> priority,
-  Value<DateTime?> dueDate,
-  Value<String?> assignedTo,
-  Value<String?> evidenceNotes,
-  Value<String?> evidencePhotos,
-  required DateTime createdAt,
-  required DateTime updatedAt,
-  Value<bool> synced,
-  Value<int> rowid,
-});
-typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
-  Value<String> id,
-  Value<String> tenantId,
-  Value<String> fieldId,
-  Value<String?> farmId,
-  Value<String> title,
-  Value<String?> description,
-  Value<String> status,
-  Value<String> priority,
-  Value<DateTime?> dueDate,
-  Value<String?> assignedTo,
-  Value<String?> evidenceNotes,
-  Value<String?> evidencePhotos,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
-  Value<bool> synced,
-  Value<int> rowid,
-});
-
-class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
-  $$TasksTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get fieldId => $composableBuilder(
-      column: $table.fieldId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get farmId => $composableBuilder(
-      column: $table.farmId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get title => $composableBuilder(
-      column: $table.title, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get priority => $composableBuilder(
-      column: $table.priority, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get dueDate => $composableBuilder(
-      column: $table.dueDate, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get assignedTo => $composableBuilder(
-      column: $table.assignedTo, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get evidenceNotes => $composableBuilder(
-      column: $table.evidenceNotes, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get evidencePhotos => $composableBuilder(
-      column: $table.evidencePhotos,
-      builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get synced => $composableBuilder(
-      column: $table.synced, builder: (column) => ColumnFilters(column));
-}
-
-class $$TasksTableOrderingComposer
-    extends Composer<_$AppDatabase, $TasksTable> {
-  $$TasksTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get fieldId => $composableBuilder(
-      column: $table.fieldId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get farmId => $composableBuilder(
-      column: $table.farmId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get title => $composableBuilder(
-      column: $table.title, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get priority => $composableBuilder(
-      column: $table.priority, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get dueDate => $composableBuilder(
-      column: $table.dueDate, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get assignedTo => $composableBuilder(
-      column: $table.assignedTo, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get evidenceNotes => $composableBuilder(
-      column: $table.evidenceNotes,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get evidencePhotos => $composableBuilder(
-      column: $table.evidencePhotos,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get synced => $composableBuilder(
-      column: $table.synced, builder: (column) => ColumnOrderings(column));
-}
-
-class $$TasksTableAnnotationComposer
-    extends Composer<_$AppDatabase, $TasksTable> {
-  $$TasksTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get tenantId =>
-      $composableBuilder(column: $table.tenantId, builder: (column) => column);
-
-  GeneratedColumn<String> get fieldId =>
-      $composableBuilder(column: $table.fieldId, builder: (column) => column);
-
-  GeneratedColumn<String> get farmId =>
-      $composableBuilder(column: $table.farmId, builder: (column) => column);
-
-  GeneratedColumn<String> get title =>
-      $composableBuilder(column: $table.title, builder: (column) => column);
-
-  GeneratedColumn<String> get description => $composableBuilder(
-      column: $table.description, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<String> get priority =>
-      $composableBuilder(column: $table.priority, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get dueDate =>
-      $composableBuilder(column: $table.dueDate, builder: (column) => column);
-
-  GeneratedColumn<String> get assignedTo => $composableBuilder(
-      column: $table.assignedTo, builder: (column) => column);
-
-  GeneratedColumn<String> get evidenceNotes => $composableBuilder(
-      column: $table.evidenceNotes, builder: (column) => column);
-
-  GeneratedColumn<String> get evidencePhotos => $composableBuilder(
-      column: $table.evidencePhotos, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get synced =>
-      $composableBuilder(column: $table.synced, builder: (column) => column);
-}
-
-class $$TasksTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TasksTable,
-    Task,
-    $$TasksTableFilterComposer,
-    $$TasksTableOrderingComposer,
-    $$TasksTableAnnotationComposer,
-    $$TasksTableCreateCompanionBuilder,
-    $$TasksTableUpdateCompanionBuilder,
-    (Task, BaseReferences<_$AppDatabase, $TasksTable, Task>),
-    Task,
-    PrefetchHooks Function()> {
-  $$TasksTableTableManager(_$AppDatabase db, $TasksTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$TasksTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$TasksTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$TasksTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String> tenantId = const Value.absent(),
-            Value<String> fieldId = const Value.absent(),
-            Value<String?> farmId = const Value.absent(),
-            Value<String> title = const Value.absent(),
-            Value<String?> description = const Value.absent(),
-            Value<String> status = const Value.absent(),
-            Value<String> priority = const Value.absent(),
-            Value<DateTime?> dueDate = const Value.absent(),
-            Value<String?> assignedTo = const Value.absent(),
-            Value<String?> evidenceNotes = const Value.absent(),
-            Value<String?> evidencePhotos = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
-            Value<bool> synced = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TasksCompanion(
-            id: id,
-            tenantId: tenantId,
-            fieldId: fieldId,
-            farmId: farmId,
-            title: title,
-            description: description,
-            status: status,
-            priority: priority,
-            dueDate: dueDate,
-            assignedTo: assignedTo,
-            evidenceNotes: evidenceNotes,
-            evidencePhotos: evidencePhotos,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            synced: synced,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String id,
-            required String tenantId,
-            required String fieldId,
-            Value<String?> farmId = const Value.absent(),
-            required String title,
-            Value<String?> description = const Value.absent(),
-            Value<String> status = const Value.absent(),
-            Value<String> priority = const Value.absent(),
-            Value<DateTime?> dueDate = const Value.absent(),
-            Value<String?> assignedTo = const Value.absent(),
-            Value<String?> evidenceNotes = const Value.absent(),
-            Value<String?> evidencePhotos = const Value.absent(),
-            required DateTime createdAt,
-            required DateTime updatedAt,
-            Value<bool> synced = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TasksCompanion.insert(
-            id: id,
-            tenantId: tenantId,
-            fieldId: fieldId,
-            farmId: farmId,
-            title: title,
-            description: description,
-            status: status,
-            priority: priority,
-            dueDate: dueDate,
-            assignedTo: assignedTo,
-            evidenceNotes: evidenceNotes,
-            evidencePhotos: evidencePhotos,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            synced: synced,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$TasksTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $TasksTable,
-    Task,
-    $$TasksTableFilterComposer,
-    $$TasksTableOrderingComposer,
-    $$TasksTableAnnotationComposer,
-    $$TasksTableCreateCompanionBuilder,
-    $$TasksTableUpdateCompanionBuilder,
-    (Task, BaseReferences<_$AppDatabase, $TasksTable, Task>),
-    Task,
-    PrefetchHooks Function()>;
-typedef $$OutboxTableCreateCompanionBuilder = OutboxCompanion Function({
-  Value<int> id,
-  required String tenantId,
-  required String entityType,
-  required String entityId,
-  required String apiEndpoint,
-  Value<String> method,
-  required String payload,
-  Value<String?> ifMatch,
-  Value<int> retryCount,
-  Value<bool> isSynced,
-  Value<DateTime> createdAt,
-});
-typedef $$OutboxTableUpdateCompanionBuilder = OutboxCompanion Function({
-  Value<int> id,
-  Value<String> tenantId,
-  Value<String> entityType,
-  Value<String> entityId,
-  Value<String> apiEndpoint,
-  Value<String> method,
-  Value<String> payload,
-  Value<String?> ifMatch,
-  Value<int> retryCount,
-  Value<bool> isSynced,
-  Value<DateTime> createdAt,
-});
-
-class $$OutboxTableFilterComposer
-    extends Composer<_$AppDatabase, $OutboxTable> {
-  $$OutboxTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entityType => $composableBuilder(
-      column: $table.entityType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entityId => $composableBuilder(
-      column: $table.entityId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get apiEndpoint => $composableBuilder(
-      column: $table.apiEndpoint, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get method => $composableBuilder(
-      column: $table.method, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get payload => $composableBuilder(
-      column: $table.payload, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get ifMatch => $composableBuilder(
-      column: $table.ifMatch, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get retryCount => $composableBuilder(
-      column: $table.retryCount, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isSynced => $composableBuilder(
-      column: $table.isSynced, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-}
-
-class $$OutboxTableOrderingComposer
-    extends Composer<_$AppDatabase, $OutboxTable> {
-  $$OutboxTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entityType => $composableBuilder(
-      column: $table.entityType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entityId => $composableBuilder(
-      column: $table.entityId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get apiEndpoint => $composableBuilder(
-      column: $table.apiEndpoint, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get method => $composableBuilder(
-      column: $table.method, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get payload => $composableBuilder(
-      column: $table.payload, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get ifMatch => $composableBuilder(
-      column: $table.ifMatch, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get retryCount => $composableBuilder(
-      column: $table.retryCount, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isSynced => $composableBuilder(
-      column: $table.isSynced, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-}
-
-class $$OutboxTableAnnotationComposer
-    extends Composer<_$AppDatabase, $OutboxTable> {
-  $$OutboxTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get tenantId =>
-      $composableBuilder(column: $table.tenantId, builder: (column) => column);
-
-  GeneratedColumn<String> get entityType => $composableBuilder(
-      column: $table.entityType, builder: (column) => column);
-
-  GeneratedColumn<String> get entityId =>
-      $composableBuilder(column: $table.entityId, builder: (column) => column);
-
-  GeneratedColumn<String> get apiEndpoint => $composableBuilder(
-      column: $table.apiEndpoint, builder: (column) => column);
-
-  GeneratedColumn<String> get method =>
-      $composableBuilder(column: $table.method, builder: (column) => column);
-
-  GeneratedColumn<String> get payload =>
-      $composableBuilder(column: $table.payload, builder: (column) => column);
-
-  GeneratedColumn<String> get ifMatch =>
-      $composableBuilder(column: $table.ifMatch, builder: (column) => column);
-
-  GeneratedColumn<int> get retryCount => $composableBuilder(
-      column: $table.retryCount, builder: (column) => column);
-
-  GeneratedColumn<bool> get isSynced =>
-      $composableBuilder(column: $table.isSynced, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-}
-
-class $$OutboxTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $OutboxTable,
-    OutboxData,
-    $$OutboxTableFilterComposer,
-    $$OutboxTableOrderingComposer,
-    $$OutboxTableAnnotationComposer,
-    $$OutboxTableCreateCompanionBuilder,
-    $$OutboxTableUpdateCompanionBuilder,
-    (OutboxData, BaseReferences<_$AppDatabase, $OutboxTable, OutboxData>),
-    OutboxData,
-    PrefetchHooks Function()> {
-  $$OutboxTableTableManager(_$AppDatabase db, $OutboxTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$OutboxTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$OutboxTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$OutboxTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> tenantId = const Value.absent(),
-            Value<String> entityType = const Value.absent(),
-            Value<String> entityId = const Value.absent(),
-            Value<String> apiEndpoint = const Value.absent(),
-            Value<String> method = const Value.absent(),
-            Value<String> payload = const Value.absent(),
-            Value<String?> ifMatch = const Value.absent(),
-            Value<int> retryCount = const Value.absent(),
-            Value<bool> isSynced = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-          }) =>
-              OutboxCompanion(
-            id: id,
-            tenantId: tenantId,
-            entityType: entityType,
-            entityId: entityId,
-            apiEndpoint: apiEndpoint,
-            method: method,
-            payload: payload,
-            ifMatch: ifMatch,
-            retryCount: retryCount,
-            isSynced: isSynced,
-            createdAt: createdAt,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String tenantId,
-            required String entityType,
-            required String entityId,
-            required String apiEndpoint,
-            Value<String> method = const Value.absent(),
-            required String payload,
-            Value<String?> ifMatch = const Value.absent(),
-            Value<int> retryCount = const Value.absent(),
-            Value<bool> isSynced = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-          }) =>
-              OutboxCompanion.insert(
-            id: id,
-            tenantId: tenantId,
-            entityType: entityType,
-            entityId: entityId,
-            apiEndpoint: apiEndpoint,
-            method: method,
-            payload: payload,
-            ifMatch: ifMatch,
-            retryCount: retryCount,
-            isSynced: isSynced,
-            createdAt: createdAt,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$OutboxTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $OutboxTable,
-    OutboxData,
-    $$OutboxTableFilterComposer,
-    $$OutboxTableOrderingComposer,
-    $$OutboxTableAnnotationComposer,
-    $$OutboxTableCreateCompanionBuilder,
-    $$OutboxTableUpdateCompanionBuilder,
-    (OutboxData, BaseReferences<_$AppDatabase, $OutboxTable, OutboxData>),
-    OutboxData,
-    PrefetchHooks Function()>;
-typedef $$FieldsTableCreateCompanionBuilder = FieldsCompanion Function({
-  required String id,
-  Value<String?> remoteId,
-  required String tenantId,
-  Value<String?> farmId,
-  required String name,
-  Value<String?> cropType,
-  required List<LatLng> boundary,
-  Value<LatLng?> centroid,
-  required double areaHectares,
-  Value<String?> status,
-  Value<double?> ndviCurrent,
-  Value<DateTime?> ndviUpdatedAt,
-  Value<bool> synced,
-  Value<bool> isDeleted,
-  required DateTime createdAt,
-  required DateTime updatedAt,
-  Value<String?> etag,
-  Value<DateTime?> serverUpdatedAt,
-  Value<int> rowid,
-});
-typedef $$FieldsTableUpdateCompanionBuilder = FieldsCompanion Function({
-  Value<String> id,
-  Value<String?> remoteId,
-  Value<String> tenantId,
-  Value<String?> farmId,
-  Value<String> name,
-  Value<String?> cropType,
-  Value<List<LatLng>> boundary,
-  Value<LatLng?> centroid,
-  Value<double> areaHectares,
-  Value<String?> status,
-  Value<double?> ndviCurrent,
-  Value<DateTime?> ndviUpdatedAt,
-  Value<bool> synced,
-  Value<bool> isDeleted,
-  Value<DateTime> createdAt,
-  Value<DateTime> updatedAt,
-  Value<String?> etag,
-  Value<DateTime?> serverUpdatedAt,
-  Value<int> rowid,
-});
-
-class $$FieldsTableFilterComposer
-    extends Composer<_$AppDatabase, $FieldsTable> {
-  $$FieldsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get remoteId => $composableBuilder(
-      column: $table.remoteId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get farmId => $composableBuilder(
-      column: $table.farmId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get cropType => $composableBuilder(
-      column: $table.cropType, builder: (column) => ColumnFilters(column));
-
-  ColumnWithTypeConverterFilters<List<LatLng>, List<LatLng>, String>
-      get boundary => $composableBuilder(
-          column: $table.boundary,
-          builder: (column) => ColumnWithTypeConverterFilters(column));
-
-  ColumnWithTypeConverterFilters<LatLng?, LatLng, String> get centroid =>
-      $composableBuilder(
-          column: $table.centroid,
-          builder: (column) => ColumnWithTypeConverterFilters(column));
-
-  ColumnFilters<double> get areaHectares => $composableBuilder(
-      column: $table.areaHectares, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<double> get ndviCurrent => $composableBuilder(
-      column: $table.ndviCurrent, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get ndviUpdatedAt => $composableBuilder(
-      column: $table.ndviUpdatedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get synced => $composableBuilder(
-      column: $table.synced, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isDeleted => $composableBuilder(
-      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get etag => $composableBuilder(
-      column: $table.etag, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get serverUpdatedAt => $composableBuilder(
-      column: $table.serverUpdatedAt,
-      builder: (column) => ColumnFilters(column));
-}
-
-class $$FieldsTableOrderingComposer
-    extends Composer<_$AppDatabase, $FieldsTable> {
-  $$FieldsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get remoteId => $composableBuilder(
-      column: $table.remoteId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get farmId => $composableBuilder(
-      column: $table.farmId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get name => $composableBuilder(
-      column: $table.name, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get cropType => $composableBuilder(
-      column: $table.cropType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get boundary => $composableBuilder(
-      column: $table.boundary, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get centroid => $composableBuilder(
-      column: $table.centroid, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get areaHectares => $composableBuilder(
-      column: $table.areaHectares,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<double> get ndviCurrent => $composableBuilder(
-      column: $table.ndviCurrent, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get ndviUpdatedAt => $composableBuilder(
-      column: $table.ndviUpdatedAt,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get synced => $composableBuilder(
-      column: $table.synced, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isDeleted => $composableBuilder(
-      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get etag => $composableBuilder(
-      column: $table.etag, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get serverUpdatedAt => $composableBuilder(
-      column: $table.serverUpdatedAt,
-      builder: (column) => ColumnOrderings(column));
-}
-
-class $$FieldsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $FieldsTable> {
-  $$FieldsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get remoteId =>
-      $composableBuilder(column: $table.remoteId, builder: (column) => column);
-
-  GeneratedColumn<String> get tenantId =>
-      $composableBuilder(column: $table.tenantId, builder: (column) => column);
-
-  GeneratedColumn<String> get farmId =>
-      $composableBuilder(column: $table.farmId, builder: (column) => column);
-
-  GeneratedColumn<String> get name =>
-      $composableBuilder(column: $table.name, builder: (column) => column);
-
-  GeneratedColumn<String> get cropType =>
-      $composableBuilder(column: $table.cropType, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<List<LatLng>, String> get boundary =>
-      $composableBuilder(column: $table.boundary, builder: (column) => column);
-
-  GeneratedColumnWithTypeConverter<LatLng?, String> get centroid =>
-      $composableBuilder(column: $table.centroid, builder: (column) => column);
-
-  GeneratedColumn<double> get areaHectares => $composableBuilder(
-      column: $table.areaHectares, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<double> get ndviCurrent => $composableBuilder(
-      column: $table.ndviCurrent, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get ndviUpdatedAt => $composableBuilder(
-      column: $table.ndviUpdatedAt, builder: (column) => column);
-
-  GeneratedColumn<bool> get synced =>
-      $composableBuilder(column: $table.synced, builder: (column) => column);
-
-  GeneratedColumn<bool> get isDeleted =>
-      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-
-  GeneratedColumn<String> get etag =>
-      $composableBuilder(column: $table.etag, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get serverUpdatedAt => $composableBuilder(
-      column: $table.serverUpdatedAt, builder: (column) => column);
-}
-
-class $$FieldsTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $FieldsTable,
-    Field,
-    $$FieldsTableFilterComposer,
-    $$FieldsTableOrderingComposer,
-    $$FieldsTableAnnotationComposer,
-    $$FieldsTableCreateCompanionBuilder,
-    $$FieldsTableUpdateCompanionBuilder,
-    (Field, BaseReferences<_$AppDatabase, $FieldsTable, Field>),
-    Field,
-    PrefetchHooks Function()> {
-  $$FieldsTableTableManager(_$AppDatabase db, $FieldsTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$FieldsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$FieldsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$FieldsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String?> remoteId = const Value.absent(),
-            Value<String> tenantId = const Value.absent(),
-            Value<String?> farmId = const Value.absent(),
-            Value<String> name = const Value.absent(),
-            Value<String?> cropType = const Value.absent(),
-            Value<List<LatLng>> boundary = const Value.absent(),
-            Value<LatLng?> centroid = const Value.absent(),
-            Value<double> areaHectares = const Value.absent(),
-            Value<String?> status = const Value.absent(),
-            Value<double?> ndviCurrent = const Value.absent(),
-            Value<DateTime?> ndviUpdatedAt = const Value.absent(),
-            Value<bool> synced = const Value.absent(),
-            Value<bool> isDeleted = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<DateTime> updatedAt = const Value.absent(),
-            Value<String?> etag = const Value.absent(),
-            Value<DateTime?> serverUpdatedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              FieldsCompanion(
-            id: id,
-            remoteId: remoteId,
-            tenantId: tenantId,
-            farmId: farmId,
-            name: name,
-            cropType: cropType,
-            boundary: boundary,
-            centroid: centroid,
-            areaHectares: areaHectares,
-            status: status,
-            ndviCurrent: ndviCurrent,
-            ndviUpdatedAt: ndviUpdatedAt,
-            synced: synced,
-            isDeleted: isDeleted,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            etag: etag,
-            serverUpdatedAt: serverUpdatedAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String id,
-            Value<String?> remoteId = const Value.absent(),
-            required String tenantId,
-            Value<String?> farmId = const Value.absent(),
-            required String name,
-            Value<String?> cropType = const Value.absent(),
-            required List<LatLng> boundary,
-            Value<LatLng?> centroid = const Value.absent(),
-            required double areaHectares,
-            Value<String?> status = const Value.absent(),
-            Value<double?> ndviCurrent = const Value.absent(),
-            Value<DateTime?> ndviUpdatedAt = const Value.absent(),
-            Value<bool> synced = const Value.absent(),
-            Value<bool> isDeleted = const Value.absent(),
-            required DateTime createdAt,
-            required DateTime updatedAt,
-            Value<String?> etag = const Value.absent(),
-            Value<DateTime?> serverUpdatedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              FieldsCompanion.insert(
-            id: id,
-            remoteId: remoteId,
-            tenantId: tenantId,
-            farmId: farmId,
-            name: name,
-            cropType: cropType,
-            boundary: boundary,
-            centroid: centroid,
-            areaHectares: areaHectares,
-            status: status,
-            ndviCurrent: ndviCurrent,
-            ndviUpdatedAt: ndviUpdatedAt,
-            synced: synced,
-            isDeleted: isDeleted,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
-            etag: etag,
-            serverUpdatedAt: serverUpdatedAt,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$FieldsTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $FieldsTable,
-    Field,
-    $$FieldsTableFilterComposer,
-    $$FieldsTableOrderingComposer,
-    $$FieldsTableAnnotationComposer,
-    $$FieldsTableCreateCompanionBuilder,
-    $$FieldsTableUpdateCompanionBuilder,
-    (Field, BaseReferences<_$AppDatabase, $FieldsTable, Field>),
-    Field,
-    PrefetchHooks Function()>;
-typedef $$SyncLogsTableCreateCompanionBuilder = SyncLogsCompanion Function({
-  Value<int> id,
-  required String type,
-  required String status,
-  Value<String?> message,
-  required DateTime timestamp,
-});
-typedef $$SyncLogsTableUpdateCompanionBuilder = SyncLogsCompanion Function({
-  Value<int> id,
-  Value<String> type,
-  Value<String> status,
-  Value<String?> message,
-  Value<DateTime> timestamp,
-});
-
-class $$SyncLogsTableFilterComposer
-    extends Composer<_$AppDatabase, $SyncLogsTable> {
-  $$SyncLogsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get type => $composableBuilder(
-      column: $table.type, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get message => $composableBuilder(
-      column: $table.message, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get timestamp => $composableBuilder(
-      column: $table.timestamp, builder: (column) => ColumnFilters(column));
-}
-
-class $$SyncLogsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SyncLogsTable> {
-  $$SyncLogsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get type => $composableBuilder(
-      column: $table.type, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get status => $composableBuilder(
-      column: $table.status, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get message => $composableBuilder(
-      column: $table.message, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
-      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
-}
-
-class $$SyncLogsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SyncLogsTable> {
-  $$SyncLogsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get type =>
-      $composableBuilder(column: $table.type, builder: (column) => column);
-
-  GeneratedColumn<String> get status =>
-      $composableBuilder(column: $table.status, builder: (column) => column);
-
-  GeneratedColumn<String> get message =>
-      $composableBuilder(column: $table.message, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get timestamp =>
-      $composableBuilder(column: $table.timestamp, builder: (column) => column);
-}
-
-class $$SyncLogsTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $SyncLogsTable,
-    SyncLog,
-    $$SyncLogsTableFilterComposer,
-    $$SyncLogsTableOrderingComposer,
-    $$SyncLogsTableAnnotationComposer,
-    $$SyncLogsTableCreateCompanionBuilder,
-    $$SyncLogsTableUpdateCompanionBuilder,
-    (SyncLog, BaseReferences<_$AppDatabase, $SyncLogsTable, SyncLog>),
-    SyncLog,
-    PrefetchHooks Function()> {
-  $$SyncLogsTableTableManager(_$AppDatabase db, $SyncLogsTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$SyncLogsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SyncLogsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SyncLogsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> type = const Value.absent(),
-            Value<String> status = const Value.absent(),
-            Value<String?> message = const Value.absent(),
-            Value<DateTime> timestamp = const Value.absent(),
-          }) =>
-              SyncLogsCompanion(
-            id: id,
-            type: type,
-            status: status,
-            message: message,
-            timestamp: timestamp,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String type,
-            required String status,
-            Value<String?> message = const Value.absent(),
-            required DateTime timestamp,
-          }) =>
-              SyncLogsCompanion.insert(
-            id: id,
-            type: type,
-            status: status,
-            message: message,
-            timestamp: timestamp,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$SyncLogsTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $SyncLogsTable,
-    SyncLog,
-    $$SyncLogsTableFilterComposer,
-    $$SyncLogsTableOrderingComposer,
-    $$SyncLogsTableAnnotationComposer,
-    $$SyncLogsTableCreateCompanionBuilder,
-    $$SyncLogsTableUpdateCompanionBuilder,
-    (SyncLog, BaseReferences<_$AppDatabase, $SyncLogsTable, SyncLog>),
-    SyncLog,
-    PrefetchHooks Function()>;
-typedef $$SyncEventsTableCreateCompanionBuilder = SyncEventsCompanion Function({
-  Value<int> id,
-  required String tenantId,
-  required String type,
-  Value<String?> entityType,
-  Value<String?> entityId,
-  required String message,
-  Value<bool> isRead,
-  Value<DateTime> createdAt,
-});
-typedef $$SyncEventsTableUpdateCompanionBuilder = SyncEventsCompanion Function({
-  Value<int> id,
-  Value<String> tenantId,
-  Value<String> type,
-  Value<String?> entityType,
-  Value<String?> entityId,
-  Value<String> message,
-  Value<bool> isRead,
-  Value<DateTime> createdAt,
-});
-
-class $$SyncEventsTableFilterComposer
-    extends Composer<_$AppDatabase, $SyncEventsTable> {
-  $$SyncEventsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get type => $composableBuilder(
-      column: $table.type, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entityType => $composableBuilder(
-      column: $table.entityType, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get entityId => $composableBuilder(
-      column: $table.entityId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get message => $composableBuilder(
-      column: $table.message, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isRead => $composableBuilder(
-      column: $table.isRead, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-}
-
-class $$SyncEventsTableOrderingComposer
-    extends Composer<_$AppDatabase, $SyncEventsTable> {
-  $$SyncEventsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get tenantId => $composableBuilder(
-      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get type => $composableBuilder(
-      column: $table.type, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entityType => $composableBuilder(
-      column: $table.entityType, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get entityId => $composableBuilder(
-      column: $table.entityId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get message => $composableBuilder(
-      column: $table.message, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isRead => $composableBuilder(
-      column: $table.isRead, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-}
-
-class $$SyncEventsTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SyncEventsTable> {
-  $$SyncEventsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get tenantId =>
-      $composableBuilder(column: $table.tenantId, builder: (column) => column);
-
-  GeneratedColumn<String> get type =>
-      $composableBuilder(column: $table.type, builder: (column) => column);
-
-  GeneratedColumn<String> get entityType => $composableBuilder(
-      column: $table.entityType, builder: (column) => column);
-
-  GeneratedColumn<String> get entityId =>
-      $composableBuilder(column: $table.entityId, builder: (column) => column);
-
-  GeneratedColumn<String> get message =>
-      $composableBuilder(column: $table.message, builder: (column) => column);
-
-  GeneratedColumn<bool> get isRead =>
-      $composableBuilder(column: $table.isRead, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-}
-
-class $$SyncEventsTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $SyncEventsTable,
-    SyncEvent,
-    $$SyncEventsTableFilterComposer,
-    $$SyncEventsTableOrderingComposer,
-    $$SyncEventsTableAnnotationComposer,
-    $$SyncEventsTableCreateCompanionBuilder,
-    $$SyncEventsTableUpdateCompanionBuilder,
-    (SyncEvent, BaseReferences<_$AppDatabase, $SyncEventsTable, SyncEvent>),
-    SyncEvent,
-    PrefetchHooks Function()> {
-  $$SyncEventsTableTableManager(_$AppDatabase db, $SyncEventsTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$SyncEventsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$SyncEventsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$SyncEventsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            Value<String> tenantId = const Value.absent(),
-            Value<String> type = const Value.absent(),
-            Value<String?> entityType = const Value.absent(),
-            Value<String?> entityId = const Value.absent(),
-            Value<String> message = const Value.absent(),
-            Value<bool> isRead = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-          }) =>
-              SyncEventsCompanion(
-            id: id,
-            tenantId: tenantId,
-            type: type,
-            entityType: entityType,
-            entityId: entityId,
-            message: message,
-            isRead: isRead,
-            createdAt: createdAt,
-          ),
-          createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
-            required String tenantId,
-            required String type,
-            Value<String?> entityType = const Value.absent(),
-            Value<String?> entityId = const Value.absent(),
-            required String message,
-            Value<bool> isRead = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-          }) =>
-              SyncEventsCompanion.insert(
-            id: id,
-            tenantId: tenantId,
-            type: type,
-            entityType: entityType,
-            entityId: entityId,
-            message: message,
-            isRead: isRead,
-            createdAt: createdAt,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$SyncEventsTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $SyncEventsTable,
-    SyncEvent,
-    $$SyncEventsTableFilterComposer,
-    $$SyncEventsTableOrderingComposer,
-    $$SyncEventsTableAnnotationComposer,
-    $$SyncEventsTableCreateCompanionBuilder,
-    $$SyncEventsTableUpdateCompanionBuilder,
-    (SyncEvent, BaseReferences<_$AppDatabase, $SyncEventsTable, SyncEvent>),
-    SyncEvent,
-    PrefetchHooks Function()>;
-
-class $AppDatabaseManager {
-  final _$AppDatabase _db;
-  $AppDatabaseManager(this._db);
-  $$TasksTableTableManager get tasks =>
-      $$TasksTableTableManager(_db, _db.tasks);
-  $$OutboxTableTableManager get outbox =>
-      $$OutboxTableTableManager(_db, _db.outbox);
-  $$FieldsTableTableManager get fields =>
-      $$FieldsTableTableManager(_db, _db.fields);
-  $$SyncLogsTableTableManager get syncLogs =>
-      $$SyncLogsTableTableManager(_db, _db.syncLogs);
-  $$SyncEventsTableTableManager get syncEvents =>
-      $$SyncEventsTableTableManager(_db, _db.syncEvents);
+  List<DatabaseSchemaEntity> get allSchemaEntities => [tasks, outbox, fields, syncLogs, syncEvents];
 }

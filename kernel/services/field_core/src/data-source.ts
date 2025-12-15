@@ -7,6 +7,13 @@ import { SyncStatus } from "./entity/SyncStatus";
 /**
  * SAHOOL Field Core - Database Configuration
  * PostGIS-enabled PostgreSQL connection for geospatial operations
+ *
+ * Environment Variables:
+ * - DB_HOST: PostgreSQL host (default: postgres for docker-compose)
+ * - DB_PORT: PostgreSQL port (default: 5432)
+ * - DB_USER: Database user (default: sahool)
+ * - DB_PASSWORD: Database password (default: sahool - MUST match POSTGRES_PASSWORD in .env)
+ * - DB_NAME: Database name (default: sahool)
  */
 export const AppDataSource = new DataSource({
     type: "postgres",

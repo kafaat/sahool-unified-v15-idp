@@ -14,6 +14,7 @@ const PORTS = {
   irrigation: 8094,
   cropHealth: 8095,
   virtualSensors: 8096,
+  communityChat: 8097,
   equipment: 8101,
 };
 
@@ -34,6 +35,7 @@ export const API_URLS = {
   irrigation: getServiceUrl(PORTS.irrigation),
   cropHealth: getServiceUrl(PORTS.cropHealth),
   virtualSensors: getServiceUrl(PORTS.virtualSensors),
+  communityChat: getServiceUrl(PORTS.communityChat),
   equipment: getServiceUrl(PORTS.equipment),
 };
 

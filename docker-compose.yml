@@ -539,6 +539,26 @@ services:
     networks:
       - sahool-network
 
+  # Community Chat Service - Real-time messaging (Node.js + Socket.io)
+  community_chat:
+    build:
+      context: ./kernel-services-v15.3/community-chat
+      dockerfile: Dockerfile
+    container_name: sahool-community-chat
+    environment:
+      - PORT=8097
+      - NODE_ENV=production
+    ports:
+      - "8097:8097"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8097/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Admin Dashboard (Next.js)
   # لوحة تحكم المشرفين

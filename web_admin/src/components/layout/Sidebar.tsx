@@ -16,12 +16,14 @@ import {
   Bell,
   LogOut,
   Leaf,
+  MessageCircle,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
   { name: 'المزارع', href: '/farms', icon: MapPin },
-  { name: 'تشخيص الأمراض', href: '/diseases', icon: Bug },
+  { name: 'مركز الوباء', href: '/diseases', icon: Bug },
+  { name: 'الدعم الفني', href: '/support', icon: MessageCircle, badge: 5 },
   { name: 'المستشعرات الافتراضية', href: '/sensors', icon: Thermometer },
   { name: 'التنبيهات', href: '/alerts', icon: Bell },
   { name: 'المستخدمين', href: '/users', icon: Users },
@@ -63,6 +65,11 @@ export default function Sidebar() {
             >
               <item.icon className={cn('w-5 h-5', isActive ? 'text-sahool-600' : 'text-gray-400')} />
               {item.name}
+              {'badge' in item && item.badge > 0 && (
+                <span className="mr-auto bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
             </Link>
           );
         })}

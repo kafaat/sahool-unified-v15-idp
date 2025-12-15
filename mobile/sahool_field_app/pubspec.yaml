@@ -43,9 +43,12 @@ dependencies:
   # Charts
   fl_chart: ^0.66.0
 
-  # Maps (Offline-capable)
+  # Maps
   flutter_map: ^6.1.0
   latlong2: ^0.9.0
+  
+  # Environment Configuration
+  flutter_dotenv: ^5.1.0
 
   # Navigation
   go_router: ^13.2.0
@@ -79,6 +82,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/images/
     - assets/icons/
     - assets/fonts/

@@ -10,11 +10,12 @@ python-multipart==0.0.6
 Pillow==10.2.0
 numpy==1.26.3
 
-# AI/ML (TensorFlow Lite for production)
-# tflite-runtime==2.14.0  # Uncomment for on-device inference
+# AI/ML - TensorFlow for real inference
+# Use tensorflow-cpu for smaller image size in Docker
+tensorflow-cpu==2.15.0
 
-# Optional: Full TensorFlow for training/development
-# tensorflow==2.15.0
+# Alternative: TensorFlow Lite for edge/mobile deployment
+# tflite-runtime==2.14.0
 
 # Data Validation
 pydantic==2.5.3

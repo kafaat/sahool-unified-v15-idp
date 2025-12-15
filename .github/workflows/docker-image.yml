@@ -20,6 +20,16 @@ jobs:
             path: kernel/services/agro_advisor
           - name: weather-core
             path: kernel/services/weather_core
+          - name: crop-health
+            path: kernel/services/crop_health
+          - name: iot-gateway
+            path: kernel/services/iot_gateway
+          - name: ws-gateway
+            path: kernel/services/ws_gateway
+          - name: field-ops
+            path: kernel/services/field_ops
+          - name: ndvi-engine
+            path: kernel/services/ndvi_engine
       fail-fast: false
 
     steps:

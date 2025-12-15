@@ -22,9 +22,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup --gid 1000 sahool && \
-    adduser --uid 1000 --ingroup sahool --disabled-password --gecos "" sahool
+# Create non-root user for security (using system to avoid GID conflicts)
+RUN addgroup --system sahool && \
+    adduser --system --ingroup sahool --disabled-password --gecos "" sahool
 
 # Install curl for healthcheck
 RUN apk add --no-cache curl

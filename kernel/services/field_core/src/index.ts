@@ -3,6 +3,8 @@ import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import { AppDataSource } from "./data-source";
 import { Field } from "./entity/Field";
+import { FieldBoundaryHistory } from "./entity/FieldBoundaryHistory";
+import { SyncStatus } from "./entity/SyncStatus";
 import {
     generateETag,
     validateIfMatch,
@@ -631,6 +633,537 @@ function calculateHealthScore(ndviValue: number): number {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Mobile Sync Endpoints (Delta Sync)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/v1/fields/sync
+ * Delta Sync endpoint for mobile clients
+ *
+ * Query params:
+ *   - tenantId: Required tenant ID
+ *   - since: ISO timestamp - returns fields modified after this time
+ *   - includeDeleted: Include soft-deleted fields (default: false)
+ *   - limit: Max results (default: 100)
+ *
+ * Returns fields with server_version for conflict resolution
+ */
+app.get("/api/v1/fields/sync", async (req: Request, res: Response) => {
+    try {
+        const { tenantId, since, includeDeleted = "false", limit = 100 } = req.query;
+
+        if (!tenantId) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing required parameter: tenantId"
+            });
+        }
+
+        const fieldRepo = AppDataSource.getRepository(Field);
+        const queryBuilder = fieldRepo.createQueryBuilder("field");
+
+        queryBuilder.where("field.tenantId = :tenantId", { tenantId });
+
+        // Delta sync - only fields modified after 'since' timestamp
+        if (since) {
+            const sinceDate = new Date(since as string);
+            if (isNaN(sinceDate.getTime())) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid 'since' timestamp format. Use ISO 8601."
+                });
+            }
+            queryBuilder.andWhere("field.updatedAt > :since", { since: sinceDate });
+        }
+
+        // Filter by status if not including deleted
+        if (includeDeleted !== "true") {
+            queryBuilder.andWhere("field.status != :deleted", { deleted: "deleted" });
+        }
+
+        const fields = await queryBuilder
+            .orderBy("field.updatedAt", "ASC")
+            .take(Number(limit))
+            .getMany();
+
+        // Calculate sync metadata
+        const hasMore = fields.length === Number(limit);
+        const lastUpdated = fields.length > 0
+            ? fields[fields.length - 1].updatedAt
+            : null;
+
+        // Transform fields with server_version for mobile sync
+        const syncData = fields.map(field => ({
+            ...field,
+            server_version: field.version,
+            etag: generateETag(field.id, field.version),
+            _syncMeta: {
+                serverTime: new Date().toISOString(),
+                action: field.status === "deleted" ? "delete" : "upsert"
+            }
+        }));
+
+        res.json({
+            success: true,
+            data: syncData,
+            sync: {
+                serverTime: new Date().toISOString(),
+                lastUpdated: lastUpdated?.toISOString() || null,
+                count: fields.length,
+                hasMore,
+                nextSince: lastUpdated?.toISOString() || since
+            }
+        });
+    } catch (error) {
+        console.error("Error in delta sync:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to perform delta sync"
+        });
+    }
+});
+
+/**
+ * POST /api/v1/fields/sync/batch
+ * Batch sync endpoint for uploading multiple fields at once
+ *
+ * Body:
+ *   - deviceId: Device identifier
+ *   - userId: User ID
+ *   - fields: Array of field objects with client_version
+ *
+ * Returns results for each field (success/conflict/error)
+ */
+app.post("/api/v1/fields/sync/batch", async (req: Request, res: Response) => {
+    try {
+        const { deviceId, userId, tenantId, fields: fieldsToSync } = req.body;
+
+        if (!deviceId || !userId || !tenantId || !Array.isArray(fieldsToSync)) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing required fields: deviceId, userId, tenantId, fields[]"
+            });
+        }
+
+        const fieldRepo = AppDataSource.getRepository(Field);
+        const historyRepo = AppDataSource.getRepository(FieldBoundaryHistory);
+        const results: Array<{
+            clientId: string;
+            serverId?: string;
+            status: "created" | "updated" | "conflict" | "error";
+            server_version?: number;
+            etag?: string;
+            serverData?: object;
+            error?: string;
+        }> = [];
+
+        for (const clientField of fieldsToSync) {
+            try {
+                const { id, client_version, _isNew, ...fieldData } = clientField;
+
+                // New field creation
+                if (_isNew || !id) {
+                    const newField = fieldRepo.create({
+                        ...fieldData,
+                        tenantId,
+                        status: fieldData.status || "active"
+                    });
+
+                    // Handle boundary
+                    if (fieldData.coordinates && Array.isArray(fieldData.coordinates)) {
+                        const closedCoords = [...fieldData.coordinates];
+                        if (JSON.stringify(closedCoords[0]) !== JSON.stringify(closedCoords[closedCoords.length - 1])) {
+                            closedCoords.push(closedCoords[0]);
+                        }
+                        newField.boundary = {
+                            type: "Polygon",
+                            coordinates: [closedCoords]
+                        };
+                    }
+
+                    const saved = await fieldRepo.save(newField);
+
+                    results.push({
+                        clientId: id || "new",
+                        serverId: saved.id,
+                        status: "created",
+                        server_version: saved.version,
+                        etag: generateETag(saved.id, saved.version)
+                    });
+                    continue;
+                }
+
+                // Update existing field
+                const existingField = await fieldRepo.findOne({ where: { id } });
+
+                if (!existingField) {
+                    results.push({
+                        clientId: id,
+                        status: "error",
+                        error: "Field not found"
+                    });
+                    continue;
+                }
+
+                // Version conflict check
+                if (client_version !== undefined && client_version < existingField.version) {
+                    results.push({
+                        clientId: id,
+                        serverId: id,
+                        status: "conflict",
+                        server_version: existingField.version,
+                        etag: generateETag(existingField.id, existingField.version),
+                        serverData: existingField
+                    });
+                    continue;
+                }
+
+                // Track boundary change if applicable
+                const boundaryChanged = fieldData.boundary &&
+                    JSON.stringify(fieldData.boundary) !== JSON.stringify(existingField.boundary);
+
+                if (boundaryChanged) {
+                    const historyEntry = historyRepo.create({
+                        fieldId: id,
+                        versionAtChange: existingField.version,
+                        previousBoundary: existingField.boundary,
+                        newBoundary: fieldData.boundary,
+                        changedBy: userId,
+                        changeSource: "mobile",
+                        deviceId
+                    });
+                    await historyRepo.save(historyEntry);
+                }
+
+                // Apply updates
+                const allowedUpdates = [
+                    "name", "cropType", "status", "irrigationType",
+                    "soilType", "plantingDate", "expectedHarvest", "metadata", "boundary"
+                ];
+
+                for (const key of allowedUpdates) {
+                    if (fieldData[key] !== undefined) {
+                        (existingField as any)[key] = fieldData[key];
+                    }
+                }
+
+                const updated = await fieldRepo.save(existingField);
+
+                results.push({
+                    clientId: id,
+                    serverId: updated.id,
+                    status: "updated",
+                    server_version: updated.version,
+                    etag: generateETag(updated.id, updated.version)
+                });
+
+            } catch (fieldError) {
+                results.push({
+                    clientId: clientField.id || "unknown",
+                    status: "error",
+                    error: fieldError instanceof Error ? fieldError.message : "Unknown error"
+                });
+            }
+        }
+
+        // Update sync status for device
+        const syncStatusRepo = AppDataSource.getRepository(SyncStatus);
+        let syncStatus = await syncStatusRepo.findOne({
+            where: { deviceId, userId, tenantId }
+        });
+
+        if (!syncStatus) {
+            syncStatus = syncStatusRepo.create({ deviceId, userId, tenantId });
+        }
+
+        syncStatus.lastSyncAt = new Date();
+        syncStatus.status = results.some(r => r.status === "conflict") ? "conflict" : "idle";
+        syncStatus.conflictsCount = results.filter(r => r.status === "conflict").length;
+        await syncStatusRepo.save(syncStatus);
+
+        const successCount = results.filter(r => r.status === "created" || r.status === "updated").length;
+        const conflictCount = results.filter(r => r.status === "conflict").length;
+        const errorCount = results.filter(r => r.status === "error").length;
+
+        res.json({
+            success: true,
+            results,
+            summary: {
+                total: results.length,
+                created: results.filter(r => r.status === "created").length,
+                updated: results.filter(r => r.status === "updated").length,
+                conflicts: conflictCount,
+                errors: errorCount,
+                successRate: `${Math.round((successCount / results.length) * 100)}%`
+            },
+            serverTime: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error("Error in batch sync:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to perform batch sync"
+        });
+    }
+});
+
+/**
+ * GET /api/v1/sync/status
+ * Get sync status for a device
+ */
+app.get("/api/v1/sync/status", async (req: Request, res: Response) => {
+    try {
+        const { deviceId, userId, tenantId } = req.query;
+
+        if (!deviceId || !tenantId) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing required parameters: deviceId, tenantId"
+            });
+        }
+
+        const syncStatusRepo = AppDataSource.getRepository(SyncStatus);
+        const syncStatus = await syncStatusRepo.findOne({
+            where: {
+                deviceId: deviceId as string,
+                tenantId: tenantId as string,
+                ...(userId ? { userId: userId as string } : {})
+            }
+        });
+
+        if (!syncStatus) {
+            return res.json({
+                success: true,
+                data: {
+                    deviceId,
+                    tenantId,
+                    status: "new",
+                    lastSyncAt: null,
+                    pendingDownloads: 0,
+                    conflictsCount: 0
+                }
+            });
+        }
+
+        // Calculate pending downloads (fields modified since last sync)
+        const fieldRepo = AppDataSource.getRepository(Field);
+        let pendingDownloads = 0;
+
+        if (syncStatus.lastSyncAt) {
+            pendingDownloads = await fieldRepo
+                .createQueryBuilder("field")
+                .where("field.tenantId = :tenantId", { tenantId })
+                .andWhere("field.updatedAt > :lastSync", { lastSync: syncStatus.lastSyncAt })
+                .getCount();
+        } else {
+            pendingDownloads = await fieldRepo
+                .createQueryBuilder("field")
+                .where("field.tenantId = :tenantId", { tenantId })
+                .getCount();
+        }
+
+        res.json({
+            success: true,
+            data: {
+                ...syncStatus,
+                pendingDownloads
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching sync status:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to fetch sync status"
+        });
+    }
+});
+
+/**
+ * PUT /api/v1/sync/status
+ * Update sync status for a device (called by mobile on sync completion)
+ */
+app.put("/api/v1/sync/status", async (req: Request, res: Response) => {
+    try {
+        const { deviceId, userId, tenantId, lastSyncVersion, deviceInfo, status } = req.body;
+
+        if (!deviceId || !userId || !tenantId) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing required fields: deviceId, userId, tenantId"
+            });
+        }
+
+        const syncStatusRepo = AppDataSource.getRepository(SyncStatus);
+        let syncStatus = await syncStatusRepo.findOne({
+            where: { deviceId, userId, tenantId }
+        });
+
+        if (!syncStatus) {
+            syncStatus = syncStatusRepo.create({ deviceId, userId, tenantId });
+        }
+
+        syncStatus.lastSyncAt = new Date();
+        if (lastSyncVersion) syncStatus.lastSyncVersion = lastSyncVersion;
+        if (deviceInfo) syncStatus.deviceInfo = deviceInfo;
+        if (status) syncStatus.status = status;
+
+        await syncStatusRepo.save(syncStatus);
+
+        res.json({
+            success: true,
+            data: syncStatus,
+            message: "تم تحديث حالة المزامنة بنجاح"
+        });
+    } catch (error) {
+        console.error("Error updating sync status:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to update sync status"
+        });
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Boundary History Endpoints
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * GET /api/v1/fields/:id/boundary-history
+ * Get boundary change history for a field
+ */
+app.get("/api/v1/fields/:id/boundary-history", async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { limit = 20 } = req.query;
+
+        const historyRepo = AppDataSource.getRepository(FieldBoundaryHistory);
+        const history = await historyRepo.find({
+            where: { fieldId: id },
+            order: { createdAt: "DESC" },
+            take: Number(limit)
+        });
+
+        // Convert geometries to GeoJSON for response
+        const historyWithGeoJson = await Promise.all(history.map(async (entry) => {
+            const geoJsonResult = await AppDataSource.query(`
+                SELECT
+                    ST_AsGeoJSON(previous_boundary) as previous_boundary_geojson,
+                    ST_AsGeoJSON(new_boundary) as new_boundary_geojson
+                FROM field_boundary_history
+                WHERE id = $1
+            `, [entry.id]);
+
+            return {
+                id: entry.id,
+                fieldId: entry.fieldId,
+                versionAtChange: entry.versionAtChange,
+                previousBoundary: geoJsonResult[0]?.previous_boundary_geojson
+                    ? JSON.parse(geoJsonResult[0].previous_boundary_geojson)
+                    : null,
+                newBoundary: geoJsonResult[0]?.new_boundary_geojson
+                    ? JSON.parse(geoJsonResult[0].new_boundary_geojson)
+                    : null,
+                areaChangeHectares: entry.areaChangeHectares,
+                changedBy: entry.changedBy,
+                changeReason: entry.changeReason,
+                changeSource: entry.changeSource,
+                deviceId: entry.deviceId,
+                createdAt: entry.createdAt
+            };
+        }));
+
+        res.json({
+            success: true,
+            data: historyWithGeoJson,
+            count: history.length
+        });
+    } catch (error) {
+        console.error("Error fetching boundary history:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to fetch boundary history"
+        });
+    }
+});
+
+/**
+ * POST /api/v1/fields/:id/boundary-history/rollback
+ * Rollback field boundary to a previous version
+ */
+app.post("/api/v1/fields/:id/boundary-history/rollback", async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { historyId, userId, reason } = req.body;
+
+        if (!historyId) {
+            return res.status(400).json({
+                success: false,
+                error: "Missing required field: historyId"
+            });
+        }
+
+        const fieldRepo = AppDataSource.getRepository(Field);
+        const historyRepo = AppDataSource.getRepository(FieldBoundaryHistory);
+
+        const field = await fieldRepo.findOne({ where: { id } });
+        if (!field) {
+            return res.status(404).json({
+                success: false,
+                error: "Field not found"
+            });
+        }
+
+        const historyEntry = await historyRepo.findOne({ where: { id: historyId, fieldId: id } });
+        if (!historyEntry) {
+            return res.status(404).json({
+                success: false,
+                error: "History entry not found"
+            });
+        }
+
+        // Create new history entry for the rollback
+        const rollbackHistory = historyRepo.create({
+            fieldId: id,
+            versionAtChange: field.version,
+            previousBoundary: field.boundary,
+            newBoundary: historyEntry.previousBoundary,
+            changedBy: userId,
+            changeReason: reason || `Rollback to version ${historyEntry.versionAtChange}`,
+            changeSource: "api"
+        });
+        await historyRepo.save(rollbackHistory);
+
+        // Apply the rollback
+        field.boundary = historyEntry.previousBoundary;
+        const updated = await fieldRepo.save(field);
+
+        // Recalculate area
+        if (updated.boundary) {
+            await AppDataSource.query(`
+                UPDATE fields
+                SET area_hectares = ST_Area(ST_Transform(boundary, 32637)) / 10000
+                WHERE id = $1
+            `, [updated.id]);
+        }
+
+        const finalField = await fieldRepo.findOne({ where: { id } });
+
+        res.json({
+            success: true,
+            data: finalField,
+            etag: generateETag(finalField!.id, finalField!.version),
+            message: "تم استرجاع الحدود السابقة بنجاح"
+        });
+    } catch (error) {
+        console.error("Error rolling back boundary:", error);
+        res.status(500).json({
+            success: false,
+            error: "Failed to rollback boundary"
+        });
+    }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Error Handler
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -664,7 +1197,7 @@ AppDataSource.initialize()
             console.log(`  🚀 Field Core Service running on port ${PORT}`);
             console.log("═══════════════════════════════════════════════════════════");
             console.log("");
-            console.log("  📡 Available endpoints:");
+            console.log("  📡 Field CRUD Endpoints:");
             console.log("    GET  /healthz              - Health check");
             console.log("    GET  /readyz               - Readiness check");
             console.log("    GET  /api/v1/fields        - List fields");
@@ -674,15 +1207,25 @@ AppDataSource.initialize()
             console.log("    DELETE /api/v1/fields/:id  - Delete field");
             console.log("    GET  /api/v1/fields/nearby - Geospatial query");
             console.log("");
+            console.log("  📱 Mobile Sync (Delta Sync):");
+            console.log("    GET  /api/v1/fields/sync          - Delta sync (since=timestamp)");
+            console.log("    POST /api/v1/fields/sync/batch    - Batch upload with conflict check");
+            console.log("    GET  /api/v1/sync/status          - Device sync status");
+            console.log("    PUT  /api/v1/sync/status          - Update sync status");
+            console.log("");
+            console.log("  📜 Boundary History:");
+            console.log("    GET  /api/v1/fields/:id/boundary-history  - Get history");
+            console.log("    POST /api/v1/fields/:id/boundary-history/rollback - Rollback");
+            console.log("");
             console.log("  🌿 NDVI Analysis:");
             console.log("    GET  /api/v1/fields/:id/ndvi  - Field NDVI analysis");
             console.log("    PUT  /api/v1/fields/:id/ndvi  - Update NDVI value");
             console.log("    GET  /api/v1/ndvi/summary     - Tenant-wide NDVI summary");
             console.log("");
-            console.log("  🔐 ETag Conflict Resolution:");
-            console.log("    • GET returns ETag header + body.etag");
+            console.log("  🔐 Conflict Resolution:");
+            console.log("    • GET returns ETag header + body.etag + server_version");
             console.log("    • PUT with If-Match header validates version");
-            console.log("    • 409 Conflict returns serverData for resolution");
+            console.log("    • 409 Conflict returns serverData + server_version");
             console.log("");
         });
     })

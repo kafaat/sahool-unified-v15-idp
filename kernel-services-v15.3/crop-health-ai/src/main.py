@@ -13,13 +13,16 @@ Port: 8095
 import os
 import io
 import uuid
+import shutil
 import logging
 from datetime import datetime
 from typing import Optional, List
 from enum import Enum
+from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 import numpy as np
@@ -33,13 +36,23 @@ logger = logging.getLogger("sahool-vision")
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SERVICE_NAME = "crop-health-ai"
-SERVICE_VERSION = "2.0.0"  # Upgraded with real TensorFlow inference
+SERVICE_VERSION = "2.1.0"  # Added image storage and history API
 SERVICE_PORT = 8095
 
 # Model configuration
 MODEL_PATH = os.getenv("MODEL_PATH", "models/plant_disease_model.tflite")
 CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.7"))
 EXPERT_REVIEW_THRESHOLD = float(os.getenv("EXPERT_REVIEW_THRESHOLD", "0.5"))
+
+# Image storage configuration
+UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", "static/uploads"))
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+BASE_URL = os.getenv("BASE_URL", f"http://localhost:{SERVICE_PORT}")
+
+# In-memory diagnosis history (PostgreSQL in production)
+# سجل التشخيصات في الذاكرة (PostgreSQL في الإنتاج)
+DIAGNOSIS_HISTORY: List[dict] = []
+MAX_HISTORY_SIZE = 1000  # Keep last 1000 diagnoses
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models
@@ -148,6 +161,26 @@ class DiagnosisRequest(BaseModel):
     crop_type: Optional[CropType] = None
     symptoms_description: Optional[str] = None
     location_governorate: Optional[str] = None
+
+
+class DiagnosisHistoryRecord(BaseModel):
+    """سجل تشخيص محفوظ للوحة التحكم"""
+    id: str
+    image_url: str
+    thumbnail_url: Optional[str] = None
+    disease_id: str
+    disease_name: str
+    disease_name_ar: str
+    confidence: float
+    severity: str
+    crop_type: str
+    field_id: Optional[str] = None
+    governorate: Optional[str] = None
+    location: Optional[dict] = None  # {lat, lng}
+    status: str = "pending"  # pending, confirmed, rejected, treated
+    expert_notes: Optional[str] = None
+    timestamp: datetime
+    farmer_id: Optional[str] = None
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -589,20 +622,26 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS middleware
+# CORS middleware (allows Admin Dashboard access)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # In production: ["https://admin.sahool.io"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files for serving uploaded images
+# ربط مجلد الصور للوصول من لوحة التحكم
+Path("static/uploads").mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize model on startup"""
     logger.info(f"Starting {SERVICE_NAME} v{SERVICE_VERSION}")
+    logger.info(f"📁 Upload directory: {UPLOAD_DIR.absolute()}")
     disease_model.load_model()
 
 
@@ -633,7 +672,10 @@ async def diagnose_plant_disease(
     field_id: Optional[str] = Query(None, description="معرف الحقل"),
     crop_type: Optional[CropType] = Query(None, description="نوع المحصول"),
     symptoms: Optional[str] = Query(None, description="وصف الأعراض"),
-    governorate: Optional[str] = Query(None, description="المحافظة")
+    governorate: Optional[str] = Query(None, description="المحافظة"),
+    lat: Optional[float] = Query(None, description="خط العرض"),
+    lng: Optional[float] = Query(None, description="خط الطول"),
+    farmer_id: Optional[str] = Query(None, description="معرف المزارع")
 ):
     """
     🔬 تشخيص أمراض النباتات بالذكاء الاصطناعي
@@ -647,6 +689,7 @@ async def diagnose_plant_disease(
     - **governorate**: المحافظة للتوصيات المحلية
 
     Returns detailed diagnosis with treatment recommendations.
+    Saves image for Admin Dashboard epidemic monitoring.
     """
 
     # Validate image
@@ -658,6 +701,24 @@ async def diagnose_plant_disease(
 
     if len(image_bytes) > 10 * 1024 * 1024:  # 10MB limit
         raise HTTPException(status_code=400, detail="حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت)")
+
+    # Generate unique ID for this diagnosis
+    diagnosis_id = str(uuid.uuid4())
+    timestamp = datetime.utcnow()
+
+    # ═══ Save image to disk for Admin Dashboard ═══
+    file_ext = image.filename.split(".")[-1] if "." in image.filename else "jpg"
+    filename = f"{diagnosis_id}.{file_ext}"
+    file_path = UPLOAD_DIR / filename
+
+    try:
+        with open(file_path, "wb") as f:
+            f.write(image_bytes)
+        image_url = f"{BASE_URL}/static/uploads/{filename}"
+        logger.info(f"📷 Image saved: {file_path}")
+    except Exception as e:
+        logger.error(f"Failed to save image: {e}")
+        image_url = None
 
     # Run prediction
     disease_key, confidence, all_predictions = disease_model.predict(image_bytes)
@@ -679,10 +740,37 @@ async def diagnose_plant_disease(
     # Determine if urgent action is needed
     urgent = severity in [DiseaseSeverity.HIGH, DiseaseSeverity.CRITICAL]
 
+    # ═══ Save to history for Admin Dashboard ═══
+    detected_crop = disease_info.get("crop", CropType.UNKNOWN)
+    history_record = {
+        "id": diagnosis_id,
+        "image_url": image_url,
+        "thumbnail_url": image_url,  # Same for now, could resize
+        "disease_id": disease_key,
+        "disease_name": disease_info["name"],
+        "disease_name_ar": disease_info["name_ar"],
+        "confidence": confidence,
+        "severity": severity.value,
+        "crop_type": detected_crop.value if hasattr(detected_crop, 'value') else str(detected_crop),
+        "field_id": field_id,
+        "governorate": governorate,
+        "location": {"lat": lat, "lng": lng} if lat and lng else None,
+        "status": "pending",
+        "timestamp": timestamp.isoformat(),
+        "farmer_id": farmer_id
+    }
+
+    # Add to history (newest first)
+    DIAGNOSIS_HISTORY.insert(0, history_record)
+
+    # Keep history size manageable
+    if len(DIAGNOSIS_HISTORY) > MAX_HISTORY_SIZE:
+        DIAGNOSIS_HISTORY.pop()
+
     # Build diagnosis result
     diagnosis = DiagnosisResult(
-        diagnosis_id=str(uuid.uuid4()),
-        timestamp=datetime.utcnow(),
+        diagnosis_id=diagnosis_id,
+        timestamp=timestamp,
         disease_name=disease_info["name"],
         disease_name_ar=disease_info["name_ar"],
         disease_description=disease_info["description"],
@@ -690,7 +778,7 @@ async def diagnose_plant_disease(
         confidence=confidence,
         severity=severity,
         affected_area_percent=min(confidence * 100, 100),  # Estimated
-        detected_crop=disease_info.get("crop", CropType.UNKNOWN),
+        detected_crop=detected_crop,
         growth_stage=None,
         treatments=disease_info.get("treatments", []),
         urgent_action_required=urgent,
@@ -701,7 +789,7 @@ async def diagnose_plant_disease(
         prevention_tips_ar=disease_info.get("prevention_ar", [])
     )
 
-    logger.info(f"Diagnosis completed: {disease_key} ({confidence:.2%}) for field {field_id}")
+    logger.info(f"✅ Diagnosis completed: {disease_key} ({confidence:.2%}) for field {field_id}")
 
     return diagnosis
 
@@ -853,6 +941,140 @@ async def request_expert_review(
         "message": "تم إرسال طلب المراجعة. سيتواصل معك خبير قريباً.",
         "message_en": "Review request submitted. An expert will contact you soon."
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Admin Dashboard Endpoints (Epidemic Monitoring Center)
+# نقاط الوصول للوحة التحكم (مركز رصد الأوبئة)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/v1/diagnoses", response_model=List[dict])
+async def get_diagnosis_history(
+    status: Optional[str] = Query(None, description="فلترة حسب الحالة"),
+    severity: Optional[str] = Query(None, description="فلترة حسب الخطورة"),
+    governorate: Optional[str] = Query(None, description="فلترة حسب المحافظة"),
+    limit: int = Query(50, ge=1, le=200, description="عدد النتائج"),
+    offset: int = Query(0, ge=0, description="بداية النتائج")
+):
+    """
+    📋 سجل التشخيصات للوحة التحكم
+
+    Get diagnosis history for Admin Dashboard epidemic monitoring.
+    Supports filtering by status, severity, and governorate.
+    """
+    filtered = DIAGNOSIS_HISTORY.copy()
+
+    # Apply filters
+    if status:
+        filtered = [d for d in filtered if d.get("status") == status]
+    if severity:
+        filtered = [d for d in filtered if d.get("severity") == severity]
+    if governorate:
+        filtered = [d for d in filtered if d.get("governorate") == governorate]
+
+    # Apply pagination
+    total = len(filtered)
+    paginated = filtered[offset:offset + limit]
+
+    return paginated
+
+
+@app.get("/v1/diagnoses/stats")
+async def get_diagnosis_stats():
+    """
+    📊 إحصائيات التشخيصات للوحة التحكم
+
+    Get diagnosis statistics for Admin Dashboard.
+    """
+    if not DIAGNOSIS_HISTORY:
+        return {
+            "total": 0,
+            "pending": 0,
+            "confirmed": 0,
+            "treated": 0,
+            "critical_count": 0,
+            "high_count": 0,
+            "by_disease": {},
+            "by_governorate": {}
+        }
+
+    # Calculate statistics
+    total = len(DIAGNOSIS_HISTORY)
+    pending = sum(1 for d in DIAGNOSIS_HISTORY if d.get("status") == "pending")
+    confirmed = sum(1 for d in DIAGNOSIS_HISTORY if d.get("status") == "confirmed")
+    treated = sum(1 for d in DIAGNOSIS_HISTORY if d.get("status") == "treated")
+    critical = sum(1 for d in DIAGNOSIS_HISTORY if d.get("severity") == "critical")
+    high = sum(1 for d in DIAGNOSIS_HISTORY if d.get("severity") == "high")
+
+    # Group by disease
+    by_disease = {}
+    for d in DIAGNOSIS_HISTORY:
+        disease = d.get("disease_name_ar", "غير معروف")
+        by_disease[disease] = by_disease.get(disease, 0) + 1
+
+    # Group by governorate
+    by_governorate = {}
+    for d in DIAGNOSIS_HISTORY:
+        gov = d.get("governorate") or "غير محدد"
+        by_governorate[gov] = by_governorate.get(gov, 0) + 1
+
+    return {
+        "total": total,
+        "pending": pending,
+        "confirmed": confirmed,
+        "treated": treated,
+        "critical_count": critical,
+        "high_count": high,
+        "by_disease": by_disease,
+        "by_governorate": by_governorate,
+        "last_updated": datetime.utcnow().isoformat()
+    }
+
+
+@app.patch("/v1/diagnoses/{diagnosis_id}")
+async def update_diagnosis_status(
+    diagnosis_id: str,
+    status: str = Query(..., description="الحالة الجديدة", enum=["pending", "confirmed", "rejected", "treated"]),
+    expert_notes: Optional[str] = Query(None, description="ملاحظات الخبير")
+):
+    """
+    ✏️ تحديث حالة التشخيص
+
+    Update diagnosis status from Admin Dashboard.
+    Used by experts to confirm, reject, or mark as treated.
+    """
+    # Find diagnosis in history
+    for record in DIAGNOSIS_HISTORY:
+        if record.get("id") == diagnosis_id:
+            record["status"] = status
+            if expert_notes:
+                record["expert_notes"] = expert_notes
+            record["updated_at"] = datetime.utcnow().isoformat()
+
+            logger.info(f"📝 Diagnosis {diagnosis_id} updated: status={status}")
+            return {"success": True, "diagnosis_id": diagnosis_id, "status": status}
+
+    raise HTTPException(status_code=404, detail="التشخيص غير موجود")
+
+
+@app.get("/v1/diagnoses/{diagnosis_id}")
+async def get_diagnosis_by_id(diagnosis_id: str):
+    """
+    🔍 تفاصيل تشخيص محدد
+
+    Get full diagnosis details by ID.
+    """
+    for record in DIAGNOSIS_HISTORY:
+        if record.get("id") == diagnosis_id:
+            # Add disease details
+            disease_key = record.get("disease_id")
+            if disease_key in DISEASE_DATABASE:
+                disease_info = DISEASE_DATABASE[disease_key]
+                record["treatments"] = [t.dict() for t in disease_info.get("treatments", [])]
+                record["prevention_tips_ar"] = disease_info.get("prevention_ar", [])
+            return record
+
+    raise HTTPException(status_code=404, detail="التشخيص غير موجود")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

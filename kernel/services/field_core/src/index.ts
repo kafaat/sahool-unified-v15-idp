@@ -12,6 +12,12 @@ import {
     setETagHeader,
     getIfMatchHeader
 } from "./middleware/etag";
+import {
+    validatePolygonCoordinates,
+    validateGeoJSON,
+    calculatePolygonArea,
+    GeoValidationResult
+} from "./middleware/validation";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000");
@@ -191,12 +197,27 @@ app.post("/api/v1/fields", async (req: Request, res: Response) => {
             status: "active"
         });
 
-        // If coordinates provided, create GeoJSON polygon
+        // If coordinates provided, create GeoJSON polygon with validation
         if (coordinates && Array.isArray(coordinates) && coordinates.length >= 3) {
             // Ensure polygon is closed
             const closedCoords = [...coordinates];
             if (JSON.stringify(closedCoords[0]) !== JSON.stringify(closedCoords[closedCoords.length - 1])) {
                 closedCoords.push(closedCoords[0]);
+            }
+
+            // Validate polygon coordinates
+            const validationResult: GeoValidationResult = validatePolygonCoordinates([closedCoords]);
+            if (!validationResult.valid) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid polygon coordinates",
+                    error_ar: "إحداثيات المضلع غير صالحة",
+                    details: validationResult.errors.map((e, i) => ({
+                        message: e,
+                        message_ar: validationResult.errors_ar[i]
+                    })),
+                    warnings: validationResult.warnings
+                });
             }
 
             newField.boundary = {
@@ -212,6 +233,28 @@ app.post("/api/v1/fields", async (req: Request, res: Response) => {
                 type: "Point",
                 coordinates: [centroidLng, centroidLat]
             };
+
+            // Calculate approximate area locally
+            const approxArea = calculatePolygonArea(closedCoords);
+            console.log(`📐 Approximate area: ${approxArea.toFixed(2)} hectares`);
+        }
+
+        // If boundary provided as GeoJSON, validate it
+        const { boundary } = req.body;
+        if (boundary && typeof boundary === "object") {
+            const geoValidation = validateGeoJSON(boundary);
+            if (!geoValidation.valid) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid GeoJSON boundary",
+                    error_ar: "حدود GeoJSON غير صالحة",
+                    details: geoValidation.errors.map((e, i) => ({
+                        message: e,
+                        message_ar: geoValidation.errors_ar[i]
+                    }))
+                });
+            }
+            newField.boundary = boundary;
         }
 
         const savedField = await fieldRepo.save(newField);

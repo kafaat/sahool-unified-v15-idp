@@ -382,6 +382,104 @@ services:
     networks:
       - sahool-network
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NEW Microservices (Polyglot Architecture)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Task Service (Python + FastAPI) - إدارة المهام الزراعية
+  task_service:
+    build:
+      context: ./kernel/services/task_service
+      dockerfile: Dockerfile
+    container_name: sahool-task-service
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8103:8103"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8103/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Equipment Service (Python + FastAPI) - إدارة المعدات
+  equipment_service:
+    build:
+      context: ./kernel/services/equipment_service
+      dockerfile: Dockerfile
+    container_name: sahool-equipment-service
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8101:8101"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8101/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Community Service (Python + FastAPI) - مجتمع المزارعين
+  community_service:
+    build:
+      context: ./kernel/services/community_service
+      dockerfile: Dockerfile
+    container_name: sahool-community-service
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8102:8102"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8102/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Provider Configuration Service (Python + FastAPI) - إدارة المزودين
+  provider_config:
+    build:
+      context: ./kernel/services/provider_config
+      dockerfile: Dockerfile
+    container_name: sahool-provider-config
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "8104:8104"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8104/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Networks
 # ─────────────────────────────────────────────────────────────────────────────

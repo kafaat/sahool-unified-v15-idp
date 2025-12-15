@@ -83,11 +83,41 @@ def rule_from_sensor(
     Returns:
         TaskRecommendation if a rule is triggered, None otherwise
     """
+    context = context or {}
+
+    # === WATER FLOW RULES (no threshold needed) ===
+    if sensor_type == "water_flow":
+        if value == 0:
+            return TaskRecommendation(
+                title_ar="توقف تدفق المياه",
+                title_en="Water Flow Stopped",
+                description_ar="لا يوجد تدفق مياه! تحقق من المضخة والصمامات.",
+                description_en="No water flow detected! Check pump and valves.",
+                task_type="maintenance",
+                priority="urgent",
+                urgency_hours=2,
+                metadata={"sensor_type": sensor_type, "value": value},
+            )
+        return None
+
+    # === WATER LEVEL RULES (no threshold needed) ===
+    if sensor_type == "water_level":
+        if value < 20:  # 20% tank level
+            return TaskRecommendation(
+                title_ar="مستوى خزان منخفض",
+                title_en="Low Tank Level",
+                description_ar=f"مستوى الخزان {value}% منخفض. يلزم تعبئة الخزان.",
+                description_en=f"Tank level {value}% is low. Refill required.",
+                task_type="maintenance",
+                priority="high",
+                urgency_hours=6,
+                metadata={"sensor_type": sensor_type, "value": value},
+            )
+        return None
+
     threshold = get_threshold(sensor_type, crop)
     if not threshold:
         return None
-
-    context = context or {}
 
     # === SOIL MOISTURE RULES ===
     if sensor_type == "soil_moisture":
@@ -284,34 +314,6 @@ def rule_from_sensor(
                 },
             )
 
-    # === WATER FLOW RULES ===
-    elif sensor_type == "water_flow":
-        if value == 0:
-            return TaskRecommendation(
-                title_ar="توقف تدفق المياه",
-                title_en="Water Flow Stopped",
-                description_ar="لا يوجد تدفق مياه! تحقق من المضخة والصمامات.",
-                description_en="No water flow detected! Check pump and valves.",
-                task_type="maintenance",
-                priority="urgent",
-                urgency_hours=2,
-                metadata={"sensor_type": sensor_type, "value": value},
-            )
-
-    # === WATER LEVEL RULES ===
-    elif sensor_type == "water_level":
-        if value < 20:  # 20% tank level
-            return TaskRecommendation(
-                title_ar="مستوى خزان منخفض",
-                title_en="Low Tank Level",
-                description_ar=f"مستوى الخزان {value}% منخفض. يلزم تعبئة الخزان.",
-                description_en=f"Tank level {value}% is low. Refill required.",
-                task_type="maintenance",
-                priority="high",
-                urgency_hours=6,
-                metadata={"sensor_type": sensor_type, "value": value},
-            )
-
     return None
 
 
@@ -342,7 +344,7 @@ def evaluate_combined_rules(
         threshold = get_threshold("soil_moisture", crop)
         temp_threshold = get_threshold("air_temperature", crop)
 
-        if air_temp > temp_threshold.get("high", 35) and soil_moisture < threshold.get(
+        if air_temp >= temp_threshold.get("high", 35) and soil_moisture < threshold.get(
             "low", 25
         ):
             recommendations.append(

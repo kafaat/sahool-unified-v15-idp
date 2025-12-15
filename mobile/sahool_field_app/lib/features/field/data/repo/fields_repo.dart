@@ -114,12 +114,13 @@ class FieldsRepo {
       OutboxCompanion.insert(
         id: _uuid.v4(),
         type: 'field_create',
-        payloadJson: jsonEncode(geoJsonPayload),
+        payload: jsonEncode(geoJsonPayload),
         createdAt: now,
       ),
     );
 
-    print('✅ Field "$name" created locally (${areaHectares.toStringAsFixed(2)} ha)');
+    print(
+        '✅ Field "$name" created locally (${areaHectares.toStringAsFixed(2)} ha)');
 
     return domain.Field(
       id: fieldId,
@@ -174,7 +175,7 @@ class FieldsRepo {
       OutboxCompanion.insert(
         id: _uuid.v4(),
         type: 'field_update_boundary',
-        payloadJson: jsonEncode(geoJsonPayload),
+        payload: jsonEncode(geoJsonPayload),
         createdAt: DateTime.now(),
       ),
     );
@@ -209,7 +210,7 @@ class FieldsRepo {
       OutboxCompanion.insert(
         id: _uuid.v4(),
         type: 'field_update_properties',
-        payloadJson: jsonEncode({
+        payload: jsonEncode({
           'field_id': fieldId,
           'remote_id': field.remoteId,
           'tenant_id': field.tenantId,
@@ -235,7 +236,7 @@ class FieldsRepo {
       OutboxCompanion.insert(
         id: _uuid.v4(),
         type: 'field_delete',
-        payloadJson: jsonEncode({
+        payload: jsonEncode({
           'field_id': fieldId,
           'remote_id': field.remoteId,
           'tenant_id': field.tenantId,

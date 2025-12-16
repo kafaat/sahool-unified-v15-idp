@@ -8,6 +8,7 @@ import 'dart:io';
 /// منافذ الخدمات للتطوير المحلي
 class ServicePorts {
   static const int fieldCore = 3000;
+  static const int marketplace = 3010; // Marketplace & FinTech Service
   static const int satellite = 8090;
   static const int indicators = 8091;
   static const int weather = 8092;
@@ -16,7 +17,9 @@ class ServicePorts {
   static const int cropHealth = 8095; // Sahool Vision AI
   static const int virtualSensors = 8096; // Virtual Sensors Engine
   static const int communityChat = 8097; // Community Chat (Socket.io)
+  static const int yieldEngine = 8098; // Yield Prediction Engine
   static const int equipment = 8101;
+  static const int notification = 8109; // Notification Service
   static const int gateway = 8000; // Kong API Gateway
 }
 
@@ -50,7 +53,10 @@ class ApiConfig {
   static String get cropHealthServiceUrl => 'http://$_host:${ServicePorts.cropHealth}';
   static String get virtualSensorsServiceUrl => 'http://$_host:${ServicePorts.virtualSensors}';
   static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
+  static String get yieldEngineServiceUrl => 'http://$_host:${ServicePorts.yieldEngine}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
+  static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
+  static String get notificationServiceUrl => 'http://$_host:${ServicePorts.notification}';
 
   /// Production base URL (Kong Gateway)
   static const String productionBaseUrl = 'https://api.sahool.io';
@@ -300,4 +306,81 @@ class ApiConfig {
   static String get chatOnlineExperts => '$_chatBase/v1/experts/online';
   static String get chatStats => '$_chatBase/v1/stats';
   static String get chatHealthz => '$_chatBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Marketplace Service Endpoints (port 3010)
+  // سوق سهول - بيع وشراء المنتجات الزراعية
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _marketBase => useDirectServices ? marketplaceServiceUrl : effectiveBaseUrl;
+
+  /// Market product endpoints
+  static String get marketProducts => '$_marketBase/api/v1/market/products';
+  static String marketProductById(String id) => '$_marketBase/api/v1/market/products/$id';
+  static String get listHarvest => '$_marketBase/api/v1/market/list-harvest';
+  static String get marketOrders => '$_marketBase/api/v1/market/orders';
+  static String userMarketOrders(String userId) => '$_marketBase/api/v1/market/orders/$userId';
+  static String get marketStats => '$_marketBase/api/v1/market/stats';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // FinTech Service Endpoints (port 3010)
+  // المحفظة والتمويل الزراعي
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Wallet endpoints
+  static String wallet(String userId) => '$_marketBase/api/v1/fintech/wallet/$userId';
+  static String walletDeposit(String walletId) => '$_marketBase/api/v1/fintech/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) => '$_marketBase/api/v1/fintech/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) => '$_marketBase/api/v1/fintech/wallet/$walletId/transactions';
+
+  /// Credit score endpoint
+  static String get calculateCreditScore => '$_marketBase/api/v1/fintech/calculate-score';
+
+  /// Loan endpoints
+  static String get loans => '$_marketBase/api/v1/fintech/loans';
+  static String userLoans(String walletId) => '$_marketBase/api/v1/fintech/loans/$walletId';
+  static String approveLoan(String loanId) => '$_marketBase/api/v1/fintech/loans/$loanId/approve';
+  static String repayLoan(String loanId) => '$_marketBase/api/v1/fintech/loans/$loanId/repay';
+
+  /// FinTech stats
+  static String get fintechStats => '$_marketBase/api/v1/fintech/stats';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Notification Service Endpoints (port 8109)
+  // خدمة الإشعارات المخصصة
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _notificationBase => useDirectServices ? notificationServiceUrl : effectiveBaseUrl;
+
+  /// Notification endpoints
+  static String get createNotification => '$_notificationBase/v1/notifications';
+  static String farmerNotifications(String farmerId) => '$_notificationBase/v1/notifications/farmer/$farmerId';
+  static String markNotificationRead(String notificationId, String farmerId) =>
+      '$_notificationBase/v1/notifications/$notificationId/read?farmer_id=$farmerId';
+  static String get broadcastNotifications => '$_notificationBase/v1/notifications/broadcast';
+
+  /// Alert endpoints
+  static String get weatherAlert => '$_notificationBase/v1/alerts/weather';
+  static String get pestAlert => '$_notificationBase/v1/alerts/pest';
+  static String get irrigationReminder => '$_notificationBase/v1/reminders/irrigation';
+
+  /// Farmer registration for notifications
+  static String get registerFarmerNotifications => '$_notificationBase/v1/farmers/register';
+  static String updateFarmerPreferences(String farmerId) => '$_notificationBase/v1/farmers/$farmerId/preferences';
+
+  /// Notification stats
+  static String get notificationStats => '$_notificationBase/v1/stats';
+  static String get notificationHealthz => '$_notificationBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Yield Engine Service Endpoints (port 8098)
+  // محرك توقع الإنتاجية
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _yieldBase => useDirectServices ? yieldEngineServiceUrl : effectiveBaseUrl;
+
+  /// Yield prediction endpoints
+  static String get yieldPredict => '$_yieldBase/v1/yield/predict';
+  static String yieldHistorical(String fieldId) => '$_yieldBase/v1/yield/historical/$fieldId';
+  static String get yieldHealthz => '$_yieldBase/healthz';
 }

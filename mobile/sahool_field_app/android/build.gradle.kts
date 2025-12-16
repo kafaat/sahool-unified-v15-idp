@@ -32,7 +32,7 @@ subprojects {
 
 // Force evaluation of the app subproject for all other subprojects
 subprojects {
-    if (project.name != "app") {
+    if (project.path != ":app") {
         project.evaluationDependsOn(":app")
     }
 }

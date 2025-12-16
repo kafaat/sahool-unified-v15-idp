@@ -22,18 +22,45 @@ class ServicePorts {
 
 /// API configuration class
 /// 10.0.2.2 للمحاكي الأندرويد، localhost للـ iOS Simulator
+/// لأجهزة Android الحقيقية: استخدم IP الكمبيوتر (192.168.x.x)
 class ApiConfig {
   ApiConfig._();
 
-  /// Get host based on platform
+  /// ⚠️ للتجربة على جهاز حقيقي:
+  /// 1. اكتب `ipconfig` (Windows) أو `ifconfig` (Mac/Linux)
+  /// 2. انسخ عنوان IPv4 (مثل 192.168.1.5)
+  /// 3. ضعه في المتغير أدناه
+  static const String? _customHost = null; // مثال: '192.168.1.5'
+
+  /// Production API URL
+  static const String _productionHost = 'api.sahool.io';
+
+  /// Check if running in release mode
+  static bool get isProduction => const bool.fromEnvironment('dart.vm.product');
+
+  /// Get host based on platform and environment
   static String get _host {
+    // In production, always use production host
+    if (isProduction && _customHost == null) {
+      return _productionHost;
+    }
+
+    // If custom host is set (for real device testing)
+    if (_customHost != null && _customHost!.isNotEmpty) {
+      return _customHost!;
+    }
+
+    // Development mode
     if (Platform.isAndroid) {
       // Android Emulator sees host machine as 10.0.2.2
       return '10.0.2.2';
     }
-    // iOS Simulator and real devices
+    // iOS Simulator
     return 'localhost';
   }
+
+  /// Get protocol (https for production, http for development)
+  static String get _protocol => isProduction ? 'https' : 'http';
 
   /// Base URL for field-core service (legacy)
   static String get baseUrl => 'http://$_host:${ServicePorts.fieldCore}';

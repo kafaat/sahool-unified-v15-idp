@@ -2,7 +2,7 @@
 Tests for Agro Rules Module
 """
 
-from src.rules import (
+from kernel.services.agro_rules.src.rules import (
     TaskRule,
     rule_from_irrigation_adjustment,
     rule_from_ndvi,

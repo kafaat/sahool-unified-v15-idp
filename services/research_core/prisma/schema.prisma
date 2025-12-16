@@ -1,0 +1,276 @@
+// SAHOOL Research Core - Prisma Schema
+// نواة البحث العلمي - مخطط Prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ExperimentStatus {
+  draft
+  active
+  locked
+  completed
+  archived
+}
+
+enum SampleType {
+  soil
+  plant
+  water
+  pest
+  other
+}
+
+enum TreatmentType {
+  fertilizer
+  pesticide
+  irrigation
+  seed_variety
+  other
+}
+
+enum LogCategory {
+  observation
+  measurement
+  treatment
+  harvest
+  weather
+  pest
+  other
+}
+
+model Experiment {
+  id                    String           @id @default(uuid())
+  title                 String           @db.VarChar(255)
+  titleAr               String?          @map("title_ar") @db.VarChar(255)
+  description           String?          @db.Text
+  descriptionAr         String?          @map("description_ar") @db.Text
+  hypothesis            String?          @db.Text
+  hypothesisAr          String?          @map("hypothesis_ar") @db.Text
+  startDate             DateTime         @map("start_date") @db.Date
+  endDate               DateTime?        @map("end_date") @db.Date
+  status                ExperimentStatus @default(draft)
+  lockedAt              DateTime?        @map("locked_at")
+  lockedBy              String?          @map("locked_by")
+  principalResearcherId String           @map("principal_researcher_id")
+  organizationId        String?          @map("organization_id")
+  farmId                String?          @map("farm_id")
+  metadata              Json             @default("{}")
+  tags                  String[]         @default([])
+  createdAt             DateTime         @default(now()) @map("created_at")
+  updatedAt             DateTime         @updatedAt @map("updated_at")
+  version               Int              @default(1)
+
+  protocols     ResearchProtocol[]
+  plots         ResearchPlot[]
+  treatments    Treatment[]
+  logs          ResearchDailyLog[]
+  samples       LabSample[]
+  collaborators ExperimentCollaborator[]
+  auditLogs     ExperimentAuditLog[]
+
+  @@map("experiments")
+}
+
+model ResearchProtocol {
+  id                  String      @id @default(uuid())
+  experimentId        String      @map("experiment_id")
+  name                String      @db.VarChar(255)
+  nameAr              String?     @map("name_ar") @db.VarChar(255)
+  description         String?     @db.Text
+  descriptionAr       String?     @map("description_ar") @db.Text
+  methodology         String      @db.Text
+  methodologyAr       String?     @map("methodology_ar") @db.Text
+  variables           Json        @default("{}")
+  measurementSchedule Json        @default("{}") @map("measurement_schedule")
+  equipmentRequired   String[]    @default([]) @map("equipment_required")
+  safetyGuidelines    String?     @map("safety_guidelines") @db.Text
+  version             Int         @default(1)
+  approvedBy          String?     @map("approved_by")
+  approvedAt          DateTime?   @map("approved_at")
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
+
+  experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  @@map("research_protocols")
+}
+
+model ResearchPlot {
+  id              String     @id @default(uuid())
+  experimentId    String     @map("experiment_id")
+  plotCode        String     @map("plot_code") @db.VarChar(50)
+  name            String?    @db.VarChar(255)
+  nameAr          String?    @map("name_ar") @db.VarChar(255)
+  areaSqm         Decimal?   @map("area_sqm") @db.Decimal(10, 2)
+  soilType        String?    @map("soil_type") @db.VarChar(100)
+  soilPh          Decimal?   @map("soil_ph") @db.Decimal(4, 2)
+  previousCrop    String?    @map("previous_crop") @db.VarChar(100)
+  replicateNumber Int        @default(1) @map("replicate_number")
+  blockNumber     Int?       @map("block_number")
+  rowNumber       Int?       @map("row_number")
+  columnNumber    Int?       @map("column_number")
+  metadata        Json       @default("{}")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  experiment Experiment         @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  treatments Treatment[]
+  logs       ResearchDailyLog[]
+  samples    LabSample[]
+
+  @@unique([experimentId, plotCode])
+  @@map("research_plots")
+}
+
+model Treatment {
+  id                   String        @id @default(uuid())
+  experimentId         String        @map("experiment_id")
+  plotId               String?       @map("plot_id")
+  treatmentCode        String        @map("treatment_code") @db.VarChar(50)
+  name                 String        @db.VarChar(255)
+  nameAr               String?       @map("name_ar") @db.VarChar(255)
+  type                 TreatmentType
+  description          String?       @db.Text
+  descriptionAr        String?       @map("description_ar") @db.Text
+  dosage               String?       @db.VarChar(100)
+  dosageUnit           String?       @map("dosage_unit") @db.VarChar(50)
+  applicationMethod    String?       @map("application_method") @db.VarChar(100)
+  applicationFrequency String?       @map("application_frequency") @db.VarChar(100)
+  startDate            DateTime?     @map("start_date") @db.Date
+  endDate              DateTime?     @map("end_date") @db.Date
+  isControl            Boolean       @default(false) @map("is_control")
+  parameters           Json          @default("{}")
+  createdAt            DateTime      @default(now()) @map("created_at")
+  updatedAt            DateTime      @updatedAt @map("updated_at")
+
+  experiment Experiment         @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  plot       ResearchPlot?      @relation(fields: [plotId], references: [id], onDelete: SetNull)
+  logs       ResearchDailyLog[]
+
+  @@map("treatments")
+}
+
+model ResearchDailyLog {
+  id                String      @id @default(uuid())
+  experimentId      String      @map("experiment_id")
+  plotId            String?     @map("plot_id")
+  treatmentId       String?     @map("treatment_id")
+  logDate           DateTime    @map("log_date") @db.Date
+  logTime           String?     @map("log_time") @db.VarChar(8)
+  category          LogCategory
+  title             String      @db.VarChar(255)
+  titleAr           String?     @map("title_ar") @db.VarChar(255)
+  notes             String?     @db.Text
+  notesAr           String?     @map("notes_ar") @db.Text
+  measurements      Json        @default("{}")
+  weatherConditions Json        @default("{}") @map("weather_conditions")
+  photos            String[]    @default([])
+  attachments       String[]    @default([])
+  recordedBy        String      @map("recorded_by")
+  deviceId          String?     @map("device_id") @db.VarChar(100)
+  offlineId         String?     @unique @map("offline_id") @db.VarChar(100)
+  hash              String?     @db.VarChar(64)
+  syncedAt          DateTime?   @map("synced_at")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  experiment Experiment    @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  plot       ResearchPlot? @relation(fields: [plotId], references: [id], onDelete: SetNull)
+  treatment  Treatment?    @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
+  samples    LabSample[]
+
+  @@map("research_daily_logs")
+}
+
+model LabSample {
+  id                 String     @id @default(uuid())
+  experimentId       String     @map("experiment_id")
+  plotId             String?    @map("plot_id")
+  logId              String?    @map("log_id")
+  sampleCode         String     @unique @map("sample_code") @db.VarChar(100)
+  type               SampleType
+  description        String?    @db.Text
+  descriptionAr      String?    @map("description_ar") @db.Text
+  collectionDate     DateTime   @map("collection_date") @db.Date
+  collectionTime     String?    @map("collection_time") @db.VarChar(8)
+  collectedBy        String     @map("collected_by")
+  storageLocation    String?    @map("storage_location") @db.VarChar(255)
+  storageConditions  String?    @map("storage_conditions") @db.VarChar(255)
+  quantity           Decimal?   @db.Decimal(10, 3)
+  quantityUnit       String?    @map("quantity_unit") @db.VarChar(50)
+  analysisStatus     String     @default("pending") @map("analysis_status") @db.VarChar(50)
+  analysisResults    Json       @default("{}") @map("analysis_results")
+  analyzedBy         String?    @map("analyzed_by")
+  analyzedAt         DateTime?  @map("analyzed_at")
+  photos             String[]   @default([])
+  metadata           Json       @default("{}")
+  createdAt          DateTime   @default(now()) @map("created_at")
+  updatedAt          DateTime   @updatedAt @map("updated_at")
+
+  experiment Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  plot       ResearchPlot?     @relation(fields: [plotId], references: [id], onDelete: SetNull)
+  log        ResearchDailyLog? @relation(fields: [logId], references: [id], onDelete: SetNull)
+
+  @@map("lab_samples")
+}
+
+model DigitalSignature {
+  id                 String    @id @default(uuid())
+  entityType         String    @map("entity_type") @db.VarChar(50)
+  entityId           String    @map("entity_id")
+  signerId           String    @map("signer_id")
+  signatureHash      String    @map("signature_hash") @db.VarChar(128)
+  algorithm          String    @default("HMAC-SHA256") @db.VarChar(50)
+  payloadHash        String    @map("payload_hash") @db.VarChar(128)
+  timestamp          DateTime  @default(now())
+  ipAddress          String?   @map("ip_address") @db.VarChar(45)
+  deviceInfo         Json      @default("{}") @map("device_info")
+  purpose            String?   @db.VarChar(100)
+  isValid            Boolean   @default(true) @map("is_valid")
+  invalidatedAt      DateTime? @map("invalidated_at")
+  invalidatedReason  String?   @map("invalidated_reason") @db.Text
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  @@unique([entityType, entityId, signerId, purpose])
+  @@map("digital_signatures")
+}
+
+model ExperimentCollaborator {
+  id           String    @id @default(uuid())
+  experimentId String    @map("experiment_id")
+  userId       String    @map("user_id")
+  role         String    @db.VarChar(50)
+  permissions  Json      @default("{\"read\": true, \"write\": false, \"admin\": false}")
+  invitedBy    String?   @map("invited_by")
+  acceptedAt   DateTime? @map("accepted_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  @@unique([experimentId, userId])
+  @@map("experiment_collaborators")
+}
+
+model ExperimentAuditLog {
+  id           String    @id @default(uuid())
+  experimentId String?   @map("experiment_id")
+  entityType   String    @map("entity_type") @db.VarChar(50)
+  entityId     String    @map("entity_id")
+  action       String    @db.VarChar(50)
+  oldValues    Json?     @map("old_values")
+  newValues    Json?     @map("new_values")
+  changedBy    String    @map("changed_by")
+  changedAt    DateTime  @default(now()) @map("changed_at")
+  ipAddress    String?   @map("ip_address") @db.VarChar(45)
+  userAgent    String?   @map("user_agent") @db.Text
+
+  experiment Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
+
+  @@map("experiment_audit_log")
+}

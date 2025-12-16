@@ -22,13 +22,16 @@
     "recharts": "^2.10.4",
     "lucide-react": "^0.312.0",
     "clsx": "^2.1.0",
-    "tailwind-merge": "^2.2.0"
+    "tailwind-merge": "^2.2.0",
+    "jose": "^5.2.0",
+    "js-cookie": "^3.0.5"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@types/leaflet": "^1.9.8",
+    "@types/js-cookie": "^3.0.6",
     "typescript": "^5.3.3",
     "tailwindcss": "^3.4.1",
     "postcss": "^8.4.33",

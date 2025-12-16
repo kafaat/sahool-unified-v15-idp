@@ -20,17 +20,23 @@ import {
   Activity,
   Cpu,
   Droplets,
+  FlaskConical,
+  Users,
+  FileText,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
   { name: 'المزارع', href: '/farms', icon: MapPin },
+  { name: 'المختبر والعينات', href: '/lab', icon: FlaskConical },
   { name: 'مركز رصد الأوبئة', href: '/epidemic', icon: Activity },
   { name: 'إدارة الأمراض', href: '/diseases', icon: Bug },
   { name: 'حاسبة الإنتاجية', href: '/yield', icon: TrendingUp },
   { name: 'الري الذكي', href: '/irrigation', icon: Droplets },
   { name: 'المستشعرات', href: '/sensors', icon: Cpu },
   { name: 'الطقس والتنبيهات', href: '/alerts', icon: Bell },
+  { name: 'التقارير', href: '/reports', icon: FileText },
+  { name: 'المستخدمين', href: '/users', icon: Users },
   { name: 'الدعم الفني', href: '/support', icon: MessageCircle, badge: 5 },
   { name: 'الإعدادات', href: '/settings', icon: Settings },
 ];

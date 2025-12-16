@@ -78,7 +78,7 @@ jobs:
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
         run: |
-          flutter build apk --release --obfuscate --split-debug-info=./build/app/outputs/symbols
+          flutter build apk --release
 
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' }}
@@ -109,6 +109,7 @@ jobs:
           name: sahool-symbols-${{ github.run_number }}
           path: mobile/sahool_field_app/build/app/outputs/symbols/
           retention-days: 90
+        continue-on-error: true
 
       - name: Build Summary
         run: |

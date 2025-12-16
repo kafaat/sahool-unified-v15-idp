@@ -6,8 +6,9 @@ import '../../domain/entities/crop_health_entities.dart';
 class CropHealthApi {
   final ApiClient _client;
 
-  /// Base URL for crop health service (port 8100)
-  static const String _baseUrl = '/crop-health/api/v1';
+  /// Base URL for crop health service (via Kong API Gateway)
+  /// Note: apiBaseUrl already includes /api/v1, so we only add /crop-health
+  static const String _baseUrl = '/crop-health';
 
   CropHealthApi(this._client);
 

@@ -1,0 +1,8 @@
+# SAHOOL IoT Sensor Simulator Dependencies
+# متطلبات محاكي حساسات إنترنت الأشياء
+
+# MQTT Client
+paho-mqtt>=1.6.1
+
+# Optional: for enhanced logging
+# colorama>=0.4.6

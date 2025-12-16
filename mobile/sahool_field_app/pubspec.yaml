@@ -78,6 +78,32 @@ dev_dependencies:
   riverpod_generator: ^2.3.11
   mockito: ^5.4.4
 
+  # App Branding
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.10
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#2E7D32"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  min_sdk_android: 21
+
+# Splash Screen Configuration
+flutter_native_splash:
+  color: "#2E7D32"
+  image: assets/icon/splash_logo.png
+  color_dark: "#1B5E20"
+  image_dark: assets/icon/splash_logo.png
+  android_12:
+    color: "#2E7D32"
+    icon_background_color: "#2E7D32"
+    image: assets/icon/splash_logo.png
+  ios: true
+  web: false
+
 flutter:
   uses-material-design: true
 
@@ -85,4 +111,5 @@ flutter:
     - .env
     - assets/images/
     - assets/icons/
+    - assets/icon/
     - assets/fonts/

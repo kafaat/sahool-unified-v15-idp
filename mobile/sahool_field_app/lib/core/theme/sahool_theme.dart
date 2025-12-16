@@ -24,6 +24,28 @@ class SahoolColors {
   static const Color sahoolGreen = Color(0xFF367C2B);
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Organic Colors - ألوان التصميم العضوي (Bento Grid)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// أخضر الغابة العميق
+  static const Color forestGreen = Color(0xFF2D5A3D);
+
+  /// ذهبي الحصاد (للبطاقات المميزة)
+  static const Color harvestGold = Color(0xFFD4A84B);
+
+  /// زيتوني شاحب (للخلفيات)
+  static const Color paleOlive = Color(0xFFE8E4D9);
+
+  /// أخضر المريمية
+  static const Color sageGreen = Color(0xFF87A878);
+
+  /// كريمي دافئ
+  static const Color warmCream = Color(0xFFFAF8F5);
+
+  /// بني ترابي
+  static const Color earthBrown = Color(0xFF8B7355);
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Status Colors - ألوان الحالة
   // ─────────────────────────────────────────────────────────────────────────
 

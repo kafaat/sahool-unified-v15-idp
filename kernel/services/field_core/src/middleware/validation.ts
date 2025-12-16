@@ -395,3 +395,376 @@ export function validateParams(schema: Schema) {
         next();
     };
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GEOSPATIAL VALIDATION - التحقق الجغرافي المكاني
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface GeoValidationResult {
+    valid: boolean;
+    errors: string[];
+    errors_ar: string[];
+    warnings?: string[];
+}
+
+export interface Coordinate {
+    lat: number;
+    lng: number;
+}
+
+/**
+ * Validate latitude value (-90 to 90)
+ */
+export function validateLatitude(lat: number): GeoValidationResult {
+    const errors: string[] = [];
+    const errors_ar: string[] = [];
+
+    if (typeof lat !== "number" || isNaN(lat)) {
+        errors.push("Latitude must be a valid number");
+        errors_ar.push("خط العرض يجب أن يكون رقماً صالحاً");
+    } else if (lat < -90 || lat > 90) {
+        errors.push("Latitude must be between -90 and 90");
+        errors_ar.push("خط العرض يجب أن يكون بين -90 و 90");
+    }
+
+    return { valid: errors.length === 0, errors, errors_ar };
+}
+
+/**
+ * Validate longitude value (-180 to 180)
+ */
+export function validateLongitude(lng: number): GeoValidationResult {
+    const errors: string[] = [];
+    const errors_ar: string[] = [];
+
+    if (typeof lng !== "number" || isNaN(lng)) {
+        errors.push("Longitude must be a valid number");
+        errors_ar.push("خط الطول يجب أن يكون رقماً صالحاً");
+    } else if (lng < -180 || lng > 180) {
+        errors.push("Longitude must be between -180 and 180");
+        errors_ar.push("خط الطول يجب أن يكون بين -180 و 180");
+    }
+
+    return { valid: errors.length === 0, errors, errors_ar };
+}
+
+/**
+ * Validate a coordinate pair [lng, lat] (GeoJSON format)
+ */
+export function validateCoordinatePair(coord: [number, number]): GeoValidationResult {
+    const errors: string[] = [];
+    const errors_ar: string[] = [];
+
+    if (!Array.isArray(coord) || coord.length !== 2) {
+        errors.push("Coordinate must be an array of [longitude, latitude]");
+        errors_ar.push("الإحداثي يجب أن يكون مصفوفة [خط الطول، خط العرض]");
+        return { valid: false, errors, errors_ar };
+    }
+
+    const [lng, lat] = coord;
+
+    const latResult = validateLatitude(lat);
+    const lngResult = validateLongitude(lng);
+
+    return {
+        valid: latResult.valid && lngResult.valid,
+        errors: [...lngResult.errors, ...latResult.errors],
+        errors_ar: [...lngResult.errors_ar, ...latResult.errors_ar]
+    };
+}
+
+/**
+ * Validate polygon coordinates (GeoJSON format)
+ * - Must have at least 4 points (3 unique + closing point)
+ * - First and last point must be the same (closed polygon)
+ * - All coordinates must be valid
+ */
+export function validatePolygonCoordinates(coordinates: number[][][]): GeoValidationResult {
+    const errors: string[] = [];
+    const errors_ar: string[] = [];
+    const warnings: string[] = [];
+
+    // Check if coordinates is an array
+    if (!Array.isArray(coordinates)) {
+        errors.push("Polygon coordinates must be an array");
+        errors_ar.push("إحداثيات المضلع يجب أن تكون مصفوفة");
+        return { valid: false, errors, errors_ar };
+    }
+
+    // GeoJSON Polygon has an outer ring at index 0
+    if (coordinates.length === 0) {
+        errors.push("Polygon must have at least one ring (outer boundary)");
+        errors_ar.push("المضلع يجب أن يحتوي على حلقة خارجية واحدة على الأقل");
+        return { valid: false, errors, errors_ar };
+    }
+
+    const outerRing = coordinates[0];
+
+    // Check minimum points (4 = 3 unique + 1 closing)
+    if (!Array.isArray(outerRing) || outerRing.length < 4) {
+        errors.push("Polygon must have at least 4 points (3 unique vertices + closing point)");
+        errors_ar.push("المضلع يجب أن يحتوي على 4 نقاط على الأقل (3 رؤوس فريدة + نقطة إغلاق)");
+        return { valid: false, errors, errors_ar };
+    }
+
+    // Validate each coordinate
+    for (let i = 0; i < outerRing.length; i++) {
+        const coord = outerRing[i];
+        const result = validateCoordinatePair(coord as [number, number]);
+        if (!result.valid) {
+            errors.push(`Invalid coordinate at index ${i}: ${result.errors.join(", ")}`);
+            errors_ar.push(`إحداثي غير صالح في الموقع ${i}: ${result.errors_ar.join("، ")}`);
+        }
+    }
+
+    // Check if polygon is closed (first point equals last point)
+    const firstPoint = outerRing[0];
+    const lastPoint = outerRing[outerRing.length - 1];
+
+    if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
+        errors.push("Polygon must be closed (first and last coordinates must be identical)");
+        errors_ar.push("المضلع يجب أن يكون مغلقاً (الإحداثي الأول والأخير يجب أن يكونا متطابقين)");
+    }
+
+    // Check for self-intersection (simplified check)
+    if (outerRing.length > 4 && hasSelfIntersection(outerRing)) {
+        errors.push("Polygon has self-intersection (invalid geometry)");
+        errors_ar.push("المضلع يحتوي على تقاطع ذاتي (شكل هندسي غير صالح)");
+    }
+
+    // Warning for very large polygons
+    if (outerRing.length > 1000) {
+        warnings.push("Polygon has many vertices, consider simplifying");
+    }
+
+    return { valid: errors.length === 0, errors, errors_ar, warnings };
+}
+
+/**
+ * Validate GeoJSON object
+ */
+export function validateGeoJSON(geojson: any): GeoValidationResult {
+    const errors: string[] = [];
+    const errors_ar: string[] = [];
+
+    if (!geojson || typeof geojson !== "object") {
+        errors.push("GeoJSON must be an object");
+        errors_ar.push("GeoJSON يجب أن يكون كائناً");
+        return { valid: false, errors, errors_ar };
+    }
+
+    // Check type
+    if (!geojson.type) {
+        errors.push("GeoJSON must have a 'type' property");
+        errors_ar.push("GeoJSON يجب أن يحتوي على خاصية 'type'");
+        return { valid: false, errors, errors_ar };
+    }
+
+    const validTypes = ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection", "Feature", "FeatureCollection"];
+    if (!validTypes.includes(geojson.type)) {
+        errors.push(`Invalid GeoJSON type: ${geojson.type}. Must be one of: ${validTypes.join(", ")}`);
+        errors_ar.push(`نوع GeoJSON غير صالح: ${geojson.type}`);
+        return { valid: false, errors, errors_ar };
+    }
+
+    // Validate coordinates based on type
+    if (geojson.type === "Polygon") {
+        if (!geojson.coordinates) {
+            errors.push("Polygon must have 'coordinates' property");
+            errors_ar.push("المضلع يجب أن يحتوي على خاصية 'coordinates'");
+            return { valid: false, errors, errors_ar };
+        }
+        return validatePolygonCoordinates(geojson.coordinates);
+    }
+
+    if (geojson.type === "Point") {
+        if (!geojson.coordinates) {
+            errors.push("Point must have 'coordinates' property");
+            errors_ar.push("النقطة يجب أن تحتوي على خاصية 'coordinates'");
+            return { valid: false, errors, errors_ar };
+        }
+        return validateCoordinatePair(geojson.coordinates);
+    }
+
+    if (geojson.type === "Feature") {
+        if (!geojson.geometry) {
+            errors.push("Feature must have 'geometry' property");
+            errors_ar.push("Feature يجب أن يحتوي على خاصية 'geometry'");
+            return { valid: false, errors, errors_ar };
+        }
+        return validateGeoJSON(geojson.geometry);
+    }
+
+    return { valid: true, errors: [], errors_ar: [] };
+}
+
+/**
+ * Calculate approximate area of polygon in hectares
+ * Uses Shoelace formula with latitude correction
+ */
+export function calculatePolygonArea(coordinates: number[][]): number {
+    if (!coordinates || coordinates.length < 3) return 0;
+
+    // Earth's radius in meters
+    const R = 6371000;
+
+    let area = 0;
+    const n = coordinates.length;
+
+    for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n;
+        const [lng1, lat1] = coordinates[i];
+        const [lng2, lat2] = coordinates[j];
+
+        // Convert to radians
+        const lat1Rad = lat1 * Math.PI / 180;
+        const lat2Rad = lat2 * Math.PI / 180;
+        const lng1Rad = lng1 * Math.PI / 180;
+        const lng2Rad = lng2 * Math.PI / 180;
+
+        // Spherical excess formula
+        area += (lng2Rad - lng1Rad) * (2 + Math.sin(lat1Rad) + Math.sin(lat2Rad));
+    }
+
+    area = Math.abs(area * R * R / 2);
+
+    // Convert to hectares (1 hectare = 10,000 m²)
+    return area / 10000;
+}
+
+/**
+ * Check if polygon has self-intersection (simplified)
+ */
+function hasSelfIntersection(ring: number[][]): boolean {
+    const n = ring.length - 1; // Exclude closing point
+
+    for (let i = 0; i < n - 1; i++) {
+        for (let j = i + 2; j < n; j++) {
+            // Skip adjacent segments
+            if (i === 0 && j === n - 1) continue;
+
+            if (segmentsIntersect(ring[i], ring[i + 1], ring[j], ring[(j + 1) % n])) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Check if two line segments intersect
+ */
+function segmentsIntersect(p1: number[], p2: number[], p3: number[], p4: number[]): boolean {
+    const d1 = direction(p3, p4, p1);
+    const d2 = direction(p3, p4, p2);
+    const d3 = direction(p1, p2, p3);
+    const d4 = direction(p1, p2, p4);
+
+    if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+        ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) {
+        return true;
+    }
+    return false;
+}
+
+function direction(p1: number[], p2: number[], p3: number[]): number {
+    return (p3[0] - p1[0]) * (p2[1] - p1[1]) - (p2[0] - p1[0]) * (p3[1] - p1[1]);
+}
+
+/**
+ * Middleware to validate GeoJSON boundary in request body
+ */
+export function validateBoundary() {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const { boundary, coordinates } = req.body;
+
+        // If boundary is provided as GeoJSON
+        if (boundary) {
+            const result = validateGeoJSON(boundary);
+            if (!result.valid) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid boundary geometry",
+                    error_ar: "شكل الحدود غير صالح",
+                    details: result.errors.map((e, i) => ({
+                        message: e,
+                        message_ar: result.errors_ar[i]
+                    }))
+                });
+            }
+        }
+
+        // If coordinates are provided as array
+        if (coordinates && Array.isArray(coordinates)) {
+            // Convert to GeoJSON format if needed
+            const geoJsonCoords = [coordinates.map((c: any) => [c[0] || c.lng, c[1] || c.lat])];
+
+            // Ensure closed polygon
+            const first = geoJsonCoords[0][0];
+            const last = geoJsonCoords[0][geoJsonCoords[0].length - 1];
+            if (first[0] !== last[0] || first[1] !== last[1]) {
+                geoJsonCoords[0].push([...first]);
+            }
+
+            const result = validatePolygonCoordinates(geoJsonCoords);
+            if (!result.valid) {
+                return res.status(400).json({
+                    success: false,
+                    error: "Invalid polygon coordinates",
+                    error_ar: "إحداثيات المضلع غير صالحة",
+                    details: result.errors.map((e, i) => ({
+                        message: e,
+                        message_ar: result.errors_ar[i]
+                    }))
+                });
+            }
+
+            // Store validated GeoJSON in body
+            req.body.validatedBoundary = {
+                type: "Polygon",
+                coordinates: geoJsonCoords
+            };
+        }
+
+        next();
+    };
+}
+
+/**
+ * Enhanced Field Create Schema with geospatial validation
+ */
+export const FieldCreateSchemaWithGeo = Schema.object({
+    name: Schema.string().minLength(1).maxLength(255),
+    tenantId: Schema.string().minLength(1).maxLength(100),
+    cropType: Schema.string().minLength(1).maxLength(100),
+    ownerId: Schema.string().uuid().optional(),
+    coordinates: Schema.array(Schema.array(Schema.number())).min(3).optional(),
+    boundary: Schema.object({}).optional(), // Will be validated by validateBoundary middleware
+    irrigationType: Schema.string().enum(["drip", "sprinkler", "flood", "pivot", "furrow", "none"]).optional(),
+    soilType: Schema.string().maxLength(100).optional(),
+    plantingDate: Schema.string().optional(),
+    expectedHarvest: Schema.string().optional(),
+    metadata: Schema.object({}).optional()
+}).custom((value) => {
+    // Require either coordinates or boundary
+    if (!value.coordinates && !value.boundary) {
+        return "Either 'coordinates' or 'boundary' is required";
+    }
+    return true;
+});
+
+/**
+ * Nearby query validation schema
+ */
+export const NearbyQuerySchema = Schema.object({
+    lat: Schema.number().min(-90).max(90),
+    lng: Schema.number().min(-180).max(180),
+    radius: Schema.number().min(1).max(100000).optional() // meters, default 5000
+});
+
+/**
+ * UUID parameter validation
+ */
+export const UuidParamSchema = Schema.object({
+    id: Schema.string().uuid()
+});

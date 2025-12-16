@@ -415,6 +415,28 @@ class MarketRepository {
     }
   }
 
+  /// دالة مبسطة لإرسال طلب بيع الحصاد
+  Future<ApiResult<bool>> listHarvestForSale(String userId, Map<String, dynamic> yieldData) async {
+    try {
+      await _dio.post(
+        ApiConfig.listHarvest,
+        data: {
+          'userId': userId,
+          'yieldData': yieldData,
+        },
+      );
+      return const Success(true);
+    } on DioException catch (e) {
+      return Failure(
+        _getErrorMessage(e, 'فشل في إدراج المنتج للبيع'),
+        statusCode: e.response?.statusCode,
+        originalError: e,
+      );
+    } catch (e) {
+      return Failure('خطأ غير متوقع: $e');
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Helper Methods
   // ═══════════════════════════════════════════════════════════════════════════

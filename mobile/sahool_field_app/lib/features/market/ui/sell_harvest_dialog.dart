@@ -1,90 +1,139 @@
-/// SAHOOL Sell Harvest Dialog
-/// نافذة بيع الحصاد الذكي - تحويل توقعات الذكاء الاصطناعي إلى منتج للبيع
+/// SAHOOL Smart Sell Harvest Sheet
+/// نافذة بيع الحصاد الذكي - Bottom Sheet احترافي
 ///
 /// Features:
-/// - Display AI yield predictions
-/// - Set price and quality
-/// - Submit to marketplace
+/// - Professional invoice-like design
+/// - AI yield prediction display
+/// - Animated loading state
+/// - Integration with MarketNotifier
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
-import '../../../core/config/api_config.dart';
+import '../logic/market_notifier.dart';
 import '../data/market_repository.dart';
 
-/// مزود بيانات الحصاد المتوقع (من yield-engine)
-final yieldPredictionProvider = StateProvider<Map<String, dynamic>?>((ref) => null);
+// =============================================================================
+// Main Entry Point
+// =============================================================================
 
-/// إظهار نافذة بيع الحصاد
+/// إظهار نافذة بيع الحصاد الذكي
 void showSellHarvestDialog(BuildContext context, WidgetRef ref, {Map<String, dynamic>? yieldData}) {
   // استخدام بيانات تجريبية إذا لم تتوفر بيانات فعلية
   final data = yieldData ?? {
-    'crop': 'Wheat',
-    'cropAr': 'قمح',
-    'predictedYieldTons': 12.5,
-    'marketPrice': 320000.0, // سعر الطن بالريال اليمني
-    'harvestDate': '2025-02-15',
-    'qualityGrade': 'A',
+    'crop_type': 'Wheat',
+    'crop_type_ar': 'قمح',
+    'predicted_yield_tons': 12.5,
+    'price_per_ton': 320000.0, // سعر الطن بالريال اليمني
+    'harvest_date': '2025-02-15',
+    'quality_grade': 'A',
     'governorate': 'صنعاء',
-    'confidence': 0.87,
+    'ai_confidence': 0.87,
+    'total_value': 12.5 * 320000.0,
   };
 
-  showDialog(
+  showModalBottomSheet(
     context: context,
-    builder: (context) => _SellHarvestDialog(yieldData: data),
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+    ),
+    builder: (context) => Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: _SmartSellHarvestSheet(yieldData: data),
+    ),
   );
 }
 
-class _SellHarvestDialog extends ConsumerStatefulWidget {
+// =============================================================================
+// Smart Sell Harvest Sheet
+// =============================================================================
+
+class _SmartSellHarvestSheet extends ConsumerWidget {
   final Map<String, dynamic> yieldData;
 
-  const _SellHarvestDialog({required this.yieldData});
+  const _SmartSellHarvestSheet({required this.yieldData});
 
   @override
-  ConsumerState<_SellHarvestDialog> createState() => _SellHarvestDialogState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(marketNotifierProvider);
 
-class _SellHarvestDialogState extends ConsumerState<_SellHarvestDialog> {
-  late double _pricePerTon;
-  late double _quantity;
-  String _qualityGrade = 'A';
-  bool _isLoading = false;
+    // الاستماع للتغييرات لإغلاق النافذة عند النجاح
+    ref.listen(marketNotifierProvider, (previous, next) {
+      if (next.status == MarketStatus.success) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Expanded(child: Text('تم طرح المحصول في السوق بنجاح!')),
+              ],
+            ),
+            backgroundColor: SahoolColors.forestGreen,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+        // تحديث قائمة المنتجات
+        ref.invalidate(productsFutureProvider);
+      } else if (next.status == MarketStatus.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage ?? 'حدث خطأ'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    });
 
-  @override
-  void initState() {
-    super.initState();
-    _pricePerTon = (widget.yieldData['marketPrice'] as num).toDouble();
-    _quantity = (widget.yieldData['predictedYieldTons'] as num).toDouble();
-    _qualityGrade = widget.yieldData['qualityGrade'] ?? 'A';
-  }
-
-  double get _totalValue => _pricePerTon * _quantity;
-
-  @override
-  Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: SingleChildScrollView(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
                 // Header
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: SahoolColors.forestGreen.withOpacity(0.1),
+                        gradient: LinearGradient(
+                          colors: [
+                            SahoolColors.forestGreen.withOpacity(0.1),
+                            SahoolColors.harvestGold.withOpacity(0.1),
+                          ],
+                        ),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
-                        Icons.auto_graph,
+                        Icons.rocket_launch,
                         color: SahoolColors.forestGreen,
                         size: 28,
                       ),
@@ -95,14 +144,14 @@ class _SellHarvestDialogState extends ConsumerState<_SellHarvestDialog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'بيع الحصاد المتوقع',
+                            'ملخص البيع الذكي',
                             style: TextStyle(
-                              fontSize: 18,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            'Smart B2B Harvest Sale',
+                            'سيتم عرض هذه الكمية للمشترين المعتمدين فوراً',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -111,18 +160,73 @@ class _SellHarvestDialogState extends ConsumerState<_SellHarvestDialog> {
                         ],
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
                   ],
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
 
-                // AI Prediction Banner
+                // AI Badge
+                _AIConfidenceBadge(
+                  confidence: (yieldData['ai_confidence'] ?? yieldData['confidence'] ?? 0.85) as double,
+                ),
+
+                const SizedBox(height: 24),
+
+                // Invoice Card
                 Container(
                   padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: Column(
+                    children: [
+                      _InvoiceRow(
+                        label: 'المحصول',
+                        value: yieldData['crop_type_ar'] ?? yieldData['cropAr'] ?? 'قمح',
+                        icon: Icons.grass,
+                      ),
+                      const Divider(height: 24),
+                      _InvoiceRow(
+                        label: 'الكمية المتوقعة',
+                        value: '${yieldData['predicted_yield_tons'] ?? yieldData['predictedYieldTons']} طن',
+                        icon: Icons.scale,
+                      ),
+                      const Divider(height: 24),
+                      _InvoiceRow(
+                        label: 'سعر السوق الحالي',
+                        value: '${_formatNumber((yieldData['price_per_ton'] ?? yieldData['marketPrice'] ?? 0).toDouble())} ر.ي/طن',
+                        icon: Icons.trending_up,
+                      ),
+                      const Divider(height: 24),
+                      _InvoiceRow(
+                        label: 'المحافظة',
+                        value: yieldData['governorate'] ?? 'غير محدد',
+                        icon: Icons.location_on,
+                      ),
+                      const Divider(height: 24),
+                      _InvoiceRow(
+                        label: 'موعد الحصاد',
+                        value: yieldData['harvest_date'] ?? yieldData['harvestDate'] ?? 'قريباً',
+                        icon: Icons.calendar_today,
+                      ),
+                      const Divider(height: 24),
+                      _InvoiceRow(
+                        label: 'درجة الجودة',
+                        value: yieldData['quality_grade'] ?? yieldData['qualityGrade'] ?? 'A',
+                        icon: Icons.star,
+                        valueColor: SahoolColors.harvestGold,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // Total Value Card
+                Container(
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -135,178 +239,34 @@ class _SellHarvestDialogState extends ConsumerState<_SellHarvestDialog> {
                       color: SahoolColors.forestGreen.withOpacity(0.3),
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.psychology, size: 20, color: SahoolColors.forestGreen),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'توقع الذكاء الاصطناعي',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: SahoolColors.forestGreen,
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: SahoolColors.forestGreen,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              '${((widget.yieldData['confidence'] as num) * 100).toInt()}% دقة',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'بناءً على تحليل صور الأقمار الصناعية والمؤشرات الزراعية',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // Yield Info
-                _InfoRow(
-                  label: 'المحصول',
-                  value: widget.yieldData['cropAr'] ?? widget.yieldData['crop'],
-                  icon: Icons.grass,
-                ),
-                _InfoRow(
-                  label: 'المحافظة',
-                  value: widget.yieldData['governorate'] ?? 'غير محدد',
-                  icon: Icons.location_on,
-                ),
-                _InfoRow(
-                  label: 'تاريخ الحصاد المتوقع',
-                  value: widget.yieldData['harvestDate'] ?? 'غير محدد',
-                  icon: Icons.calendar_today,
-                ),
-
-                const Divider(height: 32),
-
-                // Editable Fields
-                const Text(
-                  'تفاصيل العرض',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 16),
-
-                // Quantity Slider
-                _SliderField(
-                  label: 'الكمية (طن)',
-                  value: _quantity,
-                  min: 1,
-                  max: (widget.yieldData['predictedYieldTons'] as num).toDouble() * 1.2,
-                  onChanged: (value) => setState(() => _quantity = value),
-                  suffix: ' طن',
-                ),
-
-                const SizedBox(height: 16),
-
-                // Price Input
-                _SliderField(
-                  label: 'السعر (ريال/طن)',
-                  value: _pricePerTon,
-                  min: _pricePerTon * 0.7,
-                  max: _pricePerTon * 1.3,
-                  onChanged: (value) => setState(() => _pricePerTon = value),
-                  suffix: ' ر.ي',
-                  divisions: 20,
-                ),
-
-                const SizedBox(height: 16),
-
-                // Quality Grade
-                Row(
-                  children: [
-                    const Text('درجة الجودة:'),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: SegmentedButton<String>(
-                        segments: const [
-                          ButtonSegment(value: 'A', label: Text('A')),
-                          ButtonSegment(value: 'B', label: Text('B')),
-                          ButtonSegment(value: 'C', label: Text('C')),
-                        ],
-                        selected: {_qualityGrade},
-                        onSelectionChanged: (selected) {
-                          setState(() => _qualityGrade = selected.first);
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.selected)) {
-                              return SahoolColors.forestGreen;
-                            }
-                            return null;
-                          }),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const Divider(height: 32),
-
-                // Total Value
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: SahoolColors.harvestGold.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: SahoolColors.harvestGold.withOpacity(0.3)),
-                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'العائد المتوقع',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'العائد التقديري',
+                            style: TextStyle(
+                              color: SahoolColors.forestGreen,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Estimated Revenue',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
                       ),
                       Text(
-                        '${_formatNumber(_totalValue)} ر.ي',
+                        '${_formatNumber(_calculateTotal(yieldData))} ر.ي',
                         style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
                           color: SahoolColors.forestGreen,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                // Info Note
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'سيتم عرض محصولك للتجار والمصانع للشراء المسبق',
-                          style: TextStyle(fontSize: 12, color: Colors.blue),
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -315,55 +275,88 @@ class _SellHarvestDialogState extends ConsumerState<_SellHarvestDialog> {
 
                 const SizedBox(height: 24),
 
-                // Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                // Info Note
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'سيتم إرسال إشعارات للتجار والمصانع المهتمين بمنتجك. ستتلقى عروض الشراء في المحفظة.',
+                          style: TextStyle(fontSize: 12, color: Colors.blue),
                         ),
-                        child: const Text('إلغاء'),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _submitListing,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: SahoolColors.forestGreen,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.store, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('اعرض للبيع'),
-                                ],
-                              ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+
+                const SizedBox(height: 32),
+
+                // Submit Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: state.isLoading
+                        ? null
+                        : () => ref.read(marketNotifierProvider.notifier).sellHarvest(yieldData),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: SahoolColors.forestGreen,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: state.isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.rocket_launch),
+                              SizedBox(width: 8),
+                              Text(
+                                'تأكيد وعرض للبيع',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Cancel Button
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'إلغاء',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+
+                // Bottom padding for safe area
+                SizedBox(height: MediaQuery.of(context).padding.bottom),
               ],
             ),
           ),
@@ -372,64 +365,10 @@ class _SellHarvestDialogState extends ConsumerState<_SellHarvestDialog> {
     );
   }
 
-  Future<void> _submitListing() async {
-    setState(() => _isLoading = true);
-
-    try {
-      final repo = ref.read(marketRepoProvider);
-      final userId = ref.read(currentUserIdProvider);
-
-      final result = await repo.listHarvest(
-        userId: userId,
-        crop: widget.yieldData['crop'] ?? 'Unknown',
-        cropAr: widget.yieldData['cropAr'] ?? widget.yieldData['crop'] ?? 'غير معروف',
-        predictedYieldTons: _quantity,
-        pricePerTon: _pricePerTon,
-        harvestDate: widget.yieldData['harvestDate'],
-        qualityGrade: _qualityGrade,
-        governorate: widget.yieldData['governorate'],
-      );
-
-      if (!mounted) return;
-
-      result.when(
-        success: (product) {
-          Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Row(
-                children: [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('تم إنشاء إعلان البيع بنجاح!'),
-                ],
-              ),
-              backgroundColor: SahoolColors.forestGreen,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          );
-        },
-        failure: (message, _, __) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('فشل: $message'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        },
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('خطأ: $e')),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+  double _calculateTotal(Map<String, dynamic> data) {
+    final quantity = (data['predicted_yield_tons'] ?? data['predictedYieldTons'] ?? 0).toDouble();
+    final price = (data['price_per_ton'] ?? data['marketPrice'] ?? 0).toDouble();
+    return quantity * price;
   }
 
   String _formatNumber(double number) {
@@ -442,80 +381,133 @@ class _SellHarvestDialogState extends ConsumerState<_SellHarvestDialog> {
   }
 }
 
-/// صف معلومات
-class _InfoRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
+// =============================================================================
+// AI Confidence Badge
+// =============================================================================
 
-  const _InfoRow({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
+class _AIConfidenceBadge extends StatelessWidget {
+  final double confidence;
+
+  const _AIConfidenceBadge({required this.confidence});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+    final percentage = (confidence * 100).toInt();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            SahoolColors.forestGreen.withOpacity(0.05),
+            SahoolColors.harvestGold.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: SahoolColors.forestGreen.withOpacity(0.2),
+        ),
+      ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: Colors.grey),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: SahoolColors.forestGreen.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.psychology,
+              color: SahoolColors.forestGreen,
+              size: 20,
+            ),
+          ),
           const SizedBox(width: 12),
-          Text(label, style: TextStyle(color: Colors.grey[600])),
-          const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'توقع الذكاء الاصطناعي',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: SahoolColors.forestGreen,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  'بناءً على صور الأقمار الصناعية والبيانات الزراعية',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: _getConfidenceColor(confidence),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '$percentage% دقة',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+
+  Color _getConfidenceColor(double confidence) {
+    if (confidence >= 0.8) return SahoolColors.forestGreen;
+    if (confidence >= 0.6) return Colors.orange;
+    return Colors.red;
+  }
 }
 
-/// حقل بشريط تمرير
-class _SliderField extends StatelessWidget {
-  final String label;
-  final double value;
-  final double min;
-  final double max;
-  final ValueChanged<double> onChanged;
-  final String suffix;
-  final int? divisions;
+// =============================================================================
+// Invoice Row Widget
+// =============================================================================
 
-  const _SliderField({
+class _InvoiceRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color? valueColor;
+
+  const _InvoiceRow({
     required this.label,
     required this.value,
-    required this.min,
-    required this.max,
-    required this.onChanged,
-    required this.suffix,
-    this.divisions,
+    required this.icon,
+    this.valueColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: TextStyle(color: Colors.grey[600])),
-            Text(
-              '${value.toStringAsFixed(1)}$suffix',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
+        Icon(icon, size: 20, color: Colors.grey[400]),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(color: Colors.grey[600]),
+          ),
         ),
-        Slider(
-          value: value.clamp(min, max),
-          min: min,
-          max: max,
-          divisions: divisions,
-          activeColor: SahoolColors.forestGreen,
-          onChanged: onChanged,
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
+            color: valueColor,
+          ),
         ),
       ],
     );

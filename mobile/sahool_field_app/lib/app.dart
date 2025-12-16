@@ -143,40 +143,47 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
-      child: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: SahoolTheme.primary,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
+      child: NavigationBar(
+        height: 70,
+        elevation: 0,
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        backgroundColor: Colors.white,
+        indicatorColor: SahoolTheme.primary.withOpacity(0.1),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded, color: SahoolTheme.primary),
             label: 'الرئيسية',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.storefront_rounded),
+          NavigationDestination(
+            icon: Icon(Icons.storefront_outlined),
+            selectedIcon: Icon(Icons.storefront_rounded, color: SahoolTheme.primary),
             label: 'السوق',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet_rounded),
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: Icon(Icons.account_balance_wallet_rounded, color: SahoolTheme.primary),
             label: 'المحفظة',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.forum_rounded),
+          NavigationDestination(
+            icon: Icon(Icons.forum_outlined),
+            selectedIcon: Icon(Icons.forum_rounded, color: SahoolTheme.primary),
             label: 'المجتمع',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.more_horiz_rounded),
+          NavigationDestination(
+            icon: Icon(Icons.more_horiz_outlined),
+            selectedIcon: Icon(Icons.more_horiz_rounded, color: SahoolTheme.primary),
             label: 'المزيد',
           ),
         ],

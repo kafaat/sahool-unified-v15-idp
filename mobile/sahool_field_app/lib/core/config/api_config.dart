@@ -346,4 +346,29 @@ class ApiConfig {
   static String get notificationUnsubscribe => '$_notificationsBase/v1/unsubscribe';
   static String get notificationMarkRead => '$_notificationsBase/v1/notifications/mark-read';
   static String get notificationsHealthz => '$_notificationsBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Marketplace & Wallet Service Endpoints
+  // خدمة السوق والمحفظة
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Wallet endpoints
+  static String wallet(String userId) => '$baseUrl/api/v1/wallet/$userId';
+  static String walletDeposit(String walletId) => '$baseUrl/api/v1/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) => '$baseUrl/api/v1/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) => '$baseUrl/api/v1/wallet/$walletId/transactions';
+  static String get calculateCreditScore => '$baseUrl/api/v1/wallet/credit-score';
+
+  /// Loans endpoints
+  static String get loans => '$baseUrl/api/v1/loans';
+  static String userLoans(String walletId) => '$baseUrl/api/v1/loans/wallet/$walletId';
+  static String repayLoan(String loanId) => '$baseUrl/api/v1/loans/$loanId/repay';
+
+  /// Marketplace endpoints
+  static String get marketProducts => '$baseUrl/api/v1/market/products';
+  static String marketProductById(String productId) => '$baseUrl/api/v1/market/products/$productId';
+  static String get listHarvest => '$baseUrl/api/v1/market/harvest';
+  static String get marketOrders => '$baseUrl/api/v1/market/orders';
+  static String userMarketOrders(String userId) => '$baseUrl/api/v1/market/orders/user/$userId';
+  static String get marketStats => '$baseUrl/api/v1/market/stats';
 }

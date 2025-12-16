@@ -3,7 +3,7 @@
 // Disease Management Page - Sahool Vision AI
 // صفحة إدارة الأمراض - سهول فيجن
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import AlertBadge from '@/components/ui/AlertBadge';
@@ -25,6 +25,7 @@ import {
   ChevronRight,
   RefreshCw,
   Download,
+  Loader2,
 } from 'lucide-react';
 
 const SEVERITY_OPTIONS = [
@@ -43,7 +44,7 @@ const STATUS_OPTIONS = [
   { value: 'treated', label: 'تم العلاج' },
 ];
 
-export default function DiseasesPage() {
+function DiseasesContent() {
   const searchParams = useSearchParams();
   const farmIdParam = searchParams?.get('farmId') || '';
 
@@ -476,5 +477,17 @@ export default function DiseasesPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function DiseasesPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-6 flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-sahool-600" />
+      </div>
+    }>
+      <DiseasesContent />
+    </Suspense>
   );
 }

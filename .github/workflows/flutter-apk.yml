@@ -1,0 +1,109 @@
+name: Build Flutter APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build type (release/debug)'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+  push:
+    branches:
+      - main
+      - 'claude/*'
+    paths:
+      - 'mobile/sahool_field_app/**'
+
+jobs:
+  build-apk:
+    name: Build Sahool APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile/sahool_field_app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Check for icon assets
+        run: |
+          if [ ! -f "assets/icon/app_icon.png" ]; then
+            echo "Creating placeholder icon..."
+            mkdir -p assets/icon
+            python3 scripts/generate_icons.py || echo "Icon generation skipped"
+          fi
+
+      - name: Generate launcher icons
+        run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"
+        continue-on-error: true
+
+      - name: Generate native splash
+        run: dart run flutter_native_splash:create || echo "Splash generation skipped"
+        continue-on-error: true
+
+      - name: Build Release APK
+        if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
+        run: |
+          flutter build apk --release --obfuscate --split-debug-info=./build/app/outputs/symbols
+
+      - name: Build Debug APK
+        if: ${{ github.event.inputs.build_type == 'debug' }}
+        run: |
+          flutter build apk --debug
+
+      - name: Get APK info
+        id: apk_info
+        run: |
+          APK_PATH=$(find build/app/outputs -name "*.apk" | head -1)
+          APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+          echo "apk_size=$APK_SIZE" >> $GITHUB_OUTPUT
+          echo "APK Path: $APK_PATH"
+          echo "APK Size: $APK_SIZE"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahool-apk-${{ github.run_number }}
+          path: mobile/sahool_field_app/build/app/outputs/**/*.apk
+          retention-days: 30
+
+      - name: Upload Debug Symbols
+        if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sahool-symbols-${{ github.run_number }}
+          path: mobile/sahool_field_app/build/app/outputs/symbols/
+          retention-days: 90
+
+      - name: Build Summary
+        run: |
+          echo "## Sahool APK Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Build Type | ${{ github.event.inputs.build_type || 'release' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| APK Size | ${{ steps.apk_info.outputs.apk_size }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Flutter Version | 3.24.5 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Run Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY

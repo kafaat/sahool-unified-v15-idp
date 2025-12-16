@@ -24,7 +24,7 @@ services:
 
   # NDVI Engine Service
   - name: ndvi-engine-service
-    url: http://sahool-ndvi-engine:8097
+    url: http://sahool-ndvi-engine:8107
     routes:
       - name: ndvi-route
         paths:
@@ -34,7 +34,7 @@ services:
 
   # Weather Core Service
   - name: weather-service
-    url: http://sahool-weather-core:8098
+    url: http://sahool-weather-core:8108
     routes:
       - name: weather-route
         paths:
@@ -54,7 +54,7 @@ services:
 
   # IoT Gateway Service
   - name: iot-service
-    url: http://sahool-iot-gateway:8096
+    url: http://sahool-iot-gateway:8106
     routes:
       - name: iot-route
         paths:
@@ -65,7 +65,7 @@ services:
 
   # Agro Advisor Service
   - name: advisor-service
-    url: http://sahool-agro-advisor:8095
+    url: http://sahool-agro-advisor:8105
     routes:
       - name: advisor-route
         paths:
@@ -75,7 +75,7 @@ services:
 
   # WebSocket Gateway Service
   - name: ws-gateway-service
-    url: http://sahool-ws-gateway:8090
+    url: http://sahool-ws-gateway:8089
     routes:
       - name: ws-route
         paths:
@@ -141,6 +141,110 @@ services:
         paths:
           - /api/v1/providers
           - /api/v1/config
+        strip_path: false
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL v15.3 Services
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Satellite Service - NDVI Analysis (v15.3)
+  - name: satellite-service-v15
+    url: http://sahool-satellite-service:8090
+    routes:
+      - name: satellite-v15-route
+        paths:
+          - /api/v1/satellite/analyze
+          - /api/v1/satellite/timeseries
+          - /api/v1/satellite/imagery
+        strip_path: false
+
+  # Indicators Service - Agricultural KPIs (v15.3)
+  - name: indicators-service-v15
+    url: http://sahool-indicators-service:8091
+    routes:
+      - name: indicators-v15-route
+        paths:
+          - /api/v1/indicators
+          - /api/v1/dashboard
+          - /api/v1/kpi
+        strip_path: false
+
+  # Weather Advanced Service (v15.3)
+  - name: weather-advanced-service
+    url: http://sahool-weather-advanced:8092
+    routes:
+      - name: weather-advanced-route
+        paths:
+          - /api/v1/weather/advanced
+          - /api/v1/weather/alerts
+          - /api/v1/agricultural-calendar
+        strip_path: false
+
+  # Fertilizer Advisor Service (v15.3)
+  - name: fertilizer-advisor-service
+    url: http://sahool-fertilizer-advisor:8093
+    routes:
+      - name: fertilizer-route
+        paths:
+          - /api/v1/fertilizer
+          - /api/v1/fertilizer/recommend
+          - /api/v1/soil/interpret
+        strip_path: false
+
+  # Irrigation Smart Service (v15.3)
+  - name: irrigation-smart-service
+    url: http://sahool-irrigation-smart:8094
+    routes:
+      - name: irrigation-route
+        paths:
+          - /api/v1/irrigation
+          - /api/v1/irrigation/calculate
+          - /api/v1/water-balance
+        strip_path: false
+
+  # Crop Health AI Service - Sahool Vision (v15.3)
+  - name: crop-health-ai-service
+    url: http://sahool-crop-health-ai:8095
+    routes:
+      - name: crop-health-ai-route
+        paths:
+          - /api/v1/diagnose
+          - /api/v1/diseases
+          - /api/v1/treatment
+        strip_path: false
+
+  # Virtual Sensors Service (v15.3)
+  - name: virtual-sensors-service
+    url: http://sahool-virtual-sensors:8096
+    routes:
+      - name: virtual-sensors-route
+        paths:
+          - /api/v1/et0
+          - /api/v1/etc
+          - /api/v1/soil-moisture
+          - /api/v1/virtual-sensors
+        strip_path: false
+
+  # Community Chat Service (v15.3)
+  - name: community-chat-service
+    url: http://sahool-community-chat:8097
+    routes:
+      - name: community-chat-route
+        paths:
+          - /api/v1/chat/requests
+          - /api/v1/chat/rooms
+          - /api/v1/chat/experts
+        strip_path: false
+
+  # Yield Engine Service (v15.3)
+  - name: yield-engine-service
+    url: http://sahool-yield-engine:8098
+    routes:
+      - name: yield-route
+        paths:
+          - /api/v1/yield
+          - /api/v1/yield/predict
+          - /api/v1/yield/historical
         strip_path: false
 
 # ─────────────────────────────────────────────────────────────────────────────

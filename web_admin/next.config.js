@@ -13,12 +13,8 @@ const nextConfig = {
       },
     ],
   },
-  // Enable Arabic RTL support
-  i18n: {
-    locales: ['ar', 'en'],
-    defaultLocale: 'ar',
-    localeDetection: true,
-  },
+  // RTL support is handled in layout.tsx via lang="ar" dir="rtl"
+  // For full i18n with App Router, use next-intl or similar library
 };
 
 module.exports = nextConfig;

@@ -13,7 +13,7 @@ export interface Farm {
     lat: number;
     lng: number;
   };
-  polygon?: GeoJSON.Polygon;
+  polygon?: any; // GeoJSON Polygon
   crops: string[];
   status: 'active' | 'inactive' | 'pending';
   healthScore: number;

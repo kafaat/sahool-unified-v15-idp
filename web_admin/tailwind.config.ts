@@ -29,7 +29,6 @@ const config: Config = {
       },
       fontFamily: {
         arabic: ['Tajawal', 'Cairo', 'sans-serif'],
-        tajawal: ['Tajawal', 'Cairo', 'sans-serif'],
       },
     },
   },

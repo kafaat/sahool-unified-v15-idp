@@ -3,6 +3,7 @@
 
 import axios from 'axios';
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
+import { getAuthHeaders, getToken } from './auth';
 
 // Service ports
 const PORTS = {
@@ -17,6 +18,11 @@ const PORTS = {
   communityChat: 8097,
   yieldEngine: 8098,
   equipment: 8101,
+  community: 8102,
+  task: 8103,
+  providerConfig: 8104,
+  notifications: 8110,
+  wsGateway: 8090,
 };
 
 // Base URL configuration
@@ -39,6 +45,11 @@ export const API_URLS = {
   communityChat: getServiceUrl(PORTS.communityChat),
   yieldEngine: getServiceUrl(PORTS.yieldEngine),
   equipment: getServiceUrl(PORTS.equipment),
+  community: getServiceUrl(PORTS.community),
+  task: getServiceUrl(PORTS.task),
+  providerConfig: getServiceUrl(PORTS.providerConfig),
+  notifications: getServiceUrl(PORTS.notifications),
+  wsGateway: getServiceUrl(PORTS.wsGateway),
 };
 
 // Axios instance with defaults
@@ -53,12 +64,26 @@ export const apiClient = axios.create({
 
 // Add auth token interceptor
 apiClient.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+// Add response interceptor for auth errors
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Redirect to login on unauthorized
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 // API Functions
 
@@ -223,6 +248,116 @@ export async function fetchWeatherAlerts(): Promise<WeatherAlert[]> {
 export async function fetchSensorReadings(farmId: string): Promise<SensorReading[]> {
   try {
     const response = await apiClient.get(`${API_URLS.virtualSensors}/v1/readings/${farmId}`);
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+// Notifications
+export async function fetchNotifications(params?: {
+  type?: string;
+  priority?: string;
+  limit?: number;
+}): Promise<Array<{
+  id: string;
+  type: string;
+  title: string;
+  message: string;
+  priority: string;
+  read: boolean;
+  createdAt: string;
+}>> {
+  try {
+    const response = await apiClient.get(`${API_URLS.notifications}/v1/notifications`, { params });
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function markNotificationRead(id: string): Promise<boolean> {
+  try {
+    await apiClient.patch(`${API_URLS.notifications}/v1/notifications/${id}/read`);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Tasks
+export async function fetchTasks(params?: {
+  status?: string;
+  type?: string;
+  assignedTo?: string;
+  limit?: number;
+}): Promise<Array<{
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  status: string;
+  priority: string;
+  dueDate: string;
+  assignedTo: string;
+  fieldId: string;
+}>> {
+  try {
+    const response = await apiClient.get(`${API_URLS.task}/api/v1/tasks`, { params });
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function updateTaskStatus(id: string, status: string): Promise<boolean> {
+  try {
+    await apiClient.patch(`${API_URLS.task}/api/v1/tasks/${id}`, { status });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// Community Posts
+export async function fetchCommunityPosts(params?: {
+  category?: string;
+  limit?: number;
+}): Promise<Array<{
+  id: string;
+  title: string;
+  content: string;
+  authorId: string;
+  authorName: string;
+  category: string;
+  likes: number;
+  comments: number;
+  createdAt: string;
+}>> {
+  try {
+    const response = await apiClient.get(`${API_URLS.community}/api/v1/posts`, { params });
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+// Equipment
+export async function fetchEquipment(params?: {
+  type?: string;
+  status?: string;
+}): Promise<Array<{
+  id: string;
+  name: string;
+  type: string;
+  status: string;
+  lastMaintenance: string;
+  nextMaintenance: string;
+  fuelLevel?: number;
+  hoursUsed?: number;
+}>> {
+  try {
+    const response = await apiClient.get(`${API_URLS.equipment}/api/v1/equipment`, { params });
     return response.data;
   } catch (error) {
     return [];

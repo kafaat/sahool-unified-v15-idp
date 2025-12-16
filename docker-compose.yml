@@ -736,6 +736,42 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Research Core - Scientific Research Management (NestJS)
+  # نواة البحث العلمي - إدارة التجارب الزراعية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  research_core:
+    build:
+      context: ./services/research_core
+      dockerfile: Dockerfile
+    container_name: sahool-research-core
+    environment:
+      - PORT=3015
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - SIGNATURE_SECRET_KEY=${JWT_SECRET_KEY}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3015:3015"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3015/api/v1/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Admin Dashboard (Next.js)
   # لوحة تحكم المشرفين
   # ─────────────────────────────────────────────────────────────────────────────

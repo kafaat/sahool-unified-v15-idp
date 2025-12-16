@@ -14,13 +14,9 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
-}
-subprojects {
-    project.evaluationDependsOn(":app")
-}
-
-// Fix namespace for plugins that don't define it (AGP 8+ requirement)
-subprojects {
+    
+    // Fix namespace for plugins that don't define it (AGP 8+ requirement)
+    // This must be set up BEFORE evaluationDependsOn is called
     afterEvaluate {
         if (project.hasProperty("android")) {
             val android = project.extensions.findByName("android")
@@ -32,6 +28,9 @@ subprojects {
             }
         }
     }
+    
+    // Force evaluation of the app subproject after setting up afterEvaluate
+    project.evaluationDependsOn(":app")
 }
 
 tasks.register<Delete>("clean") {

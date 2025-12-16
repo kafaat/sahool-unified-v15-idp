@@ -1,0 +1,289 @@
+// SAHOOL Marketplace & FinTech Schema
+// مخطط قاعدة بيانات سوق سهول والخدمات المالية
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. المنتجات - Products
+// يشمل بيع المحاصيل (B2B) ومستلزمات الزراعة (B2C)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  nameAr      String   @map("name_ar")
+  category    ProductCategory
+  price       Float
+  stock       Float    // بالطن أو بالعدد
+  unit        String   // 'ton', 'kg', 'unit'
+  description String?
+  descriptionAr String? @map("description_ar")
+  imageUrl    String?  @map("image_url")
+
+  // البائع
+  sellerId    String   @map("seller_id")
+  sellerType  SellerType @map("seller_type")
+  sellerName  String?  @map("seller_name")
+
+  // الموقع (للمحاصيل)
+  governorate String?
+  district    String?
+
+  // البيانات الزراعية (للمحاصيل)
+  cropType    String?  @map("crop_type")
+  harvestDate DateTime? @map("harvest_date")
+  qualityGrade String? @map("quality_grade") // A, B, C
+
+  // الحالة
+  status      ProductStatus @default(AVAILABLE)
+  featured    Boolean  @default(false)
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  orderItems  OrderItem[]
+
+  @@map("products")
+}
+
+enum ProductCategory {
+  HARVEST      // محصول للبيع
+  SEEDS        // بذور
+  FERTILIZER   // أسمدة
+  PESTICIDE    // مبيدات
+  EQUIPMENT    // معدات
+  IRRIGATION   // أدوات ري
+  OTHER        // أخرى
+}
+
+enum SellerType {
+  FARMER       // مزارع
+  COMPANY      // شركة
+  COOPERATIVE  // تعاونية
+}
+
+enum ProductStatus {
+  AVAILABLE    // متاح
+  SOLD_OUT     // نفذ
+  RESERVED     // محجوز
+  PENDING      // قيد المراجعة
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2. الطلبات - Orders
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Order {
+  id          String   @id @default(uuid())
+  orderNumber String   @unique @map("order_number")
+
+  // المشتري
+  buyerId     String   @map("buyer_id")
+  buyerName   String?  @map("buyer_name")
+  buyerPhone  String?  @map("buyer_phone")
+
+  // المبالغ
+  subtotal    Float
+  deliveryFee Float    @default(0) @map("delivery_fee")
+  serviceFee  Float    @default(0) @map("service_fee")
+  totalAmount Float    @map("total_amount")
+
+  // الحالة
+  status      OrderStatus @default(PENDING)
+  paymentStatus PaymentStatus @default(UNPAID) @map("payment_status")
+  paymentMethod String?  @map("payment_method") // wallet, cash, bank_transfer
+
+  // التوصيل
+  deliveryAddress String? @map("delivery_address")
+  deliveryDate    DateTime? @map("delivery_date")
+  deliveryNotes   String?  @map("delivery_notes")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  items       OrderItem[]
+  transactions Transaction[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(uuid())
+  orderId     String   @map("order_id")
+  productId   String   @map("product_id")
+
+  quantity    Float
+  unitPrice   Float    @map("unit_price")
+  totalPrice  Float    @map("total_price")
+
+  order       Order    @relation(fields: [orderId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING      // قيد الانتظار
+  CONFIRMED    // مؤكد
+  PROCESSING   // جاري التجهيز
+  SHIPPED      // تم الشحن
+  DELIVERED    // تم التسليم
+  CANCELLED    // ملغي
+}
+
+enum PaymentStatus {
+  UNPAID       // غير مدفوع
+  PARTIAL      // جزئي
+  PAID         // مدفوع
+  REFUNDED     // مسترد
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. المحفظة المالية - Wallet (FinTech Core)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Wallet {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  userType    String   @map("user_type") // farmer, company, buyer
+
+  // الرصيد
+  balance     Float    @default(0.0)
+  currency    String   @default("YER") // ريال يمني
+
+  // التصنيف الائتماني
+  creditScore Int      @default(300) @map("credit_score") // 300-850
+  creditTier  CreditTier @default(BRONZE) @map("credit_tier")
+
+  // حدود التمويل
+  loanLimit   Float    @default(0.0) @map("loan_limit")
+  currentLoan Float    @default(0.0) @map("current_loan")
+
+  // بيانات إضافية
+  isVerified  Boolean  @default(false) @map("is_verified")
+  kycStatus   String?  @map("kyc_status") // pending, approved, rejected
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  transactions Transaction[]
+  loans       Loan[]
+
+  @@map("wallets")
+}
+
+enum CreditTier {
+  BRONZE       // 300-499
+  SILVER       // 500-649
+  GOLD         // 650-749
+  PLATINUM     // 750-850
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 4. المعاملات المالية - Transactions
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Transaction {
+  id          String   @id @default(uuid())
+  walletId    String   @map("wallet_id")
+
+  type        TransactionType
+  amount      Float
+  balanceAfter Float   @map("balance_after")
+
+  // المرجع
+  referenceId String?  @map("reference_id") // order_id, loan_id, etc.
+  referenceType String? @map("reference_type")
+
+  description String?
+  descriptionAr String? @map("description_ar")
+
+  status      TransactionStatus @default(COMPLETED)
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
+  order       Order?   @relation(fields: [referenceId], references: [id])
+
+  @@map("transactions")
+}
+
+enum TransactionType {
+  DEPOSIT      // إيداع
+  WITHDRAWAL   // سحب
+  PURCHASE     // شراء
+  SALE         // بيع
+  LOAN         // قرض
+  REPAYMENT    // سداد قرض
+  FEE          // رسوم
+  REFUND       // استرداد
+}
+
+enum TransactionStatus {
+  PENDING      // قيد الانتظار
+  COMPLETED    // مكتمل
+  FAILED       // فاشل
+  CANCELLED    // ملغي
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 5. القروض - Loans (التمويل الزراعي)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Loan {
+  id          String   @id @default(uuid())
+  walletId    String   @map("wallet_id")
+
+  amount      Float
+  interestRate Float   @default(0) @map("interest_rate") // نسبة الفائدة (0 للإسلامي)
+  totalDue    Float    @map("total_due")
+  paidAmount  Float    @default(0) @map("paid_amount")
+
+  // المدة
+  termMonths  Int      @map("term_months")
+  startDate   DateTime @map("start_date")
+  dueDate     DateTime @map("due_date")
+
+  // الغرض
+  purpose     LoanPurpose
+  purposeDetails String? @map("purpose_details")
+
+  // الضمان
+  collateralType String? @map("collateral_type") // crop, equipment, land
+  collateralValue Float? @map("collateral_value")
+
+  status      LoanStatus @default(PENDING)
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
+
+  @@map("loans")
+}
+
+enum LoanPurpose {
+  SEEDS        // شراء بذور
+  FERTILIZER   // شراء أسمدة
+  EQUIPMENT    // شراء معدات
+  IRRIGATION   // نظام ري
+  EXPANSION    // توسيع المزرعة
+  EMERGENCY    // طوارئ
+  OTHER        // أخرى
+}
+
+enum LoanStatus {
+  PENDING      // قيد المراجعة
+  APPROVED     // موافق عليه
+  ACTIVE       // نشط
+  PAID         // مسدد
+  DEFAULTED    // متعثر
+  REJECTED     // مرفوض
+}

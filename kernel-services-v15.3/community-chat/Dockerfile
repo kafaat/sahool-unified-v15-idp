@@ -13,10 +13,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies for build)
-RUN npm ci
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY src/ ./src/
@@ -37,8 +37,8 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # Copy only production dependencies
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+COPY package.json package-lock.json ./
+RUN npm install --only=production --legacy-peer-deps && npm cache clean --force
 
 # Copy source code
 COPY --from=builder /app/src/ ./src/

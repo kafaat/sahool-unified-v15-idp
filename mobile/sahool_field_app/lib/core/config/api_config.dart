@@ -123,6 +123,44 @@ class ApiConfig {
   static String get refreshToken => '$baseUrl/api/v1/auth/refresh';
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // Fintech/Wallet Service Endpoints
+  // خدمة المحفظة والتمويل
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Wallet endpoints
+  static String wallet(String userId) => '$baseUrl/api/v1/fintech/wallet/$userId';
+  static String walletDeposit(String walletId) => '$baseUrl/api/v1/fintech/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) => '$baseUrl/api/v1/fintech/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) => '$baseUrl/api/v1/fintech/wallet/$walletId/transactions';
+
+  /// Credit score endpoint
+  static String get calculateCreditScore => '$baseUrl/api/v1/fintech/calculate-score';
+
+  /// Loan endpoints
+  static String get loans => '$baseUrl/api/v1/fintech/loans';
+  static String userLoans(String walletId) => '$baseUrl/api/v1/fintech/loans/$walletId';
+  static String repayLoan(String loanId) => '$baseUrl/api/v1/fintech/loans/$loanId/repay';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Market Service Endpoints
+  // خدمة السوق
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Market products endpoints
+  static String get marketProducts => '$baseUrl/api/v1/market/products';
+  static String marketProductById(String productId) => '$baseUrl/api/v1/market/products/$productId';
+
+  /// Market orders endpoints
+  static String get marketOrders => '$baseUrl/api/v1/market/orders';
+  static String userMarketOrders(String userId) => '$baseUrl/api/v1/market/orders/$userId';
+
+  /// List harvest for sale
+  static String get listHarvest => '$baseUrl/api/v1/market/list-harvest';
+
+  /// Market statistics
+  static String get marketStats => '$baseUrl/api/v1/market/stats';
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // Satellite Service Endpoints (port 8090)
   // خدمة الأقمار الصناعية
   // ─────────────────────────────────────────────────────────────────────────────
@@ -346,4 +384,53 @@ class ApiConfig {
   static String get notificationUnsubscribe => '$_notificationsBase/v1/unsubscribe';
   static String get notificationMarkRead => '$_notificationsBase/v1/notifications/mark-read';
   static String get notificationsHealthz => '$_notificationsBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Tharwatt Payment Gateway Endpoints
+  // بوابة ثروات للمدفوعات
+  // https://developers-test.tharwatt.com:5253/
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Tharwatt API Base URL
+  static const String _tharwattTestUrl = 'https://developers-test.tharwatt.com:5253';
+  static const String _tharwattProdUrl = 'https://api.tharwatt.com';
+
+  /// Get Tharwatt base URL based on environment
+  static String get tharwattBaseUrl => isProduction ? _tharwattProdUrl : _tharwattTestUrl;
+
+  /// Payment deposit endpoint
+  static String get tharwattDeposit => '$tharwattBaseUrl/api/v1/payment/deposit';
+
+  /// Payment withdraw endpoint
+  static String get tharwattWithdraw => '$tharwattBaseUrl/api/v1/payment/withdraw';
+
+  /// Payment transfer endpoint
+  static String get tharwattTransfer => '$tharwattBaseUrl/api/v1/payment/transfer';
+
+  /// Mobile topup endpoint
+  static String get tharwattTopup => '$tharwattBaseUrl/api/v1/payment/topup';
+
+  /// Transaction status endpoint
+  static String tharwattTransactionStatus(String transactionId) =>
+      '$tharwattBaseUrl/api/v1/payment/status/$transactionId';
+
+  /// Transaction history endpoint
+  static String get tharwattTransactions => '$tharwattBaseUrl/api/v1/payment/transactions';
+
+  /// Balance check endpoint
+  static String tharwattBalance(String walletId) =>
+      '$tharwattBaseUrl/api/v1/payment/balance/$walletId';
+
+  /// Phone validation endpoint
+  static String get tharwattValidatePhone => '$tharwattBaseUrl/api/v1/payment/validate-phone';
+
+  /// Mobile operators endpoint
+  static String get tharwattOperators => '$tharwattBaseUrl/api/v1/payment/operators';
+
+  /// Cancel transaction endpoint
+  static String tharwattCancelTransaction(String transactionId) =>
+      '$tharwattBaseUrl/api/v1/payment/cancel/$transactionId';
+
+  /// Tharwatt health check
+  static String get tharwattHealthz => '$tharwattBaseUrl/healthz';
 }

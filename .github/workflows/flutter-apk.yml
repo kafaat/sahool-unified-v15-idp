@@ -67,6 +67,9 @@ jobs:
       - name: Get Flutter dependencies
         run: flutter pub get
 
+      - name: Clean previous build artifacts
+        run: flutter clean
+
       - name: Generate Drift database code
         run: dart run build_runner build --delete-conflicting-outputs
         continue-on-error: true

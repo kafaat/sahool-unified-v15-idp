@@ -4,7 +4,7 @@ import '../../domain/entities/weather_entities.dart';
 
 /// Weather API Provider
 final weatherApiProvider = Provider<WeatherApi>((ref) {
-  return WeatherApi(baseUrl: 'http://localhost:8080/api/v1');
+  return WeatherApi();
 });
 
 /// حالة بيانات الطقس
@@ -56,7 +56,7 @@ class WeatherNotifier extends StateNotifier<WeatherState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final data = await _api.getWeatherByLocation(lat, lon);
+      final data = await _api.getWeatherByCoordinates(lat, lon);
       state = state.copyWith(isLoading: false, data: data);
     } catch (e) {
       state = state.copyWith(

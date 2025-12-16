@@ -346,4 +346,53 @@ class ApiConfig {
   static String get notificationUnsubscribe => '$_notificationsBase/v1/unsubscribe';
   static String get notificationMarkRead => '$_notificationsBase/v1/notifications/mark-read';
   static String get notificationsHealthz => '$_notificationsBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Tharwatt Payment Gateway Endpoints
+  // بوابة ثروات للمدفوعات
+  // https://developers-test.tharwatt.com:5253/
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Tharwatt API Base URL
+  static const String _tharwattTestUrl = 'https://developers-test.tharwatt.com:5253';
+  static const String _tharwattProdUrl = 'https://api.tharwatt.com';
+
+  /// Get Tharwatt base URL based on environment
+  static String get tharwattBaseUrl => isProduction ? _tharwattProdUrl : _tharwattTestUrl;
+
+  /// Payment deposit endpoint
+  static String get tharwattDeposit => '$tharwattBaseUrl/api/v1/payment/deposit';
+
+  /// Payment withdraw endpoint
+  static String get tharwattWithdraw => '$tharwattBaseUrl/api/v1/payment/withdraw';
+
+  /// Payment transfer endpoint
+  static String get tharwattTransfer => '$tharwattBaseUrl/api/v1/payment/transfer';
+
+  /// Mobile topup endpoint
+  static String get tharwattTopup => '$tharwattBaseUrl/api/v1/payment/topup';
+
+  /// Transaction status endpoint
+  static String tharwattTransactionStatus(String transactionId) =>
+      '$tharwattBaseUrl/api/v1/payment/status/$transactionId';
+
+  /// Transaction history endpoint
+  static String get tharwattTransactions => '$tharwattBaseUrl/api/v1/payment/transactions';
+
+  /// Balance check endpoint
+  static String tharwattBalance(String walletId) =>
+      '$tharwattBaseUrl/api/v1/payment/balance/$walletId';
+
+  /// Phone validation endpoint
+  static String get tharwattValidatePhone => '$tharwattBaseUrl/api/v1/payment/validate-phone';
+
+  /// Mobile operators endpoint
+  static String get tharwattOperators => '$tharwattBaseUrl/api/v1/payment/operators';
+
+  /// Cancel transaction endpoint
+  static String tharwattCancelTransaction(String transactionId) =>
+      '$tharwattBaseUrl/api/v1/payment/cancel/$transactionId';
+
+  /// Tharwatt health check
+  static String get tharwattHealthz => '$tharwattBaseUrl/healthz';
 }

@@ -10,6 +10,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'wallet_provider.dart';
+import '../payment/presentation/payment_screen.dart';
 
 /// شاشة المحفظة
 class WalletScreen extends ConsumerWidget {
@@ -492,10 +493,10 @@ class _QuickActionsSection extends StatelessWidget {
             onTap: () => _showLoanDialog(context),
           ),
           _QuickActionButton(
-            icon: Icons.swap_horiz,
-            label: 'تحويل',
+            icon: Icons.account_balance_wallet,
+            label: 'ثروات',
             color: Colors.purple,
-            onTap: () {},
+            onTap: () => _openPaymentGateway(context),
           ),
         ],
       ),
@@ -534,6 +535,17 @@ class _QuickActionsSection extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => const _LoanBottomSheet(),
+    );
+  }
+
+  void _openPaymentGateway(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PaymentScreen(
+          walletId: wallet?.id ?? 'default_wallet',
+        ),
+      ),
     );
   }
 }

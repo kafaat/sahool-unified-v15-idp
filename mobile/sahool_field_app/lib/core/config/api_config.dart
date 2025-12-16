@@ -350,25 +350,87 @@ class ApiConfig {
   // ─────────────────────────────────────────────────────────────────────────────
   // Marketplace & Wallet Service Endpoints
   // خدمة السوق والمحفظة
+  // 
+  // These endpoints provide access to:
+  // - Wallet management (balance, deposits, withdrawals, transactions)
+  // - Credit scoring and loan management
+  // - Marketplace operations (product listings, orders, harvest sales)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  /// Wallet endpoints
-  static String wallet(String userId) => '$baseUrl/api/v1/wallet/$userId';
-  static String walletDeposit(String walletId) => '$baseUrl/api/v1/wallet/$walletId/deposit';
-  static String walletWithdraw(String walletId) => '$baseUrl/api/v1/wallet/$walletId/withdraw';
-  static String walletTransactions(String walletId) => '$baseUrl/api/v1/wallet/$walletId/transactions';
+  /// Get wallet by user ID
+  /// Returns wallet information including balance and credit tier
+  static String wallet(String userId) {
+    assert(userId.isNotEmpty, 'userId cannot be empty');
+    return '$baseUrl/api/v1/wallet/$userId';
+  }
+
+  /// Deposit funds to wallet
+  /// POST with body: { amount: double, description: string? }
+  static String walletDeposit(String walletId) {
+    assert(walletId.isNotEmpty, 'walletId cannot be empty');
+    return '$baseUrl/api/v1/wallet/$walletId/deposit';
+  }
+
+  /// Withdraw funds from wallet
+  /// POST with body: { amount: double, description: string? }
+  static String walletWithdraw(String walletId) {
+    assert(walletId.isNotEmpty, 'walletId cannot be empty');
+    return '$baseUrl/api/v1/wallet/$walletId/withdraw';
+  }
+
+  /// Get wallet transaction history
+  /// Query params: { limit: int? }
+  static String walletTransactions(String walletId) {
+    assert(walletId.isNotEmpty, 'walletId cannot be empty');
+    return '$baseUrl/api/v1/wallet/$walletId/transactions';
+  }
+
+  /// Calculate credit score for user
+  /// POST with body: { userId: string, farmData: object }
   static String get calculateCreditScore => '$baseUrl/api/v1/wallet/credit-score';
 
-  /// Loans endpoints
+  /// Request a new loan
+  /// POST with body: { walletId, amount, termMonths, purpose, etc }
   static String get loans => '$baseUrl/api/v1/loans';
-  static String userLoans(String walletId) => '$baseUrl/api/v1/loans/wallet/$walletId';
-  static String repayLoan(String loanId) => '$baseUrl/api/v1/loans/$loanId/repay';
 
-  /// Marketplace endpoints
+  /// Get all loans for a wallet
+  static String userLoans(String walletId) {
+    assert(walletId.isNotEmpty, 'walletId cannot be empty');
+    return '$baseUrl/api/v1/loans/wallet/$walletId';
+  }
+
+  /// Repay a loan
+  /// POST with body: { amount: double }
+  static String repayLoan(String loanId) {
+    assert(loanId.isNotEmpty, 'loanId cannot be empty');
+    return '$baseUrl/api/v1/loans/$loanId/repay';
+  }
+
+  /// Get all marketplace products
+  /// Query params: { category, governorate, minPrice, maxPrice }
   static String get marketProducts => '$baseUrl/api/v1/market/products';
-  static String marketProductById(String productId) => '$baseUrl/api/v1/market/products/$productId';
+
+  /// Get product by ID
+  static String marketProductById(String productId) {
+    assert(productId.isNotEmpty, 'productId cannot be empty');
+    return '$baseUrl/api/v1/market/products/$productId';
+  }
+
+  /// List harvest for sale
+  /// POST with body: { userId, yieldData }
   static String get listHarvest => '$baseUrl/api/v1/market/harvest';
+
+  /// Create order
+  /// POST with body: { buyerId, items, deliveryAddress, paymentMethod }
   static String get marketOrders => '$baseUrl/api/v1/market/orders';
-  static String userMarketOrders(String userId) => '$baseUrl/api/v1/market/orders/user/$userId';
+
+  /// Get user's orders
+  /// Query params: { role: 'buyer' | 'seller' }
+  static String userMarketOrders(String userId) {
+    assert(userId.isNotEmpty, 'userId cannot be empty');
+    return '$baseUrl/api/v1/market/orders/user/$userId';
+  }
+
+  /// Get marketplace statistics
   static String get marketStats => '$baseUrl/api/v1/market/stats';
 }

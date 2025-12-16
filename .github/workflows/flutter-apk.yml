@@ -69,7 +69,6 @@ jobs:
 
       - name: Generate code with build_runner
         run: dart run build_runner build --delete-conflicting-outputs
-        continue-on-error: false
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"

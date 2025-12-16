@@ -12,19 +12,26 @@ import {
   Bug,
   Thermometer,
   Settings,
-  Users,
   Bell,
   LogOut,
   Leaf,
+  MessageCircle,
+  TrendingUp,
+  Activity,
+  Cpu,
+  Droplets,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
   { name: 'المزارع', href: '/farms', icon: MapPin },
-  { name: 'تشخيص الأمراض', href: '/diseases', icon: Bug },
-  { name: 'المستشعرات الافتراضية', href: '/sensors', icon: Thermometer },
-  { name: 'التنبيهات', href: '/alerts', icon: Bell },
-  { name: 'المستخدمين', href: '/users', icon: Users },
+  { name: 'مركز رصد الأوبئة', href: '/epidemic', icon: Activity },
+  { name: 'إدارة الأمراض', href: '/diseases', icon: Bug },
+  { name: 'حاسبة الإنتاجية', href: '/yield', icon: TrendingUp },
+  { name: 'الري الذكي', href: '/irrigation', icon: Droplets },
+  { name: 'المستشعرات', href: '/sensors', icon: Cpu },
+  { name: 'الطقس والتنبيهات', href: '/alerts', icon: Bell },
+  { name: 'الدعم الفني', href: '/support', icon: MessageCircle, badge: 5 },
   { name: 'الإعدادات', href: '/settings', icon: Settings },
 ];
 
@@ -63,6 +70,11 @@ export default function Sidebar() {
             >
               <item.icon className={cn('w-5 h-5', isActive ? 'text-sahool-600' : 'text-gray-400')} />
               {item.name}
+              {'badge' in item && item.badge > 0 && (
+                <span className="mr-auto bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">
+                  {item.badge}
+                </span>
+              )}
             </Link>
           );
         })}

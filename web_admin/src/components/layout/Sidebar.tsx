@@ -25,7 +25,14 @@ import {
   FileText,
 } from 'lucide-react';
 
-const navigation = [
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: any;
+  badge?: number;
+}
+
+const navigation: NavigationItem[] = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
   { name: 'المزارع', href: '/farms', icon: MapPin },
   { name: 'المختبر والعينات', href: '/lab', icon: FlaskConical },
@@ -76,7 +83,7 @@ export default function Sidebar() {
             >
               <item.icon className={cn('w-5 h-5', isActive ? 'text-sahool-600' : 'text-gray-400')} />
               {item.name}
-              {'badge' in item && item.badge && item.badge > 0 && (
+              {item.badge !== undefined && item.badge > 0 && (
                 <span className="mr-auto bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">
                   {item.badge}
                 </span>

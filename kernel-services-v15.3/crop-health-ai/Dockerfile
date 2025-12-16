@@ -43,11 +43,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install only runtime system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    curl \
+# Install only runtime system dependencies.
+# `libgl1-mesa-glx` may not exist on some Debian slim variants; prefer `libgl1`
+# when available and fall back to `libgl1-mesa-glx` otherwise.
+RUN apt-get update && \
+    (apt-cache show libgl1 >/dev/null 2>&1 && \
+        apt-get install -y --no-install-recommends libgl1 libglib2.0-0 curl || \
+        apt-get install -y --no-install-recommends libgl1-mesa-glx libglib2.0-0 curl) \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 

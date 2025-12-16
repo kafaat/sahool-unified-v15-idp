@@ -217,6 +217,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - PORT=8108
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
     ports:
       - "8108:8108"
     depends_on:
@@ -663,6 +664,8 @@ services:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PLANET_API_KEY=${PLANET_API_KEY:-}
+      - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
     ports:
       - "8090:8090"
     healthcheck:
@@ -685,6 +688,7 @@ services:
       - PORT=8092
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
     ports:
       - "8092:8092"
     healthcheck:

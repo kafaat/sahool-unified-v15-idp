@@ -11,27 +11,79 @@ const http = require('http');
 const { Server } = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
+const jwt = require('jsonwebtoken');
 
 // Configuration
 const PORT = process.env.PORT || 8097;
 const SERVICE_NAME = 'community-chat';
 const SERVICE_VERSION = '1.0.0';
 
+// JWT Configuration
+const JWT_SECRET = process.env.JWT_SECRET || '';
+const REQUIRE_AUTH = process.env.CHAT_REQUIRE_AUTH !== 'false';
+
+// CORS Origins - configurable via environment
+const ALLOWED_ORIGINS = process.env.CORS_ORIGINS
+  ? process.env.CORS_ORIGINS.split(',')
+  : [
+      'https://sahool.io',
+      'https://admin.sahool.io',
+      'https://app.sahool.io',
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ];
+
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: ALLOWED_ORIGINS,
+  credentials: true,
+}));
 app.use(express.json());
 
 const server = http.createServer(app);
 
-// Socket.io setup with CORS for mobile and web clients
+// JWT Verification middleware for Socket.io
+const verifyToken = (token) => {
+  if (!token) {
+    throw new Error('Token required');
+  }
+  if (!JWT_SECRET) {
+    console.warn('⚠️ JWT_SECRET not configured - auth disabled');
+    return { sub: 'anonymous', role: 'user' };
+  }
+  return jwt.verify(token, JWT_SECRET);
+};
+
+// Socket.io setup with CORS and authentication
 const io = new Server(server, {
   cors: {
-    origin: '*', // In production: specific origins only
+    origin: ALLOWED_ORIGINS,
     methods: ['GET', 'POST'],
     credentials: true
   },
   pingTimeout: 60000,
   pingInterval: 25000
+});
+
+// Socket.io authentication middleware
+io.use((socket, next) => {
+  if (!REQUIRE_AUTH) {
+    return next();
+  }
+
+  const token = socket.handshake.auth.token || socket.handshake.query.token;
+
+  if (!token) {
+    return next(new Error('Authentication required'));
+  }
+
+  try {
+    const decoded = verifyToken(token);
+    socket.user = decoded;
+    next();
+  } catch (err) {
+    next(new Error('Invalid token: ' + err.message));
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════

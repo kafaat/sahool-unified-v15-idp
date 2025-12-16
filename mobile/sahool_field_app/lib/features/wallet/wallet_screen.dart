@@ -514,11 +514,27 @@ class _QuickActionsSection extends StatelessWidget {
   }
 
   void _showWithdrawDialog(BuildContext context) {
-    // TODO: Implement withdraw dialog
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF16213E),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const _WithdrawBottomSheet(),
+    );
   }
 
   void _showLoanDialog(BuildContext context) {
-    // TODO: Implement loan dialog
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF16213E),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => const _LoanBottomSheet(),
+    );
   }
 }
 
@@ -835,6 +851,390 @@ class _DepositBottomSheetState extends ConsumerState<_DepositBottomSheet> {
   @override
   void dispose() {
     _amountController.dispose();
+    super.dispose();
+  }
+}
+
+/// نافذة السحب
+class _WithdrawBottomSheet extends ConsumerStatefulWidget {
+  const _WithdrawBottomSheet();
+
+  @override
+  ConsumerState<_WithdrawBottomSheet> createState() => _WithdrawBottomSheetState();
+}
+
+class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
+  final _amountController = TextEditingController();
+  final _accountController = TextEditingController();
+  String _selectedMethod = 'bank';
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final wallet = ref.watch(walletProvider);
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'سحب',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'الرصيد المتاح: ${wallet?.balance.toStringAsFixed(0) ?? 0} ر.ي',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: _amountController,
+            keyboardType: TextInputType.number,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              labelText: 'المبلغ',
+              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              suffixText: 'ر.ي',
+              suffixStyle: const TextStyle(color: Colors.white),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.orange),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // طريقة السحب
+          Row(
+            children: [
+              _methodChip('bank', 'حساب بنكي', Icons.account_balance),
+              const SizedBox(width: 8),
+              _methodChip('mobile', 'محفظة موبايل', Icons.phone_android),
+            ],
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _accountController,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              labelText: _selectedMethod == 'bank' ? 'رقم الحساب' : 'رقم الموبايل',
+              labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.orange),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _withdraw,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      'سحب',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _methodChip(String value, String label, IconData icon) {
+    final isSelected = _selectedMethod == value;
+    return Expanded(
+      child: InkWell(
+        onTap: () => setState(() => _selectedMethod = value),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.orange.withOpacity(0.2) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? Colors.orange : Colors.white.withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: isSelected ? Colors.orange : Colors.white70, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? Colors.orange : Colors.white70,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _withdraw() async {
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('أدخل مبلغ صحيح')),
+      );
+      return;
+    }
+
+    if (_accountController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('أدخل رقم الحساب أو الموبايل')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final success = await ref.read(walletProvider.notifier).withdraw(amount);
+
+    setState(() => _isLoading = false);
+
+    if (success && mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم طلب السحب بنجاح')),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _accountController.dispose();
+    super.dispose();
+  }
+}
+
+/// نافذة طلب التمويل
+class _LoanBottomSheet extends ConsumerStatefulWidget {
+  const _LoanBottomSheet();
+
+  @override
+  ConsumerState<_LoanBottomSheet> createState() => _LoanBottomSheetState();
+}
+
+class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
+  final _amountController = TextEditingController();
+  final _purposeController = TextEditingController();
+  int _duration = 6; // أشهر
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final wallet = ref.watch(walletProvider);
+    final availableCredit = wallet?.availableCredit ?? 0;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'طلب تمويل',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'الحد المتاح: ${availableCredit.toStringAsFixed(0)} ر.ي',
+              style: TextStyle(
+                color: Colors.green.withOpacity(0.9),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              style: const TextStyle(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'مبلغ التمويل',
+                labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                suffixText: 'ر.ي',
+                suffixStyle: const TextStyle(color: Colors.white),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _purposeController,
+              style: const TextStyle(color: Colors.white),
+              maxLines: 2,
+              decoration: InputDecoration(
+                labelText: 'الغرض من التمويل',
+                hintText: 'مثال: شراء بذور، معدات زراعية',
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
+                labelStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.blue),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            // مدة السداد
+            Text(
+              'مدة السداد',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [3, 6, 12].map((months) {
+                final isSelected = _duration == months;
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: InkWell(
+                      onTap: () => setState(() => _duration = months),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected ? Colors.blue : Colors.white.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$months شهور',
+                            style: TextStyle(
+                              color: isSelected ? Colors.blue : Colors.white70,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _requestLoan,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'تقديم الطلب',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _requestLoan() async {
+    final amount = double.tryParse(_amountController.text);
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('أدخل مبلغ صحيح')),
+      );
+      return;
+    }
+
+    if (_purposeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('أدخل الغرض من التمويل')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    // محاكاة طلب التمويل
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() => _isLoading = false);
+
+    if (mounted) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('تم تقديم طلب التمويل بنجاح. سيتم التواصل معك قريباً'),
+          duration: Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _purposeController.dispose();
     super.dispose();
   }
 }

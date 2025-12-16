@@ -697,6 +697,41 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Notification Service - Push notifications & alerts (Python + FastAPI)
+  # خدمة الإشعارات - التنبيهات والإشعارات الذكية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  notification_service:
+    build:
+      context: ./kernel-services-v15.3/notification-service
+      dockerfile: Dockerfile
+    container_name: sahool-notification-service
+    environment:
+      - PORT=8110
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - NATS_URL=nats://nats:4222
+    ports:
+      - "8110:8110"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8110/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Admin Dashboard (Next.js)
   # لوحة تحكم المشرفين
   # ─────────────────────────────────────────────────────────────────────────────

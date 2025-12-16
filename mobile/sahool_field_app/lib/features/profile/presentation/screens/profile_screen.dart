@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/services/auth_service.dart';
 
 /// شاشة الملف الشخصي والإعدادات
 /// Profile & Settings Screen
@@ -686,9 +687,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: const Text('إلغاء'),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context);
-                // TODO: Implement logout
+                // تسجيل الخروج
+                await ref.read(authProvider.notifier).logout();
+                // العودة إلى الشاشة الرئيسية
+                if (context.mounted) {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,

@@ -17,6 +17,7 @@ class ServicePorts {
   static const int virtualSensors = 8096; // Virtual Sensors Engine
   static const int communityChat = 8097; // Community Chat (Socket.io)
   static const int equipment = 8101;
+  static const int notifications = 8110; // Notification Service
   static const int gateway = 8000; // Kong API Gateway
 }
 
@@ -78,6 +79,7 @@ class ApiConfig {
   static String get virtualSensorsServiceUrl => 'http://$_host:${ServicePorts.virtualSensors}';
   static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
+  static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
 
   /// Production base URL (Kong Gateway)
   static const String productionBaseUrl = 'https://api.sahool.io';
@@ -311,6 +313,7 @@ class ApiConfig {
     'virtualSensors': healthCheck(virtualSensorsServiceUrl),
     'communityChat': healthCheck(communityChatServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
+    'notifications': healthCheck(notificationsServiceUrl),
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -327,4 +330,20 @@ class ApiConfig {
   static String get chatOnlineExperts => '$_chatBase/v1/experts/online';
   static String get chatStats => '$_chatBase/v1/stats';
   static String get chatHealthz => '$_chatBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Notification Service Endpoints (port 8110)
+  // خدمة الإشعارات
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _notificationsBase => useDirectServices ? notificationsServiceUrl : effectiveBaseUrl;
+
+  /// Notification service endpoints
+  static String get notifications => '$_notificationsBase/v1/notifications';
+  static String notificationById(String id) => '$_notificationsBase/v1/notifications/$id';
+  static String get notificationPreferences => '$_notificationsBase/v1/preferences';
+  static String get notificationSubscribe => '$_notificationsBase/v1/subscribe';
+  static String get notificationUnsubscribe => '$_notificationsBase/v1/unsubscribe';
+  static String get notificationMarkRead => '$_notificationsBase/v1/notifications/mark-read';
+  static String get notificationsHealthz => '$_notificationsBase/healthz';
 }

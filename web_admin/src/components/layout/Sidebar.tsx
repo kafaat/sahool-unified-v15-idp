@@ -12,23 +12,24 @@ import {
   Bug,
   Thermometer,
   Settings,
-  Users,
   Bell,
   LogOut,
   Leaf,
   MessageCircle,
   TrendingUp,
+  Activity,
+  Cpu,
 } from 'lucide-react';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
   { name: 'المزارع', href: '/farms', icon: MapPin },
-  { name: 'مركز الوباء', href: '/diseases', icon: Bug },
+  { name: 'مركز رصد الأوبئة', href: '/epidemic', icon: Activity },
+  { name: 'إدارة الأمراض', href: '/diseases', icon: Bug },
   { name: 'حاسبة الإنتاجية', href: '/yield', icon: TrendingUp },
+  { name: 'المستشعرات', href: '/sensors', icon: Cpu },
+  { name: 'الطقس والتنبيهات', href: '/alerts', icon: Bell },
   { name: 'الدعم الفني', href: '/support', icon: MessageCircle, badge: 5 },
-  { name: 'المستشعرات الافتراضية', href: '/sensors', icon: Thermometer },
-  { name: 'التنبيهات', href: '/alerts', icon: Bell },
-  { name: 'المستخدمين', href: '/users', icon: Users },
   { name: 'الإعدادات', href: '/settings', icon: Settings },
 ];
 

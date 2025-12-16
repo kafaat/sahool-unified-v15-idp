@@ -1,12 +1,5 @@
 import type { Metadata } from 'next';
-import { Tajawal } from 'next/font/google';
 import './globals.css';
-
-const tajawal = Tajawal({
-  subsets: ['arabic', 'latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-tajawal',
-});
 
 export const metadata: Metadata = {
   title: 'لوحة تحكم سهول | Sahool Admin Dashboard',
@@ -20,8 +13,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ar" dir="rtl" className={tajawal.variable}>
+    <html lang="ar" dir="rtl">
       <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -29,7 +26,7 @@ export default function RootLayout({
           crossOrigin=""
         />
       </head>
-      <body className={`${tajawal.className} bg-gray-50 min-h-screen`}>
+      <body className="font-tajawal bg-gray-50 min-h-screen">
         {children}
       </body>
     </html>

@@ -22,7 +22,7 @@ interface DataTableProps<T> {
   isLoading?: boolean;
 }
 
-export default function DataTable<T>({
+export default function DataTable<T extends Record<string, unknown>>({
   columns,
   data,
   keyExtractor,
@@ -83,7 +83,7 @@ export default function DataTable<T>({
               >
                 {columns.map((col) => (
                   <td key={col.key} className={cn('px-6 py-4 text-sm', col.className)}>
-                    {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? '')}
+                    {col.render ? col.render(item) : String(item[col.key] ?? '')}
                   </td>
                 ))}
               </tr>

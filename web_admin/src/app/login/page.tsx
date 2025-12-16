@@ -158,7 +158,10 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-green-600" />
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-green-600 mx-auto" />
+          <p className="mt-4 text-gray-600">جاري التحميل...</p>
+        </div>
       </div>
     }>
       <LoginForm />

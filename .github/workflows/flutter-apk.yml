@@ -43,16 +43,29 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=demo_key
+          MAPS_API_KEY=demo_key
+          ENV=production
+          EOF
+
+      - name: Setup Python for icon generation
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate app icons
+        run: |
+          pip install Pillow
+          mkdir -p assets/icon assets/images assets/icons
+          python3 scripts/generate_icons.py
+        continue-on-error: true
+
       - name: Get Flutter dependencies
         run: flutter pub get
-
-      - name: Check for icon assets
-        run: |
-          if [ ! -f "assets/icon/app_icon.png" ]; then
-            echo "Creating placeholder icon..."
-            mkdir -p assets/icon
-            python3 scripts/generate_icons.py || echo "Icon generation skipped"
-          fi
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"
@@ -65,7 +78,7 @@ jobs:
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
         run: |
-          flutter build apk --release --obfuscate --split-debug-info=./build/app/outputs/symbols
+          flutter build apk --release
 
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' }}
@@ -96,6 +109,7 @@ jobs:
           name: sahool-symbols-${{ github.run_number }}
           path: mobile/sahool_field_app/build/app/outputs/symbols/
           retention-days: 90
+        continue-on-error: true
 
       - name: Build Summary
         run: |

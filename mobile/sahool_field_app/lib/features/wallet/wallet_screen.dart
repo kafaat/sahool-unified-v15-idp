@@ -871,7 +871,8 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final wallet = ref.watch(walletProvider);
+    final walletState = ref.watch(walletProvider);
+    final wallet = walletState.wallet;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -894,7 +895,7 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'الرصيد المتاح: ${wallet?.balance.toStringAsFixed(0) ?? 0} ر.ي',
+            'الرصيد المتاح: ${wallet?.balance.toStringAsFixed(0) ?? '0'} ر.ي',
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
               fontSize: 14,
@@ -1058,8 +1059,8 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final wallet = ref.watch(walletProvider);
-    final availableCredit = wallet?.availableCredit ?? 0;
+    final walletState = ref.watch(walletProvider);
+    final availableCredit = walletState.wallet?.availableCredit ?? 0;
 
     return Padding(
       padding: EdgeInsets.only(

@@ -17,23 +17,51 @@ class ServicePorts {
   static const int virtualSensors = 8096; // Virtual Sensors Engine
   static const int communityChat = 8097; // Community Chat (Socket.io)
   static const int equipment = 8101;
+  static const int notifications = 8110; // Notification Service
   static const int gateway = 8000; // Kong API Gateway
 }
 
 /// API configuration class
 /// 10.0.2.2 للمحاكي الأندرويد، localhost للـ iOS Simulator
+/// لأجهزة Android الحقيقية: استخدم IP الكمبيوتر (192.168.x.x)
 class ApiConfig {
   ApiConfig._();
 
-  /// Get host based on platform
+  /// ⚠️ للتجربة على جهاز حقيقي:
+  /// 1. اكتب `ipconfig` (Windows) أو `ifconfig` (Mac/Linux)
+  /// 2. انسخ عنوان IPv4 (مثل 192.168.1.5)
+  /// 3. ضعه في المتغير أدناه
+  static const String? _customHost = null; // مثال: '192.168.1.5'
+
+  /// Production API URL
+  static const String _productionHost = 'api.sahool.io';
+
+  /// Check if running in release mode
+  static bool get isProduction => const bool.fromEnvironment('dart.vm.product');
+
+  /// Get host based on platform and environment
   static String get _host {
+    // In production, always use production host
+    if (isProduction && _customHost == null) {
+      return _productionHost;
+    }
+
+    // If custom host is set (for real device testing)
+    if (_customHost != null && _customHost!.isNotEmpty) {
+      return _customHost!;
+    }
+
+    // Development mode
     if (Platform.isAndroid) {
       // Android Emulator sees host machine as 10.0.2.2
       return '10.0.2.2';
     }
-    // iOS Simulator and real devices
+    // iOS Simulator
     return 'localhost';
   }
+
+  /// Get protocol (https for production, http for development)
+  static String get _protocol => isProduction ? 'https' : 'http';
 
   /// Base URL for field-core service (legacy)
   static String get baseUrl => 'http://$_host:${ServicePorts.fieldCore}';
@@ -51,6 +79,7 @@ class ApiConfig {
   static String get virtualSensorsServiceUrl => 'http://$_host:${ServicePorts.virtualSensors}';
   static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
+  static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
 
   /// Production base URL (Kong Gateway)
   static const String productionBaseUrl = 'https://api.sahool.io';
@@ -284,6 +313,7 @@ class ApiConfig {
     'virtualSensors': healthCheck(virtualSensorsServiceUrl),
     'communityChat': healthCheck(communityChatServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
+    'notifications': healthCheck(notificationsServiceUrl),
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -300,4 +330,20 @@ class ApiConfig {
   static String get chatOnlineExperts => '$_chatBase/v1/experts/online';
   static String get chatStats => '$_chatBase/v1/stats';
   static String get chatHealthz => '$_chatBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Notification Service Endpoints (port 8110)
+  // خدمة الإشعارات
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _notificationsBase => useDirectServices ? notificationsServiceUrl : effectiveBaseUrl;
+
+  /// Notification service endpoints
+  static String get notifications => '$_notificationsBase/v1/notifications';
+  static String notificationById(String id) => '$_notificationsBase/v1/notifications/$id';
+  static String get notificationPreferences => '$_notificationsBase/v1/preferences';
+  static String get notificationSubscribe => '$_notificationsBase/v1/subscribe';
+  static String get notificationUnsubscribe => '$_notificationsBase/v1/unsubscribe';
+  static String get notificationMarkRead => '$_notificationsBase/v1/notifications/mark-read';
+  static String get notificationsHealthz => '$_notificationsBase/healthz';
 }

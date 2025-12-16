@@ -12,7 +12,31 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
+from jose import JWTError, jwt
 from pydantic import BaseModel
+
+# JWT Configuration
+JWT_SECRET = os.getenv("JWT_SECRET", "")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+REQUIRE_AUTH = os.getenv("WS_REQUIRE_AUTH", "true").lower() == "true"
+
+
+async def validate_jwt_token(token: str) -> dict:
+    """
+    Validate JWT token and return payload
+    التحقق من صحة التوكن وإرجاع البيانات
+    """
+    if not token:
+        raise ValueError("Token is required")
+
+    if not JWT_SECRET:
+        raise ValueError("JWT_SECRET not configured")
+
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except JWTError as e:
+        raise ValueError(f"Invalid token: {str(e)}")
 
 
 class ConnectionManager:
@@ -194,12 +218,34 @@ async def websocket_endpoint(
 
     Query params:
     - tenant_id: Required tenant identifier
-    - token: Optional JWT token for authentication
+    - token: JWT token for authentication (required in production)
     """
     connection_id = str(uuid4())
+    user_id = None
 
-    # TODO: Validate JWT token if provided
-    # For now, accept all connections
+    # Validate JWT token
+    if REQUIRE_AUTH:
+        if not token:
+            await websocket.close(code=4001, reason="Authentication required")
+            return
+        try:
+            payload = await validate_jwt_token(token)
+            user_id = payload.get("sub") or payload.get("user_id")
+            token_tenant = payload.get("tenant_id")
+            # Verify tenant_id matches token
+            if token_tenant and token_tenant != tenant_id:
+                await websocket.close(code=4003, reason="Tenant mismatch")
+                return
+        except ValueError as e:
+            await websocket.close(code=4001, reason=str(e))
+            return
+    elif token:
+        # Optional auth: validate if token provided
+        try:
+            payload = await validate_jwt_token(token)
+            user_id = payload.get("sub") or payload.get("user_id")
+        except ValueError:
+            pass  # Continue without auth in dev mode
 
     await manager.connect(websocket, connection_id, tenant_id)
 

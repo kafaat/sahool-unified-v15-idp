@@ -187,15 +187,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8107
     ports:
-      - "8097:8097"
+      - "8107:8107"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8097/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8107/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -215,15 +216,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8108
     ports:
-      - "8098:8098"
+      - "8108:8108"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8108/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -277,8 +279,9 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8106
     ports:
-      - "8096:8096"
+      - "8106:8106"
     depends_on:
       postgres:
         condition: service_healthy
@@ -287,7 +290,7 @@ services:
       mqtt:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8106/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -307,15 +310,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8105
     ports:
-      - "8095:8095"
+      - "8105:8105"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8105/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -336,15 +340,16 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
+      - PORT=8089
     ports:
-      - "8090:8090"
+      - "8089:8089"
     depends_on:
       nats:
         condition: service_healthy
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -532,6 +537,158 @@ services:
       - "8096:8096"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Community Chat Service - Real-time messaging (Node.js + Socket.io)
+  community_chat:
+    build:
+      context: ./kernel-services-v15.3/community-chat
+      dockerfile: Dockerfile
+    container_name: sahool-community-chat
+    environment:
+      - PORT=8097
+      - NODE_ENV=production
+    ports:
+      - "8097:8097"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8097/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+
+  # Yield Engine - ML Crop Yield Prediction (Python + FastAPI)
+  yield_engine:
+    build:
+      context: ./kernel-services-v15.3/yield-engine
+      dockerfile: Dockerfile
+    container_name: sahool-yield-engine
+    environment:
+      - PORT=8098
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8098:8098"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Irrigation Smart - Smart Irrigation Management (Python + FastAPI)
+  # الري الذكي - إدارة الري باستخدام FAO-56 Penman-Monteith
+  irrigation_smart:
+    build:
+      context: ./kernel-services-v15.3/irrigation-smart
+      dockerfile: Dockerfile
+    container_name: sahool-irrigation-smart
+    environment:
+      - PORT=8094
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8094:8094"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8094/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Fertilizer Advisor - Smart Fertilization Recommendations (Python + FastAPI)
+  # مستشار التسميد - توصيات التسميد الذكية
+  fertilizer_advisor:
+    build:
+      context: ./kernel-services-v15.3/fertilizer-advisor
+      dockerfile: Dockerfile
+    container_name: sahool-fertilizer-advisor
+    environment:
+      - PORT=8093
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8093:8093"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8093/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Indicators Service - Agricultural KPIs & Analytics (Python + FastAPI)
+  # خدمة المؤشرات - مؤشرات الأداء الزراعية والتحليلات
+  indicators_service:
+    build:
+      context: ./kernel-services-v15.3/indicators-service
+      dockerfile: Dockerfile
+    container_name: sahool-indicators-service
+    environment:
+      - PORT=8091
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8091:8091"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Satellite Service - NDVI Analysis & Satellite Imagery (Python + FastAPI)
+  # خدمة الأقمار الصناعية - تحليل NDVI وصور الأقمار الصناعية
+  satellite_service:
+    build:
+      context: ./kernel-services-v15.3/satellite-service
+      dockerfile: Dockerfile
+    container_name: sahool-satellite-service
+    environment:
+      - PORT=8090
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8090:8090"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # Weather Advanced Service - Agricultural Weather Forecasting (Python + FastAPI)
+  # خدمة الطقس المتقدمة - التنبؤ بالطقس الزراعي
+  weather_advanced:
+    build:
+      context: ./kernel-services-v15.3/weather-advanced
+      dockerfile: Dockerfile
+    container_name: sahool-weather-advanced
+    environment:
+      - PORT=8092
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8092:8092"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8092/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3

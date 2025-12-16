@@ -15,6 +15,7 @@ class ServicePorts {
   static const int irrigation = 8094;
   static const int cropHealth = 8095; // Sahool Vision AI
   static const int virtualSensors = 8096; // Virtual Sensors Engine
+  static const int communityChat = 8097; // Community Chat (Socket.io)
   static const int equipment = 8101;
   static const int gateway = 8000; // Kong API Gateway
 }
@@ -48,6 +49,7 @@ class ApiConfig {
   static String get irrigationServiceUrl => 'http://$_host:${ServicePorts.irrigation}';
   static String get cropHealthServiceUrl => 'http://$_host:${ServicePorts.cropHealth}';
   static String get virtualSensorsServiceUrl => 'http://$_host:${ServicePorts.virtualSensors}';
+  static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
 
   /// Production base URL (Kong Gateway)
@@ -280,6 +282,22 @@ class ApiConfig {
     'irrigation': healthCheck(irrigationServiceUrl),
     'cropHealth': healthCheck(cropHealthServiceUrl),
     'virtualSensors': healthCheck(virtualSensorsServiceUrl),
+    'communityChat': healthCheck(communityChatServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
   };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Community Chat Service Endpoints (port 8097)
+  // خدمة الدردشة المجتمعية
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _chatBase => useDirectServices ? communityChatServiceUrl : effectiveBaseUrl;
+
+  /// Community chat endpoints
+  static String get chatUrl => communityChatServiceUrl; // Socket.io URL
+  static String get chatRequests => '$_chatBase/v1/requests';
+  static String chatRoomMessages(String roomId) => '$_chatBase/v1/rooms/$roomId/messages';
+  static String get chatOnlineExperts => '$_chatBase/v1/experts/online';
+  static String get chatStats => '$_chatBase/v1/stats';
+  static String get chatHealthz => '$_chatBase/healthz';
 }

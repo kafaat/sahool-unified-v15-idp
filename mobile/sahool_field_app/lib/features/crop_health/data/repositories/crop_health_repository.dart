@@ -1,25 +1,15 @@
 /// Crop Health Repository - Sahool Vision API Integration
 /// مستودع صحة المحاصيل - تكامل API سهول فيجن
+///
+/// استخدام نمط ApiResult للتعامل الآمن مع الأخطاء
 library;
 
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/network/api_result.dart';
 import '../models/diagnosis_models.dart';
-
-/// Exception for crop health API errors
-/// استثناء أخطاء واجهة صحة المحاصيل
-class CropHealthException implements Exception {
-  final String message;
-  final String messageAr;
-  final int? statusCode;
-
-  CropHealthException(this.message, {this.messageAr = '', this.statusCode});
-
-  @override
-  String toString() => 'CropHealthException: $message';
-}
 
 /// Repository for Sahool Vision AI service
 /// مستودع خدمة سهول فيجن للذكاء الاصطناعي
@@ -44,13 +34,48 @@ class CropHealthRepository {
       };
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Error Handling Helpers
+  // مساعدات معالجة الأخطاء
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// تحويل كود الحالة لرسالة عربية
+  String _getErrorMessage(int statusCode) {
+    return switch (statusCode) {
+      400 => 'طلب غير صحيح، تحقق من البيانات',
+      401 => 'يرجى تسجيل الدخول مجدداً',
+      403 => 'غير مصرح لك بهذا الإجراء',
+      404 => 'البيانات غير موجودة',
+      408 => 'انتهت مهلة الطلب',
+      413 => 'حجم الصورة كبير جداً، يرجى اختيار صورة أصغر',
+      422 => 'صيغة الصورة غير مدعومة',
+      429 => 'طلبات كثيرة، انتظر قليلاً ثم حاول مجدداً',
+      >= 500 && < 600 => 'خطأ في الخادم، حاول لاحقاً',
+      _ => 'خطأ في الاتصال ($statusCode)',
+    };
+  }
+
+  /// تحويل استثناء لـ Failure
+  Failure<T> _handleError<T>(Object e, String defaultMessage) {
+    if (e is SocketException) {
+      return Failure<T>('لا يوجد اتصال بالإنترنت 🔌');
+    }
+    if (e is http.ClientException) {
+      return Failure<T>('خطأ في الاتصال بالخادم');
+    }
+    if (e is FormatException) {
+      return Failure<T>('خطأ في تنسيق البيانات');
+    }
+    return Failure<T>(defaultMessage);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Disease Diagnosis
   // تشخيص الأمراض
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Diagnose plant disease from image
   /// تشخيص مرض النبات من الصورة
-  Future<DiagnosisResult> diagnoseFromImage(
+  Future<ApiResult<DiagnosisResult>> diagnoseFromImage(
     File imageFile, {
     String? fieldId,
     String? cropType,
@@ -68,41 +93,31 @@ class CropHealthRepository {
       );
 
       final request = http.MultipartRequest('POST', uri);
-
-      // Add headers
       request.headers.addAll(_headers);
-
-      // Add image file
       request.files.add(
         await http.MultipartFile.fromPath('image', imageFile.path),
       );
 
-      // Send request
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return DiagnosisResult.fromJson(data);
+        return Success(DiagnosisResult.fromJson(data));
       }
 
-      throw CropHealthException(
-        'Failed to diagnose image',
-        messageAr: 'فشل في تشخيص الصورة',
+      return Failure(
+        _getErrorMessage(response.statusCode),
         statusCode: response.statusCode,
       );
     } catch (e) {
-      if (e is CropHealthException) rethrow;
-      throw CropHealthException(
-        'Network error: ${e.toString()}',
-        messageAr: 'خطأ في الشبكة',
-      );
+      return _handleError(e, 'فشل في تشخيص الصورة');
     }
   }
 
   /// Diagnose from image bytes (for camera capture)
   /// تشخيص من بايتات الصورة (للتصوير بالكاميرا)
-  Future<DiagnosisResult> diagnoseFromBytes(
+  Future<ApiResult<DiagnosisResult>> diagnoseFromBytes(
     List<int> imageBytes,
     String filename, {
     String? fieldId,
@@ -126,26 +141,21 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return DiagnosisResult.fromJson(json.decode(response.body));
+        return Success(DiagnosisResult.fromJson(json.decode(response.body)));
       }
 
-      throw CropHealthException(
-        'Failed to diagnose image',
-        messageAr: 'فشل في تشخيص الصورة',
+      return Failure(
+        _getErrorMessage(response.statusCode),
         statusCode: response.statusCode,
       );
     } catch (e) {
-      if (e is CropHealthException) rethrow;
-      throw CropHealthException(
-        'Network error: ${e.toString()}',
-        messageAr: 'خطأ في الشبكة',
-      );
+      return _handleError(e, 'فشل في تشخيص الصورة');
     }
   }
 
   /// Batch diagnose multiple images
   /// تشخيص دفعة من الصور
-  Future<BatchDiagnosisResult> batchDiagnose(
+  Future<ApiResult<BatchDiagnosisResult>> batchDiagnose(
     List<File> images, {
     String? fieldId,
   }) async {
@@ -159,7 +169,6 @@ class CropHealthRepository {
       final request = http.MultipartRequest('POST', uri);
       request.headers.addAll(_headers);
 
-      // Add all image files
       for (final image in images) {
         request.files.add(
           await http.MultipartFile.fromPath('images', image.path),
@@ -170,20 +179,15 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return BatchDiagnosisResult.fromJson(json.decode(response.body));
+        return Success(BatchDiagnosisResult.fromJson(json.decode(response.body)));
       }
 
-      throw CropHealthException(
-        'Failed to batch diagnose',
-        messageAr: 'فشل في تشخيص الدفعة',
+      return Failure(
+        _getErrorMessage(response.statusCode),
         statusCode: response.statusCode,
       );
     } catch (e) {
-      if (e is CropHealthException) rethrow;
-      throw CropHealthException(
-        'Network error: ${e.toString()}',
-        messageAr: 'خطأ في الشبكة',
-      );
+      return _handleError(e, 'فشل في تشخيص الدفعة');
     }
   }
 
@@ -194,7 +198,7 @@ class CropHealthRepository {
 
   /// Get list of supported diseases
   /// الحصول على قائمة الأمراض المدعومة
-  Future<List<DiseaseInfo>> getDiseases({String? cropType}) async {
+  Future<ApiResult<List<DiseaseInfo>>> getDiseases({String? cropType}) async {
     try {
       final uri = Uri.parse('$_baseUrl/v1/diseases').replace(
         queryParameters: {
@@ -206,26 +210,21 @@ class CropHealthRepository {
 
       if (response.statusCode == 200) {
         final List data = json.decode(response.body);
-        return data.map((e) => DiseaseInfo.fromJson(e)).toList();
+        return Success(data.map((e) => DiseaseInfo.fromJson(e)).toList());
       }
 
-      throw CropHealthException(
-        'Failed to fetch diseases',
-        messageAr: 'فشل في جلب الأمراض',
+      return Failure(
+        _getErrorMessage(response.statusCode),
         statusCode: response.statusCode,
       );
     } catch (e) {
-      if (e is CropHealthException) rethrow;
-      throw CropHealthException(
-        'Network error: ${e.toString()}',
-        messageAr: 'خطأ في الشبكة',
-      );
+      return _handleError(e, 'فشل في جلب الأمراض');
     }
   }
 
   /// Get list of supported crops
   /// الحصول على قائمة المحاصيل المدعومة
-  Future<List<CropOption>> getSupportedCrops() async {
+  Future<ApiResult<List<CropOption>>> getSupportedCrops() async {
     try {
       final response = await _client.get(
         Uri.parse('$_baseUrl/v1/crops'),
@@ -234,26 +233,21 @@ class CropHealthRepository {
 
       if (response.statusCode == 200) {
         final List data = json.decode(response.body);
-        return data.map((e) => CropOption.fromJson(e)).toList();
+        return Success(data.map((e) => CropOption.fromJson(e)).toList());
       }
 
-      throw CropHealthException(
-        'Failed to fetch crops',
-        messageAr: 'فشل في جلب المحاصيل',
+      return Failure(
+        _getErrorMessage(response.statusCode),
         statusCode: response.statusCode,
       );
     } catch (e) {
-      if (e is CropHealthException) rethrow;
-      throw CropHealthException(
-        'Network error: ${e.toString()}',
-        messageAr: 'خطأ في الشبكة',
-      );
+      return _handleError(e, 'فشل في جلب المحاصيل');
     }
   }
 
   /// Get treatment details for a disease
   /// الحصول على تفاصيل العلاج لمرض معين
-  Future<Map<String, dynamic>> getTreatmentDetails(String diseaseId) async {
+  Future<ApiResult<Map<String, dynamic>>> getTreatmentDetails(String diseaseId) async {
     try {
       final response = await _client.get(
         Uri.parse('$_baseUrl/v1/treatment/$diseaseId'),
@@ -261,20 +255,15 @@ class CropHealthRepository {
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return Success(json.decode(response.body));
       }
 
-      throw CropHealthException(
-        'Failed to fetch treatment details',
-        messageAr: 'فشل في جلب تفاصيل العلاج',
+      return Failure(
+        _getErrorMessage(response.statusCode),
         statusCode: response.statusCode,
       );
     } catch (e) {
-      if (e is CropHealthException) rethrow;
-      throw CropHealthException(
-        'Network error: ${e.toString()}',
-        messageAr: 'خطأ في الشبكة',
-      );
+      return _handleError(e, 'فشل في جلب تفاصيل العلاج');
     }
   }
 
@@ -285,7 +274,7 @@ class CropHealthRepository {
 
   /// Request expert review for a diagnosis
   /// طلب مراجعة خبير للتشخيص
-  Future<ExpertReviewResponse> requestExpertReview(
+  Future<ApiResult<ExpertReviewResponse>> requestExpertReview(
     String diagnosisId,
     File image, {
     String? farmerNotes,
@@ -310,20 +299,15 @@ class CropHealthRepository {
       final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
-        return ExpertReviewResponse.fromJson(json.decode(response.body));
+        return Success(ExpertReviewResponse.fromJson(json.decode(response.body)));
       }
 
-      throw CropHealthException(
-        'Failed to request expert review',
-        messageAr: 'فشل في طلب مراجعة الخبير',
+      return Failure(
+        _getErrorMessage(response.statusCode),
         statusCode: response.statusCode,
       );
     } catch (e) {
-      if (e is CropHealthException) rethrow;
-      throw CropHealthException(
-        'Network error: ${e.toString()}',
-        messageAr: 'خطأ في الشبكة',
-      );
+      return _handleError(e, 'فشل في طلب مراجعة الخبير');
     }
   }
 

@@ -871,7 +871,7 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final wallet = ref.watch(walletProvider);
+    final wallet = ref.watch(walletProvider).wallet;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -1058,7 +1058,7 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final wallet = ref.watch(walletProvider);
+    final wallet = ref.watch(walletProvider).wallet;
     final availableCredit = wallet?.availableCredit ?? 0;
 
     return Padding(

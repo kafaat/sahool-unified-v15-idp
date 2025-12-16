@@ -8,6 +8,7 @@ import 'dart:io';
 /// منافذ الخدمات للتطوير المحلي
 class ServicePorts {
   static const int fieldCore = 3000;
+  static const int marketplace = 3010; // Marketplace & FinTech Service
   static const int satellite = 8090;
   static const int indicators = 8091;
   static const int weather = 8092;
@@ -80,6 +81,7 @@ class ApiConfig {
   static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
   static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
+  static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
 
   /// Production base URL (Kong Gateway)
   static const String productionBaseUrl = 'https://api.sahool.io';
@@ -314,6 +316,7 @@ class ApiConfig {
     'communityChat': healthCheck(communityChatServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
     'notifications': healthCheck(notificationsServiceUrl),
+    'marketplace': healthCheck(marketplaceServiceUrl),
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -346,4 +349,32 @@ class ApiConfig {
   static String get notificationUnsubscribe => '$_notificationsBase/v1/unsubscribe';
   static String get notificationMarkRead => '$_notificationsBase/v1/notifications/mark-read';
   static String get notificationsHealthz => '$_notificationsBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Marketplace & FinTech Service Endpoints (port 3010)
+  // خدمة السوق والمحفظة المالية
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _marketplaceBase => useDirectServices ? marketplaceServiceUrl : effectiveBaseUrl;
+
+  /// Wallet endpoints - نقاط المحفظة
+  static String wallet(String userId) => '$_marketplaceBase/api/v1/fintech/wallet/$userId';
+  static String walletDeposit(String walletId) => '$_marketplaceBase/api/v1/fintech/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) => '$_marketplaceBase/api/v1/fintech/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) => '$_marketplaceBase/api/v1/fintech/wallet/$walletId/transactions';
+
+  /// Credit & Loans endpoints - نقاط الائتمان والقروض
+  static String get calculateCreditScore => '$_marketplaceBase/api/v1/fintech/calculate-score';
+  static String get loans => '$_marketplaceBase/api/v1/fintech/loans';
+  static String userLoans(String walletId) => '$_marketplaceBase/api/v1/fintech/loans/$walletId';
+  static String repayLoan(String loanId) => '$_marketplaceBase/api/v1/fintech/loans/$loanId/repay';
+
+  /// Market endpoints - نقاط السوق
+  static String get marketProducts => '$_marketplaceBase/api/v1/market/products';
+  static String marketProductById(String productId) => '$_marketplaceBase/api/v1/market/products/$productId';
+  static String get listHarvest => '$_marketplaceBase/api/v1/market/harvest';
+  static String get marketOrders => '$_marketplaceBase/api/v1/market/orders';
+  static String userMarketOrders(String userId) => '$_marketplaceBase/api/v1/market/orders/user/$userId';
+  static String get marketStats => '$_marketplaceBase/api/v1/market/stats';
+  static String get marketplaceHealthz => '$_marketplaceBase/healthz';
 }

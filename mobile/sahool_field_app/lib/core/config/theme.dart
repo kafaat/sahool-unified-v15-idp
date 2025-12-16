@@ -83,7 +83,7 @@ class SahoolTheme {
     ),
 
     // Card
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       elevation: 2,
       shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(
@@ -189,7 +189,7 @@ class SahoolTheme {
     ),
 
     // Tab Bar
-    tabBarTheme: TabBarThemeData(
+    tabBarTheme: TabBarTheme(
       labelColor: Colors.white,
       unselectedLabelColor: Colors.white70,
       indicatorColor: Colors.white,
@@ -197,7 +197,7 @@ class SahoolTheme {
     ),
 
     // Dialog
-    dialogTheme: DialogThemeData(
+    dialogTheme: DialogTheme(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
@@ -251,7 +251,7 @@ class SahoolTheme {
       type: BottomNavigationBarType.fixed,
     ),
 
-    cardTheme: CardThemeData(
+    cardTheme: CardTheme(
       elevation: 2,
       color: surfaceDark,
       shape: RoundedRectangleBorder(

@@ -123,6 +123,44 @@ class ApiConfig {
   static String get refreshToken => '$baseUrl/api/v1/auth/refresh';
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // Fintech/Wallet Service Endpoints
+  // خدمة المحفظة والتمويل
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Wallet endpoints
+  static String wallet(String userId) => '$baseUrl/api/v1/fintech/wallet/$userId';
+  static String walletDeposit(String walletId) => '$baseUrl/api/v1/fintech/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) => '$baseUrl/api/v1/fintech/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) => '$baseUrl/api/v1/fintech/wallet/$walletId/transactions';
+
+  /// Credit score endpoint
+  static String get calculateCreditScore => '$baseUrl/api/v1/fintech/calculate-score';
+
+  /// Loan endpoints
+  static String get loans => '$baseUrl/api/v1/fintech/loans';
+  static String userLoans(String walletId) => '$baseUrl/api/v1/fintech/loans/$walletId';
+  static String repayLoan(String loanId) => '$baseUrl/api/v1/fintech/loans/$loanId/repay';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Market Service Endpoints
+  // خدمة السوق
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Market products endpoints
+  static String get marketProducts => '$baseUrl/api/v1/market/products';
+  static String marketProductById(String productId) => '$baseUrl/api/v1/market/products/$productId';
+
+  /// Market orders endpoints
+  static String get marketOrders => '$baseUrl/api/v1/market/orders';
+  static String userMarketOrders(String userId) => '$baseUrl/api/v1/market/orders/$userId';
+
+  /// List harvest for sale
+  static String get listHarvest => '$baseUrl/api/v1/market/list-harvest';
+
+  /// Market statistics
+  static String get marketStats => '$baseUrl/api/v1/market/stats';
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // Satellite Service Endpoints (port 8090)
   // خدمة الأقمار الصناعية
   // ─────────────────────────────────────────────────────────────────────────────

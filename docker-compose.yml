@@ -674,32 +674,6 @@ services:
     networks:
       - sahool-network
 
-  # Notification Service - Personalized Notifications (Python + FastAPI)
-  # خدمة الإشعارات المخصصة - تنبيهات ذكية لكل مزارع
-  notification_service:
-    build:
-      context: ./kernel-services-v15.3/notification-service
-      dockerfile: Dockerfile
-    container_name: sahool-notification-service
-    environment:
-      - PORT=8109
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
-    ports:
-      - "8109:8109"
-    depends_on:
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8109/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    networks:
-      - sahool-network
-
   # Weather Advanced Service - Agricultural Weather Forecasting (Python + FastAPI)
   # خدمة الطقس المتقدمة - التنبؤ بالطقس الزراعي
   weather_advanced:
@@ -715,35 +689,6 @@ services:
       - "8092:8092"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8092/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    networks:
-      - sahool-network
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Marketplace & FinTech Service (NestJS)
-  # سوق سهول والخدمات المالية
-  # ─────────────────────────────────────────────────────────────────────────────
-
-  marketplace_service:
-    build:
-      context: ./kernel-services-v15.3/marketplace-service
-      dockerfile: Dockerfile
-    container_name: sahool-marketplace-service
-    environment:
-      - PORT=3010
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-    ports:
-      - "3010:3010"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3010/api/v1/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -247,6 +247,18 @@ services:
           - /api/v1/yield/historical
         strip_path: false
 
+  # Notification Service - Personalized Alerts (v15.3)
+  - name: notification-service
+    url: http://sahool-notification-service:8109
+    routes:
+      - name: notification-route
+        paths:
+          - /api/v1/notifications
+          - /api/v1/alerts
+          - /api/v1/reminders
+          - /api/v1/farmers/register
+        strip_path: false
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins
 # ─────────────────────────────────────────────────────────────────────────────

@@ -674,6 +674,32 @@ services:
     networks:
       - sahool-network
 
+  # Notification Service - Personalized Notifications (Python + FastAPI)
+  # خدمة الإشعارات المخصصة - تنبيهات ذكية لكل مزارع
+  notification_service:
+    build:
+      context: ./kernel-services-v15.3/notification-service
+      dockerfile: Dockerfile
+    container_name: sahool-notification-service
+    environment:
+      - PORT=8109
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+    ports:
+      - "8109:8109"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8109/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
   # Weather Advanced Service - Agricultural Weather Forecasting (Python + FastAPI)
   # خدمة الطقس المتقدمة - التنبؤ بالطقس الزراعي
   weather_advanced:

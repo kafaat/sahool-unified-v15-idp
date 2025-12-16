@@ -9,6 +9,10 @@ import 'features/crop_health/presentation/screens/crop_health_dashboard.dart';
 import 'features/weather/presentation/screens/weather_screen.dart';
 import 'features/maps/presentation/screens/field_map_screen.dart';
 import 'features/notifications/presentation/screens/notifications_screen.dart';
+import 'features/marketplace/marketplace_screen.dart';
+import 'features/wallet/wallet_screen.dart';
+import 'features/community/ui/community_screen.dart';
+import 'features/market/ui/sell_harvest_dialog.dart';
 
 /// SAHOOL Field App
 /// تطبيق سهول الميداني
@@ -114,8 +118,9 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
 
   final List<Widget> _screens = [
     const HomeDashboard(),
-    const TasksListScreen(),
-    const _FieldsPlaceholder(),
+    const MarketplaceScreen(),
+    const WalletScreen(),
+    const CommunityScreen(),
     const _MoreScreen(),
   ];
 
@@ -129,8 +134,8 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
           children: _screens,
         ),
         bottomNavigationBar: _buildBottomNav(),
-        floatingActionButton: _currentIndex == 0 ? _buildFAB() : null,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: _buildFAB(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }
@@ -138,30 +143,50 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
   Widget _buildBottomNav() {
     return Container(
       decoration: BoxDecoration(
+        color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
-      child: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: SizedBox(
-          height: 60,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.home_rounded, 'الرئيسية'),
-              _buildNavItem(1, Icons.assignment_rounded, 'المهام'),
-              const SizedBox(width: 56), // Space for FAB
-              _buildNavItem(2, Icons.landscape_rounded, 'الحقول'),
-              _buildNavItem(3, Icons.more_horiz_rounded, 'المزيد'),
-            ],
+      child: NavigationBar(
+        height: 70,
+        elevation: 0,
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) => setState(() => _currentIndex = index),
+        backgroundColor: Colors.white,
+        indicatorColor: SahoolTheme.primary.withOpacity(0.1),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home_rounded, color: SahoolTheme.primary),
+            label: 'الرئيسية',
           ),
-        ),
+          NavigationDestination(
+            icon: Icon(Icons.storefront_outlined),
+            selectedIcon: Icon(Icons.storefront_rounded, color: SahoolTheme.primary),
+            label: 'السوق',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: Icon(Icons.account_balance_wallet_rounded, color: SahoolTheme.primary),
+            label: 'المحفظة',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.forum_outlined),
+            selectedIcon: Icon(Icons.forum_rounded, color: SahoolTheme.primary),
+            label: 'المجتمع',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.more_horiz_outlined),
+            selectedIcon: Icon(Icons.more_horiz_rounded, color: SahoolTheme.primary),
+            label: 'المزيد',
+          ),
+        ],
       ),
     );
   }
@@ -194,12 +219,28 @@ class _MainAppShellState extends ConsumerState<MainAppShell> {
     );
   }
 
-  Widget _buildFAB() {
-    return FloatingActionButton(
-      onPressed: _showQuickActions,
-      backgroundColor: SahoolTheme.primary,
-      child: const Icon(Icons.add, color: Colors.white, size: 28),
-    );
+  Widget? _buildFAB() {
+    // Different FABs based on current screen
+    switch (_currentIndex) {
+      case 0: // Home
+        return FloatingActionButton(
+          onPressed: _showQuickActions,
+          backgroundColor: SahoolTheme.primary,
+          child: const Icon(Icons.add, color: Colors.white, size: 28),
+        );
+      case 1: // Marketplace
+        return FloatingActionButton.extended(
+          onPressed: () => showSellHarvestDialog(context, ref),
+          backgroundColor: SahoolTheme.primary,
+          icon: const Icon(Icons.sell, color: Colors.white),
+          label: const Text(
+            'بيع محصولي',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        );
+      default:
+        return null;
+    }
   }
 
   void _showQuickActions() {

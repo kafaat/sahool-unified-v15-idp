@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Activity,
   Cpu,
+  Droplets,
 } from 'lucide-react';
 
 const navigation = [
@@ -27,6 +28,7 @@ const navigation = [
   { name: 'مركز رصد الأوبئة', href: '/epidemic', icon: Activity },
   { name: 'إدارة الأمراض', href: '/diseases', icon: Bug },
   { name: 'حاسبة الإنتاجية', href: '/yield', icon: TrendingUp },
+  { name: 'الري الذكي', href: '/irrigation', icon: Droplets },
   { name: 'المستشعرات', href: '/sensors', icon: Cpu },
   { name: 'الطقس والتنبيهات', href: '/alerts', icon: Bell },
   { name: 'الدعم الفني', href: '/support', icon: MessageCircle, badge: 5 },

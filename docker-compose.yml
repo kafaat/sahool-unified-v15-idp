@@ -585,6 +585,28 @@ services:
     networks:
       - sahool-network
 
+  # Irrigation Smart - Smart Irrigation Management (Python + FastAPI)
+  # الري الذكي - إدارة الري باستخدام FAO-56 Penman-Monteith
+  irrigation_smart:
+    build:
+      context: ./kernel-services-v15.3/irrigation-smart
+      dockerfile: Dockerfile
+    container_name: sahool-irrigation-smart
+    environment:
+      - PORT=8094
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8094:8094"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8094/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Admin Dashboard (Next.js)
   # لوحة تحكم المشرفين

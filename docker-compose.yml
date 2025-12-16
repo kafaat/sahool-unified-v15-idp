@@ -723,6 +723,35 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Marketplace & FinTech Service (NestJS)
+  # سوق سهول والخدمات المالية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  marketplace_service:
+    build:
+      context: ./kernel-services-v15.3/marketplace-service
+      dockerfile: Dockerfile
+    container_name: sahool-marketplace-service
+    environment:
+      - PORT=3010
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "3010:3010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3010/api/v1/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Admin Dashboard (Next.js)
   # لوحة تحكم المشرفين
   # ─────────────────────────────────────────────────────────────────────────────

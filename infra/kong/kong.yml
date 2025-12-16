@@ -259,6 +259,16 @@ services:
           - /api/v1/farmers/register
         strip_path: false
 
+  # Marketplace & FinTech Service (v15.3)
+  - name: marketplace-service
+    url: http://sahool-marketplace-service:3010
+    routes:
+      - name: marketplace-route
+        paths:
+          - /api/v1/market
+          - /api/v1/fintech
+        strip_path: false
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins
 # ─────────────────────────────────────────────────────────────────────────────

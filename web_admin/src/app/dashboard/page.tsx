@@ -1,7 +1,7 @@
 'use client';
 
 // Sahool Admin Dashboard - Main Page
-// الصفحة الرئيسية للوحة تحكم سهول
+// الصفحة الرئيسية للوحة تحكم سهول - غرفة العمليات المركزية
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
@@ -20,8 +20,28 @@ import {
   Activity,
   Calendar,
   Eye,
+  Users,
+  DollarSign,
+  Droplets,
+  Sun,
 } from 'lucide-react';
 import Link from 'next/link';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  AreaChart,
+  Area,
+} from 'recharts';
 
 // Dynamic import for map (no SSR)
 const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
@@ -32,6 +52,46 @@ const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
     </div>
   ),
 });
+
+// Chart colors
+const CHART_COLORS = {
+  primary: '#2E7D32',
+  secondary: '#4CAF50',
+  accent: '#81C784',
+  warning: '#FF9800',
+  danger: '#F44336',
+  info: '#2196F3',
+};
+
+const PIE_COLORS = ['#2E7D32', '#4CAF50', '#81C784', '#A5D6A7', '#C8E6C9'];
+
+// Mock data for charts
+const yieldTrendData = [
+  { month: 'يناير', yield: 120, forecast: 115 },
+  { month: 'فبراير', yield: 140, forecast: 135 },
+  { month: 'مارس', yield: 280, forecast: 250 },
+  { month: 'أبريل', yield: 320, forecast: 300 },
+  { month: 'مايو', yield: 180, forecast: 190 },
+  { month: 'يونيو', yield: 95, forecast: 100 },
+];
+
+const cropDistributionData = [
+  { name: 'قمح', value: 35 },
+  { name: 'بن', value: 25 },
+  { name: 'قات', value: 20 },
+  { name: 'فواكه', value: 12 },
+  { name: 'خضروات', value: 8 },
+];
+
+const weeklyActivityData = [
+  { day: 'السبت', diagnoses: 12, irrigations: 8, alerts: 3 },
+  { day: 'الأحد', diagnoses: 18, irrigations: 12, alerts: 5 },
+  { day: 'الاثنين', diagnoses: 15, irrigations: 10, alerts: 2 },
+  { day: 'الثلاثاء', diagnoses: 22, irrigations: 15, alerts: 4 },
+  { day: 'الأربعاء', diagnoses: 19, irrigations: 11, alerts: 6 },
+  { day: 'الخميس', diagnoses: 25, irrigations: 14, alerts: 3 },
+  { day: 'الجمعة', diagnoses: 8, irrigations: 5, alerts: 1 },
+];
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -133,6 +193,164 @@ export default function DashboardPage() {
           icon={TrendingUp}
           iconColor="text-cyan-600"
         />
+      </div>
+
+      {/* Charts Row */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Yield Trend Chart */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-gray-900">توقعات الإنتاجية (طن)</h3>
+            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">آخر 6 أشهر</span>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={yieldTrendData}>
+                <defs>
+                  <linearGradient id="yieldGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={CHART_COLORS.primary} stopOpacity={0.3} />
+                    <stop offset="95%" stopColor={CHART_COLORS.primary} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    direction: 'rtl',
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="yield"
+                  stroke={CHART_COLORS.primary}
+                  fill="url(#yieldGradient)"
+                  strokeWidth={2}
+                  name="الإنتاج الفعلي"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="forecast"
+                  stroke={CHART_COLORS.warning}
+                  strokeDasharray="5 5"
+                  strokeWidth={2}
+                  dot={false}
+                  name="التوقعات"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Weekly Activity Chart */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-bold text-gray-900">نشاط الأسبوع</h3>
+            <div className="flex items-center gap-4 text-xs">
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-sahool-600"></span>
+                تشخيصات
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-blue-500"></span>
+                ري
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                تنبيهات
+              </span>
+            </div>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weeklyActivityData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    direction: 'rtl',
+                  }}
+                />
+                <Bar dataKey="diagnoses" fill={CHART_COLORS.primary} radius={[4, 4, 0, 0]} name="تشخيصات" />
+                <Bar dataKey="irrigations" fill={CHART_COLORS.info} radius={[4, 4, 0, 0]} name="عمليات ري" />
+                <Bar dataKey="alerts" fill={CHART_COLORS.danger} radius={[4, 4, 0, 0]} name="تنبيهات" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Third Row - Crop Distribution and Quick Stats */}
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Crop Distribution Pie Chart */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 className="font-bold text-gray-900 mb-4">توزيع المحاصيل</h3>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={cropDistributionData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
+                  paddingAngle={2}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  labelLine={false}
+                >
+                  {cropDistributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Quick Performance Metrics */}
+        <div className="lg:col-span-2 bg-gradient-to-br from-sahool-600 to-sahool-700 p-6 rounded-xl shadow-sm text-white">
+          <h3 className="font-bold mb-4">أداء المنصة اليوم</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <Users className="w-6 h-6 mb-2 opacity-80" />
+              <p className="text-2xl font-bold">1,240</p>
+              <p className="text-xs opacity-80">مزارع نشط</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <DollarSign className="w-6 h-6 mb-2 opacity-80" />
+              <p className="text-2xl font-bold">$42K</p>
+              <p className="text-xs opacity-80">مبيعات اليوم</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <Droplets className="w-6 h-6 mb-2 opacity-80" />
+              <p className="text-2xl font-bold">156</p>
+              <p className="text-xs opacity-80">عملية ري</p>
+            </div>
+            <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
+              <Sun className="w-6 h-6 mb-2 opacity-80" />
+              <p className="text-2xl font-bold">28°</p>
+              <p className="text-xs opacity-80">متوسط الحرارة</p>
+            </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-white/20">
+            <div className="flex items-center justify-between text-sm">
+              <span className="opacity-80">نسبة النمو الشهري</span>
+              <span className="font-bold text-green-300">+12.5%</span>
+            </div>
+            <div className="mt-2 h-2 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-full w-3/4 bg-green-400 rounded-full"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Map and Recent Activity */}

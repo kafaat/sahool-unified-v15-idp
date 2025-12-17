@@ -140,8 +140,8 @@ export class ScientificLockGuard implements CanActivate {
 
       return {
         isLocked: experiment.status === 'locked',
-        lockedAt: experiment.lockedAt,
-        lockedBy: experiment.lockedBy,
+        lockedAt: experiment.lockedAt ?? undefined,
+        lockedBy: experiment.lockedBy ?? undefined,
         status: experiment.status,
       };
     } catch (error) {

@@ -359,6 +359,64 @@ ai-check: ai-test ai-status ## Full AI check (tests + status)
 	@echo "✅ All AI checks passed!"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Sync & Analytics Commands (Sprint 10-11)
+# ─────────────────────────────────────────────────────────────────────────────
+
+sync-status: ## Check mobile sync infrastructure
+	@echo "📱 Mobile Sync Infrastructure Status"
+	@echo "────────────────────────────────────"
+	@test -f mobile/sahool_field_app/lib/core/sync/delta_sync.dart && echo "✅ Delta sync: Present" || echo "❌ Delta sync: Missing"
+	@test -f mobile/sahool_field_app/lib/core/sync/batch_uploader.dart && echo "✅ Batch uploader: Present" || echo "❌ Batch uploader: Missing"
+	@test -f mobile/sahool_field_app/lib/core/sync/selective_sync.dart && echo "✅ Selective sync: Present" || echo "❌ Selective sync: Missing"
+	@test -f mobile/sahool_field_app/lib/core/sync/sync_metrics.dart && echo "✅ Sync metrics: Present" || echo "❌ Sync metrics: Missing"
+	@echo "────────────────────────────────────"
+
+analytics-status: ## Check analytics infrastructure
+	@echo "📊 Analytics Infrastructure Status"
+	@echo "──────────────────────────────────"
+	@test -f services/research_core/src/modules/analytics/analytics.service.ts && echo "✅ Analytics service: Present" || echo "❌ Analytics service: Missing"
+	@test -f services/research_core/src/modules/analytics/analytics.controller.ts && echo "✅ Analytics controller: Present" || echo "❌ Analytics controller: Missing"
+	@test -f services/research_core/src/modules/analytics/analytics.module.ts && echo "✅ Analytics module: Present" || echo "❌ Analytics module: Missing"
+	@test -f services/research_core/src/modules/analytics/export.service.ts && echo "✅ Export service: Present" || echo "❌ Export service: Missing"
+	@test -f services/research_core/src/modules/analytics/dto/analytics.dto.ts && echo "✅ Analytics DTOs: Present" || echo "❌ Analytics DTOs: Missing"
+	@echo "──────────────────────────────────"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# E2E Testing Commands (Sprint 12)
+# ─────────────────────────────────────────────────────────────────────────────
+
+test-e2e: ## Run E2E tests
+	@echo "🧪 Running E2E tests..."
+	cd services/research_core && npx jest --config=../../tests/jest.e2e.config.js
+	@echo "✅ E2E tests complete!"
+
+test-e2e-experiments: ## Run E2E tests for experiments module
+	@echo "🧪 Running experiments E2E tests..."
+	cd services/research_core && npx jest --config=../../tests/jest.e2e.config.js --testNamePattern="Experiments"
+
+test-e2e-logs: ## Run E2E tests for logs module
+	@echo "🧪 Running logs E2E tests..."
+	cd services/research_core && npx jest --config=../../tests/jest.e2e.config.js --testNamePattern="Logs"
+
+test-e2e-analytics: ## Run E2E tests for analytics module
+	@echo "🧪 Running analytics E2E tests..."
+	cd services/research_core && npx jest --config=../../tests/jest.e2e.config.js --testNamePattern="Analytics"
+
+e2e-status: ## Check E2E testing infrastructure
+	@echo "🧪 E2E Testing Infrastructure Status"
+	@echo "────────────────────────────────────"
+	@test -f tests/e2e/research_core/experiments.e2e.spec.ts && echo "✅ Experiments E2E: Present" || echo "❌ Experiments E2E: Missing"
+	@test -f tests/e2e/research_core/logs.e2e.spec.ts && echo "✅ Logs E2E: Present" || echo "❌ Logs E2E: Missing"
+	@test -f tests/e2e/research_core/analytics.e2e.spec.ts && echo "✅ Analytics E2E: Present" || echo "❌ Analytics E2E: Missing"
+	@test -f tests/fixtures/research.fixtures.ts && echo "✅ Test fixtures: Present" || echo "❌ Test fixtures: Missing"
+	@test -f tests/setup/e2e.setup.ts && echo "✅ E2E setup: Present" || echo "❌ E2E setup: Missing"
+	@test -f tests/jest.e2e.config.js && echo "✅ Jest E2E config: Present" || echo "❌ Jest E2E config: Missing"
+	@echo "────────────────────────────────────"
+
+sprint-10-12-check: sync-status analytics-status e2e-status ## Full Sprint 10-12 status check
+	@echo "✅ All Sprint 10-12 checks passed!"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure Commands
 # ─────────────────────────────────────────────────────────────────────────────
 

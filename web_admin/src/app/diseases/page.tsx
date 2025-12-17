@@ -483,8 +483,14 @@ function DiseasesContent() {
 export default function DiseasesPage() {
   return (
     <Suspense fallback={
-      <div className="p-6 flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-sahool-600" />
+      <div className="p-6">
+        <Header title="إدارة الأمراض" subtitle="جاري التحميل..." />
+        <div className="mt-6 flex items-center justify-center h-64">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-sahool-600 mx-auto" />
+            <p className="mt-4 text-gray-600">جاري تحميل التشخيصات...</p>
+          </div>
+        </div>
       </div>
     }>
       <DiseasesContent />

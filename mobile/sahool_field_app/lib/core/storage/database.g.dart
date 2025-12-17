@@ -430,6 +430,35 @@ class Task extends DataClass implements Insertable<Task> {
         updatedAt: updatedAt ?? this.updatedAt,
         synced: synced ?? this.synced,
       );
+<<<<<<< HEAD
+=======
+  Task copyWithCompanion(TasksCompanion data) {
+    return Task(
+      id: data.id.present ? data.id.value : this.id,
+      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
+      fieldId: data.fieldId.present ? data.fieldId.value : this.fieldId,
+      farmId: data.farmId.present ? data.farmId.value : this.farmId,
+      title: data.title.present ? data.title.value : this.title,
+      description:
+          data.description.present ? data.description.value : this.description,
+      status: data.status.present ? data.status.value : this.status,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      dueDate: data.dueDate.present ? data.dueDate.value : this.dueDate,
+      assignedTo:
+          data.assignedTo.present ? data.assignedTo.value : this.assignedTo,
+      evidenceNotes: data.evidenceNotes.present
+          ? data.evidenceNotes.value
+          : this.evidenceNotes,
+      evidencePhotos: data.evidencePhotos.present
+          ? data.evidencePhotos.value
+          : this.evidencePhotos,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      synced: data.synced.present ? data.synced.value : this.synced,
+    );
+  }
+
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   @override
   String toString() {
     return (StringBuffer('Task(')
@@ -1028,6 +1057,28 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
         isSynced: isSynced ?? this.isSynced,
         createdAt: createdAt ?? this.createdAt,
       );
+<<<<<<< HEAD
+=======
+  OutboxData copyWithCompanion(OutboxCompanion data) {
+    return OutboxData(
+      id: data.id.present ? data.id.value : this.id,
+      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
+      entityType:
+          data.entityType.present ? data.entityType.value : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      apiEndpoint:
+          data.apiEndpoint.present ? data.apiEndpoint.value : this.apiEndpoint,
+      method: data.method.present ? data.method.value : this.method,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      ifMatch: data.ifMatch.present ? data.ifMatch.value : this.ifMatch,
+      retryCount:
+          data.retryCount.present ? data.retryCount.value : this.retryCount,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   @override
   String toString() {
     return (StringBuffer('OutboxData(')
@@ -1262,15 +1313,21 @@ class $FieldsTable extends Fields with TableInfo<$FieldsTable, Field> {
   late final GeneratedColumn<String> cropType = GeneratedColumn<String>(
       'crop_type', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+<<<<<<< HEAD
   static const VerificationMeta _boundaryMeta =
       const VerificationMeta('boundary');
+=======
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   @override
   late final GeneratedColumnWithTypeConverter<List<LatLng>, String> boundary =
       GeneratedColumn<String>('boundary', aliasedName, false,
               type: DriftSqlType.string, requiredDuringInsert: true)
           .withConverter<List<LatLng>>($FieldsTable.$converterboundary);
+<<<<<<< HEAD
   static const VerificationMeta _centroidMeta =
       const VerificationMeta('centroid');
+=======
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   @override
   late final GeneratedColumnWithTypeConverter<LatLng?, String> centroid =
       GeneratedColumn<String>('centroid', aliasedName, true,
@@ -1401,8 +1458,11 @@ class $FieldsTable extends Fields with TableInfo<$FieldsTable, Field> {
       context.handle(_cropTypeMeta,
           cropType.isAcceptableOrUnknown(data['crop_type']!, _cropTypeMeta));
     }
+<<<<<<< HEAD
     context.handle(_boundaryMeta, const VerificationResult.success());
     context.handle(_centroidMeta, const VerificationResult.success());
+=======
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
     if (data.containsKey('area_hectares')) {
       context.handle(
           _areaHectaresMeta,
@@ -1730,6 +1790,39 @@ class Field extends DataClass implements Insertable<Field> {
             ? serverUpdatedAt.value
             : this.serverUpdatedAt,
       );
+<<<<<<< HEAD
+=======
+  Field copyWithCompanion(FieldsCompanion data) {
+    return Field(
+      id: data.id.present ? data.id.value : this.id,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
+      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
+      farmId: data.farmId.present ? data.farmId.value : this.farmId,
+      name: data.name.present ? data.name.value : this.name,
+      cropType: data.cropType.present ? data.cropType.value : this.cropType,
+      boundary: data.boundary.present ? data.boundary.value : this.boundary,
+      centroid: data.centroid.present ? data.centroid.value : this.centroid,
+      areaHectares: data.areaHectares.present
+          ? data.areaHectares.value
+          : this.areaHectares,
+      status: data.status.present ? data.status.value : this.status,
+      ndviCurrent:
+          data.ndviCurrent.present ? data.ndviCurrent.value : this.ndviCurrent,
+      ndviUpdatedAt: data.ndviUpdatedAt.present
+          ? data.ndviUpdatedAt.value
+          : this.ndviUpdatedAt,
+      synced: data.synced.present ? data.synced.value : this.synced,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      etag: data.etag.present ? data.etag.value : this.etag,
+      serverUpdatedAt: data.serverUpdatedAt.present
+          ? data.serverUpdatedAt.value
+          : this.serverUpdatedAt,
+    );
+  }
+
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   @override
   String toString() {
     return (StringBuffer('Field(')
@@ -2220,6 +2313,19 @@ class SyncLog extends DataClass implements Insertable<SyncLog> {
         message: message.present ? message.value : this.message,
         timestamp: timestamp ?? this.timestamp,
       );
+<<<<<<< HEAD
+=======
+  SyncLog copyWithCompanion(SyncLogsCompanion data) {
+    return SyncLog(
+      id: data.id.present ? data.id.value : this.id,
+      type: data.type.present ? data.type.value : this.type,
+      status: data.status.present ? data.status.value : this.status,
+      message: data.message.present ? data.message.value : this.message,
+      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
+    );
+  }
+
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   @override
   String toString() {
     return (StringBuffer('SyncLog(')
@@ -2580,6 +2686,23 @@ class SyncEvent extends DataClass implements Insertable<SyncEvent> {
         isRead: isRead ?? this.isRead,
         createdAt: createdAt ?? this.createdAt,
       );
+<<<<<<< HEAD
+=======
+  SyncEvent copyWithCompanion(SyncEventsCompanion data) {
+    return SyncEvent(
+      id: data.id.present ? data.id.value : this.id,
+      tenantId: data.tenantId.present ? data.tenantId.value : this.tenantId,
+      type: data.type.present ? data.type.value : this.type,
+      entityType:
+          data.entityType.present ? data.entityType.value : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      message: data.message.present ? data.message.value : this.message,
+      isRead: data.isRead.present ? data.isRead.value : this.isRead,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   @override
   String toString() {
     return (StringBuffer('SyncEvent(')
@@ -2734,6 +2857,10 @@ class SyncEventsCompanion extends UpdateCompanion<SyncEvent> {
 
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
+<<<<<<< HEAD
+=======
+  $AppDatabaseManager get managers => $AppDatabaseManager(this);
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
   late final $TasksTable tasks = $TasksTable(this);
   late final $OutboxTable outbox = $OutboxTable(this);
   late final $FieldsTable fields = $FieldsTable(this);
@@ -2746,3 +2873,1319 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities =>
       [tasks, outbox, fields, syncLogs, syncEvents];
 }
+<<<<<<< HEAD
+=======
+
+typedef $$TasksTableCreateCompanionBuilder = TasksCompanion Function({
+  required String id,
+  required String tenantId,
+  required String fieldId,
+  Value<String?> farmId,
+  required String title,
+  Value<String?> description,
+  Value<String> status,
+  Value<String> priority,
+  Value<DateTime?> dueDate,
+  Value<String?> assignedTo,
+  Value<String?> evidenceNotes,
+  Value<String?> evidencePhotos,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<bool> synced,
+  Value<int> rowid,
+});
+typedef $$TasksTableUpdateCompanionBuilder = TasksCompanion Function({
+  Value<String> id,
+  Value<String> tenantId,
+  Value<String> fieldId,
+  Value<String?> farmId,
+  Value<String> title,
+  Value<String?> description,
+  Value<String> status,
+  Value<String> priority,
+  Value<DateTime?> dueDate,
+  Value<String?> assignedTo,
+  Value<String?> evidenceNotes,
+  Value<String?> evidencePhotos,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<bool> synced,
+  Value<int> rowid,
+});
+
+class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
+  $$TasksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fieldId => $composableBuilder(
+      column: $table.fieldId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get farmId => $composableBuilder(
+      column: $table.farmId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dueDate => $composableBuilder(
+      column: $table.dueDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get assignedTo => $composableBuilder(
+      column: $table.assignedTo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get evidenceNotes => $composableBuilder(
+      column: $table.evidenceNotes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get evidencePhotos => $composableBuilder(
+      column: $table.evidencePhotos,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnFilters(column));
+}
+
+class $$TasksTableOrderingComposer
+    extends Composer<_$AppDatabase, $TasksTable> {
+  $$TasksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fieldId => $composableBuilder(
+      column: $table.fieldId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get farmId => $composableBuilder(
+      column: $table.farmId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dueDate => $composableBuilder(
+      column: $table.dueDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get assignedTo => $composableBuilder(
+      column: $table.assignedTo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get evidenceNotes => $composableBuilder(
+      column: $table.evidenceNotes,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get evidencePhotos => $composableBuilder(
+      column: $table.evidencePhotos,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TasksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TasksTable> {
+  $$TasksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tenantId =>
+      $composableBuilder(column: $table.tenantId, builder: (column) => column);
+
+  GeneratedColumn<String> get fieldId =>
+      $composableBuilder(column: $table.fieldId, builder: (column) => column);
+
+  GeneratedColumn<String> get farmId =>
+      $composableBuilder(column: $table.farmId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dueDate =>
+      $composableBuilder(column: $table.dueDate, builder: (column) => column);
+
+  GeneratedColumn<String> get assignedTo => $composableBuilder(
+      column: $table.assignedTo, builder: (column) => column);
+
+  GeneratedColumn<String> get evidenceNotes => $composableBuilder(
+      column: $table.evidenceNotes, builder: (column) => column);
+
+  GeneratedColumn<String> get evidencePhotos => $composableBuilder(
+      column: $table.evidencePhotos, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+}
+
+class $$TasksTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TasksTable,
+    Task,
+    $$TasksTableFilterComposer,
+    $$TasksTableOrderingComposer,
+    $$TasksTableAnnotationComposer,
+    $$TasksTableCreateCompanionBuilder,
+    $$TasksTableUpdateCompanionBuilder,
+    (Task, BaseReferences<_$AppDatabase, $TasksTable, Task>),
+    Task,
+    PrefetchHooks Function()> {
+  $$TasksTableTableManager(_$AppDatabase db, $TasksTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TasksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TasksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TasksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> tenantId = const Value.absent(),
+            Value<String> fieldId = const Value.absent(),
+            Value<String?> farmId = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String> priority = const Value.absent(),
+            Value<DateTime?> dueDate = const Value.absent(),
+            Value<String?> assignedTo = const Value.absent(),
+            Value<String?> evidenceNotes = const Value.absent(),
+            Value<String?> evidencePhotos = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TasksCompanion(
+            id: id,
+            tenantId: tenantId,
+            fieldId: fieldId,
+            farmId: farmId,
+            title: title,
+            description: description,
+            status: status,
+            priority: priority,
+            dueDate: dueDate,
+            assignedTo: assignedTo,
+            evidenceNotes: evidenceNotes,
+            evidencePhotos: evidencePhotos,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            synced: synced,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String tenantId,
+            required String fieldId,
+            Value<String?> farmId = const Value.absent(),
+            required String title,
+            Value<String?> description = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String> priority = const Value.absent(),
+            Value<DateTime?> dueDate = const Value.absent(),
+            Value<String?> assignedTo = const Value.absent(),
+            Value<String?> evidenceNotes = const Value.absent(),
+            Value<String?> evidencePhotos = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<bool> synced = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TasksCompanion.insert(
+            id: id,
+            tenantId: tenantId,
+            fieldId: fieldId,
+            farmId: farmId,
+            title: title,
+            description: description,
+            status: status,
+            priority: priority,
+            dueDate: dueDate,
+            assignedTo: assignedTo,
+            evidenceNotes: evidenceNotes,
+            evidencePhotos: evidencePhotos,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            synced: synced,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TasksTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TasksTable,
+    Task,
+    $$TasksTableFilterComposer,
+    $$TasksTableOrderingComposer,
+    $$TasksTableAnnotationComposer,
+    $$TasksTableCreateCompanionBuilder,
+    $$TasksTableUpdateCompanionBuilder,
+    (Task, BaseReferences<_$AppDatabase, $TasksTable, Task>),
+    Task,
+    PrefetchHooks Function()>;
+typedef $$OutboxTableCreateCompanionBuilder = OutboxCompanion Function({
+  Value<int> id,
+  required String tenantId,
+  required String entityType,
+  required String entityId,
+  required String apiEndpoint,
+  Value<String> method,
+  required String payload,
+  Value<String?> ifMatch,
+  Value<int> retryCount,
+  Value<bool> isSynced,
+  Value<DateTime> createdAt,
+});
+typedef $$OutboxTableUpdateCompanionBuilder = OutboxCompanion Function({
+  Value<int> id,
+  Value<String> tenantId,
+  Value<String> entityType,
+  Value<String> entityId,
+  Value<String> apiEndpoint,
+  Value<String> method,
+  Value<String> payload,
+  Value<String?> ifMatch,
+  Value<int> retryCount,
+  Value<bool> isSynced,
+  Value<DateTime> createdAt,
+});
+
+class $$OutboxTableFilterComposer
+    extends Composer<_$AppDatabase, $OutboxTable> {
+  $$OutboxTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get apiEndpoint => $composableBuilder(
+      column: $table.apiEndpoint, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get method => $composableBuilder(
+      column: $table.method, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ifMatch => $composableBuilder(
+      column: $table.ifMatch, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$OutboxTableOrderingComposer
+    extends Composer<_$AppDatabase, $OutboxTable> {
+  $$OutboxTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get apiEndpoint => $composableBuilder(
+      column: $table.apiEndpoint, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get method => $composableBuilder(
+      column: $table.method, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ifMatch => $composableBuilder(
+      column: $table.ifMatch, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSynced => $composableBuilder(
+      column: $table.isSynced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$OutboxTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OutboxTable> {
+  $$OutboxTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tenantId =>
+      $composableBuilder(column: $table.tenantId, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get apiEndpoint => $composableBuilder(
+      column: $table.apiEndpoint, builder: (column) => column);
+
+  GeneratedColumn<String> get method =>
+      $composableBuilder(column: $table.method, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<String> get ifMatch =>
+      $composableBuilder(column: $table.ifMatch, builder: (column) => column);
+
+  GeneratedColumn<int> get retryCount => $composableBuilder(
+      column: $table.retryCount, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$OutboxTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $OutboxTable,
+    OutboxData,
+    $$OutboxTableFilterComposer,
+    $$OutboxTableOrderingComposer,
+    $$OutboxTableAnnotationComposer,
+    $$OutboxTableCreateCompanionBuilder,
+    $$OutboxTableUpdateCompanionBuilder,
+    (OutboxData, BaseReferences<_$AppDatabase, $OutboxTable, OutboxData>),
+    OutboxData,
+    PrefetchHooks Function()> {
+  $$OutboxTableTableManager(_$AppDatabase db, $OutboxTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OutboxTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OutboxTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OutboxTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> tenantId = const Value.absent(),
+            Value<String> entityType = const Value.absent(),
+            Value<String> entityId = const Value.absent(),
+            Value<String> apiEndpoint = const Value.absent(),
+            Value<String> method = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<String?> ifMatch = const Value.absent(),
+            Value<int> retryCount = const Value.absent(),
+            Value<bool> isSynced = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              OutboxCompanion(
+            id: id,
+            tenantId: tenantId,
+            entityType: entityType,
+            entityId: entityId,
+            apiEndpoint: apiEndpoint,
+            method: method,
+            payload: payload,
+            ifMatch: ifMatch,
+            retryCount: retryCount,
+            isSynced: isSynced,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String tenantId,
+            required String entityType,
+            required String entityId,
+            required String apiEndpoint,
+            Value<String> method = const Value.absent(),
+            required String payload,
+            Value<String?> ifMatch = const Value.absent(),
+            Value<int> retryCount = const Value.absent(),
+            Value<bool> isSynced = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              OutboxCompanion.insert(
+            id: id,
+            tenantId: tenantId,
+            entityType: entityType,
+            entityId: entityId,
+            apiEndpoint: apiEndpoint,
+            method: method,
+            payload: payload,
+            ifMatch: ifMatch,
+            retryCount: retryCount,
+            isSynced: isSynced,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$OutboxTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $OutboxTable,
+    OutboxData,
+    $$OutboxTableFilterComposer,
+    $$OutboxTableOrderingComposer,
+    $$OutboxTableAnnotationComposer,
+    $$OutboxTableCreateCompanionBuilder,
+    $$OutboxTableUpdateCompanionBuilder,
+    (OutboxData, BaseReferences<_$AppDatabase, $OutboxTable, OutboxData>),
+    OutboxData,
+    PrefetchHooks Function()>;
+typedef $$FieldsTableCreateCompanionBuilder = FieldsCompanion Function({
+  required String id,
+  Value<String?> remoteId,
+  required String tenantId,
+  Value<String?> farmId,
+  required String name,
+  Value<String?> cropType,
+  required List<LatLng> boundary,
+  Value<LatLng?> centroid,
+  required double areaHectares,
+  Value<String?> status,
+  Value<double?> ndviCurrent,
+  Value<DateTime?> ndviUpdatedAt,
+  Value<bool> synced,
+  Value<bool> isDeleted,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<String?> etag,
+  Value<DateTime?> serverUpdatedAt,
+  Value<int> rowid,
+});
+typedef $$FieldsTableUpdateCompanionBuilder = FieldsCompanion Function({
+  Value<String> id,
+  Value<String?> remoteId,
+  Value<String> tenantId,
+  Value<String?> farmId,
+  Value<String> name,
+  Value<String?> cropType,
+  Value<List<LatLng>> boundary,
+  Value<LatLng?> centroid,
+  Value<double> areaHectares,
+  Value<String?> status,
+  Value<double?> ndviCurrent,
+  Value<DateTime?> ndviUpdatedAt,
+  Value<bool> synced,
+  Value<bool> isDeleted,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<String?> etag,
+  Value<DateTime?> serverUpdatedAt,
+  Value<int> rowid,
+});
+
+class $$FieldsTableFilterComposer
+    extends Composer<_$AppDatabase, $FieldsTable> {
+  $$FieldsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get remoteId => $composableBuilder(
+      column: $table.remoteId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get farmId => $composableBuilder(
+      column: $table.farmId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cropType => $composableBuilder(
+      column: $table.cropType, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<List<LatLng>, List<LatLng>, String>
+      get boundary => $composableBuilder(
+          column: $table.boundary,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnWithTypeConverterFilters<LatLng?, LatLng, String> get centroid =>
+      $composableBuilder(
+          column: $table.centroid,
+          builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<double> get areaHectares => $composableBuilder(
+      column: $table.areaHectares, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get ndviCurrent => $composableBuilder(
+      column: $table.ndviCurrent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get ndviUpdatedAt => $composableBuilder(
+      column: $table.ndviUpdatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get etag => $composableBuilder(
+      column: $table.etag, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get serverUpdatedAt => $composableBuilder(
+      column: $table.serverUpdatedAt,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$FieldsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FieldsTable> {
+  $$FieldsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get remoteId => $composableBuilder(
+      column: $table.remoteId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get farmId => $composableBuilder(
+      column: $table.farmId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cropType => $composableBuilder(
+      column: $table.cropType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get boundary => $composableBuilder(
+      column: $table.boundary, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get centroid => $composableBuilder(
+      column: $table.centroid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get areaHectares => $composableBuilder(
+      column: $table.areaHectares,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get ndviCurrent => $composableBuilder(
+      column: $table.ndviCurrent, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get ndviUpdatedAt => $composableBuilder(
+      column: $table.ndviUpdatedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get synced => $composableBuilder(
+      column: $table.synced, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get etag => $composableBuilder(
+      column: $table.etag, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get serverUpdatedAt => $composableBuilder(
+      column: $table.serverUpdatedAt,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$FieldsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FieldsTable> {
+  $$FieldsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
+  GeneratedColumn<String> get tenantId =>
+      $composableBuilder(column: $table.tenantId, builder: (column) => column);
+
+  GeneratedColumn<String> get farmId =>
+      $composableBuilder(column: $table.farmId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get cropType =>
+      $composableBuilder(column: $table.cropType, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<List<LatLng>, String> get boundary =>
+      $composableBuilder(column: $table.boundary, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<LatLng?, String> get centroid =>
+      $composableBuilder(column: $table.centroid, builder: (column) => column);
+
+  GeneratedColumn<double> get areaHectares => $composableBuilder(
+      column: $table.areaHectares, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<double> get ndviCurrent => $composableBuilder(
+      column: $table.ndviCurrent, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get ndviUpdatedAt => $composableBuilder(
+      column: $table.ndviUpdatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get synced =>
+      $composableBuilder(column: $table.synced, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get etag =>
+      $composableBuilder(column: $table.etag, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get serverUpdatedAt => $composableBuilder(
+      column: $table.serverUpdatedAt, builder: (column) => column);
+}
+
+class $$FieldsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $FieldsTable,
+    Field,
+    $$FieldsTableFilterComposer,
+    $$FieldsTableOrderingComposer,
+    $$FieldsTableAnnotationComposer,
+    $$FieldsTableCreateCompanionBuilder,
+    $$FieldsTableUpdateCompanionBuilder,
+    (Field, BaseReferences<_$AppDatabase, $FieldsTable, Field>),
+    Field,
+    PrefetchHooks Function()> {
+  $$FieldsTableTableManager(_$AppDatabase db, $FieldsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FieldsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FieldsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FieldsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String?> remoteId = const Value.absent(),
+            Value<String> tenantId = const Value.absent(),
+            Value<String?> farmId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> cropType = const Value.absent(),
+            Value<List<LatLng>> boundary = const Value.absent(),
+            Value<LatLng?> centroid = const Value.absent(),
+            Value<double> areaHectares = const Value.absent(),
+            Value<String?> status = const Value.absent(),
+            Value<double?> ndviCurrent = const Value.absent(),
+            Value<DateTime?> ndviUpdatedAt = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<String?> etag = const Value.absent(),
+            Value<DateTime?> serverUpdatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              FieldsCompanion(
+            id: id,
+            remoteId: remoteId,
+            tenantId: tenantId,
+            farmId: farmId,
+            name: name,
+            cropType: cropType,
+            boundary: boundary,
+            centroid: centroid,
+            areaHectares: areaHectares,
+            status: status,
+            ndviCurrent: ndviCurrent,
+            ndviUpdatedAt: ndviUpdatedAt,
+            synced: synced,
+            isDeleted: isDeleted,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            etag: etag,
+            serverUpdatedAt: serverUpdatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<String?> remoteId = const Value.absent(),
+            required String tenantId,
+            Value<String?> farmId = const Value.absent(),
+            required String name,
+            Value<String?> cropType = const Value.absent(),
+            required List<LatLng> boundary,
+            Value<LatLng?> centroid = const Value.absent(),
+            required double areaHectares,
+            Value<String?> status = const Value.absent(),
+            Value<double?> ndviCurrent = const Value.absent(),
+            Value<DateTime?> ndviUpdatedAt = const Value.absent(),
+            Value<bool> synced = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<String?> etag = const Value.absent(),
+            Value<DateTime?> serverUpdatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              FieldsCompanion.insert(
+            id: id,
+            remoteId: remoteId,
+            tenantId: tenantId,
+            farmId: farmId,
+            name: name,
+            cropType: cropType,
+            boundary: boundary,
+            centroid: centroid,
+            areaHectares: areaHectares,
+            status: status,
+            ndviCurrent: ndviCurrent,
+            ndviUpdatedAt: ndviUpdatedAt,
+            synced: synced,
+            isDeleted: isDeleted,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            etag: etag,
+            serverUpdatedAt: serverUpdatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$FieldsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $FieldsTable,
+    Field,
+    $$FieldsTableFilterComposer,
+    $$FieldsTableOrderingComposer,
+    $$FieldsTableAnnotationComposer,
+    $$FieldsTableCreateCompanionBuilder,
+    $$FieldsTableUpdateCompanionBuilder,
+    (Field, BaseReferences<_$AppDatabase, $FieldsTable, Field>),
+    Field,
+    PrefetchHooks Function()>;
+typedef $$SyncLogsTableCreateCompanionBuilder = SyncLogsCompanion Function({
+  Value<int> id,
+  required String type,
+  required String status,
+  Value<String?> message,
+  required DateTime timestamp,
+});
+typedef $$SyncLogsTableUpdateCompanionBuilder = SyncLogsCompanion Function({
+  Value<int> id,
+  Value<String> type,
+  Value<String> status,
+  Value<String?> message,
+  Value<DateTime> timestamp,
+});
+
+class $$SyncLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncLogsTable> {
+  $$SyncLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncLogsTable> {
+  $$SyncLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncLogsTable> {
+  $$SyncLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+}
+
+class $$SyncLogsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SyncLogsTable,
+    SyncLog,
+    $$SyncLogsTableFilterComposer,
+    $$SyncLogsTableOrderingComposer,
+    $$SyncLogsTableAnnotationComposer,
+    $$SyncLogsTableCreateCompanionBuilder,
+    $$SyncLogsTableUpdateCompanionBuilder,
+    (SyncLog, BaseReferences<_$AppDatabase, $SyncLogsTable, SyncLog>),
+    SyncLog,
+    PrefetchHooks Function()> {
+  $$SyncLogsTableTableManager(_$AppDatabase db, $SyncLogsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String?> message = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+          }) =>
+              SyncLogsCompanion(
+            id: id,
+            type: type,
+            status: status,
+            message: message,
+            timestamp: timestamp,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String type,
+            required String status,
+            Value<String?> message = const Value.absent(),
+            required DateTime timestamp,
+          }) =>
+              SyncLogsCompanion.insert(
+            id: id,
+            type: type,
+            status: status,
+            message: message,
+            timestamp: timestamp,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SyncLogsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SyncLogsTable,
+    SyncLog,
+    $$SyncLogsTableFilterComposer,
+    $$SyncLogsTableOrderingComposer,
+    $$SyncLogsTableAnnotationComposer,
+    $$SyncLogsTableCreateCompanionBuilder,
+    $$SyncLogsTableUpdateCompanionBuilder,
+    (SyncLog, BaseReferences<_$AppDatabase, $SyncLogsTable, SyncLog>),
+    SyncLog,
+    PrefetchHooks Function()>;
+typedef $$SyncEventsTableCreateCompanionBuilder = SyncEventsCompanion Function({
+  Value<int> id,
+  required String tenantId,
+  required String type,
+  Value<String?> entityType,
+  Value<String?> entityId,
+  required String message,
+  Value<bool> isRead,
+  Value<DateTime> createdAt,
+});
+typedef $$SyncEventsTableUpdateCompanionBuilder = SyncEventsCompanion Function({
+  Value<int> id,
+  Value<String> tenantId,
+  Value<String> type,
+  Value<String?> entityType,
+  Value<String?> entityId,
+  Value<String> message,
+  Value<bool> isRead,
+  Value<DateTime> createdAt,
+});
+
+class $$SyncEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncEventsTable> {
+  $$SyncEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isRead => $composableBuilder(
+      column: $table.isRead, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SyncEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncEventsTable> {
+  $$SyncEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tenantId => $composableBuilder(
+      column: $table.tenantId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get message => $composableBuilder(
+      column: $table.message, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isRead => $composableBuilder(
+      column: $table.isRead, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SyncEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncEventsTable> {
+  $$SyncEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tenantId =>
+      $composableBuilder(column: $table.tenantId, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<String> get message =>
+      $composableBuilder(column: $table.message, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRead =>
+      $composableBuilder(column: $table.isRead, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SyncEventsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SyncEventsTable,
+    SyncEvent,
+    $$SyncEventsTableFilterComposer,
+    $$SyncEventsTableOrderingComposer,
+    $$SyncEventsTableAnnotationComposer,
+    $$SyncEventsTableCreateCompanionBuilder,
+    $$SyncEventsTableUpdateCompanionBuilder,
+    (SyncEvent, BaseReferences<_$AppDatabase, $SyncEventsTable, SyncEvent>),
+    SyncEvent,
+    PrefetchHooks Function()> {
+  $$SyncEventsTableTableManager(_$AppDatabase db, $SyncEventsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> tenantId = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String?> entityType = const Value.absent(),
+            Value<String?> entityId = const Value.absent(),
+            Value<String> message = const Value.absent(),
+            Value<bool> isRead = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              SyncEventsCompanion(
+            id: id,
+            tenantId: tenantId,
+            type: type,
+            entityType: entityType,
+            entityId: entityId,
+            message: message,
+            isRead: isRead,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String tenantId,
+            required String type,
+            Value<String?> entityType = const Value.absent(),
+            Value<String?> entityId = const Value.absent(),
+            required String message,
+            Value<bool> isRead = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+          }) =>
+              SyncEventsCompanion.insert(
+            id: id,
+            tenantId: tenantId,
+            type: type,
+            entityType: entityType,
+            entityId: entityId,
+            message: message,
+            isRead: isRead,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SyncEventsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SyncEventsTable,
+    SyncEvent,
+    $$SyncEventsTableFilterComposer,
+    $$SyncEventsTableOrderingComposer,
+    $$SyncEventsTableAnnotationComposer,
+    $$SyncEventsTableCreateCompanionBuilder,
+    $$SyncEventsTableUpdateCompanionBuilder,
+    (SyncEvent, BaseReferences<_$AppDatabase, $SyncEventsTable, SyncEvent>),
+    SyncEvent,
+    PrefetchHooks Function()>;
+
+class $AppDatabaseManager {
+  final _$AppDatabase _db;
+  $AppDatabaseManager(this._db);
+  $$TasksTableTableManager get tasks =>
+      $$TasksTableTableManager(_db, _db.tasks);
+  $$OutboxTableTableManager get outbox =>
+      $$OutboxTableTableManager(_db, _db.outbox);
+  $$FieldsTableTableManager get fields =>
+      $$FieldsTableTableManager(_db, _db.fields);
+  $$SyncLogsTableTableManager get syncLogs =>
+      $$SyncLogsTableTableManager(_db, _db.syncLogs);
+  $$SyncEventsTableTableManager get syncEvents =>
+      $$SyncEventsTableTableManager(_db, _db.syncEvents);
+}
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e

@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.sahool_field_app"
+    namespace = "io.sahool.field"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.sahool_field_app"
+        applicationId = "io.sahool.field"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -32,9 +32,16 @@ android {
 
     buildTypes {
         release {
+            // Disable code shrinking and minification to fix build errors
+            minifyEnabled = false
+            shrinkResources = false
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

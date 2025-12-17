@@ -1,0 +1,96 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Vault Development Setup
+# HashiCorp Vault for secrets management
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Usage:
+#   docker compose -f infra/vault/docker-compose.vault.yml up -d
+#
+# Access:
+#   - UI: http://localhost:8200/ui
+#   - CLI: export VAULT_ADDR=http://localhost:8200
+#          export VAULT_TOKEN=dev-root-token
+#
+# WARNING: This is a DEVELOPMENT configuration only!
+#          Do NOT use in production.
+#
+
+services:
+  vault:
+    image: hashicorp/vault:1.17
+    container_name: sahool-vault
+    hostname: vault
+    ports:
+      - "8200:8200"
+    environment:
+      # Development mode settings
+      VAULT_DEV_ROOT_TOKEN_ID: "dev-root-token"
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      VAULT_LOG_LEVEL: "info"
+    cap_add:
+      - IPC_LOCK
+    healthcheck:
+      test: ["CMD", "vault", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sahool-network
+
+  # Initialize Vault with SAHOOL secrets structure
+  vault-init:
+    image: hashicorp/vault:1.17
+    container_name: sahool-vault-init
+    depends_on:
+      vault:
+        condition: service_healthy
+    environment:
+      VAULT_ADDR: "http://vault:8200"
+      VAULT_TOKEN: "dev-root-token"
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        echo "🔐 Initializing SAHOOL Vault secrets..."
+
+        # Database credentials
+        vault kv put secret/database/postgres \
+          username=sahool \
+          password=dev-postgres-password \
+          host=postgres \
+          port=5432 \
+          database=sahool
+
+        # JWT secrets
+        vault kv put secret/auth/jwt \
+          secret_key=dev-jwt-secret-key-for-development-only-32chars \
+          algorithm=HS256 \
+          access_token_expire_minutes=30 \
+          refresh_token_expire_days=7
+
+        # NATS credentials
+        vault kv put secret/messaging/nats \
+          url=nats://nats:4222 \
+          user=sahool \
+          password=dev-nats-password
+
+        # Redis credentials
+        vault kv put secret/cache/redis \
+          url=redis://redis:6379 \
+          password=dev-redis-password
+
+        # External API keys (placeholders)
+        vault kv put secret/external/openweather \
+          api_key=your-openweather-api-key
+
+        vault kv put secret/external/sentinel \
+          api_key=your-sentinel-api-key
+
+        echo "✅ Vault initialized with development secrets!"
+    networks:
+      - sahool-network
+
+networks:
+  sahool-network:
+    name: sahool-network
+    external: true

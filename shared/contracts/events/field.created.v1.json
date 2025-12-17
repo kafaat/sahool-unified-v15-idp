@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "events.field.created.v1",
+  "title": "FieldCreatedV1",
+  "description": "Event emitted when a new field is created",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["field_id", "farm_id", "name", "geometry_wkt", "created_at"],
+  "properties": {
+    "field_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the field"
+    },
+    "farm_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Parent farm identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Field name"
+    },
+    "name_ar": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Field name in Arabic"
+    },
+    "geometry_wkt": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Field boundary in WKT format"
+    },
+    "area_hectares": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Field area in hectares"
+    },
+    "soil_type": {
+      "type": "string",
+      "description": "Soil classification"
+    },
+    "irrigation_type": {
+      "type": "string",
+      "description": "Irrigation method"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the field was created"
+    }
+  }
+}

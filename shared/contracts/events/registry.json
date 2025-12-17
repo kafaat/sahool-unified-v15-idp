@@ -1,0 +1,44 @@
+{
+  "schemas": [
+    {
+      "ref": "events.field.created:v1",
+      "file": "field.created.v1.json",
+      "topic": "field.created",
+      "version": 1,
+      "owner": "field_suite",
+      "breaking_policy": "new_version"
+    },
+    {
+      "ref": "events.field.updated:v1",
+      "file": "field.updated.v1.json",
+      "topic": "field.updated",
+      "version": 1,
+      "owner": "field_suite",
+      "breaking_policy": "new_version"
+    },
+    {
+      "ref": "events.farm.created:v1",
+      "file": "farm.created.v1.json",
+      "topic": "farm.created",
+      "version": 1,
+      "owner": "field_suite",
+      "breaking_policy": "new_version"
+    },
+    {
+      "ref": "events.crop.planted:v1",
+      "file": "crop.planted.v1.json",
+      "topic": "crop.planted",
+      "version": 1,
+      "owner": "field_suite",
+      "breaking_policy": "new_version"
+    },
+    {
+      "ref": "events.advisor.recommendation:v1",
+      "file": "advisor.recommendation.v1.json",
+      "topic": "advisor.recommendation",
+      "version": 1,
+      "owner": "advisor",
+      "breaking_policy": "new_version"
+    }
+  ]
+}

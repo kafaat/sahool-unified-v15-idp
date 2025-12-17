@@ -36,7 +36,7 @@ export class ScientificLockGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     @Inject(PrismaService) private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Check if endpoint bypasses lock check
@@ -140,8 +140,8 @@ export class ScientificLockGuard implements CanActivate {
 
       return {
         isLocked: experiment.status === 'locked',
-        lockedAt: experiment.lockedAt !== null ? experiment.lockedAt : undefined,
-        lockedBy: experiment.lockedBy !== null ? experiment.lockedBy : undefined,
+        lockedAt: experiment.lockedAt,
+        lockedBy: experiment.lockedBy,
         status: experiment.status,
       };
     } catch (error) {

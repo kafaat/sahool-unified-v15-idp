@@ -13,15 +13,10 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 # Install all dependencies (including devDependencies for build)
-# If no lockfile is present, fall back to `npm install` (safer for local dev trees)
-RUN if [ -f package-lock.json ]; then \
-            npm ci; \
-        else \
-            npm install; \
-        fi
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY src/ ./src/
@@ -42,15 +37,8 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # Copy only production dependencies
-COPY package*.json ./
-# Install production dependencies. Prefer `npm ci` when a lockfile exists,
-# otherwise fall back to `npm install --only=production` to avoid build failure.
-RUN if [ -f package-lock.json ]; then \
-            npm ci --only=production; \
-        else \
-            npm install --only=production; \
-        fi \
-        && npm cache clean --force
+COPY package.json package-lock.json ./
+RUN npm install --only=production --legacy-peer-deps && npm cache clean --force
 
 # Copy source code
 COPY --from=builder /app/src/ ./src/

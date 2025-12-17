@@ -5,11 +5,7 @@ import {
   ForbiddenException,
   Logger,
 } from '@nestjs/common';
-<<<<<<< HEAD
 import { PrismaService } from '@/config/prisma.service';
-=======
-import { PrismaService } from '../config/prisma.service';
->>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
 
 /**
  * Scientific Lock Guard - حارس القفل العلمي
@@ -21,7 +17,7 @@ import { PrismaService } from '../config/prisma.service';
 export class ScientificLockGuard implements CanActivate {
   private readonly logger = new Logger(ScientificLockGuard.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();

@@ -151,7 +151,7 @@ class SahoolTheme {
       ),
 
       // تحسين الكروت لتكون بارزة
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 4,
         shadowColor: Colors.black.withOpacity(0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -276,7 +276,7 @@ class SahoolTheme {
       ),
 
       // Dialog
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         titleTextStyle: GoogleFonts.almarai(
           fontSize: 20,
@@ -304,7 +304,7 @@ class SahoolTheme {
 
       textTheme: GoogleFonts.almaraiTextTheme(ThemeData.dark().textTheme),
 
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 4,
         color: SahoolColors.surfaceDark,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),

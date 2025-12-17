@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        args: ["--fix"]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-json
+      - id: check-toml
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: package-lock\.json|\.secrets\.baseline
+
+  - repo: local
+    hooks:
+      - id: no-env-files
+        name: Prevent .env commits
+        entry: bash -c 'if git diff --cached --name-only | grep -E "^\.env$|^\.env\..+$" | grep -v "\.example$"; then echo "❌ .env files should not be committed!"; exit 1; fi'
+        language: system
+        pass_filenames: false

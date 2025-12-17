@@ -1,29 +1,66 @@
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["kernel", "shared", "apps"]
-skip_gitignore = true
+[project]
+name = "sahool-unified"
+version = "16.0.0"
+description = "SAHOOL - Smart Agricultural Platform for Yemen & Middle East"
+requires-python = ">=3.11"
 
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py311"
+select = ["E","F","I","UP","B","SIM","N"]
+ignore = []
 
 [tool.ruff.lint]
-select = ["E", "F", "W"]
-ignore = ["E501"]
+extend-select = ["W", "C4"]
+fixable = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/*" = ["E402"]
 "**/__init__.py" = ["F401"]
 
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
-testpaths = ["kernel", "shared"]
+addopts = "-q --cov=shared --cov-report=term-missing --cov-report=html:coverage_html"
+testpaths = ["tests", "kernel/services"]
+python_files = ["test_*.py", "*_test.py"]
+python_functions = ["test_*"]
 filterwarnings = [
     "ignore::DeprecationWarning:tortoise.*",
+    "ignore::DeprecationWarning:pydantic.*",
 ]
+markers = [
+    "unit: Unit tests (fast, no I/O)",
+    "integration: Integration tests (API, database)",
+    "smoke: Smoke tests (import verification)",
+    "slow: Slow running tests",
+]
+
+[tool.coverage.run]
+source = ["shared", "kernel"]
+branch = true
+omit = [
+    "**/tests/*",
+    "**/__pycache__/*",
+    "**/migrations/*",
+    "**/conftest.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+fail_under = 60
+show_missing = true
+skip_empty = true
+
+[tool.coverage.html]
+directory = "coverage_html"

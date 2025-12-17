@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SAHOOL Required Environment Variables",
+  "description": "Schema for required environment variables",
+  "required_vars": {
+    "core": [
+      {
+        "name": "APP_ENV",
+        "description": "Application environment",
+        "required": true,
+        "allowed_values": ["development", "staging", "production"]
+      },
+      {
+        "name": "APP_SECRET_KEY",
+        "description": "Application secret key for encryption",
+        "required": true,
+        "min_length": 32
+      }
+    ],
+    "database": [
+      {
+        "name": "DATABASE_URL",
+        "description": "PostgreSQL connection URL",
+        "required": true,
+        "pattern": "^postgres(ql)?://.*"
+      }
+    ],
+    "messaging": [
+      {
+        "name": "NATS_URL",
+        "description": "NATS server URL",
+        "required": true,
+        "pattern": "^nats://.*"
+      }
+    ],
+    "authentication": [
+      {
+        "name": "JWT_SECRET",
+        "description": "JWT signing secret",
+        "required": true,
+        "min_length": 32
+      }
+    ]
+  },
+  "optional_vars": {
+    "redis": [
+      {
+        "name": "REDIS_URL",
+        "description": "Redis connection URL",
+        "default": "redis://localhost:6379/0"
+      }
+    ],
+    "monitoring": [
+      {
+        "name": "LOG_LEVEL",
+        "description": "Logging level",
+        "default": "INFO",
+        "allowed_values": ["DEBUG", "INFO", "WARNING", "ERROR"]
+      },
+      {
+        "name": "SENTRY_DSN",
+        "description": "Sentry error tracking DSN",
+        "default": ""
+      }
+    ],
+    "external_apis": [
+      {
+        "name": "WEATHER_API_KEY",
+        "description": "Weather service API key"
+      },
+      {
+        "name": "SATELLITE_API_KEY",
+        "description": "Satellite imagery API key"
+      },
+      {
+        "name": "OPENAI_API_KEY",
+        "description": "OpenAI API key for AI Advisor"
+      }
+    ],
+    "features": [
+      {
+        "name": "FEATURE_AI_ADVISOR",
+        "description": "Enable AI Advisor feature",
+        "default": "true"
+      },
+      {
+        "name": "FEATURE_MARKETPLACE",
+        "description": "Enable Marketplace feature",
+        "default": "true"
+      },
+      {
+        "name": "FEATURE_OFFLINE_SYNC",
+        "description": "Enable offline sync feature",
+        "default": "true"
+      }
+    ]
+  }
+}

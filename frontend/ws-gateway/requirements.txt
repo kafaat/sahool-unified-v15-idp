@@ -1,5 +1,15 @@
-fastapi==0.110.0
-uvicorn[standard]==0.29.0
-nats-py==2.6.0
-websockets==12.0
-python-dotenv==1.0.0
+# SAHOOL WebSocket Gateway - Requirements
+# Updated: December 2025
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+
+# Messaging
+nats-py==2.9.0
+
+# WebSockets
+websockets==14.1
+
+# Utilities
+python-dotenv==1.0.1

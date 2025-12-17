@@ -1,13 +1,13 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL CI/CD Pipeline
-# Continuous Integration for SAHOOL Platform v15.3.2
+# Continuous Integration for SAHOOL Platform v15.4.0
 # ═══════════════════════════════════════════════════════════════════════════════
 
 name: CI Pipeline
 
 on:
   push:
-    branches: [main, develop, "feature/**", "release/**"]
+    branches: [main, develop, "feature/**", "release/**", "claude/**"]
   pull_request:
     branches: [main, develop]
 

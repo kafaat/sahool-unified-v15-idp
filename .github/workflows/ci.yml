@@ -352,6 +352,34 @@ jobs:
           severity: 'HIGH,CRITICAL'
           exit-code: '0'
 
+      # Sprint 5: Additional security gates
+      - name: Check for private keys in repository
+        run: |
+          echo "🔐 Checking for private keys..."
+          FOUND_KEYS=$(find . -type f \( -name "*.pem" -o -name "*.key" -o -name "*.p12" -o -name "*.pfx" \) -not -path "./.git/*" -not -path "./node_modules/*" 2>/dev/null || true)
+          if [ -n "$FOUND_KEYS" ]; then
+            echo "❌ Private keys found in repository:"
+            echo "$FOUND_KEYS"
+            exit 1
+          fi
+          echo "✅ No private keys found"
+
+      - name: Verify security documentation exists
+        run: |
+          echo "📋 Verifying security documentation..."
+          test -f docs/security/THREAT_MODEL_STRIDE.md || (echo "❌ Missing THREAT_MODEL_STRIDE.md" && exit 1)
+          test -f docs/security/DATA_CLASSIFICATION.md || (echo "❌ Missing DATA_CLASSIFICATION.md" && exit 1)
+          echo "✅ Security documentation present"
+
+      - name: Check for hardcoded secrets patterns
+        run: |
+          echo "🔍 Scanning for hardcoded secrets..."
+          # Check for common secret patterns (excluding test files and examples)
+          if grep -r --include="*.py" --exclude-dir=tests -E "(password|secret|api_key)\s*=\s*['\"][^'\"]+['\"]" . 2>/dev/null | grep -v "example\|test\|mock\|placeholder"; then
+            echo "⚠️  Potential hardcoded secrets found (review above matches)"
+          fi
+          echo "✅ Secrets scan complete"
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Integration Test (Docker Compose)
   # ─────────────────────────────────────────────────────────────────────────────

@@ -188,9 +188,48 @@ event-validate: ## Validate all event schemas
 event-check: event-validate ## Check event contracts are valid
 	@echo "✅ Event contracts valid!"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Security Commands (Sprint 5)
+# ─────────────────────────────────────────────────────────────────────────────
+
+certs-ca: ## Generate internal CA (run once)
+	@echo "🔐 Generating internal CA..."
+	bash tools/security/certs/gen_ca.sh infra/pki
+	@echo "✅ CA generated!"
+
+certs-service: ## Generate service certificate (usage: make certs-service SERVICE=kernel)
+	@echo "🔐 Generating certificate for $(SERVICE)..."
+	bash tools/security/certs/gen_service_cert.sh $(SERVICE) infra/pki
+
+certs-all: ## Generate CA and all service certificates
+	@echo "🔐 Generating all certificates..."
+	bash tools/security/certs/gen_all_certs.sh infra/pki
+	@echo "✅ All certificates generated!"
+
+vault-up: ## Start Vault in dev mode
+	@echo "🔐 Starting Vault..."
+	docker compose -f infra/vault/docker-compose.vault.yml up -d
+	@echo "✅ Vault running at http://localhost:8200"
+	@echo "   Token: dev-root-token"
+
+vault-down: ## Stop Vault
+	@echo "🛑 Stopping Vault..."
+	docker compose -f infra/vault/docker-compose.vault.yml down
+
+security-check: secrets-scan ## Run all security checks
+	@echo "🔐 Running security checks..."
+	@echo "📋 Checking for private keys..."
+	@! find . -type f \( -name "*.pem" -o -name "*.key" -o -name "*.p12" \) -not -path "./.git/*" | grep -q . || (echo "❌ Private keys found!" && exit 1)
+	@echo "✅ No private keys in repository"
+	@echo "📋 Verifying security docs..."
+	@test -f docs/security/THREAT_MODEL_STRIDE.md || (echo "❌ Missing THREAT_MODEL_STRIDE.md" && exit 1)
+	@test -f docs/security/DATA_CLASSIFICATION.md || (echo "❌ Missing DATA_CLASSIFICATION.md" && exit 1)
+	@echo "✅ Security documentation present"
+	@echo "✅ All security checks passed!"
+
 dev-install: ## Install dev dependencies
 	@echo "📦 Installing dev dependencies..."
-	python -m pip install -U pip ruff pytest pytest-cov pytest-asyncio pre-commit httpx detect-secrets pyjwt fastapi pydantic jsonschema sqlalchemy
+	python -m pip install -U pip ruff pytest pytest-cov pytest-asyncio pre-commit httpx detect-secrets pyjwt fastapi pydantic jsonschema sqlalchemy hvac
 	pre-commit install
 	@echo "✅ Dev environment ready!"
 

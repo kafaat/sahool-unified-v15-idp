@@ -1,3 +1,11 @@
 # SAHOOL Agro Rules Worker Dependencies
-nats-py>=2.6.0
-httpx>=0.25.0
+# Updated: December 2025
+
+# Messaging
+nats-py==2.9.0
+
+# HTTP Client
+httpx==0.28.1
+
+# Utilities
+python-dotenv==1.0.1

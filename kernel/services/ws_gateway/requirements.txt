@@ -1,9 +1,21 @@
 # SAHOOL WebSocket Gateway Dependencies
-fastapi>=0.104.0
-uvicorn>=0.24.0
-websockets>=12.0
-pydantic>=2.5.0
-nats-py>=2.6.0
-redis>=5.0.0
-python-jose[cryptography]>=3.3.0
-python-dateutil>=2.8.2
+# Updated: December 2025
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+
+# WebSockets
+websockets==14.1
+
+# Messaging & Cache
+nats-py==2.9.0
+redis==5.2.1
+
+# Security
+python-jose[cryptography]==3.3.0
+
+# Utilities
+python-dateutil==2.8.2
+python-dotenv==1.0.1

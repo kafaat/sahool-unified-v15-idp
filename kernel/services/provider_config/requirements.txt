@@ -1,6 +1,14 @@
 # SAHOOL Provider Configuration Service Dependencies
-fastapi>=0.104.0
-uvicorn[standard]>=0.24.0
-pydantic>=2.5.0
-httpx>=0.25.0
-python-multipart>=0.0.6
+# Updated: December 2025
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+python-multipart==0.0.18
+
+# HTTP Client
+httpx==0.28.1
+
+# Utilities
+python-dotenv==1.0.1

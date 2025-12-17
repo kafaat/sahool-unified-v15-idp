@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@/config/prisma.service';
+import { Prisma } from '@prisma/client';
 import { SignatureService } from '@/core/services/signature.service';
 import { CreateLogDto, UpdateLogDto, SyncLogDto } from './dto/log.dto';
 
@@ -38,8 +39,8 @@ export class LogsService {
         titleAr: dto.titleAr,
         notes: dto.notes,
         notesAr: dto.notesAr,
-        measurements: dto.measurements || {},
-        weatherConditions: dto.weatherConditions || {},
+        measurements: (dto.measurements || {}) as Prisma.InputJsonValue,
+        weatherConditions: (dto.weatherConditions || {}) as Prisma.InputJsonValue,
         photos: dto.photos || [],
         attachments: dto.attachments || [],
         recordedBy: userId,
@@ -115,21 +116,28 @@ export class LogsService {
     // Regenerate hash if data fields changed
     const hash = this.signatureService.hashResearchLog({
       experimentId: existing.experimentId,
-      plotId: dto.plotId || existing.plotId,
+      plotId: dto.plotId ?? (existing.plotId ?? undefined),
       logDate: dto.logDate ? new Date(dto.logDate) : existing.logDate,
       category: dto.category || existing.category,
-      notes: dto.notes ?? existing.notes,
+      notes: dto.notes ?? (existing.notes ?? undefined),
       measurements: dto.measurements ?? (existing.measurements as Record<string, unknown>),
       recordedBy: userId,
     });
 
+    const { experimentId: _, plotId, notes, ...restDto } = dto;
+    const updateData: Prisma.ResearchDailyLogUncheckedUpdateInput = {
+      ...restDto,
+      plotId: plotId !== undefined ? plotId : undefined,
+      notes: notes !== undefined ? notes : undefined,
+      logDate: dto.logDate ? new Date(dto.logDate) : undefined,
+      measurements: dto.measurements ? (dto.measurements as Prisma.InputJsonValue) : undefined,
+      weatherConditions: dto.weatherConditions ? (dto.weatherConditions as Prisma.InputJsonValue) : undefined,
+      hash,
+    };
+    
     return this.prisma.researchDailyLog.update({
       where: { id },
-      data: {
-        ...dto,
-        logDate: dto.logDate ? new Date(dto.logDate) : undefined,
-        hash,
-      },
+      data: updateData,
     });
   }
 
@@ -223,10 +231,10 @@ export class LogsService {
 
     const expectedHash = this.signatureService.hashResearchLog({
       experimentId: log.experimentId,
-      plotId: log.plotId,
+      plotId: log.plotId ?? undefined,
       logDate: log.logDate,
       category: log.category,
-      notes: log.notes,
+      notes: log.notes ?? undefined,
       measurements: log.measurements as Record<string, unknown>,
       recordedBy: log.recordedBy,
     });

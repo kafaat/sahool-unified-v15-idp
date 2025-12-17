@@ -25,6 +25,9 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 # Build
 RUN npm run build
 
+# Ensure public directory exists (Next.js may not create it)
+RUN mkdir -p ./public || true
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
@@ -34,6 +37,7 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy public directory (will exist after mkdir in builder stage)
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache

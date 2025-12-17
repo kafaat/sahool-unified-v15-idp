@@ -309,7 +309,7 @@ class WeatherInput(BaseModel):
     sunshine_hours: Optional[float] = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
     altitude: float = Field(0, description="Altitude above sea level (m)")
-    date: date = Field(default_factory=date.today, description="Date for calculation")
+    calculation_date: date = Field(default_factory=lambda: date.today(), description="Date for calculation")
 
 
 class ET0Response(BaseModel):
@@ -502,7 +502,7 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     gamma = 0.000665 * P
 
     # Day of year
-    day_of_year = weather.date.timetuple().tm_yday
+    day_of_year = weather.calculation_date.timetuple().tm_yday
 
     # Solar calculations
     lat_rad = math.radians(weather.latitude)
@@ -906,7 +906,7 @@ async def calculate_et0(weather: WeatherInput):
             "latitude": weather.latitude,
             "altitude": weather.altitude,
         },
-        calculation_date=weather.date,
+        calculation_date=weather.calculation_date,
     )
 
 

@@ -495,6 +495,80 @@ jobs:
           PYTHONPATH: .
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # NDVI Engine Check (Sprint 8)
+  # ─────────────────────────────────────────────────────────────────────────────
+  ndvi-check:
+    name: NDVI Engine Check
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest pydantic sqlalchemy
+
+      - name: Verify NDVI engine modules
+        run: |
+          echo "🛰️  Verifying NDVI engine modules..."
+          test -f kernel/services/ndvi_engine/src/models.py || (echo "❌ Missing NDVI ORM models" && exit 1)
+          test -f kernel/services/ndvi_engine/src/confidence.py || (echo "❌ Missing confidence scoring" && exit 1)
+          test -f kernel/services/ndvi_engine/src/cloud_cover.py || (echo "❌ Missing cloud detection" && exit 1)
+          test -f kernel/services/ndvi_engine/src/caching.py || (echo "❌ Missing caching strategy" && exit 1)
+          test -f kernel/services/ndvi_engine/src/repository.py || (echo "❌ Missing repository layer" && exit 1)
+          test -f kernel/services/ndvi_engine/src/analytics.py || (echo "❌ Missing analytics module" && exit 1)
+          test -f kernel/services/ndvi_engine/src/routes_analytics.py || (echo "❌ Missing analytics API" && exit 1)
+          echo "✅ NDVI engine modules complete"
+
+      - name: Verify NDVI migration
+        run: |
+          echo "🛰️  Verifying NDVI migration..."
+          test -f kernel/services/ndvi_engine/src/migrations/versions/s8_0001_ndvi_timeseries.py || (echo "❌ Missing NDVI migration" && exit 1)
+          grep -q "ndvi_observations" kernel/services/ndvi_engine/src/migrations/versions/s8_0001_ndvi_timeseries.py || (echo "❌ Missing ndvi_observations table" && exit 1)
+          grep -q "ndvi_alerts" kernel/services/ndvi_engine/src/migrations/versions/s8_0001_ndvi_timeseries.py || (echo "❌ Missing ndvi_alerts table" && exit 1)
+          echo "✅ NDVI migration verified"
+
+      - name: Run NDVI unit tests
+        run: |
+          pytest tests/unit/ndvi -v
+        env:
+          PYTHONPATH: .
+
+      - name: Verify confidence scoring
+        run: |
+          echo "🔍 Verifying confidence scoring..."
+          python -c "
+          import sys
+          sys.path.insert(0, 'kernel/services/ndvi_engine/src')
+          from confidence import confidence_score, confidence_grade
+          score = confidence_score(cloud_coverage=0.1, age_days=5, has_percentiles=True, has_std=True)
+          grade = confidence_grade(score)
+          print(f'Sample confidence score: {score:.2f} ({grade})')
+          "
+        env:
+          PYTHONPATH: .
+
+      - name: Verify analytics module
+        run: |
+          echo "🔍 Verifying analytics module..."
+          python -c "
+          import sys
+          sys.path.insert(0, 'kernel/services/ndvi_engine/src')
+          from analytics import compute_trend, compute_linear_trend
+          trend = compute_trend([0.3, 0.4, 0.5, 0.6])
+          print(f'Sample trend: {trend}')
+          "
+        env:
+          PYTHONPATH: .
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Integration Test (Docker Compose)
   # ─────────────────────────────────────────────────────────────────────────────
   integration:

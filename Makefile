@@ -291,6 +291,36 @@ gis-status: ## Check GIS infrastructure status
 	@echo "─────────────────────────────"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# NDVI Engine Commands (Sprint 8)
+# ─────────────────────────────────────────────────────────────────────────────
+
+ndvi-test: ## Run NDVI engine unit tests
+	@echo "🧪 Running NDVI engine tests..."
+	pytest tests/unit/ndvi -v
+	@echo "✅ NDVI tests complete!"
+
+ndvi-migrate: ## Run NDVI database migrations
+	@echo "📦 Running NDVI migrations..."
+	alembic -c kernel/services/ndvi_engine/src/migrations/alembic.ini upgrade head
+	@echo "✅ NDVI migrations complete!"
+
+ndvi-status: ## Check NDVI engine infrastructure status
+	@echo "🛰️  NDVI Engine Infrastructure Status"
+	@echo "─────────────────────────────────────"
+	@test -f kernel/services/ndvi_engine/src/models.py && echo "✅ ORM models: Present" || echo "❌ ORM models: Missing"
+	@test -f kernel/services/ndvi_engine/src/confidence.py && echo "✅ Confidence scoring: Present" || echo "❌ Confidence scoring: Missing"
+	@test -f kernel/services/ndvi_engine/src/cloud_cover.py && echo "✅ Cloud detection: Present" || echo "❌ Cloud detection: Missing"
+	@test -f kernel/services/ndvi_engine/src/caching.py && echo "✅ Caching strategy: Present" || echo "❌ Caching strategy: Missing"
+	@test -f kernel/services/ndvi_engine/src/repository.py && echo "✅ Repository layer: Present" || echo "❌ Repository layer: Missing"
+	@test -f kernel/services/ndvi_engine/src/analytics.py && echo "✅ Analytics module: Present" || echo "❌ Analytics module: Missing"
+	@test -f kernel/services/ndvi_engine/src/routes_analytics.py && echo "✅ Analytics API: Present" || echo "❌ Analytics API: Missing"
+	@test -f kernel/services/ndvi_engine/src/migrations/versions/s8_0001_ndvi_timeseries.py && echo "✅ NDVI migration: Present" || echo "❌ NDVI migration: Missing"
+	@echo "─────────────────────────────────────"
+
+ndvi-check: ndvi-test ndvi-status ## Full NDVI engine check (tests + status)
+	@echo "✅ All NDVI checks passed!"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure Commands
 # ─────────────────────────────────────────────────────────────────────────────
 

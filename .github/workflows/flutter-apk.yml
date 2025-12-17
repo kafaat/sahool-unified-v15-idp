@@ -43,14 +43,8 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Create .env file
-        run: |
-          cat > .env << 'EOF'
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=demo_key
-          MAPS_API_KEY=demo_key
-          ENV=production
-          EOF
+      - name: Get Flutter dependencies
+        run: flutter pub get
 
       - name: Setup Python for icon generation
         uses: actions/setup-python@v5
@@ -64,14 +58,23 @@ jobs:
           python3 scripts/generate_icons.py
         continue-on-error: true
 
-      - name: Get Flutter dependencies
-        run: flutter pub get
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          API_BASE_URL=https://api.sahool.app
+          WEATHER_API_KEY=demo_key
+          MAPS_API_KEY=demo_key
+          ENV=production
+          EOF
 
       - name: Clean previous build artifacts
         run: flutter clean
 
       - name: Generate Drift database code
-        run: dart run build_runner build --delete-conflicting-outputs
+        run: |
+          echo "Starting code generation..."
+          dart run build_runner build --delete-conflicting-outputs
+          echo "Code generation completed"
         continue-on-error: true
 
       - name: Generate launcher icons
@@ -85,12 +88,12 @@ jobs:
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
         run: |
-          flutter build apk --release
+          flutter build apk --release --no-shrink
 
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' }}
         run: |
-          flutter build apk --debug
+          flutter build apk --debug --no-shrink
 
       - name: Get APK info
         id: apk_info

@@ -87,7 +87,7 @@ jobs:
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
         run: |
-          flutter build apk --release
+          flutter build apk --release --no-shrink
 
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' }}

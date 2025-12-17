@@ -321,6 +321,44 @@ ndvi-check: ndvi-test ndvi-status ## Full NDVI engine check (tests + status)
 	@echo "✅ All NDVI checks passed!"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# AI/RAG Commands (Sprint 9)
+# ─────────────────────────────────────────────────────────────────────────────
+
+ai-test: ## Run AI/RAG unit tests
+	@echo "🧪 Running AI/RAG tests..."
+	pytest tests/unit/ai -v
+	@echo "✅ AI tests complete!"
+
+ai-status: ## Check AI infrastructure status
+	@echo "🤖 AI Infrastructure Status"
+	@echo "───────────────────────────"
+	@test -f advisor/ai/rag_models.py && echo "✅ RAG models: Present" || echo "❌ RAG models: Missing"
+	@test -f advisor/ai/llm_client.py && echo "✅ LLM client: Present" || echo "❌ LLM client: Missing"
+	@test -f advisor/ai/prompt_engine.py && echo "✅ Prompt engine: Present" || echo "❌ Prompt engine: Missing"
+	@test -f advisor/ai/context_builder.py && echo "✅ Context builder: Present" || echo "❌ Context builder: Missing"
+	@test -f advisor/ai/retriever.py && echo "✅ Retriever: Present" || echo "❌ Retriever: Missing"
+	@test -f advisor/ai/ranker.py && echo "✅ Ranker: Present" || echo "❌ Ranker: Missing"
+	@test -f advisor/ai/rag_pipeline.py && echo "✅ RAG pipeline: Present" || echo "❌ RAG pipeline: Missing"
+	@test -f advisor/ai/evaluation.py && echo "✅ Evaluation hooks: Present" || echo "❌ Evaluation hooks: Missing"
+	@test -f advisor/rag/doc_store.py && echo "✅ Vector store protocol: Present" || echo "❌ Vector store protocol: Missing"
+	@test -f advisor/rag/qdrant_store.py && echo "✅ Qdrant adapter: Present" || echo "❌ Qdrant adapter: Missing"
+	@test -f advisor/rag/ingestion.py && echo "✅ Ingestion module: Present" || echo "❌ Ingestion module: Missing"
+	@echo "───────────────────────────"
+
+qdrant-up: ## Start Qdrant vector database
+	@echo "🔷 Starting Qdrant..."
+	docker compose -f infra/qdrant/docker-compose.qdrant.yml up -d
+	@echo "✅ Qdrant running at http://localhost:6333"
+	@echo "   Dashboard: http://localhost:6333/dashboard"
+
+qdrant-down: ## Stop Qdrant
+	@echo "🛑 Stopping Qdrant..."
+	docker compose -f infra/qdrant/docker-compose.qdrant.yml down
+
+ai-check: ai-test ai-status ## Full AI check (tests + status)
+	@echo "✅ All AI checks passed!"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure Commands
 # ─────────────────────────────────────────────────────────────────────────────
 

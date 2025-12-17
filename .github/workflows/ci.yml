@@ -569,6 +569,99 @@ jobs:
           PYTHONPATH: .
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # AI/RAG Check (Sprint 9)
+  # ─────────────────────────────────────────────────────────────────────────────
+  ai-check:
+    name: AI Infrastructure Check
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest pydantic
+
+      - name: Verify AI modules
+        run: |
+          echo "🤖 Verifying AI modules..."
+          test -f advisor/ai/rag_models.py || (echo "❌ Missing RAG models" && exit 1)
+          test -f advisor/ai/llm_client.py || (echo "❌ Missing LLM client" && exit 1)
+          test -f advisor/ai/prompt_engine.py || (echo "❌ Missing prompt engine" && exit 1)
+          test -f advisor/ai/context_builder.py || (echo "❌ Missing context builder" && exit 1)
+          test -f advisor/ai/retriever.py || (echo "❌ Missing retriever" && exit 1)
+          test -f advisor/ai/ranker.py || (echo "❌ Missing ranker" && exit 1)
+          test -f advisor/ai/rag_pipeline.py || (echo "❌ Missing RAG pipeline" && exit 1)
+          test -f advisor/ai/evaluation.py || (echo "❌ Missing evaluation hooks" && exit 1)
+          echo "✅ AI modules complete"
+
+      - name: Verify RAG modules
+        run: |
+          echo "🤖 Verifying RAG modules..."
+          test -f advisor/rag/doc_store.py || (echo "❌ Missing vector store protocol" && exit 1)
+          test -f advisor/rag/qdrant_store.py || (echo "❌ Missing Qdrant adapter" && exit 1)
+          test -f advisor/rag/ingestion.py || (echo "❌ Missing ingestion module" && exit 1)
+          echo "✅ RAG modules complete"
+
+      - name: Verify prompt templates
+        run: |
+          echo "📝 Verifying prompt templates..."
+          test -f shared/contracts/ai/prompt_templates/field_advice_v1.txt || (echo "❌ Missing default template" && exit 1)
+          echo "✅ Prompt templates present"
+
+      - name: Run AI unit tests
+        run: |
+          pytest tests/unit/ai -v
+        env:
+          PYTHONPATH: .
+
+      - name: Verify deterministic ranking
+        run: |
+          echo "🔍 Verifying deterministic ranking..."
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          from advisor.ai.rag_models import RetrievedChunk
+          from advisor.ai.ranker import rank
+
+          chunks = [
+              RetrievedChunk('b', '1', 'x', 0.8, 's'),
+              RetrievedChunk('a', '2', 'y', 0.8, 's'),
+              RetrievedChunk('a', '1', 'z', 0.9, 's'),
+          ]
+          r = rank(chunks)
+          result = [c.doc_id + c.chunk_id for c in r]
+          assert result == ['a1', 'a2', 'b1'], f'Expected deterministic order, got {result}'
+          print('✅ Ranking is deterministic')
+          "
+        env:
+          PYTHONPATH: .
+
+      - name: Verify prompt rendering
+        run: |
+          echo "🔍 Verifying prompt rendering..."
+          python -c "
+          import sys
+          sys.path.insert(0, '.')
+          from advisor.ai.prompt_engine import render_prompt
+
+          p = render_prompt(question='Q', field_context='CTX', retrieved_chunks='CH')
+          assert '{{question}}' not in p, 'Question placeholder not replaced'
+          assert '{{field_context}}' not in p, 'Context placeholder not replaced'
+          assert 'Q' in p and 'CTX' in p and 'CH' in p, 'Values not injected'
+          print('✅ Prompt rendering works')
+          "
+        env:
+          PYTHONPATH: .
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Integration Test (Docker Compose)
   # ─────────────────────────────────────────────────────────────────────────────
   integration:

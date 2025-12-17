@@ -1,0 +1,33 @@
+# SAHOOL Qdrant Vector Database
+# Sprint 9: Local development setup
+#
+# Usage:
+#   docker compose -f infra/qdrant/docker-compose.qdrant.yml up -d
+#
+# Web UI: http://localhost:6333/dashboard
+# API: http://localhost:6333
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.10.1
+    container_name: sahool-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"  # gRPC port
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__LOG_LEVEL=INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:6333/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  qdrant_data:
+    driver: local

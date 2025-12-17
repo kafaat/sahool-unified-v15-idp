@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@/config/prisma.service';
+import { Prisma } from '@prisma/client';
 import { SignatureService } from '@/core/services/signature.service';
 import { CreateLogDto, UpdateLogDto, SyncLogDto } from './dto/log.dto';
 
@@ -29,22 +30,26 @@ export class LogsService {
     return this.prisma.researchDailyLog.create({
       data: {
         experimentId: dto.experimentId,
-        plotId: dto.plotId,
-        treatmentId: dto.treatmentId,
+        plotId: dto.plotId ?? undefined,
+        treatmentId: dto.treatmentId ?? undefined,
         logDate: new Date(dto.logDate),
-        logTime: dto.logTime,
+        logTime: dto.logTime ?? undefined,
         category: dto.category as any,
         title: dto.title,
-        titleAr: dto.titleAr,
-        notes: dto.notes,
-        notesAr: dto.notesAr,
-        measurements: dto.measurements || {},
-        weatherConditions: dto.weatherConditions || {},
+        titleAr: dto.titleAr ?? undefined,
+        notes: dto.notes ?? undefined,
+        notesAr: dto.notesAr ?? undefined,
+        measurements: dto.measurements
+          ? (dto.measurements as Prisma.InputJsonValue)
+          : Prisma.DbNull,
+        weatherConditions: dto.weatherConditions
+          ? (dto.weatherConditions as Prisma.InputJsonValue)
+          : Prisma.DbNull,
         photos: dto.photos || [],
         attachments: dto.attachments || [],
         recordedBy: userId,
-        deviceId: dto.deviceId,
-        offlineId: dto.offlineId,
+        deviceId: dto.deviceId ?? undefined,
+        offlineId: dto.offlineId ?? undefined,
         hash,
       },
     });
@@ -115,19 +120,29 @@ export class LogsService {
     // Regenerate hash if data fields changed
     const hash = this.signatureService.hashResearchLog({
       experimentId: existing.experimentId,
-      plotId: dto.plotId || existing.plotId,
+      plotId: dto.plotId ?? existing.plotId ?? undefined,
       logDate: dto.logDate ? new Date(dto.logDate) : existing.logDate,
       category: dto.category || existing.category,
-      notes: dto.notes ?? existing.notes,
+      notes: dto.notes ?? existing.notes ?? undefined,
       measurements: dto.measurements ?? (existing.measurements as Record<string, unknown>),
       recordedBy: userId,
     });
 
+    const { measurements, weatherConditions, ...restDto } = dto;
+
     return this.prisma.researchDailyLog.update({
       where: { id },
       data: {
-        ...dto,
+        ...restDto,
+        plotId: dto.plotId ?? undefined,
+        notes: dto.notes ?? undefined,
         logDate: dto.logDate ? new Date(dto.logDate) : undefined,
+        measurements: measurements !== undefined
+          ? (measurements ? (measurements as Prisma.InputJsonValue) : Prisma.DbNull)
+          : undefined,
+        weatherConditions: weatherConditions !== undefined
+          ? (weatherConditions ? (weatherConditions as Prisma.InputJsonValue) : Prisma.DbNull)
+          : undefined,
         hash,
       },
     });
@@ -223,10 +238,10 @@ export class LogsService {
 
     const expectedHash = this.signatureService.hashResearchLog({
       experimentId: log.experimentId,
-      plotId: log.plotId,
+      plotId: log.plotId ?? undefined,
       logDate: log.logDate,
       category: log.category,
-      notes: log.notes,
+      notes: log.notes ?? undefined,
       measurements: log.measurements as Record<string, unknown>,
       recordedBy: log.recordedBy,
     });

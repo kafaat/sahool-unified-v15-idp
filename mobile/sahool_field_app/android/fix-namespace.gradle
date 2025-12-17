@@ -1,0 +1,17 @@
+// Fix for third-party plugins missing namespace declaration (AGP 8.0+ requirement)
+// This script automatically adds namespace to plugins that don't have it defined
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin('com.android.application') || 
+            project.plugins.hasPlugin('com.android.library')) {
+            // Check if namespace is already defined
+            if (!project.android.namespace) {
+                // Set namespace based on plugin name
+                def namespace = "dev.${project.name.replaceAll('_', '.')}"
+                project.android.namespace = namespace
+                logger.warn("Added missing namespace '${namespace}' to ${project.name}")
+            }
+        }
+    }
+}

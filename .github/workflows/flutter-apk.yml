@@ -64,15 +64,17 @@ jobs:
           python3 scripts/generate_icons.py
         continue-on-error: true
 
-      - name: Get Flutter dependencies
-        run: flutter pub get
-
       - name: Clean previous build artifacts
         run: flutter clean
 
-      - name: Generate Drift database code
-        run: dart run build_runner build --delete-conflicting-outputs
-        continue-on-error: true
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Generate code (Drift, Freezed, JSON, Isar)
+        run: |
+          echo "🔧 Generating code with build_runner..."
+          dart run build_runner build --delete-conflicting-outputs
+          echo "✅ Code generation completed"
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"

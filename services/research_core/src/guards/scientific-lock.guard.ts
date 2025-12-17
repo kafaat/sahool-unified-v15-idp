@@ -5,7 +5,11 @@ import {
   ForbiddenException,
   Logger,
 } from '@nestjs/common';
+<<<<<<< HEAD
 import { PrismaService } from '@/config/prisma.service';
+=======
+import { PrismaService } from '../config/prisma.service';
+>>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
 
 /**
  * Scientific Lock Guard - حارس القفل العلمي

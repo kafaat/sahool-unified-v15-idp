@@ -1,17 +1,23 @@
 # SAHOOL Notification Service Dependencies
 # متطلبات خدمة الإشعارات
+# Updated: December 2025
 
-fastapi==0.110.0
-uvicorn[standard]==0.29.0
-pydantic==2.6.4
-python-dotenv==1.0.0
-httpx==0.27.0
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
 
-# Firebase Cloud Messaging (optional, for push notifications)
-firebase-admin==6.4.0
+# HTTP Client
+httpx==0.28.1
 
-# Redis for distributed notification queue (optional)
-redis==5.0.1
+# Firebase Cloud Messaging (for push notifications)
+firebase-admin==6.6.0
+
+# Redis for distributed notification queue
+redis==5.2.1
 
 # APScheduler for scheduled notifications
 apscheduler==3.10.4
+
+# Utilities
+python-dotenv==1.0.1

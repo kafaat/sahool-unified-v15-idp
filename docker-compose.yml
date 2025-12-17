@@ -9,13 +9,13 @@ services:
   # ─────────────────────────────────────────────────────────────────────────────
 
   # قاعدة البيانات المكانية (PostGIS)
-  # IMPORTANT: Set POSTGRES_PASSWORD in .env file - never use defaults in production!
+  # SECURITY: POSTGRES_PASSWORD MUST be set in .env file - never use defaults in production!
   postgres:
-    image: postgis/postgis:15-3.3
+    image: postgis/postgis:16-3.4
     container_name: sahool-postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-sahool}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_DB: ${POSTGRES_DB:-sahool}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -32,8 +32,9 @@ services:
       - sahool-network
 
   # API Gateway (Kong)
+  # SECURITY: Kong admin port is restricted to localhost only
   kong:
-    image: kong:3.4
+    image: kong:3.9
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
@@ -42,10 +43,10 @@ services:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_LISTEN: 127.0.0.1:8001
     ports:
       - "8000:8000"
-      - "8001:8001"
+      - "127.0.0.1:8001:8001"
     volumes:
       - ./infra/kong/kong.yml:/kong/declarative/kong.yml
     restart: unless-stopped
@@ -53,7 +54,7 @@ services:
       - sahool-network
 
   nats:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     container_name: sahool-nats
     command: ["--jetstream", "--store_dir=/data", "-m", "8222"]
     volumes:
@@ -70,18 +71,19 @@ services:
     networks:
       - sahool-network
 
+  # SECURITY: REDIS_PASSWORD MUST be set in .env file
   redis:
-    image: redis:7-alpine
+    image: redis:7.4-alpine
     container_name: sahool-redis
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-changeme}"]
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"]
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     volumes:
       - redis_data:/data
     ports:
       - "127.0.0.1:6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
       interval: 10s
       timeout: 5s
       retries: 5

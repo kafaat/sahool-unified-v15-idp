@@ -227,6 +227,34 @@ security-check: secrets-scan ## Run all security checks
 	@echo "✅ Security documentation present"
 	@echo "✅ All security checks passed!"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Compliance Commands (Sprint 6)
+# ─────────────────────────────────────────────────────────────────────────────
+
+compliance: ## Run compliance checklist generator
+	@echo "📋 Generating compliance checklist..."
+	python tools/compliance/generate_checklist.py --output docs/compliance/COMPLIANCE_CHECKLIST.md
+	@echo "✅ Compliance checklist generated!"
+
+compliance-json: ## Generate compliance report as JSON
+	@echo "📋 Generating compliance JSON report..."
+	python tools/compliance/generate_checklist.py --json --output docs/compliance/compliance_report.json
+
+audit-test: ## Run audit flow tests
+	@echo "🧪 Running audit tests..."
+	pytest tests/integration/test_audit_flow.py -v
+
+compliance-check: compliance audit-test ## Full compliance check (generate + test)
+	@echo "✅ All compliance checks passed!"
+
+gdpr-status: ## Check GDPR compliance status
+	@echo "📋 GDPR Compliance Status"
+	@echo "─────────────────────────"
+	@test -f kernel/compliance/routes_gdpr.py && echo "✅ GDPR endpoints: Present" || echo "❌ GDPR endpoints: Missing"
+	@test -f shared/libs/audit/redact.py && echo "✅ PII redaction: Present" || echo "❌ PII redaction: Missing"
+	@test -f shared/libs/audit/service.py && echo "✅ Audit service: Present" || echo "❌ Audit service: Missing"
+	@echo "─────────────────────────"
+
 dev-install: ## Install dev dependencies
 	@echo "📦 Installing dev dependencies..."
 	python -m pip install -U pip ruff pytest pytest-cov pytest-asyncio pre-commit httpx detect-secrets pyjwt fastapi pydantic jsonschema sqlalchemy hvac

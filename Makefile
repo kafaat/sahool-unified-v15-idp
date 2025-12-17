@@ -160,8 +160,17 @@ secrets-scan: ## Scan for leaked secrets
 	detect-secrets scan --baseline .secrets.baseline
 	@echo "✅ Secrets scan complete!"
 
-governance-check: lint env-check env-scan ## Full governance check
+governance-check: lint env-check env-scan arch-check ## Full governance check
 	@echo "✅ All governance checks passed!"
+
+arch-check: ## Check architecture import rules
+	@echo "🏗️  Checking architecture boundaries..."
+	python -m tools.arch.check_imports --root .
+	@echo "✅ Architecture check passed!"
+
+arch-check-verbose: ## Check architecture with verbose output
+	@echo "🏗️  Checking architecture boundaries (verbose)..."
+	python -m tools.arch.check_imports --root . --verbose --fix-suggestions
 
 dev-install: ## Install dev dependencies
 	@echo "📦 Installing dev dependencies..."

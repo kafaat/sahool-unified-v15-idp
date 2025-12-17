@@ -97,6 +97,32 @@ jobs:
           fail_ci_if_error: false
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Architecture Check (Sprint 3)
+  # ─────────────────────────────────────────────────────────────────────────────
+  arch-check:
+    name: Architecture Check
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check architecture import rules
+        run: python -m tools.arch.check_imports --root .
+
+      - name: Run architecture smoke tests
+        run: |
+          pip install pytest
+          pytest tests/smoke/test_arch_imports.py -v
+        env:
+          PYTHONPATH: .
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Python Tests (Service-specific)
   # ─────────────────────────────────────────────────────────────────────────────
   test-python:

@@ -262,6 +262,35 @@ dev-install: ## Install dev dependencies
 	@echo "✅ Dev environment ready!"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# GIS/Spatial Commands (Sprint 7)
+# ─────────────────────────────────────────────────────────────────────────────
+
+gis-migrate: ## Run PostGIS migrations
+	@echo "🗺️  Running PostGIS migrations..."
+	alembic -c field_suite/migrations/alembic.ini upgrade head
+	@echo "✅ PostGIS migrations complete!"
+
+gis-validate: ## Validate and fix geometries
+	@echo "🔍 Validating geometries..."
+	python -c "from field_suite.spatial import validate_and_fix_geometries; from sqlalchemy.orm import Session; print('Note: Run with actual DB session')"
+	@echo "ℹ️  Use: python -c \"from field_suite.spatial import validate_and_fix_geometries; ...\""
+
+gis-test: ## Run GIS/spatial tests
+	@echo "🧪 Running GIS tests..."
+	pytest tests/integration/test_spatial_hierarchy.py -v
+
+gis-status: ## Check GIS infrastructure status
+	@echo "🗺️  GIS Infrastructure Status"
+	@echo "─────────────────────────────"
+	@test -f field_suite/spatial/__init__.py && echo "✅ Spatial module: Present" || echo "❌ Spatial module: Missing"
+	@test -f field_suite/spatial/orm_models.py && echo "✅ ORM models: Present" || echo "❌ ORM models: Missing"
+	@test -f field_suite/spatial/queries.py && echo "✅ Spatial queries: Present" || echo "❌ Spatial queries: Missing"
+	@test -f field_suite/spatial/validation.py && echo "✅ Validation job: Present" || echo "❌ Validation job: Missing"
+	@test -f field_suite/zones/models.py && echo "✅ Zone models: Present" || echo "❌ Zone models: Missing"
+	@test -f field_suite/migrations/versions/s7_0001_postgis_hierarchy.py && echo "✅ PostGIS migration: Present" || echo "❌ PostGIS migration: Missing"
+	@echo "─────────────────────────────"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure Commands
 # ─────────────────────────────────────────────────────────────────────────────
 

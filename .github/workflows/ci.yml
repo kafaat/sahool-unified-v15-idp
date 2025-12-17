@@ -442,6 +442,59 @@ jobs:
           PYTHONPATH: .
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # GIS/Spatial Check (Sprint 7)
+  # ─────────────────────────────────────────────────────────────────────────────
+  gis-check:
+    name: GIS Infrastructure Check
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest pydantic sqlalchemy
+
+      - name: Verify GIS hierarchy models
+        run: |
+          echo "🗺️  Verifying GIS hierarchy models..."
+          test -f field_suite/zones/__init__.py || (echo "❌ Missing zones __init__.py" && exit 1)
+          test -f field_suite/zones/models.py || (echo "❌ Missing zone models" && exit 1)
+          test -f field_suite/spatial/__init__.py || (echo "❌ Missing spatial module" && exit 1)
+          test -f field_suite/spatial/orm_models.py || (echo "❌ Missing spatial ORM models" && exit 1)
+          test -f field_suite/spatial/queries.py || (echo "❌ Missing spatial queries" && exit 1)
+          test -f field_suite/spatial/validation.py || (echo "❌ Missing validation job" && exit 1)
+          echo "✅ GIS hierarchy models complete"
+
+      - name: Verify PostGIS migration
+        run: |
+          echo "🗺️  Verifying PostGIS migration..."
+          test -f field_suite/migrations/versions/s7_0001_postgis_hierarchy.py || (echo "❌ Missing PostGIS migration" && exit 1)
+          grep -q "CREATE EXTENSION IF NOT EXISTS postgis" field_suite/migrations/versions/s7_0001_postgis_hierarchy.py || (echo "❌ Missing PostGIS extension" && exit 1)
+          grep -q "GIST" field_suite/migrations/versions/s7_0001_postgis_hierarchy.py || (echo "❌ Missing GIST indexes" && exit 1)
+          echo "✅ PostGIS migration verified"
+
+      - name: Run GIS unit tests
+        run: |
+          pytest tests/integration/test_spatial_hierarchy.py -v -k "not PostGIS"
+        env:
+          PYTHONPATH: .
+
+      - name: Verify zone types
+        run: |
+          echo "🔍 Verifying zone type definitions..."
+          python -c "from field_suite.zones.models import ZoneType; print(f'Zone types: {[z.value for z in ZoneType]}')"
+        env:
+          PYTHONPATH: .
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Integration Test (Docker Compose)
   # ─────────────────────────────────────────────────────────────────────────────
   integration:

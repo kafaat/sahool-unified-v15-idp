@@ -835,13 +835,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS middleware
+# CORS middleware - SECURE CONFIGURATION
+# Using centralized CORS config to prevent security vulnerabilities
+import sys
+from pathlib import Path
+# Add shared directory to Python path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+from config.cors_config import get_cors_config
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    **get_cors_config()
 )
 
 

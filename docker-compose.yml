@@ -9,13 +9,14 @@ services:
   # ─────────────────────────────────────────────────────────────────────────────
 
   # قاعدة البيانات المكانية (PostGIS)
-  # IMPORTANT: Set POSTGRES_PASSWORD in .env file - never use defaults in production!
+  # SECURITY: POSTGRES_PASSWORD must be set in .env file
+  # Use ./scripts/security/generate-env.sh to create secure credentials
   postgres:
     image: postgis/postgis:15-3.3
     container_name: sahool-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sahool}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Error: POSTGRES_PASSWORD not set in .env file. Run ./scripts/security/generate-env.sh}
       POSTGRES_DB: ${POSTGRES_DB:-sahool}
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -70,18 +71,24 @@ services:
     networks:
       - sahool-network
 
+  # SECURITY: REDIS_PASSWORD must be set in .env file
   redis:
     image: redis:7-alpine
     container_name: sahool-redis
-    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:-changeme}"]
+    command: 
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - "${REDIS_PASSWORD:?Error: REDIS_PASSWORD not set in .env file. Run ./scripts/security/generate-env.sh}"
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?Error: REDIS_PASSWORD not set}
     volumes:
       - redis_data:/data
     ports:
       - "127.0.0.1:6379:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -125,7 +132,7 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=${POSTGRES_USER:-sahool}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-sahool}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?Error: POSTGRES_PASSWORD not set}
       - DB_NAME=${POSTGRES_DB:-sahool}
     ports:
       - "3000:3000"

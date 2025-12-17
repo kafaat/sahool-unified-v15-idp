@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "events.crop.planted.v1",
+  "title": "CropPlantedV1",
+  "description": "Event emitted when a crop is planted in a field",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["crop_id", "field_id", "crop_type", "planting_date", "created_at"],
+  "properties": {
+    "crop_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the crop"
+    },
+    "field_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Field where the crop is planted"
+    },
+    "crop_type": {
+      "type": "string",
+      "description": "Type of crop (wheat, barley, coffee, etc.)"
+    },
+    "variety": {
+      "type": "string",
+      "description": "Crop variety"
+    },
+    "variety_ar": {
+      "type": "string",
+      "description": "Crop variety in Arabic"
+    },
+    "planting_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the crop was planted"
+    },
+    "expected_harvest_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expected harvest date"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the event was created"
+    }
+  }
+}

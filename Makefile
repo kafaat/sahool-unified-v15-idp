@@ -172,9 +172,25 @@ arch-check-verbose: ## Check architecture with verbose output
 	@echo "🏗️  Checking architecture boundaries (verbose)..."
 	python -m tools.arch.check_imports --root . --verbose --fix-suggestions
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Governance Commands (Sprint 4)
+# ─────────────────────────────────────────────────────────────────────────────
+
+event-catalog: ## Generate event catalog documentation
+	@echo "📚 Generating event catalog..."
+	python -m tools.events.generate_catalog
+	@echo "✅ Event catalog generated!"
+
+event-validate: ## Validate all event schemas
+	@echo "🔍 Validating event schemas..."
+	python -c "from shared.libs.events.schema_registry import SchemaRegistry; r = SchemaRegistry.load(); print(f'✅ Loaded {len(r.list_schemas())} schemas')"
+
+event-check: event-validate ## Check event contracts are valid
+	@echo "✅ Event contracts valid!"
+
 dev-install: ## Install dev dependencies
 	@echo "📦 Installing dev dependencies..."
-	python -m pip install -U pip ruff pytest pytest-cov pytest-asyncio pre-commit httpx detect-secrets pyjwt fastapi
+	python -m pip install -U pip ruff pytest pytest-cov pytest-asyncio pre-commit httpx detect-secrets pyjwt fastapi pydantic jsonschema sqlalchemy
 	pre-commit install
 	@echo "✅ Dev environment ready!"
 

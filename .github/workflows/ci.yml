@@ -78,7 +78,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-asyncio pytest-cov httpx pyjwt fastapi
+          pip install pytest pytest-asyncio pytest-cov httpx pyjwt fastapi pydantic jsonschema sqlalchemy
 
       - name: Run unified tests with coverage
         run: |
@@ -119,6 +119,48 @@ jobs:
         run: |
           pip install pytest
           pytest tests/smoke/test_arch_imports.py -v
+        env:
+          PYTHONPATH: .
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Event Governance Check (Sprint 4)
+  # ─────────────────────────────────────────────────────────────────────────────
+  event-check:
+    name: Event Governance
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pydantic jsonschema pytest
+
+      - name: Validate event schemas
+        run: |
+          python -c "from shared.libs.events.schema_registry import SchemaRegistry; r = SchemaRegistry.load(); print(f'Loaded {len(r.list_schemas())} schemas')"
+        env:
+          PYTHONPATH: .
+
+      - name: Generate event catalog
+        run: python -m tools.events.generate_catalog
+        env:
+          PYTHONPATH: .
+
+      - name: Ensure event catalog is up-to-date
+        run: |
+          git diff --exit-code docs/EVENT_CATALOG.md || (echo "Event catalog not updated. Run: make event-catalog" && exit 1)
+
+      - name: Run event integration tests
+        run: |
+          pytest tests/integration/test_outbox_event_flow.py -v
         env:
           PYTHONPATH: .
 

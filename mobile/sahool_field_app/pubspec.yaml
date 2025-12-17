@@ -32,7 +32,8 @@ dependencies:
   connectivity_plus: ^5.0.2
 
   # Background Tasks
-  workmanager: ^0.5.2
+  # Updated to latest to support current Flutter/Android embedding
+  workmanager: ^0.6.0
 
   # Storage
   shared_preferences: ^2.2.2
@@ -113,7 +114,9 @@ flutter:
   uses-material-design: true
 
   assets:
-    - .env
+    # Note: If you need environment variables, create a `.env` file next to pubspec.yaml
+    # and uncomment the following line. For now it's disabled to avoid build errors.
+    # - .env
     - assets/images/
     - assets/icons/
     - assets/icon/

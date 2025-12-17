@@ -2,13 +2,16 @@
 # نواة البحث العلمي الزراعي
 
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="research-core"
 LABEL version="15.3.0"
 
 WORKDIR /app
+
+# Install OpenSSL for Prisma
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
 COPY package.json package-lock.json* ./
@@ -25,12 +28,12 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 
 WORKDIR /app
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install curl for health checks and OpenSSL for Prisma
+RUN apt-get update && apt-get install -y curl openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package.json package-lock.json* ./

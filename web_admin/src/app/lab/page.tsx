@@ -176,7 +176,7 @@ function KanbanView({ samples, statusConfig }: { samples: Sample[]; statusConfig
     <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
       {columns.map(status => (
         <LabColumn
-          key={status}
+          key={status as string}
           title={`${statusConfig[status].icon} ${statusConfig[status].label}`}
           samples={samples.filter(s => s.status === status)}
           color={statusConfig[status].color}

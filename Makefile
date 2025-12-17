@@ -115,9 +115,26 @@ lint: ## Check code style and linting
 	python -m ruff format . --check
 	python -m ruff check .
 
-test: ## Run all tests
+test: ## Run all tests with coverage
 	@echo "🧪 Running tests..."
-	pytest || ./tools/release/smoke_test.sh
+	pytest --cov=shared --cov-report=term-missing
+
+test-unit: ## Run unit tests only (fast)
+	@echo "🧪 Running unit tests..."
+	pytest tests/unit -v
+
+test-integration: ## Run integration tests
+	@echo "🧪 Running integration tests..."
+	pytest tests/integration -v
+
+test-smoke: ## Run smoke tests
+	@echo "💨 Running smoke tests..."
+	pytest tests/smoke -v
+
+test-cov: ## Run tests with coverage report
+	@echo "🧪 Running tests with coverage..."
+	pytest --cov=shared --cov-report=html:coverage_html --cov-fail-under=60
+	@echo "📊 Coverage report: coverage_html/index.html"
 
 test-mobile: ## Run Flutter tests
 	@echo "🧪 Running Flutter tests..."
@@ -125,6 +142,9 @@ test-mobile: ## Run Flutter tests
 
 ci: lint test ## Run lint + test (CI check)
 	@echo "✅ CI checks passed!"
+
+ci-full: lint test-cov env-check env-scan ## Full CI check with coverage
+	@echo "✅ Full CI checks passed!"
 
 env-check: ## Validate environment variables
 	@echo "🔍 Validating environment..."
@@ -145,7 +165,7 @@ governance-check: lint env-check env-scan ## Full governance check
 
 dev-install: ## Install dev dependencies
 	@echo "📦 Installing dev dependencies..."
-	python -m pip install -U pip ruff pytest pre-commit httpx detect-secrets
+	python -m pip install -U pip ruff pytest pytest-cov pytest-asyncio pre-commit httpx detect-secrets pyjwt fastapi
 	pre-commit install
 	@echo "✅ Dev environment ready!"
 

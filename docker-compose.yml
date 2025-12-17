@@ -75,12 +75,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: sahool-redis
-    command: 
-      - redis-server
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - "${REDIS_PASSWORD:?Error: REDIS_PASSWORD not set in .env file. Run ./scripts/security/generate-env.sh}"
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?Error: REDIS_PASSWORD not set in .env file. Run ./scripts/security/generate-env.sh}"]
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?Error: REDIS_PASSWORD not set}
     volumes:

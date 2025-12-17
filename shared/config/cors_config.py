@@ -10,10 +10,9 @@ Security: Never use wildcard (*) origins in production!
 
 import os
 from typing import List
-from pydantic_settings import BaseSettings
 
 
-class CORSSettings(BaseSettings):
+class CORSSettings:
     """
     Centralized CORS configuration for all services
     

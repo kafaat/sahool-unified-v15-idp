@@ -41,7 +41,9 @@ fi
 # Function to generate secure random password
 generate_password() {
     local length=$1
-    openssl rand -base64 $length | tr -d "=+/" | cut -c1-$length
+    # Use openssl rand -hex for better entropy preservation
+    # Generate twice the length and cut to desired length
+    openssl rand -hex $(($length / 2)) | cut -c1-$length
 }
 
 # Generate secure passwords

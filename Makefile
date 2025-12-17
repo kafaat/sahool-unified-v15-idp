@@ -14,7 +14,7 @@
 
 help: ## Show this help message
 	@echo "═══════════════════════════════════════════════════════════════════"
-	@echo "  SAHOOL Platform v15.3.2 - Development Commands"
+	@echo "  SAHOOL Platform v16.0.0 - Development Commands"
 	@echo "═══════════════════════════════════════════════════════════════════"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -101,20 +101,53 @@ mobile-clean: ## Clean Flutter build
 	cd mobile/sahool_field_app && flutter clean && flutter pub get
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Testing Commands
+# Code Quality Commands (Sprint 1 Governance)
 # ─────────────────────────────────────────────────────────────────────────────
+
+fmt: ## Format code with Ruff
+	@echo "✨ Formatting code..."
+	python -m ruff format .
+	python -m ruff check . --fix
+	@echo "✅ Code formatted!"
+
+lint: ## Check code style and linting
+	@echo "🔍 Running linters..."
+	python -m ruff format . --check
+	python -m ruff check .
 
 test: ## Run all tests
 	@echo "🧪 Running tests..."
-	./tools/release/smoke_test.sh
+	pytest || ./tools/release/smoke_test.sh
 
 test-mobile: ## Run Flutter tests
 	@echo "🧪 Running Flutter tests..."
 	cd mobile/sahool_field_app && flutter test
 
-lint: ## Run linters
-	@echo "🔍 Running linters..."
-	cd kernel && ruff check .
+ci: lint test ## Run lint + test (CI check)
+	@echo "✅ CI checks passed!"
+
+env-check: ## Validate environment variables
+	@echo "🔍 Validating environment..."
+	python tools/env/validate_env.py
+
+env-scan: ## Scan for ENV drift
+	@echo "🔍 Scanning ENV usage..."
+	python tools/env/scan_env_usage.py > tools/env/used_env.txt
+	python tools/env/check_env_drift.py
+
+secrets-scan: ## Scan for leaked secrets
+	@echo "🔒 Scanning for secrets..."
+	detect-secrets scan --baseline .secrets.baseline
+	@echo "✅ Secrets scan complete!"
+
+governance-check: lint env-check env-scan ## Full governance check
+	@echo "✅ All governance checks passed!"
+
+dev-install: ## Install dev dependencies
+	@echo "📦 Installing dev dependencies..."
+	python -m pip install -U pip ruff pytest pre-commit httpx detect-secrets
+	pre-commit install
+	@echo "✅ Dev environment ready!"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure Commands

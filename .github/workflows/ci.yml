@@ -1,13 +1,13 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL CI/CD Pipeline
-# Continuous Integration for SAHOOL Platform v15.3.2
+# Continuous Integration for SAHOOL Platform v16.0.0
 # ═══════════════════════════════════════════════════════════════════════════════
 
 name: CI Pipeline
 
 on:
   push:
-    branches: [main, develop, "feature/**", "release/**"]
+    branches: [main, develop, "feature/**", "release/**", "claude/**"]
   pull_request:
     branches: [main, develop]
 
@@ -186,6 +186,32 @@ jobs:
           cache-to: type=gha,mode=max
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Environment Validation (Sprint 1 Governance)
+  # ─────────────────────────────────────────────────────────────────────────────
+  env-validation:
+    name: ENV Validation
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Validate ENV configuration
+        run: |
+          cp .env.example .env
+          python tools/env/validate_env.py
+
+      - name: Check ENV drift
+        run: |
+          python tools/env/scan_env_usage.py > tools/env/used_env.txt
+          python tools/env/check_env_drift.py
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Security Scan
   # ─────────────────────────────────────────────────────────────────────────────
   security:
@@ -203,16 +229,15 @@ jobs:
 
       - name: Install security tools
         run: |
-          pip install safety bandit
+          pip install safety bandit detect-secrets
 
       - name: Run Bandit (Python security linter)
         run: bandit -r kernel/ shared/ -ll -x "**/tests/**" || true
 
-      - name: Check for secrets in code
+      - name: Run detect-secrets
         run: |
-          if grep -rE "(password|secret|api_key)\s*=\s*['\"][^'\"]+['\"]" kernel/ shared/ --include="*.py" | grep -v "getenv" | grep -v "#"; then
-            echo "::warning::Potential hardcoded secrets found!"
-          fi
+          detect-secrets scan --baseline .secrets.baseline
+          detect-secrets audit .secrets.baseline --report || true
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

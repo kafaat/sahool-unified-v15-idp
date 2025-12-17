@@ -1,12 +1,12 @@
+// Apply namespace fix for AGP 8.0+ compatibility with third-party plugins
+apply(from = "fix-namespace.gradle")
+
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
 }
-
-// Apply namespace fix for third-party plugins (AGP 8.0+ compatibility)
-apply(from = "fix-namespace.gradle")
 
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory

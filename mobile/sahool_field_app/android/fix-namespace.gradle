@@ -1,28 +1,49 @@
-// Fix for third-party plugins missing namespace declaration (AGP 8.0+ requirement)
-// This script automatically adds namespace to plugins that don't have it defined
-// 
-// Background: Android Gradle Plugin 8.0+ requires all Android modules to specify
-// a namespace. Third-party plugins like isar_flutter_libs v3.1.0+1 don't have this,
-// causing build failures with: "Namespace not specified"
-//
-// This script applies a namespace to any plugin missing one, based on the plugin name.
-// Applied in build.gradle.kts via: apply(from = "fix-namespace.gradle")
+/**
+ * Namespace Fix for Android Gradle Plugin 8.0+
+ *
+ * This script patches third-party plugins that are missing the required
+ * namespace declaration. AGP 8.0+ requires all Android libraries to have
+ * a namespace defined in their build.gradle files.
+ *
+ * Affected plugins include:
+ * - isar_flutter_libs
+ * - Other legacy Flutter plugins
+ *
+ * This is a non-invasive fix that survives dependency updates.
+ */
 
 subprojects {
     afterEvaluate { project ->
-        if (project.plugins.hasPlugin('com.android.application') || 
-            project.plugins.hasPlugin('com.android.library')) {
+        // Handle Android Library plugins
+        if (project.plugins.hasPlugin('com.android.library')) {
             try {
-                // Check if namespace is already defined
-                if (project.android.namespace == null || project.android.namespace.isEmpty()) {
-                    // Set namespace based on plugin name
-                    // Use more neutral 'plugin.' prefix to avoid conflicts
-                    def namespace = "plugin.${project.name.replaceAll('_', '.')}"
-                    project.android.namespace = namespace
-                    logger.warn("Added missing namespace '${namespace}' to ${project.name}")
+                def android = project.extensions.findByName('android')
+                if (android != null) {
+                    if (android.namespace == null || android.namespace.toString().isEmpty()) {
+                        // Generate namespace from project name
+                        def generatedNamespace = "plugin.${project.name.replaceAll('[^a-zA-Z0-9]', '.')}"
+                        android.namespace = generatedNamespace
+                        logger.lifecycle("✅ Set namespace for ${project.name}: ${generatedNamespace}")
+                    }
                 }
             } catch (Exception e) {
-                logger.warn("Could not check/set namespace for ${project.name}: ${e.message}")
+                logger.warn("⚠️ Could not set namespace for ${project.name}: ${e.message}")
+            }
+        }
+
+        // Handle Android Application plugins (if needed)
+        if (project.plugins.hasPlugin('com.android.application')) {
+            try {
+                def android = project.extensions.findByName('android')
+                if (android != null) {
+                    if (android.namespace == null || android.namespace.toString().isEmpty()) {
+                        def generatedNamespace = "plugin.${project.name.replaceAll('[^a-zA-Z0-9]', '.')}"
+                        android.namespace = generatedNamespace
+                        logger.lifecycle("✅ Set namespace for ${project.name}: ${generatedNamespace}")
+                    }
+                }
+            } catch (Exception e) {
+                logger.warn("⚠️ Could not set namespace for ${project.name}: ${e.message}")
             }
         }
     }

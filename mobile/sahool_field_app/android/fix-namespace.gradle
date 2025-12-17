@@ -12,12 +12,17 @@ subprojects {
     afterEvaluate { project ->
         if (project.plugins.hasPlugin('com.android.application') || 
             project.plugins.hasPlugin('com.android.library')) {
-            // Check if namespace is already defined
-            if (!project.android.namespace) {
-                // Set namespace based on plugin name
-                def namespace = "dev.${project.name.replaceAll('_', '.')}"
-                project.android.namespace = namespace
-                logger.warn("Added missing namespace '${namespace}' to ${project.name}")
+            try {
+                // Check if namespace is already defined
+                if (project.android.namespace == null || project.android.namespace.isEmpty()) {
+                    // Set namespace based on plugin name
+                    // Use more neutral 'plugin.' prefix to avoid conflicts
+                    def namespace = "plugin.${project.name.replaceAll('_', '.')}"
+                    project.android.namespace = namespace
+                    logger.warn("Added missing namespace '${namespace}' to ${project.name}")
+                }
+            } catch (Exception e) {
+                logger.warn("Could not check/set namespace for ${project.name}: ${e.message}")
             }
         }
     }

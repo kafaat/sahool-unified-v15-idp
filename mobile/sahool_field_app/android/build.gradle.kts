@@ -5,6 +5,9 @@ allprojects {
     }
 }
 
+// Apply namespace fix for third-party plugins (AGP 8.0+ compatibility)
+apply(from = "fix-namespace.gradle")
+
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")

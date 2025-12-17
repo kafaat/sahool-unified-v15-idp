@@ -1,5 +1,12 @@
 // Fix for third-party plugins missing namespace declaration (AGP 8.0+ requirement)
 // This script automatically adds namespace to plugins that don't have it defined
+// 
+// Background: Android Gradle Plugin 8.0+ requires all Android modules to specify
+// a namespace. Third-party plugins like isar_flutter_libs v3.1.0+1 don't have this,
+// causing build failures with: "Namespace not specified"
+//
+// This script applies a namespace to any plugin missing one, based on the plugin name.
+// Applied in build.gradle.kts via: apply(from = "fix-namespace.gradle")
 
 subprojects {
     afterEvaluate { project ->

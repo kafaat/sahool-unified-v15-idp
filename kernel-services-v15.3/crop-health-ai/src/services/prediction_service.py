@@ -15,7 +15,7 @@ from typing import Tuple, List, Dict, Any, Optional
 
 import numpy as np
 
-from .disease_service import disease_service
+from services.disease_service import disease_service
 
 logger = logging.getLogger("sahool-vision")
 

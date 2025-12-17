@@ -20,30 +20,17 @@ import {
   Activity,
   Cpu,
   Droplets,
-  FlaskConical,
-  Users,
-  FileText,
 } from 'lucide-react';
 
-interface NavigationItem {
-  name: string;
-  href: string;
-  icon: any;
-  badge?: number;
-}
-
-const navigation: NavigationItem[] = [
+const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
   { name: 'المزارع', href: '/farms', icon: MapPin },
-  { name: 'المختبر والعينات', href: '/lab', icon: FlaskConical },
   { name: 'مركز رصد الأوبئة', href: '/epidemic', icon: Activity },
   { name: 'إدارة الأمراض', href: '/diseases', icon: Bug },
   { name: 'حاسبة الإنتاجية', href: '/yield', icon: TrendingUp },
   { name: 'الري الذكي', href: '/irrigation', icon: Droplets },
   { name: 'المستشعرات', href: '/sensors', icon: Cpu },
   { name: 'الطقس والتنبيهات', href: '/alerts', icon: Bell },
-  { name: 'التقارير', href: '/reports', icon: FileText },
-  { name: 'المستخدمين', href: '/users', icon: Users },
   { name: 'الدعم الفني', href: '/support', icon: MessageCircle, badge: 5 },
   { name: 'الإعدادات', href: '/settings', icon: Settings },
 ];
@@ -83,7 +70,7 @@ export default function Sidebar() {
             >
               <item.icon className={cn('w-5 h-5', isActive ? 'text-sahool-600' : 'text-gray-400')} />
               {item.name}
-              {item.badge !== undefined && item.badge > 0 && (
+              {'badge' in item && item.badge && item.badge > 0 && (
                 <span className="mr-auto bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">
                   {item.badge}
                 </span>

@@ -1,9 +1,14 @@
-# SAHOOL Context Aggregation Module
-# وحدة تجميع السياق
+"""
+SAHOOL Context Module
+Context building for AI recommendations
+"""
 
-from .aggregator import AggregatedContext, ContextAggregator
+from .models import FieldContext, WeatherContext, HistoricalContext
+from .service import ContextBuilder
 
 __all__ = [
-    "AggregatedContext",
-    "ContextAggregator",
+    "FieldContext",
+    "WeatherContext",
+    "HistoricalContext",
+    "ContextBuilder",
 ]

@@ -1,79 +1,85 @@
 """
-SAHOOL AI Feedback Models
-نماذج التغذية الراجعة لتوصيات الذكاء الاصطناعي
+SAHOOL Feedback Models
+Data models for AI feedback
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from uuid import UUID, uuid4
-from dataclasses import dataclass, field
+from typing import Optional
+from uuid import uuid4
 
 
 class FeedbackType(str, Enum):
-    """نوع التغذية الراجعة."""
-    RATING = "rating"
-    CORRECTION = "correction"
-    SUGGESTION = "suggestion"
+    """Type of feedback"""
+
+    HELPFUL = "helpful"
+    NOT_HELPFUL = "not_helpful"
+    INCORRECT = "incorrect"
+    PARTIALLY_CORRECT = "partially_correct"
+    APPLIED = "applied"
+    NOT_APPLIED = "not_applied"
 
 
-class FeedbackSentiment(str, Enum):
-    """شعور التغذية الراجعة."""
-    POSITIVE = "positive"
-    NEUTRAL = "neutral"
-    NEGATIVE = "negative"
+class FeedbackRating(int, Enum):
+    """Feedback rating scale"""
+
+    VERY_POOR = 1
+    POOR = 2
+    NEUTRAL = 3
+    GOOD = 4
+    EXCELLENT = 5
 
 
 @dataclass
-class AIFeedback:
-    """تغذية راجعة المستخدم على توصيات الذكاء الاصطناعي."""
+class AdvisorFeedback:
+    """Feedback on an advisor response"""
 
-    tenant_id: UUID
-    user_id: UUID
-    field_id: UUID
-    trace_id: str
-    query: str
+    id: str
+    response_id: str
+    tenant_id: str
+    user_id: str
     feedback_type: FeedbackType
-    sentiment: FeedbackSentiment = FeedbackSentiment.NEUTRAL
-
-    id: UUID = field(default_factory=uuid4)
-    rating: int | None = None  # 1-5
-    comment: str | None = None
-    correct_answer: str | None = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-
-    def to_dict(self) -> dict:
-        """تحويل إلى قاموس للـ API."""
-        return {
-            "id": str(self.id),
-            "tenant_id": str(self.tenant_id),
-            "user_id": str(self.user_id),
-            "field_id": str(self.field_id),
-            "trace_id": self.trace_id,
-            "query": self.query,
-            "feedback_type": self.feedback_type.value,
-            "sentiment": self.sentiment.value,
-            "rating": self.rating,
-            "comment": self.comment,
-            "correct_answer": self.correct_answer,
-            "created_at": self.created_at.isoformat(),
-        }
+    rating: Optional[FeedbackRating]
+    comment: Optional[str]
+    outcome_notes: Optional[str]
+    created_at: datetime
 
     @classmethod
-    def from_dict(cls, data: dict) -> "AIFeedback":
-        """إنشاء من قاموس."""
+    def create(
+        cls,
+        response_id: str,
+        tenant_id: str,
+        user_id: str,
+        feedback_type: FeedbackType,
+        rating: Optional[FeedbackRating] = None,
+        comment: Optional[str] = None,
+        outcome_notes: Optional[str] = None,
+    ) -> AdvisorFeedback:
+        """Factory method to create feedback"""
         return cls(
-            id=UUID(data["id"]) if "id" in data else uuid4(),
-            tenant_id=UUID(data["tenant_id"]),
-            user_id=UUID(data["user_id"]),
-            field_id=UUID(data["field_id"]),
-            trace_id=data["trace_id"],
-            query=data["query"],
-            feedback_type=FeedbackType(data["feedback_type"]),
-            sentiment=FeedbackSentiment(data.get("sentiment", "neutral")),
-            rating=data.get("rating"),
-            comment=data.get("comment"),
-            correct_answer=data.get("correct_answer"),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(timezone.utc),
+            id=str(uuid4()),
+            response_id=response_id,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            feedback_type=feedback_type,
+            rating=rating,
+            comment=comment,
+            outcome_notes=outcome_notes,
+            created_at=datetime.now(timezone.utc),
         )
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "response_id": self.response_id,
+            "tenant_id": self.tenant_id,
+            "user_id": self.user_id,
+            "feedback_type": self.feedback_type.value,
+            "rating": self.rating.value if self.rating else None,
+            "comment": self.comment,
+            "outcome_notes": self.outcome_notes,
+            "created_at": self.created_at.isoformat(),
+        }

@@ -11,8 +11,8 @@ LABEL version="15.3.0"
 WORKDIR /app
 
 # Install dependencies
-COPY package*.json ./
-RUN npm ci
+COPY package.json package-lock.json ./
+RUN npm install
 
 # Copy prisma schema and generate client
 COPY prisma ./prisma/
@@ -33,8 +33,8 @@ WORKDIR /app
 RUN apk add --no-cache curl
 
 # Copy package files
-COPY package*.json ./
-RUN npm ci --only=production
+COPY package.json package-lock.json ./
+RUN npm install --only=production
 
 # Copy prisma
 COPY --from=builder /app/prisma ./prisma/

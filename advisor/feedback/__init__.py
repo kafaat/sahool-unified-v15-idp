@@ -1,13 +1,14 @@
-# SAHOOL AI Feedback Module
-# وحدة التغذية الراجعة للذكاء الاصطناعي
+"""
+SAHOOL Feedback Module
+User feedback on AI recommendations
+"""
 
-from .models import AIFeedback, FeedbackType, FeedbackSentiment
-from .service import submit_feedback, get_feedback_stats
+from .models import AdvisorFeedback, FeedbackType, FeedbackRating
+from .service import FeedbackService
 
 __all__ = [
-    "AIFeedback",
+    "AdvisorFeedback",
     "FeedbackType",
-    "FeedbackSentiment",
-    "submit_feedback",
-    "get_feedback_stats",
+    "FeedbackRating",
+    "FeedbackService",
 ]

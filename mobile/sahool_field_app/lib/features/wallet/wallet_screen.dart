@@ -10,7 +10,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'wallet_provider.dart';
-import '../payment/presentation/payment_screen.dart';
 
 /// شاشة المحفظة
 class WalletScreen extends ConsumerWidget {
@@ -493,10 +492,10 @@ class _QuickActionsSection extends StatelessWidget {
             onTap: () => _showLoanDialog(context),
           ),
           _QuickActionButton(
-            icon: Icons.account_balance_wallet,
-            label: 'ثروات',
+            icon: Icons.swap_horiz,
+            label: 'تحويل',
             color: Colors.purple,
-            onTap: () => _openPaymentGateway(context),
+            onTap: () {},
           ),
         ],
       ),
@@ -535,17 +534,6 @@ class _QuickActionsSection extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => const _LoanBottomSheet(),
-    );
-  }
-
-  void _openPaymentGateway(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PaymentScreen(
-          walletId: wallet?.id ?? 'default_wallet',
-        ),
-      ),
     );
   }
 }
@@ -883,8 +871,7 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final walletState = ref.watch(walletProvider);
-    final wallet = walletState.wallet;
+    final wallet = ref.watch(walletProvider).wallet;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -907,7 +894,7 @@ class _WithdrawBottomSheetState extends ConsumerState<_WithdrawBottomSheet> {
           ),
           const SizedBox(height: 8),
           Text(
-            'الرصيد المتاح: ${wallet?.balance.toStringAsFixed(0) ?? '0'} ر.ي',
+            'الرصيد المتاح: ${wallet?.balance.toStringAsFixed(0) ?? 0} ر.ي',
             style: TextStyle(
               color: Colors.white.withOpacity(0.7),
               fontSize: 14,
@@ -1071,8 +1058,8 @@ class _LoanBottomSheetState extends ConsumerState<_LoanBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final walletState = ref.watch(walletProvider);
-    final availableCredit = walletState.wallet?.availableCredit ?? 0;
+    final wallet = ref.watch(walletProvider).wallet;
+    final availableCredit = wallet?.availableCredit ?? 0;
 
     return Padding(
       padding: EdgeInsets.only(

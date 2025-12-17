@@ -48,12 +48,6 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-<<<<<<< HEAD
-# Copy public directory (will exist after mkdir in builder stage)
-COPY --from=builder /app/public ./public
-
-=======
->>>>>>> 68c4f2a7b84c7c441a567209d85cf70ff80c5c7e
 # Set the correct permission for prerender cache
 RUN mkdir -p .next
 RUN chown nextjs:nodejs .next

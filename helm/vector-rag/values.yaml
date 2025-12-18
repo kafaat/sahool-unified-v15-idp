@@ -1,0 +1,170 @@
+# SAHOOL Vector RAG Service - Helm Values
+# إعدادات خدمة المتجهات
+
+# ============================================
+# Global Settings
+# ============================================
+global:
+  namespace: sahool-ai
+  environment: production
+
+# ============================================
+# Vector Service Configuration
+# ============================================
+vectorService:
+  enabled: true
+  name: vector-service
+
+  image:
+    repository: sahool/vector-service
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+
+  replicas: 2
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+
+  service:
+    type: ClusterIP
+    port: 8111
+
+  # Health checks
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8111
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8111
+    initialDelaySeconds: 10
+    periodSeconds: 5
+
+  # Pod disruption budget
+  pdb:
+    enabled: true
+    minAvailable: 1
+
+  # Horizontal Pod Autoscaler
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  # Environment variables
+  env:
+    MILVUS_HOST: "milvus"
+    MILVUS_PORT: "19530"
+    MILVUS_COLLECTION: "sahool_vectors"
+    EMBEDDING_PROVIDER: "sentence_transformers"
+    EMBEDDING_MODEL: "sentence-transformers/all-MiniLM-L6-v2"
+    EMBEDDING_DIM: "384"
+    TENANT_FILTER_REQUIRED: "true"
+    PORT: "8111"
+
+# ============================================
+# Milvus Configuration (Standalone for dev, Cluster for prod)
+# ============================================
+milvus:
+  enabled: true
+
+  cluster:
+    enabled: false  # Set to true for production cluster mode
+
+  standalone:
+    replicas: 1
+    resources:
+      requests:
+        cpu: "1000m"
+        memory: "4Gi"
+      limits:
+        cpu: "4000m"
+        memory: "16Gi"
+
+  # Embedded etcd and minio for standalone
+  etcd:
+    enabled: true
+    replicaCount: 1
+
+  minio:
+    enabled: true
+    mode: standalone
+    persistence:
+      size: 50Gi
+
+  # Persistence
+  persistence:
+    enabled: true
+    storageClass: ""  # Use default storage class
+    size: 100Gi
+
+# ============================================
+# Secrets Configuration
+# ============================================
+secrets:
+  # Internal API key for service-to-service auth
+  internalApiKey:
+    # If empty, will be auto-generated
+    value: ""
+    # Or reference existing secret
+    existingSecret: ""
+    existingSecretKey: "internal-api-key"
+
+# ============================================
+# Network Policies
+# ============================================
+networkPolicy:
+  enabled: true
+
+  # Allow traffic from these namespaces
+  allowedNamespaces:
+    - sahool-ai
+    - sahool-services
+
+  # Allow traffic from pods with these labels
+  allowedPodLabels:
+    app.kubernetes.io/component: ai-advisor
+
+# ============================================
+# Service Account
+# ============================================
+serviceAccount:
+  create: true
+  name: vector-service-sa
+  annotations: {}
+
+# ============================================
+# Pod Security
+# ============================================
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# ============================================
+# Monitoring
+# ============================================
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    path: /metrics

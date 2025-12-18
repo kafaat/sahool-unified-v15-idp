@@ -1,0 +1,23 @@
+apiVersion: v2
+name: vector-rag
+description: SAHOOL Vector RAG Service - Milvus + FastAPI for multi-tenant RAG
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - vector
+  - rag
+  - milvus
+  - embeddings
+  - ai
+
+maintainers:
+  - name: SAHOOL Team
+    email: devops@sahool.io
+
+dependencies:
+  - name: milvus
+    version: "4.1.x"
+    repository: "https://zilliztech.github.io/milvus-helm"
+    condition: milvus.enabled

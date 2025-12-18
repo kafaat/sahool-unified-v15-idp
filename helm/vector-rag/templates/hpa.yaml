@@ -1,0 +1,33 @@
+{{- if and .Values.vectorService.enabled .Values.vectorService.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-vector-service
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.vectorService.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "vector-rag.fullname" . }}-vector-service
+  minReplicas: {{ .Values.vectorService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.vectorService.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.vectorService.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.vectorService.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.vectorService.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.vectorService.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

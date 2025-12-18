@@ -1,0 +1,67 @@
+# Staging values for SAHOOL Vector RAG Service
+# إعدادات البيئة التجريبية
+
+global:
+  namespace: sahool-ai-staging
+  environment: staging
+
+vectorService:
+  replicas: 2
+
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+
+  pdb:
+    minAvailable: 1
+
+milvus:
+  enabled: true
+
+  cluster:
+    enabled: false  # Staging: standalone mode
+
+  standalone:
+    replicas: 1
+    resources:
+      requests:
+        cpu: "1000m"
+        memory: "4Gi"
+      limits:
+        cpu: "4000m"
+        memory: "16Gi"
+
+  etcd:
+    enabled: true
+    replicaCount: 1
+
+  minio:
+    enabled: true
+    mode: standalone
+    persistence:
+      size: 50Gi
+
+  persistence:
+    enabled: true
+    size: 100Gi
+
+networkPolicy:
+  enabled: true
+  allowedNamespaces:
+    - sahool-ai-staging
+    - sahool-services-staging
+
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s

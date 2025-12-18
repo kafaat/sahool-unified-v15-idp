@@ -1,0 +1,104 @@
+# ArgoCD Application for SAHOOL Vector RAG Service
+# تطبيق ArgoCD لخدمة المتجهات
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vector-rag
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: sahool-platform
+    app.kubernetes.io/component: ai
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: sahool-ai
+
+  source:
+    repoURL: https://github.com/kafaat/sahool-unified-v15-idp.git
+    targetRevision: main
+    path: helm/vector-rag
+    helm:
+      valueFiles:
+        - values.yaml
+      parameters:
+        - name: global.environment
+          value: production
+        - name: vectorService.replicas
+          value: "3"
+        - name: milvus.cluster.enabled
+          value: "true"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: sahool-ai
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Health checks
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+
+---
+# ArgoCD Project for AI components
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: sahool-ai
+  namespace: argocd
+spec:
+  description: SAHOOL AI and RAG components
+
+  sourceRepos:
+    - https://github.com/kafaat/sahool-unified-v15-idp.git
+    - https://zilliztech.github.io/milvus-helm
+
+  destinations:
+    - namespace: sahool-ai
+      server: https://kubernetes.default.svc
+    - namespace: sahool-services
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: networking.k8s.io
+      kind: NetworkPolicy
+
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: autoscaling
+      kind: "*"
+    - group: policy
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: monitoring.coreos.com
+      kind: ServiceMonitor
+
+  roles:
+    - name: admin
+      description: Admin access to AI components
+      policies:
+        - p, proj:sahool-ai:admin, applications, *, sahool-ai/*, allow
+      groups:
+        - sahool-devops

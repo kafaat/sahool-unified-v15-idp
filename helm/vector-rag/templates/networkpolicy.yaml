@@ -1,0 +1,116 @@
+{{- if .Values.networkPolicy.enabled }}
+# ============================================
+# NetworkPolicy: Vector Service Ingress
+# Only allow traffic from authorized services
+# ============================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-vector-service-ingress
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "vector-rag.vectorService.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+  ingress:
+    # Allow from same namespace
+    - from:
+        - podSelector: {}
+    # Allow from specific namespaces
+    {{- range .Values.networkPolicy.allowedNamespaces }}
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ . }}
+    {{- end }}
+    # Allow from pods with specific labels (e.g., ai-advisor)
+    {{- if .Values.networkPolicy.allowedPodLabels }}
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.allowedPodLabels | nindent 14 }}
+    {{- end }}
+---
+# ============================================
+# NetworkPolicy: Vector Service Egress
+# Allow only necessary outbound connections
+# ============================================
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-vector-service-egress
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "vector-rag.vectorService.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Egress
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # Allow Milvus connection
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: milvus
+      ports:
+        - protocol: TCP
+          port: 19530
+    # Allow HuggingFace model downloads (for embedding models)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443
+---
+# ============================================
+# NetworkPolicy: Milvus Ingress
+# Only allow traffic from Vector Service
+# ============================================
+{{- if .Values.milvus.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-milvus-ingress
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: milvus
+  policyTypes:
+    - Ingress
+  ingress:
+    # Only allow from Vector Service
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "vector-rag.vectorService.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 19530
+    # Allow internal Milvus communication (etcd, minio)
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+{{- end }}

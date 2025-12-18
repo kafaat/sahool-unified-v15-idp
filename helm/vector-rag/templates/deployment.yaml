@@ -1,0 +1,72 @@
+{{- if .Values.vectorService.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-vector-service
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.vectorService.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.vectorService.replicas }}
+  selector:
+    matchLabels:
+      {{- include "vector-rag.vectorService.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "vector-rag.vectorService.selectorLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      serviceAccountName: {{ include "vector-rag.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: vector-service
+          image: "{{ .Values.vectorService.image.repository }}:{{ .Values.vectorService.image.tag }}"
+          imagePullPolicy: {{ .Values.vectorService.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.vectorService.service.port }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "vector-rag.fullname" . }}-config
+          env:
+            - name: INTERNAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vector-rag.secretName" . }}
+                  key: {{ .Values.secrets.internalApiKey.existingSecretKey | default "internal-api-key" }}
+          livenessProbe:
+            {{- toYaml .Values.vectorService.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.vectorService.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.vectorService.resources | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /root/.cache
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

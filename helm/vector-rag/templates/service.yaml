@@ -1,0 +1,18 @@
+{{- if .Values.vectorService.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-vector-service
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.vectorService.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.vectorService.service.type }}
+  ports:
+    - port: {{ .Values.vectorService.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "vector-rag.vectorService.selectorLabels" . | nindent 4 }}
+{{- end }}

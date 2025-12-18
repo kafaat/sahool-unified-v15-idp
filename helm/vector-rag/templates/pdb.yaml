@@ -1,0 +1,14 @@
+{{- if and .Values.vectorService.enabled .Values.vectorService.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-vector-service
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.vectorService.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.vectorService.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "vector-rag.vectorService.selectorLabels" . | nindent 6 }}
+{{- end }}

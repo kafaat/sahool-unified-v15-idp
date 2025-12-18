@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vector-rag.fullname" . }}-config
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "vector-rag.labels" . | nindent 4 }}
+data:
+  MILVUS_HOST: {{ include "vector-rag.milvusHost" . | quote }}
+  MILVUS_PORT: {{ .Values.vectorService.env.MILVUS_PORT | quote }}
+  MILVUS_COLLECTION: {{ .Values.vectorService.env.MILVUS_COLLECTION | quote }}
+  EMBEDDING_PROVIDER: {{ .Values.vectorService.env.EMBEDDING_PROVIDER | quote }}
+  EMBEDDING_MODEL: {{ .Values.vectorService.env.EMBEDDING_MODEL | quote }}
+  EMBEDDING_DIM: {{ .Values.vectorService.env.EMBEDDING_DIM | quote }}
+  TENANT_FILTER_REQUIRED: {{ .Values.vectorService.env.TENANT_FILTER_REQUIRED | quote }}
+  PORT: {{ .Values.vectorService.env.PORT | quote }}

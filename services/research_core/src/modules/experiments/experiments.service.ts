@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@/config/prisma.service';
+import { Prisma } from '@prisma/client';
 import { CreateExperimentDto, UpdateExperimentDto } from './dto/experiment.dto';
 
 @Injectable()
@@ -11,12 +12,15 @@ export class ExperimentsService {
   async create(dto: CreateExperimentDto, userId: string) {
     this.logger.log(`Creating experiment: ${dto.title}`);
 
+    const { metadata, ...restDto } = dto;
+
     return this.prisma.experiment.create({
       data: {
-        ...dto,
+        ...restDto,
         principalResearcherId: userId,
         startDate: new Date(dto.startDate),
         endDate: dto.endDate ? new Date(dto.endDate) : null,
+        metadata: metadata as Prisma.InputJsonValue | undefined,
       },
     });
   }
@@ -103,13 +107,16 @@ export class ExperimentsService {
   async update(id: string, dto: UpdateExperimentDto) {
     await this.findOne(id);
 
+    const { metadata, ...restDto } = dto;
+
     return this.prisma.experiment.update({
       where: { id },
       data: {
-        ...dto,
+        ...restDto,
         startDate: dto.startDate ? new Date(dto.startDate) : undefined,
         endDate: dto.endDate ? new Date(dto.endDate) : undefined,
         version: { increment: 1 },
+        metadata: metadata !== undefined ? (metadata as Prisma.InputJsonValue) : undefined,
       },
     });
   }

@@ -2,13 +2,21 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install build dependencies (needed for nats-py)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip to latest version
+RUN pip install --upgrade pip
+
 # Create non-root user for security
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Install dependencies
+# Install dependencies with increased timeout for slow networks
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=100 --retries=5 -r requirements.txt
 
 # Copy source
 COPY src/ ./src/

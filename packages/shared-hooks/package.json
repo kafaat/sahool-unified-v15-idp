@@ -1,0 +1,36 @@
+{
+  "name": "@sahool/shared-hooks",
+  "version": "16.0.0",
+  "description": "SAHOOL Shared React Hooks - خطافات React الموحدة",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --external react",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --external react --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sahool/api-client": "^16.0.0",
+    "js-cookie": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/js-cookie": "^3.0.6",
+    "@types/react": "^19.0.2",
+    "tsup": "^8.0.1",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

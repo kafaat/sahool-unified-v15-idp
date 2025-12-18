@@ -34,7 +34,9 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
+# Create empty public directory (Next.js standalone includes public assets in .next/static)
+# The public directory is not needed separately for standalone builds, but create it to avoid errors
+RUN mkdir -p ./public
 
 # Set the correct permission for prerender cache
 RUN mkdir .next

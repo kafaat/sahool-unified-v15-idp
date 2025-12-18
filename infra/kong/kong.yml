@@ -1,19 +1,539 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Platform - Kong API Gateway Configuration
 # Declarative configuration for DB-less mode
+# Version: 16.0.0 - Security Enhanced
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _format_version: "3.0"
 _transform: true
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Services Definition
+# Upstreams with Health Checks
+# ─────────────────────────────────────────────────────────────────────────────
+
+upstreams:
+  - name: field-ops-upstream
+    targets:
+      - target: sahool-field-ops:8080
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: ndvi-engine-upstream
+    targets:
+      - target: sahool-ndvi-engine:8107
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: weather-upstream
+    targets:
+      - target: sahool-weather-core:8108
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: chat-upstream
+    targets:
+      - target: sahool-field-chat:8099
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: iot-upstream
+    targets:
+      - target: sahool-iot-gateway:8106
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: advisor-upstream
+    targets:
+      - target: sahool-agro-advisor:8105
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: ws-gateway-upstream
+    targets:
+      - target: sahool-ws-gateway:8089
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: crop-health-upstream
+    targets:
+      - target: sahool-crop-health:8100
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: field-core-upstream
+    targets:
+      - target: sahool-field-core:3000
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: task-upstream
+    targets:
+      - target: sahool-task-service:8103
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: equipment-upstream
+    targets:
+      - target: sahool-equipment-service:8101
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: community-upstream
+    targets:
+      - target: sahool-community-service:8102
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: provider-config-upstream
+    targets:
+      - target: sahool-provider-config:8104
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: satellite-upstream
+    targets:
+      - target: sahool-satellite-service:8090
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: indicators-upstream
+    targets:
+      - target: sahool-indicators-service:8091
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: weather-advanced-upstream
+    targets:
+      - target: sahool-weather-advanced:8092
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: fertilizer-upstream
+    targets:
+      - target: sahool-fertilizer-advisor:8093
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: irrigation-upstream
+    targets:
+      - target: sahool-irrigation-smart:8094
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: crop-health-ai-upstream
+    targets:
+      - target: sahool-crop-health-ai:8095
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: virtual-sensors-upstream
+    targets:
+      - target: sahool-virtual-sensors:8096
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: community-chat-upstream
+    targets:
+      - target: sahool-community-chat:8097
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: yield-engine-upstream
+    targets:
+      - target: sahool-yield-engine:8098
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JWT Consumers for Authentication
+# ─────────────────────────────────────────────────────────────────────────────
+
+consumers:
+  - username: sahool-web-app
+    custom_id: web-client
+    jwt_secrets:
+      - key: sahool-web-key
+        algorithm: RS256
+        # RSA public key should be configured in environment
+
+  - username: sahool-mobile-app
+    custom_id: mobile-client
+    jwt_secrets:
+      - key: sahool-mobile-key
+        algorithm: RS256
+
+  - username: sahool-internal-service
+    custom_id: internal-service
+    jwt_secrets:
+      - key: sahool-internal-key
+        algorithm: RS256
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Services Definition (Using Upstreams)
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
   # Field Operations Service
   - name: field-ops-service
-    url: http://sahool-field-ops:8080
+    host: field-ops-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: field-ops-route
         paths:
@@ -21,20 +541,44 @@ services:
           - /api/v1/tasks
           - /api/v1/assignments
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 2000
+              policy: local
 
   # NDVI Engine Service
   - name: ndvi-engine-service
-    url: http://sahool-ndvi-engine:8107
+    host: ndvi-engine-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
     routes:
       - name: ndvi-route
         paths:
           - /api/v1/ndvi
           - /api/v1/satellite
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
+              policy: local
 
   # Weather Core Service
   - name: weather-service
-    url: http://sahool-weather-core:8108
+    host: weather-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: weather-route
         paths:
@@ -44,17 +588,35 @@ services:
 
   # Field Chat Service
   - name: chat-service
-    url: http://sahool-field-chat:8099
+    host: chat-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: chat-route
         paths:
           - /api/v1/chat
           - /api/v1/messages
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 120
+              hour: 3000
+              policy: local
 
   # IoT Gateway Service
   - name: iot-service
-    url: http://sahool-iot-gateway:8106
+    host: iot-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: iot-route
         paths:
@@ -62,20 +624,44 @@ services:
           - /api/v1/sensors
           - /api/v1/devices
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 200
+              hour: 10000
+              policy: local
 
   # Agro Advisor Service
   - name: advisor-service
-    url: http://sahool-agro-advisor:8105
+    host: advisor-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 90000
+    read_timeout: 90000
     routes:
       - name: advisor-route
         paths:
           - /api/v1/advisor
           - /api/v1/recommendations
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
+              policy: local
 
   # WebSocket Gateway Service
   - name: ws-gateway-service
-    url: http://sahool-ws-gateway:8089
+    host: ws-gateway-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 3600000
+    read_timeout: 3600000
     routes:
       - name: ws-route
         paths:
@@ -85,7 +671,14 @@ services:
 
   # Crop Health Service
   - name: crop-health-service
-    url: http://sahool-crop-health:8100/api/v1
+    host: crop-health-upstream
+    port: 80
+    protocol: http
+    path: /api/v1
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: crop-health-route
         paths:
@@ -94,35 +687,65 @@ services:
 
   # Field Core Service (Advanced field management)
   - name: field-core-service
-    url: http://sahool-field-core:3000
+    host: field-core-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: field-core-route
         paths:
           - /api/v1/fields/sync
           - /api/v1/fields/batch
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 20
+              hour: 200
+              policy: local
 
-  # Task Service (NEW)
+  # Task Service
   - name: task-service
-    url: http://sahool-task-service:8103
+    host: task-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: task-route
         paths:
           - /api/v1/tasks
         strip_path: false
 
-  # Equipment Service (NEW)
+  # Equipment Service
   - name: equipment-service
-    url: http://sahool-equipment-service:8101
+    host: equipment-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: equipment-route
         paths:
           - /api/v1/equipment
         strip_path: false
 
-  # Community Service (NEW)
+  # Community Service
   - name: community-service
-    url: http://sahool-community-service:8102
+    host: community-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: community-route
         paths:
@@ -132,16 +755,34 @@ services:
           - /api/v1/community
           - /api/v1/experts
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
 
-  # Provider Configuration Service (NEW)
+  # Provider Configuration Service
   - name: provider-config-service
-    url: http://sahool-provider-config:8104
+    host: provider-config-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: provider-config-route
         paths:
           - /api/v1/providers
           - /api/v1/config
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
+              policy: local
 
   # ─────────────────────────────────────────────────────────────────────────────
   # SAHOOL v15.3 Services
@@ -149,7 +790,13 @@ services:
 
   # Satellite Service - NDVI Analysis (v15.3)
   - name: satellite-service-v15
-    url: http://sahool-satellite-service:8090
+    host: satellite-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 180000
+    read_timeout: 180000
     routes:
       - name: satellite-v15-route
         paths:
@@ -157,10 +804,22 @@ services:
           - /api/v1/satellite/timeseries
           - /api/v1/satellite/imagery
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 20
+              hour: 300
+              policy: local
 
   # Indicators Service - Agricultural KPIs (v15.3)
   - name: indicators-service-v15
-    url: http://sahool-indicators-service:8091
+    host: indicators-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: indicators-v15-route
         paths:
@@ -171,7 +830,13 @@ services:
 
   # Weather Advanced Service (v15.3)
   - name: weather-advanced-service
-    url: http://sahool-weather-advanced:8092
+    host: weather-advanced-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: weather-advanced-route
         paths:
@@ -182,7 +847,13 @@ services:
 
   # Fertilizer Advisor Service (v15.3)
   - name: fertilizer-advisor-service
-    url: http://sahool-fertilizer-advisor:8093
+    host: fertilizer-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 90000
+    read_timeout: 90000
     routes:
       - name: fertilizer-route
         paths:
@@ -190,10 +861,22 @@ services:
           - /api/v1/fertilizer/recommend
           - /api/v1/soil/interpret
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
+              policy: local
 
   # Irrigation Smart Service (v15.3)
   - name: irrigation-smart-service
-    url: http://sahool-irrigation-smart:8094
+    host: irrigation-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: irrigation-route
         paths:
@@ -201,10 +884,22 @@ services:
           - /api/v1/irrigation/calculate
           - /api/v1/water-balance
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1000
+              policy: local
 
   # Crop Health AI Service - Sahool Vision (v15.3)
   - name: crop-health-ai-service
-    url: http://sahool-crop-health-ai:8095
+    host: crop-health-ai-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
     routes:
       - name: crop-health-ai-route
         paths:
@@ -212,10 +907,22 @@ services:
           - /api/v1/diseases
           - /api/v1/treatment
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 20
+              hour: 300
+              policy: local
 
   # Virtual Sensors Service (v15.3)
   - name: virtual-sensors-service
-    url: http://sahool-virtual-sensors:8096
+    host: virtual-sensors-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: virtual-sensors-route
         paths:
@@ -227,7 +934,13 @@ services:
 
   # Community Chat Service (v15.3)
   - name: community-chat-service
-    url: http://sahool-community-chat:8097
+    host: community-chat-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: community-chat-route
         paths:
@@ -235,10 +948,22 @@ services:
           - /api/v1/chat/rooms
           - /api/v1/chat/experts
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 2500
+              policy: local
 
   # Yield Engine Service (v15.3)
   - name: yield-engine-service
-    url: http://sahool-yield-engine:8098
+    host: yield-engine-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 90000
+    read_timeout: 90000
     routes:
       - name: yield-route
         paths:
@@ -246,24 +971,55 @@ services:
           - /api/v1/yield/predict
           - /api/v1/yield/historical
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins
 # ─────────────────────────────────────────────────────────────────────────────
 
 plugins:
-  # Rate Limiting
+  # JWT Authentication (Global)
+  - name: jwt
+    config:
+      key_claim_name: iss
+      claims_to_verify:
+        - exp
+      run_on_preflight: false
+      # Anonymous consumer for public endpoints
+      # anonymous: ~
+
+  # Rate Limiting (Global Default)
   - name: rate-limiting
     config:
-      minute: 100
-      hour: 5000
+      minute: 60
+      hour: 2000
       policy: local
+      fault_tolerant: true
+      hide_client_headers: false
+      redis_ssl: false
 
-  # CORS
+  # CORS (Secured - Whitelist Only)
   - name: cors
     config:
       origins:
-        - "*"
+        - https://sahool.com
+        - https://app.sahool.com
+        - https://admin.sahool.com
+        - https://api.sahool.com
+        - https://staging.sahool.com
+        - https://dev.sahool.com
+        # Mobile app origins
+        - capacitor://localhost
+        - ionic://localhost
+        # Local development (remove in production)
+        - http://localhost:3000
+        - http://localhost:8080
+        - http://localhost:5173
       methods:
         - GET
         - POST
@@ -277,10 +1033,16 @@ plugins:
         - Content-Type
         - X-Tenant-ID
         - X-Request-ID
+        - X-User-ID
+        - X-Device-ID
       exposed_headers:
         - X-Request-ID
+        - X-RateLimit-Limit
+        - X-RateLimit-Remaining
+        - X-RateLimit-Reset
       credentials: true
       max_age: 3600
+      preflight_continue: false
 
   # Request/Response Logging
   - name: file-log
@@ -288,9 +1050,34 @@ plugins:
       path: /dev/stdout
       reopen: true
 
-  # Request ID
+  # Request ID / Correlation ID
   - name: correlation-id
     config:
       header_name: X-Request-ID
       generator: uuid
       echo_downstream: true
+
+  # Response Transformer (Security Headers)
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Content-Type-Options: nosniff"
+          - "X-Frame-Options: DENY"
+          - "X-XSS-Protection: 1; mode=block"
+          - "Referrer-Policy: strict-origin-when-cross-origin"
+
+  # Request Size Limiting
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10
+      size_unit: megabytes
+      require_content_length: false
+
+  # IP Restriction (Optional - enable for admin endpoints)
+  # - name: ip-restriction
+  #   config:
+  #     allow:
+  #       - 10.0.0.0/8
+  #       - 172.16.0.0/12
+  #       - 192.168.0.0/16

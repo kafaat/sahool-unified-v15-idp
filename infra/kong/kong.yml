@@ -1033,6 +1033,25 @@ services:
               minute: 60
               hour: 1500
               policy: local
+      # Satellite Data Selector - خدمة اختيار البيانات الساتلية
+      # Intelligent satellite data source selection for agricultural RS
+      - name: satellite-data-route
+        paths:
+          - /api/v1/satellite-data
+          - /api/v1/satellite-data/select
+          - /api/v1/satellite-data/satellites
+          - /api/v1/satellite-data/compare
+          - /api/v1/satellite-data/indices
+          - /api/v1/satellite-data/recommend
+          - /api/v1/satellite-data/quick-recommend
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Satellite data selection queries - light compute
+              minute: 120
+              hour: 3000
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins

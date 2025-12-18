@@ -11,6 +11,8 @@ import { RootGrowthController } from './root-growth/root-growth.controller';
 import { RootGrowthService } from './root-growth/root-growth.service';
 import { WaterBalanceController } from './water-balance/water-balance.controller';
 import { WaterBalanceService } from './water-balance/water-balance.service';
+import { SatelliteDataController } from './satellite-data/satellite-data.controller';
+import { SatelliteDataService } from './satellite-data/satellite-data.service';
 
 @Module({
   controllers: [
@@ -20,6 +22,7 @@ import { WaterBalanceService } from './water-balance/water-balance.service';
     GrowthSimulationController,
     RootGrowthController,
     WaterBalanceController,
+    SatelliteDataController,
   ],
   providers: [
     PhenologyService,
@@ -28,6 +31,7 @@ import { WaterBalanceService } from './water-balance/water-balance.service';
     GrowthSimulationService,
     RootGrowthService,
     WaterBalanceService,
+    SatelliteDataService,
   ],
 })
 export class AppModule {}

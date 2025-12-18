@@ -995,6 +995,44 @@ services:
               minute: 30
               hour: 500
               policy: local
+      # Root Growth Module - نموذج نمو الجذور (SimRoot-inspired)
+      # Based on SimRoot 3D root architecture model (Penn State)
+      - name: root-growth-route
+        paths:
+          - /api/v1/roots
+          - /api/v1/roots/depth
+          - /api/v1/roots/rld
+          - /api/v1/roots/water-uptake
+          - /api/v1/roots/nutrient-uptake
+          - /api/v1/roots/architecture
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # 3D root architecture simulations are compute-intensive
+              minute: 30
+              hour: 500
+              policy: local
+      # Water Balance Module - نموذج توازن المياه (FAO-56/SWAP)
+      # Integrated soil-crop-atmosphere water balance
+      - name: water-balance-route
+        paths:
+          - /api/v1/water
+          - /api/v1/water/kc
+          - /api/v1/water/etc
+          - /api/v1/water/balance
+          - /api/v1/water/irrigation/schedule
+          - /api/v1/water/yield-response
+          - /api/v1/water/parameters
+          - /api/v1/water/crops
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Water balance calculations with irrigation scheduling
+              minute: 60
+              hour: 1500
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins

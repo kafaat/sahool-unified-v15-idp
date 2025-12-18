@@ -7,6 +7,10 @@ import { BiomassController } from './biomass/biomass.controller';
 import { BiomassService } from './biomass/biomass.service';
 import { GrowthSimulationController } from './simulation/simulation.controller';
 import { GrowthSimulationService } from './simulation/simulation.service';
+import { RootGrowthController } from './root-growth/root-growth.controller';
+import { RootGrowthService } from './root-growth/root-growth.service';
+import { WaterBalanceController } from './water-balance/water-balance.controller';
+import { WaterBalanceService } from './water-balance/water-balance.service';
 
 @Module({
   controllers: [
@@ -14,12 +18,16 @@ import { GrowthSimulationService } from './simulation/simulation.service';
     PhotosynthesisController,
     BiomassController,
     GrowthSimulationController,
+    RootGrowthController,
+    WaterBalanceController,
   ],
   providers: [
     PhenologyService,
     PhotosynthesisService,
     BiomassService,
     GrowthSimulationService,
+    RootGrowthService,
+    WaterBalanceService,
   ],
 })
 export class AppModule {}

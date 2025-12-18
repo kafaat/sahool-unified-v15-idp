@@ -21,6 +21,7 @@ class Settings(BaseSettings):
 
     # Security
     tenant_filter_required: bool = True
+    internal_api_key: str | None = None  # Required for service-to-service auth
 
     # Service
     port: int = 8111

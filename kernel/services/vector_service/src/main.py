@@ -9,10 +9,33 @@ import logging
 from contextlib import asynccontextmanager
 from typing import List
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from .settings import settings
+
+
+# ============================================================================
+# Service-to-Service Authentication
+# ============================================================================
+
+def require_internal_key(x_internal_api_key: str | None = Header(default=None)) -> None:
+    """
+    Validate internal API key for service-to-service authentication.
+    Required for all vector operations in production.
+    """
+    expected = settings.internal_api_key
+    if not expected:
+        # If no key configured, block all requests in production
+        raise HTTPException(
+            status_code=500,
+            detail="internal_api_key_not_configured"
+        )
+    if x_internal_api_key != expected:
+        raise HTTPException(
+            status_code=401,
+            detail="unauthorized: invalid or missing X-Internal-Api-Key"
+        )
 from .schemas import (
     UpsertVectorRequest,
     UpsertVectorResponse,
@@ -94,11 +117,12 @@ def health_check():
 
 
 @app.post("/v1/vectors:upsert", response_model=UpsertVectorResponse)
-def upsert_vector(req: UpsertVectorRequest):
+def upsert_vector(req: UpsertVectorRequest, _: None = Depends(require_internal_key)):
     """
     Upsert a single vector.
 
     The vector ID is computed as: {tenant_id}:{namespace}:{doc_id}
+    Requires X-Internal-Api-Key header for authentication.
     """
     if settings.tenant_filter_required and not req.tenant_id:
         raise HTTPException(status_code=400, detail="tenant_id is required")
@@ -111,12 +135,22 @@ def upsert_vector(req: UpsertVectorRequest):
         _id = f"{req.tenant_id}:{req.namespace}:{req.doc_id}"
         metadata_json = json.dumps(req.metadata, ensure_ascii=False)
 
-        # Prepare entities for insertion
+        # Extract scalar metadata fields for efficient filtering
+        crop = str(req.metadata.get("crop", ""))
+        region = str(req.metadata.get("region", ""))
+        season = str(req.metadata.get("season", ""))
+        source = str(req.metadata.get("source", req.namespace))
+
+        # Prepare entities for insertion (order must match schema)
         entities = [
             [_id],  # id
             [req.tenant_id],  # tenant_id
             [req.namespace],  # namespace
             [req.doc_id],  # doc_id
+            [crop],  # crop (scalar)
+            [region],  # region (scalar)
+            [season],  # season (scalar)
+            [source],  # source (scalar)
             [req.text],  # text
             [metadata_json],  # metadata_json
             [vec],  # embedding
@@ -135,9 +169,10 @@ def upsert_vector(req: UpsertVectorRequest):
 
 
 @app.post("/v1/vectors:batch-upsert", response_model=BatchUpsertResponse)
-def batch_upsert(req: BatchUpsertRequest):
+def batch_upsert(req: BatchUpsertRequest, _: None = Depends(require_internal_key)):
     """
     Upsert multiple vectors in a batch.
+    Requires X-Internal-Api-Key header for authentication.
     """
     if settings.tenant_filter_required and not req.tenant_id:
         raise HTTPException(status_code=400, detail="tenant_id is required")
@@ -154,6 +189,10 @@ def batch_upsert(req: BatchUpsertRequest):
         all_tenant_ids = []
         all_namespaces = []
         all_doc_ids = []
+        all_crops = []
+        all_regions = []
+        all_seasons = []
+        all_sources = []
         all_texts = []
         all_metadata = []
         all_embeddings = []
@@ -172,15 +211,25 @@ def batch_upsert(req: BatchUpsertRequest):
             all_tenant_ids.append(req.tenant_id)
             all_namespaces.append(req.namespace)
             all_doc_ids.append(doc_id)
+            # Scalar metadata fields
+            all_crops.append(str(metadata.get("crop", "")))
+            all_regions.append(str(metadata.get("region", "")))
+            all_seasons.append(str(metadata.get("season", "")))
+            all_sources.append(str(metadata.get("source", req.namespace)))
             all_texts.append(text)
             all_metadata.append(json.dumps(metadata, ensure_ascii=False))
             all_embeddings.append(embeddings[i])
 
+        # Order must match schema
         entities = [
             all_ids,
             all_tenant_ids,
             all_namespaces,
             all_doc_ids,
+            all_crops,
+            all_regions,
+            all_seasons,
+            all_sources,
             all_texts,
             all_metadata,
             all_embeddings,
@@ -201,11 +250,13 @@ def batch_upsert(req: BatchUpsertRequest):
 
 
 @app.post("/v1/vectors:search", response_model=SearchResponse)
-def search_vectors(req: SearchRequest):
+def search_vectors(req: SearchRequest, _: None = Depends(require_internal_key)):
     """
     Search for similar vectors.
 
     Results are filtered by tenant_id and namespace (mandatory).
+    Supports scalar metadata filters: crop, region, season, source.
+    Requires X-Internal-Api-Key header for authentication.
     """
     if settings.tenant_filter_required and not req.tenant_id:
         raise HTTPException(status_code=400, detail="tenant_id is required")
@@ -216,6 +267,17 @@ def search_vectors(req: SearchRequest):
 
         # Build filter expression (mandatory tenant + namespace filter)
         expr = f'tenant_id == "{req.tenant_id}" and namespace == "{req.namespace}"'
+
+        # Add scalar metadata filters for fast querying
+        if req.filters:
+            if req.filters.get("crop"):
+                expr += f' and crop == "{req.filters["crop"]}"'
+            if req.filters.get("region"):
+                expr += f' and region == "{req.filters["region"]}"'
+            if req.filters.get("season"):
+                expr += f' and season == "{req.filters["season"]}"'
+            if req.filters.get("source"):
+                expr += f' and source == "{req.filters["source"]}"'
 
         search_params = {
             "metric_type": "IP",
@@ -229,7 +291,7 @@ def search_vectors(req: SearchRequest):
             param=search_params,
             limit=req.top_k,
             expr=expr,
-            output_fields=["doc_id", "text", "metadata_json"],
+            output_fields=["doc_id", "text", "metadata_json", "crop", "region", "season", "source"],
         )
 
         hits = []
@@ -240,12 +302,18 @@ def search_vectors(req: SearchRequest):
             if score < req.min_score:
                 continue
 
-            # Parse metadata
+            # Parse metadata and merge with scalar fields
             metadata = {}
             try:
                 metadata = json.loads(hit.entity.get("metadata_json") or "{}")
             except Exception:
                 pass
+
+            # Add scalar fields to metadata for convenience
+            metadata.setdefault("crop", hit.entity.get("crop", ""))
+            metadata.setdefault("region", hit.entity.get("region", ""))
+            metadata.setdefault("season", hit.entity.get("season", ""))
+            metadata.setdefault("source", hit.entity.get("source", ""))
 
             hits.append(SearchHit(
                 doc_id=hit.entity.get("doc_id", ""),
@@ -263,9 +331,10 @@ def search_vectors(req: SearchRequest):
 
 
 @app.post("/v1/vectors:delete", response_model=DeleteResponse)
-def delete_vectors(req: DeleteRequest):
+def delete_vectors(req: DeleteRequest, _: None = Depends(require_internal_key)):
     """
     Delete vectors by document IDs.
+    Requires X-Internal-Api-Key header for authentication.
     """
     if settings.tenant_filter_required and not req.tenant_id:
         raise HTTPException(status_code=400, detail="tenant_id is required")
@@ -294,40 +363,100 @@ def delete_vectors(req: DeleteRequest):
 @app.post("/v1/rag:context")
 def get_rag_context(
     req: SearchRequest,
+    _: None = Depends(require_internal_key),
     format: str = Query(default="plain", enum=["plain", "arabic"]),
     max_chars: int = Query(default=4000, ge=100, le=10000),
 ):
     """
-    Search and return formatted context for RAG.
+    Search and return formatted context for RAG with sources.
 
     This is a convenience endpoint that combines search + context building.
+    Returns context text and source references for transparency.
+    Requires X-Internal-Api-Key header for authentication.
+
+    RAG Guardrails:
+    - Only returns context from verified sources
+    - Includes source doc_id and confidence score for each hit
+    - AI Advisor should use this to generate grounded responses
     """
-    # Perform search
-    search_response = search_vectors(req)
+    if settings.tenant_filter_required and not req.tenant_id:
+        raise HTTPException(status_code=400, detail="tenant_id is required")
 
-    # Convert hits to dicts
-    hits = [
-        {
-            "doc_id": h.doc_id,
-            "score": h.score,
-            "text": h.text,
-            "metadata": h.metadata,
+    try:
+        # Generate query embedding
+        qvec = embedder.embed(req.query)
+
+        # Build filter expression
+        expr = f'tenant_id == "{req.tenant_id}" and namespace == "{req.namespace}"'
+
+        if req.filters:
+            if req.filters.get("crop"):
+                expr += f' and crop == "{req.filters["crop"]}"'
+            if req.filters.get("region"):
+                expr += f' and region == "{req.filters["region"]}"'
+            if req.filters.get("season"):
+                expr += f' and season == "{req.filters["season"]}"'
+            if req.filters.get("source"):
+                expr += f' and source == "{req.filters["source"]}"'
+
+        search_params = {"metric_type": "IP", "params": {"ef": 128}}
+
+        collection = get_collection()
+        results = collection.search(
+            data=[qvec],
+            anns_field="embedding",
+            param=search_params,
+            limit=req.top_k,
+            expr=expr,
+            output_fields=["doc_id", "text", "metadata_json", "crop", "region", "season", "source"],
+        )
+
+        # Convert to hits
+        hits = []
+        for hit in results[0]:
+            score = float(hit.distance)
+            if score < req.min_score:
+                continue
+
+            metadata = {}
+            try:
+                metadata = json.loads(hit.entity.get("metadata_json") or "{}")
+            except Exception:
+                pass
+
+            metadata.setdefault("crop", hit.entity.get("crop", ""))
+            metadata.setdefault("region", hit.entity.get("region", ""))
+            metadata.setdefault("season", hit.entity.get("season", ""))
+            metadata.setdefault("source", hit.entity.get("source", ""))
+
+            hits.append({
+                "doc_id": hit.entity.get("doc_id", ""),
+                "score": score,
+                "text": hit.entity.get("text", ""),
+                "metadata": metadata,
+            })
+
+        # Build context based on format
+        if format == "arabic":
+            context = build_arabic_context(hits, max_chars=max_chars)
+        else:
+            context = build_context(hits, max_chars=max_chars)
+
+        # Extract source references for transparency
+        sources = extract_source_references(hits)
+
+        # RAG guardrail: flag if no context found
+        no_context = len(hits) == 0
+
+        return {
+            "context": context,
+            "sources": sources,
+            "query": req.query,
+            "hits_count": len(hits),
+            "no_relevant_context": no_context,
+            "guardrail_note": "AI Advisor should respond 'لا أملك بيانات كافية' if no_relevant_context is true" if no_context else None,
         }
-        for h in search_response.hits
-    ]
 
-    # Build context based on format
-    if format == "arabic":
-        context = build_arabic_context(hits, max_chars=max_chars)
-    else:
-        context = build_context(hits, max_chars=max_chars)
-
-    # Extract source references
-    sources = extract_source_references(hits)
-
-    return {
-        "context": context,
-        "sources": sources,
-        "query": req.query,
-        "hits_count": len(hits),
-    }
+    except Exception as e:
+        logger.error(f"RAG context failed: {e}")
+        raise HTTPException(status_code=500, detail=f"rag_context_failed: {str(e)}")

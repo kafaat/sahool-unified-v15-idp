@@ -53,7 +53,7 @@ def ensure_collection() -> Collection:
         _collection.load()
         return _collection
 
-    # Create schema
+    # Create schema with scalar metadata fields for efficient filtering
     fields = [
         FieldSchema(
             name="id",
@@ -76,6 +76,27 @@ def ensure_collection() -> Collection:
             name="doc_id",
             dtype=DataType.VARCHAR,
             max_length=256,
+        ),
+        # Scalar metadata fields for fast filtering (avoid JSON parsing)
+        FieldSchema(
+            name="crop",
+            dtype=DataType.VARCHAR,
+            max_length=64,
+        ),
+        FieldSchema(
+            name="region",
+            dtype=DataType.VARCHAR,
+            max_length=64,
+        ),
+        FieldSchema(
+            name="season",
+            dtype=DataType.VARCHAR,
+            max_length=32,
+        ),
+        FieldSchema(
+            name="source",
+            dtype=DataType.VARCHAR,
+            max_length=64,
         ),
         FieldSchema(
             name="text",

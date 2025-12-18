@@ -9,6 +9,9 @@ on:
       - ".env.vector.example"
   workflow_dispatch:
 
+env:
+  CI_API_KEY: ci-secret-key-for-testing
+
 jobs:
   rag-gate:
     runs-on: ubuntu-latest
@@ -29,6 +32,8 @@ jobs:
       - name: Prepare env (vector)
         run: |
           cp .env.vector.example .env.vector
+          # Set API key for CI testing
+          echo "INTERNAL_API_KEY=${{ env.CI_API_KEY }}" >> .env.vector
           chmod 600 .env.vector
 
       - name: Build & Start Milvus + Vector Service
@@ -41,22 +46,36 @@ jobs:
             sleep 2
           done
 
+      - name: Smoke Test - Auth Required (should fail without key)
+        run: |
+          # This should return 401
+          resp=$(curl -s -w "%{http_code}" -o /dev/null http://localhost:8111/v1/vectors:search \
+            -H "Content-Type: application/json" \
+            -d '{"tenant_id":"test","namespace":"test","query":"test"}')
+          if [ "$resp" != "401" ]; then
+            echo "SECURITY VIOLATION: Endpoint accessible without API key (got $resp)"
+            exit 1
+          fi
+          echo "Auth check passed - endpoint requires API key"
+
       - name: Smoke Test - Upsert Vector
         run: |
           curl -fsS http://localhost:8111/v1/vectors:upsert \
             -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
             -d '{
               "tenant_id":"ci-tenant",
               "namespace":"advisor",
               "doc_id":"ci_case_001",
               "text":"ضعف نمو القمح مع ري جيد قد يشير لملوحة أو نقص عناصر دقيقة.",
-              "metadata":{"crop":"wheat","region":"Marib","season":"2024"}
+              "metadata":{"crop":"wheat","region":"Marib","season":"2024","source":"advisor"}
             }' | jq .
 
       - name: Smoke Test - Search (RAG)
         run: |
           resp=$(curl -fsS http://localhost:8111/v1/vectors:search \
             -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
             -d '{
               "tenant_id":"ci-tenant",
               "namespace":"advisor",
@@ -70,34 +89,61 @@ jobs:
             exit 1
           fi
 
-      - name: Smoke Test - RAG Context
+      - name: Smoke Test - Search with Metadata Filters
+        run: |
+          resp=$(curl -fsS http://localhost:8111/v1/vectors:search \
+            -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
+            -d '{
+              "tenant_id":"ci-tenant",
+              "namespace":"advisor",
+              "query":"مشاكل المحاصيل",
+              "top_k":5,
+              "filters":{"crop":"wheat","region":"Marib"}
+            }')
+          echo "$resp" | jq .
+          echo "Metadata filter test passed"
+
+      - name: Smoke Test - RAG Context with Sources
         run: |
           resp=$(curl -fsS http://localhost:8111/v1/rag:context \
             -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
             -d '{
               "tenant_id":"ci-tenant",
               "namespace":"advisor",
               "query":"مشاكل القمح",
-              "top_k":3,
-              "max_chars":2000
+              "top_k":3
             }')
           echo "$resp" | jq .
+
+          # Verify sources are returned
+          sources=$(echo "$resp" | jq '.sources | length')
+          if [ "$sources" -lt 1 ]; then
+            echo "RAG context missing sources"
+            exit 1
+          fi
+
+          # Verify context is not empty
           context=$(echo "$resp" | jq -r '.context')
           if [ -z "$context" ] || [ "$context" = "null" ]; then
             echo "RAG context is empty"
             exit 1
           fi
 
+          echo "RAG context with sources verified"
+
       - name: Smoke Test - Batch Upsert
         run: |
           curl -fsS http://localhost:8111/v1/vectors:batch-upsert \
             -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
             -d '{
               "tenant_id":"ci-tenant",
               "namespace":"advisor",
-              "items":[
-                {"doc_id":"batch_001","text":"الذرة تحتاج تسميد نيتروجيني في مرحلة النمو الخضري.","metadata":{"crop":"corn"}},
-                {"doc_id":"batch_002","text":"البطاطس حساسة للملوحة العالية في التربة.","metadata":{"crop":"potato"}}
+              "documents":[
+                {"doc_id":"batch_001","text":"الذرة تحتاج تسميد نيتروجيني في مرحلة النمو الخضري.","metadata":{"crop":"corn","source":"advisor"}},
+                {"doc_id":"batch_002","text":"البطاطس حساسة للملوحة العالية في التربة.","metadata":{"crop":"potato","source":"advisor"}}
               ]
             }' | jq .
 
@@ -106,16 +152,19 @@ jobs:
           # Insert for tenant-A
           curl -fsS http://localhost:8111/v1/vectors:upsert \
             -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
             -d '{
               "tenant_id":"tenant-A",
               "namespace":"private",
               "doc_id":"secret_001",
-              "text":"بيانات سرية للمستأجر أ"
+              "text":"بيانات سرية للمستأجر أ",
+              "metadata":{"source":"private"}
             }'
 
           # Search from tenant-B should NOT find tenant-A data
           resp=$(curl -fsS http://localhost:8111/v1/vectors:search \
             -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
             -d '{
               "tenant_id":"tenant-B",
               "namespace":"private",
@@ -129,6 +178,28 @@ jobs:
             exit 1
           fi
           echo "Tenant isolation verified"
+
+      - name: Smoke Test - RAG Guardrail (no context flag)
+        run: |
+          # Search for something that doesn't exist
+          resp=$(curl -fsS http://localhost:8111/v1/rag:context \
+            -H "Content-Type: application/json" \
+            -H "X-Internal-Api-Key: ${{ env.CI_API_KEY }}" \
+            -d '{
+              "tenant_id":"empty-tenant",
+              "namespace":"empty",
+              "query":"nonexistent query xyz",
+              "top_k":3
+            }')
+          echo "$resp" | jq .
+
+          # Verify no_relevant_context flag is set
+          no_context=$(echo "$resp" | jq '.no_relevant_context')
+          if [ "$no_context" != "true" ]; then
+            echo "RAG guardrail failed - no_relevant_context should be true"
+            exit 1
+          fi
+          echo "RAG guardrail (no context flag) verified"
 
       - name: Cleanup
         if: always()

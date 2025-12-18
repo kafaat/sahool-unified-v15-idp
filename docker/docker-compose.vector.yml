@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  milvus:
+    image: milvusdb/milvus:v2.4.6
+    container_name: sahool_milvus
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_USE_EMBED: "true"
+      MINIO_USE_EMBED: "true"
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    volumes:
+      - milvus_data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "curl -fsS http://localhost:9091/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [sahool_net]
+
+  vector_service:
+    build:
+      context: ../kernel/services/vector_service
+    container_name: sahool_vector_service
+    env_file:
+      - ../.env.vector
+    depends_on:
+      milvus:
+        condition: service_healthy
+    ports:
+      - "8111:8111"
+    networks: [sahool_net]
+
+networks:
+  sahool_net:
+    external: true
+
+volumes:
+  milvus_data:

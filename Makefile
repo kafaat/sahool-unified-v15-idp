@@ -359,6 +359,37 @@ ai-check: ai-test ai-status ## Full AI check (tests + status)
 	@echo "✅ All AI checks passed!"
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Vector/RAG Service Commands (Milvus)
+# ─────────────────────────────────────────────────────────────────────────────
+
+vector-up: ## Start Milvus and Vector Service
+	@echo "🔷 Starting Milvus + Vector Service..."
+	docker compose -f docker/docker-compose.vector.yml up -d
+	@echo "✅ Vector Service running!"
+	@echo "   Milvus:         http://localhost:19530"
+	@echo "   Vector Service: http://localhost:8111"
+	@echo "   Health:         http://localhost:8111/health"
+
+vector-down: ## Stop Milvus and Vector Service
+	@echo "🛑 Stopping Vector Service..."
+	docker compose -f docker/docker-compose.vector.yml down
+
+vector-logs: ## Follow Vector Service logs
+	docker compose -f docker/docker-compose.vector.yml logs -f
+
+vector-status: ## Check Vector Service infrastructure
+	@echo "🔷 Vector Service Infrastructure Status"
+	@echo "──────────────────────────────────────"
+	@test -f kernel/services/vector_service/src/main.py && echo "✅ Main API: Present" || echo "❌ Main API: Missing"
+	@test -f kernel/services/vector_service/src/milvus_client.py && echo "✅ Milvus client: Present" || echo "❌ Milvus client: Missing"
+	@test -f kernel/services/vector_service/src/embedder.py && echo "✅ Embedder: Present" || echo "❌ Embedder: Missing"
+	@test -f kernel/services/vector_service/src/rag.py && echo "✅ RAG helpers: Present" || echo "❌ RAG helpers: Missing"
+	@test -f kernel/services/vector_service/src/schemas.py && echo "✅ Schemas: Present" || echo "❌ Schemas: Missing"
+	@test -f kernel/services/vector_service/src/settings.py && echo "✅ Settings: Present" || echo "❌ Settings: Missing"
+	@test -f docker/docker-compose.vector.yml && echo "✅ Docker Compose: Present" || echo "❌ Docker Compose: Missing"
+	@echo "──────────────────────────────────────"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Sync & Analytics Commands (Sprint 10-11)
 # ─────────────────────────────────────────────────────────────────────────────
 

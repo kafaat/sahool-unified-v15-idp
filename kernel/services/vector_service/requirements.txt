@@ -1,0 +1,7 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.2
+pydantic-settings==2.7.0
+pymilvus==2.4.9
+sentence-transformers==3.3.1
+numpy==2.1.3

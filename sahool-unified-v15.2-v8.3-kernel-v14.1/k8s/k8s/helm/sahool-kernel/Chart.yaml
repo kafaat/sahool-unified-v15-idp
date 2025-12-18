@@ -1,6 +1,0 @@
-apiVersion: v2
-name: sahool-kernel
-description: SAHOOL Kernel v15.2 (governed + secured + k8s)
-type: application
-version: 0.1.0
-appVersion: "15.2"

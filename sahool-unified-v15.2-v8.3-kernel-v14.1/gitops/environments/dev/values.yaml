@@ -1,5 +1,0 @@
-global:
-  environment: dev
-
-autoscaling:
-  enabled: false

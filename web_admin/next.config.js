@@ -21,18 +21,14 @@ const nextConfig = {
     enabled: false,
   },
 
-  // Handle build errors more gracefully
+  // TypeScript - strict mode enabled for production safety
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
-    ignoreBuildErrors: true,
+    // Do NOT ignore build errors - ensures type safety
+    ignoreBuildErrors: false,
   },
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
+    // Do NOT ignore ESLint errors - ensures code quality
+    ignoreDuringBuilds: false,
   },
 
   // Optimize for production

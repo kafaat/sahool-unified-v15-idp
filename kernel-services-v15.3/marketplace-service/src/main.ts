@@ -1,5 +1,5 @@
 /**
- * SAHOOL Marketplace & FinTech Service v15.3
+ * SAHOOL Marketplace & FinTech Service v16.0.0
  * سوق سهول والخدمات المالية
  *
  * Features:
@@ -11,6 +11,7 @@
 
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -24,15 +25,47 @@ async function bootstrap() {
     }),
   );
 
-  // CORS
+  // CORS - Secure configuration using environment variable
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
+    'https://sahool.com',
+    'https://app.sahool.com',
+    'https://admin.sahool.com',
+    'http://localhost:3000',
+    'http://localhost:8080',
+  ];
+
   app.enableCors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID'],
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Tenant-ID', 'X-Request-ID'],
+    credentials: true,
   });
 
   // Global prefix
   app.setGlobalPrefix('api/v1');
+
+  // Swagger/OpenAPI Documentation
+  const config = new DocumentBuilder()
+    .setTitle('SAHOOL Marketplace & FinTech API')
+    .setDescription(`
+      سوق سهول والخدمات المالية
+
+      ## Features
+      - **Marketplace**: Agricultural products B2B/B2C trading
+      - **Wallet**: Digital wallet management for farmers
+      - **Credit Scoring**: Farm data-based credit scoring
+      - **Loans**: Islamic finance compatible agricultural loans
+    `)
+    .setVersion('16.0.0')
+    .addTag('Market', 'Marketplace operations')
+    .addTag('Wallet', 'Digital wallet management')
+    .addTag('Loans', 'Agricultural loan services')
+    .addBearerAuth()
+    .addApiKey({ type: 'apiKey', name: 'X-Tenant-ID', in: 'header' }, 'tenant-id')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   const port = process.env.PORT || 3010;
   await app.listen(port);

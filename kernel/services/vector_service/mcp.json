@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "sahool-vector": {
+      "command": "python",
+      "args": ["-m", "src.mcp_server"],
+      "cwd": "/app",
+      "env": {
+        "MILVUS_HOST": "${MILVUS_HOST:-localhost}",
+        "MILVUS_PORT": "${MILVUS_PORT:-19530}",
+        "EMBEDDING_MODEL": "${EMBEDDING_MODEL:-intfloat/multilingual-e5-small}",
+        "COLLECTION_NAME": "${COLLECTION_NAME:-sahool_vectors}"
+      },
+      "description": "SAHOOL Vector Service - Agricultural Knowledge RAG",
+      "tools": [
+        {
+          "name": "search_knowledge",
+          "description": "Search SAHOOL's agricultural knowledge base for relevant information about crops, diseases, irrigation, weather impacts, etc."
+        },
+        {
+          "name": "get_rag_context",
+          "description": "Get formatted RAG context with source citations for building agricultural advice prompts"
+        },
+        {
+          "name": "add_knowledge",
+          "description": "Add new knowledge to SAHOOL's vector database for agricultural documents and expert knowledge"
+        }
+      ]
+    }
+  }
+}

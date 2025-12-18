@@ -2,13 +2,15 @@
 SAHOOL NDVI Engine - Main API Service
 Remote sensing NDVI computation and analysis
 Port: 8097
+
+Enhanced with multi-satellite support from satellite-service v15.3
 """
 
 import os
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from .compute import (
@@ -20,6 +22,13 @@ from .compute import (
     detect_anomalies,
 )
 from .events import get_publisher
+from .satellites import (
+    SatelliteSource,
+    compare_satellites,
+    extract_bands,
+    list_all_satellites,
+    simulate_imagery,
+)
 
 
 @asynccontextmanager
@@ -235,6 +244,225 @@ def get_health_status(ndvi_value: float):
         "ndvi": ndvi_value,
         "health_en": health_en,
         "health_ar": health_ar,
+    }
+
+
+# ============== Satellite Endpoints (from v15.3) ==============
+
+
+class SatelliteImageryRequest(BaseModel):
+    tenant_id: str
+    field_id: str
+    satellite: str = "sentinel-2"
+    cloud_cover_max: float = Field(default=20.0, ge=0, le=100)
+    correlation_id: Optional[str] = None
+
+
+@app.get("/satellites")
+def get_satellites():
+    """
+    List available satellite sources
+
+    Returns information about supported satellites:
+    - Sentinel-2: High resolution (10m), 5-day revisit
+    - Landsat-8/9: Medium resolution (30m), 16-day revisit
+    - MODIS: Daily coverage, lower resolution (250m)
+    """
+    return {
+        "satellites": list_all_satellites(),
+        "comparison": compare_satellites(),
+    }
+
+
+@app.get("/satellites/{satellite_id}")
+def get_satellite_info(satellite_id: str):
+    """Get detailed information about a specific satellite"""
+    try:
+        satellite = SatelliteSource(satellite_id.lower())
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown satellite: {satellite_id}. Use: sentinel-2, landsat-8, landsat-9, modis",
+        )
+
+    from .satellites import get_satellite_info as get_info
+
+    return get_info(satellite)
+
+
+@app.post("/satellites/imagery")
+async def request_satellite_imagery(req: SatelliteImageryRequest):
+    """
+    Request satellite imagery for a field
+
+    Simulates satellite imagery acquisition.
+    In production, integrates with SentinelHub, Google Earth Engine, etc.
+
+    Returns:
+        Band values, metadata, and scene information
+    """
+    try:
+        satellite = SatelliteSource(req.satellite.lower())
+    except ValueError:
+        satellite = SatelliteSource.SENTINEL2
+
+    imagery = simulate_imagery(
+        field_id=req.field_id,
+        satellite=satellite,
+        cloud_cover_max=req.cloud_cover_max,
+    )
+
+    # Extract standardized bands
+    bands = extract_bands(imagery)
+
+    # Calculate all indices
+    indices = calculate_vegetation_indices(
+        red=bands["red"],
+        nir=bands["nir"],
+        blue=bands.get("blue"),
+        green=bands.get("green"),
+        swir=bands.get("swir1"),
+    )
+
+    # Get health status
+    health_en, health_ar = classify_ndvi_health(indices.get("ndvi", 0))
+
+    return {
+        "field_id": req.field_id,
+        "satellite": {
+            "source": imagery.satellite.value,
+            "scene_id": imagery.scene_id,
+            "tile_id": imagery.tile_id,
+            "acquisition_date": imagery.acquisition_date.isoformat(),
+            "cloud_cover_pct": imagery.cloud_cover_pct,
+            "processing_level": imagery.processing_level,
+        },
+        "bands": {
+            b.band_id: {
+                "name": b.name,
+                "wavelength": b.wavelength_nm,
+                "resolution_m": b.resolution_m,
+                "value": b.value,
+            }
+            for b in imagery.bands
+        },
+        "indices": indices,
+        "health": {
+            "status_en": health_en,
+            "status_ar": health_ar,
+        },
+    }
+
+
+@app.post("/satellites/analyze")
+async def analyze_with_satellite(req: SatelliteImageryRequest):
+    """
+    Full field analysis using satellite data
+
+    Combines imagery acquisition with comprehensive vegetation analysis.
+    Returns health score, anomalies, and recommendations.
+    """
+    try:
+        satellite = SatelliteSource(req.satellite.lower())
+    except ValueError:
+        satellite = SatelliteSource.SENTINEL2
+
+    imagery = simulate_imagery(
+        field_id=req.field_id,
+        satellite=satellite,
+        cloud_cover_max=req.cloud_cover_max,
+    )
+
+    bands = extract_bands(imagery)
+    indices = calculate_vegetation_indices(
+        red=bands["red"],
+        nir=bands["nir"],
+        blue=bands.get("blue"),
+        green=bands.get("green"),
+        swir=bands.get("swir1"),
+    )
+
+    # Calculate health score (0-100)
+    ndvi = indices.get("ndvi", 0)
+    lai = indices.get("lai", 0)
+    ndmi = indices.get("ndmi", 0)
+
+    health_score = 50.0
+    anomalies = []
+
+    # NDVI contribution
+    if ndvi >= 0.6:
+        health_score += 20
+    elif ndvi >= 0.4:
+        health_score += 10
+    elif ndvi < 0.2:
+        health_score -= 20
+        anomalies.append("low_vegetation_cover")
+
+    # LAI contribution
+    if lai >= 3:
+        health_score += 10
+    elif lai < 1:
+        health_score -= 5
+        anomalies.append("sparse_leaf_coverage")
+
+    # Moisture contribution
+    if ndmi and ndmi < 0:
+        health_score -= 10
+        anomalies.append("moisture_deficit")
+
+    health_score = max(0, min(100, health_score))
+
+    # Health status
+    if health_score >= 80:
+        status = "excellent"
+        status_ar = "ممتاز"
+    elif health_score >= 60:
+        status = "good"
+        status_ar = "جيد"
+    elif health_score >= 40:
+        status = "fair"
+        status_ar = "متوسط"
+    elif health_score >= 20:
+        status = "poor"
+        status_ar = "ضعيف"
+    else:
+        status = "critical"
+        status_ar = "حرج"
+
+    # Generate recommendations
+    recommendations_ar = []
+    recommendations_en = []
+
+    if "low_vegetation_cover" in anomalies:
+        recommendations_ar.append("الغطاء النباتي منخفض - تحقق من صحة المحصول")
+        recommendations_en.append("Low vegetation - check crop health")
+
+    if "moisture_deficit" in anomalies:
+        recommendations_ar.append("نقص الرطوبة - ري تكميلي مطلوب")
+        recommendations_en.append("Moisture deficit - irrigation needed")
+
+    if "sparse_leaf_coverage" in anomalies:
+        recommendations_ar.append("تغطية الأوراق متناثرة - تحقق من التسميد")
+        recommendations_en.append("Sparse leaves - check fertilization")
+
+    if not anomalies:
+        recommendations_ar.append("المحصول في حالة صحية جيدة")
+        recommendations_en.append("Crop is healthy - continue current practices")
+
+    return {
+        "field_id": req.field_id,
+        "satellite": imagery.satellite.value,
+        "analysis_date": imagery.acquisition_date.isoformat(),
+        "indices": indices,
+        "health": {
+            "score": round(health_score, 1),
+            "status": status,
+            "status_ar": status_ar,
+        },
+        "anomalies": anomalies,
+        "recommendations_ar": recommendations_ar,
+        "recommendations_en": recommendations_en,
     }
 
 

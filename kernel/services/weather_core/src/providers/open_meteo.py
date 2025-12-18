@@ -304,5 +304,39 @@ class MockWeatherProvider:
 
         return forecasts
 
+    async def get_hourly_forecast(
+        self, lat: float, lon: float, hours: int = 48
+    ) -> list[HourlyForecast]:
+        """Mock hourly forecast for testing"""
+        from datetime import timedelta
+        import random
+
+        forecasts = []
+        now = datetime.utcnow()
+
+        for i in range(hours):
+            t = now + timedelta(hours=i)
+            hour = t.hour
+
+            # Simulate daily temperature variation
+            if 6 <= hour <= 18:
+                temp = 28 + (hour - 12) * 0.5 + random.uniform(-2, 2)
+            else:
+                temp = 22 + random.uniform(-2, 2)
+
+            forecasts.append(
+                HourlyForecast(
+                    datetime=t.isoformat(),
+                    temperature_c=round(temp, 1),
+                    humidity_pct=round(50 + random.uniform(-20, 20), 0),
+                    precipitation_mm=0 if random.random() > 0.1 else round(random.uniform(0, 5), 1),
+                    precipitation_probability_pct=round(random.uniform(0, 30), 0),
+                    wind_speed_kmh=round(10 + random.uniform(-5, 10), 1),
+                    cloud_cover_pct=round(random.uniform(0, 50), 0),
+                )
+            )
+
+        return forecasts
+
     async def close(self):
         pass

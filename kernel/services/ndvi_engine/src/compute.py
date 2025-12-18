@@ -185,6 +185,8 @@ def calculate_vegetation_indices(
     """
     Calculate multiple vegetation indices from band values
 
+    Enhanced with LAI, GNDVI, GRVI from satellite-service v15.3
+
     Args:
         red: Red band reflectance
         nir: Near-infrared band reflectance
@@ -195,6 +197,8 @@ def calculate_vegetation_indices(
     Returns:
         Dictionary of vegetation indices
     """
+    import math
+
     indices = {}
 
     # NDVI - Normalized Difference Vegetation Index
@@ -222,6 +226,29 @@ def calculate_vegetation_indices(
     # NDMI - Normalized Difference Moisture Index
     if swir and nir + swir != 0:
         indices["ndmi"] = (nir - swir) / (nir + swir)
+
+    # LAI - Leaf Area Index (estimated from NDVI)
+    # LAI = -ln((0.69 - NDVI) / 0.59) / 0.91
+    if "ndvi" in indices:
+        ndvi = indices["ndvi"]
+        if ndvi > 0 and ndvi < 0.69:
+            try:
+                lai = -math.log((0.69 - min(ndvi, 0.68)) / 0.59) / 0.91
+                indices["lai"] = max(0, min(lai, 8))
+            except (ValueError, ZeroDivisionError):
+                indices["lai"] = 0
+        elif ndvi >= 0.69:
+            indices["lai"] = 8.0  # Max LAI
+        else:
+            indices["lai"] = 0
+
+    # GNDVI - Green Normalized Difference Vegetation Index
+    if green and nir + green != 0:
+        indices["gndvi"] = (nir - green) / (nir + green)
+
+    # GRVI - Green-Red Vegetation Index
+    if green and green + red != 0:
+        indices["grvi"] = (green - red) / (green + red)
 
     return {k: round(v, 4) for k, v in indices.items()}
 

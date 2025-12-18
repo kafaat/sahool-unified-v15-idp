@@ -1,0 +1,16 @@
+# SAHOOL Base Requirements
+# ========================
+# Core dependencies shared across ALL Python microservices
+# Updated: December 2025
+# Version: 16.0.0
+
+# FastAPI Framework Stack
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+
+# Async HTTP Client
+httpx==0.28.1
+
+# Environment & Configuration
+python-dotenv==1.0.1

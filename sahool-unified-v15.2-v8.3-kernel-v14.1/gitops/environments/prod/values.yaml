@@ -1,7 +1,0 @@
-# GitOps Environment Overrides
-# This file is merged on top of chart defaults.
-global:
-  environment: prod
-
-autoscaling:
-  enabled: true

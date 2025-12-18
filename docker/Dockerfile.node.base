@@ -1,0 +1,86 @@
+# SAHOOL Base Docker Image for Node.js Services
+# ==============================================
+# Version: 16.0.0
+# Updated: December 2025
+
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-slim AS base
+
+# Build arguments
+ARG SERVICE_NAME=unknown
+ARG SERVICE_VERSION=0.0.0
+
+# Labels
+LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}"
+LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
+LABEL org.opencontainers.image.vendor="KAFAAT"
+
+# Environment
+ENV NODE_ENV=production \
+    NPM_CONFIG_LOGLEVEL=warn
+
+WORKDIR /app
+
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Dependencies Stage
+# ─────────────────────────────────────────────────────────────────────────────
+FROM base AS dependencies
+
+# Copy package files
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build Stage (for TypeScript)
+# ─────────────────────────────────────────────────────────────────────────────
+FROM dependencies AS builder
+
+# Install all dependencies (including dev)
+RUN npm ci
+
+# Copy source
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Production Stage
+# ─────────────────────────────────────────────────────────────────────────────
+FROM base AS production
+
+# Copy node_modules from dependencies stage
+COPY --from=dependencies /app/node_modules ./node_modules
+
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Set ownership
+RUN chown -R sahool:sahool /app
+
+# Switch to non-root user
+USER sahool
+
+# Default port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/healthz || exit 1
+
+# Default command
+CMD ["node", "dist/main.js"]

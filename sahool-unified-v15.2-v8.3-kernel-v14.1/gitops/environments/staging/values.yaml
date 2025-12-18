@@ -1,5 +1,0 @@
-global:
-  environment: staging
-
-autoscaling:
-  enabled: true

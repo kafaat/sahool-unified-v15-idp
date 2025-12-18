@@ -1,0 +1,147 @@
+{{- /*
+SAHOOL Argo Rollout Templates
+=============================
+Progressive delivery with canary or blue-green deployment strategies.
+Requires Argo Rollouts to be installed in the cluster.
+
+Usage in values.yaml:
+  services:
+    field-ops:
+      rollout:
+        enabled: true
+        strategy: canary  # or blueGreen
+        canary:
+          steps:
+            - setWeight: 20
+            - pause: {duration: 5m}
+            - setWeight: 50
+            - pause: {duration: 10m}
+            - setWeight: 80
+            - pause: {duration: 5m}
+*/ -}}
+
+{{- range $serviceName, $service := .Values.services }}
+{{- if and $service.enabled (default false $service.rollout.enabled) }}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $serviceName }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: rollout
+    app.kubernetes.io/part-of: sahool
+spec:
+  replicas: {{ default 2 $service.replicas }}
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $serviceName }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $serviceName }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ default 8080 $service.port }}"
+    spec:
+      containers:
+        - name: {{ $serviceName }}
+          image: "{{ $service.image.repository }}:{{ $service.image.tag }}"
+          imagePullPolicy: {{ default "IfNotPresent" $service.image.pullPolicy }}
+          ports:
+            - containerPort: {{ default 8080 $service.port }}
+              protocol: TCP
+          {{- if $service.env }}
+          env:
+            {{- range $key, $value := $service.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          {{- end }}
+          {{- if $service.resources }}
+          resources:
+            {{- toYaml $service.resources | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ default 8080 $service.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: {{ default 8080 $service.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+  strategy:
+    {{- if eq (default "canary" $service.rollout.strategy) "canary" }}
+    canary:
+      {{- if $service.rollout.canary.steps }}
+      steps:
+        {{- toYaml $service.rollout.canary.steps | nindent 8 }}
+      {{- else }}
+      # Default canary steps
+      steps:
+        - setWeight: 20
+        - pause: {duration: 2m}
+        - setWeight: 50
+        - pause: {duration: 5m}
+        - setWeight: 80
+        - pause: {duration: 2m}
+      {{- end }}
+      # Traffic routing
+      trafficRouting:
+        nginx:
+          stableIngress: {{ $serviceName }}-stable
+      # Analysis for automatic rollback
+      analysis:
+        templates:
+          - templateName: sahool-success-rate
+        args:
+          - name: service-name
+            value: {{ $serviceName }}
+    {{- else if eq $service.rollout.strategy "blueGreen" }}
+    blueGreen:
+      activeService: {{ $serviceName }}-active
+      previewService: {{ $serviceName }}-preview
+      autoPromotionEnabled: {{ default false $service.rollout.blueGreen.autoPromote }}
+      {{- if $service.rollout.blueGreen.autoPromotionSeconds }}
+      autoPromotionSeconds: {{ $service.rollout.blueGreen.autoPromotionSeconds }}
+      {{- end }}
+      prePromotionAnalysis:
+        templates:
+          - templateName: sahool-success-rate
+        args:
+          - name: service-name
+            value: {{ $serviceName }}
+    {{- end }}
+{{- end }}
+{{- end }}
+
+---
+# Analysis Template for Rollouts
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: sahool-success-rate
+  namespace: {{ .Release.Namespace }}
+spec:
+  args:
+    - name: service-name
+  metrics:
+    - name: success-rate
+      interval: 1m
+      count: 5
+      successCondition: result[0] >= 0.95
+      failureLimit: 3
+      provider:
+        prometheus:
+          address: http://prometheus:9090
+          query: |
+            sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}", status=~"2.."}[5m])) /
+            sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}"}[5m]))

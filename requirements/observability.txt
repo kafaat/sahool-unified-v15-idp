@@ -1,0 +1,15 @@
+# SAHOOL Observability Requirements
+# ==================================
+# Monitoring, logging, and tracing dependencies
+# Updated: December 2025
+
+# Prometheus Metrics
+prometheus-client==0.21.1
+
+# OpenTelemetry Stack
+opentelemetry-api==1.29.0
+opentelemetry-sdk==1.29.0
+opentelemetry-instrumentation-fastapi==0.50b0
+
+# Structured Logging
+structlog==24.4.0

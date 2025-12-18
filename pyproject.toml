@@ -3,6 +3,50 @@ name = "sahool-unified"
 version = "16.0.0"
 description = "SAHOOL - Smart Agricultural Platform for Yemen & Middle East"
 requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "Proprietary"}
+authors = [
+    {name = "KAFAAT Team", email = "dev@kafaat.io"}
+]
+
+[project.optional-dependencies]
+base = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.32.1",
+    "pydantic==2.10.3",
+    "httpx==0.28.1",
+    "python-dotenv==1.0.1",
+]
+infrastructure = [
+    "asyncpg==0.30.0",
+    "tortoise-orm==0.21.7",
+    "nats-py==2.9.0",
+    "redis==5.2.1",
+    "python-jose[cryptography]==3.3.0",
+    "passlib[bcrypt]==1.7.4",
+]
+observability = [
+    "prometheus-client==0.21.1",
+    "opentelemetry-api==1.29.0",
+    "opentelemetry-sdk==1.29.0",
+    "opentelemetry-instrumentation-fastapi==0.50b0",
+    "structlog==24.4.0",
+]
+testing = [
+    "pytest==8.3.4",
+    "pytest-asyncio==0.24.0",
+    "pytest-cov==4.1.0",
+    "pytest-mock==3.12.0",
+]
+ml = [
+    "Pillow==11.0.0",
+    "numpy==2.1.3",
+    "tensorflow-cpu==2.18.0",
+]
+dev = [
+    "ruff==0.8.4",
+    "pre-commit==4.0.1",
+]
 
 [tool.ruff]
 line-length = 100

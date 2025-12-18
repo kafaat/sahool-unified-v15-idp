@@ -1,5 +1,6 @@
 # SAHOOL Agro Rules Worker Dependencies
 # Updated: December 2025
+# Version: 16.0.0
 
 # Messaging
 nats-py==2.9.0

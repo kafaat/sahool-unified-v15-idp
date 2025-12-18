@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Task } from '@/lib/api'
+import { Task, api } from '@/lib/api'
 import { TaskCard } from './TaskCard'
 
 interface TaskListProps {
@@ -110,13 +110,24 @@ export function TaskList({ fieldId }: TaskListProps) {
   }, [fieldId])
 
   const handleComplete = async (taskId: string) => {
-    // Update local state
+    // Update local state optimistically
     setTasks((prev) =>
       prev.map((t) =>
         t.id === taskId ? { ...t, status: 'done' as const } : t
       )
     )
-    // TODO: Call API
+
+    try {
+      await api.completeTask(taskId)
+    } catch (error) {
+      // Revert on failure
+      console.error('Failed to complete task:', error)
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? { ...t, status: 'open' as const } : t
+        )
+      )
+    }
   }
 
   const filteredTasks = tasks.filter((task) => {

@@ -1,0 +1,33 @@
+{{- /*
+SAHOOL Pod Disruption Budget Templates
+======================================
+Ensures high availability during node maintenance and cluster upgrades.
+*/ -}}
+
+{{- range $serviceName, $service := .Values.services }}
+{{- if and $service.enabled (default false $service.pdb.enabled) }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $serviceName }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: pdb
+    app.kubernetes.io/part-of: sahool
+spec:
+  {{- if $service.pdb.minAvailable }}
+  minAvailable: {{ $service.pdb.minAvailable }}
+  {{- else if $service.pdb.maxUnavailable }}
+  maxUnavailable: {{ $service.pdb.maxUnavailable }}
+  {{- else }}
+  minAvailable: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $serviceName }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+{{- end }}
+{{- end }}

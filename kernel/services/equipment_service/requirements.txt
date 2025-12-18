@@ -1,11 +1,9 @@
 # SAHOOL Equipment Service Dependencies
 # Updated: December 2025
+# Version: 16.0.0
 
-# Web Framework
-fastapi==0.115.6
-uvicorn[standard]==0.32.1
-pydantic==2.10.3
+# Include shared base requirements
+-r ../../../requirements/base.txt
+
+# Service-specific dependencies
 python-multipart==0.0.18
-
-# Utilities
-python-dotenv==1.0.1

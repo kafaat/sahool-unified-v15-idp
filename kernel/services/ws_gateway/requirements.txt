@@ -1,21 +1,13 @@
 # SAHOOL WebSocket Gateway Dependencies
 # Updated: December 2025
+# Version: 16.0.0
 
-# Web Framework
-fastapi==0.115.6
-uvicorn[standard]==0.32.1
-pydantic==2.10.3
+# Include shared base requirements
+-r ../../../requirements/base.txt
 
-# WebSockets
+# Include infrastructure requirements (for redis, jose)
+-r ../../../requirements/infrastructure.txt
+
+# Service-specific dependencies
 websockets==14.1
-
-# Messaging & Cache
-nats-py==2.9.0
-redis==5.2.1
-
-# Security
-python-jose[cryptography]==3.3.0
-
-# Utilities
 python-dateutil==2.8.2
-python-dotenv==1.0.1

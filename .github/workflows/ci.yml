@@ -78,7 +78,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-asyncio pytest-cov httpx pyjwt fastapi pydantic jsonschema sqlalchemy
+          pip install pytest pytest-asyncio pytest-cov httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm
 
       - name: Run unified tests with coverage
         run: |
@@ -94,6 +94,7 @@ jobs:
         uses: codecov/codecov-action@v4
         if: always()
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -117,7 +118,7 @@ jobs:
 
       - name: Run architecture smoke tests
         run: |
-          pip install pytest
+          pip install pytest pytest-cov
           pytest tests/smoke/test_arch_imports.py -v
         env:
           PYTHONPATH: .
@@ -141,7 +142,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pydantic jsonschema pytest
+          pip install pydantic jsonschema pytest pytest-cov
 
       - name: Validate event schemas
         run: |
@@ -399,7 +400,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pydantic sqlalchemy
+          pip install pytest pytest-cov pydantic sqlalchemy
 
       - name: Verify audit infrastructure
         run: |
@@ -460,7 +461,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pydantic sqlalchemy
+          pip install pytest pytest-cov pydantic sqlalchemy
 
       - name: Verify GIS hierarchy models
         run: |
@@ -513,7 +514,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pydantic sqlalchemy
+          pip install pytest pytest-cov pydantic sqlalchemy
 
       - name: Verify NDVI engine modules
         run: |
@@ -587,7 +588,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pydantic
+          pip install pytest pytest-cov pydantic
 
       - name: Verify AI modules
         run: |

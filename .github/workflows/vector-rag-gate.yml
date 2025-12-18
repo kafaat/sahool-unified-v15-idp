@@ -1,0 +1,136 @@
+name: Vector RAG Gate (Milvus + RAG)
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "kernel/services/vector_service/**"
+      - "docker/docker-compose.vector.yml"
+      - ".env.vector.example"
+  workflow_dispatch:
+
+jobs:
+  rag-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose jq curl
+
+      - name: Prepare env (vector)
+        run: |
+          cp .env.vector.example .env.vector
+          chmod 600 .env.vector
+
+      - name: Build & Start Milvus + Vector Service
+        run: |
+          docker network create sahool_net || true
+          docker-compose -f docker/docker-compose.vector.yml up -d --build
+          echo "Waiting for services..."
+          for i in {1..30}; do
+            curl -fsS http://localhost:8111/health && break
+            sleep 2
+          done
+
+      - name: Smoke Test - Upsert Vector
+        run: |
+          curl -fsS http://localhost:8111/v1/vectors:upsert \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tenant_id":"ci-tenant",
+              "namespace":"advisor",
+              "doc_id":"ci_case_001",
+              "text":"ضعف نمو القمح مع ري جيد قد يشير لملوحة أو نقص عناصر دقيقة.",
+              "metadata":{"crop":"wheat","region":"Marib","season":"2024"}
+            }' | jq .
+
+      - name: Smoke Test - Search (RAG)
+        run: |
+          resp=$(curl -fsS http://localhost:8111/v1/vectors:search \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tenant_id":"ci-tenant",
+              "namespace":"advisor",
+              "query":"لماذا القمح ضعيف رغم الري؟",
+              "top_k":3
+            }')
+          echo "$resp" | jq .
+          hits=$(echo "$resp" | jq '.hits | length')
+          if [ "$hits" -lt 1 ]; then
+            echo "No hits returned from vector search"
+            exit 1
+          fi
+
+      - name: Smoke Test - RAG Context
+        run: |
+          resp=$(curl -fsS http://localhost:8111/v1/rag:context \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tenant_id":"ci-tenant",
+              "namespace":"advisor",
+              "query":"مشاكل القمح",
+              "top_k":3,
+              "max_chars":2000
+            }')
+          echo "$resp" | jq .
+          context=$(echo "$resp" | jq -r '.context')
+          if [ -z "$context" ] || [ "$context" = "null" ]; then
+            echo "RAG context is empty"
+            exit 1
+          fi
+
+      - name: Smoke Test - Batch Upsert
+        run: |
+          curl -fsS http://localhost:8111/v1/vectors:batch-upsert \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tenant_id":"ci-tenant",
+              "namespace":"advisor",
+              "items":[
+                {"doc_id":"batch_001","text":"الذرة تحتاج تسميد نيتروجيني في مرحلة النمو الخضري.","metadata":{"crop":"corn"}},
+                {"doc_id":"batch_002","text":"البطاطس حساسة للملوحة العالية في التربة.","metadata":{"crop":"potato"}}
+              ]
+            }' | jq .
+
+      - name: Smoke Test - Multi-tenant Isolation
+        run: |
+          # Insert for tenant-A
+          curl -fsS http://localhost:8111/v1/vectors:upsert \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tenant_id":"tenant-A",
+              "namespace":"private",
+              "doc_id":"secret_001",
+              "text":"بيانات سرية للمستأجر أ"
+            }'
+
+          # Search from tenant-B should NOT find tenant-A data
+          resp=$(curl -fsS http://localhost:8111/v1/vectors:search \
+            -H "Content-Type: application/json" \
+            -d '{
+              "tenant_id":"tenant-B",
+              "namespace":"private",
+              "query":"بيانات سرية",
+              "top_k":5
+            }')
+          echo "$resp" | jq .
+          hits=$(echo "$resp" | jq '.hits | length')
+          if [ "$hits" -gt 0 ]; then
+            echo "SECURITY VIOLATION: Tenant isolation broken!"
+            exit 1
+          fi
+          echo "Tenant isolation verified"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose -f docker/docker-compose.vector.yml down -v

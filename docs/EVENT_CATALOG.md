@@ -1,7 +1,7 @@
 # Event Catalog
 
 > Auto-generated from `shared/contracts/events/registry.json`
-> Generated: 2025-12-17 19:55:49
+> Generated: 2025-12-17 20:41:54
 
 ## Overview
 

@@ -12,7 +12,8 @@ Usage:
 from __future__ import annotations
 
 import json
-from datetime import datetime
+import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -32,16 +33,37 @@ def load_schema(filename: str) -> dict:
     return json.loads(schema_path.read_text(encoding="utf-8"))
 
 
+def get_latest_schema_mtime() -> datetime:
+    """Get the latest modification time from schema files for deterministic timestamps."""
+    events_dir = REGISTRY_FILE.parent
+    latest_mtime = 0.0
+
+    # Check registry file and all schema files
+    for path in events_dir.glob("*.json"):
+        mtime = path.stat().st_mtime
+        if mtime > latest_mtime:
+            latest_mtime = mtime
+
+    if latest_mtime == 0.0:
+        # Fallback to registry file mtime
+        latest_mtime = REGISTRY_FILE.stat().st_mtime
+
+    return datetime.fromtimestamp(latest_mtime, tz=timezone.utc)
+
+
 def generate_catalog() -> str:
     """Generate the event catalog markdown"""
     data = load_registry()
     schemas = data.get("schemas", [])
 
+    # Use deterministic timestamp based on schema file modification times
+    generated_time = get_latest_schema_mtime().strftime("%Y-%m-%d %H:%M:%S")
+
     lines = [
         "# Event Catalog",
         "",
         "> Auto-generated from `shared/contracts/events/registry.json`",
-        f"> Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+        f"> Generated: {generated_time}",
         "",
         "## Overview",
         "",

@@ -26,7 +26,14 @@ from shared.libs.audit.redact import (
     redact_dict,
     redact_value,
 )
-from shared.libs.audit.middleware import AuditContext
+
+# Optional import for AuditContext (requires starlette)
+try:
+    from shared.libs.audit.middleware import AuditContext
+    HAS_STARLETTE = True
+except ImportError:
+    AuditContext = None  # type: ignore
+    HAS_STARLETTE = False
 
 
 # ---------------------------------------------------------------------------
@@ -286,6 +293,7 @@ class TestRedaction:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.skipif(not HAS_STARLETTE, reason="starlette not installed")
 class TestAuditContext:
     """Test audit context management"""
 
@@ -381,6 +389,7 @@ class TestAuditLogModel:
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.skipif(not HAS_STARLETTE, reason="starlette not installed")
 class TestAuditIntegration:
     """Integration tests for audit flow"""
 

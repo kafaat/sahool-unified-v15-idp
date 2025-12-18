@@ -8,7 +8,8 @@ from datetime import date
 import sys
 sys.path.insert(0, "kernel/services/ndvi_engine/src")
 
-from analytics import (
+# Use absolute imports to avoid import errors
+from kernel.services.ndvi_engine.src.analytics import (
     compute_trend,
     compute_linear_trend,
     summarize,

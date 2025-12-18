@@ -1,0 +1,152 @@
+# SAHOOL Prometheus Configuration
+# ================================
+# Version: 16.0.0
+# Updated: December 2025
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'sahool-prod'
+    environment: '${ENVIRONMENT:-development}'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Rule files
+rule_files:
+  - /etc/prometheus/alerts/*.yml
+  - /etc/prometheus/rules/*.yml
+
+# Scrape configurations
+scrape_configs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Prometheus self-monitoring
+  # ─────────────────────────────────────────────────────────────────────────
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # SAHOOL Kernel Services (Python/FastAPI)
+  # ─────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-kernel-services'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets:
+        - 'field-ops:8080'
+        - 'weather-core:8080'
+        - 'ndvi-engine:8080'
+        - 'crop-health:8080'
+        - 'task-service:8080'
+        - 'agro-advisor:8080'
+        - 'iot-gateway:8080'
+        - 'ws-gateway:8080'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        regex: '([^:]+):.*'
+        replacement: '${1}'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # SAHOOL Kernel Services v15.3 (Enhanced)
+  # ─────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-kernel-v15'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets:
+        - 'crop-health-ai:8080'
+        - 'fertilizer-advisor:8080'
+        - 'irrigation-smart:8080'
+        - 'satellite-service:8080'
+        - 'weather-advanced:8080'
+        - 'yield-engine:8080'
+        - 'virtual-sensors:8080'
+        - 'indicators-service:8080'
+        - 'notification-service:8080'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        regex: '([^:]+):.*'
+        replacement: '${1}'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Node.js Services
+  # ─────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-node-services'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets:
+        - 'marketplace-service:3000'
+        - 'iot-service:3000'
+        - 'community-chat:3000'
+        - 'field-core:3000'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        regex: '([^:]+):.*'
+        replacement: '${1}'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Frontend Services
+  # ─────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-frontends'
+    metrics_path: '/api/metrics'
+    static_configs:
+      - targets:
+        - 'dashboard:3000'
+        - 'admin-dashboard:3001'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Infrastructure Components
+  # ─────────────────────────────────────────────────────────────────────────
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  - job_name: 'nats'
+    static_configs:
+      - targets: ['nats:8222']
+    metrics_path: '/varz'
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Kubernetes Service Discovery (for K8s deployments)
+  # ─────────────────────────────────────────────────────────────────────────
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      # Only scrape pods with prometheus.io/scrape annotation
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      # Use custom port if specified
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: (.+)
+        replacement: ${1}
+      # Use custom path if specified
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      # Add pod labels
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      # Add namespace label
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      # Add pod name label
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name

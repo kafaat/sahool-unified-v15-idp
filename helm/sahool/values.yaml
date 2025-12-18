@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Helm Chart Values
-# v15.3.2
+# v16.0.0
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Global settings
@@ -92,7 +92,7 @@ services:
     name: field-ops
     image:
       repository: sahool/field-ops
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8080
     replicaCount: 2
     resources:
@@ -102,60 +102,115 @@ services:
       requests:
         cpu: 200m
         memory: 256Mi
+    # Autoscaling configuration
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilization: 70
+      targetMemoryUtilization: 80
+    # Pod Disruption Budget
+    pdb:
+      enabled: true
+      minAvailable: 1
+    # Progressive Delivery (requires Argo Rollouts)
+    rollout:
+      enabled: false  # Enable for canary deployments
+      strategy: canary
+      canary:
+        steps:
+          - setWeight: 20
+          - pause: {duration: 2m}
+          - setWeight: 50
+          - pause: {duration: 5m}
+          - setWeight: 80
+          - pause: {duration: 2m}
 
   ndviEngine:
     enabled: true
     name: ndvi-engine
     image:
       repository: sahool/ndvi-engine
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8097
     replicaCount: 1
+    autoscaling:
+      enabled: false
+    pdb:
+      enabled: false
 
   weatherCore:
     enabled: true
     name: weather-core
     image:
       repository: sahool/weather-core
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8098
     replicaCount: 1
+    autoscaling:
+      enabled: false
+    pdb:
+      enabled: false
 
   fieldChat:
     enabled: true
     name: field-chat
     image:
       repository: sahool/field-chat
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8099
     replicaCount: 2
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 8
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
 
   iotGateway:
     enabled: true
     name: iot-gateway
     image:
       repository: sahool/iot-gateway
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8094
     replicaCount: 1
+    autoscaling:
+      enabled: false
+    pdb:
+      enabled: false
 
   agroAdvisor:
     enabled: true
     name: agro-advisor
     image:
       repository: sahool/agro-advisor
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8095
     replicaCount: 1
+    autoscaling:
+      enabled: false
+    pdb:
+      enabled: false
 
   wsGateway:
     enabled: true
     name: ws-gateway
     image:
       repository: sahool/ws-gateway
-      tag: "15.3.2"
+      tag: "16.0.0"
     port: 8090
     replicaCount: 2
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 10
+      targetCPUUtilization: 60
+    pdb:
+      enabled: true
+      minAvailable: 1
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Ingress Configuration

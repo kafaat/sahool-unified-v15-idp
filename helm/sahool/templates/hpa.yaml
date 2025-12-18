@@ -1,0 +1,76 @@
+{{- /*
+SAHOOL Horizontal Pod Autoscaler Templates
+==========================================
+Provides CPU/Memory-based and custom metrics autoscaling for all services.
+*/ -}}
+
+{{- range $serviceName, $service := .Values.services }}
+{{- if and $service.enabled (default false $service.autoscaling.enabled) }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $serviceName }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $serviceName }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/component: autoscaler
+    app.kubernetes.io/part-of: sahool
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $serviceName }}
+  minReplicas: {{ default 1 $service.autoscaling.minReplicas }}
+  maxReplicas: {{ default 10 $service.autoscaling.maxReplicas }}
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ default 70 $service.autoscaling.targetCPUUtilization }}
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ default 80 $service.autoscaling.targetMemoryUtilization }}
+    {{- if $service.autoscaling.customMetrics }}
+    # Custom metrics (e.g., requests per second, queue length)
+    {{- range $metric := $service.autoscaling.customMetrics }}
+    - type: Pods
+      pods:
+        metric:
+          name: {{ $metric.name }}
+        target:
+          type: AverageValue
+          averageValue: {{ $metric.targetValue }}
+    {{- end }}
+    {{- end }}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: {{ default 300 $service.autoscaling.scaleDownStabilization }}
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+        - type: Pods
+          value: 1
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: {{ default 0 $service.autoscaling.scaleUpStabilization }}
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 15
+        - type: Pods
+          value: 4
+          periodSeconds: 15
+      selectPolicy: Max
+{{- end }}
+{{- end }}

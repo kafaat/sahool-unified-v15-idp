@@ -145,3 +145,147 @@ class ChatAttachment(Model):
 
     class Meta:
         table = "chat_attachments"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Expert Support System - نظام دعم الخبراء
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class ExpertRequestStatus(str, Enum):
+    """Status of expert support request"""
+
+    PENDING = "pending"  # في انتظار خبير
+    ACCEPTED = "accepted"  # تم القبول
+    IN_PROGRESS = "in_progress"  # جاري التنفيذ
+    RESOLVED = "resolved"  # تم الحل
+    CANCELLED = "cancelled"  # ملغي
+
+
+class ExpertSpecialty(str, Enum):
+    """Expert specialties"""
+
+    CROP_DISEASES = "crop_diseases"  # أمراض المحاصيل
+    IRRIGATION = "irrigation"  # الري
+    SOIL = "soil"  # التربة
+    PEST_CONTROL = "pest_control"  # مكافحة الآفات
+    FERTILIZATION = "fertilization"  # التسميد
+    GENERAL = "general"  # عام
+
+
+class ExpertProfile(Model):
+    """
+    Expert profile for agricultural consultants
+    ملف تعريف الخبير الزراعي
+    """
+
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    user_id = fields.CharField(max_length=64, unique=True, index=True)
+
+    # Profile info
+    name = fields.CharField(max_length=128)
+    name_ar = fields.CharField(max_length=128, null=True)
+    specialties = fields.JSONField(default=list)  # List of ExpertSpecialty values
+    bio = fields.TextField(null=True)
+    bio_ar = fields.TextField(null=True)
+
+    # Availability
+    is_available = fields.BooleanField(default=True)
+    governorates = fields.JSONField(default=list)  # Covered governorates
+
+    # Stats
+    total_consultations = fields.IntField(default=0)
+    avg_rating = fields.FloatField(default=5.0)
+    rating_count = fields.IntField(default=0)
+
+    # Status
+    is_verified = fields.BooleanField(default=False)
+    is_active = fields.BooleanField(default=True)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    last_online_at = fields.DatetimeField(null=True)
+
+    class Meta:
+        table = "expert_profiles"
+        indexes = [
+            ("tenant_id", "is_available"),
+            ("tenant_id", "is_active"),
+        ]
+
+
+class ExpertSupportRequest(Model):
+    """
+    Support request from farmer to expert
+    طلب دعم من المزارع للخبير
+    """
+
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+
+    # Farmer info
+    farmer_id = fields.CharField(max_length=64, index=True)
+    farmer_name = fields.CharField(max_length=128)
+    governorate = fields.CharField(max_length=64, null=True)
+
+    # Request details
+    topic = fields.CharField(max_length=255)
+    topic_ar = fields.CharField(max_length=255, null=True)
+    description = fields.TextField(null=True)
+    specialty_needed = fields.CharField(max_length=32, default="general")
+
+    # Linked resources
+    field_id = fields.CharField(max_length=64, null=True)
+    diagnosis_id = fields.CharField(max_length=64, null=True)  # Link to crop_health diagnosis
+    thread_id = fields.UUIDField(null=True, index=True)  # Chat thread for this request
+
+    # Expert assignment
+    expert_id = fields.CharField(max_length=64, null=True, index=True)
+    expert_name = fields.CharField(max_length=128, null=True)
+
+    # Status
+    status = fields.CharField(max_length=16, default="pending", index=True)
+    priority = fields.CharField(max_length=16, default="normal")  # low|normal|high|urgent
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True)
+    accepted_at = fields.DatetimeField(null=True)
+    resolved_at = fields.DatetimeField(null=True)
+
+    # Resolution
+    resolution_notes = fields.TextField(null=True)
+    resolution_notes_ar = fields.TextField(null=True)
+    farmer_rating = fields.IntField(null=True)  # 1-5
+    farmer_feedback = fields.TextField(null=True)
+
+    class Meta:
+        table = "expert_support_requests"
+        indexes = [
+            ("tenant_id", "status"),
+            ("tenant_id", "farmer_id"),
+            ("tenant_id", "created_at"),
+        ]
+
+
+class OnlineExpert(Model):
+    """
+    Track online experts for real-time availability
+    تتبع الخبراء المتصلين
+    """
+
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=64, index=True)
+    expert_id = fields.CharField(max_length=64, index=True)
+    connection_id = fields.CharField(max_length=128, unique=True)
+
+    # Status
+    is_busy = fields.BooleanField(default=False)
+    current_request_id = fields.UUIDField(null=True)
+
+    connected_at = fields.DatetimeField(auto_now_add=True)
+    last_heartbeat = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "online_experts"
+        indexes = [
+            ("tenant_id", "is_busy"),
+        ]

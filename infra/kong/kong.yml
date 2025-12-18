@@ -253,6 +253,30 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
+  # LAI Estimation Service - خدمة تقدير مؤشر مساحة الأوراق (v16.0)
+  # Based on LAI-TransNet research (AI in Agriculture 2025, IF: 12.4)
+  - name: lai-estimation-upstream
+    targets:
+      - target: sahool-lai-estimation:3022
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/lai/health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
 # Note: RSA public keys are provided via environment variables
@@ -830,6 +854,55 @@ services:
             config:
               minute: 60
               hour: 1000
+              policy: local
+
+  # LAI Estimation Service - خدمة تقدير مؤشر مساحة الأوراق
+  # Based on LAI-TransNet Two-Stage Transfer Learning (AI in Agriculture 2025)
+  - name: lai-estimation-service
+    host: lai-estimation-upstream
+    port: 3022
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 90000
+    read_timeout: 90000
+    routes:
+      - name: lai-estimation-route
+        paths:
+          - /api/v1/lai/estimate
+          - /api/v1/lai/calculate
+          - /api/v1/lai/timeseries
+          - /api/v1/lai/compare
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # LAI estimation uses ML models - moderate rate limiting
+              minute: 30
+              hour: 500
+              policy: local
+      - name: vegetation-indices-route
+        paths:
+          - /api/v1/indices
+          - /api/v1/indices/calculate
+          - /api/v1/indices/health
+          - /api/v1/indices/info
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
+      - name: lai-model-route
+        paths:
+          - /api/v1/lai/model
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 300
               policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,26 +1,16 @@
 # SAHOOL Field Chat Dependencies
 # Updated: December 2025
+# Version: 16.0.0
 
-# Web Framework
-fastapi==0.115.6
-uvicorn[standard]==0.32.1
-pydantic==2.10.3
+# Include shared base requirements
+-r ../../../requirements/base.txt
 
-# HTTP Client
-httpx==0.28.1
+# Include infrastructure requirements (for asyncpg, tortoise-orm)
+-r ../../../requirements/infrastructure.txt
 
-# Messaging
+# Service-specific dependencies
 nats-py==2.9.0
-
-# Database
-tortoise-orm==0.21.7
-asyncpg==0.30.0
 aerich==0.7.2
 aiosqlite==0.20.0
-
-# WebSockets
 websockets==14.1
-
-# Utilities
 python-dateutil==2.8.2
-python-dotenv==1.0.1

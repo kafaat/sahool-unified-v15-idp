@@ -187,6 +187,7 @@ upstreams:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
+# Note: RSA public keys are provided via environment variables
 # ─────────────────────────────────────────────────────────────────────────────
 
 consumers:
@@ -195,21 +196,21 @@ consumers:
     jwt_secrets:
       - key: sahool-web-key
         algorithm: RS256
-        rsa_public_key: ${SAHOOL_WEB_JWT_PUBLIC_KEY}   # RSA public key is provided via environment variable
+        rsa_public_key: ${SAHOOL_WEB_JWT_PUBLIC_KEY}
 
   - username: sahool-mobile-app
     custom_id: mobile-client
     jwt_secrets:
       - key: sahool-mobile-key
         algorithm: RS256
-        rsa_public_key: ${SAHOOL_MOBILE_JWT_PUBLIC_KEY}   # RSA public key is provided via environment variable
+        rsa_public_key: ${SAHOOL_MOBILE_JWT_PUBLIC_KEY}
 
   - username: sahool-internal-service
     custom_id: internal-service
     jwt_secrets:
       - key: sahool-internal-key
         algorithm: RS256
-        rsa_public_key: ${SAHOOL_INTERNAL_JWT_PUBLIC_KEY}   # RSA public key is provided via environment variable
+        rsa_public_key: ${SAHOOL_INTERNAL_JWT_PUBLIC_KEY}
 
   # Anonymous consumer for public endpoints (health checks, docs, etc.)
   - username: anonymous
@@ -312,7 +313,8 @@ services:
         plugins:
           - name: rate-limiting
             config:
-              # IoT devices send frequent sensor readings and telemetry data
+              # IoT devices typically send sensor readings every 30 seconds (200/min = ~3 devices/user)
+              # Higher limits accommodate multiple devices per farm with real-time telemetry
               minute: 200
               hour: 10000
               policy: local
@@ -333,7 +335,8 @@ services:
         plugins:
           - name: rate-limiting
             config:
-              # AI-powered advisor service is resource-intensive with longer processing times
+              # AI-powered advisor service requires significant compute resources (5-30s per request)
+              # Lower limits prevent resource exhaustion while supporting typical user workflows
               minute: 30
               hour: 500
               policy: local
@@ -723,7 +726,12 @@ plugins:
   # Request Size Limiting
   - name: request-size-limiting
     config:
-      # Increased to 100MB for large file uploads (satellite imagery, crop health images)
+      # Set to 100MB for large file uploads (satellite imagery, crop health images)
+      # NOTE: This high limit should be paired with:
+      # 1. File type validation at application layer
+      # 2. Authenticated upload endpoints (JWT required)
+      # 3. Rate limiting on upload endpoints
+      # 4. Consider implementing streaming uploads for very large files
       allowed_payload_size: 100
       size_unit: megabytes
       require_content_length: false

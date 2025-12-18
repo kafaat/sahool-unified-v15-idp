@@ -1052,6 +1052,27 @@ services:
               minute: 120
               hour: 3000
               policy: local
+      # Irrigation Decision Support - خدمة دعم قرارات الري الذكية
+      # Integrates FAO-56, Threshold Control, and Crop Growth Models
+      - name: irrigation-decision-route
+        paths:
+          - /api/v1/irrigation-decision
+          - /api/v1/irrigation-decision/method-selector
+          - /api/v1/irrigation-decision/calculate-etc
+          - /api/v1/irrigation-decision/threshold-control
+          - /api/v1/irrigation-decision/smart-schedule
+          - /api/v1/irrigation-decision/compare-methods
+          - /api/v1/irrigation-decision/quick-recommend
+          - /api/v1/irrigation-decision/crops
+          - /api/v1/irrigation-decision/soils
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Irrigation decision calculations - moderate compute
+              minute: 60
+              hour: 1500
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins

@@ -1,0 +1,32 @@
+{
+  "name": "sahool-unified",
+  "version": "16.0.0",
+  "description": "SAHOOL - Smart Agricultural Platform for Yemen & Middle East",
+  "private": true,
+  "workspaces": [
+    "frontend/dashboard",
+    "web_admin",
+    "kernel-services-v15.3/marketplace-service",
+    "kernel-services-v15.3/iot-service",
+    "kernel-services-v15.3/community-chat",
+    "kernel/services/field_core",
+    "services/research_core"
+  ],
+  "scripts": {
+    "dev:dashboard": "npm run dev --workspace=frontend/dashboard",
+    "dev:admin": "npm run dev --workspace=web_admin",
+    "build:all": "npm run build --workspaces --if-present",
+    "lint:all": "npm run lint --workspaces --if-present",
+    "type-check": "npm run type-check --workspaces --if-present",
+    "clean": "rm -rf node_modules **/node_modules"
+  },
+  "devDependencies": {
+    "typescript": "5.7.2",
+    "@types/node": "22.10.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@10.9.0"
+}

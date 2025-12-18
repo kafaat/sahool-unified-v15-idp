@@ -1,0 +1,21 @@
+# SAHOOL Infrastructure Requirements
+# ===================================
+# Shared infrastructure dependencies for services with data/messaging needs
+# Updated: December 2025
+
+# Include base requirements
+-r base.txt
+
+# Database & ORM
+asyncpg==0.30.0
+tortoise-orm==0.21.7
+
+# NATS Messaging
+nats-py==2.9.0
+
+# Redis Caching
+redis==5.2.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4

@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Platform - Kong API Gateway Configuration
 # Declarative configuration for DB-less mode
-# Version: 16.0.0 - Security Enhanced
+# Version: 15.3 - Security Enhanced
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _format_version: "3.0"
@@ -11,493 +11,183 @@ _transform: true
 # Upstreams with Health Checks
 # ─────────────────────────────────────────────────────────────────────────────
 
+# YAML anchor for standard healthcheck configuration
+x-healthcheck-config: &standard-healthcheck
+  active:
+    type: http
+    http_path: /health
+    healthy:
+      interval: 10
+      successes: 2
+    unhealthy:
+      interval: 5
+      http_failures: 3
+      timeouts: 3
+  passive:
+    healthy:
+      successes: 5
+    unhealthy:
+      http_failures: 5
+      timeouts: 3
+
 upstreams:
   - name: field-ops-upstream
     targets:
       - target: sahool-field-ops:8080
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: ndvi-engine-upstream
     targets:
       - target: sahool-ndvi-engine:8107
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: weather-upstream
     targets:
       - target: sahool-weather-core:8108
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: chat-upstream
     targets:
       - target: sahool-field-chat:8099
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: iot-upstream
     targets:
       - target: sahool-iot-gateway:8106
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: advisor-upstream
     targets:
       - target: sahool-agro-advisor:8105
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: ws-gateway-upstream
     targets:
       - target: sahool-ws-gateway:8089
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: crop-health-upstream
     targets:
       - target: sahool-crop-health:8100
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: field-core-upstream
     targets:
       - target: sahool-field-core:3000
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: task-upstream
     targets:
       - target: sahool-task-service:8103
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: equipment-upstream
     targets:
       - target: sahool-equipment-service:8101
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: community-upstream
     targets:
       - target: sahool-community-service:8102
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: provider-config-upstream
     targets:
       - target: sahool-provider-config:8104
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: satellite-upstream
     targets:
       - target: sahool-satellite-service:8090
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: indicators-upstream
     targets:
       - target: sahool-indicators-service:8091
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: weather-advanced-upstream
     targets:
       - target: sahool-weather-advanced:8092
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: fertilizer-upstream
     targets:
       - target: sahool-fertilizer-advisor:8093
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: irrigation-upstream
     targets:
       - target: sahool-irrigation-smart:8094
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: crop-health-ai-upstream
     targets:
       - target: sahool-crop-health-ai:8095
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: virtual-sensors-upstream
     targets:
       - target: sahool-virtual-sensors:8096
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: community-chat-upstream
     targets:
       - target: sahool-community-chat:8097
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
   - name: yield-engine-upstream
     targets:
       - target: sahool-yield-engine:8098
         weight: 100
     healthchecks:
-      active:
-        type: http
-        http_path: /health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+      <<: *standard-healthcheck
 
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
+# Note: RSA public keys are provided via environment variables
 # ─────────────────────────────────────────────────────────────────────────────
 
 consumers:
@@ -506,19 +196,25 @@ consumers:
     jwt_secrets:
       - key: sahool-web-key
         algorithm: RS256
-        # RSA public key should be configured in environment
+        rsa_public_key: ${SAHOOL_WEB_JWT_PUBLIC_KEY}
 
   - username: sahool-mobile-app
     custom_id: mobile-client
     jwt_secrets:
       - key: sahool-mobile-key
         algorithm: RS256
+        rsa_public_key: ${SAHOOL_MOBILE_JWT_PUBLIC_KEY}
 
   - username: sahool-internal-service
     custom_id: internal-service
     jwt_secrets:
       - key: sahool-internal-key
         algorithm: RS256
+        rsa_public_key: ${SAHOOL_INTERNAL_JWT_PUBLIC_KEY}
+
+  # Anonymous consumer for public endpoints (health checks, docs, etc.)
+  - username: anonymous
+    custom_id: anonymous-access
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Services Definition (Using Upstreams)
@@ -528,8 +224,6 @@ services:
   # Field Operations Service
   - name: field-ops-service
     host: field-ops-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -551,8 +245,6 @@ services:
   # NDVI Engine Service
   - name: ndvi-engine-service
     host: ndvi-engine-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 120000
@@ -573,8 +265,6 @@ services:
   # Weather Core Service
   - name: weather-service
     host: weather-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -589,8 +279,6 @@ services:
   # Field Chat Service
   - name: chat-service
     host: chat-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -611,8 +299,6 @@ services:
   # IoT Gateway Service
   - name: iot-service
     host: iot-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -627,6 +313,8 @@ services:
         plugins:
           - name: rate-limiting
             config:
+              # IoT devices typically send sensor readings every 30 seconds (200/min = ~3 devices/user)
+              # Higher limits accommodate multiple devices per farm with real-time telemetry
               minute: 200
               hour: 10000
               policy: local
@@ -634,8 +322,6 @@ services:
   # Agro Advisor Service
   - name: advisor-service
     host: advisor-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 90000
@@ -649,6 +335,8 @@ services:
         plugins:
           - name: rate-limiting
             config:
+              # AI-powered advisor service requires significant compute resources (5-30s per request)
+              # Lower limits prevent resource exhaustion while supporting typical user workflows
               minute: 30
               hour: 500
               policy: local
@@ -656,10 +344,12 @@ services:
   # WebSocket Gateway Service
   - name: ws-gateway-service
     host: ws-gateway-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
+    # NOTE: WebSocket connections are designed to be long-lived. The 1-hour
+    # write_timeout and read_timeout values below are intentional idle timeouts
+    # for real-time sessions. Operators may reduce these based on capacity and
+    # workload characteristics if shorter-lived connections are acceptable.
     write_timeout: 3600000
     read_timeout: 3600000
     routes:
@@ -672,8 +362,6 @@ services:
   # Crop Health Service
   - name: crop-health-service
     host: crop-health-upstream
-    port: 80
-    protocol: http
     path: /api/v1
     retries: 3
     connect_timeout: 30000
@@ -688,8 +376,6 @@ services:
   # Field Core Service (Advanced field management)
   - name: field-core-service
     host: field-core-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -710,8 +396,6 @@ services:
   # Task Service
   - name: task-service
     host: task-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -725,8 +409,6 @@ services:
   # Equipment Service
   - name: equipment-service
     host: equipment-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -740,8 +422,6 @@ services:
   # Community Service
   - name: community-service
     host: community-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -765,8 +445,6 @@ services:
   # Provider Configuration Service
   - name: provider-config-service
     host: provider-config-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -791,8 +469,6 @@ services:
   # Satellite Service - NDVI Analysis (v15.3)
   - name: satellite-service-v15
     host: satellite-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 180000
@@ -814,8 +490,6 @@ services:
   # Indicators Service - Agricultural KPIs (v15.3)
   - name: indicators-service-v15
     host: indicators-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -831,8 +505,6 @@ services:
   # Weather Advanced Service (v15.3)
   - name: weather-advanced-service
     host: weather-advanced-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -848,8 +520,6 @@ services:
   # Fertilizer Advisor Service (v15.3)
   - name: fertilizer-advisor-service
     host: fertilizer-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 90000
@@ -871,8 +541,6 @@ services:
   # Irrigation Smart Service (v15.3)
   - name: irrigation-smart-service
     host: irrigation-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -894,8 +562,6 @@ services:
   # Crop Health AI Service - Sahool Vision (v15.3)
   - name: crop-health-ai-service
     host: crop-health-ai-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 120000
@@ -917,8 +583,6 @@ services:
   # Virtual Sensors Service (v15.3)
   - name: virtual-sensors-service
     host: virtual-sensors-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -935,8 +599,6 @@ services:
   # Community Chat Service (v15.3)
   - name: community-chat-service
     host: community-chat-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -958,8 +620,6 @@ services:
   # Yield Engine Service (v15.3)
   - name: yield-engine-service
     host: yield-engine-upstream
-    port: 80
-    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 90000
@@ -990,8 +650,8 @@ plugins:
       claims_to_verify:
         - exp
       run_on_preflight: false
-      # Anonymous consumer for public endpoints
-      # anonymous: ~
+      # Anonymous consumer allows public endpoints like health checks
+      anonymous: anonymous-access
 
   # Rate Limiting (Global Default)
   - name: rate-limiting
@@ -1016,10 +676,6 @@ plugins:
         # Mobile app origins
         - capacitor://localhost
         - ionic://localhost
-        # Local development (remove in production)
-        - http://localhost:3000
-        - http://localhost:8080
-        - http://localhost:5173
       methods:
         - GET
         - POST
@@ -1070,7 +726,13 @@ plugins:
   # Request Size Limiting
   - name: request-size-limiting
     config:
-      allowed_payload_size: 10
+      # Set to 100MB for large file uploads (satellite imagery, crop health images)
+      # NOTE: This high limit should be paired with:
+      # 1. File type validation at application layer
+      # 2. Authenticated upload endpoints (JWT required)
+      # 3. Rate limiting on upload endpoints
+      # 4. Consider implementing streaming uploads for very large files
+      allowed_payload_size: 100
       size_unit: megabytes
       require_content_length: false
 

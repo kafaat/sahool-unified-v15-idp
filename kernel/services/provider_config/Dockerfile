@@ -35,7 +35,6 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared libraries
-COPY --from=shared /app/shared/ /app/shared/
 
 # Copy source
 COPY src/ ./src/

@@ -46,7 +46,6 @@ RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev lib
     || true
 
 # Copy shared libraries
-COPY --from=shared /app/shared/ /app/shared/
 
 # Copy source
 COPY src/ ./src/

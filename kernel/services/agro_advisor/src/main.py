@@ -2,10 +2,13 @@
 SAHOOL Agro Advisor - Main API Service
 Disease diagnosis, nutrient assessment, and fertilizer planning
 Port: 8095
+
+Enhanced with soil analysis from fertilizer-advisor v15.3
 """
 
 import os
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
@@ -29,6 +32,13 @@ from .kb import (
     get_fertilizer,
     get_fertilizers_for_nutrient,
     search_diseases,
+)
+from .soil_analysis import (
+    SoilAnalysisResult,
+    SoilType,
+    calculate_fertilizer_adjustment,
+    get_deficiency_symptoms,
+    interpret_soil_analysis,
 )
 
 
@@ -413,6 +423,174 @@ def get_action(action_id: str, lang: str = "ar"):
     """Get detailed action instructions"""
     details = get_action_details(action_id, lang)
     return {"id": action_id, **details}
+
+
+# ============== Soil Analysis Endpoints (from v15.3) ==============
+
+
+class SoilAnalysisRequest(BaseModel):
+    tenant_id: str
+    field_id: str
+    ph: float = Field(ge=0, le=14)
+    nitrogen_ppm: float = Field(ge=0)
+    phosphorus_ppm: float = Field(ge=0)
+    potassium_ppm: float = Field(ge=0)
+    organic_matter_pct: float = Field(ge=0, le=100)
+    ec_ds_m: float = Field(ge=0, description="Electrical Conductivity dS/m")
+    calcium_ppm: float = Field(default=0, ge=0)
+    magnesium_ppm: float = Field(default=0, ge=0)
+    sulfur_ppm: float = Field(default=0, ge=0)
+    iron_ppm: float = Field(default=0, ge=0)
+    zinc_ppm: float = Field(default=0, ge=0)
+    soil_type: str = "loamy"
+    correlation_id: Optional[str] = None
+
+
+class FertilizerAdjustmentRequest(BaseModel):
+    tenant_id: str
+    field_id: str
+    crop: str
+    target_yield_kg_ha: float = Field(gt=0)
+    ph: float = Field(ge=0, le=14)
+    nitrogen_ppm: float = Field(ge=0)
+    phosphorus_ppm: float = Field(ge=0)
+    potassium_ppm: float = Field(ge=0)
+    organic_matter_pct: float = Field(ge=0, le=100)
+    ec_ds_m: float = Field(default=1.0, ge=0)
+    correlation_id: Optional[str] = None
+
+
+@app.post("/soil/analyze")
+async def analyze_soil(req: SoilAnalysisRequest):
+    """
+    Interpret soil analysis results
+
+    Provides comprehensive interpretation of soil test results including:
+    - pH status and recommendations
+    - NPK levels and deficiency warnings
+    - Organic matter assessment
+    - Salinity (EC) evaluation
+    - Micronutrient status
+
+    Returns actionable recommendations in Arabic and English.
+    """
+    try:
+        soil_type = SoilType(req.soil_type.lower())
+    except ValueError:
+        soil_type = SoilType.LOAMY
+
+    analysis = SoilAnalysisResult(
+        field_id=req.field_id,
+        analysis_date=datetime.utcnow(),
+        ph=req.ph,
+        nitrogen_ppm=req.nitrogen_ppm,
+        phosphorus_ppm=req.phosphorus_ppm,
+        potassium_ppm=req.potassium_ppm,
+        organic_matter_pct=req.organic_matter_pct,
+        ec_ds_m=req.ec_ds_m,
+        calcium_ppm=req.calcium_ppm,
+        magnesium_ppm=req.magnesium_ppm,
+        sulfur_ppm=req.sulfur_ppm,
+        iron_ppm=req.iron_ppm,
+        zinc_ppm=req.zinc_ppm,
+        soil_type=soil_type,
+    )
+
+    interpretation = interpret_soil_analysis(analysis)
+
+    return {
+        "field_id": req.field_id,
+        "analysis_date": analysis.analysis_date.isoformat(),
+        "overall_fertility": interpretation.overall_fertility,
+        "overall_fertility_ar": interpretation.overall_fertility_ar,
+        "interpretations_ar": interpretation.interpretations_ar,
+        "interpretations_en": interpretation.interpretations_en,
+        "recommendations_ar": interpretation.recommendations_ar,
+        "recommendations_en": interpretation.recommendations_en,
+        "npk_status": interpretation.npk_status,
+        "micronutrient_status": interpretation.micronutrient_status,
+        "input_values": {
+            "ph": req.ph,
+            "nitrogen_ppm": req.nitrogen_ppm,
+            "phosphorus_ppm": req.phosphorus_ppm,
+            "potassium_ppm": req.potassium_ppm,
+            "organic_matter_pct": req.organic_matter_pct,
+            "ec_ds_m": req.ec_ds_m,
+        },
+    }
+
+
+@app.post("/soil/fertilizer-adjustment")
+async def get_fertilizer_adjustment(req: FertilizerAdjustmentRequest):
+    """
+    Calculate fertilizer adjustments based on soil analysis
+
+    Adjusts NPK recommendations based on:
+    - Current soil nutrient levels
+    - Target crop and yield
+    - Organic matter content
+
+    Returns adjusted fertilizer quantities with explanations.
+    """
+    analysis = SoilAnalysisResult(
+        field_id=req.field_id,
+        analysis_date=datetime.utcnow(),
+        ph=req.ph,
+        nitrogen_ppm=req.nitrogen_ppm,
+        phosphorus_ppm=req.phosphorus_ppm,
+        potassium_ppm=req.potassium_ppm,
+        organic_matter_pct=req.organic_matter_pct,
+        ec_ds_m=req.ec_ds_m,
+    )
+
+    adjustment = calculate_fertilizer_adjustment(
+        analysis=analysis,
+        crop=req.crop,
+        target_yield_kg_ha=req.target_yield_kg_ha,
+    )
+
+    return {
+        "field_id": req.field_id,
+        **adjustment,
+    }
+
+
+@app.get("/soil/deficiency-symptoms/{crop}")
+def get_crop_deficiency_symptoms(crop: str):
+    """
+    Get nutrient deficiency symptoms for a crop
+
+    Returns visual symptoms for identifying:
+    - Nitrogen deficiency
+    - Phosphorus deficiency
+    - Potassium deficiency
+    - Iron deficiency
+    - Zinc deficiency
+    - Magnesium deficiency
+    - Calcium deficiency
+
+    Includes treatment recommendations.
+    """
+    return get_deficiency_symptoms(crop)
+
+
+@app.get("/soil/optimal-ranges")
+def get_optimal_ranges():
+    """Get optimal soil parameter ranges"""
+    return {
+        "ranges": {
+            "ph": {"min": 6.0, "max": 7.5, "unit": "", "description_ar": "حموضة التربة"},
+            "nitrogen_ppm": {"min": 20, "max": 60, "unit": "ppm", "description_ar": "النيتروجين"},
+            "phosphorus_ppm": {"min": 10, "max": 50, "unit": "ppm", "description_ar": "الفوسفور"},
+            "potassium_ppm": {"min": 80, "max": 250, "unit": "ppm", "description_ar": "البوتاسيوم"},
+            "organic_matter_pct": {"min": 1.5, "max": 5.0, "unit": "%", "description_ar": "المادة العضوية"},
+            "ec_ds_m": {"min": 0, "max": 4.0, "unit": "dS/m", "description_ar": "الملوحة (EC)"},
+            "calcium_ppm": {"min": 200, "max": 2000, "unit": "ppm", "description_ar": "الكالسيوم"},
+            "magnesium_ppm": {"min": 25, "max": 200, "unit": "ppm", "description_ar": "المغنيسيوم"},
+            "iron_ppm": {"min": 4, "max": 50, "unit": "ppm", "description_ar": "الحديد"},
+            "zinc_ppm": {"min": 1, "max": 10, "unit": "ppm", "description_ar": "الزنك"},
+        }
+    }
 
 
 if __name__ == "__main__":

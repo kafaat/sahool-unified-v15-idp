@@ -799,7 +799,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3010/api/v1/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3010/api/v1/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -872,7 +872,7 @@ services:
     container_name: sahool-grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3002}
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource

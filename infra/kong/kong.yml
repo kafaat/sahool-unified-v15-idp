@@ -277,6 +277,30 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
+  # Crop Growth Model Service - خدمة نموذج نمو المحاصيل (v16.0)
+  # Based on WOFOST/DSSAT/APSIM mechanistic crop models
+  - name: crop-growth-model-upstream
+    targets:
+      - target: sahool-crop-growth-model:3023
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/simulation/health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
 # Note: RSA public keys are provided via environment variables
@@ -903,6 +927,73 @@ services:
             config:
               minute: 30
               hour: 300
+              policy: local
+
+  # Crop Growth Model Service - خدمة نموذج نمو المحاصيل
+  # Based on WOFOST/DSSAT/APSIM mechanistic crop models
+  - name: crop-growth-model-service
+    host: crop-growth-model-upstream
+    port: 3023
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: phenology-route
+        paths:
+          - /api/v1/phenology
+          - /api/v1/phenology/gdd
+          - /api/v1/phenology/dvs
+          - /api/v1/phenology/simulate
+          - /api/v1/phenology/predict
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
+      - name: photosynthesis-route
+        paths:
+          - /api/v1/photosynthesis
+          - /api/v1/photosynthesis/gpp
+          - /api/v1/photosynthesis/farquhar
+          - /api/v1/photosynthesis/curve
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
+      - name: biomass-route
+        paths:
+          - /api/v1/biomass
+          - /api/v1/biomass/production
+          - /api/v1/biomass/distribute
+          - /api/v1/biomass/simulate
+          - /api/v1/biomass/yield
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
+      - name: simulation-route
+        paths:
+          - /api/v1/simulation
+          - /api/v1/simulation/run
+          - /api/v1/simulation/demo
+          - /api/v1/simulation/quick-estimate
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Full crop simulations require significant compute - moderate limits
+              minute: 30
+              hour: 500
               policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────

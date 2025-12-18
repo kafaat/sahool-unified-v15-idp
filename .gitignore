@@ -24,12 +24,18 @@
 .env
 .env.*
 !.env.example
+!.env.*.example
+!.env.vector.example
 *.pem
 *.key
 *.crt
 secrets/
 credentials.json
 service-account*.json
+**/secrets.yaml
+**/secrets.yml
+*.secrets
+.secrets.baseline
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Node.js

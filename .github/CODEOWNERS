@@ -1,0 +1,59 @@
+# SAHOOL Platform Code Owners
+# هذا الملف يحدد المسؤولين عن مراجعة كل جزء من الكود
+
+# Default owners for everything in the repo
+*                           @kafaat/sahool-core
+
+# ============================================
+# Kernel Services
+# ============================================
+/kernel/                    @kafaat/sahool-backend
+/kernel/services/           @kafaat/sahool-backend
+/kernel/compliance/         @kafaat/sahool-security
+
+# ============================================
+# Shared Libraries
+# ============================================
+/shared/                    @kafaat/sahool-core
+/shared/libs/security/      @kafaat/sahool-security
+/shared/libs/audit/         @kafaat/sahool-security
+
+# ============================================
+# Infrastructure & DevOps
+# ============================================
+/docker/                    @kafaat/sahool-devops
+/helm/                      @kafaat/sahool-devops
+/gitops/                    @kafaat/sahool-devops
+/infra/                     @kafaat/sahool-devops
+/.github/workflows/         @kafaat/sahool-devops
+
+# ============================================
+# Security-sensitive files
+# ============================================
+/infra/vault/               @kafaat/sahool-security
+/tools/security/            @kafaat/sahool-security
+SECURITY.md                 @kafaat/sahool-security
+.github/CODEOWNERS          @kafaat/sahool-core
+
+# ============================================
+# Mobile
+# ============================================
+/mobile/                    @kafaat/sahool-mobile
+
+# ============================================
+# Frontend
+# ============================================
+/frontend/                  @kafaat/sahool-frontend
+/web_admin/                 @kafaat/sahool-frontend
+
+# ============================================
+# AI & RAG
+# ============================================
+/advisor/                   @kafaat/sahool-ai
+/kernel/services/vector_service/  @kafaat/sahool-ai
+
+# ============================================
+# Documentation
+# ============================================
+/docs/                      @kafaat/sahool-core
+README.md                   @kafaat/sahool-core

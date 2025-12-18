@@ -880,6 +880,42 @@ services:
     networks:
       - sahool-network
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Crop Growth Model Service (NestJS) - خدمة نموذج نمو المحاصيل
+  # Based on: WOFOST, DSSAT, APSIM mechanistic crop models
+  # Features: Phenology, Photosynthesis (Farquhar), Biomass partitioning
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  crop_growth_model:
+    build:
+      context: ./kernel-services-v15.3/crop-growth-model
+      dockerfile: Dockerfile
+    container_name: sahool-crop-growth-model
+    environment:
+      - PORT=3023
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "3023:3023"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3023/api/v1/simulation/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
   # Marketplace & FinTech Service (NestJS)
   # سوق سهول والخدمات المالية
   # ─────────────────────────────────────────────────────────────────────────────

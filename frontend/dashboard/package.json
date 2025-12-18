@@ -1,6 +1,6 @@
 {
   "name": "sahool-dashboard",
-  "version": "15.4.0",
+  "version": "16.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",

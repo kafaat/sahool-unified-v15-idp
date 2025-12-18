@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Platform - Kong API Gateway Configuration
 # Declarative configuration for DB-less mode
-# Version: 15.3 - Security Enhanced
+# Version: 16.0.0 - Security Enhanced
 # ═══════════════════════════════════════════════════════════════════════════════
 
 _format_version: "3.0"
@@ -192,7 +192,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /api/v1/health
+        http_path: /api/v1/healthz
         healthy:
           interval: 10
           successes: 2
@@ -663,7 +663,7 @@ services:
   # Marketplace & FinTech Service (v16.0)
   - name: marketplace-service
     host: marketplace-upstream
-    port: 80
+    port: 3010
     protocol: http
     retries: 3
     connect_timeout: 30000
@@ -672,9 +672,9 @@ services:
     routes:
       - name: marketplace-route
         paths:
-          - /api/v1/marketplace
-          - /api/v1/products
-          - /api/v1/orders
+          - /api/v1/market/marketplace
+          - /api/v1/market/products
+          - /api/v1/market/orders
         strip_path: false
         plugins:
           - name: rate-limiting
@@ -684,10 +684,10 @@ services:
               policy: local
       - name: fintech-route
         paths:
-          - /api/v1/wallet
-          - /api/v1/loans
-          - /api/v1/credit
-          - /api/v1/transactions
+          - /api/v1/fintech/wallet
+          - /api/v1/fintech/loans
+          - /api/v1/fintech/credit
+          - /api/v1/fintech/transactions
         strip_path: false
         plugins:
           - name: rate-limiting

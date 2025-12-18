@@ -17,6 +17,7 @@
    - [IoT Gateway](#iot-gateway-service)
    - [Field Core](#field-core-service)
    - [Field Chat](#field-chat-service)
+   - [Expert Support System](#expert-support-system)
    - [Crop Health](#crop-health-service)
    - [Vector Service](#vector-service-rag)
    - [WebSocket Gateway](#websocket-gateway)
@@ -597,7 +598,7 @@ Delete a field.
 **Port:** 8087
 **Base Path:** `/chat`
 
-Real-time chat for field collaboration.
+Real-time chat for field collaboration with expert support system.
 
 ### REST Endpoints
 
@@ -619,7 +620,220 @@ Send a message to a thread.
 
 ### WebSocket
 
-Connect to `/ws/chat/{thread_id}` for real-time updates.
+Connect to `/ws/chat/{thread_id}?user_id=xxx&user_name=xxx&user_type=farmer` for real-time updates.
+
+**Message Types:**
+
+```json
+// Typing indicator
+{"type": "typing_start"}
+{"type": "typing_stop"}
+
+// Send message
+{"type": "message", "text": "Hello", "attachments": []}
+
+// Keep-alive
+{"type": "ping"}
+```
+
+**Server Events:**
+
+```json
+// User joined/left
+{"type": "user_joined", "user_id": "...", "user_name": "...", "user_type": "farmer"}
+{"type": "user_left", "user_id": "...", "user_name": "..."}
+
+// Typing indicator
+{"type": "typing", "user_id": "...", "is_typing": true, "typing_users": ["user1", "user2"]}
+
+// New message
+{"type": "message", "user_id": "...", "text": "...", "timestamp": "..."}
+```
+
+---
+
+## Expert Support System
+
+**Port:** 8087 (same as Field Chat)
+**Base Path:** `/experts`
+
+نظام دعم الخبراء - Real-time expert consultation for farmers.
+
+### Expert Profile Endpoints
+
+#### POST /experts/profiles
+
+Create expert profile.
+
+**Request:**
+```json
+{
+  "tenant_id": "tenant-123",
+  "user_id": "expert-456",
+  "name": "Dr. Ahmed",
+  "name_ar": "د. أحمد",
+  "specialties": ["crop_diseases", "pest_control"],
+  "bio": "10 years experience in plant pathology",
+  "governorates": ["sana'a", "taiz"]
+}
+```
+
+**Response:**
+```json
+{
+  "expert_id": "uuid",
+  "user_id": "expert-456",
+  "name": "Dr. Ahmed",
+  "specialties": ["crop_diseases", "pest_control"],
+  "specialties_ar": ["أمراض المحاصيل", "مكافحة الآفات"],
+  "is_available": true,
+  "is_verified": false,
+  "total_consultations": 0,
+  "avg_rating": 5.0
+}
+```
+
+#### GET /experts/profiles
+
+List experts with filters.
+
+**Query Parameters:**
+- `tenant_id` (required)
+- `specialty` (optional): Filter by specialty
+- `governorate` (optional): Filter by governorate
+- `available_only` (optional): Only show available experts
+
+### Support Request Endpoints
+
+#### POST /experts/requests
+
+Farmer creates support request.
+
+**Request:**
+```json
+{
+  "tenant_id": "tenant-123",
+  "farmer_id": "farmer-789",
+  "farmer_name": "محمد",
+  "governorate": "sana'a",
+  "topic": "مشكلة في أوراق الطماطم",
+  "specialty_needed": "crop_diseases",
+  "field_id": "field-123",
+  "diagnosis_id": "diag-456",
+  "priority": "high"
+}
+```
+
+**Response:**
+```json
+{
+  "request_id": "uuid",
+  "farmer_name": "محمد",
+  "topic": "مشكلة في أوراق الطماطم",
+  "status": "pending",
+  "status_ar": "في انتظار خبير",
+  "priority": "high"
+}
+```
+
+#### GET /experts/requests/pending
+
+List pending requests for experts.
+
+#### POST /experts/requests/{request_id}/accept
+
+Expert accepts a support request.
+
+**Request:**
+```json
+{
+  "tenant_id": "tenant-123",
+  "expert_id": "expert-456",
+  "expert_name": "د. أحمد"
+}
+```
+
+Creates a chat thread and links it to the request.
+
+#### POST /experts/requests/{request_id}/resolve
+
+Expert resolves the request.
+
+**Request:**
+```json
+{
+  "tenant_id": "tenant-123",
+  "expert_id": "expert-456",
+  "resolution_notes": "Applied fungicide treatment",
+  "resolution_notes_ar": "تم تطبيق العلاج بالمبيد الفطري"
+}
+```
+
+#### POST /experts/requests/{request_id}/rate
+
+Farmer rates the expert.
+
+**Request:**
+```json
+{
+  "tenant_id": "tenant-123",
+  "farmer_id": "farmer-789",
+  "rating": 5,
+  "feedback": "ممتاز، شكراً"
+}
+```
+
+### Online Experts
+
+#### GET /experts/online
+
+Get count of online experts.
+
+**Response:**
+```json
+{
+  "count": 12,
+  "available_count": 8,
+  "by_specialty": {
+    "crop_diseases": 5,
+    "irrigation": 3,
+    "general": 4
+  }
+}
+```
+
+#### GET /experts/stats
+
+Get expert system statistics.
+
+**Response:**
+```json
+{
+  "experts": {
+    "total": 45,
+    "verified": 32,
+    "available": 28,
+    "online": 12
+  },
+  "requests": {
+    "total": 1250,
+    "pending": 8,
+    "resolved": 1180,
+    "resolution_rate": 94.4
+  }
+}
+```
+
+### Expert Specialties
+
+| Code | English | Arabic |
+|------|---------|--------|
+| `crop_diseases` | Crop Diseases | أمراض المحاصيل |
+| `irrigation` | Irrigation | الري |
+| `soil` | Soil | التربة |
+| `pest_control` | Pest Control | مكافحة الآفات |
+| `fertilization` | Fertilization | التسميد |
+| `general` | General | استشارة عامة |
 
 ---
 

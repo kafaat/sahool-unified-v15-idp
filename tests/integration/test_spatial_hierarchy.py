@@ -9,9 +9,12 @@ and will be skipped if PostGIS is not available.
 from __future__ import annotations
 
 import pytest
+import sys
+sys.path.insert(0, "packages/field-suite")
+
 from uuid import uuid4
 
-from field_suite.zones.models import Zone, SubZone, ZoneBoundary, ZoneType
+from zones.models import Zone, SubZone, ZoneBoundary, ZoneType
 
 
 # ---------------------------------------------------------------------------

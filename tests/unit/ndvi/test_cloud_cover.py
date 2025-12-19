@@ -5,7 +5,7 @@ Sprint 8: Unit tests for cloud coverage estimation
 
 import pytest
 import sys
-sys.path.insert(0, "kernel/services/ndvi_engine/src")
+sys.path.insert(0, "archive/kernel-legacy/kernel/services/ndvi_engine/src")
 
 from cloud_cover import (
     estimate_cloud_coverage_from_mask,

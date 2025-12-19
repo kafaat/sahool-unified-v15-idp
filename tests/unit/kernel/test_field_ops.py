@@ -10,7 +10,7 @@ from pydantic import ValidationError
 
 # Import from the service
 import sys
-sys.path.insert(0, "kernel/services/field_ops/src")
+sys.path.insert(0, "archive/kernel-legacy/kernel/services/field_ops/src")
 
 from main import FieldCreate, FieldUpdate, FieldResponse, OperationCreate
 

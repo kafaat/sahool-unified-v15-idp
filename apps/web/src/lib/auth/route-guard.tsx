@@ -67,7 +67,12 @@ export async function getCurrentUser(): Promise<User | null> {
     // Get JWT secret from environment
     const secret = process.env.JWT_SECRET_KEY;
     if (!secret) {
-      console.error('JWT_SECRET_KEY environment variable is not set');
+      // Fail fast in production - JWT secret is required for security
+      const error = new Error('JWT_SECRET_KEY environment variable is not set');
+      if (process.env.NODE_ENV === 'production') {
+        throw error;
+      }
+      console.error(error.message);
       return null;
     }
 
@@ -78,12 +83,22 @@ export async function getCurrentUser(): Promise<User | null> {
       audience: process.env.JWT_AUDIENCE || 'sahool-api',
     });
 
-    // Extract user information from verified payload
+    // Validate payload structure and extract user information
+    if (!payload.sub || typeof payload.sub !== 'string') {
+      console.error('Invalid JWT payload: missing or invalid "sub" claim');
+      return null;
+    }
+
+    if (!payload.tenant_id || typeof payload.tenant_id !== 'string') {
+      console.error('Invalid JWT payload: missing or invalid "tenant_id" claim');
+      return null;
+    }
+
     return {
-      id: payload.sub as string,
-      roles: (payload.roles as string[]) || [],
-      permissions: (payload.permissions as string[]) || [],
-      tenantId: payload.tenant_id as string,
+      id: payload.sub,
+      roles: Array.isArray(payload.roles) ? payload.roles as string[] : [],
+      permissions: Array.isArray(payload.permissions) ? payload.permissions as string[] : [],
+      tenantId: payload.tenant_id,
     };
   } catch (error) {
     // Log specific JWT errors for debugging (in development)

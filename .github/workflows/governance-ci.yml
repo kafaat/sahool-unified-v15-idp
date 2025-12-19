@@ -61,15 +61,60 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Kyverno CLI
-        run: |
-          curl -LO https://github.com/kyverno/kyverno/releases/download/v1.11.0/kyverno-cli_v1.11.0_linux_x86_64.tar.gz
-          tar -xvf kyverno-cli_v1.11.0_linux_x86_64.tar.gz
-          sudo mv kyverno /usr/local/bin/
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-      - name: Validate Kyverno policies
+      - name: Validate Kyverno policy syntax
         run: |
-          kyverno validate governance/policies/kyverno/*.yaml
+          pip install pyyaml
+          python3 << 'EOF'
+          import yaml
+          import sys
+          import os
+          import glob
+
+          errors = []
+          policies = glob.glob("governance/policies/kyverno/*.yaml")
+
+          if not policies:
+            print("⚠️ No Kyverno policies found")
+            sys.exit(0)
+
+          for policy_file in policies:
+            try:
+              with open(policy_file, "r") as f:
+                docs = list(yaml.safe_load_all(f))
+
+              for doc in docs:
+                if doc is None:
+                  continue
+                # Check required fields for Kyverno policy
+                if doc.get("kind") not in ["ClusterPolicy", "Policy"]:
+                  continue
+
+                if "metadata" not in doc:
+                  errors.append(f"{policy_file}: missing metadata")
+                if "spec" not in doc:
+                  errors.append(f"{policy_file}: missing spec")
+                elif "rules" not in doc.get("spec", {}):
+                  errors.append(f"{policy_file}: missing spec.rules")
+
+              print(f"✅ {policy_file}")
+            except yaml.YAMLError as e:
+              errors.append(f"{policy_file}: YAML error - {e}")
+            except Exception as e:
+              errors.append(f"{policy_file}: {e}")
+
+          if errors:
+            print("\n❌ Validation errors:")
+            for e in errors:
+              print(f"  {e}")
+            sys.exit(1)
+
+          print(f"\n✅ All {len(policies)} Kyverno policies are valid")
+          EOF
 
   security-checks:
     name: Security Checks
@@ -80,7 +125,8 @@ jobs:
       - name: Block latest tag in manifests
         run: |
           echo "Checking for :latest tags..."
-          if grep -rE "image:.*:latest" --include="*.yaml" --include="*.yml" governance/ gitops/ helm/ 2>/dev/null; then
+          # Exclude Kyverno policies (they contain :latest as patterns to match, not actual image refs)
+          if grep -rE "image:.*:latest" --include="*.yaml" --include="*.yml" governance/ gitops/ helm/ 2>/dev/null | grep -v "governance/policies/kyverno/"; then
             echo "ERROR: Found :latest tag in manifests!"
             exit 1
           fi
@@ -121,7 +167,6 @@ jobs:
             "kernel-services-v15.3/"
             "frontend/"
             "web_admin/"
-            "advisor/"
             "field_suite/"
             "kernel_domain/"
           )

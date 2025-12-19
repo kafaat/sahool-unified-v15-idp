@@ -1,0 +1,58 @@
+{
+  "name": "@sahool/design-system",
+  "version": "16.0.0",
+  "description": "SAHOOL Design System - Unified design tokens, components, and themes",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./tokens": {
+      "import": "./tokens/tokens.ts",
+      "require": "./tokens/tokens.ts",
+      "types": "./tokens/tokens.ts"
+    },
+    "./tokens/css": "./tokens/tokens.css",
+    "./tokens/tailwind": "./tokens/tailwind.tokens.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.2",
+    "react": "^19.0.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.7.2"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "tailwindcss": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "tailwindcss": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "files": [
+    "dist",
+    "tokens",
+    "components",
+    "themes"
+  ]
+}

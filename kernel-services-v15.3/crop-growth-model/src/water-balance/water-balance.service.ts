@@ -11,7 +11,7 @@ import { Injectable } from '@nestjs/common';
 // معاملات المحصول - منظمة الفاو 56
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface CropWaterParams {
+export interface CropWaterParams {
   nameAr: string;
   nameEn: string;
   Kc_ini: number;        // Initial stage Kc

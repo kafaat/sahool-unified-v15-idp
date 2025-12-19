@@ -10,14 +10,14 @@ import { Injectable } from '@nestjs/common';
 // معاملات توزيع المادة الجافة حسب المحصول ومرحلة النمو
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface PartitioningCoefficients {
+export interface PartitioningCoefficients {
   root: number;
   stem: number;
   leaf: number;
   storage: number;  // grain/fruit/tuber
 }
 
-interface CropBiomassParams {
+export interface CropBiomassParams {
   nameAr: string;
   nameEn: string;
   SLA: number;                    // Specific Leaf Area (m² kg⁻¹)

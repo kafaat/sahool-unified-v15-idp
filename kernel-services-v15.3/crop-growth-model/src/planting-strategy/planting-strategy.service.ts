@@ -13,7 +13,7 @@ type ClimateZone = 'arid' | 'semi_arid' | 'mediterranean' | 'continental' | 'tro
 type CropType = 'wheat' | 'barley' | 'corn' | 'rice' | 'sorghum' | 'date_palm' | 'alfalfa';
 
 // Planting method configuration
-interface PlantingMethod {
+export interface PlantingMethod {
   id: PlantingMethodType;
   nameEn: string;
   nameAr: string;
@@ -30,7 +30,7 @@ interface PlantingMethod {
 }
 
 // Optimization request
-interface OptimizationRequest {
+export interface OptimizationRequest {
   cropType: CropType;
   targetYield: number; // kg/mu
   fieldArea: number; // mu (1 mu = 666.67 m²)
@@ -44,7 +44,7 @@ interface OptimizationRequest {
 }
 
 // Optimization result
-interface OptimizationResult {
+export interface OptimizationResult {
   recommendedMethod: PlantingMethod;
   alternativeMethods: PlantingMethod[];
   spacingConfiguration: {
@@ -75,7 +75,7 @@ interface OptimizationResult {
 }
 
 // Field analysis result
-interface FieldAnalysis {
+export interface FieldAnalysis {
   soilQualityScore: number;
   waterAvailabilityScore: number;
   climateCompatibilityScore: number;
@@ -85,7 +85,7 @@ interface FieldAnalysis {
 }
 
 // Planting plan
-interface PlantingPlan {
+export interface PlantingPlan {
   fieldId: string;
   cropType: CropType;
   method: PlantingMethodType;
@@ -95,7 +95,7 @@ interface PlantingPlan {
   timeline: TimelineEvent[];
 }
 
-interface PlantingTask {
+export interface PlantingTask {
   id: string;
   name: string;
   nameAr: string;
@@ -106,7 +106,7 @@ interface PlantingTask {
   laborRequired: number; // person-hours
 }
 
-interface ResourceRequirements {
+export interface ResourceRequirements {
   seeds: { quantity: number; unit: string; cost: number };
   fertilizer: { type: string; quantity: number; unit: string; cost: number }[];
   water: { quantity: number; unit: string };
@@ -115,7 +115,7 @@ interface ResourceRequirements {
   totalCost: number;
 }
 
-interface TimelineEvent {
+export interface TimelineEvent {
   event: string;
   date: Date;
   description: string;
@@ -123,7 +123,7 @@ interface TimelineEvent {
 }
 
 // Density calculation result
-interface DensityCalculation {
+export interface DensityCalculation {
   method: PlantingMethodType;
   rowSpacing: number; // cm
   plantSpacing: number; // cm
@@ -136,7 +136,7 @@ interface DensityCalculation {
 }
 
 // Yield prediction
-interface YieldPrediction {
+export interface YieldPrediction {
   method: PlantingMethodType;
   baseYield: number;
   adjustedYield: number;

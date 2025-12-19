@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 // Interfaces - الواجهات
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface AgentPerspective {
+export interface AgentPerspective {
   agentId: string;
   agentName: string;
   agentNameAr: string;
@@ -26,7 +26,7 @@ interface AgentPerspective {
   recommendationAr: string;
 }
 
-interface ConsensusResult {
+export interface ConsensusResult {
   hasConsensus: boolean;
   consensusLevel: 'full' | 'majority' | 'partial' | 'none';
   finalRecommendation: string;
@@ -36,7 +36,7 @@ interface ConsensusResult {
   confidence: number;
 }
 
-interface CouncilSession {
+export interface CouncilSession {
   sessionId: string;
   question: string;
   questionAr: string;
@@ -48,7 +48,7 @@ interface CouncilSession {
   summaryAr: string;
 }
 
-interface IrrigationQuestion {
+export interface IrrigationQuestion {
   cropType: string;
   currentSoilMoisture: number;
   weatherForecast: { temperature: number; precipitation: number; et0: number };
@@ -56,7 +56,7 @@ interface IrrigationQuestion {
   lastIrrigation?: string;
 }
 
-interface PestQuestion {
+export interface PestQuestion {
   cropType: string;
   symptoms: string[];
   location: string;
@@ -65,7 +65,7 @@ interface PestQuestion {
   humidity: number;
 }
 
-interface FertilizerQuestion {
+export interface FertilizerQuestion {
   cropType: string;
   soilNPK: { nitrogen: number; phosphorus: number; potassium: number };
   growthStage: string;
@@ -73,7 +73,7 @@ interface FertilizerQuestion {
   soilType: string;
 }
 
-interface AgentProfile {
+export interface AgentProfile {
   id: string;
   name: string;
   nameAr: string;

@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 // Interfaces & Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface DataSource {
+export interface DataSource {
   id: string;
   nameEn: string;
   nameAr: string;
@@ -24,7 +24,7 @@ interface DataSource {
   dataTypes: string[];
 }
 
-interface CollectionJob {
+export interface CollectionJob {
   id: string;
   source: DataSource;
   status: 'pending' | 'running' | 'completed' | 'failed';
@@ -34,7 +34,7 @@ interface CollectionJob {
   error?: string;
 }
 
-interface MarketPrice {
+export interface MarketPrice {
   commodity: string;
   commodityAr: string;
   price: number;
@@ -47,7 +47,7 @@ interface MarketPrice {
   changePercent: number;
 }
 
-interface WeatherAlert {
+export interface WeatherAlert {
   id: string;
   type: 'frost' | 'heat' | 'rain' | 'wind' | 'dust' | 'flood' | 'drought';
   severity: 'low' | 'medium' | 'high' | 'extreme';
@@ -61,7 +61,7 @@ interface WeatherAlert {
   source: string;
 }
 
-interface AgriculturalNews {
+export interface AgriculturalNews {
   id: string;
   titleEn: string;
   titleAr: string;
@@ -75,7 +75,7 @@ interface AgriculturalNews {
   relevanceScore: number;
 }
 
-interface ResearchPaper {
+export interface ResearchPaper {
   id: string;
   title: string;
   authors: string[];
@@ -88,7 +88,7 @@ interface ResearchPaper {
   impactFactor?: number;
 }
 
-interface CollectorConfig {
+export interface CollectorConfig {
   sources: string[];
   region?: string;
   commodities?: string[];

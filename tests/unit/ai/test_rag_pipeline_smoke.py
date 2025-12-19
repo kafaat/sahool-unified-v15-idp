@@ -5,7 +5,7 @@ Sprint 9: Integration smoke tests without external dependencies
 
 import pytest
 import sys
-sys.path.insert(0, ".")
+sys.path.insert(0, "packages")
 
 from advisor.ai.llm_client import LlmClient, LlmResponse
 from advisor.ai.rag_models import RagRequest, RetrievedChunk

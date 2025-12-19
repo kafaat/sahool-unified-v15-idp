@@ -7,9 +7,10 @@ import {
   hasAnyPermission,
   hasAllPermissions,
   getRolePermissions,
-  isValidPermission,
-  isValidRole,
+  roleHasPermission,
+  getPermissionsForRoles,
 } from './permissions';
+import type { Role, Permission } from './permissions';
 
 describe('Permissions', () => {
   describe('PERMISSIONS constant', () => {
@@ -28,13 +29,20 @@ describe('Permissions', () => {
     it('should have alert permissions', () => {
       expect(PERMISSIONS.ALERT_VIEW).toBe('alert:view');
       expect(PERMISSIONS.ALERT_MANAGE).toBe('alert:manage');
-      expect(PERMISSIONS.ALERT_DISMISS).toBe('alert:dismiss');
+      expect(PERMISSIONS.ALERT_ACKNOWLEDGE).toBe('alert:acknowledge');
+      expect(PERMISSIONS.ALERT_RESOLVE).toBe('alert:resolve');
     });
 
-    it('should have admin permissions', () => {
-      expect(PERMISSIONS.ADMIN_USERS).toBe('admin:users');
-      expect(PERMISSIONS.ADMIN_SETTINGS).toBe('admin:settings');
-      expect(PERMISSIONS.ADMIN_SYSTEM).toBe('admin:system');
+    it('should have user management permissions', () => {
+      expect(PERMISSIONS.USER_VIEW).toBe('user:view');
+      expect(PERMISSIONS.USER_CREATE).toBe('user:create');
+      expect(PERMISSIONS.USER_EDIT).toBe('user:edit');
+      expect(PERMISSIONS.USER_DELETE).toBe('user:delete');
+    });
+
+    it('should have system permissions', () => {
+      expect(PERMISSIONS.SYSTEM_MONITOR).toBe('system:monitor');
+      expect(PERMISSIONS.SYSTEM_ADMIN).toBe('system:admin');
     });
   });
 
@@ -44,101 +52,128 @@ describe('Permissions', () => {
       expect(ROLES.AGRONOMIST).toBe('agronomist');
       expect(ROLES.ADMIN).toBe('admin');
       expect(ROLES.SUPER_ADMIN).toBe('super_admin');
+      expect(ROLES.FIELD_MANAGER).toBe('field_manager');
+      expect(ROLES.ORG_ADMIN).toBe('org_admin');
+    });
+  });
+
+  describe('roleHasPermission', () => {
+    it('should return true when role has the permission', () => {
+      expect(roleHasPermission(ROLES.FARMER, PERMISSIONS.FIELD_VIEW)).toBe(true);
+      expect(roleHasPermission(ROLES.FARMER, PERMISSIONS.NDVI_VIEW)).toBe(true);
+    });
+
+    it('should return false when role lacks the permission', () => {
+      expect(roleHasPermission(ROLES.FARMER, PERMISSIONS.FIELD_DELETE)).toBe(false);
+      expect(roleHasPermission(ROLES.FARMER, PERMISSIONS.SYSTEM_ADMIN)).toBe(false);
     });
   });
 
   describe('hasPermission', () => {
-    const userPermissions = ['field:view', 'field:create', 'ndvi:view'];
-
-    it('should return true when user has the permission', () => {
-      expect(hasPermission(userPermissions, 'field:view')).toBe(true);
-      expect(hasPermission(userPermissions, 'field:create')).toBe(true);
+    it('should return true when any role has the permission', () => {
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasPermission(roles, PERMISSIONS.FIELD_VIEW)).toBe(true);
+      expect(hasPermission(roles, PERMISSIONS.ALERT_VIEW)).toBe(true);
     });
 
-    it('should return false when user lacks the permission', () => {
-      expect(hasPermission(userPermissions, 'field:delete')).toBe(false);
-      expect(hasPermission(userPermissions, 'admin:users')).toBe(false);
+    it('should return false when no role has the permission', () => {
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasPermission(roles, PERMISSIONS.FIELD_DELETE)).toBe(false);
+      expect(hasPermission(roles, PERMISSIONS.SYSTEM_ADMIN)).toBe(false);
     });
 
-    it('should return false for empty permissions array', () => {
-      expect(hasPermission([], 'field:view')).toBe(false);
+    it('should return false for empty roles array', () => {
+      expect(hasPermission([], PERMISSIONS.FIELD_VIEW)).toBe(false);
+    });
+
+    it('should check multiple roles', () => {
+      const roles: Role[] = [ROLES.FARMER, ROLES.FIELD_MANAGER];
+      expect(hasPermission(roles, PERMISSIONS.FIELD_CREATE)).toBe(true);
     });
   });
 
   describe('hasAnyPermission', () => {
-    const userPermissions = ['field:view', 'ndvi:view'];
-
     it('should return true when user has any of the permissions', () => {
-      expect(hasAnyPermission(userPermissions, ['field:view', 'field:edit'])).toBe(true);
-      expect(hasAnyPermission(userPermissions, ['field:delete', 'ndvi:view'])).toBe(true);
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasAnyPermission(roles, [PERMISSIONS.FIELD_VIEW, PERMISSIONS.FIELD_DELETE])).toBe(true);
     });
 
     it('should return false when user has none of the permissions', () => {
-      expect(hasAnyPermission(userPermissions, ['field:delete', 'admin:users'])).toBe(false);
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasAnyPermission(roles, [PERMISSIONS.FIELD_DELETE, PERMISSIONS.SYSTEM_ADMIN])).toBe(false);
     });
 
     it('should return false for empty required permissions', () => {
-      expect(hasAnyPermission(userPermissions, [])).toBe(false);
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasAnyPermission(roles, [])).toBe(false);
     });
   });
 
   describe('hasAllPermissions', () => {
-    const userPermissions = ['field:view', 'field:create', 'ndvi:view'];
-
     it('should return true when user has all permissions', () => {
-      expect(hasAllPermissions(userPermissions, ['field:view', 'field:create'])).toBe(true);
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasAllPermissions(roles, [PERMISSIONS.FIELD_VIEW, PERMISSIONS.NDVI_VIEW])).toBe(true);
     });
 
     it('should return false when user is missing any permission', () => {
-      expect(hasAllPermissions(userPermissions, ['field:view', 'field:delete'])).toBe(false);
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasAllPermissions(roles, [PERMISSIONS.FIELD_VIEW, PERMISSIONS.FIELD_DELETE])).toBe(false);
     });
 
     it('should return true for empty required permissions', () => {
-      expect(hasAllPermissions(userPermissions, [])).toBe(true);
+      const roles: Role[] = [ROLES.FARMER];
+      expect(hasAllPermissions(roles, [])).toBe(true);
     });
   });
 
   describe('getRolePermissions', () => {
     it('should return permissions for farmer role', () => {
-      const permissions = getRolePermissions('farmer');
-      expect(permissions).toContain('field:view');
-      expect(permissions).toContain('ndvi:view');
-      expect(permissions).not.toContain('admin:users');
+      const permissions = getRolePermissions(ROLES.FARMER);
+      expect(permissions).toContain(PERMISSIONS.FIELD_VIEW);
+      expect(permissions).toContain(PERMISSIONS.NDVI_VIEW);
+      expect(permissions).not.toContain(PERMISSIONS.SYSTEM_ADMIN);
     });
 
-    it('should return permissions for admin role', () => {
-      const permissions = getRolePermissions('admin');
-      expect(permissions).toContain('admin:users');
-      expect(permissions).toContain('admin:settings');
+    it('should return all permissions for super_admin role', () => {
+      const permissions = getRolePermissions(ROLES.SUPER_ADMIN);
+      expect(permissions).toContain(PERMISSIONS.SYSTEM_ADMIN);
+      expect(permissions).toContain(PERMISSIONS.FIELD_DELETE);
     });
 
     it('should return empty array for unknown role', () => {
-      const permissions = getRolePermissions('unknown_role');
+      const permissions = getRolePermissions('unknown_role' as Role);
       expect(permissions).toEqual([]);
     });
   });
 
-  describe('isValidPermission', () => {
-    it('should return true for valid permissions', () => {
-      expect(isValidPermission('field:view')).toBe(true);
-      expect(isValidPermission('admin:system')).toBe(true);
+  describe('getPermissionsForRoles', () => {
+    it('should combine permissions from multiple roles', () => {
+      const roles: Role[] = [ROLES.FARMER, ROLES.FIELD_MANAGER];
+      const permissions = getPermissionsForRoles(roles);
+      expect(permissions).toContain(PERMISSIONS.FIELD_VIEW);
+      expect(permissions).toContain(PERMISSIONS.FIELD_CREATE);
     });
 
-    it('should return false for invalid permissions', () => {
-      expect(isValidPermission('invalid:permission')).toBe(false);
-      expect(isValidPermission('')).toBe(false);
+    it('should return unique permissions', () => {
+      const roles: Role[] = [ROLES.FARMER, ROLES.FARMER];
+      const permissions = getPermissionsForRoles(roles);
+      const uniqueCount = new Set(permissions).size;
+      expect(permissions.length).toBe(uniqueCount);
     });
   });
 
-  describe('isValidRole', () => {
-    it('should return true for valid roles', () => {
-      expect(isValidRole('farmer')).toBe(true);
-      expect(isValidRole('admin')).toBe(true);
+  describe('ROLE_PERMISSIONS mapping', () => {
+    it('should have permissions defined for all roles', () => {
+      Object.values(ROLES).forEach((role) => {
+        expect(ROLE_PERMISSIONS[role]).toBeDefined();
+        expect(Array.isArray(ROLE_PERMISSIONS[role])).toBe(true);
+      });
     });
 
-    it('should return false for invalid roles', () => {
-      expect(isValidRole('invalid_role')).toBe(false);
-      expect(isValidRole('')).toBe(false);
+    it('should have super_admin with all permissions', () => {
+      const superAdminPermissions = ROLE_PERMISSIONS[ROLES.SUPER_ADMIN];
+      const allPermissions = Object.values(PERMISSIONS);
+      expect(superAdminPermissions.length).toBe(allPermissions.length);
     });
   });
 });

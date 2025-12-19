@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/WeatherForecastReady.v1.json",
+  "title": "Weather Forecast Ready Event",
+  "description": "Emitted when weather forecast is updated - يُنشر عند تحديث التوقعات الجوية",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Weather.ForecastReady" },
+    "payload": {
+      "type": "object",
+      "required": ["forecast_id", "location", "valid_from", "valid_to", "forecast_data"],
+      "properties": {
+        "forecast_id": {
+          "type": "string",
+          "description": "Forecast identifier"
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "governorate": { "type": "string" },
+            "district": { "type": "string" }
+          }
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_to": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "forecast_data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "datetime": { "type": "string", "format": "date-time" },
+              "temp_max_c": { "type": "number" },
+              "temp_min_c": { "type": "number" },
+              "humidity_percent": { "type": "number" },
+              "precipitation_mm": { "type": "number" },
+              "wind_speed_kmh": { "type": "number" },
+              "uv_index": { "type": "number" },
+              "et0_mm": { "type": "number", "description": "Reference evapotranspiration" }
+            }
+          }
+        },
+        "provider": {
+          "type": "string",
+          "enum": ["open-meteo", "weatherapi", "custom"],
+          "description": "Data provider"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "acquisition",
+    "producer": "weather-advanced",
+    "consumers": ["crop-growth-model", "irrigation-smart", "disaster-assessment", "yield-prediction"]
+  }
+}

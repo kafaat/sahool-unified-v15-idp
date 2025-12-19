@@ -1,0 +1,81 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/FertilizerPlanProposed.v1.json",
+  "title": "Fertilizer Plan Proposed Event",
+  "description": "Emitted when fertilizer recommendation is generated - يُنشر عند توليد توصية التسميد",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Advisor.FertilizerPlanProposed" },
+    "payload": {
+      "type": "object",
+      "required": ["field_id", "plan_date", "recommendations"],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "plan_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "crop_type": {
+          "type": "string"
+        },
+        "growth_stage": {
+          "type": "string"
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "nutrient": {
+                "type": "string",
+                "enum": ["nitrogen", "phosphorus", "potassium", "zinc", "iron", "organic_matter"]
+              },
+              "product_name": {
+                "type": "string",
+                "description": "Recommended product"
+              },
+              "product_name_ar": {
+                "type": "string"
+              },
+              "amount_kg_ha": {
+                "type": "number"
+              },
+              "application_method": {
+                "type": "string",
+                "enum": ["broadcast", "banding", "foliar", "fertigation"]
+              },
+              "timing": {
+                "type": "string",
+                "description": "When to apply"
+              },
+              "priority": {
+                "type": "string",
+                "enum": ["essential", "recommended", "optional"]
+              }
+            }
+          }
+        },
+        "soil_analysis_ref": {
+          "type": "string",
+          "description": "Reference to soil analysis if available"
+        },
+        "estimated_cost_usd": {
+          "type": "number"
+        },
+        "expected_yield_increase_percent": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "decision",
+    "producer": "fertilizer-advisor",
+    "consumers": ["notification-service", "marketplace-service"]
+  }
+}

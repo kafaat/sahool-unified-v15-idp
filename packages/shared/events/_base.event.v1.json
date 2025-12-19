@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/_base.event.v1.json",
+  "title": "SAHOOL Base Event Schema",
+  "description": "Base schema for all SAHOOL domain events - القالب الأساسي لجميع أحداث سهول",
+  "type": "object",
+  "required": ["event_id", "event_type", "event_version", "tenant_id", "timestamp", "source"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier"
+    },
+    "event_type": {
+      "type": "string",
+      "pattern": "^[A-Z][a-zA-Z]+\\.[a-z][a-zA-Z]+$",
+      "description": "Event type in format: Domain.Action (e.g., Field.Created)"
+    },
+    "event_version": {
+      "type": "string",
+      "pattern": "^v[0-9]+$",
+      "description": "Schema version (e.g., v1, v2)"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Tenant/organization identifier - معرف المستأجر"
+    },
+    "field_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Field identifier (if applicable) - معرف الحقل"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event timestamp in ISO 8601 format"
+    },
+    "source": {
+      "type": "object",
+      "required": ["service", "version"],
+      "properties": {
+        "service": {
+          "type": "string",
+          "description": "Source service name"
+        },
+        "version": {
+          "type": "string",
+          "description": "Source service version"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "Instance identifier for tracing"
+        }
+      }
+    },
+    "correlation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Correlation ID for request tracing"
+    },
+    "causation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID of the event that caused this event"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata",
+      "additionalProperties": true
+    }
+  }
+}

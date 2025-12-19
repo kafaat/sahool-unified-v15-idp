@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/DisasterRiskScored.v1.json",
+  "title": "Disaster Risk Scored Event",
+  "description": "Emitted when disaster risk assessment is completed - يُنشر عند اكتمال تقييم مخاطر الكوارث",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Risk.DisasterRiskScored" },
+    "payload": {
+      "type": "object",
+      "required": ["assessment_id", "location", "assessment_date", "risks"],
+      "properties": {
+        "assessment_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "governorate": { "type": "string" },
+            "district": { "type": "string" },
+            "coordinates": {
+              "type": "object",
+              "properties": {
+                "latitude": { "type": "number" },
+                "longitude": { "type": "number" }
+              }
+            }
+          }
+        },
+        "assessment_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "valid_until": {
+          "type": "string",
+          "format": "date"
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "risk_type": {
+                "type": "string",
+                "enum": ["flood", "drought", "locust", "frost", "heatwave", "storm", "landslide"]
+              },
+              "risk_level": {
+                "type": "string",
+                "enum": ["low", "moderate", "high", "severe", "extreme"]
+              },
+              "probability": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "expected_impact": {
+                "type": "string",
+                "enum": ["minimal", "minor", "moderate", "major", "catastrophic"]
+              },
+              "onset_window": {
+                "type": "object",
+                "properties": {
+                  "earliest": { "type": "string", "format": "date" },
+                  "latest": { "type": "string", "format": "date" }
+                }
+              }
+            }
+          }
+        },
+        "overall_risk_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "recommended_actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "intelligence",
+    "producer": "disaster-assessment",
+    "consumers": ["notification-service", "community-chat"]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/SensorReadingIngested.v1.json",
+  "title": "Sensor Reading Ingested Event",
+  "description": "Emitted when IoT sensor data is received - يُنشر عند استلام قراءة من حساس",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "IoT.SensorReadingIngested" },
+    "payload": {
+      "type": "object",
+      "required": ["device_id", "sensor_type", "value", "unit", "reading_timestamp"],
+      "properties": {
+        "device_id": {
+          "type": "string",
+          "description": "IoT device identifier"
+        },
+        "sensor_type": {
+          "type": "string",
+          "enum": ["soil_moisture", "soil_temperature", "air_temperature", "humidity", "wind_speed", "rainfall", "solar_radiation", "leaf_wetness"],
+          "description": "Type of sensor"
+        },
+        "value": {
+          "type": "number",
+          "description": "Sensor reading value"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Measurement unit (e.g., %, °C, mm)"
+        },
+        "reading_timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the reading was taken"
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" }
+          }
+        },
+        "quality_flag": {
+          "type": "string",
+          "enum": ["good", "suspect", "bad"],
+          "default": "good"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "acquisition",
+    "producer": "iot-service",
+    "consumers": ["virtual-sensors", "indicators-service", "notification-service"]
+  }
+}

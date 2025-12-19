@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/CropHealthAssessed.v1.json",
+  "title": "Crop Health Assessed Event",
+  "description": "Emitted when crop health assessment is completed - يُنشر عند اكتمال تقييم صحة المحصول",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Crop.HealthAssessed" },
+    "payload": {
+      "type": "object",
+      "required": ["field_id", "assessment_date", "overall_health", "crop_type"],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "crop_type": {
+          "type": "string",
+          "description": "Crop type being assessed"
+        },
+        "assessment_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "overall_health": {
+          "type": "string",
+          "enum": ["excellent", "good", "fair", "poor", "critical"],
+          "description": "Overall health status"
+        },
+        "health_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "stress_indicators": {
+          "type": "object",
+          "properties": {
+            "water_stress": {
+              "type": "string",
+              "enum": ["none", "mild", "moderate", "severe"]
+            },
+            "nutrient_deficiency": {
+              "type": "string",
+              "enum": ["none", "nitrogen", "phosphorus", "potassium", "multiple"]
+            },
+            "pest_risk": {
+              "type": "string",
+              "enum": ["low", "medium", "high"]
+            }
+          }
+        },
+        "disease_detected": {
+          "type": "boolean",
+          "default": false
+        },
+        "disease_details": {
+          "type": "object",
+          "properties": {
+            "disease_name": { "type": "string" },
+            "confidence": { "type": "number" },
+            "affected_area_percent": { "type": "number" },
+            "severity": { "type": "string", "enum": ["low", "medium", "high"] }
+          }
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": { "type": "string" },
+              "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+              "deadline_days": { "type": "integer" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "intelligence",
+    "producer": "crop-health-ai",
+    "consumers": ["notification-service", "fertilizer-advisor", "community-chat", "research-core"]
+  }
+}

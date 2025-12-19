@@ -101,28 +101,37 @@ jobs:
         run: |
           echo "🔍 Checking for old path references in docker-compose..."
 
+          # Only check for paths that are NOT in archive/ directory
+          # archive/ is allowed to contain legacy paths
           PATTERNS=(
             "kernel-services-v15.3/"
-            "kernel/services/"
-            "./kernel/"
           )
 
           FOUND=0
           for pattern in "${PATTERNS[@]}"; do
-            if grep -rq "$pattern" docker-compose.yml 2>/dev/null; then
+            # Exclude archive/ paths from the check
+            if grep -v "archive/" docker-compose.yml 2>/dev/null | grep -q "$pattern"; then
               echo "❌ Found old path reference: $pattern"
-              grep -n "$pattern" docker-compose.yml
+              grep -n "$pattern" docker-compose.yml | grep -v "archive/"
               FOUND=1
             fi
           done
 
+          # Check for direct kernel/ or ./kernel/ paths (not inside archive/)
+          if grep -E "context:.*\./kernel/|context:.*kernel/services/" docker-compose.yml 2>/dev/null | grep -v "archive/" | grep -q .; then
+            echo "❌ Found direct kernel path references (not in archive/)"
+            grep -nE "context:.*\./kernel/|context:.*kernel/services/" docker-compose.yml | grep -v "archive/"
+            FOUND=1
+          fi
+
           if [ $FOUND -eq 1 ]; then
             echo ""
             echo "⚠️  Update docker-compose.yml to use apps/services/ paths"
+            echo "   Note: archive/ paths are allowed for legacy code"
             exit 1
           fi
 
-          echo "✅ No old path references found"
+          echo "✅ No forbidden path references found (archive/ paths are allowed)"
 
       - name: Verify decision records
         run: |

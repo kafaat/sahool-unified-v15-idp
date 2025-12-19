@@ -147,7 +147,12 @@ class SchemaRegistry:
             )
 
         schema = self.get_schema(schema_ref)
-        jsonschema.validate(instance=payload, schema=schema)
+        # Enable format validation for UUIDs, dates, etc.
+        validator = jsonschema.Draft202012Validator(
+            schema,
+            format_checker=jsonschema.FormatChecker()
+        )
+        validator.validate(payload)
 
     def list_schemas(self) -> list[SchemaEntry]:
         """List all registered schemas"""

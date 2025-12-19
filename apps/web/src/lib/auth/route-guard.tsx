@@ -7,6 +7,7 @@
 
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import * as jose from 'jose';
 
 // Types
 type Permission = string;
@@ -52,7 +53,7 @@ interface RouteGuardOptions {
 
 /**
  * Get current user from server context
- * (Implementation depends on your auth setup)
+ * Securely validates JWT token with signature verification and expiration checks
  */
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
@@ -63,17 +64,56 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 
   try {
-    // Decode and validate token
-    // This is a placeholder - implement actual JWT validation
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Get JWT secret from environment - fail securely if not configured
+    const secret = process.env.JWT_SECRET_KEY;
+    if (!secret) {
+      // Fail securely without exposing configuration details
+      return null;
+    }
 
+    // Get issuer and audience from environment - require explicit configuration
+    const issuer = process.env.JWT_ISSUER;
+    const audience = process.env.JWT_AUDIENCE;
+    if (!issuer || !audience) {
+      // Fail securely if JWT claims are not properly configured
+      return null;
+    }
+
+    // Verify and decode JWT token with signature verification
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jose.jwtVerify(token, secretKey, {
+      issuer,
+      audience,
+    });
+
+    // Validate payload structure
+    if (!payload.sub || typeof payload.sub !== 'string') {
+      return null;
+    }
+
+    if (!payload.tenant_id || typeof payload.tenant_id !== 'string') {
+      return null;
+    }
+
+    // Extract user information from verified payload
     return {
       id: payload.sub,
-      roles: payload.roles || [],
-      permissions: payload.permissions || [],
+      roles: Array.isArray(payload.roles) ? (payload.roles as string[]) : [],
+      permissions: Array.isArray(payload.permissions) ? (payload.permissions as string[]) : [],
       tenantId: payload.tenant_id,
     };
-  } catch {
+  } catch (error) {
+    // Log specific JWT errors for debugging (in development only)
+    if (process.env.NODE_ENV === 'development') {
+      if (error instanceof jose.errors.JWTExpired) {
+        console.error('JWT token has expired');
+      } else if (error instanceof jose.errors.JWTClaimValidationFailed) {
+        console.error('JWT claim validation failed');
+      } else if (error instanceof jose.errors.JWSSignatureVerificationFailed) {
+        console.error('JWT signature verification failed');
+      }
+    }
+    // Return null without exposing details in production
     return null;
   }
 }

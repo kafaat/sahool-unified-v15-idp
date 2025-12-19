@@ -1,0 +1,124 @@
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* AUTO-GENERATED - DO NOT EDIT MANUALLY */
+/* Generated from: governance/design/design-tokens.yaml */
+/* Generated at: 2025-12-19T13:47:58.609426 */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --color-primary-50: #E8F5E9;
+  --color-primary-100: #C8E6C9;
+  --color-primary-200: #A5D6A7;
+  --color-primary-300: #81C784;
+  --color-primary-400: #66BB6A;
+  --color-primary-500: #4CAF50;
+  --color-primary-600: #43A047;
+  --color-primary-700: #388E3C;
+  --color-primary-800: #2E7D32;
+  --color-primary-900: #1B5E20;
+  --color-secondary-50: #E3F2FD;
+  --color-secondary-100: #BBDEFB;
+  --color-secondary-200: #90CAF9;
+  --color-secondary-300: #64B5F6;
+  --color-secondary-400: #42A5F5;
+  --color-secondary-500: #2196F3;
+  --color-secondary-600: #1E88E5;
+  --color-secondary-700: #1976D2;
+  --color-secondary-800: #1565C0;
+  --color-secondary-900: #0D47A1;
+  --color-accent-50: #FFF3E0;
+  --color-accent-100: #FFE0B2;
+  --color-accent-200: #FFCC80;
+  --color-accent-300: #FFB74D;
+  --color-accent-400: #FFA726;
+  --color-accent-500: #FF9800;
+  --color-accent-600: #FB8C00;
+  --color-accent-700: #F57C00;
+  --color-accent-800: #EF6C00;
+  --color-accent-900: #E65100;
+  --color-success-light: #81C784;
+  --color-success-main: #4CAF50;
+  --color-success-dark: #388E3C;
+  --color-warning-light: #FFB74D;
+  --color-warning-main: #FF9800;
+  --color-warning-dark: #F57C00;
+  --color-error-light: #E57373;
+  --color-error-main: #F44336;
+  --color-error-dark: #D32F2F;
+  --color-info-light: #64B5F6;
+  --color-info-main: #2196F3;
+  --color-info-dark: #1976D2;
+  --color-neutral-0: #FFFFFF;
+  --color-neutral-50: #FAFAFA;
+  --color-neutral-100: #F5F5F5;
+  --color-neutral-200: #EEEEEE;
+  --color-neutral-300: #E0E0E0;
+  --color-neutral-400: #BDBDBD;
+  --color-neutral-500: #9E9E9E;
+  --color-neutral-600: #757575;
+  --color-neutral-700: #616161;
+  --color-neutral-800: #424242;
+  --color-neutral-900: #212121;
+  --color-neutral-1000: #000000;
+  --color-domain-soil: #8D6E63;
+  --color-domain-water: #29B6F6;
+  --color-domain-sun: #FFEB3B;
+  --color-domain-crop_healthy: #66BB6A;
+  --color-domain-crop_stressed: #FFA726;
+  --color-domain-crop_diseased: #EF5350;
+  --color-domain-ndvi_high: #1B5E20;
+  --color-domain-ndvi_medium: #81C784;
+  --color-domain-ndvi_low: #FFF176;
+  --color-domain-ndvi_bare: #D7CCC8;
+
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+
+  --spacing-0: 0;
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+
+  --radius-none: 0;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  --shadow-none: none;
+}
+
+[data-theme='dark'] {
+  --background-primary: var(--color-neutral-900);
+  --background-secondary: var(--color-neutral-800);
+  --background-tertiary: var(--color-neutral-700);
+  --text-primary: var(--color-neutral-50);
+  --text-secondary: var(--color-neutral-300);
+  --text-tertiary: var(--color-neutral-400);
+  --text-disabled: var(--color-neutral-500);
+  --border-default: var(--color-neutral-700);
+  --border-hover: var(--color-neutral-600);
+}

@@ -1,0 +1,226 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL SLO Prometheus Rules
+# Auto-generated from governance/reliability/slo-definitions.yaml
+# ═══════════════════════════════════════════════════════════════════════════════
+
+groups:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SLI Recording Rules
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: sahool_sli_recording
+    interval: 30s
+    rules:
+      # Availability SLIs
+      - record: sahool:service:availability:rate5m
+        expr: |
+          sum by (service) (rate(http_requests_total{code!~"5.."}[5m])) /
+          sum by (service) (rate(http_requests_total[5m]))
+
+      - record: sahool:service:availability:rate1h
+        expr: |
+          sum by (service) (rate(http_requests_total{code!~"5.."}[1h])) /
+          sum by (service) (rate(http_requests_total[1h]))
+
+      - record: sahool:service:availability:rate24h
+        expr: |
+          sum by (service) (rate(http_requests_total{code!~"5.."}[24h])) /
+          sum by (service) (rate(http_requests_total[24h]))
+
+      # Latency SLIs
+      - record: sahool:service:latency_p50:rate5m
+        expr: |
+          histogram_quantile(0.50,
+            sum by (service, le) (rate(http_request_duration_seconds_bucket[5m]))
+          )
+
+      - record: sahool:service:latency_p95:rate5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (service, le) (rate(http_request_duration_seconds_bucket[5m]))
+          )
+
+      - record: sahool:service:latency_p99:rate5m
+        expr: |
+          histogram_quantile(0.99,
+            sum by (service, le) (rate(http_request_duration_seconds_bucket[5m]))
+          )
+
+      # Error Rate SLIs
+      - record: sahool:service:error_rate:rate5m
+        expr: |
+          sum by (service) (rate(http_requests_total{code=~"5.."}[5m])) /
+          sum by (service) (rate(http_requests_total[5m]))
+
+      # Request Rate
+      - record: sahool:service:request_rate:rate5m
+        expr: |
+          sum by (service) (rate(http_requests_total[5m]))
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Error Budget Recording Rules
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: sahool_error_budget
+    interval: 1m
+    rules:
+      # Error budget remaining (based on 99.9% SLO = 0.1% error budget)
+      - record: sahool:service:error_budget:remaining_percent
+        expr: |
+          100 * (1 - (
+            (1 - sahool:service:availability:rate24h) / 0.001
+          ))
+
+      # Error budget burn rate (how fast we're consuming budget)
+      - record: sahool:service:error_budget:burn_rate_1h
+        expr: |
+          (1 - sahool:service:availability:rate1h) / 0.001
+
+      # Projected time to exhaust budget
+      - record: sahool:service:error_budget:time_to_exhaustion_hours
+        expr: |
+          sahool:service:error_budget:remaining_percent /
+          sahool:service:error_budget:burn_rate_1h
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SLO Alerting Rules
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: sahool_slo_alerts
+    rules:
+      # Critical: High burn rate (10x normal)
+      - alert: SLOBurnRateCritical
+        expr: sahool:service:error_budget:burn_rate_1h > 10
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "SLO burn rate critical for {{ $labels.service }}"
+          description: |
+            Service {{ $labels.service }} is burning error budget at {{ $value | printf "%.1f" }}x the normal rate.
+            At this rate, the error budget will be exhausted in {{ with query "sahool:service:error_budget:time_to_exhaustion_hours" }}{{ . | first | value | printf "%.1f" }}{{ end }} hours.
+          runbook: "https://wiki.sahool.app/runbooks/slo-burn-rate-critical"
+
+      # Warning: Elevated burn rate (5x normal)
+      - alert: SLOBurnRateWarning
+        expr: sahool:service:error_budget:burn_rate_1h > 5 and sahool:service:error_budget:burn_rate_1h <= 10
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "SLO burn rate elevated for {{ $labels.service }}"
+          description: |
+            Service {{ $labels.service }} is burning error budget at {{ $value | printf "%.1f" }}x the normal rate.
+          runbook: "https://wiki.sahool.app/runbooks/slo-burn-rate-warning"
+
+      # Critical: Error budget exhausted
+      - alert: ErrorBudgetExhausted
+        expr: sahool:service:error_budget:remaining_percent < 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Error budget exhausted for {{ $labels.service }}"
+          description: |
+            Service {{ $labels.service }} has exhausted its error budget.
+            Current availability: {{ with query "sahool:service:availability:rate24h" }}{{ . | first | value | printf "%.4f" }}{{ end }}
+          runbook: "https://wiki.sahool.app/runbooks/error-budget-exhausted"
+
+      # Warning: Error budget low
+      - alert: ErrorBudgetLow
+        expr: sahool:service:error_budget:remaining_percent < 25 and sahool:service:error_budget:remaining_percent >= 0
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Error budget low for {{ $labels.service }}"
+          description: |
+            Service {{ $labels.service }} has only {{ $value | printf "%.1f" }}% error budget remaining.
+
+      # Latency SLO breach
+      - alert: LatencySLOBreach
+        expr: sahool:service:latency_p95:rate5m > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Latency SLO breach for {{ $labels.service }}"
+          description: |
+            Service {{ $labels.service }} P95 latency is {{ $value | printf "%.3f" }}s (SLO: 500ms)
+
+      # Availability drop
+      - alert: AvailabilityDrop
+        expr: sahool:service:availability:rate5m < 0.99
+        for: 2m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Availability drop for {{ $labels.service }}"
+          description: |
+            Service {{ $labels.service }} availability dropped to {{ $value | printf "%.4f" }} ({{ $value | printf "%.2f" }}%)
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure SLO Alerts
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: sahool_infra_slo_alerts
+    rules:
+      # PostgreSQL
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "PostgreSQL is down"
+          runbook: "https://wiki.sahool.app/runbooks/postgresql-down"
+
+      - alert: PostgreSQLHighConnections
+        expr: pg_stat_activity_count / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "PostgreSQL connection pool > 80%"
+
+      # Redis
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Redis is down"
+
+      - alert: RedisHighMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Redis memory usage > 80%"
+
+      # NATS
+      - alert: NATSDown
+        expr: nats_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "NATS is down"
+
+      - alert: NATSHighLag
+        expr: nats_consumer_pending > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "NATS consumer lag > 1000 messages"

@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.app/schemas/base-event.v1.json",
+  "title": "SAHOOL Base Event Schema",
+  "description": "Base schema for all SAHOOL domain events",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "event_version",
+    "timestamp",
+    "correlation_id",
+    "tenant_id",
+    "payload"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for this event instance"
+    },
+    "event_type": {
+      "type": "string",
+      "pattern": "^[a-z]+\\.[a-z_]+$",
+      "description": "Event type in format: category.event_name"
+    },
+    "event_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version of the event schema"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when event was created"
+    },
+    "correlation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID to correlate related events across services"
+    },
+    "causation_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID of the event that caused this event"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Tenant/organization identifier"
+    },
+    "user_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User who triggered the event (if applicable)"
+    },
+    "source": {
+      "type": "object",
+      "required": ["service", "version"],
+      "properties": {
+        "service": {
+          "type": "string",
+          "description": "Name of the service that produced the event"
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of the producing service"
+        },
+        "instance_id": {
+          "type": "string",
+          "description": "Instance ID of the producing service"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional metadata for the event"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Event-specific payload data"
+    }
+  },
+  "additionalProperties": false
+}

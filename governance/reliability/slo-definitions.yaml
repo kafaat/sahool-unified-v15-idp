@@ -1,0 +1,383 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL SLO/SLI Definitions - تعريفات مستوى الخدمة
+# Service Level Objectives and Indicators for all services
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "1.0.0"
+last_updated: "2025-12-19"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Global SLO Targets
+# ─────────────────────────────────────────────────────────────────────────────
+
+global:
+  # Default targets for all services
+  defaults:
+    availability: 99.9%        # 8.76 hours downtime/year
+    latency_p50: 100ms
+    latency_p95: 500ms
+    latency_p99: 1000ms
+    error_rate: 0.1%
+    throughput_rps: 100
+
+  # Error budget policy
+  error_budget:
+    calculation_window: 30d
+    burn_rate_thresholds:
+      critical: 10x   # 10x burn rate = page immediately
+      warning: 5x     # 5x burn rate = alert
+      elevated: 2x    # 2x burn rate = notify
+
+  # Measurement intervals
+  measurement:
+    scrape_interval: 15s
+    evaluation_interval: 1m
+    reporting_window: 7d
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Service-Level SLOs
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # API Gateway (Kong)
+  # ═══════════════════════════════════════════════════════════════════════════
+  kong:
+    tier: critical
+    slos:
+      availability:
+        target: 99.99%         # 52.6 minutes downtime/year
+        sli: |
+          sum(rate(kong_http_requests_total{code!~"5.."}[5m])) /
+          sum(rate(kong_http_requests_total[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        sli: |
+          histogram_quantile(0.95, sum(rate(kong_latency_bucket[5m])) by (le))
+
+      error_rate:
+        target: 0.01%
+        sli: |
+          sum(rate(kong_http_requests_total{code=~"5.."}[5m])) /
+          sum(rate(kong_http_requests_total[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Crop Growth Model - نموذج نمو المحاصيل
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-growth-model:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="crop-growth-model",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="crop-growth-model"}[5m]))
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="crop-growth-model"}[5m])) by (le)
+          )
+
+      simulation_accuracy:
+        target: 85%
+        description: "Simulation predictions within 15% of actual values"
+        sli: |
+          sum(rate(simulation_predictions_accurate_total[24h])) /
+          sum(rate(simulation_predictions_total[24h]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Crop Health AI - كشف الأمراض
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-health-ai:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="crop-health-ai",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="crop-health-ai"}[5m]))
+
+      latency:
+        p50: 200ms
+        p95: 1000ms
+        p99: 2000ms
+        description: "Image processing latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(inference_duration_seconds_bucket[5m])) by (le)
+          )
+
+      detection_accuracy:
+        target: 90%
+        description: "Disease detection accuracy (F1 score)"
+        sli: |
+          sum(disease_detection_true_positives) /
+          (sum(disease_detection_true_positives) + 0.5 * sum(disease_detection_false_positives) + 0.5 * sum(disease_detection_false_negatives))
+
+      processing_throughput:
+        target: 10
+        unit: "images/second"
+        sli: |
+          rate(images_processed_total[5m])
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Weather Advanced - خدمة الطقس
+  # ═══════════════════════════════════════════════════════════════════════════
+  weather-advanced:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(http_requests_total{service="weather-advanced",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="weather-advanced"}[5m]))
+
+      latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+
+      data_freshness:
+        target: 99%
+        description: "Weather data updated within 1 hour"
+        sli: |
+          (time() - weather_last_update_timestamp) < 3600
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Satellite Service - خدمة الأقمار الصناعية
+  # ═══════════════════════════════════════════════════════════════════════════
+  satellite-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.5%
+        sli: |
+          sum(rate(http_requests_total{service="satellite-service",code!~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="satellite-service"}[5m]))
+
+      latency:
+        p50: 500ms
+        p95: 2000ms
+        p99: 5000ms
+        description: "Satellite image processing takes longer"
+
+      imagery_freshness:
+        target: 95%
+        description: "Imagery available within 24 hours of acquisition"
+        sli: |
+          sum(imagery_delivery_within_sla_total) /
+          sum(imagery_requests_total)
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IoT Service - خدمة المستشعرات
+  # ═══════════════════════════════════════════════════════════════════════════
+  iot-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+        sli: |
+          sum(rate(mqtt_messages_received_total[5m])) > 0
+
+      message_latency:
+        p50: 50ms
+        p95: 200ms
+        p99: 500ms
+        description: "Sensor data ingestion latency"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(mqtt_message_latency_seconds_bucket[5m])) by (le)
+          )
+
+      data_completeness:
+        target: 99%
+        description: "No data gaps > 5 minutes"
+        sli: |
+          1 - (sum(sensor_data_gaps_total) / sum(expected_sensor_readings_total))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Notification Service - خدمة الإشعارات
+  # ═══════════════════════════════════════════════════════════════════════════
+  notification-service:
+    tier: high
+    slos:
+      availability:
+        target: 99.9%
+
+      delivery_latency:
+        p95: 5s
+        description: "Time from trigger to delivery"
+        sli: |
+          histogram_quantile(0.95,
+            sum(rate(notification_delivery_seconds_bucket[5m])) by (le)
+          )
+
+      delivery_success:
+        target: 99%
+        description: "Successful notification delivery rate"
+        sli: |
+          sum(rate(notifications_delivered_total[5m])) /
+          sum(rate(notifications_sent_total[5m]))
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Marketplace Service - خدمة السوق
+  # ═══════════════════════════════════════════════════════════════════════════
+  marketplace-service:
+    tier: medium
+    slos:
+      availability:
+        target: 99.9%
+
+      latency:
+        p50: 100ms
+        p95: 500ms
+        p99: 1000ms
+
+      transaction_success:
+        target: 99.9%
+        description: "Transaction completion rate"
+        sli: |
+          sum(rate(transactions_completed_total[5m])) /
+          sum(rate(transactions_initiated_total[5m]))
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Infrastructure SLOs
+# ─────────────────────────────────────────────────────────────────────────────
+
+infrastructure:
+  postgresql:
+    tier: critical
+    slos:
+      availability:
+        target: 99.99%
+        sli: pg_up == 1
+
+      query_latency:
+        p95: 100ms
+        sli: |
+          histogram_quantile(0.95, sum(rate(pg_stat_statements_seconds_bucket[5m])) by (le))
+
+      connection_pool:
+        target: 80%
+        description: "Connection pool utilization below 80%"
+        sli: |
+          pg_stat_activity_count / pg_settings_max_connections < 0.8
+
+  redis:
+    tier: critical
+    slos:
+      availability:
+        target: 99.99%
+        sli: redis_up == 1
+
+      latency:
+        p95: 5ms
+        sli: |
+          histogram_quantile(0.95, sum(rate(redis_commands_duration_seconds_bucket[5m])) by (le))
+
+      memory:
+        target: 80%
+        description: "Memory usage below 80%"
+        sli: |
+          redis_memory_used_bytes / redis_memory_max_bytes < 0.8
+
+  nats:
+    tier: critical
+    slos:
+      availability:
+        target: 99.99%
+        sli: nats_up == 1
+
+      message_latency:
+        p95: 10ms
+
+      jetstream_lag:
+        target: 1000
+        unit: "messages"
+        description: "Consumer lag below 1000 messages"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Alerting Rules
+# ─────────────────────────────────────────────────────────────────────────────
+
+alerting:
+  channels:
+    critical:
+      - pagerduty
+      - slack-oncall
+    warning:
+      - slack-alerts
+    info:
+      - slack-monitoring
+
+  rules:
+    - name: SLOBurnRateCritical
+      condition: burn_rate > 10
+      severity: critical
+      action: page_oncall
+      message: "SLO burn rate critical - immediate attention required"
+
+    - name: SLOBurnRateWarning
+      condition: burn_rate > 5
+      severity: warning
+      action: notify_team
+      message: "SLO burn rate elevated - investigation needed"
+
+    - name: ErrorBudgetExhausted
+      condition: error_budget_remaining < 0
+      severity: critical
+      action: freeze_deployments
+      message: "Error budget exhausted - freeze all non-critical deployments"
+
+    - name: ErrorBudgetLow
+      condition: error_budget_remaining < 25%
+      severity: warning
+      action: notify_leads
+      message: "Error budget running low - review recent changes"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SLO Dashboard Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+dashboards:
+  overview:
+    title: "SAHOOL SLO Overview"
+    refresh: 1m
+    panels:
+      - type: stat
+        title: "Overall Availability"
+        query: avg(service_availability)
+
+      - type: gauge
+        title: "Error Budget Remaining"
+        query: error_budget_remaining_percent
+
+      - type: table
+        title: "Service SLO Status"
+        columns:
+          - service
+          - availability
+          - latency_p95
+          - error_rate
+          - status
+
+  service_detail:
+    title: "Service SLO Detail"
+    variables:
+      - name: service
+        type: query
+        query: label_values(http_requests_total, service)
+    panels:
+      - type: graph
+        title: "Availability (7d)"
+      - type: graph
+        title: "Latency Distribution"
+      - type: graph
+        title: "Error Budget Burn"

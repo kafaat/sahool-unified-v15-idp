@@ -64,18 +64,26 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 
   try {
-    // Get JWT secret from environment
+    // Get JWT secret from environment - fail securely if not configured
     const secret = process.env.JWT_SECRET_KEY;
     if (!secret) {
-      console.error('JWT_SECRET_KEY is not configured');
+      // Fail securely without exposing configuration details
+      return null;
+    }
+
+    // Get issuer and audience from environment - require explicit configuration
+    const issuer = process.env.JWT_ISSUER;
+    const audience = process.env.JWT_AUDIENCE;
+    if (!issuer || !audience) {
+      // Fail securely if JWT claims are not properly configured
       return null;
     }
 
     // Verify and decode JWT token with signature verification
     const secretKey = new TextEncoder().encode(secret);
     const { payload } = await jwtVerify(token, secretKey, {
-      issuer: process.env.JWT_ISSUER || 'sahool-platform',
-      audience: process.env.JWT_AUDIENCE || 'sahool-api',
+      issuer,
+      audience,
     });
 
     // Extract user information from verified payload
@@ -85,9 +93,9 @@ export async function getCurrentUser(): Promise<User | null> {
       permissions: (payload.permissions as Permission[]) || [],
       tenantId: payload.tenant_id as string,
     };
-  } catch (error) {
+  } catch {
     // Token is invalid, expired, or has invalid signature
-    console.error('JWT verification failed:', error);
+    // Return null without logging sensitive details
     return null;
   }
 }

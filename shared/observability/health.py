@@ -42,7 +42,7 @@ class ServiceHealth:
     status: HealthStatus
     components: List[ComponentHealth] = field(default_factory=list)
     uptime_seconds: float = 0
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat() + 'Z')
+    timestamp: str = field(default_factory=lambda: datetime.now(datetime.UTC).isoformat() if hasattr(datetime, 'UTC') else datetime.utcnow().isoformat() + 'Z')
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON response"""

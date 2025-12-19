@@ -23,8 +23,8 @@ import httpx
 
 JWT_SECRET = "test-secret-key-for-unit-tests-only-32chars"
 JWT_ALGORITHM = "HS256"
-JWT_ACCESS_EXPIRE = 60  # 1 hour
-JWT_REFRESH_EXPIRE = 30 * 24 * 60  # 30 days
+JWT_ACCESS_EXPIRE = 60  # 60 minutes
+JWT_REFRESH_EXPIRE = 30 * 24 * 60  # 30 days in minutes
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

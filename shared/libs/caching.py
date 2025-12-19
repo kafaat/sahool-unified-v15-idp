@@ -87,7 +87,7 @@ class InMemoryCache:
         
         self._cache[key] = value
         
-        if ttl:
+        if ttl is not None:
             self._expiry[key] = time.time() + ttl
     
     async def delete(self, key: str) -> None:

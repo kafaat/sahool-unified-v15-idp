@@ -42,6 +42,9 @@ class SecretConfig:
     vault_mount_point: str = "secret"
     vault_path_prefix: str = "sahool"
     
+    # Fallback configuration
+    allow_env_fallback: bool = True  # Allow fallback to environment variables on Vault failure
+    
     # Cache configuration
     cache_ttl_seconds: int = 300  # 5 minutes
     cache_enabled: bool = True
@@ -70,8 +73,14 @@ class SecretManager:
             
             vault_addr = self.config.vault_addr or os.getenv("VAULT_ADDR")
             if not vault_addr:
-                logger.warning("Vault address not configured, falling back to environment variables")
-                self.config.backend = SecretBackend.ENVIRONMENT
+                if self.config.allow_env_fallback:
+                    logger.warning(
+                        "Vault address not configured, falling back to environment variables. "
+                        "Set VAULT_ADDR or disable Vault backend."
+                    )
+                    self.config.backend = SecretBackend.ENVIRONMENT
+                else:
+                    raise ValueError("Vault address not configured and env fallback is disabled")
                 return
             
             self._vault_client = hvac.Client(url=vault_addr)
@@ -90,21 +99,45 @@ class SecretManager:
                 )
                 self._vault_client.token = auth_response["auth"]["client_token"]
             else:
-                logger.warning("Vault authentication not configured, falling back to environment variables")
-                self.config.backend = SecretBackend.ENVIRONMENT
+                if self.config.allow_env_fallback:
+                    logger.warning(
+                        "Vault authentication not configured, falling back to environment variables. "
+                        "Set VAULT_TOKEN or VAULT_ROLE_ID/VAULT_SECRET_ID."
+                    )
+                    self.config.backend = SecretBackend.ENVIRONMENT
+                else:
+                    raise ValueError("Vault authentication not configured and env fallback is disabled")
                 return
             
             # Verify connection
             if not self._vault_client.is_authenticated():
-                logger.error("Vault authentication failed, falling back to environment variables")
-                self.config.backend = SecretBackend.ENVIRONMENT
+                if self.config.allow_env_fallback:
+                    logger.warning(
+                        "Vault authentication failed, falling back to environment variables. "
+                        "Set allow_env_fallback=False to make this an error."
+                    )
+                    self.config.backend = SecretBackend.ENVIRONMENT
+                else:
+                    raise RuntimeError("Vault authentication failed and env fallback is disabled")
                 
         except ImportError:
-            logger.warning("hvac library not installed, install with: pip install hvac")
-            self.config.backend = SecretBackend.ENVIRONMENT
+            if self.config.allow_env_fallback:
+                logger.warning(
+                    "hvac library not installed, falling back to environment variables. "
+                    "Install with: pip install hvac"
+                )
+                self.config.backend = SecretBackend.ENVIRONMENT
+            else:
+                raise ImportError("hvac library required for Vault backend. Install with: pip install hvac")
         except Exception as e:
-            logger.error(f"Failed to initialize Vault: {e}, falling back to environment variables")
-            self.config.backend = SecretBackend.ENVIRONMENT
+            if self.config.allow_env_fallback:
+                logger.error(
+                    f"Failed to initialize Vault: {e}, falling back to environment variables. "
+                    "Set allow_env_fallback=False to make this an error."
+                )
+                self.config.backend = SecretBackend.ENVIRONMENT
+            else:
+                raise RuntimeError(f"Failed to initialize Vault: {e}") from e
     
     def get_secret(
         self,

@@ -24,6 +24,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 # Observability imports
+# NOTE: In production, install shared modules as a package instead of using sys.path
+# This is a temporary solution for the template example
 import sys
 sys.path.insert(0, "../../../../shared")
 

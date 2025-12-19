@@ -64,7 +64,10 @@ class DatabaseConfig:
         """
         self.url = url or os.getenv("DATABASE_URL")
         if not self.url:
-            raise ValueError("DATABASE_URL must be set")
+            raise ValueError(
+                "Database URL not configured. "
+                "Set DATABASE_URL environment variable or pass url parameter."
+            )
         
         self.pool_size = int(os.getenv("DB_POOL_SIZE", pool_size))
         self.max_overflow = int(os.getenv("DB_MAX_OVERFLOW", max_overflow))

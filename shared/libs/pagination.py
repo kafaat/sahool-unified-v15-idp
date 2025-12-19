@@ -266,6 +266,10 @@ class SQLAlchemyPagination:
         else:
             limit = PaginationHelper.get_page_size(None, max_size=max_page_size)
         
+        # Validate cursor_field exists on model
+        if not hasattr(query.model, cursor_field):
+            raise ValueError(f"Field '{cursor_field}' not found on model {query.model.__name__}")
+        
         # Apply cursor filters
         cursor_value = None
         if after:

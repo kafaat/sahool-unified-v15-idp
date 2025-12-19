@@ -1087,6 +1087,31 @@ services:
               hour: 500
               policy: local
 
+      # GIS Integration Service - خدمة تكامل نظم المعلومات الجغرافية
+      # Based on GeoSuite/QCarta patterns - OGC WMS, WFS, WMTS
+      - name: gis-integration-route
+        paths:
+          - /api/v1/gis
+          - /api/v1/gis/layers
+          - /api/v1/gis/wms
+          - /api/v1/gis/wfs
+          - /api/v1/gis/spatial
+          - /api/v1/gis/fields
+          - /api/v1/gis/analysis
+          - /api/v1/gis/routing
+          - /api/v1/gis/projects
+          - /api/v1/gis/basemaps
+          - /api/v1/gis/utils
+          - /api/v1/gis/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # GIS operations - variable load
+              minute: 50
+              hour: 1000
+              policy: local
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins
 # ─────────────────────────────────────────────────────────────────────────────

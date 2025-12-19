@@ -27,6 +27,8 @@ import { RSWorldModelController } from './rs-world-model/rs-world-model.controll
 import { RSWorldModelService } from './rs-world-model/rs-world-model.service';
 import { PlantingStrategyController } from './planting-strategy/planting-strategy.controller';
 import { PlantingStrategyService } from './planting-strategy/planting-strategy.service';
+import { GISIntegrationController } from './gis-integration/gis-integration.controller';
+import { GISIntegrationService } from './gis-integration/gis-integration.service';
 
 @Module({
   controllers: [
@@ -44,6 +46,7 @@ import { PlantingStrategyService } from './planting-strategy/planting-strategy.s
     DigitalTwinCoreController,
     RSWorldModelController,
     PlantingStrategyController,
+    GISIntegrationController,
   ],
   providers: [
     PhenologyService,
@@ -60,6 +63,7 @@ import { PlantingStrategyService } from './planting-strategy/planting-strategy.s
     DigitalTwinCoreService,
     RSWorldModelService,
     PlantingStrategyService,
+    GISIntegrationService,
   ],
 })
 export class AppModule {}

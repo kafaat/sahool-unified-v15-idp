@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/GrowthStageEstimated.v1.json",
+  "title": "Growth Stage Estimated Event",
+  "description": "Emitted when crop growth stage is estimated - يُنشر عند تقدير مرحلة نمو المحصول",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Crop.GrowthStageEstimated" },
+    "payload": {
+      "type": "object",
+      "required": ["field_id", "crop_type", "current_stage", "estimation_date"],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "crop_type": {
+          "type": "string"
+        },
+        "planting_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "estimation_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "current_stage": {
+          "type": "object",
+          "properties": {
+            "bbch_code": {
+              "type": "integer",
+              "description": "BBCH growth stage code"
+            },
+            "stage_name": {
+              "type": "string",
+              "description": "Human readable stage name"
+            },
+            "stage_name_ar": {
+              "type": "string",
+              "description": "Arabic stage name"
+            },
+            "days_in_stage": {
+              "type": "integer"
+            }
+          }
+        },
+        "gdd_accumulated": {
+          "type": "number",
+          "description": "Growing Degree Days accumulated"
+        },
+        "biomass_estimate_kg_ha": {
+          "type": "number",
+          "description": "Estimated biomass in kg/hectare"
+        },
+        "next_stage": {
+          "type": "object",
+          "properties": {
+            "stage_name": { "type": "string" },
+            "expected_date": { "type": "string", "format": "date" },
+            "days_remaining": { "type": "integer" }
+          }
+        },
+        "harvest_window": {
+          "type": "object",
+          "properties": {
+            "earliest_date": { "type": "string", "format": "date" },
+            "optimal_date": { "type": "string", "format": "date" },
+            "latest_date": { "type": "string", "format": "date" }
+          }
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "decision",
+    "producer": "crop-growth-model",
+    "consumers": ["fertilizer-advisor", "irrigation-smart", "yield-engine", "notification-service"]
+  }
+}

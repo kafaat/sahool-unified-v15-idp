@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/IrrigationPlanProposed.v1.json",
+  "title": "Irrigation Plan Proposed Event",
+  "description": "Emitted when irrigation recommendation is generated - يُنشر عند توليد توصية الري",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Advisor.IrrigationPlanProposed" },
+    "payload": {
+      "type": "object",
+      "required": ["field_id", "plan_date", "recommendation"],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "plan_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "crop_type": {
+          "type": "string"
+        },
+        "growth_stage": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": ["irrigate_now", "irrigate_soon", "no_irrigation_needed", "reduce_irrigation"]
+            },
+            "water_amount_mm": {
+              "type": "number",
+              "description": "Recommended water amount in mm"
+            },
+            "water_amount_liters_ha": {
+              "type": "number",
+              "description": "Recommended water in liters per hectare"
+            },
+            "optimal_time": {
+              "type": "string",
+              "enum": ["early_morning", "evening", "night"],
+              "description": "Best time to irrigate"
+            },
+            "urgency": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "critical"]
+            },
+            "deadline": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Irrigate before this time"
+            }
+          }
+        },
+        "reasoning": {
+          "type": "object",
+          "properties": {
+            "soil_moisture_current": { "type": "number" },
+            "soil_moisture_target": { "type": "number" },
+            "et0_forecast_mm": { "type": "number" },
+            "rainfall_forecast_mm": { "type": "number" },
+            "crop_water_need_mm": { "type": "number" }
+          }
+        },
+        "water_savings_percent": {
+          "type": "number",
+          "description": "Estimated water savings vs traditional irrigation"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "decision",
+    "producer": "irrigation-smart",
+    "consumers": ["notification-service", "iot-service"]
+  }
+}

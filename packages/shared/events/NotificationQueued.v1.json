@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/NotificationQueued.v1.json",
+  "title": "Notification Queued Event",
+  "description": "Emitted when a notification is queued for delivery - يُنشر عند إضافة إشعار لقائمة الإرسال",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Notification.Queued" },
+    "payload": {
+      "type": "object",
+      "required": ["notification_id", "recipient_id", "channel", "priority", "content"],
+      "properties": {
+        "notification_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "recipient_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "User ID to receive notification"
+        },
+        "channel": {
+          "type": "string",
+          "enum": ["push", "sms", "email", "in_app", "whatsapp"],
+          "description": "Delivery channel"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "normal", "high", "urgent"]
+        },
+        "category": {
+          "type": "string",
+          "enum": ["alert", "recommendation", "reminder", "update", "marketing"]
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "title_ar": { "type": "string" },
+            "body": { "type": "string" },
+            "body_ar": { "type": "string" },
+            "action_url": { "type": "string" },
+            "image_url": { "type": "string" }
+          }
+        },
+        "source_event": {
+          "type": "string",
+          "description": "Event that triggered this notification"
+        },
+        "scheduled_for": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When to send (null = immediate)"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Don't send after this time"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "business",
+    "producer": "notification-service",
+    "consumers": []
+  }
+}

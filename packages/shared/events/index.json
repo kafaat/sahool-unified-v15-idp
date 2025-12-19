@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SAHOOL Event Registry Index",
+  "description": "فهرس أحداث منصة سهول - SAHOOL Platform Event Index",
+  "version": "1.0.0",
+  "last_updated": "2025-12-19",
+  "events": {
+    "acquisition": {
+      "description": "Data acquisition layer events - أحداث طبقة جمع البيانات",
+      "events": [
+        {
+          "name": "SatelliteSceneIngested",
+          "version": "v1",
+          "file": "SatelliteSceneIngested.v1.json",
+          "producer": "satellite-service"
+        },
+        {
+          "name": "SensorReadingIngested",
+          "version": "v1",
+          "file": "SensorReadingIngested.v1.json",
+          "producer": "iot-service"
+        },
+        {
+          "name": "WeatherForecastReady",
+          "version": "v1",
+          "file": "WeatherForecastReady.v1.json",
+          "producer": "weather-advanced"
+        }
+      ]
+    },
+    "intelligence": {
+      "description": "Intelligence layer events - أحداث طبقة الذكاء",
+      "events": [
+        {
+          "name": "FieldIndicatorsComputed",
+          "version": "v1",
+          "file": "FieldIndicatorsComputed.v1.json",
+          "producer": "indicators-service"
+        },
+        {
+          "name": "CropHealthAssessed",
+          "version": "v1",
+          "file": "CropHealthAssessed.v1.json",
+          "producer": "crop-health-ai"
+        },
+        {
+          "name": "DisasterRiskScored",
+          "version": "v1",
+          "file": "DisasterRiskScored.v1.json",
+          "producer": "disaster-assessment"
+        }
+      ]
+    },
+    "decision": {
+      "description": "Decision layer events - أحداث طبقة القرار",
+      "events": [
+        {
+          "name": "GrowthStageEstimated",
+          "version": "v1",
+          "file": "GrowthStageEstimated.v1.json",
+          "producer": "crop-growth-model"
+        },
+        {
+          "name": "YieldPredicted",
+          "version": "v1",
+          "file": "YieldPredicted.v1.json",
+          "producer": "yield-prediction"
+        },
+        {
+          "name": "IrrigationPlanProposed",
+          "version": "v1",
+          "file": "IrrigationPlanProposed.v1.json",
+          "producer": "irrigation-smart"
+        },
+        {
+          "name": "FertilizerPlanProposed",
+          "version": "v1",
+          "file": "FertilizerPlanProposed.v1.json",
+          "producer": "fertilizer-advisor"
+        }
+      ]
+    },
+    "business": {
+      "description": "Business layer events - أحداث طبقة الأعمال",
+      "events": [
+        {
+          "name": "NotificationQueued",
+          "version": "v1",
+          "file": "NotificationQueued.v1.json",
+          "producer": "notification-service"
+        },
+        {
+          "name": "OrderCreated",
+          "version": "v1",
+          "file": "OrderCreated.v1.json",
+          "producer": "marketplace-service"
+        }
+      ]
+    }
+  },
+  "naming_convention": {
+    "pattern": "{Domain}.{Action}",
+    "examples": ["Satellite.SceneIngested", "Crop.HealthAssessed", "Advisor.IrrigationPlanProposed"],
+    "versioning": "Append .v{n} to filename, use event_version field in payload"
+  },
+  "transport": {
+    "default": "nats",
+    "subject_pattern": "sahool.{tenant_id}.{event_type}",
+    "examples": [
+      "sahool.tenant-123.Satellite.SceneIngested",
+      "sahool.tenant-123.Crop.HealthAssessed"
+    ]
+  }
+}

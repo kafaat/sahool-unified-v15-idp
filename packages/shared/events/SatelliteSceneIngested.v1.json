@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/SatelliteSceneIngested.v1.json",
+  "title": "Satellite Scene Ingested Event",
+  "description": "Emitted when a new satellite scene is ingested - يُنشر عند استيعاب مشهد قمر صناعي جديد",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Satellite.SceneIngested" },
+    "payload": {
+      "type": "object",
+      "required": ["scene_id", "satellite", "acquisition_date", "cloud_cover_percent", "bounds"],
+      "properties": {
+        "scene_id": {
+          "type": "string",
+          "description": "Unique scene identifier from provider"
+        },
+        "satellite": {
+          "type": "string",
+          "enum": ["sentinel-2", "landsat-8", "landsat-9", "planet"],
+          "description": "Satellite source"
+        },
+        "acquisition_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Scene acquisition timestamp"
+        },
+        "cloud_cover_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Cloud cover percentage"
+        },
+        "bounds": {
+          "type": "object",
+          "description": "Geographic bounds (GeoJSON BBox)",
+          "properties": {
+            "west": { "type": "number" },
+            "south": { "type": "number" },
+            "east": { "type": "number" },
+            "north": { "type": "number" }
+          }
+        },
+        "bands_available": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Available spectral bands"
+        },
+        "storage_path": {
+          "type": "string",
+          "description": "Internal storage path for the scene"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "acquisition",
+    "producer": "satellite-service",
+    "consumers": ["indicators-service", "lai-estimation", "disaster-assessment"]
+  }
+}

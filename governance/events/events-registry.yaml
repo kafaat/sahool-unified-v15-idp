@@ -1,0 +1,462 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Event Registry - سجل الأحداث المعتمدة
+# Single Source of Truth for all domain events
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "1.0.0"
+last_updated: "2025-12-19"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Versioning Policy
+# ─────────────────────────────────────────────────────────────────────────────
+
+versioning:
+  strategy: semantic  # major.minor.patch
+  breaking_change_policy: |
+    - Major version bump for breaking changes
+    - Minor version bump for new optional fields
+    - Patch version bump for documentation/fixes
+  deprecation_period_days: 90
+  max_supported_versions: 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Categories
+# ─────────────────────────────────────────────────────────────────────────────
+
+categories:
+  field:
+    description: "Field management events"
+    description_ar: "أحداث إدارة الحقول"
+    prefix: "field."
+
+  crop:
+    description: "Crop lifecycle events"
+    description_ar: "أحداث دورة حياة المحاصيل"
+    prefix: "crop."
+
+  weather:
+    description: "Weather and climate events"
+    description_ar: "أحداث الطقس والمناخ"
+    prefix: "weather."
+
+  iot:
+    description: "IoT sensor events"
+    description_ar: "أحداث مستشعرات IoT"
+    prefix: "iot."
+
+  analytics:
+    description: "Analytics and prediction events"
+    description_ar: "أحداث التحليلات والتنبؤات"
+    prefix: "analytics."
+
+  user:
+    description: "User activity events"
+    description_ar: "أحداث نشاط المستخدم"
+    prefix: "user."
+
+  system:
+    description: "System and infrastructure events"
+    description_ar: "أحداث النظام والبنية التحتية"
+    prefix: "system."
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Domain Events
+# ─────────────────────────────────────────────────────────────────────────────
+
+events:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD EVENTS - أحداث الحقول
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  field.created:
+    version: "1.0.0"
+    category: field
+    description: "A new field has been registered"
+    description_ar: "تم تسجيل حقل جديد"
+    producer: field-ops
+    consumers:
+      - crop-growth-model
+      - satellite-service
+      - notification-service
+    schema: "field.created.v1.json"
+    payload:
+      required:
+        - field_id
+        - tenant_id
+        - name
+        - geometry
+        - area_hectares
+      optional:
+        - soil_type
+        - irrigation_type
+        - owner_id
+
+  field.updated:
+    version: "1.0.0"
+    category: field
+    description: "Field information has been updated"
+    producer: field-ops
+    consumers:
+      - crop-growth-model
+      - satellite-service
+    schema: "field.updated.v1.json"
+    payload:
+      required:
+        - field_id
+        - updated_fields
+        - updated_at
+      optional:
+        - updated_by
+
+  field.boundary_changed:
+    version: "1.0.0"
+    category: field
+    description: "Field boundary geometry has changed"
+    producer: field-ops
+    consumers:
+      - satellite-service
+      - indicators-service
+    schema: "field.boundary_changed.v1.json"
+    payload:
+      required:
+        - field_id
+        - old_geometry
+        - new_geometry
+        - area_change_hectares
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CROP EVENTS - أحداث المحاصيل
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  crop.planted:
+    version: "1.0.0"
+    category: crop
+    description: "Crop has been planted in a field"
+    description_ar: "تم زراعة محصول في الحقل"
+    producer: field-ops
+    consumers:
+      - crop-growth-model
+      - weather-advanced
+      - fertilizer-advisor
+      - irrigation-smart
+    schema: "crop.planted.v1.json"
+    payload:
+      required:
+        - field_id
+        - crop_type
+        - variety
+        - planting_date
+        - expected_harvest_date
+      optional:
+        - seed_source
+        - planting_density
+
+  crop.growth_stage_changed:
+    version: "1.0.0"
+    category: crop
+    description: "Crop has entered a new growth stage"
+    producer: crop-growth-model
+    consumers:
+      - fertilizer-advisor
+      - irrigation-smart
+      - notification-service
+    schema: "crop.growth_stage_changed.v1.json"
+    payload:
+      required:
+        - field_id
+        - crop_id
+        - previous_stage
+        - current_stage
+        - stage_entered_at
+      optional:
+        - days_in_previous_stage
+        - predicted_next_stage_date
+
+  crop.harvested:
+    version: "1.0.0"
+    category: crop
+    description: "Crop has been harvested"
+    producer: field-ops
+    consumers:
+      - yield-engine
+      - marketplace-service
+      - analytics
+    schema: "crop.harvested.v1.json"
+    payload:
+      required:
+        - field_id
+        - crop_id
+        - harvest_date
+        - yield_kg
+        - area_harvested_hectares
+      optional:
+        - quality_grade
+        - moisture_content
+        - storage_location
+
+  crop.disease_detected:
+    version: "1.0.0"
+    category: crop
+    description: "Disease or pest detected in crop"
+    producer: crop-health-ai
+    consumers:
+      - notification-service
+      - fertilizer-advisor
+      - community-chat
+    schema: "crop.disease_detected.v1.json"
+    priority: high
+    payload:
+      required:
+        - field_id
+        - disease_type
+        - confidence_score
+        - detected_at
+        - affected_area_percentage
+      optional:
+        - image_urls
+        - recommended_actions
+        - severity_level
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WEATHER EVENTS - أحداث الطقس
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  weather.forecast_updated:
+    version: "1.0.0"
+    category: weather
+    description: "Weather forecast has been updated"
+    producer: weather-advanced
+    consumers:
+      - crop-growth-model
+      - irrigation-smart
+      - disaster-assessment
+    schema: "weather.forecast_updated.v1.json"
+    payload:
+      required:
+        - location_id
+        - forecast_date
+        - temperature_min
+        - temperature_max
+        - precipitation_mm
+        - humidity_percent
+      optional:
+        - wind_speed_kmh
+        - uv_index
+        - conditions
+
+  weather.alert_issued:
+    version: "1.0.0"
+    category: weather
+    description: "Weather alert has been issued"
+    producer: weather-advanced
+    consumers:
+      - notification-service
+      - disaster-assessment
+      - irrigation-smart
+    schema: "weather.alert_issued.v1.json"
+    priority: high
+    payload:
+      required:
+        - alert_id
+        - alert_type
+        - severity
+        - affected_regions
+        - valid_from
+        - valid_until
+      optional:
+        - description
+        - recommended_actions
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IOT EVENTS - أحداث المستشعرات
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  iot.sensor_reading:
+    version: "1.0.0"
+    category: iot
+    description: "Sensor has reported a reading"
+    producer: iot-service
+    consumers:
+      - virtual-sensors
+      - irrigation-smart
+      - crop-growth-model
+    schema: "iot.sensor_reading.v1.json"
+    payload:
+      required:
+        - sensor_id
+        - field_id
+        - reading_type
+        - value
+        - unit
+        - timestamp
+      optional:
+        - battery_level
+        - signal_strength
+
+  iot.sensor_alert:
+    version: "1.0.0"
+    category: iot
+    description: "Sensor has triggered an alert"
+    producer: iot-service
+    consumers:
+      - notification-service
+      - irrigation-smart
+    schema: "iot.sensor_alert.v1.json"
+    priority: high
+    payload:
+      required:
+        - sensor_id
+        - alert_type
+        - threshold_value
+        - actual_value
+        - timestamp
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ANALYTICS EVENTS - أحداث التحليلات
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  analytics.ndvi_calculated:
+    version: "1.0.0"
+    category: analytics
+    description: "NDVI index has been calculated for a field"
+    producer: indicators-service
+    consumers:
+      - crop-health-ai
+      - crop-growth-model
+      - notification-service
+    schema: "analytics.ndvi_calculated.v1.json"
+    payload:
+      required:
+        - field_id
+        - ndvi_value
+        - satellite_source
+        - acquisition_date
+        - calculation_date
+      optional:
+        - cloud_cover_percent
+        - quality_flag
+
+  analytics.yield_predicted:
+    version: "1.0.0"
+    category: analytics
+    description: "Yield prediction has been generated"
+    producer: yield-engine
+    consumers:
+      - notification-service
+      - marketplace-service
+    schema: "analytics.yield_predicted.v1.json"
+    payload:
+      required:
+        - field_id
+        - crop_id
+        - predicted_yield_kg
+        - confidence_interval_low
+        - confidence_interval_high
+        - prediction_date
+      optional:
+        - model_version
+        - factors_considered
+
+  analytics.irrigation_recommendation:
+    version: "1.0.0"
+    category: analytics
+    description: "Irrigation recommendation generated"
+    producer: irrigation-smart
+    consumers:
+      - notification-service
+      - iot-service
+    schema: "analytics.irrigation_recommendation.v1.json"
+    payload:
+      required:
+        - field_id
+        - recommended_amount_mm
+        - recommended_date
+        - reason
+      optional:
+        - urgency_level
+        - water_source_preference
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # USER EVENTS - أحداث المستخدم
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  user.logged_in:
+    version: "1.0.0"
+    category: user
+    description: "User has logged in"
+    producer: auth-service
+    consumers:
+      - analytics
+      - notification-service
+    schema: "user.logged_in.v1.json"
+    payload:
+      required:
+        - user_id
+        - tenant_id
+        - login_time
+        - device_type
+      optional:
+        - ip_address
+        - location
+
+  user.action_performed:
+    version: "1.0.0"
+    category: user
+    description: "User has performed an action"
+    producer: "*"
+    consumers:
+      - analytics
+    schema: "user.action_performed.v1.json"
+    payload:
+      required:
+        - user_id
+        - action_type
+        - resource_type
+        - resource_id
+        - timestamp
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Transport Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+transport:
+  default: nats
+
+  nats:
+    url: "${NATS_URL:-nats://localhost:4222}"
+    cluster_id: sahool-cluster
+    jetstream:
+      enabled: true
+      storage: file
+      max_age: 7d  # Retain events for 7 days
+
+  mqtt:
+    url: "${MQTT_URL:-mqtt://localhost:1883}"
+    qos: 1
+    topics_prefix: "sahool/events/"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Governance Rules
+# ─────────────────────────────────────────────────────────────────────────────
+
+governance:
+  rules:
+    - id: EVT-001
+      rule: "All events MUST have a schema in shared/contracts/schemas/"
+      enforce: true
+
+    - id: EVT-002
+      rule: "Breaking changes require major version bump"
+      enforce: true
+
+    - id: EVT-003
+      rule: "Deprecated events MUST be supported for 90 days"
+      enforce: true
+
+    - id: EVT-004
+      rule: "High priority events MUST have < 100ms processing SLO"
+      enforce: true
+
+    - id: EVT-005
+      rule: "All events MUST include correlation_id for tracing"
+      enforce: true

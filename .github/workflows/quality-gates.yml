@@ -150,23 +150,28 @@ jobs:
         run: |
           echo "🔍 Scanning for potential secrets..."
 
-          # Only scan Python source files, exclude node_modules and generated content
           FOUND=0
 
           # Check for OpenAI API keys in Python files only
-          if find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "sk-proj-[a-zA-Z0-9]{48}" 2>/dev/null | grep -v ".example" | head -3; then
+          OPENAI_MATCH=$(find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "sk-proj-[a-zA-Z0-9]{48}" 2>/dev/null | grep -v ".example" | head -3 || true)
+          if [ -n "$OPENAI_MATCH" ]; then
+            echo "$OPENAI_MATCH"
             echo "::error::OpenAI API key found"
             FOUND=1
           fi
 
           # Check for GitHub tokens in Python files only
-          if find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "ghp_[a-zA-Z0-9]{36}" 2>/dev/null | grep -v ".example" | head -3; then
+          GH_MATCH=$(find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "ghp_[a-zA-Z0-9]{36}" 2>/dev/null | grep -v ".example" | head -3 || true)
+          if [ -n "$GH_MATCH" ]; then
+            echo "$GH_MATCH"
             echo "::error::GitHub token found"
             FOUND=1
           fi
 
           # Check for AWS keys in Python files only
-          if find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v ".example" | head -3; then
+          AWS_MATCH=$(find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v ".example" | head -3 || true)
+          if [ -n "$AWS_MATCH" ]; then
+            echo "$AWS_MATCH"
             echo "::error::AWS access key found"
             FOUND=1
           fi

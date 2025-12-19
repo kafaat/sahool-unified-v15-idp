@@ -568,3 +568,57 @@ check-structure: ## Check repository structure compliance
 	@for path in apps/services apps/web apps/admin governance; do \
 		if [ -d "$$path" ]; then echo "  ✅ $$path"; else echo "  ❌ $$path missing"; fi; \
 	done
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Design System Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+generate-design-tokens: ## Generate design tokens for all platforms
+	@echo "🎨 Generating design tokens..."
+	python3 scripts/generators/generate_design_tokens.py
+	@echo "✅ Design tokens generated for CSS, Tailwind, TypeScript, and Flutter"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SLO/SLI Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+slo-status: ## Show current SLO status
+	@echo "📊 SLO Status Dashboard"
+	@echo "─────────────────────────"
+	@echo "Reference: governance/reliability/slo-definitions.yaml"
+	@echo ""
+	@echo "Service Tiers:"
+	@echo "  Critical: Kong, PostgreSQL, Redis, NATS"
+	@echo "  High: Crop Growth Model, Crop Health AI, Weather, IoT, Notifications"
+	@echo "  Medium: Satellite, Marketplace"
+
+slo-validate: ## Validate SLO definitions
+	@echo "🔍 Validating SLO definitions..."
+	@python3 -c "import yaml; yaml.safe_load(open('governance/reliability/slo-definitions.yaml')); print('✅ SLO definitions are valid YAML')"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Contracts Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+events-list: ## List all registered events
+	@echo "📋 SAHOOL Event Registry"
+	@echo "─────────────────────────"
+	@grep "^  [a-z].*:" governance/events/events-registry.yaml | grep -v "^  #" | head -30
+
+events-validate: ## Validate event schemas
+	@echo "🔍 Validating event schemas..."
+	@for schema in shared/contracts/schemas/*.json; do \
+		python3 -c "import json; json.load(open('$$schema'))" && echo "  ✅ $$schema"; \
+	done
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Full Generation
+# ─────────────────────────────────────────────────────────────────────────────
+
+generate-all: generate-infra generate-design-tokens ## Generate all artifacts from governance
+	@echo "✅ All artifacts generated from governance!"
+	@echo ""
+	@echo "Generated:"
+	@echo "  - docker/compose.generated.yml"
+	@echo "  - helm/sahool/values.generated.yaml"
+	@echo "  - packages/design-system/tokens/*"

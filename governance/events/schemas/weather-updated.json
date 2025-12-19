@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.sa/events/weather-updated.json",
+  "title": "WeatherUpdated",
+  "description": "Event emitted when weather data is updated",
+  "type": "object",
+  "required": ["event_id", "timestamp", "location", "conditions"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event timestamp in ISO 8601 format"
+    },
+    "location": {
+      "type": "object",
+      "required": ["lat", "lng"],
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "lng": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "region": {
+          "type": "string",
+          "description": "Region name"
+        }
+      },
+      "description": "Weather observation location"
+    },
+    "conditions": {
+      "type": "object",
+      "required": ["temperature", "humidity"],
+      "properties": {
+        "temperature": {
+          "type": "number",
+          "minimum": -50,
+          "maximum": 60,
+          "description": "Temperature in Celsius"
+        },
+        "feels_like": {
+          "type": "number",
+          "minimum": -50,
+          "maximum": 70,
+          "description": "Feels-like temperature in Celsius"
+        },
+        "humidity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Relative humidity percentage"
+        },
+        "pressure": {
+          "type": "number",
+          "minimum": 800,
+          "maximum": 1100,
+          "description": "Atmospheric pressure in hPa"
+        },
+        "wind_speed": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Wind speed in km/h"
+        },
+        "wind_direction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 360,
+          "description": "Wind direction in degrees"
+        },
+        "precipitation": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Precipitation in mm"
+        },
+        "cloud_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Cloud coverage percentage"
+        },
+        "uv_index": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 15,
+          "description": "UV index"
+        },
+        "visibility": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Visibility in km"
+        },
+        "description": {
+          "type": "string",
+          "description": "Weather description"
+        },
+        "description_ar": {
+          "type": "string",
+          "description": "Arabic weather description"
+        }
+      },
+      "description": "Current weather conditions"
+    },
+    "agricultural_metrics": {
+      "type": "object",
+      "properties": {
+        "evapotranspiration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Reference evapotranspiration (ET0) in mm/day"
+        },
+        "growing_degree_days": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Growing degree days"
+        },
+        "soil_moisture_index": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Estimated soil moisture index"
+        },
+        "frost_risk": {
+          "type": "boolean",
+          "description": "Frost risk indicator"
+        },
+        "heat_stress_risk": {
+          "type": "boolean",
+          "description": "Heat stress risk indicator"
+        }
+      },
+      "description": "Agricultural-specific weather metrics"
+    },
+    "data_source": {
+      "type": "string",
+      "enum": ["openweathermap", "weatherapi", "saudi_meteo", "station"],
+      "description": "Weather data source"
+    }
+  },
+  "additionalProperties": false
+}

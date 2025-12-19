@@ -7,6 +7,7 @@
 
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import * as jose from 'jose';
 
 // Types
 type Permission = string;
@@ -52,7 +53,7 @@ interface RouteGuardOptions {
 
 /**
  * Get current user from server context
- * (Implementation depends on your auth setup)
+ * Securely validates JWT token with signature verification and expiration checks
  */
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
@@ -63,17 +64,40 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 
   try {
-    // Decode and validate token
-    // This is a placeholder - implement actual JWT validation
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Get JWT secret from environment
+    const secret = process.env.JWT_SECRET_KEY;
+    if (!secret) {
+      console.error('JWT_SECRET_KEY environment variable is not set');
+      return null;
+    }
 
+    // Verify and decode JWT token with signature verification
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jose.jwtVerify(token, secretKey, {
+      issuer: process.env.JWT_ISSUER || 'sahool-platform',
+      audience: process.env.JWT_AUDIENCE || 'sahool-api',
+    });
+
+    // Extract user information from verified payload
     return {
-      id: payload.sub,
-      roles: payload.roles || [],
-      permissions: payload.permissions || [],
-      tenantId: payload.tenant_id,
+      id: payload.sub as string,
+      roles: (payload.roles as string[]) || [],
+      permissions: (payload.permissions as string[]) || [],
+      tenantId: payload.tenant_id as string,
     };
-  } catch {
+  } catch (error) {
+    // Log specific JWT errors for debugging (in development)
+    if (process.env.NODE_ENV === 'development') {
+      if (error instanceof jose.errors.JWTExpired) {
+        console.error('JWT token has expired');
+      } else if (error instanceof jose.errors.JWTClaimValidationFailed) {
+        console.error('JWT claim validation failed:', error.message);
+      } else if (error instanceof jose.errors.JWSSignatureVerificationFailed) {
+        console.error('JWT signature verification failed');
+      } else {
+        console.error('JWT verification error:', error);
+      }
+    }
     return null;
   }
 }

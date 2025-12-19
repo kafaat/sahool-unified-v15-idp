@@ -2,12 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Internationalization
-  i18n: {
-    locales: ['ar', 'en'],
-    defaultLocale: 'ar',
-    localeDetection: true,
-  },
+  // Note: i18n is handled via next-intl for App Router
+  // Legacy Pages Router i18n config removed for Next.js 15 compatibility
 
   // Image optimization
   images: {

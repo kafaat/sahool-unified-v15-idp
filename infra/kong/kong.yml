@@ -518,6 +518,28 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
+  - name: marketplace-upstream
+    targets:
+      - target: sahool-marketplace:3010
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1110,6 +1132,42 @@ services:
               # GIS operations - variable load
               minute: 50
               hour: 1000
+              policy: local
+
+  # Marketplace & FinTech Service (v16.0)
+  - name: marketplace-service
+    host: marketplace-upstream
+    port: 3010
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: marketplace-route
+        paths:
+          - /api/v1/market/marketplace
+          - /api/v1/market/products
+          - /api/v1/market/orders
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
+      - name: fintech-route
+        paths:
+          - /api/v1/fintech/wallet
+          - /api/v1/fintech/loans
+          - /api/v1/fintech/credit
+          - /api/v1/fintech/transactions
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
               policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────

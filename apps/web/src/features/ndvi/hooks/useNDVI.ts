@@ -86,7 +86,7 @@ export function useRequestNDVIAnalysis() {
 
   return useMutation({
     mutationFn: (fieldId: string) => ndviApi.requestNDVIAnalysis(fieldId),
-    onSuccess: (_, fieldId) => {
+    onSuccess: (_: { jobId: string; status: string }, fieldId: string) => {
       // Invalidate related queries after analysis is requested
       queryClient.invalidateQueries({ queryKey: ndviKeys.field(fieldId) });
     },

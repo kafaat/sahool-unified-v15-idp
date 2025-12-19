@@ -87,7 +87,7 @@ export function useUpdateField() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: FieldUpdate }) =>
       fieldMapApi.updateField(id, data),
-    onSuccess: (updatedField) => {
+    onSuccess: (updatedField: Field) => {
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.setQueryData(fieldKeys.detail(updatedField.id), updatedField);
     },
@@ -102,7 +102,7 @@ export function useDeleteField() {
 
   return useMutation({
     mutationFn: (id: string) => fieldMapApi.deleteField(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_: void, id: string) => {
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.removeQueries({ queryKey: fieldKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });

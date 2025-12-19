@@ -5,6 +5,23 @@
 
 import { api } from '@sahool/api-client';
 
+// GeoJSON Types (simplified for field boundaries)
+export interface GeoJSONPolygon {
+  type: 'Polygon';
+  coordinates: number[][][];
+}
+
+export interface GeoJSONFeature<T = Record<string, unknown>> {
+  type: 'Feature';
+  geometry: GeoJSONPolygon;
+  properties: T;
+}
+
+export interface GeoJSONFeatureCollection<T = Record<string, unknown>> {
+  type: 'FeatureCollection';
+  features: GeoJSONFeature<T>[];
+}
+
 // Types
 export interface Field {
   id: string;
@@ -12,7 +29,7 @@ export interface Field {
   nameAr: string;
   area: number;
   areaUnit: 'hectare' | 'dunum' | 'acre';
-  geometry: GeoJSON.Polygon;
+  geometry: GeoJSONPolygon;
   cropType?: string;
   status: 'active' | 'fallow' | 'harvested';
   governorate: string;
@@ -24,7 +41,7 @@ export interface Field {
 export interface FieldCreate {
   name: string;
   nameAr: string;
-  geometry: GeoJSON.Polygon;
+  geometry: GeoJSONPolygon;
   cropType?: string;
 }
 
@@ -94,7 +111,7 @@ export const fieldMapApi = {
   /**
    * Get field GeoJSON for map display
    */
-  getFieldsGeoJSON: async (filters?: FieldFilters): Promise<GeoJSON.FeatureCollection> => {
+  getFieldsGeoJSON: async (filters?: FieldFilters): Promise<GeoJSONFeatureCollection<Field>> => {
     const params = new URLSearchParams();
     if (filters?.governorate) params.set('governorate', filters.governorate);
     if (filters?.status) params.set('status', filters.status);

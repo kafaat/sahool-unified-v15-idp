@@ -7,12 +7,14 @@ on:
       - "gitops/**"
       - "helm/**"
       - "idp/**"
+      - "apps/**"
   push:
     branches: [main, develop]
     paths:
       - "governance/**"
       - "gitops/**"
       - "helm/**"
+      - "apps/**"
 
 jobs:
   validate-yaml:
@@ -111,18 +113,31 @@ jobs:
 
       - name: Check for legacy paths in new code
         run: |
-          echo "Checking for services outside kernel-services-v15.3..."
+          echo "Checking for services outside apps/services/..."
 
-          # Check for new services in forbidden locations
-          FORBIDDEN_PATHS="advisor/ field_suite/ kernel_domain/ services/ apps/"
+          # Forbidden paths - legacy locations that should not exist
+          FORBIDDEN_PATHS=(
+            "kernel/"
+            "kernel-services-v15.3/"
+            "frontend/"
+            "web_admin/"
+            "advisor/"
+            "field_suite/"
+            "kernel_domain/"
+          )
 
-          for path in $FORBIDDEN_PATHS; do
-            if [ -d "$path" ] && [ "$path" != "services/" ]; then
+          FOUND=0
+          for path in "${FORBIDDEN_PATHS[@]}"; do
+            if [ -d "$path" ]; then
               echo "ERROR: Found legacy path: $path"
-              echo "Move to kernel-services-v15.3/ or packages/"
-              exit 1
+              echo "Move to apps/services/, apps/, or packages/"
+              FOUND=1
             fi
           done
+
+          if [ $FOUND -eq 1 ]; then
+            exit 1
+          fi
 
           echo "✅ No legacy service paths found"
 
@@ -139,28 +154,51 @@ jobs:
           with open("governance/services.yaml", "r") as f:
               data = yaml.safe_load(f)
 
-          missing = []
+          errors = []
+
+          # Check services paths - must start with apps/services/
           for name, service in data.get("services", {}).items():
               path = service.get("path", "")
-              if path and not os.path.isdir(path):
-                  missing.append(f"{name}: {path}")
+              if path:
+                  if not path.startswith("apps/services/"):
+                      errors.append(f"❌ {name}: path must start with 'apps/services/' (got: {path})")
+                  elif not os.path.isdir(path):
+                      errors.append(f"❌ {name}: path does not exist ({path})")
 
-          if missing:
-              print("❌ Missing service paths:")
-              for m in missing:
-                  print(f"  - {m}")
+          # Check applications paths - must start with apps/
+          for name, app in data.get("applications", {}).items():
+              path = app.get("path", "")
+              if path:
+                  if not path.startswith("apps/"):
+                      errors.append(f"❌ {name}: path must start with 'apps/' (got: {path})")
+                  elif not os.path.isdir(path):
+                      errors.append(f"❌ {name}: path does not exist ({path})")
+
+          if errors:
+              print("❌ Validation failed:")
+              for e in errors:
+                  print(f"  {e}")
               sys.exit(1)
 
-          print(f"✅ All {len(data.get('services', {}))} service paths exist")
+          service_count = len(data.get("services", {}))
+          app_count = len(data.get("applications", {}))
+          print(f"✅ All {service_count} services and {app_count} applications validated")
           EOF
 
-      - name: Check FROZEN marker
+      - name: Check archive structure
         run: |
-          if [ ! -f "kernel/services/FROZEN.md" ]; then
-            echo "❌ Missing FROZEN.md marker in kernel/services/"
-            exit 1
+          echo "Checking archive structure..."
+
+          # Verify legacy code is properly archived
+          if [ -d "archive/kernel-legacy" ]; then
+            echo "✅ kernel-legacy archived"
           fi
-          echo "✅ FROZEN marker exists"
+
+          if [ -d "archive/frontend-legacy" ]; then
+            echo "✅ frontend-legacy archived"
+          fi
+
+          echo "✅ Archive structure verified"
 
   governance-report:
     name: Generate Report

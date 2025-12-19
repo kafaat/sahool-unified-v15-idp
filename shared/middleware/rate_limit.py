@@ -1,9 +1,17 @@
 """
 SAHOOL Rate Limiting Middleware
 Provides tiered rate limiting for API endpoints
+
+Security Features:
+- Token bucket algorithm for burst protection
+- Sliding window for sustained rate limiting
+- Tiered limits (free, standard, premium, internal)
+- Audit logging for security monitoring
 """
 
 import time
+import logging
+import asyncio
 from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Callable, Optional
@@ -11,6 +19,8 @@ from functools import wraps
 
 from fastapi import HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -174,8 +184,58 @@ class RateLimiter:
 _rate_limiter = RateLimiter()
 
 
+async def _log_rate_limit_exceeded(request: Request, tier: str):
+    """Log rate limit exceeded event for security monitoring"""
+    client_ip = request.client.host if request.client else "unknown"
+    tenant_id = request.headers.get("X-Tenant-ID", "default")
+    user_agent = request.headers.get("User-Agent", "unknown")
+
+    # Security logging
+    logger.warning(
+        "Rate limit exceeded",
+        extra={
+            "event": "security.rate_limit_exceeded",
+            "client_ip": client_ip,
+            "tenant_id": tenant_id,
+            "tier": tier,
+            "path": str(request.url.path),
+            "method": request.method,
+            "user_agent": user_agent[:200] if user_agent else None,
+        }
+    )
+
+    # Try to log to audit system (non-blocking)
+    try:
+        from shared.security.audit import audit_log, AuditAction
+        from shared.security.audit_models import AuditCategory, AuditSeverity
+
+        asyncio.create_task(
+            audit_log(
+                tenant_id=tenant_id,
+                user_id="system",
+                action=AuditAction.RATE_LIMIT_EXCEEDED,
+                category=AuditCategory.SECURITY,
+                severity=AuditSeverity.WARNING,
+                ip_address=client_ip,
+                user_agent=user_agent[:500] if user_agent else None,
+                request_method=request.method,
+                request_path=str(request.url.path),
+                details={
+                    "tier": tier,
+                    "limit_type": "rate_limit",
+                },
+                success=False,
+                error_code="RATE_LIMIT_EXCEEDED",
+                error_message="Too many requests",
+            )
+        )
+    except ImportError:
+        # Audit module not available, skip
+        pass
+
+
 async def rate_limit_middleware(request: Request, call_next: Callable) -> Response:
-    """FastAPI middleware for rate limiting"""
+    """FastAPI middleware for rate limiting with security logging"""
 
     # Skip rate limiting for health checks
     if request.url.path in ["/healthz", "/readyz", "/metrics"]:
@@ -184,6 +244,10 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
     allowed, headers = _rate_limiter.check_rate_limit(request)
 
     if not allowed:
+        # Log rate limit exceeded for security monitoring
+        tier = headers.get("X-RateLimit-Tier", "unknown")
+        await _log_rate_limit_exceeded(request, tier)
+
         return JSONResponse(
             status_code=429,
             content={

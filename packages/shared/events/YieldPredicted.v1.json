@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/YieldPredicted.v1.json",
+  "title": "Yield Predicted Event",
+  "description": "Emitted when yield prediction is generated - يُنشر عند توليد تنبؤ الإنتاجية",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Analytics.YieldPredicted" },
+    "payload": {
+      "type": "object",
+      "required": ["field_id", "crop_type", "prediction_date", "predicted_yield"],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "crop_type": {
+          "type": "string"
+        },
+        "prediction_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "predicted_yield": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "number",
+              "description": "Predicted yield value"
+            },
+            "unit": {
+              "type": "string",
+              "enum": ["kg/ha", "ton/ha", "quintal/ha"],
+              "default": "kg/ha"
+            },
+            "confidence_low": {
+              "type": "number",
+              "description": "Lower bound (95% CI)"
+            },
+            "confidence_high": {
+              "type": "number",
+              "description": "Upper bound (95% CI)"
+            }
+          }
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Model confidence (0-1)"
+        },
+        "model_version": {
+          "type": "string",
+          "description": "ML model version used"
+        },
+        "factors": {
+          "type": "object",
+          "description": "Key factors influencing prediction",
+          "properties": {
+            "weather_impact": { "type": "string", "enum": ["positive", "neutral", "negative"] },
+            "health_impact": { "type": "string", "enum": ["positive", "neutral", "negative"] },
+            "historical_trend": { "type": "string", "enum": ["above_average", "average", "below_average"] }
+          }
+        },
+        "comparison": {
+          "type": "object",
+          "properties": {
+            "vs_last_season": { "type": "number", "description": "Percentage change" },
+            "vs_regional_avg": { "type": "number", "description": "Percentage vs regional average" }
+          }
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "decision",
+    "producer": "yield-prediction",
+    "consumers": ["marketplace-service", "notification-service", "research-core"]
+  }
+}

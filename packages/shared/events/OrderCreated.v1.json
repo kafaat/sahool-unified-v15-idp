@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/OrderCreated.v1.json",
+  "title": "Order Created Event",
+  "description": "Emitted when a marketplace order is created - يُنشر عند إنشاء طلب في السوق",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Marketplace.OrderCreated" },
+    "payload": {
+      "type": "object",
+      "required": ["order_id", "buyer_id", "items", "total_amount"],
+      "properties": {
+        "order_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "buyer_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "seller_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "product_id": { "type": "string" },
+              "product_name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "unit": { "type": "string" },
+              "unit_price": { "type": "number" },
+              "subtotal": { "type": "number" }
+            }
+          }
+        },
+        "total_amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string",
+          "default": "YER"
+        },
+        "order_type": {
+          "type": "string",
+          "enum": ["input_purchase", "harvest_sale", "service"]
+        },
+        "delivery_address": {
+          "type": "object",
+          "properties": {
+            "governorate": { "type": "string" },
+            "district": { "type": "string" },
+            "details": { "type": "string" }
+          }
+        },
+        "source_recommendation_id": {
+          "type": "string",
+          "description": "If order originated from advisor recommendation"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "business",
+    "producer": "marketplace-service",
+    "consumers": ["billing-core", "notification-service"]
+  }
+}

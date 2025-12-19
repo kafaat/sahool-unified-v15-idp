@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.io/events/FieldIndicatorsComputed.v1.json",
+  "title": "Field Indicators Computed Event",
+  "description": "Emitted when field vegetation indices are computed - يُنشر عند حساب مؤشرات الحقل",
+  "allOf": [
+    { "$ref": "_base.event.v1.json" }
+  ],
+  "properties": {
+    "event_type": { "const": "Analytics.FieldIndicatorsComputed" },
+    "payload": {
+      "type": "object",
+      "required": ["field_id", "computation_date", "indices"],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "computation_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "source_scene_id": {
+          "type": "string",
+          "description": "Source satellite scene ID"
+        },
+        "indices": {
+          "type": "object",
+          "properties": {
+            "ndvi": {
+              "type": "object",
+              "properties": {
+                "mean": { "type": "number" },
+                "min": { "type": "number" },
+                "max": { "type": "number" },
+                "std": { "type": "number" }
+              }
+            },
+            "evi": {
+              "type": "object",
+              "properties": {
+                "mean": { "type": "number" },
+                "min": { "type": "number" },
+                "max": { "type": "number" }
+              }
+            },
+            "ndre": {
+              "type": "object",
+              "properties": {
+                "mean": { "type": "number" }
+              }
+            },
+            "ndwi": {
+              "type": "object",
+              "properties": {
+                "mean": { "type": "number" },
+                "description": "Water stress indicator"
+              }
+            },
+            "savi": {
+              "type": "object",
+              "properties": {
+                "mean": { "type": "number" }
+              }
+            }
+          }
+        },
+        "health_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Aggregated health score"
+        },
+        "anomaly_detected": {
+          "type": "boolean",
+          "default": false
+        },
+        "tile_url": {
+          "type": "string",
+          "description": "URL to visualization tile"
+        }
+      }
+    }
+  },
+  "x-sahool": {
+    "layer": "intelligence",
+    "producer": "indicators-service",
+    "consumers": ["crop-health-ai", "crop-growth-model", "yield-engine", "fertilizer-advisor", "research-core"]
+  }
+}

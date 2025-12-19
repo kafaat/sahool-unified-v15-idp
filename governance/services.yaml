@@ -3,8 +3,50 @@
 # Single Source of Truth for all microservices
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "2.0.0"
+version: "3.0.0"
 last_updated: "2025-12-19"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Architecture Layers
+# ─────────────────────────────────────────────────────────────────────────────
+
+event_architecture:
+  layers:
+    acquisition:
+      description: "Data ingestion layer - طبقة جمع البيانات"
+      services: [satellite-service, iot-service, weather-advanced, virtual-sensors]
+      rules:
+        - "No business logic"
+        - "Only ingestion + normalization"
+        - "Produces raw/normalized events"
+
+    intelligence:
+      description: "Feature extraction & AI layer - طبقة الذكاء"
+      services: [indicators-service, lai-estimation, crop-health-ai, disaster-assessment]
+      rules:
+        - "Consumes from Acquisition"
+        - "Produces computed features/assessments"
+        - "No direct user interaction"
+
+    decision:
+      description: "Advisory & planning layer - طبقة القرار"
+      services: [crop-growth-model, fertilizer-advisor, irrigation-smart, yield-engine, yield-prediction]
+      rules:
+        - "Consumes from Intelligence"
+        - "Produces recommendations/plans"
+        - "Domain logic here"
+
+    business:
+      description: "Business operations layer - طبقة الأعمال"
+      services: [notification-service, marketplace-service, billing-core, community-chat, research-core]
+      rules:
+        - "Consumes from Decision"
+        - "User-facing operations"
+        - "No raw data processing"
+
+  events_registry: "packages/shared/events/index.json"
+  transport: "nats"
+  subject_pattern: "sahool.{tenant_id}.{event_type}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Source of Truth
@@ -55,11 +97,20 @@ services:
     name: "Crop Growth Model"
     name_ar: "نموذج نمو المحاصيل"
     category: crop
+    layer: decision
     path: "apps/services/crop-growth-model"
     port: 3000
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - GrowthStageEstimated.v1
+        - BiomassEstimated.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+        - LAIEstimated.v1
 
     modules:
       - id: phenology
@@ -153,11 +204,20 @@ services:
     name: "Disaster Assessment"
     name_ar: "تقييم الكوارث"
     category: analytics
+    layer: intelligence
     path: "apps/services/disaster-assessment"
     port: 3001
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - DisasterRiskScored.v1
+        - DisasterEventDetected.v1
+      consumes:
+        - WeatherAlertIssued.v1
+        - SatelliteSceneIngested.v1
+        - SensorReadingIngested.v1
     database:
       type: postgresql
       name: sahool_disaster
@@ -176,11 +236,18 @@ services:
     name: "LAI Estimation"
     name_ar: "تقدير LAI"
     category: analytics
+    layer: intelligence
     path: "apps/services/lai-estimation"
     port: 3002
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - LAIEstimated.v1
+      consumes:
+        - IndexTileReady.v1
+        - FieldIndicatorsComputed.v1
     dependencies:
       - satellite-service
     resources:
@@ -195,11 +262,20 @@ services:
     name: "Yield Prediction"
     name_ar: "تنبؤ الغلة"
     category: analytics
+    layer: decision
     path: "apps/services/yield-prediction"
     port: 3003
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - YieldPredicted.v1
+        - YieldConfidenceUpdated.v1
+      consumes:
+        - YieldEstimated.v1
+        - WeatherForecastReady.v1
+        - FieldIndicatorsComputed.v1
     dependencies:
       - crop-growth-model
       - weather-advanced
@@ -216,11 +292,19 @@ services:
     name: "Marketplace Service"
     name_ar: "خدمة السوق"
     category: community
+    layer: business
     path: "apps/services/marketplace-service"
     port: 3004
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - OrderCreated.v1
+        - OrderPaid.v1
+      consumes:
+        - FertilizerPlanProposed.v1
+        - YieldPredicted.v1
     database:
       type: postgresql
       name: sahool_marketplace
@@ -237,11 +321,18 @@ services:
     name: "Community Chat"
     name_ar: "دردشة المجتمع"
     category: community
+    layer: business
     path: "apps/services/community-chat"
     port: 3005
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - CommunityPostCreated.v1
+      consumes:
+        - DisasterEventDetected.v1
+        - CropHealthAssessed.v1
     database:
       type: postgresql
       name: sahool_chat
@@ -258,11 +349,19 @@ services:
     name: "IoT Gateway"
     name_ar: "بوابة إنترنت الأشياء"
     category: integration
+    layer: acquisition
     path: "apps/services/iot-service"
     port: 3006
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - SensorReadingIngested.v1
+        - DeviceStatusChanged.v1
+        - SensorAlert.v1
+      consumes:
+        - IrrigationPlanProposed.v1
     database:
       type: timescaledb
       name: sahool_iot
@@ -284,11 +383,20 @@ services:
     name: "Research Core"
     name_ar: "نواة البحث العلمي"
     category: core
+    layer: business
     path: "apps/services/research-core"
     port: 3015
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - TrialCreated.v1
+        - ObservationLogged.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - CropHealthAssessed.v1
+        - YieldPredicted.v1
     database:
       type: postgresql
       name: sahool_research
@@ -305,11 +413,19 @@ services:
     name: "Billing Core"
     name_ar: "خدمة الفوترة"
     category: core
+    layer: business
     path: "apps/services/billing-core"
     port: 8021
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - InvoiceIssued.v1
+        - PaymentFailed.v1
+      consumes:
+        - OrderPaid.v1
+        - SubscriptionChanged.v1
     database:
       type: postgresql
       name: sahool_billing
@@ -326,11 +442,18 @@ services:
     name: "Satellite Service"
     name_ar: "خدمة الأقمار الصناعية"
     category: analytics
+    layer: acquisition
     path: "apps/services/satellite-service"
     port: 8090
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - SatelliteSceneIngested.v1
+        - RasterTileReady.v1
+        - IndexTileReady.v1
+      consumes: []
     database:
       type: postgresql
       name: sahool_satellite
@@ -347,11 +470,18 @@ services:
     name: "Weather Advanced"
     name_ar: "خدمة الطقس المتقدمة"
     category: integration
+    layer: acquisition
     path: "apps/services/weather-advanced"
     port: 8092
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - WeatherObserved.v1
+        - WeatherForecastReady.v1
+        - WeatherAlertIssued.v1
+      consumes: []
     database:
       type: postgresql
       name: sahool_weather
@@ -371,11 +501,19 @@ services:
     name: "Indicators Service"
     name_ar: "خدمة المؤشرات"
     category: analytics
+    layer: intelligence
     path: "apps/services/indicators-service"
     port: 8091
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - FieldIndicatorsComputed.v1
+      consumes:
+        - IndexTileReady.v1
+        - VirtualSensorEstimated.v1
+        - WeatherObserved.v1
     database:
       type: postgresql
       name: sahool_indicators
@@ -393,11 +531,20 @@ services:
     name: "Crop Health AI"
     name_ar: "سهول فيجن - كشف الأمراض"
     category: analytics
+    layer: intelligence
     path: "apps/services/crop-health-ai"
     port: 8095
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - CropHealthAssessed.v1
+        - CropStressDetected.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - LAIEstimated.v1
+        - WeatherObserved.v1
     dependencies:
       - satellite-service
     resources:
@@ -412,11 +559,19 @@ services:
     name: "Virtual Sensors"
     name_ar: "المستشعرات الافتراضية"
     category: analytics
+    layer: acquisition
     path: "apps/services/virtual-sensors"
     port: 8096
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - VirtualSensorEstimated.v1
+      consumes:
+        - SensorReadingIngested.v1
+        - WeatherObserved.v1
+        - IndexTileReady.v1
     dependencies:
       - weather-advanced
       - satellite-service
@@ -432,11 +587,19 @@ services:
     name: "Yield Engine"
     name_ar: "محرك التنبؤ بالإنتاجية"
     category: analytics
+    layer: decision
     path: "apps/services/yield-engine"
     port: 8098
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - YieldEstimated.v1
+      consumes:
+        - GrowthStageEstimated.v1
+        - BiomassEstimated.v1
+        - FieldIndicatorsComputed.v1
     dependencies:
       - crop-growth-model
       - weather-advanced
@@ -452,11 +615,19 @@ services:
     name: "Fertilizer Advisor"
     name_ar: "مستشار التسميد"
     category: core
+    layer: decision
     path: "apps/services/fertilizer-advisor"
     port: 8093
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - FertilizerPlanProposed.v1
+      consumes:
+        - GrowthStageEstimated.v1
+        - FieldIndicatorsComputed.v1
+        - CropHealthAssessed.v1
     database:
       type: postgresql
       name: sahool_fertilizer
@@ -475,11 +646,20 @@ services:
     name: "Irrigation Smart"
     name_ar: "الري الذكي"
     category: core
+    layer: decision
     path: "apps/services/irrigation-smart"
     port: 8094
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - IrrigationPlanProposed.v1
+        - IrrigationAlertIssued.v1
+      consumes:
+        - WeatherForecastReady.v1
+        - VirtualSensorEstimated.v1
+        - CropStressDetected.v1
     database:
       type: postgresql
       name: sahool_irrigation
@@ -498,11 +678,23 @@ services:
     name: "Notification Service"
     name_ar: "خدمة الإشعارات"
     category: core
+    layer: business
     path: "apps/services/notification-service"
     port: 8110
     protocol: http
     health_endpoint: "/health"
     status: active
+    events:
+      produces:
+        - NotificationQueued.v1
+        - NotificationSent.v1
+      consumes:
+        - CropStressDetected.v1
+        - DisasterRiskScored.v1
+        - IrrigationAlertIssued.v1
+        - FertilizerPlanProposed.v1
+        - YieldPredicted.v1
+        - GrowthStageEstimated.v1
     database:
       type: postgresql
       name: sahool_notifications

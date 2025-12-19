@@ -12,26 +12,30 @@ jobs:
     strategy:
       matrix:
         service:
-          - name: field-core
-            path: kernel/services/field_core
-          - name: field-chat
-            path: kernel/services/field_chat
-          - name: agro-advisor
-            path: kernel/services/agro_advisor
-          - name: weather-core
-            path: kernel/services/weather_core
-          - name: crop-health
-            path: kernel/services/crop_health
-          - name: iot-gateway
-            path: kernel/services/iot_gateway
-          - name: ws-gateway
-            path: kernel/services/ws_gateway
-          - name: field-ops
-            path: kernel/services/field_ops
-          - name: ndvi-engine
-            path: kernel/services/ndvi_engine
-          - name: agro-rules
-            path: kernel/services/agro_rules
+          - name: satellite-service
+            path: apps/services/satellite-service
+          - name: crop-growth-model
+            path: apps/services/crop-growth-model
+          - name: indicators-service
+            path: apps/services/indicators-service
+          - name: weather-advanced
+            path: apps/services/weather-advanced
+          - name: crop-health-ai
+            path: apps/services/crop-health-ai
+          - name: fertilizer-advisor
+            path: apps/services/fertilizer-advisor
+          - name: irrigation-smart
+            path: apps/services/irrigation-smart
+          - name: yield-engine
+            path: apps/services/yield-engine
+          - name: notification-service
+            path: apps/services/notification-service
+          - name: marketplace-service
+            path: apps/services/marketplace-service
+          - name: iot-service
+            path: apps/services/iot-service
+          - name: virtual-sensors
+            path: apps/services/virtual-sensors
       fail-fast: false
 
     steps:

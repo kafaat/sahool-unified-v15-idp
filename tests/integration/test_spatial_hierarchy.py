@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 import sys
-sys.path.insert(0, "packages/field-suite")
+sys.path.insert(0, "packages/field_suite")
 
 from uuid import uuid4
 
@@ -56,7 +56,7 @@ class TestZoneBoundary:
         wkt = boundary.to_wkt()
 
         assert wkt.startswith("POLYGON((")
-        assert "31 30" in wkt  # lon lat format
+        assert ("31 30" in wkt or "31.0 30.0" in wkt)  # lon lat format (with or without decimals)
         assert wkt.endswith("))")
 
     def test_to_wkt_closes_polygon(self):

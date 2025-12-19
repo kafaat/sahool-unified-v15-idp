@@ -1134,6 +1134,34 @@ services:
               minute: 60
               hour: 1500
               policy: local
+      # Digital Twin Core - نواة التوأم الرقمي للمحاصيل
+      # Multi-layer architecture: AGRARIAN 4-layer + Sugarcane 5-layer + Cloud-Edge-End
+      - name: digital-twin-route
+        paths:
+          - /api/v1/digital-twin
+          - /api/v1/digital-twin/architecture
+          - /api/v1/digital-twin/edge-nodes
+          - /api/v1/digital-twin/data/satellite
+          - /api/v1/digital-twin/data/drone
+          - /api/v1/digital-twin/data/ground-sensors
+          - /api/v1/digital-twin/data/fuse
+          - /api/v1/digital-twin/models
+          - /api/v1/digital-twin/models/wofost
+          - /api/v1/digital-twin/models/ml
+          - /api/v1/digital-twin/models/deep-learning
+          - /api/v1/digital-twin/models/llm
+          - /api/v1/digital-twin/models/hybrid-ensemble
+          - /api/v1/digital-twin/assimilate
+          - /api/v1/digital-twin/state
+          - /api/v1/digital-twin/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Digital twin operations - compute intensive
+              minute: 30
+              hour: 500
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins

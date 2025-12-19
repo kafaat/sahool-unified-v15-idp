@@ -21,6 +21,8 @@ import { VoiceGuidanceController } from './voice-guidance/voice-guidance.control
 import { VoiceGuidanceService } from './voice-guidance/voice-guidance.service';
 import { WebDataCollectorController } from './web-data-collector/web-data-collector.controller';
 import { WebDataCollectorService } from './web-data-collector/web-data-collector.service';
+import { DigitalTwinCoreController } from './digital-twin-core/digital-twin-core.controller';
+import { DigitalTwinCoreService } from './digital-twin-core/digital-twin-core.service';
 
 @Module({
   controllers: [
@@ -35,6 +37,7 @@ import { WebDataCollectorService } from './web-data-collector/web-data-collector
     MultiAgentAdvisorController,
     VoiceGuidanceController,
     WebDataCollectorController,
+    DigitalTwinCoreController,
   ],
   providers: [
     PhenologyService,
@@ -48,6 +51,7 @@ import { WebDataCollectorService } from './web-data-collector/web-data-collector
     MultiAgentAdvisorService,
     VoiceGuidanceService,
     WebDataCollectorService,
+    DigitalTwinCoreService,
   ],
 })
 export class AppModule {}

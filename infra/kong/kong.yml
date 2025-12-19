@@ -11,188 +11,477 @@ _transform: true
 # Upstreams with Health Checks
 # ─────────────────────────────────────────────────────────────────────────────
 
-# YAML anchor for standard healthcheck configuration
-x-healthcheck-config: &standard-healthcheck
-  active:
-    type: http
-    http_path: /health
-    healthy:
-      interval: 10
-      successes: 2
-    unhealthy:
-      interval: 5
-      http_failures: 3
-      timeouts: 3
-  passive:
-    healthy:
-      successes: 5
-    unhealthy:
-      http_failures: 5
-      timeouts: 3
-
 upstreams:
   - name: field-ops-upstream
     targets:
       - target: sahool-field-ops:8080
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: ndvi-engine-upstream
     targets:
       - target: sahool-ndvi-engine:8107
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: weather-upstream
     targets:
       - target: sahool-weather-core:8108
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: chat-upstream
     targets:
       - target: sahool-field-chat:8099
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: iot-upstream
     targets:
       - target: sahool-iot-gateway:8106
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: advisor-upstream
     targets:
       - target: sahool-agro-advisor:8105
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: ws-gateway-upstream
     targets:
       - target: sahool-ws-gateway:8089
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: crop-health-upstream
     targets:
       - target: sahool-crop-health:8100
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: field-core-upstream
     targets:
       - target: sahool-field-core:3000
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: task-upstream
     targets:
       - target: sahool-task-service:8103
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: equipment-upstream
     targets:
       - target: sahool-equipment-service:8101
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: community-upstream
     targets:
       - target: sahool-community-service:8102
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: provider-config-upstream
     targets:
       - target: sahool-provider-config:8104
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: satellite-upstream
     targets:
       - target: sahool-satellite-service:8090
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: indicators-upstream
     targets:
       - target: sahool-indicators-service:8091
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: weather-advanced-upstream
     targets:
       - target: sahool-weather-advanced:8092
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: fertilizer-upstream
     targets:
       - target: sahool-fertilizer-advisor:8093
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: irrigation-upstream
     targets:
       - target: sahool-irrigation-smart:8094
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: crop-health-ai-upstream
     targets:
       - target: sahool-crop-health-ai:8095
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: virtual-sensors-upstream
     targets:
       - target: sahool-virtual-sensors:8096
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: community-chat-upstream
     targets:
       - target: sahool-community-chat:8097
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: yield-engine-upstream
     targets:
       - target: sahool-yield-engine:8098
         weight: 100
     healthchecks:
-      <<: *standard-healthcheck
-
-  - name: marketplace-upstream
-    targets:
-      - target: sahool-marketplace:3010
-        weight: 100
-    healthchecks:
       active:
         type: http
-        http_path: /api/v1/healthz
+        http_path: /health
         healthy:
           interval: 10
           successes: 2
@@ -207,86 +496,14 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
-  # Disaster Assessment Service - خدمة تقييم الكوارث (v16.0)
-  - name: disaster-assessment-upstream
+  - name: crop-growth-upstream
     targets:
-      - target: sahool-disaster-assessment:3020
+      - target: sahool-crop-growth-model:3000
         weight: 100
     healthchecks:
       active:
         type: http
-        http_path: /api/v1/disasters/health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
-
-  # Yield Prediction Service - خدمة التنبؤ بالإنتاجية (v16.0)
-  - name: yield-prediction-upstream
-    targets:
-      - target: sahool-yield-prediction:3021
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /api/v1/yield/health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
-
-  # LAI Estimation Service - خدمة تقدير مؤشر مساحة الأوراق (v16.0)
-  # Based on LAI-TransNet research (AI in Agriculture 2025, IF: 12.4)
-  - name: lai-estimation-upstream
-    targets:
-      - target: sahool-lai-estimation:3022
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /api/v1/lai/health
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
-
-  # Crop Growth Model Service - خدمة نموذج نمو المحاصيل (v16.0)
-  # Based on WOFOST/DSSAT/APSIM mechanistic crop models
-  - name: crop-growth-model-upstream
-    targets:
-      - target: sahool-crop-growth-model:3023
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /api/v1/simulation/health
+        http_path: /health
         healthy:
           interval: 10
           successes: 2
@@ -303,7 +520,6 @@ upstreams:
 
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
-# Note: RSA public keys are provided via environment variables
 # ─────────────────────────────────────────────────────────────────────────────
 
 consumers:
@@ -312,25 +528,19 @@ consumers:
     jwt_secrets:
       - key: sahool-web-key
         algorithm: RS256
-        rsa_public_key: ${SAHOOL_WEB_JWT_PUBLIC_KEY}
+        # RSA public key should be configured in environment
 
   - username: sahool-mobile-app
     custom_id: mobile-client
     jwt_secrets:
       - key: sahool-mobile-key
         algorithm: RS256
-        rsa_public_key: ${SAHOOL_MOBILE_JWT_PUBLIC_KEY}
 
   - username: sahool-internal-service
     custom_id: internal-service
     jwt_secrets:
       - key: sahool-internal-key
         algorithm: RS256
-        rsa_public_key: ${SAHOOL_INTERNAL_JWT_PUBLIC_KEY}
-
-  # Anonymous consumer for public endpoints (health checks, docs, etc.)
-  - username: anonymous
-    custom_id: anonymous-access
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Services Definition (Using Upstreams)
@@ -340,6 +550,8 @@ services:
   # Field Operations Service
   - name: field-ops-service
     host: field-ops-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -361,6 +573,8 @@ services:
   # NDVI Engine Service
   - name: ndvi-engine-service
     host: ndvi-engine-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 120000
@@ -381,6 +595,8 @@ services:
   # Weather Core Service
   - name: weather-service
     host: weather-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -395,6 +611,8 @@ services:
   # Field Chat Service
   - name: chat-service
     host: chat-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -415,6 +633,8 @@ services:
   # IoT Gateway Service
   - name: iot-service
     host: iot-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -429,8 +649,6 @@ services:
         plugins:
           - name: rate-limiting
             config:
-              # IoT devices typically send sensor readings every 30 seconds (200/min = ~3 devices/user)
-              # Higher limits accommodate multiple devices per farm with real-time telemetry
               minute: 200
               hour: 10000
               policy: local
@@ -438,6 +656,8 @@ services:
   # Agro Advisor Service
   - name: advisor-service
     host: advisor-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 90000
@@ -451,8 +671,6 @@ services:
         plugins:
           - name: rate-limiting
             config:
-              # AI-powered advisor service requires significant compute resources (5-30s per request)
-              # Lower limits prevent resource exhaustion while supporting typical user workflows
               minute: 30
               hour: 500
               policy: local
@@ -460,12 +678,10 @@ services:
   # WebSocket Gateway Service
   - name: ws-gateway-service
     host: ws-gateway-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
-    # NOTE: WebSocket connections are designed to be long-lived. The 1-hour
-    # write_timeout and read_timeout values below are intentional idle timeouts
-    # for real-time sessions. Operators may reduce these based on capacity and
-    # workload characteristics if shorter-lived connections are acceptable.
     write_timeout: 3600000
     read_timeout: 3600000
     routes:
@@ -478,6 +694,8 @@ services:
   # Crop Health Service
   - name: crop-health-service
     host: crop-health-upstream
+    port: 80
+    protocol: http
     path: /api/v1
     retries: 3
     connect_timeout: 30000
@@ -492,6 +710,8 @@ services:
   # Field Core Service (Advanced field management)
   - name: field-core-service
     host: field-core-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -512,6 +732,8 @@ services:
   # Task Service
   - name: task-service
     host: task-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -525,6 +747,8 @@ services:
   # Equipment Service
   - name: equipment-service
     host: equipment-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -538,6 +762,8 @@ services:
   # Community Service
   - name: community-service
     host: community-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -561,6 +787,8 @@ services:
   # Provider Configuration Service
   - name: provider-config-service
     host: provider-config-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -585,6 +813,8 @@ services:
   # Satellite Service - NDVI Analysis (v15.3)
   - name: satellite-service-v15
     host: satellite-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 180000
@@ -606,6 +836,8 @@ services:
   # Indicators Service - Agricultural KPIs (v15.3)
   - name: indicators-service-v15
     host: indicators-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -621,6 +853,8 @@ services:
   # Weather Advanced Service (v15.3)
   - name: weather-advanced-service
     host: weather-advanced-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -636,6 +870,8 @@ services:
   # Fertilizer Advisor Service (v15.3)
   - name: fertilizer-advisor-service
     host: fertilizer-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 90000
@@ -657,6 +893,8 @@ services:
   # Irrigation Smart Service (v15.3)
   - name: irrigation-smart-service
     host: irrigation-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -678,6 +916,8 @@ services:
   # Crop Health AI Service - Sahool Vision (v15.3)
   - name: crop-health-ai-service
     host: crop-health-ai-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 120000
@@ -699,6 +939,8 @@ services:
   # Virtual Sensors Service (v15.3)
   - name: virtual-sensors-service
     host: virtual-sensors-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -715,6 +957,8 @@ services:
   # Community Chat Service (v15.3)
   - name: community-chat-service
     host: community-chat-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 60000
@@ -736,6 +980,8 @@ services:
   # Yield Engine Service (v15.3)
   - name: yield-engine-service
     host: yield-engine-upstream
+    port: 80
+    protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 90000
@@ -754,388 +1000,19 @@ services:
               hour: 500
               policy: local
 
-  # Marketplace & FinTech Service (v16.0)
-  - name: marketplace-service
-    host: marketplace-upstream
-    port: 3010
-    protocol: http
-    retries: 3
-    connect_timeout: 30000
-    write_timeout: 60000
-    read_timeout: 60000
-    routes:
-      - name: marketplace-route
-        paths:
-          - /api/v1/market/marketplace
-          - /api/v1/market/products
-          - /api/v1/market/orders
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1500
-              policy: local
-      - name: fintech-route
-        paths:
-          - /api/v1/fintech/wallet
-          - /api/v1/fintech/loans
-          - /api/v1/fintech/credit
-          - /api/v1/fintech/transactions
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 30
-              hour: 500
-              policy: local
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Agricultural Remote Sensing Services (v16.0)
-  # Based on: Agricultural Remote Sensing On-Demand Service Model
-  # ─────────────────────────────────────────────────────────────────────────────
-
-  # Disaster Assessment Service - خدمة تقييم الكوارث الزراعية
-  - name: disaster-assessment-service
-    host: disaster-assessment-upstream
-    port: 3020
-    protocol: http
-    retries: 3
-    connect_timeout: 30000
-    write_timeout: 90000
-    read_timeout: 90000
-    routes:
-      - name: disaster-route
-        paths:
-          - /api/v1/disasters
-          - /api/v1/disasters/report
-          - /api/v1/disasters/assess
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1000
-              policy: local
-      - name: disaster-alerts-route
-        paths:
-          - /api/v1/alerts
-          - /api/v1/alerts/early-warning
-          - /api/v1/alerts/subscribe
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 100
-              hour: 2000
-              policy: local
-      - name: risk-assessment-route
-        paths:
-          - /api/v1/risk/flood
-          - /api/v1/risk/drought
-          - /api/v1/risk/frost
-          - /api/v1/risk/pest
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 30
-              hour: 500
-              policy: local
-
-  # Yield Prediction Service - خدمة التنبؤ بالإنتاجية الزراعية
-  - name: yield-prediction-service
-    host: yield-prediction-upstream
-    port: 3021
+  # Crop Growth Model Service (v15.3)
+  # Advanced crop modeling with Digital Twin, RS World Model, and Planting Strategy
+  - name: crop-growth-service
+    host: crop-growth-upstream
+    port: 80
     protocol: http
     retries: 3
     connect_timeout: 30000
     write_timeout: 120000
     read_timeout: 120000
     routes:
-      - name: yield-prediction-route
-        paths:
-          - /api/v1/yield/predict
-          - /api/v1/yield/growth-stage
-          - /api/v1/yield/harvest-date
-          - /api/v1/yield/maturity
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Yield predictions involve ML models - moderate rate limiting
-              minute: 30
-              hour: 500
-              policy: local
-      - name: yield-regional-route
-        paths:
-          - /api/v1/yield/regional
-          - /api/v1/yield/history
-          - /api/v1/yield/statistics
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1000
-              policy: local
-
-  # LAI Estimation Service - خدمة تقدير مؤشر مساحة الأوراق
-  # Based on LAI-TransNet Two-Stage Transfer Learning (AI in Agriculture 2025)
-  - name: lai-estimation-service
-    host: lai-estimation-upstream
-    port: 3022
-    protocol: http
-    retries: 3
-    connect_timeout: 30000
-    write_timeout: 90000
-    read_timeout: 90000
-    routes:
-      - name: lai-estimation-route
-        paths:
-          - /api/v1/lai/estimate
-          - /api/v1/lai/calculate
-          - /api/v1/lai/timeseries
-          - /api/v1/lai/compare
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # LAI estimation uses ML models - moderate rate limiting
-              minute: 30
-              hour: 500
-              policy: local
-      - name: vegetation-indices-route
-        paths:
-          - /api/v1/indices
-          - /api/v1/indices/calculate
-          - /api/v1/indices/health
-          - /api/v1/indices/info
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1500
-              policy: local
-      - name: lai-model-route
-        paths:
-          - /api/v1/lai/model
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 30
-              hour: 300
-              policy: local
-
-  # Crop Growth Model Service - خدمة نموذج نمو المحاصيل
-  # Based on WOFOST/DSSAT/APSIM mechanistic crop models
-  - name: crop-growth-model-service
-    host: crop-growth-model-upstream
-    port: 3023
-    protocol: http
-    retries: 3
-    connect_timeout: 30000
-    write_timeout: 120000
-    read_timeout: 120000
-    routes:
-      - name: phenology-route
-        paths:
-          - /api/v1/phenology
-          - /api/v1/phenology/gdd
-          - /api/v1/phenology/dvs
-          - /api/v1/phenology/simulate
-          - /api/v1/phenology/predict
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1500
-              policy: local
-      - name: photosynthesis-route
-        paths:
-          - /api/v1/photosynthesis
-          - /api/v1/photosynthesis/gpp
-          - /api/v1/photosynthesis/farquhar
-          - /api/v1/photosynthesis/curve
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1500
-              policy: local
-      - name: biomass-route
-        paths:
-          - /api/v1/biomass
-          - /api/v1/biomass/production
-          - /api/v1/biomass/distribute
-          - /api/v1/biomass/simulate
-          - /api/v1/biomass/yield
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1500
-              policy: local
-      - name: simulation-route
-        paths:
-          - /api/v1/simulation
-          - /api/v1/simulation/run
-          - /api/v1/simulation/demo
-          - /api/v1/simulation/quick-estimate
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Full crop simulations require significant compute - moderate limits
-              minute: 30
-              hour: 500
-              policy: local
-      # Root Growth Module - نموذج نمو الجذور (SimRoot-inspired)
-      # Based on SimRoot 3D root architecture model (Penn State)
-      - name: root-growth-route
-        paths:
-          - /api/v1/roots
-          - /api/v1/roots/depth
-          - /api/v1/roots/rld
-          - /api/v1/roots/water-uptake
-          - /api/v1/roots/nutrient-uptake
-          - /api/v1/roots/architecture
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # 3D root architecture simulations are compute-intensive
-              minute: 30
-              hour: 500
-              policy: local
-      # Water Balance Module - نموذج توازن المياه (FAO-56/SWAP)
-      # Integrated soil-crop-atmosphere water balance
-      - name: water-balance-route
-        paths:
-          - /api/v1/water
-          - /api/v1/water/kc
-          - /api/v1/water/etc
-          - /api/v1/water/balance
-          - /api/v1/water/irrigation/schedule
-          - /api/v1/water/yield-response
-          - /api/v1/water/parameters
-          - /api/v1/water/crops
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Water balance calculations with irrigation scheduling
-              minute: 60
-              hour: 1500
-              policy: local
-      # Satellite Data Selector - خدمة اختيار البيانات الساتلية
-      # Intelligent satellite data source selection for agricultural RS
-      - name: satellite-data-route
-        paths:
-          - /api/v1/satellite-data
-          - /api/v1/satellite-data/select
-          - /api/v1/satellite-data/satellites
-          - /api/v1/satellite-data/compare
-          - /api/v1/satellite-data/indices
-          - /api/v1/satellite-data/recommend
-          - /api/v1/satellite-data/quick-recommend
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Satellite data selection queries - light compute
-              minute: 120
-              hour: 3000
-              policy: local
-      # Irrigation Decision Support - خدمة دعم قرارات الري الذكية
-      # Integrates FAO-56, Threshold Control, and Crop Growth Models
-      - name: irrigation-decision-route
-        paths:
-          - /api/v1/irrigation-decision
-          - /api/v1/irrigation-decision/method-selector
-          - /api/v1/irrigation-decision/calculate-etc
-          - /api/v1/irrigation-decision/threshold-control
-          - /api/v1/irrigation-decision/smart-schedule
-          - /api/v1/irrigation-decision/compare-methods
-          - /api/v1/irrigation-decision/quick-recommend
-          - /api/v1/irrigation-decision/crops
-          - /api/v1/irrigation-decision/soils
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Irrigation decision calculations - moderate compute
-              minute: 60
-              hour: 1500
-              policy: local
-      # Multi-Agent Agricultural Advisor Council - مجلس المستشار الزراعي متعدد الوكلاء
-      # Inspired by Karpathy's LLM-Council for multi-AI collaboration
-      - name: advisor-council-route
-        paths:
-          - /api/v1/advisor-council
-          - /api/v1/advisor-council/irrigation
-          - /api/v1/advisor-council/pest
-          - /api/v1/advisor-council/quick
-          - /api/v1/advisor-council/agents
-          - /api/v1/advisor-council/demo
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Multi-agent council requires moderate compute per session
-              minute: 30
-              hour: 500
-              policy: local
-      # Voice Guidance Module - خدمة التوجيه الصوتي للمزارعين
-      # Inspired by SoulX-Podcast AI voice generation
-      - name: voice-guidance-route
-        paths:
-          - /api/v1/voice-guidance
-          - /api/v1/voice-guidance/voices
-          - /api/v1/voice-guidance/scripts
-          - /api/v1/voice-guidance/categories
-          - /api/v1/voice-guidance/briefing
-          - /api/v1/voice-guidance/podcast
-          - /api/v1/voice-guidance/quick-tip
-          - /api/v1/voice-guidance/wisdom
-          - /api/v1/voice-guidance/demo
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Voice guidance content generation
-              minute: 60
-              hour: 1500
-              policy: local
-      # Web Data Collector - خدمة جمع البيانات من الويب
-      # Inspired by Browserbase MCP for automated web data collection
-      - name: data-collector-route
-        paths:
-          - /api/v1/data-collector
-          - /api/v1/data-collector/sources
-          - /api/v1/data-collector/collect
-          - /api/v1/data-collector/market/prices
-          - /api/v1/data-collector/weather/alerts
-          - /api/v1/data-collector/news
-          - /api/v1/data-collector/research
-          - /api/v1/data-collector/intelligence
-          - /api/v1/data-collector/statistics
-          - /api/v1/data-collector/demo
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              # Data collection operations - varies by source
-              minute: 60
-              hour: 1500
-              policy: local
-      # Digital Twin Core - نواة التوأم الرقمي للمحاصيل
-      # Multi-layer architecture: AGRARIAN 4-layer + Sugarcane 5-layer + Cloud-Edge-End
+      # Digital Twin Core - التوأم الرقمي للمحاصيل
+      # Multi-layer architecture with edge computing and hybrid modeling
       - name: digital-twin-route
         paths:
           - /api/v1/digital-twin
@@ -1159,9 +1036,10 @@ services:
           - name: rate-limiting
             config:
               # Digital twin operations - compute intensive
-              minute: 30
-              hour: 500
+              minute: 20
+              hour: 300
               policy: local
+
       # RS World Model - نموذج العالم للاستشعار عن بعد
       # Based on RemoteBAGEL (arxiv:2509.17808) - First World Model for Remote Sensing
       - name: rs-world-model-route
@@ -1221,8 +1099,8 @@ plugins:
       claims_to_verify:
         - exp
       run_on_preflight: false
-      # Anonymous consumer allows public endpoints like health checks
-      anonymous: anonymous-access
+      # Anonymous consumer for public endpoints
+      # anonymous: ~
 
   # Rate Limiting (Global Default)
   - name: rate-limiting
@@ -1247,6 +1125,10 @@ plugins:
         # Mobile app origins
         - capacitor://localhost
         - ionic://localhost
+        # Local development (remove in production)
+        - http://localhost:3000
+        - http://localhost:8080
+        - http://localhost:5173
       methods:
         - GET
         - POST
@@ -1297,13 +1179,7 @@ plugins:
   # Request Size Limiting
   - name: request-size-limiting
     config:
-      # Set to 100MB for large file uploads (satellite imagery, crop health images)
-      # NOTE: This high limit should be paired with:
-      # 1. File type validation at application layer
-      # 2. Authenticated upload endpoints (JWT required)
-      # 3. Rate limiting on upload endpoints
-      # 4. Consider implementing streaming uploads for very large files
-      allowed_payload_size: 100
+      allowed_payload_size: 10
       size_unit: megabytes
       require_content_length: false
 

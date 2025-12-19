@@ -262,3 +262,18 @@ export function generateId(prefix: string = 'id'): string {
 export type Locale = 'ar' | 'en';
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 export type Status = 'pending' | 'confirmed' | 'rejected' | 'treated' | 'active' | 'inactive';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Performance Utilities
+// ─────────────────────────────────────────────────────────────────────────────
+
+export {
+  debounce,
+  throttle,
+  memoize,
+  batchCalls,
+  requestIdleCallback,
+  cancelIdleCallback,
+  measureTime,
+  createLRUCache,
+} from './performance';

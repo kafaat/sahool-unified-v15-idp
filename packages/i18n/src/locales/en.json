@@ -1,0 +1,76 @@
+{
+  "common": {
+    "appName": "SAHOOL",
+    "tagline": "Smart Agriculture Platform",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "noData": "No data available",
+    "all": "All"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "welcomeBack": "Welcome back"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "fields": "Fields",
+    "farms": "Farms",
+    "alerts": "Alerts",
+    "tasks": "Tasks",
+    "weather": "Weather",
+    "diagnosis": "Diagnosis",
+    "reports": "Reports",
+    "settings": "Settings",
+    "profile": "Profile"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome to SAHOOL",
+    "totalFields": "Total Fields",
+    "totalArea": "Total Area",
+    "activeAlerts": "Active Alerts",
+    "healthScore": "Health Score"
+  },
+  "fields": {
+    "title": "Fields",
+    "addField": "Add Field",
+    "fieldName": "Field Name",
+    "cropType": "Crop Type",
+    "area": "Area",
+    "areaUnit": "hectares",
+    "status": "Status",
+    "healthy": "Healthy",
+    "moderate": "Moderate",
+    "stressed": "Stressed",
+    "critical": "Critical"
+  },
+  "alerts": {
+    "title": "Alerts",
+    "info": "Info",
+    "warning": "Warning",
+    "critical": "Critical",
+    "emergency": "Emergency",
+    "noAlerts": "No alerts"
+  },
+  "errors": {
+    "unexpected": "An unexpected error occurred",
+    "network": "Network connection error",
+    "tryAgain": "Please try again",
+    "refreshPage": "Refresh page"
+  }
+}

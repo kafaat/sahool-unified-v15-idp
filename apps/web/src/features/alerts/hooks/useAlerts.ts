@@ -73,7 +73,7 @@ export function useAcknowledgeAlert() {
 
   return useMutation({
     mutationFn: (id: string) => alertsApi.acknowledgeAlert(id),
-    onSuccess: (updatedAlert) => {
+    onSuccess: (updatedAlert: Alert) => {
       queryClient.invalidateQueries({ queryKey: alertKeys.lists() });
       queryClient.invalidateQueries({ queryKey: alertKeys.count() });
       queryClient.setQueryData(alertKeys.detail(updatedAlert.id), updatedAlert);
@@ -90,7 +90,7 @@ export function useResolveAlert() {
   return useMutation({
     mutationFn: ({ id, resolution }: { id: string; resolution?: string }) =>
       alertsApi.resolveAlert(id, resolution),
-    onSuccess: (updatedAlert) => {
+    onSuccess: (updatedAlert: Alert) => {
       queryClient.invalidateQueries({ queryKey: alertKeys.lists() });
       queryClient.invalidateQueries({ queryKey: alertKeys.count() });
       queryClient.setQueryData(alertKeys.detail(updatedAlert.id), updatedAlert);
@@ -106,7 +106,7 @@ export function useDismissAlert() {
 
   return useMutation({
     mutationFn: (id: string) => alertsApi.dismissAlert(id),
-    onSuccess: (_, id) => {
+    onSuccess: (_: void, id: string) => {
       queryClient.invalidateQueries({ queryKey: alertKeys.lists() });
       queryClient.invalidateQueries({ queryKey: alertKeys.count() });
       queryClient.removeQueries({ queryKey: alertKeys.detail(id) });

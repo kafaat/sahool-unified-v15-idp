@@ -60,9 +60,14 @@ export interface EventStreamOptions {
   autoReconnect?: boolean;
 
   /**
-   * Reconnect delay in ms
+   * Initial reconnect delay in ms (will increase exponentially)
    */
   reconnectDelay?: number;
+
+  /**
+   * Maximum reconnect delay in ms (cap for exponential backoff)
+   */
+  maxReconnectDelay?: number;
 
   /**
    * Maximum reconnect attempts
@@ -113,6 +118,7 @@ export function useEventStream(
     governorate,
     autoReconnect = true,
     reconnectDelay = 5000,
+    maxReconnectDelay = 30000,
     maxReconnectAttempts = 10,
     onEvent,
     onConnect,
@@ -230,13 +236,19 @@ export function useEventStream(
 
       eventSource.close();
 
-      // Auto-reconnect logic
+      // Auto-reconnect logic with exponential backoff
       if (autoReconnect) {
         setState((prev) => {
           if (prev.reconnectAttempts < maxReconnectAttempts) {
+            // Calculate exponential backoff delay
+            const exponentialDelay = Math.min(
+              reconnectDelay * Math.pow(2, prev.reconnectAttempts),
+              maxReconnectDelay
+            );
+            
             reconnectTimeoutRef.current = setTimeout(() => {
               connect();
-            }, reconnectDelay);
+            }, exponentialDelay);
             return { ...prev, reconnectAttempts: prev.reconnectAttempts + 1 };
           }
           return prev;
@@ -250,6 +262,7 @@ export function useEventStream(
     handleEvent,
     autoReconnect,
     reconnectDelay,
+    maxReconnectDelay,
     maxReconnectAttempts,
     onConnect,
     onDisconnect,

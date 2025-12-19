@@ -745,7 +745,7 @@ services:
 
   research_core:
     build:
-      context: ./services/research_core
+      context: ./kernel-services-v15.3/research-core
       dockerfile: Dockerfile
     container_name: sahool-research-core
     environment:

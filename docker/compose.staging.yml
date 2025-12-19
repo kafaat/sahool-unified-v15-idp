@@ -1,0 +1,190 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Staging Environment Override
+# Usage: docker compose -f docker-compose.yml -f docker/compose.staging.yml up
+# Or: make up-staging
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure - Staging Settings
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  postgres:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  redis:
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  kong:
+    environment:
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Core Services - Staging Mode
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  field_core:
+    environment:
+      - NODE_ENV=staging
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+
+  field_ops:
+    environment:
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=staging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+
+  ndvi_engine:
+    environment:
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=staging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 576M
+
+  weather_core:
+    environment:
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=staging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 192M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI Services - Staging Mode
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  crop_health_ai:
+    environment:
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=staging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  virtual_sensors:
+    environment:
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=staging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  yield_engine:
+    environment:
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=staging
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # v15.3 Services - Staging Mode
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  crop_growth_model:
+    environment:
+      - NODE_ENV=staging
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+
+  disaster_assessment:
+    environment:
+      - NODE_ENV=staging
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 192M
+
+  lai_estimation:
+    environment:
+      - NODE_ENV=staging
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 288M
+
+  yield_prediction:
+    environment:
+      - NODE_ENV=staging
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+
+  marketplace_service:
+    environment:
+      - NODE_ENV=staging
+      - LOG_LEVEL=info
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 288M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Observability - Staging
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  prometheus:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  grafana:
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M

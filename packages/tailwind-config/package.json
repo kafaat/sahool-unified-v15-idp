@@ -1,0 +1,17 @@
+{
+  "name": "@sahool/tailwind-config",
+  "version": "16.0.0",
+  "description": "SAHOOL Shared Tailwind CSS Configuration",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  },
+  "peerDependencies": {
+    "tailwindcss": ">=3.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

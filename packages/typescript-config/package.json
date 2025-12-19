@@ -1,0 +1,15 @@
+{
+  "name": "@sahool/typescript-config",
+  "version": "16.0.0",
+  "description": "SAHOOL Shared TypeScript Configuration",
+  "license": "MIT",
+  "main": "base.json",
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "react-library.json"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

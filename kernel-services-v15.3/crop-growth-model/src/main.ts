@@ -1,0 +1,74 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// SAHOOL Crop Growth Model Service
+// خدمة نموذج نمو المحاصيل
+// Based on: WOFOST, DSSAT, APSIM mechanistic crop growth models
+// Reference: Mechanistic, Intelligent and Integrated Development of Crop Models
+// ═══════════════════════════════════════════════════════════════════════════════
+
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  // CORS
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
+    'https://sahool.com',
+    'http://localhost:3000',
+  ];
+  app.enableCors({ origin: allowedOrigins, credentials: true });
+
+  // Swagger
+  const config = new DocumentBuilder()
+    .setTitle('SAHOOL Crop Growth Model API')
+    .setDescription(`
+      خدمة نموذج نمو المحاصيل الآلي والذكي والمتكامل
+
+      Mechanistic Crop Growth Model Service providing:
+
+      🌱 Phenology Simulation (محاكاة مراحل النمو)
+      - Development Stage (DVS) tracking
+      - Thermal time accumulation (GDD)
+      - Growth stage transitions
+
+      ☀️ Photosynthesis Modeling (نمذجة التمثيل الضوئي)
+      - Farquhar biochemical model concepts
+      - Light Use Efficiency (LUE)
+      - CO2 assimilation rates
+
+      🌿 Biomass & Assimilate Distribution (توزيع الكتلة الحيوية)
+      - Source-Sink-Flow partitioning
+      - Organ-specific allocation (root, stem, leaf, storage)
+      - Dynamic redistribution
+
+      🌡️ Environmental Response (الاستجابة البيئية)
+      - Temperature stress factors
+      - Water stress simulation
+      - Nutrient limitation effects
+
+      📊 Model Integration
+      - WOFOST-inspired crop parameters
+      - DSSAT crop module concepts
+      - APSIM soil-crop coupling
+
+      Based on scientific literature with Impact Factor 12.4+
+    `)
+    .setVersion('16.0.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
+  const port = process.env.PORT || 3023;
+  await app.listen(port);
+
+  console.log(`🌱 Crop Growth Model Service running on port ${port}`);
+  console.log(`📚 API Documentation: http://localhost:${port}/docs`);
+}
+
+bootstrap();

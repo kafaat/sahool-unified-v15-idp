@@ -1,126 +1,181 @@
 /**
  * SAHOOL Web Dashboard Types
  * أنواع لوحة التحكم
+ *
+ * This file re-exports shared types and adds web-specific extensions
  */
 
-// ═══════════════════════════════════════════════════════════════
-// KPI Types
-// ═══════════════════════════════════════════════════════════════
+// Re-export all shared types from api-client
+export type {
+  // Core Types
+  Locale,
+  Priority,
+  Severity,
+  TaskStatus,
+  DiagnosisStatus,
+  FarmStatus,
+  // Geometry Types
+  Coordinates,
+  GeoPosition,
+  GeoPoint,
+  GeoPolygon,
+  GeoMultiPolygon,
+  GeoLineString,
+  GeoGeometry,
+  GeoFeature,
+  GeoFeatureCollection,
+  // Domain Types
+  Task,
+  CreateTaskRequest,
+  TaskEvidence,
+  Field,
+  Farm,
+  WeatherData,
+  WeatherForecast,
+  DailyForecast,
+  WeatherAlert,
+  DiagnosisRecord,
+  ExpertReview,
+  DiagnosisStats,
+  DashboardStats,
+  DashboardData,
+  FieldIndicators,
+  Indicator,
+  SensorReading,
+  Equipment,
+  Notification,
+  CommunityPost,
+  // Alert Types
+  AlertSeverity,
+  AlertCategory,
+  AlertStatus,
+  Alert,
+  AlertFilters,
+  AlertStats,
+  // User & Auth Types
+  UserRole,
+  User,
+  AuthState,
+  LoginRequest,
+  LoginResponse,
+  // KPI Types
+  TrendDirection,
+  HealthStatus,
+  KPI,
+  // Other
+  Governorate,
+  Treatment,
+  ApiResponse,
+  PaginatedResponse,
+  ApiClientConfig,
+  ServicePorts,
+} from '@sahool/api-client';
 
-export interface KPI {
-  id: string;
-  label: string;
-  labelAr: string;
-  value: number;
-  unit: string;
-  trend: 'up' | 'down' | 'stable';
-  trendValue: number;
-  status: 'good' | 'warning' | 'critical';
-  icon: string;
+// ═══════════════════════════════════════════════════════════════════════════
+// Web-specific type extensions
+// ═══════════════════════════════════════════════════════════════════════════
+
+import type {
+  Field as BaseField,
+  Alert as BaseAlert,
+  KPI as BaseKPI,
+  GeoPolygon,
+  TrendDirection,
+  HealthStatus,
+  AlertSeverity,
+  AlertCategory,
+} from '@sahool/api-client';
+
+/** Extended Field type with web dashboard display properties */
+export interface DashboardField extends BaseField {
+  farmName?: string;
+  crop?: string;
+  ndviTrend?: TrendDirection;
+  healthStatus?: HealthStatus;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Alert Types
-// ═══════════════════════════════════════════════════════════════
-
-export type AlertSeverity = 'info' | 'warning' | 'critical';
-export type AlertCategory = 'ndvi' | 'weather' | 'irrigation' | 'pest' | 'system';
-
-export interface Alert {
-  id: string;
-  title: string;
-  titleAr: string;
-  message: string;
-  messageAr: string;
-  severity: AlertSeverity;
-  category: AlertCategory;
-  fieldId?: string;
-  fieldName?: string;
-  createdAt: string;
-  read: boolean;
-  actionUrl?: string;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Field Types
-// ═══════════════════════════════════════════════════════════════
-
-export interface Field {
-  id: string;
-  name: string;
-  farmName: string;
-  crop: string;
-  areaHectares: number;
-  geometry: GeoJSON.Polygon;
-  ndviCurrent?: number;
-  ndviTrend?: 'rising' | 'falling' | 'stable';
-  healthStatus?: 'healthy' | 'moderate' | 'stressed' | 'critical';
-  lastUpdated: string;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Dashboard State
-// ═══════════════════════════════════════════════════════════════
-
+/** Dashboard state for the web app */
 export interface DashboardState {
-  kpis: KPI[];
-  alerts: Alert[];
-  fields: Field[];
+  kpis: BaseKPI[];
+  alerts: BaseAlert[];
+  fields: DashboardField[];
   selectedFieldId: string | null;
   isLoading: boolean;
   error: string | null;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
 // WebSocket Types
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
 
 export type WSMessageType =
   | 'kpi_update'
   | 'alert_new'
   | 'alert_dismiss'
   | 'field_update'
-  | 'ndvi_update';
+  | 'ndvi_update'
+  | 'weather_update'
+  | 'sensor_reading';
 
-export interface WSMessage {
+export interface WSMessage<T = unknown> {
   type: WSMessageType;
-  payload: unknown;
+  payload: T;
   timestamp: string;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// API Response Types
-// ═══════════════════════════════════════════════════════════════
-
-export interface ApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
+export interface WSKpiUpdatePayload {
+  kpiId: string;
+  value: number;
+  trend: TrendDirection;
+  trendValue: number;
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
+export interface WSAlertPayload {
+  alertId: string;
+  alert?: BaseAlert;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// User & Auth Types
-// ═══════════════════════════════════════════════════════════════
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'admin' | 'manager' | 'operator' | 'viewer';
-  tenantId: string;
-  avatar?: string;
+export interface WSFieldUpdatePayload {
+  fieldId: string;
+  updates: Partial<DashboardField>;
 }
 
-export interface AuthState {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
+// ═══════════════════════════════════════════════════════════════════════════
+// Filter Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface DashboardFilters {
+  severities?: AlertSeverity[];
+  categories?: AlertCategory[];
+  fieldIds?: string[];
+  farmIds?: string[];
+  dateRange?: {
+    start: string;
+    end: string;
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Chart & Visualization Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface ChartDataPoint {
+  date: string;
+  value: number;
+  label?: string;
+}
+
+export interface NDVITimeSeriesData {
+  fieldId: string;
+  fieldName: string;
+  data: ChartDataPoint[];
+  average: number;
+  trend: TrendDirection;
+}
+
+export interface WeatherChartData {
+  date: string;
+  temperature: number;
+  humidity: number;
+  precipitation?: number;
 }

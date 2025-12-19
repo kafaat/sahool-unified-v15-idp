@@ -1,0 +1,95 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ErrorBoundary } from '../components/common/ErrorBoundary';
+
+// Component that throws an error
+const ThrowError = ({ shouldThrow }: { shouldThrow: boolean }) => {
+  if (shouldThrow) {
+    throw new Error('Test error');
+  }
+  return <div>Normal content</div>;
+};
+
+// Suppress console.error for expected errors
+const originalError = console.error;
+beforeAll(() => {
+  console.error = vi.fn();
+});
+afterAll(() => {
+  console.error = originalError;
+});
+
+describe('Web App ErrorBoundary', () => {
+  it('renders children when there is no error', () => {
+    render(
+      <ErrorBoundary>
+        <div>Test content</div>
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText('Test content')).toBeInTheDocument();
+  });
+
+  it('shows error UI with Arabic text when error occurs', () => {
+    render(
+      <ErrorBoundary>
+        <ThrowError shouldThrow={true} />
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('إعادة المحاولة')).toBeInTheDocument();
+    expect(screen.getByText('تحديث الصفحة')).toBeInTheDocument();
+  });
+
+  it('shows error details in development mode', () => {
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+
+    render(
+      <ErrorBoundary>
+        <ThrowError shouldThrow={true} />
+      </ErrorBoundary>
+    );
+
+    expect(screen.getByText('تفاصيل الخطأ (للمطورين)')).toBeInTheDocument();
+
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it('calls onError callback', () => {
+    const onError = vi.fn();
+
+    render(
+      <ErrorBoundary onError={onError}>
+        <ThrowError shouldThrow={true} />
+      </ErrorBoundary>
+    );
+
+    expect(onError).toHaveBeenCalled();
+  });
+
+  it('allows recovery via retry button', () => {
+    const { rerender } = render(
+      <ErrorBoundary>
+        <ThrowError shouldThrow={true} />
+      </ErrorBoundary>
+    );
+
+    // Should show error UI
+    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+
+    // Click retry
+    fireEvent.click(screen.getByText('إعادة المحاولة'));
+
+    // Re-render without error
+    rerender(
+      <ErrorBoundary>
+        <ThrowError shouldThrow={false} />
+      </ErrorBoundary>
+    );
+
+    // Should show normal content
+    expect(screen.getByText('Normal content')).toBeInTheDocument();
+  });
+});

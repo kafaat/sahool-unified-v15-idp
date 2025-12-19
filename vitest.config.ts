@@ -12,6 +12,8 @@ export default defineConfig({
     setupFiles: ['./packages/shared-ui/src/test/setup.ts'],
     include: [
       'packages/**/*.{test,spec}.{ts,tsx}',
+      'apps/web/src/**/*.{test,spec}.{ts,tsx}',
+      'apps/admin/src/**/*.{test,spec}.{ts,tsx}',
     ],
     exclude: [
       '**/node_modules/**',

@@ -15,7 +15,7 @@ export type DiagnosisStatus = 'pending' | 'confirmed' | 'rejected' | 'treated';
 export type FarmStatus = 'active' | 'inactive' | 'suspended';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Geometry Types
+// Geometry Types (GeoJSON-compatible)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface Coordinates {
@@ -23,9 +23,48 @@ export interface Coordinates {
   lng: number;
 }
 
+/** GeoJSON Position [longitude, latitude, altitude?] */
+export type GeoPosition = [number, number] | [number, number, number];
+
+/** GeoJSON Point */
+export interface GeoPoint {
+  type: 'Point';
+  coordinates: GeoPosition;
+}
+
+/** GeoJSON Polygon */
 export interface GeoPolygon {
   type: 'Polygon';
-  coordinates: number[][][];
+  coordinates: GeoPosition[][];
+}
+
+/** GeoJSON MultiPolygon */
+export interface GeoMultiPolygon {
+  type: 'MultiPolygon';
+  coordinates: GeoPosition[][][];
+}
+
+/** GeoJSON LineString */
+export interface GeoLineString {
+  type: 'LineString';
+  coordinates: GeoPosition[];
+}
+
+/** Union of all GeoJSON geometry types used in SAHOOL */
+export type GeoGeometry = GeoPoint | GeoPolygon | GeoMultiPolygon | GeoLineString;
+
+/** GeoJSON Feature */
+export interface GeoFeature<G extends GeoGeometry = GeoGeometry, P = Record<string, unknown>> {
+  type: 'Feature';
+  geometry: G;
+  properties: P;
+  id?: string | number;
+}
+
+/** GeoJSON FeatureCollection */
+export interface GeoFeatureCollection<G extends GeoGeometry = GeoGeometry, P = Record<string, unknown>> {
+  type: 'FeatureCollection';
+  features: GeoFeature<G, P>[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -287,6 +326,143 @@ export interface CommunityPost {
   comments: number;
   createdAt: string;
   updatedAt?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Alert Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type AlertSeverity = 'info' | 'warning' | 'critical' | 'emergency';
+export type AlertCategory = 'ndvi' | 'weather' | 'irrigation' | 'pest' | 'disease' | 'system';
+export type AlertStatus = 'active' | 'acknowledged' | 'resolved' | 'dismissed';
+
+export interface Alert {
+  id: string;
+  title: string;
+  titleAr?: string;
+  message: string;
+  messageAr?: string;
+  severity: AlertSeverity;
+  category: AlertCategory;
+  status: AlertStatus;
+  fieldId?: string;
+  fieldName?: string;
+  farmId?: string;
+  farmName?: string;
+  createdAt: string;
+  updatedAt?: string;
+  acknowledgedAt?: string;
+  resolvedAt?: string;
+  read: boolean;
+  actionUrl?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface AlertFilters {
+  severity?: AlertSeverity[];
+  category?: AlertCategory[];
+  status?: AlertStatus[];
+  fieldId?: string;
+  farmId?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface AlertStats {
+  total: number;
+  active: number;
+  resolved: number;
+  bySeverity: Record<AlertSeverity, number>;
+  byCategory: Record<AlertCategory, number>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// User & Auth Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type UserRole = 'admin' | 'expert' | 'farmer' | 'agronomist' | 'manager' | 'operator' | 'viewer';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  nameAr?: string;
+  role: UserRole;
+  tenantId: string;
+  tenantName?: string;
+  governorate?: string;
+  phone?: string;
+  avatar?: string;
+  isActive: boolean;
+  lastLogin?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  token?: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  user: User;
+  token: string;
+  refreshToken?: string;
+  expiresAt: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// KPI Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type TrendDirection = 'up' | 'down' | 'stable';
+export type HealthStatus = 'good' | 'warning' | 'critical' | 'healthy' | 'moderate' | 'stressed';
+
+export interface KPI {
+  id: string;
+  label: string;
+  labelAr?: string;
+  value: number;
+  unit: string;
+  trend: TrendDirection;
+  trendValue: number;
+  status: HealthStatus;
+  icon?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Governorate Types (Yemen-specific)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface Governorate {
+  id: string;
+  name: string;
+  nameAr: string;
+  farmCount: number;
+  totalArea: number;
+  avgHealthScore: number;
+  coordinates: Coordinates;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Treatment Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface Treatment {
+  id: string;
+  diagnosisId: string;
+  recommendation: string;
+  recommendationAr?: string;
+  appliedAt?: string;
+  status: 'pending' | 'applied' | 'effective' | 'ineffective';
+  notes?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,121 +1,113 @@
-// Sahool Admin Dashboard Types
-// أنواع البيانات للوحة تحكم سهول
+/**
+ * Sahool Admin Dashboard Types
+ * أنواع البيانات للوحة تحكم سهول
+ *
+ * This file re-exports shared types and adds admin-specific extensions
+ */
 
-export interface Farm {
-  id: string;
-  name: string;
-  nameAr: string;
-  ownerId: string;
-  governorate: string;
-  district: string;
-  area: number; // hectares
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-  polygon?: any; // GeoJSON Polygon
-  crops: string[];
-  status: 'active' | 'inactive' | 'pending';
-  healthScore: number;
-  lastUpdated: string;
-  createdAt: string;
+// Re-export all shared types from api-client
+export type {
+  // Core Types
+  Locale,
+  Priority,
+  Severity,
+  TaskStatus,
+  DiagnosisStatus,
+  FarmStatus,
+  // Geometry Types
+  Coordinates,
+  GeoPosition,
+  GeoPoint,
+  GeoPolygon,
+  GeoMultiPolygon,
+  GeoLineString,
+  GeoGeometry,
+  GeoFeature,
+  GeoFeatureCollection,
+  // Domain Types
+  Task,
+  CreateTaskRequest,
+  TaskEvidence,
+  Field,
+  Farm,
+  WeatherData,
+  WeatherForecast,
+  DailyForecast,
+  WeatherAlert,
+  DiagnosisRecord,
+  ExpertReview,
+  DiagnosisStats,
+  DashboardStats,
+  DashboardData,
+  FieldIndicators,
+  Indicator,
+  SensorReading,
+  Equipment,
+  Notification,
+  CommunityPost,
+  // Alert Types
+  AlertSeverity,
+  AlertCategory,
+  AlertStatus,
+  Alert,
+  AlertFilters,
+  AlertStats,
+  // User & Auth Types
+  UserRole,
+  User,
+  AuthState,
+  LoginRequest,
+  LoginResponse,
+  // KPI Types
+  TrendDirection,
+  HealthStatus,
+  KPI,
+  // Other
+  Governorate,
+  Treatment,
+  ApiResponse,
+  PaginatedResponse,
+  ApiClientConfig,
+  ServicePorts,
+} from '@sahool/api-client';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Admin-specific type extensions
+// ═══════════════════════════════════════════════════════════════════════════
+
+import type {
+  Farm as BaseFarm,
+  DiagnosisRecord as BaseDiagnosis,
+  SensorReading as BaseSensorReading,
+  Governorate as BaseGovernorate,
+  GeoPolygon,
+  Treatment,
+} from '@sahool/api-client';
+
+/** Extended Farm type with admin-specific fields */
+export interface AdminFarm extends BaseFarm {
+  polygon?: GeoPolygon;
+  district?: string;
 }
 
-export interface DiagnosisRecord {
-  id: string;
-  farmId: string;
-  farmName: string;
-  imageUrl: string;
-  thumbnailUrl: string;
-  cropType: string;
-  diseaseId: string;
-  diseaseName: string;
-  diseaseNameAr: string;
-  confidence: number;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  status: 'pending' | 'confirmed' | 'rejected' | 'treated';
-  expertReview?: {
-    expertId: string;
-    expertName: string;
-    notes: string;
-    reviewedAt: string;
-  };
-  treatment?: {
-    recommendation: string;
-    recommendationAr: string;
-    appliedAt?: string;
-  };
-  location: {
-    lat: number;
-    lng: number;
-  };
-  diagnosedAt: string;
-  createdBy: string;
+/** Extended Diagnosis with treatment info */
+export interface AdminDiagnosisRecord extends BaseDiagnosis {
+  treatment?: Treatment;
 }
 
-export interface DashboardStats {
-  totalFarms: number;
-  activeFarms: number;
-  totalArea: number;
-  totalDiagnoses: number;
-  pendingReviews: number;
-  criticalAlerts: number;
-  avgHealthScore: number;
-  weeklyDiagnoses: number;
-}
-
-export interface WeatherAlert {
-  id: string;
-  type: 'frost' | 'heat' | 'drought' | 'flood' | 'wind' | 'pest';
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  title: string;
-  titleAr: string;
-  description: string;
-  descriptionAr: string;
-  affectedGovernorates: string[];
-  startDate: string;
-  endDate?: string;
-  isActive: boolean;
-}
-
-export interface SensorReading {
-  id: string;
-  sensorId: string;
-  farmId: string;
-  type: 'soil_moisture' | 'temperature' | 'humidity' | 'et0' | 'ndvi';
-  value: number;
-  unit: string;
+/** Extended Sensor Reading with virtual sensor support */
+export interface AdminSensorReading extends BaseSensorReading {
   isVirtual: boolean;
-  timestamp: string;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  nameAr: string;
-  role: 'admin' | 'expert' | 'farmer' | 'viewer';
-  governorate?: string;
-  isActive: boolean;
-  lastLogin?: string;
-  createdAt: string;
-}
+/** Admin-specific user roles */
+export type AdminUserRole = 'admin' | 'expert' | 'viewer';
 
-export interface Governorate {
-  id: string;
-  name: string;
-  nameAr: string;
-  farmCount: number;
-  totalArea: number;
-  avgHealthScore: number;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-}
-
+// ═══════════════════════════════════════════════════════════════════════════
 // Yemen governorates for the map
-export const YEMEN_GOVERNORATES: Governorate[] = [
+// ═══════════════════════════════════════════════════════════════════════════
+
+export const YEMEN_GOVERNORATES: BaseGovernorate[] = [
   { id: 'sanaa', name: 'Sanaa', nameAr: 'صنعاء', farmCount: 0, totalArea: 0, avgHealthScore: 0, coordinates: { lat: 15.3694, lng: 44.1910 } },
   { id: 'aden', name: 'Aden', nameAr: 'عدن', farmCount: 0, totalArea: 0, avgHealthScore: 0, coordinates: { lat: 12.7855, lng: 45.0187 } },
   { id: 'taiz', name: 'Taiz', nameAr: 'تعز', farmCount: 0, totalArea: 0, avgHealthScore: 0, coordinates: { lat: 13.5789, lng: 44.0219 } },

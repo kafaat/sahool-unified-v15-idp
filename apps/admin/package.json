@@ -11,6 +11,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@sahool/api-client": "*",
+    "@sahool/shared-ui": "*",
+    "@sahool/shared-utils": "*",
+    "@sahool/shared-hooks": "*",
     "next": "15.1.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",

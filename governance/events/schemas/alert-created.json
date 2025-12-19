@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.sa/events/alert-created.json",
+  "title": "AlertCreated",
+  "description": "Event emitted when a new alert is created",
+  "type": "object",
+  "required": ["event_id", "timestamp", "alert_id", "field_id", "type", "severity", "message"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event timestamp in ISO 8601 format"
+    },
+    "alert_id": {
+      "type": "string",
+      "pattern": "^alt_[a-zA-Z0-9]+$",
+      "description": "Unique alert identifier"
+    },
+    "field_id": {
+      "type": "string",
+      "pattern": "^fld_[a-zA-Z0-9]+$",
+      "description": "Field identifier"
+    },
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^tnt_[a-zA-Z0-9]+$",
+      "description": "Tenant identifier"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "ndvi_low",
+        "ndvi_drop",
+        "ndvi_anomaly",
+        "weather_severe",
+        "weather_frost",
+        "weather_heat",
+        "irrigation_needed",
+        "irrigation_overdue",
+        "crop_disease",
+        "crop_pest",
+        "yield_risk",
+        "system_error"
+      ],
+      "description": "Alert type"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "warning", "critical"],
+      "description": "Alert severity level"
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Human-readable alert message"
+    },
+    "message_ar": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Arabic alert message"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Additional alert-specific data"
+    },
+    "source_event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "ID of the event that triggered this alert"
+    },
+    "recommended_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action", "priority"],
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "action_ar": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          }
+        }
+      },
+      "description": "Recommended actions to address the alert"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the alert should auto-expire"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.sa/events/ndvi-calculated.json",
+  "title": "NDVICalculated",
+  "description": "Event emitted when NDVI is calculated for a field",
+  "type": "object",
+  "required": ["event_id", "timestamp", "field_id", "statistics", "satellite_date"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event timestamp in ISO 8601 format"
+    },
+    "field_id": {
+      "type": "string",
+      "pattern": "^fld_[a-zA-Z0-9]+$",
+      "description": "Field identifier"
+    },
+    "satellite_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of satellite imagery"
+    },
+    "satellite_source": {
+      "type": "string",
+      "enum": ["sentinel-2", "landsat-8", "landsat-9", "planet"],
+      "description": "Satellite imagery source"
+    },
+    "cloud_coverage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Cloud coverage percentage"
+    },
+    "statistics": {
+      "type": "object",
+      "required": ["mean", "min", "max"],
+      "properties": {
+        "mean": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "Mean NDVI value"
+        },
+        "min": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "Minimum NDVI value"
+        },
+        "max": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "Maximum NDVI value"
+        },
+        "std": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Standard deviation"
+        },
+        "median": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "Median NDVI value"
+        },
+        "p25": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "25th percentile"
+        },
+        "p75": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1,
+          "description": "75th percentile"
+        }
+      },
+      "description": "NDVI statistics for the field"
+    },
+    "health_classification": {
+      "type": "string",
+      "enum": ["water", "bare_soil", "sparse_vegetation", "moderate_vegetation", "dense_vegetation", "very_dense_vegetation"],
+      "description": "Overall vegetation health classification"
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["zone_id", "mean_ndvi", "area_percent"],
+        "properties": {
+          "zone_id": {
+            "type": "string"
+          },
+          "mean_ndvi": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "area_percent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "classification": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "NDVI breakdown by zones"
+    },
+    "comparison": {
+      "type": "object",
+      "properties": {
+        "previous_mean": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "change_percent": {
+          "type": "number"
+        },
+        "trend": {
+          "type": "string",
+          "enum": ["increasing", "stable", "decreasing"]
+        }
+      },
+      "description": "Comparison with previous measurement"
+    }
+  },
+  "additionalProperties": false
+}

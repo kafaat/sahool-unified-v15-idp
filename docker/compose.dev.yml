@@ -1,0 +1,189 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Development Environment Override
+# Usage: docker compose -f docker-compose.yml -f docker/compose.dev.yml up
+# Or: make up-dev
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure - Development Settings
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  postgres:
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sahool}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+    ports:
+      - "5432:5432"
+
+  redis:
+    command: ["redis-server", "--appendonly", "yes"]
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-dev_password}
+    ports:
+      - "6379:6379"
+
+  kong:
+    environment:
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Core Services - Development Mode
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  field_core:
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    volumes:
+      - ../kernel/services/field_core/src:/app/src:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  field_ops:
+    environment:
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  ndvi_engine:
+    environment:
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384M
+
+  weather_core:
+    environment:
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 128M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI Services - Development Mode (Reduced Resources)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  crop_health_ai:
+    environment:
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  virtual_sensors:
+    environment:
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 128M
+
+  yield_engine:
+    environment:
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=development
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # v15.3 Services - Development Mode
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  crop_growth_model:
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    volumes:
+      - ../kernel-services-v15.3/crop-growth-model/src:/app/src:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  disaster_assessment:
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 128M
+
+  lai_estimation:
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 192M
+
+  yield_prediction:
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  marketplace_service:
+    environment:
+      - NODE_ENV=development
+      - LOG_LEVEL=debug
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 192M
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Observability - Development (Single Replica)
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  prometheus:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  grafana:
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M

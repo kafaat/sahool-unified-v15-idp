@@ -33,8 +33,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsqlite3-dev \
     curl \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/* && \
-    pip install --upgrade pip
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip (non-fatal in case of network issues)
+RUN pip install --upgrade pip || true
 
 # Install dependencies (using shared requirements)
 COPY requirements.txt .

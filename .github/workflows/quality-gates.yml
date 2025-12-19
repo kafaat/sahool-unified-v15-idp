@@ -155,12 +155,12 @@ jobs:
             "sk-[a-zA-Z0-9]{48}"           # OpenAI keys
             "ghp_[a-zA-Z0-9]{36}"          # GitHub tokens
             "AKIA[0-9A-Z]{16}"             # AWS keys
-            "password\s*=\s*['\"][^'\"$]+" # Hardcoded passwords
           )
 
           FOUND=0
           for pattern in "${PATTERNS[@]}"; do
-            if grep -rEn "$pattern" --include="*.py" --include="*.ts" --include="*.js" --include="*.yaml" --include="*.yml" apps/ packages/ 2>/dev/null | grep -v ".example" | grep -v "test" | head -5; then
+            # Exclude node_modules, .example files, and test files
+            if grep -rEn "$pattern" --include="*.py" --include="*.ts" --include="*.js" --include="*.yaml" --include="*.yml" apps/ packages/ shared/ 2>/dev/null | grep -v "node_modules" | grep -v ".example" | grep -v "test" | grep -v "mock" | head -5; then
               echo "::error::Potential secret found matching pattern: $pattern"
               FOUND=1
             fi

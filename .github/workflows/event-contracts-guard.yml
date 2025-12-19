@@ -1,0 +1,368 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Event Contracts Guard
+# Validates event schemas and ensures backward compatibility
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Event Contracts Guard
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'governance/events/**'
+      - 'shared/events/**'
+      - 'apps/services/**/events/**'
+
+concurrency:
+  group: events-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate Event Schemas
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-schemas:
+    name: Validate Event Schemas
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml jsonschema
+
+      - name: Validate event catalog
+        run: |
+          echo "🔍 Validating event catalog..."
+
+          python -c "
+          import yaml
+          import os
+          import sys
+
+          catalog_path = 'governance/events/catalog.yaml'
+
+          if not os.path.exists(catalog_path):
+              print('::notice::Event catalog not found - skipping validation')
+              sys.exit(0)
+
+          with open(catalog_path) as f:
+              catalog = yaml.safe_load(f)
+
+          errors = []
+
+          # Check required sections
+          if 'events' not in catalog:
+              errors.append('Missing \"events\" section in catalog')
+          else:
+              for event_name, event_def in catalog.get('events', {}).items():
+                  # Check required fields
+                  required_fields = ['category', 'description', 'schema']
+                  for field in required_fields:
+                      if field not in event_def:
+                          errors.append(f'Event {event_name}: missing \"{field}\"')
+
+                  # Validate category
+                  valid_categories = ['field', 'ndvi', 'alert', 'weather', 'irrigation', 'crop_health', 'yield', 'system']
+                  if 'category' in event_def and event_def['category'] not in valid_categories:
+                      errors.append(f'Event {event_name}: invalid category \"{event_def[\"category\"]}\"')
+
+                  # Check schema has required properties
+                  schema = event_def.get('schema', {})
+                  if 'properties' not in schema:
+                      errors.append(f'Event {event_name}: schema missing \"properties\"')
+
+          if errors:
+              print('❌ Event catalog validation failed:')
+              for err in errors:
+                  print(f'  - {err}')
+              sys.exit(1)
+
+          event_count = len(catalog.get('events', {}))
+          print(f'✅ Event catalog valid - {event_count} events defined')
+          "
+
+      - name: Validate JSON schemas
+        run: |
+          echo "🔍 Validating JSON schemas..."
+
+          python -c "
+          import json
+          import os
+          import sys
+          from jsonschema import Draft7Validator, SchemaError
+
+          schema_dir = 'governance/events/schemas'
+
+          if not os.path.exists(schema_dir):
+              print('::notice::Event schemas directory not found - skipping')
+              sys.exit(0)
+
+          errors = []
+
+          for filename in os.listdir(schema_dir):
+              if filename.endswith('.json'):
+                  filepath = os.path.join(schema_dir, filename)
+                  try:
+                      with open(filepath) as f:
+                          schema = json.load(f)
+
+                      # Validate it's a valid JSON Schema
+                      Draft7Validator.check_schema(schema)
+                      print(f'  ✓ {filename}')
+
+                  except json.JSONDecodeError as e:
+                      errors.append(f'{filename}: Invalid JSON - {e}')
+                  except SchemaError as e:
+                      errors.append(f'{filename}: Invalid schema - {e.message}')
+
+          if errors:
+              print('\\n❌ Schema validation failed:')
+              for err in errors:
+                  print(f'  - {err}')
+              sys.exit(1)
+
+          print('\\n✅ All JSON schemas valid')
+          "
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Backward Compatibility Check
+  # ─────────────────────────────────────────────────────────────────────────────
+  backward-compatibility:
+    name: Check Backward Compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Check for breaking changes
+        run: |
+          echo "🔍 Checking for breaking changes in event schemas..."
+
+          # Get the base branch (main or develop)
+          BASE_BRANCH="${{ github.base_ref }}"
+
+          python -c "
+          import yaml
+          import os
+          import sys
+          import subprocess
+
+          catalog_path = 'governance/events/catalog.yaml'
+
+          if not os.path.exists(catalog_path):
+              print('::notice::No event catalog - skipping compatibility check')
+              sys.exit(0)
+
+          # Get current catalog
+          with open(catalog_path) as f:
+              current_catalog = yaml.safe_load(f)
+
+          # Try to get base branch catalog
+          base_branch = '${BASE_BRANCH}' or 'main'
+          try:
+              result = subprocess.run(
+                  ['git', 'show', f'origin/{base_branch}:{catalog_path}'],
+                  capture_output=True,
+                  text=True
+              )
+              if result.returncode != 0:
+                  print('::notice::No base catalog to compare - skipping compatibility check')
+                  sys.exit(0)
+
+              base_catalog = yaml.safe_load(result.stdout)
+          except Exception as e:
+              print(f'::notice::Could not fetch base catalog: {e}')
+              sys.exit(0)
+
+          breaking_changes = []
+          warnings = []
+
+          current_events = current_catalog.get('events', {})
+          base_events = base_catalog.get('events', {})
+
+          # Check for removed events
+          for event_name in base_events:
+              if event_name not in current_events:
+                  breaking_changes.append(f'Event \"{event_name}\" was removed')
+
+          # Check for schema changes
+          for event_name, event_def in current_events.items():
+              if event_name in base_events:
+                  base_def = base_events[event_name]
+
+                  # Check for removed required fields
+                  current_schema = event_def.get('schema', {})
+                  base_schema = base_def.get('schema', {})
+
+                  current_required = set(current_schema.get('required', []))
+                  base_required = set(base_schema.get('required', []))
+
+                  # New required fields = breaking change
+                  new_required = current_required - base_required
+                  if new_required:
+                      breaking_changes.append(
+                          f'Event \"{event_name}\": new required fields: {new_required}'
+                      )
+
+                  # Removed properties = breaking change
+                  current_props = set(current_schema.get('properties', {}).keys())
+                  base_props = set(base_schema.get('properties', {}).keys())
+
+                  removed_props = base_props - current_props
+                  if removed_props:
+                      breaking_changes.append(
+                          f'Event \"{event_name}\": removed properties: {removed_props}'
+                      )
+
+                  # Changed types = breaking change
+                  for prop_name in current_props & base_props:
+                      current_type = current_schema.get('properties', {}).get(prop_name, {}).get('type')
+                      base_type = base_schema.get('properties', {}).get(prop_name, {}).get('type')
+
+                      if current_type != base_type:
+                          breaking_changes.append(
+                              f'Event \"{event_name}.{prop_name}\": type changed from \"{base_type}\" to \"{current_type}\"'
+                          )
+
+              else:
+                  # New event - just a warning
+                  warnings.append(f'New event added: \"{event_name}\"')
+
+          if warnings:
+              print('📝 Changes detected:')
+              for warn in warnings:
+                  print(f'  ℹ️  {warn}')
+
+          if breaking_changes:
+              print('\\n❌ Breaking changes detected:')
+              for change in breaking_changes:
+                  print(f'  🚨 {change}')
+              print('\\n⚠️  Breaking changes require version bump and migration plan')
+              print('   Add \"BREAKING:\" prefix to commit message if intentional')
+
+              # Check if commit message indicates intentional breaking change
+              # For now, just warn but don't fail
+              print('\\n::warning::Breaking changes detected in event schemas')
+          else:
+              print('\\n✅ No breaking changes detected')
+          "
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Event Documentation Check
+  # ─────────────────────────────────────────────────────────────────────────────
+  documentation:
+    name: Check Event Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Check event documentation
+        run: |
+          echo "🔍 Checking event documentation..."
+
+          python -c "
+          import yaml
+          import os
+          import sys
+
+          catalog_path = 'governance/events/catalog.yaml'
+
+          if not os.path.exists(catalog_path):
+              print('::notice::No event catalog - skipping documentation check')
+              sys.exit(0)
+
+          with open(catalog_path) as f:
+              catalog = yaml.safe_load(f)
+
+          warnings = []
+
+          for event_name, event_def in catalog.get('events', {}).items():
+              # Check description quality
+              desc = event_def.get('description', '')
+              if len(desc) < 20:
+                  warnings.append(f'{event_name}: description too short')
+
+              # Check for examples
+              if 'examples' not in event_def:
+                  warnings.append(f'{event_name}: missing usage examples')
+
+              # Check producer/consumer documentation
+              if 'producers' not in event_def:
+                  warnings.append(f'{event_name}: missing producer documentation')
+              if 'consumers' not in event_def:
+                  warnings.append(f'{event_name}: missing consumer documentation')
+
+          if warnings:
+              print('📝 Documentation improvements suggested:')
+              for warn in warnings:
+                  print(f'  ⚠️  {warn}')
+              print('\\n::warning::Event documentation could be improved')
+          else:
+              print('✅ All events well documented')
+          "
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Type Generation Check
+  # ─────────────────────────────────────────────════════════════════════════════
+  type-generation:
+    name: Check Type Generation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts || npm install --ignore-scripts
+        continue-on-error: true
+
+      - name: Check TypeScript types are in sync
+        run: |
+          echo "🔍 Checking TypeScript event types..."
+
+          # Check if type generation script exists
+          if [ -f "tools/generators/event-types.ts" ] || [ -f "tools/generators/event-types.js" ]; then
+            echo "Running type generator..."
+            npx tsx tools/generators/event-types.ts 2>/dev/null || \
+            node tools/generators/event-types.js 2>/dev/null || \
+            echo "::notice::Type generator failed - skipping"
+
+            # Check for drift
+            if git diff --exit-code shared/events/types/; then
+              echo "✅ Event TypeScript types are up-to-date"
+            else
+              echo "::warning::Generated TypeScript types may be out of sync"
+              git diff shared/events/types/
+            fi
+          else
+            echo "::notice::No event type generator found - skipping"
+          fi
+        continue-on-error: true

@@ -11,7 +11,7 @@ from __future__ import annotations
 from pathlib import Path
 
 # Root path calculation
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 TEMPLATES_DIR = ROOT / "shared" / "contracts" / "ai" / "prompt_templates"
 DEFAULT_TEMPLATE = TEMPLATES_DIR / "field_advice_v1.txt"
 

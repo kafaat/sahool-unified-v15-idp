@@ -1185,6 +1185,30 @@ services:
               hour: 300
               policy: local
 
+      # Planting Strategy Optimizer - محسّن استراتيجية الزراعة
+      # Wheat planting methods: equal row, wide strip, space broadcasting, small basin
+      - name: planting-strategy-route
+        paths:
+          - /api/v1/planting-strategy
+          - /api/v1/planting-strategy/methods
+          - /api/v1/planting-strategy/optimize
+          - /api/v1/planting-strategy/plan
+          - /api/v1/planting-strategy/density
+          - /api/v1/planting-strategy/fertilizer
+          - /api/v1/planting-strategy/irrigation
+          - /api/v1/planting-strategy/compare
+          - /api/v1/planting-strategy/analyze-field
+          - /api/v1/planting-strategy/digital-twin
+          - /api/v1/planting-strategy/crops
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Planting optimization calculations
+              minute: 30
+              hour: 500
+              policy: local
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins
 # ─────────────────────────────────────────────────────────────────────────────

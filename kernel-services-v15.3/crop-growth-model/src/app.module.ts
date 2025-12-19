@@ -25,6 +25,8 @@ import { DigitalTwinCoreController } from './digital-twin-core/digital-twin-core
 import { DigitalTwinCoreService } from './digital-twin-core/digital-twin-core.service';
 import { RSWorldModelController } from './rs-world-model/rs-world-model.controller';
 import { RSWorldModelService } from './rs-world-model/rs-world-model.service';
+import { PlantingStrategyController } from './planting-strategy/planting-strategy.controller';
+import { PlantingStrategyService } from './planting-strategy/planting-strategy.service';
 
 @Module({
   controllers: [
@@ -41,6 +43,7 @@ import { RSWorldModelService } from './rs-world-model/rs-world-model.service';
     WebDataCollectorController,
     DigitalTwinCoreController,
     RSWorldModelController,
+    PlantingStrategyController,
   ],
   providers: [
     PhenologyService,
@@ -56,6 +59,7 @@ import { RSWorldModelService } from './rs-world-model/rs-world-model.service';
     WebDataCollectorService,
     DigitalTwinCoreService,
     RSWorldModelService,
+    PlantingStrategyService,
   ],
 })
 export class AppModule {}

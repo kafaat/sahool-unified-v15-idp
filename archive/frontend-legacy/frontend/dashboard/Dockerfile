@@ -2,7 +2,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci || npm install
+# Use npm install since package-lock.json may not exist
+RUN npm install
 
 FROM node:20-alpine AS builder
 WORKDIR /app

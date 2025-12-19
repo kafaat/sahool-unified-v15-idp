@@ -5,6 +5,8 @@ Sprint 8: Unit tests for NDVI analytics and trends
 
 import pytest
 from datetime import date
+import sys
+sys.path.insert(0, "archive/kernel-legacy")
 
 # Use absolute imports to avoid import errors
 from kernel.services.ndvi_engine.src.analytics import (

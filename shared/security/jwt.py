@@ -1,10 +1,16 @@
 """
 JWT Token Verification and Creation
 RS256/HS256 support with standard claims
+
+Security Features:
+- JTI (Token ID) for revocation support
+- Integration with TokenRevocationService
+- RS256 asymmetric encryption support
 """
 
 import logging
 import os
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -111,18 +117,19 @@ def _get_sign_key() -> str:
     return JWT_SECRET_KEY
 
 
-def verify_token(token: str) -> dict:
+def verify_token(token: str, check_revocation: bool = True) -> dict:
     """
     Verify and decode a JWT token.
 
     Args:
         token: The JWT token string
+        check_revocation: Whether to check if token is revoked (default: True)
 
     Returns:
         Decoded payload dictionary
 
     Raises:
-        AuthError: If token is invalid or expired
+        AuthError: If token is invalid, expired, or revoked
     """
     try:
         payload = jwt.decode(
@@ -146,6 +153,38 @@ def verify_token(token: str) -> dict:
         payload.setdefault("roles", [])
         payload.setdefault("scopes", [])
 
+        # Check token revocation
+        if check_revocation:
+            try:
+                from .token_revocation import get_revocation_service
+
+                revocation_svc = get_revocation_service()
+                jti = payload.get("jti")
+                user_id = payload.get("sub")
+                tenant_id = payload.get("tid")
+                iat = payload.get("iat")
+
+                # Convert iat to datetime if it's a timestamp
+                if isinstance(iat, (int, float)):
+                    iat = datetime.fromtimestamp(iat, tz=timezone.utc)
+
+                is_revoked, reason = revocation_svc.is_revoked(
+                    jti=jti,
+                    user_id=user_id,
+                    tenant_id=tenant_id,
+                    issued_at=iat,
+                )
+
+                if is_revoked:
+                    logger.warning(
+                        f"Revoked token used: user={user_id}, jti={jti}, reason={reason}"
+                    )
+                    raise AuthError(f"Token has been revoked: {reason}", "token_revoked")
+
+            except ImportError:
+                # Revocation service not available, skip check
+                pass
+
         return payload
 
     except jwt.ExpiredSignatureError:
@@ -154,6 +193,8 @@ def verify_token(token: str) -> dict:
         raise AuthError("Invalid token issuer", "invalid_issuer")
     except jwt.InvalidAudienceError:
         raise AuthError("Invalid token audience", "invalid_audience")
+    except AuthError:
+        raise  # Re-raise AuthError from revocation check
     except PyJWTError as e:
         logger.warning(f"JWT verification failed: {e}")
         raise AuthError(f"Invalid token: {str(e)}", "invalid_token")
@@ -183,6 +224,7 @@ def create_token(
     expires_delta: Optional[timedelta] = None,
     token_type: str = "access",
     extra_claims: Optional[dict] = None,
+    jti: Optional[str] = None,
 ) -> str:
     """
     Create a new JWT token.
@@ -195,6 +237,7 @@ def create_token(
         expires_delta: Custom expiration time
         token_type: "access" or "refresh"
         extra_claims: Additional claims to include
+        jti: Optional token ID (auto-generated if not provided)
 
     Returns:
         Encoded JWT token string
@@ -208,6 +251,9 @@ def create_token(
     else:
         expire = now + timedelta(minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
 
+    # Generate JTI for revocation support
+    token_jti = jti or str(uuid.uuid4())
+
     payload = {
         "sub": user_id,
         "tid": tenant_id,
@@ -218,6 +264,7 @@ def create_token(
         "iss": JWT_ISSUER,
         "aud": JWT_AUDIENCE,
         "type": token_type,
+        "jti": token_jti,  # Token ID for revocation
     }
 
     if extra_claims:

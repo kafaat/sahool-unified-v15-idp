@@ -1,0 +1,76 @@
+{
+  "common": {
+    "appName": "سهول",
+    "tagline": "منصة الزراعة الذكية",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "retry": "إعادة المحاولة",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "search": "بحث",
+    "close": "إغلاق",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "noData": "لا توجد بيانات",
+    "all": "الكل"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "welcomeBack": "أهلاً بعودتك"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "fields": "الحقول",
+    "farms": "المزارع",
+    "alerts": "التنبيهات",
+    "tasks": "المهام",
+    "weather": "الطقس",
+    "diagnosis": "التشخيص",
+    "reports": "التقارير",
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "welcome": "مرحباً بك في سهول",
+    "totalFields": "إجمالي الحقول",
+    "totalArea": "المساحة الإجمالية",
+    "activeAlerts": "التنبيهات النشطة",
+    "healthScore": "مؤشر الصحة"
+  },
+  "fields": {
+    "title": "الحقول",
+    "addField": "إضافة حقل",
+    "fieldName": "اسم الحقل",
+    "cropType": "نوع المحصول",
+    "area": "المساحة",
+    "areaUnit": "هكتار",
+    "status": "الحالة",
+    "healthy": "سليم",
+    "moderate": "متوسط",
+    "stressed": "متوتر",
+    "critical": "حرج"
+  },
+  "alerts": {
+    "title": "التنبيهات",
+    "info": "معلومات",
+    "warning": "تحذير",
+    "critical": "حرج",
+    "emergency": "طوارئ",
+    "noAlerts": "لا توجد تنبيهات"
+  },
+  "errors": {
+    "unexpected": "حدث خطأ غير متوقع",
+    "network": "خطأ في الاتصال بالشبكة",
+    "tryAgain": "يرجى المحاولة مرة أخرى",
+    "refreshPage": "تحديث الصفحة"
+  }
+}

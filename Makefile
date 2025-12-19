@@ -1,12 +1,24 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SAHOOL Platform Makefile
-# Professional development and deployment commands
+# SAHOOL Platform Makefile - سهول المنصة الموحدة
+# Single Source of Truth for all platform operations
+# Reference: governance/services.yaml, REPO_MAP.md
 # ═══════════════════════════════════════════════════════════════════════════════
 
 .PHONY: help up down restart logs ps clean db-shell test lint mobile-run
+.PHONY: up-dev up-staging up-prod up-infra up-core up-ai up-v15
 
 # Default target
 .DEFAULT_GOAL := help
+
+# Environment detection
+ENV ?= development
+COMPOSE_PROJECT_NAME ?= sahool
+
+# Compose files based on environment
+COMPOSE_BASE = -f docker-compose.yml
+COMPOSE_DEV = $(COMPOSE_BASE) -f docker/compose.dev.yml
+COMPOSE_STAGING = $(COMPOSE_BASE) -f docker/compose.staging.yml
+COMPOSE_PROD = $(COMPOSE_BASE) -f docker/compose.prod.yml
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Help
@@ -14,39 +26,141 @@
 
 help: ## Show this help message
 	@echo "═══════════════════════════════════════════════════════════════════"
-	@echo "  SAHOOL Platform v16.0.0 - Development Commands"
+	@echo "  SAHOOL Platform v15.3 - Unified Commands"
+	@echo "  Reference: governance/services.yaml"
 	@echo "═══════════════════════════════════════════════════════════════════"
+	@echo ""
+	@echo "  \033[1mEnvironment Profiles:\033[0m"
+	@echo "  \033[36mup-dev\033[0m        Development (hot-reload, debug, reduced resources)"
+	@echo "  \033[36mup-staging\033[0m    Staging (production-like, scaled down)"
+	@echo "  \033[36mup-prod\033[0m       Production (full scale, optimized)"
+	@echo ""
+	@echo "  \033[1mService Profiles:\033[0m"
+	@echo "  \033[36mup-infra\033[0m      Infrastructure only (postgres, redis, nats, mqtt)"
+	@echo "  \033[36mup-core\033[0m       Core services (field-ops, weather, ndvi)"
+	@echo "  \033[36mup-ai\033[0m         AI services (crop-health-ai, yield-engine)"
+	@echo "  \033[36mup-v15\033[0m        v15.3 services (crop-growth-model, disaster, lai)"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Docker Commands
+# Environment-Based Docker Commands
 # ─────────────────────────────────────────────────────────────────────────────
 
-up: ## Start all services
+up: ## Start all services (default environment)
 	@echo "🚀 Starting SAHOOL Platform..."
-	docker-compose up -d
-	@echo "✅ Platform is running!"
-	@echo "   - API Gateway: http://localhost:8000"
-	@echo "   - Field Ops:   http://localhost:8080"
-	@echo "   - NATS:        http://localhost:8222"
+	docker compose up -d
+	@make status-urls
+
+up-dev: ## Start in development mode (hot-reload, debug)
+	@echo "🚀 Starting SAHOOL Platform [DEV MODE]..."
+	docker compose $(COMPOSE_DEV) up -d
+	@echo "✅ Development mode active!"
+	@echo "   - Hot-reload enabled"
+	@echo "   - Debug logging enabled"
+	@echo "   - Reduced resource limits"
+	@make status-urls
+
+up-staging: ## Start in staging mode (production-like)
+	@echo "🚀 Starting SAHOOL Platform [STAGING]..."
+	docker compose $(COMPOSE_STAGING) up -d
+	@echo "✅ Staging mode active!"
+	@make status-urls
+
+up-prod: ## Start in production mode (optimized)
+	@echo "🚀 Starting SAHOOL Platform [PRODUCTION]..."
+	docker compose $(COMPOSE_PROD) up -d
+	@echo "✅ Production mode active!"
+	@echo "   - Replicas scaled"
+	@echo "   - Resource limits enforced"
+	@make status-urls
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Service Profile Commands
+# ─────────────────────────────────────────────────────────────────────────────
+
+up-infra: ## Start infrastructure only (postgres, redis, nats, mqtt, kong)
+	@echo "🏗️  Starting Infrastructure..."
+	docker compose up -d postgres redis nats mqtt kong
+	@echo "✅ Infrastructure ready!"
+	@echo "   - PostgreSQL: localhost:5432"
+	@echo "   - Redis:      localhost:6379"
+	@echo "   - NATS:       localhost:4222"
+	@echo "   - MQTT:       localhost:1883"
+	@echo "   - Kong:       localhost:8000"
+
+up-core: up-infra ## Start core services (field-ops, weather, ndvi)
+	@echo "🌾 Starting Core Services..."
+	docker compose up -d field_ops ndvi_engine weather_core
+	@echo "✅ Core services ready!"
+	@echo "   - Field Ops:    localhost:8080"
+	@echo "   - NDVI Engine:  localhost:8107"
+	@echo "   - Weather Core: localhost:8108"
+
+up-ai: up-infra ## Start AI services (crop-health-ai, virtual-sensors, yield)
+	@echo "🤖 Starting AI Services..."
+	docker compose up -d crop_health_ai virtual_sensors yield_engine
+	@echo "✅ AI services ready!"
+	@echo "   - Crop Health AI:   localhost:8095"
+	@echo "   - Virtual Sensors:  localhost:8096"
+	@echo "   - Yield Engine:     localhost:8098"
+
+up-v15: up-infra ## Start v15.3 services (crop-growth-model, disaster, lai, yield-prediction)
+	@echo "🚀 Starting v15.3 Services..."
+	docker compose up -d crop_growth_model disaster_assessment lai_estimation yield_prediction marketplace_service
+	@echo "✅ v15.3 services ready!"
+	@echo "   - Crop Growth Model:     localhost:3023"
+	@echo "   - Disaster Assessment:   localhost:3020"
+	@echo "   - LAI Estimation:        localhost:3022"
+	@echo "   - Yield Prediction:      localhost:3021"
+	@echo "   - Marketplace:           localhost:3010"
+
+up-observability: ## Start observability stack (prometheus, grafana)
+	@echo "📊 Starting Observability..."
+	docker compose up -d prometheus grafana
+	@echo "✅ Observability ready!"
+	@echo "   - Prometheus: localhost:9090"
+	@echo "   - Grafana:    localhost:3002"
+
+status-urls: ## Show all service URLs
+	@echo ""
+	@echo "═══════════════════════════════════════════════════════════════════"
+	@echo "  Service URLs"
+	@echo "═══════════════════════════════════════════════════════════════════"
+	@echo "  API Gateway:           http://localhost:8000"
+	@echo "  Field Ops:             http://localhost:8080"
+	@echo "  Crop Growth Model:     http://localhost:3023"
+	@echo "  Admin Dashboard:       http://localhost:3001"
+	@echo "  Grafana:               http://localhost:3002"
+	@echo "  Prometheus:            http://localhost:9090"
+	@echo "  NATS Monitor:          http://localhost:8222"
+	@echo "═══════════════════════════════════════════════════════════════════"
 
 down: ## Stop all services
 	@echo "🛑 Stopping SAHOOL Platform..."
-	docker-compose down
+	docker compose down
 	@echo "✅ Platform stopped."
+
+down-v: ## Stop all services and remove volumes
+	@echo "🛑 Stopping SAHOOL Platform (with volumes)..."
+	docker compose down -v
+	@echo "✅ Platform stopped, volumes removed."
 
 restart: down up ## Restart all services
 
 logs: ## Follow logs from all services
-	docker-compose logs -f
+	docker compose logs -f
 
 logs-service: ## Follow logs from specific service (usage: make logs-service SERVICE=field_ops)
-	docker-compose logs -f $(SERVICE)
+	docker compose logs -f $(SERVICE)
 
 ps: ## List running services
-	docker-compose ps
+	docker compose ps
+
+health: ## Check health of all services
+	@echo "🏥 Health Check..."
+	@docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Database Commands

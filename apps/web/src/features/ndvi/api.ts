@@ -3,7 +3,14 @@
  * طبقة API لميزة مؤشر NDVI
  */
 
-import { api } from '@sahool/api-client';
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 // Types
 export interface NDVIData {

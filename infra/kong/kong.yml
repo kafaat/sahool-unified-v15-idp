@@ -1073,6 +1073,67 @@ services:
               minute: 60
               hour: 1500
               policy: local
+      # Multi-Agent Agricultural Advisor Council - مجلس المستشار الزراعي متعدد الوكلاء
+      # Inspired by Karpathy's LLM-Council for multi-AI collaboration
+      - name: advisor-council-route
+        paths:
+          - /api/v1/advisor-council
+          - /api/v1/advisor-council/irrigation
+          - /api/v1/advisor-council/pest
+          - /api/v1/advisor-council/quick
+          - /api/v1/advisor-council/agents
+          - /api/v1/advisor-council/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Multi-agent council requires moderate compute per session
+              minute: 30
+              hour: 500
+              policy: local
+      # Voice Guidance Module - خدمة التوجيه الصوتي للمزارعين
+      # Inspired by SoulX-Podcast AI voice generation
+      - name: voice-guidance-route
+        paths:
+          - /api/v1/voice-guidance
+          - /api/v1/voice-guidance/voices
+          - /api/v1/voice-guidance/scripts
+          - /api/v1/voice-guidance/categories
+          - /api/v1/voice-guidance/briefing
+          - /api/v1/voice-guidance/podcast
+          - /api/v1/voice-guidance/quick-tip
+          - /api/v1/voice-guidance/wisdom
+          - /api/v1/voice-guidance/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Voice guidance content generation
+              minute: 60
+              hour: 1500
+              policy: local
+      # Web Data Collector - خدمة جمع البيانات من الويب
+      # Inspired by Browserbase MCP for automated web data collection
+      - name: data-collector-route
+        paths:
+          - /api/v1/data-collector
+          - /api/v1/data-collector/sources
+          - /api/v1/data-collector/collect
+          - /api/v1/data-collector/market/prices
+          - /api/v1/data-collector/weather/alerts
+          - /api/v1/data-collector/news
+          - /api/v1/data-collector/research
+          - /api/v1/data-collector/intelligence
+          - /api/v1/data-collector/statistics
+          - /api/v1/data-collector/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Data collection operations - varies by source
+              minute: 60
+              hour: 1500
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins

@@ -15,6 +15,12 @@ import { SatelliteDataController } from './satellite-data/satellite-data.control
 import { SatelliteDataService } from './satellite-data/satellite-data.service';
 import { IrrigationDecisionController } from './irrigation-decision/irrigation-decision.controller';
 import { IrrigationDecisionService } from './irrigation-decision/irrigation-decision.service';
+import { MultiAgentAdvisorController } from './multi-agent-advisor/multi-agent-advisor.controller';
+import { MultiAgentAdvisorService } from './multi-agent-advisor/multi-agent-advisor.service';
+import { VoiceGuidanceController } from './voice-guidance/voice-guidance.controller';
+import { VoiceGuidanceService } from './voice-guidance/voice-guidance.service';
+import { WebDataCollectorController } from './web-data-collector/web-data-collector.controller';
+import { WebDataCollectorService } from './web-data-collector/web-data-collector.service';
 
 @Module({
   controllers: [
@@ -26,6 +32,9 @@ import { IrrigationDecisionService } from './irrigation-decision/irrigation-deci
     WaterBalanceController,
     SatelliteDataController,
     IrrigationDecisionController,
+    MultiAgentAdvisorController,
+    VoiceGuidanceController,
+    WebDataCollectorController,
   ],
   providers: [
     PhenologyService,
@@ -36,6 +45,9 @@ import { IrrigationDecisionService } from './irrigation-decision/irrigation-deci
     WaterBalanceService,
     SatelliteDataService,
     IrrigationDecisionService,
+    MultiAgentAdvisorService,
+    VoiceGuidanceService,
+    WebDataCollectorService,
   ],
 })
 export class AppModule {}

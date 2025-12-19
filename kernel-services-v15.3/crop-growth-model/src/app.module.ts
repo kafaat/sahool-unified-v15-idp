@@ -23,6 +23,8 @@ import { WebDataCollectorController } from './web-data-collector/web-data-collec
 import { WebDataCollectorService } from './web-data-collector/web-data-collector.service';
 import { DigitalTwinCoreController } from './digital-twin-core/digital-twin-core.controller';
 import { DigitalTwinCoreService } from './digital-twin-core/digital-twin-core.service';
+import { RSWorldModelController } from './rs-world-model/rs-world-model.controller';
+import { RSWorldModelService } from './rs-world-model/rs-world-model.service';
 
 @Module({
   controllers: [
@@ -38,6 +40,7 @@ import { DigitalTwinCoreService } from './digital-twin-core/digital-twin-core.se
     VoiceGuidanceController,
     WebDataCollectorController,
     DigitalTwinCoreController,
+    RSWorldModelController,
   ],
   providers: [
     PhenologyService,
@@ -52,6 +55,7 @@ import { DigitalTwinCoreService } from './digital-twin-core/digital-twin-core.se
     VoiceGuidanceService,
     WebDataCollectorService,
     DigitalTwinCoreService,
+    RSWorldModelService,
   ],
 })
 export class AppModule {}

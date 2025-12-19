@@ -1162,6 +1162,28 @@ services:
               minute: 30
               hour: 500
               policy: local
+      # RS World Model - نموذج العالم للاستشعار عن بعد
+      # Based on RemoteBAGEL (arxiv:2509.17808) - First World Model for Remote Sensing
+      - name: rs-world-model-route
+        paths:
+          - /api/v1/rs-world-model
+          - /api/v1/rs-world-model/architecture
+          - /api/v1/rs-world-model/scenarios
+          - /api/v1/rs-world-model/benchmarks
+          - /api/v1/rs-world-model/capabilities
+          - /api/v1/rs-world-model/reason
+          - /api/v1/rs-world-model/expand
+          - /api/v1/rs-world-model/partition
+          - /api/v1/rs-world-model/evaluate
+          - /api/v1/rs-world-model/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # World model spatial reasoning - compute intensive
+              minute: 20
+              hour: 300
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins

@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sahool-eo"
+version = "1.0.0"
+description = "SAHOOL Platform - eo-learn Integration for Earth Observation"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "SAHOOL Platform", email = "dev@sahool.ye"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+keywords = [
+    "earth-observation",
+    "satellite",
+    "sentinel-2",
+    "landsat",
+    "agriculture",
+    "vegetation-indices",
+    "ndvi",
+    "eo-learn",
+    "yemen",
+    "sahool",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+eo = [
+    "eo-learn>=1.4.0",
+    "sentinelhub>=3.9.0",
+]
+s2cloudless = [
+    "s2cloudless>=1.7.0",
+]
+ml = [
+    "scikit-learn>=1.0.0",
+    "tensorflow>=2.10.0",
+]
+full = [
+    "eo-learn>=1.4.0",
+    "sentinelhub>=3.9.0",
+    "s2cloudless>=1.7.0",
+    "scikit-learn>=1.0.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/kafaat/sahool-unified-v15-idp"
+Documentation = "https://docs.sahool.ye/eo"
+Repository = "https://github.com/kafaat/sahool-unified-v15-idp"
+Issues = "https://github.com/kafaat/sahool-unified-v15-idp/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sahool_eo*"]
+
+[tool.setuptools.package-data]
+sahool_eo = ["py.typed"]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --cov=sahool_eo --cov-report=term-missing"

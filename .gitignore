@@ -29,7 +29,10 @@
 *.crt
 secrets/
 credentials.json
+credentials.yaml
+!credentials.template.yaml
 service-account*.json
+firebase-credentials.json
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Node.js
@@ -148,6 +151,13 @@ cypress/screenshots/
 .cache/
 tmp/
 temp/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# eo-learn / Earth Observation
+# ─────────────────────────────────────────────────────────────────────────────
+eo_cache/
+*.eopatch/
+eopatches/
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Sprint 1 Governance

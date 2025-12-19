@@ -448,16 +448,26 @@ services:
     protocol: http
     health_endpoint: "/health"
     status: active
+    version: "15.4.0"
     events:
       produces:
         - SatelliteSceneIngested.v1
         - RasterTileReady.v1
         - IndexTileReady.v1
+        - FieldIndicatorsComputed.v1
       consumes: []
     database:
       type: postgresql
       name: sahool_satellite
-    dependencies: []
+    dependencies:
+      - sahool-eo  # eo-learn integration package
+    integrations:
+      eo_learn:
+        package: "packages/sahool-eo"
+        credentials: "governance/credentials.yaml"
+        env_vars:
+          - SENTINEL_HUB_CLIENT_ID
+          - SENTINEL_HUB_CLIENT_SECRET
     resources:
       cpu: "600m"
       memory: "768Mi"
@@ -777,6 +787,48 @@ infrastructure:
       port: 3000
     loki:
       port: 3100
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared Packages
+# ─────────────────────────────────────────────────────────────────────────────
+
+packages:
+  sahool-eo:
+    name: "SAHOOL EO"
+    name_ar: "حزمة الاستشعار عن بعد"
+    description: "eo-learn integration for Earth Observation"
+    path: "packages/sahool-eo"
+    version: "1.0.0"
+    type: python
+    dependencies:
+      required:
+        - numpy>=1.21.0
+        - scipy>=1.7.0
+        - pyyaml>=6.0
+      optional:
+        - eo-learn>=1.4.0
+        - sentinelhub>=3.9.0
+        - s2cloudless>=1.7.0
+    features:
+      - "Sentinel-2 data fetching"
+      - "Cloud masking (SCL + s2cloudless)"
+      - "Vegetation indices (NDVI, EVI, LAI, NDWI, SAVI)"
+      - "Field monitoring workflows"
+      - "Yield prediction workflows"
+      - "Time series analysis"
+    external_credentials:
+      - name: "Sentinel Hub"
+        env_vars: ["SENTINEL_HUB_CLIENT_ID", "SENTINEL_HUB_CLIENT_SECRET"]
+        url: "https://www.sentinel-hub.com/"
+        required: false
+
+  shared-events:
+    name: "Shared Events"
+    name_ar: "الأحداث المشتركة"
+    description: "Event schemas for event-driven architecture"
+    path: "packages/shared/events"
+    version: "1.0.0"
+    type: json-schema
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Deployment Environments

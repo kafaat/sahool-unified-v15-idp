@@ -118,7 +118,7 @@ services:
   # خدمة الحقول الجغرافية (Field Core)
   field_core:
     build:
-      context: ./kernel/services/field_core
+      context: ./archive/kernel-legacy/kernel/services/field_core
       dockerfile: Dockerfile
     container_name: sahool-field-core
     environment:
@@ -149,7 +149,7 @@ services:
 
   field_ops:
     build:
-      context: ./kernel/services/field_ops
+      context: ./archive/kernel-legacy/kernel/services/field_ops
       dockerfile: Dockerfile
     container_name: sahool-field-ops
     environment:
@@ -180,7 +180,7 @@ services:
 
   ndvi_engine:
     build:
-      context: ./kernel/services/ndvi_engine
+      context: ./archive/kernel-legacy/kernel/services/ndvi_engine
       dockerfile: Dockerfile
     container_name: sahool-ndvi-engine
     environment:
@@ -209,7 +209,7 @@ services:
 
   weather_core:
     build:
-      context: ./kernel/services/weather_core
+      context: ./archive/kernel-legacy/kernel/services/weather_core
       dockerfile: Dockerfile
     container_name: sahool-weather-core
     environment:
@@ -239,7 +239,7 @@ services:
 
   field_chat:
     build:
-      context: ./kernel/services/field_chat
+      context: ./archive/kernel-legacy/kernel/services/field_chat
       dockerfile: Dockerfile
     container_name: sahool-field-chat
     environment:
@@ -270,7 +270,7 @@ services:
 
   iot_gateway:
     build:
-      context: ./kernel/services/iot_gateway
+      context: ./archive/kernel-legacy/kernel/services/iot_gateway
       dockerfile: Dockerfile
     container_name: sahool-iot-gateway
     environment:
@@ -304,7 +304,7 @@ services:
 
   agro_advisor:
     build:
-      context: ./kernel/services/agro_advisor
+      context: ./archive/kernel-legacy/kernel/services/agro_advisor
       dockerfile: Dockerfile
     container_name: sahool-agro-advisor
     environment:
@@ -333,7 +333,7 @@ services:
 
   ws_gateway:
     build:
-      context: ./kernel/services/ws_gateway
+      context: ./archive/kernel-legacy/kernel/services/ws_gateway
       dockerfile: Dockerfile
     container_name: sahool-ws-gateway
     environment:
@@ -363,7 +363,7 @@ services:
 
   crop_health:
     build:
-      context: ./kernel/services/crop_health
+      context: ./archive/kernel-legacy/kernel/services/crop_health
       dockerfile: Dockerfile
     container_name: sahool-crop-health
     environment:
@@ -383,7 +383,7 @@ services:
   # Agro Rules Worker - NATS event-driven worker
   agro_rules:
     build:
-      context: ./kernel/services/agro_rules
+      context: ./archive/kernel-legacy/kernel/services/agro_rules
       dockerfile: Dockerfile
     container_name: sahool-agro-rules
     environment:
@@ -407,7 +407,7 @@ services:
   # Task Service (Python + FastAPI) - إدارة المهام الزراعية
   task_service:
     build:
-      context: ./kernel/services/task_service
+      context: ./archive/kernel-legacy/kernel/services/task_service
       dockerfile: Dockerfile
     container_name: sahool-task-service
     environment:
@@ -431,7 +431,7 @@ services:
   # Equipment Service (Python + FastAPI) - إدارة المعدات
   equipment_service:
     build:
-      context: ./kernel/services/equipment_service
+      context: ./archive/kernel-legacy/kernel/services/equipment_service
       dockerfile: Dockerfile
     container_name: sahool-equipment-service
     environment:
@@ -455,7 +455,7 @@ services:
   # Community Service (Python + FastAPI) - مجتمع المزارعين
   community_service:
     build:
-      context: ./kernel/services/community_service
+      context: ./archive/kernel-legacy/kernel/services/community_service
       dockerfile: Dockerfile
     container_name: sahool-community-service
     environment:
@@ -482,7 +482,7 @@ services:
   # Provider Configuration Service (Python + FastAPI) - إدارة المزودين
   provider_config:
     build:
-      context: ./kernel/services/provider_config
+      context: ./archive/kernel-legacy/kernel/services/provider_config
       dockerfile: Dockerfile
     container_name: sahool-provider-config
     environment:
@@ -506,7 +506,7 @@ services:
   # Sahool Vision AI - Crop Health Detection (Python + TensorFlow)
   crop_health_ai:
     build:
-      context: ./kernel-services-v15.3/crop-health-ai
+      context: ./apps/services/crop-health-ai
       dockerfile: Dockerfile
     container_name: sahool-crop-health-ai
     environment:
@@ -530,7 +530,7 @@ services:
   # Virtual Sensors Engine - FAO-56 ET0 Calculations (Python + FastAPI)
   virtual_sensors:
     build:
-      context: ./kernel-services-v15.3/virtual-sensors
+      context: ./apps/services/virtual-sensors
       dockerfile: Dockerfile
     container_name: sahool-virtual-sensors
     environment:
@@ -551,7 +551,7 @@ services:
   # Community Chat Service - Real-time messaging (Node.js + Socket.io)
   community_chat:
     build:
-      context: ./kernel-services-v15.3/community-chat
+      context: ./apps/services/community-chat
       dockerfile: Dockerfile
     container_name: sahool-community-chat
     environment:
@@ -572,7 +572,7 @@ services:
   # Yield Engine - ML Crop Yield Prediction (Python + FastAPI)
   yield_engine:
     build:
-      context: ./kernel-services-v15.3/yield-engine
+      context: ./apps/services/yield-engine
       dockerfile: Dockerfile
     container_name: sahool-yield-engine
     environment:
@@ -594,7 +594,7 @@ services:
   # الري الذكي - إدارة الري باستخدام FAO-56 Penman-Monteith
   irrigation_smart:
     build:
-      context: ./kernel-services-v15.3/irrigation-smart
+      context: ./apps/services/irrigation-smart
       dockerfile: Dockerfile
     container_name: sahool-irrigation-smart
     environment:
@@ -616,7 +616,7 @@ services:
   # مستشار التسميد - توصيات التسميد الذكية
   fertilizer_advisor:
     build:
-      context: ./kernel-services-v15.3/fertilizer-advisor
+      context: ./apps/services/fertilizer-advisor
       dockerfile: Dockerfile
     container_name: sahool-fertilizer-advisor
     environment:
@@ -638,7 +638,7 @@ services:
   # خدمة المؤشرات - مؤشرات الأداء الزراعية والتحليلات
   indicators_service:
     build:
-      context: ./kernel-services-v15.3/indicators-service
+      context: ./apps/services/indicators-service
       dockerfile: Dockerfile
     container_name: sahool-indicators-service
     environment:
@@ -660,7 +660,7 @@ services:
   # خدمة الأقمار الصناعية - تحليل NDVI وصور الأقمار الصناعية
   satellite_service:
     build:
-      context: ./kernel-services-v15.3/satellite-service
+      context: ./apps/services/satellite-service
       dockerfile: Dockerfile
     container_name: sahool-satellite-service
     environment:
@@ -684,7 +684,7 @@ services:
   # خدمة الطقس المتقدمة - التنبؤ بالطقس الزراعي
   weather_advanced:
     build:
-      context: ./kernel-services-v15.3/weather-advanced
+      context: ./apps/services/weather-advanced
       dockerfile: Dockerfile
     container_name: sahool-weather-advanced
     environment:
@@ -710,7 +710,7 @@ services:
 
   notification_service:
     build:
-      context: ./kernel-services-v15.3/notification-service
+      context: ./apps/services/notification-service
       dockerfile: Dockerfile
     container_name: sahool-notification-service
     environment:
@@ -745,7 +745,7 @@ services:
 
   research_core:
     build:
-      context: ./kernel-services-v15.3/research-core
+      context: ./apps/services/research-core
       dockerfile: Dockerfile
     container_name: sahool-research-core
     environment:
@@ -781,7 +781,7 @@ services:
 
   disaster_assessment:
     build:
-      context: ./kernel-services-v15.3/disaster-assessment
+      context: ./apps/services/disaster-assessment
       dockerfile: Dockerfile
     container_name: sahool-disaster-assessment
     environment:
@@ -816,7 +816,7 @@ services:
 
   yield_prediction:
     build:
-      context: ./kernel-services-v15.3/yield-prediction
+      context: ./apps/services/yield-prediction
       dockerfile: Dockerfile
     container_name: sahool-yield-prediction
     environment:
@@ -852,7 +852,7 @@ services:
 
   lai_estimation:
     build:
-      context: ./kernel-services-v15.3/lai-estimation
+      context: ./apps/services/lai-estimation
       dockerfile: Dockerfile
     container_name: sahool-lai-estimation
     environment:
@@ -888,7 +888,7 @@ services:
 
   crop_growth_model:
     build:
-      context: ./kernel-services-v15.3/crop-growth-model
+      context: ./apps/services/crop-growth-model
       dockerfile: Dockerfile
     container_name: sahool-crop-growth-model
     environment:
@@ -922,7 +922,7 @@ services:
 
   marketplace_service:
     build:
-      context: ./kernel-services-v15.3/marketplace-service
+      context: ./apps/services/marketplace-service
       dockerfile: Dockerfile
     container_name: sahool-marketplace
     environment:

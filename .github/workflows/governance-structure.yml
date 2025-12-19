@@ -1,0 +1,150 @@
+name: Governance Structure Guard
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  structure-guard:
+    name: Validate Repository Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Block forbidden paths
+        run: |
+          echo "🔍 Checking for forbidden paths..."
+
+          FORBIDDEN_PATHS=(
+            "kernel/"
+            "kernel-services-v15.3/"
+            "frontend/"
+            "web_admin/"
+            "services/"
+            "advisor/"
+            "field_suite/"
+            "kernel_domain/"
+          )
+
+          FOUND=0
+          for path in "${FORBIDDEN_PATHS[@]}"; do
+            if [ -d "$path" ] && [ ! -L "$path" ]; then
+              echo "❌ ERROR: Found forbidden path: $path"
+              echo "   Move to apps/services/, apps/, or packages/"
+              FOUND=1
+            fi
+          done
+
+          if [ $FOUND -eq 1 ]; then
+            echo ""
+            echo "📋 Allowed paths:"
+            echo "   - apps/services/   (backend microservices)"
+            echo "   - apps/web/        (web dashboard)"
+            echo "   - apps/admin/      (admin panel)"
+            echo "   - apps/mobile/     (mobile app)"
+            echo "   - packages/        (shared packages)"
+            echo "   - shared/          (shared domain)"
+            echo "   - archive/         (legacy code)"
+            exit 1
+          fi
+
+          echo "✅ No forbidden paths found"
+
+      - name: Validate services.yaml paths
+        run: |
+          echo "🔍 Validating governance/services.yaml..."
+
+          python3 << 'EOF'
+          import yaml
+          import os
+          import sys
+
+          with open("governance/services.yaml", "r") as f:
+              data = yaml.safe_load(f)
+
+          errors = []
+
+          # Check services paths
+          for name, service in data.get("services", {}).items():
+              path = service.get("path", "")
+              if path:
+                  # Must start with apps/services/
+                  if not path.startswith("apps/services/"):
+                      errors.append(f"❌ {name}: path must start with 'apps/services/' (got: {path})")
+                  # Path must exist
+                  elif not os.path.isdir(path):
+                      errors.append(f"❌ {name}: path does not exist ({path})")
+
+          # Check applications paths
+          for name, app in data.get("applications", {}).items():
+              path = app.get("path", "")
+              if path:
+                  if not path.startswith("apps/"):
+                      errors.append(f"❌ {name}: path must start with 'apps/' (got: {path})")
+                  elif not os.path.isdir(path):
+                      errors.append(f"❌ {name}: path does not exist ({path})")
+
+          if errors:
+              print("❌ Validation failed:")
+              for e in errors:
+                  print(f"  {e}")
+              sys.exit(1)
+
+          service_count = len(data.get("services", {}))
+          app_count = len(data.get("applications", {}))
+          print(f"✅ All {service_count} services and {app_count} applications validated")
+          EOF
+
+      - name: Check for old path references
+        run: |
+          echo "🔍 Checking for old path references in docker-compose..."
+
+          PATTERNS=(
+            "kernel-services-v15.3/"
+            "kernel/services/"
+            "./kernel/"
+          )
+
+          FOUND=0
+          for pattern in "${PATTERNS[@]}"; do
+            if grep -rq "$pattern" docker-compose.yml 2>/dev/null; then
+              echo "❌ Found old path reference: $pattern"
+              grep -n "$pattern" docker-compose.yml
+              FOUND=1
+            fi
+          done
+
+          if [ $FOUND -eq 1 ]; then
+            echo ""
+            echo "⚠️  Update docker-compose.yml to use apps/services/ paths"
+            exit 1
+          fi
+
+          echo "✅ No old path references found"
+
+      - name: Verify decision records
+        run: |
+          echo "🔍 Checking for ADR-0001..."
+
+          if [ ! -f "governance/decisions/0001-backend-root.md" ]; then
+            echo "❌ Missing ADR-0001: Backend Services Root Directory"
+            exit 1
+          fi
+
+          echo "✅ Decision records exist"
+
+  summary:
+    name: Structure Summary
+    runs-on: ubuntu-latest
+    needs: [structure-guard]
+    if: always()
+    steps:
+      - name: Create summary
+        run: |
+          echo "## 🏛️ Governance Structure Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Structure Guard | ${{ needs.structure-guard.result }} |" >> $GITHUB_STEP_SUMMARY

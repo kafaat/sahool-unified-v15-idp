@@ -955,7 +955,7 @@ services:
 
   admin_dashboard:
     build:
-      context: ./web_admin
+      context: ./archive\frontend-legacy\frontend\dashboard
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: http://localhost

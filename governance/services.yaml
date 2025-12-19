@@ -1,498 +1,284 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SAHOOL Services Registry - سجل الخدمات المعتمدة
-# Single Source of Truth for all microservices
+# SAHOOL Platform - Services Registry (Single Source of Truth)
+# Generated: 2024-12-19
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "1.0.0"
-last_updated: "2025-12-19"
+version: "2.0.0"
+last_updated: "2024-12-19"
+owner: sahool-platform
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Service Categories
-# ─────────────────────────────────────────────────────────────────────────────
+source_of_truth:
+  services_root: "kernel-services-v15.3"
+  legacy_root: "kernel/services"  # FROZEN
+  shared_packages: "packages"
+  shared_domain: "shared/domain"
 
-categories:
-  core:
-    description: "Core platform services"
-    description_ar: "خدمات المنصة الأساسية"
+defaults:
+  health_path: "/healthz"
+  metrics_path: "/metrics"
+  log_level: "INFO"
 
-  crop:
-    description: "Crop management and modeling"
-    description_ar: "إدارة ونمذجة المحاصيل"
-
-  analytics:
-    description: "Data analytics and predictions"
-    description_ar: "تحليل البيانات والتنبؤات"
-
-  integration:
-    description: "External integrations and IoT"
-    description_ar: "التكاملات الخارجية وإنترنت الأشياء"
-
-  community:
-    description: "Community and marketplace"
-    description_ar: "المجتمع والسوق"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Approved Services (v15.3)
-# ─────────────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# ACTIVE SERVICES (18 services in kernel-services-v15.3)
+# ═══════════════════════════════════════════════════════════════════════════════
 
 services:
-  # ═══════════════════════════════════════════════════════════════════════════
-  # CROP GROWTH MODEL - نموذج نمو المحاصيل
-  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NestJS Services
+  # ─────────────────────────────────────────────────────────────────────────────
+
   crop-growth-model:
-    name: "Crop Growth Model"
     name_ar: "نموذج نمو المحاصيل"
-    category: crop
     path: "kernel-services-v15.3/crop-growth-model"
-    port: 3000
-    protocol: http
-    health_endpoint: "/health"
+    runtime: nestjs
+    port: 3023
+    modules: 15
+    db: [postgres, redis]
+    events_produces: [GrowthSimulated, PhenologyUpdated, YieldPredicted]
+    events_consumes: [FieldCreated, WeatherUpdated]
     status: active
 
-    modules:
-      - id: phenology
-        name: "Phenology Tracking"
-        name_ar: "تتبع الفينولوجيا"
-        endpoint: "/phenology"
-
-      - id: photosynthesis
-        name: "Photosynthesis Model"
-        name_ar: "نموذج التمثيل الضوئي"
-        endpoint: "/photosynthesis"
-
-      - id: biomass
-        name: "Biomass Accumulation"
-        name_ar: "تراكم الكتلة الحيوية"
-        endpoint: "/biomass"
-
-      - id: simulation
-        name: "Growth Simulation"
-        name_ar: "محاكاة النمو"
-        endpoint: "/simulation"
-
-      - id: root-growth
-        name: "Root Growth Model"
-        name_ar: "نموذج نمو الجذور"
-        endpoint: "/root-growth"
-
-      - id: water-balance
-        name: "Water Balance (FAO-56)"
-        name_ar: "توازن المياه"
-        endpoint: "/water-balance"
-
-      - id: satellite-data
-        name: "Satellite Data Selector"
-        name_ar: "محدد بيانات الأقمار"
-        endpoint: "/satellite-data"
-
-      - id: irrigation-decision
-        name: "Irrigation Decision Support"
-        name_ar: "دعم قرارات الري"
-        endpoint: "/irrigation-decision"
-
-      - id: multi-agent-advisor
-        name: "Multi-Agent Advisory"
-        name_ar: "المستشار متعدد الوكلاء"
-        endpoint: "/advisor"
-
-      - id: voice-guidance
-        name: "Voice Guidance (Arabic)"
-        name_ar: "الإرشاد الصوتي"
-        endpoint: "/voice-guidance"
-
-      - id: web-data-collector
-        name: "Web Data Collector"
-        name_ar: "جامع بيانات الويب"
-        endpoint: "/web-data"
-
-      - id: digital-twin-core
-        name: "Digital Twin Core"
-        name_ar: "التوأم الرقمي"
-        endpoint: "/digital-twin"
-
-      - id: rs-world-model
-        name: "RS World Model"
-        name_ar: "نموذج العالم للاستشعار"
-        endpoint: "/rs-world-model"
-
-      - id: planting-strategy
-        name: "Planting Strategy Optimizer"
-        name_ar: "محسّن استراتيجية الزراعة"
-        endpoint: "/planting-strategy"
-
-      - id: gis-integration
-        name: "GIS Integration"
-        name_ar: "تكامل نظم المعلومات الجغرافية"
-        endpoint: "/gis"
-
-    dependencies: []
-
-    environment:
-      - NODE_ENV
-      - PORT
-
-    resources:
-      cpu: "500m"
-      memory: "512Mi"
-      replicas: 2
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # DISASTER ASSESSMENT - تقييم الكوارث
-  # ═══════════════════════════════════════════════════════════════════════════
   disaster-assessment:
-    name: "Disaster Assessment"
     name_ar: "تقييم الكوارث"
-    category: analytics
     path: "kernel-services-v15.3/disaster-assessment"
-    port: 3001
-    protocol: http
-    health_endpoint: "/health"
+    runtime: nestjs
+    port: 3020
+    db: [postgres, redis]
+    events_produces: [DisasterDetected, AlertIssued]
     status: active
 
-    modules:
-      - id: disaster
-        name: "Disaster Detection"
-        endpoint: "/disaster"
-      - id: alert
-        name: "Alert Management"
-        endpoint: "/alert"
-
-    database:
-      type: postgresql
-      name: sahool_disaster
-
-    dependencies:
-      - weather-core
-      - satellite-data
-
-    resources:
-      cpu: "300m"
-      memory: "256Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # LAI ESTIMATION - تقدير مؤشر مساحة الأوراق
-  # ═══════════════════════════════════════════════════════════════════════════
   lai-estimation:
-    name: "LAI Estimation"
-    name_ar: "تقدير LAI"
-    category: analytics
+    name_ar: "تقدير مؤشر مساحة الأوراق"
     path: "kernel-services-v15.3/lai-estimation"
-    port: 3002
-    protocol: http
-    health_endpoint: "/health"
+    runtime: nestjs
+    port: 3022
+    db: [postgres]
+    events_produces: [LAIComputed]
     status: active
 
-    modules:
-      - id: lai
-        name: "LAI Calculator"
-        endpoint: "/lai"
-      - id: indices
-        name: "Vegetation Indices"
-        endpoint: "/indices"
-
-    dependencies:
-      - satellite-data
-
-    resources:
-      cpu: "400m"
-      memory: "384Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # YIELD PREDICTION - تنبؤ الغلة
-  # ═══════════════════════════════════════════════════════════════════════════
   yield-prediction:
-    name: "Yield Prediction"
-    name_ar: "تنبؤ الغلة"
-    category: analytics
+    name_ar: "التنبؤ بالإنتاجية"
     path: "kernel-services-v15.3/yield-prediction"
-    port: 3003
-    protocol: http
-    health_endpoint: "/health"
+    runtime: nestjs
+    port: 3021
+    db: [postgres]
+    events_produces: [YieldForecast]
     status: active
 
-    modules:
-      - id: yield
-        name: "Yield Forecaster"
-        endpoint: "/yield"
-
-    dependencies:
-      - crop-growth-model
-      - weather-core
-      - lai-estimation
-
-    resources:
-      cpu: "500m"
-      memory: "512Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # MARKETPLACE SERVICE - خدمة السوق
-  # ═══════════════════════════════════════════════════════════════════════════
   marketplace-service:
-    name: "Marketplace Service"
-    name_ar: "خدمة السوق"
-    category: community
+    name_ar: "سوق سهول"
     path: "kernel-services-v15.3/marketplace-service"
-    port: 3004
-    protocol: http
-    health_endpoint: "/health"
+    runtime: nestjs
+    port: 3010
+    db: [postgres, redis]
+    events_produces: [OrderCreated, PaymentProcessed]
     status: active
 
-    modules:
-      - id: market
-        name: "Market Operations"
-        endpoint: "/market"
-      - id: fintech
-        name: "Financial Services"
-        endpoint: "/fintech"
-
-    database:
-      type: postgresql
-      name: sahool_marketplace
-
-    dependencies: []
-
-    resources:
-      cpu: "400m"
-      memory: "384Mi"
-      replicas: 2
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # COMMUNITY CHAT - دردشة المجتمع
-  # ═══════════════════════════════════════════════════════════════════════════
-  community-chat:
-    name: "Community Chat"
-    name_ar: "دردشة المجتمع"
-    category: community
-    path: "kernel-services-v15.3/community-chat"
-    port: 3005
-    protocol: http
-    health_endpoint: "/health"
+  research-core:
+    name_ar: "نواة البحث العلمي"
+    path: "kernel-services-v15.3/research-core"
+    runtime: nestjs
+    port: 3015
+    db: [postgres, redis]
+    events_produces: [ExperimentCreated, ObservationLogged]
     status: active
 
-    database:
-      type: postgresql
-      name: sahool_chat
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Python FastAPI Services
+  # ─────────────────────────────────────────────────────────────────────────────
 
-    dependencies: []
+  billing-core:
+    name_ar: "خدمة الفوترة"
+    path: "kernel-services-v15.3/billing-core"
+    runtime: python-fastapi
+    port: 8021
+    db: [postgres]
+    status: active
 
-    resources:
-      cpu: "300m"
-      memory: "256Mi"
-      replicas: 1
+  crop-health-ai:
+    name_ar: "سهول فيجن - كشف الأمراض"
+    path: "kernel-services-v15.3/crop-health-ai"
+    runtime: python-fastapi
+    port: 8095
+    db: []
+    events_produces: [DiseaseDetected, HealthAssessment]
+    status: active
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # IOT SERVICE - خدمة إنترنت الأشياء
-  # ═══════════════════════════════════════════════════════════════════════════
+  virtual-sensors:
+    name_ar: "المستشعرات الافتراضية"
+    path: "kernel-services-v15.3/virtual-sensors"
+    runtime: python-fastapi
+    port: 8096
+    db: []
+    events_produces: [ET0Computed]
+    status: active
+
+  yield-engine:
+    name_ar: "محرك التنبؤ بالإنتاجية"
+    path: "kernel-services-v15.3/yield-engine"
+    runtime: python-fastapi
+    port: 8098
+    db: []
+    events_produces: [YieldPredicted]
+    status: active
+
+  fertilizer-advisor:
+    name_ar: "مستشار التسميد"
+    path: "kernel-services-v15.3/fertilizer-advisor"
+    runtime: python-fastapi
+    port: 8093
+    db: [postgres]
+    events_produces: [FertilizerRecommendation]
+    status: active
+
+  irrigation-smart:
+    name_ar: "الري الذكي"
+    path: "kernel-services-v15.3/irrigation-smart"
+    runtime: python-fastapi
+    port: 8094
+    db: [postgres]
+    events_produces: [IrrigationSchedule]
+    status: active
+
+  satellite-service:
+    name_ar: "خدمة الأقمار الصناعية"
+    path: "kernel-services-v15.3/satellite-service"
+    runtime: python-fastapi
+    port: 8090
+    db: [postgres]
+    events_produces: [NdviComputed, SatelliteImageReceived]
+    status: active
+
+  weather-advanced:
+    name_ar: "خدمة الطقس المتقدمة"
+    path: "kernel-services-v15.3/weather-advanced"
+    runtime: python-fastapi
+    port: 8092
+    db: [postgres]
+    events_produces: [WeatherUpdated, WeatherForecast]
+    status: active
+
+  indicators-service:
+    name_ar: "خدمة المؤشرات"
+    path: "kernel-services-v15.3/indicators-service"
+    runtime: python-fastapi
+    port: 8091
+    db: [postgres]
+    events_produces: [IndicatorComputed]
+    status: active
+
+  notification-service:
+    name_ar: "خدمة الإشعارات"
+    path: "kernel-services-v15.3/notification-service"
+    runtime: python-fastapi
+    port: 8110
+    db: [postgres, redis]
+    events_produces: [NotificationSent]
+    status: active
+
   iot-service:
-    name: "IoT Gateway"
     name_ar: "بوابة إنترنت الأشياء"
-    category: integration
     path: "kernel-services-v15.3/iot-service"
-    port: 3006
-    protocol: http
-    health_endpoint: "/health"
+    runtime: python-fastapi
+    port: 8106
+    db: [timescaledb, mqtt]
+    events_produces: [SensorReading]
     status: active
 
-    database:
-      type: timescaledb
-      name: sahool_iot
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Node.js Services
+  # ─────────────────────────────────────────────────────────────────────────────
 
-    message_broker:
-      type: mqtt
-      topics:
-        - "sahool/sensors/#"
-        - "sahool/devices/#"
-
-    dependencies: []
-
-    resources:
-      cpu: "400m"
-      memory: "512Mi"
-      replicas: 2
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # FIELD OPERATIONS - عمليات الحقول
-  # ═══════════════════════════════════════════════════════════════════════════
-  field-ops:
-    name: "Field Operations"
-    name_ar: "عمليات الحقول"
-    category: core
-    path: "kernel/services/field_core"
-    port: 8080
-    protocol: http
-    health_endpoint: "/healthz"
+  community-chat:
+    name_ar: "الدردشة المجتمعية"
+    path: "kernel-services-v15.3/community-chat"
+    runtime: nodejs
+    port: 8097
+    db: [redis]
+    events_produces: [MessageSent]
     status: active
 
-    database:
-      type: postgresql
-      name: sahool_fields
+# ═══════════════════════════════════════════════════════════════════════════════
+# FROZEN SERVICES (kernel/services) - DO NOT ADD NEW SERVICES
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    dependencies: []
+frozen_services:
+  status: "FROZEN"
+  reason: "Superseded by kernel-services-v15.3"
+  migration_target: "v16"
+  path: "kernel/services"
+  marker_file: "kernel/services/FROZEN.md"
 
-    resources:
-      cpu: "500m"
-      memory: "512Mi"
-      replicas: 2
+  services:
+    field_core: { port: 3000, v15_equivalent: null }
+    field_ops: { port: 8080, v15_equivalent: null }
+    ndvi_engine: { port: 8107, v15_equivalent: satellite-service }
+    weather_core: { port: 8108, v15_equivalent: weather-advanced }
+    field_chat: { port: 8099, v15_equivalent: community-chat }
+    iot_gateway: { port: 8106, v15_equivalent: iot-service }
+    agro_advisor: { port: 8105, v15_equivalent: fertilizer-advisor }
+    ws_gateway: { port: 8089, v15_equivalent: null }
+    crop_health: { port: 8100, v15_equivalent: crop-health-ai }
+    agro_rules: { port: null, v15_equivalent: null }
+    task_service: { port: 8103, v15_equivalent: null }
+    equipment_service: { port: 8101, v15_equivalent: null }
+    community_service: { port: 8102, v15_equivalent: community-chat }
+    provider_config: { port: 8104, v15_equivalent: null }
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # WEATHER CORE - الطقس
-  # ═══════════════════════════════════════════════════════════════════════════
-  weather-core:
-    name: "Weather Service"
-    name_ar: "خدمة الطقس"
-    category: integration
-    path: "kernel/services/weather_core"
-    port: 8108
-    protocol: http
-    health_endpoint: "/health"
-    status: active
+# ═══════════════════════════════════════════════════════════════════════════════
+# SHARED PACKAGES
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    database:
-      type: postgresql
-      name: sahool_weather
+packages:
+  advisor:
+    path: "packages/advisor"
+    description: "AI advisory system (RAG, LLM, context)"
 
-    external_apis:
-      - openweathermap
-      - weatherapi
+  field-suite:
+    path: "packages/field-suite"
+    description: "Spatial & field domain models"
 
-    dependencies: []
+  shared-domain:
+    path: "shared/domain"
+    description: "Auth, Users, Tenancy"
 
-    resources:
-      cpu: "300m"
-      memory: "256Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # NDVI ENGINE - محرك NDVI
-  # ═══════════════════════════════════════════════════════════════════════════
-  ndvi-engine:
-    name: "NDVI Engine"
-    name_ar: "محرك NDVI"
-    category: analytics
-    path: "kernel/services/ndvi_engine"
-    port: 8107
-    protocol: http
-    health_endpoint: "/health"
-    status: active
-
-    dependencies:
-      - satellite-data
-
-    resources:
-      cpu: "600m"
-      memory: "768Mi"
-      replicas: 1
-
-  # ═══════════════════════════════════════════════════════════════════════════
-  # AGRO ADVISOR - المستشار الزراعي
-  # ═══════════════════════════════════════════════════════════════════════════
-  agro-advisor:
-    name: "Agro Advisor"
-    name_ar: "المستشار الزراعي"
-    category: core
-    path: "advisor"
-    port: 8105
-    protocol: http
-    health_endpoint: "/health"
-    status: active
-
-    database:
-      type: postgresql
-      name: sahool_advisor
-
-    ai_models:
-      - crop-recommendations
-      - pest-detection
-      - irrigation-optimization
-
-    dependencies:
-      - crop-growth-model
-      - weather-core
-      - ndvi-engine
-
-    resources:
-      cpu: "800m"
-      memory: "1Gi"
-      replicas: 2
-
-# ─────────────────────────────────────────────────────────────────────────────
-# API Gateway Configuration
-# ─────────────────────────────────────────────────────────────────────────────
-
-gateway:
-  type: kong
-  config_path: "infra/kong/kong.yml"
-
-  global_rate_limit:
-    minute: 60
-    hour: 2000
-
-  authentication:
-    type: jwt
-    algorithm: RS256
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Infrastructure Dependencies
-# ─────────────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# INFRASTRUCTURE
+# ═══════════════════════════════════════════════════════════════════════════════
 
 infrastructure:
-  databases:
-    postgresql:
-      version: "15"
-      host: "${POSTGRES_HOST:-localhost}"
-      port: 5432
+  postgres: { image: "postgis/postgis:16-3.4", port: 5432 }
+  redis: { image: "redis:7.4-alpine", port: 6379 }
+  nats: { image: "nats:2.10.24-alpine", ports: [4222, 8222] }
+  mqtt: { image: "eclipse-mosquitto:2", ports: [1883, 9001] }
+  kong: { image: "kong:3.9", ports: [8000, 8001] }
+  prometheus: { image: "prom/prometheus:v2.48.0", port: 9090 }
+  grafana: { image: "grafana/grafana:10.2.0", port: 3002 }
 
-    timescaledb:
-      version: "2.11"
-      host: "${TIMESCALE_HOST:-localhost}"
-      port: 5432
+# ═══════════════════════════════════════════════════════════════════════════════
+# GOVERNANCE RULES
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    redis:
-      version: "7"
-      host: "${REDIS_HOST:-localhost}"
-      port: 6379
+governance:
+  rules:
+    - id: GOV-001
+      rule: "New services MUST be in kernel-services-v15.3"
+      enforce: true
 
-  message_brokers:
-    mqtt:
-      host: "${MQTT_HOST:-localhost}"
-      port: 1883
+    - id: GOV-002
+      rule: "No new services in kernel/services (FROZEN)"
+      enforce: true
 
-    rabbitmq:
-      host: "${RABBITMQ_HOST:-localhost}"
-      port: 5672
+    - id: GOV-003
+      rule: "All services MUST have /healthz endpoint"
+      enforce: true
 
-  observability:
-    prometheus:
-      port: 9090
-    grafana:
-      port: 3000
-    loki:
-      port: 3100
+    - id: GOV-004
+      rule: "All services MUST have Dockerfile"
+      enforce: true
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Deployment Environments
-# ─────────────────────────────────────────────────────────────────────────────
-
-environments:
-  development:
-    replicas: 1
-    resources_multiplier: 0.5
-    debug: true
-
-  staging:
-    replicas: 1
-    resources_multiplier: 0.75
-    debug: false
-
-  production:
-    replicas: 2
-    resources_multiplier: 1.0
-    debug: false
-    autoscaling:
-      enabled: true
-      min_replicas: 2
-      max_replicas: 10
-      target_cpu: 70
+  contacts:
+    backend: "kernel-services-v15.3/"
+    frontend: "web/"
+    devops: "infra/ + helm/ + gitops/"

@@ -2,14 +2,22 @@
 # Updated: December 2025
 # Version: 16.0.0
 
-# Include shared base requirements
--r ../../../requirements/base.txt
+# Base requirements (inlined from requirements/base.txt)
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+httpx==0.28.1
+python-dotenv==1.0.1
 
-# Include infrastructure requirements (for asyncpg, tortoise-orm)
--r ../../../requirements/infrastructure.txt
+# Infrastructure requirements (inlined from requirements/infrastructure.txt)
+asyncpg==0.30.0
+tortoise-orm==0.21.7
+nats-py==2.9.0
+redis==5.2.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
 
 # Service-specific dependencies
-nats-py==2.9.0
 aerich==0.7.2
 aiosqlite==0.20.0
 websockets==14.1

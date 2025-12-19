@@ -4,7 +4,7 @@
 
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody } from '@nestjs/swagger';
-import { VegetationIndicesService } from './indices.service';
+import { VegetationIndicesService, IndexInfo } from './indices.service';
 
 class SpectralBandsInput {
   green: number;
@@ -62,7 +62,7 @@ export class VegetationIndicesController {
   calculateIndex(
     @Param('indexName') indexName: string,
     @Body() bands: SpectralBandsInput,
-  ) {
+  ): { value: number; status: string; statusAr: string; info: IndexInfo } | null {
     return this.indicesService.calculateIndex(indexName, bands);
   }
 
@@ -92,8 +92,8 @@ export class VegetationIndicesController {
     description: 'الحصول على معلومات حول جميع مؤشرات الغطاء النباتي',
   })
   @ApiResponse({ status: 200, description: 'Index information' })
-  getAllIndicesInfo() {
-    return this.indicesService.getIndexInfo();
+  getAllIndicesInfo(): Record<string, IndexInfo> {
+    return this.indicesService.getIndexInfo() as Record<string, IndexInfo>;
   }
 
   @Get('info/:indexName')
@@ -102,8 +102,8 @@ export class VegetationIndicesController {
     description: 'الحصول على معلومات حول مؤشر غطاء نباتي محدد',
   })
   @ApiResponse({ status: 200, description: 'Index information' })
-  getIndexInfo(@Param('indexName') indexName: string) {
-    return this.indicesService.getIndexInfo(indexName);
+  getIndexInfo(@Param('indexName') indexName: string): IndexInfo | null {
+    return this.indicesService.getIndexInfo(indexName) as IndexInfo | null;
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

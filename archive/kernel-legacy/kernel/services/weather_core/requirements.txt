@@ -2,8 +2,12 @@
 # Updated: December 2025
 # Version: 16.0.0
 
-# Include shared base requirements
--r ../../../requirements/base.txt
+# Base requirements (inlined from requirements/base.txt)
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+httpx==0.28.1
+python-dotenv==1.0.1
 
 # Service-specific dependencies
 nats-py==2.9.0

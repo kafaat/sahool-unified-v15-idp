@@ -40,8 +40,8 @@ LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
 WORKDIR /app
 
 # Create non-root user for security
-RUN addgroup --system --gid 1000 sahool && \
-    adduser --system --uid 1000 --ingroup sahool --disabled-password --gecos "" sahool
+RUN addgroup --system sahool && \
+    adduser --system --ingroup sahool --disabled-password --gecos "" sahool
 
 # Install curl for healthcheck
 RUN apk add --no-cache curl ca-certificates

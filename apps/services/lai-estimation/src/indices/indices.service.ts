@@ -8,7 +8,7 @@ import { Injectable } from '@nestjs/common';
 // ─────────────────────────────────────────────────────────────────────────────
 // Index Information
 // ─────────────────────────────────────────────────────────────────────────────
-interface IndexInfo {
+export interface IndexInfo {
   name: string;
   nameAr: string;
   formula: string;
@@ -227,7 +227,7 @@ export class VegetationIndicesService {
   // الحصول على معلومات المؤشر
   // ─────────────────────────────────────────────────────────────────────────────
 
-  getIndexInfo(indexName?: string): IndexInfo | Record<string, IndexInfo> {
+  getIndexInfo(indexName?: string): IndexInfo | Record<string, IndexInfo> | null {
     if (indexName) {
       return VEGETATION_INDICES[indexName.toUpperCase()] || null;
     }

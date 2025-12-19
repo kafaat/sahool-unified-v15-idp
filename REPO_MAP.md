@@ -20,21 +20,23 @@
 
 ### Backend Services
 ```
-kernel-services-v15.3/
-├── crop-growth-model/      # 15 services - Crop modeling, Digital Twin, GIS
-├── disaster-assessment/    # Disaster & alert management
-├── lai-estimation/         # LAI & vegetation indices
-├── yield-prediction/       # Yield forecasting
-├── marketplace-service/    # Market & fintech
-├── community-chat/         # Expert chat system
-├── iot-service/           # IoT gateway
+kernel-services-v15.3/           # 18 services
+├── crop-growth-model/           # Crop modeling, Digital Twin, GIS (15 modules)
+├── disaster-assessment/         # Disaster & alert management
+├── lai-estimation/              # LAI & vegetation indices
+├── yield-prediction/            # Yield forecasting
+├── marketplace-service/         # Market & fintech
+├── community-chat/              # Expert chat system
+├── iot-service/                # IoT gateway
+├── research-core/              # Scientific research (NEW)
+├── billing-core/               # Billing & payments (NEW)
 └── [other v15.3 services]
 ```
 
 ### Frontend Applications
 ```
-frontend/
-└── dashboard/              # Main web dashboard (Next.js)
+web/
+└── src/                    # Main web dashboard (Next.js)
 
 web_admin/                  # Admin panel (Next.js)
 ```
@@ -67,12 +69,20 @@ observability/
 ### Shared Packages
 ```
 packages/
+├── advisor/               # AI advisory system (RAG, LLM, context)
+├── field-suite/           # Spatial & field domain models
 ├── api-client/            # TypeScript API client
 ├── shared-hooks/          # React hooks
 ├── shared-ui/             # UI components
 ├── shared-utils/          # Utility functions
 ├── tailwind-config/       # Tailwind configuration
 └── typescript-config/     # TypeScript configs
+
+shared/
+├── domain/                # Auth, Users, Tenancy (cross-cutting)
+├── contracts/             # API contracts
+├── events/                # Event schemas
+└── libs/                  # Shared libraries
 ```
 
 ### Configuration Files (Root)
@@ -92,9 +102,12 @@ packages/
 > These paths contain historical code. Do NOT modify.
 
 ```
+archive/
+├── frontend-legacy/       # Old frontend (migrated to web/)
+└── kernel-legacy/         # (planned - kernel/services)
+
+kernel/services/           # FROZEN - see kernel/services/FROZEN.md
 legacy/                    # Old implementations
-kernel/                    # Superseded by kernel-services-v15.3
-services/research_core/    # Migrated to kernel-services
 ```
 
 ---
@@ -104,10 +117,15 @@ services/research_core/    # Migrated to kernel-services
 > These will be removed in future cleanup sprints.
 
 ```
-sahool-unified-v15.2-*/    # Old version snapshots
-web/src/                   # Migrated to frontend/dashboard
-apps/billing-core/         # Merged into marketplace-service
+sahool-unified-v15.2-*/    # Old version snapshots (to archive)
 ```
+
+> **Migrated (No Longer Deprecated):**
+> - `apps/billing-core/` → `kernel-services-v15.3/billing-core/`
+> - `services/research_core/` → `kernel-services-v15.3/research-core/`
+> - `advisor/` → `packages/advisor/`
+> - `field_suite/` → `packages/field-suite/`
+> - `kernel_domain/` → `shared/domain/`
 
 ---
 
@@ -171,9 +189,13 @@ make test
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| 2025-12-19 | `kernel-services-v15.3/` is official backend | Most complete, tested, documented |
-| 2025-12-19 | `kernel/` moved to frozen | Superseded by v15.3 |
-| 2025-12-19 | Unified Makefile commands | Single entry point for all operations |
+| 2024-12-19 | `kernel-services-v15.3/` is official backend | Most complete, tested, documented |
+| 2024-12-19 | `kernel/services/` FROZEN | Superseded by v15.3, docker-compose still uses it |
+| 2024-12-19 | `frontend/` archived | Migrated to web/ |
+| 2024-12-19 | Domain modules to packages | advisor, field_suite → packages/ |
+| 2024-12-19 | Auth domain to shared | kernel_domain → shared/domain/ |
+| 2024-12-19 | Orphan services consolidated | research_core, billing-core → v15.3 |
+| 2024-12-19 | Unified Makefile commands | Single entry point for all operations |
 
 ---
 

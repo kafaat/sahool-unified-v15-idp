@@ -1,0 +1,405 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Event Catalog
+# كتالوج أحداث نظام سهول
+#
+# This catalog defines all events in the SAHOOL platform.
+# Each event must be documented with schema, producers, and consumers.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "1.0.0"
+last_updated: "2024-12-19"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Event Categories
+# ─────────────────────────────────────────────────────────────────────────────
+categories:
+  field: "Field management events / أحداث إدارة الحقول"
+  ndvi: "NDVI analysis events / أحداث تحليل NDVI"
+  alert: "Alert and notification events / أحداث التنبيهات"
+  weather: "Weather data events / أحداث الطقس"
+  irrigation: "Irrigation events / أحداث الري"
+  crop_health: "Crop health events / أحداث صحة المحصول"
+  yield: "Yield prediction events / أحداث توقع الإنتاج"
+  system: "System events / أحداث النظام"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Events Definitions
+# ─────────────────────────────────────────────────────────────────────────────
+events:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  field.created:
+    category: field
+    description: "Emitted when a new field is created / يُرسل عند إنشاء حقل جديد"
+    schema:
+      $ref: "./schemas/field-created.json"
+      properties:
+        field_id: { type: string }
+        tenant_id: { type: string }
+        name: { type: string }
+        area_hectares: { type: number }
+        crop_type: { type: string }
+    producers:
+      - field-service
+    consumers:
+      - ndvi-processor
+      - alert-service
+      - analytics-service
+    examples:
+      - field_id: "fld_abc123"
+        tenant_id: "tnt_xyz789"
+        name: "حقل القمح الشمالي"
+        area_hectares: 15.5
+        crop_type: "wheat"
+
+  field.updated:
+    category: field
+    description: "Emitted when field details are updated / يُرسل عند تحديث بيانات الحقل"
+    schema:
+      properties:
+        field_id: { type: string }
+        changes: { type: object }
+        updated_at: { type: string }
+    producers:
+      - field-service
+    consumers:
+      - ndvi-processor
+      - alert-service
+    examples:
+      - field_id: "fld_abc123"
+        changes:
+          crop_type: "barley"
+
+  field.deleted:
+    category: field
+    description: "Emitted when a field is deleted / يُرسل عند حذف حقل"
+    schema:
+      properties:
+        field_id: { type: string }
+        tenant_id: { type: string }
+        deleted_at: { type: string }
+    producers:
+      - field-service
+    consumers:
+      - ndvi-processor
+      - alert-service
+      - analytics-service
+
+  field.boundary_updated:
+    category: field
+    description: "Emitted when field boundary is updated / يُرسل عند تحديث حدود الحقل"
+    schema:
+      properties:
+        field_id: { type: string }
+        boundary: { type: object }
+        area_hectares: { type: number }
+    producers:
+      - field-service
+    consumers:
+      - ndvi-processor
+      - satellite-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NDVI EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  ndvi.calculated:
+    category: ndvi
+    description: "Emitted when NDVI is calculated for a field / يُرسل عند حساب NDVI للحقل"
+    schema:
+      $ref: "./schemas/ndvi-calculated.json"
+      properties:
+        field_id: { type: string }
+        timestamp: { type: string }
+        statistics: { type: object }
+    producers:
+      - ndvi-processor
+    consumers:
+      - alert-service
+      - analytics-service
+      - frontend-sse
+    examples:
+      - field_id: "fld_abc123"
+        timestamp: "2024-12-19T10:30:00Z"
+        statistics:
+          mean: 0.65
+          min: 0.45
+          max: 0.82
+          std: 0.08
+
+  ndvi.anomaly_detected:
+    category: ndvi
+    description: "Emitted when NDVI anomaly is detected / يُرسل عند اكتشاف شذوذ في NDVI"
+    schema:
+      properties:
+        field_id: { type: string }
+        anomaly_type: { type: string }
+        previous_value: { type: number }
+        current_value: { type: number }
+    producers:
+      - ndvi-processor
+    consumers:
+      - alert-service
+      - notification-service
+    examples:
+      - field_id: "fld_abc123"
+        anomaly_type: "sudden_drop"
+        previous_value: 0.72
+        current_value: 0.45
+        drop_percent: 37.5
+
+  ndvi.trend_changed:
+    category: ndvi
+    description: "Emitted when NDVI trend changes / يُرسل عند تغير اتجاه NDVI"
+    schema:
+      properties:
+        field_id: { type: string }
+        trend: { type: string }
+        period_days: { type: integer }
+    producers:
+      - analytics-service
+    consumers:
+      - alert-service
+      - advisor-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ALERT EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  alert.created:
+    category: alert
+    description: "Emitted when a new alert is created / يُرسل عند إنشاء تنبيه جديد"
+    schema:
+      $ref: "./schemas/alert-created.json"
+      properties:
+        alert_id: { type: string }
+        field_id: { type: string }
+        type: { type: string }
+        severity: { type: string }
+    producers:
+      - alert-service
+    consumers:
+      - notification-service
+      - frontend-sse
+    examples:
+      - alert_id: "alt_def456"
+        field_id: "fld_abc123"
+        type: "ndvi_low"
+        severity: "warning"
+        message: "NDVI dropped below threshold"
+
+  alert.dismissed:
+    category: alert
+    description: "Emitted when an alert is dismissed / يُرسل عند رفض تنبيه"
+    schema:
+      properties:
+        alert_id: { type: string }
+        dismissed_by: { type: string }
+    producers:
+      - alert-service
+    consumers:
+      - analytics-service
+      - frontend-sse
+
+  alert.resolved:
+    category: alert
+    description: "Emitted when an alert is resolved / يُرسل عند حل تنبيه"
+    schema:
+      properties:
+        alert_id: { type: string }
+        resolved_at: { type: string }
+    producers:
+      - alert-service
+    consumers:
+      - analytics-service
+      - notification-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WEATHER EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  weather.updated:
+    category: weather
+    description: "Emitted when weather data is updated / يُرسل عند تحديث بيانات الطقس"
+    schema:
+      $ref: "./schemas/weather-updated.json"
+      properties:
+        location: { type: object }
+        temperature: { type: number }
+        humidity: { type: number }
+    producers:
+      - weather-service
+    consumers:
+      - irrigation-service
+      - alert-service
+      - frontend-sse
+    examples:
+      - location:
+          lat: 24.7136
+          lng: 46.6753
+        temperature: 35
+        humidity: 45
+        wind_speed: 12
+
+  weather.forecast_updated:
+    category: weather
+    description: "Emitted when weather forecast is updated / يُرسل عند تحديث توقعات الطقس"
+    schema:
+      properties:
+        location: { type: object }
+        forecast: { type: array }
+    producers:
+      - weather-service
+    consumers:
+      - irrigation-service
+      - advisor-service
+
+  weather.alert:
+    category: weather
+    description: "Emitted for severe weather alerts / يُرسل لتنبيهات الطقس الشديد"
+    schema:
+      properties:
+        alert_type: { type: string }
+        severity: { type: string }
+        location: { type: object }
+    producers:
+      - weather-service
+    consumers:
+      - alert-service
+      - notification-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IRRIGATION EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  irrigation.scheduled:
+    category: irrigation
+    description: "Emitted when irrigation is scheduled / يُرسل عند جدولة الري"
+    schema:
+      properties:
+        field_id: { type: string }
+        scheduled_at: { type: string }
+        duration_minutes: { type: integer }
+    producers:
+      - irrigation-service
+    consumers:
+      - notification-service
+      - frontend-sse
+
+  irrigation.completed:
+    category: irrigation
+    description: "Emitted when irrigation is completed / يُرسل عند اكتمال الري"
+    schema:
+      properties:
+        field_id: { type: string }
+        completed_at: { type: string }
+        water_used_liters: { type: number }
+    producers:
+      - irrigation-service
+    consumers:
+      - analytics-service
+      - field-service
+
+  irrigation.recommendation:
+    category: irrigation
+    description: "Emitted with irrigation recommendations / يُرسل مع توصيات الري"
+    schema:
+      properties:
+        field_id: { type: string }
+        recommendation: { type: object }
+    producers:
+      - advisor-service
+    consumers:
+      - irrigation-service
+      - notification-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CROP HEALTH EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop_health.assessment:
+    category: crop_health
+    description: "Emitted with crop health assessment / يُرسل مع تقييم صحة المحصول"
+    schema:
+      properties:
+        field_id: { type: string }
+        health_score: { type: number }
+        assessment_date: { type: string }
+    producers:
+      - crop-health-service
+    consumers:
+      - alert-service
+      - advisor-service
+      - analytics-service
+
+  crop_health.disease_detected:
+    category: crop_health
+    description: "Emitted when crop disease is detected / يُرسل عند اكتشاف مرض في المحصول"
+    schema:
+      properties:
+        field_id: { type: string }
+        disease_type: { type: string }
+        confidence: { type: number }
+    producers:
+      - crop-health-service
+    consumers:
+      - alert-service
+      - notification-service
+      - advisor-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # YIELD EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  yield.predicted:
+    category: yield
+    description: "Emitted with yield prediction / يُرسل مع توقع الإنتاج"
+    schema:
+      properties:
+        field_id: { type: string }
+        predicted_yield_kg: { type: number }
+        confidence: { type: number }
+    producers:
+      - yield-prediction-service
+    consumers:
+      - analytics-service
+      - frontend-sse
+
+  yield.actual_recorded:
+    category: yield
+    description: "Emitted when actual yield is recorded / يُرسل عند تسجيل الإنتاج الفعلي"
+    schema:
+      properties:
+        field_id: { type: string }
+        actual_yield_kg: { type: number }
+        harvest_date: { type: string }
+    producers:
+      - field-service
+    consumers:
+      - yield-prediction-service
+      - analytics-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SYSTEM EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  system.service_health:
+    category: system
+    description: "Emitted with service health status / يُرسل مع حالة صحة الخدمة"
+    schema:
+      properties:
+        service_name: { type: string }
+        status: { type: string }
+        timestamp: { type: string }
+    producers:
+      - all-services
+    consumers:
+      - monitoring-service
+
+  system.error:
+    category: system
+    description: "Emitted when system error occurs / يُرسل عند حدوث خطأ في النظام"
+    schema:
+      properties:
+        service_name: { type: string }
+        error_type: { type: string }
+        message: { type: string }
+    producers:
+      - all-services
+    consumers:
+      - monitoring-service
+      - alert-service

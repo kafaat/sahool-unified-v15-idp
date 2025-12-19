@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.sa/events/field-created.json",
+  "title": "FieldCreated",
+  "description": "Event emitted when a new field is created",
+  "type": "object",
+  "required": ["event_id", "timestamp", "field_id", "tenant_id", "name", "area_hectares"],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event timestamp in ISO 8601 format"
+    },
+    "field_id": {
+      "type": "string",
+      "pattern": "^fld_[a-zA-Z0-9]+$",
+      "description": "Unique field identifier"
+    },
+    "tenant_id": {
+      "type": "string",
+      "pattern": "^tnt_[a-zA-Z0-9]+$",
+      "description": "Tenant identifier"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255,
+      "description": "Field name"
+    },
+    "area_hectares": {
+      "type": "number",
+      "minimum": 0.01,
+      "description": "Field area in hectares"
+    },
+    "crop_type": {
+      "type": "string",
+      "enum": ["wheat", "barley", "corn", "alfalfa", "dates", "vegetables", "fruits", "other"],
+      "description": "Type of crop planted"
+    },
+    "location": {
+      "type": "object",
+      "required": ["lat", "lng"],
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "lng": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        }
+      },
+      "description": "Field center location"
+    },
+    "boundary": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "const": "Polygon"
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "minItems": 4
+          }
+        }
+      },
+      "description": "GeoJSON Polygon boundary"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User ID who created the field"
+    }
+  },
+  "additionalProperties": false
+}

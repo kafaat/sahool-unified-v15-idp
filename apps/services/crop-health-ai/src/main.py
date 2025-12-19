@@ -17,8 +17,16 @@ from typing import Optional, List
 from pathlib import Path
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Query
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
+import sys
+sys.path.insert(0, "../../../../shared")
+try:
+    from middleware.cors import setup_cors
+except ImportError:
+    # Fallback if shared module not available
+    from fastapi.middleware.cors import CORSMiddleware
+    setup_cors = None
 
 # Import models
 from models import (
@@ -58,14 +66,21 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # In production: ["https://admin.sahool.io"]
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS middleware - Secure configuration
+if setup_cors:
+    setup_cors(app)
+else:
+    # Fallback for standalone testing
+    import os
+    from fastapi.middleware.cors import CORSMiddleware
+    allowed_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
+        allow_headers=["Authorization", "Content-Type", "X-Tenant-ID"],
+    )
 
 # Mount static files
 Path("static/uploads").mkdir(parents=True, exist_ok=True)

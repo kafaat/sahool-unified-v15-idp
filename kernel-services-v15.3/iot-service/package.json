@@ -1,6 +1,6 @@
 {
   "name": "sahool-iot-service",
-  "version": "1.1.0",
+  "version": "16.0.0",
   "description": "SAHOOL IoT Service - Smart Irrigation & Sensor Management",
   "main": "dist/main.js",
   "scripts": {

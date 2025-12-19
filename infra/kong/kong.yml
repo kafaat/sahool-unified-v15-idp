@@ -496,6 +496,28 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
+  - name: crop-growth-upstream
+    targets:
+      - target: sahool-crop-growth-model:3000
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
 # ─────────────────────────────────────────────────────────────────────────────
@@ -976,6 +998,118 @@ services:
             config:
               minute: 30
               hour: 500
+              policy: local
+
+  # Crop Growth Model Service (v15.3)
+  # Advanced crop modeling with Digital Twin, RS World Model, and Planting Strategy
+  - name: crop-growth-service
+    host: crop-growth-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      # Digital Twin Core - التوأم الرقمي للمحاصيل
+      # Multi-layer architecture with edge computing and hybrid modeling
+      - name: digital-twin-route
+        paths:
+          - /api/v1/digital-twin
+          - /api/v1/digital-twin/architecture
+          - /api/v1/digital-twin/edge-nodes
+          - /api/v1/digital-twin/data/satellite
+          - /api/v1/digital-twin/data/drone
+          - /api/v1/digital-twin/data/ground-sensors
+          - /api/v1/digital-twin/data/fuse
+          - /api/v1/digital-twin/models
+          - /api/v1/digital-twin/models/wofost
+          - /api/v1/digital-twin/models/ml
+          - /api/v1/digital-twin/models/deep-learning
+          - /api/v1/digital-twin/models/llm
+          - /api/v1/digital-twin/models/hybrid-ensemble
+          - /api/v1/digital-twin/assimilate
+          - /api/v1/digital-twin/state
+          - /api/v1/digital-twin/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Digital twin operations - compute intensive
+              minute: 20
+              hour: 300
+              policy: local
+
+      # RS World Model - نموذج العالم للاستشعار عن بعد
+      # Based on RemoteBAGEL (arxiv:2509.17808) - First World Model for Remote Sensing
+      - name: rs-world-model-route
+        paths:
+          - /api/v1/rs-world-model
+          - /api/v1/rs-world-model/architecture
+          - /api/v1/rs-world-model/scenarios
+          - /api/v1/rs-world-model/benchmarks
+          - /api/v1/rs-world-model/capabilities
+          - /api/v1/rs-world-model/reason
+          - /api/v1/rs-world-model/expand
+          - /api/v1/rs-world-model/partition
+          - /api/v1/rs-world-model/evaluate
+          - /api/v1/rs-world-model/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # World model spatial reasoning - compute intensive
+              minute: 20
+              hour: 300
+              policy: local
+
+      # Planting Strategy Optimizer - محسّن استراتيجية الزراعة
+      # Wheat planting methods: equal row, wide strip, space broadcasting, small basin
+      - name: planting-strategy-route
+        paths:
+          - /api/v1/planting-strategy
+          - /api/v1/planting-strategy/methods
+          - /api/v1/planting-strategy/optimize
+          - /api/v1/planting-strategy/plan
+          - /api/v1/planting-strategy/density
+          - /api/v1/planting-strategy/fertilizer
+          - /api/v1/planting-strategy/irrigation
+          - /api/v1/planting-strategy/compare
+          - /api/v1/planting-strategy/analyze-field
+          - /api/v1/planting-strategy/digital-twin
+          - /api/v1/planting-strategy/crops
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # Planting optimization calculations
+              minute: 30
+              hour: 500
+              policy: local
+
+      # GIS Integration Service - خدمة تكامل نظم المعلومات الجغرافية
+      # Based on GeoSuite/QCarta patterns - OGC WMS, WFS, WMTS
+      - name: gis-integration-route
+        paths:
+          - /api/v1/gis
+          - /api/v1/gis/layers
+          - /api/v1/gis/wms
+          - /api/v1/gis/wfs
+          - /api/v1/gis/spatial
+          - /api/v1/gis/fields
+          - /api/v1/gis/analysis
+          - /api/v1/gis/routing
+          - /api/v1/gis/projects
+          - /api/v1/gis/basemaps
+          - /api/v1/gis/utils
+          - /api/v1/gis/demo
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # GIS operations - variable load
+              minute: 50
+              hour: 1000
               policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 {
   "name": "field-core-service",
-  "version": "1.1.0",
+  "version": "16.0.0",
   "description": "SAHOOL Field Core - Geospatial Field Management Service",
   "main": "dist/index.js",
   "scripts": {

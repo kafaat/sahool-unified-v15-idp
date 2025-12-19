@@ -4,6 +4,12 @@
   "description": "SAHOOL - Smart Agricultural Platform for Yemen & Middle East",
   "private": true,
   "workspaces": [
+    "packages/shared-utils",
+    "packages/shared-ui",
+    "packages/shared-hooks",
+    "packages/api-client",
+    "packages/tailwind-config",
+    "packages/typescript-config",
     "frontend/dashboard",
     "web_admin",
     "kernel-services-v15.3/marketplace-service",
@@ -15,10 +21,11 @@
   "scripts": {
     "dev:dashboard": "npm run dev --workspace=frontend/dashboard",
     "dev:admin": "npm run dev --workspace=web_admin",
-    "build:all": "npm run build --workspaces --if-present",
+    "build:packages": "npm run build --workspace=packages/shared-utils && npm run build --workspace=packages/shared-ui && npm run build --workspace=packages/api-client && npm run build --workspace=packages/shared-hooks",
+    "build:all": "npm run build:packages && npm run build --workspaces --if-present",
     "lint:all": "npm run lint --workspaces --if-present",
-    "type-check": "npm run type-check --workspaces --if-present",
-    "clean": "rm -rf node_modules **/node_modules"
+    "type-check": "npm run typecheck --workspaces --if-present",
+    "clean": "rm -rf node_modules **/node_modules **/dist"
   },
   "devDependencies": {
     "typescript": "5.7.2",

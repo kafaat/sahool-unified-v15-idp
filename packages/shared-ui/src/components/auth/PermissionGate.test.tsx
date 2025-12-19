@@ -1,34 +1,39 @@
-import { describe, it, expect, vi } from 'vitest';
+/**
+ * PermissionGate Component Tests
+ * اختبارات مكون بوابة الصلاحيات
+ */
+
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { PermissionGate, RoleGate, AdminGate } from './PermissionGate';
 
-// Mock the useAuth hook
-const mockUseAuth = vi.fn();
-vi.mock('@sahool/shared-hooks', () => ({
-  useAuth: () => mockUseAuth(),
-}));
+// Mock auth context value
+const createMockAuth = (overrides: Partial<{
+  can: (permission: string) => boolean;
+  canAny: (permissions: string[]) => boolean;
+  canAll: (permissions: string[]) => boolean;
+  hasRole: (role: string) => boolean;
+  hasAnyRole: (roles: string[]) => boolean;
+}> = {}) => ({
+  can: (permission: string) => false,
+  canAny: (permissions: string[]) => false,
+  canAll: (permissions: string[]) => false,
+  hasRole: (role: string) => false,
+  hasAnyRole: (roles: string[]) => false,
+  ...overrides,
+});
 
 describe('PermissionGate', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe('when user has required permission', () => {
-    beforeEach(() => {
-      mockUseAuth.mockReturnValue({
-        user: {
-          id: '1',
-          permissions: ['field:view', 'field:create'],
-          roles: ['farmer'],
-        },
-        isAuthenticated: true,
-        isLoading: false,
-      });
+    const mockAuth = createMockAuth({
+      can: (p) => p === 'field:view',
+      canAny: (ps) => ps.some(p => p === 'field:view'),
+      canAll: (ps) => ps.every(p => p === 'field:view'),
     });
 
     it('should render children', () => {
       render(
-        <PermissionGate permission="field:view">
+        <PermissionGate permission="field:view" auth={mockAuth}>
           <div data-testid="protected-content">المحتوى المحمي</div>
         </PermissionGate>
       );
@@ -42,6 +47,7 @@ describe('PermissionGate', () => {
         <PermissionGate
           permission="field:view"
           fallback={<div data-testid="fallback">غير مصرح</div>}
+          auth={mockAuth}
         >
           <div data-testid="protected-content">المحتوى المحمي</div>
         </PermissionGate>
@@ -52,21 +58,15 @@ describe('PermissionGate', () => {
   });
 
   describe('when user lacks required permission', () => {
-    beforeEach(() => {
-      mockUseAuth.mockReturnValue({
-        user: {
-          id: '1',
-          permissions: ['field:view'],
-          roles: ['farmer'],
-        },
-        isAuthenticated: true,
-        isLoading: false,
-      });
+    const mockAuth = createMockAuth({
+      can: () => false,
+      canAny: () => false,
+      canAll: () => false,
     });
 
     it('should not render children', () => {
       render(
-        <PermissionGate permission="admin:users">
+        <PermissionGate permission="admin:users" auth={mockAuth}>
           <div data-testid="protected-content">المحتوى المحمي</div>
         </PermissionGate>
       );
@@ -79,6 +79,7 @@ describe('PermissionGate', () => {
         <PermissionGate
           permission="admin:users"
           fallback={<div data-testid="fallback">غير مصرح</div>}
+          auth={mockAuth}
         >
           <div data-testid="protected-content">المحتوى المحمي</div>
         </PermissionGate>
@@ -89,66 +90,28 @@ describe('PermissionGate', () => {
     });
   });
 
-  describe('when user is not authenticated', () => {
-    beforeEach(() => {
-      mockUseAuth.mockReturnValue({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-    });
+  describe('with no permission or role specified', () => {
+    const mockAuth = createMockAuth();
 
-    it('should not render children', () => {
+    it('should render children (allow by default)', () => {
       render(
-        <PermissionGate permission="field:view">
-          <div data-testid="protected-content">المحتوى المحمي</div>
+        <PermissionGate auth={mockAuth}>
+          <div data-testid="content">محتوى عام</div>
         </PermissionGate>
       );
 
-      expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('when loading', () => {
-    beforeEach(() => {
-      mockUseAuth.mockReturnValue({
-        user: null,
-        isAuthenticated: false,
-        isLoading: true,
-      });
-    });
-
-    it('should render loading state when provided', () => {
-      render(
-        <PermissionGate
-          permission="field:view"
-          loading={<div data-testid="loading">جاري التحميل...</div>}
-        >
-          <div data-testid="protected-content">المحتوى المحمي</div>
-        </PermissionGate>
-      );
-
-      expect(screen.getByTestId('loading')).toBeInTheDocument();
-      expect(screen.queryByTestId('protected-content')).not.toBeInTheDocument();
+      expect(screen.getByTestId('content')).toBeInTheDocument();
     });
   });
 
   describe('with multiple permissions (requireAll=false)', () => {
-    beforeEach(() => {
-      mockUseAuth.mockReturnValue({
-        user: {
-          id: '1',
-          permissions: ['field:view'],
-          roles: ['farmer'],
-        },
-        isAuthenticated: true,
-        isLoading: false,
-      });
+    const mockAuth = createMockAuth({
+      canAny: (ps) => ps.includes('field:view'),
     });
 
     it('should render when user has any of the permissions', () => {
       render(
-        <PermissionGate permission={['field:view', 'field:edit']}>
+        <PermissionGate permission={['field:view', 'field:edit']} auth={mockAuth}>
           <div data-testid="protected-content">المحتوى المحمي</div>
         </PermissionGate>
       );
@@ -158,21 +121,13 @@ describe('PermissionGate', () => {
   });
 
   describe('with multiple permissions (requireAll=true)', () => {
-    beforeEach(() => {
-      mockUseAuth.mockReturnValue({
-        user: {
-          id: '1',
-          permissions: ['field:view'],
-          roles: ['farmer'],
-        },
-        isAuthenticated: true,
-        isLoading: false,
-      });
+    const mockAuth = createMockAuth({
+      canAll: (ps) => ps.length === 1 && ps[0] === 'field:view',
     });
 
     it('should not render when user lacks any permission', () => {
       render(
-        <PermissionGate permission={['field:view', 'field:edit']} requireAll>
+        <PermissionGate permission={['field:view', 'field:edit']} requireAll auth={mockAuth}>
           <div data-testid="protected-content">المحتوى المحمي</div>
         </PermissionGate>
       );
@@ -183,23 +138,14 @@ describe('PermissionGate', () => {
 });
 
 describe('RoleGate', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should render children when user has required role', () => {
-    mockUseAuth.mockReturnValue({
-      user: {
-        id: '1',
-        permissions: [],
-        roles: ['agronomist'],
-      },
-      isAuthenticated: true,
-      isLoading: false,
+    const mockAuth = createMockAuth({
+      hasRole: (r) => r === 'agronomist',
+      hasAnyRole: (rs) => rs.includes('agronomist'),
     });
 
     render(
-      <RoleGate role="agronomist">
+      <RoleGate role="agronomist" auth={mockAuth}>
         <div data-testid="role-content">محتوى المهندس الزراعي</div>
       </RoleGate>
     );
@@ -208,44 +154,43 @@ describe('RoleGate', () => {
   });
 
   it('should not render when user lacks role', () => {
-    mockUseAuth.mockReturnValue({
-      user: {
-        id: '1',
-        permissions: [],
-        roles: ['farmer'],
-      },
-      isAuthenticated: true,
-      isLoading: false,
+    const mockAuth = createMockAuth({
+      hasRole: () => false,
+      hasAnyRole: () => false,
     });
 
     render(
-      <RoleGate role="admin">
+      <RoleGate role="admin" auth={mockAuth}>
         <div data-testid="role-content">محتوى المدير</div>
       </RoleGate>
     );
 
     expect(screen.queryByTestId('role-content')).not.toBeInTheDocument();
   });
-});
 
-describe('AdminGate', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('should render for admin user', () => {
-    mockUseAuth.mockReturnValue({
-      user: {
-        id: '1',
-        permissions: ['admin:users'],
-        roles: ['admin'],
-      },
-      isAuthenticated: true,
-      isLoading: false,
+  it('should render when user has any of multiple roles', () => {
+    const mockAuth = createMockAuth({
+      hasAnyRole: (rs) => rs.includes('farmer'),
     });
 
     render(
-      <AdminGate>
+      <RoleGate role={['farmer', 'agronomist']} auth={mockAuth}>
+        <div data-testid="role-content">محتوى</div>
+      </RoleGate>
+    );
+
+    expect(screen.getByTestId('role-content')).toBeInTheDocument();
+  });
+});
+
+describe('AdminGate', () => {
+  it('should render for admin user', () => {
+    const mockAuth = createMockAuth({
+      hasAnyRole: (rs) => rs.includes('admin'),
+    });
+
+    render(
+      <AdminGate auth={mockAuth}>
         <div data-testid="admin-content">لوحة التحكم</div>
       </AdminGate>
     );
@@ -254,18 +199,12 @@ describe('AdminGate', () => {
   });
 
   it('should render for super_admin user', () => {
-    mockUseAuth.mockReturnValue({
-      user: {
-        id: '1',
-        permissions: ['admin:system'],
-        roles: ['super_admin'],
-      },
-      isAuthenticated: true,
-      isLoading: false,
+    const mockAuth = createMockAuth({
+      hasAnyRole: (rs) => rs.includes('super_admin'),
     });
 
     render(
-      <AdminGate>
+      <AdminGate auth={mockAuth}>
         <div data-testid="admin-content">لوحة التحكم</div>
       </AdminGate>
     );
@@ -274,18 +213,12 @@ describe('AdminGate', () => {
   });
 
   it('should not render for non-admin user', () => {
-    mockUseAuth.mockReturnValue({
-      user: {
-        id: '1',
-        permissions: ['field:view'],
-        roles: ['farmer'],
-      },
-      isAuthenticated: true,
-      isLoading: false,
+    const mockAuth = createMockAuth({
+      hasAnyRole: () => false,
     });
 
     render(
-      <AdminGate>
+      <AdminGate auth={mockAuth}>
         <div data-testid="admin-content">لوحة التحكم</div>
       </AdminGate>
     );

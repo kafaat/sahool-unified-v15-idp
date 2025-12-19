@@ -6,7 +6,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useCallback, useState } from 'react';
+import { useEffect, useCallback, useState, useRef } from 'react';
 import { alertsApi, type Alert, type AlertFilters, type AlertSeverity } from '../api';
 
 // Query Keys
@@ -121,10 +121,25 @@ export function useAlertStream(onAlert: (alert: Alert) => void) {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const queryClient = useQueryClient();
+  const eventSourceRef = useRef<EventSource | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const connect = useCallback(() => {
+    // Clean up any existing connection
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+
+    // Clear any pending reconnection timeout
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
     const streamUrl = alertsApi.getStreamUrl();
     const eventSource = new EventSource(streamUrl, { withCredentials: true });
+    eventSourceRef.current = eventSource;
 
     eventSource.onopen = () => {
       setIsConnected(true);
@@ -148,15 +163,24 @@ export function useAlertStream(onAlert: (alert: Alert) => void) {
       setError(new Error('Connection lost'));
       eventSource.close();
       // Reconnect after 5 seconds
-      setTimeout(connect, 5000);
+      reconnectTimeoutRef.current = setTimeout(connect, 5000);
     };
-
-    return eventSource;
   }, [onAlert, queryClient]);
 
   useEffect(() => {
-    const eventSource = connect();
-    return () => eventSource.close();
+    connect();
+    return () => {
+      // Clean up EventSource on unmount
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
+      }
+      // Clear any pending reconnection timeout
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
+      }
+    };
   }, [connect]);
 
   return { isConnected, error };

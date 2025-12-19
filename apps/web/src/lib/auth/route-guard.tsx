@@ -109,8 +109,10 @@ export async function getCurrentUser(): Promise<User | null> {
         console.error('JWT claim validation failed:', error.message);
       } else if (error instanceof jose.errors.JWSSignatureVerificationFailed) {
         console.error('JWT signature verification failed');
+      } else if (error instanceof Error) {
+        console.error('JWT verification error:', error.message);
       } else {
-        console.error('JWT verification error:', error);
+        console.error('JWT verification error: Unknown error');
       }
     }
     return null;

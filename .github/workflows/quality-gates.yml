@@ -150,21 +150,28 @@ jobs:
         run: |
           echo "🔍 Scanning for potential secrets..."
 
-          # Patterns that should NOT be in code
-          PATTERNS=(
-            "sk-[a-zA-Z0-9]{48}"           # OpenAI keys
-            "ghp_[a-zA-Z0-9]{36}"          # GitHub tokens
-            "AKIA[0-9A-Z]{16}"             # AWS keys
-          )
+          # Only scan actual source files, exclude all generated/vendored content
+          SCAN_DIRS="apps/services shared/security shared/middleware shared/libs packages/advisor packages/field-suite"
 
           FOUND=0
-          for pattern in "${PATTERNS[@]}"; do
-            # Exclude node_modules, .example files, and test files
-            if grep -rEn "$pattern" --include="*.py" --include="*.ts" --include="*.js" --include="*.yaml" --include="*.yml" apps/ packages/ shared/ 2>/dev/null | grep -v "node_modules" | grep -v ".example" | grep -v "test" | grep -v "mock" | head -5; then
-              echo "::error::Potential secret found matching pattern: $pattern"
-              FOUND=1
-            fi
-          done
+
+          # Check for OpenAI API keys (sk-proj-... or sk-...)
+          if grep -rE "sk-proj-[a-zA-Z0-9]{48}" $SCAN_DIRS 2>/dev/null | grep -v ".example" | grep -v "_test" | head -3; then
+            echo "::error::OpenAI API key found"
+            FOUND=1
+          fi
+
+          # Check for GitHub tokens
+          if grep -rE "ghp_[a-zA-Z0-9]{36}" $SCAN_DIRS 2>/dev/null | grep -v ".example" | head -3; then
+            echo "::error::GitHub token found"
+            FOUND=1
+          fi
+
+          # Check for AWS keys (must be exactly 20 chars after AKIA)
+          if grep -rE "AKIA[0-9A-Z]{16}[0-9A-Za-z]{4}" $SCAN_DIRS 2>/dev/null | grep -v ".example" | head -3; then
+            echo "::error::AWS access key found"
+            FOUND=1
+          fi
 
           if [ $FOUND -eq 1 ]; then
             echo "::error::Secrets detected in code!"

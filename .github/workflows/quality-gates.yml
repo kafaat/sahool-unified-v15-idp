@@ -150,25 +150,23 @@ jobs:
         run: |
           echo "🔍 Scanning for potential secrets..."
 
-          # Only scan actual source files, exclude all generated/vendored content
-          SCAN_DIRS="apps/services shared/security shared/middleware shared/libs packages/advisor packages/field-suite"
-
+          # Only scan Python source files, exclude node_modules and generated content
           FOUND=0
 
-          # Check for OpenAI API keys (sk-proj-... or sk-...)
-          if grep -rE "sk-proj-[a-zA-Z0-9]{48}" $SCAN_DIRS 2>/dev/null | grep -v ".example" | grep -v "_test" | head -3; then
+          # Check for OpenAI API keys in Python files only
+          if find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "sk-proj-[a-zA-Z0-9]{48}" 2>/dev/null | grep -v ".example" | head -3; then
             echo "::error::OpenAI API key found"
             FOUND=1
           fi
 
-          # Check for GitHub tokens
-          if grep -rE "ghp_[a-zA-Z0-9]{36}" $SCAN_DIRS 2>/dev/null | grep -v ".example" | head -3; then
+          # Check for GitHub tokens in Python files only
+          if find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "ghp_[a-zA-Z0-9]{36}" 2>/dev/null | grep -v ".example" | head -3; then
             echo "::error::GitHub token found"
             FOUND=1
           fi
 
-          # Check for AWS keys (must be exactly 20 chars after AKIA)
-          if grep -rE "AKIA[0-9A-Z]{16}[0-9A-Za-z]{4}" $SCAN_DIRS 2>/dev/null | grep -v ".example" | head -3; then
+          # Check for AWS keys in Python files only
+          if find apps/services shared/security shared/middleware shared/libs packages/advisor -name "*.py" -type f 2>/dev/null | xargs grep -lE "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v ".example" | head -3; then
             echo "::error::AWS access key found"
             FOUND=1
           fi

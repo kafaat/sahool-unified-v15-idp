@@ -21,8 +21,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Create non-root user
-RUN groupadd --system --gid 1000 sahool && \
-    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install system dependencies
 RUN apt-get update && \

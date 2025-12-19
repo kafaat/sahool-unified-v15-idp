@@ -7,6 +7,7 @@
 
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { jwtVerify } from 'jose';
 
 // Types
 type Permission = string;
@@ -52,7 +53,7 @@ interface RouteGuardOptions {
 
 /**
  * Get current user from server context
- * (Implementation depends on your auth setup)
+ * Validates JWT token with signature verification and expiration checks
  */
 export async function getCurrentUser(): Promise<User | null> {
   const cookieStore = await cookies();
@@ -63,17 +64,30 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 
   try {
-    // Decode and validate token
-    // This is a placeholder - implement actual JWT validation
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    // Get JWT secret from environment
+    const secret = process.env.JWT_SECRET_KEY;
+    if (!secret) {
+      console.error('JWT_SECRET_KEY is not configured');
+      return null;
+    }
 
+    // Verify and decode JWT token with signature verification
+    const secretKey = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, secretKey, {
+      issuer: process.env.JWT_ISSUER || 'sahool-platform',
+      audience: process.env.JWT_AUDIENCE || 'sahool-api',
+    });
+
+    // Extract user information from verified payload
     return {
-      id: payload.sub,
-      roles: payload.roles || [],
-      permissions: payload.permissions || [],
-      tenantId: payload.tenant_id,
+      id: payload.sub as string,
+      roles: (payload.roles as Role[]) || [],
+      permissions: (payload.permissions as Permission[]) || [],
+      tenantId: payload.tenant_id as string,
     };
-  } catch {
+  } catch (error) {
+    // Token is invalid, expired, or has invalid signature
+    console.error('JWT verification failed:', error);
     return null;
   }
 }

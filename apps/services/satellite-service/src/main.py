@@ -1,6 +1,10 @@
 """
-🛰️ SAHOOL Satellite Service v15.3
+🛰️ SAHOOL Satellite Service v15.4
 خدمة الأقمار الصناعية - Sentinel-2, Landsat, MODIS Integration
+
+Now with eo-learn integration for real satellite data!
+Install sahool-eo[full] and configure Sentinel Hub credentials
+for real data processing.
 """
 
 from fastapi import FastAPI, HTTPException, Query
@@ -12,10 +16,20 @@ import asyncio
 import json
 import uuid
 
+# Import eo-learn integration
+from .eo_integration import (
+    fetch_real_satellite_data,
+    convert_eo_result_to_api_format,
+    get_data_source_status,
+    check_eo_configuration,
+    EO_LEARN_AVAILABLE,
+    SENTINEL_HUB_CONFIGURED,
+)
+
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
-    version="15.3.0",
-    description="Multi-satellite agricultural monitoring - Sentinel-2, Landsat-8/9, MODIS",
+    version="15.4.0",
+    description="Multi-satellite agricultural monitoring with eo-learn integration",
 )
 
 
@@ -351,8 +365,23 @@ def health():
     return {
         "status": "ok",
         "service": "satellite-service",
-        "version": "15.3.0",
+        "version": "15.4.0",
         "satellites": list(SATELLITE_CONFIGS.keys()),
+        "eo_learn": get_data_source_status(),
+    }
+
+
+@app.get("/v1/eo-status")
+def eo_status():
+    """حالة تكامل eo-learn"""
+    return {
+        "status": get_data_source_status(),
+        "configuration": check_eo_configuration(),
+        "setup_instructions": {
+            "1_install": "pip install sahool-eo[full]",
+            "2_credentials": "Set SENTINEL_HUB_CLIENT_ID and SENTINEL_HUB_CLIENT_SECRET",
+            "3_optional": "Get credentials at https://www.sentinel-hub.com/",
+        },
     }
 
 
@@ -498,6 +527,77 @@ async def analyze_field(request: ImageryRequest):
         recommendations_ar=recommendations_ar,
         recommendations_en=recommendations_en,
     )
+
+
+class RealAnalysisRequest(BaseModel):
+    """Request model for real satellite analysis"""
+    field_id: str = Field(..., description="معرف الحقل")
+    tenant_id: str = Field(default="default", description="معرف المستأجر")
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    start_date: date = Field(default_factory=date.today)
+    end_date: Optional[date] = None
+    cloud_cover_max: float = Field(default=30.0, ge=0, le=100)
+
+
+@app.post("/v1/analyze/real")
+async def analyze_field_real(request: RealAnalysisRequest):
+    """
+    تحليل الحقل باستخدام بيانات الأقمار الصناعية الحقيقية
+
+    يستخدم sahool-eo و Sentinel Hub للحصول على بيانات حقيقية.
+    إذا لم تكن الاعتمادات مكونة، يعود إلى البيانات المحاكاة.
+    """
+    # Try real data first
+    if EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED:
+        result = await fetch_real_satellite_data(
+            field_id=request.field_id,
+            tenant_id=request.tenant_id,
+            latitude=request.latitude,
+            longitude=request.longitude,
+            start_date=request.start_date,
+            end_date=request.end_date,
+            max_cloud_cover=request.cloud_cover_max,
+        )
+
+        if result:
+            return convert_eo_result_to_api_format(
+                result,
+                request.field_id,
+            )
+
+    # Fallback to simulated analysis
+    simulated_request = ImageryRequest(
+        field_id=request.field_id,
+        latitude=request.latitude,
+        longitude=request.longitude,
+        start_date=request.start_date,
+        end_date=request.end_date,
+        cloud_cover_max=request.cloud_cover_max,
+    )
+
+    analysis = await analyze_field(simulated_request)
+
+    return {
+        "field_id": analysis.field_id,
+        "analysis_date": analysis.analysis_date.isoformat(),
+        "satellite": analysis.satellite.value,
+        "data_source": "simulated",
+        "indices": {
+            "ndvi": analysis.indices.ndvi,
+            "ndwi": analysis.indices.ndwi,
+            "evi": analysis.indices.evi,
+            "savi": analysis.indices.savi,
+            "lai": analysis.indices.lai,
+            "ndmi": analysis.indices.ndmi,
+        },
+        "health_score": analysis.health_score,
+        "health_status": analysis.health_status,
+        "anomalies": analysis.anomalies,
+        "recommendations_ar": analysis.recommendations_ar,
+        "recommendations_en": analysis.recommendations_en,
+        "note": "Using simulated data. Configure Sentinel Hub for real data.",
+    }
 
 
 @app.get("/v1/timeseries/{field_id}")

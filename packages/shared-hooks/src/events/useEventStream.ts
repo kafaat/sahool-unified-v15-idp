@@ -240,9 +240,11 @@ export function useEventStream(
       if (autoReconnect) {
         setState((prev) => {
           if (prev.reconnectAttempts < maxReconnectAttempts) {
-            // Calculate exponential backoff delay
+            // Calculate exponential backoff delay using bit shifting for performance
+            // Cap the exponent to prevent overflow (2^10 = 1024x initial delay is sufficient)
+            const cappedAttempts = Math.min(prev.reconnectAttempts, 10);
             const exponentialDelay = Math.min(
-              reconnectDelay * Math.pow(2, prev.reconnectAttempts),
+              reconnectDelay * (1 << cappedAttempts),
               maxReconnectDelay
             );
             

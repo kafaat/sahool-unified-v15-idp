@@ -25,8 +25,10 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
-    && rm -rf /var/lib/apt/lists/* && \
-    pip install --upgrade pip
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip (non-fatal in case of network issues)
+RUN pip install --upgrade pip || true
 
 # Create non-root user
 RUN groupadd --system sahool && \

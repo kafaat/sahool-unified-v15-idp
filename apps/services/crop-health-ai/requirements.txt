@@ -9,10 +9,11 @@ python-multipart==0.0.18
 
 # Image Processing
 Pillow==11.0.0
-numpy==2.1.3
+numpy>=1.26.0,<2.1.0
 
 # AI/ML - TensorFlow for real inference
 # Use tensorflow-cpu for smaller image size in Docker
+# Note: tensorflow-cpu 2.18.0 requires numpy<2.1.0
 tensorflow-cpu==2.18.0
 
 # Data Validation

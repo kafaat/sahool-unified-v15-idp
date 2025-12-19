@@ -34,6 +34,12 @@ events:
     description: "Emitted when a new field is created / يُرسل عند إنشاء حقل جديد"
     schema:
       $ref: "./schemas/field-created.json"
+      properties:
+        field_id: { type: string }
+        tenant_id: { type: string }
+        name: { type: string }
+        area_hectares: { type: number }
+        crop_type: { type: string }
     producers:
       - field-service
     consumers:
@@ -51,7 +57,10 @@ events:
     category: field
     description: "Emitted when field details are updated / يُرسل عند تحديث بيانات الحقل"
     schema:
-      $ref: "./schemas/field-updated.json"
+      properties:
+        field_id: { type: string }
+        changes: { type: object }
+        updated_at: { type: string }
     producers:
       - field-service
     consumers:
@@ -66,7 +75,10 @@ events:
     category: field
     description: "Emitted when a field is deleted / يُرسل عند حذف حقل"
     schema:
-      $ref: "./schemas/field-deleted.json"
+      properties:
+        field_id: { type: string }
+        tenant_id: { type: string }
+        deleted_at: { type: string }
     producers:
       - field-service
     consumers:
@@ -78,7 +90,10 @@ events:
     category: field
     description: "Emitted when field boundary is updated / يُرسل عند تحديث حدود الحقل"
     schema:
-      $ref: "./schemas/field-boundary-updated.json"
+      properties:
+        field_id: { type: string }
+        boundary: { type: object }
+        area_hectares: { type: number }
     producers:
       - field-service
     consumers:
@@ -93,6 +108,10 @@ events:
     description: "Emitted when NDVI is calculated for a field / يُرسل عند حساب NDVI للحقل"
     schema:
       $ref: "./schemas/ndvi-calculated.json"
+      properties:
+        field_id: { type: string }
+        timestamp: { type: string }
+        statistics: { type: object }
     producers:
       - ndvi-processor
     consumers:
@@ -112,7 +131,11 @@ events:
     category: ndvi
     description: "Emitted when NDVI anomaly is detected / يُرسل عند اكتشاف شذوذ في NDVI"
     schema:
-      $ref: "./schemas/ndvi-anomaly.json"
+      properties:
+        field_id: { type: string }
+        anomaly_type: { type: string }
+        previous_value: { type: number }
+        current_value: { type: number }
     producers:
       - ndvi-processor
     consumers:
@@ -129,7 +152,10 @@ events:
     category: ndvi
     description: "Emitted when NDVI trend changes / يُرسل عند تغير اتجاه NDVI"
     schema:
-      $ref: "./schemas/ndvi-trend.json"
+      properties:
+        field_id: { type: string }
+        trend: { type: string }
+        period_days: { type: integer }
     producers:
       - analytics-service
     consumers:
@@ -144,6 +170,11 @@ events:
     description: "Emitted when a new alert is created / يُرسل عند إنشاء تنبيه جديد"
     schema:
       $ref: "./schemas/alert-created.json"
+      properties:
+        alert_id: { type: string }
+        field_id: { type: string }
+        type: { type: string }
+        severity: { type: string }
     producers:
       - alert-service
     consumers:
@@ -160,7 +191,9 @@ events:
     category: alert
     description: "Emitted when an alert is dismissed / يُرسل عند رفض تنبيه"
     schema:
-      $ref: "./schemas/alert-dismissed.json"
+      properties:
+        alert_id: { type: string }
+        dismissed_by: { type: string }
     producers:
       - alert-service
     consumers:
@@ -171,7 +204,9 @@ events:
     category: alert
     description: "Emitted when an alert is resolved / يُرسل عند حل تنبيه"
     schema:
-      $ref: "./schemas/alert-resolved.json"
+      properties:
+        alert_id: { type: string }
+        resolved_at: { type: string }
     producers:
       - alert-service
     consumers:
@@ -186,6 +221,10 @@ events:
     description: "Emitted when weather data is updated / يُرسل عند تحديث بيانات الطقس"
     schema:
       $ref: "./schemas/weather-updated.json"
+      properties:
+        location: { type: object }
+        temperature: { type: number }
+        humidity: { type: number }
     producers:
       - weather-service
     consumers:
@@ -204,7 +243,9 @@ events:
     category: weather
     description: "Emitted when weather forecast is updated / يُرسل عند تحديث توقعات الطقس"
     schema:
-      $ref: "./schemas/weather-forecast.json"
+      properties:
+        location: { type: object }
+        forecast: { type: array }
     producers:
       - weather-service
     consumers:
@@ -215,7 +256,10 @@ events:
     category: weather
     description: "Emitted for severe weather alerts / يُرسل لتنبيهات الطقس الشديد"
     schema:
-      $ref: "./schemas/weather-alert.json"
+      properties:
+        alert_type: { type: string }
+        severity: { type: string }
+        location: { type: object }
     producers:
       - weather-service
     consumers:
@@ -229,7 +273,10 @@ events:
     category: irrigation
     description: "Emitted when irrigation is scheduled / يُرسل عند جدولة الري"
     schema:
-      $ref: "./schemas/irrigation-scheduled.json"
+      properties:
+        field_id: { type: string }
+        scheduled_at: { type: string }
+        duration_minutes: { type: integer }
     producers:
       - irrigation-service
     consumers:
@@ -240,7 +287,10 @@ events:
     category: irrigation
     description: "Emitted when irrigation is completed / يُرسل عند اكتمال الري"
     schema:
-      $ref: "./schemas/irrigation-completed.json"
+      properties:
+        field_id: { type: string }
+        completed_at: { type: string }
+        water_used_liters: { type: number }
     producers:
       - irrigation-service
     consumers:
@@ -251,7 +301,9 @@ events:
     category: irrigation
     description: "Emitted with irrigation recommendations / يُرسل مع توصيات الري"
     schema:
-      $ref: "./schemas/irrigation-recommendation.json"
+      properties:
+        field_id: { type: string }
+        recommendation: { type: object }
     producers:
       - advisor-service
     consumers:
@@ -265,7 +317,10 @@ events:
     category: crop_health
     description: "Emitted with crop health assessment / يُرسل مع تقييم صحة المحصول"
     schema:
-      $ref: "./schemas/crop-health-assessment.json"
+      properties:
+        field_id: { type: string }
+        health_score: { type: number }
+        assessment_date: { type: string }
     producers:
       - crop-health-service
     consumers:
@@ -277,7 +332,10 @@ events:
     category: crop_health
     description: "Emitted when crop disease is detected / يُرسل عند اكتشاف مرض في المحصول"
     schema:
-      $ref: "./schemas/crop-disease.json"
+      properties:
+        field_id: { type: string }
+        disease_type: { type: string }
+        confidence: { type: number }
     producers:
       - crop-health-service
     consumers:
@@ -292,7 +350,10 @@ events:
     category: yield
     description: "Emitted with yield prediction / يُرسل مع توقع الإنتاج"
     schema:
-      $ref: "./schemas/yield-predicted.json"
+      properties:
+        field_id: { type: string }
+        predicted_yield_kg: { type: number }
+        confidence: { type: number }
     producers:
       - yield-prediction-service
     consumers:
@@ -303,7 +364,10 @@ events:
     category: yield
     description: "Emitted when actual yield is recorded / يُرسل عند تسجيل الإنتاج الفعلي"
     schema:
-      $ref: "./schemas/yield-actual.json"
+      properties:
+        field_id: { type: string }
+        actual_yield_kg: { type: number }
+        harvest_date: { type: string }
     producers:
       - field-service
     consumers:
@@ -317,7 +381,10 @@ events:
     category: system
     description: "Emitted with service health status / يُرسل مع حالة صحة الخدمة"
     schema:
-      $ref: "./schemas/service-health.json"
+      properties:
+        service_name: { type: string }
+        status: { type: string }
+        timestamp: { type: string }
     producers:
       - all-services
     consumers:
@@ -327,7 +394,10 @@ events:
     category: system
     description: "Emitted when system error occurs / يُرسل عند حدوث خطأ في النظام"
     schema:
-      $ref: "./schemas/system-error.json"
+      properties:
+        service_name: { type: string }
+        error_type: { type: string }
+        message: { type: string }
     producers:
       - all-services
     consumers:

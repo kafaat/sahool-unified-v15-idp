@@ -242,7 +242,7 @@ class TestGeometryValidation:
 
     def test_geometry_validation_report_default_values(self):
         """GeometryValidationReport has correct defaults"""
-        from field_suite.spatial.validation import GeometryValidationReport
+        from spatial.validation import GeometryValidationReport
 
         report = GeometryValidationReport()
 
@@ -259,7 +259,7 @@ class TestGeometryValidation:
 
     def test_geometry_validation_report_totals(self):
         """Report calculates totals correctly"""
-        from field_suite.spatial.validation import GeometryValidationReport
+        from spatial.validation import GeometryValidationReport
 
         report = GeometryValidationReport()
         report.fields_checked = 100
@@ -278,7 +278,7 @@ class TestGeometryValidation:
 
     def test_geometry_validation_report_to_dict(self):
         """Report serializes to dictionary"""
-        from field_suite.spatial.validation import GeometryValidationReport
+        from spatial.validation import GeometryValidationReport
 
         report = GeometryValidationReport()
         report.fields_checked = 10
@@ -304,7 +304,7 @@ class TestPostGISIntegration:
 
     def test_fields_in_bbox_uses_spatial_index(self, db_session):
         """fields_in_bbox query uses GIST index"""
-        from field_suite.spatial.queries import fields_in_bbox
+        from spatial.queries import fields_in_bbox
 
         tenant_id = uuid4()
 
@@ -322,7 +322,7 @@ class TestPostGISIntegration:
 
     def test_calculate_area_hectares(self, db_session):
         """Area calculation returns correct value"""
-        from field_suite.spatial.queries import calculate_area_hectares
+        from spatial.queries import calculate_area_hectares
 
         # Simple 1-degree square at equator
         wkt = "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))"
@@ -334,7 +334,7 @@ class TestPostGISIntegration:
 
     def test_find_containing_field(self, db_session):
         """Point-in-polygon query works"""
-        from field_suite.spatial.queries import find_containing_field
+        from spatial.queries import find_containing_field
 
         tenant_id = uuid4()
 
@@ -350,7 +350,7 @@ class TestPostGISIntegration:
 
     def test_validate_and_fix_geometries_dry_run(self, db_session):
         """Validation job dry run reports without modifying"""
-        from field_suite.spatial.validation import validate_and_fix_geometries
+        from spatial.validation import validate_and_fix_geometries
 
         report = validate_and_fix_geometries(db_session, dry_run=True)
 
@@ -368,7 +368,7 @@ class TestSpatialORMModels:
 
     def test_field_orm_has_required_columns(self):
         """FieldORM model has all required columns"""
-        from field_suite.spatial.orm_models import FieldORM
+        from spatial.orm_models import FieldORM
 
         # Check column names exist
         columns = {c.name for c in FieldORM.__table__.columns}
@@ -382,7 +382,7 @@ class TestSpatialORMModels:
 
     def test_zone_orm_has_required_columns(self):
         """ZoneORM model has all required columns"""
-        from field_suite.spatial.orm_models import ZoneORM
+        from spatial.orm_models import ZoneORM
 
         columns = {c.name for c in ZoneORM.__table__.columns}
 
@@ -395,7 +395,7 @@ class TestSpatialORMModels:
 
     def test_subzone_orm_has_required_columns(self):
         """SubZoneORM model has all required columns"""
-        from field_suite.spatial.orm_models import SubZoneORM
+        from spatial.orm_models import SubZoneORM
 
         columns = {c.name for c in SubZoneORM.__table__.columns}
 
@@ -407,7 +407,7 @@ class TestSpatialORMModels:
 
     def test_farm_to_field_relationship(self):
         """Farm→Field relationship is defined"""
-        from field_suite.spatial.orm_models import FarmORM, FieldORM
+        from spatial.orm_models import FarmORM, FieldORM
 
         # Check relationship exists
         assert hasattr(FarmORM, "fields")
@@ -415,14 +415,14 @@ class TestSpatialORMModels:
 
     def test_field_to_zone_relationship(self):
         """Field→Zone relationship is defined"""
-        from field_suite.spatial.orm_models import FieldORM, ZoneORM
+        from spatial.orm_models import FieldORM, ZoneORM
 
         assert hasattr(FieldORM, "zones")
         assert hasattr(ZoneORM, "field")
 
     def test_zone_to_subzone_relationship(self):
         """Zone→SubZone relationship is defined"""
-        from field_suite.spatial.orm_models import ZoneORM, SubZoneORM
+        from spatial.orm_models import ZoneORM, SubZoneORM
 
         assert hasattr(ZoneORM, "sub_zones")
         assert hasattr(SubZoneORM, "zone")

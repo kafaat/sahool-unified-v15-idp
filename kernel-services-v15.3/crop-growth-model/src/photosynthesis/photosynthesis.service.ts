@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 // الثوابت والمعاملات
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface PhotosynthesisParams {
+export interface PhotosynthesisParams {
   nameAr: string;
   nameEn: string;
   pathway: 'C3' | 'C4' | 'CAM';

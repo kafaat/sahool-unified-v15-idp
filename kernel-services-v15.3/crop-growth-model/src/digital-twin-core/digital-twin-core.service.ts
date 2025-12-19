@@ -11,7 +11,7 @@ import { Injectable } from '@nestjs/common';
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Architecture Layer Types
-interface SensingLayerData {
+export interface SensingLayerData {
   timestamp: string;
   sensorId: string;
   sensorType: 'soil_moisture' | 'temperature' | 'humidity' | 'light' | 'co2' | 'wind' | 'rain';
@@ -21,7 +21,7 @@ interface SensingLayerData {
   quality: number; // 0-1
 }
 
-interface SatelliteData {
+export interface SatelliteData {
   source: 'sentinel_2' | 'landsat_8' | 'modis' | 'planet' | 'gaofen';
   captureDate: string;
   resolution: number; // meters
@@ -31,7 +31,7 @@ interface SatelliteData {
   boundingBox: { minLat: number; maxLat: number; minLng: number; maxLng: number };
 }
 
-interface DroneInspectionData {
+export interface DroneInspectionData {
   missionId: string;
   flightDate: string;
   altitude: number;
@@ -42,7 +42,7 @@ interface DroneInspectionData {
   anomaliesDetected: AnomalyDetection[];
 }
 
-interface AnomalyDetection {
+export interface AnomalyDetection {
   type: 'pest' | 'disease' | 'nutrient_deficiency' | 'water_stress' | 'weed';
   confidence: number;
   location: { lat: number; lng: number };
@@ -50,7 +50,7 @@ interface AnomalyDetection {
   affectedArea: number; // m²
 }
 
-interface DigitalTwinState {
+export interface DigitalTwinState {
   fieldId: string;
   timestamp: string;
   cropType: string;
@@ -83,7 +83,7 @@ interface DigitalTwinState {
   confidenceInterval: { lower: number; upper: number };
 }
 
-interface DataFusionResult {
+export interface DataFusionResult {
   fusedTimestamp: string;
   sources: string[];
   qualityScore: number;
@@ -92,14 +92,14 @@ interface DataFusionResult {
   resolution: string;
 }
 
-interface DataConflict {
+export interface DataConflict {
   parameter: string;
   sources: { source: string; value: number }[];
   resolvedValue: number;
   method: 'weighted_average' | 'max_quality' | 'ensemble' | 'kalman_filter';
 }
 
-interface ModelPrediction {
+export interface ModelPrediction {
   modelType: 'wofost' | 'machine_learning' | 'deep_learning' | 'llm' | 'hybrid';
   predictionDate: string;
   horizonDays: number;
@@ -112,7 +112,7 @@ interface ModelPrediction {
   confidence: number;
 }
 
-interface AssimilationResult {
+export interface AssimilationResult {
   timestamp: string;
   priorState: Partial<DigitalTwinState>;
   observation: { parameter: string; value: number; source: string }[];
@@ -121,7 +121,7 @@ interface AssimilationResult {
   kalmanGain: { [key: string]: number };
 }
 
-interface ArchitectureLayer {
+export interface ArchitectureLayer {
   id: string;
   nameEn: string;
   nameAr: string;
@@ -132,7 +132,7 @@ interface ArchitectureLayer {
   metrics: { [key: string]: number };
 }
 
-interface EdgeNode {
+export interface EdgeNode {
   id: string;
   location: string;
   computeCapacity: number; // TOPS

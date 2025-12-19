@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 // Interfaces - الواجهات
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface ScenarioInput {
+export interface ScenarioInput {
   budget: 'high' | 'medium' | 'low';
   terrain: 'plain' | 'mountain' | 'greenhouse' | 'terrace';
   cropType: string;
@@ -19,7 +19,7 @@ interface ScenarioInput {
   waterAvailability: 'abundant' | 'limited' | 'scarce';
 }
 
-interface MethodRecommendation {
+export interface MethodRecommendation {
   primaryMethod: 'fao56' | 'threshold' | 'crop_model' | 'hybrid';
   methodNameAr: string;
   methodNameEn: string;
@@ -32,7 +32,7 @@ interface MethodRecommendation {
   technicalRequirementsAr: string[];
 }
 
-interface ETcCalculationInput {
+export interface ETcCalculationInput {
   cropType: string;
   daysAfterPlanting: number;
   et0: number; // mm/day
@@ -41,7 +41,7 @@ interface ETcCalculationInput {
   growthStageAdjustment?: boolean;
 }
 
-interface ThresholdControlInput {
+export interface ThresholdControlInput {
   cropType: string;
   soilType: 'sandy' | 'loam' | 'clay' | 'silt';
   currentSoilMoisture: number; // volumetric water content (0-1)
@@ -49,7 +49,7 @@ interface ThresholdControlInput {
   rootDepth: number; // meters
 }
 
-interface IrrigationRecommendation {
+export interface IrrigationRecommendation {
   shouldIrrigate: boolean;
   irrigationAmount: number; // mm
   urgency: 'critical' | 'recommended' | 'optional' | 'not_needed';
@@ -60,7 +60,7 @@ interface IrrigationRecommendation {
   waterEfficiencyTipsAr: string[];
 }
 
-interface SmartScheduleInput {
+export interface SmartScheduleInput {
   cropType: string;
   sowingDate: string;
   soilParams: {
@@ -82,7 +82,7 @@ interface SmartScheduleInput {
   budget: 'high' | 'medium' | 'low';
 }
 
-interface SoilProperties {
+export interface SoilProperties {
   fieldCapacity: number;
   wiltingPoint: number;
   saturation: number;
@@ -90,7 +90,7 @@ interface SoilProperties {
   availableWater: number; // TAW per meter depth
 }
 
-interface CropKcParams {
+export interface CropKcParams {
   Kc_ini: number;
   Kc_mid: number;
   Kc_end: number;

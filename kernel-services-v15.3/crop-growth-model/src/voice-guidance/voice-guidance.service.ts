@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 // Interfaces & Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface VoiceProfile {
+export interface VoiceProfile {
   id: string;
   nameEn: string;
   nameAr: string;
@@ -20,7 +20,7 @@ interface VoiceProfile {
   specialty?: string;
 }
 
-interface GuidanceScript {
+export interface GuidanceScript {
   id: string;
   category: string;
   titleEn: string;
@@ -31,7 +31,7 @@ interface GuidanceScript {
   tags: string[];
 }
 
-interface PodcastEpisode {
+export interface PodcastEpisode {
   id: string;
   titleEn: string;
   titleAr: string;
@@ -43,7 +43,7 @@ interface PodcastEpisode {
   generatedAt: string;
 }
 
-interface PodcastSegment {
+export interface PodcastSegment {
   order: number;
   type: 'intro' | 'main' | 'tip' | 'warning' | 'summary' | 'outro';
   contentEn: string;
@@ -51,7 +51,7 @@ interface PodcastSegment {
   duration: number;
 }
 
-interface FieldBriefing {
+export interface FieldBriefing {
   id: string;
   fieldName: string;
   date: string;
@@ -69,7 +69,7 @@ interface FieldBriefing {
   estimatedDuration: number;
 }
 
-interface GuidanceRequest {
+export interface GuidanceRequest {
   topic: string;
   cropType?: string;
   language?: 'ar' | 'en';

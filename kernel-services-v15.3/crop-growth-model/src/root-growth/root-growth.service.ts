@@ -11,7 +11,7 @@ import { Injectable } from '@nestjs/common';
 // معاملات الجذور حسب نوع المحصول
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface RootParams {
+export interface RootParams {
   nameAr: string;
   nameEn: string;
   maxRootDepth: number;          // Maximum root depth (cm)
@@ -111,7 +111,7 @@ const CROP_ROOT_PARAMS: Record<string, RootParams> = {
 };
 
 // Soil layer structure
-interface SoilLayer {
+export interface SoilLayer {
   depth: number;           // Depth from surface (cm)
   thickness: number;       // Layer thickness (cm)
   waterContent: number;    // Volumetric water content (m³ m⁻³)

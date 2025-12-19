@@ -12,7 +12,7 @@ import { BiomassService } from '../biomass/biomass.service';
 // Simulation Input Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface DailyWeather {
+export interface DailyWeather {
   date: string;
   tmin: number;
   tmax: number;
@@ -20,7 +20,7 @@ interface DailyWeather {
   precipitation?: number;
 }
 
-interface SimulationConfig {
+export interface SimulationConfig {
   cropType: string;
   sowingDate: string;
   fieldLocation?: { latitude: number; longitude: number };
@@ -28,7 +28,7 @@ interface SimulationConfig {
   irrigated?: boolean;
 }
 
-interface SimulationResult {
+export interface SimulationResult {
   date: string;
   dayOfYear: number;
   daysAfterSowing: number;
@@ -108,8 +108,10 @@ export class GrowthSimulationService {
       throw new Error(`Unknown crop type: ${config.cropType}`);
     }
 
-    const tbase = cropParams.TBASEM;
-    const tmax = cropParams.TEFFMX;
+    const tbase = cropParams.TBASEM as number;
+    const tmax = cropParams.TEFFMX as number;
+    const TSUM1 = cropParams.TSUM1 as number;
+    const TSUM2 = cropParams.TSUM2 as number;
 
     weatherData.forEach((weather, index) => {
       const daysAfterSowing = index + 1;
@@ -126,7 +128,7 @@ export class GrowthSimulationService {
       accumulatedGDD += gdd;
 
       // Check flowering transition
-      if (!afterFlowering && accumulatedGDD >= cropParams.TSUM1) {
+      if (!afterFlowering && accumulatedGDD >= TSUM1) {
         afterFlowering = true;
         floweringGDD = accumulatedGDD;
         keyDates.push({
@@ -349,10 +351,12 @@ export class GrowthSimulationService {
     const totalPAR = avgPAR * avgFPAR * seasonLength;
 
     // Biomass production (g/m²)
-    const totalBiomass = totalPAR * biomassParams.RUE * tempPenalty;
+    const RUE = biomassParams.RUE as number;
+    const harvestIndex = biomassParams.harvestIndex as number;
+    const totalBiomass = totalPAR * RUE * tempPenalty;
 
     // Yield from harvest index
-    const yieldGM2 = totalBiomass * biomassParams.harvestIndex;
+    const yieldGM2 = totalBiomass * harvestIndex;
     const yieldKgHa = yieldGM2 * 10;
 
     return {
@@ -360,8 +364,8 @@ export class GrowthSimulationService {
       unit: 'kg ha⁻¹',
       assumptions: [
         `Average fPAR = ${avgFPAR}`,
-        `RUE = ${biomassParams.RUE} g MJ⁻¹`,
-        `Harvest Index = ${biomassParams.harvestIndex}`,
+        `RUE = ${RUE} g MJ⁻¹`,
+        `Harvest Index = ${harvestIndex}`,
         'No water or nutrient stress assumed',
       ],
       confidence: 'moderate',

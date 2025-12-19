@@ -13,7 +13,7 @@ import { Injectable } from '@nestjs/common';
 type Direction = 'up' | 'down' | 'left' | 'right';
 type ScenarioType = 'general' | 'flood' | 'urban' | 'rural' | 'agricultural';
 
-interface TileData {
+export interface TileData {
   id: string;
   position: { row: number; col: number };
   bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number };
@@ -24,13 +24,13 @@ interface TileData {
   timestamp: string;
 }
 
-interface LandCoverClass {
+export interface LandCoverClass {
   type: 'vegetation' | 'water' | 'built_up' | 'bare_soil' | 'road' | 'agriculture' | 'forest';
   percentage: number;
   confidence: number;
 }
 
-interface SpatialReasoningResult {
+export interface SpatialReasoningResult {
   centralTile: TileData;
   direction: Direction;
   predictedTile: TileData;
@@ -40,7 +40,7 @@ interface SpatialReasoningResult {
   generationMethod: string;
 }
 
-interface MultiDirectionalExpansion {
+export interface MultiDirectionalExpansion {
   centralTile: TileData;
   expansions: {
     up: TileData | null;
@@ -53,7 +53,7 @@ interface MultiDirectionalExpansion {
   scenarioAnalysis: ScenarioAnalysis;
 }
 
-interface ScenarioAnalysis {
+export interface ScenarioAnalysis {
   dominantScenario: ScenarioType;
   scenarioDistribution: { [key in ScenarioType]?: number };
   riskAssessment: RiskAssessment | null;
@@ -61,7 +61,7 @@ interface ScenarioAnalysis {
   recommendationsAr: string[];
 }
 
-interface RiskAssessment {
+export interface RiskAssessment {
   type: 'flood' | 'drought' | 'urban_expansion' | 'deforestation';
   level: 'low' | 'medium' | 'high' | 'critical';
   affectedArea: number;
@@ -69,7 +69,7 @@ interface RiskAssessment {
   confidence: number;
 }
 
-interface TrainingData {
+export interface TrainingData {
   id: string;
   centralTile: TileData;
   direction: Direction;
@@ -77,7 +77,7 @@ interface TrainingData {
   overlap: number;
 }
 
-interface ModelArchitecture {
+export interface ModelArchitecture {
   stage: string;
   nameEn: string;
   nameAr: string;
@@ -85,7 +85,7 @@ interface ModelArchitecture {
   components: string[];
 }
 
-interface RSWISEScore {
+export interface RSWISEScore {
   overall: number;
   fid: number; // Fréchet Inception Distance (visual fidelity)
   gptScore: number; // GPT-4o spatial reasoning score
@@ -93,7 +93,7 @@ interface RSWISEScore {
   byDirection: { [key in Direction]?: number };
 }
 
-interface GridPartition {
+export interface GridPartition {
   originalImage: { width: number; height: number };
   gridSize: { rows: number; cols: number };
   tiles: TileData[][];

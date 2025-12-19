@@ -9,7 +9,7 @@ import { Injectable } from '@nestjs/common';
 // Interfaces - الواجهات
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface SatelliteSource {
+export interface SatelliteSource {
   id: string;
   nameEn: string;
   nameAr: string;
@@ -27,7 +27,7 @@ interface SatelliteSource {
   status: 'active' | 'decommissioned' | 'limited';
 }
 
-interface DataRequirements {
+export interface DataRequirements {
   spatialResolution: 'high' | 'medium' | 'low';
   temporalResolution: 'daily' | 'weekly' | 'biweekly' | 'monthly';
   cloudFree: boolean;
@@ -36,7 +36,7 @@ interface DataRequirements {
   region?: string;
 }
 
-interface SatelliteRecommendation {
+export interface SatelliteRecommendation {
   primary: SatelliteSource;
   alternatives: SatelliteSource[];
   reasoning: string;
@@ -50,7 +50,7 @@ interface SatelliteRecommendation {
   estimatedDataAvailability: string;
 }
 
-interface BandCombination {
+export interface BandCombination {
   name: string;
   nameAr: string;
   formula: string;

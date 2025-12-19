@@ -10,7 +10,7 @@ import { Injectable } from '@nestjs/common';
 // معاملات المحاصيل على طريقة WOFOST
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface CropPhenologyParams {
+export interface CropPhenologyParams {
   nameAr: string;
   nameEn: string;
   TSUM1: number;      // Temperature sum from emergence to flowering (°C·day)

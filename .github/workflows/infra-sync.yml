@@ -1,0 +1,71 @@
+name: Infrastructure Sync Check
+
+on:
+  pull_request:
+    paths:
+      - "governance/services.yaml"
+      - "docker/compose.generated.yml"
+      - "helm/sahool/values.generated.yaml"
+      - "scripts/generators/**"
+  push:
+    branches: [main, develop]
+    paths:
+      - "governance/services.yaml"
+
+jobs:
+  check-sync:
+    name: Verify Infrastructure is Synced
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Generate infrastructure
+        run: python3 scripts/generators/generate_infra.py --all
+
+      - name: Check for uncommitted changes
+        run: |
+          if git diff --exit-code docker/compose.generated.yml helm/sahool/values.generated.yaml; then
+            echo "✅ Generated files are in sync with services.yaml"
+          else
+            echo "❌ Generated files are out of sync!"
+            echo ""
+            echo "Run 'make generate-infra' and commit the changes"
+            echo ""
+            git diff docker/compose.generated.yml helm/sahool/values.generated.yaml
+            exit 1
+          fi
+
+      - name: Validate Docker Compose
+        run: |
+          docker compose -f docker/compose.generated.yml config > /dev/null
+          echo "✅ Docker Compose is valid"
+
+      - name: Validate Helm values
+        run: |
+          python3 -c "import yaml; yaml.safe_load(open('helm/sahool/values.generated.yaml'))"
+          echo "✅ Helm values are valid YAML"
+
+  generate-report:
+    name: Generate Sync Report
+    runs-on: ubuntu-latest
+    needs: [check-sync]
+    if: always()
+    steps:
+      - name: Create summary
+        run: |
+          echo "## 🔄 Infrastructure Sync Check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| File | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| docker/compose.generated.yml | ${{ needs.check-sync.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| helm/sahool/values.generated.yaml | ${{ needs.check-sync.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Source of Truth:** \`governance/services.yaml\`" >> $GITHUB_STEP_SUMMARY

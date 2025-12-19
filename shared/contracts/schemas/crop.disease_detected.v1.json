@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://sahool.app/schemas/crop.disease_detected.v1.json",
+  "title": "Crop Disease Detected Event",
+  "description": "Event emitted when a disease or pest is detected in a crop",
+  "allOf": [
+    { "$ref": "base-event.v1.json" }
+  ],
+  "properties": {
+    "event_type": {
+      "const": "crop.disease_detected"
+    },
+    "event_version": {
+      "const": "1.0.0"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "field_id",
+        "disease_type",
+        "confidence_score",
+        "detected_at",
+        "affected_area_percentage"
+      ],
+      "properties": {
+        "field_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "crop_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "disease_type": {
+          "type": "string",
+          "description": "Type/name of the detected disease"
+        },
+        "disease_category": {
+          "type": "string",
+          "enum": ["fungal", "bacterial", "viral", "pest", "nutrient_deficiency", "environmental"]
+        },
+        "confidence_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "AI model confidence score (0-1)"
+        },
+        "detected_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "affected_area_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "severity_level": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"]
+        },
+        "image_urls": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "detection_method": {
+          "type": "string",
+          "enum": ["satellite", "drone", "mobile_app", "iot_sensor", "manual"]
+        },
+        "recommended_actions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": { "type": "string" },
+              "priority": { "type": "integer", "minimum": 1, "maximum": 5 },
+              "deadline_days": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,236 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Generator Guard
+# Ensures generated files (compose, helm) are up-to-date
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Generator Guard
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'governance/services.yaml'
+      - 'tools/generators/**'
+      - 'docker/compose/**'
+      - 'helm/**'
+
+concurrency:
+  group: generator-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Check Generated Files Are Current
+  # ─────────────────────────────────────────────────────────────────────────────
+  check-generated:
+    name: Verify Generated Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install pyyaml jinja2
+
+      - name: Generate fresh compose files
+        run: |
+          echo "🔄 Regenerating compose files from services.yaml..."
+
+          if [ -f "tools/generators/compose-generator.py" ]; then
+            python tools/generators/compose-generator.py
+          else
+            echo "::notice::Compose generator not found - skipping"
+          fi
+
+      - name: Check for compose drift
+        run: |
+          echo "🔍 Checking for compose file drift..."
+
+          if git diff --exit-code docker/compose/; then
+            echo "✅ Compose files are up-to-date"
+          else
+            echo "::error::Generated compose files are out of sync with services.yaml"
+            echo ""
+            echo "📋 Differences found:"
+            git diff docker/compose/
+            echo ""
+            echo "🔧 To fix: Run 'python tools/generators/compose-generator.py' and commit the changes"
+            exit 1
+          fi
+
+      - name: Generate fresh helm values
+        run: |
+          echo "🔄 Regenerating helm values from services.yaml..."
+
+          if [ -f "tools/generators/helm-generator.py" ]; then
+            python tools/generators/helm-generator.py
+          else
+            echo "::notice::Helm generator not found - skipping"
+          fi
+
+      - name: Check for helm drift
+        run: |
+          echo "🔍 Checking for helm values drift..."
+
+          if git diff --exit-code helm/; then
+            echo "✅ Helm values are up-to-date"
+          else
+            echo "::error::Generated helm files are out of sync with services.yaml"
+            echo ""
+            echo "📋 Differences found:"
+            git diff helm/
+            echo ""
+            echo "🔧 To fix: Run 'python tools/generators/helm-generator.py' and commit the changes"
+            exit 1
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate services.yaml Schema
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-services-yaml:
+    name: Validate services.yaml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml jsonschema
+
+      - name: Validate services.yaml structure
+        run: |
+          python -c "
+          import yaml
+          import sys
+
+          with open('governance/services.yaml') as f:
+              data = yaml.safe_load(f)
+
+          errors = []
+
+          # Check required top-level keys
+          required_keys = ['version', 'services']
+          for key in required_keys:
+              if key not in data:
+                  errors.append(f'Missing required key: {key}')
+
+          # Validate each service
+          if 'services' in data:
+              for name, config in data.get('services', {}).items():
+                  # Check required service fields
+                  if 'type' not in config:
+                      errors.append(f'Service {name}: missing \"type\" field')
+
+                  if 'port' not in config:
+                      errors.append(f'Service {name}: missing \"port\" field')
+
+                  # Validate port ranges
+                  if 'port' in config:
+                      port = config['port']
+                      if not isinstance(port, int) or port < 1 or port > 65535:
+                          errors.append(f'Service {name}: invalid port {port}')
+
+                  # Check health endpoint
+                  if config.get('health_check') and 'endpoint' not in config.get('health_check', {}):
+                      errors.append(f'Service {name}: health_check missing endpoint')
+
+          if errors:
+              print('❌ services.yaml validation failed:')
+              for err in errors:
+                  print(f'  - {err}')
+              sys.exit(1)
+
+          print(f'✅ services.yaml valid - {len(data.get(\"services\", {}))} services defined')
+          "
+
+      - name: Check for duplicate ports
+        run: |
+          python -c "
+          import yaml
+          import sys
+
+          with open('governance/services.yaml') as f:
+              data = yaml.safe_load(f)
+
+          ports = {}
+          duplicates = []
+
+          for name, config in data.get('services', {}).items():
+              port = config.get('port')
+              if port:
+                  if port in ports:
+                      duplicates.append(f'Port {port} used by both {ports[port]} and {name}')
+                  else:
+                      ports[port] = name
+
+          if duplicates:
+              print('❌ Duplicate ports detected:')
+              for dup in duplicates:
+                  print(f'  - {dup}')
+              sys.exit(1)
+
+          print(f'✅ No duplicate ports - {len(ports)} unique ports assigned')
+          "
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate Generator Templates
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-templates:
+    name: Validate Templates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install jinja2
+
+      - name: Check Jinja2 template syntax
+        run: |
+          echo "🔍 Checking Jinja2 templates..."
+
+          python -c "
+          import os
+          from jinja2 import Environment, FileSystemLoader, TemplateSyntaxError
+
+          template_dirs = ['tools/generators/templates', 'helm/templates']
+          errors = []
+
+          for template_dir in template_dirs:
+              if not os.path.exists(template_dir):
+                  continue
+
+              env = Environment(loader=FileSystemLoader(template_dir))
+
+              for root, dirs, files in os.walk(template_dir):
+                  for file in files:
+                      if file.endswith(('.j2', '.jinja2', '.yaml.tpl')):
+                          try:
+                              rel_path = os.path.relpath(os.path.join(root, file), template_dir)
+                              env.get_template(rel_path)
+                              print(f'  ✓ {rel_path}')
+                          except TemplateSyntaxError as e:
+                              errors.append(f'{rel_path}: {e}')
+
+          if errors:
+              print('\\n❌ Template syntax errors:')
+              for err in errors:
+                  print(f'  - {err}')
+              exit(1)
+
+          print('\\n✅ All templates valid')
+          "

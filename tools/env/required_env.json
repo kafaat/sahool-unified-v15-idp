@@ -5,10 +5,10 @@
   "required_vars": {
     "core": [
       {
-        "name": "APP_ENV",
+        "name": "ENVIRONMENT",
         "description": "Application environment",
         "required": true,
-        "allowed_values": ["development", "staging", "production"]
+        "allowed_values": ["development", "staging", "production", "test"]
       },
       {
         "name": "APP_SECRET_KEY",
@@ -21,7 +21,7 @@
       {
         "name": "DATABASE_URL",
         "description": "PostgreSQL connection URL",
-        "required": true,
+        "required": false,
         "pattern": "^postgres(ql)?://.*"
       }
     ],
@@ -29,13 +29,13 @@
       {
         "name": "NATS_URL",
         "description": "NATS server URL",
-        "required": true,
+        "required": false,
         "pattern": "^nats://.*"
       }
     ],
     "authentication": [
       {
-        "name": "JWT_SECRET",
+        "name": "JWT_SECRET_KEY",
         "description": "JWT signing secret",
         "required": true,
         "min_length": 32

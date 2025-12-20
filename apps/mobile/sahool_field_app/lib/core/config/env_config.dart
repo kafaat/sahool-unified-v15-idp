@@ -46,8 +46,8 @@ class EnvConfig {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static String _getString(String key, String defaultValue) {
-    // 1. Check dart-define first
-    const dartDefine = String.fromEnvironment(key);
+    // 1. Check dart-define first (using predefined constants)
+    final dartDefine = _getDartDefine(key);
     if (dartDefine.isNotEmpty) return dartDefine;
 
     // 2. Check dotenv
@@ -58,6 +58,70 @@ class EnvConfig {
 
     // 3. Return default
     return defaultValue;
+  }
+
+  /// Get dart-define value for known keys (must be const at compile time)
+  static String _getDartDefine(String key) {
+    switch (key) {
+      case 'ENV':
+        return const String.fromEnvironment('ENV');
+      case 'ENVIRONMENT':
+        return const String.fromEnvironment('ENVIRONMENT');
+      case 'API_URL':
+        return const String.fromEnvironment('API_URL');
+      case 'API_BASE_URL':
+        return const String.fromEnvironment('API_BASE_URL');
+      case 'WS_URL':
+        return const String.fromEnvironment('WS_URL');
+      case 'WS_GATEWAY_URL':
+        return const String.fromEnvironment('WS_GATEWAY_URL');
+      case 'MAPBOX_ACCESS_TOKEN':
+        return const String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
+      case 'MAPBOX_STYLE_URL':
+        return const String.fromEnvironment('MAPBOX_STYLE_URL');
+      case 'MAP_TILE_URL':
+        return const String.fromEnvironment('MAP_TILE_URL');
+      case 'ENABLE_OFFLINE_MAPS':
+        return const String.fromEnvironment('ENABLE_OFFLINE_MAPS');
+      case 'ENABLE_OFFLINE_MODE':
+        return const String.fromEnvironment('ENABLE_OFFLINE_MODE');
+      case 'ENABLE_BACKGROUND_SYNC':
+        return const String.fromEnvironment('ENABLE_BACKGROUND_SYNC');
+      case 'ENABLE_CAMERA':
+        return const String.fromEnvironment('ENABLE_CAMERA');
+      case 'ENABLE_PUSH':
+        return const String.fromEnvironment('ENABLE_PUSH');
+      case 'ENABLE_ANALYTICS':
+        return const String.fromEnvironment('ENABLE_ANALYTICS');
+      case 'ENABLE_CRASH_REPORTING':
+        return const String.fromEnvironment('ENABLE_CRASH_REPORTING');
+      case 'ENABLE_EDGE_AI':
+        return const String.fromEnvironment('ENABLE_EDGE_AI');
+      case 'ENABLE_VOICE':
+        return const String.fromEnvironment('ENABLE_VOICE');
+      case 'ENABLE_AR':
+        return const String.fromEnvironment('ENABLE_AR');
+      case 'SYNC_INTERVAL_SECONDS':
+        return const String.fromEnvironment('SYNC_INTERVAL_SECONDS');
+      case 'BG_SYNC_INTERVAL_MINUTES':
+        return const String.fromEnvironment('BG_SYNC_INTERVAL_MINUTES');
+      case 'MAX_RETRY_COUNT':
+        return const String.fromEnvironment('MAX_RETRY_COUNT');
+      case 'OUTBOX_BATCH_SIZE':
+        return const String.fromEnvironment('OUTBOX_BATCH_SIZE');
+      case 'APP_NAME':
+        return const String.fromEnvironment('APP_NAME');
+      case 'APP_VERSION':
+        return const String.fromEnvironment('APP_VERSION');
+      case 'BUILD_NUMBER':
+        return const String.fromEnvironment('BUILD_NUMBER');
+      case 'DEFAULT_TENANT_ID':
+        return const String.fromEnvironment('DEFAULT_TENANT_ID');
+      case 'AI_SERVICE_URL':
+        return const String.fromEnvironment('AI_SERVICE_URL');
+      default:
+        return '';
+    }
   }
 
   static int _getInt(String key, int defaultValue) {

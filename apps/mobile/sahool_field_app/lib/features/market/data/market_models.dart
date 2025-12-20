@@ -6,36 +6,12 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../core/domain/models/credit_tier.dart';
+export '../../../core/domain/models/credit_tier.dart';
+
 // =============================================================================
 // المحفظة - Wallet Models
 // =============================================================================
-
-/// تصنيف الائتمان
-enum CreditTier {
-  bronze('BRONZE', 'برونزي', Color(0xFFCD7F32)),
-  silver('SILVER', 'فضي', Color(0xFFC0C0C0)),
-  gold('GOLD', 'ذهبي', Color(0xFFFFD700)),
-  platinum('PLATINUM', 'بلاتيني', Color(0xFFE5E4E2));
-
-  final String value;
-  final String arabicName;
-  final Color color;
-
-  const CreditTier(this.value, this.arabicName, this.color);
-
-  static CreditTier fromString(String? value) {
-    switch (value?.toUpperCase()) {
-      case 'PLATINUM':
-        return CreditTier.platinum;
-      case 'GOLD':
-        return CreditTier.gold;
-      case 'SILVER':
-        return CreditTier.silver;
-      default:
-        return CreditTier.bronze;
-    }
-  }
-}
 
 /// نموذج المحفظة
 class WalletModel {

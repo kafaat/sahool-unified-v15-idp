@@ -31,6 +31,9 @@ export 'auth/auth_service.dart';
 export 'auth/secure_storage_service.dart';
 export 'auth/biometric_service.dart';
 
+// Domain Models
+export 'domain/models/credit_tier.dart';
+
 // Performance
 export 'performance/performance.dart';
 

@@ -27,6 +27,20 @@ final authStateProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((r
   return AuthStateNotifier(ref.read(authServiceProvider));
 });
 
+/// Alias for backward compatibility
+/// اسم بديل للتوافق مع الكود القديم
+final authProvider = authStateProvider;
+
+/// Provider for login state
+final isLoggedInProvider = Provider<bool>((ref) {
+  return ref.watch(authStateProvider).isAuthenticated;
+});
+
+/// Provider for current user name
+final currentUserNameProvider = Provider<String?>((ref) {
+  return ref.watch(authStateProvider).user?.name;
+});
+
 /// Auth State
 enum AuthStatus { initial, authenticated, unauthenticated, loading }
 

@@ -12,17 +12,12 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
+import '../../core/domain/models/credit_tier.dart';
+export '../../core/domain/models/credit_tier.dart';
+
 // =============================================================================
 // Models
 // =============================================================================
-
-/// التصنيف الائتماني
-enum CreditTier {
-  bronze,
-  silver,
-  gold,
-  platinum,
-}
 
 /// المحفظة
 class Wallet {
@@ -62,7 +57,7 @@ class Wallet {
       balance: (json['balance'] as num).toDouble(),
       currency: json['currency'] as String? ?? 'YER',
       creditScore: json['creditScore'] as int? ?? 300,
-      creditTier: _parseCreditTier(json['creditTier'] as String?),
+      creditTier: CreditTier.fromString(json['creditTier'] as String?),
       creditTierAr: json['creditTierAr'] as String? ?? 'برونزي',
       loanLimit: (json['loanLimit'] as num?)?.toDouble() ?? 0,
       currentLoan: (json['currentLoan'] as num?)?.toDouble() ?? 0,
@@ -71,32 +66,8 @@ class Wallet {
     );
   }
 
-  static CreditTier _parseCreditTier(String? tier) {
-    switch (tier?.toUpperCase()) {
-      case 'PLATINUM':
-        return CreditTier.platinum;
-      case 'GOLD':
-        return CreditTier.gold;
-      case 'SILVER':
-        return CreditTier.silver;
-      default:
-        return CreditTier.bronze;
-    }
-  }
-
   /// الحصول على لون التصنيف
-  String get tierColor {
-    switch (creditTier) {
-      case CreditTier.platinum:
-        return '#E5E4E2';
-      case CreditTier.gold:
-        return '#FFD700';
-      case CreditTier.silver:
-        return '#C0C0C0';
-      case CreditTier.bronze:
-        return '#CD7F32';
-    }
-  }
+  String get tierColor => creditTier.colorHex;
 
   /// نسبة التصنيف (للرسم البياني)
   double get creditScorePercentage => (creditScore - 300) / 550;

@@ -15,7 +15,7 @@ on:
       - 'apps/mobile/**'
 
 env:
-  FLUTTER_VERSION: 'stable'
+  FLUTTER_VERSION: '3.27.1'
   WORKING_DIR: apps/mobile/sahool_field_app
 
 jobs:

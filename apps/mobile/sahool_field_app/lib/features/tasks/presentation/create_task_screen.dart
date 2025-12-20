@@ -478,8 +478,6 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
         return 'استكشاف';
       case TaskType.maintenance:
         return 'صيانة';
-      case TaskType.planting:
-        return 'زراعة';
       case TaskType.other:
         return 'أخرى';
     }
@@ -516,23 +514,4 @@ enum TaskType {
   }
 }
 
-/// أولويات المهام
-enum TaskPriority {
-  urgent,
-  high,
-  medium,
-  low;
-
-  String get arabicLabel {
-    switch (this) {
-      case urgent:
-        return 'عاجل';
-      case high:
-        return 'مهم';
-      case medium:
-        return 'متوسط';
-      case low:
-        return 'منخفض';
-    }
-  }
-}
+// Note: TaskPriority is imported from '../domain/entities/task.dart'

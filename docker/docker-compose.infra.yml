@@ -1,0 +1,212 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Infrastructure Services
+# خدمات البنية التحتية لمنصة سهول
+#
+# Usage:
+#   docker-compose -f docker/docker-compose.infra.yml up -d
+#   docker-compose -f docker/docker-compose.infra.yml up -d --wait
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # PostgreSQL + PostGIS (Spatial Database)
+  # ─────────────────────────────────────────────────────────────────────────────
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sahool}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool} -d ${POSTGRES_DB:-sahool}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Database Migrator
+  # ─────────────────────────────────────────────────────────────────────────────
+  db-migrator:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-db-migrator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-sahool}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+    volumes:
+      - ../infra/postgres/migrations:/migrations:ro
+      - ../scripts/run-migrations.sh:/run-migrations.sh:ro
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        echo "Waiting for PostgreSQL to be ready..."
+        until pg_isready -h postgres -U ${POSTGRES_USER:-sahool}; do
+          echo "PostgreSQL not ready yet..."
+          sleep 2
+        done
+        echo "PostgreSQL is ready!"
+
+        echo "Running migrations..."
+        for f in /migrations/*.sql; do
+          if [ -f "$$f" ]; then
+            echo "Executing $$f..."
+            PGPASSWORD=$$POSTGRES_PASSWORD psql -h postgres -U $$POSTGRES_USER -d $$POSTGRES_DB -f "$$f" || true
+          fi
+        done
+
+        echo "Migrations complete!"
+    networks:
+      - sahool-network
+    restart: "no"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Redis (Cache & Sessions)
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7.4-alpine
+    container_name: sahool-redis
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+      - --requirepass
+      - "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"
+      - --maxmemory
+      - "256mb"
+      - --maxmemory-policy
+      - "allkeys-lru"
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NATS (Message Queue with JetStream)
+  # ─────────────────────────────────────────────────────────────────────────────
+  nats:
+    image: nats:2.10-alpine
+    container_name: sahool-nats
+    command:
+      - "--jetstream"
+      - "--store_dir=/data"
+      - "-m"
+      - "8222"
+      - "--name"
+      - "sahool-nats"
+    volumes:
+      - nats_data:/data
+    ports:
+      - "${NATS_PORT:-4222}:4222"
+      - "${NATS_MONITOR_PORT:-8222}:8222"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # MQTT (IoT Message Broker)
+  # ─────────────────────────────────────────────────────────────────────────────
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: sahool-mqtt
+    volumes:
+      - ../infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mqtt_data:/mosquitto/data
+      - mqtt_logs:/mosquitto/log
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+      - "${MQTT_WS_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Kong (API Gateway)
+  # ─────────────────────────────────────────────────────────────────────────────
+  kong:
+    image: kong:3.9
+    container_name: sahool-kong
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"
+      KONG_LOG_LEVEL: notice
+    ports:
+      - "${API_GATEWAY_PORT:-8000}:8000"
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - ../infra/kong:/kong/declarative:ro
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────────────────────────
+networks:
+  sahool-network:
+    name: sahool-network
+    driver: bridge
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes
+# ─────────────────────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    name: sahool-postgres-data
+  redis_data:
+    name: sahool-redis-data
+  nats_data:
+    name: sahool-nats-data
+  mqtt_data:
+    name: sahool-mqtt-data
+  mqtt_logs:
+    name: sahool-mqtt-logs

@@ -4,7 +4,8 @@
 
 # Web Framework
 fastapi==0.115.6
-uvicorn[standard]==0.32.1
+starlette>=0.45.0  # Security fix
+uvicorn[standard]==0.34.0
 python-multipart==0.0.18
 
 # Data Validation
@@ -13,7 +14,7 @@ pydantic-settings==2.6.1
 
 # HTTP Client (for weather integration)
 httpx==0.28.1
-aiohttp==3.11.11
+aiohttp>=3.11.12  # Security fix
 
 # Date/Time utilities
 python-dateutil==2.8.2

@@ -67,13 +67,13 @@ extension WidgetTesterExtensions on WidgetTester {
   /// Tap and wait for animations
   Future<void> tapAndSettle(Finder finder) async {
     await tap(finder);
-    await pumpAndSettle();
+    await this.pumpAndSettle();
   }
 
   /// Enter text and wait
   Future<void> enterTextAndSettle(Finder finder, String text) async {
     await enterText(finder, text);
-    await pumpAndSettle();
+    await this.pumpAndSettle();
   }
 
   /// Scroll until visible

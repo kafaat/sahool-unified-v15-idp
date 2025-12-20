@@ -112,10 +112,12 @@ class FieldsRepo {
     // 3. Add to outbox for sync
     await _db.addToOutbox(
       OutboxCompanion.insert(
-        id: _uuid.v4(),
-        type: 'field_create',
+        tenantId: tenantId,
+        entityType: 'field',
+        entityId: fieldId,
+        apiEndpoint: '/api/v1/fields',
+        method: const Value('POST'),
         payload: jsonEncode(geoJsonPayload),
-        createdAt: now,
       ),
     );
 
@@ -173,10 +175,12 @@ class FieldsRepo {
     // 4. Add to outbox
     await _db.addToOutbox(
       OutboxCompanion.insert(
-        id: _uuid.v4(),
-        type: 'field_update_boundary',
+        tenantId: field.tenantId,
+        entityType: 'field',
+        entityId: fieldId,
+        apiEndpoint: '/api/v1/fields/$fieldId/boundary',
+        method: const Value('PUT'),
         payload: jsonEncode(geoJsonPayload),
-        createdAt: DateTime.now(),
       ),
     );
 
@@ -208,8 +212,11 @@ class FieldsRepo {
     // 2. Add to outbox
     await _db.addToOutbox(
       OutboxCompanion.insert(
-        id: _uuid.v4(),
-        type: 'field_update_properties',
+        tenantId: field.tenantId,
+        entityType: 'field',
+        entityId: fieldId,
+        apiEndpoint: '/api/v1/fields/$fieldId',
+        method: const Value('PATCH'),
         payload: jsonEncode({
           'field_id': fieldId,
           'remote_id': field.remoteId,
@@ -218,7 +225,6 @@ class FieldsRepo {
           if (cropType != null) 'crop_type': cropType,
           if (status != null) 'status': status,
         }),
-        createdAt: DateTime.now(),
       ),
     );
   }
@@ -234,14 +240,16 @@ class FieldsRepo {
     // 2. Add to outbox
     await _db.addToOutbox(
       OutboxCompanion.insert(
-        id: _uuid.v4(),
-        type: 'field_delete',
+        tenantId: field.tenantId,
+        entityType: 'field',
+        entityId: fieldId,
+        apiEndpoint: '/api/v1/fields/$fieldId',
+        method: const Value('DELETE'),
         payload: jsonEncode({
           'field_id': fieldId,
           'remote_id': field.remoteId,
           'tenant_id': field.tenantId,
         }),
-        createdAt: DateTime.now(),
       ),
     );
 

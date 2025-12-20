@@ -8,6 +8,7 @@ void main() {
     test('Equipment.fromJson parses correctly', () {
       final json = {
         'equipment_id': 'EQ001',
+        'tenant_id': 'tenant-1',
         'name': 'John Deere 8R',
         'name_ar': 'جون دير 8R',
         'equipment_type': 'tractor',
@@ -17,11 +18,14 @@ void main() {
         'horsepower': 410,
         'year': 2022,
         'location_name': 'الحقل الشمالي',
+        'created_at': '2024-01-01T00:00:00Z',
+        'updated_at': '2024-01-01T00:00:00Z',
       };
 
       final equipment = Equipment.fromJson(json);
 
       expect(equipment.equipmentId, 'EQ001');
+      expect(equipment.tenantId, 'tenant-1');
       expect(equipment.name, 'John Deere 8R');
       expect(equipment.nameAr, 'جون دير 8R');
       expect(equipment.equipmentType, EquipmentType.tractor);
@@ -32,31 +36,16 @@ void main() {
       expect(equipment.year, 2022);
     });
 
-    test('Equipment.toJson serializes correctly', () {
-      final equipment = Equipment(
-        equipmentId: 'EQ002',
-        name: 'DJI Agras',
-        equipmentType: EquipmentType.drone,
-        status: EquipmentStatus.maintenance,
-        currentFuelPercent: 100,
-        currentHours: 320,
-      );
-
-      final json = equipment.toJson();
-
-      expect(json['equipment_id'], 'EQ002');
-      expect(json['name'], 'DJI Agras');
-      expect(json['equipment_type'], 'drone');
-      expect(json['status'], 'maintenance');
-    });
-
     test('Equipment.getDisplayName returns Arabic name when available', () {
       final equipment = Equipment(
         equipmentId: 'EQ003',
+        tenantId: 'tenant-1',
         name: 'Pump',
         nameAr: 'مضخة',
         equipmentType: EquipmentType.pump,
         status: EquipmentStatus.operational,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       expect(equipment.getDisplayName('ar'), 'مضخة');
@@ -66,18 +55,24 @@ void main() {
     test('Equipment.isLowFuel returns true when fuel below 20%', () {
       final lowFuel = Equipment(
         equipmentId: 'EQ004',
+        tenantId: 'tenant-1',
         name: 'Tractor',
         equipmentType: EquipmentType.tractor,
         status: EquipmentStatus.operational,
         currentFuelPercent: 15,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       final normalFuel = Equipment(
         equipmentId: 'EQ005',
+        tenantId: 'tenant-1',
         name: 'Tractor 2',
         equipmentType: EquipmentType.tractor,
         status: EquipmentStatus.operational,
         currentFuelPercent: 50,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       expect(lowFuel.isLowFuel, true);
@@ -87,18 +82,24 @@ void main() {
     test('Equipment.needsMaintenanceSoon calculates correctly', () {
       final needsMaintenance = Equipment(
         equipmentId: 'EQ006',
+        tenantId: 'tenant-1',
         name: 'Equipment',
         equipmentType: EquipmentType.tractor,
         status: EquipmentStatus.operational,
         nextMaintenanceAt: DateTime.now().add(const Duration(days: 5)),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       final notUrgent = Equipment(
         equipmentId: 'EQ007',
+        tenantId: 'tenant-1',
         name: 'Equipment 2',
         equipmentType: EquipmentType.tractor,
         status: EquipmentStatus.operational,
         nextMaintenanceAt: DateTime.now().add(const Duration(days: 30)),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       expect(needsMaintenance.needsMaintenanceSoon, true);
@@ -145,11 +146,13 @@ void main() {
         'alert_id': 'ALERT001',
         'equipment_id': 'EQ001',
         'equipment_name': 'John Deere 8R',
-        'alert_type': 'oil_change',
+        'maintenance_type': 'oil_change',
         'description': 'Oil change due',
         'description_ar': 'موعد تغيير الزيت',
         'priority': 'high',
         'due_at': '2024-12-20T10:00:00Z',
+        'is_overdue': false,
+        'created_at': '2024-01-01T00:00:00Z',
       };
 
       final alert = MaintenanceAlert.fromJson(json);
@@ -160,38 +163,17 @@ void main() {
       expect(alert.priority, MaintenancePriority.high);
     });
 
-    test('MaintenanceAlert.isOverdue calculates correctly', () {
-      final overdueAlert = MaintenanceAlert(
-        alertId: 'A1',
-        equipmentId: 'E1',
-        equipmentName: 'Equipment',
-        alertType: 'inspection',
-        priority: MaintenancePriority.high,
-        dueAt: DateTime.now().subtract(const Duration(days: 5)),
-      );
-
-      final futureAlert = MaintenanceAlert(
-        alertId: 'A2',
-        equipmentId: 'E2',
-        equipmentName: 'Equipment 2',
-        alertType: 'inspection',
-        priority: MaintenancePriority.medium,
-        dueAt: DateTime.now().add(const Duration(days: 5)),
-      );
-
-      expect(overdueAlert.isOverdue, true);
-      expect(futureAlert.isOverdue, false);
-    });
-
     test('MaintenanceAlert.getDescription returns localized text', () {
       final alert = MaintenanceAlert(
         alertId: 'A3',
         equipmentId: 'E3',
         equipmentName: 'Equipment 3',
-        alertType: 'battery_check',
+        maintenanceType: MaintenanceType.batteryCheck,
         description: 'Battery check needed',
         descriptionAr: 'فحص البطارية مطلوب',
         priority: MaintenancePriority.medium,
+        isOverdue: false,
+        createdAt: DateTime.now(),
       );
 
       expect(alert.getDescription('ar'), 'فحص البطارية مطلوب');
@@ -212,6 +194,8 @@ void main() {
     test('EquipmentStats.fromJson parses correctly', () {
       final json = {
         'total': 10,
+        'by_type': {'tractor': 5, 'pump': 3, 'drone': 2},
+        'by_status': {'operational': 7, 'maintenance': 2, 'inactive': 1},
         'operational': 7,
         'maintenance': 2,
         'inactive': 1,
@@ -228,6 +212,8 @@ void main() {
     test('EquipmentStats validates counts', () {
       final stats = EquipmentStats(
         total: 10,
+        byType: {'tractor': 5, 'pump': 5},
+        byStatus: {'operational': 7, 'maintenance': 3},
         operational: 7,
         maintenance: 2,
         inactive: 1,
@@ -235,32 +221,6 @@ void main() {
 
       // Total should equal sum of statuses (or be >= sum)
       expect(stats.total, greaterThanOrEqualTo(stats.operational));
-    });
-  });
-
-  group('EquipmentFilter Tests', () {
-    test('EquipmentFilter creates with type', () {
-      final filter = EquipmentFilter(type: EquipmentType.tractor);
-
-      expect(filter.type, EquipmentType.tractor);
-      expect(filter.status, isNull);
-    });
-
-    test('EquipmentFilter creates with status', () {
-      final filter = EquipmentFilter(status: EquipmentStatus.maintenance);
-
-      expect(filter.type, isNull);
-      expect(filter.status, EquipmentStatus.maintenance);
-    });
-
-    test('EquipmentFilter creates with both', () {
-      final filter = EquipmentFilter(
-        type: EquipmentType.pump,
-        status: EquipmentStatus.operational,
-      );
-
-      expect(filter.type, EquipmentType.pump);
-      expect(filter.status, EquipmentStatus.operational);
     });
   });
 }

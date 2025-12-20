@@ -3,8 +3,8 @@
 # Updated: December 2025
 
 # Web Framework
-fastapi==0.115.6
-uvicorn[standard]==0.32.1
+fastapi==0.126.0
+uvicorn[standard]==0.34.0
 python-multipart==0.0.18
 
 # Image Processing

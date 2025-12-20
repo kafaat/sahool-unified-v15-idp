@@ -400,11 +400,44 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
       return;
     }
 
+    if (_selectedFieldId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('الرجاء اختيار الحقل'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     setState(() => _isSubmitting = true);
 
     try {
-      // TODO: Implement actual task creation
-      await Future.delayed(const Duration(seconds: 1));
+      // Combine date and time
+      final dueDateTime = DateTime(
+        _dueDate.year,
+        _dueDate.month,
+        _dueDate.day,
+        _dueTime.hour,
+        _dueTime.minute,
+      );
+
+      // Build description with task type and notes
+      final taskTypeLabel = _getTaskTypeLabel(_selectedType);
+      final fullDescription = [
+        if (_descriptionController.text.isNotEmpty) _descriptionController.text,
+        'نوع المهمة: $taskTypeLabel',
+        if (_notesController.text.isNotEmpty) 'ملاحظات: ${_notesController.text}',
+      ].join('\n');
+
+      // Create task using provider
+      await ref.read(tasksProvider.notifier).createTask(
+            fieldId: _selectedFieldId!,
+            title: _titleController.text,
+            description: fullDescription,
+            priority: _selectedPriority,
+            dueDate: dueDateTime,
+          );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -413,7 +446,7 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
             backgroundColor: Color(0xFF367C2B),
           ),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, true); // Return true to indicate success
       }
     } catch (e) {
       if (mounted) {
@@ -428,6 +461,25 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
       if (mounted) {
         setState(() => _isSubmitting = false);
       }
+    }
+  }
+
+  String _getTaskTypeLabel(TaskType type) {
+    switch (type) {
+      case TaskType.irrigation:
+        return 'ري';
+      case TaskType.fertilization:
+        return 'تسميد';
+      case TaskType.spraying:
+        return 'رش';
+      case TaskType.harvesting:
+        return 'حصاد';
+      case TaskType.scouting:
+        return 'استكشاف';
+      case TaskType.maintenance:
+        return 'صيانة';
+      case TaskType.other:
+        return 'أخرى';
     }
   }
 }
@@ -462,23 +514,4 @@ enum TaskType {
   }
 }
 
-/// أولويات المهام
-enum TaskPriority {
-  urgent,
-  high,
-  medium,
-  low;
-
-  String get arabicLabel {
-    switch (this) {
-      case urgent:
-        return 'عاجل';
-      case high:
-        return 'مهم';
-      case medium:
-        return 'متوسط';
-      case low:
-        return 'منخفض';
-    }
-  }
-}
+// Note: TaskPriority is imported from '../domain/entities/task.dart'

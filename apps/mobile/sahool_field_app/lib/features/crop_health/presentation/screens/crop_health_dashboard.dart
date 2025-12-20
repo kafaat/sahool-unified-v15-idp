@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+
 import '../../domain/entities/crop_health_entities.dart';
 import '../providers/crop_health_provider.dart';
 import '../widgets/diagnosis_summary_card.dart';
@@ -324,15 +329,243 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     );
   }
 
-  void _exportVrt(String actionType) {
+  Future<void> _exportVrt(String actionType) async {
+    final diagnosisState = ref.read(diagnosisProvider);
+    final zonesState = ref.read(zonesProvider);
     final date = ref.read(selectedDateProvider);
-    // TODO: Implement actual export
+
+    if (diagnosisState.diagnosis == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('لا توجد بيانات للتصدير'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Show loading indicator
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('جاري تصدير VRT ($actionType)...'),
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text('جاري تصدير VRT ($actionType)...'),
+          ],
+        ),
         backgroundColor: const Color(0xFF367C2B),
+        duration: const Duration(seconds: 2),
       ),
     );
+
+    try {
+      final diagnosis = diagnosisState.diagnosis!;
+      final zones = zonesState.zones ?? [];
+
+      // Filter actions based on type
+      List<DiagnosisAction> actionsToExport;
+      if (actionType == 'all') {
+        actionsToExport = diagnosis.actions;
+      } else {
+        actionsToExport =
+            diagnosis.actions.where((a) => a.type == actionType).toList();
+      }
+
+      // Build GeoJSON FeatureCollection
+      final features = <Map<String, dynamic>>[];
+
+      for (final action in actionsToExport) {
+        // Find zone geometry
+        final zone = zones.where((z) => z.zoneId == action.zoneId).firstOrNull;
+        final geometry = zone?.geometry ?? _defaultGeometry(action.zoneId);
+
+        features.add({
+          'type': 'Feature',
+          'properties': {
+            'zone_id': action.zoneId,
+            'zone_name': zone?.nameAr ?? zone?.name ?? action.zoneId,
+            'action_type': action.type,
+            'action_type_ar': _getActionTypeAr(action.type),
+            'priority': action.priority,
+            'priority_label': action.priorityLabel,
+            'title': action.title,
+            'reason': action.reason,
+            'severity': action.severity,
+            'recommended_dose': action.recommendedDoseHint,
+            'recommended_window_hours': action.recommendedWindowHours,
+            'evidence': action.evidence,
+            'export_date': DateTime.now().toIso8601String(),
+            'diagnosis_date': diagnosis.date,
+          },
+          'geometry': geometry,
+        });
+      }
+
+      final geojson = {
+        'type': 'FeatureCollection',
+        'name': 'SAHOOL_VRT_${actionType}_${diagnosis.date}',
+        'crs': {
+          'type': 'name',
+          'properties': {'name': 'urn:ogc:def:crs:EPSG::4326'},
+        },
+        'features': features,
+        'metadata': {
+          'field_id': diagnosis.fieldId,
+          'field_name': widget.fieldName,
+          'export_type': actionType,
+          'diagnosis_date': diagnosis.date,
+          'total_zones': diagnosis.summary.zonesTotal,
+          'critical_zones': diagnosis.summary.zonesCritical,
+          'warning_zones': diagnosis.summary.zonesWarning,
+          'ok_zones': diagnosis.summary.zonesOk,
+          'exported_actions_count': actionsToExport.length,
+          'generated_by': 'SAHOOL Field App',
+          'generated_at': DateTime.now().toIso8601String(),
+        },
+      };
+
+      // Save to file
+      final directory = await getApplicationDocumentsDirectory();
+      final fileName =
+          'sahool_vrt_${actionType}_${diagnosis.date.replaceAll('-', '')}.geojson';
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(geojson),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _showExportSuccess(file.path, fileName, actionsToExport.length);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل التصدير: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showExportSuccess(String filePath, String fileName, int actionsCount) {
+    showDialog(
+      context: context,
+      builder: (context) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.check_circle, color: Colors.green),
+              ),
+              const SizedBox(width: 12),
+              const Text('تم التصدير بنجاح'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoRow('اسم الملف:', fileName),
+              const SizedBox(height: 8),
+              _buildInfoRow('عدد الإجراءات:', '$actionsCount'),
+              const SizedBox(height: 8),
+              _buildInfoRow('الموقع:', 'مجلد التطبيق'),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'يمكنك استخدام هذا الملف مع أنظمة VRT أو برامج GIS',
+                        style: TextStyle(fontSize: 13, color: Colors.blue),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('إغلاق'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(color: Colors.grey)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getActionTypeAr(String type) {
+    switch (type) {
+      case 'irrigation':
+        return 'ري';
+      case 'fertilization':
+        return 'تسميد';
+      case 'scouting':
+        return 'استكشاف';
+      default:
+        return 'أخرى';
+    }
+  }
+
+  Map<String, dynamic> _defaultGeometry(String zoneId) {
+    // Default placeholder geometry for zones without geometry data
+    return {
+      'type': 'Polygon',
+      'coordinates': [
+        [
+          [0, 0],
+          [0, 0.001],
+          [0.001, 0.001],
+          [0.001, 0],
+          [0, 0],
+        ]
+      ],
+    };
   }
 
   void _showActionDetails(DiagnosisAction action) {
@@ -469,19 +702,6 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
       ),
     );
   }

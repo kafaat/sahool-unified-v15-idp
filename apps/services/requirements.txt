@@ -2,13 +2,13 @@
 # ============================================
 # Updated: December 2025
 
-# FastAPI Framework
-fastapi==0.115.6
-uvicorn[standard]==0.32.1
+# FastAPI Framework (0.126.0 includes starlette security fixes)
+fastapi==0.126.0
+uvicorn[standard]==0.34.0
 
 # Async HTTP Client
 httpx==0.28.1
-aiohttp==3.11.11
+aiohttp>=3.11.12  # Security fix for CVE-2025-53643
 
 # Database & ORM
 tortoise-orm==0.21.7
@@ -36,7 +36,7 @@ opentelemetry-instrumentation-fastapi==0.50b0
 
 # Utilities
 python-multipart==0.0.18
-python-jose[cryptography]==3.3.0
+python-jose[cryptography]>=3.3.0  # Note: Consider migrating to PyJWT for better security
 passlib[bcrypt]==1.7.4
 
 # Testing

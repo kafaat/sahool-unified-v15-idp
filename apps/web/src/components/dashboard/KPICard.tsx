@@ -37,12 +37,15 @@ const iconMap: Record<string, string> = {
 };
 
 export const KPICard: React.FC<KPICardProps> = ({ kpi, onClick }) => {
+  const icon = kpi.icon && iconMap[kpi.icon] ? iconMap[kpi.icon] : '📊';
+  const trend = kpi.trend || 'stable';
+
   return (
     <div
       className={`
         p-4 rounded-xl border-2 cursor-pointer
         transition-all duration-200 hover:shadow-lg hover:scale-[1.02]
-        ${statusColors[kpi.status]}
+        ${statusColors[kpi.status] || statusColors.good}
       `}
       onClick={onClick}
       role="button"
@@ -50,10 +53,10 @@ export const KPICard: React.FC<KPICardProps> = ({ kpi, onClick }) => {
     >
       <div className="flex items-start justify-between">
         <div className="p-2 rounded-lg bg-white/50 text-2xl">
-          {iconMap[kpi.icon] || '📊'}
+          {icon}
         </div>
-        <div className={`flex items-center gap-1 ${trendColors[kpi.trend]}`}>
-          <span>{trendIcons[kpi.trend]}</span>
+        <div className={`flex items-center gap-1 ${trendColors[trend] || trendColors.stable}`}>
+          <span>{trendIcons[trend] || trendIcons.stable}</span>
           <span className="text-sm font-medium">
             {kpi.trendValue > 0 ? '+' : ''}{kpi.trendValue}%
           </span>

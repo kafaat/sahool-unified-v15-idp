@@ -171,7 +171,9 @@ export function createLRUCache<K, V>(maxSize: number = 100) {
       } else if (cache.size >= maxSize) {
         // Delete oldest (first)
         const firstKey = cache.keys().next().value;
-        cache.delete(firstKey);
+        if (firstKey !== undefined) {
+          cache.delete(firstKey);
+        }
       }
       cache.set(key, value);
     },

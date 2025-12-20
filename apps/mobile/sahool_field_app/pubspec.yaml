@@ -30,6 +30,9 @@ dependencies:
   # Background Tasks
   workmanager: ^0.6.0
 
+  # Notifications
+  flutter_local_notifications: ^17.2.4
+
   # Storage
   shared_preferences: ^2.2.2
   flutter_secure_storage: ^9.0.0
@@ -56,6 +59,9 @@ dependencies:
   # Camera & Photos
   image_picker: ^1.0.7
   camera: ^0.10.5+9
+
+  # Barcode/QR Scanner
+  mobile_scanner: ^5.2.3
 
   # Utils
   uuid: ^4.3.3

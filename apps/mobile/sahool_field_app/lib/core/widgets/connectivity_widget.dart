@@ -1,9 +1,17 @@
+import 'dart:async';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// مزود Connectivity Plus
+final connectivityPlusProvider = Provider<Connectivity>((ref) {
+  return Connectivity();
+});
+
 /// مزود حالة الاتصال
 final connectivityProvider = StateNotifierProvider<ConnectivityNotifier, ConnectivityState>((ref) {
-  return ConnectivityNotifier();
+  final connectivity = ref.watch(connectivityPlusProvider);
+  return ConnectivityNotifier(connectivity);
 });
 
 /// حالة الاتصال
@@ -13,22 +21,26 @@ class ConnectivityState {
   final ConnectionStatus status;
   final int pendingSyncCount;
   final DateTime? lastSyncTime;
+  final String? errorMessage;
 
   const ConnectivityState({
     this.status = ConnectionStatus.online,
     this.pendingSyncCount = 0,
     this.lastSyncTime,
+    this.errorMessage,
   });
 
   ConnectivityState copyWith({
     ConnectionStatus? status,
     int? pendingSyncCount,
     DateTime? lastSyncTime,
+    String? errorMessage,
   }) {
     return ConnectivityState(
       status: status ?? this.status,
       pendingSyncCount: pendingSyncCount ?? this.pendingSyncCount,
       lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
@@ -39,21 +51,66 @@ class ConnectivityState {
 
 /// منطق إدارة الاتصال
 class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
-  ConnectivityNotifier() : super(const ConnectivityState()) {
+  final Connectivity _connectivity;
+  StreamSubscription<List<ConnectivityResult>>? _subscription;
+
+  ConnectivityNotifier(this._connectivity) : super(const ConnectivityState()) {
     _initialize();
   }
 
-  void _initialize() {
-    // TODO: Initialize connectivity listener
-    // For now, default to online
-    state = ConnectivityState(
-      status: ConnectionStatus.online,
-      lastSyncTime: DateTime.now(),
+  Future<void> _initialize() async {
+    // Check initial connectivity
+    await checkConnectivity();
+
+    // Listen for connectivity changes
+    _subscription = _connectivity.onConnectivityChanged.listen(
+      (List<ConnectivityResult> results) {
+        _updateFromResults(results);
+      },
     );
   }
 
+  void _updateFromResults(List<ConnectivityResult> results) {
+    final hasConnection = results.isNotEmpty &&
+        !results.every((r) => r == ConnectivityResult.none);
+
+    if (hasConnection) {
+      if (state.pendingSyncCount > 0) {
+        // Auto-sync when back online
+        startSync();
+      } else {
+        setOnline();
+      }
+    } else {
+      setOffline();
+    }
+  }
+
+  /// فحص حالة الاتصال الحالية
+  Future<void> checkConnectivity() async {
+    try {
+      final results = await _connectivity.checkConnectivity();
+      _updateFromResults(results);
+    } catch (e) {
+      state = state.copyWith(
+        status: ConnectionStatus.offline,
+        errorMessage: e.toString(),
+      );
+    }
+  }
+
+  /// محاولة إعادة الاتصال
+  Future<bool> tryReconnect() async {
+    state = state.copyWith(errorMessage: null);
+    await checkConnectivity();
+    return state.isOnline;
+  }
+
   void setOnline() {
-    state = state.copyWith(status: ConnectionStatus.online);
+    state = state.copyWith(
+      status: ConnectionStatus.online,
+      errorMessage: null,
+    );
   }
 
   void setOffline() {
@@ -64,16 +121,39 @@ class ConnectivityNotifier extends StateNotifier<ConnectivityState> {
     state = state.copyWith(status: ConnectionStatus.syncing);
   }
 
-  void finishSync() {
+  void finishSync({bool success = true}) {
     state = state.copyWith(
       status: ConnectionStatus.online,
-      pendingSyncCount: 0,
-      lastSyncTime: DateTime.now(),
+      pendingSyncCount: success ? 0 : state.pendingSyncCount,
+      lastSyncTime: success ? DateTime.now() : state.lastSyncTime,
+      errorMessage: success ? null : 'فشلت المزامنة',
     );
   }
 
-  void addPendingSync() {
-    state = state.copyWith(pendingSyncCount: state.pendingSyncCount + 1);
+  void addPendingSync([int count = 1]) {
+    state = state.copyWith(pendingSyncCount: state.pendingSyncCount + count);
+  }
+
+  void setPendingSyncCount(int count) {
+    state = state.copyWith(pendingSyncCount: count);
+  }
+
+  /// مزامنة يدوية
+  Future<void> manualSync() async {
+    if (state.isSyncing) return;
+
+    startSync();
+
+    // Simulate sync - replace with actual sync logic
+    await Future.delayed(const Duration(seconds: 2));
+
+    finishSync(success: true);
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }
 
@@ -115,8 +195,17 @@ class ConnectivityBanner extends ConsumerWidget {
             ),
             if (connectivity.isOffline)
               TextButton(
-                onPressed: () {
-                  // TODO: Try to reconnect
+                onPressed: () async {
+                  final notifier = ref.read(connectivityProvider.notifier);
+                  final success = await notifier.tryReconnect();
+                  if (context.mounted && success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('تم إعادة الاتصال'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
                 },
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.white,
@@ -314,19 +403,49 @@ class SyncStatusCard extends ConsumerWidget {
                 ],
               ),
             ],
-            if (connectivity.isOffline) ...[
-              const Divider(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // TODO: Manual sync
-                  },
-                  icon: const Icon(Icons.sync),
-                  label: const Text('مزامنة الآن'),
-                ),
+            if (connectivity.errorMessage != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      connectivity.errorMessage!,
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ),
+                ],
               ),
             ],
+            const Divider(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: connectivity.isSyncing
+                    ? null
+                    : () async {
+                        final notifier = ref.read(connectivityProvider.notifier);
+                        await notifier.manualSync();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('تمت المزامنة بنجاح'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      },
+                icon: connectivity.isSyncing
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.sync),
+                label: Text(connectivity.isSyncing ? 'جاري المزامنة...' : 'مزامنة الآن'),
+              ),
+            ),
           ],
         ),
       ),

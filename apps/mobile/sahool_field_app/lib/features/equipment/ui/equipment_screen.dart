@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
+import '../../../core/widgets/barcode_scanner_widget.dart';
 import '../data/equipment_models.dart';
 import '../providers/equipment_providers.dart';
 
@@ -330,14 +331,32 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
     );
   }
 
-  void _showQrScanner(BuildContext context) {
-    // TODO: Integrate with mobile_scanner package
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("سيتم فتح ماسح QR لتحديد المعدة"),
-        behavior: SnackBarBehavior.floating,
-      ),
+  void _showQrScanner(BuildContext context) async {
+    final result = await BarcodeScannerScreen.scan(
+      context,
+      title: 'مسح رمز المعدة',
+      subtitle: 'وجّه الكاميرا نحو رمز QR أو الباركود الموجود على المعدة',
     );
+
+    if (result != null && context.mounted) {
+      // البحث عن المعدة بالرمز الممسوح
+      final equipmentId = result.value;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('تم المسح: $equipmentId'),
+          backgroundColor: SahoolColors.forestGreen,
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'عرض',
+            textColor: Colors.white,
+            onPressed: () {
+              // يمكن إضافة منطق عرض تفاصيل المعدة هنا
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _showAddEquipment(BuildContext context) {

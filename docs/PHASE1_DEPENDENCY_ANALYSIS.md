@@ -187,9 +187,21 @@ Docker Base: python:3.11-slim
 
 - [x] المرحلة A: التحقق والتحليل ✅
 - [x] المرحلة B: تنفيذ الترقيات منخفضة المخاطر ✅
-- [ ] المرحلة C: ترقية eslint وتحديث الإعدادات
-- [ ] المرحلة D: تخطيط Next.js 16 و Tailwind 4
+- [x] المرحلة C: ترقية eslint وتحديث الإعدادات ✅
+- [x] المرحلة D: تخطيط Next.js 16 و Tailwind 4 ✅ (انظر `PHASE_D_MAJOR_UPGRADES_PLAN.md`)
 - [ ] المرحلة E: التحقق والاختبار النهائي
+
+### ✅ المرحلة C: ESLint 9 Upgrade (مكتملة)
+
+| الحزمة | السابق | الحالي |
+|--------|--------|--------|
+| eslint | 9.17.0 | 9.39.2 |
+| eslint-config-next | 15.1.2 | 15.1.2 |
+
+**التغييرات:**
+- تحديث ESLint إلى 9.39.2 في apps/web و apps/admin
+- إنشاء `eslint.config.mjs` بتنسيق flat config لـ ESLint 9
+- استخدام `@eslint/eslintrc` FlatCompat للتوافق مع eslint-config-next
 
 ---
 

@@ -1,28 +1,331 @@
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
+# SAHOOL Field App - Analysis Options
+# قواعد تحليل الكود للحفاظ على جودة عالية
 #
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
+# Run: flutter analyze
+# Fix: dart fix --apply
 
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
 include: package:flutter_lints/flutter.yaml
 
+analyzer:
+  # Treat missing required params and returns as errors
+  errors:
+    missing_required_param: error
+    missing_return: error
+    must_be_immutable: error
+    invalid_annotation_target: ignore
+
+  # Exclude generated files
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/generated/**"
+    - "lib/core/storage/database.g.dart"
+    - "build/**"
+    - ".dart_tool/**"
+
+  # Enable stricter type checks
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+  # Plugins for enhanced analysis
+  plugins:
+    - custom_lint
+
 linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
   rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Error Prevention - منع الأخطاء
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Avoid using print in production code
+    - avoid_print
+
+    # Avoid returning null for Future
+    - avoid_returning_null_for_future
+
+    # Cancel StreamSubscriptions to avoid memory leaks
+    - cancel_subscriptions
+
+    # Close sinks to avoid resource leaks
+    - close_sinks
+
+    # Avoid literal boolean expressions
+    - literal_only_boolean_expressions
+
+    # No adjacent strings in list
+    - no_adjacent_strings_in_list
+
+    # Don't throw in finally blocks
+    - throw_in_finally
+
+    # Avoid unnecessary statements
+    - unnecessary_statements
+
+    # Avoid empty catch blocks
+    - empty_catches
+
+    # Avoid empty else blocks
+    - avoid_empty_else
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Type Safety - سلامة الأنواع
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Always declare return types
+    - always_declare_return_types
+
+    # Type annotate public APIs
+    - type_annotate_public_apis
+
+    # Avoid dynamic
+    - avoid_dynamic_calls
+
+    # Avoid types as parameter names
+    - avoid_types_as_parameter_names
+
+    # Prefer void to null
+    - prefer_void_to_null
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Performance - الأداء
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Prefer const constructors
+    - prefer_const_constructors
+
+    # Prefer const constructors in immutables
+    - prefer_const_constructors_in_immutables
+
+    # Prefer const declarations
+    - prefer_const_declarations
+
+    # Prefer const literals to create immutables
+    - prefer_const_literals_to_create_immutables
+
+    # Use string buffers
+    - use_string_buffers
+
+    # Prefer final locals
+    - prefer_final_locals
+
+    # Prefer final in for each
+    - prefer_final_in_for_each
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Flutter Specific - خاص بـ Flutter
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Use key in widget constructors
+    - use_key_in_widget_constructors
+
+    # Sized box for whitespace
+    - sized_box_for_whitespace
+
+    # Use colored box
+    - use_colored_box
+
+    # Use decorated box
+    - use_decorated_box
+
+    # Avoid unnecessary containers
+    - avoid_unnecessary_containers
+
+    # Prefer SizedBox shrink/expand
+    - sized_box_shrink_expand
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Style - الأسلوب
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Always put required named parameters first
+    - always_put_required_named_parameters_first
+
+    # Prefer single quotes
+    - prefer_single_quotes
+
+    # Require trailing commas
+    - require_trailing_commas
+
+    # Sort constructors first
+    - sort_constructors_first
+
+    # Sort unnamed constructors first
+    - sort_unnamed_constructors_first
+
+    # Directives ordering
+    - directives_ordering
+
+    # Prefer relative imports
+    - prefer_relative_imports
+
+    # Avoid redundant argument values
+    - avoid_redundant_argument_values
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Documentation - التوثيق
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Public member API docs (warning only for now)
+    # - public_member_api_docs
+
+    # Slash for doc comments
+    - slash_for_doc_comments
+
+    # Package API docs
+    # - package_api_docs
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Async - التزامن
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Unawaited futures
+    - unawaited_futures
+
+    # Unnecessary await in return
+    - unnecessary_await_in_return
+
+    # Avoid void async
+    - avoid_void_async
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Null Safety - سلامة null
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Avoid null checks in equality operators
+    - avoid_null_checks_in_equality_operators
+
+    # Prefer null aware method calls
+    - prefer_null_aware_method_calls
+
+    # Prefer null aware operators
+    - prefer_null_aware_operators
+
+    # Unnecessary null checks
+    - unnecessary_null_checks
+
+    # Unnecessary nullable for final variable declarations
+    - unnecessary_nullable_for_final_variable_declarations
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Best Practices - أفضل الممارسات
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Avoid catches without on clauses
+    - avoid_catches_without_on_clauses
+
+    # Avoid catching errors
+    - avoid_catching_errors
+
+    # Avoid positional boolean parameters
+    - avoid_positional_boolean_parameters
+
+    # Avoid private typedef functions
+    - avoid_private_typedef_functions
+
+    # Avoid returning this
+    - avoid_returning_this
+
+    # Avoid setters without getters
+    - avoid_setters_without_getters
+
+    # Avoid unused constructor parameters
+    - avoid_unused_constructor_parameters
+
+    # Cascade invocations
+    - cascade_invocations
+
+    # Join return with assignment
+    - join_return_with_assignment
+
+    # Only throw errors
+    - only_throw_errors
+
+    # Prefer asserts in initializer lists
+    - prefer_asserts_in_initializer_lists
+
+    # Prefer constructors over static methods
+    - prefer_constructors_over_static_methods
+
+    # Prefer foreach
+    - prefer_foreach
+
+    # Prefer if elements to conditional expressions
+    - prefer_if_elements_to_conditional_expressions
+
+    # Prefer mixin
+    - prefer_mixin
+
+    # Prefer expression function bodies
+    - prefer_expression_function_bodies
+
+    # Use is even rather than modulo
+    - use_is_even_rather_than_modulo
+
+    # Use named constants
+    - use_named_constants
+
+    # Use to and as if applicable
+    - use_to_and_as_if_applicable
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Code Cleanliness - نظافة الكود
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    # Avoid bool literals in conditional expressions
+    - avoid_bool_literals_in_conditional_expressions
+
+    # Avoid double and int checks
+    - avoid_double_and_int_checks
+
+    # Avoid field initializers in const classes
+    - avoid_field_initializers_in_const_classes
+
+    # Missing whitespace between adjacent strings
+    - missing_whitespace_between_adjacent_strings
+
+    # No duplicate case values
+    - no_duplicate_case_values
+
+    # No runtimeType toString
+    - no_runtimeType_toString
+
+    # Noop primitive operations
+    - noop_primitive_operations
+
+    # Null closures
+    - null_closures
+
+    # Omit local variable types
+    - omit_local_variable_types
+
+    # One member abstracts
+    - one_member_abstracts
+
+    # Parameter assignments
+    - parameter_assignments
+
+    # Tighten type of initializing formals
+    - tighten_type_of_initializing_formals
+
+    # Unnecessary lambdas
+    - unnecessary_lambdas
+
+    # Unnecessary parenthesis
+    - unnecessary_parenthesis
+
+    # Unnecessary raw strings
+    - unnecessary_raw_strings
+
+    # Use late for private fields and variables
+    - use_late_for_private_fields_and_variables
+
+    # Use raw strings
+    - use_raw_strings
+
+    # Use setters to change properties
+    - use_setters_to_change_properties
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

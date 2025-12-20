@@ -180,8 +180,169 @@ SELECT * FROM fields WHERE ST_Within(geom, ST_MakeEnvelope(...));
 
 - [Deployment Guide](docs/DEPLOYMENT.md)
 - [Security Guide](docs/SECURITY.md)
-- [Operations Runbook](docs/OPERATIONS.md)
+- [Operations Guide](docs/OPERATIONS.md)
+- [Observability Guide](docs/OBSERVABILITY.md) ⭐ **NEW**
+- [Incident Runbooks](docs/RUNBOOKS.md) ⭐ **NEW**
+- [SLO/SLI Guidance](docs/SLO_SLI_GUIDE.md) ⭐ **NEW**
+- [Testing Guide](docs/TESTING.md)
 - [API Documentation](docs/API.md)
+
+---
+
+## 🔍 Observability & Monitoring
+
+SAHOOL includes comprehensive observability features for production monitoring:
+
+### Health Checks
+All services expose standardized health check endpoints:
+- **`/health/live`** - Liveness probe (is service running?)
+- **`/health/ready`** - Readiness probe (can service handle requests?)
+- **`/health/startup`** - Startup probe (has service initialized?)
+- **`/health`** - Combined health status
+
+```bash
+# Check service health
+curl http://localhost:8095/health
+```
+
+### Metrics (Prometheus)
+All services expose Prometheus metrics at `/metrics`:
+- Request count, duration, and status codes
+- Error rates by type and severity
+- Active connections and resource usage
+- Custom business metrics
+
+```bash
+# View service metrics
+curl http://localhost:8095/metrics
+
+# Access Prometheus UI
+open http://localhost:9090
+
+# View Grafana dashboards
+open http://localhost:3002
+```
+
+### Structured Logging
+- **JSON logs** in production for machine parsing
+- **Human-readable logs** in development
+- **Request ID propagation** across all logs
+- **Trace ID integration** with OpenTelemetry
+
+### Distributed Tracing (Optional)
+- OpenTelemetry support for distributed tracing
+- Automatic instrumentation of FastAPI apps
+- Trace context propagation across services
+
+See [Observability Guide](docs/OBSERVABILITY.md) for details.
+
+---
+
+## 🔐 Security & Secrets Management
+
+### Secrets Externalization
+Supports multiple secret backends:
+- **Environment variables** (default)
+- **HashiCorp Vault** (recommended for production)
+- **AWS Secrets Manager** (coming soon)
+- **Azure Key Vault** (coming soon)
+
+```bash
+# Configure Vault (optional)
+export SECRET_BACKEND=vault
+export VAULT_ADDR=http://localhost:8200
+export VAULT_TOKEN=your-token
+
+# Services automatically use Vault
+```
+
+### Rate Limiting
+Tiered rate limiting on all endpoints:
+- **Free**: 30 req/min, 500 req/hour
+- **Standard**: 60 req/min, 2000 req/hour
+- **Premium**: 120 req/min, 5000 req/hour
+- **Internal**: 1000 req/min, 50000 req/hour
+
+### Security Scanning
+- **SAST**: Bandit + Semgrep with SARIF upload
+- **Dependency Scanning**: Safety + pip-audit + Trivy
+- **Secret Scanning**: Pre-commit hooks + CI checks
+- **Container Scanning**: Trivy for Docker images
+
+---
+
+## ⚡ Performance Optimizations
+
+### Database Connection Pooling
+Configured connection pooling with:
+- Configurable pool size and overflow
+- Automatic connection recycling
+- Retry logic with exponential backoff
+- Connection health checks
+
+```bash
+# Configure pooling
+export DB_POOL_SIZE=20
+export DB_MAX_OVERFLOW=10
+export DB_POOL_RECYCLE=3600
+```
+
+### Caching Layer
+Redis-first caching with in-memory fallback:
+- Configurable TTL per data type
+- Pattern-based cache invalidation
+- Automatic fallback to in-memory cache
+- Cache warming support
+
+```bash
+# Enable caching
+export CACHE_ENABLED=true
+export REDIS_URL=redis://localhost:6379
+export CACHE_TTL_SECONDS=300
+```
+
+### Pagination
+Both cursor-based and offset-based pagination:
+- **Cursor-based**: For large datasets (efficient)
+- **Offset-based**: For smaller datasets (simple)
+- **Streaming**: For very large results (NDJSON, JSON arrays)
+
+```python
+# Cursor-based pagination
+GET /api/items?first=50&after=cursor_abc123
+
+# Offset-based pagination
+GET /api/items?page=2&page_size=50
+```
+
+---
+
+## 🧪 Testing
+
+### Test Coverage
+- **Unit tests**: Business logic and utilities
+- **Integration tests**: API endpoints and database
+- **Identity tests**: Login, token refresh, OAuth, MFA
+- **Smoke tests**: Import and basic functionality
+
+```bash
+# Run all tests
+make test
+
+# Run with coverage
+make test-cov
+
+# Run specific test types
+make test-unit
+make test-integration
+make test-smoke
+```
+
+### CI/CD Pipeline
+- ✅ **Parallel testing** with pytest-xdist
+- ✅ **Coverage regression checks** (minimum 60%)
+- ✅ **Build caching** for faster CI runs
+- ✅ **SARIF security reports** in GitHub Security tab
 
 ---
 

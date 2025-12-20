@@ -10,11 +10,29 @@
  * - Pest and disease identification
  */
 
-// API exports will be added when implementing
-// export { advisorApi } from './api';
+// API exports
+export { advisorApi } from './api';
+export type {
+  Recommendation,
+  RecommendationType,
+  RecommendationPriority,
+  RecommendationStatus,
+  ActionItem,
+  AdvisorQuery,
+  AdvisorResponse,
+  AdvisorFilters,
+} from './api';
 
-// Hooks exports will be added when implementing
-// export { useRecommendations, useAdvice } from './hooks/useAdvisor';
+// Hooks exports
+export {
+  useRecommendations,
+  useRecommendation,
+  useAskAdvisor,
+  useApplyRecommendation,
+  useDismissRecommendation,
+  useCompleteAction,
+  useAdvisorHistory,
+  useAdvisorStats,
+} from './hooks/useAdvisor';
 
-// Placeholder exports
 export const ADVISOR_FEATURE = 'advisor' as const;

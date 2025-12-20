@@ -88,17 +88,27 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: 'pip'
 
       - name: Install safety
-        run: pip install safety
+        run: pip install safety pip-audit
 
-      - name: Scan Python dependencies
+      - name: Scan Python dependencies with Safety
         run: |
-          echo "🔍 Scanning Python dependencies..."
-
+          echo "🔍 Scanning Python dependencies with Safety..."
+          
           for req in $(find . -name "requirements.txt" -type f); do
             echo "Scanning: $req"
             safety check -r "$req" --full-report || true
+          done
+
+      - name: Scan Python dependencies with pip-audit
+        run: |
+          echo "🔍 Scanning Python dependencies with pip-audit..."
+          
+          for req in $(find . -name "requirements.txt" -type f); do
+            echo "Auditing: $req"
+            pip-audit -r "$req" || true
           done
 
       - name: Run Trivy filesystem scan
@@ -107,11 +117,24 @@ jobs:
           scan-type: 'fs'
           scan-ref: '.'
           severity: 'CRITICAL,HIGH'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
           exit-code: '0'  # Don't fail on findings, just report
 
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: 'trivy-dependency-scan'
+
   code-security:
-    name: Code Security Analysis
+    name: Code Security Analysis (SAST)
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -120,21 +143,43 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install bandit
-        run: pip install bandit
+      - name: Install security scanners
+        run: pip install bandit semgrep
 
       - name: Run Bandit security scan
         run: |
           echo "🔍 Running Bandit security analysis..."
-          bandit -r kernel/ shared/ -ll -ii --format json -o bandit-report.json || true
-          bandit -r kernel/ shared/ -ll -ii --format txt || true
+          bandit -r apps/services/ shared/ -ll -ii --format sarif -o bandit-results.sarif || true
+          bandit -r apps/services/ shared/ -ll -ii --format txt || true
 
-      - name: Upload Bandit report
+      - name: Upload Bandit SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: bandit-results.sarif
+          category: 'bandit-sast'
+
+      - name: Run Semgrep SAST
+        run: |
+          echo "🔍 Running Semgrep SAST..."
+          semgrep --config=auto --sarif -o semgrep-results.sarif apps/services/ shared/ || true
+
+      - name: Upload Semgrep SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep-results.sarif
+          category: 'semgrep-sast'
+
+      - name: Upload security reports
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: bandit-report
-          path: bandit-report.json
+          name: security-reports
+          path: |
+            bandit-results.sarif
+            semgrep-results.sarif
+          retention-days: 30
 
   container-scan:
     name: Container Security Scan

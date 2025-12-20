@@ -35,10 +35,27 @@ export class ErrorBoundary extends Component<Props, State> {
       this.props.onError(error, errorInfo);
     }
 
-    // TODO: Send to error tracking service (Sentry)
-    // if (typeof window !== 'undefined' && window.Sentry) {
-    //   window.Sentry.captureException(error, { extra: errorInfo });
-    // }
+    // Send to error tracking service
+    this.reportError(error, errorInfo);
+  }
+
+  private reportError(error: Error, errorInfo: ErrorInfo): void {
+    // Send error to logging endpoint
+    fetch('/api/log-error', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'react_error',
+        message: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        url: typeof window !== 'undefined' ? window.location.href : undefined,
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV,
+      }),
+    }).catch(() => {
+      // Silently fail if logging endpoint is unavailable
+    });
   }
 
   handleRetry = (): void => {

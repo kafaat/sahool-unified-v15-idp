@@ -104,6 +104,13 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
+      - name: Build shared packages
+        run: |
+          cd packages/api-client && npm run build
+          cd ../shared-utils && npm run build || true
+          cd ../shared-ui && npm run build || true
+          cd ../shared-hooks && npm run build || true
+
       - name: Build Web App
         run: cd apps/web && npm run build
         env:

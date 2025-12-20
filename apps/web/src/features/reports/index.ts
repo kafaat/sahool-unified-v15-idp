@@ -10,11 +10,31 @@
  * - Export to PDF/Excel
  */
 
-// API exports will be added when implementing
-// export { reportsApi } from './api';
+// API exports
+export { reportsApi } from './api';
+export type {
+  Report,
+  ReportType,
+  ReportFormat,
+  ReportStatus,
+  ReportPeriod,
+  ReportTemplate,
+  GenerateReportRequest,
+  ReportFilters,
+  ReportStats,
+} from './api';
 
-// Hooks exports will be added when implementing
-// export { useReports, useReportGenerator } from './hooks/useReports';
+// Hooks exports
+export {
+  useReports,
+  useReport,
+  useGenerateReport,
+  useReportDownload,
+  useDeleteReport,
+  useReportTemplates,
+  useReportStats,
+  useScheduleReport,
+  useScheduledReports,
+} from './hooks/useReports';
 
-// Placeholder exports
 export const REPORTS_FEATURE = 'reports' as const;

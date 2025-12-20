@@ -123,7 +123,7 @@ export function captureError(
     type: 'error',
     message: error.message,
     stack: error.stack,
-    componentStack: errorInfo?.componentStack,
+    componentStack: errorInfo?.componentStack ?? undefined,
     url: typeof window !== 'undefined' ? window.location.href : '',
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
     userId: userId ?? undefined,

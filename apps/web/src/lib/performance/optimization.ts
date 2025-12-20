@@ -34,10 +34,11 @@ export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   const maxWaitValue = maxing ? Math.max(maxWait, wait) : 0;
 
   function invokeFunc(time: number): ReturnType<T> {
-    const args = lastArgs!;
+    const args = lastArgs;
     lastArgs = null;
     lastInvokeTime = time;
-    result = func(...args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    result = (func as any).apply(null, args);
     return result;
   }
 
@@ -158,7 +159,8 @@ export function memoize<T extends (...args: Parameters<T>) => ReturnType<T>>(
   const cache = new Map<string, { value: ReturnType<T>; timestamp: number }>();
 
   function memoized(this: unknown, ...args: Parameters<T>): ReturnType<T> {
-    const key = keyGenerator(...args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const key = (keyGenerator as any).apply(null, args) as string;
     const cached = cache.get(key);
     const now = Date.now();
 

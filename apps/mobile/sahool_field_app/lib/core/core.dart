@@ -39,3 +39,9 @@ export 'map/map.dart';
 
 // Notifications
 export 'notifications/notifications.dart';
+
+// Offline Sync
+export 'offline/offline.dart';
+
+// Voice Commands
+export 'voice/voice.dart';

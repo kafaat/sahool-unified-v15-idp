@@ -116,9 +116,12 @@ services:
   # ─────────────────────────────────────────────────────────────────────────────
 
   # خدمة الحقول الجغرافية (Field Core)
+  # NOTE: Legacy service - use apps/services/field-service instead
   field_core:
+    profiles: ["legacy"]
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/field_core
+      context: ./apps/services/field-service
       dockerfile: Dockerfile
     container_name: sahool-field-core
     environment:
@@ -148,8 +151,9 @@ services:
   # ─────────────────────────────────────────────────────────────────────────────
 
   field_ops:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/field_ops
+      context: ./apps/services/field-service
       dockerfile: Dockerfile
     container_name: sahool-field-ops
     environment:
@@ -179,8 +183,9 @@ services:
       - sahool-network
 
   ndvi_engine:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/ndvi_engine
+      context: ./apps/services/ndvi-processor
       dockerfile: Dockerfile
     container_name: sahool-ndvi-engine
     environment:
@@ -208,8 +213,9 @@ services:
       - sahool-network
 
   weather_core:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/weather_core
+      context: ./apps/services/weather-advanced
       dockerfile: Dockerfile
     container_name: sahool-weather-core
     environment:
@@ -238,8 +244,9 @@ services:
       - sahool-network
 
   field_chat:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/field_chat
+      context: ./apps/services/community-chat
       dockerfile: Dockerfile
     container_name: sahool-field-chat
     environment:
@@ -269,8 +276,9 @@ services:
       - sahool-network
 
   iot_gateway:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/iot_gateway
+      context: ./apps/services/iot-service
       dockerfile: Dockerfile
     container_name: sahool-iot-gateway
     environment:
@@ -303,8 +311,9 @@ services:
       - sahool-network
 
   agro_advisor:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/agro_advisor
+      context: ./apps/services/fertilizer-advisor
       dockerfile: Dockerfile
     container_name: sahool-agro-advisor
     environment:
@@ -332,8 +341,9 @@ services:
       - sahool-network
 
   ws_gateway:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/ws_gateway
+      context: ./apps/services/notification-service
       dockerfile: Dockerfile
     container_name: sahool-ws-gateway
     environment:
@@ -362,8 +372,9 @@ services:
       - sahool-network
 
   crop_health:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/crop_health
+      context: ./apps/services/crop-health-ai
       dockerfile: Dockerfile
     container_name: sahool-crop-health
     environment:
@@ -382,8 +393,9 @@ services:
 
   # Agro Rules Worker - NATS event-driven worker
   agro_rules:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/agro_rules
+      context: ./apps/services/irrigation-smart
       dockerfile: Dockerfile
     container_name: sahool-agro-rules
     environment:
@@ -406,8 +418,9 @@ services:
 
   # Task Service (Python + FastAPI) - إدارة المهام الزراعية
   task_service:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/task_service
+      context: ./apps/services/field-service
       dockerfile: Dockerfile
     container_name: sahool-task-service
     environment:
@@ -430,8 +443,9 @@ services:
 
   # Equipment Service (Python + FastAPI) - إدارة المعدات
   equipment_service:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/equipment_service
+      context: ./apps/services/field-service
       dockerfile: Dockerfile
     container_name: sahool-equipment-service
     environment:
@@ -454,8 +468,9 @@ services:
 
   # Community Service (Python + FastAPI) - مجتمع المزارعين
   community_service:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/community_service
+      context: ./apps/services/community-chat
       dockerfile: Dockerfile
     container_name: sahool-community-service
     environment:
@@ -481,8 +496,9 @@ services:
 
   # Provider Configuration Service (Python + FastAPI) - إدارة المزودين
   provider_config:
+    profiles: ["legacy"]
     build:
-      context: ./archive/kernel-legacy/kernel/services/provider_config
+      context: ./apps/services/field-service
       dockerfile: Dockerfile
     container_name: sahool-provider-config
     environment:

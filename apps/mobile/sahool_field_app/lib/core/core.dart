@@ -25,3 +25,14 @@ export 'network/api_result.dart';
 // Sync
 export 'sync/sync_engine.dart';
 export 'sync/network_status.dart';
+
+// Auth
+export 'auth/auth_service.dart';
+export 'auth/secure_storage_service.dart';
+export 'auth/biometric_service.dart';
+
+// Performance
+export 'performance/performance.dart';
+
+// Map
+export 'map/map.dart';

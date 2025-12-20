@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/widgets/barcode_scanner_widget.dart';
+
 /// شاشة تتبع العينات
 /// Sample Tracking Screen - يعرض رحلة العينة من الحقل للمختبر
 class SampleTrackingScreen extends StatefulWidget {
@@ -216,11 +218,28 @@ class _SampleTrackingScreenState extends State<SampleTrackingScreen> {
     );
   }
 
-  void _scanBarcode() {
-    // TODO: Implement barcode scanner
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('ماسح الباركود - قيد التطوير')),
+  void _scanBarcode() async {
+    final result = await BarcodeScannerScreen.scan(
+      context,
+      title: 'مسح باركود العينة',
+      subtitle: 'وجه الكاميرا نحو باركود العينة للبحث عنها',
     );
+
+    if (result != null && mounted) {
+      // Find sample by barcode
+      final sample = _samples.where((s) => s.barcode == result.value).firstOrNull;
+
+      if (sample != null) {
+        _showSampleDetails(sample);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('لم يتم العثور على عينة بالباركود: ${result.value}'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+    }
   }
 
   void _showSampleDetails(LabSample sample) {

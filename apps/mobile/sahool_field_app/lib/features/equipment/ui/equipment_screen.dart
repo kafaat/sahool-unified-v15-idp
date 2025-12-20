@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
+import '../../../core/widgets/barcode_scanner_widget.dart';
 import '../data/equipment_models.dart';
 import '../providers/equipment_providers.dart';
 
@@ -330,14 +331,32 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
     );
   }
 
-  void _showQrScanner(BuildContext context) {
-    // TODO: Integrate with mobile_scanner package
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("سيتم فتح ماسح QR لتحديد المعدة"),
-        behavior: SnackBarBehavior.floating,
-      ),
+  void _showQrScanner(BuildContext context) async {
+    final result = await BarcodeScannerScreen.scan(
+      context,
+      title: 'مسح رمز المعدة',
+      subtitle: 'وجّه الكاميرا نحو رمز QR أو الباركود الموجود على المعدة',
     );
+
+    if (result != null && context.mounted) {
+      // البحث عن المعدة بالرمز الممسوح
+      final equipmentId = result.value;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('تم المسح: $equipmentId'),
+          backgroundColor: SahoolColors.forestGreen,
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: 'عرض',
+            textColor: Colors.white,
+            onPressed: () {
+              // يمكن إضافة منطق عرض تفاصيل المعدة هنا
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _showAddEquipment(BuildContext context) {
@@ -600,9 +619,11 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
   }
 
   void _showAddMaintenanceRecord(BuildContext context, WidgetRef ref, String equipmentId) {
-    // TODO: Implement maintenance record form
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('نموذج إضافة سجل الصيانة')),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => _AddMaintenanceRecordSheet(equipmentId: equipmentId),
     );
   }
 
@@ -1104,6 +1125,357 @@ class _StatBox extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(fontSize: 11, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Add Maintenance Record Bottom Sheet
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _AddMaintenanceRecordSheet extends ConsumerStatefulWidget {
+  final String equipmentId;
+
+  const _AddMaintenanceRecordSheet({required this.equipmentId});
+
+  @override
+  ConsumerState<_AddMaintenanceRecordSheet> createState() =>
+      _AddMaintenanceRecordSheetState();
+}
+
+class _AddMaintenanceRecordSheetState
+    extends ConsumerState<_AddMaintenanceRecordSheet> {
+  final _descriptionController = TextEditingController();
+  final _costController = TextEditingController();
+  final _notesController = TextEditingController();
+  final _technicianController = TextEditingController();
+
+  MaintenanceType _selectedType = MaintenanceType.generalService;
+  DateTime _maintenanceDate = DateTime.now();
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _costController.dispose();
+    _notesController.dispose();
+    _technicianController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _maintenanceDate,
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now(),
+      locale: const Locale('ar'),
+    );
+    if (picked != null) {
+      setState(() => _maintenanceDate = picked);
+    }
+  }
+
+  Future<void> _submitRecord() async {
+    if (_descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('الرجاء إدخال وصف الصيانة'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final controller = ref.read(equipmentControllerProvider.notifier);
+      // Build description with notes if provided
+      final fullDescription = _notesController.text.isNotEmpty
+          ? '${_descriptionController.text}\n\nملاحظات: ${_notesController.text}'
+          : _descriptionController.text;
+
+      await controller.addMaintenanceRecord(
+        widget.equipmentId,
+        maintenanceType: _selectedType,
+        description: fullDescription,
+        descriptionAr: _descriptionController.text,
+        performedBy: _technicianController.text.isNotEmpty
+            ? _technicianController.text
+            : null,
+        cost: double.tryParse(_costController.text),
+      );
+
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم إضافة سجل الصيانة بنجاح'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        ref.invalidate(equipmentListProvider);
+        ref.invalidate(maintenanceAlertsProvider);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('حدث خطأ: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.85,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          // Handle
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: SahoolColors.harvestGold.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.build,
+                    color: SahoolColors.harvestGold,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "إضافة سجل صيانة",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                      Text(
+                        "تسجيل عملية صيانة جديدة",
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(height: 32),
+
+          // Form
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // نوع الصيانة
+                  const Text(
+                    "نوع الصيانة",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: MaintenanceType.values.map((type) {
+                      final isSelected = _selectedType == type;
+                      return ChoiceChip(
+                        label: Text(type.nameAr),
+                        selected: isSelected,
+                        onSelected: (selected) {
+                          if (selected) {
+                            setState(() => _selectedType = type);
+                          }
+                        },
+                        selectedColor: SahoolColors.harvestGold.withOpacity(0.2),
+                        labelStyle: TextStyle(
+                          color: isSelected
+                              ? SahoolColors.harvestGold
+                              : Colors.grey[700],
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // تاريخ الصيانة
+                  const Text(
+                    "تاريخ الصيانة",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: _selectDate,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey[300]!),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.calendar_today,
+                              color: SahoolColors.forestGreen),
+                          const SizedBox(width: 12),
+                          Text(
+                            "${_maintenanceDate.day}/${_maintenanceDate.month}/${_maintenanceDate.year}",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const Spacer(),
+                          const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // وصف الصيانة
+                  TextFormField(
+                    controller: _descriptionController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      labelText: "وصف الصيانة *",
+                      hintText: "مثال: تغيير زيت المحرك وفلتر الهواء",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.description),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // اسم الفني
+                  TextFormField(
+                    controller: _technicianController,
+                    decoration: InputDecoration(
+                      labelText: "اسم الفني",
+                      hintText: "اسم فني الصيانة",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.person),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // التكلفة
+                  TextFormField(
+                    controller: _costController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: "التكلفة (ريال)",
+                      hintText: "0.00",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.attach_money),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // ملاحظات إضافية
+                  TextFormField(
+                    controller: _notesController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: "ملاحظات إضافية",
+                      hintText: "أي ملاحظات أخرى...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      prefixIcon: const Icon(Icons.note),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+
+          // Submit Button
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton.icon(
+                onPressed: _isSubmitting ? null : _submitRecord,
+                icon: _isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.save),
+                label: Text(
+                  _isSubmitting ? "جاري الحفظ..." : "حفظ سجل الصيانة",
+                  style: const TextStyle(fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: SahoolColors.harvestGold,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
           ),
         ],
       ),

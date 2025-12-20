@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/auth_service.dart';
@@ -214,6 +216,3 @@ class _RequestRetry {
     }
   }
 }
-
-// Need to import Completer
-import 'dart:async';

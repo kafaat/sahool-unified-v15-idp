@@ -54,8 +54,15 @@ Object.defineProperty(window, 'ResizeObserver', {
   value: MockResizeObserver,
 });
 
-// Mock fetch
-global.fetch = vi.fn();
+// Mock fetch to return a resolved Promise
+global.fetch = vi.fn(() =>
+  Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve({}),
+    text: () => Promise.resolve(''),
+  } as Response)
+);
 
 // Mock localStorage
 const localStorageMock = {

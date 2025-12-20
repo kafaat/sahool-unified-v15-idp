@@ -342,8 +342,16 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
 // User Context
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function setUser(id: string | null): void {
-  userId = id;
+export function setUser(user: { id: string; email?: string; name?: string } | null): void {
+  userId = user?.id ?? null;
+}
+
+export function clearUser(): void {
+  userId = null;
+}
+
+export function getBreadcrumbs(): Breadcrumb[] {
+  return [...breadcrumbs];
 }
 
 export function getMonitoringContext() {
@@ -363,8 +371,10 @@ export const ErrorTracking = {
   captureError,
   captureMessage,
   addBreadcrumb,
+  getBreadcrumbs,
   clearBreadcrumbs,
   setUser,
+  clearUser,
   reportWebVitals,
   getContext: getMonitoringContext,
 };

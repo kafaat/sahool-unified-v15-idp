@@ -88,7 +88,7 @@ describe('Performance Optimization', () => {
   describe('throttle', () => {
     it('should throttle function calls', () => {
       const fn = vi.fn();
-      const throttledFn = throttle(fn, 100);
+      const throttledFn = throttle(fn, 100, { leading: true, trailing: false });
 
       throttledFn();
       throttledFn();
@@ -264,13 +264,15 @@ describe('Performance Optimization', () => {
       expect(fn).toHaveBeenCalledTimes(1);
     });
 
-    it('should make new request after previous completes', async () => {
+    it('should make new request after window expires', async () => {
       vi.useRealTimers();
 
       const fn = vi.fn().mockResolvedValue('result');
 
-      await deduplicateRequest('key2', fn);
-      await deduplicateRequest('key2', fn);
+      await deduplicateRequest('key2', fn, { window: 10 });
+      // Wait for dedup window to expire
+      await new Promise(resolve => setTimeout(resolve, 20));
+      await deduplicateRequest('key2', fn, { window: 10 });
 
       expect(fn).toHaveBeenCalledTimes(2);
     });

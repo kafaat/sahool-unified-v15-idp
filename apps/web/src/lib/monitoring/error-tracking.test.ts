@@ -28,21 +28,23 @@ describe('Error Tracking', () => {
 
   describe('captureError', () => {
     it('should capture an error with metadata', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const fetchSpy = vi.spyOn(global, 'fetch');
       const error = new Error('Test error');
 
       captureError(error, undefined, { context: 'test' });
 
-      expect(consoleSpy).toHaveBeenCalled();
+      // Should attempt to send error to endpoint
+      expect(fetchSpy).toHaveBeenCalled();
     });
 
     it('should handle errors without metadata', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const fetchSpy = vi.spyOn(global, 'fetch');
       const error = new Error('Simple error');
 
       captureError(error);
 
-      expect(consoleSpy).toHaveBeenCalled();
+      // Should attempt to send error to endpoint
+      expect(fetchSpy).toHaveBeenCalled();
     });
   });
 

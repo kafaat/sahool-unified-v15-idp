@@ -233,7 +233,7 @@ export async function deduplicateRequest<T>(
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface VirtualScrollConfig {
-  itemCount: number;
+  totalItems: number;
   itemHeight: number;
   containerHeight: number;
   overscan?: number;
@@ -242,7 +242,7 @@ export interface VirtualScrollConfig {
 export interface VirtualScrollResult {
   startIndex: number;
   endIndex: number;
-  offsetTop: number;
+  offsetY: number;
   totalHeight: number;
   visibleItems: number[];
 }
@@ -255,27 +255,38 @@ export function calculateVirtualScroll(
   scrollTop: number,
   config: VirtualScrollConfig
 ): VirtualScrollResult {
-  const { itemCount, itemHeight, containerHeight, overscan = 3 } = config;
+  const { totalItems, itemHeight, containerHeight, overscan = 3 } = config;
 
-  const totalHeight = itemCount * itemHeight;
+  // Handle empty list
+  if (totalItems === 0) {
+    return {
+      startIndex: 0,
+      endIndex: 0,
+      offsetY: 0,
+      totalHeight: 0,
+      visibleItems: [],
+    };
+  }
+
+  const totalHeight = totalItems * itemHeight;
   const visibleCount = Math.ceil(containerHeight / itemHeight);
 
   let startIndex = Math.floor(scrollTop / itemHeight) - overscan;
   startIndex = Math.max(0, startIndex);
 
   let endIndex = startIndex + visibleCount + overscan * 2;
-  endIndex = Math.min(itemCount - 1, endIndex);
+  endIndex = Math.min(totalItems - 1, endIndex);
 
-  const offsetTop = startIndex * itemHeight;
+  const offsetY = startIndex * itemHeight;
   const visibleItems = Array.from(
-    { length: endIndex - startIndex + 1 },
+    { length: Math.max(0, endIndex - startIndex + 1) },
     (_, i) => startIndex + i
   );
 
   return {
     startIndex,
     endIndex,
-    offsetTop,
+    offsetY,
     totalHeight,
     visibleItems,
   };
@@ -284,6 +295,21 @@ export function calculateVirtualScroll(
 // ═══════════════════════════════════════════════════════════════════════════
 // Image Optimization
 // ═══════════════════════════════════════════════════════════════════════════
+
+const IMAGE_SIZES = [320, 640, 768, 1024, 1280, 1536, 1920];
+
+/**
+ * Get optimal image size for container width
+ * الحصول على حجم الصورة الأمثل لعرض الحاوية
+ */
+export function getOptimalImageSize(containerWidth: number): number {
+  for (const size of IMAGE_SIZES) {
+    if (size >= containerWidth) {
+      return size;
+    }
+  }
+  return IMAGE_SIZES[IMAGE_SIZES.length - 1]; // Return max size
+}
 
 /**
  * Generate responsive image srcset
@@ -415,6 +441,7 @@ export const Performance = {
   memoize,
   deduplicateRequest,
   calculateVirtualScroll,
+  getOptimalImageSize,
   generateSrcSet,
   generateBlurPlaceholder,
   getIntersectionObserver,

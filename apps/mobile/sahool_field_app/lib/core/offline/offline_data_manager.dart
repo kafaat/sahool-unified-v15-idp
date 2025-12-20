@@ -115,8 +115,8 @@ class OfflineDataManager {
 
     // مراقبة حالة الاتصال
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-      (result) {
-        if (result != ConnectivityResult.none) {
+      (List<ConnectivityResult> results) {
+        if (results.isNotEmpty && !results.every((r) => r == ConnectivityResult.none)) {
           _onConnectionRestored();
         }
       },
@@ -230,8 +230,10 @@ class OfflineDataManager {
       );
     }
 
-    final connectivity = await _connectivity.checkConnectivity();
-    if (connectivity == ConnectivityResult.none) {
+    final connectivityResults = await _connectivity.checkConnectivity();
+    final isOffline = connectivityResults.isEmpty ||
+                      connectivityResults.every((r) => r == ConnectivityResult.none);
+    if (isOffline) {
       return OfflineSyncResult(
         success: false,
         message: 'لا يوجد اتصال بالإنترنت',
@@ -312,8 +314,10 @@ class OfflineDataManager {
 
   /// محاولة المزامنة الفورية
   void _trySyncNow() async {
-    final connectivity = await _connectivity.checkConnectivity();
-    if (connectivity != ConnectivityResult.none && !_isSyncing) {
+    final connectivityResults = await _connectivity.checkConnectivity();
+    final isOnline = connectivityResults.isNotEmpty &&
+                     !connectivityResults.every((r) => r == ConnectivityResult.none);
+    if (isOnline && !_isSyncing) {
       syncNow();
     }
   }

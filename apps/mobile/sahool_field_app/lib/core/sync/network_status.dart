@@ -5,7 +5,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 /// مراقب حالة الشبكة
 class NetworkStatus {
   final Connectivity _connectivity = Connectivity();
-  StreamSubscription<ConnectivityResult>? _subscription;
+  StreamSubscription<List<ConnectivityResult>>? _subscription;
 
   bool _isOnline = false;
   final _onlineController = StreamController<bool>.broadcast();
@@ -25,11 +25,12 @@ class NetworkStatus {
     _subscription = _connectivity.onConnectivityChanged.listen(_updateStatus);
   }
 
-  void _updateStatus(ConnectivityResult result) {
+  void _updateStatus(List<ConnectivityResult> results) {
     final wasOnline = _isOnline;
 
-    // Check if result indicates connectivity
-    _isOnline = result != ConnectivityResult.none;
+    // Check if any result indicates connectivity (not none)
+    _isOnline = results.isNotEmpty &&
+                !results.every((r) => r == ConnectivityResult.none);
 
     if (wasOnline != _isOnline) {
       _onlineController.add(_isOnline);
@@ -37,8 +38,8 @@ class NetworkStatus {
   }
 
   Future<bool> checkOnline() async {
-    final result = await _connectivity.checkConnectivity();
-    _updateStatus(result);
+    final results = await _connectivity.checkConnectivity();
+    _updateStatus(results);
     return _isOnline;
   }
 

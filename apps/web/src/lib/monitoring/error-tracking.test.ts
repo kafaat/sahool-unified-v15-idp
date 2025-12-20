@@ -51,6 +51,7 @@ describe('Error Tracking', () => {
   describe('addBreadcrumb', () => {
     it('should add a breadcrumb', () => {
       addBreadcrumb({
+        type: 'navigation',
         category: 'navigation',
         message: 'User navigated to /fields',
       });
@@ -64,6 +65,7 @@ describe('Error Tracking', () => {
       // Add more than the max
       for (let i = 0; i < 60; i++) {
         addBreadcrumb({
+          type: 'console',
           category: 'test',
           message: `Breadcrumb ${i}`,
         });
@@ -75,6 +77,7 @@ describe('Error Tracking', () => {
 
     it('should add timestamp automatically', () => {
       addBreadcrumb({
+        type: 'click',
         category: 'action',
         message: 'Button clicked',
       });
@@ -86,8 +89,8 @@ describe('Error Tracking', () => {
 
   describe('clearBreadcrumbs', () => {
     it('should clear all breadcrumbs', () => {
-      addBreadcrumb({ category: 'test', message: 'Test' });
-      addBreadcrumb({ category: 'test', message: 'Test 2' });
+      addBreadcrumb({ type: 'console', category: 'test', message: 'Test' });
+      addBreadcrumb({ type: 'console', category: 'test', message: 'Test 2' });
 
       clearBreadcrumbs();
 

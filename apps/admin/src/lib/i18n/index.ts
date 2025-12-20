@@ -423,7 +423,7 @@ export function t(
   params?: Record<string, string | number>
 ): string {
   const localeTranslations = translations[currentLocale] || translations[config.fallbackLocale];
-  let text = localeTranslations[key] || translations[config.fallbackLocale][key] || key;
+  let text: string = localeTranslations[key] || translations[config.fallbackLocale][key] || key;
 
   // Replace parameters
   if (params) {

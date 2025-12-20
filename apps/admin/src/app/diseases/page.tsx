@@ -88,7 +88,7 @@ function DiseasesContent() {
         if (
           !d.diseaseNameAr.toLowerCase().includes(query) &&
           !d.diseaseName.toLowerCase().includes(query) &&
-          !d.farmName.toLowerCase().includes(query)
+          !(d.farmName || '').toLowerCase().includes(query)
         ) {
           return false;
         }
@@ -408,15 +408,15 @@ function DiseasesContent() {
               </div>
 
               {/* Treatment Recommendation */}
-              {selectedDiagnosis.treatment && (
+              {(selectedDiagnosis as DiagnosisRecord & { treatment?: { recommendation?: string; recommendationAr?: string } }).treatment && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                   <h3 className="font-bold text-green-800 mb-2 flex items-center gap-2">
                     <Pill className="w-5 h-5" />
                     توصية العلاج
                   </h3>
                   <p className="text-green-700">
-                    {selectedDiagnosis.treatment.recommendationAr ||
-                      selectedDiagnosis.treatment.recommendation}
+                    {(selectedDiagnosis as DiagnosisRecord & { treatment?: { recommendation?: string; recommendationAr?: string } }).treatment?.recommendationAr ||
+                      (selectedDiagnosis as DiagnosisRecord & { treatment?: { recommendation?: string; recommendationAr?: string } }).treatment?.recommendation}
                   </p>
                 </div>
               )}

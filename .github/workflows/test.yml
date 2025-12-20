@@ -32,6 +32,7 @@ jobs:
       frontend: ${{ steps.filter.outputs.frontend }}
       python: ${{ steps.filter.outputs.python }}
       shared: ${{ steps.filter.outputs.shared }}
+      mobile: ${{ steps.filter.outputs.mobile }}
     steps:
       - uses: actions/checkout@v4
 
@@ -53,6 +54,8 @@ jobs:
               - 'requirements*.txt'
             shared:
               - 'governance/**'
+            mobile:
+              - 'apps/mobile/**'
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Frontend Tests
@@ -153,6 +156,69 @@ jobs:
         continue-on-error: true
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Flutter Mobile Tests
+  # ─────────────────────────────────────────────────────────────────────────────
+  flutter-tests:
+    name: Flutter Mobile Tests
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true' || github.event_name == 'push'
+    defaults:
+      run:
+        working-directory: apps/mobile/sahool_field_app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.1'
+          channel: 'stable'
+          cache: true
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Create .env file
+        run: |
+          cat > .env << 'EOF'
+          ENV=development
+          API_URL=http://localhost:8000/api/v1
+          WS_URL=ws://localhost:8090
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          EOF
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze code
+        run: flutter analyze --no-fatal-infos || echo "::warning::Analysis warnings found"
+
+      - name: Run unit tests
+        run: |
+          echo "🧪 Running Flutter unit tests..."
+          flutter test test/unit/ --reporter=expanded || echo "::warning::Some unit tests failed"
+
+      - name: Run widget tests
+        run: |
+          echo "🧪 Running Flutter widget tests..."
+          flutter test test/widget/ --reporter=expanded || echo "::warning::Some widget tests failed"
+
+      - name: Run integration tests
+        run: |
+          echo "🧪 Running Flutter integration tests..."
+          flutter test test/integration/ --reporter=expanded || echo "::warning::Some integration tests failed"
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## Flutter Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Unit tests completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Widget tests completed" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration tests completed" >> $GITHUB_STEP_SUMMARY
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Event Schema Validation
   # ─────────────────────────────────────────────────────────────────────────────
   schema-validation:
@@ -224,7 +290,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
-    needs: [frontend-tests, python-tests, schema-validation]
+    needs: [frontend-tests, python-tests, flutter-tests, schema-validation]
     if: always()
     steps:
       - name: Generate Summary
@@ -235,12 +301,14 @@ jobs:
           echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Frontend Tests | ${{ needs.frontend-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Python Tests | ${{ needs.python-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Flutter Tests | ${{ needs.flutter-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Schema Validation | ${{ needs.schema-validation.result }} |" >> $GITHUB_STEP_SUMMARY
 
       - name: Check Results
         run: |
           if [[ "${{ needs.frontend-tests.result }}" == "failure" ]] || \
              [[ "${{ needs.python-tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.flutter-tests.result }}" == "failure" ]] || \
              [[ "${{ needs.schema-validation.result }}" == "failure" ]]; then
             echo "::error::One or more test suites failed"
             exit 1

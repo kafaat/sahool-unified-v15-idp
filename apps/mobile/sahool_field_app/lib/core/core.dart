@@ -36,3 +36,6 @@ export 'performance/performance.dart';
 
 // Map
 export 'map/map.dart';
+
+// Notifications
+export 'notifications/notifications.dart';

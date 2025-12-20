@@ -36,6 +36,12 @@ const severityConfig: Record<AlertSeverity, {
     borderColor: 'border-red-200',
     iconColor: 'text-red-500',
   },
+  emergency: {
+    icon: '🆘',
+    bgColor: 'bg-red-100',
+    borderColor: 'border-red-400',
+    iconColor: 'text-red-700',
+  },
 };
 
 function formatTimeAgo(dateString: string): string {

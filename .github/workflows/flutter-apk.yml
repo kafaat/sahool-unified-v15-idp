@@ -16,7 +16,7 @@ on:
       - main
       - 'claude/*'
     paths:
-      - 'mobile/sahool_field_app/**'
+      - 'apps/mobile/sahool_field_app/**'
 
 jobs:
   build-apk:
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: mobile/sahool_field_app
+        working-directory: apps/mobile/sahool_field_app
 
     steps:
       - name: Checkout repository
@@ -109,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sahool-apk-${{ github.run_number }}
-          path: mobile/sahool_field_app/build/app/outputs/**/*.apk
+          path: apps/mobile/sahool_field_app/build/app/outputs/**/*.apk
           retention-days: 30
 
       - name: Upload Debug Symbols
@@ -117,7 +117,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sahool-symbols-${{ github.run_number }}
-          path: mobile/sahool_field_app/build/app/outputs/symbols/
+          path: apps/mobile/sahool_field_app/build/app/outputs/symbols/
           retention-days: 90
         continue-on-error: true
 

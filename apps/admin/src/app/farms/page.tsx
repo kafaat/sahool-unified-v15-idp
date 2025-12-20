@@ -70,7 +70,7 @@ export default function FarmsPage() {
       if (searchQuery) {
         const query = searchQuery.toLowerCase();
         if (
-          !f.nameAr.toLowerCase().includes(query) &&
+          !(f.nameAr || '').toLowerCase().includes(query) &&
           !f.name.toLowerCase().includes(query) &&
           !f.governorate.toLowerCase().includes(query)
         ) {

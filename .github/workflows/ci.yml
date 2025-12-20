@@ -47,7 +47,7 @@ jobs:
         continue-on-error: true
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Unified Tests with Coverage (Sprint 2)
+  # Unified Tests with Coverage (Sprint 2) - Enhanced with Coverage Regression
   # ─────────────────────────────────────────────────────────────────────────────
   test-unified:
     name: Tests with Coverage
@@ -56,24 +56,29 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for coverage comparison
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'  # Enable pip caching
 
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-asyncio pytest-cov httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm
 
-      - name: Run unified tests with coverage
+      - name: Run unified tests with coverage (parallel)
         run: |
-          # Run service tests (apps/services) - these are the active tests
-          pytest apps/services/ -v --tb=short --ignore=apps/services/marketplace-service || true
+          # Run service tests in parallel using pytest-xdist
+          pytest apps/services/ -v -n auto --tb=short --ignore=apps/services/marketplace-service \
+            --cov=apps/services --cov=shared --cov-report=xml --cov-report=term-missing || true
 
-          # Run shared module tests that don't depend on legacy code
-          pytest tests/smoke/ tests/integration/test_health.py -v --tb=short || true
+          # Run shared module tests
+          pytest tests/smoke/ tests/integration/test_health.py -v --tb=short \
+            --cov-append --cov=shared --cov-report=xml --cov-report=term-missing || true
         env:
           ENVIRONMENT: test
           JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
@@ -81,12 +86,47 @@ jobs:
           DATABASE_URL: ""
           NATS_URL: ""
 
+      - name: Check coverage regression
+        if: github.event_name == 'pull_request'
+        run: |
+          # Get current coverage percentage
+          CURRENT_COV=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); print(tree.getroot().attrib['line-rate'])" 2>/dev/null || echo "0")
+          CURRENT_COV_PCT=$(python -c "print(f'{float($CURRENT_COV) * 100:.2f}')")
+          
+          echo "Current coverage: ${CURRENT_COV_PCT}%"
+          
+          # Set minimum threshold
+          MIN_COVERAGE=60.0
+          
+          # Check if coverage meets minimum
+          python -c "
+          import sys
+          current = float('${CURRENT_COV_PCT}')
+          minimum = float('${MIN_COVERAGE}')
+          if current < minimum:
+              print(f'❌ Coverage {current:.2f}% is below minimum {minimum:.2f}%')
+              sys.exit(1)
+          else:
+              print(f'✅ Coverage {current:.2f}% meets minimum {minimum:.2f}%')
+          "
+
       - name: Upload coverage report
         uses: codecov/codecov-action@v4
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
           fail_ci_if_error: false
+          flags: unittests
+          name: codecov-sahool
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 30
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Architecture Check (Sprint 3)

@@ -1,6 +1,6 @@
 {
   "name": "sahool-web",
-  "version": "16.0.0",
+  "version": "17.0.0",
   "description": "Sahool Agricultural Platform - Main Web Application",
   "private": true,
   "scripts": {
@@ -8,7 +8,10 @@
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@sahool/api-client": "*",
@@ -42,6 +45,12 @@
     "postcss": "8.4.49",
     "autoprefixer": "10.4.20",
     "eslint": "9.17.0",
-    "eslint-config-next": "15.1.2"
+    "eslint-config-next": "15.1.2",
+    "vitest": "2.1.8",
+    "@vitejs/plugin-react": "4.3.4",
+    "@vitest/coverage-v8": "2.1.8",
+    "@testing-library/react": "16.1.0",
+    "@testing-library/jest-dom": "6.6.3",
+    "jsdom": "25.0.1"
   }
 }

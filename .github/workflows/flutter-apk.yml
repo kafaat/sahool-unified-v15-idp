@@ -39,7 +39,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.0'
           channel: 'stable'
           cache: true
 
@@ -128,5 +127,5 @@ jobs:
           echo "|------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Build Type | ${{ github.event.inputs.build_type || 'release' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| APK Size | ${{ steps.apk_info.outputs.apk_size }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Flutter Version | 3.29.0 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Flutter Version | stable |" >> $GITHUB_STEP_SUMMARY
           echo "| Run Number | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY

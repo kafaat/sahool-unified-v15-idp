@@ -30,17 +30,22 @@ class ServiceConfig:
 
 SERVICES = {
     "gateway": ServiceConfig("Kong Gateway", "بوابة Kong", 8000, "/health"),
+    "field_core": ServiceConfig("Field Core", "خدمة الحقول", 3000),
+    "marketplace": ServiceConfig("Marketplace", "السوق", 3010),
     "billing": ServiceConfig("Billing Core", "خدمة الفوترة", 8089),
-    "weather": ServiceConfig("Weather Advanced", "خدمة الطقس", 8092),
-    "satellite": ServiceConfig("Satellite Service", "خدمة الأقمار", 8090),
+    "satellite": ServiceConfig("Satellite/NDVI", "خدمة الأقمار والـNDVI", 8090),
     "indicators": ServiceConfig("Indicators Service", "خدمة المؤشرات", 8091),
+    "weather": ServiceConfig("Weather Advanced", "خدمة الطقس المتقدمة", 8092),
     "fertilizer": ServiceConfig("Fertilizer Advisor", "مستشار الأسمدة", 8093),
     "irrigation": ServiceConfig("Irrigation Smart", "الري الذكي", 8094),
-    "crop_health": ServiceConfig("Crop Health AI", "صحة المحاصيل", 8095),
+    "crop_health": ServiceConfig("Crop Health AI", "صحة المحاصيل بالذكاء الاصطناعي", 8095),
     "virtual_sensors": ServiceConfig("Virtual Sensors", "المستشعرات الافتراضية", 8096),
+    "community": ServiceConfig("Community Chat", "مجتمع المزارعين", 8097),
     "yield_engine": ServiceConfig("Yield Engine", "محرك الإنتاجية", 8098),
+    "iot_gateway": ServiceConfig("IoT Gateway", "بوابة إنترنت الأشياء", 8100),
+    "equipment": ServiceConfig("Equipment Manager", "إدارة المعدات", 8101),
     "notifications": ServiceConfig("Notification Service", "خدمة الإشعارات", 8109),
-    "astronomical": ServiceConfig("Astronomical Calendar", "التقويم الفلكي", 8111),
+    "astronomical": ServiceConfig("Astronomical Calendar", "التقويم الفلكي اليمني", 8111),
 }
 
 

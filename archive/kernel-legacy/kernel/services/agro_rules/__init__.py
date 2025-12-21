@@ -1,1 +1,0 @@
-# SAHOOL Agro Rules Service

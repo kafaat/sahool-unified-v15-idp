@@ -183,8 +183,8 @@ GET /search/farmers?region=hadhramaut&crop=coffee
 ## WebSocket Events
 
 ```javascript
-// الاتصال
-ws://community-chat:8106/ws?token={jwt}
+// الاتصال (استخدم wss:// في الإنتاج)
+wss://community-chat:8106/ws?token={jwt}
 
 // استقبال رسالة
 {

@@ -91,6 +91,23 @@ services:
       timeout: 5s
       retries: 3
 
+  # خدمة التقويم الفلكي الزراعي اليمني
+  astronomical-calendar:
+    build:
+      context: ./astronomical-calendar
+      dockerfile: Dockerfile
+    ports:
+      - "8111:8111"
+    environment:
+      - WEATHER_SERVICE_URL=http://weather-advanced:8092
+    depends_on:
+      - weather-advanced
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8111/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   fertilizer-advisor:
     build:
       context: ./fertilizer-advisor

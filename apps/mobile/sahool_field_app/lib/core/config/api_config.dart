@@ -19,6 +19,7 @@ class ServicePorts {
   static const int communityChat = 8097; // Community Chat (Socket.io)
   static const int equipment = 8101;
   static const int notifications = 8110; // Notification Service
+  static const int astronomicalCalendar = 8111; // Astronomical Calendar Service
   static const int gateway = 8000; // Kong API Gateway
 }
 
@@ -82,6 +83,7 @@ class ApiConfig {
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
   static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
   static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
+  static String get astronomicalCalendarServiceUrl => 'http://$_host:${ServicePorts.astronomicalCalendar}';
 
   /// Production base URL (Kong Gateway)
   static const String productionBaseUrl = 'https://api.sahool.io';

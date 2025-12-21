@@ -29,6 +29,9 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
+# Create non-root user for security
+RUN addgroup -g 1000 sahool && adduser -u 1000 -G sahool -s /bin/sh -D sahool
+
 # Install curl for health checks
 RUN apk add --no-cache curl
 
@@ -45,6 +48,10 @@ COPY --from=builder /app/dist ./dist
 
 # Expose port
 EXPOSE 3015
+
+# Set ownership and switch to non-root user
+RUN chown -R sahool:sahool /app
+USER sahool
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \

@@ -9,6 +9,10 @@ LABEL version="15.3.0"
 
 WORKDIR /app
 
+# Create non-root user for security
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
@@ -23,6 +27,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY src/ ./src/
+
+# Set ownership and switch to non-root user
+RUN chown -R sahool:sahool /app
+USER sahool
 
 # Expose port
 EXPOSE 8109

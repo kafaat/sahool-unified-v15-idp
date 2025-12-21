@@ -31,10 +31,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy shared libraries
-COPY ../shared /app/shared/
-
 # Copy application
+# Note: shared libraries will be mounted or copied at deployment time if needed
 COPY src ./src
 
 # Set ownership

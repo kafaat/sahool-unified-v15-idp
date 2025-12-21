@@ -13,7 +13,7 @@ class AppConfig {
   static const Duration cacheExpiry = Duration(hours: 24);
 
   // App Info
-  static const String appVersion = '15.3.0';
+  static const String appVersion = '15.5.0';
   static const String appName = 'SAHOOL Field';
 
   // Feature Flags

@@ -1,0 +1,701 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Service Registry
+# Field-First Architecture Classification
+# Version: 15.5.0
+# ═══════════════════════════════════════════════════════════════════════════════
+
+metadata:
+  version: "15.5.0"
+  updated: "2025-12-21"
+  architecture: "field-first"
+  principle: "المنصة ميدانية، والتحليل يخدم الميدان"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Layer Definitions
+# ─────────────────────────────────────────────────────────────────────────────
+
+layers:
+  infrastructure:
+    description: "البنية التحتية الأساسية"
+    description_en: "Core infrastructure services"
+    priority: 0
+    restart_policy: always
+    required: true
+
+  field-critical:
+    description: "خدمات الميدان الحرجة - لا تتوقف أبداً"
+    description_en: "Critical field services - never stop"
+    priority: 1
+    restart_policy: always
+    offline_required: true
+    fallback: "local-cache"
+
+  bridge:
+    description: "طبقة التحويل - تحول التحليل لإجراءات"
+    description_en: "Bridge layer - transforms analysis to actions"
+    priority: 2
+    restart_policy: on-failure
+    offline_required: false
+    fallback: "last-known-state"
+
+  analysis:
+    description: "طبقة التحليل - يمكن تأخيرها"
+    description_en: "Analysis layer - can be delayed"
+    priority: 3
+    restart_policy: on-failure
+    async: true
+    cache_ttl: "24h"
+
+  communication:
+    description: "خدمات الاتصال والتواصل"
+    description_en: "Communication services"
+    priority: 2
+    restart_policy: on-failure
+
+  marketplace:
+    description: "خدمات السوق والتجارة"
+    description_en: "Marketplace and commerce services"
+    priority: 3
+    restart_policy: on-failure
+
+  observability:
+    description: "المراقبة والتتبع"
+    description_en: "Monitoring and observability"
+    priority: 4
+    restart_policy: on-failure
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Infrastructure Services
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # INFRASTRUCTURE (Priority 0)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  postgres:
+    layer: infrastructure
+    port: 5432
+    description: "قاعدة البيانات المكانية PostGIS"
+    description_en: "PostGIS spatial database"
+    image: "postgis/postgis:16-3.4"
+    required_by: ["all"]
+    healthcheck: "pg_isready"
+
+  redis:
+    layer: infrastructure
+    port: 6379
+    description: "التخزين المؤقت والجلسات"
+    description_en: "Cache and sessions"
+    image: "redis:7.4-alpine"
+    required_by: ["field-critical", "bridge"]
+    healthcheck: "redis-cli ping"
+
+  nats:
+    layer: infrastructure
+    ports: [4222, 8222]
+    description: "ناقل الرسائل والأحداث"
+    description_en: "Message queue and events"
+    image: "nats:2.10.24-alpine"
+    required_by: ["bridge", "analysis"]
+    healthcheck: "/healthz"
+
+  mqtt:
+    layer: infrastructure
+    ports: [1883, 9001]
+    description: "بروتوكول IoT"
+    description_en: "IoT protocol"
+    image: "eclipse-mosquitto:2"
+    required_by: ["iot-service"]
+
+  kong:
+    layer: infrastructure
+    ports: [8000, 8001]
+    description: "بوابة API"
+    description_en: "API Gateway"
+    image: "kong:3.9"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD-CRITICAL (Priority 1)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  billing_core:
+    layer: field-critical
+    port: 8089
+    path: "apps/services/billing-core"
+    language: python
+    framework: fastapi
+    description: "إدارة الاشتراكات والفواتير"
+    description_en: "Subscription and billing management"
+    offline_behavior:
+      strategy: "capability-based"
+      fallback: "last-known-subscription"
+      cache_ttl: "7d"
+    endpoints:
+      health: "/healthz"
+      plans: "/v1/plans"
+      subscription: "/v1/tenants/{id}/subscription"
+
+  astronomical_calendar:
+    layer: field-critical
+    port: 8111
+    path: "apps/services/astronomical-calendar"
+    language: python
+    framework: fastapi
+    description: "التقويم الفلكي الزراعي اليمني"
+    description_en: "Yemeni agricultural astronomical calendar"
+    offline_behavior:
+      strategy: "local-calculation"
+      fallback: "pre-computed-tables"
+      cache_ttl: "30d"
+    endpoints:
+      health: "/healthz"
+      today: "/v1/today"
+      season: "/v1/season"
+
+  notification_service:
+    layer: field-critical
+    port: 8110
+    path: "apps/services/notification-service"
+    language: python
+    framework: fastapi
+    description: "الإشعارات والتنبيهات"
+    description_en: "Notifications and alerts"
+    offline_behavior:
+      strategy: "queue-and-retry"
+      fallback: "local-queue"
+    channels: ["push", "sms", "in-app"]
+    endpoints:
+      health: "/healthz"
+      send: "/v1/notify"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # BRIDGE LAYER (Priority 2)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  indicators_service:
+    layer: bridge
+    port: 8091
+    path: "apps/services/indicators-service"
+    language: python
+    framework: fastapi
+    description: "تحويل البيانات لمؤشرات عملية"
+    description_en: "Transform data to actionable indicators"
+    transforms:
+      - input: "ndvi_result"
+        output: "risk_score"
+      - input: "weather_forecast"
+        output: "irrigation_advice"
+      - input: "soil_analysis"
+        output: "fertilizer_recommendation"
+    endpoints:
+      health: "/healthz"
+      indicators: "/v1/indicators/{field_id}"
+
+  yield_engine:
+    layer: bridge
+    port: 8098
+    path: "apps/services/yield-engine"
+    language: python
+    framework: fastapi
+    description: "توصيات الإنتاجية"
+    description_en: "Yield recommendations"
+    transforms:
+      - input: "crop_data"
+        output: "yield_estimate"
+      - input: "historical_data"
+        output: "harvest_timing"
+    endpoints:
+      health: "/healthz"
+      estimate: "/v1/yield/estimate"
+
+  irrigation_smart:
+    layer: bridge
+    port: 8094
+    path: "apps/services/irrigation-smart"
+    language: python
+    framework: fastapi
+    description: "توصيات الري الذكي FAO-56"
+    description_en: "Smart irrigation recommendations FAO-56"
+    transforms:
+      - input: "et0_calculation"
+        output: "irrigation_schedule"
+      - input: "soil_moisture"
+        output: "water_amount"
+    endpoints:
+      health: "/healthz"
+      schedule: "/v1/irrigation/schedule"
+
+  fertilizer_advisor:
+    layer: bridge
+    port: 8093
+    path: "apps/services/fertilizer-advisor"
+    language: python
+    framework: fastapi
+    description: "توصيات التسميد"
+    description_en: "Fertilizer recommendations"
+    transforms:
+      - input: "soil_test"
+        output: "fertilizer_plan"
+    endpoints:
+      health: "/healthz"
+      recommend: "/v1/fertilizer/recommend"
+
+  virtual_sensors:
+    layer: bridge
+    port: 8096
+    path: "apps/services/virtual-sensors"
+    language: python
+    framework: fastapi
+    description: "المستشعرات الافتراضية وحسابات ET0"
+    description_en: "Virtual sensors and ET0 calculations"
+    transforms:
+      - input: "weather_data"
+        output: "et0_value"
+      - input: "satellite_data"
+        output: "soil_moisture_estimate"
+    endpoints:
+      health: "/healthz"
+      et0: "/v1/et0/calculate"
+
+  disaster_assessment:
+    layer: bridge
+    port: 3020
+    path: "apps/services/disaster-assessment"
+    language: nodejs
+    framework: nestjs
+    description: "تقييم الكوارث وتحويلها لتحذيرات"
+    description_en: "Disaster assessment and alert generation"
+    transforms:
+      - input: "disaster_detection"
+        output: "urgent_alert"
+    endpoints:
+      health: "/api/v1/disasters/health"
+      assess: "/api/v1/disasters/assess"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ANALYSIS LAYER (Priority 3)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  satellite_service:
+    layer: analysis
+    port: 8090
+    path: "apps/services/satellite-service"
+    language: python
+    framework: fastapi
+    description: "تحليل صور الأقمار الصناعية"
+    description_en: "Satellite imagery analysis"
+    async: true
+    cache_ttl: "24h"
+    outputs: ["ndvi", "ndwi", "evi", "savi"]
+    endpoints:
+      health: "/healthz"
+      analyze: "/v1/satellite/analyze"
+
+  crop_health_ai:
+    layer: analysis
+    port: 8095
+    path: "apps/services/crop-health-ai"
+    language: python
+    framework: fastapi
+    description: "تشخيص أمراض المحاصيل بالذكاء الاصطناعي"
+    description_en: "AI-powered crop disease diagnosis"
+    async: true
+    cache_ttl: "12h"
+    outputs: ["disease_detection", "severity_score", "treatment_recommendation"]
+    endpoints:
+      health: "/healthz"
+      diagnose: "/v1/diagnose"
+
+  weather_advanced:
+    layer: analysis
+    port: 8092
+    path: "apps/services/weather-advanced"
+    language: python
+    framework: fastapi
+    description: "التنبؤات الجوية المتقدمة"
+    description_en: "Advanced weather forecasting"
+    async: true
+    cache_ttl: "6h"
+    outputs: ["forecast", "alerts", "historical"]
+    endpoints:
+      health: "/healthz"
+      forecast: "/v1/weather/forecast"
+
+  lai_estimation:
+    layer: analysis
+    port: 3022
+    path: "apps/services/lai-estimation"
+    language: nodejs
+    framework: nestjs
+    description: "تقدير مؤشر مساحة الأوراق LAI"
+    description_en: "Leaf Area Index estimation"
+    async: true
+    cache_ttl: "24h"
+    endpoints:
+      health: "/api/v1/lai/health"
+      estimate: "/api/v1/lai/estimate"
+
+  crop_growth_model:
+    layer: analysis
+    port: 3023
+    path: "apps/services/crop-growth-model"
+    language: nodejs
+    framework: nestjs
+    description: "نماذج نمو المحاصيل WOFOST/DSSAT"
+    description_en: "Crop growth models WOFOST/DSSAT"
+    async: true
+    cache_ttl: "48h"
+    endpoints:
+      health: "/api/v1/simulation/health"
+      simulate: "/api/v1/simulation/run"
+
+  yield_prediction:
+    layer: analysis
+    port: 3021
+    path: "apps/services/yield-prediction"
+    language: nodejs
+    framework: nestjs
+    description: "التنبؤ بالإنتاجية"
+    description_en: "Yield prediction"
+    async: true
+    cache_ttl: "24h"
+    endpoints:
+      health: "/api/v1/yield/health"
+      predict: "/api/v1/yield/predict"
+
+  research_core:
+    layer: analysis
+    port: 3015
+    path: "apps/services/research-core"
+    language: nodejs
+    framework: nestjs
+    description: "البحث العلمي والتجارب"
+    description_en: "Scientific research and experiments"
+    async: true
+    endpoints:
+      health: "/api/v1/healthz"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # COMMUNICATION (Priority 2)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  community_chat:
+    layer: communication
+    port: 8097
+    path: "apps/services/community-chat"
+    language: nodejs
+    framework: nestjs
+    description: "الدردشة المجتمعية الزراعية"
+    description_en: "Agricultural community chat"
+    realtime: true
+    websocket: true
+    endpoints:
+      health: "/healthz"
+      ws: "/ws"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MARKETPLACE (Priority 3)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  marketplace_service:
+    layer: marketplace
+    port: 3010
+    path: "apps/services/marketplace-service"
+    language: nodejs
+    framework: nestjs
+    description: "سوق المنتجات الزراعية"
+    description_en: "Agricultural marketplace"
+    endpoints:
+      health: "/api/v1/healthz"
+      products: "/api/v1/products"
+      orders: "/api/v1/orders"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # OBSERVABILITY (Priority 4)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  prometheus:
+    layer: observability
+    port: 9090
+    description: "جمع المقاييس"
+    description_en: "Metrics collection"
+    image: "prom/prometheus:latest"
+
+  grafana:
+    layer: observability
+    port: 3002
+    description: "لوحات المراقبة"
+    description_en: "Monitoring dashboards"
+    image: "grafana/grafana:latest"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Action Templates
+# ─────────────────────────────────────────────────────────────────────────────
+
+action_templates:
+  water_stress:
+    title_ar: "إجهاد مائي محتمل"
+    title_en: "Potential Water Stress"
+    trigger: "ndvi_drop > 0.1 AND soil_moisture < 30%"
+    action: "ري خلال 48 ساعة"
+    priority: high
+    offline_executable: true
+    proof_required: ["photo", "meter_reading"]
+
+  pest_detection:
+    title_ar: "اشتباه آفة"
+    title_en: "Suspected Pest"
+    trigger: "ai_detection.pest_probability > 0.7"
+    action: "فحص ومعالجة"
+    priority: urgent
+    offline_executable: true
+    proof_required: ["photo", "notes"]
+
+  harvest_ready:
+    title_ar: "جاهز للحصاد"
+    title_en: "Ready for Harvest"
+    trigger: "crop_maturity >= 95%"
+    action: "بدء الحصاد"
+    priority: normal
+    offline_executable: true
+    proof_required: ["weight", "photo"]
+
+  fertilizer_needed:
+    title_ar: "تسميد مطلوب"
+    title_en: "Fertilization Needed"
+    trigger: "soil_nutrients.nitrogen < threshold"
+    action: "تطبيق سماد"
+    priority: normal
+    offline_executable: true
+    proof_required: ["photo", "amount"]
+
+  frost_warning:
+    title_ar: "تحذير صقيع"
+    title_en: "Frost Warning"
+    trigger: "forecast.min_temp < 2°C"
+    action: "تغطية المحاصيل"
+    priority: urgent
+    offline_executable: true
+    proof_required: ["photo"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Pipeline Definition
+# ─────────────────────────────────────────────────────────────────────────────
+
+pipelines:
+  ndvi_to_action:
+    name: "NDVI to Field Action"
+    steps:
+      - service: satellite_service
+        action: analyze
+        output: ndvi_result
+      - service: indicators_service
+        action: transform
+        input: ndvi_result
+        output: risk_assessment
+      - service: notification_service
+        action: create_task
+        input: risk_assessment
+        output: field_task
+
+  weather_to_irrigation:
+    name: "Weather to Irrigation Schedule"
+    steps:
+      - service: weather_advanced
+        action: forecast
+        output: weather_data
+      - service: virtual_sensors
+        action: calculate_et0
+        input: weather_data
+        output: et0_value
+      - service: irrigation_smart
+        action: schedule
+        input: et0_value
+        output: irrigation_task
+
+  disease_to_treatment:
+    name: "Disease Detection to Treatment"
+    steps:
+      - service: crop_health_ai
+        action: diagnose
+        output: diagnosis
+      - service: indicators_service
+        action: transform
+        input: diagnosis
+        output: treatment_plan
+      - service: notification_service
+        action: create_urgent_task
+        input: treatment_plan
+        output: field_task
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Legacy Services (Deprecated)
+# ─────────────────────────────────────────────────────────────────────────────
+# ⚠️ هذه الخدمات قديمة ومتوقفة - لا تستخدم في التطوير الجديد
+# استخدم: docker compose --profile legacy up -d
+
+legacy_services:
+  field_core:
+    status: deprecated
+    port: 3000
+    path: "apps/services/field-service"
+    replacement: "field-service"
+    reason: "دمج إدارة الحقول في خدمة واحدة"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  field_ops:
+    status: deprecated
+    port: 8080
+    path: "apps/services/field-service"
+    replacement: "field-service"
+    reason: "دمج عمليات الحقل مع إدارة الحقول"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  ndvi_engine:
+    status: deprecated
+    port: 8107
+    path: "apps/services/ndvi-processor"
+    replacement: "satellite-service"
+    replacement_port: 8090
+    reason: "توسيع لدعم NDWI, EVI, SAVI"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+    migration:
+      old_endpoint: "/ndvi/{field_id}"
+      new_endpoint: "/v1/satellite/analyze"
+
+  weather_core:
+    status: deprecated
+    port: 8108
+    path: "apps/services/weather-advanced"
+    replacement: "weather-advanced"
+    replacement_port: 8092
+    reason: "إضافة تنبؤات متقدمة وتكامل FAO"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+    migration:
+      old_endpoint: "/forecast"
+      new_endpoint: "/v1/weather/forecast"
+
+  field_chat:
+    status: deprecated
+    port: 8099
+    path: "apps/services/community-chat"
+    replacement: "community-chat"
+    replacement_port: 8097
+    reason: "إعادة تصميم WebSocket"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  iot_gateway:
+    status: deprecated
+    port: 8106
+    path: "apps/services/iot-service"
+    replacement: "iot-service (قيد التطوير)"
+    reason: "تحسين بروتوكول MQTT"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  agro_advisor:
+    status: deprecated
+    port: 8105
+    path: "apps/services/fertilizer-advisor"
+    replacement: "fertilizer-advisor"
+    replacement_port: 8093
+    reason: "فصل التسميد عن الاستشارات العامة"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+    migration:
+      old_endpoint: "/advise"
+      new_endpoint: "/v1/fertilizer/recommend"
+
+  ws_gateway:
+    status: deprecated
+    port: 8090
+    path: "apps/services/notification-service"
+    replacement: "notification-service"
+    replacement_port: 8110
+    reason: "توحيد قنوات الإشعارات (Push, SMS, In-app)"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  crop_health:
+    status: deprecated
+    port: null
+    replacement: "crop-health-ai"
+    replacement_port: 8095
+    reason: "إضافة AI للتشخيص"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  agro_rules:
+    status: deprecated
+    port: null
+    type: "NATS Worker"
+    replacement: "indicators-service"
+    replacement_port: 8091
+    reason: "تحويل Rules إلى Indicators"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  task_service:
+    status: deprecated
+    port: null
+    replacement: "field-service"
+    reason: "دمج المهام مع الحقول"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  equipment_service:
+    status: deprecated
+    port: null
+    replacement: "merged into field-service"
+    reason: "المعدات جزء من الحقل"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  community_service:
+    status: deprecated
+    port: null
+    replacement: "community-chat"
+    replacement_port: 8097
+    reason: "توحيد خدمات المجتمع"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+  provider_config:
+    status: deprecated
+    port: null
+    replacement: "merged into billing-core"
+    replacement_port: 8089
+    reason: "إعدادات المزود جزء من الفوترة"
+    deprecation_date: "2025-12"
+    removal_date: "2026-03"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Migration Timeline
+# ─────────────────────────────────────────────────────────────────────────────
+
+migration_timeline:
+  phase_1:
+    date: "2025-12"
+    action: "Legacy في profile منفصل"
+    status: completed
+
+  phase_2:
+    date: "2026-01"
+    action: "إزالة من docker-compose الافتراضي"
+    status: pending
+
+  phase_3:
+    date: "2026-02"
+    action: "أرشفة الكود في branch منفصل"
+    status: pending
+
+  phase_4:
+    date: "2026-03"
+    action: "حذف نهائي"
+    status: pending

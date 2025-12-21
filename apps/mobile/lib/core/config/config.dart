@@ -1,8 +1,8 @@
 /// SAHOOL Field App Configuration
 class AppConfig {
   // API Configuration (via Kong API Gateway)
-  static const String apiBaseUrl = 'http://192.168.8.105:8000/api/v1';
-  static const String wsBaseUrl = 'ws://192.168.8.105:8090';
+  static const String apiBaseUrl = 'http://192.168.8.105:8103/api/v1';
+  static const String wsBaseUrl = 'ws://192.168.8.105:8089';
 
   // Sync Configuration
   static const Duration syncInterval = Duration(seconds: 20);

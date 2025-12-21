@@ -512,7 +512,7 @@ final userIdProvider = StateProvider<String>((ref) => '');
 /// مزود رابط API
 final marketplaceApiUrlProvider = Provider<String>((ref) {
   const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction ? 'https://api.sahool.io' : 'http://localhost:3010';
+  return isProduction ? 'https://api.sahool.io' : 'http://192.168.8.105:3010';
 });
 
 /// مزود المحفظة الرئيسي

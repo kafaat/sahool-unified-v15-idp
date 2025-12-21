@@ -2,14 +2,21 @@
 Tests for JWT Module
 """
 
+import importlib
 import os
+import sys
 from datetime import timedelta
 
 import pytest
 
-# Set test environment
-os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests"
+# Set test environment BEFORE importing jwt module
+os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-minimum-32-chars"
 os.environ["JWT_ALGORITHM"] = "HS256"
+os.environ["ENVIRONMENT"] = "development"
+
+# Force reload jwt module to pick up the new environment
+if "shared.security.jwt" in sys.modules:
+    del sys.modules["shared.security.jwt"]
 
 from shared.security.jwt import (
     AuthError,

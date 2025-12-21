@@ -119,7 +119,6 @@ services:
   # NOTE: Legacy service - use apps/services/field-service instead
   field_core:
     profiles: ["legacy"]
-    profiles: ["legacy"]
     build:
       context: ./apps/services/field-service
       dockerfile: Dockerfile
@@ -971,7 +970,7 @@ services:
 
   admin_dashboard:
     build:
-      context: ./archive\frontend-legacy\frontend\dashboard
+      context: ./archive/frontend-legacy/frontend/dashboard
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: http://localhost
@@ -987,6 +986,68 @@ services:
       - virtual_sensors
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Billing Core Service - خدمة الفوترة الأساسية
+  # Subscription management, invoicing, payments
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  billing_core:
+    build:
+      context: ./apps/services/billing-core
+      dockerfile: Dockerfile
+    container_name: sahool-billing-core
+    environment:
+      - PORT=8089
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-changeme}@redis:6379/0
+      - STRIPE_API_KEY=${STRIPE_API_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+    ports:
+      - "8089:8089"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Astronomical Calendar Service - خدمة التقويم الفلكي الزراعي اليمني
+  # Yemeni agricultural astronomical calendar
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  astronomical_calendar:
+    build:
+      context: ./apps/services/astronomical-calendar
+      dockerfile: Dockerfile
+    container_name: sahool-astronomical-calendar
+    environment:
+      - PORT=8111
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - WEATHER_SERVICE_URL=http://weather_advanced:8092
+    ports:
+      - "8111:8111"
+    depends_on:
+      - weather_advanced
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8111/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3

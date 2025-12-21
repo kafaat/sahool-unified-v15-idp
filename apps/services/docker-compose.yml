@@ -148,5 +148,82 @@ services:
       timeout: 5s
       retries: 3
 
+  # خدمة الفوترة الأساسية - Billing Core Service
+  billing-core:
+    build:
+      context: ./billing-core
+      dockerfile: Dockerfile
+    ports:
+      - "8089:8089"
+    environment:
+      - POSTGRES_HOST=postgres
+      - REDIS_URL=redis://redis:6379
+      - STRIPE_API_KEY=${STRIPE_API_KEY:-}
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # خدمة صحة المحاصيل بالذكاء الاصطناعي
+  crop-health-ai:
+    build:
+      context: ./crop-health-ai
+      dockerfile: Dockerfile
+    ports:
+      - "8095:8095"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # خدمة المستشعرات الافتراضية
+  virtual-sensors:
+    build:
+      context: ./virtual-sensors
+      dockerfile: Dockerfile
+    ports:
+      - "8096:8096"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # خدمة محرك الإنتاجية
+  yield-engine:
+    build:
+      context: ./yield-engine
+      dockerfile: Dockerfile
+    ports:
+      - "8098:8098"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # خدمة الإشعارات
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8109:8109"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS:-}
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8109/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
 volumes:
   pg_data:

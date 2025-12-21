@@ -589,6 +589,6 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'sahool_field.db'));
-    return NativeDatabase.createInBackground(file);
+    return NativeDatabase(file);
   });
 }

@@ -14,15 +14,12 @@ import {
   Performance,
 } from './optimization';
 
-// TODO: Fix fake timer tests for vitest 3.x compatibility
-// These tests use vi.useFakeTimers() which has breaking changes in vitest 3.x
-describe.skip('Performance Optimization', () => {
+describe('Performance Optimization', () => {
   beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 

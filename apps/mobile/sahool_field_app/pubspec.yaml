@@ -1,0 +1,121 @@
+name: sahool_field_app
+description: SAHOOL Field Operations App - Offline-First Mobile Application
+publish_to: 'none'
+version: 15.5.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management (Riverpod 2.x - compatible with Dart 3.6.0)
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Database (Offline)
+  drift: ^2.22.1
+  sqlite3_flutter_libs: ^0.5.28
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
+  # Network
+  dio: ^5.7.0
+  http: ^1.2.2
+  connectivity_plus: ^6.1.1
+
+  # Background Tasks
+  workmanager: ^0.6.0
+
+  # Notifications
+  flutter_local_notifications: ^18.0.1
+
+  # Storage
+  shared_preferences: ^2.3.3
+  flutter_secure_storage: ^9.2.2
+
+  # UI
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.16
+  cached_network_image: ^3.4.1
+
+  # Charts
+  fl_chart: ^0.69.2
+
+  # Maps
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
+  # Environment Configuration
+  flutter_dotenv: ^5.2.1
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # Camera & Photos
+  image_picker: ^1.1.2
+  camera: ^0.11.0+2
+
+  # Barcode/QR Scanner
+  mobile_scanner: ^6.0.2
+
+  # Utils
+  uuid: ^4.5.1
+  intl: ^0.19.0
+  equatable: ^2.0.7
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.9.0
+
+  # Date/Time
+  jiffy: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.13
+  drift_dev: ^2.22.1
+  freezed: ^2.5.7
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.6.3
+  mockito: ^5.4.5
+
+  # App Branding
+  flutter_launcher_icons: ^0.14.2
+  flutter_native_splash: ^2.4.3
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  adaptive_icon_background: "#2E7D32"
+  adaptive_icon_foreground: "assets/icon/app_icon_foreground.png"
+  min_sdk_android: 23
+
+# Splash Screen Configuration
+flutter_native_splash:
+  color: "#2E7D32"
+  image: assets/icon/splash_logo.png
+  color_dark: "#1B5E20"
+  image_dark: assets/icon/splash_logo.png
+  android_12:
+    color: "#2E7D32"
+    icon_background_color: "#2E7D32"
+    image: assets/icon/splash_logo.png
+  ios: true
+  web: false
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/images/
+    - assets/icons/
+    - assets/icon/
+    - assets/fonts/

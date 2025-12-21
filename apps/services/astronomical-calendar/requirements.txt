@@ -1,0 +1,8 @@
+# SAHOOL Astronomical Calendar Service Dependencies
+# خدمة التقويم الفلكي الزراعي
+
+fastapi==0.126.0
+uvicorn[standard]==0.34.0
+pydantic==2.10.3
+httpx==0.28.1
+python-dotenv==1.0.1

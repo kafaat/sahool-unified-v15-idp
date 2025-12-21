@@ -186,6 +186,3 @@ infra/pki/
 ca.key
 ca.srl
 tls.key
-
-*.mp4
-

@@ -1,0 +1,14 @@
+# SAHOOL Shared Authentication Layer Dependencies
+# متطلبات طبقة المصادقة المشتركة
+
+# JWT
+PyJWT>=2.8.0
+
+# Password hashing
+bcrypt>=4.1.0
+
+# FastAPI
+fastapi>=0.115.0
+
+# Pydantic
+pydantic>=2.5.0

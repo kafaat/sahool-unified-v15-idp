@@ -1,0 +1,16 @@
+# SAHOOL Shared Database Layer Dependencies
+# متطلبات طبقة قاعدة البيانات المشتركة
+
+# SQLAlchemy ORM
+sqlalchemy>=2.0.0
+
+# PostgreSQL drivers
+psycopg2-binary>=2.9.0  # Synchronous driver
+asyncpg>=0.29.0         # Async driver
+
+# Alembic for migrations
+alembic>=1.13.0
+
+# Connection pooling (included in SQLAlchemy)
+# greenlet for async support
+greenlet>=3.0.0

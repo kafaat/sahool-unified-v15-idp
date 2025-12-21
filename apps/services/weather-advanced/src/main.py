@@ -1,9 +1,16 @@
 """
-🌤️ SAHOOL Advanced Weather Service v15.3
+🌤️ SAHOOL Advanced Weather Service v15.4
 خدمة الطقس المتقدمة - 7-Day Forecasting & Agricultural Alerts
+Real Weather API Integration: Open-Meteo & OpenWeatherMap
 """
 
-from fastapi import FastAPI, HTTPException, Query
+import os
+import logging
+import httpx
+import asyncio
+from functools import lru_cache
+
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict, Any
@@ -11,10 +18,22 @@ from enum import Enum
 import uuid
 import math
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Weather API Configuration
+WEATHER_API_PROVIDER = os.getenv("WEATHER_API_PROVIDER", "open-meteo")  # open-meteo, openweathermap
+OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY", "")
+WEATHER_CACHE_TTL_MINUTES = int(os.getenv("WEATHER_CACHE_TTL_MINUTES", "30"))
+
+# Weather data cache
+_weather_cache: Dict[str, Dict[str, Any]] = {}
+
 app = FastAPI(
     title="SAHOOL Advanced Weather Service | خدمة الطقس المتقدمة",
-    version="15.3.0",
-    description="7-day forecasting, agricultural weather alerts, and crop-specific recommendations",
+    version="15.4.0",
+    description="7-day forecasting with real weather APIs, agricultural weather alerts, and crop-specific recommendations",
 )
 
 
@@ -203,7 +222,424 @@ WIND_DIRECTIONS_AR = {
 
 
 # =============================================================================
-# Weather Generation Functions
+# Real Weather API Integration - تكامل API الطقس الحقيقي
+# =============================================================================
+
+# Open-Meteo WMO weather code mapping
+WMO_CODE_TO_CONDITION = {
+    0: WeatherCondition.CLEAR,           # Clear sky
+    1: WeatherCondition.CLEAR,           # Mainly clear
+    2: WeatherCondition.PARTLY_CLOUDY,   # Partly cloudy
+    3: WeatherCondition.CLOUDY,          # Overcast
+    45: WeatherCondition.FOG,            # Fog
+    48: WeatherCondition.FOG,            # Depositing rime fog
+    51: WeatherCondition.RAIN,           # Light drizzle
+    53: WeatherCondition.RAIN,           # Moderate drizzle
+    55: WeatherCondition.RAIN,           # Dense drizzle
+    61: WeatherCondition.RAIN,           # Slight rain
+    63: WeatherCondition.RAIN,           # Moderate rain
+    65: WeatherCondition.HEAVY_RAIN,     # Heavy rain
+    80: WeatherCondition.RAIN,           # Slight rain showers
+    81: WeatherCondition.RAIN,           # Moderate rain showers
+    82: WeatherCondition.HEAVY_RAIN,     # Violent rain showers
+    95: WeatherCondition.THUNDERSTORM,   # Thunderstorm
+    96: WeatherCondition.THUNDERSTORM,   # Thunderstorm with slight hail
+    99: WeatherCondition.THUNDERSTORM,   # Thunderstorm with heavy hail
+}
+
+# OpenWeatherMap condition mapping
+OWM_CONDITION_MAP = {
+    "Clear": WeatherCondition.CLEAR,
+    "Clouds": WeatherCondition.PARTLY_CLOUDY,
+    "Rain": WeatherCondition.RAIN,
+    "Drizzle": WeatherCondition.RAIN,
+    "Thunderstorm": WeatherCondition.THUNDERSTORM,
+    "Fog": WeatherCondition.FOG,
+    "Mist": WeatherCondition.HAZE,
+    "Haze": WeatherCondition.HAZE,
+    "Dust": WeatherCondition.DUST,
+    "Sand": WeatherCondition.DUST,
+}
+
+
+def get_cache_key(location_id: str, data_type: str) -> str:
+    """Generate cache key for weather data"""
+    return f"{location_id}:{data_type}"
+
+
+def is_cache_valid(cache_entry: Dict[str, Any]) -> bool:
+    """Check if cache entry is still valid"""
+    if not cache_entry:
+        return False
+    cached_at = cache_entry.get("cached_at")
+    if not cached_at:
+        return False
+    age_minutes = (datetime.utcnow() - cached_at).total_seconds() / 60
+    return age_minutes < WEATHER_CACHE_TTL_MINUTES
+
+
+async def fetch_open_meteo_current(lat: float, lon: float) -> Optional[Dict[str, Any]]:
+    """
+    Fetch current weather from Open-Meteo API (free, no API key required)
+    جلب الطقس الحالي من Open-Meteo API
+    """
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "current": [
+            "temperature_2m",
+            "relative_humidity_2m",
+            "apparent_temperature",
+            "precipitation",
+            "weather_code",
+            "cloud_cover",
+            "pressure_msl",
+            "wind_speed_10m",
+            "wind_direction_10m",
+            "wind_gusts_10m",
+        ],
+        "timezone": "auto",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Open-Meteo current weather fetched for ({lat}, {lon})")
+            return data
+    except Exception as e:
+        logger.error(f"Open-Meteo API error: {e}")
+        return None
+
+
+async def fetch_open_meteo_forecast(lat: float, lon: float, days: int = 7) -> Optional[Dict[str, Any]]:
+    """
+    Fetch weather forecast from Open-Meteo API
+    جلب توقعات الطقس من Open-Meteo API
+    """
+    url = "https://api.open-meteo.com/v1/forecast"
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "hourly": [
+            "temperature_2m",
+            "relative_humidity_2m",
+            "apparent_temperature",
+            "precipitation_probability",
+            "precipitation",
+            "weather_code",
+            "cloud_cover",
+            "wind_speed_10m",
+            "wind_direction_10m",
+            "uv_index",
+        ],
+        "daily": [
+            "temperature_2m_max",
+            "temperature_2m_min",
+            "precipitation_sum",
+            "precipitation_probability_max",
+            "weather_code",
+            "wind_speed_10m_max",
+            "uv_index_max",
+            "sunrise",
+            "sunset",
+        ],
+        "forecast_days": min(days, 16),
+        "timezone": "auto",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Open-Meteo forecast fetched for ({lat}, {lon}), {days} days")
+            return data
+    except Exception as e:
+        logger.error(f"Open-Meteo forecast API error: {e}")
+        return None
+
+
+async def fetch_openweathermap_current(lat: float, lon: float) -> Optional[Dict[str, Any]]:
+    """
+    Fetch current weather from OpenWeatherMap API
+    جلب الطقس الحالي من OpenWeatherMap API
+    """
+    if not OPENWEATHERMAP_API_KEY:
+        logger.warning("OpenWeatherMap API key not configured")
+        return None
+
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": OPENWEATHERMAP_API_KEY,
+        "units": "metric",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"OpenWeatherMap current weather fetched for ({lat}, {lon})")
+            return data
+    except Exception as e:
+        logger.error(f"OpenWeatherMap API error: {e}")
+        return None
+
+
+async def fetch_openweathermap_forecast(lat: float, lon: float) -> Optional[Dict[str, Any]]:
+    """
+    Fetch 5-day forecast from OpenWeatherMap API (free tier)
+    جلب توقعات 5 أيام من OpenWeatherMap API
+    """
+    if not OPENWEATHERMAP_API_KEY:
+        return None
+
+    url = "https://api.openweathermap.org/data/2.5/forecast"
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "appid": OPENWEATHERMAP_API_KEY,
+        "units": "metric",
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"OpenWeatherMap forecast fetched for ({lat}, {lon})")
+            return data
+    except Exception as e:
+        logger.error(f"OpenWeatherMap forecast API error: {e}")
+        return None
+
+
+def parse_open_meteo_current(data: Dict[str, Any], location_id: str) -> CurrentWeather:
+    """Parse Open-Meteo current weather response"""
+    location = YEMEN_LOCATIONS[location_id]
+    current = data.get("current", {})
+
+    weather_code = current.get("weather_code", 0)
+    condition = WMO_CODE_TO_CONDITION.get(weather_code, WeatherCondition.CLEAR)
+
+    wind_deg = current.get("wind_direction_10m", 0)
+    wind_dir = WIND_DIRECTIONS[int((wind_deg + 22.5) / 45) % 8]
+
+    temp = current.get("temperature_2m", 25)
+    humidity = current.get("relative_humidity_2m", 50)
+
+    return CurrentWeather(
+        location_id=location_id,
+        location_name_ar=location["name_ar"],
+        latitude=location["lat"],
+        longitude=location["lon"],
+        timestamp=datetime.utcnow(),
+        temperature_c=round(temp, 1),
+        feels_like_c=round(current.get("apparent_temperature", temp), 1),
+        humidity_percent=round(humidity, 0),
+        pressure_hpa=round(current.get("pressure_msl", 1013), 0),
+        wind_speed_kmh=round(current.get("wind_speed_10m", 0), 1),
+        wind_direction=wind_dir,
+        wind_gust_kmh=round(current.get("wind_gusts_10m", 0), 1),
+        visibility_km=10.0,  # Not available in Open-Meteo free tier
+        cloud_cover_percent=round(current.get("cloud_cover", 0), 0),
+        uv_index=5.0,  # Current UV not in Open-Meteo current
+        dew_point_c=round(temp - (100 - humidity) / 5, 1),
+        condition=condition,
+        condition_ar=CONDITION_TRANSLATIONS[condition],
+    )
+
+
+def parse_open_meteo_forecast(
+    data: Dict[str, Any],
+    location_id: str,
+    days: int,
+) -> tuple[List[HourlyForecast], List[DailyForecast]]:
+    """Parse Open-Meteo forecast response"""
+    hourly_data = data.get("hourly", {})
+    daily_data = data.get("daily", {})
+
+    # Parse hourly forecast (48 hours)
+    hourly_forecast = []
+    hourly_times = hourly_data.get("time", [])[:48]
+
+    for i, time_str in enumerate(hourly_times):
+        weather_code = hourly_data.get("weather_code", [0] * 48)[i]
+        condition = WMO_CODE_TO_CONDITION.get(weather_code, WeatherCondition.CLEAR)
+
+        wind_deg = hourly_data.get("wind_direction_10m", [0] * 48)[i]
+        wind_dir = WIND_DIRECTIONS[int((wind_deg + 22.5) / 45) % 8]
+
+        hourly_forecast.append(
+            HourlyForecast(
+                datetime=datetime.fromisoformat(time_str),
+                temperature_c=round(hourly_data.get("temperature_2m", [25] * 48)[i], 1),
+                feels_like_c=round(hourly_data.get("apparent_temperature", [25] * 48)[i], 1),
+                humidity_percent=round(hourly_data.get("relative_humidity_2m", [50] * 48)[i], 0),
+                wind_speed_kmh=round(hourly_data.get("wind_speed_10m", [10] * 48)[i], 1),
+                wind_direction=wind_dir,
+                precipitation_mm=round(hourly_data.get("precipitation", [0] * 48)[i], 1),
+                precipitation_probability=round(hourly_data.get("precipitation_probability", [0] * 48)[i], 0),
+                cloud_cover_percent=round(hourly_data.get("cloud_cover", [0] * 48)[i], 0),
+                uv_index=round(hourly_data.get("uv_index", [5] * 48)[i], 1),
+                condition=condition,
+                condition_ar=CONDITION_TRANSLATIONS[condition],
+            )
+        )
+
+    # Parse daily forecast
+    daily_forecast = []
+    daily_times = daily_data.get("time", [])[:days]
+
+    for i, date_str in enumerate(daily_times):
+        weather_code = daily_data.get("weather_code", [0] * 14)[i]
+        condition = WMO_CODE_TO_CONDITION.get(weather_code, WeatherCondition.CLEAR)
+
+        temp_max = daily_data.get("temperature_2m_max", [30] * 14)[i]
+        temp_min = daily_data.get("temperature_2m_min", [20] * 14)[i]
+        precip = daily_data.get("precipitation_sum", [0] * 14)[i]
+
+        # Agricultural summary based on conditions
+        if temp_max > 38:
+            summary_ar = "⚠️ حرارة مرتفعة - ري إضافي مطلوب وتجنب العمل وقت الذروة"
+            summary_en = "⚠️ High heat - extra irrigation needed, avoid work during peak hours"
+        elif precip > 20:
+            summary_ar = "🌧️ أمطار متوقعة - تأجيل الرش والتسميد"
+            summary_en = "🌧️ Rain expected - postpone spraying and fertilization"
+        else:
+            summary_ar = "✅ ظروف مناسبة للعمليات الزراعية"
+            summary_en = "✅ Suitable conditions for agricultural operations"
+
+        sunrise = daily_data.get("sunrise", ["05:45"] * 14)[i]
+        sunset = daily_data.get("sunset", ["18:30"] * 14)[i]
+        if isinstance(sunrise, str) and "T" in sunrise:
+            sunrise = sunrise.split("T")[1][:5]
+        if isinstance(sunset, str) and "T" in sunset:
+            sunset = sunset.split("T")[1][:5]
+
+        daily_forecast.append(
+            DailyForecast(
+                date=date.fromisoformat(date_str),
+                temp_max_c=round(temp_max, 1),
+                temp_min_c=round(temp_min, 1),
+                humidity_avg=50,  # Average not directly available
+                wind_speed_avg_kmh=round(daily_data.get("wind_speed_10m_max", [15] * 14)[i] * 0.7, 1),
+                precipitation_total_mm=round(precip, 1),
+                precipitation_probability=round(daily_data.get("precipitation_probability_max", [0] * 14)[i], 0),
+                sunrise=sunrise,
+                sunset=sunset,
+                uv_index_max=round(daily_data.get("uv_index_max", [8] * 14)[i], 1),
+                condition=condition,
+                condition_ar=CONDITION_TRANSLATIONS[condition],
+                agricultural_summary_ar=summary_ar,
+                agricultural_summary_en=summary_en,
+            )
+        )
+
+    return hourly_forecast, daily_forecast
+
+
+async def get_real_current_weather(location_id: str) -> Optional[CurrentWeather]:
+    """
+    Get real current weather from configured API provider
+    جلب الطقس الحالي الحقيقي من مزود API المكون
+    """
+    if location_id not in YEMEN_LOCATIONS:
+        return None
+
+    # Check cache first
+    cache_key = get_cache_key(location_id, "current")
+    if cache_key in _weather_cache and is_cache_valid(_weather_cache[cache_key]):
+        logger.debug(f"Returning cached current weather for {location_id}")
+        return _weather_cache[cache_key]["data"]
+
+    location = YEMEN_LOCATIONS[location_id]
+    lat, lon = location["lat"], location["lon"]
+
+    # Try Open-Meteo first (no API key required)
+    if WEATHER_API_PROVIDER == "open-meteo" or not OPENWEATHERMAP_API_KEY:
+        data = await fetch_open_meteo_current(lat, lon)
+        if data:
+            result = parse_open_meteo_current(data, location_id)
+            _weather_cache[cache_key] = {"data": result, "cached_at": datetime.utcnow()}
+            return result
+
+    # Try OpenWeatherMap if configured
+    if OPENWEATHERMAP_API_KEY:
+        data = await fetch_openweathermap_current(lat, lon)
+        if data:
+            # Parse OpenWeatherMap response
+            main = data.get("main", {})
+            wind = data.get("wind", {})
+            clouds = data.get("clouds", {})
+            weather = data.get("weather", [{}])[0]
+
+            condition_main = weather.get("main", "Clear")
+            condition = OWM_CONDITION_MAP.get(condition_main, WeatherCondition.CLEAR)
+
+            wind_deg = wind.get("deg", 0)
+            wind_dir = WIND_DIRECTIONS[int((wind_deg + 22.5) / 45) % 8]
+
+            result = CurrentWeather(
+                location_id=location_id,
+                location_name_ar=location["name_ar"],
+                latitude=lat,
+                longitude=lon,
+                timestamp=datetime.utcnow(),
+                temperature_c=round(main.get("temp", 25), 1),
+                feels_like_c=round(main.get("feels_like", 25), 1),
+                humidity_percent=round(main.get("humidity", 50), 0),
+                pressure_hpa=round(main.get("pressure", 1013), 0),
+                wind_speed_kmh=round(wind.get("speed", 0) * 3.6, 1),  # m/s to km/h
+                wind_direction=wind_dir,
+                wind_gust_kmh=round(wind.get("gust", 0) * 3.6, 1),
+                visibility_km=round(data.get("visibility", 10000) / 1000, 1),
+                cloud_cover_percent=round(clouds.get("all", 0), 0),
+                uv_index=5.0,  # Not in basic OWM API
+                dew_point_c=round(main.get("temp", 25) - (100 - main.get("humidity", 50)) / 5, 1),
+                condition=condition,
+                condition_ar=CONDITION_TRANSLATIONS[condition],
+            )
+            _weather_cache[cache_key] = {"data": result, "cached_at": datetime.utcnow()}
+            return result
+
+    return None
+
+
+async def get_real_forecast(location_id: str, days: int = 7) -> Optional[tuple[List[HourlyForecast], List[DailyForecast]]]:
+    """
+    Get real weather forecast from configured API provider
+    جلب توقعات الطقس الحقيقية من مزود API المكون
+    """
+    if location_id not in YEMEN_LOCATIONS:
+        return None
+
+    # Check cache
+    cache_key = get_cache_key(location_id, f"forecast_{days}")
+    if cache_key in _weather_cache and is_cache_valid(_weather_cache[cache_key]):
+        logger.debug(f"Returning cached forecast for {location_id}")
+        return _weather_cache[cache_key]["data"]
+
+    location = YEMEN_LOCATIONS[location_id]
+    lat, lon = location["lat"], location["lon"]
+
+    # Open-Meteo provides 16-day forecast for free
+    data = await fetch_open_meteo_forecast(lat, lon, days)
+    if data:
+        result = parse_open_meteo_forecast(data, location_id, days)
+        _weather_cache[cache_key] = {"data": result, "cached_at": datetime.utcnow()}
+        return result
+
+    return None
+
+
+# =============================================================================
+# Weather Generation Functions (Fallback/Simulation)
 # =============================================================================
 
 
@@ -435,8 +871,10 @@ def health():
     return {
         "status": "ok",
         "service": "weather-advanced",
-        "version": "15.3.0",
+        "version": "15.4.0",
         "locations_count": len(YEMEN_LOCATIONS),
+        "api_provider": WEATHER_API_PROVIDER,
+        "cache_ttl_minutes": WEATHER_CACHE_TTL_MINUTES,
     }
 
 
@@ -458,13 +896,28 @@ def list_locations():
 
 
 @app.get("/v1/current/{location_id}", response_model=CurrentWeather)
-def get_current_weather(location_id: str):
-    """الطقس الحالي لموقع معين"""
+async def get_current_weather(location_id: str):
+    """
+    الطقس الحالي لموقع معين
+    Current weather for a specific location
+    Uses real weather API (Open-Meteo/OpenWeatherMap) with fallback to simulation
+    """
     import random
 
     if location_id not in YEMEN_LOCATIONS:
         raise HTTPException(status_code=404, detail=f"Location {location_id} not found")
 
+    # Try real weather API first
+    try:
+        real_weather = await get_real_current_weather(location_id)
+        if real_weather:
+            logger.info(f"Returning real weather data for {location_id}")
+            return real_weather
+    except Exception as e:
+        logger.warning(f"Real weather API failed for {location_id}: {e}")
+
+    # Fallback to simulation
+    logger.info(f"Falling back to simulated weather for {location_id}")
     location = YEMEN_LOCATIONS[location_id]
     now = datetime.utcnow()
     day_of_year = now.timetuple().tm_yday
@@ -506,8 +959,12 @@ def get_current_weather(location_id: str):
 
 
 @app.get("/v1/forecast/{location_id}", response_model=AgriculturalWeatherReport)
-def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=14)):
-    """تقرير الطقس الزراعي الشامل مع التنبؤات"""
+async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=14)):
+    """
+    تقرير الطقس الزراعي الشامل مع التنبؤات
+    Comprehensive agricultural weather report with forecasts
+    Uses real weather API with fallback to simulation
+    """
     import random
 
     if location_id not in YEMEN_LOCATIONS:
@@ -516,8 +973,66 @@ def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=14)):
     location = YEMEN_LOCATIONS[location_id]
     now = datetime.utcnow()
 
-    # Get current weather
-    current = get_current_weather(location_id)
+    # Get current weather (async)
+    current = await get_current_weather(location_id)
+
+    # Try real forecast API first
+    real_forecast = None
+    try:
+        real_forecast = await get_real_forecast(location_id, days)
+        if real_forecast:
+            logger.info(f"Using real forecast data for {location_id}")
+    except Exception as e:
+        logger.warning(f"Real forecast API failed for {location_id}: {e}")
+
+    if real_forecast:
+        hourly_forecast, daily_forecast = real_forecast
+
+        # Calculate GDD from real forecast
+        total_gdd = sum(
+            calculate_growing_degree_days(day.temp_max_c, day.temp_min_c)
+            for day in daily_forecast
+        )
+
+        # Check for alerts
+        alerts = check_for_alerts(daily_forecast, location_id)
+
+        # Calculate ET
+        et0 = calculate_evapotranspiration(
+            current.temperature_c, current.humidity_percent, current.wind_speed_kmh
+        )
+
+        # Get spray windows
+        spray_windows = get_spray_windows(hourly_forecast)
+
+        # Irrigation recommendation
+        if et0 > 6:
+            irrig_ar = f"💧 احتياج ري عالي اليوم ({et0} ملم) - ري صباحي ومسائي مطلوب"
+            irrig_en = f"💧 High irrigation need today ({et0} mm) - morning and evening irrigation required"
+        elif et0 > 4:
+            irrig_ar = f"💧 احتياج ري متوسط ({et0} ملم) - ري واحد كافي"
+            irrig_en = f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
+        else:
+            irrig_ar = f"💧 احتياج ري منخفض ({et0} ملم) - تقليل الري ممكن"
+            irrig_en = f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
+
+        return AgriculturalWeatherReport(
+            location_id=location_id,
+            location_name_ar=location["name_ar"],
+            generated_at=now,
+            current=current,
+            hourly_forecast=hourly_forecast,
+            daily_forecast=daily_forecast,
+            alerts=alerts,
+            growing_degree_days=round(total_gdd, 1),
+            evapotranspiration_mm=et0,
+            spray_window_hours=spray_windows,
+            irrigation_recommendation_ar=irrig_ar,
+            irrigation_recommendation_en=irrig_en,
+        )
+
+    # Fallback to simulation
+    logger.info(f"Falling back to simulated forecast for {location_id}")
 
     # Generate hourly forecast (48 hours)
     hourly_forecast = []
@@ -681,9 +1196,9 @@ def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=14)):
 
 
 @app.get("/v1/alerts/{location_id}")
-def get_weather_alerts(location_id: str):
+async def get_weather_alerts(location_id: str):
     """تنبيهات الطقس الزراعية"""
-    forecast_report = get_forecast(location_id, days=7)
+    forecast_report = await get_forecast(location_id, days=7)
     return {
         "location_id": location_id,
         "location_name_ar": YEMEN_LOCATIONS[location_id]["name_ar"],

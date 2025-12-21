@@ -1,38 +1,56 @@
-FROM node:20-alpine AS base
-WORKDIR /app
+# Sahool Admin Dashboard - Docker Configuration
+# لوحة تحكم سهول - إعدادات Docker
 
-# 1) Install dependencies
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
 FROM base AS deps
 RUN apk add --no-cache libc6-compat
-COPY package.json package-lock.json ./
-RUN npm ci
+WORKDIR /app
 
-# 2) Build
+# Copy package files
+COPY package.json package-lock.json ./
+RUN npm install
+
+# Rebuild the source code only when needed
 FROM base AS builder
+WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next build (recommended to disable telemetry in CI)
-ENV NEXT_TELEMETRY_DISABLED=1
+# Build arguments
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# Build
 RUN npm run build
 
-# 3) Run
-FROM node:20-alpine AS runner
+# Production image, copy all the files and run next
+FROM base AS runner
 WORKDIR /app
+
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Copy standalone output (requires next.config.js output: 'standalone')
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Create empty public directory (Next.js standalone includes public assets in .next/static)
+# The public directory is not needed separately for standalone builds, but create it to avoid errors
+RUN mkdir -p ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
+
 EXPOSE 3001
+
 ENV PORT=3001
-ENV HOSTNAME=0.0.0.0
+ENV HOSTNAME="0.0.0.0"
 
 CMD ["node", "server.js"]

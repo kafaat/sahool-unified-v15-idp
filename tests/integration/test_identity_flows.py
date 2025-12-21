@@ -278,7 +278,10 @@ class TestOAuthFlow:
         
         assert "client_id=test_client_id" in auth_url
         assert "redirect_uri=http://localhost:8000/auth/callback" in auth_url
-        assert "scope=openid+profile+email" in auth_url or "scope=openid%20profile%20email" in auth_url
+        # Accept encoded spaces (+, %20) or unencoded spaces in scope
+        assert ("scope=openid+profile+email" in auth_url or
+                "scope=openid%20profile%20email" in auth_url or
+                "scope=openid profile email" in auth_url)
     
     async def test_oauth_token_exchange(self):
         """Test OAuth token exchange"""

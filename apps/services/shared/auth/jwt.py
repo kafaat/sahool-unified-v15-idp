@@ -1,0 +1,193 @@
+"""
+JWT Token Management
+إدارة رموز JWT
+"""
+
+import logging
+from datetime import datetime, timedelta, timezone
+from typing import Optional, Dict, Any, List
+from dataclasses import dataclass
+
+import jwt
+from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+
+from .config import get_auth_config
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class TokenData:
+    """Decoded token data"""
+    user_id: str
+    email: Optional[str] = None
+    tenant_id: Optional[str] = None
+    roles: List[str] = None
+    permissions: List[str] = None
+    token_type: str = "access"
+    exp: Optional[datetime] = None
+    iat: Optional[datetime] = None
+
+    def __post_init__(self):
+        if self.roles is None:
+            self.roles = []
+        if self.permissions is None:
+            self.permissions = []
+
+    def has_role(self, role: str) -> bool:
+        """Check if user has a specific role"""
+        return role in self.roles
+
+    def has_permission(self, permission: str) -> bool:
+        """Check if user has a specific permission"""
+        return permission in self.permissions
+
+    def has_any_role(self, roles: List[str]) -> bool:
+        """Check if user has any of the specified roles"""
+        return any(role in self.roles for role in roles)
+
+    def has_all_roles(self, roles: List[str]) -> bool:
+        """Check if user has all specified roles"""
+        return all(role in self.roles for role in roles)
+
+
+def create_access_token(
+    user_id: str,
+    email: Optional[str] = None,
+    tenant_id: Optional[str] = None,
+    roles: Optional[List[str]] = None,
+    permissions: Optional[List[str]] = None,
+    expires_delta: Optional[timedelta] = None,
+    additional_claims: Optional[Dict[str, Any]] = None,
+) -> str:
+    """
+    Create a new access token
+    إنشاء رمز وصول جديد
+    """
+    config = get_auth_config()
+
+    if expires_delta is None:
+        expires_delta = timedelta(minutes=config.access_token_expire_minutes)
+
+    now = datetime.now(timezone.utc)
+    expire = now + expires_delta
+
+    payload = {
+        "sub": user_id,
+        "type": "access",
+        "iat": now,
+        "exp": expire,
+    }
+
+    if email:
+        payload["email"] = email
+    if tenant_id:
+        payload["tenant_id"] = tenant_id
+    if roles:
+        payload["roles"] = roles
+    if permissions:
+        payload["permissions"] = permissions
+    if additional_claims:
+        payload.update(additional_claims)
+
+    token = jwt.encode(payload, config.secret_key, algorithm=config.algorithm)
+    logger.debug(f"Created access token for user {user_id}, expires at {expire}")
+
+    return token
+
+
+def create_refresh_token(
+    user_id: str,
+    tenant_id: Optional[str] = None,
+    expires_delta: Optional[timedelta] = None,
+) -> str:
+    """
+    Create a new refresh token
+    إنشاء رمز تحديث جديد
+    """
+    config = get_auth_config()
+
+    if expires_delta is None:
+        expires_delta = timedelta(days=config.refresh_token_expire_days)
+
+    now = datetime.now(timezone.utc)
+    expire = now + expires_delta
+
+    payload = {
+        "sub": user_id,
+        "type": "refresh",
+        "iat": now,
+        "exp": expire,
+    }
+
+    if tenant_id:
+        payload["tenant_id"] = tenant_id
+
+    token = jwt.encode(payload, config.secret_key, algorithm=config.algorithm)
+    logger.debug(f"Created refresh token for user {user_id}, expires at {expire}")
+
+    return token
+
+
+def verify_token(token: str, token_type: str = "access") -> bool:
+    """
+    Verify a token is valid
+    التحقق من صحة الرمز
+    """
+    try:
+        data = decode_token(token)
+        if data.token_type != token_type:
+            logger.warning(f"Token type mismatch: expected {token_type}, got {data.token_type}")
+            return False
+        return True
+    except Exception:
+        return False
+
+
+def decode_token(token: str) -> TokenData:
+    """
+    Decode and validate a JWT token
+    فك تشفير والتحقق من رمز JWT
+    """
+    config = get_auth_config()
+
+    try:
+        payload = jwt.decode(
+            token,
+            config.secret_key,
+            algorithms=[config.algorithm],
+        )
+
+        return TokenData(
+            user_id=payload.get("sub"),
+            email=payload.get("email"),
+            tenant_id=payload.get("tenant_id"),
+            roles=payload.get("roles", []),
+            permissions=payload.get("permissions", []),
+            token_type=payload.get("type", "access"),
+            exp=datetime.fromtimestamp(payload.get("exp", 0), tz=timezone.utc),
+            iat=datetime.fromtimestamp(payload.get("iat", 0), tz=timezone.utc),
+        )
+
+    except ExpiredSignatureError:
+        logger.warning("Token has expired")
+        raise ValueError("Token has expired")
+    except InvalidTokenError as e:
+        logger.warning(f"Invalid token: {e}")
+        raise ValueError(f"Invalid token: {e}")
+
+
+def refresh_access_token(refresh_token: str) -> str:
+    """
+    Use a refresh token to create a new access token
+    استخدام رمز التحديث لإنشاء رمز وصول جديد
+    """
+    token_data = decode_token(refresh_token)
+
+    if token_data.token_type != "refresh":
+        raise ValueError("Invalid token type. Expected refresh token.")
+
+    return create_access_token(
+        user_id=token_data.user_id,
+        tenant_id=token_data.tenant_id,
+    )

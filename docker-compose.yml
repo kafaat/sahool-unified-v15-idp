@@ -981,7 +981,6 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - field_core
       - crop_health_ai
       - virtual_sensors
     healthcheck:

@@ -47,6 +47,10 @@ COPY --from=builder /app/dist ./dist
 # Expose port
 EXPOSE 3010
 
+# Set ownership and switch to non-root user (use existing node user)
+RUN chown -R node:node /app
+USER node
+
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD curl -f http://localhost:3010/api/v1/healthz || exit 1

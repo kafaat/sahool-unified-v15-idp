@@ -1,0 +1,208 @@
+# SAHOOL Mobile App CI/CD Pipeline
+# خط أنابيب التكامل المستمر لتطبيق الموبايل
+
+name: Mobile CI/CD
+
+on:
+  push:
+    branches: [main, develop, 'release/*']
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/mobile-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/mobile/**'
+
+env:
+  FLUTTER_VERSION: '3.27.1'
+  WORKING_DIR: apps/mobile/sahool_field_app
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Code Analysis
+  # ═══════════════════════════════════════════════════════════════════════════
+  analyze:
+    name: Analyze Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: flutter pub get
+
+      - name: Analyze code
+        working-directory: ${{ env.WORKING_DIR }}
+        run: flutter analyze --fatal-infos
+
+      - name: Check formatting
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dart format --set-exit-if-changed .
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Unit & Widget Tests
+  # ═══════════════════════════════════════════════════════════════════════════
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: analyze
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: flutter pub get
+
+      - name: Run tests with coverage
+        working-directory: ${{ env.WORKING_DIR }}
+        run: flutter test --coverage --reporter expanded
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ${{ env.WORKING_DIR }}/coverage/lcov.info
+          flags: mobile
+          name: mobile-coverage
+
+      - name: Check coverage threshold
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          # Extract coverage percentage
+          COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep "lines" | cut -d' ' -f4 | cut -d'%' -f1)
+          echo "Coverage: $COVERAGE%"
+
+          # Fail if coverage is below threshold (will increase as we add tests)
+          if (( $(echo "$COVERAGE < 20" | bc -l) )); then
+            echo "Coverage is below 20%"
+            exit 1
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Build Android
+  # ═══════════════════════════════════════════════════════════════════════════
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    needs: [analyze, test]
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: flutter pub get
+
+      - name: Build APK (Debug)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          flutter build apk --debug \
+            --dart-define=ENV=staging \
+            --dart-define=API_URL=https://api-staging.sahool.app/api/v1
+
+      - name: Build APK (Release)
+        if: startsWith(github.ref, 'refs/heads/release/')
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          flutter build apk --release \
+            --dart-define=ENV=production \
+            --dart-define=API_URL=https://api.sahool.app/api/v1
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-debug-apk
+          path: ${{ env.WORKING_DIR }}/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 7
+
+      - name: Upload Release APK
+        if: startsWith(github.ref, 'refs/heads/release/')
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-release-apk
+          path: ${{ env.WORKING_DIR }}/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Build iOS (macOS runner required)
+  # ═══════════════════════════════════════════════════════════════════════════
+  build-ios:
+    name: Build iOS
+    runs-on: macos-latest
+    needs: [analyze, test]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get dependencies
+        working-directory: ${{ env.WORKING_DIR }}
+        run: flutter pub get
+
+      - name: Build iOS (no codesign)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=ENV=production \
+            --dart-define=API_URL=https://api.sahool.app/api/v1
+
+      - name: Upload iOS Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-release-build
+          path: ${{ env.WORKING_DIR }}/build/ios/iphoneos/
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Notify on failure
+  # ═══════════════════════════════════════════════════════════════════════════
+  notify-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [analyze, test, build-android]
+    if: failure()
+
+    steps:
+      - name: Send notification
+        run: |
+          echo "Mobile CI failed for ${{ github.repository }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Commit: ${{ github.sha }}"
+          # Add Slack/Discord notification here

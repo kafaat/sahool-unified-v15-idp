@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network Security Configuration for SAHOOL App
+  Allows HTTP traffic for local development
+  IMPORTANT: In production, use HTTPS only
+-->
+<network-security-config>
+    <!-- Production: Trust only system CAs -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system"/>
+        </trust-anchors>
+    </base-config>
+
+    <!-- Development: Allow HTTP for local network -->
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Localhost variants -->
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+
+        <!-- Local network (192.168.x.x) -->
+        <domain includeSubdomains="true">192.168.0.0</domain>
+        <domain includeSubdomains="true">192.168.1.0</domain>
+
+        <!-- Allow all local IPs for development -->
+        <domain includeSubdomains="true">10.0.0.0</domain>
+    </domain-config>
+</network-security-config>

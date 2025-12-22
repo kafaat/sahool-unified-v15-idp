@@ -332,11 +332,10 @@ def clean_yaml_output(data: Dict[str, Any]) -> str:
     """Convert to YAML and clean up comment markers"""
     yaml_str = yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
-    # Add header
-    header = f"""# ═══════════════════════════════════════════════════════════════════════════════
+    # Add header (no timestamp to avoid spurious diffs in CI)
+    header = """# ═══════════════════════════════════════════════════════════════════════════════
 # AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 # Generated from: governance/services.yaml
-# Generated at: {datetime.now().isoformat()}
 # Regenerate: make generate-infra
 # ═══════════════════════════════════════════════════════════════════════════════
 

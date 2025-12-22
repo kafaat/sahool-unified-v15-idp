@@ -1,0 +1,110 @@
+version: '3.8'
+services:
+  disaster-assessment:
+    build:
+      context: ../../apps/services/disaster-assessment
+      dockerfile: Dockerfile
+    ports:
+    - 3001:3001
+    environment:
+    - PORT=3001
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3001/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - weather-advanced
+    - satellite-service
+  lai-estimation:
+    build:
+      context: ../../apps/services/lai-estimation
+      dockerfile: Dockerfile
+    ports:
+    - 3002:3002
+    environment:
+    - PORT=3002
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3002/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - satellite-service
+  indicators-service:
+    build:
+      context: ../../apps/services/indicators-service
+      dockerfile: Dockerfile
+    ports:
+    - 8091:8091
+    environment:
+    - PORT=8091
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8091/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - satellite-service
+  crop-health-ai:
+    build:
+      context: ../../apps/services/crop-health-ai
+      dockerfile: Dockerfile
+    ports:
+    - 8095:8095
+    environment:
+    - PORT=8095
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8095/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '800'
+          memory: 1Gi
+    depends_on:
+    - satellite-service
+networks:
+  sahool-network:
+    driver: bridge

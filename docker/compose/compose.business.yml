@@ -1,0 +1,125 @@
+version: '3.8'
+services:
+  marketplace-service:
+    build:
+      context: ../../apps/services/marketplace-service
+      dockerfile: Dockerfile
+    ports:
+    - 3004:3004
+    environment:
+    - PORT=3004
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3004/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+  community-chat:
+    build:
+      context: ../../apps/services/community-chat
+      dockerfile: Dockerfile
+    ports:
+    - 3005:3005
+    environment:
+    - PORT=3005
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3005/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  research-core:
+    build:
+      context: ../../apps/services/research-core
+      dockerfile: Dockerfile
+    ports:
+    - 3015:3015
+    environment:
+    - PORT=3015
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3015/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+  billing-core:
+    build:
+      context: ../../apps/services/billing-core
+      dockerfile: Dockerfile
+    ports:
+    - 8021:8021
+    environment:
+    - PORT=8021
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8021/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  notification-service:
+    build:
+      context: ../../apps/services/notification-service
+      dockerfile: Dockerfile
+    ports:
+    - 8110:8110
+    environment:
+    - PORT=8110
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8110/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+networks:
+  sahool-network:
+    driver: bridge

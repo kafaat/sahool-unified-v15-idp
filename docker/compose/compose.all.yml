@@ -1,0 +1,462 @@
+version: '3.8'
+services:
+  crop-growth-model:
+    build:
+      context: ../../apps/services/crop-growth-model
+      dockerfile: Dockerfile
+    ports:
+    - 3000:3000
+    environment:
+    - PORT=3000
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3000/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+  yield-prediction:
+    build:
+      context: ../../apps/services/yield-prediction
+      dockerfile: Dockerfile
+    ports:
+    - 3003:3003
+    environment:
+    - PORT=3003
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3003/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - crop-growth-model
+    - weather-advanced
+    - lai-estimation
+  yield-engine:
+    build:
+      context: ../../apps/services/yield-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8098:8098
+    environment:
+    - PORT=8098
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8098/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - crop-growth-model
+    - weather-advanced
+  fertilizer-advisor:
+    build:
+      context: ../../apps/services/fertilizer-advisor
+      dockerfile: Dockerfile
+    ports:
+    - 8093:8093
+    environment:
+    - PORT=8093
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8093/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - crop-growth-model
+    - satellite-service
+  irrigation-smart:
+    build:
+      context: ../../apps/services/irrigation-smart
+      dockerfile: Dockerfile
+    ports:
+    - 8094:8094
+    environment:
+    - PORT=8094
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8094/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - weather-advanced
+    - virtual-sensors
+  disaster-assessment:
+    build:
+      context: ../../apps/services/disaster-assessment
+      dockerfile: Dockerfile
+    ports:
+    - 3001:3001
+    environment:
+    - PORT=3001
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3001/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+    depends_on:
+    - weather-advanced
+    - satellite-service
+  lai-estimation:
+    build:
+      context: ../../apps/services/lai-estimation
+      dockerfile: Dockerfile
+    ports:
+    - 3002:3002
+    environment:
+    - PORT=3002
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3002/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - satellite-service
+  indicators-service:
+    build:
+      context: ../../apps/services/indicators-service
+      dockerfile: Dockerfile
+    ports:
+    - 8091:8091
+    environment:
+    - PORT=8091
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8091/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - satellite-service
+  crop-health-ai:
+    build:
+      context: ../../apps/services/crop-health-ai
+      dockerfile: Dockerfile
+    ports:
+    - 8095:8095
+    environment:
+    - PORT=8095
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8095/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '800'
+          memory: 1Gi
+    depends_on:
+    - satellite-service
+  marketplace-service:
+    build:
+      context: ../../apps/services/marketplace-service
+      dockerfile: Dockerfile
+    ports:
+    - 3004:3004
+    environment:
+    - PORT=3004
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3004/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+  community-chat:
+    build:
+      context: ../../apps/services/community-chat
+      dockerfile: Dockerfile
+    ports:
+    - 3005:3005
+    environment:
+    - PORT=3005
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3005/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  research-core:
+    build:
+      context: ../../apps/services/research-core
+      dockerfile: Dockerfile
+    ports:
+    - 3015:3015
+    environment:
+    - PORT=3015
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3015/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+  billing-core:
+    build:
+      context: ../../apps/services/billing-core
+      dockerfile: Dockerfile
+    ports:
+    - 8021:8021
+    environment:
+    - PORT=8021
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8021/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  notification-service:
+    build:
+      context: ../../apps/services/notification-service
+      dockerfile: Dockerfile
+    ports:
+    - 8110:8110
+    environment:
+    - PORT=8110
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8110/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
+  iot-service:
+    build:
+      context: ../../apps/services/iot-service
+      dockerfile: Dockerfile
+    ports:
+    - 3006:3006
+    environment:
+    - PORT=3006
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3006/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+  satellite-service:
+    build:
+      context: ../../apps/services/satellite-service
+      dockerfile: Dockerfile
+    ports:
+    - 8090:8090
+    environment:
+    - PORT=8090
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '600'
+          memory: 768Mi
+  weather-advanced:
+    build:
+      context: ../../apps/services/weather-advanced
+      dockerfile: Dockerfile
+    ports:
+    - 8092:8092
+    environment:
+    - PORT=8092
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8092/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  virtual-sensors:
+    build:
+      context: ../../apps/services/virtual-sensors
+      dockerfile: Dockerfile
+    ports:
+    - 8096:8096
+    environment:
+    - PORT=8096
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8096/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - weather-advanced
+    - satellite-service
+networks:
+  sahool-network:
+    driver: bridge

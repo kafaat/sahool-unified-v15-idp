@@ -83,7 +83,7 @@ dev_dependencies:
   freezed: ^3.0.0
   json_serializable: ^6.9.0
   riverpod_generator: ^2.6.5
-  mockito: ^5.5.0
+  mockito: 5.4.5  # Pinned: 5.4.6+ requires Dart SDK >=3.7.0
 
   # App Branding
   flutter_launcher_icons: ^0.14.2

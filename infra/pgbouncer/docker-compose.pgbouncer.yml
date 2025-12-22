@@ -1,0 +1,86 @@
+version: '3.8'
+
+# SAHOOL PGBouncer Connection Pooling
+# Prevents PostgreSQL connection exhaustion under load
+
+services:
+  pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: sahool-pgbouncer
+    environment:
+      # Database connection
+      DATABASE_URL: postgres://sahool_app:${POSTGRES_PASSWORD}@postgres:5432/sahool
+
+      # Pool settings (can override pgbouncer.ini)
+      POOL_MODE: transaction
+      MAX_DB_CONNECTIONS: 100
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      MAX_CLIENT_CONN: 500
+
+      # Timeouts
+      QUERY_TIMEOUT: 120
+      QUERY_WAIT_TIMEOUT: 30
+
+      # Auth
+      AUTH_TYPE: md5
+
+      # Admin
+      ADMIN_USERS: pgbouncer_admin
+      STATS_USERS: pgbouncer_stats
+
+    volumes:
+      - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
+
+    ports:
+      - "6432:6432"
+
+    networks:
+      - sahool-network
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "localhost", "-p", "6432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+    restart: unless-stopped
+
+    depends_on:
+      - postgres
+
+  # PostgreSQL (reference - usually in main docker-compose)
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: sahool-postgres
+    environment:
+      POSTGRES_DB: sahool
+      POSTGRES_USER: sahool_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool_dev_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sahool-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sahool_app -d sahool"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  sahool-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,10 +1,10 @@
 name: sahool_field_app
 description: SAHOOL Field Operations App - Offline-First Mobile Application
 publish_to: 'none'
-version: 15.4.0+1
+version: 15.5.0+1
 
 environment:
-  sdk: '>=3.2.0 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'  # Flutter 3.27.x uses Dart 3.6.0
 
 dependencies:
   flutter:
@@ -17,7 +17,7 @@ dependencies:
   riverpod_annotation: ^2.6.1
 
   # Database (Offline)
-  drift: ^2.22.1
+  drift: ^2.24.0
   sqlite3_flutter_libs: ^0.5.28
   path_provider: ^2.1.5
   path: ^1.9.0
@@ -67,27 +67,30 @@ dependencies:
   uuid: ^4.5.1
   intl: ^0.19.0
   equatable: ^2.0.7
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
 
   # Date/Time
   jiffy: ^6.3.1
-  drift_flutter: 0.2.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.13
-  drift_dev: ^2.22.1
-  freezed: ^2.5.7
-  json_serializable: ^6.8.0
-  riverpod_generator: ^2.6.3
-  mockito: ^5.4.5
+  build_runner: ^2.4.13  # Last version for Dart 3.6.0
+  drift_dev: ^2.24.0
+  freezed: 2.5.8  # Last 2.x version compatible with Dart 3.6.0
+  json_serializable: ^6.9.0
+  # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
 
   # App Branding
   flutter_launcher_icons: ^0.14.2
   flutter_native_splash: ^2.4.3
+
+# Compatibility Matrix for Flutter 3.27.x (Dart 3.6.0):
+# - freezed 2.5.8: analyzer >=7.0.0 <8.0.0, source_gen ^2.0.0
+# - mockito: REMOVED (5.4.5 incompatible with analyzer 7.x)
+# - build_runner 2.4.13: Compatible with Dart 3.6.0
 
 # App Icon Configuration
 flutter_launcher_icons:

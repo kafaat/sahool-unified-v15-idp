@@ -228,8 +228,10 @@ class EnvConfig {
       _getBool('ENABLE_CAMERA', true);
 
   static bool get enablePushNotifications {
+    // Disabled in development to avoid FCM setup requirements
     if (isDevelopment) return false;
-    return _getBool('ENABLE_PUSH', false);
+    // Enabled by default in production/staging
+    return _getBool('ENABLE_PUSH', true);
   }
 
   static bool get enableAnalytics {

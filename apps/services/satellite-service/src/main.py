@@ -23,6 +23,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Redis cache integration
+_cache_available = False
+try:
+    from .cache import (
+        is_cache_available,
+        get_cached_analysis,
+        cache_analysis,
+        get_cached_timeseries,
+        cache_timeseries,
+        get_cache_stats,
+        cache_health_check,
+    )
+    _cache_available = True
+    logger.info("Redis cache module loaded")
+except ImportError:
+    logger.info("Cache module not available - running without caching")
+    is_cache_available = lambda: False
+
 # Import eo-learn integration
 from .eo_integration import (
     fetch_real_satellite_data,
@@ -397,7 +415,24 @@ def health():
         "eo_learn": get_data_source_status(),
         "nats_available": _nats_available,
         "action_factory_available": _action_factory_available,
+        "cache_available": _cache_available and is_cache_available(),
     }
+
+
+@app.get("/v1/cache/stats")
+async def cache_statistics():
+    """إحصائيات الـCache"""
+    if not _cache_available:
+        return {"available": False, "message": "Cache module not loaded"}
+    return await get_cache_stats()
+
+
+@app.get("/v1/cache/health")
+async def cache_health():
+    """فحص صحة الـCache"""
+    if not _cache_available:
+        return {"status": "unavailable", "message": "Cache module not loaded"}
+    return await cache_health_check()
 
 
 @app.get("/v1/eo-status")

@@ -1,13 +1,10 @@
 /// SAHOOL API Client Tests
 /// اختبارات عميل API
 import 'package:flutter_test/flutter_test.dart';
-import 'package:dio/dio.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
 
-@GenerateMocks([Dio])
-import 'api_client_test.mocks.dart';
+// Note: mockito removed due to analyzer 7.x incompatibility
+// Tests use real objects where possible
 
 void main() {
   late ApiClient apiClient;

@@ -1,21 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mockito/annotations.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
-import 'package:sahool_field_app/core/storage/database.dart';
-import 'package:sahool_field_app/core/sync/sync_engine.dart';
-import 'package:sahool_field_app/core/sync/network_status.dart';
 
 /// Mock Providers for SAHOOL Field App Tests
 /// موفرات وهمية للاختبارات
-
-// Generate mocks using: flutter pub run build_runner build
-@GenerateMocks([
-  ApiClient,
-  AppDatabase,
-  SyncEngine,
-  NetworkStatus,
-])
-void main() {}
+///
+/// Note: mockito removed due to analyzer 7.x incompatibility
+/// Using manual mocks instead
 
 /// Mock API Client Provider
 class MockApiClientNotifier extends StateNotifier<ApiClient?> {

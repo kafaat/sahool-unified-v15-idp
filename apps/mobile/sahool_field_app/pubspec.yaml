@@ -67,7 +67,7 @@ dependencies:
   uuid: ^4.5.1
   intl: ^0.19.0
   equatable: ^2.0.7
-  freezed_annotation: 3.0.0  # Pinned to match freezed 3.1.0
+  freezed_annotation: 3.1.0  # Must match freezed 3.1.0
   json_annotation: ^4.9.0
 
   # Date/Time

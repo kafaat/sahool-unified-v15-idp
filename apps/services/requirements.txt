@@ -36,7 +36,7 @@ opentelemetry-instrumentation-fastapi==0.50b0
 
 # Utilities
 python-multipart==0.0.18
-python-jose[cryptography]>=3.3.0  # Note: Consider migrating to PyJWT for better security
+python-jose[cryptography]>=3.4.0  # Note: Consider migrating to PyJWT for better security
 passlib[bcrypt]==1.7.4
 
 # Testing

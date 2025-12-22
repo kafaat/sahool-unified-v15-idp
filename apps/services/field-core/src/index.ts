@@ -332,17 +332,17 @@ app.put("/api/v1/fields/:id", async (req: Request, res: Response) => {
             );
         }
 
-        // Update allowed fields
-        const allowedUpdates = [
-            "name", "cropType", "status", "irrigationType",
-            "soilType", "plantingDate", "expectedHarvest", "metadata"
-        ];
-
-        for (const key of allowedUpdates) {
-            if (req.body[key] !== undefined) {
-                (field as any)[key] = req.body[key];
-            }
-        }
+        // Update allowed fields using explicit property assignment
+        // to prevent prototype pollution attacks
+        const updates = req.body;
+        if (updates.name !== undefined) field.name = updates.name;
+        if (updates.cropType !== undefined) field.cropType = updates.cropType;
+        if (updates.status !== undefined) field.status = updates.status;
+        if (updates.irrigationType !== undefined) field.irrigationType = updates.irrigationType;
+        if (updates.soilType !== undefined) field.soilType = updates.soilType;
+        if (updates.plantingDate !== undefined) field.plantingDate = updates.plantingDate;
+        if (updates.expectedHarvest !== undefined) field.expectedHarvest = updates.expectedHarvest;
+        if (updates.metadata !== undefined) field.metadata = updates.metadata;
 
         // Save will auto-increment the version column (optimistic lock)
         const updatedField = await fieldRepo.save(field);
@@ -878,17 +878,17 @@ app.post("/api/v1/fields/sync/batch", async (req: Request, res: Response) => {
                     await historyRepo.save(historyEntry);
                 }
 
-                // Apply updates
-                const allowedUpdates = [
-                    "name", "cropType", "status", "irrigationType",
-                    "soilType", "plantingDate", "expectedHarvest", "metadata", "boundary"
-                ];
-
-                for (const key of allowedUpdates) {
-                    if (fieldData[key] !== undefined) {
-                        (existingField as any)[key] = fieldData[key];
-                    }
-                }
+                // Apply updates using explicit property assignment
+                // to prevent prototype pollution attacks
+                if (fieldData.name !== undefined) existingField.name = fieldData.name;
+                if (fieldData.cropType !== undefined) existingField.cropType = fieldData.cropType;
+                if (fieldData.status !== undefined) existingField.status = fieldData.status;
+                if (fieldData.irrigationType !== undefined) existingField.irrigationType = fieldData.irrigationType;
+                if (fieldData.soilType !== undefined) existingField.soilType = fieldData.soilType;
+                if (fieldData.plantingDate !== undefined) existingField.plantingDate = fieldData.plantingDate;
+                if (fieldData.expectedHarvest !== undefined) existingField.expectedHarvest = fieldData.expectedHarvest;
+                if (fieldData.metadata !== undefined) existingField.metadata = fieldData.metadata;
+                if (fieldData.boundary !== undefined) existingField.boundary = fieldData.boundary;
 
                 const updated = await fieldRepo.save(existingField);
 

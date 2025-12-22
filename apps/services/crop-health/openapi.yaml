@@ -1,0 +1,559 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Crop Health API
+  description: |
+    خدمة تشخيص صحة المحاصيل - Intelligent crop health diagnostics with decision support
+
+    ## الميزات الرئيسية
+    - تسجيل مؤشرات الغطاء النباتي (NDVI, EVI, NDRE, LCI, NDWI, SAVI)
+    - تشخيص ذكي للحقول مع توصيات الإجراءات
+    - تصدير VRT للزراعة الدقيقة
+    - السلسلة الزمنية للتحليل التاريخي
+  version: 1.0.0
+  contact:
+    name: SAHOOL Platform
+    email: support@sahool.io
+
+servers:
+  - url: http://localhost:8100
+    description: Local development
+  - url: https://api.sahool.io
+    description: Production
+
+tags:
+  - name: Health
+    description: Service health endpoints
+  - name: Zones
+    description: Zone management
+  - name: Observations
+    description: Vegetation indices observations
+  - name: Diagnosis
+    description: AI-powered crop diagnosis
+  - name: Timeline
+    description: Historical data analysis
+  - name: VRT
+    description: Variable Rate Technology export
+
+paths:
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string }
+                  service: { type: string }
+                  version: { type: string }
+
+  /api/v1/fields/{field_id}/zones:
+    get:
+      tags: [Zones]
+      summary: List zones in a field
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+      responses:
+        "200":
+          description: List of zones
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zones:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Zone'
+                  count: { type: integer }
+    post:
+      tags: [Zones]
+      summary: Create a new zone
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoneCreate'
+      responses:
+        "200":
+          description: Zone created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zone_id: { type: string }
+                  status: { type: string }
+
+  /api/v1/fields/{field_id}/zones.geojson:
+    get:
+      tags: [Zones]
+      summary: Export zones as GeoJSON
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+      responses:
+        "200":
+          description: GeoJSON FeatureCollection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeoJSONFeatureCollection'
+
+  /api/v1/fields/{field_id}/zones/{zone_id}/observations:
+    post:
+      tags: [Observations]
+      summary: Ingest vegetation indices observation
+      description: |
+        تسجيل رصد جديد لمؤشرات الغطاء النباتي من مصادر مختلفة
+        (Sentinel-2, Drone, Planet, etc.)
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/ZoneId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservationIn'
+            example:
+              captured_at: "2025-12-14T11:10:00Z"
+              source: "sentinel-2"
+              growth_stage: "mid"
+              indices:
+                ndvi: 0.78
+                evi: 0.62
+                ndre: 0.21
+                lci: 0.32
+                ndwi: -0.12
+                savi: 0.65
+              cloud_pct: 8.0
+              notes: "auto ingest"
+      responses:
+        "200":
+          description: Observation stored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObservationOut'
+    get:
+      tags: [Observations]
+      summary: List observations for a zone
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/ZoneId'
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50, maximum: 200 }
+      responses:
+        "200":
+          description: List of observations
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  observations: { type: array }
+                  count: { type: integer }
+
+  /api/v1/fields/{field_id}/diagnosis:
+    get:
+      tags: [Diagnosis]
+      summary: Get decision-oriented diagnosis for field
+      description: |
+        تشخيص كامل للحقل - "الطبيب الزراعي"
+
+        يُرجع:
+        - ملخص حالة المناطق (Critical/Warning/OK)
+        - قائمة الإجراءات المطلوبة مرتبة بالأولوية
+        - روابط طبقات الخريطة
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - name: date
+          in: query
+          required: true
+          description: التاريخ (YYYY-MM-DD)
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Diagnosis output
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldDiagnosis'
+              example:
+                field_id: "field_23"
+                date: "2025-12-14"
+                summary:
+                  zones_total: 12
+                  zones_critical: 2
+                  zones_warning: 4
+                  zones_ok: 6
+                actions:
+                  - zone_id: "zone_c"
+                    type: "irrigation"
+                    priority: "P0"
+                    title: "ري عاجل خلال 24 ساعة"
+                    title_en: "Urgent irrigation within 24 hours"
+                    reason: "NDWI منخفض جدًا مع NDVI متراجع"
+                    evidence: { ndwi: -0.12, ndvi: 0.41 }
+                    recommended_window_hours: 24
+                map_layers:
+                  ndvi_raster_url: "https://cdn.sahool/maps/field_23/2025-12-14/ndvi.tiff"
+                  zones_geojson_url: "/api/v1/fields/field_23/zones.geojson"
+        "404":
+          description: Field not found
+
+  /api/v1/fields/{field_id}/zones/{zone_id}/timeline:
+    get:
+      tags: [Timeline]
+      summary: Get zone timeline
+      description: السلسلة الزمنية لمؤشرات المنطقة
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - $ref: '#/components/parameters/ZoneId'
+        - name: from
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: to
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Timeline data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoneTimeline'
+              example:
+                zone_id: "zone_a"
+                field_id: "field_23"
+                series:
+                  - date: "2025-11-15"
+                    ndvi: 0.62
+                    ndre: 0.31
+                    ndwi: 0.02
+                  - date: "2025-12-01"
+                    ndvi: 0.74
+                    ndre: 0.25
+                    ndwi: -0.03
+                  - date: "2025-12-14"
+                    ndvi: 0.78
+                    ndre: 0.21
+                    ndwi: -0.05
+
+  /api/v1/fields/{field_id}/vrt:
+    get:
+      tags: [VRT]
+      summary: Export VRT for precision agriculture
+      description: |
+        تصدير VRT للعمليات الزراعية الدقيقة
+
+        يُنتج GeoJSON مع خصائص قابلة للاستخدام في:
+        - أنظمة الري الذكي
+        - آلات التسميد المتغير (VRT)
+        - تطبيقات الطيران الزراعي
+      parameters:
+        - $ref: '#/components/parameters/FieldId'
+        - name: date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: action_type
+          in: query
+          description: Filter by action type
+          schema:
+            type: string
+            enum: [irrigation, fertilization, all]
+      responses:
+        "200":
+          description: VRT GeoJSON export
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VRTExport'
+
+  /api/v1/diagnose:
+    post:
+      tags: [Diagnosis]
+      summary: Quick diagnosis without storing
+      description: تشخيص سريع بدون حفظ - مفيد للاختبار
+      parameters:
+        - name: zone_id
+          in: query
+          schema: { type: string, default: "zone_temp" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservationIn'
+      responses:
+        "200":
+          description: Diagnosis result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zone_id: { type: string }
+                  status: { type: string }
+                  actions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Action'
+
+components:
+  parameters:
+    FieldId:
+      name: field_id
+      in: path
+      required: true
+      schema: { type: string }
+      description: Field identifier
+    ZoneId:
+      name: zone_id
+      in: path
+      required: true
+      schema: { type: string }
+      description: Zone identifier
+
+  schemas:
+    Indices:
+      type: object
+      description: مؤشرات الغطاء النباتي
+      properties:
+        ndvi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Normalized Difference Vegetation Index
+        evi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Enhanced Vegetation Index
+        ndre:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Normalized Difference Red Edge (nitrogen status)
+        lci:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Leaf Chlorophyll Index
+        ndwi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Normalized Difference Water Index
+        savi:
+          type: number
+          minimum: -1
+          maximum: 1
+          description: Soil-Adjusted Vegetation Index
+      required: [ndvi, evi, ndre, lci, ndwi, savi]
+
+    GrowthStage:
+      type: string
+      enum: [seedling, rapid, mid, late]
+      description: |
+        مرحلة النمو:
+        - seedling: شتلة
+        - rapid: نمو سريع
+        - mid: منتصف الموسم
+        - late: نهاية الموسم
+
+    ObservationIn:
+      type: object
+      properties:
+        captured_at:
+          type: string
+          format: date-time
+          description: وقت الالتقاط
+        source:
+          type: string
+          enum: [sentinel-2, drone, planet, landsat, other]
+          description: مصدر البيانات
+        growth_stage:
+          $ref: '#/components/schemas/GrowthStage'
+        indices:
+          $ref: '#/components/schemas/Indices'
+        cloud_pct:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: نسبة الغيوم
+        notes:
+          type: string
+          description: ملاحظات
+      required: [captured_at, source, growth_stage, indices]
+
+    ObservationOut:
+      type: object
+      properties:
+        observation_id: { type: string }
+        status: { type: string, enum: [stored] }
+        zone_id: { type: string }
+        field_id: { type: string }
+      required: [observation_id, status]
+
+    Action:
+      type: object
+      description: إجراء موصى به
+      properties:
+        zone_id: { type: string }
+        type:
+          type: string
+          enum: [irrigation, fertilization, scouting, none]
+          description: |
+            نوع الإجراء:
+            - irrigation: ري
+            - fertilization: تسميد
+            - scouting: تفقد ميداني
+            - none: لا إجراء
+        priority:
+          type: string
+          enum: [P0, P1, P2, P3]
+          description: |
+            الأولوية:
+            - P0: عاجل جداً (خلال 24 ساعة)
+            - P1: مهم (خلال 48-72 ساعة)
+            - P2: متوسط (خلال أسبوع)
+            - P3: منخفض / لا إجراء
+        title: { type: string, description: العنوان بالعربية }
+        title_en: { type: string, description: العنوان بالإنجليزية }
+        reason: { type: string, description: السبب بالعربية }
+        reason_en: { type: string, description: السبب بالإنجليزية }
+        evidence:
+          type: object
+          description: الأدلة (المؤشرات)
+        recommended_window_hours:
+          type: integer
+          description: النافذة الزمنية الموصى بها (ساعات)
+        recommended_dose_hint:
+          type: string
+          enum: [low, medium, high]
+          description: تلميح كمية الجرعة
+        severity:
+          type: string
+          enum: [critical, warning, moderate, low, ok]
+      required: [zone_id, type, priority, title, reason]
+
+    Summary:
+      type: object
+      properties:
+        zones_total: { type: integer }
+        zones_critical: { type: integer }
+        zones_warning: { type: integer }
+        zones_ok: { type: integer }
+      required: [zones_total, zones_critical, zones_warning, zones_ok]
+
+    MapLayers:
+      type: object
+      properties:
+        ndvi_raster_url: { type: string }
+        ndwi_raster_url: { type: string }
+        ndre_raster_url: { type: string }
+        zones_geojson_url: { type: string }
+
+    FieldDiagnosis:
+      type: object
+      properties:
+        field_id: { type: string }
+        date: { type: string, format: date }
+        summary: { $ref: '#/components/schemas/Summary' }
+        actions:
+          type: array
+          items: { $ref: '#/components/schemas/Action' }
+        map_layers: { $ref: '#/components/schemas/MapLayers' }
+      required: [field_id, date, summary, actions]
+
+    ZoneTimeline:
+      type: object
+      properties:
+        zone_id: { type: string }
+        field_id: { type: string }
+        series:
+          type: array
+          items:
+            type: object
+            properties:
+              date: { type: string, format: date }
+              ndvi: { type: number }
+              evi: { type: number }
+              ndre: { type: number }
+              ndwi: { type: number }
+              lci: { type: number }
+              savi: { type: number }
+
+    Zone:
+      type: object
+      properties:
+        zone_id: { type: string }
+        name: { type: string }
+        name_ar: { type: string }
+        area_hectares: { type: number }
+        geometry: { type: object }
+
+    ZoneCreate:
+      type: object
+      properties:
+        name: { type: string }
+        name_ar: { type: string }
+        geometry: { type: object }
+        area_hectares: { type: number }
+      required: [name]
+
+    GeoJSONFeatureCollection:
+      type: object
+      properties:
+        type: { type: string, enum: [FeatureCollection] }
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string, enum: [Feature] }
+              id: { type: string }
+              properties: { type: object }
+              geometry: { type: object }
+
+    VRTExport:
+      type: object
+      properties:
+        type: { type: string, enum: [FeatureCollection] }
+        features:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string }
+              id: { type: string }
+              properties:
+                type: object
+                properties:
+                  zone_id: { type: string }
+                  status: { type: string }
+                  irrigation_required: { type: boolean }
+                  irrigation_priority: { type: string }
+                  fertilization_required: { type: boolean }
+                  n_dose_hint: { type: string }
+                  indices: { type: object }
+              geometry: { type: object }
+        metadata:
+          type: object
+          properties:
+            field_id: { type: string }
+            date: { type: string }
+            export_type: { type: string }
+            generated_at: { type: string }

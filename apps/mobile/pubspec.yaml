@@ -91,9 +91,10 @@ dev_dependencies:
   flutter_native_splash: ^2.4.3
 
 # Override analyzer to fix mockito and analyzer_plugin compatibility
+# Note: analyzer 6.5.0+ has macros dependency that requires SDK support
+# Using 6.4.1 which is compatible with Flutter 3.27.1 (Dart 3.6.0)
 dependency_overrides:
-  analyzer: 6.5.0
-  analyzer_plugin: ^0.11.3
+  analyzer: 6.4.1
 
 # App Icon Configuration
 flutter_launcher_icons:

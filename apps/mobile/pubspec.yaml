@@ -67,7 +67,7 @@ dependencies:
   uuid: ^4.5.1
   intl: ^0.19.0
   equatable: ^2.0.7
-  freezed_annotation: 3.1.0  # Must match freezed 3.1.0
+  freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
 
   # Date/Time
@@ -80,7 +80,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   build_runner: ^2.6.0
   drift_dev: ^2.24.0
-  freezed: 3.1.0  # Pinned: 3.2.0+ requires Dart SDK >=3.8.0
+  freezed: 2.5.8  # Last 2.x version with analyzer 7.x support
   json_serializable: ^6.9.0
   riverpod_generator: 2.6.5  # Pinned for Dart 3.6.0 compatibility
   mockito: 5.4.5  # Pinned: 5.4.6+ requires Dart SDK >=3.7.0
@@ -90,7 +90,7 @@ dev_dependencies:
   flutter_native_splash: ^2.4.3
 
 # Compatibility Matrix for Flutter 3.27.1 (Dart 3.6.0):
-# - freezed 3.1.0: Last version before Dart 3.8.0 requirement
+# - freezed 2.5.8: Last 2.x version with analyzer 7.x, build ^2.3.1
 # - mockito 5.4.5: Last version before Dart 3.7.0 requirement
 # - All packages use compatible analyzer 7.x range
 

@@ -17,7 +17,7 @@ dependencies:
   riverpod_annotation: ^2.6.1
 
   # Database (Offline)
-  drift: ^2.22.1
+  drift: ^2.24.0
   sqlite3_flutter_libs: ^0.5.28
   path_provider: ^2.1.5
   path: ^1.9.0
@@ -67,7 +67,7 @@ dependencies:
   uuid: ^4.5.1
   intl: ^0.19.0
   equatable: ^2.0.7
-  freezed_annotation: ^2.4.4
+  freezed_annotation: ^3.0.0
   json_annotation: ^4.9.0
 
   # Date/Time
@@ -77,22 +77,19 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.14
-  drift_dev: ^2.22.1
-  freezed: ^2.5.7
+  build_runner: ^2.6.0
+  drift_dev: ^2.24.0
+  freezed: ^3.0.0
   json_serializable: ^6.9.0
-  riverpod_generator: ^2.6.3
-  mockito: ^5.4.5
+  riverpod_generator: ^2.6.5
+  mockito: ^5.5.0
 
   # App Branding
   flutter_launcher_icons: ^0.14.2
   flutter_native_splash: ^2.4.3
 
-# Override analyzer to fix mockito and analyzer_plugin compatibility
-# Note: analyzer 6.5.0+ has macros dependency that requires SDK support
-# Using 6.4.1 which is compatible with Flutter 3.27.1 (Dart 3.6.0)
-dependency_overrides:
-  analyzer: 6.4.1
+# Note: All packages now use compatible analyzer versions (7.x range)
+# No dependency_overrides needed - using native version resolution
 
 # App Icon Configuration
 flutter_launcher_icons:

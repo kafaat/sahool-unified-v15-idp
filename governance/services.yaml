@@ -96,6 +96,7 @@ services:
   crop-growth-model:
     name: "Crop Growth Model"
     name_ar: "نموذج نمو المحاصيل"
+    type: nestjs
     category: crop
     layer: decision
     path: "apps/services/crop-growth-model"
@@ -203,6 +204,7 @@ services:
   disaster-assessment:
     name: "Disaster Assessment"
     name_ar: "تقييم الكوارث"
+    type: nestjs
     category: analytics
     layer: intelligence
     path: "apps/services/disaster-assessment"
@@ -235,6 +237,7 @@ services:
   lai-estimation:
     name: "LAI Estimation"
     name_ar: "تقدير LAI"
+    type: nestjs
     category: analytics
     layer: intelligence
     path: "apps/services/lai-estimation"
@@ -261,6 +264,7 @@ services:
   yield-prediction:
     name: "Yield Prediction"
     name_ar: "تنبؤ الغلة"
+    type: nestjs
     category: analytics
     layer: decision
     path: "apps/services/yield-prediction"
@@ -291,6 +295,7 @@ services:
   marketplace-service:
     name: "Marketplace Service"
     name_ar: "خدمة السوق"
+    type: nestjs
     category: community
     layer: business
     path: "apps/services/marketplace-service"
@@ -320,6 +325,7 @@ services:
   community-chat:
     name: "Community Chat"
     name_ar: "دردشة المجتمع"
+    type: nestjs
     category: community
     layer: business
     path: "apps/services/community-chat"
@@ -348,6 +354,7 @@ services:
   iot-service:
     name: "IoT Gateway"
     name_ar: "بوابة إنترنت الأشياء"
+    type: nestjs
     category: integration
     layer: acquisition
     path: "apps/services/iot-service"
@@ -382,6 +389,7 @@ services:
   research-core:
     name: "Research Core"
     name_ar: "نواة البحث العلمي"
+    type: nestjs
     category: core
     layer: business
     path: "apps/services/research-core"
@@ -412,6 +420,7 @@ services:
   billing-core:
     name: "Billing Core"
     name_ar: "خدمة الفوترة"
+    type: python
     category: core
     layer: business
     path: "apps/services/billing-core"
@@ -441,6 +450,7 @@ services:
   satellite-service:
     name: "Satellite Service"
     name_ar: "خدمة الأقمار الصناعية"
+    type: python
     category: analytics
     layer: acquisition
     path: "apps/services/satellite-service"
@@ -479,6 +489,7 @@ services:
   weather-advanced:
     name: "Weather Advanced"
     name_ar: "خدمة الطقس المتقدمة"
+    type: python
     category: integration
     layer: acquisition
     path: "apps/services/weather-advanced"
@@ -510,6 +521,7 @@ services:
   indicators-service:
     name: "Indicators Service"
     name_ar: "خدمة المؤشرات"
+    type: python
     category: analytics
     layer: intelligence
     path: "apps/services/indicators-service"
@@ -540,6 +552,7 @@ services:
   crop-health-ai:
     name: "Crop Health AI"
     name_ar: "سهول فيجن - كشف الأمراض"
+    type: python
     category: analytics
     layer: intelligence
     path: "apps/services/crop-health-ai"
@@ -568,6 +581,7 @@ services:
   virtual-sensors:
     name: "Virtual Sensors"
     name_ar: "المستشعرات الافتراضية"
+    type: python
     category: analytics
     layer: acquisition
     path: "apps/services/virtual-sensors"
@@ -596,6 +610,7 @@ services:
   yield-engine:
     name: "Yield Engine"
     name_ar: "محرك التنبؤ بالإنتاجية"
+    type: python
     category: analytics
     layer: decision
     path: "apps/services/yield-engine"
@@ -624,6 +639,7 @@ services:
   fertilizer-advisor:
     name: "Fertilizer Advisor"
     name_ar: "مستشار التسميد"
+    type: python
     category: core
     layer: decision
     path: "apps/services/fertilizer-advisor"
@@ -655,6 +671,7 @@ services:
   irrigation-smart:
     name: "Irrigation Smart"
     name_ar: "الري الذكي"
+    type: python
     category: core
     layer: decision
     path: "apps/services/irrigation-smart"
@@ -687,6 +704,7 @@ services:
   notification-service:
     name: "Notification Service"
     name_ar: "خدمة الإشعارات"
+    type: python
     category: core
     layer: business
     path: "apps/services/notification-service"

@@ -104,6 +104,70 @@ def generate_compose_service(name: str, service: Dict[str, Any]) -> Dict[str, An
     return compose_service
 
 
+def generate_infrastructure_services() -> Dict[str, Any]:
+    """Generate infrastructure services (postgres, redis, nats, mqtt)"""
+    return {
+        "postgres": {
+            "image": "postgis/postgis:16-3.4",
+            "container_name": "sahool-postgres",
+            "environment": [
+                "POSTGRES_USER=${POSTGRES_USER:-sahool}",
+                "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sahool_dev}",
+                "POSTGRES_DB=${POSTGRES_DB:-sahool}"
+            ],
+            "volumes": ["postgres_data:/var/lib/postgresql/data"],
+            "ports": ["${POSTGRES_PORT:-5432}:5432"],
+            "healthcheck": {
+                "test": ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}"],
+                "interval": "5s",
+                "timeout": "5s",
+                "retries": 10,
+                "start_period": "30s"
+            },
+            "networks": ["sahool-network"],
+            "restart": "unless-stopped"
+        },
+        "redis": {
+            "image": "redis:7.4-alpine",
+            "container_name": "sahool-redis",
+            "command": ["redis-server", "--appendonly", "yes"],
+            "volumes": ["redis_data:/data"],
+            "ports": ["${REDIS_PORT:-6379}:6379"],
+            "healthcheck": {
+                "test": ["CMD", "redis-cli", "ping"],
+                "interval": "5s",
+                "timeout": "5s",
+                "retries": 10
+            },
+            "networks": ["sahool-network"],
+            "restart": "unless-stopped"
+        },
+        "nats": {
+            "image": "nats:2.10-alpine",
+            "container_name": "sahool-nats",
+            "command": ["--jetstream", "--store_dir", "/data"],
+            "volumes": ["nats_data:/data"],
+            "ports": ["${NATS_PORT:-4222}:4222", "8222:8222"],
+            "healthcheck": {
+                "test": ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"],
+                "interval": "5s",
+                "timeout": "5s",
+                "retries": 10
+            },
+            "networks": ["sahool-network"],
+            "restart": "unless-stopped"
+        },
+        "mqtt": {
+            "image": "eclipse-mosquitto:2",
+            "container_name": "sahool-mqtt",
+            "volumes": ["mqtt_data:/mosquitto/data", "mqtt_log:/mosquitto/log"],
+            "ports": ["${MQTT_PORT:-1883}:1883", "9001:9001"],
+            "networks": ["sahool-network"],
+            "restart": "unless-stopped"
+        }
+    }
+
+
 def generate_docker_compose(data: Dict[str, Any]) -> Dict[str, Any]:
     """Generate complete Docker Compose configuration"""
     services = data.get("services", {})
@@ -113,15 +177,23 @@ def generate_docker_compose(data: Dict[str, Any]) -> Dict[str, Any]:
         "# AUTO-GENERATED FILE - DO NOT EDIT MANUALLY": None,
         "# Generated from governance/services.yaml": None,
         "# Run: make generate-infra": None,
-        "version": "3.9",
         "services": {},
         "networks": {
             "sahool-network": {
                 "driver": "bridge"
             }
         },
-        "volumes": {}
+        "volumes": {
+            "postgres_data": {},
+            "redis_data": {},
+            "nats_data": {},
+            "mqtt_data": {},
+            "mqtt_log": {}
+        }
     }
+
+    # Add infrastructure services first
+    compose["services"].update(generate_infrastructure_services())
 
     # Generate backend services
     for name, service in services.items():
@@ -332,11 +404,10 @@ def clean_yaml_output(data: Dict[str, Any]) -> str:
     """Convert to YAML and clean up comment markers"""
     yaml_str = yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False)
 
-    # Add header
-    header = f"""# ═══════════════════════════════════════════════════════════════════════════════
+    # Add header (no timestamp to avoid spurious diffs in CI)
+    header = """# ═══════════════════════════════════════════════════════════════════════════════
 # AUTO-GENERATED FILE - DO NOT EDIT MANUALLY
 # Generated from: governance/services.yaml
-# Generated at: {datetime.now().isoformat()}
 # Regenerate: make generate-infra
 # ═══════════════════════════════════════════════════════════════════════════════
 

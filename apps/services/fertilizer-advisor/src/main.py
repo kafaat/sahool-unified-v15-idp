@@ -1,6 +1,10 @@
 """
 🧪 SAHOOL Fertilizer Advisor Service v15.3
 خدمة مستشار السماد - NPK Recommendations & Soil Analysis
+
+Field-First Architecture:
+- كل توصية تُنتج ActionTemplate قابل للتنفيذ بدون اتصال
+- التحليل يخدم الميدان، لا العكس
 """
 
 from fastapi import FastAPI, HTTPException, Query
@@ -9,6 +13,19 @@ from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict, Any
 from enum import Enum
 import uuid
+
+# Field-First: Action Template Support
+import sys
+sys.path.insert(0, '/app')
+try:
+    from shared.contracts.actions import (
+        ActionTemplate,
+        ActionTemplateFactory,
+        UrgencyLevel as ActionUrgency,
+    )
+    ACTION_TEMPLATE_AVAILABLE = True
+except ImportError:
+    ACTION_TEMPLATE_AVAILABLE = False
 
 app = FastAPI(
     title="SAHOOL Fertilizer Advisor | مستشار السماد",
@@ -858,6 +875,146 @@ def get_deficiency_symptoms(crop: CropType):
         "crop": crop.value,
         "crop_name_ar": CROP_TRANSLATIONS[crop],
         "deficiency_symptoms": symptoms,
+    }
+
+
+# =============================================================================
+# Field-First: Action Template Endpoints
+# =============================================================================
+
+
+@app.post("/v1/recommend-with-action")
+def get_recommendation_with_action(request: FertilizerRequest):
+    """
+    الحصول على توصيات التسميد مع ActionTemplate
+
+    Field-First: هذا الـ endpoint يُنتج قالب إجراء قابل للتنفيذ
+    بدون اتصال، مع خطوات واضحة وموارد محددة.
+    """
+    # Get the regular fertilization plan
+    plan = get_recommendation(request)
+
+    # If ActionTemplate not available, return plan only
+    if not ACTION_TEMPLATE_AVAILABLE:
+        return {
+            "plan": plan,
+            "action_template": None,
+            "action_template_available": False,
+        }
+
+    # Create ActionTemplate for the first recommendation
+    if plan.recommendations:
+        rec = plan.recommendations[0]
+
+        # Determine urgency based on growth stage
+        urgency_map = {
+            GrowthStage.SEEDLING: ActionUrgency.MEDIUM,
+            GrowthStage.VEGETATIVE: ActionUrgency.MEDIUM,
+            GrowthStage.FLOWERING: ActionUrgency.HIGH,
+            GrowthStage.FRUITING: ActionUrgency.HIGH,
+            GrowthStage.MATURITY: ActionUrgency.LOW,
+        }
+        urgency = urgency_map.get(request.growth_stage, ActionUrgency.MEDIUM)
+
+        # Create ActionTemplate using factory
+        action = ActionTemplateFactory.create_fertilization_action(
+            field_id=request.field_id,
+            fertilizer_type=rec.fertilizer_type.value,
+            quantity_kg=rec.quantity_kg_per_hectare * request.area_hectares,
+            urgency=urgency,
+            confidence=0.88,
+            application_method=rec.application_method.value,
+            npk_ratio=f"{rec.npk_content['N']}-{rec.npk_content['P']}-{rec.npk_content['K']}",
+            source_analysis_id=plan.plan_id,
+        )
+
+        # Calculate priority
+        action.calculate_priority_score()
+
+        # Add all fertilizers as metadata
+        action.metadata["all_fertilizers"] = [
+            {
+                "type": r.fertilizer_type.value,
+                "name_ar": r.fertilizer_name_ar,
+                "quantity_kg": r.quantity_kg_per_hectare * request.area_hectares,
+                "method": r.application_method.value,
+            }
+            for r in plan.recommendations
+        ]
+
+        return {
+            "plan": plan,
+            "action_template": action.model_dump(),
+            "action_template_available": True,
+            "task_card": action.to_task_card(),
+            "notification_payload": action.to_notification_payload(),
+        }
+
+    return {
+        "plan": plan,
+        "action_template": None,
+        "action_template_available": True,
+        "message": "No fertilization needed at this time",
+    }
+
+
+@app.post("/v1/soil-analysis/interpret-with-action")
+def interpret_soil_analysis_with_action(analysis: SoilAnalysis):
+    """
+    تفسير نتائج تحليل التربة مع ActionTemplate
+
+    Field-First: إذا كان هناك نقص، يُنتج إجراء تسميد
+    """
+    # Get the regular interpretation
+    result = interpret_soil_analysis(analysis)
+
+    # If ActionTemplate not available or no deficiency, return as-is
+    if not ACTION_TEMPLATE_AVAILABLE:
+        return {
+            **result,
+            "action_template": None,
+        }
+
+    # Check if there's a deficiency that needs action
+    deficiencies = [i for i in result["interpretations_ar"] if "🔴" in i]
+
+    if not deficiencies:
+        return {
+            **result,
+            "action_template": None,
+            "message": "No action needed - soil is healthy",
+        }
+
+    # Create action for the most critical deficiency
+    if "النيتروجين" in str(deficiencies):
+        fert_type = "urea"
+        quantity = 50  # kg/ha base
+    elif "الفوسفور" in str(deficiencies):
+        fert_type = "dap"
+        quantity = 40
+    elif "البوتاسيوم" in str(deficiencies):
+        fert_type = "potassium_sulfate"
+        quantity = 35
+    else:
+        fert_type = "npk_15_15_15"
+        quantity = 45
+
+    action = ActionTemplateFactory.create_fertilization_action(
+        field_id=analysis.field_id,
+        fertilizer_type=fert_type,
+        quantity_kg=quantity,
+        urgency=ActionUrgency.HIGH if len(deficiencies) > 2 else ActionUrgency.MEDIUM,
+        confidence=0.90,  # High confidence from soil analysis
+        application_method="broadcast",
+        source_analysis_id=f"soil_{analysis.field_id}_{analysis.analysis_date.isoformat()}",
+    )
+
+    action.calculate_priority_score()
+
+    return {
+        **result,
+        "action_template": action.model_dump(),
+        "task_card": action.to_task_card(),
     }
 
 

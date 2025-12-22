@@ -1,20 +1,27 @@
 """
-🛰️ SAHOOL Satellite Service v15.4
+SAHOOL Satellite Service v15.5
 خدمة الأقمار الصناعية - Sentinel-2, Landsat, MODIS Integration
 
 Now with eo-learn integration for real satellite data!
 Install sahool-eo[full] and configure Sentinel Hub credentials
 for real data processing.
+
+Field-First Architecture:
+- NATS integration for real-time event publishing
+- ActionTemplate output for mobile app task cards
 """
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from enum import Enum
 import asyncio
 import json
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Import eo-learn integration
 from .eo_integration import (
@@ -26,10 +33,30 @@ from .eo_integration import (
     SENTINEL_HUB_CONFIGURED,
 )
 
+# NATS publisher (optional)
+_nats_available = False
+try:
+    import sys
+    sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+    from shared.libs.events.nats_publisher import publish_analysis_completed_sync
+    _nats_available = True
+except ImportError:
+    logger.info("NATS publisher not available - running without event publishing")
+    publish_analysis_completed_sync = None
+
+# ActionTemplate factory (optional)
+_action_factory_available = False
+try:
+    from shared.contracts.actions import ActionTemplateFactory, ActionType, UrgencyLevel
+    _action_factory_available = True
+except ImportError:
+    logger.info("ActionTemplate not available")
+    ActionTemplateFactory = None
+
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
-    version="15.4.0",
-    description="Multi-satellite agricultural monitoring with eo-learn integration",
+    version="15.5.0",
+    description="Multi-satellite agricultural monitoring with eo-learn integration. Field-First Architecture with NATS events.",
 )
 
 
@@ -365,9 +392,11 @@ def health():
     return {
         "status": "ok",
         "service": "satellite-service",
-        "version": "15.4.0",
+        "version": "15.5.0",
         "satellites": list(SATELLITE_CONFIGS.keys()),
         "eo_learn": get_data_source_status(),
+        "nats_available": _nats_available,
+        "action_factory_available": _action_factory_available,
     }
 
 
@@ -527,6 +556,191 @@ async def analyze_field(request: ImageryRequest):
         recommendations_ar=recommendations_ar,
         recommendations_en=recommendations_en,
     )
+
+
+class AnalyzeWithActionRequest(BaseModel):
+    """Request for analysis with ActionTemplate output"""
+    field_id: str = Field(..., description="معرف الحقل")
+    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
+    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2
+    start_date: date = Field(default_factory=date.today)
+    end_date: Optional[date] = None
+    cloud_cover_max: float = Field(default=20.0, ge=0, le=100)
+    publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
+
+
+def _determine_urgency_from_anomalies(anomalies: List[str], health_score: float) -> str:
+    """Determine urgency level based on anomalies and health score"""
+    if health_score < 20 or "water_stress_detected" in anomalies:
+        return "high"
+    elif health_score < 40 or len(anomalies) >= 2:
+        return "medium"
+    elif anomalies:
+        return "low"
+    return "low"
+
+
+def _create_satellite_action_template(
+    analysis: FieldAnalysis,
+    farmer_id: Optional[str] = None,
+    tenant_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Create an ActionTemplate from satellite analysis"""
+
+    urgency = _determine_urgency_from_anomalies(analysis.anomalies, analysis.health_score)
+
+    # Determine action type based on anomalies
+    if "water_stress_detected" in analysis.anomalies or "moisture_deficit" in analysis.anomalies:
+        action_type = "irrigation"
+        title_ar = "ري الحقل - إجهاد مائي مكتشف"
+        title_en = "Field Irrigation - Water Stress Detected"
+    elif "low_vegetation_cover" in analysis.anomalies:
+        action_type = "inspection"
+        title_ar = "فحص الحقل - انخفاض الغطاء النباتي"
+        title_en = "Field Inspection - Low Vegetation Cover"
+    elif "poor_canopy_structure" in analysis.anomalies:
+        action_type = "fertilization"
+        title_ar = "تسميد الحقل - بنية مظلة ضعيفة"
+        title_en = "Field Fertilization - Poor Canopy Structure"
+    else:
+        action_type = "monitoring"
+        title_ar = "مراقبة الحقل - تحديث منتظم"
+        title_en = "Field Monitoring - Regular Update"
+
+    return {
+        "action_id": str(uuid.uuid4()),
+        "action_type": action_type,
+        "title_ar": title_ar,
+        "title_en": title_en,
+        "description_ar": " | ".join(analysis.recommendations_ar),
+        "description_en": " | ".join(analysis.recommendations_en),
+        "summary_ar": f"صحة الحقل: {analysis.health_status} (NDVI: {analysis.indices.ndvi})",
+        "source_service": "satellite-service",
+        "source_analysis_type": "satellite_vegetation_analysis",
+        "confidence": round(analysis.health_score / 100, 2),
+        "urgency": urgency,
+        "field_id": analysis.field_id,
+        "farmer_id": farmer_id,
+        "tenant_id": tenant_id,
+        "offline_executable": True,
+        "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بفحص الحقل بصرياً وتحقق من رطوبة التربة",
+        "fallback_instructions_en": "If data unavailable, visually inspect field and check soil moisture",
+        "estimated_duration_minutes": 60,
+        "data": {
+            "indices": {
+                "ndvi": analysis.indices.ndvi,
+                "ndwi": analysis.indices.ndwi,
+                "evi": analysis.indices.evi,
+                "savi": analysis.indices.savi,
+                "lai": analysis.indices.lai,
+                "ndmi": analysis.indices.ndmi,
+            },
+            "health_score": analysis.health_score,
+            "health_status": analysis.health_status,
+            "anomalies": analysis.anomalies,
+            "satellite": analysis.satellite.value,
+            "analysis_date": analysis.analysis_date.isoformat(),
+        },
+        "created_at": datetime.utcnow().isoformat(),
+    }
+
+
+@app.post("/v1/analyze-with-action")
+async def analyze_field_with_action(
+    request: AnalyzeWithActionRequest,
+    background_tasks: BackgroundTasks,
+):
+    """
+    تحليل الحقل مع إنتاج ActionTemplate
+
+    Field-First: ينتج قالب إجراء للتطبيق المحمول
+    ينشر الحدث عبر NATS للإشعارات الفورية
+    """
+
+    # Perform analysis
+    imagery_request = ImageryRequest(
+        field_id=request.field_id,
+        latitude=request.latitude,
+        longitude=request.longitude,
+        satellite=request.satellite,
+        start_date=request.start_date,
+        end_date=request.end_date,
+        cloud_cover_max=request.cloud_cover_max,
+    )
+
+    analysis = await analyze_field(imagery_request)
+
+    # Create ActionTemplate
+    action_template = _create_satellite_action_template(
+        analysis=analysis,
+        farmer_id=request.farmer_id,
+        tenant_id=request.tenant_id,
+    )
+
+    # Publish event to NATS (in background)
+    if request.publish_event and _nats_available and publish_analysis_completed_sync:
+        try:
+            publish_analysis_completed_sync(
+                event_type="satellite.analysis_completed",
+                source_service="satellite-service",
+                field_id=request.field_id,
+                data=action_template.get("data", {}),
+                action_template=action_template,
+                priority=action_template.get("urgency", "medium"),
+                farmer_id=request.farmer_id,
+                tenant_id=request.tenant_id,
+            )
+            logger.info(f"NATS: Published satellite analysis event for field {request.field_id}")
+        except Exception as e:
+            logger.error(f"Failed to publish NATS event: {e}")
+
+    # Create task card for mobile app
+    task_card = {
+        "id": action_template["action_id"],
+        "type": action_template["action_type"],
+        "title_ar": action_template["title_ar"],
+        "title_en": action_template["title_en"],
+        "urgency": {
+            "level": action_template["urgency"],
+            "color": {
+                "low": "#22C55E",
+                "medium": "#EAB308",
+                "high": "#F97316",
+                "critical": "#EF4444",
+            }.get(action_template["urgency"], "#6B7280"),
+        },
+        "field_id": request.field_id,
+        "confidence_percent": int(action_template["confidence"] * 100),
+        "offline_ready": action_template["offline_executable"],
+        "health_score": analysis.health_score,
+        "health_status": analysis.health_status,
+    }
+
+    return {
+        "analysis": {
+            "field_id": analysis.field_id,
+            "satellite": analysis.satellite.value,
+            "indices": {
+                "ndvi": analysis.indices.ndvi,
+                "ndwi": analysis.indices.ndwi,
+                "evi": analysis.indices.evi,
+                "savi": analysis.indices.savi,
+                "lai": analysis.indices.lai,
+                "ndmi": analysis.indices.ndmi,
+            },
+            "health_score": analysis.health_score,
+            "health_status": analysis.health_status,
+            "anomalies": analysis.anomalies,
+            "recommendations_ar": analysis.recommendations_ar,
+            "recommendations_en": analysis.recommendations_en,
+        },
+        "action_template": action_template,
+        "task_card": task_card,
+        "nats_published": request.publish_event and _nats_available,
+    }
 
 
 class RealAnalysisRequest(BaseModel):

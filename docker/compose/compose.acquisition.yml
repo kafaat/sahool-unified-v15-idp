@@ -1,0 +1,104 @@
+version: '3.8'
+services:
+  iot-service:
+    build:
+      context: ../../apps/services/iot-service
+      dockerfile: Dockerfile
+    ports:
+    - 3006:3006
+    environment:
+    - PORT=3006
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3006/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 512Mi
+  satellite-service:
+    build:
+      context: ../../apps/services/satellite-service
+      dockerfile: Dockerfile
+    ports:
+    - 8090:8090
+    environment:
+    - PORT=8090
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '600'
+          memory: 768Mi
+  weather-advanced:
+    build:
+      context: ../../apps/services/weather-advanced
+      dockerfile: Dockerfile
+    ports:
+    - 8092:8092
+    environment:
+    - PORT=8092
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8092/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 256Mi
+  virtual-sensors:
+    build:
+      context: ../../apps/services/virtual-sensors
+      dockerfile: Dockerfile
+    ports:
+    - 8096:8096
+    environment:
+    - PORT=8096
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8096/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '400'
+          memory: 384Mi
+    depends_on:
+    - weather-advanced
+    - satellite-service
+networks:
+  sahool-network:
+    driver: bridge

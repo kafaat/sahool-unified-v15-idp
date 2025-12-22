@@ -78,12 +78,13 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.13
+  build_runner: ^2.4.14
   drift_dev: ^2.22.1
   freezed: ^2.5.7
-  json_serializable: ^6.8.0
+  json_serializable: ^6.9.0
   riverpod_generator: ^2.6.3
-  mockito: ^5.4.5
+  mockito: ^5.4.6
+  build_runner_core: ^8.0.0
 
   # App Branding
   flutter_launcher_icons: ^0.14.2

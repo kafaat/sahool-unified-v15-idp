@@ -1,0 +1,39 @@
+# SAHOOL Field App Build Configuration
+# ملف إعدادات توليد الكود
+
+targets:
+  $default:
+    builders:
+      # JSON Serializable configuration
+      json_serializable:
+        generate_for:
+          - "lib/models/**/*.dart"
+          - "lib/services/**/*.dart"
+          - "lib/core/models/**/*.dart"
+        options:
+          explicit_to_json: true
+          include_if_null: false
+
+      # Freezed configuration
+      freezed:
+        generate_for:
+          - "lib/models/**/*.dart"
+          - "lib/core/models/**/*.dart"
+
+      # Drift database configuration
+      drift_dev:
+        generate_for:
+          - "lib/core/storage/**/*.dart"
+          - "lib/core/database/**/*.dart"
+          - "lib/features/**/data/**/*.dart"
+        options:
+          store_date_time_values_as_text: true
+
+      # Exclude test files from code generation
+      source_gen|combining_builder:
+        generate_for:
+          exclude:
+            - "test/**"
+            - "**/*.mocks.dart"
+            - "**/*.g.dart"
+            - "**/*.freezed.dart"

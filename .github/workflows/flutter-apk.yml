@@ -68,14 +68,17 @@ jobs:
           EOF
 
       - name: Clean previous build artifacts
-        run: flutter clean
+        run: |
+          flutter clean
+          rm -rf .dart_tool/build
+          flutter pub get
 
       - name: Generate Drift database code
         run: |
           echo "Starting code generation..."
-          dart run build_runner build --delete-conflicting-outputs || echo "Code generation completed with warnings"
-          echo "Code generation step finished"
-        continue-on-error: true
+          dart run build_runner clean || true
+          dart run build_runner build --delete-conflicting-outputs
+          echo "Code generation completed successfully"
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"

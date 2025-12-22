@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// SAHOOL Pro Colors - مستوحاة من John Deere Operations Center
 /// ألوان صناعية زراعية للرؤية الواضحة تحت أشعة الشمس
@@ -54,8 +53,10 @@ class SahoolProTheme {
         onSecondary: SahoolProColors.textDark,
       ),
 
-      // الخط العربي الصناعي الواضح
-      textTheme: GoogleFonts.almaraiTextTheme().apply(
+      // الخط العربي الصناعي الواضح (محلي)
+      fontFamily: 'IBMPlexSansArabic',
+      textTheme: const TextTheme().apply(
+        fontFamily: 'IBMPlexSansArabic',
         bodyColor: SahoolProColors.textDark,
         displayColor: SahoolProColors.deepJungle,
       ),
@@ -131,7 +132,8 @@ class SahoolProTheme {
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.1),
         centerTitle: true,
-        titleTextStyle: GoogleFonts.almarai(
+        titleTextStyle: const TextStyle(
+          fontFamily: 'IBMPlexSansArabic',
           color: SahoolProColors.textDark,
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -193,7 +195,10 @@ class SahoolProTheme {
         error: SahoolProColors.alertRed,
       ),
 
-      textTheme: GoogleFonts.almaraiTextTheme(ThemeData.dark().textTheme),
+      fontFamily: 'IBMPlexSansArabic',
+      textTheme: ThemeData.dark().textTheme.apply(
+        fontFamily: 'IBMPlexSansArabic',
+      ),
 
       cardTheme: CardTheme(
         elevation: 4,

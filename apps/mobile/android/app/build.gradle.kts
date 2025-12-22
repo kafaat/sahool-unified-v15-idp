@@ -33,6 +33,17 @@ android {
         versionName = flutter.versionName
     }
 
+    // APK Split Configuration for optimized APK sizes
+    // تقسيم APK حسب ABI لتقليل حجم التطبيق
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = true  // Also generate universal APK
+        }
+    }
+
     buildTypes {
         release {
             // Disable code shrinking and minification to fix build errors

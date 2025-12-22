@@ -81,7 +81,7 @@ dev_dependencies:
   drift_dev: ^2.24.0
   freezed: 2.5.8  # Last 2.x version compatible with Dart 3.6.0
   json_serializable: ^6.9.0
-  mockito: 5.4.5  # Pinned: 5.4.6+ requires Dart SDK >=3.7.0
+  # mockito removed: 5.4.5 incompatible with analyzer 7.x, 5.4.6+ requires Dart 3.7.0
 
   # App Branding
   flutter_launcher_icons: ^0.14.2
@@ -89,7 +89,7 @@ dev_dependencies:
 
 # Compatibility Matrix for Flutter 3.27.x (Dart 3.6.0):
 # - freezed 2.5.8: analyzer >=7.0.0 <8.0.0, source_gen ^2.0.0
-# - mockito 5.4.5: Last version before Dart 3.7.0 requirement
+# - mockito: REMOVED (5.4.5 incompatible with analyzer 7.x)
 # - build_runner 2.4.13: Compatible with Dart 3.6.0
 
 # App Icon Configuration

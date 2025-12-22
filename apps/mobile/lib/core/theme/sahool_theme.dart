@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// SAHOOL Design System - Agri-Industrial Design Language
 /// مصمم للاستخدام الميداني تحت أشعة الشمس وبالقفازات
@@ -144,8 +143,10 @@ class SahoolTheme {
         onSurface: SahoolColors.textDark,
       ),
 
-      // الخط العربي: المراعي (حديث ومقروء جداً)
-      textTheme: GoogleFonts.almaraiTextTheme().apply(
+      // الخط العربي: IBM Plex Sans Arabic (محلي - أسرع تحميل)
+      fontFamily: 'IBMPlexSansArabic',
+      textTheme: const TextTheme().apply(
+        fontFamily: 'IBMPlexSansArabic',
         bodyColor: SahoolColors.textDark,
         displayColor: SahoolColors.textDark,
       ),
@@ -197,12 +198,13 @@ class SahoolTheme {
       ),
 
       // تحسين شريط التطبيق
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: SahoolColors.primary, size: 28),
-        titleTextStyle: GoogleFonts.almarai(
+        iconTheme: IconThemeData(color: SahoolColors.primary, size: 28),
+        titleTextStyle: TextStyle(
+          fontFamily: 'IBMPlexSansArabic',
           color: SahoolColors.textDark,
           fontSize: 20,
           fontWeight: FontWeight.bold,
@@ -278,7 +280,8 @@ class SahoolTheme {
       // Dialog
       dialogTheme: DialogThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        titleTextStyle: GoogleFonts.almarai(
+        titleTextStyle: const TextStyle(
+          fontFamily: 'IBMPlexSansArabic',
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: SahoolColors.textDark,
@@ -302,7 +305,10 @@ class SahoolTheme {
         error: SahoolColors.danger,
       ),
 
-      textTheme: GoogleFonts.almaraiTextTheme(ThemeData.dark().textTheme),
+      fontFamily: 'IBMPlexSansArabic',
+      textTheme: ThemeData.dark().textTheme.apply(
+        fontFamily: 'IBMPlexSansArabic',
+      ),
 
       cardTheme: CardThemeData(
         elevation: 4,
@@ -310,11 +316,12 @@ class SahoolTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: SahoolColors.surfaceDark,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.almarai(
+        titleTextStyle: TextStyle(
+          fontFamily: 'IBMPlexSansArabic',
           color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,

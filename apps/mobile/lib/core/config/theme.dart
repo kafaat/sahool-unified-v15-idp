@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// SAHOOL Theme Configuration
 /// تكوين ثيم سهول
 class SahoolTheme {
-  // Font Family Name
-  static String get fontFamily => GoogleFonts.ibmPlexSansArabic().fontFamily!;
+  // Font Family Name (Local - faster loading)
+  static const String fontFamily = 'IBMPlexSansArabic';
   // Brand Colors - ألوان العلامة التجارية
   static const Color primary = Color(0xFF367C2B);       // SAHOOL Green
   static const Color primaryLight = Color(0xFF4A9A3D);  // Light Green

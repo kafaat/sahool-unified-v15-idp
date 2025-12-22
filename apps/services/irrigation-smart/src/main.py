@@ -1,6 +1,10 @@
 """
 💧 SAHOOL Smart Irrigation Service v15.3
 خدمة الري الذكي - AI-Powered Scheduling & Water Conservation
+
+Field-First Architecture:
+- كل توصية تُنتج ActionTemplate قابل للتنفيذ بدون اتصال
+- التحليل يخدم الميدان، لا العكس
 """
 
 from fastapi import FastAPI, HTTPException, Query
@@ -10,6 +14,19 @@ from typing import Optional, List, Dict, Any
 from enum import Enum
 import uuid
 import math
+
+# Field-First: Action Template Support
+import sys
+sys.path.insert(0, '/app')
+try:
+    from shared.contracts.actions import (
+        ActionTemplate,
+        ActionTemplateFactory,
+        UrgencyLevel as ActionUrgency,
+    )
+    ACTION_TEMPLATE_AVAILABLE = True
+except ImportError:
+    ACTION_TEMPLATE_AVAILABLE = False
 
 app = FastAPI(
     title="SAHOOL Smart Irrigation Service | خدمة الري الذكي",
@@ -812,6 +829,126 @@ def get_efficiency_report(
             if comparisons and comparisons[0]["cost_saved_yer"] > 0
             else None
         ),
+    }
+
+
+# =============================================================================
+# Field-First: Action Template Endpoints
+# =============================================================================
+
+
+def _convert_urgency(urgency: UrgencyLevel) -> "ActionUrgency":
+    """Convert local UrgencyLevel to ActionTemplate UrgencyLevel"""
+    if not ACTION_TEMPLATE_AVAILABLE:
+        return None
+    mapping = {
+        UrgencyLevel.LOW: ActionUrgency.LOW,
+        UrgencyLevel.MEDIUM: ActionUrgency.MEDIUM,
+        UrgencyLevel.HIGH: ActionUrgency.HIGH,
+        UrgencyLevel.CRITICAL: ActionUrgency.CRITICAL,
+    }
+    return mapping.get(urgency, ActionUrgency.MEDIUM)
+
+
+@app.post("/v1/calculate-with-action")
+def calculate_irrigation_with_action(request: IrrigationRequest):
+    """
+    حساب احتياجات الري مع ActionTemplate
+
+    Field-First: هذا الـ endpoint يُنتج قالب إجراء قابل للتنفيذ
+    بدون اتصال، مع خطوات واضحة وموارد محددة.
+    """
+    # Get the regular irrigation plan
+    plan = calculate_irrigation(request)
+
+    # If ActionTemplate not available, return plan only
+    if not ACTION_TEMPLATE_AVAILABLE:
+        return {
+            "plan": plan,
+            "action_template": None,
+            "action_template_available": False,
+        }
+
+    # Get the first (most urgent) schedule
+    if plan.schedules:
+        schedule = plan.schedules[0]
+
+        # Create ActionTemplate using factory
+        action = ActionTemplateFactory.create_irrigation_action(
+            field_id=request.field_id,
+            water_amount_liters=schedule.water_amount_liters,
+            duration_minutes=schedule.duration_minutes,
+            urgency=_convert_urgency(schedule.urgency),
+            confidence=0.85 + (0.1 if request.current_soil_moisture else 0),
+            soil_moisture_percent=request.current_soil_moisture,
+            source_analysis_id=plan.plan_id,
+            method=request.irrigation_method.value,
+            deadline=datetime.combine(schedule.irrigation_date, time(18, 0)),
+        )
+
+        # Calculate priority
+        action.calculate_priority_score()
+
+        return {
+            "plan": plan,
+            "action_template": action.model_dump(),
+            "action_template_available": True,
+            "task_card": action.to_task_card(),
+            "notification_payload": action.to_notification_payload(),
+        }
+
+    return {
+        "plan": plan,
+        "action_template": None,
+        "action_template_available": True,
+        "message": "No irrigation needed at this time",
+    }
+
+
+@app.post("/v1/sensor-reading-with-action")
+def record_sensor_reading_with_action(reading: SoilMoistureReading):
+    """
+    تسجيل قراءة مستشعر الرطوبة مع ActionTemplate
+
+    Field-First: إذا كانت الرطوبة منخفضة، يُنتج إجراء ري
+    """
+    # Get the regular sensor reading response
+    result = record_sensor_reading(reading)
+
+    # If ActionTemplate not available or moisture is OK, return as-is
+    if not ACTION_TEMPLATE_AVAILABLE or result["status"] not in ["critical", "low"]:
+        return {
+            **result,
+            "action_template": None,
+        }
+
+    # Create irrigation action for low moisture
+    if result["status"] == "critical":
+        urgency = ActionUrgency.CRITICAL
+        water_liters = 5000  # Emergency irrigation
+        duration = 60
+    else:
+        urgency = ActionUrgency.HIGH
+        water_liters = 3000
+        duration = 45
+
+    action = ActionTemplateFactory.create_irrigation_action(
+        field_id=reading.field_id,
+        water_amount_liters=water_liters,
+        duration_minutes=duration,
+        urgency=urgency,
+        confidence=0.92,  # High confidence from sensor
+        soil_moisture_percent=reading.moisture_percent,
+        source_analysis_id=result["reading_id"],
+        method="drip",
+    )
+
+    action.calculate_priority_score()
+
+    return {
+        **result,
+        "action_template": action.model_dump(),
+        "task_card": action.to_task_card(),
     }
 
 

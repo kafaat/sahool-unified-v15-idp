@@ -7,8 +7,12 @@ Architecture: Clean Service Layer Pattern
 - Services: Business logic
 - Models: Data structures
 
+Field-First Architecture:
+- كل تشخيص يُنتج ActionTemplate قابل للتنفيذ بدون اتصال
+- التحليل يخدم الميدان، لا العكس
+
 Port: 8095
-Version: 2.2.0
+Version: 2.2.1
 """
 
 import logging
@@ -21,6 +25,18 @@ from fastapi.staticfiles import StaticFiles
 
 import sys
 sys.path.insert(0, "../../../../shared")
+sys.path.insert(0, "/app")
+
+# Field-First: Action Template Support
+try:
+    from shared.contracts.actions import (
+        ActionTemplate,
+        ActionTemplateFactory,
+        UrgencyLevel as ActionUrgency,
+    )
+    ACTION_TEMPLATE_AVAILABLE = True
+except ImportError:
+    ACTION_TEMPLATE_AVAILABLE = False
 try:
     from middleware.cors import setup_cors
 except ImportError:
@@ -266,6 +282,109 @@ async def update_diagnosis_status(
     if not result:
         raise HTTPException(status_code=404, detail="التشخيص غير موجود")
     return result
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Field-First: Action Template Endpoints
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/v1/diagnose-with-action")
+async def diagnose_with_action(
+    image: UploadFile = File(..., description="صورة النبات المصاب"),
+    field_id: Optional[str] = Query(None, description="معرف الحقل"),
+    crop_type: Optional[CropType] = Query(None, description="نوع المحصول"),
+    symptoms: Optional[str] = Query(None, description="وصف الأعراض"),
+    governorate: Optional[str] = Query(None, description="المحافظة"),
+    lat: Optional[float] = Query(None, description="خط العرض"),
+    lng: Optional[float] = Query(None, description="خط الطول"),
+    farmer_id: Optional[str] = Query(None, description="معرف المزارع")
+):
+    """
+    🔬 تشخيص أمراض النباتات مع ActionTemplate
+
+    Field-First: يُنتج قالب إجراء قابل للتنفيذ (فحص/رش) بدون اتصال
+    """
+    # Get regular diagnosis
+    diagnosis = await diagnose_plant_disease(
+        image=image,
+        field_id=field_id,
+        crop_type=crop_type,
+        symptoms=symptoms,
+        governorate=governorate,
+        lat=lat,
+        lng=lng,
+        farmer_id=farmer_id
+    )
+
+    # If ActionTemplate not available, return diagnosis only
+    if not ACTION_TEMPLATE_AVAILABLE:
+        return {
+            "diagnosis": diagnosis,
+            "action_template": None,
+            "action_template_available": False,
+        }
+
+    # Determine urgency based on severity
+    severity = getattr(diagnosis, 'severity', 'medium')
+    confidence = getattr(diagnosis, 'confidence', 0.7)
+
+    urgency_map = {
+        "critical": ActionUrgency.CRITICAL,
+        "high": ActionUrgency.HIGH,
+        "medium": ActionUrgency.MEDIUM,
+        "low": ActionUrgency.LOW,
+    }
+    urgency = urgency_map.get(severity, ActionUrgency.MEDIUM)
+
+    # Get disease info
+    disease_name_ar = getattr(diagnosis, 'disease_name_ar', 'مرض غير محدد')
+    disease_name_en = getattr(diagnosis, 'disease_name_en', 'Unknown disease')
+    diagnosis_id = getattr(diagnosis, 'diagnosis_id', None)
+
+    # Create inspection action first
+    action = ActionTemplateFactory.create_disease_inspection_action(
+        field_id=field_id or "unknown",
+        disease_name_ar=disease_name_ar,
+        disease_name_en=disease_name_en,
+        confidence=confidence,
+        affected_area_percent=getattr(diagnosis, 'affected_area_percent', 10.0),
+        urgency=urgency,
+        source_analysis_id=diagnosis_id,
+        recommended_treatment=getattr(diagnosis, 'treatment_ar', None),
+    )
+
+    action.calculate_priority_score()
+
+    # If treatment is recommended, also create spray action
+    spray_action = None
+    treatment = getattr(diagnosis, 'treatment', None)
+    if treatment and severity in ["critical", "high"]:
+        pesticide_type = "fungicide"  # Default for diseases
+
+        spray_action = ActionTemplateFactory.create_spray_action(
+            field_id=field_id or "unknown",
+            pesticide_type=pesticide_type,
+            pesticide_name_ar=getattr(treatment, 'pesticide_name_ar', 'مبيد فطري'),
+            pesticide_name_en=getattr(treatment, 'pesticide_name_en', 'Fungicide'),
+            concentration=getattr(treatment, 'concentration', '0.2%'),
+            area_hectares=1.0,  # Default
+            urgency=urgency,
+            confidence=confidence,
+            target_pest_ar=disease_name_ar,
+            target_pest_en=disease_name_en,
+            source_analysis_id=diagnosis_id,
+        )
+        spray_action.calculate_priority_score()
+
+    return {
+        "diagnosis": diagnosis,
+        "action_template": action.model_dump(),
+        "spray_action_template": spray_action.model_dump() if spray_action else None,
+        "action_template_available": True,
+        "task_card": action.to_task_card(),
+        "notification_payload": action.to_notification_payload(),
+    }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

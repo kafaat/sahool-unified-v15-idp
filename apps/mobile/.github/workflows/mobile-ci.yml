@@ -40,6 +40,10 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: flutter pub get
 
+      - name: Generate code (Drift, Freezed, JSON)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Analyze code
         working-directory: ${{ env.WORKING_DIR }}
         run: flutter analyze --fatal-infos
@@ -69,6 +73,10 @@ jobs:
       - name: Get dependencies
         working-directory: ${{ env.WORKING_DIR }}
         run: flutter pub get
+
+      - name: Generate code (Drift, Freezed, JSON)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Run tests with coverage
         working-directory: ${{ env.WORKING_DIR }}
@@ -123,6 +131,10 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
         run: flutter pub get
 
+      - name: Generate code (Drift, Freezed, JSON)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dart run build_runner build --delete-conflicting-outputs
+
       - name: Build APK (Debug)
         working-directory: ${{ env.WORKING_DIR }}
         run: |
@@ -175,6 +187,10 @@ jobs:
       - name: Get dependencies
         working-directory: ${{ env.WORKING_DIR }}
         run: flutter pub get
+
+      - name: Generate code (Drift, Freezed, JSON)
+        working-directory: ${{ env.WORKING_DIR }}
+        run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build iOS (no codesign)
         working-directory: ${{ env.WORKING_DIR }}

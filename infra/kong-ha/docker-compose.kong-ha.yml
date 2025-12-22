@@ -1,0 +1,140 @@
+version: '3.8'
+
+# SAHOOL Kong HA Cluster
+# 3-node Kong cluster with nginx load balancer for high availability
+
+services:
+  # Primary Kong node
+  kong-primary:
+    image: kong:3.4.0-ubuntu
+    container_name: sahool-kong-primary
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_STATUS_LISTEN: "0.0.0.0:8100"
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_LOG_LEVEL: info
+      KONG_PLUGINS: bundled,rate-limiting,request-transformer,cors
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - ./kong/declarative:/kong/declarative:ro
+    networks:
+      - kong-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Secondary Kong node
+  kong-secondary:
+    image: kong:3.4.0-ubuntu
+    container_name: sahool-kong-secondary
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_STATUS_LISTEN: "0.0.0.0:8100"
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - ./kong/declarative:/kong/declarative:ro
+    networks:
+      - kong-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Tertiary Kong node
+  kong-tertiary:
+    image: kong:3.4.0-ubuntu
+    container_name: sahool-kong-tertiary
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_STATUS_LISTEN: "0.0.0.0:8100"
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    volumes:
+      - ./kong/declarative:/kong/declarative:ro
+    networks:
+      - kong-net
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # Nginx Load Balancer
+  kong-loadbalancer:
+    image: nginx:alpine
+    container_name: sahool-kong-lb
+    ports:
+      - "8000:80"     # API Gateway
+      - "8001:8001"   # Admin API (internal)
+    volumes:
+      - ./nginx-kong-ha.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      kong-primary:
+        condition: service_healthy
+      kong-secondary:
+        condition: service_healthy
+      kong-tertiary:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - kong-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+
+networks:
+  kong-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

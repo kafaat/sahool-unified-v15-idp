@@ -1,5 +1,5 @@
 """
-💬 SAHOOL Personalized Notification Service v15.3
+SAHOOL Personalized Notification Service v15.4
 خدمة الإشعارات المخصصة - تنبيهات ذكية لكل مزارع
 
 Features:
@@ -8,26 +8,26 @@ Features:
 - Pest outbreak alerts in nearby areas
 - Irrigation reminders
 - Market price notifications
+- NATS integration for real-time analysis events (Field-First)
+
+Field-First Architecture:
+- تحليل → NATS → notification-service → mobile
+- Decoupling بين خدمات التحليل والإشعارات
 """
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict, Any
 from enum import Enum
+import asyncio
 import uuid
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sahool-notifications")
-
-app = FastAPI(
-    title="SAHOOL Notification Service | خدمة الإشعارات",
-    version="15.3.0",
-    description="Personalized agricultural notifications for Yemeni farmers",
-)
-
 
 # =============================================================================
 # Enums & Models
@@ -396,6 +396,107 @@ def get_weather_alert_message(alert_type: str, governorate: Governorate) -> tupl
 
 
 # =============================================================================
+# NATS Integration (Field-First Architecture)
+# =============================================================================
+
+# NATS subscriber (optional)
+_nats_subscriber = None
+try:
+    from .nats_subscriber import start_subscription, stop_subscription
+    _nats_available = True
+except ImportError:
+    _nats_available = False
+    logger.info("NATS subscriber not available - running in REST-only mode")
+
+
+def create_notification_from_nats(notification_data: Dict[str, Any]):
+    """Callback for NATS subscriber to create notifications"""
+    try:
+        # Map notification type string to enum
+        type_mapping = {
+            "weather_alert": NotificationType.WEATHER_ALERT,
+            "pest_outbreak": NotificationType.PEST_OUTBREAK,
+            "irrigation_reminder": NotificationType.IRRIGATION_REMINDER,
+            "crop_health": NotificationType.CROP_HEALTH,
+            "market_price": NotificationType.MARKET_PRICE,
+            "system": NotificationType.SYSTEM,
+            "task_reminder": NotificationType.TASK_REMINDER,
+        }
+
+        priority_mapping = {
+            "low": NotificationPriority.LOW,
+            "medium": NotificationPriority.MEDIUM,
+            "high": NotificationPriority.HIGH,
+            "critical": NotificationPriority.CRITICAL,
+        }
+
+        channel_mapping = {
+            "push": NotificationChannel.PUSH,
+            "sms": NotificationChannel.SMS,
+            "in_app": NotificationChannel.IN_APP,
+        }
+
+        ntype = type_mapping.get(notification_data.get("type", "system"), NotificationType.SYSTEM)
+        priority = priority_mapping.get(notification_data.get("priority", "medium"), NotificationPriority.MEDIUM)
+        channels = [
+            channel_mapping.get(ch, NotificationChannel.IN_APP)
+            for ch in notification_data.get("channels", ["in_app"])
+        ]
+
+        create_notification(
+            type=ntype,
+            priority=priority,
+            title=notification_data.get("title", "Notification"),
+            title_ar=notification_data.get("title_ar", "إشعار"),
+            body=notification_data.get("body", ""),
+            body_ar=notification_data.get("body_ar", ""),
+            data=notification_data.get("data", {}),
+            target_farmers=notification_data.get("target_farmers", []),
+            channels=channels,
+            expires_in_hours=notification_data.get("expires_in_hours", 24),
+        )
+        logger.info("NATS: Created notification from analysis event")
+    except Exception as e:
+        logger.error(f"NATS: Failed to create notification: {e}")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan - manage NATS connection"""
+    global _nats_subscriber
+
+    # Startup
+    if _nats_available:
+        try:
+            _nats_subscriber = await start_subscription(create_notification_from_nats)
+            logger.info("NATS subscriber started")
+        except Exception as e:
+            logger.warning(f"Failed to start NATS subscriber: {e}")
+
+    yield
+
+    # Shutdown
+    if _nats_available and _nats_subscriber:
+        try:
+            await stop_subscription()
+            logger.info("NATS subscriber stopped")
+        except Exception as e:
+            logger.error(f"Error stopping NATS subscriber: {e}")
+
+
+# =============================================================================
+# FastAPI App
+# =============================================================================
+
+app = FastAPI(
+    title="SAHOOL Notification Service | خدمة الإشعارات",
+    version="15.4.0",
+    description="Personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration.",
+    lifespan=lifespan,
+)
+
+
+# =============================================================================
 # API Endpoints
 # =============================================================================
 
@@ -405,7 +506,8 @@ def health_check():
     return {
         "status": "ok",
         "service": "notification-service",
-        "version": "15.3.0",
+        "version": "15.4.0",
+        "nats_connected": _nats_available and _nats_subscriber is not None,
         "active_notifications": len(NOTIFICATIONS),
         "registered_farmers": len(FARMER_PROFILES),
     }

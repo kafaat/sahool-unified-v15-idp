@@ -1,7 +1,7 @@
 name: sahool_field_app
 description: SAHOOL Field Operations App - Offline-First Mobile Application
 publish_to: 'none'
-version: 15.4.0+1
+version: 15.5.0+1
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -72,7 +72,6 @@ dependencies:
 
   # Date/Time
   jiffy: ^6.3.1
-  drift_flutter: 0.2.7
 
 dev_dependencies:
   flutter_test:

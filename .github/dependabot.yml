@@ -1,0 +1,188 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Dependabot Configuration
+# تكوين التحديثات التلقائية للمكتبات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: 2
+
+registries:
+  npm-registry:
+    type: npm-registry
+    url: https://registry.npmjs.org
+    replaces-base: true
+
+updates:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Python Dependencies (Root)
+  # ─────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Aden"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+      - "auto-update"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      python-minor:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore:
+      # Ignore major updates - review manually
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Python Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/apps/services"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Aden"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+      - "services"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      services-deps:
+        patterns:
+          - "fastapi"
+          - "uvicorn"
+          - "pydantic"
+          - "httpx"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Node.js Dependencies (Root - Workspaces)
+  # ─────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "06:00"
+      timezone: "Asia/Aden"
+    open-pull-requests-limit: 5
+    registries:
+      - npm-registry
+    labels:
+      - "dependencies"
+      - "javascript"
+      - "auto-update"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      react-ecosystem:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react*"
+      next-ecosystem:
+        patterns:
+          - "next"
+          - "eslint-config-next"
+      testing:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "@testing-library/*"
+      typescript:
+        patterns:
+          - "typescript"
+          - "@types/*"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Flutter/Dart Dependencies
+  # ─────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: "pub"
+    directory: "/apps/mobile"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "06:00"
+      timezone: "Asia/Aden"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "flutter"
+      - "mobile"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      flutter-core:
+        patterns:
+          - "flutter_riverpod"
+          - "riverpod*"
+          - "drift*"
+          - "go_router"
+      ui-packages:
+        patterns:
+          - "flutter_svg"
+          - "cached_network_image"
+          - "fl_chart"
+          - "google_fonts"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # GitHub Actions
+  # ─────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "06:00"
+      timezone: "Asia/Aden"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      actions:
+        patterns:
+          - "*"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Docker Base Images
+  # ─────────────────────────────────────────────────────────────────────────────
+  - package-ecosystem: "docker"
+    directory: "/apps/services/satellite-service"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(docker)"
+
+  - package-ecosystem: "docker"
+    directory: "/apps/services/crop-health-ai"
+    schedule:
+      interval: "monthly"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(docker)"

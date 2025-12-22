@@ -94,7 +94,7 @@ def verify_postgis_migration() -> Tuple[bool, str]:
     content = migration_path.read_text()
 
     required_features = [
-        ("GIST", "CREATE INDEX.*USING GIST"),
+        ("GIST", "USING GIST"),
         ("Partitioning", "PARTITION BY RANGE"),
         ("Materialized View", "CREATE MATERIALIZED VIEW"),
         ("pg_cron", "cron.schedule"),

@@ -1,8 +1,75 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // Yield Service - خدمة الإنتاجية
+// Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Field-First Types
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface Badge {
+  type: string;
+  label_ar: string;
+  label_en: string;
+  color: string;
+}
+
+export interface ActionTemplate {
+  action_id: string;
+  action_type: string;
+  what: string;
+  what_ar: string;
+  why: string;
+  why_ar: string;
+  when: {
+    deadline: string;
+    optimal_window: string;
+    optimal_window_ar: string;
+  };
+  how: string[];
+  how_ar: string[];
+  fallback: string;
+  fallback_ar: string;
+  badge: Badge;
+  confidence: number;
+  source_service: string;
+  field_id: string;
+  farmer_id?: string;
+  tenant_id?: string;
+  data: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface PreHarvestAlertResponse {
+  prediction: {
+    yieldPerHectareKg: number;
+    totalYieldKg: number;
+    totalYieldTons: number;
+    confidencePercent: number;
+    harvestDate: string;
+    daysUntilHarvest: number;
+  };
+  action_template: ActionTemplate;
+  task_card: {
+    id: string;
+    type: string;
+    title_ar: string;
+    title_en: string;
+    urgency: {
+      level: string;
+      label_ar: string;
+      color: string;
+    };
+    field_id: string;
+    confidence_percent: number;
+    offline_ready: boolean;
+    badge: Badge;
+  };
+  nats_topic: string;
+}
 
 // Crop data constants
 const CROP_DATA: Record<string, {
@@ -463,5 +530,222 @@ export class YieldService {
     const result = new Date(date);
     result.setDate(result.getDate() + days);
     return result;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // Field-First: ActionTemplate Methods
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Predict yield with ActionTemplate for pre-harvest alerts
+   * التنبؤ بالإنتاجية مع قالب إجراء ما قبل الحصاد
+   */
+  async predictWithAction(
+    fieldId: string,
+    farmerId?: string,
+    tenantId?: string,
+  ): Promise<PreHarvestAlertResponse> {
+    // Get prediction and harvest data
+    const prediction = await this.predictFieldYield(fieldId);
+    const harvestData = await this.predictHarvestDate(fieldId);
+    const maturity = await this.getMaturityMonitoring(fieldId);
+
+    const daysUntilHarvest = harvestData.prediction.daysUntilHarvest;
+    const actionId = uuidv4();
+
+    // Determine urgency based on days until harvest
+    let urgencyLevel: string;
+    let urgencyLabelAr: string;
+    let urgencyColor: string;
+
+    if (daysUntilHarvest <= 3) {
+      urgencyLevel = 'critical';
+      urgencyLabelAr = 'حرج';
+      urgencyColor = '#EF4444';
+    } else if (daysUntilHarvest <= 7) {
+      urgencyLevel = 'high';
+      urgencyLabelAr = 'عالي';
+      urgencyColor = '#F97316';
+    } else if (daysUntilHarvest <= 14) {
+      urgencyLevel = 'medium';
+      urgencyLabelAr = 'متوسط';
+      urgencyColor = '#EAB308';
+    } else {
+      urgencyLevel = 'low';
+      urgencyLabelAr = 'منخفض';
+      urgencyColor = '#22C55E';
+    }
+
+    // Create ActionTemplate
+    const actionTemplate: ActionTemplate = {
+      action_id: actionId,
+      action_type: 'pre_harvest_alert',
+      what: 'Prepare for harvest',
+      what_ar: 'استعداد للحصاد',
+      why: `Crop will be ready in ${daysUntilHarvest} days - Expected yield: ${prediction.prediction.totalYieldTons} tons/hectare`,
+      why_ar: `المحصول سيكون جاهزاً خلال ${daysUntilHarvest} يوم - الإنتاج المتوقع: ${prediction.prediction.totalYieldTons} طن/هكتار`,
+      when: {
+        deadline: harvestData.prediction.predictedDate,
+        optimal_window: harvestData.harvestWindow.start + ' to ' + harvestData.harvestWindow.end,
+        optimal_window_ar: `من ${harvestData.harvestWindow.start} إلى ${harvestData.harvestWindow.end}`,
+      },
+      how: [
+        'Prepare harvesting equipment',
+        'Ensure labor availability',
+        'Arrange storage space',
+        'Contact potential buyers',
+        'Check weather forecast for harvest window',
+      ],
+      how_ar: [
+        'جهّز معدات الحصاد',
+        'تأكد من توفر العمالة',
+        'رتّب مكان التخزين',
+        'تواصل مع المشترين المحتملين',
+        'راجع توقعات الطقس لفترة الحصاد',
+      ],
+      fallback: 'If harvest is delayed: Monitor for signs of over-drying or grain shatter',
+      fallback_ar: 'إذا تأخر الحصاد: راقب علامات الجفاف الزائد أو تساقط الحبوب',
+      badge: {
+        type: 'yield_model',
+        label_ar: 'نموذج إنتاجية',
+        label_en: 'Yield Model',
+        color: '#10B981',
+      },
+      confidence: prediction.prediction.confidencePercent / 100,
+      source_service: 'yield-prediction',
+      field_id: fieldId,
+      farmer_id: farmerId,
+      tenant_id: tenantId,
+      data: {
+        predicted_yield_kg_ha: prediction.prediction.yieldPerHectareKg,
+        total_yield_tons: prediction.prediction.totalYieldTons,
+        harvest_date: harvestData.prediction.predictedDate,
+        days_until_harvest: daysUntilHarvest,
+        maturity_status: maturity.maturity.status,
+        grain_moisture: maturity.indicators.grainMoisture.current,
+        ndvi_factor: prediction.factors.ndvi.factor,
+        weather_factor: prediction.factors.weather.factor,
+      },
+      created_at: new Date().toISOString(),
+    };
+
+    // Create task card for mobile app
+    const taskCard = {
+      id: actionId,
+      type: 'pre_harvest_alert',
+      title_ar: `تنبيه حصاد - ${daysUntilHarvest} يوم`,
+      title_en: `Harvest Alert - ${daysUntilHarvest} days`,
+      urgency: {
+        level: urgencyLevel,
+        label_ar: urgencyLabelAr,
+        color: urgencyColor,
+      },
+      field_id: fieldId,
+      confidence_percent: prediction.prediction.confidencePercent,
+      offline_ready: true,
+      badge: actionTemplate.badge,
+    };
+
+    return {
+      prediction: {
+        yieldPerHectareKg: prediction.prediction.yieldPerHectareKg,
+        totalYieldKg: prediction.prediction.totalYieldKg,
+        totalYieldTons: prediction.prediction.totalYieldTons,
+        confidencePercent: prediction.prediction.confidencePercent,
+        harvestDate: harvestData.prediction.predictedDate,
+        daysUntilHarvest,
+      },
+      action_template: actionTemplate,
+      task_card: taskCard,
+      nats_topic: 'sahool.alerts.pre_harvest',
+    };
+  }
+
+  /**
+   * Get harvest readiness with ActionTemplate
+   * فحص جاهزية الحصاد مع قالب إجراء
+   */
+  async getHarvestReadiness(fieldId: string, farmerId?: string) {
+    const maturity = await this.getMaturityMonitoring(fieldId);
+    const actionId = uuidv4();
+
+    const isReady = maturity.maturity.status === 'ready_for_harvest' || maturity.maturity.status === 'mature';
+    const grainMoisture = maturity.indicators.grainMoisture.current;
+
+    // Determine action type and urgency
+    let actionType: string;
+    let urgencyLevel: string;
+    let whatAr: string;
+    let whyAr: string;
+
+    if (maturity.maturity.status === 'ready_for_harvest') {
+      actionType = 'harvest_now';
+      urgencyLevel = 'critical';
+      whatAr = 'ابدأ الحصاد الآن';
+      whyAr = `المحصول جاهز للحصاد - رطوبة الحبوب: ${grainMoisture}%`;
+    } else if (maturity.maturity.status === 'mature') {
+      actionType = 'harvest_soon';
+      urgencyLevel = 'high';
+      whatAr = 'الحصاد خلال 3-5 أيام';
+      whyAr = `المحصول ناضج - رطوبة الحبوب: ${grainMoisture}%`;
+    } else if (maturity.maturity.status === 'yellowing') {
+      actionType = 'prepare_harvest';
+      urgencyLevel = 'medium';
+      whatAr = 'جهّز للحصاد';
+      whyAr = `المحصول في مرحلة الاصفرار - رطوبة الحبوب: ${grainMoisture}%`;
+    } else {
+      actionType = 'monitor';
+      urgencyLevel = 'low';
+      whatAr = 'استمر في المراقبة';
+      whyAr = `المحصول لا يزال أخضر - رطوبة الحبوب: ${grainMoisture}%`;
+    }
+
+    const actionTemplate: ActionTemplate = {
+      action_id: actionId,
+      action_type: actionType,
+      what: isReady ? 'Begin harvest' : 'Continue monitoring',
+      what_ar: whatAr,
+      why: `Grain moisture at ${grainMoisture}% - ${maturity.maturity.status}`,
+      why_ar: whyAr,
+      when: {
+        deadline: isReady ? 'Within 3-5 days' : 'Monitor daily',
+        optimal_window: isReady ? 'Early morning when moisture is lower' : 'Check daily at 8 AM',
+        optimal_window_ar: isReady ? 'الصباح الباكر عندما تكون الرطوبة أقل' : 'فحص يومي الساعة 8 صباحاً',
+      },
+      how: isReady
+        ? ['Check grain moisture with meter', 'Start harvest in dry weather', 'Monitor for grain shatter']
+        : ['Monitor grain color change', 'Check moisture content', 'Prepare equipment'],
+      how_ar: isReady
+        ? ['افحص رطوبة الحبوب بالمقياس', 'ابدأ الحصاد في طقس جاف', 'راقب تساقط الحبوب']
+        : ['راقب تغير لون الحبوب', 'افحص محتوى الرطوبة', 'جهّز المعدات'],
+      fallback: 'If weather delays harvest: Consider early harvest with drying',
+      fallback_ar: 'إذا أخّر الطقس الحصاد: فكر في حصاد مبكر مع التجفيف',
+      badge: {
+        type: 'maturity_model',
+        label_ar: 'نموذج النضج',
+        label_en: 'Maturity Model',
+        color: '#8B5CF6',
+      },
+      confidence: 0.85,
+      source_service: 'yield-prediction',
+      field_id: fieldId,
+      farmer_id: farmerId,
+      data: {
+        maturity_status: maturity.maturity.status,
+        maturity_progress: maturity.maturity.progress,
+        grain_moisture: grainMoisture,
+        target_moisture: maturity.indicators.grainMoisture.target,
+        ndvi: maturity.indicators.ndvi.current,
+        is_ready: isReady,
+      },
+      created_at: new Date().toISOString(),
+    };
+
+    return {
+      maturity,
+      action_template: actionTemplate,
+      is_ready: isReady,
+      nats_topic: 'sahool.alerts.harvest_readiness',
+    };
   }
 }

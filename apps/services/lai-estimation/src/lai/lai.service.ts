@@ -2,9 +2,11 @@
 // LAI Service - خدمة تقدير مؤشر مساحة الأوراق
 // Based on LAI-TransNet Two-Stage Transfer Learning Framework
 // Reference: Artificial Intelligence in Agriculture (2025), IF: 12.4
+// Field-First Architecture - Early Stress Detection
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Injectable } from '@nestjs/common';
+import { v4 as uuidv4 } from 'uuid';
 import {
   DataSource,
   CropType,
@@ -14,6 +16,70 @@ import {
   LAIComparisonResult,
   SpectralBandsDto,
 } from './lai.dto';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Field-First Types
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface Badge {
+  type: string;
+  label_ar: string;
+  label_en: string;
+  color: string;
+}
+
+export interface ActionTemplate {
+  action_id: string;
+  action_type: string;
+  what: string;
+  what_ar: string;
+  why: string;
+  why_ar: string;
+  when: {
+    deadline: string;
+    optimal_window: string;
+    optimal_window_ar: string;
+  };
+  how: string[];
+  how_ar: string[];
+  fallback: string;
+  fallback_ar: string;
+  badge: Badge;
+  confidence: number;
+  source_service: string;
+  field_id: string;
+  farmer_id?: string;
+  tenant_id?: string;
+  data: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface StressDetectionResponse {
+  lai_analysis: {
+    current_lai: number;
+    expected_lai: number;
+    deviation_percent: number;
+    stress_detected: boolean;
+    stress_level: string;
+  };
+  action_template: ActionTemplate;
+  task_card: {
+    id: string;
+    type: string;
+    title_ar: string;
+    title_en: string;
+    urgency: {
+      level: string;
+      label_ar: string;
+      color: string;
+    };
+    field_id: string;
+    confidence_percent: number;
+    offline_ready: boolean;
+    badge: Badge;
+  };
+  nats_topic: string;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Crop-specific LAI parameters based on PROSAIL model
@@ -443,5 +509,292 @@ export class LAIService {
       hash = hash & hash;
     }
     return Math.abs(hash);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // Field-First: ActionTemplate Methods
+  // ═══════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Detect stress with ActionTemplate
+   * الكشف المبكر عن الإجهاد مع قالب إجراء
+   */
+  async detectStressWithAction(
+    fieldId: string,
+    cropType: CropType = CropType.SOYBEAN,
+    farmerId?: string,
+    tenantId?: string,
+  ): Promise<StressDetectionResponse> {
+    // Get LAI estimation and comparison
+    const estimation = await this.estimateLAI(fieldId, DataSource.FUSION, cropType);
+    const comparison = await this.compareLAI(fieldId, cropType);
+
+    const currentLAI = estimation.lai;
+    const expectedLAI = comparison.optimalLAI;
+    const deviation = comparison.deviation;
+    const deviationPercent = Math.round((deviation / expectedLAI) * 100);
+    const actionId = uuidv4();
+
+    // Determine stress level and urgency
+    let stressLevel: string;
+    let stressDetected: boolean;
+    let urgencyLevel: string;
+    let urgencyLabelAr: string;
+    let urgencyColor: string;
+
+    if (deviationPercent < -20) {
+      stressLevel = 'severe';
+      stressDetected = true;
+      urgencyLevel = 'critical';
+      urgencyLabelAr = 'حرج';
+      urgencyColor = '#EF4444';
+    } else if (deviationPercent < -10) {
+      stressLevel = 'moderate';
+      stressDetected = true;
+      urgencyLevel = 'high';
+      urgencyLabelAr = 'عالي';
+      urgencyColor = '#F97316';
+    } else if (deviationPercent < -5) {
+      stressLevel = 'mild';
+      stressDetected = true;
+      urgencyLevel = 'medium';
+      urgencyLabelAr = 'متوسط';
+      urgencyColor = '#EAB308';
+    } else {
+      stressLevel = 'none';
+      stressDetected = false;
+      urgencyLevel = 'low';
+      urgencyLabelAr = 'منخفض';
+      urgencyColor = '#22C55E';
+    }
+
+    // Create ActionTemplate
+    const actionTemplate: ActionTemplate = {
+      action_id: actionId,
+      action_type: stressDetected ? 'early_stress_alert' : 'monitoring',
+      what: stressDetected ? 'Inspect for early stress' : 'Continue monitoring',
+      what_ar: stressDetected ? 'فحص إجهاد مبكر' : 'استمر في المراقبة',
+      why: `LAI ${stressDetected ? 'below' : 'within'} expected range (${currentLAI} vs ${expectedLAI})`,
+      why_ar: stressDetected
+        ? `LAI أقل من المتوقع بنسبة ${Math.abs(deviationPercent)}% - علامات إجهاد مبكر`
+        : `LAI ضمن النطاق المثالي (${currentLAI})`,
+      when: {
+        deadline: stressDetected ? '48 hours' : 'Weekly check',
+        optimal_window: 'Morning inspection',
+        optimal_window_ar: stressDetected ? 'خلال 48 ساعة - صباحاً' : 'فحص أسبوعي',
+      },
+      how: stressDetected
+        ? [
+            'Inspect leaf color and condition',
+            'Check soil moisture levels',
+            'Look for pest or disease signs',
+            'Photograph affected areas',
+            'Compare with healthy areas',
+          ]
+        : [
+            'Continue regular monitoring',
+            'Maintain current practices',
+          ],
+      how_ar: stressDetected
+        ? [
+            'افحص لون الأوراق وحالتها',
+            'تحقق من رطوبة التربة',
+            'ابحث عن علامات آفات أو أمراض',
+            'صوّر المنطقة المتأثرة',
+            'قارن مع المناطق السليمة',
+          ]
+        : [
+            'استمر في المراقبة المنتظمة',
+            'حافظ على الممارسات الحالية',
+          ],
+      fallback: stressDetected
+        ? 'If you cannot find the cause: consult agricultural engineer'
+        : 'No action needed at this time',
+      fallback_ar: stressDetected
+        ? 'إذا لم تجد السبب: استشر المهندس الزراعي'
+        : 'لا يلزم إجراء في الوقت الحالي',
+      badge: {
+        type: 'satellite_estimate',
+        label_ar: 'تقدير من القمر الصناعي',
+        label_en: 'Satellite Estimate',
+        color: '#0EA5E9',
+      },
+      confidence: estimation.confidence,
+      source_service: 'lai-estimation',
+      field_id: fieldId,
+      farmer_id: farmerId,
+      tenant_id: tenantId,
+      data: {
+        current_lai: currentLAI,
+        expected_lai: expectedLAI,
+        deviation: deviation,
+        deviation_percent: deviationPercent,
+        stress_level: stressLevel,
+        stress_detected: stressDetected,
+        indices: estimation.indices,
+        data_source: estimation.dataSource,
+        model: 'LAI-TransNet',
+        r2: estimation.quality.r2,
+        rmse: estimation.quality.rmse,
+      },
+      created_at: new Date().toISOString(),
+    };
+
+    // Create task card for mobile app
+    const taskCard = {
+      id: actionId,
+      type: stressDetected ? 'early_stress_alert' : 'monitoring',
+      title_ar: stressDetected
+        ? `تنبيه إجهاد - LAI ${Math.abs(deviationPercent)}% أقل`
+        : `LAI طبيعي - ${currentLAI}`,
+      title_en: stressDetected
+        ? `Stress Alert - LAI ${Math.abs(deviationPercent)}% below`
+        : `LAI Normal - ${currentLAI}`,
+      urgency: {
+        level: urgencyLevel,
+        label_ar: urgencyLabelAr,
+        color: urgencyColor,
+      },
+      field_id: fieldId,
+      confidence_percent: Math.round(estimation.confidence * 100),
+      offline_ready: true,
+      badge: actionTemplate.badge,
+    };
+
+    return {
+      lai_analysis: {
+        current_lai: currentLAI,
+        expected_lai: expectedLAI,
+        deviation_percent: deviationPercent,
+        stress_detected: stressDetected,
+        stress_level: stressLevel,
+      },
+      action_template: actionTemplate,
+      task_card: taskCard,
+      nats_topic: 'sahool.alerts.stress_detection',
+    };
+  }
+
+  /**
+   * Check for LAI anomalies with ActionTemplate
+   * فحص شذوذ LAI مع قالب إجراء
+   */
+  async checkAnomalyWithAction(
+    fieldId: string,
+    cropType: CropType = CropType.SOYBEAN,
+    farmerId?: string,
+  ) {
+    // Get time series to detect anomalies
+    const timeSeries = await this.getLAITimeSeries(fieldId);
+    const estimation = await this.estimateLAI(fieldId, DataSource.FUSION, cropType);
+    const actionId = uuidv4();
+
+    // Calculate trend and detect anomalies
+    const recentPoints = timeSeries.slice(-7); // Last 7 points
+    const avgRecent = recentPoints.reduce((sum, p) => sum + p.lai, 0) / recentPoints.length;
+    const currentLAI = estimation.lai;
+
+    // Detect sudden drop (anomaly)
+    const dropPercent = ((avgRecent - currentLAI) / avgRecent) * 100;
+    const isAnomaly = dropPercent > 15; // 15% sudden drop
+
+    let urgencyLevel: string;
+    let urgencyLabelAr: string;
+    let urgencyColor: string;
+
+    if (dropPercent > 25) {
+      urgencyLevel = 'critical';
+      urgencyLabelAr = 'حرج';
+      urgencyColor = '#EF4444';
+    } else if (dropPercent > 15) {
+      urgencyLevel = 'high';
+      urgencyLabelAr = 'عالي';
+      urgencyColor = '#F97316';
+    } else if (dropPercent > 10) {
+      urgencyLevel = 'medium';
+      urgencyLabelAr = 'متوسط';
+      urgencyColor = '#EAB308';
+    } else {
+      urgencyLevel = 'low';
+      urgencyLabelAr = 'منخفض';
+      urgencyColor = '#22C55E';
+    }
+
+    const actionTemplate: ActionTemplate = {
+      action_id: actionId,
+      action_type: isAnomaly ? 'lai_anomaly_alert' : 'monitoring',
+      what: isAnomaly ? 'Investigate sudden LAI drop' : 'LAI trend normal',
+      what_ar: isAnomaly ? 'تحقق من انخفاض LAI المفاجئ' : 'اتجاه LAI طبيعي',
+      why: isAnomaly
+        ? `Sudden ${dropPercent.toFixed(0)}% drop in LAI detected`
+        : `LAI stable at ${currentLAI}`,
+      why_ar: isAnomaly
+        ? `انخفاض مفاجئ ${dropPercent.toFixed(0)}% في LAI - يتطلب تحقيق`
+        : `LAI مستقر عند ${currentLAI}`,
+      when: {
+        deadline: isAnomaly ? 'Immediate' : 'Weekly',
+        optimal_window: 'Morning',
+        optimal_window_ar: isAnomaly ? 'فوري - الصباح الباكر' : 'أسبوعي',
+      },
+      how: isAnomaly
+        ? [
+            'Field inspection of affected zone',
+            'Check for disease outbreak',
+            'Check for pest damage',
+            'Verify irrigation system',
+            'Take soil samples',
+          ]
+        : ['Continue regular monitoring'],
+      how_ar: isAnomaly
+        ? [
+            'فحص ميداني للمنطقة المتأثرة',
+            'تحقق من وجود أمراض',
+            'تحقق من أضرار الآفات',
+            'تأكد من نظام الري',
+            'خذ عينات تربة',
+          ]
+        : ['استمر في المراقبة المنتظمة'],
+      fallback: isAnomaly
+        ? 'If cause unknown: Contact agricultural extension office'
+        : 'No action needed',
+      fallback_ar: isAnomaly
+        ? 'إذا لم تعرف السبب: اتصل بمكتب الإرشاد الزراعي'
+        : 'لا يلزم إجراء',
+      badge: {
+        type: 'satellite_anomaly',
+        label_ar: 'كشف شذوذ',
+        label_en: 'Anomaly Detection',
+        color: '#DC2626',
+      },
+      confidence: estimation.confidence,
+      source_service: 'lai-estimation',
+      field_id: fieldId,
+      farmer_id: farmerId,
+      data: {
+        current_lai: currentLAI,
+        recent_average: avgRecent,
+        drop_percent: dropPercent,
+        is_anomaly: isAnomaly,
+        time_series_points: recentPoints.length,
+        indices: estimation.indices,
+      },
+      created_at: new Date().toISOString(),
+    };
+
+    return {
+      anomaly_analysis: {
+        current_lai: currentLAI,
+        recent_average: Math.round(avgRecent * 100) / 100,
+        drop_percent: Math.round(dropPercent * 10) / 10,
+        is_anomaly: isAnomaly,
+      },
+      action_template: actionTemplate,
+      time_series_summary: {
+        points_analyzed: recentPoints.length,
+        trend: dropPercent > 5 ? 'declining' : dropPercent < -5 ? 'increasing' : 'stable',
+        trend_ar: dropPercent > 5 ? 'تراجع' : dropPercent < -5 ? 'تحسن' : 'مستقر',
+      },
+      nats_topic: 'sahool.alerts.lai_anomaly',
+    };
   }
 }

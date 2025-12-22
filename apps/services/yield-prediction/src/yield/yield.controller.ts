@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // Yield Controller - مراقب الإنتاجية
+// Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { YieldService } from './yield.service';
+import { YieldService, ActionTemplate, PreHarvestAlertResponse } from './yield.service';
 
 @ApiTags('yield')
 @Controller('api/v1/yield')
@@ -98,6 +99,42 @@ export class YieldController {
   })
   async getMaturityMonitoring(@Param('fieldId') fieldId: string) {
     return this.yieldService.getMaturityMonitoring(fieldId);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Field-First: Pre-Harvest Alert with ActionTemplate
+  // تنبيه ما قبل الحصاد مع قالب الإجراء
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Get('predict-with-action/:fieldId')
+  @ApiOperation({
+    summary: 'Predict yield with ActionTemplate',
+    description: 'التنبؤ بالإنتاجية مع قالب إجراء ما قبل الحصاد - Field-First',
+  })
+  @ApiResponse({ status: 200, description: 'Pre-harvest alert with ActionTemplate' })
+  async predictWithAction(
+    @Param('fieldId') fieldId: string,
+    @Query('farmerId') farmerId?: string,
+    @Query('tenantId') tenantId?: string,
+  ): Promise<PreHarvestAlertResponse> {
+    return this.yieldService.predictWithAction(fieldId, farmerId, tenantId);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Field-First: Harvest Readiness Check
+  // فحص جاهزية الحصاد
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Get('harvest-readiness/:fieldId')
+  @ApiOperation({
+    summary: 'Check harvest readiness with ActionTemplate',
+    description: 'فحص جاهزية الحصاد مع توصيات عملية',
+  })
+  async getHarvestReadiness(
+    @Param('fieldId') fieldId: string,
+    @Query('farmerId') farmerId?: string,
+  ) {
+    return this.yieldService.getHarvestReadiness(fieldId, farmerId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

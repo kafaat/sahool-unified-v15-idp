@@ -1,5 +1,5 @@
 """
-Virtual Sensors Engine - Sahool Smart Irrigation
+Virtual Sensors Engine - Sahool Smart Irrigation v15.5
 محرك المستشعرات الافتراضية - الري الذكي سهول
 
 Software-based sensor calculations for irrigation management without physical hardware.
@@ -7,25 +7,45 @@ Calculates evapotranspiration, soil moisture estimation, and irrigation recommen
 using weather data, crop coefficients, and soil characteristics.
 
 Based on FAO-56 Penman-Monteith methodology.
+
+Field-First Architecture:
+- بديل تشغيلي لـ IoT في البيئات الريفية
+- ينتج ActionTemplates للتطبيق المحمول
+- يتكامل مع NATS للإشعارات الفورية
+- Badge "تقدير افتراضي" لتمييز البيانات عن IoT
 """
 
 import math
 import uuid
-from datetime import datetime, date, timedelta
+import logging
+from datetime import datetime, date, time, timedelta
 from enum import Enum
-from typing import Optional
+from typing import Optional, Dict, Any, List
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
+
+# NATS publisher (optional)
+_nats_available = False
+try:
+    import sys
+    sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+    from shared.libs.events.nats_publisher import publish_analysis_completed_sync
+    _nats_available = True
+except ImportError:
+    logger.info("NATS publisher not available")
+    publish_analysis_completed_sync = None
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SERVICE_NAME = "virtual-sensors"
-SERVICE_VERSION = "1.0.0"
+SERVICE_VERSION = "15.5.0"
 SERVICE_PORT = 8096
 
 
@@ -1235,6 +1255,266 @@ async def quick_irrigation_check(
         "needs_irrigation": needs_irrigation,
         "recommendation": f"{'Irrigate now' if needs_irrigation else 'No irrigation needed'}",
         "recommendation_ar": f"{'قم بالري الآن' if needs_irrigation else 'لا حاجة للري'}",
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Field-First: ActionTemplate Endpoints
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class VirtualSensorActionRequest(BaseModel):
+    """Request for virtual sensor analysis with ActionTemplate output"""
+    field_id: str = Field(..., description="معرف الحقل")
+    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
+    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    crop_type: str = Field(..., description="نوع المحصول")
+    growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
+    soil_type: SoilType = Field(SoilType.LOAM, description="نوع التربة")
+    irrigation_method: IrrigationMethod = Field(IrrigationMethod.DRIP, description="طريقة الري")
+    field_area_hectares: float = Field(1.0, gt=0, description="مساحة الحقل بالهكتار")
+    last_irrigation_date: Optional[date] = Field(None, description="تاريخ آخر ري")
+    last_irrigation_amount: Optional[float] = Field(None, description="كمية آخر ري بالمم")
+    weather: WeatherInput = Field(..., description="بيانات الطقس")
+    publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
+
+
+def _create_virtual_sensor_action(
+    recommendation: IrrigationRecommendation,
+    field_id: str,
+    farmer_id: Optional[str] = None,
+    tenant_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Create an ActionTemplate from virtual sensor analysis"""
+
+    # Map urgency
+    urgency_map = {
+        UrgencyLevel.NONE: "low",
+        UrgencyLevel.LOW: "low",
+        UrgencyLevel.MEDIUM: "medium",
+        UrgencyLevel.HIGH: "high",
+        UrgencyLevel.CRITICAL: "critical",
+    }
+    urgency = urgency_map.get(recommendation.urgency, "medium")
+
+    if recommendation.irrigation_needed:
+        action_type = "irrigation"
+        title_ar = f"ري تقديري - {recommendation.urgency_ar}"
+        title_en = f"Virtual Irrigation - {recommendation.urgency.value}"
+    else:
+        action_type = "monitoring"
+        title_ar = "مراقبة - لا حاجة للري"
+        title_en = "Monitoring - No Irrigation Needed"
+
+    return {
+        "action_id": str(uuid.uuid4()),
+        "action_type": action_type,
+        "title_ar": title_ar,
+        "title_en": title_en,
+        "description_ar": recommendation.advice_ar,
+        "description_en": recommendation.advice,
+        "summary_ar": f"رطوبة التربة: {100 - recommendation.moisture_depletion_percent:.0f}% | ET: {recommendation.etc:.1f} مم/يوم",
+        "source_service": "virtual-sensors",
+        "source_analysis_type": "virtual_soil_moisture",
+        "confidence": 0.75,  # Virtual sensor confidence lower than IoT
+        "urgency": urgency,
+        "field_id": field_id,
+        "farmer_id": farmer_id,
+        "tenant_id": tenant_id,
+        "offline_executable": True,
+        "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بفحص رطوبة التربة يدوياً بعمق 15 سم",
+        "fallback_instructions_en": "If data unavailable, manually check soil moisture at 15cm depth",
+        "estimated_duration_minutes": int(recommendation.gross_irrigation_mm * 2) if recommendation.irrigation_needed else 30,
+        "data": {
+            "et0": recommendation.et0,
+            "kc": recommendation.kc,
+            "etc": recommendation.etc,
+            "soil_type": recommendation.soil_type,
+            "moisture_depletion_percent": recommendation.moisture_depletion_percent,
+            "recommended_amount_mm": recommendation.recommended_amount_mm,
+            "recommended_amount_m3": recommendation.recommended_amount_m3,
+            "next_irrigation_days": recommendation.next_irrigation_days,
+            "is_virtual": True,  # Badge: تقدير افتراضي
+        },
+        "badge": {
+            "type": "virtual_estimate",
+            "label_ar": "تقدير افتراضي",
+            "label_en": "Virtual Estimate",
+            "color": "#6366F1",  # Indigo for virtual
+        },
+        "created_at": datetime.utcnow().isoformat(),
+    }
+
+
+@app.post("/v1/irrigation/recommend-with-action")
+async def get_irrigation_recommendation_with_action(
+    request: VirtualSensorActionRequest,
+    background_tasks: BackgroundTasks,
+):
+    """
+    الحصول على توصية ري مع ActionTemplate
+
+    Field-First: ينتج قالب إجراء للتطبيق المحمول
+    Badge: تقدير افتراضي (بدون حساس)
+    """
+
+    # Build weather input
+    weather = request.weather
+
+    # Build recommendation input
+    rec_input = IrrigationRecommendationInput(
+        crop_type=request.crop_type,
+        growth_stage=request.growth_stage,
+        soil_type=request.soil_type,
+        irrigation_method=request.irrigation_method,
+        field_area_hectares=request.field_area_hectares,
+        last_irrigation_date=request.last_irrigation_date,
+        last_irrigation_amount=request.last_irrigation_amount,
+        weather=weather,
+    )
+
+    # Get recommendation
+    recommendation = await get_irrigation_recommendation(rec_input)
+
+    # Create ActionTemplate
+    action_template = _create_virtual_sensor_action(
+        recommendation=recommendation,
+        field_id=request.field_id,
+        farmer_id=request.farmer_id,
+        tenant_id=request.tenant_id,
+    )
+
+    # Publish to NATS if irrigation is needed
+    if request.publish_event and _nats_available and publish_analysis_completed_sync and recommendation.irrigation_needed:
+        try:
+            publish_analysis_completed_sync(
+                event_type="virtual_sensor.irrigation_needed",
+                source_service="virtual-sensors",
+                field_id=request.field_id,
+                data=action_template.get("data", {}),
+                action_template=action_template,
+                priority=action_template.get("urgency", "medium"),
+                farmer_id=request.farmer_id,
+                tenant_id=request.tenant_id,
+            )
+            logger.info(f"NATS: Published virtual sensor event for field {request.field_id}")
+        except Exception as e:
+            logger.error(f"Failed to publish NATS event: {e}")
+
+    # Task card for mobile
+    task_card = {
+        "id": action_template["action_id"],
+        "type": action_template["action_type"],
+        "title_ar": action_template["title_ar"],
+        "title_en": action_template["title_en"],
+        "urgency": {
+            "level": action_template["urgency"],
+            "label_ar": recommendation.urgency_ar,
+            "color": {
+                "low": "#22C55E",
+                "medium": "#EAB308",
+                "high": "#F97316",
+                "critical": "#EF4444",
+            }.get(action_template["urgency"], "#6B7280"),
+        },
+        "field_id": request.field_id,
+        "confidence_percent": 75,
+        "offline_ready": True,
+        "badge": action_template["badge"],
+        "irrigation_needed": recommendation.irrigation_needed,
+        "water_m3": recommendation.recommended_amount_m3,
+    }
+
+    return {
+        "recommendation": {
+            "recommendation_id": recommendation.recommendation_id,
+            "crop_type": recommendation.crop_type,
+            "crop_name_ar": recommendation.crop_name_ar,
+            "et0": recommendation.et0,
+            "kc": recommendation.kc,
+            "etc": recommendation.etc,
+            "moisture_depletion_percent": recommendation.moisture_depletion_percent,
+            "irrigation_needed": recommendation.irrigation_needed,
+            "urgency": recommendation.urgency.value,
+            "urgency_ar": recommendation.urgency_ar,
+            "recommended_amount_mm": recommendation.recommended_amount_mm,
+            "recommended_amount_m3": recommendation.recommended_amount_m3,
+            "optimal_time_ar": recommendation.optimal_time_ar,
+            "next_irrigation_days": recommendation.next_irrigation_days,
+            "advice_ar": recommendation.advice_ar,
+            "warnings_ar": recommendation.warnings_ar,
+        },
+        "action_template": action_template,
+        "task_card": task_card,
+        "is_virtual": True,
+        "nats_published": request.publish_event and _nats_available and recommendation.irrigation_needed,
+    }
+
+
+@app.get("/v1/quick-check-with-action")
+async def quick_check_with_action(
+    field_id: str = Query(..., description="معرف الحقل"),
+    farmer_id: Optional[str] = Query(None, description="معرف المزارع"),
+    crop_type: str = Query(..., description="نوع المحصول"),
+    growth_stage: GrowthStage = Query(..., description="مرحلة النمو"),
+    soil_type: SoilType = Query(SoilType.LOAM, description="نوع التربة"),
+    days_since_irrigation: int = Query(..., ge=0, description="أيام منذ آخر ري"),
+    temperature: float = Query(..., description="درجة الحرارة"),
+    humidity: float = Query(50, ge=0, le=100, description="الرطوبة النسبية"),
+):
+    """
+    فحص سريع مع ActionTemplate
+
+    للبيئات الريفية بدون IoT
+    """
+    # Get quick check result
+    result = await quick_irrigation_check(
+        crop_type=crop_type,
+        growth_stage=growth_stage,
+        soil_type=soil_type,
+        days_since_irrigation=days_since_irrigation,
+        temperature=temperature,
+        humidity=humidity,
+    )
+
+    # Determine urgency
+    status_urgency_map = {
+        "good": "low",
+        "monitor": "low",
+        "irrigate_soon": "medium",
+        "irrigate_now": "high",
+    }
+    urgency = status_urgency_map.get(result["status"], "medium")
+
+    # Create simple action template
+    action_template = {
+        "action_id": str(uuid.uuid4()),
+        "action_type": "irrigation" if result["needs_irrigation"] else "monitoring",
+        "title_ar": result["recommendation_ar"],
+        "title_en": result["recommendation"],
+        "description_ar": f"رطوبة التربة المتبقية: {100 - result['estimated_depletion_percent']:.0f}%",
+        "description_en": f"Remaining soil moisture: {100 - result['estimated_depletion_percent']:.0f}%",
+        "source_service": "virtual-sensors",
+        "confidence": 0.70,  # Quick check has lower confidence
+        "urgency": urgency,
+        "field_id": field_id,
+        "offline_executable": True,
+        "fallback_instructions_ar": "افحص رطوبة التربة يدوياً",
+        "fallback_instructions_en": "Check soil moisture manually",
+        "estimated_duration_minutes": 60 if result["needs_irrigation"] else 15,
+        "badge": {
+            "type": "virtual_quick",
+            "label_ar": "فحص سريع",
+            "label_en": "Quick Check",
+            "color": "#8B5CF6",
+        },
+        "data": result,
+    }
+
+    return {
+        "quick_check": result,
+        "action_template": action_template,
+        "is_virtual": True,
     }
 
 

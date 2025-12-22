@@ -15,7 +15,8 @@ on:
       - 'apps/mobile/**'
 
 env:
-  FLUTTER_VERSION: '3.27.1'
+  FLUTTER_VERSION: '3.27.3'  # Dart 3.7.0 - متوافق مع أحدث الحزم
+  JAVA_VERSION: '17'
   WORKING_DIR: apps/mobile/sahool_field_app
 
 jobs:

@@ -90,6 +90,10 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.2
   flutter_native_splash: ^2.4.3
 
+# Override analyzer to fix mockito compatibility with analyzer 7.x
+dependency_overrides:
+  analyzer: ^6.7.0
+
 # App Icon Configuration
 flutter_launcher_icons:
   android: "launcher_icon"

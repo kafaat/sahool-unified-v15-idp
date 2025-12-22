@@ -4,7 +4,7 @@ publish_to: 'none'
 version: 15.5.0+1
 
 environment:
-  sdk: '>=3.7.0 <4.0.0'  # Flutter 3.27.3 requires Dart 3.7.0
+  sdk: '>=3.2.0 <4.0.0'  # Flutter 3.27.x uses Dart 3.6.0
 
 dependencies:
   flutter:
@@ -67,7 +67,7 @@ dependencies:
   uuid: ^4.5.1
   intl: ^0.19.0
   equatable: ^2.0.7
-  freezed_annotation: ^3.0.0  # Compatible with freezed 3.x and Dart 3.7.0
+  freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
 
   # Date/Time
@@ -77,20 +77,20 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
-  build_runner: ^2.4.15  # Compatible with Dart 3.7.0
+  build_runner: ^2.4.13  # Last version for Dart 3.6.0
   drift_dev: ^2.24.0
-  freezed: ^3.0.0  # Latest version for Dart 3.7.0
+  freezed: 2.5.8  # Last 2.x version compatible with Dart 3.6.0
   json_serializable: ^6.9.0
-  mockito: ^5.4.6  # Latest version (requires Dart 3.7.0+)
+  mockito: 5.4.5  # Pinned: 5.4.6+ requires Dart SDK >=3.7.0
 
   # App Branding
   flutter_launcher_icons: ^0.14.2
   flutter_native_splash: ^2.4.3
 
-# Compatibility Matrix for Flutter 3.27.3 (Dart 3.7.0):
-# - freezed 3.x: Latest with full Dart 3.7.0 support
-# - mockito 5.4.6+: Requires Dart 3.7.0
-# - build_runner 2.4.15: Compatible with all packages
+# Compatibility Matrix for Flutter 3.27.x (Dart 3.6.0):
+# - freezed 2.5.8: analyzer >=7.0.0 <8.0.0, source_gen ^2.0.0
+# - mockito 5.4.5: Last version before Dart 3.7.0 requirement
+# - build_runner 2.4.13: Compatible with Dart 3.6.0
 
 # App Icon Configuration
 flutter_launcher_icons:

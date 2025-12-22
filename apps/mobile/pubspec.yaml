@@ -82,7 +82,7 @@ dev_dependencies:
   drift_dev: ^2.24.0
   freezed: 2.5.8  # Last 2.x version with analyzer 7.x support
   json_serializable: ^6.9.0
-  riverpod_generator: 2.4.0  # Uses riverpod_analyzer_utils 0.5.1 (freezed_annotation ^2.2.0)
+  # riverpod_generator removed - not used (@riverpod annotations not found)
   mockito: 5.4.5  # Pinned: 5.4.6+ requires Dart SDK >=3.7.0
 
   # App Branding
@@ -90,9 +90,9 @@ dev_dependencies:
   flutter_native_splash: ^2.4.3
 
 # Compatibility Matrix for Flutter 3.27.1 (Dart 3.6.0):
-# - freezed 2.5.8: analyzer >=7.0.0 <8.0.0, freezed_annotation ^2.4.4
-# - riverpod_generator 2.4.0: riverpod_analyzer_utils ^0.5.1 (freezed_annotation ^2.2.0)
+# - freezed 2.5.8: analyzer >=7.0.0 <8.0.0, source_gen ^2.0.0
 # - mockito 5.4.5: Last version before Dart 3.7.0 requirement
+# - riverpod_generator: removed (not used in codebase)
 
 # App Icon Configuration
 flutter_launcher_icons:

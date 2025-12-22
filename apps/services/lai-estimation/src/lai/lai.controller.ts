@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 // LAI Controller - مراقب مؤشر مساحة الأوراق
+// Field-First Architecture - Early Stress Detection
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
-import { LAIService } from './lai.service';
+import { LAIService, StressDetectionResponse } from './lai.service';
 import {
   DataSource,
   CropType,
@@ -126,6 +127,57 @@ export class LAIController {
   @ApiResponse({ status: 200, description: 'Model information' })
   getModelInfo() {
     return this.laiService.getModelInfo();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Field-First: Stress Detection with ActionTemplate
+  // الكشف المبكر عن الإجهاد مع قالب الإجراء
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Get('stress-detection/:fieldId')
+  @ApiOperation({
+    summary: 'Detect early stress with ActionTemplate',
+    description: 'الكشف المبكر عن الإجهاد مع قالب إجراء - Field-First',
+  })
+  @ApiQuery({ name: 'cropType', enum: CropType, required: false })
+  @ApiQuery({ name: 'farmerId', required: false })
+  @ApiQuery({ name: 'tenantId', required: false })
+  @ApiResponse({ status: 200, description: 'Stress detection with ActionTemplate' })
+  async detectStress(
+    @Param('fieldId') fieldId: string,
+    @Query('cropType') cropType?: CropType,
+    @Query('farmerId') farmerId?: string,
+    @Query('tenantId') tenantId?: string,
+  ): Promise<StressDetectionResponse> {
+    return this.laiService.detectStressWithAction(
+      fieldId,
+      cropType || CropType.SOYBEAN,
+      farmerId,
+      tenantId,
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Field-First: LAI Anomaly Alert
+  // تنبيه شذوذ LAI
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Get('anomaly-check/:fieldId')
+  @ApiOperation({
+    summary: 'Check for LAI anomalies with ActionTemplate',
+    description: 'فحص شذوذ LAI مع توصيات عملية',
+  })
+  @ApiQuery({ name: 'cropType', enum: CropType, required: false })
+  async checkAnomaly(
+    @Param('fieldId') fieldId: string,
+    @Query('cropType') cropType?: CropType,
+    @Query('farmerId') farmerId?: string,
+  ) {
+    return this.laiService.checkAnomalyWithAction(
+      fieldId,
+      cropType || CropType.SOYBEAN,
+      farmerId,
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

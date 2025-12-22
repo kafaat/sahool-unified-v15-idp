@@ -18,16 +18,16 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 │                      SERVICE ACTIVATION STATUS                      │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
-│  ✅ ACTIVATED (Field-First Ready)                                  │
-│  ├── satellite-service :8090                                       │
-│  ├── virtual-sensors :8085                                         │
-│  ├── crop-growth-timing :8098                                      │
-│  ├── irrigation-smart :8086                                        │
-│  └── notification-service :8083                                    │
+│  ✅ ACTIVATED (Field-First Ready) - Phase 1 + 2                    │
+│  ├── satellite-service :8090      [Phase 1]                        │
+│  ├── virtual-sensors :8085        [Phase 1]                        │
+│  ├── crop-growth-timing :8098     [Phase 1]                        │
+│  ├── irrigation-smart :8086       [Phase 1]                        │
+│  ├── notification-service :8083   [Phase 1]                        │
+│  ├── yield-prediction :8091       [Phase 2] ✨ NEW                 │
+│  └── lai-estimation :8093         [Phase 2] ✨ NEW                 │
 │                                                                     │
-│  📋 PLANNED (Next Phase)                                           │
-│  ├── yield-prediction :8091                                        │
-│  ├── lai-estimation :8093                                          │
+│  📋 PLANNED (Phase 3)                                              │
 │  ├── disaster-assessment :8094                                     │
 │  └── weather-advanced :8092                                        │
 │                                                                     │
@@ -381,9 +381,15 @@ sahool.
 3. ~~crop-growth-timing~~ → Python bridge for timing decisions
 4. ~~notification-service~~ → NATS subscriber
 
-### المرحلة 2 - قيد التنفيذ 🔄
-5. yield-prediction → Pre-harvest alerts
-6. lai-estimation → Early stress detection
+### المرحلة 2 - مكتمل ✅
+5. ~~yield-prediction~~ → Pre-harvest alerts + ActionTemplate
+   - `GET /api/v1/yield/predict-with-action/:fieldId` - تنبيهات ما قبل الحصاد
+   - `GET /api/v1/yield/harvest-readiness/:fieldId` - فحص جاهزية الحصاد
+   - Badge: `yield_model` / `maturity_model`
+6. ~~lai-estimation~~ → Early stress detection + ActionTemplate
+   - `GET /api/v1/lai/stress-detection/:fieldId` - الكشف المبكر عن الإجهاد
+   - `GET /api/v1/lai/anomaly-check/:fieldId` - فحص شذوذ LAI
+   - Badge: `satellite_estimate` / `satellite_anomaly`
 
 ### المرحلة 3 - مخطط 📋
 7. disaster-assessment → Playbook generation

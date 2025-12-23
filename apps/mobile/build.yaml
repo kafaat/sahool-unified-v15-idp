@@ -1,41 +1,27 @@
 # SAHOOL Field App Build Configuration
 # ملف إعدادات توليد الكود
+# Simplified: Let builders auto-discover files with annotations
 
 targets:
   $default:
     builders:
-      # JSON Serializable configuration
+      # JSON Serializable options only (auto-discovers @JsonSerializable)
       json_serializable:
-        generate_for:
-          - "lib/models/**/*.dart"
-          - "lib/services/**/*.dart"
-          - "lib/core/models/**/*.dart"
-          - "lib/features/**/data/models/**/*.dart"
         options:
           explicit_to_json: true
           include_if_null: false
 
-      # Freezed configuration
-      freezed:
-        generate_for:
-          - "lib/models/**/*.dart"
-          - "lib/core/models/**/*.dart"
-          - "lib/features/**/data/models/**/*.dart"
-
-      # Drift database configuration
+      # Drift options only (auto-discovers @DriftDatabase)
       drift_dev:
-        generate_for:
-          - "lib/core/storage/**/*.dart"
-          - "lib/core/database/**/*.dart"
-          - "lib/features/**/data/**/*.dart"
         options:
           store_date_time_values_as_text: true
 
-      # Exclude test files from code generation
-      source_gen|combining_builder:
-        generate_for:
-          exclude:
-            - "test/**"
-            - "**/*.mocks.dart"
-            - "**/*.g.dart"
-            - "**/*.freezed.dart"
+      # Freezed: no config needed, auto-discovers @freezed
+
+# Global excludes for all builders
+global_options:
+  source_gen:combining_builder:
+    generate_for:
+      exclude:
+        - "test/**"
+        - "**/*.mocks.dart"

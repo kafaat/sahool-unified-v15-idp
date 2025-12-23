@@ -2,6 +2,28 @@
 
 All notable changes to the SAHOOL Field mobile application.
 
+## [16.1.1] - 2024-12-23 - CI/CD Fix Release 🔧
+
+### 🐛 Bug Fixes
+
+#### Code Generation Fix
+- **Simplified `build.yaml`** - Minimal configuration for build_runner auto-discovery
+- **Removed duplicate `diagnosis_model.dart`** - Was causing `DiseaseSeverity` enum conflict
+- **Fixed Flutter APK build** - Code generation now completes successfully
+
+#### CI/CD Improvements
+- **Enhanced `flutter-apk.yml`** - Better logging and error reporting
+- **Fixed frontend-ci.yml** - Uses npm workspace scripts correctly
+- **Added codegen.log capture** - Easier debugging on failures
+
+### 📋 Files Changed
+- `apps/mobile/build.yaml` - Simplified to essential options only
+- `apps/mobile/lib/features/crop_health/data/models/diagnosis_model.dart` - Deleted (duplicate)
+- `.github/workflows/flutter-apk.yml` - Improved code generation step
+- `.github/workflows/frontend-ci.yml` - npm workspace fixes
+
+---
+
 ## [16.1.0] - 2024-12-22 - Performance & Compatibility Release 🚀
 
 ### ⚡ Performance Improvements

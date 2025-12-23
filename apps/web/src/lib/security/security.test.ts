@@ -3,7 +3,7 @@
  * اختبارات الأمان
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   escapeHtml,
   sanitizeInput,
@@ -103,7 +103,7 @@ describe('Security', () => {
 
     it('should return null for invalid URLs', () => {
       // This might throw or return null depending on implementation
-      const result = sanitizeUrl('not a valid url with spaces');
+      sanitizeUrl('not a valid url with spaces');
       // Just check it doesn't throw
       expect(true).toBe(true);
     });

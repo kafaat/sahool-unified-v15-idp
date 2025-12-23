@@ -2,6 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  // Ignore ESLint warnings during build - lint job checks separately
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Note: i18n is handled via next-intl for App Router
   // Legacy Pages Router i18n config removed for Next.js 15 compatibility
 

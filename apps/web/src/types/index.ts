@@ -79,7 +79,6 @@ import type {
   Field as BaseField,
   Alert as BaseAlert,
   KPI as BaseKPI,
-  GeoPolygon,
   TrendDirection,
   HealthStatus,
   AlertSeverity,

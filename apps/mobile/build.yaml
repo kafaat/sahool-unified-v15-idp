@@ -1,31 +1,15 @@
 # SAHOOL Field App Build Configuration
-# ملف إعدادات توليد الكود
-# Using fully-qualified builder names for compatibility
+# Minimal configuration - let build_runner auto-discover everything
 
 targets:
   $default:
     builders:
-      # JSON Serializable - generates .g.dart for @JsonSerializable classes
-      json_serializable|json_serializable:
-        options:
-          explicit_to_json: true
-          include_if_null: false
-          field_rename: none
-
-      # Drift - generates .g.dart for @DriftDatabase
-      drift_dev|drift_dev:
+      # Drift database options
+      drift_dev:
         options:
           store_date_time_values_as_text: true
-          generate_connect_constructor: false
 
-      # Freezed - generates .freezed.dart for @freezed classes
-      freezed|freezed:
-        enabled: true
-
-# Global excludes for all builders
-global_options:
-  source_gen|combining_builder:
-    generate_for:
-      exclude:
-        - "test/**"
-        - "**/*.mocks.dart"
+      # JSON serializable options
+      json_serializable:
+        options:
+          explicit_to_json: true

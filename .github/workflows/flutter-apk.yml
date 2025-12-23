@@ -77,8 +77,19 @@ jobs:
         run: |
           echo "Starting code generation..."
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
-          echo "Code generation completed successfully"
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log
+          echo ""
+          echo "📊 Generated files count:"
+          echo "  .g.dart files: $(find lib -name '*.g.dart' | wc -l)"
+          echo "  .freezed.dart files: $(find lib -name '*.freezed.dart' | wc -l)"
+          echo ""
+          if [ -f "lib/core/storage/database.g.dart" ]; then
+            echo "✅ database.g.dart generated successfully"
+          else
+            echo "❌ database.g.dart NOT found - build will fail"
+            cat codegen.log
+            exit 1
+          fi
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"
@@ -88,15 +99,46 @@ jobs:
         run: dart run flutter_native_splash:create || echo "Splash generation skipped"
         continue-on-error: true
 
+      - name: Analyze code before build
+        run: flutter analyze --no-fatal-infos || echo "Analysis warnings found"
+        continue-on-error: true
+
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
         run: |
-          flutter build apk --release --no-shrink
+          echo "🔨 Building Release APK..."
+          echo "Flutter version:"
+          flutter --version
+          echo "Dart version:"
+          dart --version
+          echo "Starting build..."
+          flutter build apk --release --no-shrink --verbose 2>&1 | tee build.log || {
+            echo "❌ Build failed! Last 100 lines of log:"
+            tail -100 build.log
+            exit 1
+          }
+          echo "✅ Build completed!"
 
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' }}
         run: |
-          flutter build apk --debug --no-shrink
+          echo "🔨 Building Debug APK..."
+          flutter build apk --debug --no-shrink --verbose 2>&1 | tee build.log || {
+            echo "❌ Build failed! Last 100 lines of log:"
+            tail -100 build.log
+            exit 1
+          }
+          echo "✅ Build completed!"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_number }}
+          path: |
+            apps/mobile/build.log
+            apps/mobile/codegen.log
+          retention-days: 7
 
       - name: Get APK info
         id: apk_info

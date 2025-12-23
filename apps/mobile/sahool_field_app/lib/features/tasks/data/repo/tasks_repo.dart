@@ -2,20 +2,20 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../core/storage/database.dart';
+import '../../../../core/storage/database.dart' as db;
 import '../../../../core/sync/network_status.dart';
 import '../../domain/entities/task.dart';
 import '../remote/tasks_api.dart';
 
 /// Tasks Repository - Offline-first data access
 class TasksRepo {
-  final AppDatabase _db;
+  final db.AppDatabase _db;
   final TasksApi _api;
   final NetworkStatus _networkStatus;
   final _uuid = const Uuid();
 
   TasksRepo({
-    required AppDatabase database,
+    required db.AppDatabase database,
     required TasksApi api,
     NetworkStatus? networkStatus,
   })  : _db = database,
@@ -25,19 +25,19 @@ class TasksRepo {
   /// Get all tasks (from local DB)
   Future<List<FieldTask>> getAllTasks(String tenantId) async {
     final dbTasks = await _db.getAllTasks(tenantId);
-    return dbTasks.map(_mapDbToEntity).toList();
+    return dbTasks.map<FieldTask>(_mapDbToEntity).toList();
   }
 
   /// Get tasks for a specific field
   Future<List<FieldTask>> getTasksForField(String fieldId) async {
     final dbTasks = await _db.getTasksForField(fieldId);
-    return dbTasks.map(_mapDbToEntity).toList();
+    return dbTasks.map<FieldTask>(_mapDbToEntity).toList();
   }
 
   /// Get pending tasks (open or in_progress)
   Future<List<FieldTask>> getPendingTasks(String tenantId) async {
     final dbTasks = await _db.getPendingTasks(tenantId);
-    return dbTasks.map(_mapDbToEntity).toList();
+    return dbTasks.map<FieldTask>(_mapDbToEntity).toList();
   }
 
   /// Get single task by ID
@@ -109,7 +109,7 @@ class TasksRepo {
   }) async {
     // 1. Update local DB
     await _db.upsertTask(
-      TasksCompanion(
+      db.TasksCompanion(
         id: Value(taskId),
         status: Value(status.value),
         updatedAt: Value(DateTime.now()),
@@ -166,7 +166,7 @@ class TasksRepo {
 
     // 1. Save to local DB
     await _db.upsertTask(
-      TasksCompanion.insert(
+      db.TasksCompanion.insert(
         id: taskId,
         tenantId: tenantId,
         fieldId: fieldId,
@@ -194,7 +194,7 @@ class TasksRepo {
   }
 
   /// Map database entity to domain entity
-  FieldTask _mapDbToEntity(Task dbTask) {
+  FieldTask _mapDbToEntity(db.Task dbTask) {
     return FieldTask(
       id: dbTask.id,
       tenantId: dbTask.tenantId,

@@ -1,27 +1,30 @@
 # SAHOOL Field App Build Configuration
 # ملف إعدادات توليد الكود
-# Simplified: Let builders auto-discover files with annotations
-# Updated: 2025-12-23 - Trigger CI with debugging output
+# Using fully-qualified builder names for compatibility
 
 targets:
   $default:
     builders:
-      # JSON Serializable options only (auto-discovers @JsonSerializable)
-      json_serializable:
+      # JSON Serializable - generates .g.dart for @JsonSerializable classes
+      json_serializable|json_serializable:
         options:
           explicit_to_json: true
           include_if_null: false
+          field_rename: none
 
-      # Drift options only (auto-discovers @DriftDatabase)
-      drift_dev:
+      # Drift - generates .g.dart for @DriftDatabase
+      drift_dev|drift_dev:
         options:
           store_date_time_values_as_text: true
+          generate_connect_constructor: false
 
-      # Freezed: no config needed, auto-discovers @freezed
+      # Freezed - generates .freezed.dart for @freezed classes
+      freezed|freezed:
+        enabled: true
 
 # Global excludes for all builders
 global_options:
-  source_gen:combining_builder:
+  source_gen|combining_builder:
     generate_for:
       exclude:
         - "test/**"

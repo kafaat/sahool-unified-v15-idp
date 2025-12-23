@@ -77,13 +77,21 @@ jobs:
         run: |
           echo "Starting code generation..."
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
-          echo "Verifying generated files..."
-          ls -la lib/core/storage/*.dart || echo "No files in storage dir"
+          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
+            echo "❌ Code generation failed! Last 50 lines:"
+            tail -50 codegen.log
+            exit 1
+          }
+          echo ""
+          echo "📋 Listing all generated files..."
+          find lib -name "*.g.dart" -o -name "*.freezed.dart" | sort
+          echo ""
+          echo "📊 Generated files count:"
+          echo "  .g.dart files: $(find lib -name '*.g.dart' | wc -l)"
+          echo "  .freezed.dart files: $(find lib -name '*.freezed.dart' | wc -l)"
+          echo ""
           if [ -f "lib/core/storage/database.g.dart" ]; then
             echo "✅ database.g.dart generated successfully"
-            echo "First 50 lines of generated file:"
-            head -50 lib/core/storage/database.g.dart
           else
             echo "❌ database.g.dart NOT found - build will fail"
             exit 1
@@ -128,12 +136,14 @@ jobs:
           }
           echo "✅ Build completed!"
 
-      - name: Upload build log on failure
+      - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log-${{ github.run_number }}
-          path: apps/mobile/build.log
+          name: build-logs-${{ github.run_number }}
+          path: |
+            apps/mobile/build.log
+            apps/mobile/codegen.log
           retention-days: 7
 
       - name: Get APK info

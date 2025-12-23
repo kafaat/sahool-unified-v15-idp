@@ -77,15 +77,17 @@ jobs:
         run: |
           echo "Starting code generation..."
           dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
-          echo "Verifying generated files..."
-          ls -la lib/core/storage/*.dart || echo "No files in storage dir"
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log
+          echo ""
+          echo "📊 Generated files count:"
+          echo "  .g.dart files: $(find lib -name '*.g.dart' | wc -l)"
+          echo "  .freezed.dart files: $(find lib -name '*.freezed.dart' | wc -l)"
+          echo ""
           if [ -f "lib/core/storage/database.g.dart" ]; then
             echo "✅ database.g.dart generated successfully"
-            echo "First 50 lines of generated file:"
-            head -50 lib/core/storage/database.g.dart
           else
             echo "❌ database.g.dart NOT found - build will fail"
+            cat codegen.log
             exit 1
           fi
 
@@ -104,12 +106,39 @@ jobs:
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
         run: |
-          flutter build apk --release --no-shrink
+          echo "🔨 Building Release APK..."
+          echo "Flutter version:"
+          flutter --version
+          echo "Dart version:"
+          dart --version
+          echo "Starting build..."
+          flutter build apk --release --no-shrink --verbose 2>&1 | tee build.log || {
+            echo "❌ Build failed! Last 100 lines of log:"
+            tail -100 build.log
+            exit 1
+          }
+          echo "✅ Build completed!"
 
       - name: Build Debug APK
         if: ${{ github.event.inputs.build_type == 'debug' }}
         run: |
-          flutter build apk --debug --no-shrink
+          echo "🔨 Building Debug APK..."
+          flutter build apk --debug --no-shrink --verbose 2>&1 | tee build.log || {
+            echo "❌ Build failed! Last 100 lines of log:"
+            tail -100 build.log
+            exit 1
+          }
+          echo "✅ Build completed!"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs-${{ github.run_number }}
+          path: |
+            apps/mobile/build.log
+            apps/mobile/codegen.log
+          retention-days: 7
 
       - name: Get APK info
         id: apk_info

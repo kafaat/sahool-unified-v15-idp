@@ -1,6 +1,7 @@
 # SAHOOL Field App Build Configuration
 # ملف إعدادات توليد الكود
 # Simplified: Let builders auto-discover files with annotations
+# Updated: 2025-12-23 - Trigger CI with debugging output
 
 targets:
   $default:

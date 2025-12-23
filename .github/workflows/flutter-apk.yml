@@ -75,13 +75,32 @@ jobs:
 
       - name: Generate Drift database code
         run: |
-          echo "Starting code generation..."
-          dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs --verbose 2>&1 | tee codegen.log || {
-            echo "❌ Code generation failed! Last 50 lines:"
-            tail -50 codegen.log
+          echo "=== Environment Info ==="
+          echo "Dart version: $(dart --version)"
+          echo "Flutter version: $(flutter --version | head -1)"
+          echo "Working directory: $(pwd)"
+          echo ""
+          echo "=== Checking pubspec.yaml ==="
+          head -30 pubspec.yaml
+          echo ""
+          echo "=== Checking build.yaml ==="
+          cat build.yaml || echo "No build.yaml found"
+          echo ""
+          echo "=== Running build_runner ==="
+          dart run build_runner clean 2>&1 || echo "Clean returned non-zero (ok)"
+          echo ""
+          echo "=== Starting code generation ==="
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen.log
+          RESULT=${PIPESTATUS[0]}
+          echo ""
+          echo "=== Build runner exit code: $RESULT ==="
+          echo ""
+          if [ $RESULT -ne 0 ]; then
+            echo "❌ Code generation failed!"
+            echo "=== Full codegen.log ==="
+            cat codegen.log
             exit 1
-          }
+          fi
           echo ""
           echo "📋 Listing all generated files..."
           find lib -name "*.g.dart" -o -name "*.freezed.dart" | sort

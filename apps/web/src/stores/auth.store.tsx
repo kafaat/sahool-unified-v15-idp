@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       const response = await apiClient.get('/api/v1/auth/me');
       setUser(response.data);
-    } catch (error) {
+    } catch {
       setUser(null);
     } finally {
       setIsLoading(false);

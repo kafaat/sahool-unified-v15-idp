@@ -3,10 +3,10 @@
  * اختبارات خدمة المحادثات المجتمعية
  */
 
-import express, { Express } from 'express';
-import request from 'supertest';
+const express = require('express');
+const request = require('supertest');
 
-function createTestApp(): Express {
+function createTestApp() {
   const app = express();
   app.use(express.json());
 
@@ -53,7 +53,7 @@ function createTestApp(): Express {
 }
 
 describe('Community Chat Service', () => {
-  let app: Express;
+  let app;
 
   beforeAll(() => {
     app = createTestApp();

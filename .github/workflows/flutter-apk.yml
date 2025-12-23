@@ -76,16 +76,23 @@ jobs:
       - name: Generate Drift database code
         run: |
           echo "Starting code generation..."
-          dart run build_runner clean || true
-          dart run build_runner build --delete-conflicting-outputs
-          echo "Code generation completed successfully"
+          flutter pub run build_runner clean || true
+          flutter pub run build_runner build --delete-conflicting-outputs --verbose
+          echo "Verifying generated files..."
+          ls -la lib/core/storage/*.dart || echo "No files in storage dir"
+          if [ -f "lib/core/storage/database.g.dart" ]; then
+            echo "✅ database.g.dart generated successfully"
+          else
+            echo "❌ database.g.dart NOT found - build will fail"
+            exit 1
+          fi
 
       - name: Generate launcher icons
-        run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"
+        run: flutter pub run flutter_launcher_icons || echo "Launcher icons generation skipped"
         continue-on-error: true
 
       - name: Generate native splash
-        run: dart run flutter_native_splash:create || echo "Splash generation skipped"
+        run: flutter pub run flutter_native_splash:create || echo "Splash generation skipped"
         continue-on-error: true
 
       - name: Build Release APK

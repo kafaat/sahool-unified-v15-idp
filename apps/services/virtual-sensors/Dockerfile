@@ -37,7 +37,7 @@ LABEL description="Virtual Sensors Engine for Smart Irrigation - FAO-56 ET0"
 # Environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app/src \
+    PYTHONPATH=/app \
     PORT=8096 \
     LOG_LEVEL=INFO
 

@@ -103,6 +103,7 @@ class PaymentProviderName(str, Enum):
     TAP = "tap"
     PAYFORT = "payfort"
     TELR = "telr"
+    THARWATT = "tharwatt"  # بوابة ثروات اليمنية
 
 
 class NotificationProviderName(str, Enum):
@@ -463,6 +464,24 @@ PAYMENT_PROVIDERS = {
         "transaction_fee_fixed": 0,
         "payout_delay_days": 3,
         "default_priority": ProviderPriority.TERTIARY,
+    },
+    PaymentProviderName.THARWATT: {
+        "name": "Tharwatt",
+        "name_ar": "ثروات",
+        "base_url": "https://developers-test.tharwatt.com:5253",
+        "production_url": "https://api.tharwatt.com",
+        "requires_api_key": True,
+        "supported_currencies": ["YER"],
+        "supported_countries": ["YE"],
+        "supports_subscriptions": False,
+        "supports_refunds": True,
+        "supports_mobile_topup": True,
+        "supports_wallet": True,
+        "supported_operators": ["yemen_mobile", "mtn", "sabafon", "y_telecom"],
+        "transaction_fee_percent": 1.5,
+        "transaction_fee_fixed": 0,
+        "payout_delay_days": 1,
+        "default_priority": ProviderPriority.PRIMARY,  # Primary for Yemen
     },
 }
 
@@ -832,7 +851,7 @@ async def list_payment_providers():
         "by_country": {
             "SA": ["moyasar", "hyperpay", "tap", "payfort", "stripe"],
             "AE": ["hyperpay", "tap", "payfort", "stripe", "paypal"],
-            "YE": ["hyperpay", "stripe"],
+            "YE": ["tharwatt", "hyperpay", "stripe"],  # Tharwatt is primary for Yemen
             "global": ["stripe", "paypal"],
         },
         "supports_mada": [

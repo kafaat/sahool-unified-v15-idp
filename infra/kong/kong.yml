@@ -19,7 +19,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /healthz
+        http_path: /healthzz
         healthy:
           interval: 10
           successes: 2
@@ -41,7 +41,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -63,7 +63,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -85,7 +85,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -107,7 +107,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -129,7 +129,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -146,12 +146,12 @@ upstreams:
 
   - name: ws-gateway-upstream
     targets:
-      - target: sahool-ws-gateway:8089
+      - target: sahool-ws-gateway:8081
         weight: 100
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -173,7 +173,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -195,7 +195,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -217,7 +217,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -239,7 +239,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -261,7 +261,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -283,7 +283,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -305,7 +305,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -327,7 +327,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -349,7 +349,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -371,7 +371,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /healthz
+        http_path: /healthzz
         healthy:
           interval: 10
           successes: 2
@@ -393,7 +393,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -415,7 +415,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -437,7 +437,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -459,7 +459,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -481,7 +481,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -503,7 +503,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -520,12 +520,12 @@ upstreams:
 
   - name: crop-growth-upstream
     targets:
-      - target: sahool-crop-growth-model:3000
+      - target: sahool-crop-growth-model:3023
         weight: 100
     healthchecks:
       active:
         type: http
-        http_path: /health
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2

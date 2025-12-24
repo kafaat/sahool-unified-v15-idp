@@ -10,8 +10,10 @@
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Configure apt to use HTTPS and install build dependencies
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,9 +46,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install only runtime system dependencies.
-# Use libgl1 which is available in modern Debian versions
-RUN apt-get update && \
+# Use libgl1 which is available in modern Debian versions (Trixie+)
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        ca-certificates \
         libgl1 \
         libglib2.0-0 \
         curl \

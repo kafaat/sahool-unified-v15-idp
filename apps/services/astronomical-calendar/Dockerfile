@@ -10,9 +10,13 @@ LABEL version="15.5.0"
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Upgrade pip first (better retry logic and connection handling)
+RUN pip install --upgrade pip --default-timeout=100
+
+# Install dependencies with retry logic
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements.txt || \
+    (sleep 5 && pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements.txt)
 
 # Copy application code
 COPY src/ ./src/

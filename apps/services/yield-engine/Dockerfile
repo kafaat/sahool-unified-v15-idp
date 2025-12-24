@@ -10,7 +10,9 @@
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -38,8 +40,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+# Configure apt to use HTTPS and install curl for healthcheck
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 

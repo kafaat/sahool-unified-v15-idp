@@ -314,7 +314,38 @@ const routes = {
   }),
 
   // Health check
-  'GET /healthz': () => ({ status: 'ok', services: ['field-core', 'task-service', 'ndvi-engine', 'weather-core', 'agro-advisor', 'iot-gateway'] })
+  'GET /healthz': () => ({ status: 'ok', services: ['field-core', 'task-service', 'ndvi-engine', 'weather-core', 'agro-advisor', 'iot-gateway'] }),
+
+  // Service Registry & Comparison API
+  'GET /api/v1/services': () => ({
+    success: true,
+    data: {
+      services: [
+        { type: 'satellite', name: 'Satellite Service', nameAr: 'خدمة الأقمار الصناعية', legacy: { port: 8107, status: 'deprecated' }, modern: { port: 8090, status: 'active' } },
+        { type: 'weather', name: 'Weather Service', nameAr: 'خدمة الطقس', legacy: { port: 8108, status: 'deprecated' }, modern: { port: 8092, status: 'active' } },
+        { type: 'fertilizer', name: 'Fertilizer Advisor', nameAr: 'مستشار التسميد', legacy: { port: 8105, status: 'deprecated' }, modern: { port: 8093, status: 'active' } },
+        { type: 'crop-health', name: 'Crop Health AI', nameAr: 'صحة المحاصيل', legacy: { port: 8100, status: 'deprecated' }, modern: { port: 8095, status: 'active' } },
+        { type: 'community', name: 'Community Chat', nameAr: 'الدردشة المجتمعية', legacy: { port: 8099, status: 'deprecated' }, modern: { port: 8097, status: 'active' } },
+        { type: 'notifications', name: 'Notification Service', nameAr: 'خدمة الإشعارات', legacy: { port: 8089, status: 'deprecated' }, modern: { port: 8110, status: 'active' } }
+      ]
+    }
+  }),
+
+  'GET /api/v1/services/health': async () => {
+    // In a real implementation, this would check actual service health
+    return {
+      success: true,
+      data: {
+        satellite: { modern: { healthy: true, latency: 45 }, legacy: { healthy: false, latency: -1 } },
+        weather: { modern: { healthy: true, latency: 32 }, legacy: { healthy: false, latency: -1 } },
+        fertilizer: { modern: { healthy: true, latency: 28 }, legacy: { healthy: false, latency: -1 } },
+        'crop-health': { modern: { healthy: true, latency: 120 }, legacy: { healthy: false, latency: -1 } },
+        community: { modern: { healthy: true, latency: 55 }, legacy: { healthy: false, latency: -1 } },
+        notifications: { modern: { healthy: true, latency: 38 }, legacy: { healthy: false, latency: -1 } },
+        mock: { healthy: true, latency: 5 }
+      }
+    };
+  }
 };
 
 // Create server

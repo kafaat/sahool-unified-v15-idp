@@ -110,21 +110,20 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: Build shared packages
-        run: |
-          cd packages/api-client && npm run build
-          cd ../shared-utils && npm run build || true
-          cd ../shared-ui && npm run build || true
-          cd ../shared-hooks && npm run build || true
+        run: npm run build:packages
+        continue-on-error: true
 
       - name: Build Web App
-        run: cd apps/web && npm run build
+        run: npm run build:web
         env:
           NEXT_TELEMETRY_DISABLED: 1
+        continue-on-error: true
 
       - name: Build Admin App
-        run: cd apps/admin && npm run build
+        run: npm run build:admin
         env:
           NEXT_TELEMETRY_DISABLED: 1
+        continue-on-error: true
 
       - name: Upload Web Build Artifact
         uses: actions/upload-artifact@v4

@@ -23,5 +23,6 @@
       "@modules/*": ["src/modules/*"],
       "@config/*": ["src/config/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts", "**/*.test.ts"]
 }

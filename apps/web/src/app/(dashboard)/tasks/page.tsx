@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { TasksList } from '@/features/tasks';
 import { TaskForm } from '@/features/tasks/components/TaskForm';
-import { TaskFilters } from '@/features/tasks/components/TaskFilters';
+import { TaskFiltersComponent } from '@/features/tasks';
 import { Modal } from '@/components/ui/modal';
 import { Plus, Filter } from 'lucide-react';
 import type { TaskFilters as TaskFiltersType } from '@/features/tasks/types';
@@ -97,7 +97,7 @@ export default function TasksPage() {
       {/* Filters Section */}
       {showFilters && (
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-          <TaskFilters
+          <TaskFiltersComponent
             filters={filters}
             onChange={handleFiltersChange}
           />

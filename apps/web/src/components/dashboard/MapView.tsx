@@ -28,7 +28,7 @@ function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' 
 
 export default function MapView({ tenantId, onFieldSelect, fields: propFields }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<maplibregl.Map | null>(null);
+  const map = useRef<InstanceType<typeof maplibregl.Map> | null>(null);
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fields, setFields] = useState<Field[]>(propFields || []);
@@ -107,12 +107,12 @@ export default function MapView({ tenantId, onFieldSelect, fields: propFields }:
           properties: {
             id: field.id,
             name: field.name,
-            crop: field.cropType,
-            area: field.areaHectares,
-            status: getFieldStatus(field.ndviValue),
-            ndvi: field.ndviValue,
+            crop: field.crop_type || field.crop,
+            area: field.area_hectares || field.area,
+            status: getFieldStatus(field.ndvi_value || field.ndvi_current),
+            ndvi: field.ndvi_value || field.ndvi_current,
           },
-          geometry: field.boundary!,
+          geometry: field.boundary || field.polygon || field.geometry!,
         })),
     };
 
@@ -184,7 +184,7 @@ export default function MapView({ tenantId, onFieldSelect, fields: propFields }:
     });
 
     // Click handler
-    map.current.on('click', 'fields-fill', (e) => {
+    map.current.on('click', 'fields-fill', (e: any) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         const props = feature.properties;

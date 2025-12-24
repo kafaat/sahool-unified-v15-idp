@@ -14,21 +14,30 @@ interface WeatherAlertsProps {
   location?: string;
 }
 
-const severityIcons = {
+const severityIcons: Record<string, React.ReactElement> = {
   critical: <AlertTriangle className="w-6 h-6 text-red-600" />,
+  high: <AlertTriangle className="w-6 h-6 text-red-500" />,
   warning: <AlertCircle className="w-6 h-6 text-orange-600" />,
+  medium: <AlertCircle className="w-6 h-6 text-orange-500" />,
+  low: <Info className="w-6 h-6 text-yellow-600" />,
   info: <Info className="w-6 h-6 text-blue-600" />,
 };
 
-const severityColors = {
+const severityColors: Record<string, string> = {
   critical: 'bg-red-50 border-red-200',
+  high: 'bg-red-50 border-red-200',
   warning: 'bg-orange-50 border-orange-200',
+  medium: 'bg-orange-50 border-orange-200',
+  low: 'bg-yellow-50 border-yellow-200',
   info: 'bg-blue-50 border-blue-200',
 };
 
-const severityLabels = {
+const severityLabels: Record<string, string> = {
   critical: 'حرج',
+  high: 'مرتفع',
   warning: 'تحذير',
+  medium: 'متوسط',
+  low: 'منخفض',
   info: 'معلومات',
 };
 
@@ -61,20 +70,22 @@ const AlertCard: React.FC<{ alert: WeatherAlert }> = ({ alert }) => {
           <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
             <div>
               <span className="font-medium">من: </span>
-              {new Date(alert.startDate).toLocaleString('ar-EG')}
+              {new Date(alert.startTime || alert.start_date || '').toLocaleString('ar-EG')}
             </div>
-            <div>
-              <span className="font-medium">إلى: </span>
-              {new Date(alert.endDate).toLocaleString('ar-EG')}
-            </div>
+            {alert.endTime && (
+              <div>
+                <span className="font-medium">إلى: </span>
+                {new Date(alert.endTime).toLocaleString('ar-EG')}
+              </div>
+            )}
           </div>
 
           {/* Affected Areas */}
-          {alert.affectedAreasAr && alert.affectedAreasAr.length > 0 && (
+          {alert.affectedAreas && alert.affectedAreas.length > 0 && (
             <div className="mb-4">
               <p className="text-sm font-medium text-gray-700 mb-2">المناطق المتأثرة:</p>
               <div className="flex flex-wrap gap-2">
-                {alert.affectedAreasAr.map((area, idx) => (
+                {alert.affectedAreas.map((area, idx) => (
                   <span
                     key={idx}
                     className="px-3 py-1 bg-white rounded-full text-sm text-gray-700"
@@ -83,18 +94,6 @@ const AlertCard: React.FC<{ alert: WeatherAlert }> = ({ alert }) => {
                   </span>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Recommendations */}
-          {alert.recommendationsAr && alert.recommendationsAr.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-gray-700 mb-2">التوصيات:</p>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                {alert.recommendationsAr.map((rec, idx) => (
-                  <li key={idx}>{rec}</li>
-                ))}
-              </ul>
             </div>
           )}
         </div>

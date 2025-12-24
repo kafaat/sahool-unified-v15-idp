@@ -24,13 +24,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<TaskFormData>({
     title: task?.title || '',
-    titleAr: task?.titleAr || '',
+    title_ar: task?.title_ar || '',
     description: task?.description || '',
-    descriptionAr: task?.descriptionAr || '',
-    dueDate: task?.dueDate ? task.dueDate.split('T')[0] : '',
+    description_ar: task?.description_ar || '',
+    due_date: task?.due_date ? task.due_date.split('T')[0] : '',
     priority: task?.priority || 'medium',
     status: task?.status || 'pending',
-    fieldId: task?.fieldId || '',
+    field_id: task?.field_id || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,8 +57,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           <input
             type="text"
             required
-            value={formData.titleAr}
-            onChange={(e) => handleChange('titleAr', e.target.value)}
+            value={formData.title_ar}
+            onChange={(e) => handleChange('title_ar', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="أدخل عنوان المهمة"
           />
@@ -90,8 +90,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             <input
               type="date"
               required
-              value={formData.dueDate}
-              onChange={(e) => handleChange('dueDate', e.target.value)}
+              value={formData.due_date}
+              onChange={(e) => handleChange('due_date', e.target.value)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             />
           </div>
@@ -107,9 +107,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               onChange={(e) => handleChange('priority', e.target.value as Priority)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             >
-              <option value="low">منخفضة - Low</option>
-              <option value="medium">متوسطة - Medium</option>
+              <option value="urgent">عاجلة - Urgent</option>
               <option value="high">عالية - High</option>
+              <option value="medium">متوسطة - Medium</option>
+              <option value="low">منخفضة - Low</option>
             </select>
           </div>
         </div>
@@ -126,6 +127,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               onChange={(e) => handleChange('status', e.target.value as TaskStatus)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             >
+              <option value="open">مفتوحة - Open</option>
               <option value="pending">قيد الانتظار - Pending</option>
               <option value="in_progress">قيد التنفيذ - In Progress</option>
               <option value="completed">مكتملة - Completed</option>
@@ -140,8 +142,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             </label>
             <input
               type="text"
-              value={formData.fieldId}
-              onChange={(e) => handleChange('fieldId', e.target.value)}
+              value={formData.field_id}
+              onChange={(e) => handleChange('field_id', e.target.value)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
               placeholder="معرّف الحقل"
             />
@@ -154,8 +156,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             الوصف (بالعربية)
           </label>
           <textarea
-            value={formData.descriptionAr}
-            onChange={(e) => handleChange('descriptionAr', e.target.value)}
+            value={formData.description_ar}
+            onChange={(e) => handleChange('description_ar', e.target.value)}
             rows={4}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="وصف المهمة"

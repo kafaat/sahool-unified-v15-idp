@@ -8,9 +8,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type Locale = 'ar' | 'en';
-export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+export type Priority = 'urgent' | 'high' | 'medium' | 'low';
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
-export type TaskStatus = 'open' | 'in_progress' | 'done' | 'canceled';
+export type TaskStatus = 'open' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
 export type DiagnosisStatus = 'pending' | 'confirmed' | 'rejected' | 'treated';
 export type FarmStatus = 'active' | 'inactive' | 'suspended';
 
@@ -35,7 +35,7 @@ export interface GeoPoint {
 /** GeoJSON Polygon */
 export interface GeoPolygon {
   type: 'Polygon';
-  coordinates: GeoPosition[][];
+  coordinates: GeoPosition[][] | number[][][];
 }
 
 /** GeoJSON MultiPolygon */
@@ -77,7 +77,9 @@ export interface Task {
   field_id: string;
   farm_id?: string;
   title: string;
+  title_ar?: string;
   description?: string;
+  description_ar?: string;
   status: TaskStatus;
   priority: Priority;
   type?: string;
@@ -116,13 +118,22 @@ export interface Field {
   name_ar?: string;
   farm_id: string;
   tenant_id?: string;
-  area_hectares: number;
-  crop_type: string;
+  area: number; // area in hectares
+  area_hectares?: number; // alias for backward compatibility
+  crop?: string;
+  crop_ar?: string;
+  crop_type?: string; // alias for backward compatibility
+  description?: string;
+  description_ar?: string;
+  polygon?: GeoPolygon;
   geometry?: GeoPolygon;
   coordinates?: Coordinates;
   status: string;
+  soil_type?: string;
+  irrigation_type?: string;
   health_score?: number;
   ndvi_current?: number;
+  ndvi_value?: number; // alias for backward compatibility
   created_at?: string;
   updated_at?: string;
 }
@@ -159,6 +170,16 @@ export interface WeatherData {
   condition: string;
   condition_ar: string;
   timestamp?: string;
+  // Aliases for component compatibility
+  temperature?: number;
+  humidity?: number;
+  windSpeed?: number;
+  conditionAr?: string;
+  location?: string;
+  windDirection?: string;
+  pressure?: number;
+  visibility?: number;
+  uvIndex?: number;
 }
 
 export interface WeatherForecast {
@@ -185,6 +206,7 @@ export interface WeatherAlert {
   descriptionAr?: string;
   affectedAreas: string[];
   startTime: string;
+  start_date?: string;
   endTime?: string;
   isActive: boolean;
 }

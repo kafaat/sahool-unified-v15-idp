@@ -40,46 +40,66 @@ export interface GeoPolygon {
 export interface Field {
   id: string;
   name: string;
-  tenantId: string;
-  ownerId?: string;
-  cropType: string;
+  name_ar?: string;
+  tenant_id?: string;
+  farm_id: string;
+  owner_id?: string;
+  crop?: string;
+  crop_ar?: string;
+  crop_type?: string;
+  description?: string;
+  description_ar?: string;
   status: 'active' | 'inactive' | 'deleted';
+  polygon?: GeoPolygon;
   boundary?: GeoPolygon;
+  geometry?: GeoPolygon;
   centroid?: GeoPoint;
-  areaHectares?: number;
-  irrigationType?: string;
-  soilType?: string;
-  plantingDate?: string;
-  expectedHarvest?: string;
-  ndviValue?: number;
-  healthScore?: number;
+  area: number;
+  area_hectares?: number;
+  irrigation_type?: string;
+  soil_type?: string;
+  planting_date?: string;
+  expected_harvest?: string;
+  ndvi_value?: number;
+  ndvi_current?: number;
+  health_score?: number;
   metadata?: Record<string, any>;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
+  version?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface FieldCreateRequest {
   name: string;
-  tenantId: string;
-  cropType: string;
+  name_ar?: string;
+  tenant_id?: string;
+  farm_id: string;
+  crop: string;
+  crop_ar?: string;
+  description?: string;
+  description_ar?: string;
   coordinates?: number[][];
-  ownerId?: string;
-  irrigationType?: string;
-  soilType?: string;
-  plantingDate?: string;
-  expectedHarvest?: string;
+  polygon?: GeoPolygon;
+  owner_id?: string;
+  irrigation_type?: string;
+  soil_type?: string;
+  planting_date?: string;
+  expected_harvest?: string;
   metadata?: Record<string, any>;
 }
 
 export interface FieldUpdateRequest {
   name?: string;
-  cropType?: string;
+  name_ar?: string;
+  crop?: string;
+  crop_ar?: string;
+  description?: string;
+  description_ar?: string;
   status?: 'active' | 'inactive';
-  irrigationType?: string;
-  soilType?: string;
-  plantingDate?: string;
-  expectedHarvest?: string;
+  irrigation_type?: string;
+  soil_type?: string;
+  planting_date?: string;
+  expected_harvest?: string;
   metadata?: Record<string, any>;
 }
 
@@ -229,28 +249,32 @@ export interface SensorReading {
 export interface Task {
   id: string;
   title: string;
+  title_ar?: string;
   description?: string;
-  fieldId: string;
+  description_ar?: string;
+  field_id: string;
   fieldName?: string;
-  assigneeId?: string;
+  assignee_id?: string;
   assigneeName?: string;
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
-  priority: 'low' | 'medium' | 'high';
+  status: 'open' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   taskType: string;
-  dueDate?: string;
-  completedAt?: string;
+  due_date?: string;
+  completed_at?: string;
   notes?: string;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface TaskCreateRequest {
   title: string;
+  title_ar?: string;
   description?: string;
-  fieldId: string;
-  assigneeId?: string;
-  dueDate?: string;
-  priority?: 'low' | 'medium' | 'high';
+  description_ar?: string;
+  field_id: string;
+  assignee_id?: string;
+  due_date?: string;
+  priority?: 'urgent' | 'high' | 'medium' | 'low';
   taskType: string;
 }
 

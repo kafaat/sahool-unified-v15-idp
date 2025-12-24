@@ -58,7 +58,7 @@ export const CurrentWeather: React.FC<CurrentWeatherProps> = ({ location }) => {
         <div className="flex items-center gap-6">
           {getWeatherIcon(weather.condition)}
           <div>
-            <p className="text-6xl font-bold text-gray-900">{Math.round(weather.temperature)}°C</p>
+            <p className="text-6xl font-bold text-gray-900">{Math.round(weather.temperature ?? weather.temperature_c)}°C</p>
             <p className="text-xl text-gray-600 mt-2">{weather.conditionAr || weather.condition}</p>
             {weather.location && (
               <p className="text-sm text-gray-500 mt-1">{weather.location}</p>

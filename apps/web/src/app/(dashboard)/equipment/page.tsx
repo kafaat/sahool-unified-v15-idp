@@ -63,15 +63,15 @@ export default function EquipmentPage() {
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">قيد التشغيل</p>
-            <p className="text-3xl font-bold text-green-600">{stats.active || 0}</p>
+            <p className="text-3xl font-bold text-green-600">{stats.byStatus?.active || 0}</p>
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">قيد الصيانة</p>
-            <p className="text-3xl font-bold text-orange-600">{stats.maintenance || 0}</p>
+            <p className="text-3xl font-bold text-orange-600">{stats.byStatus?.maintenance || 0}</p>
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">بحاجة لصيانة</p>
-            <p className="text-3xl font-bold text-red-600">{stats.needsMaintenance || 0}</p>
+            <p className="text-3xl font-bold text-red-600">{stats.maintenanceDue || 0}</p>
           </div>
         </div>
       )}
@@ -86,7 +86,6 @@ export default function EquipmentPage() {
                 {selectedEquipmentId ? 'تعديل معدة' : 'إضافة معدة جديدة'}
               </h2>
               <EquipmentForm
-                equipmentId={selectedEquipmentId || undefined}
                 onSuccess={handleFormSuccess}
                 onCancel={() => setShowForm(false)}
               />
@@ -95,7 +94,6 @@ export default function EquipmentPage() {
             <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
               <EquipmentDetails
                 equipmentId={selectedEquipmentId}
-                onBack={() => setSelectedEquipmentId(null)}
               />
             </div>
           ) : (

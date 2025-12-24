@@ -7,19 +7,19 @@ import type { Field, GeoPolygon } from '@sahool/api-client';
 
 export interface FieldFormData {
   name: string;
-  nameAr: string;
+  name_ar: string;
   area: number;
   crop?: string;
-  cropAr?: string;
+  crop_ar?: string;
   polygon?: GeoPolygon;
-  farmId?: string;
+  farm_id?: string;
   description?: string;
-  descriptionAr?: string;
+  description_ar?: string;
 }
 
 export interface FieldFilters {
   search?: string;
-  farmId?: string;
+  farm_id?: string;
   crop?: string;
   minArea?: number;
   maxArea?: number;

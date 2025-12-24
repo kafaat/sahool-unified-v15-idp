@@ -28,10 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const login = useCallback(async (email: string, password: string) => {
-    const response = await apiClient.post('/api/v1/auth/login', { email, password });
-    const { access_token, user } = response.data;
+    const response = await apiClient.post<{ access_token: string; user: User }>('/api/v1/auth/login', { email, password });
+    const { access_token, user: userData } = response.data;
     Cookies.set('access_token', access_token, { expires: 7 });
-    setUser(user);
+    setUser(userData);
   }, []);
 
   const logout = useCallback(() => {
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
         return;
       }
-      const response = await apiClient.get('/api/v1/auth/me');
+      const response = await apiClient.get<User>('/api/v1/auth/me');
       setUser(response.data);
     } catch {
       setUser(null);

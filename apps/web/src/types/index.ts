@@ -88,7 +88,6 @@ import type {
 /** Extended Field type with web dashboard display properties */
 export interface DashboardField extends BaseField {
   farmName?: string;
-  crop?: string;
   ndviTrend?: TrendDirection;
   healthStatus?: HealthStatus;
 }

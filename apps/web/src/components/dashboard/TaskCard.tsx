@@ -9,6 +9,7 @@ interface TaskCardProps {
 }
 
 const STATUS_LABELS: Record<string, string> = {
+  open: 'مفتوحة',
   pending: 'معلقة',
   in_progress: 'قيد التنفيذ',
   completed: 'مكتملة',
@@ -16,20 +17,22 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const PRIORITY_LABELS: Record<string, string> = {
-  low: 'منخفضة',
-  medium: 'متوسطة',
+  urgent: 'عاجلة',
   high: 'عالية',
+  medium: 'متوسطة',
+  low: 'منخفضة',
 };
 
 const PRIORITY_ICONS: Record<string, string> = {
-  low: '🔵',
+  urgent: '🔴',
+  high: '🟠',
   medium: '🟡',
-  high: '🔴',
+  low: '🔵',
 };
 
 export function TaskCard({ task, onComplete, onSelect }: TaskCardProps) {
   const isCompleted = task.status === 'completed' || task.status === 'cancelled';
-  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+  const dueDate = task.due_date ? new Date(task.due_date) : null;
   const isOverdue = dueDate && dueDate < new Date() && !isCompleted;
 
   return (
@@ -38,6 +41,7 @@ export function TaskCard({ task, onComplete, onSelect }: TaskCardProps) {
       className={`
         p-3 rounded-lg border transition-all cursor-pointer
         ${isCompleted ? 'bg-gray-50 opacity-60' : 'bg-white hover:shadow-md'}
+        ${task.priority === 'urgent' ? 'border-r-4 border-r-red-600' : ''}
         ${task.priority === 'high' ? 'border-r-4 border-r-red-400' : ''}
         ${task.priority === 'medium' ? 'border-r-4 border-r-yellow-400' : ''}
         ${task.priority === 'low' ? 'border-r-4 border-r-blue-400' : ''}

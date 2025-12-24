@@ -210,6 +210,7 @@ describe('SahoolApiClient', () => {
 
     it('should create new task', async () => {
       const newTask = {
+        tenant_id: 'tenant-123',
         title: 'New Task',
         description: 'Task description',
         field_id: 'field-123',

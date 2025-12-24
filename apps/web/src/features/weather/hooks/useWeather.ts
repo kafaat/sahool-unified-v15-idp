@@ -31,6 +31,15 @@ async function fetchCurrentWeather(location: string = 'sanaa'): Promise<WeatherD
 
   const data = response.data;
   return {
+    // Required properties
+    location_id: data.location_id,
+    temperature_c: data.temperature_c,
+    humidity_percent: data.humidity_percent,
+    wind_speed_kmh: data.wind_speed_kmh,
+    condition: data.condition,
+    condition_ar: data.condition_ar,
+    timestamp: data.timestamp,
+    // Aliases for component compatibility
     temperature: data.temperature_c,
     humidity: data.humidity_percent,
     windSpeed: data.wind_speed_kmh,
@@ -38,10 +47,8 @@ async function fetchCurrentWeather(location: string = 'sanaa'): Promise<WeatherD
     pressure: data.pressure_hpa,
     visibility: data.visibility_km,
     uvIndex: data.uv_index,
-    condition: data.condition,
     conditionAr: data.condition_ar,
     location: data.location_name_ar,
-    timestamp: data.timestamp,
   };
 }
 
@@ -74,7 +81,7 @@ async function fetchWeatherForecast(location: string = 'sanaa'): Promise<Forecas
     spray_window_hours: string[];
     irrigation_recommendation_ar: string;
     irrigation_recommendation_en: string;
-  }>(`http://localhost:8092/v1/forecast/${location}`, { params: { days: 7 } });
+  }>(`http://localhost:8092/v1/forecast/${location}`, { params: { days: '7' } });
 
   // Transform backend daily forecast to frontend format
   return response.data.daily_forecast.map(day => ({
@@ -127,12 +134,11 @@ async function fetchWeatherAlerts(location: string = 'sanaa'): Promise<WeatherAl
       titleAr: alert.title_ar,
       description: alert.description_en,
       descriptionAr: alert.description_ar,
-      startDate: alert.start_time,
-      endDate: alert.end_time,
+      startTime: alert.start_time,
+      start_date: alert.start_time,
+      endTime: alert.end_time,
       affectedAreas: alert.affected_crops_ar,
-      affectedAreasAr: alert.affected_crops_ar,
-      recommendations: alert.recommendations_en,
-      recommendationsAr: alert.recommendations_ar,
+      isActive: new Date(alert.end_time) > new Date(),
     }));
   } catch (error) {
     console.error('Error fetching weather alerts:', error);

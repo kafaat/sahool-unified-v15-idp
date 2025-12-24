@@ -10,151 +10,72 @@ import type { Field, FieldFormData, FieldFilters } from '../types';
 async function fetchFields(filters?: FieldFilters): Promise<Field[]> {
   const params: Record<string, string> = {};
 
-  if (filters?.farmId) params.farm_id = filters.farmId;
-  if (filters?.crop) params.crop_type = filters.crop;
+  if (filters?.farm_id) params.farm_id = filters.farm_id;
+  if (filters?.crop) params.crop = filters.crop;
   if (filters?.status) params.status = filters.status;
   if (filters?.search) params.search = filters.search;
 
   const response = await apiClient.get<{
     fields: Array<{
-      field_id: string;
+      id: string;
       name: string;
       name_ar?: string;
       farm_id: string;
-      area_hectares: number;
-      crop_type?: string;
-      boundary?: {
+      area: number;
+      crop?: string;
+      crop_ar?: string;
+      description?: string;
+      description_ar?: string;
+      polygon?: {
         type: 'Polygon';
         coordinates: number[][][];
       };
-      created_at: string;
-      updated_at: string;
+      status: string;
+      created_at?: string;
+      updated_at?: string;
     }>;
   }>('http://localhost:3000/fields', { params });
 
-  // Transform backend data to frontend format
-  return response.data.fields?.map(field => ({
-    id: field.field_id,
-    name: field.name,
-    nameAr: field.name_ar || '',
-    area: field.area_hectares,
-    crop: field.crop_type,
-    cropAr: field.crop_type, // Backend doesn't have separate Arabic crop names
-    farmId: field.farm_id,
-    polygon: field.boundary,
-    createdAt: field.created_at,
-    updatedAt: field.updated_at,
-  })) || [];
+  return response.data.fields || [];
 }
 
 async function fetchFieldById(id: string): Promise<Field> {
-  const response = await apiClient.get<{
-    field_id: string;
-    name: string;
-    name_ar?: string;
-    farm_id: string;
-    area_hectares: number;
-    crop_type?: string;
-    boundary?: {
-      type: 'Polygon';
-      coordinates: number[][][];
-    };
-    created_at: string;
-    updated_at: string;
-  }>(`http://localhost:3000/fields/${id}`);
-
-  const field = response.data;
-  return {
-    id: field.field_id,
-    name: field.name,
-    nameAr: field.name_ar || '',
-    area: field.area_hectares,
-    crop: field.crop_type,
-    cropAr: field.crop_type,
-    farmId: field.farm_id,
-    polygon: field.boundary,
-    createdAt: field.created_at,
-    updatedAt: field.updated_at,
-  };
+  const response = await apiClient.get<Field>(`http://localhost:3000/fields/${id}`);
+  return response.data;
 }
 
 async function createField(data: FieldFormData): Promise<Field> {
   const payload = {
     name: data.name,
-    name_ar: data.nameAr,
-    farm_id: data.farmId || 'default-farm',
-    area_hectares: data.area,
-    crop_type: data.crop,
-    boundary: data.polygon,
+    name_ar: data.name_ar,
+    farm_id: data.farm_id || 'default-farm',
+    area: data.area,
+    crop: data.crop,
+    crop_ar: data.crop_ar,
+    description: data.description,
+    description_ar: data.description_ar,
+    polygon: data.polygon,
+    status: 'active',
   };
 
-  const response = await apiClient.post<{
-    field_id: string;
-    name: string;
-    name_ar?: string;
-    farm_id: string;
-    area_hectares: number;
-    crop_type?: string;
-    boundary?: {
-      type: 'Polygon';
-      coordinates: number[][][];
-    };
-    created_at: string;
-    updated_at: string;
-  }>('http://localhost:3000/fields', payload);
-
-  const field = response.data;
-  return {
-    id: field.field_id,
-    name: field.name,
-    nameAr: field.name_ar || '',
-    area: field.area_hectares,
-    crop: field.crop_type,
-    cropAr: field.crop_type,
-    farmId: field.farm_id,
-    polygon: field.boundary,
-    createdAt: field.created_at,
-    updatedAt: field.updated_at,
-  };
+  const response = await apiClient.post<Field>('http://localhost:3000/fields', payload);
+  return response.data;
 }
 
 async function updateField(id: string, data: Partial<FieldFormData>): Promise<Field> {
   const payload: Record<string, unknown> = {};
 
   if (data.name !== undefined) payload.name = data.name;
-  if (data.nameAr !== undefined) payload.name_ar = data.nameAr;
-  if (data.area !== undefined) payload.area_hectares = data.area;
-  if (data.crop !== undefined) payload.crop_type = data.crop;
-  if (data.polygon !== undefined) payload.boundary = data.polygon;
+  if (data.name_ar !== undefined) payload.name_ar = data.name_ar;
+  if (data.area !== undefined) payload.area = data.area;
+  if (data.crop !== undefined) payload.crop = data.crop;
+  if (data.crop_ar !== undefined) payload.crop_ar = data.crop_ar;
+  if (data.description !== undefined) payload.description = data.description;
+  if (data.description_ar !== undefined) payload.description_ar = data.description_ar;
+  if (data.polygon !== undefined) payload.polygon = data.polygon;
 
-  const response = await apiClient.patch<{
-    field_id: string;
-    name: string;
-    name_ar?: string;
-    farm_id: string;
-    area_hectares: number;
-    crop_type?: string;
-    boundary?: {
-      type: 'Polygon';
-      coordinates: number[][][];
-    };
-    created_at: string;
-    updated_at: string;
-  }>(`http://localhost:3000/fields/${id}`, payload);
-
-  const field = response.data;
-  return {
-    id: field.field_id,
-    name: field.name,
-    nameAr: field.name_ar || '',
-    area: field.area_hectares,
-    crop: field.crop_type,
-    cropAr: field.crop_type,
-    farmId: field.farm_id,
-    polygon: field.boundary,
-    createdAt: field.created_at,
-    updatedAt: field.updated_at,
-  };
+  const response = await apiClient.patch<Field>(`http://localhost:3000/fields/${id}`, payload);
+  return response.data;
 }
 
 async function deleteField(id: string): Promise<void> {

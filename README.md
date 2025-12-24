@@ -5,7 +5,7 @@
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)]()
 [![Architecture](https://img.shields.io/badge/architecture-microservices-blue)]()
 [![Platform](https://img.shields.io/badge/platform-mobile%20%7C%20web-orange)]()
-[![Version](https://img.shields.io/badge/version-15.3.2-green)]()
+[![Version](https://img.shields.io/badge/version-16.0.0-green)]()
 
 ---
 
@@ -138,14 +138,33 @@ SELECT * FROM fields WHERE ST_Within(geom, ST_MakeEnvelope(...));
 
 | Service | Port | Description |
 |---------|------|-------------|
+| **Core Services** | | |
 | `field_ops` | 8080 | Field & Task Management |
-| `ndvi_engine` | 8097 | Satellite Imagery Analysis (NDVI/NDWI) |
-| `weather_core` | 8098 | Weather Forecasting & Alerts |
+| `field_core` | 3000 | Field Core Operations |
+| `task_service` | 8103 | Task Management Service |
+| **AI & Analytics** | | |
+| `ndvi_engine` | 8107 | Satellite Imagery Analysis (NDVI/NDWI) |
+| `crop_health_ai` | 8095 | AI-Powered Crop Health Analysis |
+| `agro_advisor` | 8105 | AI-Powered Recommendations |
+| `yield_engine` | 8098 | Yield Prediction Engine |
+| `lai_estimation` | 3022 | Leaf Area Index Estimation |
+| **Weather & Environment** | | |
+| `weather_core` | 8108 | Weather Forecasting & Alerts |
+| `weather_advanced` | 8092 | Advanced Weather Analytics |
+| **Communication** | | |
 | `field_chat` | 8099 | Real-time Team Collaboration |
-| `iot_gateway` | 8094 | IoT Sensor Integration |
-| `agro_advisor` | 8095 | AI-Powered Recommendations |
-| `ws_gateway` | 8090 | WebSocket Real-time Events |
-| `kong` | 8000 | API Gateway |
+| `community_chat` | 8097 | Community Discussion Platform |
+| `ws_gateway` | 8081 | WebSocket Real-time Events |
+| **IoT & Sensors** | | |
+| `iot_gateway` | 8106 | IoT Sensor Integration |
+| `virtual_sensors` | 8096 | Virtual Sensor Management |
+| **Infrastructure** | | |
+| `kong` | 8000 | API Gateway (31 upstreams) |
+| `marketplace` | 3010 | Agricultural Marketplace |
+| `notification_service` | 8110 | Push Notification Service |
+
+**Total Services**: 31 microservices managed through Kong API Gateway
+**Full Service Reference**: See [API Gateway Documentation](docs/API_GATEWAY.md)
 
 ---
 
@@ -178,6 +197,7 @@ SELECT * FROM fields WHERE ST_Within(geom, ST_MakeEnvelope(...));
 
 ## 📚 Documentation
 
+- [API Gateway Guide](docs/API_GATEWAY.md) ⭐ **NEW** - Kong configuration, security, and service catalog
 - [Deployment Guide](docs/DEPLOYMENT.md)
 - [Security Guide](docs/SECURITY.md)
 - [Operations Guide](docs/OPERATIONS.md)
@@ -383,7 +403,7 @@ All rights reserved. Unauthorized copying, modification, or distribution is proh
 ---
 
 <p align="center">
-  <strong>SAHOOL v15.3.2</strong> | Built with ❤️ for Saudi Agriculture
+  <strong>SAHOOL v16.0.0</strong> | Built with ❤️ for Saudi Agriculture
   <br>
-  <sub>Last Updated: December 2024</sub>
+  <sub>Last Updated: December 24, 2024</sub>
 </p>

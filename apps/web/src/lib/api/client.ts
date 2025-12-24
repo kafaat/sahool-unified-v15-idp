@@ -80,6 +80,105 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Generic HTTP Methods
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async get<T>(url: string, options?: { params?: Record<string, string> }): Promise<{ data: T }> {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'An error occurred');
+    }
+
+    const data = await response.json();
+    return { data };
+  }
+
+  async post<T>(url: string, data?: any): Promise<{ data: T }> {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'An error occurred');
+    }
+
+    const responseData = await response.json();
+    return { data: responseData };
+  }
+
+  async patch<T>(url: string, data?: any): Promise<{ data: T }> {
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'An error occurred');
+    }
+
+    const responseData = await response.json();
+    return { data: responseData };
+  }
+
+  async put<T>(url: string, data?: any): Promise<{ data: T }> {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'An error occurred');
+    }
+
+    const responseData = await response.json();
+    return { data: responseData };
+  }
+
+  async delete<T>(url: string): Promise<{ data: T }> {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
+      throw new Error(error.message || 'An error occurred');
+    }
+
+    // DELETE might return empty response
+    const text = await response.text();
+    const responseData = text ? JSON.parse(text) : null;
+    return { data: responseData };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Field Operations API
   // ═══════════════════════════════════════════════════════════════════════════
 

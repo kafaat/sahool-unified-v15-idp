@@ -43,4 +43,4 @@ export { useCart, CartProvider } from './hooks/useCart';
 // Components
 export { ProductsGrid } from './components/ProductsGrid';
 export { ProductCard } from './components/ProductCard';
-export { Cart } from './components/Cart';
+export { Cart as CartComponent } from './components/Cart';

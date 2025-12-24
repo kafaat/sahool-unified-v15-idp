@@ -37,7 +37,7 @@ export function SensorMap() {
       if (!L) return;
 
       // Create map if it doesn't exist
-      if (!mapInstanceRef.current) {
+      if (!mapInstanceRef.current && mapRef.current) {
         const map = L.map(mapRef.current).setView([15.5527, 48.5164], 6); // Center of Yemen
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

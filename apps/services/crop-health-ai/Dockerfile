@@ -46,13 +46,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install only runtime system dependencies.
-# `libgl1-mesa-glx` may not exist on some Debian slim variants; prefer `libgl1`
-# when available and fall back to `libgl1-mesa-glx` otherwise.
+# Use libgl1 which is available in modern Debian versions (Trixie+)
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
     apt-get update && \
-    (apt-cache show libgl1 >/dev/null 2>&1 && \
-        apt-get install -y --no-install-recommends apt-transport-https ca-certificates libgl1 libglib2.0-0 curl || \
-        apt-get install -y --no-install-recommends apt-transport-https ca-certificates libgl1-mesa-glx libglib2.0-0 curl) \
+    apt-get install -y --no-install-recommends \
+        apt-transport-https \
+        ca-certificates \
+        libgl1 \
+        libglib2.0-0 \
+        curl \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 

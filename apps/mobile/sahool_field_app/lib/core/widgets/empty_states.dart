@@ -235,6 +235,27 @@ class OfflineEmptyState extends StatelessWidget {
   }
 }
 
+/// No Connection empty state (alias for OfflineEmptyState)
+class NoConnectionEmptyState extends StatelessWidget {
+  final VoidCallback? onRetry;
+
+  const NoConnectionEmptyState({
+    super.key,
+    this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolEmptyState(
+      icon: Icons.wifi_off_rounded,
+      title: 'لا يوجد اتصال',
+      message: 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى.',
+      actionLabel: 'إعادة المحاولة',
+      onAction: onRetry,
+    );
+  }
+}
+
 /// No equipment empty state
 class NoEquipmentEmptyState extends StatelessWidget {
   final VoidCallback? onAddEquipment;
@@ -310,6 +331,113 @@ class ComingSoonEmptyState extends StatelessWidget {
   }
 }
 
+/// No crops empty state
+class NoCropsEmptyState extends StatelessWidget {
+  final VoidCallback? onAddCrop;
+
+  const NoCropsEmptyState({
+    super.key,
+    this.onAddCrop,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolEmptyState(
+      icon: Icons.eco_rounded,
+      title: 'لا توجد محاصيل',
+      message: 'أضف محاصيلك لتتبع نموها وصحتها',
+      actionLabel: 'إضافة محصول',
+      onAction: onAddCrop,
+    );
+  }
+}
+
+/// No reports empty state
+class NoReportsEmptyState extends StatelessWidget {
+  final VoidCallback? onCreateReport;
+
+  const NoReportsEmptyState({
+    super.key,
+    this.onCreateReport,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolEmptyState(
+      icon: Icons.analytics_outlined,
+      title: 'لا توجد تقارير',
+      message: 'ستظهر هنا التقارير التحليلية لمزرعتك',
+      actionLabel: 'إنشاء تقرير',
+      onAction: onCreateReport,
+    );
+  }
+}
+
+/// No weather data empty state
+class NoWeatherDataEmptyState extends StatelessWidget {
+  final VoidCallback? onRefresh;
+
+  const NoWeatherDataEmptyState({
+    super.key,
+    this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolEmptyState(
+      icon: Icons.wb_cloudy_outlined,
+      title: 'بيانات الطقس غير متوفرة',
+      message: 'لا يمكن عرض بيانات الطقس في الوقت الحالي',
+      actionLabel: 'تحديث',
+      onAction: onRefresh,
+    );
+  }
+}
+
+/// No images empty state
+class NoImagesEmptyState extends StatelessWidget {
+  final VoidCallback? onAddImage;
+
+  const NoImagesEmptyState({
+    super.key,
+    this.onAddImage,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolEmptyState(
+      icon: Icons.photo_library_outlined,
+      title: 'لا توجد صور',
+      message: 'التقط صوراً لتوثيق حالة المحاصيل',
+      actionLabel: 'إضافة صورة',
+      onAction: onAddImage,
+    );
+  }
+}
+
+/// Permission denied empty state
+class PermissionDeniedEmptyState extends StatelessWidget {
+  final String permissionName;
+  final VoidCallback? onRequestPermission;
+
+  const PermissionDeniedEmptyState({
+    super.key,
+    required this.permissionName,
+    this.onRequestPermission,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolEmptyState(
+      icon: Icons.block_rounded,
+      title: 'الإذن مرفوض',
+      message: 'يتطلب الوصول إلى $permissionName إذناً. يرجى منح الإذن من الإعدادات.',
+      actionLabel: 'منح الإذن',
+      onAction: onRequestPermission,
+    );
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Compact Empty States
 // ═══════════════════════════════════════════════════════════════════════════
@@ -359,6 +487,29 @@ class SahoolCompactEmptyState extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RTL Support & Accessibility
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// RTL-aware empty state wrapper
+/// Ensures proper text directionality for Arabic content
+class SahoolRTLEmptyState extends StatelessWidget {
+  final Widget child;
+
+  const SahoolRTLEmptyState({
+    super.key,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: child,
     );
   }
 }

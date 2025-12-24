@@ -12,5 +12,9 @@ export 'loading_states.dart';
 // Empty States
 export 'empty_states.dart';
 
-// Connectivity (existing)
+// Connectivity
 export 'connectivity_widget.dart';
+
+// Performance-Optimized Widgets
+export 'optimized_list.dart';
+export 'cached_image.dart';

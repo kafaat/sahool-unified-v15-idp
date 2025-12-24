@@ -10,10 +10,12 @@ import 'biometric_service.dart';
 /// خدمة المصادقة مع Token Refresh تلقائي
 ///
 /// Features:
-/// - Automatic token refresh
-/// - Secure token storage
+/// - Automatic token refresh with retry mechanism
+/// - Token expiration checking
+/// - Secure token storage using flutter_secure_storage
 /// - Biometric authentication support
 /// - Session management
+/// - Exponential backoff retry strategy
 
 // Providers
 final authServiceProvider = Provider<AuthService>((ref) {
@@ -145,6 +147,11 @@ class AuthService {
   Timer? _refreshTimer;
   static const _tokenRefreshBuffer = Duration(minutes: 5);
 
+  // Retry configuration
+  static const _maxRetries = 3;
+  static const _initialRetryDelay = Duration(seconds: 2);
+  int _retryCount = 0;
+
   AuthService({
     required this.secureStorage,
     required this.biometricService,
@@ -183,8 +190,17 @@ class AuthService {
       // Store tokens securely
       await _storeTokens(tokens);
 
+      // Store user data securely
+      await secureStorage.setUserData(user.toJson());
+
+      // Store tenant ID
+      await secureStorage.setTenantId(user.tenantId);
+
       // Schedule token refresh
       _scheduleTokenRefresh(tokens.expiresIn);
+
+      // Reset retry count on successful login
+      _retryCount = 0;
 
       AppLogger.i('Login successful', tag: 'AUTH');
       return user;
@@ -247,21 +263,40 @@ class AuthService {
     final accessToken = await secureStorage.getAccessToken();
     if (accessToken == null) return false;
 
-    // Check if token is expired
-    final expiry = await secureStorage.getTokenExpiry();
-    if (expiry == null) return false;
-
-    if (DateTime.now().isAfter(expiry)) {
+    // Check if token is expired or about to expire
+    if (await isTokenExpired()) {
       // Token expired, try to refresh
       try {
         await refreshToken();
         return true;
       } catch (e) {
+        AppLogger.e('Token refresh failed during login check', tag: 'AUTH', error: e);
         return false;
       }
     }
 
     return true;
+  }
+
+  /// Check if token is expired or will expire soon
+  Future<bool> isTokenExpired() async {
+    final expiry = await secureStorage.getTokenExpiry();
+    if (expiry == null) return true;
+
+    // Consider token expired if it expires within the buffer time
+    final expiryWithBuffer = expiry.subtract(_tokenRefreshBuffer);
+    return DateTime.now().isAfter(expiryWithBuffer);
+  }
+
+  /// Get token time until expiry
+  Future<Duration?> getTokenTimeUntilExpiry() async {
+    final expiry = await secureStorage.getTokenExpiry();
+    if (expiry == null) return null;
+
+    final now = DateTime.now();
+    if (now.isAfter(expiry)) return Duration.zero;
+
+    return expiry.difference(now);
   }
 
   /// Get current user
@@ -276,9 +311,14 @@ class AuthService {
   // Token Management
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Refresh access token
+  /// Refresh access token with automatic retry
   Future<void> refreshToken() async {
-    AppLogger.i('Refreshing token', tag: 'AUTH');
+    return await _refreshTokenWithRetry();
+  }
+
+  /// Internal method to refresh token with retry logic
+  Future<void> _refreshTokenWithRetry({int attempt = 0}) async {
+    AppLogger.i('Refreshing token (attempt ${attempt + 1}/$_maxRetries)', tag: 'AUTH');
 
     final refreshToken = await secureStorage.getRefreshToken();
     if (refreshToken == null) {
@@ -301,12 +341,34 @@ class AuthService {
       await _storeTokens(tokens);
       _scheduleTokenRefresh(tokens.expiresIn);
 
+      // Reset retry count on success
+      _retryCount = 0;
+
       AppLogger.i('Token refreshed successfully', tag: 'AUTH');
     } catch (e) {
-      AppLogger.e('Token refresh failed', tag: 'AUTH', error: e);
-      await logout();
-      rethrow;
+      AppLogger.e('Token refresh failed (attempt ${attempt + 1})', tag: 'AUTH', error: e);
+
+      // Retry with exponential backoff
+      if (attempt < _maxRetries - 1) {
+        final delay = _calculateRetryDelay(attempt);
+        AppLogger.i('Retrying token refresh in ${delay.inSeconds}s', tag: 'AUTH');
+
+        await Future.delayed(delay);
+        return await _refreshTokenWithRetry(attempt: attempt + 1);
+      } else {
+        // Max retries reached, logout
+        AppLogger.e('Max retry attempts reached, logging out', tag: 'AUTH');
+        await logout();
+        throw AuthException('فشل تحديث الجلسة بعد عدة محاولات', code: 'MAX_RETRY_REACHED');
+      }
     }
+  }
+
+  /// Calculate retry delay with exponential backoff
+  Duration _calculateRetryDelay(int attempt) {
+    // Exponential backoff: 2s, 4s, 8s, etc.
+    final multiplier = 1 << attempt; // 2^attempt
+    return _initialRetryDelay * multiplier;
   }
 
   /// Get current access token

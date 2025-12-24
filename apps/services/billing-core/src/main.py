@@ -42,6 +42,12 @@ STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 DEFAULT_CURRENCY = os.getenv("DEFAULT_CURRENCY", "USD")
 YER_EXCHANGE_RATE = float(os.getenv("YER_EXCHANGE_RATE", "250"))  # 1 USD = 250 YER
 
+# Tharwatt Payment Gateway Configuration - بوابة ثروات
+THARWATT_BASE_URL = os.getenv("THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253")
+THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
+THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
+THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
+
 
 # =============================================================================
 # Enums
@@ -84,6 +90,7 @@ class PaymentMethod(str, Enum):
     BANK_TRANSFER = "bank_transfer"
     MOBILE_MONEY = "mobile_money"
     CASH = "cash"
+    THARWATT = "tharwatt"  # بوابة ثروات اليمنية
 
 
 class PaymentStatus(str, Enum):
@@ -1075,6 +1082,17 @@ def create_payment(request: CreatePaymentRequest):
         # stripe.Charge.create(...)
         payment.status = PaymentStatus.SUCCEEDED
         payment.processed_at = datetime.utcnow()
+    elif request.method == PaymentMethod.THARWATT and THARWATT_API_KEY:
+        # Tharwatt Payment Gateway - بوابة ثروات
+        # Payment will be initiated and confirmed via webhook
+        # https://developers-test.tharwatt.com:5253/api/v1/payment/deposit
+        payment.status = PaymentStatus.PENDING
+        logger.info(f"Tharwatt payment initiated: {payment.payment_id}")
+        # TODO: Call Tharwatt API to initiate payment
+        # response = httpx.post(f"{THARWATT_BASE_URL}/api/v1/payment/deposit", ...)
+    elif request.method == PaymentMethod.MOBILE_MONEY:
+        # Mobile Money (Yemen operators) - الدفع بالمحفظة
+        payment.status = PaymentStatus.PENDING
     elif request.method == PaymentMethod.BANK_TRANSFER:
         payment.status = PaymentStatus.PENDING
     elif request.method == PaymentMethod.CASH:
@@ -1113,6 +1131,73 @@ def list_payments(tenant_id: str, limit: int = Query(default=20, le=100)):
     return {
         "payments": [p.dict() for p in payments[:limit]],
         "total": len(payments),
+    }
+
+
+# =============================================================================
+# Tharwatt Webhook - ويب هوك ثروات
+# =============================================================================
+
+
+class TharwattWebhookPayload(BaseModel):
+    """Tharwatt webhook payload"""
+    transaction_id: str
+    status: str  # 'completed', 'failed', 'cancelled'
+    amount: Decimal
+    currency: str = "YER"
+    phone_number: Optional[str] = None
+    reference: Optional[str] = None  # Our payment_id
+    timestamp: Optional[str] = None
+    error_message: Optional[str] = None
+
+
+@app.post("/v1/webhooks/tharwatt")
+async def tharwatt_webhook(payload: TharwattWebhookPayload):
+    """
+    Tharwatt payment webhook callback
+    ويب هوك لتأكيد المدفوعات من ثروات
+    """
+    # Find payment by reference
+    payment = None
+    for p in PAYMENTS.values():
+        if p.payment_id == payload.reference:
+            payment = p
+            break
+
+    if not payment:
+        logger.warning(f"Tharwatt webhook: Payment not found for reference {payload.reference}")
+        raise HTTPException(404, "Payment not found")
+
+    # Update payment status
+    if payload.status == "completed":
+        payment.status = PaymentStatus.SUCCEEDED
+        payment.processed_at = datetime.utcnow()
+
+        # Update invoice
+        invoice = INVOICES.get(payment.invoice_id)
+        if invoice:
+            invoice.amount_paid += payment.amount
+            invoice.amount_due = invoice.total - invoice.amount_paid
+            if invoice.amount_due <= 0:
+                invoice.status = InvoiceStatus.PAID
+                invoice.paid_date = date.today()
+
+        logger.info(f"Tharwatt payment completed: {payment.payment_id}")
+
+    elif payload.status == "failed":
+        payment.status = PaymentStatus.FAILED
+        payment.failure_reason = payload.error_message or "Payment failed"
+        logger.warning(f"Tharwatt payment failed: {payment.payment_id} - {payload.error_message}")
+
+    elif payload.status == "cancelled":
+        payment.status = PaymentStatus.FAILED
+        payment.failure_reason = "Payment cancelled by user"
+        logger.info(f"Tharwatt payment cancelled: {payment.payment_id}")
+
+    return {
+        "success": True,
+        "payment_id": payment.payment_id,
+        "status": payment.status.value,
     }
 
 

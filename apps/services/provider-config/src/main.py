@@ -47,6 +47,8 @@ class ProviderType(str, Enum):
     WEATHER = "weather"
     SATELLITE = "satellite"
     NOTIFICATION = "notification"
+    PAYMENT = "payment"
+    SMS = "sms"
 
 
 class ProviderPriority(str, Enum):
@@ -89,6 +91,33 @@ class SatelliteProviderName(str, Enum):
     PLANET_LABS = "planet_labs"
     MAXAR = "maxar"
     LANDSAT = "landsat"
+    GOOGLE_EARTH_ENGINE = "google_earth_engine"
+    COPERNICUS = "copernicus"
+
+
+class PaymentProviderName(str, Enum):
+    STRIPE = "stripe"
+    PAYPAL = "paypal"
+    MOYASAR = "moyasar"
+    HYPERPAY = "hyperpay"
+    TAP = "tap"
+    PAYFORT = "payfort"
+    TELR = "telr"
+
+
+class NotificationProviderName(str, Enum):
+    FIREBASE_FCM = "firebase_fcm"
+    ONESIGNAL = "onesignal"
+    PUSHER = "pusher"
+    TWILIO_SMS = "twilio_sms"
+    VONAGE_SMS = "vonage_sms"
+
+
+class SMSProviderName(str, Enum):
+    TWILIO = "twilio"
+    VONAGE = "vonage"
+    UNIFONIC = "unifonic"
+    YAMAMAH = "yamamah"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -302,6 +331,230 @@ SATELLITE_PROVIDERS = {
         "revisit_days": 16,
         "indices": ["NDVI", "NDWI", "EVI", "SAVI"],
         "cost_per_km2": 0,
+        "default_priority": ProviderPriority.TERTIARY,
+    },
+    SatelliteProviderName.GOOGLE_EARTH_ENGINE: {
+        "name": "Google Earth Engine",
+        "name_ar": "محرك الأرض من جوجل",
+        "base_url": "https://earthengine.googleapis.com",
+        "requires_api_key": True,
+        "resolution_meters": 10,
+        "revisit_days": 5,
+        "indices": ["NDVI", "NDWI", "EVI", "SAVI", "LAI", "FAPAR"],
+        "cost_per_km2": 0,  # Free for research
+        "default_priority": ProviderPriority.SECONDARY,
+    },
+    SatelliteProviderName.COPERNICUS: {
+        "name": "Copernicus Open Access Hub",
+        "name_ar": "كوبرنيكوس",
+        "base_url": "https://scihub.copernicus.eu",
+        "requires_api_key": True,
+        "resolution_meters": 10,
+        "revisit_days": 5,
+        "indices": ["NDVI", "NDWI", "EVI", "SAVI"],
+        "cost_per_km2": 0,  # Free
+        "default_priority": ProviderPriority.TERTIARY,
+    },
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PAYMENT PROVIDERS - مزودي الدفع
+# ═══════════════════════════════════════════════════════════════════════════════
+
+PAYMENT_PROVIDERS = {
+    PaymentProviderName.STRIPE: {
+        "name": "Stripe",
+        "name_ar": "سترايب",
+        "base_url": "https://api.stripe.com/v1",
+        "requires_api_key": True,
+        "supported_currencies": ["USD", "EUR", "SAR", "AED", "YER"],
+        "supported_countries": ["US", "EU", "SA", "AE", "YE"],
+        "supports_subscriptions": True,
+        "supports_refunds": True,
+        "transaction_fee_percent": 2.9,
+        "transaction_fee_fixed": 0.30,
+        "payout_delay_days": 2,
+        "default_priority": ProviderPriority.PRIMARY,
+    },
+    PaymentProviderName.PAYPAL: {
+        "name": "PayPal",
+        "name_ar": "باي بال",
+        "base_url": "https://api.paypal.com/v2",
+        "requires_api_key": True,
+        "supported_currencies": ["USD", "EUR", "SAR", "AED"],
+        "supported_countries": ["US", "EU", "SA", "AE"],
+        "supports_subscriptions": True,
+        "supports_refunds": True,
+        "transaction_fee_percent": 3.49,
+        "transaction_fee_fixed": 0.49,
+        "payout_delay_days": 1,
+        "default_priority": ProviderPriority.SECONDARY,
+    },
+    PaymentProviderName.MOYASAR: {
+        "name": "Moyasar",
+        "name_ar": "ميسر",
+        "base_url": "https://api.moyasar.com/v1",
+        "requires_api_key": True,
+        "supported_currencies": ["SAR"],
+        "supported_countries": ["SA"],
+        "supports_subscriptions": True,
+        "supports_refunds": True,
+        "supports_mada": True,
+        "transaction_fee_percent": 2.0,
+        "transaction_fee_fixed": 0,
+        "payout_delay_days": 2,
+        "default_priority": ProviderPriority.PRIMARY,  # Primary for Saudi Arabia
+    },
+    PaymentProviderName.HYPERPAY: {
+        "name": "HyperPay",
+        "name_ar": "هايبر باي",
+        "base_url": "https://eu-prod.oppwa.com/v1",
+        "requires_api_key": True,
+        "supported_currencies": ["SAR", "AED", "BHD", "KWD", "OMR", "QAR", "YER"],
+        "supported_countries": ["SA", "AE", "BH", "KW", "OM", "QA", "YE"],
+        "supports_subscriptions": True,
+        "supports_refunds": True,
+        "supports_mada": True,
+        "transaction_fee_percent": 2.5,
+        "transaction_fee_fixed": 0,
+        "payout_delay_days": 3,
+        "default_priority": ProviderPriority.SECONDARY,
+    },
+    PaymentProviderName.TAP: {
+        "name": "Tap Payments",
+        "name_ar": "تاب للمدفوعات",
+        "base_url": "https://api.tap.company/v2",
+        "requires_api_key": True,
+        "supported_currencies": ["SAR", "AED", "BHD", "KWD", "OMR", "QAR", "EGP", "JOD"],
+        "supported_countries": ["SA", "AE", "BH", "KW", "OM", "QA", "EG", "JO"],
+        "supports_subscriptions": True,
+        "supports_refunds": True,
+        "supports_mada": True,
+        "transaction_fee_percent": 2.75,
+        "transaction_fee_fixed": 0,
+        "payout_delay_days": 2,
+        "default_priority": ProviderPriority.SECONDARY,
+    },
+    PaymentProviderName.PAYFORT: {
+        "name": "PayFort (Amazon Payment Services)",
+        "name_ar": "باي فورت",
+        "base_url": "https://paymentservices.payfort.com/FortAPI/paymentApi",
+        "requires_api_key": True,
+        "supported_currencies": ["AED", "SAR", "EGP", "JOD", "LBP"],
+        "supported_countries": ["AE", "SA", "EG", "JO", "LB"],
+        "supports_subscriptions": True,
+        "supports_refunds": True,
+        "supports_mada": True,
+        "transaction_fee_percent": 2.8,
+        "transaction_fee_fixed": 0,
+        "payout_delay_days": 3,
+        "default_priority": ProviderPriority.TERTIARY,
+    },
+    PaymentProviderName.TELR: {
+        "name": "Telr",
+        "name_ar": "تلر",
+        "base_url": "https://secure.telr.com/gateway/order.json",
+        "requires_api_key": True,
+        "supported_currencies": ["AED", "SAR", "BHD", "KWD", "OMR", "QAR"],
+        "supported_countries": ["AE", "SA", "BH", "KW", "OM", "QA"],
+        "supports_subscriptions": False,
+        "supports_refunds": True,
+        "transaction_fee_percent": 2.85,
+        "transaction_fee_fixed": 0,
+        "payout_delay_days": 3,
+        "default_priority": ProviderPriority.TERTIARY,
+    },
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SMS PROVIDERS - مزودي الرسائل النصية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+SMS_PROVIDERS = {
+    SMSProviderName.TWILIO: {
+        "name": "Twilio",
+        "name_ar": "تويليو",
+        "base_url": "https://api.twilio.com/2010-04-01",
+        "requires_api_key": True,
+        "supported_countries": ["*"],  # Global
+        "supports_unicode": True,
+        "supports_delivery_reports": True,
+        "cost_per_sms_usd": 0.0075,
+        "default_priority": ProviderPriority.PRIMARY,
+    },
+    SMSProviderName.VONAGE: {
+        "name": "Vonage (Nexmo)",
+        "name_ar": "فوناج",
+        "base_url": "https://rest.nexmo.com/sms/json",
+        "requires_api_key": True,
+        "supported_countries": ["*"],  # Global
+        "supports_unicode": True,
+        "supports_delivery_reports": True,
+        "cost_per_sms_usd": 0.0068,
+        "default_priority": ProviderPriority.SECONDARY,
+    },
+    SMSProviderName.UNIFONIC: {
+        "name": "Unifonic",
+        "name_ar": "يونيفونيك",
+        "base_url": "https://el.cloud.unifonic.com/rest",
+        "requires_api_key": True,
+        "supported_countries": ["SA", "AE", "EG", "JO", "KW", "BH", "OM", "QA", "YE"],
+        "supports_unicode": True,
+        "supports_delivery_reports": True,
+        "supports_arabic_sender": True,
+        "cost_per_sms_usd": 0.035,
+        "default_priority": ProviderPriority.PRIMARY,  # Primary for Middle East
+    },
+    SMSProviderName.YAMAMAH: {
+        "name": "Yamamah",
+        "name_ar": "اليمامة",
+        "base_url": "https://api.yamamah.com/sms/v1",
+        "requires_api_key": True,
+        "supported_countries": ["SA", "YE"],
+        "supports_unicode": True,
+        "supports_delivery_reports": True,
+        "supports_arabic_sender": True,
+        "cost_per_sms_usd": 0.03,
+        "default_priority": ProviderPriority.PRIMARY,  # Primary for Yemen
+    },
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NOTIFICATION PROVIDERS - مزودي الإشعارات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+NOTIFICATION_PROVIDERS = {
+    NotificationProviderName.FIREBASE_FCM: {
+        "name": "Firebase Cloud Messaging",
+        "name_ar": "إشعارات فايربيس",
+        "base_url": "https://fcm.googleapis.com/v1",
+        "requires_api_key": True,
+        "supports_android": True,
+        "supports_ios": True,
+        "supports_web": True,
+        "cost_per_1k_notifications": 0,  # Free
+        "default_priority": ProviderPriority.PRIMARY,
+    },
+    NotificationProviderName.ONESIGNAL: {
+        "name": "OneSignal",
+        "name_ar": "ون سيجنال",
+        "base_url": "https://onesignal.com/api/v1",
+        "requires_api_key": True,
+        "supports_android": True,
+        "supports_ios": True,
+        "supports_web": True,
+        "cost_per_1k_notifications": 0,  # Free tier: 10K/month
+        "default_priority": ProviderPriority.SECONDARY,
+    },
+    NotificationProviderName.PUSHER: {
+        "name": "Pusher Beams",
+        "name_ar": "بوشر",
+        "base_url": "https://api.pusherplatform.io/push_notifications/v1",
+        "requires_api_key": True,
+        "supports_android": True,
+        "supports_ios": True,
+        "supports_web": True,
+        "cost_per_1k_notifications": 0.02,
         "default_priority": ProviderPriority.TERTIARY,
     },
 }
@@ -565,6 +818,207 @@ async def list_satellite_providers():
             k.value for k, v in SATELLITE_PROVIDERS.items()
             if not v["requires_api_key"]
         ],
+    }
+
+
+@app.get("/providers/payment")
+async def list_payment_providers():
+    """List all payment providers - قائمة مزودي الدفع"""
+    return {
+        "providers": [
+            {**v, "id": k.value}
+            for k, v in PAYMENT_PROVIDERS.items()
+        ],
+        "by_country": {
+            "SA": ["moyasar", "hyperpay", "tap", "payfort", "stripe"],
+            "AE": ["hyperpay", "tap", "payfort", "stripe", "paypal"],
+            "YE": ["hyperpay", "stripe"],
+            "global": ["stripe", "paypal"],
+        },
+        "supports_mada": [
+            k.value for k, v in PAYMENT_PROVIDERS.items()
+            if v.get("supports_mada", False)
+        ],
+    }
+
+
+@app.get("/providers/sms")
+async def list_sms_providers():
+    """List all SMS providers - قائمة مزودي الرسائل النصية"""
+    return {
+        "providers": [
+            {**v, "id": k.value}
+            for k, v in SMS_PROVIDERS.items()
+        ],
+        "by_region": {
+            "middle_east": ["unifonic", "yamamah"],
+            "global": ["twilio", "vonage"],
+        },
+        "supports_arabic_sender": [
+            k.value for k, v in SMS_PROVIDERS.items()
+            if v.get("supports_arabic_sender", False)
+        ],
+    }
+
+
+@app.get("/providers/notification")
+async def list_notification_providers():
+    """List all notification providers - قائمة مزودي الإشعارات"""
+    return {
+        "providers": [
+            {**v, "id": k.value}
+            for k, v in NOTIFICATION_PROVIDERS.items()
+        ],
+        "free_providers": [
+            k.value for k, v in NOTIFICATION_PROVIDERS.items()
+            if v.get("cost_per_1k_notifications", 1) == 0
+        ],
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SMART PROVIDER SELECTION - اختيار المزود الذكي
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.get("/providers/select/{provider_type}")
+async def select_provider(
+    provider_type: ProviderType,
+    country: str = "YE",
+    currency: str = "YER",
+    fallback: bool = True,
+):
+    """
+    Smart provider selection based on country and requirements
+    اختيار المزود الذكي بناءً على البلد والمتطلبات
+    """
+    result = {
+        "provider_type": provider_type.value,
+        "country": country,
+        "currency": currency,
+        "selected": [],
+        "fallback_providers": [],
+    }
+
+    if provider_type == ProviderType.PAYMENT:
+        # Select payment providers based on country
+        primary = []
+        fallbacks = []
+
+        for name, provider in PAYMENT_PROVIDERS.items():
+            if country in provider.get("supported_countries", []):
+                if provider["default_priority"] == ProviderPriority.PRIMARY:
+                    primary.append({"id": name.value, **provider})
+                else:
+                    fallbacks.append({"id": name.value, **provider})
+
+        # Sort by transaction fee
+        primary.sort(key=lambda x: x.get("transaction_fee_percent", 100))
+        fallbacks.sort(key=lambda x: x.get("transaction_fee_percent", 100))
+
+        result["selected"] = primary[:2] if primary else fallbacks[:1]
+        result["fallback_providers"] = fallbacks if fallback else []
+
+    elif provider_type == ProviderType.SMS:
+        primary = []
+        fallbacks = []
+
+        for name, provider in SMS_PROVIDERS.items():
+            countries = provider.get("supported_countries", [])
+            if "*" in countries or country in countries:
+                if provider["default_priority"] == ProviderPriority.PRIMARY:
+                    primary.append({"id": name.value, **provider})
+                else:
+                    fallbacks.append({"id": name.value, **provider})
+
+        result["selected"] = primary[:1] if primary else fallbacks[:1]
+        result["fallback_providers"] = fallbacks if fallback else []
+
+    elif provider_type == ProviderType.SATELLITE:
+        # Select satellite providers - prefer free/low cost
+        providers_list = []
+        for name, provider in SATELLITE_PROVIDERS.items():
+            providers_list.append({"id": name.value, **provider})
+
+        # Sort by cost
+        providers_list.sort(key=lambda x: x.get("cost_per_km2", 0))
+        result["selected"] = providers_list[:2]
+        result["fallback_providers"] = providers_list[2:] if fallback else []
+
+    elif provider_type == ProviderType.WEATHER:
+        providers_list = []
+        for name, provider in WEATHER_PROVIDERS.items():
+            providers_list.append({"id": name.value, **provider})
+
+        # Free providers first
+        free = [p for p in providers_list if not p.get("requires_api_key")]
+        paid = [p for p in providers_list if p.get("requires_api_key")]
+
+        result["selected"] = free[:1] if free else paid[:1]
+        result["fallback_providers"] = (free[1:] + paid) if fallback else []
+
+    return result
+
+
+@app.get("/providers/failover-chain/{provider_type}")
+async def get_failover_chain(
+    provider_type: ProviderType,
+    country: str = "YE",
+):
+    """
+    Get ordered failover chain for a provider type
+    سلسلة الاحتياط المرتبة لنوع المزود
+    """
+    chain = []
+
+    if provider_type == ProviderType.PAYMENT:
+        # Build payment failover chain
+        for priority in [ProviderPriority.PRIMARY, ProviderPriority.SECONDARY, ProviderPriority.TERTIARY]:
+            for name, provider in PAYMENT_PROVIDERS.items():
+                if provider["default_priority"] == priority:
+                    if country in provider.get("supported_countries", []):
+                        chain.append({
+                            "order": len(chain) + 1,
+                            "provider_id": name.value,
+                            "name": provider["name"],
+                            "name_ar": provider["name_ar"],
+                            "priority": priority.value,
+                            "fee_percent": provider.get("transaction_fee_percent"),
+                        })
+
+    elif provider_type == ProviderType.SMS:
+        for priority in [ProviderPriority.PRIMARY, ProviderPriority.SECONDARY, ProviderPriority.TERTIARY]:
+            for name, provider in SMS_PROVIDERS.items():
+                if provider["default_priority"] == priority:
+                    countries = provider.get("supported_countries", [])
+                    if "*" in countries or country in countries:
+                        chain.append({
+                            "order": len(chain) + 1,
+                            "provider_id": name.value,
+                            "name": provider["name"],
+                            "name_ar": provider["name_ar"],
+                            "priority": priority.value,
+                            "cost_per_sms": provider.get("cost_per_sms_usd"),
+                        })
+
+    elif provider_type == ProviderType.SATELLITE:
+        for priority in [ProviderPriority.PRIMARY, ProviderPriority.SECONDARY, ProviderPriority.TERTIARY]:
+            for name, provider in SATELLITE_PROVIDERS.items():
+                if provider["default_priority"] == priority:
+                    chain.append({
+                        "order": len(chain) + 1,
+                        "provider_id": name.value,
+                        "name": provider["name"],
+                        "name_ar": provider["name_ar"],
+                        "priority": priority.value,
+                        "resolution_meters": provider.get("resolution_meters"),
+                        "cost_per_km2": provider.get("cost_per_km2"),
+                    })
+
+    return {
+        "provider_type": provider_type.value,
+        "country": country,
+        "failover_chain": chain,
+        "total_providers": len(chain),
     }
 
 

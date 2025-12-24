@@ -20,12 +20,12 @@ Transform dormant analysis services into field-actionable value through Tasks, A
 │                                                                     │
 │  ✅ ACTIVATED (Field-First Ready) - Phase 1 + 2                    │
 │  ├── satellite-service :8090      [Phase 1]                        │
-│  ├── virtual-sensors :8085        [Phase 1]                        │
-│  ├── crop-growth-timing :8098     [Phase 1]                        │
-│  ├── irrigation-smart :8086       [Phase 1]                        │
-│  ├── notification-service :8083   [Phase 1]                        │
-│  ├── yield-prediction :8091       [Phase 2] ✨ NEW                 │
-│  └── lai-estimation :8093         [Phase 2] ✨ NEW                 │
+│  ├── virtual-sensors :8096        [Phase 1]                        │
+│  ├── yield-engine :8098           [Phase 1]                        │
+│  ├── irrigation-smart :8094       [Phase 1]                        │
+│  ├── notification-service :8110   [Phase 1]                        │
+│  ├── yield-prediction :3021       [Phase 2] ✨ NEW                 │
+│  └── lai-estimation :3022         [Phase 2] ✨ NEW                 │
 │                                                                     │
 │  📋 PLANNED (Phase 3)                                              │
 │  ├── disaster-assessment :8094                                     │

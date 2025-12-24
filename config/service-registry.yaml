@@ -613,14 +613,12 @@ legacy_services:
       new_endpoint: "/v1/fertilizer/recommend"
 
   ws_gateway:
-    status: deprecated
-    port: 8090
-    path: "apps/services/notification-service"
-    replacement: "notification-service"
-    replacement_port: 8110
-    reason: "توحيد قنوات الإشعارات (Push, SMS, In-app)"
-    deprecation_date: "2025-12"
-    removal_date: "2026-03"
+    status: active
+    port: 8081
+    path: "apps/services/ws-gateway"
+    description: "بوابة WebSocket للاتصال المباشر"
+    description_en: "WebSocket gateway for real-time communication"
+    note: "تم تغيير المنفذ من 8089 إلى 8081 لتجنب التعارض مع billing_core"
 
   crop_health:
     status: deprecated

@@ -90,6 +90,136 @@ flutter_secure_storage: ^9.2.2
 shared_preferences: ^2.3.3
 ```
 
+## 🔌 الاتصال بالخدمات الخلفية | Backend Integration
+
+### إعداد البيئة | Environment Setup
+
+قم بنسخ ملف `.env.example` إلى `.env`:
+
+```bash
+cp .env.example .env
+```
+
+### عناوين الخدمات | Service URLs
+
+| البيئة | API Gateway | WebSocket |
+|--------|-------------|-----------|
+| **Development (Android Emulator)** | `http://10.0.2.2:8000` | `ws://10.0.2.2:8081` |
+| **Development (iOS Simulator)** | `http://localhost:8000` | `ws://localhost:8081` |
+| **Development (Real Device)** | `http://<YOUR-IP>:8000` | `ws://<YOUR-IP>:8081` |
+| **Staging** | `https://api-staging.sahool.app` | `wss://ws-staging.sahool.app` |
+| **Production** | `https://api.sahool.io` | `wss://ws.sahool.io` |
+
+### خريطة المنافذ | Port Map
+
+```
+البوابة الرئيسية (Kong Gateway):
+└── 8000  → جميع الـ API تمر عبر هذا المنفذ
+
+WebSocket Gateway:
+└── 8081  → الأحداث المباشرة (Real-time)
+
+الخدمات الداخلية (عبر Gateway):
+├── /api/v1/fields      → field-core (3000)
+├── /api/v1/tasks       → task-service (8103)
+├── /api/v1/weather     → weather-advanced (8092)
+├── /api/v1/ndvi        → satellite-service (8090)
+├── /api/v1/alerts      → notification-service (8110)
+├── /api/v1/equipment   → equipment-service (8101)
+├── /api/v1/irrigation  → irrigation-smart (8094)
+├── /api/v1/fertilizer  → fertilizer-advisor (8093)
+└── /api/v1/crop-health → crop-health-ai (8095)
+```
+
+### استخدام API Client
+
+```dart
+import 'package:sahool_field_app/core/http/api_client.dart';
+
+// التهيئة
+final apiClient = ApiClient();
+
+// جلب الحقول
+final fields = await apiClient.getFields();
+
+// جلب المهام
+final tasks = await apiClient.getTasks(fieldId: 'field_001');
+
+// تحديث مهمة
+await apiClient.updateTask('task_001', status: 'completed');
+```
+
+### استخدام Service Switcher
+
+للتبديل بين الخدمات القديمة والحديثة للمقارنة:
+
+```dart
+import 'package:sahool_field_app/core/config/service_switcher.dart';
+
+// التهيئة
+final switcher = ServiceSwitcher.instance;
+await switcher.initialize();
+
+// التبديل لخدمة حديثة
+await switcher.setVersion(ServiceType.weather, ServiceVersion.modern);
+
+// التبديل لخدمة قديمة للمقارنة
+await switcher.setVersion(ServiceType.weather, ServiceVersion.legacy);
+
+// فحص صحة الخدمات
+final health = await switcher.checkAllHealth();
+```
+
+### تشغيل المحاكاة المحلية | Local Mock Server
+
+للتطوير بدون خدمات Backend حقيقية:
+
+```bash
+# من مجلد apps/web
+cd ../web
+
+# تشغيل Mock API Server
+node mock-server.js    # Port 8000
+
+# تشغيل Mock WebSocket Server
+node mock-ws-server.js # Port 8081
+```
+
+### متغيرات البيئة | Environment Variables
+
+```env
+# .env
+ENV=development
+API_URL=http://10.0.2.2:8000/api/v1
+WS_URL=ws://10.0.2.2:8081
+
+# Feature Flags
+ENABLE_OFFLINE_MODE=true
+ENABLE_BACKGROUND_SYNC=true
+
+# Timeouts
+CONNECT_TIMEOUT_SECONDS=10
+RECEIVE_TIMEOUT_SECONDS=30
+```
+
+### معالجة الأخطاء | Error Handling
+
+```dart
+try {
+  final data = await apiClient.getFields();
+} on DioException catch (e) {
+  if (e.type == DioExceptionType.connectionTimeout) {
+    // عرض رسالة "لا يوجد اتصال"
+    showOfflineSnackbar();
+  } else if (e.response?.statusCode == 401) {
+    // إعادة تسجيل الدخول
+    navigateToLogin();
+  }
+}
+```
+
+---
+
 ## إعدادات البناء
 
 ### Android (build.gradle.kts)

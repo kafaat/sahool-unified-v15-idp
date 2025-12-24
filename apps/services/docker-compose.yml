@@ -213,14 +213,15 @@ services:
       context: ./notification-service
       dockerfile: Dockerfile
     ports:
-      - "8109:8109"
+      - "8110:8110"
     environment:
+      - PORT=8110
       - REDIS_URL=redis://redis:6379
       - FIREBASE_CREDENTIALS=${FIREBASE_CREDENTIALS:-}
     depends_on:
       - redis
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8109/healthz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8110/healthz"]
       interval: 10s
       timeout: 5s
       retries: 3

@@ -1,14 +1,15 @@
 # SAHOOL Kernel Services v15.3 - Requirements
 # ============================================
 # Updated: December 2025
+# Standard versions for all Python services
 
-# FastAPI Framework (0.126.0 includes starlette security fixes)
-fastapi==0.126.0
-uvicorn[standard]==0.27.0
+# FastAPI Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
 
 # Async HTTP Client
 httpx==0.28.1
-aiohttp>=3.11.12  # Security fix for CVE-2025-53643
+aiohttp==3.11.12  # Security fix for CVE-2025-53643
 
 # Database & ORM
 tortoise-orm==0.21.7
@@ -22,7 +23,7 @@ nats-py==2.9.0
 redis==5.2.1
 
 # Validation
-pydantic==2.9.2
+pydantic==2.10.3
 jsonschema==4.23.0
 
 # Environment
@@ -36,7 +37,7 @@ opentelemetry-instrumentation-fastapi==0.50b0
 
 # Utilities
 python-multipart==0.0.18
-python-jose[cryptography]>=3.4.0  # Note: Consider migrating to PyJWT for better security
+python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 
 # Testing

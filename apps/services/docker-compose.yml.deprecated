@@ -1,3 +1,21 @@
+# ==============================================================================
+# DEPRECATED - DO NOT USE THIS FILE
+# ==============================================================================
+#
+# This docker-compose.yml file is DEPRECATED and should NOT be used.
+#
+# IMPORTANT:
+# 1. All services are now defined in the main docker-compose.yml at the
+#    project root: /home/user/sahool-unified-v15-idp/docker-compose.yml
+#
+# 2. This file is kept for historical reference only and will be removed
+#    in a future cleanup.
+#
+# 3. Please use the main docker-compose.yml at the project root for all
+#    service orchestration.
+#
+# ==============================================================================
+
 version: "3.8"
 
 services:

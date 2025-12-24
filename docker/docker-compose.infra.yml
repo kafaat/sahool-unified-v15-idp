@@ -23,7 +23,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ../infra/postgres/init:/docker-entrypoint-initdb.d:ro
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool} -d ${POSTGRES_DB:-sahool}"]
       interval: 5s
@@ -93,7 +93,7 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
@@ -108,7 +108,7 @@ services:
   # NATS (Message Queue with JetStream)
   # ─────────────────────────────────────────────────────────────────────────────
   nats:
-    image: nats:2.10-alpine
+    image: nats:2.10.24-alpine
     container_name: sahool-nats
     command:
       - "--jetstream"
@@ -121,7 +121,7 @@ services:
       - nats_data:/data
     ports:
       - "${NATS_PORT:-4222}:4222"
-      - "${NATS_MONITOR_PORT:-8222}:8222"
+      - "127.0.0.1:${NATS_MONITOR_PORT:-8222}:8222"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
       interval: 5s
@@ -136,7 +136,7 @@ services:
   # MQTT (IoT Message Broker)
   # ─────────────────────────────────────────────────────────────────────────────
   mqtt:
-    image: eclipse-mosquitto:2
+    image: eclipse-mosquitto:2.0.20
     container_name: sahool-mqtt
     volumes:
       - ../infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro

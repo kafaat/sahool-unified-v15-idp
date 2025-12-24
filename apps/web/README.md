@@ -146,8 +146,32 @@ pnpm --filter sahool-web dev
 
 # Or from this directory
 cd apps/web
-pnpm dev
+npm run dev
 ```
+
+### Mock Servers for Development
+
+للتطوير المحلي بدون الحاجة لخدمات الـ Backend:
+
+```bash
+# 1. تشغيل Mock API Server (Port 8000)
+node mock-server.js
+
+# 2. تشغيل Mock WebSocket Server (Port 8081)
+node mock-ws-server.js
+
+# 3. تشغيل التطبيق (Port 3000)
+npm run dev
+```
+
+الخدمات المحاكاة:
+- **field-core**: إدارة الحقول
+- **task-service**: إدارة المهام
+- **ndvi-engine**: تحليل NDVI
+- **weather-core**: بيانات الطقس
+- **agro-advisor**: التوصيات الزراعية
+- **iot-gateway**: المستشعرات
+- **equipment-service**: المعدات
 
 ### Build
 

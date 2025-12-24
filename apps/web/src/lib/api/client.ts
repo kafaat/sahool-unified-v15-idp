@@ -439,14 +439,34 @@ class SahoolApiClient {
   // Task Service API (خدمة مسترجعة من kernel)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getTasks(options: { fieldId?: string; userId?: string; status?: string }) {
-    return this.request<any[]>('/api/v1/tasks', {
-      params: options as Record<string, string>,
-    });
+  async getTasks(options: {
+    tenantId?: string;
+    fieldId?: string;
+    userId?: string;
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const params: Record<string, string> = {};
+    if (options.tenantId) params.tenantId = options.tenantId;
+    if (options.fieldId) params.fieldId = options.fieldId;
+    if (options.userId) params.userId = options.userId;
+    if (options.status) params.status = options.status;
+    if (options.limit) params.limit = String(options.limit);
+    if (options.offset) params.offset = String(options.offset);
+
+    return this.request<any[]>('/api/v1/tasks', { params });
   }
 
   async getTask(taskId: string) {
     return this.request<any>(`/api/v1/tasks/${taskId}`);
+  }
+
+  async updateTask(taskId: string, data: { status?: string; title?: string; description?: string }) {
+    return this.request<any>(`/api/v1/tasks/${taskId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   async createTask(data: {
@@ -475,6 +495,25 @@ class SahoolApiClient {
     return this.request<any>(`/api/v1/tasks/${taskId}/complete`, {
       method: 'POST',
       body: JSON.stringify({ notes }),
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Alerts API
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getAlerts(options: { tenantId?: string; status?: string; fieldId?: string }) {
+    const params: Record<string, string> = {};
+    if (options.tenantId) params.tenantId = options.tenantId;
+    if (options.status) params.status = options.status;
+    if (options.fieldId) params.fieldId = options.fieldId;
+
+    return this.request<any[]>('/api/v1/alerts', { params });
+  }
+
+  async acknowledgeAlert(alertId: string) {
+    return this.request<any>(`/api/v1/alerts/${alertId}/acknowledge`, {
+      method: 'POST',
     });
   }
 

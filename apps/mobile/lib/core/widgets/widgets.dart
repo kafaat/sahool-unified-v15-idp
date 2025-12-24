@@ -14,3 +14,6 @@ export 'empty_states.dart';
 
 // Connectivity (existing)
 export 'connectivity_widget.dart';
+
+// Permission Gates
+export 'permission_gate.dart';

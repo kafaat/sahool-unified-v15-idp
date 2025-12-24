@@ -15,6 +15,7 @@ import {
   useProducts,
   useOrders,
 } from '@/features/marketplace';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 
 export default function MarketplacePage() {
   return (
@@ -36,10 +37,27 @@ function MarketplaceContent() {
   const cartItemsCount = cart.items.length;
 
   const handleCheckout = () => {
-    // TODO: Implement checkout flow
-    console.log('Checkout with cart:', cart);
-    alert('ميزة الدفع قيد التطوير | Checkout feature coming soon');
-    setIsCartOpen(false);
+    try {
+      ErrorTracking.addBreadcrumb({
+        type: 'click',
+        category: 'ui',
+        message: 'Checkout initiated',
+        data: {
+          itemsCount: cart.items.length,
+          total: cart.total,
+          currency: cart.currency
+        },
+      });
+      // TODO: Implement checkout flow
+      alert('ميزة الدفع قيد التطوير | Checkout feature coming soon');
+      setIsCartOpen(false);
+    } catch (error) {
+      ErrorTracking.captureError(
+        error instanceof Error ? error : new Error('Checkout failed'),
+        undefined,
+        { cart }
+      );
+    }
   };
 
   return (

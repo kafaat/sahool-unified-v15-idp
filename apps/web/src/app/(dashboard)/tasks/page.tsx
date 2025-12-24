@@ -12,6 +12,7 @@ import { TaskFilters } from '@/features/tasks/components/TaskFilters';
 import { Modal } from '@/components/ui/modal';
 import { Plus, Filter } from 'lucide-react';
 import type { TaskFilters as TaskFiltersType } from '@/features/tasks/types';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 
 export default function TasksPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -21,7 +22,12 @@ export default function TasksPage() {
 
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId);
-    console.log('Task clicked:', taskId);
+    ErrorTracking.addBreadcrumb({
+      type: 'click',
+      category: 'ui',
+      message: 'Task clicked',
+      data: { taskId },
+    });
   };
 
   const handleCreateClick = () => {
@@ -37,10 +43,23 @@ export default function TasksPage() {
   };
 
   const handleSubmit = async (data: any) => {
-    console.log('Creating task:', data);
-    // TODO: Implement actual task creation
-    // For now, just close the modal
-    setShowCreateModal(false);
+    try {
+      ErrorTracking.addBreadcrumb({
+        type: 'click',
+        category: 'ui',
+        message: 'Creating task',
+        data: { taskTitle: data?.title },
+      });
+      // TODO: Implement actual task creation
+      // For now, just close the modal
+      setShowCreateModal(false);
+    } catch (error) {
+      ErrorTracking.captureError(
+        error instanceof Error ? error : new Error('Failed to create task'),
+        undefined,
+        { data }
+      );
+    }
   };
 
   return (

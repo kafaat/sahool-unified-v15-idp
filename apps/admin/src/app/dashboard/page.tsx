@@ -24,8 +24,13 @@ import {
   DollarSign,
   Droplets,
   Sun,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useWebSocket, useWebSocketEvent } from '@/hooks/useWebSocket';
+import { useRealTimeAlerts } from '@/hooks/useRealTimeAlerts';
+import type { SensorMessage, DiagnosisMessage } from '@/hooks/useWebSocket';
 import {
   BarChart,
   Bar,
@@ -100,6 +105,14 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
+  // WebSocket integration for real-time updates
+  const { isConnected, status } = useWebSocket({ autoConnect: true });
+  const { unreadCount, criticalAlerts } = useRealTimeAlerts({
+    enableNotifications: true,
+    minSeverity: 'medium',
+  });
+
+  // Load initial data
   useEffect(() => {
     async function loadData() {
       try {
@@ -120,6 +133,56 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
+  // Real-time diagnosis updates via WebSocket
+  useWebSocketEvent<DiagnosisMessage>('diagnosis', (diagnosis) => {
+    // Update weekly diagnoses count
+    setStats((prev) =>
+      prev
+        ? { ...prev, weeklyDiagnoses: (prev.weeklyDiagnoses || 0) + 1 }
+        : prev
+    );
+
+    // Add to recent diagnoses
+    setRecentDiagnoses((prev) => {
+      const newDiagnosis: DiagnosisRecord = {
+        id: diagnosis.id,
+        farmId: diagnosis.farmId,
+        farmName: diagnosis.farmName,
+        diseaseNameAr: diagnosis.diseaseNameAr,
+        diseaseName: '',
+        diseaseId: '',
+        imageUrl: '/api/placeholder/400/300',
+        thumbnailUrl: '/api/placeholder/100/100',
+        cropType: '',
+        confidence: diagnosis.confidence,
+        severity: diagnosis.severity,
+        status: 'pending',
+        location: { lat: 0, lng: 0 },
+        diagnosedAt: diagnosis.timestamp,
+        createdBy: '',
+      };
+
+      return [newDiagnosis, ...prev].slice(0, 5);
+    });
+  });
+
+  // Real-time sensor updates via WebSocket
+  useWebSocketEvent<SensorMessage>('sensor', (sensor) => {
+    // Log sensor readings - can be extended to show live sensor data
+    console.log('New sensor reading:', sensor);
+  });
+
+  // Update critical alerts count from real-time data
+  useEffect(() => {
+    if (criticalAlerts.length > 0) {
+      setStats((prev) =>
+        prev
+          ? { ...prev, criticalAlerts: criticalAlerts.length }
+          : prev
+      );
+    }
+  }, [criticalAlerts.length]);
+
   const handleFarmClick = (farm: Farm) => {
     setSelectedFarm(farm);
   };
@@ -139,7 +202,29 @@ export default function DashboardPage() {
 
   return (
     <div className="p-6">
-      <Header title="لوحة التحكم" subtitle="نظرة عامة على المنصة" />
+      <div className="flex items-center justify-between">
+        <Header title="لوحة التحكم" subtitle="نظرة عامة على المنصة" />
+
+        {/* WebSocket Connection Status */}
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-200">
+          {isConnected ? (
+            <>
+              <Wifi className="w-4 h-4 text-green-500" />
+              <span className="text-sm text-gray-700">متصل</span>
+              {unreadCount > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-500">غير متصل</span>
+            </>
+          )}
+        </div>
+      </div>
 
       {/* Statistics Cards */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -303,7 +388,7 @@ export default function DashboardPage() {
                   outerRadius={70}
                   paddingAngle={2}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                   labelLine={false}
                 >
                   {cropDistributionData.map((entry, index) => (

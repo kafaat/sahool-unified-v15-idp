@@ -4,79 +4,140 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api/client';
 import type { WeatherData, WeatherForecast, WeatherAlert, ForecastDataPoint } from '../types';
 
-async function fetchCurrentWeather(location?: string): Promise<WeatherData> {
-  // TODO: Replace with actual API call
-  // const response = await fetch(`/api/weather/current?location=${location}`);
-  // return response.json();
+async function fetchCurrentWeather(location: string = 'sanaa'): Promise<WeatherData> {
+  const response = await apiClient.get<{
+    location_id: string;
+    location_name_ar: string;
+    latitude: number;
+    longitude: number;
+    timestamp: string;
+    temperature_c: number;
+    feels_like_c: number;
+    humidity_percent: number;
+    pressure_hpa: number;
+    wind_speed_kmh: number;
+    wind_direction: string;
+    wind_gust_kmh: number;
+    visibility_km: number;
+    cloud_cover_percent: number;
+    uv_index: number;
+    dew_point_c: number;
+    condition: string;
+    condition_ar: string;
+  }>(`http://localhost:8092/v1/current/${location}`);
 
-  // Mock data
+  const data = response.data;
   return {
-    temperature: 28,
-    humidity: 65,
-    windSpeed: 12,
-    windDirection: 'NE',
-    pressure: 1013,
-    visibility: 10,
-    uvIndex: 7,
-    condition: 'Partly Cloudy',
-    conditionAr: 'غائم جزئياً',
-    location: location || 'صنعاء، اليمن',
-    timestamp: new Date().toISOString(),
+    temperature: data.temperature_c,
+    humidity: data.humidity_percent,
+    windSpeed: data.wind_speed_kmh,
+    windDirection: data.wind_direction,
+    pressure: data.pressure_hpa,
+    visibility: data.visibility_km,
+    uvIndex: data.uv_index,
+    condition: data.condition,
+    conditionAr: data.condition_ar,
+    location: data.location_name_ar,
+    timestamp: data.timestamp,
   };
 }
 
-async function fetchWeatherForecast(location?: string): Promise<ForecastDataPoint[]> {
-  // TODO: Replace with actual API call
-  // const response = await fetch(`/api/weather/forecast?location=${location}`);
-  // return response.json();
+async function fetchWeatherForecast(location: string = 'sanaa'): Promise<ForecastDataPoint[]> {
+  const response = await apiClient.get<{
+    location_id: string;
+    location_name_ar: string;
+    generated_at: string;
+    current: Record<string, unknown>;
+    hourly_forecast: Array<Record<string, unknown>>;
+    daily_forecast: Array<{
+      date: string;
+      temp_max_c: number;
+      temp_min_c: number;
+      humidity_avg: number;
+      wind_speed_avg_kmh: number;
+      precipitation_total_mm: number;
+      precipitation_probability: number;
+      sunrise: string;
+      sunset: string;
+      uv_index_max: number;
+      condition: string;
+      condition_ar: string;
+      agricultural_summary_ar: string;
+      agricultural_summary_en: string;
+    }>;
+    alerts: Array<Record<string, unknown>>;
+    growing_degree_days: number;
+    evapotranspiration_mm: number;
+    spray_window_hours: string[];
+    irrigation_recommendation_ar: string;
+    irrigation_recommendation_en: string;
+  }>(`http://localhost:8092/v1/forecast/${location}`, { params: { days: 7 } });
 
-  // Mock 7-day forecast
-  const days = 7;
-  const forecast: ForecastDataPoint[] = [];
-
-  for (let i = 0; i < days; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-
-    forecast.push({
-      date: date.toISOString(),
-      temperature: 25 + Math.random() * 10,
-      humidity: 50 + Math.random() * 30,
-      precipitation: Math.random() * 20,
-      windSpeed: 10 + Math.random() * 15,
-      condition: i % 2 === 0 ? 'Sunny' : 'Partly Cloudy',
-      conditionAr: i % 2 === 0 ? 'مشمس' : 'غائم جزئياً',
-    });
-  }
-
-  return forecast;
+  // Transform backend daily forecast to frontend format
+  return response.data.daily_forecast.map(day => ({
+    date: day.date,
+    temperature: (day.temp_max_c + day.temp_min_c) / 2,
+    humidity: day.humidity_avg,
+    precipitation: day.precipitation_total_mm,
+    windSpeed: day.wind_speed_avg_kmh,
+    condition: day.condition,
+    conditionAr: day.condition_ar,
+  }));
 }
 
-async function fetchWeatherAlerts(location?: string): Promise<WeatherAlert[]> {
-  // TODO: Replace with actual API call
-  // const response = await fetch(`/api/weather/alerts?location=${location}`);
-  // return response.json();
+async function fetchWeatherAlerts(location: string = 'sanaa'): Promise<WeatherAlert[]> {
+  try {
+    const response = await apiClient.get<{
+      location_id: string;
+      location_name_ar: string;
+      generated_at: string;
+      current: Record<string, unknown>;
+      hourly_forecast: Array<Record<string, unknown>>;
+      daily_forecast: Array<Record<string, unknown>>;
+      alerts: Array<{
+        alert_id: string;
+        alert_type: string;
+        severity: string;
+        title_ar: string;
+        title_en: string;
+        description_ar: string;
+        description_en: string;
+        start_time: string;
+        end_time: string;
+        affected_crops_ar: string[];
+        recommendations_ar: string[];
+        recommendations_en: string[];
+      }>;
+      growing_degree_days: number;
+      evapotranspiration_mm: number;
+      spray_window_hours: string[];
+      irrigation_recommendation_ar: string;
+      irrigation_recommendation_en: string;
+    }>(`http://localhost:8092/v1/forecast/${location}`);
 
-  // Mock data
-  return [
-    {
-      id: '1',
-      type: 'temperature',
-      severity: 'warning',
-      title: 'High Temperature Alert',
-      titleAr: 'تنبيه درجة حرارة عالية',
-      description: 'Expected high temperatures above 35°C',
-      descriptionAr: 'من المتوقع درجات حرارة عالية تتجاوز 35 درجة مئوية',
-      startDate: new Date().toISOString(),
-      endDate: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(),
-      affectedAreas: ['Sana\'a', 'Aden'],
-      affectedAreasAr: ['صنعاء', 'عدن'],
-      recommendations: ['Stay hydrated', 'Avoid outdoor activities during peak hours'],
-      recommendationsAr: ['حافظ على رطوبة جسمك', 'تجنب الأنشطة الخارجية خلال ساعات الذروة'],
-    },
-  ];
+    // Transform backend alerts to frontend format
+    return response.data.alerts.map(alert => ({
+      id: alert.alert_id,
+      type: alert.alert_type,
+      severity: alert.severity as 'low' | 'medium' | 'high' | 'critical',
+      title: alert.title_en,
+      titleAr: alert.title_ar,
+      description: alert.description_en,
+      descriptionAr: alert.description_ar,
+      startDate: alert.start_time,
+      endDate: alert.end_time,
+      affectedAreas: alert.affected_crops_ar,
+      affectedAreasAr: alert.affected_crops_ar,
+      recommendations: alert.recommendations_en,
+      recommendationsAr: alert.recommendations_ar,
+    }));
+  } catch (error) {
+    console.error('Error fetching weather alerts:', error);
+    return [];
+  }
 }
 
 export function useCurrentWeather(location?: string) {

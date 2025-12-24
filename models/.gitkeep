@@ -1,0 +1,3 @@
+# Models Directory
+# This directory contains machine learning models for crop-health-ai service
+# Place plant_disease.tflite model here for production deployment

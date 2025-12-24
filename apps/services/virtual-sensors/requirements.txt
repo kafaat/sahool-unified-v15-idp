@@ -4,11 +4,11 @@
 
 # Web Framework
 fastapi==0.126.0
-uvicorn[standard]==0.34.0
+uvicorn[standard]==0.27.0
 python-multipart==0.0.18
 
 # Data Validation
-pydantic==2.10.3
+pydantic==2.9.2
 pydantic-settings==2.6.1
 
 # HTTP Client (for weather integration)

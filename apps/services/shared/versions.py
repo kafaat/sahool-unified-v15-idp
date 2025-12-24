@@ -15,8 +15,8 @@ Updated: December 2025
 VERSIONS = {
     # Web Framework
     "fastapi": "0.126.0",
-    "uvicorn": "0.34.0",  # uvicorn[standard]
-    "pydantic": "2.10.3",
+    "uvicorn": "0.27.0",  # uvicorn[standard]
+    "pydantic": "2.9.2",
     "starlette": "0.41.3",  # Included with FastAPI
 
     # HTTP Clients

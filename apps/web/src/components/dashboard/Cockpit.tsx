@@ -13,6 +13,7 @@ import { EventTimeline } from './EventTimeline';
 import { AlertPanel } from './AlertPanel';
 import { QuickActions } from './QuickActions';
 import { useAlerts } from '../../hooks/useAlerts';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 
 // Dynamic import for MapView (client-side only, requires maplibre-gl)
 const MapView = dynamic(() => import('./MapView'), {
@@ -37,12 +38,30 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = 'tenant_1' }) => {
 
   const handleFieldSelect = (fieldId: string | null) => {
     setSelectedField(fieldId);
-    console.log('Field selected:', fieldId);
+    ErrorTracking.addBreadcrumb({
+      type: 'click',
+      category: 'ui',
+      message: 'Field selected',
+      data: { fieldId },
+    });
+  };
+
+  const handleKPIClick = (kpi: any) => {
+    ErrorTracking.addBreadcrumb({
+      type: 'click',
+      category: 'ui',
+      message: 'KPI clicked',
+      data: { kpiId: kpi?.id, kpiLabel: kpi?.label },
+    });
   };
 
   const handleAction = (actionId: string) => {
-    console.log('Quick action:', actionId);
-    // TODO: Implement quick actions
+    ErrorTracking.addBreadcrumb({
+      type: 'click',
+      category: 'ui',
+      message: 'Quick action triggered',
+      data: { actionId },
+    });
   };
 
   const handleAlertAction = (url: string) => {

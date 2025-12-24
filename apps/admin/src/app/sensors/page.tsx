@@ -5,6 +5,8 @@
 
 import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import DataTable from '@/components/ui/DataTable';
 import { API_URLS, apiClient } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
@@ -182,53 +184,33 @@ export default function SensorsPage() {
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-sahool-100 rounded-lg">
-              <MapPin className="w-5 h-5 text-sahool-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalFarms}</p>
-              <p className="text-xs text-gray-500">مزرعة متصلة</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="مزرعة متصلة"
+          value={stats.totalFarms}
+          icon={MapPin}
+          iconColor="text-sahool-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Cpu className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalSensors}</p>
-              <p className="text-xs text-gray-500">مستشعر افتراضي</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="مستشعر افتراضي"
+          value={stats.totalSensors}
+          icon={Cpu}
+          iconColor="text-blue-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <Activity className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-amber-600">{stats.warningCount}</p>
-              <p className="text-xs text-gray-500">تحذيرات</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="تحذيرات"
+          value={stats.warningCount}
+          icon={Activity}
+          iconColor="text-amber-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-green-600">{stats.avgConfidence}%</p>
-              <p className="text-xs text-gray-500">متوسط الدقة</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="متوسط الدقة"
+          value={`${stats.avgConfidence}%`}
+          icon={TrendingUp}
+          iconColor="text-green-600"
+        />
       </div>
 
       {/* Refresh Button */}
@@ -330,65 +312,194 @@ export default function SensorsPage() {
         )}
       </div>
 
+      {/* All Sensors Overview */}
+      <div className="mt-6">
+        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Cpu className="w-5 h-5 text-blue-600" />
+          نظرة عامة على جميع المستشعرات
+        </h3>
+
+        <DataTable
+          columns={[
+            {
+              key: 'farm',
+              header: 'المزرعة',
+              render: (item: { sensor: VirtualSensor; farmName: string; governorate: string }) => (
+                <div>
+                  <p className="font-medium text-gray-900">{item.farmName}</p>
+                  <p className="text-xs text-gray-500 flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {item.governorate}
+                  </p>
+                </div>
+              ),
+            },
+            {
+              key: 'sensor',
+              header: 'المستشعر',
+              render: (item: { sensor: VirtualSensor; farmName: string; governorate: string }) => {
+                const Icon = SENSOR_ICONS[item.sensor.type];
+                return (
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      'w-8 h-8 rounded-lg flex items-center justify-center',
+                      SENSOR_COLORS[item.sensor.type]
+                    )}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <span className="font-medium">{item.sensor.nameAr}</span>
+                  </div>
+                );
+              },
+            },
+            {
+              key: 'value',
+              header: 'القراءة',
+              render: (item: { sensor: VirtualSensor; farmName: string; governorate: string }) => (
+                <span className="font-bold text-lg">
+                  {item.sensor.value}{item.sensor.unit}
+                </span>
+              ),
+            },
+            {
+              key: 'trend',
+              header: 'الاتجاه',
+              render: (item: { sensor: VirtualSensor; farmName: string; governorate: string }) => {
+                const TrendIcon = item.sensor.trend === 'up' ? TrendingUp :
+                                 item.sensor.trend === 'down' ? TrendingDown : Activity;
+                return (
+                  <div className="flex items-center gap-1">
+                    <TrendIcon className={cn(
+                      'w-4 h-4',
+                      item.sensor.trend === 'up' ? 'text-green-500' :
+                      item.sensor.trend === 'down' ? 'text-red-500' :
+                      'text-gray-400'
+                    )} />
+                    <span className="text-sm">
+                      {item.sensor.trend === 'up' ? 'صاعد' :
+                       item.sensor.trend === 'down' ? 'هابط' : 'مستقر'}
+                    </span>
+                  </div>
+                );
+              },
+            },
+            {
+              key: 'confidence',
+              header: 'الدقة',
+              render: (item: { sensor: VirtualSensor; farmName: string; governorate: string }) => (
+                <span className="text-sm font-medium">{item.sensor.confidence.toFixed(1)}%</span>
+              ),
+            },
+            {
+              key: 'status',
+              header: 'الحالة',
+              render: (item: { sensor: VirtualSensor; farmName: string; governorate: string }) => (
+                <span className={cn(
+                  'px-2 py-1 rounded text-xs font-medium',
+                  item.sensor.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+                  item.sensor.status === 'critical' ? 'bg-red-100 text-red-700' :
+                  'bg-green-100 text-green-700'
+                )}>
+                  {item.sensor.status === 'warning' ? 'تحذير' :
+                   item.sensor.status === 'critical' ? 'حرج' : 'طبيعي'}
+                </span>
+              ),
+            },
+          ]}
+          data={farmsData.flatMap(farm =>
+            farm.sensors.map(sensor => ({
+              sensor,
+              farmName: farm.farmName,
+              governorate: farm.governorate,
+            }))
+          )}
+          keyExtractor={(item) => item.sensor.id}
+          isLoading={isLoading}
+          emptyMessage="لا توجد مستشعرات"
+        />
+      </div>
+
       {/* Selected Farm Details */}
       {selectedFarmData && (
-        <div className="mt-6 bg-white rounded-xl border border-gray-100 p-6">
+        <div className="mt-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">
             تفاصيل {selectedFarmData.farmName}
           </h3>
 
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="text-right text-sm text-gray-500 border-b border-gray-100">
-                  <th className="pb-3 font-medium">المستشعر</th>
-                  <th className="pb-3 font-medium">القيمة</th>
-                  <th className="pb-3 font-medium">الاتجاه</th>
-                  <th className="pb-3 font-medium">الدقة</th>
-                  <th className="pb-3 font-medium">الحالة</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedFarmData.sensors.map(sensor => {
+          <DataTable
+            columns={[
+              {
+                key: 'sensor',
+                header: 'المستشعر',
+                render: (sensor: VirtualSensor) => {
                   const Icon = SENSOR_ICONS[sensor.type];
                   return (
-                    <tr key={sensor.id} className="border-b border-gray-50">
-                      <td className="py-3">
-                        <div className="flex items-center gap-2">
-                          <Icon className={cn('w-5 h-5', SENSOR_COLORS[sensor.type].split(' ')[0])} />
-                          <span className="font-medium">{sensor.nameAr}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 font-bold">{sensor.value}{sensor.unit}</td>
-                      <td className="py-3">
-                        <span className={cn(
-                          'px-2 py-1 rounded text-xs',
-                          sensor.trend === 'up' ? 'bg-green-100 text-green-700' :
-                          sensor.trend === 'down' ? 'bg-red-100 text-red-700' :
-                          'bg-gray-100 text-gray-700'
-                        )}>
-                          {sensor.trend === 'up' ? 'صاعد' :
-                           sensor.trend === 'down' ? 'هابط' : 'مستقر'}
-                        </span>
-                      </td>
-                      <td className="py-3">{sensor.confidence.toFixed(1)}%</td>
-                      <td className="py-3">
-                        <span className={cn(
-                          'px-2 py-1 rounded text-xs',
-                          sensor.status === 'warning' ? 'bg-amber-100 text-amber-700' :
-                          sensor.status === 'critical' ? 'bg-red-100 text-red-700' :
-                          'bg-green-100 text-green-700'
-                        )}>
-                          {sensor.status === 'warning' ? 'تحذير' :
-                           sensor.status === 'critical' ? 'حرج' : 'طبيعي'}
-                        </span>
-                      </td>
-                    </tr>
+                    <div className="flex items-center gap-2">
+                      <Icon className={cn('w-5 h-5', SENSOR_COLORS[sensor.type].split(' ')[0])} />
+                      <span className="font-medium">{sensor.nameAr}</span>
+                    </div>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
+                },
+              },
+              {
+                key: 'value',
+                header: 'القيمة',
+                render: (sensor: VirtualSensor) => (
+                  <span className="font-bold text-lg">
+                    {sensor.value}{sensor.unit}
+                  </span>
+                ),
+              },
+              {
+                key: 'trend',
+                header: 'الاتجاه',
+                render: (sensor: VirtualSensor) => (
+                  <span className={cn(
+                    'px-2 py-1 rounded text-xs font-medium',
+                    sensor.trend === 'up' ? 'bg-green-100 text-green-700' :
+                    sensor.trend === 'down' ? 'bg-red-100 text-red-700' :
+                    'bg-gray-100 text-gray-700'
+                  )}>
+                    {sensor.trend === 'up' ? '↑ صاعد' :
+                     sensor.trend === 'down' ? '↓ هابط' : '— مستقر'}
+                  </span>
+                ),
+              },
+              {
+                key: 'confidence',
+                header: 'الدقة',
+                render: (sensor: VirtualSensor) => (
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-green-500 rounded-full"
+                        style={{ width: `${sensor.confidence}%` }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium">{sensor.confidence.toFixed(1)}%</span>
+                  </div>
+                ),
+              },
+              {
+                key: 'status',
+                header: 'الحالة',
+                render: (sensor: VirtualSensor) => (
+                  <span className={cn(
+                    'px-2 py-1 rounded text-xs font-medium',
+                    sensor.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+                    sensor.status === 'critical' ? 'bg-red-100 text-red-700' :
+                    'bg-green-100 text-green-700'
+                  )}>
+                    {sensor.status === 'warning' ? '⚠ تحذير' :
+                     sensor.status === 'critical' ? '🚨 حرج' : '✓ طبيعي'}
+                  </span>
+                ),
+              },
+            ]}
+            data={selectedFarmData.sensors}
+            keyExtractor={(sensor) => sensor.id}
+            emptyMessage="لا توجد مستشعرات"
+          />
         </div>
       )}
     </div>

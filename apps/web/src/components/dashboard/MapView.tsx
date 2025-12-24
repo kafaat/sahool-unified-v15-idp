@@ -1,0 +1,280 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { apiClient } from '@/lib/api';
+import type { Field } from '@/lib/api/types';
+
+interface MapViewProps {
+  tenantId?: string;
+  onFieldSelect?: (fieldId: string | null) => void;
+  fields?: Field[];
+}
+
+// Status colors for NDVI/health
+const STATUS_COLORS: Record<string, string> = {
+  healthy: '#10b981',
+  warning: '#f59e0b',
+  critical: '#ef4444',
+};
+
+function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' {
+  if (!ndviValue) return 'warning';
+  if (ndviValue >= 0.6) return 'healthy';
+  if (ndviValue >= 0.4) return 'warning';
+  return 'critical';
+}
+
+export default function MapView({ tenantId, onFieldSelect, fields: propFields }: MapViewProps) {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<maplibregl.Map | null>(null);
+  const [selectedField, setSelectedField] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [fields, setFields] = useState<Field[]>(propFields || []);
+
+  // Fetch fields if not provided
+  useEffect(() => {
+    if (propFields) {
+      setFields(propFields);
+      return;
+    }
+
+    if (tenantId) {
+      apiClient.getFields(tenantId)
+        .then(response => {
+          if (response.success && response.data) {
+            setFields(response.data);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [tenantId, propFields]);
+
+  useEffect(() => {
+    if (!mapContainer.current || map.current) return;
+
+    // Initialize map centered on Yemen
+    map.current = new maplibregl.Map({
+      container: mapContainer.current,
+      style: {
+        version: 8,
+        sources: {
+          osm: {
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+            tileSize: 256,
+            attribution: '&copy; OpenStreetMap contributors',
+          },
+        },
+        layers: [
+          {
+            id: 'osm',
+            type: 'raster',
+            source: 'osm',
+          },
+        ],
+      },
+      center: [44.2, 15.0], // Yemen center
+      zoom: 6,
+    });
+
+    map.current.addControl(new maplibregl.NavigationControl(), 'top-left');
+
+    map.current.on('load', () => {
+      setMapLoaded(true);
+    });
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, []);
+
+  // Update fields on map when data changes
+  useEffect(() => {
+    if (!map.current || !mapLoaded || fields.length === 0) return;
+
+    const geojsonData: GeoJSON.FeatureCollection = {
+      type: 'FeatureCollection',
+      features: fields
+        .filter(field => field.boundary)
+        .map(field => ({
+          type: 'Feature' as const,
+          id: field.id,
+          properties: {
+            id: field.id,
+            name: field.name,
+            crop: field.cropType,
+            area: field.areaHectares,
+            status: getFieldStatus(field.ndviValue),
+            ndvi: field.ndviValue,
+          },
+          geometry: field.boundary!,
+        })),
+    };
+
+    // Remove existing layers and source
+    if (map.current.getSource('fields')) {
+      map.current.removeLayer('fields-label');
+      map.current.removeLayer('fields-outline');
+      map.current.removeLayer('fields-fill');
+      map.current.removeSource('fields');
+    }
+
+    // Add fields source
+    map.current.addSource('fields', {
+      type: 'geojson',
+      data: geojsonData,
+    });
+
+    // Add fields fill layer
+    map.current.addLayer({
+      id: 'fields-fill',
+      type: 'fill',
+      source: 'fields',
+      paint: {
+        'fill-color': [
+          'match',
+          ['get', 'status'],
+          'healthy', STATUS_COLORS.healthy,
+          'warning', STATUS_COLORS.warning,
+          'critical', STATUS_COLORS.critical,
+          '#9ca3af',
+        ],
+        'fill-opacity': 0.6,
+      },
+    });
+
+    // Add fields outline layer
+    map.current.addLayer({
+      id: 'fields-outline',
+      type: 'line',
+      source: 'fields',
+      paint: {
+        'line-color': [
+          'match',
+          ['get', 'status'],
+          'healthy', STATUS_COLORS.healthy,
+          'warning', STATUS_COLORS.warning,
+          'critical', STATUS_COLORS.critical,
+          '#6b7280',
+        ],
+        'line-width': 2,
+      },
+    });
+
+    // Add labels
+    map.current.addLayer({
+      id: 'fields-label',
+      type: 'symbol',
+      source: 'fields',
+      layout: {
+        'text-field': ['get', 'name'],
+        'text-size': 12,
+        'text-anchor': 'center',
+      },
+      paint: {
+        'text-color': '#1f2937',
+        'text-halo-color': '#ffffff',
+        'text-halo-width': 1,
+      },
+    });
+
+    // Click handler
+    map.current.on('click', 'fields-fill', (e) => {
+      if (e.features && e.features[0]) {
+        const feature = e.features[0];
+        const props = feature.properties;
+        const fieldId = props?.id;
+
+        setSelectedField(fieldId);
+        onFieldSelect?.(fieldId);
+
+        // Show popup
+        new maplibregl.Popup()
+          .setLngLat(e.lngLat)
+          .setHTML(`
+            <div class="p-2 text-right" dir="rtl">
+              <h4 class="font-bold text-sm">${props?.name || 'حقل'}</h4>
+              <p class="text-xs text-gray-600">المحصول: ${props?.crop || '-'}</p>
+              <p class="text-xs text-gray-600">المساحة: ${props?.area || 0} هكتار</p>
+              <p class="text-xs text-gray-600">NDVI: ${props?.ndvi?.toFixed(2) || 'N/A'}</p>
+              <div class="mt-2">
+                <span class="text-xs px-2 py-0.5 rounded-full ${
+                  props?.status === 'healthy' ? 'bg-green-100 text-green-800' :
+                  props?.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                  'bg-red-100 text-red-800'
+                }">
+                  ${props?.status === 'healthy' ? 'صحي' : props?.status === 'warning' ? 'تحذير' : 'حرج'}
+                </span>
+              </div>
+            </div>
+          `)
+          .addTo(map.current!);
+      }
+    });
+
+    // Hover effect
+    map.current.on('mouseenter', 'fields-fill', () => {
+      if (map.current) {
+        map.current.getCanvas().style.cursor = 'pointer';
+      }
+    });
+
+    map.current.on('mouseleave', 'fields-fill', () => {
+      if (map.current) {
+        map.current.getCanvas().style.cursor = '';
+      }
+    });
+
+    // Fit bounds to fields
+    if (geojsonData.features.length > 0) {
+      const bounds = new maplibregl.LngLatBounds();
+      geojsonData.features.forEach(feature => {
+        if (feature.geometry.type === 'Polygon') {
+          feature.geometry.coordinates[0].forEach(coord => {
+            bounds.extend(coord as [number, number]);
+          });
+        }
+      });
+      map.current.fitBounds(bounds, { padding: 50 });
+    }
+  }, [mapLoaded, fields, onFieldSelect]);
+
+  return (
+    <div className="relative w-full h-full">
+      <div ref={mapContainer} className="w-full h-full" />
+
+      {/* Legend */}
+      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3">
+        <h4 className="text-xs font-bold text-gray-700 mb-2">الحالة</h4>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <span>صحي (NDVI &gt; 0.6)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full bg-amber-500"></span>
+            <span>تحذير (0.4 - 0.6)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full bg-red-500"></span>
+            <span>حرج (&lt; 0.4)</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Loading overlay */}
+      {!mapLoaded && (
+        <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+          <div className="text-gray-500">جاري تحميل الخريطة...</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export { MapView };

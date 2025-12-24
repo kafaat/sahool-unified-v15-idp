@@ -21,8 +21,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install build dependencies (needed for nats-py) and procps for health check
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Configure apt to use HTTPS and install build dependencies (needed for nats-py) and procps for health check
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     build-essential \
     ca-certificates \
     procps \

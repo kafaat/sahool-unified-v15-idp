@@ -10,8 +10,10 @@
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Configure apt to use HTTPS and install build dependencies
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    apt-transport-https \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -43,9 +45,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install only runtime system dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl \
+# Configure apt to use HTTPS and install only runtime system dependencies
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 

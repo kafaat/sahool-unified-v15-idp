@@ -21,9 +21,10 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Install dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+# Configure apt to use HTTPS and install dependencies
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy and install requirements

@@ -22,9 +22,12 @@ RUN groupadd -r sahool && useradd -r -g sahool sahool
 # Working directory
 WORKDIR /app
 
-# Install system dependencies for geo-spatial
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Configure apt to use HTTPS and install system dependencies for geo-spatial
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    ca-certificates \
+    apt-transport-https \
     libgdal-dev \
     gdal-bin \
     && rm -rf /var/lib/apt/lists/*

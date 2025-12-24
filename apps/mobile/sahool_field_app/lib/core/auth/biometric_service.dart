@@ -8,9 +8,11 @@ import 'secure_storage_service.dart';
 /// خدمة المصادقة بالبصمة
 ///
 /// Features:
-/// - Fingerprint authentication
-/// - Face ID support
-/// - Fallback to device credentials
+/// - Fingerprint authentication (بصمة الإصبع)
+/// - Face ID/Face recognition support (التعرف على الوجه)
+/// - Fallback to PIN/password (رمز المرور الاحتياطي)
+/// - Full Arabic localization (الترجمة الكاملة للعربية)
+/// - Platform-specific biometric handling
 
 final biometricServiceProvider = Provider<BiometricService>((ref) {
   return BiometricService(
@@ -105,9 +107,11 @@ class BiometricService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Authenticate with biometric
+  /// المصادقة باستخدام البصمة
   Future<bool> authenticate({
     required String reason,
     bool biometricOnly = false,
+    bool useErrorDialogs = true,
   }) async {
     try {
       AppLogger.i('Biometric authentication requested', tag: 'BIOMETRIC');
@@ -117,7 +121,7 @@ class BiometricService {
         options: AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: biometricOnly,
-          useErrorDialogs: true,
+          useErrorDialogs: useErrorDialogs,
           sensitiveTransaction: true,
         ),
       );
@@ -131,31 +135,87 @@ class BiometricService {
       return authenticated;
     } on PlatformException catch (e) {
       AppLogger.e('Biometric authentication error', tag: 'BIOMETRIC', error: e);
-
-      switch (e.code) {
-        case 'NotAvailable':
-          throw BiometricException('البصمة غير متاحة');
-        case 'NotEnrolled':
-          throw BiometricException('لم يتم تسجيل بصمة على هذا الجهاز');
-        case 'LockedOut':
-          throw BiometricException('تم قفل البصمة. حاول لاحقاً');
-        case 'PermanentlyLockedOut':
-          throw BiometricException(
-            'تم قفل البصمة بشكل دائم. استخدم كلمة المرور',
-          );
-        default:
-          throw BiometricException('حدث خطأ في التحقق من البصمة');
-      }
+      throw _handleBiometricError(e);
     }
   }
 
-  /// Authenticate with fallback to device credentials
+  /// Handle biometric errors with Arabic messages
+  /// معالجة أخطاء البصمة مع رسائل عربية
+  BiometricException _handleBiometricError(PlatformException e) {
+    switch (e.code) {
+      case 'NotAvailable':
+        return BiometricException(
+          'البصمة غير متاحة على هذا الجهاز',
+          code: 'NOT_AVAILABLE',
+        );
+      case 'NotEnrolled':
+        return BiometricException(
+          'لم يتم تسجيل بصمة على هذا الجهاز. يرجى تفعيل البصمة من إعدادات الجهاز',
+          code: 'NOT_ENROLLED',
+        );
+      case 'LockedOut':
+        return BiometricException(
+          'تم قفل البصمة مؤقتاً بسبب كثرة المحاولات الفاشلة. حاول مرة أخرى بعد قليل',
+          code: 'LOCKED_OUT',
+        );
+      case 'PermanentlyLockedOut':
+        return BiometricException(
+          'تم قفل البصمة بشكل دائم. استخدم رمز المرور أو كلمة السر الخاصة بالجهاز',
+          code: 'PERMANENTLY_LOCKED_OUT',
+        );
+      case 'PasscodeNotSet':
+        return BiometricException(
+          'لم يتم تعيين رمز مرور للجهاز. يرجى تعيين رمز مرور أولاً',
+          code: 'PASSCODE_NOT_SET',
+        );
+      case 'BiometricOnlyNotSupported':
+        return BiometricException(
+          'البصمة فقط غير مدعومة. يمكنك استخدام رمز المرور كبديل',
+          code: 'BIOMETRIC_ONLY_NOT_SUPPORTED',
+        );
+      default:
+        return BiometricException(
+          'حدث خطأ في التحقق من البصمة: ${e.message ?? 'خطأ غير معروف'}',
+          code: e.code,
+        );
+    }
+  }
+
+  /// Authenticate with fallback to device credentials (PIN/Password)
+  /// المصادقة مع الرجوع لرمز المرور عند الحاجة
   Future<bool> authenticateWithFallback({
     required String reason,
   }) async {
     return authenticate(
       reason: reason,
       biometricOnly: false,
+      useErrorDialogs: true,
+    );
+  }
+
+  /// Authenticate for sensitive transactions
+  /// المصادقة للعمليات الحساسة
+  Future<bool> authenticateForSensitiveOperation({
+    String? customReason,
+  }) async {
+    final reason = customReason ?? 'تأكيد هويتك لإتمام هذه العملية الحساسة';
+    return authenticate(
+      reason: reason,
+      biometricOnly: false,
+      useErrorDialogs: true,
+    );
+  }
+
+  /// Quick authentication (biometric only, no PIN fallback)
+  /// مصادقة سريعة (البصمة فقط، بدون رمز المرور)
+  Future<bool> quickAuthenticate({
+    String? customReason,
+  }) async {
+    final reason = customReason ?? 'استخدم البصمة للمتابعة';
+    return authenticate(
+      reason: reason,
+      biometricOnly: true,
+      useErrorDialogs: false,
     );
   }
 

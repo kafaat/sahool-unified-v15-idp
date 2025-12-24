@@ -97,6 +97,27 @@ services:
     networks:
       - sahool-network
 
+  # Qdrant Vector Database - قاعدة البيانات المتجهة للـ RAG
+  # Used by ai-advisor for semantic search and embeddings
+  qdrant:
+    image: qdrant/qdrant:v1.10.1
+    container_name: sahool-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
   mqtt:
     image: eclipse-mosquitto:2.0.20
     container_name: sahool-mqtt
@@ -1151,6 +1172,8 @@ volumes:
     name: sahool-nats-data
   redis_data:
     name: sahool-redis-data
+  qdrant_data:
+    name: sahool-qdrant-data
   mqtt_data:
     name: sahool-mqtt-data
   mqtt_logs:

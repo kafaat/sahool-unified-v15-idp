@@ -19,7 +19,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /healthzz
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -256,7 +256,8 @@ upstreams:
 
   - name: community-upstream
     targets:
-      - target: sahool-community-service:8102
+      # Note: Redirected to community-chat service (sahool-community-service:8102 was deprecated)
+      - target: sahool-community-chat:8097
         weight: 100
     healthchecks:
       active:
@@ -371,7 +372,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /healthzz
+        http_path: /healthz
         healthy:
           interval: 10
           successes: 2
@@ -809,6 +810,12 @@ services:
           - /api/v1/weather
           - /api/v1/forecast
         strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
 
   # Field Chat Service
   - name: chat-service

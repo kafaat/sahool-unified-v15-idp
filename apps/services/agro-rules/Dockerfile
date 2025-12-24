@@ -21,10 +21,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install build dependencies (needed for nats-py)
+# Install build dependencies (needed for nats-py) and procps for health check
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip (non-fatal in case of network issues)

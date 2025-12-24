@@ -5,13 +5,17 @@ Port: 3000
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Optional, List
 from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query, Response
-from fastapi.middleware.cors import CORSMiddleware
+
+# Add path to shared config
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
+from cors_config import setup_cors_middleware
 
 from .models import (
     FieldCreate,
@@ -113,14 +117,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=os.getenv("CORS_ORIGINS", "*").split(","),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS - Use centralized secure configuration
+setup_cors_middleware(app)
 
 
 # ============== Health Endpoints ==============

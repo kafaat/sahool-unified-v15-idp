@@ -62,7 +62,7 @@ app = FastAPI(
 
 @app.get("/healthz")
 def health():
-    return {"status": "ok", "service": "weather_core", "version": "15.3.3"}
+    return {"status": "healthy", "service": "weather-core", "version": "15.3.3"}
 
 
 # ============== Request Models ==============

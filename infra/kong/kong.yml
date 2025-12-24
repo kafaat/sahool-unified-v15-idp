@@ -540,6 +540,164 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NEW: Missing Services Added - v16.0.1
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  - name: notification-upstream
+    targets:
+      - target: sahool-notification-service:8110
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: research-core-upstream
+    targets:
+      - target: sahool-research-core:3015
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: disaster-assessment-upstream
+    targets:
+      - target: sahool-disaster-assessment:3020
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/disasters/health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: yield-prediction-upstream
+    targets:
+      - target: sahool-yield-prediction:3021
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/yield/health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: lai-estimation-upstream
+    targets:
+      - target: sahool-lai-estimation:3022
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/lai/health
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: marketplace-upstream
+    targets:
+      - target: sahool-marketplace:3010
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /api/v1/healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
+  - name: billing-upstream
+    targets:
+      - target: sahool-billing-core:8089
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
+
 # ─────────────────────────────────────────────────────────────────────────────
 # JWT Consumers for Authentication
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1160,6 +1318,176 @@ services:
               # GIS operations - variable load
               minute: 50
               hour: 1000
+              policy: local
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # NEW: Missing Services Added - v16.0.1
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Notification Service - Push notifications & alerts
+  - name: notification-service
+    host: notification-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: notification-route
+        paths:
+          - /api/v1/notifications
+          - /api/v1/alerts/push
+          - /api/v1/subscriptions
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 2000
+              policy: local
+
+  # Research Core Service - Scientific experiments management
+  - name: research-core-service
+    host: research-core-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: research-core-route
+        paths:
+          - /api/v1/research
+          - /api/v1/experiments
+          - /api/v1/publications
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
+              policy: local
+
+  # Disaster Assessment Service - Agricultural disaster assessment
+  - name: disaster-assessment-service
+    host: disaster-assessment-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: disaster-assessment-route
+        paths:
+          - /api/v1/disasters
+          - /api/v1/damage-assessment
+          - /api/v1/insurance-claims
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 30
+              hour: 500
+              policy: local
+
+  # Yield Prediction Service - ML-based yield prediction
+  - name: yield-prediction-service
+    host: yield-prediction-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: yield-prediction-route
+        paths:
+          - /api/v1/yield-prediction
+          - /api/v1/yield/forecast
+          - /api/v1/yield/models
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # ML predictions - compute intensive
+              minute: 20
+              hour: 300
+              policy: local
+
+  # LAI Estimation Service - Leaf Area Index estimation
+  - name: lai-estimation-service
+    host: lai-estimation-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: lai-estimation-route
+        paths:
+          - /api/v1/lai
+          - /api/v1/leaf-area
+          - /api/v1/canopy
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              # ML/Remote sensing - compute intensive
+              minute: 20
+              hour: 300
+              policy: local
+
+  # Marketplace Service - Agricultural marketplace & FinTech
+  - name: marketplace-service
+    host: marketplace-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: marketplace-route
+        paths:
+          - /api/v1/marketplace
+          - /api/v1/products
+          - /api/v1/orders
+          - /api/v1/payments
+          - /api/v1/transactions
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 2000
+              policy: local
+
+  # Billing Core Service - Subscription & invoicing
+  - name: billing-service
+    host: billing-upstream
+    port: 80
+    protocol: http
+    retries: 3
+    connect_timeout: 30000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: billing-route
+        paths:
+          - /api/v1/billing
+          - /api/v1/subscriptions
+          - /api/v1/invoices
+          - /api/v1/plans
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1500
               policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────

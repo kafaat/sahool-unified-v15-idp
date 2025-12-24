@@ -92,20 +92,20 @@ class IoTRulesWorker:
 
         print("🔧 IoT Rules Worker started")
 
-        # Subscribe to sensor readings
+        # Subscribe to sensor readings (unified sahool.* namespace)
         await self.nc.subscribe(
-            "iot.sensor_reading",
+            "sahool.iot.sensor_reading",
             cb=self._handle_sensor_reading,
         )
 
         # Subscribe to specific sensor types for high-priority rules
         for sensor_type in ["soil_moisture", "air_temperature", "soil_ec"]:
             await self.nc.subscribe(
-                f"iot.sensor.{sensor_type}",
+                f"sahool.iot.sensor.{sensor_type}",
                 cb=self._handle_sensor_reading,
             )
 
-        print("📡 Subscribed to IoT sensor events")
+        print("📡 Subscribed to sahool.iot.* sensor events")
 
         # Start periodic combined rule evaluation
         asyncio.create_task(self._periodic_evaluation())

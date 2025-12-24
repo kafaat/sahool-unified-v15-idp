@@ -93,7 +93,8 @@ class ApiConfig {
   }
 
   /// Use direct service URLs in development (bypass gateway)
-  static const bool useDirectServices = true;
+  /// Set to false to use the unified gateway (mock-server on port 8000)
+  static const bool useDirectServices = false;
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Field Core Endpoints (port 3000)

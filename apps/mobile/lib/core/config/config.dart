@@ -1,8 +1,11 @@
 /// SAHOOL Field App Configuration
 class AppConfig {
-  // API Configuration (via Kong API Gateway)
-  static const String apiBaseUrl = 'http://192.168.8.105:8103/api/v1';
-  static const String wsBaseUrl = 'ws://192.168.8.105:8089';
+  // API Configuration (via Kong API Gateway on port 8000)
+  // For development with Android Emulator, use 10.0.2.2 (host machine)
+  // For iOS Simulator, use localhost
+  // For real devices, set your machine's IP address
+  static const String apiBaseUrl = 'http://10.0.2.2:8000/api/v1';
+  static const String wsBaseUrl = 'ws://10.0.2.2:8081';
 
   // Sync Configuration
   static const Duration syncInterval = Duration(seconds: 20);
@@ -49,8 +52,8 @@ class EnvConfig {
 
   static const development = EnvConfig(
     env: Environment.development,
-    apiUrl: 'http://10.0.2.2:8000/api/v1', // Android emulator via Kong
-    wsUrl: 'ws://10.0.2.2:8090',
+    apiUrl: 'http://10.0.2.2:8000/api/v1', // Android emulator via Kong Gateway
+    wsUrl: 'ws://10.0.2.2:8081', // WebSocket Gateway (ws-gateway)
   );
 
   static const staging = EnvConfig(

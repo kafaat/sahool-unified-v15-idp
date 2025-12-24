@@ -42,7 +42,14 @@ shared/integration/
 └── discovery.py        # Service discovery
 ```
 
-### 4. 📌 Versions | الإصدارات
+### 4. ⚖️ Compliance Layer | طبقة الامتثال
+```
+shared/compliance/
+├── __init__.py         # Exports
+└── routes_gdpr.py      # GDPR compliance endpoints
+```
+
+### 5. 📌 Versions | الإصدارات
 ```
 shared/versions.py      # Unified library versions
 ```
@@ -264,6 +271,31 @@ export PYTHONPATH="${PYTHONPATH}:/path/to/apps/services"
 
 ---
 
+## ⚖️ Compliance Layer | طبقة الامتثال
+
+### GDPR Endpoints
+
+```python
+from shared.compliance import gdpr_router
+
+# إضافة مسارات GDPR
+app.include_router(gdpr_router)
+```
+
+### المسارات المتاحة | Available Endpoints
+
+| المسار | الوصف | GDPR Article |
+|--------|-------|--------------|
+| `POST /gdpr/export` | طلب تصدير البيانات | Article 15, 20 |
+| `POST /gdpr/delete` | طلب حذف البيانات | Article 17 |
+| `GET /gdpr/consent/{user_id}` | عرض الموافقات | - |
+| `POST /gdpr/consent` | تسجيل موافقة | - |
+| `DELETE /gdpr/consent/{user_id}/{purpose}` | إلغاء موافقة | - |
+| `GET /gdpr/audit/{user_id}` | سجل التدقيق | Article 15 |
+| `GET /gdpr/status` | حالة الامتثال | - |
+
+---
+
 ## أفضل الممارسات | Best Practices
 
 1. **استخدم Repository Pattern** لجميع عمليات قاعدة البيانات
@@ -271,3 +303,4 @@ export PYTHONPATH="${PYTHONPATH}:/path/to/apps/services"
 3. **استخدم Circuit Breaker** للاتصال بين الخدمات
 4. **تحقق من الصلاحيات** قبل كل عملية حساسة
 5. **سجل الاستخدام** لكل عملية مدفوعة
+6. **استخدم GDPR routes** لجميع طلبات الامتثال

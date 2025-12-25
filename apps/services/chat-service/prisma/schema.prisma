@@ -1,0 +1,135 @@
+// SAHOOL Chat Service Schema
+// مخطط قاعدة بيانات خدمة المحادثات للسوق الزراعي
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. المحادثات - Conversations
+// المحادثات بين المشترين والبائعين في السوق الزراعي
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Conversation {
+  id          String   @id @default(uuid())
+
+  // المشاركون (مصفوفة من معرفات المستخدمين)
+  participantIds String[] @map("participant_ids")
+
+  // ارتباط بالمنتج أو الطلب (اختياري)
+  productId   String?  @map("product_id")
+  orderId     String?  @map("order_id")
+
+  // آخر رسالة (للعرض السريع)
+  lastMessage String?  @map("last_message")
+  lastMessageAt DateTime? @map("last_message_at")
+
+  // الحالة
+  isActive    Boolean  @default(true) @map("is_active")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // العلاقات
+  messages    Message[]
+  participants Participant[]
+
+  @@map("conversations")
+  @@index([productId])
+  @@index([orderId])
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2. الرسائل - Messages
+// الرسائل المتبادلة في المحادثات
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+
+  // المرسل
+  senderId       String   @map("sender_id")
+
+  // المحتوى
+  content        String
+  messageType    MessageType @default(TEXT) @map("message_type")
+
+  // للصور والملفات
+  attachmentUrl  String?  @map("attachment_url")
+
+  // لعروض الأسعار
+  offerAmount    Float?   @map("offer_amount")
+  offerCurrency  String?  @default("YER") @map("offer_currency")
+
+  // حالة القراءة
+  isRead         Boolean  @default(false) @map("is_read")
+  readAt         DateTime? @map("read_at")
+
+  // التوقيت
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // العلاقات
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([createdAt])
+}
+
+enum MessageType {
+  TEXT         // رسالة نصية
+  IMAGE        // صورة
+  OFFER        // عرض سعر
+  SYSTEM       // رسالة النظام
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. المشاركون - Participants
+// المشاركون في المحادثة مع تفاصيل دورهم
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Participant {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  userId         String   @map("user_id")
+
+  // الدور
+  role           ParticipantRole @default(BUYER)
+
+  // آخر قراءة
+  lastReadAt     DateTime? @map("last_read_at")
+
+  // عدد الرسائل غير المقروءة
+  unreadCount    Int      @default(0) @map("unread_count")
+
+  // الحالة
+  isOnline       Boolean  @default(false) @map("is_online")
+  lastSeenAt     DateTime? @map("last_seen_at")
+
+  // كتابة
+  isTyping       Boolean  @default(false) @map("is_typing")
+
+  // التوقيت
+  joinedAt       DateTime @default(now()) @map("joined_at")
+
+  // العلاقات
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@map("participants")
+  @@index([userId])
+  @@index([conversationId])
+}
+
+enum ParticipantRole {
+  BUYER        // مشتري
+  SELLER       // بائع
+}

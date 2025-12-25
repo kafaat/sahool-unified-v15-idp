@@ -9,6 +9,7 @@ import 'dart:io';
 class ServicePorts {
   static const int fieldCore = 3000;
   static const int marketplace = 3010; // Marketplace & FinTech Service
+  static const int chat = 3011; // Chat/Messaging Service (REST + Socket.io)
   static const int satellite = 8090;
   static const int indicators = 8091;
   static const int weather = 8092;
@@ -79,6 +80,7 @@ class ApiConfig {
   static String get cropHealthServiceUrl => 'http://$_host:${ServicePorts.cropHealth}';
   static String get virtualSensorsServiceUrl => 'http://$_host:${ServicePorts.virtualSensors}';
   static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
+  static String get chatServiceUrl => 'http://$_host:${ServicePorts.chat}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
   static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
   static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
@@ -315,6 +317,7 @@ class ApiConfig {
     'cropHealth': healthCheck(cropHealthServiceUrl),
     'virtualSensors': healthCheck(virtualSensorsServiceUrl),
     'communityChat': healthCheck(communityChatServiceUrl),
+    'chat': healthCheck(chatServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
     'notifications': healthCheck(notificationsServiceUrl),
     'marketplace': healthCheck(marketplaceServiceUrl),
@@ -378,4 +381,24 @@ class ApiConfig {
   static String userMarketOrders(String userId) => '$_marketplaceBase/api/v1/market/orders/user/$userId';
   static String get marketStats => '$_marketplaceBase/api/v1/market/stats';
   static String get marketplaceHealthz => '$_marketplaceBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Chat/Messaging Service Endpoints (port 3011)
+  // خدمة المحادثات والرسائل
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _chatBase => useDirectServices ? chatServiceUrl : effectiveBaseUrl;
+
+  /// Chat REST endpoints
+  static String get chatConversations => '$_chatBase/api/v1/conversations';
+  static String chatConversationById(String id) => '$_chatBase/api/v1/conversations/$id';
+  static String chatMessages(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/messages';
+  static String chatSendMessage(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/messages';
+  static String chatMarkRead(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/read';
+  static String get chatCreateConversation => '$_chatBase/api/v1/conversations';
+  static String get chatUnreadCount => '$_chatBase/api/v1/conversations/unread-count';
+  static String get chatHealthz => '$_chatBase/healthz';
+
+  /// Chat Socket.io URL
+  static String get chatSocketUrl => chatServiceUrl;
 }

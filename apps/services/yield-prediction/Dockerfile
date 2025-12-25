@@ -44,7 +44,7 @@ RUN chown -R node:node /app
 USER node
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3021/api/v1/yield/health || exit 1
 
 # Run the application

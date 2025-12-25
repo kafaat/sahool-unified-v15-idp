@@ -248,7 +248,11 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - PORT=8108
-      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+      # Weather Multi-Provider Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
       - "8108:8108"
     depends_on:
@@ -720,6 +724,7 @@ services:
 
   # Satellite Service - NDVI Analysis & Satellite Imagery (Python + FastAPI)
   # خدمة الأقمار الصناعية - تحليل NDVI وصور الأقمار الصناعية
+  # Multi-provider support with automatic fallback
   satellite_service:
     build:
       context: ./apps/services/satellite-service
@@ -729,8 +734,21 @@ services:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Multi-Provider Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      # Sentinel Hub (ESA Copernicus - Free tier: 30,000 units/month)
+      # Register at: https://www.sentinel-hub.com/
+      - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
+      - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      # NASA Earthdata (Free - MODIS/VIIRS data)
+      # Register at: https://urs.earthdata.nasa.gov/
+      - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
+      - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
+      # Planet Labs (Optional - Paid high-resolution imagery)
       - PLANET_API_KEY=${PLANET_API_KEY:-}
       - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
+      # Redis Cache for satellite imagery
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
@@ -1108,7 +1126,18 @@ services:
       - SERVICE_PORT=8112
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Multi-Provider LLM Configuration (with automatic fallback)
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - PRIMARY_LLM_PROVIDER=${PRIMARY_LLM_PROVIDER:-anthropic}
+      # Anthropic Claude (Primary - Recommended)
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-5-sonnet-20241022}
+      # OpenAI GPT (Fallback)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      # Google Gemini (Optional)
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
       # External service URLs
       - CROP_HEALTH_URL=http://crop_health_ai:8095
       - WEATHER_URL=http://weather_core:8108

@@ -26,7 +26,7 @@
     "@tanstack/react-query": "5.62.8",
     "axios": "1.7.9",
     "date-fns": "4.1.0",
-    "recharts": "2.14.1",
+    "recharts": "3.6.0",
     "lucide-react": "0.468.0",
     "clsx": "2.1.1",
     "tailwind-merge": "2.6.0",

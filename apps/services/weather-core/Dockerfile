@@ -2,9 +2,7 @@
 # ============================
 # Uses shared base image for consistency
 # Version: 16.0.0
-
-ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim AS base
+FROM python:3.11-slim
 
 # Build arguments
 ARG SERVICE_NAME=weather-core

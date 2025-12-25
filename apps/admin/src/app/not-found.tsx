@@ -1,10 +1,7 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-  title: '404 - الصفحة غير موجودة | Sahool Admin',
-  description: 'الصفحة التي تبحث عنها غير موجودة',
-};
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /**
  * Custom 404 Page for SAHOOL Admin Dashboard

@@ -3,13 +3,14 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
 # Use npm install with retry for network resilience
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm install
 
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN npm install -g npm@11.7.0
+RUN npm run dev
 
 FROM node:20-alpine AS runner
 WORKDIR /app

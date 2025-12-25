@@ -16,10 +16,7 @@ const nextConfig = {
   // RTL support is handled in layout.tsx via lang="ar" dir="rtl"
   // For full i18n with App Router, use next-intl or similar library
 
-  // Disable telemetry for Docker builds
-  telemetry: {
-    enabled: false,
-  },
+  // Note: telemetry is disabled via NEXT_TELEMETRY_DISABLED env var in Dockerfile
 
   // TypeScript - strict mode enabled for production safety
   typescript: {
@@ -31,8 +28,7 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
 
-  // Optimize for production
-  swcMinify: true,
+  // Note: swcMinify is enabled by default in Next.js 15
 
   // Configure webpack for better error handling
   webpack: (config, { isServer }) => {
@@ -44,13 +40,20 @@ const nextConfig = {
       tls: false,
     };
 
+    // Add parent node_modules to module resolution for workspace dependencies
+    // This allows Next.js to find dependencies hoisted to the root in npm workspaces
+    const path = require('path');
+    const parentNodeModules = path.resolve(__dirname, '../../node_modules');
+    config.resolve.modules = [
+      ...(config.resolve.modules || ['node_modules']),
+      parentNodeModules,
+    ];
+
     return config;
   },
 
   // Experimental features
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
+  // Note: missingSuspenseWithCSRBailout was removed in Next.js 15
 };
 
 module.exports = nextConfig;

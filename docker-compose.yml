@@ -49,7 +49,7 @@ services:
       - "8000:8000"
       - "127.0.0.1:8001:8001"
     volumes:
-      - ./infra/kong/kong.yml:/kong/declarative/kong.yml
+      - ./infra/kong/kong.yml:/kong/declarative/kong.yml:ro
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 30s
@@ -67,7 +67,7 @@ services:
     volumes:
       - nats_data:/data
     ports:
-      - "4222:4222"
+      - "127.0.0.1:4222:4222"
       - "127.0.0.1:8222:8222"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
@@ -1286,7 +1286,7 @@ services:
       - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana_data:/var/lib/grafana
     ports:
-      - "3002:3000"
+      - "127.0.0.1:3002:3000"
     depends_on:
       prometheus:
         condition: service_healthy

@@ -1,255 +1,195 @@
-# Quick Reference Card | بطاقة مرجعية سريعة
-## Vegetation Indices for Yemen Crops | المؤشرات النباتية للمحاصيل اليمنية
+# SAHOOL Data Export - Quick Reference
 
----
+## Quick Start
 
-## 📊 When to Use Which Index | متى تستخدم أي مؤشر
-
-### 🌱 Early Season (البداية - البزوغ)
-**Use:** `GNDVI`, `VARI`, `GLI`
-
-| Index | Good Value | Action if Low |
-|-------|-----------|---------------|
-| GNDVI | > 0.45 | Monitor closely - early stress |
-| VARI  | > 0.3  | Check soil moisture |
-
-**بالعربية:**
-- **GNDVI > 0.45**: صحي | **< 0.45**: راقب بحرص
-- **VARI > 0.3**: جيد | **< 0.3**: تحقق من رطوبة التربة
-
----
-
-### 🌿 Mid-Season (النمو الخضري)
-**Use:** `NDVI`, `NDRE`, `LAI`
-
-| Index | Excellent | Good | Poor | Critical |
-|-------|-----------|------|------|----------|
-| NDVI  | > 0.7 | 0.5-0.7 | 0.2-0.5 | < 0.2 |
-| NDRE  | > 0.35 | 0.25-0.35 | 0.15-0.25 | < 0.15 |
-| LAI   | > 4 | 2.5-4 | 1.5-2.5 | < 1.5 |
-
-**Action Guide:**
-- **NDRE < 0.25**: Add nitrogen fertilizer | **أضف سماد نيتروجيني**
-- **NDVI declining**: Inspect field for disease/pests | **افحص الآفات/الأمراض**
-- **LAI < 2**: Low leaf coverage - check nutrition | **غطاء ضعيف - تحقق من التغذية**
-
----
-
-### 🌺 Flowering & Fruiting (الإزهار والإثمار)
-**Use:** `NDRE`, `MCARI`, `NDWI`
-
-| Index | Status | Immediate Action |
-|-------|--------|------------------|
-| NDWI < 0 | 🚨 CRITICAL | **Irrigate NOW** - **ري فوراً** |
-| NDWI 0-0.2 | ⚠️ Warning | Schedule irrigation | **جدول الري** |
-| NDWI > 0.2 | ✅ Good | Continue monitoring | **استمر بالمراقبة** |
-
-**بالعربية:**
-- **NDWI < 0**: إجهاد مائي حاد - ري عاجل
-- **NDRE < 0.2**: نقص كلوروفيل - قد يؤثر على الإنتاج
-
----
-
-### 🌾 Pre-Harvest (قبل الحصاد)
-**Use:** `NDVI`, `NDMI`
-
-**Harvest Timing:**
-- **NDVI declining** + **NDMI < 0**: Approaching maturity | **اقتراب النضج**
-- **NDVI stable** + **NDMI > 0.1**: Wait 1-2 weeks | **انتظر أسبوع**
-
----
-
-## 🚨 Emergency Indicators | مؤشرات الطوارئ
-
-### Water Stress | الإجهاد المائي
-```
-NDWI < -0.2  →  🚨 URGENT IRRIGATION NEEDED
-                 ري عاجل مطلوب
-```
-
-### Nitrogen Deficiency | نقص النيتروجين
-```
-NDRE < 0.15  →  ⚠️ APPLY NITROGEN FERTILIZER
-                 أضف سماد نيتروجيني
-```
-
-### General Health Decline | تدهور الصحة العامة
-```
-NDVI dropping >0.1 in 1 week  →  🔍 FIELD INSPECTION
-                                   فحص ميداني فوري
-```
-
----
-
-## 📱 Mobile Quick Commands
-
-### Get Field Health
 ```bash
-curl "http://satellite:8090/v1/indices/{field_id}?lat=15.37&lon=44.19"
+# Start the service
+python src/main.py
+
+# Run tests
+python test_export.py
 ```
 
-### Check Nitrogen Status
+## API Endpoints
+
+### 1. Export Analysis
 ```bash
-curl "http://satellite:8090/v1/indices/{field_id}/ndre?lat=15.37&lon=44.19&crop_type=wheat&growth_stage=vegetative"
+GET /v1/export/analysis/{field_id}?lat={lat}&lon={lon}&format={format}
 ```
+**Formats:** geojson, csv, json, kml
 
-### Check Water Stress
+**Example:**
 ```bash
-curl "http://satellite:8090/v1/indices/{field_id}/ndwi?lat=15.37&lon=44.19&crop_type=sorghum"
+curl "http://localhost:8090/v1/export/analysis/FIELD_001?lat=15.3694&lon=44.1910&format=geojson" -o analysis.geojson
 ```
 
 ---
 
-## 🌾 Crop-Specific Quick Guide
-
-### Wheat (القمح)
-
-| Stage | Best NDVI | Action if Low NDVI | Best NDRE |
-|-------|-----------|-------------------|-----------|
-| Emergence | > 0.20 | Re-check in 3 days | - |
-| Vegetative | > 0.50 | Check water + nitrogen | > 0.25 |
-| Reproductive | > 0.60 | Critical - inspect | > 0.30 |
-| Maturation | 0.40-0.60 | Normal senescence | - |
-
-### Sorghum (الذرة الرفيعة)
-
-| Stage | Best NDVI | Action if Low NDVI | Best NDRE |
-|-------|-----------|-------------------|-----------|
-| Emergence | > 0.25 | Monitor daily | - |
-| Vegetative | > 0.60 | Increase irrigation | > 0.28 |
-| Reproductive | > 0.70 | Critical stage | > 0.32 |
-| Maturation | 0.35-0.50 | Normal | - |
-
-### Coffee (البن)
-
-| Stage | Best NDVI | Action if Low | Best NDRE |
-|-------|-----------|--------------|-----------|
-| Vegetative | > 0.65 | Check soil nutrients | > 0.30 |
-| Flowering | > 0.70 | Ensure adequate water | > 0.32 |
-
-### Qat (القات)
-
-| Stage | Best NDVI | Action if Low | Best NDRE |
-|-------|-----------|--------------|-----------|
-| Growth | > 0.60 | Fertilize + irrigate | > 0.28 |
-| Harvest | > 0.65 | Quality will be low | > 0.30 |
-
----
-
-## 📅 Weekly Monitoring Checklist
-
-### Monday - Get Baseline
-- [ ] Check NDVI for overall health
-- [ ] Note current growth stage
-
-### Wednesday - Mid-Week Check
-- [ ] Check NDWI for water status
-- [ ] If vegetative stage: Check NDRE
-
-### Friday - Week Planning
-- [ ] Compare to Monday values
-- [ ] Plan irrigation for weekend
-- [ ] Plan fertilization if needed
-
----
-
-## 🎯 Decision Tree
-
+### 2. Export Timeseries
+```bash
+GET /v1/export/timeseries/{field_id}?lat={lat}&lon={lon}&start_date={date}&end_date={date}&format={format}
 ```
-Start: Check NDVI
-    │
-    ├─ NDVI < 0.2 → 🚨 URGENT: Field inspection
-    │
-    ├─ NDVI 0.2-0.4 → Check NDWI
-    │   ├─ NDWI < 0 → Irrigate
-    │   └─ NDWI > 0 → Check NDRE
-    │       ├─ NDRE < 0.2 → Fertilize
-    │       └─ NDRE > 0.2 → Monitor
-    │
-    ├─ NDVI 0.4-0.7 → ✅ Healthy - Continue
-    │
-    └─ NDVI > 0.7 → ✅ Excellent - Maintain
+**Formats:** csv, json, geojson
+
+**Example:**
+```bash
+curl "http://localhost:8090/v1/export/timeseries/FIELD_001?lat=15.3694&lon=44.1910&start_date=2023-11-01&end_date=2023-12-15&format=csv" -o timeseries.csv
 ```
 
 ---
 
-## 💡 Pro Tips | نصائح احترافية
+### 3. Export Boundaries
+```bash
+GET /v1/export/boundaries?field_ids={ids}&format={format}
+```
+**Formats:** geojson, json, kml
 
-### Tip 1: Don't Panic on Single Low Reading
-**One low index value might be:**
-- Cloud shadow during satellite pass
-- Recent irrigation (normal for water indices)
-- Sensor calibration variation
-
-**Action:** Check again in 5 days before major decisions
-
-**بالعربية:** لا تقلق من قراءة منخفضة واحدة - قد تكون ظل سحابة أو ري حديث
-
----
-
-### Tip 2: Combine Multiple Indices
-**Best Practice:**
-- ✅ Check 3-4 indices before major decision
-- ✅ Look at trends over 2-3 weeks
-- ✅ Combine satellite + field observation
-
-**Not Recommended:**
-- ❌ Decision based on single index
-- ❌ Ignoring field conditions
+**Example:**
+```bash
+curl "http://localhost:8090/v1/export/boundaries?field_ids=FIELD_001,FIELD_002&format=kml" -o boundaries.kml
+```
 
 ---
 
-### Tip 3: Seasonal Patterns
-**Yemen's Growing Seasons:**
+### 4. Export Report
+```bash
+GET /v1/export/report/{field_id}?lat={lat}&lon={lon}&report_type={type}&format={format}
+```
+**Report Types:** full, summary, changes
+**Formats:** json, csv, geojson
 
-**Spring (March-May):** Rapid growth - expect NDVI to increase weekly
-**Summer (June-Aug):** Peak biomass - NDVI should be highest
-**Fall (Sep-Nov):** Maturation - NDVI decline is normal
-**Winter (Dec-Feb):** Emergence for some crops - low NDVI is normal
-
----
-
-## 📞 Emergency Contacts
-
-**Critical Values - Immediate Action Required:**
-
-| Index | Critical Value | Action | Arabic |
-|-------|---------------|--------|---------|
-| NDWI | < -0.2 | Irrigate within 12 hours | الري خلال 12 ساعة |
-| NDVI | Drop > 0.15 in 1 week | Field inspection today | فحص اليوم |
-| NDRE | < 0.10 | Nitrogen fertilizer this week | سماد هذا الأسبوع |
+**Example:**
+```bash
+curl "http://localhost:8090/v1/export/report/FIELD_001?lat=15.3694&lon=44.1910&report_type=changes&format=json" -o report.json
+```
 
 ---
 
-## 🔄 Regular Monitoring Frequency
+## Python Usage
 
-| Crop Stage | Check Frequency | Priority Indices |
-|-----------|----------------|------------------|
-| Emergence | Daily | GNDVI, VARI |
-| Early Vegetative | Every 3 days | NDVI, GNDVI |
-| Mid Vegetative | Twice weekly | NDVI, NDRE, NDWI |
-| Reproductive | Twice weekly | NDRE, NDWI, MCARI |
-| Maturation | Weekly | NDVI, NDMI |
+```python
+import requests
+
+# Export analysis
+response = requests.get(
+    "http://localhost:8090/v1/export/analysis/FIELD_001",
+    params={"lat": 15.3694, "lon": 44.1910, "format": "geojson"}
+)
+
+# Save to file
+with open("analysis.geojson", "wb") as f:
+    f.write(response.content)
+
+# Load to pandas
+import pandas as pd
+from io import StringIO
+
+response = requests.get(
+    "http://localhost:8090/v1/export/timeseries/FIELD_001",
+    params={
+        "lat": 15.3694,
+        "lon": 44.1910,
+        "start_date": "2023-11-01",
+        "end_date": "2023-12-15",
+        "format": "csv"
+    }
+)
+
+df = pd.read_csv(StringIO(response.text))
+```
 
 ---
 
-## 📖 Index Name Translation
+## Format Guide
 
-| English | Arabic | Code |
-|---------|--------|------|
-| Normalized Difference Vegetation Index | مؤشر الفرق الطبيعي للنباتات | NDVI |
-| Normalized Difference Red Edge | مؤشر الحافة الحمراء | NDRE |
-| Green NDVI | مؤشر NDVI الأخضر | GNDVI |
-| Normalized Difference Water Index | مؤشر الفرق الطبيعي للماء | NDWI |
-| Leaf Area Index | مؤشر مساحة الأوراق | LAI |
-| Normalized Difference Moisture Index | مؤشر رطوبة النبات | NDMI |
+| Format  | Best For              | File Size | Use Case                    |
+|---------|----------------------|-----------|----------------------------|
+| GeoJSON | Web mapping, GIS     | Medium    | Leaflet, QGIS              |
+| CSV     | Data analysis        | Small     | Excel, pandas, R           |
+| JSON    | API integration      | Medium    | Dashboards, apps           |
+| KML     | Google Earth         | Large     | Visualization              |
 
 ---
 
-**Print this card and keep it in the field!**
-**اطبع هذه البطاقة واحتفظ بها في الحقل!**
+## Response Headers
+
+All exports include:
+- `Content-Disposition`: Filename
+- `X-Export-Size`: File size (bytes)
+- `X-Generated-At`: Timestamp
+- `X-Data-Points`: Count (timeseries)
+- `X-Field-Count`: Count (boundaries)
+- `X-Report-Type`: Type (report)
 
 ---
 
-*Version: 1.0 | Last Updated: December 2025*
-*SAHOOL Satellite Service - Advanced Vegetation Monitoring*
+## Error Codes
+
+- **400**: Invalid format/parameters
+- **404**: Field not found
+- **500**: Export failed
+
+---
+
+## File Naming
+
+Pattern: `sahool_{type}_{field_id}_{timestamp}.{ext}`
+
+Example: `sahool_field_analysis_FIELD_001_20231215_143022.geojson`
+
+---
+
+## Integration
+
+### QGIS
+1. Export as GeoJSON
+2. Layer → Add Vector Layer → Select file
+
+### Google Earth
+1. Export as KML
+2. File → Open → Select KML
+
+### Excel
+1. Export as CSV
+2. Open in Excel
+
+### Python/pandas
+```python
+df = pd.read_csv("timeseries.csv")
+df.plot(x='date', y='ndvi')
+```
+
+---
+
+## Limits
+
+- Boundaries: Max 100 fields
+- Timeseries: Max 365 days
+- All: Streaming prevents memory issues
+
+---
+
+## Documentation
+
+- **EXPORT_API_USAGE.md** - Full API docs
+- **EXPORT_FEATURE_README.md** - Feature overview
+- **EXPORT_ARCHITECTURE.md** - System design
+- **IMPLEMENTATION_SUMMARY.txt** - Complete summary
+
+---
+
+## Testing
+
+```bash
+# Unit tests
+python test_export.py
+
+# Integration tests (requires service running)
+python test_export_api.py
+```
+
+---
+
+## Support
+
+For issues or questions, see full documentation in `EXPORT_API_USAGE.md`

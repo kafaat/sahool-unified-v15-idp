@@ -138,9 +138,23 @@ class ApiConfig {
   static String get ndvi => '$_satelliteBase/v1/analyze';
   static String ndviByFieldId(String fieldId) => '$_satelliteBase/v1/analyze/$fieldId';
   static String get ndviTimeseries => '$_satelliteBase/v1/timeseries';
+  static String ndviTimeseriesByFieldId(String fieldId) => '$_satelliteBase/v1/timeseries/$fieldId';
   static String get satellites => '$_satelliteBase/v1/satellites';
   static String get regions => '$_satelliteBase/v1/regions';
   static String get imagery => '$_satelliteBase/v1/imagery';
+  static String imageryByFieldId(String fieldId) => '$_satelliteBase/v1/imagery/$fieldId';
+
+  /// Vegetation indices endpoints
+  static String get indices => '$_satelliteBase/v1/indices';
+  static String indicesByFieldId(String fieldId) => '$_satelliteBase/v1/indices/$fieldId';
+
+  /// Field health endpoints
+  static String get fieldHealth => '$_satelliteBase/v1/health';
+  static String fieldHealthByFieldId(String fieldId) => '$_satelliteBase/v1/health/$fieldId';
+
+  /// Phenology endpoints
+  static String get phenology => '$_satelliteBase/v1/phenology';
+  static String phenologyByFieldId(String fieldId) => '$_satelliteBase/v1/phenology/$fieldId';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Weather Service Endpoints (port 8092)
@@ -154,8 +168,10 @@ class ApiConfig {
   static String weatherByLocation(String location) => '$_weatherBase/v1/current/$location';
   static String get forecast => '$_weatherBase/v1/forecast';
   static String forecastByLocation(String location) => '$_weatherBase/v1/forecast/$location';
+  static String forecastByFieldId(String fieldId) => '$_weatherBase/v1/forecast/field/$fieldId';
   static String get weatherAlerts => '$_weatherBase/v1/alerts';
   static String weatherAlertsByLocation(String location) => '$_weatherBase/v1/alerts/$location';
+  static String weatherAlertsByFieldId(String fieldId) => '$_weatherBase/v1/alerts/field/$fieldId';
   static String get weatherLocations => '$_weatherBase/v1/locations';
   static String get agriculturalCalendar => '$_weatherBase/v1/agricultural-calendar';
 

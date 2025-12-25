@@ -746,6 +746,7 @@ services:
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
       # Planet Labs (Optional - Paid high-resolution imagery)
       - PLANET_API_KEY=${PLANET_API_KEY:-}
+      - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
       # Redis Cache for satellite imagery
       - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}

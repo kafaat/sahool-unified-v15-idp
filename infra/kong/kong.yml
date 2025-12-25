@@ -1490,6 +1490,7 @@ services:
           - /api/v1/subscriptions
           - /api/v1/invoices
           - /api/v1/plans
+          - /api/v1/payments
         strip_path: false
         plugins:
           - name: rate-limiting
@@ -1497,6 +1498,20 @@ services:
               minute: 60
               hour: 1500
               policy: local
+      # Tharwatt Payment Webhook - ويب هوك ثروات
+      - name: tharwatt-webhook-route
+        paths:
+          - /api/v1/webhooks/tharwatt
+        strip_path: false
+        methods:
+          - POST
+      # Stripe Payment Webhook - ويب هوك سترايب
+      - name: stripe-webhook-route
+        paths:
+          - /api/v1/webhooks/stripe
+        strip_path: false
+        methods:
+          - POST
 
   # AI Advisor Service - Multi-Agent Agricultural Intelligence
   # خدمة المستشار الذكي - الذكاء الاصطناعي المتعدد الوكلاء

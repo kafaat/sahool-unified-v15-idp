@@ -22,6 +22,9 @@ python-dateutil==2.8.2
 # HTTP Client (for inter-service communication)
 httpx==0.28.1
 
+# NATS Messaging (for event-driven architecture)
+nats-py==2.9.0
+
 # Utilities
 python-dotenv==1.0.1
 

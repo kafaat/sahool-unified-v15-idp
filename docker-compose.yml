@@ -733,8 +733,14 @@ services:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Sentinel Hub Configuration (ESA Copernicus - Free tier available)
+      # Get credentials at: https://www.sentinel-hub.com/
+      - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
+      - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      # Planet Labs (Optional - Paid high-resolution imagery)
       - PLANET_API_KEY=${PLANET_API_KEY:-}
-      - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
+      # Redis Cache for satellite imagery
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:

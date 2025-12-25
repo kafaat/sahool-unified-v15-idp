@@ -254,28 +254,7 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
-  - name: community-upstream
-    targets:
-      # Note: Redirected to community-chat service (sahool-community-service:8102 was deprecated)
-      - target: sahool-community-chat:8097
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
+  # Note: community-upstream removed, consolidated into community-chat-upstream
 
   - name: provider-config-upstream
     targets:
@@ -968,9 +947,9 @@ services:
           - /api/v1/equipment
         strip_path: false
 
-  # Community Service
+  # Community Service (consolidated with community-chat-upstream)
   - name: community-service
-    host: community-upstream
+    host: community-chat-upstream
     port: 80
     protocol: http
     retries: 3

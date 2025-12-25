@@ -29,17 +29,17 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install curl for health checks and OpenSSL for Prisma compatibility
+RUN apk add --no-cache curl openssl
 
 # Copy package files
 COPY package.json package-lock.json ./
 # Install with increased retries and timeout for network resilience
 RUN npm install --only=production --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
-# Copy prisma
+# Copy prisma schema and regenerate client for production environment
 COPY --from=builder /app/prisma ./prisma/
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+RUN npx prisma generate
 
 # Copy built application
 COPY --from=builder /app/dist ./dist

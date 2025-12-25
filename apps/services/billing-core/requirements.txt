@@ -5,7 +5,8 @@
 # Web Framework
 fastapi==0.115.6
 uvicorn[standard]==0.32.1
-pydantic==2.10.3
+pydantic[email]==2.10.3
+email-validator==2.2.0
 
 # Database (uses shared database layer)
 sqlalchemy==2.0.36

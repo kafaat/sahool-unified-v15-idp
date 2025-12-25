@@ -179,9 +179,9 @@ class SatelliteTool:
     async def get_time_series(
         self,
         field_id: str,
-        index: str = "ndvi",
         start_date: str,
         end_date: str,
+        index: str = "ndvi",
     ) -> Dict[str, Any]:
         """
         Get time series data for vegetation indices

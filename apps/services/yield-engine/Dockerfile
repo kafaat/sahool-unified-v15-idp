@@ -10,9 +10,8 @@
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    apt-transport-https \
+# Install build dependencies (needed for compiling Python packages)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -39,8 +38,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     LOG_LEVEL=INFO
 
 WORKDIR /app
-
-    && apt-get clean
 
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv

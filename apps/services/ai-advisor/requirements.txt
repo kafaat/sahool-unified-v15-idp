@@ -14,9 +14,17 @@ langchain-anthropic==0.3.1
 langchain-community==0.3.27  # Fix CVE-2025-6984
 langchain-core==0.3.81  # Fix CVE-2025-68664, CVE-2025-65106
 
-# Anthropic Claude API
-# واجهة برمجة Claude من Anthropic
+# Anthropic Claude API (Primary)
+# واجهة برمجة Claude من Anthropic (الأساسي)
 anthropic==0.34.2
+
+# OpenAI GPT API (Optional Fallback)
+# واجهة برمجة OpenAI (بديل اختياري)
+openai>=1.0.0
+
+# Google Gemini API (Optional)
+# واجهة برمجة Google Gemini (اختياري)
+google-generativeai>=0.3.0
 
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه

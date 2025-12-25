@@ -14,9 +14,9 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies first (better caching)
+# Install dependencies first (better caching) with retry for network resilience
 COPY package*.json ./
-RUN npm install
+RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
@@ -51,7 +51,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-RUN npm install --only=production --silent && npx prisma generate
+RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npx prisma generate
 
 # Set ownership
 RUN chown -R sahool:sahool /app

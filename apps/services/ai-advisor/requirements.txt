@@ -8,10 +8,11 @@ pydantic-settings==2.5.2
 
 # LangChain and AI Framework
 # إطار عمل LangChain والذكاء الاصطناعي
-langchain==0.2.16
-langchain-anthropic==0.1.23
-langchain-community==0.2.16
-langchain-core==0.2.38
+# Security updates for CVE-2025-68664, CVE-2025-65106, CVE-2025-6984
+langchain==0.3.14
+langchain-anthropic==0.3.1
+langchain-community==0.3.14
+langchain-core==0.3.29
 
 # Anthropic Claude API
 # واجهة برمجة Claude من Anthropic
@@ -29,7 +30,7 @@ nats-py==2.9.0
 # Utilities
 # أدوات مساعدة
 python-dotenv==1.0.1
-python-multipart==0.0.9
+python-multipart==0.0.18  # Security fix for CVE-2024-53981
 aiofiles==24.1.0
 tenacity==8.5.0
 

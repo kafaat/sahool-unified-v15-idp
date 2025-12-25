@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 # Multi-provider service
 USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
 _multi_provider = None
+_phenology_detector = None
 
 try:
     from .multi_provider import MultiSatelliteService, SatelliteType as MultiSatelliteType
@@ -37,6 +38,24 @@ try:
 except ImportError as e:
     logger.warning(f"Multi-provider module not available: {e}")
     MultiSatelliteService = None
+
+# SAR Processor for soil moisture
+_sar_processor = None
+
+# Yield predictor instance (will be initialized with imports)
+_yield_predictor = None
+
+try:
+    from .sar_processor import (
+        SARProcessor,
+        SoilMoistureResult,
+        IrrigationEvent,
+        SARDataPoint,
+    )
+    logger.info("SAR Processor module loaded")
+except ImportError as e:
+    logger.warning(f"SAR Processor module not available: {e}")
+    SARProcessor = None
 
 # Redis cache integration
 _cache_available = False
@@ -67,6 +86,36 @@ from .eo_integration import (
     SENTINEL_HUB_CONFIGURED,
 )
 
+# Import yield predictor
+from .yield_predictor import YieldPredictor, YieldPrediction
+
+# Import phenology detector
+from .phenology_detector import (
+    PhenologyDetector,
+    PhenologyResult,
+    PhenologyTimeline,
+    GrowthStage,
+)
+
+
+# Import advanced vegetation indices
+try:
+    from .vegetation_indices import (
+        VegetationIndicesCalculator,
+        IndexInterpreter,
+        BandData,
+        AllIndices,
+        CropType,
+        GrowthStage,
+        HealthStatus,
+        VegetationIndex,
+    )
+    _indices_available = True
+    logger.info("Advanced vegetation indices module loaded")
+except ImportError as e:
+    logger.warning(f"Advanced vegetation indices module not available: {e}")
+    _indices_available = False
+
 # NATS publisher (optional)
 _nats_available = False
 try:
@@ -90,7 +139,7 @@ except ImportError:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
-    global _multi_provider
+    global _multi_provider, _sar_processor, _yield_predictor, _phenology_detector
 
     print("🛰️ Starting Satellite Service...")
 
@@ -104,6 +153,20 @@ async def lifespan(app: FastAPI):
         _multi_provider = None
         print("🌍 Using legacy eo-learn integration")
 
+    # Initialize phenology detector
+    _phenology_detector = PhenologyDetector()
+    print(f"🌱 Phenology detector loaded: {len(_phenology_detector.YEMEN_CROP_SEASONS)} crops supported")
+
+    # Initialize SAR processor
+    if SARProcessor:
+        _sar_processor = SARProcessor()
+        print("📡 SAR Processor initialized for soil moisture estimation")
+
+    # Initialize Yield Predictor
+    if YieldPredictor:
+        _yield_predictor = YieldPredictor()
+        print("🌾 Yield Predictor initialized for crop yield forecasting")
+
     print("✅ Satellite Service ready on port 8090")
 
     yield
@@ -111,13 +174,15 @@ async def lifespan(app: FastAPI):
     # Cleanup
     if _multi_provider:
         await _multi_provider.close()
+    if _sar_processor:
+        await _sar_processor.close()
     print("👋 Satellite Service shutting down")
 
 
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
-    version="15.6.0",
-    description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata.",
+    version="15.7.0",
+    description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation.",
     lifespan=lifespan,
 )
 
@@ -194,6 +259,56 @@ class FieldAnalysis(BaseModel):
     anomalies: List[str]
     recommendations_ar: List[str]
     recommendations_en: List[str]
+
+
+
+
+class AdvancedVegetationIndices(BaseModel):
+    """Extended vegetation indices including all advanced indices"""
+    # Basic indices
+    ndvi: float
+    ndwi: float
+    evi: float
+    savi: float
+    lai: float
+    ndmi: float
+
+    # Chlorophyll & Nitrogen
+    ndre: float
+    cvi: float
+    mcari: float
+    tcari: float
+    sipi: float
+
+    # Early Stress Detection
+    gndvi: float
+    vari: float
+    gli: float
+    grvi: float
+
+    # Soil/Atmosphere Corrected
+    msavi: float
+    osavi: float
+    arvi: float
+
+
+class InterpretRequest(BaseModel):
+    """Request for interpreting indices"""
+    field_id: str = Field(..., description="معرف الحقل")
+    indices: Dict[str, float] = Field(..., description="Index values to interpret")
+    crop_type: Optional[str] = Field(default="unknown", description="نوع المحصول")
+    growth_stage: Optional[str] = Field(default="vegetative", description="مرحلة النمو")
+
+
+class IndexInterpretationResponse(BaseModel):
+    """Response for index interpretation"""
+    index_name: str
+    value: float
+    status: str
+    description_ar: str
+    description_en: str
+    confidence: float
+    threshold_info: Dict[str, float]
 
 
 # =============================================================================
@@ -466,13 +581,14 @@ async def health():
     return {
         "status": "ok",
         "service": "satellite-service",
-        "version": "15.6.0",
+        "version": "15.7.0",
         "satellites": list(SATELLITE_CONFIGS.keys()),
         "multi_provider": providers_info,
         "eo_learn": get_data_source_status(),
         "nats_available": _nats_available,
         "action_factory_available": _action_factory_available,
         "cache_available": cache_status,
+        "sar_processor_available": _sar_processor is not None,
     }
 
 
@@ -979,6 +1095,1373 @@ async def get_timeseries(
             if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"]
             else "declining"
         ),
+    }
+
+
+# =============================================================================
+# Phenology Detection Endpoints
+# =============================================================================
+
+
+@app.get("/v1/phenology/{field_id}")
+async def get_phenology(
+    field_id: str,
+    crop_type: str = Query(..., description="نوع المحصول (wheat, sorghum, tomato, etc.)"),
+    lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
+    lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
+    planting_date: Optional[str] = Query(None, description="Planting date (YYYY-MM-DD)"),
+    days: int = Query(default=60, ge=14, le=365, description="Days of historical data")
+):
+    """
+    Detect current crop growth stage from NDVI time series
+    كشف مرحلة نمو المحصول الحالية من بيانات NDVI
+
+    This endpoint:
+    1. Retrieves NDVI time series for the field
+    2. Detects phenological events (SOS, POS, EOS)
+    3. Determines current growth stage (BBCH scale)
+    4. Provides stage-specific recommendations
+    """
+    if not _phenology_detector:
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
+
+    # Get NDVI time series
+    timeseries_data = await get_timeseries(field_id, days)
+    ndvi_series = [
+        {"date": point["date"], "value": point["ndvi"]}
+        for point in timeseries_data["timeseries"]
+    ]
+
+    # Parse planting date
+    planting_dt = None
+    if planting_date:
+        try:
+            planting_dt = datetime.fromisoformat(planting_date).date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD")
+
+    # Detect phenology
+    try:
+        result = _phenology_detector.detect_current_stage(
+            field_id=field_id,
+            crop_type=crop_type,
+            ndvi_series=ndvi_series,
+            planting_date=planting_dt
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "field_id": result.field_id,
+        "crop_type": result.crop_type,
+        "current_stage": {
+            "id": result.current_stage.value,
+            "name_ar": result.current_stage.label_ar,
+            "name_en": result.current_stage.label_en,
+            "days_in_stage": result.days_in_stage,
+            "stage_start_date": result.stage_start_date.isoformat() if result.stage_start_date else None,
+        },
+        "next_stage": {
+            "id": result.expected_next_stage.value,
+            "name_ar": result.expected_next_stage.label_ar,
+            "name_en": result.expected_next_stage.label_en,
+            "days_to_next_stage": result.days_to_next_stage,
+        },
+        "season_progress": {
+            "percent": result.season_progress_percent,
+            "sos_date": result.sos_date.isoformat() if result.sos_date else None,
+            "pos_date": result.pos_date.isoformat() if result.pos_date else None,
+            "eos_date": result.eos_date.isoformat() if result.eos_date else None,
+            "estimated_harvest_date": result.estimated_harvest_date.isoformat() if result.estimated_harvest_date else None,
+        },
+        "ndvi_at_detection": result.ndvi_at_detection,
+        "confidence": result.confidence,
+        "recommendations_ar": result.recommendations_ar,
+        "recommendations_en": result.recommendations_en,
+        "data_source": "satellite-ndvi-timeseries",
+    }
+
+
+@app.get("/v1/phenology/{field_id}/timeline")
+async def get_phenology_timeline(
+    field_id: str,
+    crop_type: str = Query(..., description="نوع المحصول"),
+    planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)")
+):
+    """
+    Get expected phenology timeline for crop planning
+    الحصول على الجدول الزمني المتوقع لمراحل نمو المحصول
+
+    Returns expected dates for all growth stages based on planting date.
+    Useful for planning irrigation, fertilization, and harvest.
+    """
+    if not _phenology_detector:
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
+
+    # Parse planting date
+    try:
+        planting_dt = datetime.fromisoformat(planting_date).date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD")
+
+    # Generate timeline
+    try:
+        timeline = _phenology_detector.get_phenology_timeline(
+            field_id=field_id,
+            crop_type=crop_type,
+            planting_date=planting_dt
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    return {
+        "field_id": timeline.field_id,
+        "crop_type": timeline.crop_type,
+        "planting_date": timeline.planting_date.isoformat(),
+        "harvest_estimate": timeline.harvest_estimate.isoformat(),
+        "season_length_days": timeline.season_length_days,
+        "stages": timeline.stages,
+        "critical_periods": timeline.critical_periods,
+    }
+
+
+@app.get("/v1/phenology/recommendations/{crop_type}/{stage}")
+async def get_stage_recommendations(
+    crop_type: str,
+    stage: str
+):
+    """
+    Get recommendations for a specific crop and growth stage
+    الحصول على توصيات لمحصول ومرحلة نمو محددة
+
+    Example: /v1/phenology/recommendations/wheat/flowering
+    """
+    if not _phenology_detector:
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
+
+    # Validate crop type
+    crop_type = crop_type.lower()
+    if crop_type not in _phenology_detector.YEMEN_CROP_SEASONS:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown crop type: {crop_type}. Use /v1/phenology/crops to see supported crops."
+        )
+
+    # Parse stage
+    try:
+        growth_stage = GrowthStage(stage.lower())
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid stage: {stage}. Valid stages: {[s.value for s in GrowthStage]}"
+        )
+
+    crop_params = _phenology_detector.YEMEN_CROP_SEASONS[crop_type]
+
+    # Get recommendations
+    recommendations_ar, recommendations_en = _phenology_detector._get_stage_recommendations(
+        crop_type=crop_type,
+        stage=growth_stage,
+        days_to_next=7,  # Default estimate
+        current_ndvi=0.5,  # Default
+        crop_params=crop_params
+    )
+
+    return {
+        "crop_type": crop_type,
+        "crop_name_ar": crop_params["name_ar"],
+        "stage": {
+            "id": growth_stage.value,
+            "name_ar": growth_stage.label_ar,
+            "name_en": growth_stage.label_en,
+        },
+        "recommendations_ar": recommendations_ar,
+        "recommendations_en": recommendations_en,
+    }
+
+
+@app.get("/v1/phenology/crops")
+async def list_supported_crops():
+    """
+    List all supported crops for phenology detection
+    قائمة جميع المحاصيل المدعومة لكشف مراحل النمو
+    """
+    if not _phenology_detector:
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
+
+    return {
+        "crops": _phenology_detector.get_supported_crops(),
+        "total": len(_phenology_detector.YEMEN_CROP_SEASONS),
+    }
+
+
+class PhenologyActionRequest(BaseModel):
+    """Request for phenology detection with ActionTemplate output"""
+    field_id: str = Field(..., description="معرف الحقل")
+    farmer_id: Optional[str] = Field(None, description="معرف المزارع")
+    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    crop_type: str = Field(..., description="نوع المحصول")
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    planting_date: Optional[str] = Field(None, description="تاريخ الزراعة")
+    days: int = Field(default=60, ge=14, le=365)
+    publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
+
+
+@app.post("/v1/phenology/{field_id}/analyze-with-action")
+async def analyze_phenology_with_action(
+    request: PhenologyActionRequest,
+    background_tasks: BackgroundTasks,
+):
+    """
+    Detect phenology stage and generate ActionTemplate
+    كشف مرحلة النمو وإنشاء قالب إجراء
+
+    This endpoint:
+    1. Detects current growth stage
+    2. Creates stage-specific ActionTemplate for mobile app
+    3. Publishes event via NATS if enabled
+    """
+    if not _phenology_detector:
+        raise HTTPException(status_code=500, detail="Phenology detector not initialized")
+
+    # Get NDVI time series
+    timeseries_data = await get_timeseries(request.field_id, request.days)
+    ndvi_series = [
+        {"date": point["date"], "value": point["ndvi"]}
+        for point in timeseries_data["timeseries"]
+    ]
+
+    # Parse planting date
+    planting_dt = None
+    if request.planting_date:
+        try:
+            planting_dt = datetime.fromisoformat(request.planting_date).date()
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid planting_date format")
+
+    # Detect phenology
+    try:
+        result = _phenology_detector.detect_current_stage(
+            field_id=request.field_id,
+            crop_type=request.crop_type,
+            ndvi_series=ndvi_series,
+            planting_date=planting_dt
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    # Create ActionTemplate based on growth stage
+    action_template = _create_phenology_action_template(
+        result=result,
+        farmer_id=request.farmer_id,
+        tenant_id=request.tenant_id,
+    )
+
+    # Publish event to NATS (in background)
+    if request.publish_event and _nats_available and publish_analysis_completed_sync:
+        try:
+            publish_analysis_completed_sync(
+                event_type="phenology.stage_detected",
+                source_service="satellite-service",
+                field_id=request.field_id,
+                data={
+                    "crop_type": result.crop_type,
+                    "current_stage": result.current_stage.value,
+                    "stage_ar": result.current_stage.label_ar,
+                    "stage_en": result.current_stage.label_en,
+                    "days_in_stage": result.days_in_stage,
+                    "season_progress_percent": result.season_progress_percent,
+                    "confidence": result.confidence,
+                },
+                action_template=action_template,
+                priority=action_template.get("urgency", "medium"),
+                farmer_id=request.farmer_id,
+                tenant_id=request.tenant_id,
+            )
+            logger.info(f"NATS: Published phenology event for field {request.field_id}")
+        except Exception as e:
+            logger.error(f"Failed to publish NATS event: {e}")
+
+    # Create task card for mobile app
+    task_card = {
+        "id": action_template["action_id"],
+        "type": action_template["action_type"],
+        "title_ar": action_template["title_ar"],
+        "title_en": action_template["title_en"],
+        "urgency": {
+            "level": action_template["urgency"],
+            "color": {
+                "low": "#22C55E",
+                "medium": "#EAB308",
+                "high": "#F97316",
+                "critical": "#EF4444",
+            }.get(action_template["urgency"], "#6B7280"),
+        },
+        "field_id": request.field_id,
+        "confidence_percent": int(action_template["confidence"] * 100),
+        "offline_ready": action_template["offline_executable"],
+        "crop_type": result.crop_type,
+        "current_stage": result.current_stage.label_ar,
+        "season_progress": result.season_progress_percent,
+    }
+
+    return {
+        "phenology": {
+            "field_id": result.field_id,
+            "crop_type": result.crop_type,
+            "current_stage": {
+                "id": result.current_stage.value,
+                "name_ar": result.current_stage.label_ar,
+                "name_en": result.current_stage.label_en,
+            },
+            "days_in_stage": result.days_in_stage,
+            "season_progress_percent": result.season_progress_percent,
+            "confidence": result.confidence,
+            "recommendations_ar": result.recommendations_ar,
+            "recommendations_en": result.recommendations_en,
+        },
+        "action_template": action_template,
+        "task_card": task_card,
+        "nats_published": request.publish_event and _nats_available,
+    }
+
+
+def _create_phenology_action_template(
+    result: PhenologyResult,
+    farmer_id: Optional[str] = None,
+    tenant_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Create an ActionTemplate from phenology detection"""
+
+    stage = result.current_stage
+    crop_params = _phenology_detector.YEMEN_CROP_SEASONS[result.crop_type]
+
+    # Determine urgency based on stage and critical periods
+    is_critical = any(
+        cp["stage"] == stage.value
+        for cp in crop_params.get("critical_periods", [])
+    )
+
+    if is_critical:
+        urgency = "high"
+    elif stage in [GrowthStage.FLOWERING, GrowthStage.FRUIT_DEVELOPMENT]:
+        urgency = "medium"
+    elif stage == GrowthStage.RIPENING and result.days_to_next_stage <= 7:
+        urgency = "high"
+    else:
+        urgency = "low"
+
+    # Determine action type based on stage
+    if stage in [GrowthStage.BARE_SOIL, GrowthStage.GERMINATION]:
+        action_type = "planting"
+        title_ar = f"تحضير للزراعة - {crop_params['name_ar']}"
+        title_en = f"Prepare for Planting - {result.crop_type}"
+    elif stage in [GrowthStage.LEAF_DEVELOPMENT, GrowthStage.TILLERING]:
+        action_type = "fertilization"
+        title_ar = f"تسميد - مرحلة {stage.label_ar}"
+        title_en = f"Fertilization - {stage.label_en} Stage"
+    elif stage == GrowthStage.FLOWERING:
+        action_type = "monitoring"
+        title_ar = f"مراقبة دقيقة - مرحلة الإزهار الحرجة"
+        title_en = f"Close Monitoring - Critical Flowering Stage"
+    elif stage == GrowthStage.RIPENING:
+        action_type = "harvest_prep"
+        title_ar = f"تحضير للحصاد - {result.days_to_next_stage} يوم متبقي"
+        title_en = f"Prepare for Harvest - {result.days_to_next_stage} days remaining"
+    elif stage == GrowthStage.SENESCENCE:
+        action_type = "harvest"
+        title_ar = f"حصاد - {crop_params['name_ar']}"
+        title_en = f"Harvest - {result.crop_type}"
+    else:
+        action_type = "monitoring"
+        title_ar = f"مراقبة الحقل - {stage.label_ar}"
+        title_en = f"Field Monitoring - {stage.label_en}"
+
+    return {
+        "action_id": str(uuid.uuid4()),
+        "action_type": action_type,
+        "title_ar": title_ar,
+        "title_en": title_en,
+        "description_ar": " | ".join(result.recommendations_ar),
+        "description_en": " | ".join(result.recommendations_en),
+        "summary_ar": f"المحصول في مرحلة {stage.label_ar} - تقدم الموسم: {result.season_progress_percent:.0f}%",
+        "source_service": "satellite-service",
+        "source_analysis_type": "phenology_detection",
+        "confidence": result.confidence,
+        "urgency": urgency,
+        "field_id": result.field_id,
+        "farmer_id": farmer_id,
+        "tenant_id": tenant_id,
+        "offline_executable": True,
+        "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بفحص المحصول بصرياً وتقييم مرحلة النمو حسب الخبرة",
+        "fallback_instructions_en": "If data unavailable, visually inspect crop and assess growth stage based on experience",
+        "estimated_duration_minutes": 45,
+        "data": {
+            "crop_type": result.crop_type,
+            "current_stage": stage.value,
+            "stage_ar": stage.label_ar,
+            "stage_en": stage.label_en,
+            "days_in_stage": result.days_in_stage,
+            "days_to_next_stage": result.days_to_next_stage,
+            "season_progress_percent": result.season_progress_percent,
+            "ndvi_at_detection": result.ndvi_at_detection,
+            "sos_date": result.sos_date.isoformat() if result.sos_date else None,
+            "pos_date": result.pos_date.isoformat() if result.pos_date else None,
+            "eos_date": result.eos_date.isoformat() if result.eos_date else None,
+            "estimated_harvest_date": result.estimated_harvest_date.isoformat() if result.estimated_harvest_date else None,
+        },
+        "created_at": datetime.utcnow().isoformat(),
+    }
+
+
+# =============================================================================
+# SAR / Soil Moisture Endpoints
+# =============================================================================
+
+
+@app.get("/v1/soil-moisture/{field_id}")
+async def get_soil_moisture(
+    field_id: str,
+    lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
+    lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
+    date: Optional[str] = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
+):
+    """
+    تقدير رطوبة التربة من بيانات SAR سنتينل-1
+    Estimate soil moisture from Sentinel-1 SAR backscatter
+
+    Uses VV and VH polarization data to estimate:
+    - Soil moisture percentage (0-100%)
+    - Volumetric water content (m³/m³)
+    - Confidence level
+
+    Works in all weather conditions (cloud-independent).
+    """
+    if not _sar_processor:
+        raise HTTPException(
+            status_code=503,
+            detail="SAR Processor not available"
+        )
+
+    # Parse date if provided
+    target_date = None
+    if date:
+        try:
+            target_date = datetime.fromisoformat(date)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid date format. Use YYYY-MM-DD"
+            )
+
+    # Get soil moisture estimate
+    result = await _sar_processor.get_soil_moisture(
+        latitude=lat,
+        longitude=lon,
+        field_id=field_id,
+        date=target_date,
+    )
+
+    # Get interpretation
+    interpretation = _sar_processor.get_moisture_interpretation(
+        result.soil_moisture_percent
+    )
+
+    return {
+        "field_id": result.field_id,
+        "timestamp": result.timestamp.isoformat(),
+        "soil_moisture": {
+            "percent": result.soil_moisture_percent,
+            "volumetric_water_content": result.volumetric_water_content,
+            "status": interpretation["status"],
+            "status_ar": interpretation["status_ar"],
+        },
+        "sar_data": {
+            "vv_backscatter_db": result.vv_backscatter,
+            "vh_backscatter_db": result.vh_backscatter,
+            "incidence_angle_deg": result.incidence_angle,
+            "data_source": result.data_source,
+        },
+        "confidence": result.confidence,
+        "recommendation_ar": interpretation["recommendation_ar"],
+        "recommendation_en": interpretation["recommendation_en"],
+    }
+
+
+@app.get("/v1/irrigation-events/{field_id}")
+async def get_irrigation_events(
+    field_id: str,
+    days: int = Query(default=30, ge=7, le=90, description="Days to look back"),
+):
+    """
+    كشف أحداث الري من تغيرات رطوبة التربة
+    Detect irrigation events from soil moisture changes
+
+    Analyzes SAR time series to identify:
+    - Sudden moisture increases (irrigation/rainfall)
+    - Estimated water application depth
+    - Event confidence level
+
+    Useful for:
+    - Irrigation scheduling verification
+    - Water use monitoring
+    - Rainfall vs irrigation discrimination
+    """
+    if not _sar_processor:
+        raise HTTPException(
+            status_code=503,
+            detail="SAR Processor not available"
+        )
+
+    # Detect irrigation events
+    events = await _sar_processor.detect_irrigation_event(
+        field_id=field_id,
+        days_back=days,
+    )
+
+    # Format response
+    events_list = []
+    for event in events:
+        events_list.append({
+            "detected_date": event.detected_date.isoformat(),
+            "moisture_change": {
+                "before_percent": event.moisture_before,
+                "after_percent": event.moisture_after,
+                "increase_percent": round(event.moisture_after - event.moisture_before, 2),
+            },
+            "estimated_water_mm": event.estimated_water_mm,
+            "confidence": event.confidence,
+            "detection_method": event.detection_method,
+        })
+
+    # Sort by date (most recent first)
+    events_list.sort(key=lambda x: x["detected_date"], reverse=True)
+
+    return {
+        "field_id": field_id,
+        "period_days": days,
+        "events_detected": len(events_list),
+        "events": events_list,
+        "summary": {
+            "total_water_applied_mm": round(sum(e["estimated_water_mm"] for e in events_list), 1),
+            "average_application_mm": round(
+                sum(e["estimated_water_mm"] for e in events_list) / len(events_list), 1
+            ) if events_list else 0,
+        },
+    }
+
+
+@app.get("/v1/sar-timeseries/{field_id}")
+async def get_sar_timeseries(
+    field_id: str,
+    start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
+    end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
+    lat: Optional[float] = Query(None, ge=-90, le=90, description="Field latitude"),
+    lon: Optional[float] = Query(None, ge=-180, le=180, description="Field longitude"),
+):
+    """
+    سلسلة زمنية لبيانات SAR ورطوبة التربة
+    Time series of SAR backscatter and soil moisture
+
+    Returns:
+    - SAR backscatter values (VV, VH)
+    - Derived soil moisture
+    - Orbit direction (ascending/descending)
+    - Incidence angle
+
+    Sentinel-1 revisit: every 6 days
+    """
+    if not _sar_processor:
+        raise HTTPException(
+            status_code=503,
+            detail="SAR Processor not available"
+        )
+
+    # Parse dates
+    try:
+        start_dt = datetime.fromisoformat(start_date)
+        end_dt = datetime.fromisoformat(end_date)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid date format. Use YYYY-MM-DD"
+        )
+
+    if start_dt > end_dt:
+        raise HTTPException(
+            status_code=400,
+            detail="start_date must be before end_date"
+        )
+
+    if (end_dt - start_dt).days > 365:
+        raise HTTPException(
+            status_code=400,
+            detail="Maximum time range is 365 days"
+        )
+
+    # Get SAR time series
+    timeseries = await _sar_processor.get_sar_timeseries(
+        field_id=field_id,
+        start_date=start_dt,
+        end_date=end_dt,
+        latitude=lat,
+        longitude=lon,
+    )
+
+    # Format response
+    data_points = []
+    for point in timeseries:
+        data_points.append({
+            "acquisition_date": point.acquisition_date.isoformat(),
+            "scene_id": point.scene_id,
+            "orbit_direction": point.orbit_direction,
+            "backscatter": {
+                "vv_db": point.vv_backscatter,
+                "vh_db": point.vh_backscatter,
+                "vv_vh_ratio": point.vv_vh_ratio,
+            },
+            "incidence_angle_deg": point.incidence_angle,
+            "soil_moisture_percent": point.soil_moisture_percent,
+        })
+
+    # Calculate statistics
+    if data_points:
+        moisture_values = [p["soil_moisture_percent"] for p in data_points]
+        avg_moisture = sum(moisture_values) / len(moisture_values)
+        min_moisture = min(moisture_values)
+        max_moisture = max(moisture_values)
+        moisture_trend = "increasing" if moisture_values[-1] > moisture_values[0] else "decreasing"
+    else:
+        avg_moisture = min_moisture = max_moisture = 0
+        moisture_trend = "stable"
+
+    return {
+        "field_id": field_id,
+        "start_date": start_date,
+        "end_date": end_date,
+        "data_points_count": len(data_points),
+        "timeseries": data_points,
+        "statistics": {
+            "average_moisture_percent": round(avg_moisture, 2),
+            "min_moisture_percent": round(min_moisture, 2),
+            "max_moisture_percent": round(max_moisture, 2),
+            "moisture_range_percent": round(max_moisture - min_moisture, 2),
+            "trend": moisture_trend,
+        },
+    }
+
+
+
+
+# =============================================================================
+# Advanced Vegetation Indices Endpoints
+# =============================================================================
+
+@app.get("/v1/indices/{field_id}")
+async def get_all_indices(
+    field_id: str,
+    lat: float = Query(..., description="Latitude", ge=-90, le=90),
+    lon: float = Query(..., description="Longitude", ge=-180, le=180),
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2
+):
+    """
+    Get all vegetation indices for a field location
+    الحصول على جميع المؤشرات النباتية لموقع الحقل
+
+    Returns 18+ vegetation indices including:
+    - Basic: NDVI, NDWI, EVI, SAVI, LAI, NDMI
+    - Chlorophyll: NDRE, CVI, MCARI, TCARI, SIPI
+    - Early Stress: GNDVI, VARI, GLI, GRVI
+    - Corrected: MSAVI, OSAVI, ARVI
+    """
+    if not _indices_available:
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
+
+    import random
+
+    # Generate realistic Sentinel-2 band data
+    # In production, this would come from actual satellite imagery
+    bands = BandData(
+        B02_blue=random.uniform(0.02, 0.08),
+        B03_green=random.uniform(0.03, 0.12),
+        B04_red=random.uniform(0.02, 0.15),
+        B05_red_edge1=random.uniform(0.05, 0.20),
+        B06_red_edge2=random.uniform(0.08, 0.25),
+        B07_red_edge3=random.uniform(0.10, 0.30),
+        B08_nir=random.uniform(0.15, 0.55),
+        B8A_nir_narrow=random.uniform(0.15, 0.50),
+        B11_swir1=random.uniform(0.08, 0.35),
+        B12_swir2=random.uniform(0.05, 0.25),
+    )
+
+    # Calculate all indices
+    calculator = VegetationIndicesCalculator()
+    all_indices = calculator.calculate_all(bands)
+
+    return {
+        "field_id": field_id,
+        "location": {"latitude": lat, "longitude": lon},
+        "satellite": satellite.value,
+        "acquisition_date": datetime.utcnow().isoformat(),
+        "indices": all_indices.to_dict(),
+        "data_source": "simulated",
+        "note": "Advanced indices calculated from Sentinel-2 bands. Configure real data provider for actual satellite imagery."
+    }
+
+
+@app.get("/v1/indices/{field_id}/{index_name}")
+async def get_specific_index(
+    field_id: str,
+    index_name: str,
+    lat: float = Query(..., description="Latitude", ge=-90, le=90),
+    lon: float = Query(..., description="Longitude", ge=-180, le=180),
+    crop_type: Optional[str] = Query(default="unknown", description="نوع المحصول"),
+    growth_stage: Optional[str] = Query(default="vegetative", description="مرحلة النمو"),
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2
+):
+    """
+    Get a specific vegetation index with interpretation
+    الحصول على مؤشر نباتي محدد مع التفسير
+
+    Parameters:
+    - index_name: ndvi, ndre, gndvi, mcari, etc.
+    - crop_type: wheat, sorghum, coffee, qat, etc.
+    - growth_stage: emergence, vegetative, reproductive, maturation
+    """
+    if not _indices_available:
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
+
+    # Validate index name
+    try:
+        index_enum = VegetationIndex(index_name.lower())
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown index '{index_name}'. Valid indices: {[i.value for i in VegetationIndex]}"
+        )
+
+    # Validate crop type and growth stage
+    try:
+        crop_enum = CropType(crop_type.lower())
+    except ValueError:
+        crop_enum = CropType.UNKNOWN
+
+    try:
+        stage_enum = GrowthStage(growth_stage.lower())
+    except ValueError:
+        stage_enum = GrowthStage.VEGETATIVE
+
+    # Get all indices first
+    all_indices_response = await get_all_indices(field_id, lat, lon, satellite)
+    indices_dict = all_indices_response["indices"]
+
+    # Get the requested index value
+    if index_name.lower() not in indices_dict:
+        raise HTTPException(status_code=404, detail=f"Index '{index_name}' not found")
+
+    index_value = indices_dict[index_name.lower()]
+
+    # Interpret the index
+    interpreter = IndexInterpreter()
+    interpretation = interpreter.interpret_index(
+        index_name=index_name.lower(),
+        value=index_value,
+        crop_type=crop_enum,
+        growth_stage=stage_enum
+    )
+
+    # Get recommended indices for this growth stage
+    recommended = interpreter.get_recommended_indices(stage_enum)
+
+    return {
+        "field_id": field_id,
+        "location": {"latitude": lat, "longitude": lon},
+        "crop_type": crop_type,
+        "growth_stage": growth_stage,
+        "index": {
+            "name": interpretation.index_name,
+            "value": interpretation.value,
+            "status": interpretation.status.value,
+            "description_ar": interpretation.description_ar,
+            "description_en": interpretation.description_en,
+            "confidence": interpretation.confidence,
+            "thresholds": interpretation.threshold_info
+        },
+        "recommended_indices_for_stage": recommended,
+        "acquisition_date": all_indices_response["acquisition_date"],
+        "satellite": satellite.value
+    }
+
+
+@app.post("/v1/indices/interpret")
+async def interpret_indices(request: InterpretRequest):
+    """
+    Interpret multiple vegetation indices for a specific crop and growth stage
+    تفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو
+
+    Body:
+    {
+        "field_id": "field123",
+        "indices": {"ndvi": 0.65, "ndre": 0.28, "gndvi": 0.55},
+        "crop_type": "wheat",
+        "growth_stage": "reproductive"
+    }
+    """
+    if not _indices_available:
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
+
+    # Validate crop type and growth stage
+    try:
+        crop_enum = CropType(request.crop_type.lower())
+    except ValueError:
+        crop_enum = CropType.UNKNOWN
+
+    try:
+        stage_enum = GrowthStage(request.growth_stage.lower())
+    except ValueError:
+        stage_enum = GrowthStage.VEGETATIVE
+
+    # Interpret each index
+    interpreter = IndexInterpreter()
+    interpretations = []
+
+    for index_name, value in request.indices.items():
+        try:
+            interpretation = interpreter.interpret_index(
+                index_name=index_name.lower(),
+                value=value,
+                crop_type=crop_enum,
+                growth_stage=stage_enum
+            )
+            interpretations.append({
+                "name": interpretation.index_name,
+                "value": interpretation.value,
+                "status": interpretation.status.value,
+                "description_ar": interpretation.description_ar,
+                "description_en": interpretation.description_en,
+                "confidence": interpretation.confidence,
+                "thresholds": interpretation.threshold_info
+            })
+        except Exception as e:
+            logger.warning(f"Failed to interpret index {index_name}: {e}")
+            continue
+
+    # Determine overall health status
+    status_weights = {
+        HealthStatus.EXCELLENT: 5,
+        HealthStatus.GOOD: 4,
+        HealthStatus.FAIR: 3,
+        HealthStatus.POOR: 2,
+        HealthStatus.CRITICAL: 1
+    }
+
+    if interpretations:
+        avg_weight = sum(status_weights.get(HealthStatus(i["status"]), 3) for i in interpretations) / len(interpretations)
+        if avg_weight >= 4.5:
+            overall_status = "excellent"
+            overall_ar = "ممتاز"
+        elif avg_weight >= 3.5:
+            overall_status = "good"
+            overall_ar = "جيد"
+        elif avg_weight >= 2.5:
+            overall_status = "fair"
+            overall_ar = "متوسط"
+        elif avg_weight >= 1.5:
+            overall_status = "poor"
+            overall_ar = "ضعيف"
+        else:
+            overall_status = "critical"
+            overall_ar = "حرج"
+    else:
+        overall_status = "unknown"
+        overall_ar = "غير معروف"
+
+    # Get recommended indices for this growth stage
+    recommended = interpreter.get_recommended_indices(stage_enum)
+
+    return {
+        "field_id": request.field_id,
+        "crop_type": request.crop_type,
+        "growth_stage": request.growth_stage,
+        "overall_status": overall_status,
+        "overall_status_ar": overall_ar,
+        "interpretations": interpretations,
+        "recommended_indices_for_stage": recommended,
+        "analysis_date": datetime.utcnow().isoformat()
+    }
+
+
+@app.get("/v1/indices/guide")
+async def get_indices_guide():
+    """
+    Get usage guide for vegetation indices by growth stage
+    الحصول على دليل استخدام المؤشرات النباتية حسب مراحل النمو
+    """
+    return {
+        "guide": {
+            "emergence": {
+                "stage_ar": "البزوغ",
+                "stage_en": "Emergence",
+                "best_indices": ["GNDVI", "VARI", "GLI", "NDVI"],
+                "description_ar": "في مرحلة البزوغ، ركز على الكشف المبكر عن الإجهاد",
+                "description_en": "During emergence, focus on early stress detection"
+            },
+            "vegetative": {
+                "stage_ar": "النمو الخضري",
+                "stage_en": "Vegetative",
+                "best_indices": ["NDVI", "LAI", "CVI", "GNDVI", "NDRE"],
+                "description_ar": "في النمو الخضري، راقب كتلة النبات والنيتروجين",
+                "description_en": "During vegetative growth, monitor biomass and nitrogen"
+            },
+            "reproductive": {
+                "stage_ar": "الإزهار والإثمار",
+                "stage_en": "Reproductive",
+                "best_indices": ["NDRE", "MCARI", "NDVI", "NDWI", "LAI"],
+                "description_ar": "في مرحلة التكاثر، راقب الكلوروفيل والماء",
+                "description_en": "During reproduction, monitor chlorophyll and water"
+            },
+            "maturation": {
+                "stage_ar": "النضج",
+                "stage_en": "Maturation",
+                "best_indices": ["NDVI", "NDMI", "NDWI", "EVI"],
+                "description_ar": "في النضج، راقب رطوبة المحصول لتوقيت الحصاد",
+                "description_en": "During maturation, monitor crop moisture for harvest timing"
+            }
+        },
+        "indices_reference": {
+            "ndvi": {
+                "name": "Normalized Difference Vegetation Index",
+                "name_ar": "مؤشر الفرق الطبيعي للنباتات",
+                "range": "-1 to 1",
+                "best_for": "Overall vegetation health and biomass",
+                "best_for_ar": "الصحة العامة للنبات والكتلة الحيوية"
+            },
+            "ndre": {
+                "name": "Normalized Difference Red Edge",
+                "name_ar": "مؤشر الحافة الحمراء الطبيعية",
+                "range": "-1 to 1",
+                "best_for": "Chlorophyll content and nitrogen status",
+                "best_for_ar": "محتوى الكلوروفيل وحالة النيتروجين"
+            },
+            "gndvi": {
+                "name": "Green NDVI",
+                "name_ar": "مؤشر NDVI الأخضر",
+                "range": "-1 to 1",
+                "best_for": "Early nitrogen stress detection",
+                "best_for_ar": "الكشف المبكر عن نقص النيتروجين"
+            },
+            "ndwi": {
+                "name": "Normalized Difference Water Index",
+                "name_ar": "مؤشر الفرق الطبيعي للماء",
+                "range": "-1 to 1",
+                "best_for": "Water content and irrigation monitoring",
+                "best_for_ar": "محتوى الماء ومراقبة الري"
+            },
+            "mcari": {
+                "name": "Modified Chlorophyll Absorption Ratio",
+                "name_ar": "نسبة امتصاص الكلوروفيل المعدلة",
+                "range": "0 to 1.5",
+                "best_for": "Chlorophyll concentration",
+                "best_for_ar": "تركيز الكلوروفيل"
+            }
+        }
+    }
+
+
+# =============================================================================
+# Yield Prediction Endpoints
+# =============================================================================
+
+
+class YieldPredictionRequest(BaseModel):
+    """Request for crop yield prediction"""
+    field_id: str = Field(..., description="معرف الحقل")
+    crop_code: str = Field(..., description="رمز المحصول (WHEAT, TOMATO, etc.)")
+    latitude: float = Field(..., ge=-90, le=90)
+    longitude: float = Field(..., ge=-180, le=180)
+    planting_date: Optional[date] = Field(None, description="تاريخ الزراعة")
+    field_area_ha: float = Field(default=1.0, ge=0.01, description="مساحة الحقل بالهكتار")
+
+    # Optional: provide NDVI time series (if available)
+    ndvi_series: Optional[List[float]] = Field(
+        None,
+        description="سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)"
+    )
+
+    # Weather data (optional - will be estimated if not provided)
+    precipitation_mm: Optional[float] = Field(None, description="الأمطار الكلية (مم)")
+    avg_temp_min: Optional[float] = Field(None, description="متوسط درجة الحرارة الصغرى (°س)")
+    avg_temp_max: Optional[float] = Field(None, description="متوسط درجة الحرارة الكبرى (°س)")
+
+    # Optional: soil moisture from SAR
+    soil_moisture: Optional[float] = Field(None, ge=0, le=1, description="رطوبة التربة (0-1)")
+
+
+class YieldPredictionResponse(BaseModel):
+    """Response for crop yield prediction"""
+    field_id: str
+    crop_code: str
+    crop_name_ar: str
+    crop_name_en: str
+    predicted_yield_ton_ha: float
+    predicted_yield_total_ton: float  # predicted_yield_ton_ha * field_area_ha
+    yield_range_min: float
+    yield_range_max: float
+    confidence: float
+    factors: Dict[str, float]
+    comparison_to_average: float
+    comparison_to_base: float
+    recommendations_ar: List[str]
+    recommendations_en: List[str]
+    prediction_date: str
+    growth_stage: str
+    days_to_harvest: Optional[int]
+    data_sources_used: List[str]
+
+
+class YieldHistoryItem(BaseModel):
+    """Historical yield prediction item"""
+    prediction_id: str
+    prediction_date: str
+    crop_code: str
+    crop_name_ar: str
+    predicted_yield_ton_ha: float
+    actual_yield_ton_ha: Optional[float]
+    confidence: float
+    growth_stage: str
+
+
+class RegionalYieldStats(BaseModel):
+    """Regional yield statistics"""
+    governorate: str
+    governorate_ar: str
+    crop_code: str
+    crop_name_ar: str
+    crop_name_en: str
+    average_yield_ton_ha: float
+    min_yield_ton_ha: float
+    max_yield_ton_ha: float
+    field_count: int
+    data_source: str
+
+
+@app.post("/v1/yield-prediction", response_model=YieldPredictionResponse)
+async def predict_yield(request: YieldPredictionRequest):
+    """
+    التنبؤ بإنتاجية المحصول | Predict Crop Yield
+
+    Uses ML-based ensemble model combining:
+    - NDVI-based regression (40%)
+    - Growing Degree Days model (30%)
+    - Water balance model (20%)
+    - Soil moisture model (10%)
+
+    Returns predicted yield with confidence interval and actionable recommendations.
+    """
+    import random
+
+    if not _yield_predictor:
+        raise HTTPException(
+            status_code=503,
+            detail="Yield predictor not initialized"
+        )
+
+    data_sources = []
+
+    # Get NDVI time series if not provided
+    if request.ndvi_series is None or len(request.ndvi_series) == 0:
+        # Fetch from timeseries endpoint
+        try:
+            timeseries_data = await get_timeseries(
+                field_id=request.field_id,
+                days=90,  # Last 3 months
+                satellite=SatelliteSource.SENTINEL2,
+            )
+            request.ndvi_series = [point["ndvi"] for point in timeseries_data["timeseries"]]
+            data_sources.append("sentinel-2_ndvi_timeseries")
+        except Exception as e:
+            logger.warning(f"Failed to fetch NDVI timeseries: {e}")
+            # Generate realistic NDVI series based on crop growth
+            days_since_planting = 60  # Assume mid-season
+            request.ndvi_series = [
+                max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05)))
+                for i in range(10)
+            ]
+            data_sources.append("simulated_ndvi")
+    else:
+        data_sources.append("user_provided_ndvi")
+
+    # Prepare weather data
+    if request.avg_temp_min is not None and request.avg_temp_max is not None:
+        # Generate daily temperature series (assume 90 days)
+        temp_min_series = [request.avg_temp_min + random.uniform(-3, 3) for _ in range(90)]
+        temp_max_series = [request.avg_temp_max + random.uniform(-3, 3) for _ in range(90)]
+        data_sources.append("user_provided_weather")
+    else:
+        # Use Yemen regional defaults based on location
+        # Highland: cooler, Coastal: warmer
+        if request.latitude > 14.5:  # Highland region
+            temp_min_series = [15 + random.uniform(-2, 2) for _ in range(90)]
+            temp_max_series = [28 + random.uniform(-3, 3) for _ in range(90)]
+        else:  # Coastal/lowland
+            temp_min_series = [22 + random.uniform(-2, 2) for _ in range(90)]
+            temp_max_series = [35 + random.uniform(-3, 3) for _ in range(90)]
+        data_sources.append("estimated_weather_from_location")
+
+    # Precipitation
+    precipitation = request.precipitation_mm or random.uniform(100, 400)
+    if request.precipitation_mm:
+        data_sources.append("user_provided_precipitation")
+    else:
+        data_sources.append("estimated_precipitation")
+
+    # Get soil moisture from SAR if available
+    soil_moisture = request.soil_moisture
+    if soil_moisture is None and _sar_processor:
+        try:
+            # Try to fetch soil moisture from SAR processor
+            sar_result = await _sar_processor.estimate_soil_moisture(
+                field_id=request.field_id,
+                latitude=request.latitude,
+                longitude=request.longitude,
+                start_date=date.today() - timedelta(days=30),
+                end_date=date.today(),
+            )
+            if sar_result and sar_result.soil_moisture_timeseries:
+                soil_moisture = sar_result.soil_moisture_timeseries[-1].soil_moisture_m3m3
+                data_sources.append("sentinel-1_sar_soil_moisture")
+        except Exception as e:
+            logger.warning(f"Failed to fetch SAR soil moisture: {e}")
+
+    if soil_moisture is None:
+        soil_moisture = random.uniform(0.3, 0.5)  # Assume moderate moisture
+        data_sources.append("estimated_soil_moisture")
+
+    # Prepare weather data dict
+    weather_data = {
+        "temp_min_series": temp_min_series,
+        "temp_max_series": temp_max_series,
+        "precipitation_mm": precipitation,
+        "et0_mm": precipitation * 1.2,  # Simple ET0 estimate
+    }
+
+    # Call yield predictor
+    prediction = await _yield_predictor.predict_yield(
+        field_id=request.field_id,
+        crop_code=request.crop_code,
+        ndvi_series=request.ndvi_series,
+        weather_data=weather_data,
+        soil_moisture=soil_moisture,
+        planting_date=request.planting_date,
+        field_area_ha=request.field_area_ha,
+    )
+
+    # Calculate total yield
+    total_yield = prediction.predicted_yield_ton_ha * request.field_area_ha
+
+    return YieldPredictionResponse(
+        field_id=prediction.field_id,
+        crop_code=prediction.crop_code,
+        crop_name_ar=prediction.crop_name_ar,
+        crop_name_en=prediction.crop_name_en,
+        predicted_yield_ton_ha=prediction.predicted_yield_ton_ha,
+        predicted_yield_total_ton=round(total_yield, 2),
+        yield_range_min=prediction.yield_range_min,
+        yield_range_max=prediction.yield_range_max,
+        confidence=prediction.confidence,
+        factors=prediction.factors,
+        comparison_to_average=prediction.comparison_to_average,
+        comparison_to_base=prediction.comparison_to_base,
+        recommendations_ar=prediction.recommendations_ar,
+        recommendations_en=prediction.recommendations_en,
+        prediction_date=prediction.prediction_date.isoformat(),
+        growth_stage=prediction.growth_stage,
+        days_to_harvest=prediction.days_to_harvest,
+        data_sources_used=data_sources,
+    )
+
+
+@app.get("/v1/yield-history/{field_id}")
+async def get_yield_history(
+    field_id: str,
+    seasons: int = Query(default=5, ge=1, le=20, description="Number of past seasons to retrieve"),
+    crop_code: Optional[str] = Query(None, description="Filter by crop code"),
+):
+    """
+    الحصول على سجل التنبؤات السابقة | Get Yield Prediction History
+
+    Returns historical yield predictions for a field, optionally filtered by crop.
+    In production, this would fetch from a database. Currently returns simulated data.
+    """
+    import random
+
+    # Import shared crop catalog
+    try:
+        import sys
+        sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+        from apps.services.shared.crops import ALL_CROPS
+
+        # Get crops for this region (simulated)
+        if crop_code:
+            crop_codes = [crop_code] if crop_code in ALL_CROPS else ["WHEAT"]
+        else:
+            # Random selection of common Yemen crops
+            crop_codes = random.sample(
+                ["WHEAT", "SORGHUM", "TOMATO", "POTATO", "ONION", "CORN"],
+                k=min(seasons, 3)
+            )
+    except:
+        crop_codes = ["WHEAT", "TOMATO", "POTATO"]
+
+    # Generate historical predictions
+    history = []
+    for i in range(seasons):
+        crop_code_selected = random.choice(crop_codes) if not crop_code else crop_code
+
+        try:
+            from apps.services.shared.crops import get_crop
+            crop_info = get_crop(crop_code_selected)
+            crop_name_ar = crop_info.name_ar if crop_info else crop_code_selected
+            base_yield = crop_info.base_yield_ton_ha if crop_info else 2.0
+        except:
+            crop_name_ar = crop_code_selected
+            base_yield = 2.0
+
+        # Historical prediction (months ago)
+        prediction_date = datetime.utcnow() - timedelta(days=120 * i)
+
+        # Simulated prediction and actual yield
+        predicted = round(base_yield * random.uniform(0.7, 1.3), 2)
+
+        # Actual yield (if harvest completed)
+        if i > 0:  # Past seasons have actual yields
+            actual = round(predicted * random.uniform(0.85, 1.15), 2)
+        else:  # Current season - no actual yet
+            actual = None
+
+        history.append(
+            YieldHistoryItem(
+                prediction_id=str(uuid.uuid4()),
+                prediction_date=prediction_date.isoformat(),
+                crop_code=crop_code_selected,
+                crop_name_ar=crop_name_ar,
+                predicted_yield_ton_ha=predicted,
+                actual_yield_ton_ha=actual,
+                confidence=random.uniform(0.7, 0.95),
+                growth_stage="harvest_completed" if actual else "ripening",
+            )
+        )
+
+    return {
+        "field_id": field_id,
+        "seasons": seasons,
+        "crop_filter": crop_code,
+        "history": history,
+        "summary": {
+            "total_predictions": len(history),
+            "completed_harvests": len([h for h in history if h.actual_yield_ton_ha]),
+            "average_predicted_yield": round(
+                sum(h.predicted_yield_ton_ha for h in history) / len(history), 2
+            ) if history else 0,
+            "average_actual_yield": round(
+                sum(h.actual_yield_ton_ha for h in history if h.actual_yield_ton_ha) /
+                len([h for h in history if h.actual_yield_ton_ha]), 2
+            ) if any(h.actual_yield_ton_ha for h in history) else None,
+        }
+    }
+
+
+@app.get("/v1/regional-yields/{governorate}")
+async def get_regional_yields(
+    governorate: str,
+    crop: Optional[str] = Query(None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"),
+):
+    """
+    الحصول على إحصائيات الإنتاجية الإقليمية | Get Regional Yield Statistics
+
+    Returns average yields for a specific governorate in Yemen.
+    In production, this would aggregate data from multiple fields.
+    """
+    import random
+
+    # Validate governorate
+    if governorate.lower() not in YEMEN_REGIONS:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Governorate '{governorate}' not found. Available: {', '.join(YEMEN_REGIONS.keys())}"
+        )
+
+    gov_info = YEMEN_REGIONS[governorate.lower()]
+    gov_name_ar = gov_info["name_ar"]
+    region_type = gov_info["region"]
+
+    # Import crop catalog
+    try:
+        import sys
+        sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+        from apps.services.shared.crops import ALL_CROPS
+
+        # Get crops suitable for this region
+        if crop:
+            crops_to_show = [ALL_CROPS[crop]] if crop in ALL_CROPS else []
+        else:
+            # Get common crops for this region type
+            if region_type == "highland":
+                crop_codes = ["WHEAT", "BARLEY", "POTATO", "TOMATO", "FABA_BEAN", "COFFEE"]
+            elif region_type == "coastal":
+                crop_codes = ["SORGHUM", "MILLET", "BANANA", "MANGO", "SESAME", "COTTON"]
+            else:  # desert
+                crop_codes = ["DATE_PALM", "WHEAT", "BARLEY", "ALFALFA"]
+
+            crops_to_show = [ALL_CROPS[c] for c in crop_codes if c in ALL_CROPS]
+    except Exception as e:
+        logger.warning(f"Failed to load crop catalog: {e}")
+        crops_to_show = []
+
+    if not crops_to_show:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No crop data available for {governorate}"
+        )
+
+    # Generate regional statistics
+    regional_stats = []
+    for crop_info in crops_to_show:
+        # Simulate regional variation (±20% from base yield)
+        base_yield = crop_info.base_yield_ton_ha
+        avg_yield = base_yield * random.uniform(0.8, 1.2)
+        min_yield = avg_yield * 0.6
+        max_yield = avg_yield * 1.4
+        field_count = random.randint(50, 500)
+
+        regional_stats.append(
+            RegionalYieldStats(
+                governorate=governorate.lower(),
+                governorate_ar=gov_name_ar,
+                crop_code=crop_info.code,
+                crop_name_ar=crop_info.name_ar,
+                crop_name_en=crop_info.name_en,
+                average_yield_ton_ha=round(avg_yield, 2),
+                min_yield_ton_ha=round(min_yield, 2),
+                max_yield_ton_ha=round(max_yield, 2),
+                field_count=field_count,
+                data_source="simulated_regional_data",
+            )
+        )
+
+    return {
+        "governorate": governorate.lower(),
+        "governorate_ar": gov_name_ar,
+        "region_type": region_type,
+        "crop_filter": crop,
+        "statistics": regional_stats,
+        "summary": {
+            "total_crops": len(regional_stats),
+            "total_fields": sum(s.field_count for s in regional_stats),
+            "highest_yield_crop": max(regional_stats, key=lambda x: x.average_yield_ton_ha).crop_name_en if regional_stats else None,
+        },
+        "note": "Production system would aggregate real field data. Currently showing simulated regional averages.",
     }
 
 

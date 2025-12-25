@@ -2,8 +2,8 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-# Use npm install since package-lock.json may not exist
-RUN npm install
+# Use npm install with retry for network resilience
+RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 FROM node:20-alpine AS builder
 WORKDIR /app

@@ -110,7 +110,7 @@ services:
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:6333/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -198,7 +198,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -227,7 +227,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8107/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8107/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -248,7 +248,11 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - PORT=8108
-      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+      # Weather Multi-Provider Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
       - "8108:8108"
     depends_on:
@@ -257,7 +261,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8108/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -288,7 +292,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8099/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8099/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -324,7 +328,7 @@ services:
       mqtt:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8106/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8106/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -353,7 +357,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8105/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -383,7 +387,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8081/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -402,7 +406,7 @@ services:
     ports:
       - "8100:8100"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8100/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -456,7 +460,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8103/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8103/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -480,7 +484,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8101/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -499,7 +503,7 @@ services:
     ports:
       - "8104:8104"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8104/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -535,7 +539,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -563,7 +567,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -622,7 +626,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -652,7 +656,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8094/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -681,7 +685,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8093/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -710,7 +714,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8091/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8091/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -720,6 +724,7 @@ services:
 
   # Satellite Service - NDVI Analysis & Satellite Imagery (Python + FastAPI)
   # خدمة الأقمار الصناعية - تحليل NDVI وصور الأقمار الصناعية
+  # Multi-provider support with automatic fallback
   satellite_service:
     build:
       context: ./apps/services/satellite-service
@@ -729,8 +734,21 @@ services:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Multi-Provider Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      # Sentinel Hub (ESA Copernicus - Free tier: 30,000 units/month)
+      # Register at: https://www.sentinel-hub.com/
+      - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
+      - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      # NASA Earthdata (Free - MODIS/VIIRS data)
+      # Register at: https://urs.earthdata.nasa.gov/
+      - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
+      - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
+      # Planet Labs (Optional - Paid high-resolution imagery)
       - PLANET_API_KEY=${PLANET_API_KEY:-}
       - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
+      # Redis Cache for satellite imagery
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
@@ -741,7 +759,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -771,7 +789,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8092/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -806,7 +824,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8110/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1042,10 +1060,12 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - crop_health_ai
-      - virtual_sensors
+      crop_health_ai:
+        condition: service_healthy
+      virtual_sensors:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1086,7 +1106,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8089/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1108,7 +1128,18 @@ services:
       - SERVICE_PORT=8112
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Multi-Provider LLM Configuration (with automatic fallback)
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - PRIMARY_LLM_PROVIDER=${PRIMARY_LLM_PROVIDER:-anthropic}
+      # Anthropic Claude (Primary - Recommended)
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-5-sonnet-20241022}
+      # OpenAI GPT (Fallback)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      # Google Gemini (Optional)
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
       # External service URLs
       - CROP_HEALTH_URL=http://crop_health_ai:8095
       - WEATHER_URL=http://weather_core:8108
@@ -1130,7 +1161,7 @@ services:
       - weather_core
       - agro_advisor
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8112/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1158,7 +1189,7 @@ services:
     depends_on:
       - weather_advanced
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8111/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -10,9 +10,9 @@ LABEL version="15.3.0"
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies with retry for network resilience
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and generate client
 COPY prisma ./prisma/
@@ -34,7 +34,11 @@ RUN apk add --no-cache curl
 
 # Copy package files
 COPY package.json package-lock.json* ./
+<<<<<<< HEAD
 RUN npm install 
+=======
+RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+>>>>>>> 546958803f1f396157d2354dd4648aa2bd57566b
 
 # Copy prisma
 COPY --from=builder /app/prisma ./prisma/
@@ -51,7 +55,7 @@ RUN chown -R node:node /app
 USER node
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3015/api/v1/healthz || exit 1
 
 # Run the application

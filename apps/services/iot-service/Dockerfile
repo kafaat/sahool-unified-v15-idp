@@ -14,8 +14,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json ./
 
-# Install all dependencies (using npm install as lock file may be outdated)
-RUN npm install --legacy-peer-deps
+# Install all dependencies with retry for network resilience
+RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy source
 COPY . .
@@ -42,8 +42,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json ./
 
-# Install production dependencies only
-RUN npm install --omit=dev --legacy-peer-deps && npm cache clean --force
+# Install production dependencies with retry for network resilience
+RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
 
 # Copy built application
 COPY --from=builder /app/dist ./dist

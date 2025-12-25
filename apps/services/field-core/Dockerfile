@@ -43,15 +43,19 @@ WORKDIR /app
 RUN addgroup --system sahool && \
     adduser --system --ingroup sahool --disabled-password --gecos "" sahool
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl ca-certificates
+# Install curl for healthcheck and OpenSSL for Prisma compatibility
+RUN apk add --no-cache curl ca-certificates openssl
 
-# Copy built files, Prisma, and production dependencies
-COPY --from=builder /app/dist ./dist
+# Copy package files and install production dependencies
 COPY --from=builder /app/package*.json ./
+RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+
+# Copy Prisma schema and regenerate client for production environment
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npx prisma generate
+RUN npx prisma generate
+
+# Copy built files
+COPY --from=builder /app/dist ./dist
 
 # Set ownership
 RUN chown -R sahool:sahool /app

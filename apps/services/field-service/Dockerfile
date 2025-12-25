@@ -22,13 +22,7 @@ RUN groupadd -r sahool && useradd -r -g sahool sahool
 # Working directory
 WORKDIR /app
 
-# Configure apt to use HTTPS and install system dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    ca-certificates \
-    apt-transport-https \
-    && rm -rf /var/lib/apt/lists/*
+# No system dependencies needed - using Python for healthcheck
 
 # Copy requirements first for caching
 COPY requirements.txt .
@@ -48,9 +42,9 @@ USER sahool
 # Expose port
 EXPOSE 3000
 
-# Health check
+# Health check using Python
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/healthz || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3000/healthz')" || exit 1
 
 # Run application
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3000"]

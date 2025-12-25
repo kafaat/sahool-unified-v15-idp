@@ -30,11 +30,7 @@ FROM python:3.11-slim
 # Set working directory | تعيين مجلد العمل
 WORKDIR /app
 
-# Install runtime dependencies | تثبيت تبعيات وقت التشغيل
-RUN apt-get update && apt-get install -y \
-    curl \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# No runtime system dependencies needed - using Python for healthcheck
 
 # Copy Python packages from builder | نسخ حزم Python من البناء
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
@@ -61,7 +57,7 @@ EXPOSE 8112
 
 # Health check | فحص الصحة
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8112/healthz || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')" || exit 1
 
 # Run the application | تشغيل التطبيق
 CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8112"]

@@ -415,3 +415,264 @@ class SahoolRefreshIndicator extends StatelessWidget {
     );
   }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Additional Loading Components
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Linear progress indicator with SAHOOL styling
+class SahoolProgressBar extends StatelessWidget {
+  final double? value;
+  final Color? backgroundColor;
+  final Color? progressColor;
+  final double height;
+
+  const SahoolProgressBar({
+    super.key,
+    this.value,
+    this.backgroundColor,
+    this.progressColor,
+    this.height = 4,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: height,
+      child: LinearProgressIndicator(
+        value: value,
+        backgroundColor: backgroundColor ?? Colors.grey[200],
+        valueColor: AlwaysStoppedAnimation<Color>(
+          progressColor ?? SahoolColors.primary,
+        ),
+        borderRadius: BorderRadius.circular(height / 2),
+      ),
+    );
+  }
+}
+
+/// Text shimmer effect for loading text
+class SahoolTextShimmer extends StatelessWidget {
+  final double width;
+  final double height;
+  final double borderRadius;
+
+  const SahoolTextShimmer({
+    super.key,
+    this.width = 100,
+    this.height = 16,
+    this.borderRadius = 4,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolShimmer(
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(borderRadius),
+        ),
+      ),
+    );
+  }
+}
+
+/// Circle shimmer for avatars
+class SahoolCircleShimmer extends StatelessWidget {
+  final double size;
+
+  const SahoolCircleShimmer({
+    super.key,
+    this.size = 48,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SahoolShimmer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+}
+
+/// Skeleton loading for list items
+class SahoolListItemSkeleton extends StatelessWidget {
+  final bool hasAvatar;
+  final int textLines;
+
+  const SahoolListItemSkeleton({
+    super.key,
+    this.hasAvatar = true,
+    this.textLines = 2,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          if (hasAvatar) ...[
+            const SahoolCircleShimmer(size: 48),
+            const SizedBox(width: 16),
+          ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (int i = 0; i < textLines; i++) ...[
+                  SahoolTextShimmer(
+                    width: i == 0 ? double.infinity : 120,
+                    height: i == 0 ? 16 : 14,
+                  ),
+                  if (i < textLines - 1) const SizedBox(height: 8),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Skeleton loading for profile header
+class SahoolProfileHeaderSkeleton extends StatelessWidget {
+  const SahoolProfileHeaderSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          const SahoolCircleShimmer(size: 100),
+          const SizedBox(height: 16),
+          const SahoolTextShimmer(width: 150, height: 20),
+          const SizedBox(height: 8),
+          const SahoolTextShimmer(width: 200, height: 14),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              for (int i = 0; i < 3; i++)
+                const Column(
+                  children: [
+                    SahoolTextShimmer(width: 60, height: 20),
+                    SizedBox(height: 4),
+                    SahoolTextShimmer(width: 80, height: 14),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Loading state wrapper for async data
+class SahoolAsyncBuilder<T> extends StatelessWidget {
+  final Future<T>? future;
+  final T? data;
+  final Widget Function(T data) builder;
+  final Widget? loadingWidget;
+  final Widget Function(Object error)? errorBuilder;
+
+  const SahoolAsyncBuilder({
+    super.key,
+    this.future,
+    this.data,
+    required this.builder,
+    this.loadingWidget,
+    this.errorBuilder,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (data != null) {
+      return builder(data as T);
+    }
+
+    if (future == null) {
+      return loadingWidget ?? const SahoolLoadingScreen();
+    }
+
+    return FutureBuilder<T>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return builder(snapshot.data as T);
+        }
+
+        if (snapshot.hasError) {
+          return errorBuilder?.call(snapshot.error!) ??
+              Center(
+                child: Text(
+                  'خطأ: ${snapshot.error}',
+                  style: const TextStyle(color: SahoolColors.danger),
+                ),
+              );
+        }
+
+        return loadingWidget ?? const SahoolLoadingScreen();
+      },
+    );
+  }
+}
+
+/// Skeleton for field card
+class SahoolFieldCardSkeleton extends StatelessWidget {
+  const SahoolFieldCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const SahoolCircleShimmer(size: 40),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SahoolTextShimmer(width: 150, height: 16),
+                      SizedBox(height: 6),
+                      SahoolTextShimmer(width: 100, height: 14),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const SahoolShimmerCard(height: 100),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                for (int i = 0; i < 3; i++) ...[
+                  const Expanded(
+                    child: SahoolTextShimmer(width: double.infinity, height: 14),
+                  ),
+                  if (i < 2) const SizedBox(width: 12),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

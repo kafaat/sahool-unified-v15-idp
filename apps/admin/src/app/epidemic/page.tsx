@@ -5,6 +5,8 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import DataTable from '@/components/ui/DataTable';
 import { fetchDiagnoses, fetchDiagnosisStats } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import type { DiagnosisRecord } from '@/types';
@@ -132,80 +134,48 @@ export default function EpidemicCenterPage() {
       />
 
       {/* Quick Stats */}
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Activity className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats?.total || 0}</p>
-              <p className="text-xs text-gray-500">إجمالي الحالات</p>
-            </div>
-          </div>
-        </div>
+      <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <StatCard
+          title="إجمالي الحالات"
+          value={stats?.total || 0}
+          icon={Activity}
+          iconColor="text-blue-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-red-600">{stats?.criticalCount || 0}</p>
-              <p className="text-xs text-gray-500">حالات حرجة</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="حالات حرجة"
+          value={stats?.criticalCount || 0}
+          icon={AlertTriangle}
+          iconColor="text-red-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-orange-600">{stats?.highCount || 0}</p>
-              <p className="text-xs text-gray-500">خطورة عالية</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="خطورة عالية"
+          value={stats?.highCount || 0}
+          icon={TrendingUp}
+          iconColor="text-orange-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <Bug className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-amber-600">{stats?.pending || 0}</p>
-              <p className="text-xs text-gray-500">قيد المراجعة</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="قيد المراجعة"
+          value={stats?.pending || 0}
+          icon={Bug}
+          iconColor="text-amber-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingDown className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-green-600">{stats?.treated || 0}</p>
-              <p className="text-xs text-gray-500">تم العلاج</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="تم العلاج"
+          value={stats?.treated || 0}
+          icon={TrendingDown}
+          iconColor="text-green-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <MapPin className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-purple-600">
-                {Object.values(governorateStats).filter(g => g.total > 0).length}
-              </p>
-              <p className="text-xs text-gray-500">محافظات متأثرة</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="محافظات متأثرة"
+          value={Object.values(governorateStats).filter(g => g.total > 0).length}
+          icon={MapPin}
+          iconColor="text-purple-600"
+        />
       </div>
 
       {/* Time Range Filter */}
@@ -382,51 +352,75 @@ export default function EpidemicCenterPage() {
       </div>
 
       {/* Recent Critical Cases */}
-      <div className="mt-6 bg-white rounded-xl border border-gray-100 p-6">
+      <div className="mt-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-red-600" />
           الحالات الحرجة الأخيرة
         </h3>
 
-        {isLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-16 bg-gray-100 animate-pulse rounded-lg" />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {diagnoses
-              .filter(d => d.severity === 'critical' || d.severity === 'high')
-              .slice(0, 5)
-              .map(diagnosis => (
-                <div
-                  key={diagnosis.id}
-                  className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                >
+        <DataTable
+          columns={[
+            {
+              key: 'severity',
+              header: 'الحالة',
+              render: (d: DiagnosisRecord) => (
+                <div className="flex items-center gap-2">
                   <div className={cn(
                     'w-3 h-3 rounded-full',
-                    diagnosis.severity === 'critical' ? 'bg-red-500' : 'bg-orange-500'
+                    d.severity === 'critical' ? 'bg-red-500' : 'bg-orange-500'
                   )} />
-                  <div className="flex-1">
-                    <p className="font-medium text-gray-900">{diagnosis.diseaseNameAr}</p>
-                    <p className="text-sm text-gray-500">{diagnosis.farmName}</p>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-sm font-medium">{diagnosis.confidence.toFixed(0)}%</p>
-                    <p className="text-xs text-gray-500">دقة</p>
-                  </div>
+                  <span className="font-medium">
+                    {d.severity === 'critical' ? 'حرج' : 'عالي'}
+                  </span>
                 </div>
-              ))}
-
-            {diagnoses.filter(d => d.severity === 'critical' || d.severity === 'high').length === 0 && (
-              <div className="text-center py-8 text-gray-400">
-                <AlertTriangle className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                <p>لا توجد حالات حرجة حالياً</p>
-              </div>
-            )}
-          </div>
-        )}
+              ),
+            },
+            {
+              key: 'diseaseNameAr',
+              header: 'المرض',
+              render: (d: DiagnosisRecord) => (
+                <div>
+                  <p className="font-medium text-gray-900">{d.diseaseNameAr}</p>
+                  <p className="text-xs text-gray-500">{d.diseaseName}</p>
+                </div>
+              ),
+            },
+            {
+              key: 'farmName',
+              header: 'المزرعة',
+            },
+            {
+              key: 'confidence',
+              header: 'دقة التشخيص',
+              render: (d: DiagnosisRecord) => (
+                <div className="flex items-center gap-2">
+                  <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-green-500 rounded-full"
+                      style={{ width: `${d.confidence}%` }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium">{d.confidence.toFixed(0)}%</span>
+                </div>
+              ),
+            },
+            {
+              key: 'diagnosedAt',
+              header: 'التاريخ',
+              render: (d: DiagnosisRecord) => (
+                <span className="text-sm text-gray-500">
+                  {new Date(d.diagnosedAt).toLocaleDateString('ar-YE')}
+                </span>
+              ),
+            },
+          ]}
+          data={diagnoses
+            .filter(d => d.severity === 'critical' || d.severity === 'high')
+            .slice(0, 10)}
+          keyExtractor={(d) => d.id}
+          isLoading={isLoading}
+          emptyMessage="لا توجد حالات حرجة حالياً"
+        />
       </div>
     </div>
   );

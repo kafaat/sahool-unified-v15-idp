@@ -4,6 +4,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api/client';
 import type { Field, FieldFormData, FieldFilters } from '../types';
 import { fieldsApi } from '../api';
 

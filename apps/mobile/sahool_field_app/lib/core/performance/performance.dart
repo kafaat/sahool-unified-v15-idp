@@ -6,8 +6,10 @@
 /// - قوائم محسّنة
 /// - إدارة الذاكرة
 /// - كاش الشبكة
+/// - مراقبة الأداء
 
 export 'image_cache_manager.dart';
 export 'memory_manager.dart';
 export 'network_cache.dart';
 export 'optimized_list.dart';
+export 'performance_utils.dart';

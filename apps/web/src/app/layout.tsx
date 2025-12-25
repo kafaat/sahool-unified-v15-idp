@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Providers } from './providers';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 export const metadata: Metadata = {
   title: 'سهول | SAHOOL - Smart Agriculture Platform',
@@ -28,7 +29,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen">
-        <Providers>{children}</Providers>
+        <ErrorBoundary>
+          <Providers>{children}</Providers>
+        </ErrorBoundary>
       </body>
     </html>
   );

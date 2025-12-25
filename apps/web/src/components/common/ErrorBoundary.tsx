@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 
 interface Props {
   children: ReactNode;
@@ -28,33 +29,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
     }
 
-    // Send to error tracking service
-    this.reportError(error, errorInfo);
-  }
-
-  private reportError(error: Error, errorInfo: ErrorInfo): void {
-    // Send error to logging endpoint
-    fetch('/api/log-error', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'react_error',
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack,
-        url: typeof window !== 'undefined' ? window.location.href : undefined,
-        timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV,
-      }),
-    }).catch(() => {
-      // Silently fail if logging endpoint is unavailable
+    // Send to error tracking service using ErrorTracking
+    ErrorTracking.captureError(error, errorInfo, {
+      type: 'react_error_boundary',
+      environment: process.env.NODE_ENV,
     });
   }
 
@@ -72,23 +55,26 @@ export class ErrorBoundary extends Component<Props, State> {
       // Default fallback UI
       return (
         <div
-          className="min-h-[400px] flex items-center justify-center p-8"
+          className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50"
           dir="rtl"
         >
-          <div className="text-center max-w-md">
+          <div className="text-center max-w-lg bg-white rounded-xl shadow-lg p-8 border-2 border-red-100">
             <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              حدث خطأ غير متوقع
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              عذراً، حدث خطأ غير متوقع
             </h2>
-            <p className="text-gray-600 mb-4">
-              نعتذر عن هذا الخطأ. يرجى المحاولة مرة أخرى.
+            <p className="text-gray-600 mb-2 text-lg">
+              نعتذر عن الإزعاج. حدث خطأ أثناء تحميل هذه الصفحة.
+            </p>
+            <p className="text-gray-500 mb-6">
+              تم تسجيل المشكلة وسنعمل على حلها قريباً. يرجى المحاولة مرة أخرى.
             </p>
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="text-left bg-red-50 p-4 rounded-lg mb-4 text-sm">
-                <summary className="cursor-pointer text-red-700 font-medium">
-                  تفاصيل الخطأ (للمطورين)
+              <details className="text-left bg-red-50 p-4 rounded-lg mb-6 text-sm border border-red-200">
+                <summary className="cursor-pointer text-red-700 font-medium hover:text-red-800">
+                  تفاصيل الخطأ (للمطورين فقط)
                 </summary>
-                <pre className="mt-2 text-red-600 overflow-auto">
+                <pre className="mt-3 text-red-600 overflow-auto max-h-48 text-xs">
                   {this.state.error.message}
                   {'\n\n'}
                   {this.state.error.stack}
@@ -98,13 +84,13 @@ export class ErrorBoundary extends Component<Props, State> {
             <div className="flex gap-3 justify-center">
               <button
                 onClick={this.handleRetry}
-                className="px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-sm"
               >
                 إعادة المحاولة
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-semibold"
               >
                 تحديث الصفحة
               </button>

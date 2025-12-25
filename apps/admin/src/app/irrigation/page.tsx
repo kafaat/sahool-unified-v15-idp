@@ -5,6 +5,8 @@
 
 import { useEffect, useState } from 'react';
 import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import DataTable from '@/components/ui/DataTable';
 import { API_URLS, apiClient } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
@@ -272,61 +274,37 @@ export default function IrrigationPage() {
 
       {/* Stats Cards */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Droplets className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {plan?.total_water_m3.toFixed(1) || '0'} م³
-              </p>
-              <p className="text-xs text-gray-500">إجمالي المياه</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="إجمالي المياه"
+          value={plan?.total_water_m3.toFixed(1) || '0'}
+          suffix="م³"
+          icon={Droplets}
+          iconColor="text-blue-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <TrendingDown className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-green-600">
-                {plan?.water_savings_m3.toFixed(1) || '0'} م³
-              </p>
-              <p className="text-xs text-gray-500">وفر المياه</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="وفر المياه"
+          value={plan?.water_savings_m3.toFixed(1) || '0'}
+          suffix="م³"
+          icon={TrendingDown}
+          iconColor="text-green-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-100 rounded-lg">
-              <BarChart3 className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {plan?.daily_et_mm.toFixed(1) || '0'} ملم
-              </p>
-              <p className="text-xs text-gray-500">التبخر اليومي</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="التبخر اليومي"
+          value={plan?.daily_et_mm.toFixed(1) || '0'}
+          suffix="ملم"
+          icon={BarChart3}
+          iconColor="text-amber-600"
+        />
 
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Gauge className="w-5 h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">
-                {plan?.estimated_cost_yer.toLocaleString() || '0'} ر.ي
-              </p>
-              <p className="text-xs text-gray-500">التكلفة المتوقعة</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          title="التكلفة المتوقعة"
+          value={plan?.estimated_cost_yer.toLocaleString() || '0'}
+          suffix="ر.ي"
+          icon={Gauge}
+          iconColor="text-purple-600"
+        />
       </div>
 
       {/* Tabs */}
@@ -508,37 +486,57 @@ export default function IrrigationPage() {
         ) : selectedTab === 'balance' ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Water Balance Chart */}
-            <div className="lg:col-span-2 bg-white rounded-xl border border-gray-100 p-6">
+            <div className="lg:col-span-2">
               <h3 className="font-bold text-gray-900 mb-4">الميزان المائي - آخر 14 يوم</h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-right border-b border-gray-100">
-                      <th className="pb-3 font-medium text-gray-500">التاريخ</th>
-                      <th className="pb-3 font-medium text-gray-500">التبخر</th>
-                      <th className="pb-3 font-medium text-gray-500">الأمطار</th>
-                      <th className="pb-3 font-medium text-gray-500">الري</th>
-                      <th className="pb-3 font-medium text-gray-500">العجز</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {waterBalance?.daily_data.slice(-7).map((day, i) => (
-                      <tr key={i} className="border-b border-gray-50">
-                        <td className="py-2">{new Date(day.date).toLocaleDateString('ar-YE', { weekday: 'short', day: 'numeric' })}</td>
-                        <td className="py-2 text-red-600">{day.et_mm.toFixed(1)} ملم</td>
-                        <td className="py-2 text-blue-600">{day.rainfall_mm.toFixed(1)} ملم</td>
-                        <td className="py-2 text-green-600">{day.irrigation_mm.toFixed(1)} ملم</td>
-                        <td className={cn(
-                          'py-2',
-                          day.water_deficit_mm > 2 ? 'text-red-600' : 'text-gray-600'
-                        )}>
-                          {day.water_deficit_mm.toFixed(1)} ملم
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                columns={[
+                  {
+                    key: 'date',
+                    header: 'التاريخ',
+                    render: (day: WaterBalance) => (
+                      <span className="font-medium">
+                        {new Date(day.date).toLocaleDateString('ar-YE', { weekday: 'short', day: 'numeric' })}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: 'et_mm',
+                    header: 'التبخر',
+                    render: (day: WaterBalance) => (
+                      <span className="text-red-600">{day.et_mm.toFixed(1)} ملم</span>
+                    ),
+                  },
+                  {
+                    key: 'rainfall_mm',
+                    header: 'الأمطار',
+                    render: (day: WaterBalance) => (
+                      <span className="text-blue-600">{day.rainfall_mm.toFixed(1)} ملم</span>
+                    ),
+                  },
+                  {
+                    key: 'irrigation_mm',
+                    header: 'الري',
+                    render: (day: WaterBalance) => (
+                      <span className="text-green-600">{day.irrigation_mm.toFixed(1)} ملم</span>
+                    ),
+                  },
+                  {
+                    key: 'water_deficit_mm',
+                    header: 'العجز',
+                    render: (day: WaterBalance) => (
+                      <span className={cn(
+                        day.water_deficit_mm > 2 ? 'text-red-600 font-medium' : 'text-gray-600'
+                      )}>
+                        {day.water_deficit_mm.toFixed(1)} ملم
+                      </span>
+                    ),
+                  },
+                ]}
+                data={waterBalance?.daily_data.slice(-7) || []}
+                keyExtractor={(day) => day.date}
+                isLoading={isLoading}
+                emptyMessage="لا توجد بيانات"
+              />
             </div>
 
             {/* Summary */}

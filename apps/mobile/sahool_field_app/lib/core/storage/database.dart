@@ -9,6 +9,12 @@ import 'converters/geo_converter.dart';
 part 'database.g.dart';
 
 /// Tasks Table
+@TableIndex(name: 'tasks_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'tasks_field_idx', columns: {#fieldId})
+@TableIndex(name: 'tasks_status_idx', columns: {#status})
+@TableIndex(name: 'tasks_synced_idx', columns: {#synced})
+@TableIndex(name: 'tasks_tenant_status_idx', columns: {#tenantId, #status})
+@TableIndex(name: 'tasks_created_idx', columns: {#createdAt})
 class Tasks extends Table {
   TextColumn get id => text()();
   TextColumn get tenantId => text()();
@@ -31,6 +37,11 @@ class Tasks extends Table {
 }
 
 /// Outbox Table (for offline-first sync with ETag support)
+@TableIndex(name: 'outbox_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'outbox_synced_idx', columns: {#isSynced})
+@TableIndex(name: 'outbox_entity_idx', columns: {#entityType, #entityId})
+@TableIndex(name: 'outbox_created_idx', columns: {#createdAt})
+@TableIndex(name: 'outbox_tenant_synced_idx', columns: {#tenantId, #isSynced})
 class Outbox extends Table {
   IntColumn get id => integer().autoIncrement()();
 
@@ -57,6 +68,13 @@ class Outbox extends Table {
 }
 
 /// Fields Cache Table (GIS-enabled)
+@TableIndex(name: 'fields_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'fields_farm_idx', columns: {#farmId})
+@TableIndex(name: 'fields_synced_idx', columns: {#synced})
+@TableIndex(name: 'fields_deleted_idx', columns: {#isDeleted})
+@TableIndex(name: 'fields_tenant_deleted_idx', columns: {#tenantId, #isDeleted})
+@TableIndex(name: 'fields_updated_idx', columns: {#updatedAt})
+@TableIndex(name: 'fields_remote_idx', columns: {#remoteId})
 class Fields extends Table {
   TextColumn get id => text()();
   TextColumn get remoteId => text().nullable()(); // PostGIS ID
@@ -101,6 +119,11 @@ class SyncLogs extends Table {
 }
 
 /// Sync Events Table - أحداث المزامنة والتعارضات
+@TableIndex(name: 'sync_events_tenant_idx', columns: {#tenantId})
+@TableIndex(name: 'sync_events_read_idx', columns: {#isRead})
+@TableIndex(name: 'sync_events_tenant_read_idx', columns: {#tenantId, #isRead})
+@TableIndex(name: 'sync_events_created_idx', columns: {#createdAt})
+@TableIndex(name: 'sync_events_entity_idx', columns: {#entityType, #entityId})
 class SyncEvents extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get tenantId => text()();
@@ -117,7 +140,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4; // v4: Unified Outbox schema
+  int get schemaVersion => 5; // v5: Added performance indexes
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -141,6 +164,37 @@ class AppDatabase extends _$AppDatabase {
             // Recreate outbox table with new structure
             await m.deleteTable('outbox');
             await m.createTable(outbox);
+          }
+          if (from < 5) {
+            // Migration to v5: Add performance indexes
+            // Indexes are automatically created by Drift when tables are created
+            // For existing databases, recreate indexes
+            await customStatement('CREATE INDEX IF NOT EXISTS tasks_tenant_idx ON tasks (tenant_id)');
+            await customStatement('CREATE INDEX IF NOT EXISTS tasks_field_idx ON tasks (field_id)');
+            await customStatement('CREATE INDEX IF NOT EXISTS tasks_status_idx ON tasks (status)');
+            await customStatement('CREATE INDEX IF NOT EXISTS tasks_synced_idx ON tasks (synced)');
+            await customStatement('CREATE INDEX IF NOT EXISTS tasks_tenant_status_idx ON tasks (tenant_id, status)');
+            await customStatement('CREATE INDEX IF NOT EXISTS tasks_created_idx ON tasks (created_at)');
+
+            await customStatement('CREATE INDEX IF NOT EXISTS outbox_tenant_idx ON outbox (tenant_id)');
+            await customStatement('CREATE INDEX IF NOT EXISTS outbox_synced_idx ON outbox (is_synced)');
+            await customStatement('CREATE INDEX IF NOT EXISTS outbox_entity_idx ON outbox (entity_type, entity_id)');
+            await customStatement('CREATE INDEX IF NOT EXISTS outbox_created_idx ON outbox (created_at)');
+            await customStatement('CREATE INDEX IF NOT EXISTS outbox_tenant_synced_idx ON outbox (tenant_id, is_synced)');
+
+            await customStatement('CREATE INDEX IF NOT EXISTS fields_tenant_idx ON fields (tenant_id)');
+            await customStatement('CREATE INDEX IF NOT EXISTS fields_farm_idx ON fields (farm_id)');
+            await customStatement('CREATE INDEX IF NOT EXISTS fields_synced_idx ON fields (synced)');
+            await customStatement('CREATE INDEX IF NOT EXISTS fields_deleted_idx ON fields (is_deleted)');
+            await customStatement('CREATE INDEX IF NOT EXISTS fields_tenant_deleted_idx ON fields (tenant_id, is_deleted)');
+            await customStatement('CREATE INDEX IF NOT EXISTS fields_updated_idx ON fields (updated_at)');
+            await customStatement('CREATE INDEX IF NOT EXISTS fields_remote_idx ON fields (remote_id)');
+
+            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_tenant_idx ON sync_events (tenant_id)');
+            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_read_idx ON sync_events (is_read)');
+            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_tenant_read_idx ON sync_events (tenant_id, is_read)');
+            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_created_idx ON sync_events (created_at)');
+            await customStatement('CREATE INDEX IF NOT EXISTS sync_events_entity_idx ON sync_events (entity_type, entity_id)');
           }
         },
       );

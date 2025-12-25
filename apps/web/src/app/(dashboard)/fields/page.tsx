@@ -10,6 +10,7 @@ import { FieldsList } from '@/features/fields';
 import { FieldForm } from '@/features/fields/components/FieldForm';
 import { Modal } from '@/components/ui/modal';
 import { Plus } from 'lucide-react';
+import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 
 export default function FieldsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -17,9 +18,14 @@ export default function FieldsPage() {
 
   const handleFieldClick = (fieldId: string) => {
     setSelectedFieldId(fieldId);
+    ErrorTracking.addBreadcrumb({
+      type: 'click',
+      category: 'ui',
+      message: 'Field clicked',
+      data: { fieldId },
+    });
     // Navigate to field details or open modal
-    // For now, we'll just log it
-    console.log('Field clicked:', fieldId);
+    // TODO: Implement field details navigation
   };
 
   const handleCreateClick = () => {
@@ -31,10 +37,23 @@ export default function FieldsPage() {
   };
 
   const handleSubmit = async (data: any) => {
-    console.log('Creating field:', data);
-    // TODO: Implement actual field creation
-    // For now, just close the modal
-    setShowCreateModal(false);
+    try {
+      ErrorTracking.addBreadcrumb({
+        type: 'click',
+        category: 'ui',
+        message: 'Creating field',
+        data: { fieldName: data?.name },
+      });
+      // TODO: Implement actual field creation
+      // For now, just close the modal
+      setShowCreateModal(false);
+    } catch (error) {
+      ErrorTracking.captureError(
+        error instanceof Error ? error : new Error('Failed to create field'),
+        undefined,
+        { data }
+      );
+    }
   };
 
   return (

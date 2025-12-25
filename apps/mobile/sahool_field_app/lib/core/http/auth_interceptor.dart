@@ -10,10 +10,12 @@ import '../utils/app_logger.dart';
 /// معترض المصادقة مع Token Refresh تلقائي
 ///
 /// Features:
-/// - Automatic token attachment
-/// - Token refresh on 401
-/// - Request queue during refresh
+/// - Automatic token attachment to requests
+/// - Automatic token refresh on 401 (Unauthorized)
+/// - Request queue during refresh to prevent race conditions
+/// - Retry failed requests after successful token refresh
 /// - Logout on refresh failure
+/// - Support for multiple simultaneous 401 responses
 
 class AuthInterceptor extends Interceptor {
   final Ref _ref;
@@ -21,6 +23,8 @@ class AuthInterceptor extends Interceptor {
 
   bool _isRefreshing = false;
   final List<_RequestRetry> _pendingRequests = [];
+  DateTime? _lastRefreshAttempt;
+  static const _minRefreshInterval = Duration(seconds: 5);
 
   AuthInterceptor(this._ref, this._dio);
 
@@ -63,11 +67,41 @@ class AuthInterceptor extends Interceptor {
     if (err.response?.statusCode == 401) {
       AppLogger.w('Received 401 - attempting token refresh', tag: 'AUTH');
 
+      // Prevent too frequent refresh attempts
+      if (_shouldSkipRefresh()) {
+        AppLogger.w('Skipping refresh - too soon after last attempt', tag: 'AUTH');
+        await _handleRefreshFailure();
+        handler.next(err);
+        return;
+      }
+
       final success = await _handleTokenRefresh(err, handler);
       if (success) return;
     }
 
+    // Handle other errors
+    _logError(err);
     handler.next(err);
+  }
+
+  /// Check if we should skip refresh attempt
+  bool _shouldSkipRefresh() {
+    if (_lastRefreshAttempt == null) return false;
+
+    final timeSinceLastRefresh = DateTime.now().difference(_lastRefreshAttempt!);
+    return timeSinceLastRefresh < _minRefreshInterval;
+  }
+
+  /// Log error details
+  void _logError(DioException err) {
+    final statusCode = err.response?.statusCode;
+    final path = err.requestOptions.path;
+
+    if (statusCode != null) {
+      AppLogger.e('HTTP $statusCode error on $path', tag: 'HTTP', error: err);
+    } else {
+      AppLogger.e('Network error on $path', tag: 'HTTP', error: err);
+    }
   }
 
   /// Handle token refresh
@@ -92,6 +126,7 @@ class AuthInterceptor extends Interceptor {
     }
 
     _isRefreshing = true;
+    _lastRefreshAttempt = DateTime.now();
 
     try {
       // Attempt to refresh token
@@ -104,6 +139,10 @@ class AuthInterceptor extends Interceptor {
       final secureStorage = _ref.read(secureStorageProvider);
       final newToken = await secureStorage.getAccessToken();
 
+      if (newToken == null) {
+        throw Exception('Failed to get new access token');
+      }
+
       // Retry original request with new token
       requestOptions.headers['Authorization'] = 'Bearer $newToken';
 
@@ -111,7 +150,7 @@ class AuthInterceptor extends Interceptor {
       handler.resolve(response);
 
       // Process queued requests
-      await _processQueuedRequests(newToken!);
+      await _processQueuedRequests(newToken);
 
       return true;
     } catch (e) {

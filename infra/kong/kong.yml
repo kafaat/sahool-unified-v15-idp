@@ -254,7 +254,27 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
-  # Note: community-upstream removed, consolidated into community-chat-upstream
+  - name: community-upstream
+    targets:
+      - target: sahool-community-service:8102
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+        healthy:
+          interval: 10
+          successes: 2
+        unhealthy:
+          interval: 5
+          http_failures: 3
+          timeouts: 3
+      passive:
+        healthy:
+          successes: 5
+        unhealthy:
+          http_failures: 5
+          timeouts: 3
 
   - name: provider-config-upstream
     targets:
@@ -505,7 +525,7 @@ upstreams:
     healthchecks:
       active:
         type: http
-        http_path: /healthz
+        http_path: /api/v1/simulation/health
         healthy:
           interval: 10
           successes: 2
@@ -519,10 +539,6 @@ upstreams:
         unhealthy:
           http_failures: 5
           timeouts: 3
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # NEW: Missing Services Added - v16.0.1
-  # ─────────────────────────────────────────────────────────────────────────────
 
   - name: notification-upstream
     targets:
@@ -656,31 +672,9 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
-  - name: billing-upstream
+  - name: billing-core-upstream
     targets:
       - target: sahool-billing-core:8089
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
-
-  - name: ai-advisor-upstream
-    targets:
-      - target: sahool-ai-advisor:8112
         weight: 100
     healthchecks:
       active:
@@ -789,12 +783,6 @@ services:
           - /api/v1/weather
           - /api/v1/forecast
         strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1500
-              policy: local
 
   # Field Chat Service
   - name: chat-service
@@ -947,9 +935,9 @@ services:
           - /api/v1/equipment
         strip_path: false
 
-  # Community Service (consolidated with community-chat-upstream)
+  # Community Service
   - name: community-service
-    host: community-chat-upstream
+    host: community-upstream
     port: 80
     protocol: http
     retries: 3
@@ -1329,10 +1317,10 @@ services:
               policy: local
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # NEW: Missing Services Added - v16.0.1
+  # New Services (v15.5)
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Notification Service - Push notifications & alerts
+  # Notification Service - خدمة الإشعارات والتنبيهات
   - name: notification-service
     host: notification-upstream
     port: 80
@@ -1345,8 +1333,9 @@ services:
       - name: notification-route
         paths:
           - /api/v1/notifications
-          - /api/v1/alerts/push
-          - /api/v1/subscriptions
+          - /api/v1/notifications/send
+          - /api/v1/notifications/preferences
+          - /api/v1/notifications/history
         strip_path: false
         plugins:
           - name: rate-limiting
@@ -1355,44 +1344,46 @@ services:
               hour: 2000
               policy: local
 
-  # Research Core Service - Scientific experiments management
+  # Research Core Service - نواة البحث العلمي
   - name: research-core-service
     host: research-core-upstream
     port: 80
     protocol: http
     retries: 3
     connect_timeout: 30000
-    write_timeout: 120000
-    read_timeout: 120000
+    write_timeout: 60000
+    read_timeout: 60000
     routes:
       - name: research-core-route
         paths:
           - /api/v1/research
           - /api/v1/experiments
-          - /api/v1/publications
+          - /api/v1/trials
+          - /api/v1/research/data
         strip_path: false
         plugins:
           - name: rate-limiting
             config:
               minute: 60
-              hour: 1500
+              hour: 1000
               policy: local
 
-  # Disaster Assessment Service - Agricultural disaster assessment
+  # Disaster Assessment Service - خدمة تقييم الكوارث
   - name: disaster-assessment-service
     host: disaster-assessment-upstream
     port: 80
     protocol: http
     retries: 3
     connect_timeout: 30000
-    write_timeout: 120000
-    read_timeout: 120000
+    write_timeout: 90000
+    read_timeout: 90000
     routes:
       - name: disaster-assessment-route
         paths:
           - /api/v1/disasters
-          - /api/v1/damage-assessment
-          - /api/v1/insurance-claims
+          - /api/v1/disasters/assess
+          - /api/v1/disasters/alerts
+          - /api/v1/disasters/reports
         strip_path: false
         plugins:
           - name: rate-limiting
@@ -1401,56 +1392,54 @@ services:
               hour: 500
               policy: local
 
-  # Yield Prediction Service - ML-based yield prediction
+  # Yield Prediction Service - خدمة التنبؤ بالإنتاجية
   - name: yield-prediction-service
     host: yield-prediction-upstream
     port: 80
     protocol: http
     retries: 3
     connect_timeout: 30000
-    write_timeout: 120000
-    read_timeout: 120000
+    write_timeout: 90000
+    read_timeout: 90000
     routes:
       - name: yield-prediction-route
         paths:
           - /api/v1/yield-prediction
-          - /api/v1/yield/forecast
-          - /api/v1/yield/models
+          - /api/v1/yield-prediction/forecast
+          - /api/v1/yield-prediction/models
         strip_path: false
         plugins:
           - name: rate-limiting
             config:
-              # ML predictions - compute intensive
-              minute: 20
-              hour: 300
+              minute: 30
+              hour: 500
               policy: local
 
-  # LAI Estimation Service - Leaf Area Index estimation
+  # LAI Estimation Service - خدمة تقدير مؤشر مساحة الأوراق
   - name: lai-estimation-service
     host: lai-estimation-upstream
     port: 80
     protocol: http
     retries: 3
     connect_timeout: 30000
-    write_timeout: 120000
-    read_timeout: 120000
+    write_timeout: 90000
+    read_timeout: 90000
     routes:
       - name: lai-estimation-route
         paths:
           - /api/v1/lai
-          - /api/v1/leaf-area
-          - /api/v1/canopy
+          - /api/v1/lai/estimate
+          - /api/v1/lai/timeseries
         strip_path: false
         plugins:
           - name: rate-limiting
             config:
-              # ML/Remote sensing - compute intensive
-              minute: 20
-              hour: 300
+              minute: 30
+              hour: 500
               policy: local
 
-  # Marketplace Service - Agricultural marketplace & FinTech
-  - name: marketplace-service
+  # Marketplace Service - سوق سهول والخدمات المالية
+  - name: marketplace-service-v15
     host: marketplace-upstream
     port: 80
     protocol: http
@@ -1462,21 +1451,21 @@ services:
       - name: marketplace-route
         paths:
           - /api/v1/marketplace
-          - /api/v1/products
-          - /api/v1/orders
-          - /api/v1/payments
-          - /api/v1/transactions
+          - /api/v1/marketplace/products
+          - /api/v1/marketplace/orders
+          - /api/v1/marketplace/listings
+          - /api/v1/marketplace/vendors
         strip_path: false
         plugins:
           - name: rate-limiting
             config:
               minute: 60
-              hour: 2000
+              hour: 1500
               policy: local
 
-  # Billing Core Service - Subscription & invoicing
-  - name: billing-service
-    host: billing-upstream
+  # Billing Core Service - خدمة الفوترة الأساسية
+  - name: billing-core-service
+    host: billing-core-upstream
     port: 80
     protocol: http
     retries: 3
@@ -1484,19 +1473,19 @@ services:
     write_timeout: 60000
     read_timeout: 60000
     routes:
-      - name: billing-route
+      - name: billing-core-route
         paths:
           - /api/v1/billing
           - /api/v1/subscriptions
           - /api/v1/invoices
-          - /api/v1/plans
           - /api/v1/payments
+          - /api/v1/plans
         strip_path: false
         plugins:
           - name: rate-limiting
             config:
               minute: 60
-              hour: 1500
+              hour: 1000
               policy: local
       # Tharwatt Payment Webhook - ويب هوك ثروات
       - name: tharwatt-webhook-route
@@ -1505,6 +1494,12 @@ services:
         strip_path: false
         methods:
           - POST
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
       # Stripe Payment Webhook - ويب هوك سترايب
       - name: stripe-webhook-route
         paths:
@@ -1512,27 +1507,11 @@ services:
         strip_path: false
         methods:
           - POST
-
-  # AI Advisor Service - Multi-Agent Agricultural Intelligence
-  # خدمة المستشار الذكي - الذكاء الاصطناعي المتعدد الوكلاء
-  - name: ai-advisor-service
-    host: ai-advisor-upstream
-    port: 80
-    protocol: http
-    retries: 3
-    connect_timeout: 60000
-    write_timeout: 120000
-    read_timeout: 120000
-    routes:
-      - name: ai-advisor-route
-        paths:
-          - /api/v1/advisor
-        strip_path: false
         plugins:
           - name: rate-limiting
             config:
-              minute: 30
-              hour: 500
+              minute: 100
+              hour: 1000
               policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -5,18 +5,26 @@ Port: 8096
 """
 
 import asyncio
+import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI, HTTPException, Header
+from pydantic import BaseModel, Field, validator
 
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
 from .registry import DeviceRegistry, DeviceStatus, get_registry
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("iot-gateway")
 
 # Configuration
 MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")
@@ -33,20 +41,58 @@ mqtt_task: Optional[asyncio.Task] = None
 
 
 async def handle_mqtt_message(msg: MqttMessage):
-    """Process incoming MQTT message"""
+    """
+    Process incoming MQTT message
+
+    Security features:
+    - Validates device is registered before accepting data
+    - Validates sensor value ranges
+    - Auto-registers only if explicitly allowed (for backward compatibility)
+    - Logs all operations for audit trail
+    """
     global publisher, registry
 
     try:
         # Normalize the reading
         reading = normalize(msg.payload, msg.topic)
 
-        # Auto-register device if not known
-        registry.auto_register(
-            device_id=reading.device_id,
-            tenant_id=DEFAULT_TENANT,
-            field_id=reading.field_id,
-            sensor_type=reading.sensor_type,
-        )
+        # Check if device is registered
+        device = registry.get(reading.device_id)
+
+        if not device:
+            # Auto-register device if enabled (for backward compatibility)
+            # In production, devices should be pre-registered
+            auto_register_enabled = os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
+
+            if auto_register_enabled:
+                logger.warning(
+                    f"Auto-registering device {reading.device_id} from MQTT. "
+                    f"This should be disabled in production."
+                )
+                registry.auto_register(
+                    device_id=reading.device_id,
+                    tenant_id=DEFAULT_TENANT,
+                    field_id=reading.field_id,
+                    sensor_type=reading.sensor_type,
+                )
+            else:
+                logger.error(
+                    f"MQTT message rejected: Device {reading.device_id} not registered. "
+                    f"Topic: {msg.topic}"
+                )
+                return
+
+        # Validate sensor value range
+        sensor_type_lower = reading.sensor_type.lower()
+        if sensor_type_lower in SENSOR_RANGES:
+            range_config = SENSOR_RANGES[sensor_type_lower]
+            if reading.value < range_config["min"] or reading.value > range_config["max"]:
+                logger.error(
+                    f"MQTT message rejected: Value {reading.value} out of range "
+                    f"for {reading.sensor_type}. Device: {reading.device_id}, "
+                    f"Expected {range_config['min']} to {range_config['max']}"
+                )
+                return
 
         # Update device status
         registry.update_status(
@@ -68,10 +114,16 @@ async def handle_mqtt_message(msg: MqttMessage):
             metadata=reading.metadata,
         )
 
+        logger.debug(
+            f"MQTT message processed. Device: {reading.device_id}, "
+            f"Type: {reading.sensor_type}, Value: {reading.value}"
+        )
+
     except Exception as e:
-        print(f"❌ Error processing MQTT message: {e}")
-        print(f"   Topic: {msg.topic}")
-        print(f"   Payload: {msg.payload[:200]}...")
+        logger.error(
+            f"Error processing MQTT message: {e}. "
+            f"Topic: {msg.topic}, Payload: {msg.payload[:200]}..."
+        )
 
 
 async def check_offline_devices():
@@ -179,8 +231,8 @@ def health():
     registry_stats = registry.get_stats() if registry else {}
 
     return {
-        "status": "ok",
-        "service": "iot_gateway",
+        "status": "healthy",
+        "service": "iot-gateway",
         "version": "15.3.3",
         "mqtt": {
             "broker": MQTT_BROKER,
@@ -194,32 +246,145 @@ def health():
 
 # ============== Request/Response Models ==============
 
+# Sensor value ranges for validation
+SENSOR_RANGES = {
+    "temperature": {"min": -50.0, "max": 80.0},  # °C
+    "humidity": {"min": 0.0, "max": 100.0},  # %
+    "soil_moisture": {"min": 0.0, "max": 100.0},  # %
+    "soil_temperature": {"min": -20.0, "max": 60.0},  # °C
+    "ph": {"min": 0.0, "max": 14.0},  # pH scale
+    "ec": {"min": 0.0, "max": 10.0},  # dS/m
+    "nitrogen": {"min": 0.0, "max": 1000.0},  # ppm
+    "phosphorus": {"min": 0.0, "max": 1000.0},  # ppm
+    "potassium": {"min": 0.0, "max": 1000.0},  # ppm
+    "light": {"min": 0.0, "max": 200000.0},  # lux
+    "rainfall": {"min": 0.0, "max": 500.0},  # mm
+    "wind_speed": {"min": 0.0, "max": 150.0},  # km/h
+    "pressure": {"min": 800.0, "max": 1200.0},  # hPa
+    "battery": {"min": 0.0, "max": 100.0},  # %
+}
+
 
 class SensorReadingRequest(BaseModel):
-    device_id: str
-    field_id: str
-    sensor_type: str
+    device_id: str = Field(..., min_length=1, max_length=100)
+    tenant_id: str = Field(..., min_length=1, max_length=100)
+    field_id: str = Field(..., min_length=1, max_length=100)
+    sensor_type: str = Field(..., min_length=1, max_length=50)
     value: float
-    unit: str = ""
+    unit: str = Field("", max_length=20)
     timestamp: Optional[str] = None
     metadata: Optional[dict] = None
 
+    @validator("sensor_type")
+    def validate_sensor_type(cls, v):
+        """Validate sensor type is known"""
+        v = v.lower()
+        if v not in SENSOR_RANGES and not v.startswith("custom_"):
+            logger.warning(f"Unknown sensor type: {v}")
+        return v
+
+    @validator("value")
+    def validate_value_range(cls, v, values):
+        """Validate sensor value is within expected range"""
+        if "sensor_type" in values:
+            sensor_type = values["sensor_type"].lower()
+            if sensor_type in SENSOR_RANGES:
+                range_config = SENSOR_RANGES[sensor_type]
+                if v < range_config["min"] or v > range_config["max"]:
+                    raise ValueError(
+                        f"Value {v} out of range for {sensor_type}. "
+                        f"Expected {range_config['min']} to {range_config['max']}"
+                    )
+        return v
+
 
 class BatchReadingRequest(BaseModel):
-    device_id: str
-    field_id: str
-    readings: list[dict]
+    device_id: str = Field(..., min_length=1, max_length=100)
+    tenant_id: str = Field(..., min_length=1, max_length=100)
+    field_id: str = Field(..., min_length=1, max_length=100)
+    readings: list[dict] = Field(..., min_items=1, max_items=100)
 
 
 class DeviceRegisterRequest(BaseModel):
-    device_id: str
-    tenant_id: str = DEFAULT_TENANT
-    field_id: str
-    device_type: str
-    name_ar: str
-    name_en: str
+    device_id: str = Field(..., min_length=1, max_length=100)
+    tenant_id: str = Field(..., min_length=1, max_length=100)
+    field_id: str = Field(..., min_length=1, max_length=100)
+    device_type: str = Field(..., min_length=1, max_length=50)
+    name_ar: str = Field(..., min_length=1, max_length=200)
+    name_en: str = Field(..., min_length=1, max_length=200)
     location: Optional[dict] = None
     metadata: Optional[dict] = None
+
+
+# ============== Authorization & Validation Functions ==============
+
+
+def validate_device_authorization(device_id: str, tenant_id: str, field_id: str) -> bool:
+    """
+    Validate that device is authorized for the tenant and field
+    """
+    device = registry.get(device_id)
+
+    if not device:
+        logger.error(
+            f"Device authorization failed: Device not found. "
+            f"Device: {device_id}, Tenant: {tenant_id}, Field: {field_id}"
+        )
+        return False
+
+    # Check tenant isolation
+    if device.tenant_id != tenant_id:
+        logger.error(
+            f"Tenant isolation violation. "
+            f"Device: {device_id}, Device tenant: {device.tenant_id}, "
+            f"Requested tenant: {tenant_id}"
+        )
+        return False
+
+    # Check field association
+    if device.field_id != field_id:
+        logger.error(
+            f"Field mismatch. "
+            f"Device: {device_id}, Device field: {device.field_id}, "
+            f"Requested field: {field_id}"
+        )
+        return False
+
+    return True
+
+
+def validate_sensor_reading(
+    device_id: str,
+    tenant_id: str,
+    field_id: str,
+    sensor_type: str,
+    value: float
+) -> None:
+    """
+    Comprehensive validation for sensor reading
+    Raises HTTPException if validation fails
+    """
+    # 1. Check device exists
+    device = registry.get(device_id)
+    if not device:
+        logger.error(f"Sensor reading rejected: Device {device_id} not registered")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Device {device_id} not registered. Please register device first."
+        )
+
+    # 2. Validate device authorization
+    if not validate_device_authorization(device_id, tenant_id, field_id):
+        raise HTTPException(
+            status_code=403,
+            detail="Device not authorized for this tenant or field"
+        )
+
+    # 3. Value range already validated by Pydantic model
+    logger.info(
+        f"Sensor reading validated. "
+        f"Device: {device_id}, Tenant: {tenant_id}, Type: {sensor_type}, Value: {value}"
+    )
 
 
 # ============== Sensor Endpoints ==============
@@ -230,22 +395,31 @@ async def post_sensor_reading(req: SensorReadingRequest):
     """
     HTTP endpoint to submit sensor reading
 
+    Security features:
+    - Requires device to be registered first
+    - Validates tenant isolation
+    - Validates field association
+    - Validates sensor value ranges
+    - Logs all operations for audit trail
+
     Alternative to MQTT for devices that support HTTP
     """
     if not publisher:
+        logger.error("Sensor reading rejected: Publisher not available")
         raise HTTPException(status_code=503, detail="Publisher not available")
+
+    # Validate device authorization and sensor reading
+    validate_sensor_reading(
+        req.device_id,
+        req.tenant_id,
+        req.field_id,
+        req.sensor_type,
+        req.value
+    )
 
     timestamp = req.timestamp or datetime.now(timezone.utc).isoformat()
 
-    # Auto-register device
-    registry.auto_register(
-        device_id=req.device_id,
-        tenant_id=DEFAULT_TENANT,
-        field_id=req.field_id,
-        sensor_type=req.sensor_type,
-    )
-
-    # Update status
+    # Update device status
     registry.update_status(
         device_id=req.device_id,
         last_reading={
@@ -255,9 +429,9 @@ async def post_sensor_reading(req: SensorReadingRequest):
         },
     )
 
-    # Publish
+    # Publish to event system
     event_id = await publisher.publish_sensor_reading(
-        tenant_id=DEFAULT_TENANT,
+        tenant_id=req.tenant_id,
         field_id=req.field_id,
         device_id=req.device_id,
         sensor_type=req.sensor_type,
@@ -265,6 +439,11 @@ async def post_sensor_reading(req: SensorReadingRequest):
         unit=req.unit,
         timestamp=timestamp,
         metadata=req.metadata,
+    )
+
+    logger.info(
+        f"Sensor reading published. "
+        f"Event: {event_id}, Device: {req.device_id}, Type: {req.sensor_type}"
     )
 
     return {
@@ -278,37 +457,101 @@ async def post_sensor_reading(req: SensorReadingRequest):
 
 @app.post("/sensor/batch")
 async def post_batch_readings(req: BatchReadingRequest):
-    """Submit multiple sensor readings at once"""
+    """
+    Submit multiple sensor readings at once
+
+    Security features:
+    - Validates device exists and is registered
+    - Validates tenant isolation
+    - Validates field association
+    - Validates each sensor value range
+    - Rejects entire batch if any validation fails
+    """
     if not publisher:
+        logger.error("Batch reading rejected: Publisher not available")
         raise HTTPException(status_code=503, detail="Publisher not available")
 
-    event_ids = []
-
-    for reading in req.readings:
-        sensor_type = reading.get("type") or reading.get("sensor_type")
-        value = reading.get("value") or reading.get("v")
-        unit = reading.get("unit") or reading.get("u") or ""
-
-        if not sensor_type or value is None:
-            continue
-
-        event_id = await publisher.publish_sensor_reading(
-            tenant_id=DEFAULT_TENANT,
-            field_id=req.field_id,
-            device_id=req.device_id,
-            sensor_type=sensor_type,
-            value=float(value),
-            unit=unit,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+    # First, validate device exists and authorization (once for all readings)
+    device = registry.get(req.device_id)
+    if not device:
+        logger.error(f"Batch reading rejected: Device {req.device_id} not registered")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Device {req.device_id} not registered. Please register device first."
         )
-        event_ids.append(event_id)
+
+    if not validate_device_authorization(req.device_id, req.tenant_id, req.field_id):
+        raise HTTPException(
+            status_code=403,
+            detail="Device not authorized for this tenant or field"
+        )
+
+    event_ids = []
+    validated_count = 0
+
+    for idx, reading in enumerate(req.readings):
+        try:
+            sensor_type = reading.get("type") or reading.get("sensor_type")
+            value = reading.get("value") or reading.get("v")
+            unit = reading.get("unit") or reading.get("u") or ""
+
+            if not sensor_type or value is None:
+                logger.warning(
+                    f"Skipping reading {idx}: missing sensor_type or value. "
+                    f"Device: {req.device_id}"
+                )
+                continue
+
+            # Validate value range
+            sensor_type_lower = sensor_type.lower()
+            if sensor_type_lower in SENSOR_RANGES:
+                range_config = SENSOR_RANGES[sensor_type_lower]
+                value_float = float(value)
+                if value_float < range_config["min"] or value_float > range_config["max"]:
+                    logger.error(
+                        f"Batch reading {idx} rejected: Value {value_float} out of range "
+                        f"for {sensor_type}. Expected {range_config['min']} to {range_config['max']}"
+                    )
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Reading {idx}: Value {value_float} out of range for {sensor_type}"
+                    )
+
+            event_id = await publisher.publish_sensor_reading(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                device_id=req.device_id,
+                sensor_type=sensor_type,
+                value=float(value),
+                unit=unit,
+                timestamp=datetime.now(timezone.utc).isoformat(),
+            )
+            event_ids.append(event_id)
+            validated_count += 1
+
+        except HTTPException:
+            raise  # Re-raise HTTP exceptions
+        except Exception as e:
+            logger.error(
+                f"Error processing batch reading {idx} for device {req.device_id}: {e}"
+            )
+            raise HTTPException(
+                status_code=400,
+                detail=f"Error processing reading {idx}: {str(e)}"
+            )
 
     # Update device status
     registry.update_status(device_id=req.device_id)
 
+    logger.info(
+        f"Batch reading published. "
+        f"Device: {req.device_id}, Count: {validated_count}, Events: {len(event_ids)}"
+    )
+
     return {
         "status": "ok",
         "count": len(event_ids),
+        "validated_count": validated_count,
         "event_ids": event_ids,
     }
 

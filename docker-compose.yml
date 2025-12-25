@@ -1125,7 +1125,18 @@ services:
       - SERVICE_PORT=8112
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # Multi-Provider LLM Configuration (with automatic fallback)
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - PRIMARY_LLM_PROVIDER=${PRIMARY_LLM_PROVIDER:-anthropic}
+      # Anthropic Claude (Primary - Recommended)
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-5-sonnet-20241022}
+      # OpenAI GPT (Fallback)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      # Google Gemini (Optional)
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
       # External service URLs
       - CROP_HEALTH_URL=http://crop_health_ai:8095
       - WEATHER_URL=http://weather_core:8108

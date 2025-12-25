@@ -21,9 +21,23 @@ class Settings(BaseSettings):
     service_port: int = 8112
     log_level: str = "INFO"
 
+    # Multi-Provider LLM Configuration | إعدادات مزودي نماذج اللغة المتعددين
+    use_multi_provider: bool = True
+    primary_llm_provider: str = "anthropic"  # anthropic, openai, google
+
     # Anthropic Claude API | واجهة برمجة Claude
-    anthropic_api_key: str
+    anthropic_api_key: Optional[str] = None
     claude_model: str = "claude-3-5-sonnet-20241022"
+
+    # OpenAI GPT API (Fallback) | واجهة برمجة OpenAI
+    openai_api_key: Optional[str] = None
+    openai_model: str = "gpt-4o"
+
+    # Google Gemini API (Optional) | واجهة برمجة Gemini
+    google_api_key: Optional[str] = None
+    gemini_model: str = "gemini-1.5-pro"
+
+    # LLM Generation Settings | إعدادات التوليد
     max_tokens: int = 4096
     temperature: float = 0.7
 

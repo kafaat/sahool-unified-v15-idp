@@ -24,11 +24,6 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Configure apt to use HTTPS and install system dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https && \
-    rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip (non-fatal in case of network issues)
 RUN pip install --upgrade pip || true
@@ -50,6 +45,6 @@ USER sahool
 EXPOSE 8101
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8101/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')" || exit 1
 
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8101"]

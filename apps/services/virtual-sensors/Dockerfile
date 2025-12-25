@@ -10,46 +10,6 @@
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
-# Configure apt to use HTTPS and install build dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    apt-transport-https \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create virtual environment
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# ───────────────────────────────────────────────────────────────────────────────
-# Stage 2: Production - Minimal runtime image
-# ───────────────────────────────────────────────────────────────────────────────
-FROM python:3.11-slim AS production
-
-LABEL maintainer="Sahool Team <dev@sahool.io>"
-LABEL service="virtual-sensors"
-LABEL version="2.0.0"
-LABEL description="Virtual Sensors Engine for Smart Irrigation - FAO-56 ET0"
-
-# Environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
-    PORT=8096 \
-    LOG_LEVEL=INFO
-
-WORKDIR /app
-
-# Configure apt to use HTTPS and install only runtime system dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https \
-    && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 # Copy virtual environment from builder
@@ -69,7 +29,7 @@ EXPOSE 8096
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8096/healthz || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')" || exit 1
 
 # Run the application
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8096"]

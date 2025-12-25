@@ -1,4 +1,10 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '404 - الصفحة غير موجودة | Sahool Admin',
+  description: 'الصفحة التي تبحث عنها غير موجودة',
+};
 
 /**
  * Custom 404 Page for SAHOOL Admin Dashboard
@@ -16,7 +22,7 @@ export default function NotFound() {
           عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.
         </p>
         <Link
-          href="/"
+          href="/dashboard"
           className="inline-flex items-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
         >
           <svg
@@ -32,7 +38,7 @@ export default function NotFound() {
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
           </svg>
-          العودة للرئيسية
+          العودة إلى لوحة التحكم
         </Link>
       </div>
     </div>

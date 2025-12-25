@@ -34,7 +34,11 @@ RUN apk add --no-cache curl
 
 # Copy package files
 COPY package.json package-lock.json* ./
+<<<<<<< HEAD
+RUN npm install 
+=======
 RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+>>>>>>> 546958803f1f396157d2354dd4648aa2bd57566b
 
 # Copy prisma
 COPY --from=builder /app/prisma ./prisma/

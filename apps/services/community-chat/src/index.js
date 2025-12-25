@@ -18,8 +18,8 @@ const PORT = process.env.PORT || 8097;
 const SERVICE_NAME = 'community-chat';
 const SERVICE_VERSION = '1.0.0';
 
-// JWT Configuration
-const JWT_SECRET = process.env.JWT_SECRET || '';
+// JWT Configuration - Use standard JWT_SECRET_KEY
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || '';
 const REQUIRE_AUTH = process.env.CHAT_REQUIRE_AUTH !== 'false';
 
 // CORS Origins - configurable via environment
@@ -47,11 +47,15 @@ const verifyToken = (token) => {
   if (!token) {
     throw new Error('Token required');
   }
-  if (!JWT_SECRET) {
-    console.warn('⚠️ JWT_SECRET not configured - auth disabled');
+  if (!JWT_SECRET_KEY) {
+    // In production, JWT_SECRET_KEY must be configured
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET_KEY not configured');
+    }
+    console.warn('⚠️ JWT_SECRET_KEY not configured - using anonymous auth (dev only)');
     return { sub: 'anonymous', role: 'user' };
   }
-  return jwt.verify(token, JWT_SECRET);
+  return jwt.verify(token, JWT_SECRET_KEY);
 };
 
 // Socket.io setup with CORS and authentication

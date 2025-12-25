@@ -169,19 +169,27 @@ async def cache_delete(key: str) -> bool:
 
 
 async def cache_invalidate_field(field_id: str) -> int:
-    """Invalidate all cache entries for a field."""
+    """Invalidate all cache entries for a field using SCAN (non-blocking)."""
     client = await _get_redis_client()
     if not client:
         return 0
 
     try:
         pattern = f"satellite:*:{field_id}:*"
-        keys = await client.keys(pattern)
-        if keys:
-            deleted = await client.delete(*keys)
+        deleted = 0
+        cursor = 0
+
+        # Use SCAN instead of KEYS to avoid blocking Redis
+        while True:
+            cursor, keys = await client.scan(cursor, match=pattern, count=100)
+            if keys:
+                deleted += await client.delete(*keys)
+            if cursor == 0:
+                break
+
+        if deleted > 0:
             logger.info(f"Cache INVALIDATE: {deleted} keys for field {field_id}")
-            return deleted
-        return 0
+        return deleted
     except Exception as e:
         logger.error(f"Cache invalidate error: {e}")
         return 0
@@ -316,6 +324,18 @@ def cached(
 # =============================================================================
 
 
+async def _count_keys_by_pattern(client, pattern: str) -> int:
+    """Count keys matching pattern using SCAN (non-blocking)."""
+    count = 0
+    cursor = 0
+    while True:
+        cursor, keys = await client.scan(cursor, match=pattern, count=100)
+        count += len(keys)
+        if cursor == 0:
+            break
+    return count
+
+
 async def get_cache_stats() -> Dict[str, Any]:
     """Get cache statistics."""
     client = await _get_redis_client()
@@ -326,10 +346,10 @@ async def get_cache_stats() -> Dict[str, Any]:
         info = await client.info("stats")
         memory = await client.info("memory")
 
-        # Count satellite keys
-        ndvi_keys = len(await client.keys("satellite:ndvi:*"))
-        analysis_keys = len(await client.keys("satellite:analysis:*"))
-        timeseries_keys = len(await client.keys("satellite:timeseries:*"))
+        # Count satellite keys using SCAN (non-blocking)
+        ndvi_keys = await _count_keys_by_pattern(client, "satellite:ndvi:*")
+        analysis_keys = await _count_keys_by_pattern(client, "satellite:analysis:*")
+        timeseries_keys = await _count_keys_by_pattern(client, "satellite:timeseries:*")
 
         return {
             "available": True,

@@ -17,10 +17,21 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // CORS for mobile app
+  // CORS configuration - restrict to allowed origins
+  const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',')
+    : [
+        'https://sahool.io',
+        'https://app.sahool.io',
+        'https://admin.sahool.io',
+        'http://localhost:3000',
+        'http://localhost:3001',
+      ];
+
   app.enableCors({
-    origin: '*',
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
   });
 
   // Validation

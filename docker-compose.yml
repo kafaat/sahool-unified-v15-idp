@@ -110,7 +110,7 @@ services:
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:6333/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1060,10 +1060,12 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - crop_health_ai
-      - virtual_sensors
+      crop_health_ai:
+        condition: service_healthy
+      virtual_sensors:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3

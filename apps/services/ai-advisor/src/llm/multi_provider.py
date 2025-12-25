@@ -334,6 +334,7 @@ class GoogleGeminiProvider(LLMProvider):
         chat = gemini_model.start_chat(history=[])
 
         system_instruction = ""
+        response = None
         for msg in messages:
             if msg.role == "system":
                 system_instruction = msg.content
@@ -343,6 +344,9 @@ class GoogleGeminiProvider(LLMProvider):
                 system_instruction = ""
 
         latency = (time.time() - start) * 1000
+
+        if response is None:
+            raise ValueError("No user messages found in the conversation")
 
         return LLMResponse(
             content=response.text,

@@ -198,7 +198,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -227,7 +227,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8107/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8107/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -261,7 +261,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8108/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -292,7 +292,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8099/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8099/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -328,7 +328,7 @@ services:
       mqtt:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8106/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8106/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -357,7 +357,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8105/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -387,7 +387,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8081/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -406,7 +406,7 @@ services:
     ports:
       - "8100:8100"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8100/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -460,7 +460,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8103/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8103/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -484,7 +484,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8101/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -503,7 +503,7 @@ services:
     ports:
       - "8104:8104"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8104/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -539,7 +539,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -567,7 +567,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -626,7 +626,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -656,7 +656,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8094/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -685,7 +685,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8093/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -714,7 +714,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8091/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8091/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -759,7 +759,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -789,7 +789,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8092/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -824,7 +824,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8110/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1104,7 +1104,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8089/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1159,7 +1159,7 @@ services:
       - weather_core
       - agro_advisor
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8112/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1187,7 +1187,7 @@ services:
     depends_on:
       - weather_advanced
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8111/healthz"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

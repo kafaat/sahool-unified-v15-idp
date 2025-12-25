@@ -54,7 +54,8 @@ try:
     logger.info("Redis cache module loaded")
 except ImportError:
     logger.info("Cache module not available - running without caching")
-    is_cache_available = lambda: False
+    async def is_cache_available():
+        return False
 
 # Import eo-learn integration
 from .eo_integration import (
@@ -449,7 +450,7 @@ def generate_recommendations(
 
 
 @app.get("/healthz")
-def health():
+async def health():
     providers_info = None
     if _multi_provider:
         providers = _multi_provider.get_available_providers()
@@ -460,6 +461,8 @@ def health():
             "providers": [p["name"] for p in providers if p["configured"]]
         }
 
+    cache_status = _cache_available and await is_cache_available()
+
     return {
         "status": "ok",
         "service": "satellite-service",
@@ -469,7 +472,7 @@ def health():
         "eo_learn": get_data_source_status(),
         "nats_available": _nats_available,
         "action_factory_available": _action_factory_available,
-        "cache_available": _cache_available and is_cache_available(),
+        "cache_available": cache_status,
     }
 
 

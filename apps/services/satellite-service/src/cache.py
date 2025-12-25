@@ -16,45 +16,52 @@ from typing import Optional, Any, Dict
 from datetime import datetime, timedelta
 from functools import wraps
 import os
+import asyncio
 
 logger = logging.getLogger(__name__)
 
-# Redis client - lazy initialization
+# Async Redis client - lazy initialization
 _redis_client = None
 _redis_available = False
+_redis_lock = asyncio.Lock()
 
 
-def _get_redis_client():
-    """Get or initialize Redis client."""
+async def _get_redis_client():
+    """Get or initialize async Redis client."""
     global _redis_client, _redis_available
 
     if _redis_client is not None:
         return _redis_client
 
-    try:
-        import redis
+    async with _redis_lock:
+        # Double-check after acquiring lock
+        if _redis_client is not None:
+            return _redis_client
 
-        redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-        _redis_client = redis.from_url(
-            redis_url,
-            decode_responses=True,
-            socket_connect_timeout=5,
-            socket_timeout=5,
-        )
-        # Test connection
-        _redis_client.ping()
-        _redis_available = True
-        logger.info(f"Redis connected: {redis_url}")
-        return _redis_client
-    except Exception as e:
-        logger.warning(f"Redis not available: {e}. Caching disabled.")
-        _redis_available = False
-        return None
+        try:
+            from redis.asyncio import from_url as redis_from_url
+
+            redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+            _redis_client = redis_from_url(
+                redis_url,
+                decode_responses=True,
+                socket_connect_timeout=5,
+                socket_timeout=5,
+            )
+            # Test connection
+            await _redis_client.ping()
+            _redis_available = True
+            logger.info(f"Redis connected (async): {redis_url}")
+            return _redis_client
+        except Exception as e:
+            logger.warning(f"Redis not available: {e}. Caching disabled.")
+            _redis_available = False
+            return None
 
 
-def is_cache_available() -> bool:
+async def is_cache_available() -> bool:
     """Check if Redis cache is available."""
-    _get_redis_client()
+    await _get_redis_client()
     return _redis_available
 
 
@@ -110,12 +117,12 @@ class CacheTTL:
 
 async def cache_get(key: str) -> Optional[Dict[str, Any]]:
     """Get value from cache."""
-    client = _get_redis_client()
+    client = await _get_redis_client()
     if not client:
         return None
 
     try:
-        data = client.get(key)
+        data = await client.get(key)
         if data:
             logger.debug(f"Cache HIT: {key}")
             return json.loads(data)
@@ -132,13 +139,13 @@ async def cache_set(
     ttl: int = CacheTTL.NDVI,
 ) -> bool:
     """Set value in cache with TTL."""
-    client = _get_redis_client()
+    client = await _get_redis_client()
     if not client:
         return False
 
     try:
         data = json.dumps(value, default=str)
-        client.setex(key, ttl, data)
+        await client.setex(key, ttl, data)
         logger.debug(f"Cache SET: {key} (TTL: {ttl}s)")
         return True
     except Exception as e:
@@ -148,12 +155,12 @@ async def cache_set(
 
 async def cache_delete(key: str) -> bool:
     """Delete key from cache."""
-    client = _get_redis_client()
+    client = await _get_redis_client()
     if not client:
         return False
 
     try:
-        client.delete(key)
+        await client.delete(key)
         logger.debug(f"Cache DELETE: {key}")
         return True
     except Exception as e:
@@ -163,15 +170,15 @@ async def cache_delete(key: str) -> bool:
 
 async def cache_invalidate_field(field_id: str) -> int:
     """Invalidate all cache entries for a field."""
-    client = _get_redis_client()
+    client = await _get_redis_client()
     if not client:
         return 0
 
     try:
         pattern = f"satellite:*:{field_id}:*"
-        keys = client.keys(pattern)
+        keys = await client.keys(pattern)
         if keys:
-            deleted = client.delete(*keys)
+            deleted = await client.delete(*keys)
             logger.info(f"Cache INVALIDATE: {deleted} keys for field {field_id}")
             return deleted
         return 0
@@ -311,18 +318,18 @@ def cached(
 
 async def get_cache_stats() -> Dict[str, Any]:
     """Get cache statistics."""
-    client = _get_redis_client()
+    client = await _get_redis_client()
     if not client:
         return {"available": False, "error": "Redis not connected"}
 
     try:
-        info = client.info("stats")
-        memory = client.info("memory")
+        info = await client.info("stats")
+        memory = await client.info("memory")
 
         # Count satellite keys
-        ndvi_keys = len(client.keys("satellite:ndvi:*"))
-        analysis_keys = len(client.keys("satellite:analysis:*"))
-        timeseries_keys = len(client.keys("satellite:timeseries:*"))
+        ndvi_keys = len(await client.keys("satellite:ndvi:*"))
+        analysis_keys = len(await client.keys("satellite:analysis:*"))
+        timeseries_keys = len(await client.keys("satellite:timeseries:*"))
 
         return {
             "available": True,
@@ -355,7 +362,7 @@ async def get_cache_stats() -> Dict[str, Any]:
 
 async def cache_health_check() -> Dict[str, Any]:
     """Check cache health for monitoring."""
-    client = _get_redis_client()
+    client = await _get_redis_client()
 
     if not client:
         return {
@@ -366,7 +373,7 @@ async def cache_health_check() -> Dict[str, Any]:
     try:
         # Ping Redis
         start = datetime.utcnow()
-        client.ping()
+        await client.ping()
         latency = (datetime.utcnow() - start).total_seconds() * 1000
 
         return {

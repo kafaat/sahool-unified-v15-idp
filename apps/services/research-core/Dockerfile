@@ -34,7 +34,7 @@ RUN apk add --no-cache curl
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm install --only=production
+RUN npm install 
 
 # Copy prisma
 COPY --from=builder /app/prisma ./prisma/

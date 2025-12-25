@@ -45,16 +45,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install only runtime system dependencies.
-# Use libgl1 which is available in modern Debian versions (Trixie+)
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && \
+# Install only runtime system dependencies for OpenCV
+# libgl1 and libglib2.0-0 are required for cv2
+RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-        apt-transport-https \
-        ca-certificates \
         libgl1 \
         libglib2.0-0 \
-        curl \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -76,9 +72,9 @@ USER sahool
 # Expose port
 EXPOSE 8095
 
-# Health check using curl (more reliable than Python)
+# Health check using Python
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8095/healthz || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')" || exit 1
 
 # Run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8095", "--workers", "2"]

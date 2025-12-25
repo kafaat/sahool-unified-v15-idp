@@ -1487,6 +1487,32 @@ services:
               minute: 60
               hour: 1000
               policy: local
+      # Tharwatt Payment Webhook - ويب هوك ثروات
+      - name: tharwatt-webhook-route
+        paths:
+          - /api/v1/webhooks/tharwatt
+        strip_path: false
+        methods:
+          - POST
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      # Stripe Payment Webhook - ويب هوك سترايب
+      - name: stripe-webhook-route
+        paths:
+          - /api/v1/webhooks/stripe
+        strip_path: false
+        methods:
+          - POST
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Global Plugins

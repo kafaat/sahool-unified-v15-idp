@@ -10,11 +10,14 @@ import { Calendar, TrendingUp } from 'lucide-react';
 import { useWeatherForecast } from '../hooks/useWeather';
 
 interface ForecastChartProps {
-  location?: string;
+  lat?: number;
+  lon?: number;
+  days?: number;
+  enabled?: boolean;
 }
 
-export const ForecastChart: React.FC<ForecastChartProps> = ({ location }) => {
-  const { data: forecast, isLoading } = useWeatherForecast(location);
+export const ForecastChart: React.FC<ForecastChartProps> = ({ lat, lon, days = 7, enabled }) => {
+  const { data: forecast, isLoading } = useWeatherForecast({ lat, lon, days, enabled });
 
   if (isLoading) {
     return (

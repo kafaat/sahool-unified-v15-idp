@@ -2,13 +2,13 @@
 # متطلبات طبقة المصادقة المشتركة
 
 # JWT
-PyJWT>=2.8.0
+PyJWT==2.10.1
 
 # Password hashing
-bcrypt>=4.1.0
+bcrypt==4.2.1
 
-# FastAPI
-fastapi>=0.115.0
+# FastAPI (pinned for consistency)
+fastapi==0.115.6
 
-# Pydantic
-pydantic>=2.5.0
+# Pydantic (pinned for consistency)
+pydantic==2.10.3

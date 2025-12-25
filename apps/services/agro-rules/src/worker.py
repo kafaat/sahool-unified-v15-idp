@@ -47,33 +47,33 @@ class AgroRulesWorker:
         print(f"   NATS: {NATS_URL}")
         print(f"   FieldOps: {FIELDOPS_URL}")
 
-        # Subscribe to NDVI events
+        # Subscribe to NDVI events (unified sahool.* namespace)
         await self.nc.subscribe(
-            "ndvi.ndvi_computed",
+            "sahool.ndvi.computed",
             cb=self._handle_ndvi_computed,
         )
-        print("📡 Subscribed to ndvi.ndvi_computed")
+        print("📡 Subscribed to sahool.ndvi.computed")
 
         # Subscribe to NDVI anomaly events
         await self.nc.subscribe(
-            "ndvi.anomaly_detected",
+            "sahool.ndvi.anomaly",
             cb=self._handle_ndvi_anomaly,
         )
-        print("📡 Subscribed to ndvi.anomaly_detected")
+        print("📡 Subscribed to sahool.ndvi.anomaly")
 
         # Subscribe to Weather alerts
         await self.nc.subscribe(
-            "weather.weather_alert",
+            "sahool.weather.alert",
             cb=self._handle_weather_alert,
         )
-        print("📡 Subscribed to weather.weather_alert")
+        print("📡 Subscribed to sahool.weather.alert")
 
         # Subscribe to irrigation adjustments
         await self.nc.subscribe(
-            "weather.irrigation_adjustment",
+            "sahool.weather.irrigation_adjustment",
             cb=self._handle_irrigation_adjustment,
         )
-        print("📡 Subscribed to weather.irrigation_adjustment")
+        print("📡 Subscribed to sahool.weather.irrigation_adjustment")
 
         print("✅ Agro Rules Worker ready")
 

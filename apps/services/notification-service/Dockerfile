@@ -35,12 +35,13 @@ COPY src/ ./src/
 RUN chown -R sahool:sahool /app
 USER sahool
 
-# Expose port
-EXPOSE 8109
+# Default port (can be overridden via PORT env var)
+ENV PORT=8110
+EXPOSE 8110
 
-# Health check
+# Health check (uses default port, overridden at runtime by docker-compose)
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD curl -f http://localhost:8109/healthz || exit 1
+    CMD curl -f http://localhost:${PORT}/healthz || exit 1
 
-# Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8109"]
+# Run the application (uses PORT environment variable)
+CMD uvicorn src.main:app --host 0.0.0.0 --port ${PORT}

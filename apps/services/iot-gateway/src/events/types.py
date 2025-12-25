@@ -1,6 +1,7 @@
 """
 Event Types - SAHOOL IoT Gateway
 Event type constants and subjects
+Unified namespace: sahool.iot.*
 """
 
 # Event Types
@@ -10,24 +11,27 @@ DEVICE_REGISTERED = "device_registered"
 DEVICE_ALERT = "device_alert"
 BATCH_READING = "batch_reading"
 
+# Subject prefix (unified with sahool.* namespace)
+SUBJECT_PREFIX = "sahool.iot"
+
 # NATS Subjects
 SUBJECTS = {
-    SENSOR_READING: "iot.sensor_reading",
-    DEVICE_STATUS: "iot.device_status",
-    DEVICE_REGISTERED: "iot.device_registered",
-    DEVICE_ALERT: "iot.device_alert",
-    BATCH_READING: "iot.batch_reading",
+    SENSOR_READING: f"{SUBJECT_PREFIX}.sensor_reading",
+    DEVICE_STATUS: f"{SUBJECT_PREFIX}.device_status",
+    DEVICE_REGISTERED: f"{SUBJECT_PREFIX}.device_registered",
+    DEVICE_ALERT: f"{SUBJECT_PREFIX}.device_alert",
+    BATCH_READING: f"{SUBJECT_PREFIX}.batch_reading",
 }
 
 # By sensor type subjects for fine-grained subscription
 SENSOR_SUBJECTS = {
-    "soil_moisture": "iot.sensor.soil_moisture",
-    "soil_temperature": "iot.sensor.soil_temperature",
-    "soil_ec": "iot.sensor.soil_ec",
-    "air_temperature": "iot.sensor.air_temperature",
-    "air_humidity": "iot.sensor.air_humidity",
-    "water_flow": "iot.sensor.water_flow",
-    "water_level": "iot.sensor.water_level",
+    "soil_moisture": f"{SUBJECT_PREFIX}.sensor.soil_moisture",
+    "soil_temperature": f"{SUBJECT_PREFIX}.sensor.soil_temperature",
+    "soil_ec": f"{SUBJECT_PREFIX}.sensor.soil_ec",
+    "air_temperature": f"{SUBJECT_PREFIX}.sensor.air_temperature",
+    "air_humidity": f"{SUBJECT_PREFIX}.sensor.air_humidity",
+    "water_flow": f"{SUBJECT_PREFIX}.sensor.water_flow",
+    "water_level": f"{SUBJECT_PREFIX}.sensor.water_level",
 }
 
 # Event Versions
@@ -51,12 +55,12 @@ ALERT_TYPES = {
 
 def get_subject(event_type: str) -> str:
     """Get NATS subject for event type"""
-    return SUBJECTS.get(event_type, f"iot.{event_type}")
+    return SUBJECTS.get(event_type, f"{SUBJECT_PREFIX}.{event_type}")
 
 
 def get_sensor_subject(sensor_type: str) -> str:
     """Get NATS subject for specific sensor type"""
-    return SENSOR_SUBJECTS.get(sensor_type, f"iot.sensor.{sensor_type}")
+    return SENSOR_SUBJECTS.get(sensor_type, f"{SUBJECT_PREFIX}.sensor.{sensor_type}")
 
 
 def get_version(event_type: str) -> int:

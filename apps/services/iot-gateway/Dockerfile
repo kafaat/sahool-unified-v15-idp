@@ -47,9 +47,11 @@ RUN chown -R sahool:sahool /app
 
 USER sahool
 
-EXPOSE 8096
+# Default port (can be overridden via PORT env var)
+ENV PORT=8106
+EXPOSE 8106
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8096/healthz || exit 1
+    CMD curl -f http://localhost:${PORT}/healthz || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8096"]
+CMD uvicorn src.main:app --host 0.0.0.0 --port ${PORT}

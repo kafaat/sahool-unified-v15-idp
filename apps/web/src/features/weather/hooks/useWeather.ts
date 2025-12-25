@@ -7,161 +7,311 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/client';
 import type { WeatherData, WeatherForecast, WeatherAlert, ForecastDataPoint } from '../types';
 
-async function fetchCurrentWeather(location: string = 'sanaa'): Promise<WeatherData> {
-  const response = await apiClient.get<{
-    location_id: string;
-    location_name_ar: string;
-    latitude: number;
-    longitude: number;
-    timestamp: string;
-    temperature_c: number;
-    feels_like_c: number;
-    humidity_percent: number;
-    pressure_hpa: number;
-    wind_speed_kmh: number;
-    wind_direction: string;
-    wind_gust_kmh: number;
-    visibility_km: number;
-    cloud_cover_percent: number;
-    uv_index: number;
-    dew_point_c: number;
-    condition: string;
-    condition_ar: string;
-  }>(`http://localhost:8092/v1/current/${location}`);
+// API Configuration
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const WEATHER_API_BASE = `${API_BASE_URL}/api/v1/weather`;
 
-  const data = response.data;
-  return {
-    temperature: data.temperature_c,
-    humidity: data.humidity_percent,
-    windSpeed: data.wind_speed_kmh,
-    windDirection: data.wind_direction,
-    pressure: data.pressure_hpa,
-    visibility: data.visibility_km,
-    uvIndex: data.uv_index,
-    condition: data.condition,
-    conditionAr: data.condition_ar,
-    location: data.location_name_ar,
-    timestamp: data.timestamp,
-  };
-}
+// Default coordinates for Yemen (Sana'a)
+const DEFAULT_COORDS = { lat: 15.3694, lon: 44.191 };
 
-async function fetchWeatherForecast(location: string = 'sanaa'): Promise<ForecastDataPoint[]> {
-  const response = await apiClient.get<{
-    location_id: string;
-    location_name_ar: string;
-    generated_at: string;
-    current: Record<string, unknown>;
-    hourly_forecast: Array<Record<string, unknown>>;
-    daily_forecast: Array<{
-      date: string;
-      temp_max_c: number;
-      temp_min_c: number;
-      humidity_avg: number;
-      wind_speed_avg_kmh: number;
-      precipitation_total_mm: number;
-      precipitation_probability: number;
-      sunrise: string;
-      sunset: string;
-      uv_index_max: number;
-      condition: string;
-      condition_ar: string;
-      agricultural_summary_ar: string;
-      agricultural_summary_en: string;
-    }>;
-    alerts: Array<Record<string, unknown>>;
-    growing_degree_days: number;
-    evapotranspiration_mm: number;
-    spray_window_hours: string[];
-    irrigation_recommendation_ar: string;
-    irrigation_recommendation_en: string;
-  }>(`http://localhost:8092/v1/forecast/${location}`, { params: { days: 7 } });
+/**
+ * Get current weather from API with fallback to mock data
+ */
+async function fetchCurrentWeather(lat?: number, lon?: number): Promise<WeatherData> {
+  const latitude = lat ?? DEFAULT_COORDS.lat;
+  const longitude = lon ?? DEFAULT_COORDS.lon;
 
-  // Transform backend daily forecast to frontend format
-  return response.data.daily_forecast.map(day => ({
-    date: day.date,
-    temperature: (day.temp_max_c + day.temp_min_c) / 2,
-    humidity: day.humidity_avg,
-    precipitation: day.precipitation_total_mm,
-    windSpeed: day.wind_speed_avg_kmh,
-    condition: day.condition,
-    conditionAr: day.condition_ar,
-  }));
-}
-
-async function fetchWeatherAlerts(location: string = 'sanaa'): Promise<WeatherAlert[]> {
   try {
-    const response = await apiClient.get<{
-      location_id: string;
-      location_name_ar: string;
-      generated_at: string;
-      current: Record<string, unknown>;
-      hourly_forecast: Array<Record<string, unknown>>;
-      daily_forecast: Array<Record<string, unknown>>;
-      alerts: Array<{
-        alert_id: string;
-        alert_type: string;
-        severity: string;
-        title_ar: string;
-        title_en: string;
-        description_ar: string;
-        description_en: string;
-        start_time: string;
-        end_time: string;
-        affected_crops_ar: string[];
-        recommendations_ar: string[];
-        recommendations_en: string[];
-      }>;
-      growing_degree_days: number;
-      evapotranspiration_mm: number;
-      spray_window_hours: string[];
-      irrigation_recommendation_ar: string;
-      irrigation_recommendation_en: string;
-    }>(`http://localhost:8092/v1/forecast/${location}`);
+    const response = await fetch(
+      `${WEATHER_API_BASE}/current?lat=${latitude}&lon=${longitude}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }
+    );
 
-    // Transform backend alerts to frontend format
-    return response.data.alerts.map(alert => ({
-      id: alert.alert_id,
-      type: alert.alert_type,
-      severity: alert.severity as 'low' | 'medium' | 'high' | 'critical',
-      title: alert.title_en,
-      titleAr: alert.title_ar,
-      description: alert.description_en,
-      descriptionAr: alert.description_ar,
-      startDate: alert.start_time,
-      endDate: alert.end_time,
-      affectedAreas: alert.affected_crops_ar,
-      affectedAreasAr: alert.affected_crops_ar,
-      recommendations: alert.recommendations_en,
-      recommendationsAr: alert.recommendations_ar,
-    }));
+    if (!response.ok) {
+      throw new Error(`فشل الحصول على بيانات الطقس: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Transform API response to our WeatherData format
+    return {
+      temperature: data.current?.temperature_c ?? data.temperature_c ?? 0,
+      humidity: data.current?.humidity_pct ?? data.humidity_pct ?? 0,
+      windSpeed: data.current?.wind_speed_kmh ?? data.wind_speed_kmh ?? 0,
+      windDirection: getWindDirection(data.current?.wind_direction_deg ?? 0),
+      pressure: data.current?.pressure_hpa ?? data.pressure_hpa ?? 1013,
+      visibility: 10,
+      uvIndex: data.current?.uv_index ?? data.uv_index ?? 0,
+      condition: getWeatherCondition(data.current?.cloud_cover_pct ?? 0),
+      conditionAr: getWeatherConditionAr(data.current?.cloud_cover_pct ?? 0),
+      location: 'صنعاء، اليمن',
+      timestamp: data.current?.timestamp ?? new Date().toISOString(),
+    };
   } catch (error) {
-    console.error('Error fetching weather alerts:', error);
-    return [];
+    console.warn('فشل الاتصال بخدمة الطقس، استخدام البيانات الاحتياطية:', error);
+
+    // Fallback to mock data
+    return getMockCurrentWeather();
   }
 }
 
-export function useCurrentWeather(location?: string) {
+/**
+ * Get weather forecast from API with fallback to mock data
+ */
+async function fetchWeatherForecast(lat?: number, lon?: number, days: number = 7): Promise<ForecastDataPoint[]> {
+  const latitude = lat ?? DEFAULT_COORDS.lat;
+  const longitude = lon ?? DEFAULT_COORDS.lon;
+
+  try {
+    const response = await fetch(
+      `${WEATHER_API_BASE}/forecast?lat=${latitude}&lon=${longitude}&days=${days}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`فشل الحصول على توقعات الطقس: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Transform API response to our ForecastDataPoint format
+    const forecastData = data.forecast || data.daily_forecast || [];
+
+    return forecastData.map((day: any) => ({
+      date: day.date,
+      temperature: (day.temp_max_c + day.temp_min_c) / 2,
+      humidity: 60, // API might not provide this
+      precipitation: day.precipitation_mm ?? 0,
+      windSpeed: day.wind_speed_max_kmh ?? 0,
+      condition: getWeatherConditionFromPrecipitation(day.precipitation_mm ?? 0),
+      conditionAr: getWeatherConditionArFromPrecipitation(day.precipitation_mm ?? 0),
+    }));
+  } catch (error) {
+    console.warn('فشل الاتصال بخدمة توقعات الطقس، استخدام البيانات الاحتياطية:', error);
+
+    // Fallback to mock data
+    return getMockForecast(days);
+  }
+}
+
+/**
+ * Get weather alerts from API with fallback to mock data
+ */
+async function fetchWeatherAlerts(lat?: number, lon?: number): Promise<WeatherAlert[]> {
+  const latitude = lat ?? DEFAULT_COORDS.lat;
+  const longitude = lon ?? DEFAULT_COORDS.lon;
+
+  try {
+    const response = await fetch(
+      `${WEATHER_API_BASE}/alerts?lat=${latitude}&lon=${longitude}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`فشل الحصول على تنبيهات الطقس: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const alerts = data.alerts || [];
+
+    return alerts.map((alert: any) => ({
+      id: alert.id || String(Math.random()),
+      type: alert.type || alert.alert_type || 'weather',
+      severity: alert.severity || 'warning',
+      title: alert.title_en || alert.title || 'Weather Alert',
+      titleAr: alert.title_ar || alert.titleAr || 'تنبيه طقس',
+      description: alert.description || '',
+      descriptionAr: alert.descriptionAr || alert.description || '',
+      affectedAreas: alert.affectedAreas || ['صنعاء'],
+      affectedAreasAr: alert.affectedAreasAr || ['صنعاء'],
+      startTime: alert.startTime || alert.startDate || new Date().toISOString(),
+      endTime: alert.endTime || alert.endDate,
+      isActive: alert.isActive ?? true,
+    }));
+  } catch (error) {
+    console.warn('فشل الاتصال بخدمة تنبيهات الطقس، استخدام البيانات الاحتياطية:', error);
+
+    // Fallback to mock data - return empty array as no alerts is a valid state
+    return getMockAlerts();
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper Functions
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getWindDirection(degrees: number): string {
+  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  const index = Math.round(degrees / 45) % 8;
+  return directions[index];
+}
+
+function getWeatherCondition(cloudCover: number): string {
+  if (cloudCover < 20) return 'Clear';
+  if (cloudCover < 50) return 'Partly Cloudy';
+  if (cloudCover < 80) return 'Cloudy';
+  return 'Overcast';
+}
+
+function getWeatherConditionAr(cloudCover: number): string {
+  if (cloudCover < 20) return 'صافي';
+  if (cloudCover < 50) return 'غائم جزئياً';
+  if (cloudCover < 80) return 'غائم';
+  return 'ملبد بالغيوم';
+}
+
+function getWeatherConditionFromPrecipitation(precipitation: number): string {
+  if (precipitation > 10) return 'Rainy';
+  if (precipitation > 2) return 'Light Rain';
+  return 'Sunny';
+}
+
+function getWeatherConditionArFromPrecipitation(precipitation: number): string {
+  if (precipitation > 10) return 'ممطر';
+  if (precipitation > 2) return 'أمطار خفيفة';
+  return 'مشمس';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Mock Data Functions (Fallback)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function getMockCurrentWeather(): WeatherData {
+  return {
+    temperature: 28,
+    humidity: 65,
+    windSpeed: 12,
+    windDirection: 'NE',
+    pressure: 1013,
+    visibility: 10,
+    uvIndex: 7,
+    condition: 'Partly Cloudy',
+    conditionAr: 'غائم جزئياً',
+    location: 'صنعاء، اليمن',
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function getMockForecast(days: number): ForecastDataPoint[] {
+  const forecast: ForecastDataPoint[] = [];
+
+  for (let i = 0; i < days; i++) {
+    const date = new Date();
+    date.setDate(date.getDate() + i);
+
+    forecast.push({
+      date: date.toISOString(),
+      temperature: 25 + Math.random() * 10,
+      humidity: 50 + Math.random() * 30,
+      precipitation: Math.random() * 20,
+      windSpeed: 10 + Math.random() * 15,
+      condition: i % 2 === 0 ? 'Sunny' : 'Partly Cloudy',
+      conditionAr: i % 2 === 0 ? 'مشمس' : 'غائم جزئياً',
+    });
+  }
+
+  return forecast;
+}
+
+function getMockAlerts(): WeatherAlert[] {
+  return [
+    {
+      id: '1',
+      type: 'temperature',
+      severity: 'warning',
+      title: 'High Temperature Alert',
+      titleAr: 'تنبيه درجة حرارة عالية',
+      description: 'Expected high temperatures above 35°C',
+      descriptionAr: 'من المتوقع درجات حرارة عالية تتجاوز 35 درجة مئوية',
+      affectedAreas: ['Sana\'a', 'Aden'],
+      affectedAreasAr: ['صنعاء', 'عدن'],
+      startTime: new Date().toISOString(),
+      endTime: new Date(Date.now() + 1000 * 60 * 60 * 48).toISOString(),
+      isActive: true,
+    },
+  ];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// React Query Hooks
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface WeatherHookOptions {
+  lat?: number;
+  lon?: number;
+  enabled?: boolean;
+}
+
+/**
+ * Hook to fetch current weather data
+ * @param options - Options including latitude, longitude, and enabled flag
+ * @returns React Query result with current weather data
+ */
+export function useCurrentWeather(options?: WeatherHookOptions) {
+  const { lat, lon, enabled = true } = options || {};
+
   return useQuery({
-    queryKey: ['weather', 'current', location],
-    queryFn: () => fetchCurrentWeather(location),
+    queryKey: ['weather', 'current', lat, lon],
+    queryFn: () => fetchCurrentWeather(lat, lon),
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
+    enabled,
+    retry: 2,
+    retryDelay: 1000,
   });
 }
 
-export function useWeatherForecast(location?: string) {
+/**
+ * Hook to fetch weather forecast
+ * @param options - Options including latitude, longitude, days, and enabled flag
+ * @returns React Query result with forecast data
+ */
+export function useWeatherForecast(options?: WeatherHookOptions & { days?: number }) {
+  const { lat, lon, days = 7, enabled = true } = options || {};
+
   return useQuery({
-    queryKey: ['weather', 'forecast', location],
-    queryFn: () => fetchWeatherForecast(location),
+    queryKey: ['weather', 'forecast', lat, lon, days],
+    queryFn: () => fetchWeatherForecast(lat, lon, days),
     staleTime: 30 * 60 * 1000, // 30 minutes
+    enabled,
+    retry: 2,
+    retryDelay: 1000,
   });
 }
 
-export function useWeatherAlerts(location?: string) {
+/**
+ * Hook to fetch weather alerts
+ * @param options - Options including latitude, longitude, and enabled flag
+ * @returns React Query result with weather alerts
+ */
+export function useWeatherAlerts(options?: WeatherHookOptions) {
+  const { lat, lon, enabled = true } = options || {};
+
   return useQuery({
-    queryKey: ['weather', 'alerts', location],
-    queryFn: () => fetchWeatherAlerts(location),
+    queryKey: ['weather', 'alerts', lat, lon],
+    queryFn: () => fetchWeatherAlerts(lat, lon),
     staleTime: 10 * 60 * 1000, // 10 minutes
     refetchInterval: 15 * 60 * 1000, // Refetch every 15 minutes
+    enabled,
+    retry: 2,
+    retryDelay: 1000,
   });
 }

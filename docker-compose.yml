@@ -21,7 +21,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool}"]
       interval: 10s
@@ -49,6 +49,12 @@ services:
       - "127.0.0.1:8001:8001"
     volumes:
       - ./infra/kong/kong.yml:/kong/declarative/kong.yml
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
     networks:
       - sahool-network
@@ -61,7 +67,7 @@ services:
       - nats_data:/data
     ports:
       - "4222:4222"
-      - "8222:8222"
+      - "127.0.0.1:8222:8222"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
       interval: 10s
@@ -91,18 +97,40 @@ services:
     networks:
       - sahool-network
 
+  # Qdrant Vector Database - قاعدة البيانات المتجهة للـ RAG
+  # Used by ai-advisor for semantic search and embeddings
+  qdrant:
+    image: qdrant/qdrant:v1.10.1
+    container_name: sahool-qdrant
+    volumes:
+      - qdrant_data:/qdrant/storage
+    ports:
+      - "127.0.0.1:6333:6333"
+      - "127.0.0.1:6334:6334"
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
   mqtt:
-    image: eclipse-mosquitto:2
+    image: eclipse-mosquitto:2.0.20
     container_name: sahool-mqtt
     volumes:
       - ./infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infra/mqtt/passwd:/mosquitto/config/passwd:ro
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
     ports:
-      - "1883:1883"
-      - "9001:9001"
+      - "127.0.0.1:1883:1883"
+      - "127.0.0.1:9001:9001"
     healthcheck:
-      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      test: ["CMD-SHELL", "mosquitto_sub -h localhost -u ${MQTT_USER:-sahool_iot} -P ${MQTT_PASSWORD:-changeme} -t '$$SYS/#' -C 1 -W 3 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -155,7 +183,7 @@ services:
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -245,7 +273,7 @@ services:
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -278,6 +306,8 @@ services:
       - NATS_URL=nats://nats:4222
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
+      - MQTT_USER=${MQTT_USER:-sahool_iot}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
       - MQTT_TOPIC=sahool/sensors/#
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -338,7 +368,7 @@ services:
     container_name: sahool-ws-gateway
     environment:
       - NATS_URL=nats://nats:4222
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -396,6 +426,12 @@ services:
         condition: service_healthy
       field_ops:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     restart: unless-stopped
     networks:
       - sahool-network
@@ -487,10 +523,17 @@ services:
       - MODEL_PATH=/app/models/plant_disease.tflite
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
     ports:
       - "8095:8095"
     volumes:
       - ./models:/app/models:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8095/healthz"]
       interval: 30s
@@ -510,8 +553,15 @@ services:
       - PORT=8096
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
     ports:
       - "8096:8096"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8096/healthz"]
       interval: 30s
@@ -530,8 +580,18 @@ services:
     environment:
       - PORT=8097
       - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - NATS_URL=nats://nats:4222
     ports:
       - "8097:8097"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8097/healthz"]
       interval: 30s
@@ -552,8 +612,15 @@ services:
       - PORT=8098
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
     ports:
       - "8098:8098"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8098/healthz"]
       interval: 30s
@@ -574,8 +641,16 @@ services:
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - IOT_GATEWAY_URL=http://iot_gateway:8106
     ports:
       - "8094:8094"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8094/healthz"]
       interval: 30s
@@ -596,8 +671,15 @@ services:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
     ports:
       - "8093:8093"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8093/healthz"]
       interval: 30s
@@ -618,8 +700,15 @@ services:
       - PORT=8091
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
     ports:
       - "8091:8091"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8091/healthz"]
       interval: 30s
@@ -642,8 +731,15 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - PLANET_API_KEY=${PLANET_API_KEY:-}
       - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
     ports:
       - "8090:8090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8090/healthz"]
       interval: 30s
@@ -665,8 +761,15 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
     ports:
       - "8092:8092"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8092/healthz"]
       interval: 30s
@@ -701,7 +804,7 @@ services:
       redis:
         condition: service_healthy
       nats:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8110/healthz"]
       interval: 30s
@@ -966,8 +1069,13 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - NATS_URL=nats://nats:4222
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
+      - THARWATT_BASE_URL=${THARWATT_BASE_URL:-https://developers-test.tharwatt.com:5253}
+      - THARWATT_API_KEY=${THARWATT_API_KEY:-}
+      - THARWATT_MERCHANT_ID=${THARWATT_MERCHANT_ID:-}
+      - THARWATT_WEBHOOK_SECRET=${THARWATT_WEBHOOK_SECRET:-}
     ports:
       - "8089:8089"
     depends_on:
@@ -975,8 +1083,54 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      nats:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI Advisor Service - خدمة المستشار الذكي المتعدد الوكلاء
+  # Multi-Agent AI system with LangChain, RAG, and Claude integration
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  ai_advisor:
+    build:
+      context: ./apps/services/ai-advisor
+      dockerfile: Dockerfile
+    container_name: sahool-ai-advisor
+    environment:
+      - SERVICE_PORT=8112
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # External service URLs
+      - CROP_HEALTH_URL=http://crop_health_ai:8095
+      - WEATHER_URL=http://weather_core:8108
+      - SATELLITE_URL=http://satellite_service:8090
+      - AGRO_ADVISOR_URL=http://agro_advisor:8105
+      - NDVI_URL=http://ndvi_engine:8107
+      # RAG Configuration
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
+      # NATS Configuration
+      - NATS_URL=nats://nats:4222
+    ports:
+      - "8112:8112"
+    depends_on:
+      - qdrant
+      - nats
+      - crop_health_ai
+      - weather_core
+      - agro_advisor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8112/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1032,7 +1186,7 @@ services:
       - ./observability/alerts:/etc/prometheus/alerts:ro
       - prometheus_data:/prometheus
     ports:
-      - "9090:9090"
+      - "127.0.0.1:9090:9090"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
       interval: 30s
@@ -1047,7 +1201,7 @@ services:
     container_name: sahool-grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
       - GF_USERS_ALLOW_SIGN_UP=false
       - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3002}
       - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
@@ -1088,6 +1242,8 @@ volumes:
     name: sahool-nats-data
   redis_data:
     name: sahool-redis-data
+  qdrant_data:
+    name: sahool-qdrant-data
   mqtt_data:
     name: sahool-mqtt-data
   mqtt_logs:

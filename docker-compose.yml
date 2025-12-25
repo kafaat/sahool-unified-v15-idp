@@ -1091,8 +1091,8 @@ services:
 
   admin_dashboard:
     build:
-      context: ./apps/admin
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/admin/Dockerfile
       args:
         NEXT_PUBLIC_API_URL: http://localhost
     container_name: sahool-admin-dashboard

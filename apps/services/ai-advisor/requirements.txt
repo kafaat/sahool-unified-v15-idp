@@ -11,8 +11,8 @@ pydantic-settings==2.5.2
 # Security updates for CVE-2025-68664, CVE-2025-65106, CVE-2025-6984
 langchain==0.3.14
 langchain-anthropic==0.3.1
-langchain-community==0.3.14
-langchain-core==0.3.29
+langchain-community==0.3.27  # Fix CVE-2025-6984
+langchain-core==0.3.81  # Fix CVE-2025-68664, CVE-2025-65106
 
 # Anthropic Claude API
 # واجهة برمجة Claude من Anthropic

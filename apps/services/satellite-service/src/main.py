@@ -1,16 +1,20 @@
 """
-SAHOOL Satellite Service v15.5
+SAHOOL Satellite Service v15.6
 خدمة الأقمار الصناعية - Sentinel-2, Landsat, MODIS Integration
 
-Now with eo-learn integration for real satellite data!
-Install sahool-eo[full] and configure Sentinel Hub credentials
-for real data processing.
+Multi-Provider Support:
+- Sentinel Hub (ESA Copernicus) - Free tier available
+- Copernicus STAC - Free, no auth required for search
+- NASA Earthdata - Free with registration
+- Simulated - Always available fallback
 
 Field-First Architecture:
 - NATS integration for real-time event publishing
 - ActionTemplate output for mobile app task cards
 """
 
+import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
@@ -22,6 +26,17 @@ import uuid
 import logging
 
 logger = logging.getLogger(__name__)
+
+# Multi-provider service
+USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
+_multi_provider = None
+
+try:
+    from .multi_provider import MultiSatelliteService, SatelliteType as MultiSatelliteType
+    logger.info("Multi-provider satellite service loaded")
+except ImportError as e:
+    logger.warning(f"Multi-provider module not available: {e}")
+    MultiSatelliteService = None
 
 # Redis cache integration
 _cache_available = False
@@ -71,10 +86,38 @@ except ImportError:
     logger.info("ActionTemplate not available")
     ActionTemplateFactory = None
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan handler"""
+    global _multi_provider
+
+    print("🛰️ Starting Satellite Service...")
+
+    # Initialize multi-provider service
+    if USE_MULTI_PROVIDER and MultiSatelliteService:
+        _multi_provider = MultiSatelliteService()
+        providers = _multi_provider.get_available_providers()
+        configured = [p["name"] for p in providers if p["configured"]]
+        print(f"🌍 Multi-provider satellite service: {', '.join(configured)}")
+    else:
+        _multi_provider = None
+        print("🌍 Using legacy eo-learn integration")
+
+    print("✅ Satellite Service ready on port 8090")
+
+    yield
+
+    # Cleanup
+    if _multi_provider:
+        await _multi_provider.close()
+    print("👋 Satellite Service shutting down")
+
+
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
-    version="15.5.0",
-    description="Multi-satellite agricultural monitoring with eo-learn integration. Field-First Architecture with NATS events.",
+    version="15.6.0",
+    description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata.",
+    lifespan=lifespan,
 )
 
 
@@ -407,16 +450,59 @@ def generate_recommendations(
 
 @app.get("/healthz")
 def health():
+    providers_info = None
+    if _multi_provider:
+        providers = _multi_provider.get_available_providers()
+        providers_info = {
+            "multi_provider_enabled": True,
+            "total": len(providers),
+            "configured": len([p for p in providers if p["configured"]]),
+            "providers": [p["name"] for p in providers if p["configured"]]
+        }
+
     return {
         "status": "ok",
         "service": "satellite-service",
-        "version": "15.5.0",
+        "version": "15.6.0",
         "satellites": list(SATELLITE_CONFIGS.keys()),
+        "multi_provider": providers_info,
         "eo_learn": get_data_source_status(),
         "nats_available": _nats_available,
         "action_factory_available": _action_factory_available,
         "cache_available": _cache_available and is_cache_available(),
     }
+
+
+@app.get("/v1/providers")
+async def get_providers():
+    """
+    Get list of available satellite data providers
+    الحصول على قائمة مزودي بيانات الأقمار الصناعية المتاحين
+    """
+    if _multi_provider:
+        providers = _multi_provider.get_available_providers()
+        return {
+            "multi_provider_enabled": True,
+            "providers": providers,
+            "total": len(providers),
+            "configured": len([p for p in providers if p["configured"]]),
+            "note": "Providers are tried in order until one succeeds"
+        }
+    else:
+        return {
+            "multi_provider_enabled": False,
+            "providers": [
+                {
+                    "name": "eo-learn",
+                    "name_ar": "معالجة محلية",
+                    "configured": EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED,
+                    "satellites": ["sentinel-2", "landsat-8"],
+                    "type": "SahoolEOClient"
+                }
+            ],
+            "total": 1,
+            "configured": 1 if (EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED) else 0
+        }
 
 
 @app.get("/v1/cache/stats")

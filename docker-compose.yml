@@ -724,6 +724,7 @@ services:
 
   # Satellite Service - NDVI Analysis & Satellite Imagery (Python + FastAPI)
   # خدمة الأقمار الصناعية - تحليل NDVI وصور الأقمار الصناعية
+  # Multi-provider support with automatic fallback
   satellite_service:
     build:
       context: ./apps/services/satellite-service
@@ -733,10 +734,16 @@ services:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # Sentinel Hub Configuration (ESA Copernicus - Free tier available)
-      # Get credentials at: https://www.sentinel-hub.com/
+      # Multi-Provider Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      # Sentinel Hub (ESA Copernicus - Free tier: 30,000 units/month)
+      # Register at: https://www.sentinel-hub.com/
       - SENTINEL_HUB_CLIENT_ID=${SENTINEL_HUB_CLIENT_ID:-}
       - SENTINEL_HUB_CLIENT_SECRET=${SENTINEL_HUB_CLIENT_SECRET:-}
+      # NASA Earthdata (Free - MODIS/VIIRS data)
+      # Register at: https://urs.earthdata.nasa.gov/
+      - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
+      - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
       # Planet Labs (Optional - Paid high-resolution imagery)
       - PLANET_API_KEY=${PLANET_API_KEY:-}
       # Redis Cache for satellite imagery

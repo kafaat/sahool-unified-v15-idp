@@ -7,7 +7,6 @@ Multi-agent AI system for agricultural advisory.
 """
 
 from fastapi import FastAPI, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 import structlog
@@ -23,6 +22,16 @@ from .agents import (
 from .tools import CropHealthTool, WeatherTool, SatelliteTool, AgroTool
 from .orchestration import Supervisor
 from .rag import EmbeddingsManager, KnowledgeRetriever
+
+# Import shared CORS configuration | استيراد تكوين CORS المشترك
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'shared'))
+try:
+    from config.cors_config import setup_cors_middleware
+except ImportError:
+    # Fallback: define secure origins locally if shared module not available
+    setup_cors_middleware = None
 
 # Configure structured logging | تكوين السجلات المنظمة
 structlog.configure(
@@ -169,14 +178,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Add CORS middleware | إضافة middleware CORS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Add CORS middleware with secure configuration | إضافة middleware CORS بتكوين آمن
+# Security: No wildcard origins - uses environment-based whitelist
+if setup_cors_middleware:
+    setup_cors_middleware(app)
+else:
+    # Fallback: Secure origins list when shared module unavailable
+    from fastapi.middleware.cors import CORSMiddleware
+    SECURE_ORIGINS = [
+        "https://sahool.app",
+        "https://admin.sahool.app",
+        "https://api.sahool.app",
+        "http://localhost:3000",
+        "http://localhost:5173",
+    ]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=SECURE_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["Accept", "Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
+    )
 
 
 # Endpoints | نقاط النهاية

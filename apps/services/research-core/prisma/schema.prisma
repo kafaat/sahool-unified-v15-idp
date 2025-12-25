@@ -47,6 +47,101 @@ enum LogCategory {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// Crop Categories & Types - تصنيفات المحاصيل
+// Based on FAO FAOSTAT & Yemen Agricultural Context
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum CropCategory {
+  cereals       // الحبوب
+  legumes       // البقوليات
+  vegetables    // الخضروات
+  fruits        // الفواكه
+  oilseeds      // البذور الزيتية
+  fiber         // الألياف
+  sugar         // السكريات
+  stimulants    // المنبهات
+  spices        // التوابل
+  fodder        // الأعلاف
+  tubers        // الدرنيات
+}
+
+enum CropCode {
+  // Cereals - الحبوب
+  WHEAT           // قمح
+  BARLEY          // شعير
+  CORN            // ذرة شامية
+  SORGHUM         // ذرة رفيعة
+  MILLET          // دخن
+  RICE            // أرز
+
+  // Legumes - البقوليات
+  FABA_BEAN       // فول
+  LENTIL          // عدس
+  CHICKPEA        // حمص
+  COWPEA          // لوبيا
+  GREEN_BEAN      // فاصوليا
+  PEANUT          // فول سوداني
+  FENUGREEK       // حلبة
+
+  // Vegetables - الخضروات
+  TOMATO          // طماطم
+  POTATO          // بطاطس
+  ONION           // بصل
+  GARLIC          // ثوم
+  PEPPER          // فلفل حلو
+  CHILI           // فلفل حار
+  EGGPLANT        // باذنجان
+  CUCUMBER        // خيار
+  ZUCCHINI        // كوسا
+  WATERMELON      // بطيخ
+  CARROT          // جزر
+  CABBAGE         // ملفوف
+  LETTUCE         // خس
+  OKRA            // بامية
+
+  // Fruits - الفواكه
+  DATE_PALM       // نخيل تمر
+  MANGO           // مانجو
+  BANANA          // موز
+  GRAPE           // عنب
+  PAPAYA          // باباي
+  CITRUS_ORANGE   // برتقال
+  CITRUS_LEMON    // ليمون
+  POMEGRANATE     // رمان
+  FIG             // تين
+  GUAVA           // جوافة
+
+  // Stimulants - المنبهات
+  COFFEE          // بن يمني
+  QAT             // قات
+
+  // Oilseeds - البذور الزيتية
+  SESAME          // سمسم
+  SUNFLOWER       // دوار الشمس
+  SOYBEAN         // فول الصويا
+
+  // Fodder - الأعلاف
+  ALFALFA         // برسيم حجازي
+  CLOVER          // برسيم مصري
+  RHODES_GRASS    // جت
+
+  // Spices - التوابل
+  CORIANDER       // كزبرة
+  CUMIN           // كمون
+  HENNA           // حناء
+  BASIL           // ريحان
+
+  // Fiber - الألياف
+  COTTON          // قطن
+
+  // Sugar - السكريات
+  SUGARCANE       // قصب السكر
+
+  // Other
+  OTHER           // أخرى
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Germplasm & Seed Management - إدارة الأصول الوراثية والبذور
 // Based on MIAPPE, BrAPI, and GRIN-Global standards
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -72,6 +167,8 @@ enum SeedQualityGrade {
 model Germplasm {
   id                    String            @id @default(uuid())
   accessionNumber       String            @unique @map("accession_number") @db.VarChar(50)
+  cropCode              CropCode          @map("crop_code")
+  cropCategory          CropCategory      @map("crop_category")
   commonName            String            @map("common_name") @db.VarChar(255)
   commonNameAr          String?           @map("common_name_ar") @db.VarChar(255)
   scientificName        String?           @map("scientific_name") @db.VarChar(255)

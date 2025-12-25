@@ -248,7 +248,11 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - PORT=8108
-      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+      # Weather Multi-Provider Configuration
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
       - "8108:8108"
     depends_on:

@@ -1,7 +1,7 @@
 """
 SAHOOL Weather Core - Main API Service
 Agricultural weather assessment and alerts
-Port: 8098
+Port: 8108
 
 Multi-Provider Support:
 - Open-Meteo (Free - No API key required)
@@ -49,7 +49,7 @@ async def lifespan(app: FastAPI):
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ Weather Core ready on port 8098")
+        print("✅ Weather Core ready on port 8108")
     except Exception as e:
         print(f"⚠️ NATS connection failed: {e}")
         app.state.publisher = None
@@ -379,5 +379,5 @@ async def get_providers():
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8098))
+    port = int(os.getenv("PORT", 8108))
     uvicorn.run(app, host="0.0.0.0", port=port)

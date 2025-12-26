@@ -57,7 +57,9 @@ services:
         config:
           minute: 100
           hour: 5000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: correlation-id
         config:
@@ -99,7 +101,9 @@ services:
       - name: rate-limiting
         config:
           minute: 100
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
       - name: response-transformer
         config:
           add:
@@ -130,6 +134,9 @@ services:
       - name: rate-limiting
         config:
           minute: 100
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # المستشار الزراعي - Agro Advisor
@@ -155,6 +162,9 @@ services:
       - name: rate-limiting
         config:
           minute: 100
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة الإشعارات - Notification Service
@@ -180,6 +190,9 @@ services:
       - name: rate-limiting
         config:
           minute: 100
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # الخدمات المتوسطة - Professional Package Services
@@ -214,6 +227,9 @@ services:
         config:
           minute: 1000
           hour: 50000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
       - name: request-size-limiting
         config:
           allowed_payload_size: 50
@@ -241,6 +257,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # الذكاء الاصطناعي لصحة المحاصيل - Crop Health AI
@@ -268,6 +287,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
       - name: request-size-limiting
         config:
           allowed_payload_size: 25
@@ -295,6 +317,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # المستشعرات الافتراضية - Virtual Sensors (ET0)
@@ -319,6 +344,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # محرك توقع الإنتاجية - Yield Engine
@@ -343,6 +371,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # مستشار التسميد - Fertilizer Advisor
@@ -367,6 +398,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة المخزون - Inventory Service
@@ -391,6 +425,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # الخدمات المتقدمة - Enterprise Package Services
@@ -422,7 +459,10 @@ services:
             - research-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           hour: 500000
       - name: request-size-limiting
         config:
@@ -449,7 +489,10 @@ services:
             - enterprise-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # إدارة الأبحاث - Research Core
@@ -473,7 +516,10 @@ services:
             - research-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # السوق الزراعي - Marketplace Service
@@ -496,7 +542,10 @@ services:
             - enterprise-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # الفوترة والمدفوعات - Billing Core
@@ -522,6 +571,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # تقييم الكوارث - Disaster Assessment
@@ -545,7 +597,10 @@ services:
             - research-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # نماذج نمو المحاصيل - Crop Growth Model (WOFOST)
@@ -572,7 +627,10 @@ services:
             - research-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # تقدير مؤشر مساحة الورق - LAI Estimation
@@ -596,7 +654,10 @@ services:
             - research-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمات إضافية - Additional Services
@@ -626,6 +687,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # بوابة WebSocket - WebSocket Gateway
@@ -650,6 +714,9 @@ services:
       - name: rate-limiting
         config:
           minute: 5000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة المؤشرات - Indicators Service
@@ -675,6 +742,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # الطقس المتقدم - Advanced Weather
@@ -699,6 +769,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # محادثة المجتمع - Community Chat
@@ -718,6 +791,9 @@ services:
       - name: rate-limiting
         config:
           minute: 2000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # محادثة الحقل - Field Chat
@@ -737,6 +813,9 @@ services:
       - name: rate-limiting
         config:
           minute: 2000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة المعدات - Equipment Service
@@ -761,6 +840,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة المهام - Task Service
@@ -780,6 +862,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # تكوين المزودين - Provider Config
@@ -804,6 +889,9 @@ services:
       - name: rate-limiting
         config:
           minute: 500
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # لوحة التحكم - Admin Dashboard
@@ -827,6 +915,9 @@ services:
       - name: rate-limiting
         config:
           minute: 5000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
       - name: ip-restriction
         config:
           allow:
@@ -856,7 +947,10 @@ services:
             - research-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة التنبيهات - Alert Service
@@ -876,6 +970,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة المحادثة - Chat Service
@@ -895,6 +992,9 @@ services:
       - name: rate-limiting
         config:
           minute: 2000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة الحقول - Field Service
@@ -914,6 +1014,9 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # خدمة IoT - IoT Service
@@ -936,7 +1039,10 @@ services:
             - enterprise-users
       - name: rate-limiting
         config:
-          minute: 10000
+          minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # معالج NDVI - NDVI Processor
@@ -961,12 +1067,15 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
 
   # ============================================================================
   # نقاط فحص الصحة - Health Check Endpoints
   # ============================================================================
   - name: health-check
-    url: http://kong:8000
+    url: http://localhost:1
     routes:
       - name: health-route
         paths:
@@ -990,7 +1099,10 @@ plugins:
   - name: cors
     config:
       origins:
-        - "*"
+        - "https://app.sahool.io"
+        - "https://admin.sahool.io"
+        - "http://localhost:3000"
+        - "http://localhost:3001"
       methods:
         - GET
         - POST
@@ -1093,22 +1205,6 @@ consumers:
       - key: admin-jwt-key
         algorithm: HS256
         secret: ${ADMIN_JWT_SECRET}
-
-# ============================================================================
-# مجموعات التحكم في الوصول - ACL Groups
-# ============================================================================
-
-acls:
-  - consumer: starter-user-sample
-    group: starter-users
-  - consumer: professional-user-sample
-    group: professional-users
-  - consumer: enterprise-user-sample
-    group: enterprise-users
-  - consumer: research-user-sample
-    group: research-users
-  - consumer: admin-user-sample
-    group: admin-users
 
 # ============================================================================
 # نهاية التكوين

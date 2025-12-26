@@ -13,18 +13,31 @@ networks:
     driver: bridge
     name: kong-network
   sahool-net:
-    external: true
+    driver: bridge
     name: sahool-network
+    # Note: If sahool-network is created externally by another docker-compose,
+    # uncomment the following lines and comment out 'driver: bridge':
+    # external: true
 
 volumes:
   kong-postgres-data:
     driver: local
   kong-logs:
     driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  redis-data:
+    driver: local
+  alertmanager-data:
+    driver: local
 
 services:
   # ============================================================================
-  # قاعدة بيانات Kong - Kong Database (PostgreSQL)
+  # قاعدة بيانات PostgreSQL - PostgreSQL Database (for Konga only)
+  # Note: Kong runs in DB-less mode using declarative config
+  # ملاحظة: Kong يعمل في وضع بدون قاعدة بيانات باستخدام التكوين التصريحي
   # ============================================================================
   kong-database:
     image: postgres:16-alpine
@@ -39,6 +52,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - kong-postgres-data:/var/lib/postgresql/data
+      - ./init-konga-db.sh:/docker-entrypoint-initdb.d/init-konga-db.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${KONG_PG_USER:-kong}"]
       interval: 10s
@@ -56,51 +70,7 @@ services:
           memory: 256M
 
   # ============================================================================
-  # تهيئة قاعدة بيانات Kong - Kong Database Migrations
-  # ============================================================================
-  kong-migrations:
-    image: kong:3.5-alpine
-    container_name: kong-migrations
-    command: kong migrations bootstrap
-    networks:
-      - kong-net
-    environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-database
-      KONG_PG_PORT: 5432
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_USER: ${KONG_PG_USER:-kong}
-      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
-    depends_on:
-      kong-database:
-        condition: service_healthy
-    restart: on-failure
-
-  # ============================================================================
-  # ترقيات قاعدة بيانات Kong - Kong Database Migrations Up
-  # ============================================================================
-  kong-migrations-up:
-    image: kong:3.5-alpine
-    container_name: kong-migrations-up
-    command: kong migrations up && kong migrations finish
-    networks:
-      - kong-net
-    environment:
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-database
-      KONG_PG_PORT: 5432
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_USER: ${KONG_PG_USER:-kong}
-      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
-    depends_on:
-      kong-database:
-        condition: service_healthy
-      kong-migrations:
-        condition: service_completed_successfully
-    restart: on-failure
-
-  # ============================================================================
-  # بوابة Kong API - Kong API Gateway
+  # بوابة Kong API - Kong API Gateway (DB-less mode)
   # ============================================================================
   kong:
     image: kong:3.5-alpine
@@ -110,13 +80,11 @@ services:
       - kong-net
       - sahool-net
     environment:
-      # Database Configuration
-      KONG_DATABASE: postgres
-      KONG_PG_HOST: kong-database
-      KONG_PG_PORT: 5432
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_USER: ${KONG_PG_USER:-kong}
-      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      # Database Configuration - DB-less mode for simplicity
+      KONG_DATABASE: "off"
+
+      # Declarative Configuration
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
 
       # Proxy Configuration
       KONG_PROXY_ACCESS_LOG: /dev/stdout
@@ -145,9 +113,6 @@ services:
       # Logging
       KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
 
-      # Declarative Config (optional)
-      # KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
-
     volumes:
       - ./kong.yml:/etc/kong/kong.yml:ro
       - ./kong-packages.yml:/etc/kong/kong-packages.yml:ro
@@ -158,11 +123,6 @@ services:
       - "8443:8443"  # Proxy HTTPS
       - "8001:8001"  # Admin API HTTP
       - "8444:8444"  # Admin API HTTPS
-    depends_on:
-      kong-database:
-        condition: service_healthy
-      kong-migrations-up:
-        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -204,6 +164,12 @@ services:
         condition: service_healthy
       kong:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:1337 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
     deploy:
       resources:
         limits:
@@ -231,11 +197,18 @@ services:
       - '--web.enable-lifecycle'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts:/etc/prometheus/alerts:ro
       - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     depends_on:
       - kong
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     deploy:
       resources:
         limits:
@@ -269,6 +242,12 @@ services:
       - "3002:3000"  # تجنب التعارض مع field-core
     depends_on:
       - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     deploy:
       resources:
         limits:
@@ -307,13 +286,117 @@ services:
           cpus: '0.1'
           memory: 128M
 
-volumes:
-  prometheus-data:
-    driver: local
-  grafana-data:
-    driver: local
-  redis-data:
-    driver: local
+  # ============================================================================
+  # PostgreSQL Exporter - مراقبة قاعدة البيانات
+  # PostgreSQL Metrics Exporter
+  # ============================================================================
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: kong-postgres-exporter
+    restart: unless-stopped
+    networks:
+      - kong-net
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${KONG_PG_USER:-kong}:${KONG_PG_PASSWORD:-kong}@kong-database:5432/${KONG_PG_DATABASE:-kong}?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # ============================================================================
+  # Redis Exporter - مراقبة Redis
+  # Redis Metrics Exporter
+  # ============================================================================
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: kong-redis-exporter
+    restart: unless-stopped
+    networks:
+      - kong-net
+    environment:
+      REDIS_ADDR: "kong-redis:6379"
+    ports:
+      - "9121:9121"
+    depends_on:
+      kong-redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # ============================================================================
+  # Node Exporter - مراقبة النظام
+  # System Metrics Exporter
+  # ============================================================================
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: kong-node-exporter
+    restart: unless-stopped
+    networks:
+      - kong-net
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro
+    ports:
+      - "9100:9100"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # ============================================================================
+  # Alertmanager - إدارة التنبيهات
+  # Alert Management
+  # ============================================================================
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: kong-alertmanager
+    restart: unless-stopped
+    networks:
+      - kong-net
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "9093:9093"
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
 
 # ============================================================================
 # نهاية التكوين

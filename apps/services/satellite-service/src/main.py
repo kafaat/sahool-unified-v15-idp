@@ -126,6 +126,9 @@ from .field_boundary_detector import (
 # Import boundary endpoints
 from .boundary_endpoints import register_boundary_endpoints
 
+# Import VRA endpoints
+from .vra_endpoints import register_vra_endpoints
+
 # Import weather integration
 from .weather_integration import (
     WeatherIntegration,
@@ -166,6 +169,23 @@ except ImportError as e:
     logger.warning(f"Advanced vegetation indices module not available: {e}")
     _indices_available = False
 
+# Import VRA Generator
+_vra_generator = None
+try:
+    from .vra_generator import (
+        VRAGenerator,
+        VRAType,
+        ZoneMethod,
+        ZoneLevel,
+        ManagementZone,
+        PrescriptionMap,
+        ZoneStatistics,
+    )
+    logger.info("VRA Generator module loaded")
+except ImportError as e:
+    logger.warning(f"VRA Generator module not available: {e}")
+    VRAGenerator = None
+
 # NATS publisher (optional)
 _nats_available = False
 try:
@@ -189,7 +209,7 @@ except ImportError:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
-    global _multi_provider, _sar_processor, _yield_predictor, _phenology_detector, _cloud_masker, _change_detector
+    global _multi_provider, _sar_processor, _yield_predictor, _phenology_detector, _cloud_masker, _change_detector, _vra_generator
 
     print("🛰️ Starting Satellite Service...")
 
@@ -230,9 +250,18 @@ async def lifespan(app: FastAPI):
     _cloud_masker = get_cloud_masker()
     print("☁️ Cloud Masker initialized for quality assessment")
 
+    # Initialize VRA Generator
+    if VRAGenerator:
+        _vra_generator = VRAGenerator(multi_provider=_multi_provider)
+        print("🗺️ VRA Generator initialized for prescription map generation")
+
     # Register boundary detection endpoints
     if _boundary_detector:
         register_boundary_endpoints(app, _boundary_detector)
+
+    # Register VRA endpoints
+    if _vra_generator:
+        register_vra_endpoints(app, _vra_generator)
 
     print("✅ Satellite Service ready on port 8090")
 
@@ -248,14 +277,22 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
-    version="15.7.0",
-    description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation.",
+    version="15.8.0",
+    description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.",
     lifespan=lifespan,
 )
 
 # Register weather endpoints
 from .weather_endpoints import register_weather_endpoints
 register_weather_endpoints(app)
+
+# Register GDD (Growing Degree Days) endpoints
+from .gdd_endpoints import register_gdd_endpoints
+register_gdd_endpoints(app)
+
+# Register spray advisor endpoints
+from .spray_endpoints import register_spray_endpoints
+register_spray_endpoints(app)
 
 
 # =============================================================================
@@ -2215,6 +2252,70 @@ class RegionalYieldStats(BaseModel):
     max_yield_ton_ha: float
     field_count: int
     data_source: str
+
+
+# =============================================================================
+# VRA (Variable Rate Application) Models
+# =============================================================================
+
+class VRARequest(BaseModel):
+    """Request for VRA prescription map generation"""
+    field_id: str = Field(..., description="معرف الحقل")
+    latitude: float = Field(..., ge=-90, le=90, description="خط العرض")
+    longitude: float = Field(..., ge=-180, le=180, description="خط الطول")
+    vra_type: str = Field(..., description="نوع التطبيق (fertilizer, seed, lime, pesticide, irrigation)")
+    target_rate: float = Field(..., gt=0, description="المعدل المستهدف")
+    unit: str = Field(..., description="وحدة القياس (kg/ha, seeds/ha, L/ha, mm/ha)")
+    num_zones: int = Field(default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)")
+    zone_method: str = Field(default="ndvi", description="طريقة تصنيف المناطق")
+    min_rate: Optional[float] = Field(None, gt=0, description="الحد الأدنى للمعدل")
+    max_rate: Optional[float] = Field(None, gt=0, description="الحد الأقصى للمعدل")
+    product_price_per_unit: Optional[float] = Field(None, description="سعر الوحدة للمنتج")
+    notes: Optional[str] = Field(None, description="ملاحظات (إنجليزي)")
+    notes_ar: Optional[str] = Field(None, description="ملاحظات (عربي)")
+
+
+class ManagementZoneResponse(BaseModel):
+    """Management zone in prescription map"""
+    zone_id: int
+    zone_name: str
+    zone_name_ar: str
+    zone_level: str
+    ndvi_min: float
+    ndvi_max: float
+    area_ha: float
+    percentage: float
+    centroid: List[float]  # [lon, lat]
+    recommended_rate: float
+    unit: str
+    total_product: float
+    color: str
+
+
+class PrescriptionMapResponse(BaseModel):
+    """VRA prescription map response"""
+    id: str
+    field_id: str
+    vra_type: str
+    created_at: str
+    target_rate: float
+    min_rate: float
+    max_rate: float
+    unit: str
+    num_zones: int
+    zone_method: str
+    zones: List[ManagementZoneResponse]
+    total_area_ha: float
+    total_product_needed: float
+    flat_rate_product: float
+    savings_percent: float
+    savings_amount: float
+    cost_savings: Optional[float]
+    notes: Optional[str]
+    notes_ar: Optional[str]
+    geojson_url: Optional[str]
+    shapefile_url: Optional[str]
+    isoxml_url: Optional[str]
 
 
 # =============================================================================

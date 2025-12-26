@@ -82,6 +82,173 @@ CROP_REQUIREMENTS = {
             "flush_3": {"N": 0.20, "P": 0.20, "K": 0.25},
         },
     },
+    "barley": {
+        "yield_target_ton_ha": 3.5,
+        "total_needs": {"N": 100, "P": 35, "K": 50},
+        "stages": {
+            "planting": {"N": 0.20, "P": 0.50, "K": 0.40},
+            "tillering": {"N": 0.40, "P": 0.30, "K": 0.30},
+            "booting": {"N": 0.30, "P": 0.15, "K": 0.20},
+            "heading": {"N": 0.10, "P": 0.05, "K": 0.10},
+        },
+    },
+    "sorghum": {
+        "yield_target_ton_ha": 3.0,
+        "total_needs": {"N": 80, "P": 40, "K": 60},
+        "stages": {
+            "planting": {"N": 0.15, "P": 0.50, "K": 0.35},
+            "vegetative": {"N": 0.40, "P": 0.25, "K": 0.30},
+            "boot": {"N": 0.30, "P": 0.15, "K": 0.25},
+            "heading": {"N": 0.15, "P": 0.10, "K": 0.10},
+        },
+    },
+    "millet": {
+        "yield_target_ton_ha": 2.0,
+        "total_needs": {"N": 50, "P": 25, "K": 40},
+        "stages": {
+            "planting": {"N": 0.15, "P": 0.45, "K": 0.30},
+            "tillering": {"N": 0.40, "P": 0.30, "K": 0.35},
+            "boot": {"N": 0.30, "P": 0.20, "K": 0.25},
+            "heading": {"N": 0.15, "P": 0.05, "K": 0.10},
+        },
+    },
+    "faba_bean": {
+        "yield_target_ton_ha": 3.0,
+        "total_needs": {"N": 40, "P": 60, "K": 80},
+        "stages": {
+            "planting": {"N": 0.25, "P": 0.40, "K": 0.25},
+            "vegetative": {"N": 0.30, "P": 0.25, "K": 0.25},
+            "flowering": {"N": 0.25, "P": 0.20, "K": 0.30},
+            "pod_fill": {"N": 0.20, "P": 0.15, "K": 0.20},
+        },
+    },
+    "lentil": {
+        "yield_target_ton_ha": 1.5,
+        "total_needs": {"N": 30, "P": 50, "K": 60},
+        "stages": {
+            "planting": {"N": 0.25, "P": 0.40, "K": 0.25},
+            "vegetative": {"N": 0.30, "P": 0.25, "K": 0.25},
+            "flowering": {"N": 0.25, "P": 0.20, "K": 0.30},
+            "pod_fill": {"N": 0.20, "P": 0.15, "K": 0.20},
+        },
+    },
+    "chickpea": {
+        "yield_target_ton_ha": 1.8,
+        "total_needs": {"N": 35, "P": 55, "K": 70},
+        "stages": {
+            "planting": {"N": 0.25, "P": 0.40, "K": 0.25},
+            "vegetative": {"N": 0.30, "P": 0.25, "K": 0.25},
+            "flowering": {"N": 0.25, "P": 0.20, "K": 0.30},
+            "pod_fill": {"N": 0.20, "P": 0.15, "K": 0.20},
+        },
+    },
+    "pepper": {
+        "yield_target_ton_ha": 30,
+        "total_needs": {"N": 140, "P": 55, "K": 180},
+        "stages": {
+            "transplant": {"N": 0.10, "P": 0.30, "K": 0.10},
+            "vegetative": {"N": 0.30, "P": 0.20, "K": 0.20},
+            "flowering": {"N": 0.25, "P": 0.25, "K": 0.25},
+            "fruiting": {"N": 0.25, "P": 0.15, "K": 0.35},
+            "harvest": {"N": 0.10, "P": 0.10, "K": 0.10},
+        },
+    },
+    "eggplant": {
+        "yield_target_ton_ha": 35,
+        "total_needs": {"N": 150, "P": 60, "K": 190},
+        "stages": {
+            "transplant": {"N": 0.10, "P": 0.30, "K": 0.10},
+            "vegetative": {"N": 0.30, "P": 0.20, "K": 0.20},
+            "flowering": {"N": 0.25, "P": 0.25, "K": 0.25},
+            "fruiting": {"N": 0.25, "P": 0.15, "K": 0.35},
+            "harvest": {"N": 0.10, "P": 0.10, "K": 0.10},
+        },
+    },
+    "cucumber": {
+        "yield_target_ton_ha": 45,
+        "total_needs": {"N": 120, "P": 50, "K": 220},
+        "stages": {
+            "transplant": {"N": 0.10, "P": 0.35, "K": 0.10},
+            "vegetative": {"N": 0.30, "P": 0.25, "K": 0.20},
+            "flowering": {"N": 0.30, "P": 0.20, "K": 0.30},
+            "fruiting": {"N": 0.30, "P": 0.20, "K": 0.40},
+        },
+    },
+    "garlic": {
+        "yield_target_ton_ha": 10,
+        "total_needs": {"N": 100, "P": 45, "K": 120},
+        "stages": {
+            "planting": {"N": 0.15, "P": 0.35, "K": 0.15},
+            "vegetative": {"N": 0.35, "P": 0.30, "K": 0.25},
+            "bulb_init": {"N": 0.30, "P": 0.20, "K": 0.35},
+            "bulbing": {"N": 0.15, "P": 0.10, "K": 0.20},
+            "maturation": {"N": 0.05, "P": 0.05, "K": 0.05},
+        },
+    },
+    "grape": {
+        "yield_target_ton_ha": 15,
+        "total_needs": {"N": 80, "P": 35, "K": 150},
+        "stages": {
+            "dormant": {"N": 0.15, "P": 0.25, "K": 0.10},
+            "bud_break": {"N": 0.25, "P": 0.25, "K": 0.20},
+            "flowering": {"N": 0.25, "P": 0.25, "K": 0.25},
+            "fruit_set": {"N": 0.20, "P": 0.15, "K": 0.25},
+            "ripening": {"N": 0.15, "P": 0.10, "K": 0.20},
+        },
+    },
+    "date_palm": {
+        "yield_target_ton_ha": 10,
+        "total_needs": {"N": 100, "P": 40, "K": 200},
+        "stages": {
+            "dormant": {"N": 0.15, "P": 0.25, "K": 0.10},
+            "flowering": {"N": 0.25, "P": 0.30, "K": 0.20},
+            "fruit_dev": {"N": 0.30, "P": 0.25, "K": 0.35},
+            "ripening": {"N": 0.20, "P": 0.15, "K": 0.30},
+            "post_harvest": {"N": 0.10, "P": 0.05, "K": 0.05},
+        },
+    },
+    "banana": {
+        "yield_target_ton_ha": 35,
+        "total_needs": {"N": 200, "P": 50, "K": 400},
+        "stages": {
+            "planting": {"N": 0.15, "P": 0.30, "K": 0.10},
+            "vegetative": {"N": 0.35, "P": 0.30, "K": 0.30},
+            "flowering": {"N": 0.25, "P": 0.20, "K": 0.25},
+            "bunch_dev": {"N": 0.20, "P": 0.15, "K": 0.30},
+            "harvest": {"N": 0.05, "P": 0.05, "K": 0.05},
+        },
+    },
+    "mango": {
+        "yield_target_ton_ha": 12,
+        "total_needs": {"N": 120, "P": 40, "K": 160},
+        "stages": {
+            "dormant": {"N": 0.15, "P": 0.25, "K": 0.10},
+            "flowering": {"N": 0.25, "P": 0.30, "K": 0.20},
+            "fruit_set": {"N": 0.25, "P": 0.20, "K": 0.25},
+            "fruit_dev": {"N": 0.25, "P": 0.15, "K": 0.30},
+            "ripening": {"N": 0.10, "P": 0.10, "K": 0.15},
+        },
+    },
+    "sesame": {
+        "yield_target_ton_ha": 1.0,
+        "total_needs": {"N": 60, "P": 40, "K": 50},
+        "stages": {
+            "planting": {"N": 0.20, "P": 0.40, "K": 0.30},
+            "vegetative": {"N": 0.35, "P": 0.30, "K": 0.35},
+            "flowering": {"N": 0.25, "P": 0.20, "K": 0.25},
+            "pod_fill": {"N": 0.20, "P": 0.10, "K": 0.10},
+        },
+    },
+    "alfalfa": {
+        "yield_target_ton_ha": 20,
+        "total_needs": {"N": 50, "P": 80, "K": 120},
+        "stages": {
+            "establishment": {"N": 0.30, "P": 0.50, "K": 0.30},
+            "growth": {"N": 0.30, "P": 0.25, "K": 0.35},
+            "pre_cut": {"N": 0.25, "P": 0.15, "K": 0.25},
+            "post_cut": {"N": 0.15, "P": 0.10, "K": 0.10},
+        },
+    },
 }
 
 

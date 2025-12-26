@@ -85,37 +85,33 @@ RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
 # Copy standalone build
-# Automatically leverage output traces to reduce image size
-# Next.js standalone output is in apps/admin/.next/standalone
-# Copy the standalone output - it should contain server.js, node_modules/, and the app code
-# Note: Next.js standalone mode includes public assets in .next/static, so we don't need to copy public separately
+# In monorepo, Next.js standalone output structure may vary
+# First copy the standalone directory content
 COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static ./apps/admin/.next/static
 
-# Fallback: Copy node_modules from builder if standalone didn't include all dependencies
-# This can happen in monorepo setups where Next.js standalone doesn't trace all workspace dependencies
-# We copy the admin's local node_modules as a backup (it should have next and other deps)
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/node_modules ./node_modules_fallback
+# Copy node_modules from root (contains next and all deps)
+# This ensures next module is always available regardless of standalone trace issues
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
-# Merge fallback node_modules into main node_modules if next is missing
-RUN if [ ! -d "./node_modules/next" ] && [ -d "./node_modules_fallback/next" ]; then \
-      echo "WARNING: next not found in standalone, using fallback..."; \
-      mkdir -p ./node_modules; \
-      cp -r ./node_modules_fallback/* ./node_modules/; \
+# Also copy admin's local node_modules as additional fallback
+COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/node_modules ./apps/admin/node_modules
+
+# Verify server.js exists - check both possible locations in monorepo structure
+RUN if [ -f "./apps/admin/server.js" ]; then \
+      echo "Found server.js in apps/admin/, moving to root..."; \
+      cp ./apps/admin/server.js ./server.js; \
     fi && \
-    rm -rf ./node_modules_fallback && \
-    # Verify next is now available
-    if [ ! -d "./node_modules/next" ]; then \
-      echo "ERROR: next module is still missing after fallback copy"; \
+    if [ ! -f "./server.js" ]; then \
+      echo "ERROR: server.js not found"; \
+      ls -la . || true; \
+      ls -la ./apps/admin/ 2>/dev/null || true; \
       exit 1; \
     fi
 
-# Verify server.js exists before switching user
-RUN if [ ! -f "./server.js" ]; then \
-      echo "ERROR: server.js not found in standalone output"; \
-      echo "Checking standalone structure..."; \
-      ls -la . || true; \
-      find . -name "server.js" -type f 2>/dev/null || echo "No server.js found"; \
+# Verify next module is available
+RUN if [ ! -d "./node_modules/next" ]; then \
+      echo "ERROR: next module not found in node_modules"; \
       exit 1; \
     fi
 

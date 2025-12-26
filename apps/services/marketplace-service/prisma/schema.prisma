@@ -156,6 +156,7 @@ model Wallet {
 
   // الرصيد
   balance     Float    @default(0.0)
+  escrowBalance Float  @default(0.0) @map("escrow_balance") // المبلغ المحجوز في الإسكرو
   currency    String   @default("YER") // ريال يمني
 
   // التصنيف الائتماني
@@ -166,15 +167,27 @@ model Wallet {
   loanLimit   Float    @default(0.0) @map("loan_limit")
   currentLoan Float    @default(0.0) @map("current_loan")
 
+  // حدود الأمان والمحفظة
+  dailyWithdrawLimit Float @default(10000.0) @map("daily_withdraw_limit") // حد السحب اليومي
+  singleTransactionLimit Float @default(50000.0) @map("single_transaction_limit") // حد المعاملة الواحدة
+  requiresPinForAmount Float @default(5000.0) @map("requires_pin_for_amount") // يتطلب رمز PIN للمبالغ الأكبر
+  dailyWithdrawnToday Float @default(0.0) @map("daily_withdrawn_today") // إجمالي السحوبات اليوم
+  lastWithdrawReset DateTime? @map("last_withdraw_reset") // آخر إعادة تعيين للحد اليومي
+
   // بيانات إضافية
   isVerified  Boolean  @default(false) @map("is_verified")
   kycStatus   String?  @map("kyc_status") // pending, approved, rejected
+  pin         String?  // رمز PIN مشفر (للمعاملات الكبيرة)
 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   transactions Transaction[]
   loans       Loan[]
+  creditEvents CreditEvent[]
+  buyerEscrows Escrow[] @relation("BuyerEscrows")
+  sellerEscrows Escrow[] @relation("SellerEscrows")
+  scheduledPayments ScheduledPayment[]
 
   @@map("wallets")
 }
@@ -216,14 +229,24 @@ model Transaction {
 }
 
 enum TransactionType {
-  DEPOSIT      // إيداع
-  WITHDRAWAL   // سحب
-  PURCHASE     // شراء
-  SALE         // بيع
-  LOAN         // قرض
-  REPAYMENT    // سداد قرض
-  FEE          // رسوم
-  REFUND       // استرداد
+  DEPOSIT              // إيداع
+  WITHDRAWAL           // سحب
+  PURCHASE             // شراء
+  SALE                 // بيع
+  LOAN                 // قرض
+  REPAYMENT            // سداد قرض
+  FEE                  // رسوم
+  REFUND               // استرداد
+  MARKETPLACE_SALE     // بيع في السوق
+  MARKETPLACE_PURCHASE // شراء من السوق
+  LOAN_DISBURSEMENT    // صرف قرض
+  LOAN_REPAYMENT       // سداد قرض
+  ESCROW_HOLD          // حجز في الإسكرو
+  ESCROW_RELEASE       // إطلاق من الإسكرو
+  ESCROW_REFUND        // استرداد من الإسكرو
+  SCHEDULED_PAYMENT    // دفعة مجدولة
+  TRANSFER_IN          // تحويل وارد
+  TRANSFER_OUT         // تحويل صادر
 }
 
 enum TransactionStatus {
@@ -286,4 +309,128 @@ enum LoanStatus {
   PAID         // مسدد
   DEFAULTED    // متعثر
   REJECTED     // مرفوض
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 6. سجل الأحداث الائتمانية - Credit Events (للتصنيف الائتماني المتقدم)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model CreditEvent {
+  id          String   @id @default(uuid())
+  walletId    String   @map("wallet_id")
+
+  eventType   CreditEventType @map("event_type")
+  amount      Float?
+  impact      Int      // Score impact (-50 to +50)
+  description String
+  metadata    Json?    // Additional data
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  wallet      Wallet   @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+  @@index([eventType])
+  @@map("credit_events")
+}
+
+enum CreditEventType {
+  LOAN_REPAID_ONTIME    // سداد قرض في الموعد
+  LOAN_REPAID_LATE      // سداد قرض متأخر
+  LOAN_DEFAULTED        // تعثر في سداد قرض
+  ORDER_COMPLETED       // إتمام طلب
+  ORDER_CANCELLED       // إلغاء طلب
+  VERIFICATION_UPGRADE  // ترقية التحقق
+  FARM_VERIFIED         // التحقق من المزرعة
+  COOPERATIVE_JOINED    // الانضمام لتعاونية
+  LAND_VERIFIED         // التحقق من ملكية الأرض
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 7. الإسكرو - Escrow (لحماية المعاملات)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Escrow {
+  id             String       @id @default(uuid())
+  orderId        String       @unique @map("order_id")
+
+  // المحافظ
+  buyerWalletId  String       @map("buyer_wallet_id")
+  sellerWalletId String       @map("seller_wallet_id")
+
+  // المبلغ
+  amount         Float
+
+  // الحالة
+  status         EscrowStatus @default(HELD)
+
+  // ملاحظات
+  notes          String?
+  disputeReason  String?      @map("dispute_reason")
+
+  // التواريخ
+  createdAt      DateTime     @default(now()) @map("created_at")
+  releasedAt     DateTime?    @map("released_at")
+  refundedAt     DateTime?    @map("refunded_at")
+
+  buyerWallet    Wallet       @relation("BuyerEscrows", fields: [buyerWalletId], references: [id])
+  sellerWallet   Wallet       @relation("SellerEscrows", fields: [sellerWalletId], references: [id])
+
+  @@index([buyerWalletId])
+  @@index([sellerWalletId])
+  @@index([status])
+  @@map("escrows")
+}
+
+enum EscrowStatus {
+  HELD         // محجوز
+  RELEASED     // تم الإطلاق للبائع
+  REFUNDED     // تم الاسترداد للمشتري
+  DISPUTED     // متنازع عليه
+  CANCELLED    // ملغي
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 8. الدفعات المجدولة - Scheduled Payments (للقروض والاشتراكات)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ScheduledPayment {
+  id              String   @id @default(uuid())
+  walletId        String   @map("wallet_id")
+
+  // المبلغ والتكرار
+  amount          Float
+  frequency       PaymentFrequency
+  nextPaymentDate DateTime @map("next_payment_date")
+
+  // المرجع (اختياري)
+  loanId          String?  @map("loan_id")
+  description     String?
+  descriptionAr   String?  @map("description_ar")
+
+  // الحالة
+  isActive        Boolean  @default(true) @map("is_active")
+  failedAttempts  Int      @default(0) @map("failed_attempts")
+  lastPaymentDate DateTime? @map("last_payment_date")
+  lastFailureReason String? @map("last_failure_reason")
+
+  // التواريخ
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  wallet          Wallet   @relation(fields: [walletId], references: [id])
+
+  @@index([walletId])
+  @@index([nextPaymentDate])
+  @@index([isActive])
+  @@map("scheduled_payments")
+}
+
+enum PaymentFrequency {
+  DAILY        // يومي
+  WEEKLY       // أسبوعي
+  BIWEEKLY     // كل أسبوعين
+  MONTHLY      // شهري
+  QUARTERLY    // ربع سنوي
+  YEARLY       // سنوي
 }

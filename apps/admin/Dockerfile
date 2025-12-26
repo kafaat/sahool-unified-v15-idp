@@ -88,9 +88,9 @@ RUN chown nextjs:nodejs .next
 # Automatically leverage output traces to reduce image size
 # Next.js standalone output is in apps/admin/.next/standalone
 # Copy the standalone output - it should contain server.js, node_modules/, and the app code
+# Note: Next.js standalone mode includes public assets in .next/static, so we don't need to copy public separately
 COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/public ./public 2>/dev/null || true
 
 # Fallback: Copy node_modules from builder if standalone didn't include all dependencies
 # This can happen in monorepo setups where Next.js standalone doesn't trace all workspace dependencies

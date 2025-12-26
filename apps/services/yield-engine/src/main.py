@@ -40,16 +40,46 @@ SERVICE_PORT = int(os.getenv("PORT", 8098))
 
 class CropType(str, Enum):
     """المحاصيل المدعومة للتنبؤ"""
+    # Cereals - الحبوب
     WHEAT = "wheat"          # قمح
+    BARLEY = "barley"        # شعير
     CORN = "corn"            # ذرة
+    SORGHUM = "sorghum"      # ذرة رفيعة
+    MILLET = "millet"        # دخن
+
+    # Legumes - البقوليات
+    FABA_BEAN = "faba_bean"  # فول
+    LENTIL = "lentil"        # عدس
+    CHICKPEA = "chickpea"    # حمص
+
+    # Vegetables - الخضروات
     TOMATO = "tomato"        # طماطم
     POTATO = "potato"        # بطاطس
-    COFFEE = "coffee"        # بن يمني
+    ONION = "onion"          # بصل
+    GARLIC = "garlic"        # ثوم
+    PEPPER = "pepper"        # فلفل حلو
+    EGGPLANT = "eggplant"    # باذنجان
+    CUCUMBER = "cucumber"    # خيار
+    OKRA = "okra"            # بامية
+
+    # Fruits - الفواكه
     DATE_PALM = "date_palm"  # نخيل
     MANGO = "mango"          # مانجو
-    SORGHUM = "sorghum"      # ذرة رفيعة
     BANANA = "banana"        # موز
     GRAPE = "grape"          # عنب
+    CITRUS_ORANGE = "citrus_orange"  # برتقال
+    CITRUS_LEMON = "citrus_lemon"    # ليمون
+    POMEGRANATE = "pomegranate"      # رمان
+    FIG = "fig"              # تين
+    GUAVA = "guava"          # جوافة
+
+    # Cash Crops - محاصيل نقدية
+    COFFEE = "coffee"        # بن يمني
+    SESAME = "sesame"        # سمسم
+    COTTON = "cotton"        # قطن
+
+    # Fodder - الأعلاف
+    ALFALFA = "alfalfa"      # برسيم حجازي
 
 
 class YieldRequest(BaseModel):
@@ -187,6 +217,183 @@ CROP_DATA = {
         "optimal_rainfall": 600,
         "optimal_temp": 22,
         "water_requirement": "medium"
+    },
+    # ═══ Additional Cereals ═══
+    CropType.BARLEY: {
+        "name_ar": "شعير",
+        "base_yield_per_hectare": 2.0,
+        "price_usd_per_ton": 280,
+        "growing_season_days": 100,
+        "optimal_rainfall": 400,
+        "optimal_temp": 17,
+        "water_requirement": "low"
+    },
+    CropType.MILLET: {
+        "name_ar": "دخن",
+        "base_yield_per_hectare": 1.5,
+        "price_usd_per_ton": 300,
+        "growing_season_days": 90,
+        "optimal_rainfall": 250,
+        "optimal_temp": 30,
+        "water_requirement": "very_low"
+    },
+    # ═══ Legumes ═══
+    CropType.FABA_BEAN: {
+        "name_ar": "فول",
+        "base_yield_per_hectare": 2.5,
+        "price_usd_per_ton": 600,
+        "growing_season_days": 120,
+        "optimal_rainfall": 650,
+        "optimal_temp": 18,
+        "water_requirement": "medium"
+    },
+    CropType.LENTIL: {
+        "name_ar": "عدس",
+        "base_yield_per_hectare": 1.0,
+        "price_usd_per_ton": 800,
+        "growing_season_days": 100,
+        "optimal_rainfall": 400,
+        "optimal_temp": 15,
+        "water_requirement": "low"
+    },
+    CropType.CHICKPEA: {
+        "name_ar": "حمص",
+        "base_yield_per_hectare": 1.2,
+        "price_usd_per_ton": 900,
+        "growing_season_days": 100,
+        "optimal_rainfall": 400,
+        "optimal_temp": 20,
+        "water_requirement": "low"
+    },
+    # ═══ Additional Vegetables ═══
+    CropType.ONION: {
+        "name_ar": "بصل",
+        "base_yield_per_hectare": 25.0,
+        "price_usd_per_ton": 350,
+        "growing_season_days": 120,
+        "optimal_rainfall": 650,
+        "optimal_temp": 19,
+        "water_requirement": "medium"
+    },
+    CropType.GARLIC: {
+        "name_ar": "ثوم",
+        "base_yield_per_hectare": 8.0,
+        "price_usd_per_ton": 1500,
+        "growing_season_days": 150,
+        "optimal_rainfall": 400,
+        "optimal_temp": 15,
+        "water_requirement": "low"
+    },
+    CropType.PEPPER: {
+        "name_ar": "فلفل حلو",
+        "base_yield_per_hectare": 25.0,
+        "price_usd_per_ton": 600,
+        "growing_season_days": 90,
+        "optimal_rainfall": 900,
+        "optimal_temp": 23,
+        "water_requirement": "high"
+    },
+    CropType.EGGPLANT: {
+        "name_ar": "باذنجان",
+        "base_yield_per_hectare": 30.0,
+        "price_usd_per_ton": 350,
+        "growing_season_days": 100,
+        "optimal_rainfall": 900,
+        "optimal_temp": 26,
+        "water_requirement": "high"
+    },
+    CropType.CUCUMBER: {
+        "name_ar": "خيار",
+        "base_yield_per_hectare": 40.0,
+        "price_usd_per_ton": 300,
+        "growing_season_days": 60,
+        "optimal_rainfall": 900,
+        "optimal_temp": 25,
+        "water_requirement": "high"
+    },
+    CropType.OKRA: {
+        "name_ar": "بامية",
+        "base_yield_per_hectare": 12.0,
+        "price_usd_per_ton": 600,
+        "growing_season_days": 90,
+        "optimal_rainfall": 650,
+        "optimal_temp": 30,
+        "water_requirement": "medium"
+    },
+    # ═══ Additional Fruits ═══
+    CropType.CITRUS_ORANGE: {
+        "name_ar": "برتقال",
+        "base_yield_per_hectare": 20.0,
+        "price_usd_per_ton": 450,
+        "growing_season_days": 300,
+        "optimal_rainfall": 650,
+        "optimal_temp": 24,
+        "water_requirement": "medium"
+    },
+    CropType.CITRUS_LEMON: {
+        "name_ar": "ليمون",
+        "base_yield_per_hectare": 15.0,
+        "price_usd_per_ton": 500,
+        "growing_season_days": 300,
+        "optimal_rainfall": 650,
+        "optimal_temp": 24,
+        "water_requirement": "medium"
+    },
+    CropType.POMEGRANATE: {
+        "name_ar": "رمان",
+        "base_yield_per_hectare": 12.0,
+        "price_usd_per_ton": 700,
+        "growing_season_days": 180,
+        "optimal_rainfall": 400,
+        "optimal_temp": 25,
+        "water_requirement": "low"
+    },
+    CropType.FIG: {
+        "name_ar": "تين",
+        "base_yield_per_hectare": 8.0,
+        "price_usd_per_ton": 800,
+        "growing_season_days": 150,
+        "optimal_rainfall": 400,
+        "optimal_temp": 24,
+        "water_requirement": "low"
+    },
+    CropType.GUAVA: {
+        "name_ar": "جوافة",
+        "base_yield_per_hectare": 25.0,
+        "price_usd_per_ton": 500,
+        "growing_season_days": 180,
+        "optimal_rainfall": 650,
+        "optimal_temp": 26,
+        "water_requirement": "medium"
+    },
+    # ═══ Cash Crops ═══
+    CropType.SESAME: {
+        "name_ar": "سمسم",
+        "base_yield_per_hectare": 0.8,
+        "price_usd_per_ton": 2000,
+        "growing_season_days": 100,
+        "optimal_rainfall": 400,
+        "optimal_temp": 30,
+        "water_requirement": "low"
+    },
+    CropType.COTTON: {
+        "name_ar": "قطن",
+        "base_yield_per_hectare": 2.5,
+        "price_usd_per_ton": 1800,
+        "growing_season_days": 150,
+        "optimal_rainfall": 900,
+        "optimal_temp": 27,
+        "water_requirement": "high"
+    },
+    # ═══ Fodder ═══
+    CropType.ALFALFA: {
+        "name_ar": "برسيم حجازي",
+        "base_yield_per_hectare": 15.0,
+        "price_usd_per_ton": 200,
+        "growing_season_days": 365,
+        "optimal_rainfall": 900,
+        "optimal_temp": 22,
+        "water_requirement": "high"
     },
 }
 
@@ -425,12 +632,13 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS middleware
+# CORS middleware - secure origins from environment
+CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
 

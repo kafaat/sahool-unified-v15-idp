@@ -425,10 +425,23 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
+      - name: Create .env file for Docker Compose
+        run: |
+          cat > .env << EOF
+          POSTGRES_USER=${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
+          POSTGRES_DB=${{ env.POSTGRES_DB }}
+          REDIS_PASSWORD=${{ env.REDIS_PASSWORD }}
+          JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }}
+          JWT_ALGORITHM=${{ env.JWT_ALGORITHM }}
+          MQTT_PASSWORD=mqtt_test_password
+          EOF
+          cat .env
+
       - name: Start services
         run: |
           docker-compose up -d postgres nats redis
-          sleep 10
+          sleep 15
 
       - name: Check services health
         run: |

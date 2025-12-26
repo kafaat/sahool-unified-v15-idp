@@ -179,12 +179,54 @@ export class AppController {
   }
 
   /**
-   * ⭐ حساب التصنيف الائتماني
+   * ⭐ حساب التصنيف الائتماني (الطريقة القديمة)
    * POST /api/v1/fintech/calculate-score
    */
   @Post('fintech/calculate-score')
   async calculateCreditScore(@Body() body: { userId: string; farmData: any }) {
     return this.fintechService.calculateCreditScore(body.userId, body.farmData);
+  }
+
+  /**
+   * ⭐ حساب التصنيف الائتماني المتقدم (جديد)
+   * POST /api/v1/fintech/calculate-advanced-score
+   */
+  @Post('fintech/calculate-advanced-score')
+  async calculateAdvancedCreditScore(
+    @Body() body: { userId: string; factors: any },
+  ) {
+    return this.fintechService.calculateAdvancedCreditScore(
+      body.userId,
+      body.factors,
+    );
+  }
+
+  /**
+   * جلب عوامل التصنيف الائتماني
+   * GET /api/v1/fintech/credit-factors/:userId
+   */
+  @Get('fintech/credit-factors/:userId')
+  async getCreditFactors(@Param('userId') userId: string) {
+    return this.fintechService.getCreditFactors(userId);
+  }
+
+  /**
+   * تسجيل حدث ائتماني
+   * POST /api/v1/fintech/credit-history
+   */
+  @Post('fintech/credit-history')
+  @HttpCode(HttpStatus.CREATED)
+  async recordCreditEvent(@Body() body: any) {
+    return this.fintechService.recordCreditEvent(body);
+  }
+
+  /**
+   * جلب التقرير الائتماني الكامل
+   * GET /api/v1/fintech/credit-report/:userId
+   */
+  @Get('fintech/credit-report/:userId')
+  async getCreditReport(@Param('userId') userId: string) {
+    return this.fintechService.getCreditReport(userId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -235,5 +277,177 @@ export class AppController {
   @Get('fintech/stats')
   async getFinanceStats() {
     return this.fintechService.getFinanceStats();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // حدود المحفظة - Wallet Limits
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * الحصول على حدود المحفظة
+   * GET /api/v1/fintech/wallet/:walletId/limits
+   */
+  @Get('fintech/wallet/:walletId/limits')
+  async getWalletLimits(@Param('walletId') walletId: string) {
+    return this.fintechService.getWalletLimits(walletId);
+  }
+
+  /**
+   * تحديث حدود المحفظة (بناءً على التصنيف الائتماني)
+   * PUT /api/v1/fintech/wallet/:walletId/limits
+   */
+  @Put('fintech/wallet/:walletId/limits')
+  async updateWalletLimits(@Param('walletId') walletId: string) {
+    return this.fintechService.updateWalletLimits(walletId);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // الإسكرو - Escrow
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * إنشاء إسكرو جديد
+   * POST /api/v1/fintech/escrow
+   */
+  @Post('fintech/escrow')
+  @HttpCode(HttpStatus.CREATED)
+  async createEscrow(
+    @Body()
+    body: {
+      orderId: string;
+      buyerWalletId: string;
+      sellerWalletId: string;
+      amount: number;
+      notes?: string;
+    },
+  ) {
+    return this.fintechService.createEscrow(
+      body.orderId,
+      body.buyerWalletId,
+      body.sellerWalletId,
+      body.amount,
+      body.notes,
+    );
+  }
+
+  /**
+   * إطلاق الإسكرو للبائع
+   * POST /api/v1/fintech/escrow/:id/release
+   */
+  @Post('fintech/escrow/:id/release')
+  async releaseEscrow(
+    @Param('id') id: string,
+    @Body() body: { notes?: string },
+  ) {
+    return this.fintechService.releaseEscrow(id, body.notes);
+  }
+
+  /**
+   * استرداد الإسكرو للمشتري
+   * POST /api/v1/fintech/escrow/:id/refund
+   */
+  @Post('fintech/escrow/:id/refund')
+  async refundEscrow(
+    @Param('id') id: string,
+    @Body() body: { reason?: string },
+  ) {
+    return this.fintechService.refundEscrow(id, body.reason);
+  }
+
+  /**
+   * الحصول على إسكرو بالطلب
+   * GET /api/v1/fintech/escrow/order/:orderId
+   */
+  @Get('fintech/escrow/order/:orderId')
+  async getEscrowByOrder(@Param('orderId') orderId: string) {
+    return this.fintechService.getEscrowByOrder(orderId);
+  }
+
+  /**
+   * الحصول على جميع إسكرو المحفظة
+   * GET /api/v1/fintech/wallet/:walletId/escrows
+   */
+  @Get('fintech/wallet/:walletId/escrows')
+  async getWalletEscrows(@Param('walletId') walletId: string) {
+    return this.fintechService.getWalletEscrows(walletId);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // الدفعات المجدولة - Scheduled Payments
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * إنشاء دفعة مجدولة
+   * POST /api/v1/fintech/wallet/:walletId/scheduled-payment
+   */
+  @Post('fintech/wallet/:walletId/scheduled-payment')
+  @HttpCode(HttpStatus.CREATED)
+  async createScheduledPayment(
+    @Param('walletId') walletId: string,
+    @Body()
+    body: {
+      amount: number;
+      frequency: string;
+      nextPaymentDate: string;
+      loanId?: string;
+      description?: string;
+      descriptionAr?: string;
+    },
+  ) {
+    return this.fintechService.createScheduledPayment(
+      walletId,
+      body.amount,
+      body.frequency,
+      new Date(body.nextPaymentDate),
+      body.loanId,
+      body.description,
+      body.descriptionAr,
+    );
+  }
+
+  /**
+   * الحصول على الدفعات المجدولة للمحفظة
+   * GET /api/v1/fintech/wallet/:walletId/scheduled-payments
+   */
+  @Get('fintech/wallet/:walletId/scheduled-payments')
+  async getScheduledPayments(
+    @Param('walletId') walletId: string,
+    @Query('activeOnly') activeOnly?: string,
+  ) {
+    return this.fintechService.getScheduledPayments(
+      walletId,
+      activeOnly !== 'false',
+    );
+  }
+
+  /**
+   * إلغاء دفعة مجدولة
+   * POST /api/v1/fintech/scheduled-payment/:id/cancel
+   */
+  @Post('fintech/scheduled-payment/:id/cancel')
+  async cancelScheduledPayment(@Param('id') id: string) {
+    return this.fintechService.cancelScheduledPayment(id);
+  }
+
+  /**
+   * تنفيذ دفعة مجدولة
+   * POST /api/v1/fintech/scheduled-payment/:id/execute
+   */
+  @Post('fintech/scheduled-payment/:id/execute')
+  async executeScheduledPayment(@Param('id') id: string) {
+    return this.fintechService.executeScheduledPayment(id);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // لوحة تحكم المحفظة - Wallet Dashboard
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * الحصول على لوحة تحكم المحفظة
+   * GET /api/v1/fintech/wallet/:walletId/dashboard
+   */
+  @Get('fintech/wallet/:walletId/dashboard')
+  async getWalletDashboard(@Param('walletId') walletId: string) {
+    return this.fintechService.getWalletDashboard(walletId);
   }
 }

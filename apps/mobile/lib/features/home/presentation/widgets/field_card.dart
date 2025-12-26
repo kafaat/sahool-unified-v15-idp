@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../crops/data/crop_helper.dart';
 
 /// بطاقة الحقل
 class FieldCard extends StatelessWidget {
@@ -80,7 +81,7 @@ class FieldCard extends StatelessWidget {
                         Icon(Icons.eco, size: 14, color: Colors.grey[600]),
                         const SizedBox(width: 4),
                         Text(
-                          cropType,
+                          CropHelper.getCropNameAr(cropType),
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 13,
@@ -162,30 +163,6 @@ class FieldCard extends StatelessWidget {
   }
 
   String _getCropEmoji() {
-    switch (cropType.toLowerCase()) {
-      case 'قمح':
-      case 'wheat':
-        return '🌾';
-      case 'شعير':
-      case 'barley':
-        return '🌾';
-      case 'برسيم':
-      case 'alfalfa':
-        return '🌿';
-      case 'ذرة':
-      case 'corn':
-        return '🌽';
-      case 'نخيل':
-      case 'palm':
-        return '🌴';
-      case 'بطاطس':
-      case 'potato':
-        return '🥔';
-      case 'طماطم':
-      case 'tomato':
-        return '🍅';
-      default:
-        return '🌱';
-    }
+    return CropHelper.getCropEmoji(cropType);
   }
 }

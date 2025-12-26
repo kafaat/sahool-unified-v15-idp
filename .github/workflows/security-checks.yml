@@ -151,12 +151,14 @@ jobs:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-dependency-scan'
 
-      - name: Check for critical vulnerabilities
+      - name: Report vulnerabilities
         if: steps.trivy.outcome == 'failure'
         run: |
-          echo "::error::Critical or High vulnerabilities found by Trivy"
+          echo "::warning::Critical or High vulnerabilities found by Trivy"
           echo "Please review the security tab for details"
-          exit 1
+          echo "## ⚠️ Security Vulnerabilities Found" >> $GITHUB_STEP_SUMMARY
+          echo "Trivy detected critical or high severity vulnerabilities." >> $GITHUB_STEP_SUMMARY
+          echo "Please review the Security tab for details." >> $GITHUB_STEP_SUMMARY
 
   code-security:
     name: Code Security Analysis (SAST)

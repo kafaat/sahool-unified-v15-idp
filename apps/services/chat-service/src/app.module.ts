@@ -9,6 +9,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';
 import { ChatController } from './chat/chat.controller';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { ChatController } from './chat/chat.controller';
       },
     ]),
   ],
-  controllers: [ChatController],
+  controllers: [ChatController, HealthController],
   providers: [PrismaService, ChatService, ChatGateway],
 })
 export class AppModule {}

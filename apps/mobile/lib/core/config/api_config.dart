@@ -85,6 +85,7 @@ class ApiConfig {
   static String get equipmentServiceUrl => '$_protocol://$_host:${ServicePorts.equipment}';
   static String get inventoryServiceUrl => '$_protocol://$_host:${ServicePorts.inventory}';
   static String get notificationsServiceUrl => '$_protocol://$_host:${ServicePorts.notifications}';
+  static String get sprayServiceUrl => '$_protocol://$_host:${ServicePorts.spray}';
   static String get marketplaceServiceUrl => '$_protocol://$_host:${ServicePorts.marketplace}';
 
   /// Production base URL (Kong Gateway)

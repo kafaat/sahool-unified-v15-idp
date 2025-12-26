@@ -56,7 +56,10 @@ async def lifespan(app: FastAPI):
     print("👋 Inventory Service shutting down")
 
 app = FastAPI(title="SAHOOL Inventory Service", description="Agricultural inventory management, forecasting, and analytics", version="1.0.0", lifespan=lifespan)
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+
+# CORS Configuration - secure origins from environment
+CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"], allow_headers=["*"])
 
 @app.get("/healthz")
 def health():

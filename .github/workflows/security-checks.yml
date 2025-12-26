@@ -98,35 +98,41 @@ jobs:
         run: pip install safety pip-audit
 
       - name: Scan Python dependencies with Safety
-        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
           # Note: Safety now requires API key for full functionality
           # This step may fail without proper authentication
+          SAFETY_FAILED=0
           for req in $(find . -name "requirements.txt" -type f); do
             echo "Scanning: $req"
-            safety check -r "$req" --full-report 2>&1 || echo "⚠️ Safety scan failed for $req (may require API key)"
+            if ! safety check -r "$req" --full-report 2>&1; then
+              echo "❌ Safety scan failed for $req"
+              SAFETY_FAILED=1
+            fi
           done
+          if [ $SAFETY_FAILED -eq 1 ]; then
+            echo "::error::Critical vulnerabilities found in Python dependencies"
+            exit 1
+          fi
 
       - name: Scan Python dependencies with pip-audit
-        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with pip-audit..."
           AUDIT_FAILED=0
           for req in $(find . -name "requirements.txt" -type f); do
             echo "Auditing: $req"
             if ! pip-audit -r "$req" 2>&1; then
-              echo "⚠️ Vulnerabilities found in $req"
+              echo "❌ Vulnerabilities found in $req"
               AUDIT_FAILED=1
             fi
           done
           if [ $AUDIT_FAILED -eq 1 ]; then
-            echo "::warning::Vulnerabilities found in Python dependencies"
+            echo "::error::Critical vulnerabilities found in Python dependencies"
+            exit 1
           fi
 
       - name: Run Trivy filesystem scan
         uses: aquasecurity/trivy-action@master
-        continue-on-error: true
         id: trivy
         with:
           scan-type: 'fs'

@@ -97,7 +97,7 @@ jobs:
 
           # Set minimum threshold (lowered to allow gradual improvement)
           # TODO: Gradually increase this threshold as test coverage improves
-          MIN_COVERAGE=10.0
+          MIN_COVERAGE=30.0
 
           # Check if coverage meets minimum
           python -c "

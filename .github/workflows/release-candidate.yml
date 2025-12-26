@@ -118,15 +118,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Check web_admin exists
+      - name: Check apps/admin exists
         run: |
-          if [ -d "web_admin" ]; then
-            cd web_admin
+          if [ -d "apps/admin" ]; then
+            cd apps/admin
             npm ci || npm install
             npm run lint || true
             npm run build || true
           else
-            echo "web_admin directory not found, skipping..."
+            echo "apps/admin directory not found, skipping..."
           fi
 
   # ═══════════════════════════════════════════════════════════════
@@ -147,22 +147,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter pub get
 
       - name: Analyze
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter analyze --no-fatal-infos || true
 
       - name: Run tests
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter test || true
 
       - name: Build Android APK
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter build apk --release || true
 
   # ═══════════════════════════════════════════════════════════════

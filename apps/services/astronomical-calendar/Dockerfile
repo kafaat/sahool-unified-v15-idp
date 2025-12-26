@@ -11,7 +11,7 @@ LABEL version="15.5.0"
 WORKDIR /app
 
 # Upgrade pip first (better retry logic and connection handling)
-RUN pip install --upgrade pip --default-timeout=100
+RUN pip install --no-cache-dir --upgrade pip --default-timeout=100
 
 # Install dependencies with retry logic
 COPY requirements.txt .

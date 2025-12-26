@@ -1209,6 +1209,10 @@ services:
         condition: service_healthy
       agro_advisor:
         condition: service_healthy
+      satellite_service:
+        condition: service_healthy
+      ndvi_engine:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')"]
       interval: 30s

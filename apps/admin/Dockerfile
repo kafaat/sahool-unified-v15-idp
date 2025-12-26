@@ -119,33 +119,6 @@ RUN if [ ! -f "./server.js" ]; then \
       exit 1; \
     fi
 
-# Fallback: Copy node_modules from builder if standalone didn't include all dependencies
-# This can happen in monorepo setups where Next.js standalone doesn't trace all workspace dependencies
-# We copy the admin's local node_modules as a backup (it should have next and other deps)
-COPY --from=builder --chown=nextjs:nodejs /app/apps/admin/node_modules ./node_modules_fallback
-
-# Merge fallback node_modules into main node_modules if next is missing
-RUN if [ ! -d "./node_modules/next" ] && [ -d "./node_modules_fallback/next" ]; then \
-      echo "WARNING: next not found in standalone, using fallback..."; \
-      mkdir -p ./node_modules; \
-      cp -r ./node_modules_fallback/* ./node_modules/; \
-    fi && \
-    rm -rf ./node_modules_fallback && \
-    # Verify next is now available
-    if [ ! -d "./node_modules/next" ]; then \
-      echo "ERROR: next module is still missing after fallback copy"; \
-      exit 1; \
-    fi
-
-# Verify server.js exists before switching user
-RUN if [ ! -f "./server.js" ]; then \
-      echo "ERROR: server.js not found in standalone output"; \
-      echo "Checking standalone structure..."; \
-      ls -la . || true; \
-      find . -name "server.js" -type f 2>/dev/null || echo "No server.js found"; \
-      exit 1; \
-    fi
-
 USER nextjs
 
 EXPOSE 3001

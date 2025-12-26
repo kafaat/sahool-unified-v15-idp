@@ -7,7 +7,7 @@ export { TasksBoard } from './components/TasksBoard';
 export { TasksList } from './components/TasksList';
 export { TaskCard } from './components/TaskCard';
 export { TaskForm } from './components/TaskForm';
-export { default as TaskFilters } from './components/TaskFilters';
+export { default as TaskFiltersComponent } from './components/TaskFilters';
 
 export {
   useTasks,

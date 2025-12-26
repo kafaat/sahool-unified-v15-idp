@@ -196,6 +196,13 @@ export class SahoolApiClient {
     });
   }
 
+  async updateTask(taskId: string, data: Partial<CreateTaskRequest>): Promise<Task> {
+    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
+      method: 'PUT',
+      data,
+    });
+  }
+
   async updateTaskStatus(taskId: string, status: string): Promise<boolean> {
     try {
       await this.request(`${this.urls.task}/api/v1/tasks/${taskId}`, {
@@ -206,6 +213,12 @@ export class SahoolApiClient {
     } catch {
       return false;
     }
+  }
+
+  async deleteTask(taskId: string): Promise<void> {
+    await this.request<void>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
+      method: 'DELETE',
+    });
   }
 
   async completeTask(taskId: string, evidence?: TaskEvidence): Promise<Task> {

@@ -11,10 +11,12 @@ import { ForecastChart } from './ForecastChart';
 import { WeatherAlerts } from './WeatherAlerts';
 
 interface WeatherDashboardProps {
-  location?: string;
+  lat?: number;
+  lon?: number;
+  enabled?: boolean;
 }
 
-export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({ location }) => {
+export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({ lat, lon, enabled }) => {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -24,13 +26,13 @@ export const WeatherDashboard: React.FC<WeatherDashboardProps> = ({ location }) 
       </div>
 
       {/* Weather Alerts */}
-      <WeatherAlerts location={location} />
+      <WeatherAlerts lat={lat} lon={lon} enabled={enabled} />
 
       {/* Current Weather */}
-      <CurrentWeather location={location} />
+      <CurrentWeather lat={lat} lon={lon} enabled={enabled} />
 
       {/* Forecast Chart */}
-      <ForecastChart location={location} />
+      <ForecastChart lat={lat} lon={lon} enabled={enabled} />
     </div>
   );
 };

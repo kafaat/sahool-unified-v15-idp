@@ -36,6 +36,9 @@ class BillingApi {
     required PaymentMethod method,
     String? phoneNumber, // For Tharwatt/mobile money
     String? stripeToken, // For credit card
+    // TODO: SECURITY - Implement proper Stripe SDK flow instead of passing tokens directly
+    // The current implementation exposes the token. Should use Stripe Elements/SDK on client
+    // and only pass payment intent IDs to the backend
   }) async {
     final response = await _client.post(
       '/api/v1/billing/deposit',
@@ -149,19 +152,18 @@ class BillingApi {
   /// Get current subscription
   /// الحصول على الاشتراك الحالي
   Future<Subscription?> getCurrentSubscription() async {
-    try {
-      final response = await _client.get(
-        '/api/v1/billing/tenants/${_client.tenantId}/subscription',
-      );
+    final response = await _client.get(
+      '/api/v1/billing/tenants/${_client.tenantId}/subscription',
+    );
 
-      if (response is Map<String, dynamic>) {
-        return Subscription.fromJson(response);
-      }
-    } catch (e) {
-      print('❌ Failed to fetch subscription: $e');
+    if (response is Map<String, dynamic>) {
+      return Subscription.fromJson(response);
     }
 
-    return null;
+    throw ApiException(
+      code: 'PARSE_ERROR',
+      message: 'فشل في تحليل بيانات الاشتراك',
+    );
   }
 
   /// Get available plans
@@ -212,16 +214,10 @@ class BillingApi {
 
   /// Cancel subscription
   /// إلغاء الاشتراك
-  Future<bool> cancelSubscription({String? reason}) async {
-    try {
-      await _client.delete(
-        '/api/v1/billing/tenants/${_client.tenantId}/subscription',
-      );
-      return true;
-    } catch (e) {
-      print('❌ Failed to cancel subscription: $e');
-      return false;
-    }
+  Future<void> cancelSubscription({String? reason}) async {
+    await _client.delete(
+      '/api/v1/billing/tenants/${_client.tenantId}/subscription',
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

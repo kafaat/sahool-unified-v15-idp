@@ -100,19 +100,19 @@ jobs:
       - name: Scan Python dependencies with Safety
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
-          
+
           for req in $(find . -name "requirements.txt" -type f); do
             echo "Scanning: $req"
-            safety check -r "$req" --full-report || true
+            safety check -r "$req" --full-report
           done
 
       - name: Scan Python dependencies with pip-audit
         run: |
           echo "🔍 Scanning Python dependencies with pip-audit..."
-          
+
           for req in $(find . -name "requirements.txt" -type f); do
             echo "Auditing: $req"
-            pip-audit -r "$req" || true
+            pip-audit -r "$req"
           done
 
       - name: Run Trivy filesystem scan
@@ -123,7 +123,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          exit-code: '0'  # Don't fail on findings, just report
+          exit-code: '1'
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4

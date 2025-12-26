@@ -24,7 +24,7 @@ jobs:
         image: postgis/postgis:15-3.4
         env:
           POSTGRES_USER: sahool
-          POSTGRES_PASSWORD: testpass
+          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
           POSTGRES_DB: sahool_test
         ports:
           - 5432:5432
@@ -52,15 +52,15 @@ jobs:
           pip install ruff pytest pytest-cov mypy httpx
 
       - name: Lint with Ruff
-        run: ruff check . || true
+        run: ruff check .
 
       - name: Type check
-        run: mypy advisor --ignore-missing-imports || true
+        run: mypy advisor --ignore-missing-imports
 
       - name: Run tests
         env:
-          DATABASE_URL: postgresql://sahool:testpass@localhost:5432/sahool_test
-          SECRET_KEY: test-secret-key
+          DATABASE_URL: postgresql://sahool:${{ secrets.TEST_POSTGRES_PASSWORD }}@localhost:5432/sahool_test
+          SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
         run: pytest --cov --cov-fail-under=50 || true
 
   # ═══════════════════════════════════════════════════════════════
@@ -89,7 +89,7 @@ jobs:
       - name: Dependency check
         run: |
           pip install safety
-          safety check -r requirements.txt || true
+          safety check -r requirements.txt
 
   # ═══════════════════════════════════════════════════════════════
   # Web Build Gate

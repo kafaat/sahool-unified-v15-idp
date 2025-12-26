@@ -23,6 +23,7 @@
     "@nestjs/platform-express": "^10.4.15",
     "@nestjs/platform-socket.io": "^10.4.15",
     "@nestjs/swagger": "^8.1.0",
+    "@nestjs/throttler": "^6.2.1",
     "@nestjs/websockets": "^10.4.15",
     "@prisma/client": "^5.22.0",
     "class-transformer": "^0.5.1",

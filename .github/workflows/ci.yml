@@ -410,11 +410,9 @@ jobs:
     needs: build
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     env:
+      # Default values for CI - secrets override these if available
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
       POSTGRES_DB: sahool
-      REDIS_PASSWORD: ${{ secrets.TEST_REDIS_PASSWORD }}
-      JWT_SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
       JWT_ALGORITHM: HS256
     steps:
       - name: Checkout code
@@ -427,15 +425,26 @@ jobs:
 
       - name: Create .env file for Docker Compose
         run: |
+          # Use environment secrets if available, otherwise use test defaults
+          # These defaults are ONLY for CI testing - never use in production
           cat > .env << EOF
-          POSTGRES_USER=${{ env.POSTGRES_USER }}
-          POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_DB=${{ env.POSTGRES_DB }}
-          REDIS_PASSWORD=${{ env.REDIS_PASSWORD }}
-          JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }}
-          JWT_ALGORITHM=${{ env.JWT_ALGORITHM }}
-          MQTT_PASSWORD=${{ secrets.TEST_MQTT_PASSWORD }}
+          POSTGRES_USER=${POSTGRES_USER:-postgres}
+          POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-test_postgres_password_ci}
+          POSTGRES_DB=${POSTGRES_DB:-sahool}
+          REDIS_PASSWORD=${REDIS_PASSWORD:-test_redis_password_ci}
+          JWT_SECRET_KEY=${JWT_SECRET_KEY:-test_jwt_secret_key_for_ci_only_32chars}
+          JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+          MQTT_PASSWORD=${MQTT_PASSWORD:-test_mqtt_password_ci}
+          GRAFANA_ADMIN_PASSWORD=test_grafana_password_ci
           EOF
+        env:
+          POSTGRES_USER: ${{ env.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ env.POSTGRES_DB }}
+          REDIS_PASSWORD: ${{ secrets.TEST_REDIS_PASSWORD }}
+          JWT_SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
+          JWT_ALGORITHM: ${{ env.JWT_ALGORITHM }}
+          MQTT_PASSWORD: ${{ secrets.TEST_MQTT_PASSWORD }}
 
       - name: Start services
         run: |

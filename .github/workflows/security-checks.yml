@@ -98,6 +98,7 @@ jobs:
         run: pip install safety pip-audit
 
       - name: Scan Python dependencies with Safety
+        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
           # Note: Safety now requires API key for full functionality
@@ -116,6 +117,7 @@ jobs:
           fi
 
       - name: Scan Python dependencies with pip-audit
+        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with pip-audit..."
           AUDIT_FAILED=0

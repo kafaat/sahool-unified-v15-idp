@@ -19,6 +19,7 @@ class ServicePorts {
   static const int virtualSensors = 8096; // Virtual Sensors Engine
   static const int communityChat = 8097; // Community Chat (Socket.io)
   static const int equipment = 8101;
+  static const int inventory = 8102; // Inventory Management Service
   static const int notifications = 8110; // Notification Service
   static const int gateway = 8000; // Kong API Gateway
 }
@@ -82,6 +83,7 @@ class ApiConfig {
   static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
   static String get chatServiceUrl => 'http://$_host:${ServicePorts.chat}';
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
+  static String get inventoryServiceUrl => 'http://$_host:${ServicePorts.inventory}';
   static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
   static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
 
@@ -335,6 +337,7 @@ class ApiConfig {
     'communityChat': healthCheck(communityChatServiceUrl),
     'chat': healthCheck(chatServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
+    'inventory': healthCheck(inventoryServiceUrl),
     'notifications': healthCheck(notificationsServiceUrl),
     'marketplace': healthCheck(marketplaceServiceUrl),
   };

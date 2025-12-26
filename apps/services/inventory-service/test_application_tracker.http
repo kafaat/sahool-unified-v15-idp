@@ -1,0 +1,298 @@
+###
+# SAHOOL Inventory Service - Application Tracking API Tests
+# Base URL: http://localhost:8095
+###
+
+@baseUrl = http://localhost:8095
+@fieldId = field-123
+@cropSeasonId = season-2024-wheat
+@itemId = item-npk-fertilizer
+
+### Health Check
+GET {{baseUrl}}/health
+
+### ========== Enums Reference ==========
+
+### Get Application Methods
+GET {{baseUrl}}/v1/enums/application-methods
+
+### Get Application Purposes
+GET {{baseUrl}}/v1/enums/application-purposes
+
+### ========== Inventory Items ==========
+
+### List Inventory Items
+GET {{baseUrl}}/v1/inventory/items
+
+### Get Item by ID
+GET {{baseUrl}}/v1/inventory/items/{{itemId}}
+
+### ========== Application Tracking ==========
+
+### Record Fertilizer Application (Basal)
+POST {{baseUrl}}/v1/applications
+Content-Type: application/json
+
+{
+  "field_id": "{{fieldId}}",
+  "crop_season_id": "{{cropSeasonId}}",
+  "item_id": "{{itemId}}",
+  "quantity": 50.0,
+  "method": "broadcast",
+  "purpose": "basal",
+  "applied_by": "farmer-001",
+  "area_ha": 2.5,
+  "temperature": 28.5,
+  "humidity": 65.0,
+  "wind_speed": 5.2,
+  "growth_stage": "planting",
+  "equipment_used": "broadcast spreader",
+  "ppe_used": ["gloves", "mask", "boots"],
+  "notes": "Applied NPK 20-20-20 at planting"
+}
+
+### Record Pesticide Application
+POST {{baseUrl}}/v1/applications
+Content-Type: application/json
+
+{
+  "field_id": "{{fieldId}}",
+  "crop_season_id": "{{cropSeasonId}}",
+  "item_id": "item-pesticide-malathion",
+  "quantity": 2.5,
+  "method": "foliar",
+  "purpose": "pest_control",
+  "applied_by": "farmer-001",
+  "area_ha": 2.5,
+  "temperature": 26.0,
+  "humidity": 70.0,
+  "wind_speed": 3.5,
+  "growth_stage": "vegetative",
+  "equipment_used": "backpack sprayer",
+  "ppe_used": ["gloves", "mask", "goggles", "protective suit"],
+  "withholding_period_days": 14,
+  "target_pest_disease": "aphids",
+  "efficacy_rating": 4,
+  "notes": "Applied for aphid control, early morning application"
+}
+
+### Record Top Dressing Application
+POST {{baseUrl}}/v1/applications
+Content-Type: application/json
+
+{
+  "field_id": "{{fieldId}}",
+  "crop_season_id": "{{cropSeasonId}}",
+  "item_id": "item-urea",
+  "quantity": 30.0,
+  "method": "band",
+  "purpose": "top_dressing",
+  "applied_by": "farmer-001",
+  "area_ha": 2.5,
+  "temperature": 30.0,
+  "humidity": 55.0,
+  "growth_stage": "tillering",
+  "equipment_used": "fertilizer drill",
+  "notes": "Urea top dressing at tillering stage"
+}
+
+### Get All Applications for Field
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}?crop_season_id={{cropSeasonId}}
+
+### Get Applications by Category (Fertilizers only)
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}?category=fertilizer
+
+### Get Applications with Date Range
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}?start_date=2024-01-01&end_date=2024-12-31
+
+### Get Application Summary
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}/summary?crop_season_id={{cropSeasonId}}
+
+### Get Single Application by ID
+GET {{baseUrl}}/v1/applications/app-123
+
+### ========== Application Planning ==========
+
+### Create Application Plan (Auto-generated)
+POST {{baseUrl}}/v1/applications/plan
+Content-Type: application/json
+
+{
+  "field_id": "{{fieldId}}",
+  "crop_season_id": "{{cropSeasonId}}",
+  "crop_type": "wheat"
+}
+
+### Create Custom Application Plan
+POST {{baseUrl}}/v1/applications/plan
+Content-Type: application/json
+
+{
+  "field_id": "{{fieldId}}",
+  "crop_season_id": "{{cropSeasonId}}",
+  "crop_type": "tomato",
+  "custom_applications": [
+    {
+      "stage": "transplant",
+      "days_after_planting": 0,
+      "purpose": "basal",
+      "item_id": "item-npk-fertilizer",
+      "quantity": 40.0,
+      "notes": "Starter fertilizer at transplant"
+    },
+    {
+      "stage": "flowering",
+      "days_after_planting": 21,
+      "purpose": "top_dressing",
+      "item_id": "item-calcium-nitrate",
+      "quantity": 25.0,
+      "notes": "Calcium boost at flowering"
+    },
+    {
+      "stage": "fruiting",
+      "days_after_planting": 45,
+      "purpose": "top_dressing",
+      "item_id": "item-potassium-sulfate",
+      "quantity": 30.0,
+      "notes": "Potassium for fruit development"
+    }
+  ]
+}
+
+### Get Application Plans for Field
+GET {{baseUrl}}/v1/applications/plan/{{fieldId}}?crop_season_id={{cropSeasonId}}
+
+### ========== Safety & Compliance ==========
+
+### Check Withholding Period (Is it safe to harvest?)
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}/withholding-check?crop_season_id={{cropSeasonId}}
+
+### Check with Specific Harvest Date
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}/withholding-check?crop_season_id={{cropSeasonId}}&harvest_date=2024-06-15
+
+### Get Safe Harvest Date
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}/safe-harvest-date?crop_season_id={{cropSeasonId}}
+
+### ========== Cost Tracking ==========
+
+### Get Input Costs Summary
+GET {{baseUrl}}/v1/applications/field/{{fieldId}}/costs?crop_season_id={{cropSeasonId}}
+
+### ========== Stock Movement Tracking ==========
+
+### Get Stock Movements
+GET {{baseUrl}}/v1/inventory/movements?field_id={{fieldId}}
+
+### Get Stock Movements for Specific Item
+GET {{baseUrl}}/v1/inventory/movements?item_id={{itemId}}
+
+### Get Field Application Movements Only
+GET {{baseUrl}}/v1/inventory/movements?movement_type=FIELD_APPLICATION
+
+###
+# Example Workflow: Complete Crop Season
+###
+
+# 1. Create Application Plan
+POST {{baseUrl}}/v1/applications/plan
+Content-Type: application/json
+
+{
+  "field_id": "field-wheat-01",
+  "crop_season_id": "season-2024-wheat-01",
+  "crop_type": "wheat"
+}
+
+###
+# 2. Record Basal Fertilizer at Planting (Day 0)
+POST {{baseUrl}}/v1/applications
+Content-Type: application/json
+
+{
+  "field_id": "field-wheat-01",
+  "crop_season_id": "season-2024-wheat-01",
+  "item_id": "item-npk-20-20-20",
+  "quantity": 100.0,
+  "method": "broadcast",
+  "purpose": "basal",
+  "applied_by": "farmer-ali",
+  "area_ha": 4.0,
+  "growth_stage": "planting",
+  "notes": "NPK at planting, full field coverage"
+}
+
+###
+# 3. Record Top Dressing at Tillering (Day 30)
+POST {{baseUrl}}/v1/applications
+Content-Type: application/json
+
+{
+  "field_id": "field-wheat-01",
+  "crop_season_id": "season-2024-wheat-01",
+  "item_id": "item-urea",
+  "quantity": 60.0,
+  "method": "band",
+  "purpose": "top_dressing",
+  "applied_by": "farmer-ali",
+  "area_ha": 4.0,
+  "growth_stage": "tillering",
+  "notes": "Nitrogen boost at tillering stage"
+}
+
+###
+# 4. Record Pest Control Application (Day 45)
+POST {{baseUrl}}/v1/applications
+Content-Type: application/json
+
+{
+  "field_id": "field-wheat-01",
+  "crop_season_id": "season-2024-wheat-01",
+  "item_id": "item-pesticide-malathion",
+  "quantity": 4.0,
+  "method": "foliar",
+  "purpose": "pest_control",
+  "applied_by": "farmer-ali",
+  "area_ha": 4.0,
+  "temperature": 28.0,
+  "humidity": 65.0,
+  "wind_speed": 4.0,
+  "growth_stage": "heading",
+  "equipment_used": "boom sprayer",
+  "ppe_used": ["protective suit", "gloves", "mask", "goggles"],
+  "withholding_period_days": 14,
+  "target_pest_disease": "grain aphids",
+  "efficacy_rating": 5,
+  "notes": "Applied for aphid control during heading stage"
+}
+
+###
+# 5. Record Final Top Dressing (Day 60)
+POST {{baseUrl}}/v1/applications
+Content-Type: application/json
+
+{
+  "field_id": "field-wheat-01",
+  "crop_season_id": "season-2024-wheat-01",
+  "item_id": "item-potassium-sulfate",
+  "quantity": 40.0,
+  "method": "broadcast",
+  "purpose": "top_dressing",
+  "applied_by": "farmer-ali",
+  "area_ha": 4.0,
+  "growth_stage": "flowering",
+  "notes": "Potassium for grain filling"
+}
+
+###
+# 6. Get Complete Application Summary
+GET {{baseUrl}}/v1/applications/field/field-wheat-01/summary?crop_season_id=season-2024-wheat-01
+
+###
+# 7. Check if Safe to Harvest (Day 90)
+GET {{baseUrl}}/v1/applications/field/field-wheat-01/withholding-check?crop_season_id=season-2024-wheat-01
+
+###
+# 8. Get Total Input Costs
+GET {{baseUrl}}/v1/applications/field/field-wheat-01/costs?crop_season_id=season-2024-wheat-01
+
+###

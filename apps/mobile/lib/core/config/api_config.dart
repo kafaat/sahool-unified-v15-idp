@@ -21,6 +21,7 @@ class ServicePorts {
   static const int equipment = 8101;
   static const int inventory = 8102; // Inventory Management Service
   static const int notifications = 8110; // Notification Service
+  static const int spray = 8098; // Spray Advisor Service
   static const int gateway = 8000; // Kong API Gateway
 }
 
@@ -85,6 +86,7 @@ class ApiConfig {
   static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
   static String get inventoryServiceUrl => 'http://$_host:${ServicePorts.inventory}';
   static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
+  static String get sprayServiceUrl => 'http://$_host:${ServicePorts.spray}';
   static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
 
   /// Production base URL (Kong Gateway)
@@ -339,6 +341,7 @@ class ApiConfig {
     'equipment': healthCheck(equipmentServiceUrl),
     'inventory': healthCheck(inventoryServiceUrl),
     'notifications': healthCheck(notificationsServiceUrl),
+    'spray': healthCheck(sprayServiceUrl),
     'marketplace': healthCheck(marketplaceServiceUrl),
   };
 

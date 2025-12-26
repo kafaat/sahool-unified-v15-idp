@@ -1,0 +1,90 @@
+{{- if eq (include "sahool.shouldDeploy" (dict "root" . "service" .Values.services.fieldCore)) "true" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sahool.service.fullname" (dict "root" . "service" .Values.services.fieldCore) }}
+  labels:
+    {{- include "sahool.service.labels" (dict "root" . "service" .Values.services.fieldCore) | nindent 4 }}
+spec:
+  {{- if not .Values.services.fieldCore.autoscaling.enabled }}
+  replicas: {{ .Values.services.fieldCore.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sahool.service.selectorLabels" (dict "root" . "service" .Values.services.fieldCore) | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "sahool.service.selectorLabels" (dict "root" . "service" .Values.services.fieldCore) | nindent 8 }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "sahool.serviceAccountName" . }}
+      securityContext:
+        {{- include "sahool.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: {{ .Values.services.fieldCore.name }}
+          securityContext:
+            {{- include "sahool.securityContext" . | nindent 12 }}
+          image: {{ include "sahool.image" (dict "root" . "service" .Values.services.fieldCore) }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.services.fieldCore.port }}
+              protocol: TCP
+          env:
+            {{- include "sahool.commonEnv" . | nindent 12 }}
+            - name: PORT
+              value: "{{ .Values.services.fieldCore.port }}"
+            {{- with .Values.services.fieldCore.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- include "sahool.livenessProbe" .Values.services.fieldCore | nindent 10 }}
+          {{- include "sahool.readinessProbe" .Values.services.fieldCore | nindent 10 }}
+          {{- include "sahool.resources" .Values.services.fieldCore | nindent 10 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /app/.cache
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sahool.service.fullname" (dict "root" . "service" .Values.services.fieldCore) }}
+  labels:
+    {{- include "sahool.service.labels" (dict "root" . "service" .Values.services.fieldCore) | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.services.fieldCore.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sahool.service.selectorLabels" (dict "root" . "service" .Values.services.fieldCore) | nindent 4 }}
+{{- end }}

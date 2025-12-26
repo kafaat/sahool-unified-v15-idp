@@ -1,0 +1,562 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Documentation Pipeline
+# Version: 16.0.0
+# Generates and deploys OpenAPI specs, API documentation, and developer guides
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Documentation
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/services/**/*.py'
+      - 'apps/services/**/*.ts'
+      - 'apps/services/**/*.js'
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/docs.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+  DOCS_DIR: docs
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Generate OpenAPI Specifications
+  # ─────────────────────────────────────────────────────────────────────────────
+  generate-openapi:
+    name: Generate OpenAPI Specs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install FastAPI services dependencies
+        run: |
+          pip install --upgrade pip
+          pip install fastapi uvicorn pydantic
+
+      - name: Generate OpenAPI specs for Python services
+        run: |
+          echo "📝 Generating OpenAPI specifications..."
+          mkdir -p ${{ env.DOCS_DIR }}/openapi
+
+          # List of Python FastAPI services
+          PYTHON_SERVICES=(
+            "field-ops"
+            "weather-core"
+            "agro-advisor"
+            "crop-health"
+            "ndvi-engine"
+            "irrigation-smart"
+            "satellite-service"
+            "weather-advanced"
+            "crop-health-ai"
+            "yield-engine"
+            "billing-core"
+            "inventory-service"
+          )
+
+          for service in "${PYTHON_SERVICES[@]}"; do
+            service_path="apps/services/${service}"
+
+            if [ -d "$service_path" ]; then
+              echo "Generating OpenAPI spec for: $service"
+
+              # Install service dependencies
+              if [ -f "$service_path/requirements.txt" ]; then
+                pip install -r "$service_path/requirements.txt" || true
+              fi
+
+              # Generate OpenAPI spec
+              if [ -f "$service_path/main.py" ]; then
+                python3 << EOF > "${{ env.DOCS_DIR }}/openapi/${service}.json"
+import sys
+sys.path.insert(0, "$service_path")
+try:
+    from main import app
+    import json
+    print(json.dumps(app.openapi(), indent=2))
+except Exception as e:
+    print(f"# Error generating spec for $service: {e}", file=sys.stderr)
+    print('{"openapi":"3.0.0","info":{"title":"$service","version":"1.0.0"},"paths":{}}')
+EOF
+              fi
+            fi
+          done
+
+          echo "✅ OpenAPI specs generated"
+
+      - name: Validate OpenAPI specs
+        run: |
+          echo "✅ Validating OpenAPI specifications..."
+
+          # Install OpenAPI validator
+          npm install -g @ibm/openapi-validator
+
+          for spec in ${{ env.DOCS_DIR }}/openapi/*.json; do
+            if [ -f "$spec" ]; then
+              echo "Validating: $spec"
+              lint-openapi "$spec" || true
+            fi
+          done
+
+      - name: Upload OpenAPI specs
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-specs
+          path: ${{ env.DOCS_DIR }}/openapi/*.json
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Generate API Documentation
+  # ─────────────────────────────────────────────────────────────────────────────
+  generate-api-docs:
+    name: Generate API Documentation
+    runs-on: ubuntu-latest
+    needs: [generate-openapi]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download OpenAPI specs
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-specs
+          path: ${{ env.DOCS_DIR }}/openapi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install documentation tools
+        run: |
+          npm install -g redoc-cli @redocly/cli
+
+      - name: Generate Redoc documentation
+        run: |
+          echo "📚 Generating API documentation with Redoc..."
+          mkdir -p ${{ env.DOCS_DIR }}/api
+
+          for spec in ${{ env.DOCS_DIR }}/openapi/*.json; do
+            if [ -f "$spec" ]; then
+              service=$(basename "$spec" .json)
+              echo "Generating docs for: $service"
+
+              redoc-cli build "$spec" \
+                --output "${{ env.DOCS_DIR }}/api/${service}.html" \
+                --title "SAHOOL API - ${service}" \
+                --options.theme.colors.primary.main="#2E7D32"
+            fi
+          done
+
+          echo "✅ API documentation generated"
+
+      - name: Generate unified API index
+        run: |
+          cat > ${{ env.DOCS_DIR }}/api/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>SAHOOL API Documentation</title>
+              <style>
+                  * { margin: 0; padding: 0; box-sizing: border-box; }
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                      line-height: 1.6;
+                      color: #333;
+                      background: #f5f5f5;
+                  }
+                  .header {
+                      background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+                      color: white;
+                      padding: 3rem 2rem;
+                      text-align: center;
+                  }
+                  .container {
+                      max-width: 1200px;
+                      margin: 0 auto;
+                      padding: 2rem;
+                  }
+                  .services {
+                      display: grid;
+                      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                      gap: 1.5rem;
+                      margin-top: 2rem;
+                  }
+                  .service-card {
+                      background: white;
+                      border-radius: 8px;
+                      padding: 1.5rem;
+                      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                      transition: transform 0.2s, box-shadow 0.2s;
+                  }
+                  .service-card:hover {
+                      transform: translateY(-4px);
+                      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                  }
+                  .service-card h3 {
+                      color: #2E7D32;
+                      margin-bottom: 0.5rem;
+                  }
+                  .service-card a {
+                      color: #4CAF50;
+                      text-decoration: none;
+                      font-weight: 500;
+                  }
+                  .badge {
+                      display: inline-block;
+                      padding: 0.25rem 0.75rem;
+                      border-radius: 12px;
+                      font-size: 0.85rem;
+                      margin-top: 0.5rem;
+                  }
+                  .badge.starter { background: #E3F2FD; color: #1976D2; }
+                  .badge.professional { background: #F3E5F5; color: #7B1FA2; }
+                  .badge.enterprise { background: #FFF3E0; color: #E65100; }
+              </style>
+          </head>
+          <body>
+              <div class="header">
+                  <h1>🌾 SAHOOL API Documentation</h1>
+                  <p>Complete API reference for the SAHOOL Agricultural Platform</p>
+              </div>
+              <div class="container">
+                  <h2>Starter Package</h2>
+                  <div class="services">
+                      <div class="service-card">
+                          <h3>Field Operations</h3>
+                          <p>Manage fields, crops, and farming operations</p>
+                          <span class="badge starter">Starter</span><br>
+                          <a href="field-ops.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Weather Core</h3>
+                          <p>Weather forecasts and agricultural weather data</p>
+                          <span class="badge starter">Starter</span><br>
+                          <a href="weather-core.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Agro Advisor</h3>
+                          <p>Agricultural recommendations and best practices</p>
+                          <span class="badge starter">Starter</span><br>
+                          <a href="agro-advisor.html">View API Docs →</a>
+                      </div>
+                  </div>
+
+                  <h2>Professional Package</h2>
+                  <div class="services">
+                      <div class="service-card">
+                          <h3>Crop Health</h3>
+                          <p>Monitor crop health and detect diseases</p>
+                          <span class="badge professional">Professional</span><br>
+                          <a href="crop-health.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>NDVI Engine</h3>
+                          <p>Vegetation indices and satellite imagery analysis</p>
+                          <span class="badge professional">Professional</span><br>
+                          <a href="ndvi-engine.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Smart Irrigation</h3>
+                          <p>Intelligent irrigation scheduling and water management</p>
+                          <span class="badge professional">Professional</span><br>
+                          <a href="irrigation-smart.html">View API Docs →</a>
+                      </div>
+                  </div>
+
+                  <h2>Enterprise Package</h2>
+                  <div class="services">
+                      <div class="service-card">
+                          <h3>Satellite Service</h3>
+                          <p>Advanced satellite imagery and analytics</p>
+                          <span class="badge enterprise">Enterprise</span><br>
+                          <a href="satellite-service.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Advanced Weather</h3>
+                          <p>Premium weather forecasts and climate analysis</p>
+                          <span class="badge enterprise">Enterprise</span><br>
+                          <a href="weather-advanced.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Crop Health AI</h3>
+                          <p>AI-powered crop disease detection and prediction</p>
+                          <span class="badge enterprise">Enterprise</span><br>
+                          <a href="crop-health-ai.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Yield Engine</h3>
+                          <p>Yield prediction and optimization models</p>
+                          <span class="badge enterprise">Enterprise</span><br>
+                          <a href="yield-engine.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Billing Core</h3>
+                          <p>Subscription management and billing</p>
+                          <span class="badge enterprise">Enterprise</span><br>
+                          <a href="billing-core.html">View API Docs →</a>
+                      </div>
+                      <div class="service-card">
+                          <h3>Inventory Service</h3>
+                          <p>Agricultural inventory and supply management</p>
+                          <span class="badge enterprise">Enterprise</span><br>
+                          <a href="inventory-service.html">View API Docs →</a>
+                      </div>
+                  </div>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload API docs
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-documentation
+          path: ${{ env.DOCS_DIR }}/api
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Generate Developer Documentation
+  # ─────────────────────────────────────────────────────────────────────────────
+  generate-dev-docs:
+    name: Generate Developer Docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install MkDocs
+        run: |
+          pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
+
+      - name: Check if MkDocs config exists
+        id: check_mkdocs
+        run: |
+          if [ -f "mkdocs.yml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create MkDocs configuration
+        if: steps.check_mkdocs.outputs.exists == 'false'
+        run: |
+          cat > mkdocs.yml <<'EOF'
+          site_name: SAHOOL Developer Documentation
+          site_description: Complete developer guide for the SAHOOL Agricultural Platform
+          site_author: KAFAAT Team
+          theme:
+            name: material
+            palette:
+              primary: green
+              accent: light green
+            features:
+              - navigation.tabs
+              - navigation.sections
+              - toc.integrate
+              - search.suggest
+              - search.highlight
+          nav:
+            - Home: index.md
+            - Getting Started:
+              - Installation: getting-started/installation.md
+              - Quick Start: getting-started/quickstart.md
+              - Architecture: getting-started/architecture.md
+            - Services:
+              - Overview: services/overview.md
+              - Starter Package: services/starter.md
+              - Professional Package: services/professional.md
+              - Enterprise Package: services/enterprise.md
+            - API Reference:
+              - Authentication: api/authentication.md
+              - Field Operations: api/field-ops.md
+              - Weather: api/weather.md
+              - Satellite: api/satellite.md
+            - Development:
+              - Setup: development/setup.md
+              - Testing: development/testing.md
+              - Deployment: development/deployment.md
+            - Contributing:
+              - Guidelines: contributing/guidelines.md
+              - Code Style: contributing/code-style.md
+          plugins:
+            - search
+            - mermaid2
+          markdown_extensions:
+            - admonition
+            - codehilite
+            - toc:
+                permalink: true
+          EOF
+
+      - name: Build documentation site
+        run: |
+          mkdocs build --clean --strict
+        continue-on-error: true
+
+      - name: Upload developer docs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: developer-documentation
+          path: site/
+          retention-days: 90
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Deploy Documentation to GitHub Pages
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-docs:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: [generate-api-docs, generate-dev-docs]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download API docs
+        uses: actions/download-artifact@v4
+        with:
+          name: api-documentation
+          path: public/api
+
+      - name: Download developer docs
+        uses: actions/download-artifact@v4
+        with:
+          name: developer-documentation
+          path: public/
+        continue-on-error: true
+
+      - name: Create documentation index
+        run: |
+          cat > public/index.html <<'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>SAHOOL Documentation</title>
+              <style>
+                  * { margin: 0; padding: 0; box-sizing: border-box; }
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                      background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+                      min-height: 100vh;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      color: white;
+                  }
+                  .container {
+                      text-align: center;
+                      max-width: 800px;
+                      padding: 2rem;
+                  }
+                  h1 { font-size: 3rem; margin-bottom: 1rem; }
+                  p { font-size: 1.25rem; margin-bottom: 3rem; opacity: 0.9; }
+                  .links {
+                      display: flex;
+                      gap: 1.5rem;
+                      justify-content: center;
+                      flex-wrap: wrap;
+                  }
+                  .link-card {
+                      background: white;
+                      color: #2E7D32;
+                      padding: 2rem;
+                      border-radius: 12px;
+                      text-decoration: none;
+                      transition: transform 0.2s, box-shadow 0.2s;
+                      min-width: 200px;
+                  }
+                  .link-card:hover {
+                      transform: translateY(-4px);
+                      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+                  }
+                  .link-card h2 { margin-bottom: 0.5rem; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>🌾 SAHOOL Documentation</h1>
+                  <p>Smart Agricultural Platform for Yemen & Middle East</p>
+                  <div class="links">
+                      <a href="/api/" class="link-card">
+                          <h2>📚 API Docs</h2>
+                          <p>Complete API reference</p>
+                      </a>
+                      <a href="/getting-started/" class="link-card">
+                          <h2>🚀 Get Started</h2>
+                          <p>Quick start guide</p>
+                      </a>
+                  </div>
+              </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          cname: docs.sahool.io
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Documentation Summary
+  # ─────────────────────────────────────────────────────────────────────────────
+  docs-summary:
+    name: Documentation Summary
+    runs-on: ubuntu-latest
+    needs: [generate-openapi, generate-api-docs, generate-dev-docs]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 📚 Documentation Generation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Jobs Status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| OpenAPI Generation | ${{ needs.generate-openapi.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| API Documentation | ${{ needs.generate-api-docs.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Developer Documentation | ${{ needs.generate-dev-docs.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "### 🌐 Published Documentation" >> $GITHUB_STEP_SUMMARY
+            echo "- **API Docs:** https://docs.sahool.io/api/" >> $GITHUB_STEP_SUMMARY
+            echo "- **Developer Guide:** https://docs.sahool.io/" >> $GITHUB_STEP_SUMMARY
+          fi

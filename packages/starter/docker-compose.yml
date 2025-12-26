@@ -1,0 +1,340 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Starter Package - حزمة سهول المبتدئة
+# Basic agricultural platform for small farms
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Services included:
+# - Infrastructure: PostgreSQL, Redis, NATS
+# - Field Management: field_core
+# - Weather: weather_core
+# - Calendar: astronomical_calendar
+# - Advisory: agro_advisor
+# - Notifications: notification_service
+#
+# Usage:
+#   docker-compose up -d
+#   docker-compose up -d --wait
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure Services
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-starter-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ../../infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool} -d ${POSTGRES_DB:-sahool}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: sahool-starter-redis
+    command: [
+      "redis-server",
+      "--appendonly", "yes",
+      "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
+      "--maxmemory", "256mb",
+      "--maxmemory-policy", "allkeys-lru",
+      "--tcp-keepalive", "60"
+    ]
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+  nats:
+    image: nats:2.10.24-alpine
+    container_name: sahool-starter-nats
+    command: ["--jetstream", "--store_dir=/data", "-m", "8222"]
+    volumes:
+      - nats_data:/data
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Core Application Services
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Field Core Service - خدمة الحقول الجغرافية
+  field_core:
+    build:
+      context: ../../apps/services/field-core
+      dockerfile: Dockerfile
+    container_name: sahool-starter-field-core
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${POSTGRES_USER:-sahool}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:-sahool}
+      - DB_NAME=${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+  # Weather Core Service - خدمة الطقس
+  weather_core:
+    build:
+      context: ../../apps/services/weather-core
+      dockerfile: Dockerfile
+    container_name: sahool-starter-weather-core
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8108
+      - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
+      - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
+    ports:
+      - "8108:8108"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+  # Astronomical Calendar - التقويم الفلكي الزراعي اليمني
+  astronomical_calendar:
+    build:
+      context: ../../apps/services/astronomical-calendar
+      dockerfile: Dockerfile
+    container_name: sahool-starter-astronomical-calendar
+    environment:
+      - PORT=8111
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - WEATHER_SERVICE_URL=http://weather_core:8108
+    ports:
+      - "8111:8111"
+    depends_on:
+      weather_core:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+  # Agro Advisor - المستشار الزراعي
+  agro_advisor:
+    build:
+      context: ../../apps/services/agro-advisor
+      dockerfile: Dockerfile
+    container_name: sahool-starter-agro-advisor
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - NATS_URL=nats://nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=8105
+    ports:
+      - "8105:8105"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+  # Notification Service - خدمة الإشعارات
+  notification_service:
+    build:
+      context: ../../apps/services/notification-service
+      dockerfile: Dockerfile
+    container_name: sahool-starter-notification-service
+    environment:
+      - PORT=8110
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - NATS_URL=nats://nats:4222
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
+    ports:
+      - "8110:8110"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    restart: unless-stopped
+    networks:
+      - sahool-starter-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────────────────────────────────────
+networks:
+  sahool-starter-network:
+    driver: bridge
+    name: sahool-starter-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes
+# ─────────────────────────────────────────────────────────────────────────────
+volumes:
+  postgres_data:
+    name: sahool-starter-postgres-data
+  redis_data:
+    name: sahool-starter-redis-data
+  nats_data:
+    name: sahool-starter-nats-data

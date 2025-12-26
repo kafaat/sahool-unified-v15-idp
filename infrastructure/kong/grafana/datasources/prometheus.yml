@@ -1,0 +1,24 @@
+# ============================================================================
+# Grafana Prometheus Datasource Configuration
+# تكوين مصدر بيانات Prometheus لـ Grafana
+# ============================================================================
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      timeInterval: "15s"
+      httpMethod: POST
+      queryTimeout: "30s"
+      prometheusType: Prometheus
+      prometheusVersion: 2.40.0
+      exemplarTraceIdDestinations:
+        - name: traceID
+          datasourceUid: jaeger
+    version: 1

@@ -111,8 +111,20 @@ async def get_alerts(
     try:
         manager = get_alert_manager()
 
-        priority_enum = AlertPriority[priority.upper()] if priority else None
-        type_enum = AlertType[alert_type.upper()] if alert_type else None
+        # Safely convert to enum with proper error handling
+        priority_enum = None
+        if priority:
+            try:
+                priority_enum = AlertPriority[priority.upper()]
+            except KeyError:
+                raise HTTPException(status_code=400, detail=f"Invalid priority: {priority}")
+
+        type_enum = None
+        if alert_type:
+            try:
+                type_enum = AlertType[alert_type.upper()]
+            except KeyError:
+                raise HTTPException(status_code=400, detail=f"Invalid alert type: {alert_type}")
 
         alerts = await manager.get_active_alerts(
             priority=priority_enum,
@@ -128,8 +140,16 @@ async def get_alerts(
             "limit": limit,
             "offset": offset,
         }
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Validation error getting alerts: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        logger.error(f"Runtime error getting alerts: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Error getting alerts: {e}")
+        logger.error(f"Unexpected error getting alerts: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -144,8 +164,11 @@ async def get_alert(alert_id: str):
         return alert.to_dict()
     except HTTPException:
         raise
+    except RuntimeError as e:
+        logger.error(f"Runtime error getting alert: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Error getting alert: {e}")
+        logger.error(f"Unexpected error getting alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -155,8 +178,11 @@ async def get_alerts_summary():
     try:
         manager = get_alert_manager()
         return await manager.get_alert_summary()
+    except RuntimeError as e:
+        logger.error(f"Runtime error getting alert summary: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Error getting alert summary: {e}")
+        logger.error(f"Unexpected error getting alert summary: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -179,8 +205,11 @@ async def acknowledge_alert(
         return alert.to_dict()
     except HTTPException:
         raise
+    except RuntimeError as e:
+        logger.error(f"Runtime error acknowledging alert: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Error acknowledging alert: {e}")
+        logger.error(f"Unexpected error acknowledging alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -204,8 +233,11 @@ async def resolve_alert(
         return alert.to_dict()
     except HTTPException:
         raise
+    except RuntimeError as e:
+        logger.error(f"Runtime error resolving alert: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Error resolving alert: {e}")
+        logger.error(f"Unexpected error resolving alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
@@ -228,8 +260,11 @@ async def snooze_alert(
         return alert.to_dict()
     except HTTPException:
         raise
+    except RuntimeError as e:
+        logger.error(f"Runtime error snoozing alert: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
-        logger.error(f"Error snoozing alert: {e}")
+        logger.error(f"Unexpected error snoozing alert: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

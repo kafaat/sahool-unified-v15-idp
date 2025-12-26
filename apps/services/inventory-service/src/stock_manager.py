@@ -29,50 +29,56 @@ class StockManager:
             ...
         ]
         """
-        # Get all batches for this item, ordered by received date (FIFO)
-        batches = await self.db.batchlot.find_many(
-            where={
-                "itemId": item_id,
-                "remainingQty": {"gt": 0}
-            },
-            order={"receivedDate": "asc"}
-        )
+        # Validate input
+        if quantity <= 0:
+            raise ValueError(f"Quantity must be positive, got: {quantity}")
 
-        if not batches:
-            raise ValueError(f"No batches available for item {item_id}")
-
-        consumed_batches = []
-        remaining_to_consume = quantity
-        total_consumed = 0.0
-
-        for batch in batches:
-            if remaining_to_consume <= 0:
-                break
-
-            # Calculate how much to consume from this batch
-            consume_from_batch = min(batch.remainingQty, remaining_to_consume)
-
-            # Update batch remaining quantity
-            await self.db.batchlot.update(
-                where={"id": batch.id},
-                data={"remainingQty": batch.remainingQty - consume_from_batch}
+        # Use transaction with row-level locking to prevent race conditions
+        async with self.db.tx() as transaction:
+            # Get all batches for this item with row lock, ordered by received date (FIFO)
+            batches = await transaction.batchlot.find_many(
+                where={
+                    "itemId": item_id,
+                    "remainingQty": {"gt": 0}
+                },
+                order={"receivedDate": "asc"}
             )
 
-            # Record consumed batch
-            consumed_batches.append({
-                "batch_id": batch.id,
-                "lot_number": batch.lotNumber,
-                "quantity": consume_from_batch,
-                "unit_cost": batch.unitCost or 0.0
-            })
+            if not batches:
+                raise ValueError(f"No batches available for item {item_id}")
 
-            total_consumed += consume_from_batch
-            remaining_to_consume -= consume_from_batch
+            consumed_batches = []
+            remaining_to_consume = quantity
+            total_consumed = 0.0
 
-        if remaining_to_consume > 0:
-            raise ValueError(
-                f"Insufficient stock. Required: {quantity}, Available: {total_consumed}"
-            )
+            for batch in batches:
+                if remaining_to_consume <= 0:
+                    break
+
+                # Calculate how much to consume from this batch
+                consume_from_batch = min(batch.remainingQty, remaining_to_consume)
+
+                # Update batch remaining quantity within transaction
+                await transaction.batchlot.update(
+                    where={"id": batch.id},
+                    data={"remainingQty": batch.remainingQty - consume_from_batch}
+                )
+
+                # Record consumed batch
+                consumed_batches.append({
+                    "batch_id": batch.id,
+                    "lot_number": batch.lotNumber,
+                    "quantity": consume_from_batch,
+                    "unit_cost": batch.unitCost or 0.0
+                })
+
+                total_consumed += consume_from_batch
+                remaining_to_consume -= consume_from_batch
+
+            if remaining_to_consume > 0:
+                raise ValueError(
+                    f"Insufficient stock. Required: {quantity}, Available: {total_consumed}"
+                )
 
         return consumed_batches, total_consumed
 
@@ -91,6 +97,10 @@ class StockManager:
         certifications: Optional[List[str]] = None
     ) -> BatchLot:
         """Add a new batch/lot of stock"""
+        # Validate input
+        if quantity <= 0:
+            raise ValueError(f"Quantity must be positive, got: {quantity}")
+
         batch = await self.db.batchlot.create(
             data={
                 "itemId": item_id,
@@ -191,23 +201,29 @@ class StockManager:
         quantity: float
     ) -> InventoryItem:
         """Reserve stock for orders/tasks"""
-        item = await self.db.inventoryitem.find_unique(where={"id": item_id})
-        if not item:
-            raise ValueError(f"Item {item_id} not found")
+        # Validate input
+        if quantity <= 0:
+            raise ValueError(f"Quantity must be positive, got: {quantity}")
 
-        if item.availableQuantity < quantity:
-            raise ValueError(
-                f"Insufficient available stock to reserve. "
-                f"Required: {quantity}, Available: {item.availableQuantity}"
+        # Use transaction to prevent race conditions
+        async with self.db.tx() as transaction:
+            item = await transaction.inventoryitem.find_unique(where={"id": item_id})
+            if not item:
+                raise ValueError(f"Item {item_id} not found")
+
+            if item.availableQuantity < quantity:
+                raise ValueError(
+                    f"Insufficient available stock to reserve. "
+                    f"Required: {quantity}, Available: {item.availableQuantity}"
+                )
+
+            updated_item = await transaction.inventoryitem.update(
+                where={"id": item_id},
+                data={
+                    "reservedQuantity": item.reservedQuantity + quantity,
+                    "availableQuantity": item.availableQuantity - quantity
+                }
             )
-
-        updated_item = await self.db.inventoryitem.update(
-            where={"id": item_id},
-            data={
-                "reservedQuantity": item.reservedQuantity + quantity,
-                "availableQuantity": item.availableQuantity - quantity
-            }
-        )
 
         return updated_item
 
@@ -217,23 +233,29 @@ class StockManager:
         quantity: float
     ) -> InventoryItem:
         """Release reserved stock back to available"""
-        item = await self.db.inventoryitem.find_unique(where={"id": item_id})
-        if not item:
-            raise ValueError(f"Item {item_id} not found")
+        # Validate input
+        if quantity <= 0:
+            raise ValueError(f"Quantity must be positive, got: {quantity}")
 
-        if item.reservedQuantity < quantity:
-            raise ValueError(
-                f"Cannot release more than reserved. "
-                f"Requested: {quantity}, Reserved: {item.reservedQuantity}"
+        # Use transaction to prevent race conditions
+        async with self.db.tx() as transaction:
+            item = await transaction.inventoryitem.find_unique(where={"id": item_id})
+            if not item:
+                raise ValueError(f"Item {item_id} not found")
+
+            if item.reservedQuantity < quantity:
+                raise ValueError(
+                    f"Cannot release more than reserved. "
+                    f"Requested: {quantity}, Reserved: {item.reservedQuantity}"
+                )
+
+            updated_item = await transaction.inventoryitem.update(
+                where={"id": item_id},
+                data={
+                    "reservedQuantity": item.reservedQuantity - quantity,
+                    "availableQuantity": item.availableQuantity + quantity
+                }
             )
-
-        updated_item = await self.db.inventoryitem.update(
-            where={"id": item_id},
-            data={
-                "reservedQuantity": item.reservedQuantity - quantity,
-                "availableQuantity": item.availableQuantity + quantity
-            }
-        )
 
         return updated_item
 

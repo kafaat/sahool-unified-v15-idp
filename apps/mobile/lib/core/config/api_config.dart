@@ -67,25 +67,26 @@ class ApiConfig {
   static String get _protocol => isProduction ? 'https' : 'http';
 
   /// Base URL for field-core service (legacy)
-  static String get baseUrl => 'http://$_host:${ServicePorts.fieldCore}';
+  static String get baseUrl => '$_protocol://$_host:${ServicePorts.fieldCore}';
 
   /// Gateway URL (production-like routing)
-  static String get gatewayUrl => 'http://$_host:${ServicePorts.gateway}';
+  static String get gatewayUrl => '$_protocol://$_host:${ServicePorts.gateway}';
 
   /// Service-specific URLs for direct access
-  static String get satelliteServiceUrl => 'http://$_host:${ServicePorts.satellite}';
-  static String get indicatorsServiceUrl => 'http://$_host:${ServicePorts.indicators}';
-  static String get weatherServiceUrl => 'http://$_host:${ServicePorts.weather}';
-  static String get fertilizerServiceUrl => 'http://$_host:${ServicePorts.fertilizer}';
-  static String get irrigationServiceUrl => 'http://$_host:${ServicePorts.irrigation}';
-  static String get cropHealthServiceUrl => 'http://$_host:${ServicePorts.cropHealth}';
-  static String get virtualSensorsServiceUrl => 'http://$_host:${ServicePorts.virtualSensors}';
-  static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
-  static String get chatServiceUrl => 'http://$_host:${ServicePorts.chat}';
-  static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
-  static String get inventoryServiceUrl => 'http://$_host:${ServicePorts.inventory}';
-  static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
-  static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
+  static String get satelliteServiceUrl => '$_protocol://$_host:${ServicePorts.satellite}';
+  static String get indicatorsServiceUrl => '$_protocol://$_host:${ServicePorts.indicators}';
+  static String get weatherServiceUrl => '$_protocol://$_host:${ServicePorts.weather}';
+  static String get fertilizerServiceUrl => '$_protocol://$_host:${ServicePorts.fertilizer}';
+  static String get irrigationServiceUrl => '$_protocol://$_host:${ServicePorts.irrigation}';
+  static String get cropHealthServiceUrl => '$_protocol://$_host:${ServicePorts.cropHealth}';
+  static String get virtualSensorsServiceUrl => '$_protocol://$_host:${ServicePorts.virtualSensors}';
+  static String get communityChatServiceUrl => '$_protocol://$_host:${ServicePorts.communityChat}';
+  static String get chatServiceUrl => '$_protocol://$_host:${ServicePorts.chat}';
+  static String get equipmentServiceUrl => '$_protocol://$_host:${ServicePorts.equipment}';
+  static String get inventoryServiceUrl => '$_protocol://$_host:${ServicePorts.inventory}';
+  static String get notificationsServiceUrl => '$_protocol://$_host:${ServicePorts.notifications}';
+  static String get sprayServiceUrl => '$_protocol://$_host:${ServicePorts.spray}';
+  static String get marketplaceServiceUrl => '$_protocol://$_host:${ServicePorts.marketplace}';
 
   /// Production base URL (Kong Gateway)
   static const String productionBaseUrl = 'https://api.sahool.io';

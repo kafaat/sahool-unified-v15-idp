@@ -411,10 +411,10 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     env:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
       POSTGRES_DB: sahool
-      REDIS_PASSWORD: redis_test_password
-      JWT_SECRET_KEY: test_jwt_secret_key_for_ci_only
+      REDIS_PASSWORD: ${{ secrets.TEST_REDIS_PASSWORD }}
+      JWT_SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
       JWT_ALGORITHM: HS256
     steps:
       - name: Checkout code
@@ -423,7 +423,7 @@ jobs:
       - name: Install Docker Compose
         run: |
           sudo apt-get update
-          sudo apt-get install -y docker-compose
+          sudo apt-get install -y docker-compose-plugin
 
       - name: Create .env file for Docker Compose
         run: |
@@ -434,20 +434,19 @@ jobs:
           REDIS_PASSWORD=${{ env.REDIS_PASSWORD }}
           JWT_SECRET_KEY=${{ env.JWT_SECRET_KEY }}
           JWT_ALGORITHM=${{ env.JWT_ALGORITHM }}
-          MQTT_PASSWORD=mqtt_test_password
+          MQTT_PASSWORD=${{ secrets.TEST_MQTT_PASSWORD }}
           EOF
-          cat .env
 
       - name: Start services
         run: |
-          docker-compose up -d postgres nats redis
+          docker compose up -d postgres nats redis
           sleep 15
 
       - name: Check services health
         run: |
-          docker-compose ps
-          docker-compose logs --tail=50
+          docker compose ps
+          docker compose logs --tail=50
 
       - name: Stop services
-        run: docker-compose down -v
+        run: docker compose down -v
         if: always()

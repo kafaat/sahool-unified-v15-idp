@@ -26,7 +26,7 @@ RUN groupadd --system sahool && \
 
 
 # Upgrade pip (non-fatal in case of network issues)
-RUN pip install --upgrade pip || true
+RUN pip install --no-cache-dir --upgrade pip || true
 
 # Install dependencies (using shared requirements)
 COPY requirements.txt .

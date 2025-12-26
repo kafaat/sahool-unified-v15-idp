@@ -1,0 +1,301 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Monitoring Stack Docker Compose
+# تكوين Docker Compose لمجموعة المراقبة
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2025-12-25
+# Components: Prometheus, Grafana, Alertmanager
+# Services Monitored: 39 microservices + infrastructure
+
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Services - الخدمات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus - Time Series Database & Metrics Collection
+  # قاعدة البيانات الزمنية وجمع المقاييس
+  # ─────────────────────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: sahool-monitoring-prometheus
+    restart: unless-stopped
+    user: root
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--web.external-url=http://localhost:9090'
+    ports:
+      - "9090:9090"
+    volumes:
+      # Configuration files - ملفات الإعدادات
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts/alerts.yml:ro
+      # Data persistence - استمرارية البيانات
+      - prometheus_data:/prometheus
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    networks:
+      - sahool-network
+      - monitoring-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      com.sahool.service: "prometheus"
+      com.sahool.tier: "monitoring"
+      com.sahool.description: "Prometheus Time Series Database"
+      com.sahool.description_ar: "قاعدة بيانات المقاييس الزمنية"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Grafana - Visualization & Dashboards
+  # لوحات المراقبة والتصور
+  # ─────────────────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: sahool-monitoring-grafana
+    restart: unless-stopped
+    user: root
+    ports:
+      - "3002:3000"
+    volumes:
+      # Provisioning - التوفير التلقائي
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      # Dashboards - لوحات المراقبة
+      - ./grafana/provisioning/dashboards:/var/lib/grafana/dashboards:ro
+      # Data persistence - استمرارية البيانات
+      - grafana_data:/var/lib/grafana
+    environment:
+      # Security - الأمان
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+
+      # Server settings - إعدادات الخادم
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3002}
+      - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
+      - GF_SERVER_PROTOCOL=http
+
+      # Database - قاعدة البيانات
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_DATABASE_PATH=/var/lib/grafana/grafana.db
+
+      # Analytics - التحليلات
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+
+      # Plugins - الإضافات
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel
+
+      # Logging - السجلات
+      - GF_LOG_MODE=console
+      - GF_LOG_LEVEL=${GF_LOG_LEVEL:-info}
+
+      # Auth - المصادقة
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+
+      # Alerts - التنبيهات
+      - GF_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
+
+      # Arabic support - دعم العربية
+      - GF_DEFAULT_LANGUAGE=en
+      - GF_DATE_FORMATS_DEFAULT_TIMEZONE=Asia/Riyadh
+    networks:
+      - monitoring-network
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    labels:
+      com.sahool.service: "grafana"
+      com.sahool.tier: "monitoring"
+      com.sahool.description: "Grafana Dashboards & Visualization"
+      com.sahool.description_ar: "لوحات المراقبة والتصور"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Alertmanager - Alert Routing & Notifications
+  # توجيه التنبيهات والإشعارات
+  # ─────────────────────────────────────────────────────────────────────────────
+  alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: sahool-monitoring-alertmanager
+    restart: unless-stopped
+    user: root
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--cluster.advertise-address=0.0.0.0:9093'
+    ports:
+      - "9093:9093"
+    volumes:
+      # Configuration - الإعدادات
+      - ./alertmanager:/etc/alertmanager:ro
+      # Data persistence - استمرارية البيانات
+      - alertmanager_data:/alertmanager
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    networks:
+      - monitoring-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    labels:
+      com.sahool.service: "alertmanager"
+      com.sahool.tier: "monitoring"
+      com.sahool.description: "Prometheus Alertmanager"
+      com.sahool.description_ar: "مدير التنبيهات"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Optional: PostgreSQL Exporter - Database Metrics
+  # مُصدِّر مقاييس PostgreSQL
+  # ─────────────────────────────────────────────────────────────────────────────
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: sahool-monitoring-postgres-exporter
+    restart: unless-stopped
+    ports:
+      - "9187:9187"
+    environment:
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/sahool?sslmode=disable
+      - PG_EXPORTER_EXTEND_QUERY_PATH=/etc/postgres-exporter/queries.yaml
+    networks:
+      - sahool-network
+      - monitoring-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9187/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    labels:
+      com.sahool.service: "postgres-exporter"
+      com.sahool.tier: "monitoring"
+      com.sahool.description: "PostgreSQL Metrics Exporter"
+      com.sahool.description_ar: "مُصدِّر مقاييس قاعدة البيانات"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Optional: Redis Exporter - Cache Metrics
+  # مُصدِّر مقاييس Redis
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.55.0
+    container_name: sahool-monitoring-redis-exporter
+    restart: unless-stopped
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    networks:
+      - sahool-network
+      - monitoring-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9121/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    labels:
+      com.sahool.service: "redis-exporter"
+      com.sahool.tier: "monitoring"
+      com.sahool.description: "Redis Metrics Exporter"
+      com.sahool.description_ar: "مُصدِّر مقاييس Redis"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Optional: Node Exporter - System Metrics
+  # مُصدِّر مقاييس النظام
+  # ─────────────────────────────────────────────────────────────────────────────
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: sahool-monitoring-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    networks:
+      - monitoring-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    labels:
+      com.sahool.service: "node-exporter"
+      com.sahool.tier: "monitoring"
+      com.sahool.description: "Node/System Metrics Exporter"
+      com.sahool.description_ar: "مُصدِّر مقاييس النظام"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Networks - الشبكات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+networks:
+  # Connect to main SAHOOL network - الاتصال بشبكة سهول الرئيسية
+  sahool-network:
+    external: true
+    name: sahool-network
+
+  # Internal monitoring network - شبكة المراقبة الداخلية
+  monitoring-network:
+    driver: bridge
+    name: sahool-monitoring-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Volumes - وحدات التخزين
+# ═══════════════════════════════════════════════════════════════════════════════
+
+volumes:
+  # Prometheus data - بيانات Prometheus
+  prometheus_data:
+    name: sahool-monitoring-prometheus-data
+    driver: local
+
+  # Grafana data - بيانات Grafana
+  grafana_data:
+    name: sahool-monitoring-grafana-data
+    driver: local
+
+  # Alertmanager data - بيانات Alertmanager
+  alertmanager_data:
+    name: sahool-monitoring-alertmanager-data
+    driver: local

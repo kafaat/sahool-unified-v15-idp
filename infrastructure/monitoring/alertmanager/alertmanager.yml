@@ -1,0 +1,279 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Alertmanager Configuration
+# إعدادات مدير التنبيهات
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2025-12-25
+
+global:
+  # Global settings - الإعدادات العامة
+  resolve_timeout: 5m
+
+  # SMTP settings for email notifications - إعدادات البريد الإلكتروني
+  smtp_from: 'alerts@sahool.io'
+  smtp_smarthost: '${SMTP_HOST:-smtp.gmail.com}:${SMTP_PORT:-587}'
+  smtp_auth_username: '${SMTP_USERNAME:-}'
+  smtp_auth_password: '${SMTP_PASSWORD:-}'
+  smtp_require_tls: true
+
+  # Slack webhook URL - رابط Slack
+  slack_api_url: '${SLACK_WEBHOOK_URL:-}'
+
+  # PagerDuty - خدمة التنبيهات الطارئة
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+
+# Templates for notifications - قوالب الإشعارات
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route configuration - إعدادات التوجيه
+route:
+  # Default receiver - المستقبل الافتراضي
+  receiver: 'default-notifications'
+
+  # Group alerts - تجميع التنبيهات
+  group_by: ['alertname', 'cluster', 'service', 'severity']
+
+  # Timing - التوقيت
+  group_wait: 30s          # انتظار التجميع - Wait before sending first notification
+  group_interval: 5m       # فترة التجميع - Wait before sending grouped notifications
+  repeat_interval: 4h      # فترة التكرار - Wait before repeating notifications
+
+  # Child routes - المسارات الفرعية
+  routes:
+    # ─────────────────────────────────────────────────────────────────────────
+    # Critical Infrastructure Alerts - تنبيهات البنية التحتية الحرجة
+    # ─────────────────────────────────────────────────────────────────────────
+    - match:
+        severity: critical
+        category: infrastructure
+      receiver: 'critical-infrastructure'
+      group_wait: 10s
+      repeat_interval: 15m
+      continue: true
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Critical Service Alerts - تنبيهات الخدمات الحرجة
+    # ─────────────────────────────────────────────────────────────────────────
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 30s
+      repeat_interval: 1h
+      continue: true
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Database Alerts - تنبيهات قاعدة البيانات
+    # ─────────────────────────────────────────────────────────────────────────
+    - match:
+        category: database
+      receiver: 'database-team'
+      group_wait: 1m
+      repeat_interval: 2h
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Performance Alerts - تنبيهات الأداء
+    # ─────────────────────────────────────────────────────────────────────────
+    - match:
+        category: performance
+      receiver: 'performance-team'
+      group_wait: 2m
+      repeat_interval: 3h
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # AI/ML Service Alerts - تنبيهات خدمات الذكاء الاصطناعي
+    # ─────────────────────────────────────────────────────────────────────────
+    - match:
+        category: ai-ml
+      receiver: 'ai-ml-team'
+      group_wait: 2m
+      repeat_interval: 4h
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Warning Alerts - التنبيهات التحذيرية
+    # ─────────────────────────────────────────────────────────────────────────
+    - match:
+        severity: warning
+      receiver: 'warning-notifications'
+      group_wait: 5m
+      repeat_interval: 6h
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Info Alerts - التنبيهات الإعلامية
+    # ─────────────────────────────────────────────────────────────────────────
+    - match:
+        severity: info
+      receiver: 'info-notifications'
+      group_wait: 10m
+      repeat_interval: 24h
+
+# Inhibition rules - قواعد التثبيط
+inhibit_rules:
+  # Inhibit warnings if critical alert is firing
+  # تثبيط التحذيرات إذا كان هناك تنبيه حرج
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service', 'instance']
+
+  # Inhibit service alerts if infrastructure is down
+  # تثبيط تنبيهات الخدمات إذا كانت البنية التحتية متوقفة
+  - source_match:
+      category: 'infrastructure'
+      severity: 'critical'
+    target_match:
+      category: 'availability'
+    equal: ['cluster']
+
+# Receivers - المستقبلات
+receivers:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Default Notifications - الإشعارات الافتراضية
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'default-notifications'
+    email_configs:
+      - to: '${ALERT_EMAIL_DEFAULT:-devops@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '[SAHOOL Alert] {{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}'
+        html: |
+          <h2>SAHOOL Platform Alert / تنبيه منصة سهول</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Service:</strong> {{ .GroupLabels.service }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}</p>
+          <p><strong>Description:</strong> {{ range .Alerts }}{{ .Annotations.description }}{{ end }}</p>
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_DEFAULT:-#sahool-alerts}'
+        send_resolved: true
+        title: 'SAHOOL Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          *Service:* {{ .GroupLabels.service }}
+          *Severity:* {{ .GroupLabels.severity }}
+          *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Critical Infrastructure Alerts - تنبيهات البنية التحتية الحرجة
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'critical-infrastructure'
+    email_configs:
+      - to: '${ALERT_EMAIL_CRITICAL:-sre@sahool.io,devops@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '🚨 [CRITICAL] SAHOOL Infrastructure Alert - {{ .GroupLabels.service }}'
+          Priority: 'urgent'
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_CRITICAL:-#sahool-critical}'
+        send_resolved: true
+        color: 'danger'
+        title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          *Impact:* {{ range .Alerts }}{{ .Annotations.impact }}{{ end }}
+          *Action:* {{ range .Alerts }}{{ .Annotations.action }}{{ end }}
+
+          *العربية:*
+          *التأثير:* {{ range .Alerts }}{{ .Annotations.impact_ar }}{{ end }}
+          *الإجراء:* {{ range .Alerts }}{{ .Annotations.action_ar }}{{ end }}
+
+    # PagerDuty for on-call engineers
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY:-}'
+        severity: 'critical'
+        description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Critical Service Alerts - تنبيهات الخدمات الحرجة
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'critical-alerts'
+    email_configs:
+      - to: '${ALERT_EMAIL_CRITICAL:-sre@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '⚠️ [CRITICAL] SAHOOL Alert - {{ .GroupLabels.service }}'
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_CRITICAL:-#sahool-critical}'
+        send_resolved: true
+        color: 'danger'
+        title: '⚠️ CRITICAL: {{ .GroupLabels.alertname }}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Database Team Alerts - تنبيهات فريق قاعدة البيانات
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'database-team'
+    email_configs:
+      - to: '${ALERT_EMAIL_DATABASE:-dba@sahool.io,devops@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '[Database Alert] {{ .GroupLabels.alertname }}'
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_DATABASE:-#sahool-database}'
+        send_resolved: true
+        title: 'Database Alert: {{ .GroupLabels.alertname }}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Performance Team Alerts - تنبيهات فريق الأداء
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'performance-team'
+    email_configs:
+      - to: '${ALERT_EMAIL_PERFORMANCE:-performance@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '[Performance Alert] {{ .GroupLabels.alertname }}'
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_PERFORMANCE:-#sahool-performance}'
+        send_resolved: true
+        color: 'warning'
+        title: 'Performance Alert: {{ .GroupLabels.alertname }}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI/ML Team Alerts - تنبيهات فريق الذكاء الاصطناعي
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'ai-ml-team'
+    email_configs:
+      - to: '${ALERT_EMAIL_AI_ML:-ai-team@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '[AI/ML Alert] {{ .GroupLabels.alertname }}'
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_AI_ML:-#sahool-ai-ml}'
+        send_resolved: true
+        title: 'AI/ML Alert: {{ .GroupLabels.alertname }}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Warning Notifications - الإشعارات التحذيرية
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'warning-notifications'
+    email_configs:
+      - to: '${ALERT_EMAIL_WARNINGS:-devops@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '[WARNING] SAHOOL Alert - {{ .GroupLabels.alertname }}'
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_WARNINGS:-#sahool-warnings}'
+        send_resolved: true
+        color: 'warning'
+        title: 'Warning: {{ .GroupLabels.alertname }}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Info Notifications - الإشعارات الإعلامية
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'info-notifications'
+    email_configs:
+      - to: '${ALERT_EMAIL_INFO:-monitoring@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '[INFO] SAHOOL Alert - {{ .GroupLabels.alertname }}'
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_INFO:-#sahool-info}'
+        send_resolved: true
+        color: 'good'
+        title: 'Info: {{ .GroupLabels.alertname }}'

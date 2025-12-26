@@ -1,0 +1,559 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Security Pipeline
+# Version: 16.0.0
+# Comprehensive security scanning including SAST, dependency scanning,
+# container scanning, and secrets detection
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Security Scanning
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scans daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Secrets Detection
+  # ─────────────────────────────────────────────────────────────────────────────
+  secrets-scan:
+    name: Secrets Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog Secrets Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+
+      - name: Detect hardcoded secrets
+        run: |
+          echo "🔍 Scanning for hardcoded secrets..."
+
+          # Check for private keys
+          if grep -rn "-----BEGIN.*PRIVATE KEY-----" \
+            --include="*.py" --include="*.js" --include="*.ts" \
+            --include="*.yml" --include="*.yaml" \
+            --exclude-dir=".git" --exclude-dir="node_modules" . 2>/dev/null; then
+            echo "❌ Found embedded private keys"
+            exit 1
+          fi
+
+          # Check for AWS credentials
+          if grep -rniE "AKIA[0-9A-Z]{16}" \
+            --include="*.py" --include="*.js" --include="*.ts" \
+            --exclude-dir=".git" --exclude-dir="node_modules" . 2>/dev/null; then
+            echo "❌ Found AWS Access Key"
+            exit 1
+          fi
+
+          # Check for API keys
+          if grep -rniE "(api[_-]?key|apikey)\s*=\s*['\"][a-zA-Z0-9]{20,}['\"]" \
+            --include="*.py" --include="*.js" --include="*.ts" \
+            --exclude-dir=".git" --exclude-dir="node_modules" \
+            --exclude="*test*" . 2>/dev/null | grep -v "getenv" | grep -v "environ"; then
+            echo "❌ Found hardcoded API keys"
+            exit 1
+          fi
+
+          echo "✅ No secrets detected"
+
+      - name: Check for sensitive files
+        run: |
+          echo "🔍 Checking for sensitive files..."
+
+          SENSITIVE_PATTERNS=(
+            "*.pem"
+            "*.key"
+            "*.p12"
+            "*.pfx"
+            ".env"
+            ".env.local"
+            "*.credentials"
+            "credentials.json"
+            "serviceAccount*.json"
+          )
+
+          FOUND=0
+          for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+            if find . -name "$pattern" \
+              -not -path "./.git/*" \
+              -not -path "./node_modules/*" \
+              -not -name ".env.example" 2>/dev/null | grep -q .; then
+              echo "❌ Found sensitive file pattern: $pattern"
+              find . -name "$pattern" -not -path "./.git/*" -not -path "./node_modules/*"
+              FOUND=1
+            fi
+          done
+
+          if [ $FOUND -eq 1 ]; then
+            exit 1
+          fi
+
+          echo "✅ No sensitive files found"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Dependency Vulnerability Scanning
+  # ─────────────────────────────────────────────────────────────────────────────
+  dependency-scan-python:
+    name: Python Dependency Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install scanning tools
+        run: |
+          pip install --upgrade pip
+          pip install safety pip-audit
+
+      - name: Scan with Safety
+        run: |
+          echo "🔍 Scanning Python dependencies with Safety..."
+
+          for req in $(find . -name "requirements.txt" -type f -not -path "./archive/*"); do
+            echo "Scanning: $req"
+            safety check -r "$req" --full-report --json > safety-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
+          done
+
+          # Check pyproject.toml
+          if [ -f "pyproject.toml" ]; then
+            pip install -e ".[base,infrastructure,testing]" || true
+            safety check --json > safety-report-pyproject.json || true
+          fi
+
+      - name: Scan with pip-audit
+        run: |
+          echo "🔍 Scanning Python dependencies with pip-audit..."
+
+          for req in $(find . -name "requirements.txt" -type f -not -path "./archive/*"); do
+            echo "Auditing: $req"
+            pip-audit -r "$req" --format json > audit-report-$(echo $req | md5sum | cut -d' ' -f1).json || true
+          done
+
+      - name: Upload Python scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-dependency-scans
+          path: |
+            safety-report-*.json
+            audit-report-*.json
+          retention-days: 30
+
+  dependency-scan-nodejs:
+    name: Node.js Dependency Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Run npm audit
+        run: |
+          echo "🔍 Scanning Node.js dependencies..."
+          npm audit --json > npm-audit-report.json || true
+          npm audit
+
+      - name: Run Snyk scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --json-file-output=snyk-report.json
+
+      - name: Upload Node.js scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nodejs-dependency-scans
+          path: |
+            npm-audit-report.json
+            snyk-report.json
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAST - Static Application Security Testing
+  # ─────────────────────────────────────────────────────────────────────────────
+  sast-python:
+    name: SAST - Python (Bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Bandit
+        run: pip install bandit[toml]
+
+      - name: Run Bandit security scan
+        run: |
+          echo "🔍 Running Bandit SAST..."
+
+          bandit -r apps/services/ shared/ \
+            -ll \
+            -ii \
+            --format sarif \
+            -o bandit-results.sarif 2>/dev/null || true
+
+          bandit -r apps/services/ shared/ \
+            -ll \
+            -ii \
+            --format txt || true
+
+      - name: Upload Bandit SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: bandit-results.sarif
+          category: bandit-sast
+
+  sast-semgrep:
+    name: SAST - Multi-language (Semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/python
+            p/javascript
+            p/typescript
+            p/secrets
+          generateSarif: true
+
+      - name: Upload Semgrep SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep-sast
+
+  sast-codeql:
+    name: SAST - CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python', 'javascript']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Container Security Scanning
+  # ─────────────────────────────────────────────────────────────────────────────
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - field-ops
+          - weather-core
+          - satellite-service
+          - crop-health-ai
+          - billing-core
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ matrix.service }}:scan apps/services/${{ matrix.service }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ matrix.service }}:scan
+          format: 'sarif'
+          output: 'trivy-${{ matrix.service }}.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '0'
+
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-${{ matrix.service }}.sarif
+          category: trivy-${{ matrix.service }}
+
+      - name: Scan with Grype
+        uses: anchore/scan-action@v3
+        with:
+          image: ${{ matrix.service }}:scan
+          fail-build: false
+          severity-cutoff: high
+
+  dockerfile-scan:
+    name: Dockerfile Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: "**/Dockerfile"
+          recursive: true
+          failure-threshold: warning
+
+      - name: Check Dockerfile best practices
+        run: |
+          echo "🔍 Checking Dockerfile security best practices..."
+
+          for dockerfile in $(find . -name "Dockerfile" -type f -not -path "./archive/*"); do
+            echo "Checking: $dockerfile"
+
+            # Check for root user
+            if ! grep -q "USER [^r]" "$dockerfile"; then
+              echo "⚠️  WARNING: No non-root USER directive in $dockerfile"
+            fi
+
+            # Check for latest tag
+            if grep -qE "FROM .+:latest" "$dockerfile"; then
+              echo "⚠️  WARNING: Using :latest tag in $dockerfile"
+            fi
+
+            # Check for COPY without --chown
+            if grep -q "^COPY " "$dockerfile" && ! grep -q "COPY --chown" "$dockerfile"; then
+              echo "ℹ️  INFO: Consider using COPY --chown in $dockerfile"
+            fi
+
+            # Check for hardcoded secrets
+            if grep -qE "(PASSWORD|SECRET|KEY|TOKEN)=" "$dockerfile"; then
+              echo "❌ ERROR: Potential hardcoded secrets in $dockerfile"
+              exit 1
+            fi
+          done
+
+          echo "✅ Dockerfile security check complete"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure as Code Security
+  # ─────────────────────────────────────────────────────────────────────────────
+  iac-scan:
+    name: IaC Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: kubernetes,dockerfile,secrets
+          soft_fail: true
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+
+      - name: Upload Checkov SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov-results.sarif
+          category: checkov-iac
+
+      - name: Scan Kubernetes manifests
+        run: |
+          echo "🔍 Scanning Kubernetes manifests..."
+
+          # Check for security contexts
+          for file in $(find . -name "*.yaml" -o -name "*.yml" | grep -E "(k8s|kubernetes|helm)"); do
+            if grep -q "kind: Pod\|kind: Deployment" "$file"; then
+              if ! grep -q "securityContext" "$file"; then
+                echo "⚠️  WARNING: No securityContext in $file"
+              fi
+            fi
+          done
+
+          echo "✅ Kubernetes manifest scan complete"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Dependabot Configuration Check
+  # ─────────────────────────────────────────────────────────────────────────────
+  dependabot-check:
+    name: Dependabot Configuration
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Dependabot config
+        run: |
+          if [ -f ".github/dependabot.yml" ]; then
+            echo "✅ Dependabot configuration exists"
+            cat .github/dependabot.yml
+          else
+            echo "⚠️  WARNING: No Dependabot configuration found"
+            echo "Creating recommended Dependabot config..."
+
+            mkdir -p .github
+            cat > .github/dependabot.yml <<'EOF'
+          version: 2
+          updates:
+            # Python dependencies
+            - package-ecosystem: "pip"
+              directory: "/"
+              schedule:
+                interval: "weekly"
+              open-pull-requests-limit: 10
+              labels:
+                - "dependencies"
+                - "python"
+
+            # Node.js dependencies
+            - package-ecosystem: "npm"
+              directory: "/"
+              schedule:
+                interval: "weekly"
+              open-pull-requests-limit: 10
+              labels:
+                - "dependencies"
+                - "nodejs"
+
+            # GitHub Actions
+            - package-ecosystem: "github-actions"
+              directory: "/"
+              schedule:
+                interval: "weekly"
+              labels:
+                - "dependencies"
+                - "github-actions"
+
+            # Docker
+            - package-ecosystem: "docker"
+              directory: "/"
+              schedule:
+                interval: "weekly"
+              labels:
+                - "dependencies"
+                - "docker"
+          EOF
+
+            echo "📝 Recommended Dependabot config created"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Security Summary Report
+  # ─────────────────────────────────────────────────────────────────────────────
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs:
+      - secrets-scan
+      - dependency-scan-python
+      - dependency-scan-nodejs
+      - sast-python
+      - sast-semgrep
+      - dockerfile-scan
+      - iac-scan
+    if: always()
+    steps:
+      - name: Generate security summary
+        run: |
+          echo "## 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scan Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets Detection | ${{ needs.secrets-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python Dependencies | ${{ needs.dependency-scan-python.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Node.js Dependencies | ${{ needs.dependency-scan-nodejs.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST (Bandit) | ${{ needs.sast-python.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SAST (Semgrep) | ${{ needs.sast-semgrep.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dockerfile Scan | ${{ needs.dockerfile-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| IaC Scan | ${{ needs.iac-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "- Review all HIGH and CRITICAL findings" >> $GITHUB_STEP_SUMMARY
+          echo "- Update vulnerable dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- Fix security issues in code" >> $GITHUB_STEP_SUMMARY
+          echo "- Ensure all Dockerfiles follow best practices" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify on critical findings
+        if: failure() && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "🚨 Critical Security Issues Found",
+              blocks: [
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "*Security Scan Alert*\n\nCritical security issues detected in ${{ github.ref_name }}\n\n*Commit:* ${{ github.sha }}\n*Check:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

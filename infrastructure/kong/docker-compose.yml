@@ -1,0 +1,321 @@
+version: '3.9'
+
+# ============================================================================
+# Kong API Gateway Docker Compose Configuration
+# تكوين Docker Compose لبوابة Kong API
+# ============================================================================
+# SAHOOL Platform - Agricultural Intelligence Platform
+# منصة سهول - منصة الذكاء الزراعي
+# ============================================================================
+
+networks:
+  kong-net:
+    driver: bridge
+    name: kong-network
+  sahool-net:
+    external: true
+    name: sahool-network
+
+volumes:
+  kong-postgres-data:
+    driver: local
+  kong-logs:
+    driver: local
+
+services:
+  # ============================================================================
+  # قاعدة بيانات Kong - Kong Database (PostgreSQL)
+  # ============================================================================
+  kong-database:
+    image: postgres:16-alpine
+    container_name: kong-postgres
+    restart: unless-stopped
+    networks:
+      - kong-net
+    environment:
+      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
+      POSTGRES_USER: ${KONG_PG_USER:-kong}
+      POSTGRES_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - kong-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KONG_PG_USER:-kong}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5433:5432"  # تجنب التعارض مع PostgreSQL الرئيسي
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # ============================================================================
+  # تهيئة قاعدة بيانات Kong - Kong Database Migrations
+  # ============================================================================
+  kong-migrations:
+    image: kong:3.5-alpine
+    container_name: kong-migrations
+    command: kong migrations bootstrap
+    networks:
+      - kong-net
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    restart: on-failure
+
+  # ============================================================================
+  # ترقيات قاعدة بيانات Kong - Kong Database Migrations Up
+  # ============================================================================
+  kong-migrations-up:
+    image: kong:3.5-alpine
+    container_name: kong-migrations-up
+    command: kong migrations up && kong migrations finish
+    networks:
+      - kong-net
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+    depends_on:
+      kong-database:
+        condition: service_healthy
+      kong-migrations:
+        condition: service_completed_successfully
+    restart: on-failure
+
+  # ============================================================================
+  # بوابة Kong API - Kong API Gateway
+  # ============================================================================
+  kong:
+    image: kong:3.5-alpine
+    container_name: kong-gateway
+    restart: unless-stopped
+    networks:
+      - kong-net
+      - sahool-net
+    environment:
+      # Database Configuration
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PORT: 5432
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+
+      # Proxy Configuration
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+
+      # DNS Configuration
+      KONG_DNS_RESOLVER: 8.8.8.8:53
+      KONG_DNS_ORDER: LAST,A,CNAME
+
+      # Plugins
+      KONG_PLUGINS: bundled,prometheus,rate-limiting,jwt,acl,cors,request-transformer,response-transformer,ip-restriction,bot-detection,request-size-limiting,response-ratelimiting,correlation-id,file-log,proxy-cache
+
+      # Performance
+      KONG_NGINX_WORKER_PROCESSES: auto
+      KONG_NGINX_HTTP_CLIENT_BODY_BUFFER_SIZE: 8m
+      KONG_NGINX_HTTP_CLIENT_MAX_BODY_SIZE: 100m
+
+      # Security
+      KONG_HEADERS: server_tokens=off
+      KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
+
+      # Logging
+      KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
+
+      # Declarative Config (optional)
+      # KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+
+    volumes:
+      - ./kong.yml:/etc/kong/kong.yml:ro
+      - ./kong-packages.yml:/etc/kong/kong-packages.yml:ro
+      - ./consumers.yml:/etc/kong/consumers.yml:ro
+      - kong-logs:/var/log/kong
+    ports:
+      - "8000:8000"  # Proxy HTTP
+      - "8443:8443"  # Proxy HTTPS
+      - "8001:8001"  # Admin API HTTP
+      - "8444:8444"  # Admin API HTTPS
+    depends_on:
+      kong-database:
+        condition: service_healthy
+      kong-migrations-up:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # ============================================================================
+  # Konga - Kong Admin UI (اختياري)
+  # Optional Kong Admin Dashboard
+  # ============================================================================
+  konga:
+    image: pantsel/konga:latest
+    container_name: kong-admin-ui
+    restart: unless-stopped
+    networks:
+      - kong-net
+    environment:
+      DB_ADAPTER: postgres
+      DB_HOST: kong-database
+      DB_PORT: 5432
+      DB_DATABASE: konga
+      DB_USER: ${KONG_PG_USER:-kong}
+      DB_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+      NODE_ENV: ${KONGA_ENV:-production}
+      KONGA_HOOK_TIMEOUT: 120000
+    ports:
+      - "1337:1337"
+    depends_on:
+      kong-database:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # ============================================================================
+  # Prometheus - للمراقبة والقياس
+  # Monitoring and Metrics
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: kong-prometheus
+    restart: unless-stopped
+    networks:
+      - kong-net
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - kong
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  # ============================================================================
+  # Grafana - لوحة تحكم المراقبة
+  # Monitoring Dashboard
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: kong-grafana
+    restart: unless-stopped
+    networks:
+      - kong-net
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel,grafana-worldmap-panel
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources:ro
+    ports:
+      - "3002:3000"  # تجنب التعارض مع field-core
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  # ============================================================================
+  # Redis - للتخزين المؤقت وتحديد المعدل
+  # Caching and Rate Limiting
+  # ============================================================================
+  kong-redis:
+    image: redis:7-alpine
+    container_name: kong-redis
+    restart: unless-stopped
+    networks:
+      - kong-net
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6380:6379"  # تجنب التعارض مع Redis الرئيسي
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+  redis-data:
+    driver: local
+
+# ============================================================================
+# نهاية التكوين
+# End of Configuration
+# ============================================================================

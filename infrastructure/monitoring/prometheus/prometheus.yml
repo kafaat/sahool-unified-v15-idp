@@ -1,0 +1,617 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Prometheus Configuration
+# إعدادات Prometheus لمنصة سهول الزراعية
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2025-12-25
+# Services: 39 microservices + infrastructure
+
+global:
+  scrape_interval: 15s        # معدل جمع البيانات - Data collection interval
+  evaluation_interval: 15s    # معدل تقييم القواعد - Rule evaluation interval
+  scrape_timeout: 10s         # مهلة جمع البيانات - Scrape timeout
+  external_labels:
+    cluster: 'sahool-platform'
+    environment: '${ENVIRONMENT:-production}'
+    platform: 'agriculture'
+    region: 'yemen'
+
+# Alertmanager configuration - إعدادات مدير التنبيهات
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Alert rules - قواعد التنبيهات
+rule_files:
+  - /etc/prometheus/alerts/*.yml
+  - /etc/prometheus/rules/*.yml
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Scrape Configurations - إعدادات جمع البيانات
+# All 39 SAHOOL Services + Infrastructure
+# ═══════════════════════════════════════════════════════════════════════════════
+
+scrape_configs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus Self-Monitoring - مراقبة Prometheus ذاتياً
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          tier: 'monitoring'
+          component: 'prometheus'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure Services - خدمات البنية التحتية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # PostgreSQL Database - قاعدة البيانات المكانية
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']
+        labels:
+          tier: 'infrastructure'
+          component: 'database'
+          service: 'postgres'
+          description: 'PostGIS Spatial Database'
+          description_ar: 'قاعدة البيانات المكانية PostGIS'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Redis Cache - ذاكرة التخزين المؤقت
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+        labels:
+          tier: 'infrastructure'
+          component: 'cache'
+          service: 'redis'
+          description: 'Redis Cache & Session Store'
+          description_ar: 'ذاكرة التخزين المؤقت والجلسات'
+    scrape_interval: 30s
+
+  # NATS Message Queue - نظام الرسائل
+  - job_name: 'nats'
+    static_configs:
+      - targets: ['nats:8222']
+        labels:
+          tier: 'infrastructure'
+          component: 'message-queue'
+          service: 'nats'
+          description: 'NATS JetStream Message Queue'
+          description_ar: 'نظام الرسائل NATS JetStream'
+    metrics_path: /varz
+    scrape_interval: 15s
+
+  # Qdrant Vector Database - قاعدة البيانات المتجهة
+  - job_name: 'qdrant'
+    static_configs:
+      - targets: ['qdrant:6333']
+        labels:
+          tier: 'infrastructure'
+          component: 'vector-db'
+          service: 'qdrant'
+          description: 'Qdrant Vector Database for AI/RAG'
+          description_ar: 'قاعدة البيانات المتجهة للذكاء الاصطناعي'
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # MQTT Broker - وسيط MQTT للأجهزة
+  - job_name: 'mqtt'
+    static_configs:
+      - targets: ['mqtt:9001']
+        labels:
+          tier: 'infrastructure'
+          component: 'iot-broker'
+          service: 'mqtt'
+          description: 'Eclipse Mosquitto MQTT Broker'
+          description_ar: 'وسيط MQTT لأجهزة إنترنت الأشياء'
+    scrape_interval: 30s
+
+  # Kong API Gateway - بوابة API
+  - job_name: 'kong'
+    static_configs:
+      - targets: ['kong:8001']
+        labels:
+          tier: 'infrastructure'
+          component: 'api-gateway'
+          service: 'kong'
+          description: 'Kong API Gateway'
+          description_ar: 'بوابة الخدمات Kong'
+    metrics_path: /metrics
+    scrape_interval: 15s
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Core Geospatial Service - خدمة الحقول الجغرافية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  - job_name: 'field-core'
+    static_configs:
+      - targets: ['field_core:3000']
+        labels:
+          tier: 'core'
+          component: 'geospatial'
+          service: 'field-core'
+          language: 'nodejs'
+          description: 'Field Core Geospatial Service'
+          description_ar: 'خدمة الحقول الجغرافية الأساسية'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Application Services (Python/FastAPI) - خدمات التطبيق
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Field Operations - عمليات الحقول
+  - job_name: 'field-ops'
+    static_configs:
+      - targets: ['field_ops:8080']
+        labels:
+          tier: 'application'
+          component: 'field-management'
+          service: 'field-ops'
+          language: 'python'
+          description: 'Field Operations Service'
+          description_ar: 'خدمة عمليات الحقول'
+    metrics_path: /metrics
+
+  # NDVI Engine - محرك NDVI
+  - job_name: 'ndvi-engine'
+    static_configs:
+      - targets: ['ndvi_engine:8107']
+        labels:
+          tier: 'application'
+          component: 'satellite-analysis'
+          service: 'ndvi-engine'
+          language: 'python'
+          description: 'NDVI Vegetation Index Engine'
+          description_ar: 'محرك مؤشر الغطاء النباتي NDVI'
+    metrics_path: /metrics
+
+  # Weather Core - خدمة الطقس
+  - job_name: 'weather-core'
+    static_configs:
+      - targets: ['weather_core:8108']
+        labels:
+          tier: 'application'
+          component: 'weather'
+          service: 'weather-core'
+          language: 'python'
+          description: 'Weather Service Multi-Provider'
+          description_ar: 'خدمة الطقس متعددة المزودين'
+    metrics_path: /metrics
+
+  # Field Chat - دردشة الحقول
+  - job_name: 'field-chat'
+    static_configs:
+      - targets: ['field_chat:8099']
+        labels:
+          tier: 'application'
+          component: 'communication'
+          service: 'field-chat'
+          language: 'python'
+          description: 'Field Chat Service'
+          description_ar: 'خدمة دردشة الحقول'
+    metrics_path: /metrics
+
+  # IoT Gateway - بوابة إنترنت الأشياء
+  - job_name: 'iot-gateway'
+    static_configs:
+      - targets: ['iot_gateway:8106']
+        labels:
+          tier: 'application'
+          component: 'iot'
+          service: 'iot-gateway'
+          language: 'python'
+          description: 'IoT Gateway for Agricultural Sensors'
+          description_ar: 'بوابة إنترنت الأشياء للمستشعرات الزراعية'
+    metrics_path: /metrics
+
+  # Agro Advisor - المستشار الزراعي
+  - job_name: 'agro-advisor'
+    static_configs:
+      - targets: ['agro_advisor:8105']
+        labels:
+          tier: 'application'
+          component: 'advisory'
+          service: 'agro-advisor'
+          language: 'python'
+          description: 'Agricultural Advisory Service'
+          description_ar: 'خدمة الاستشارات الزراعية'
+    metrics_path: /metrics
+
+  # WebSocket Gateway - بوابة WebSocket
+  - job_name: 'ws-gateway'
+    static_configs:
+      - targets: ['ws_gateway:8081']
+        labels:
+          tier: 'application'
+          component: 'realtime'
+          service: 'ws-gateway'
+          language: 'python'
+          description: 'WebSocket Gateway for Real-time Updates'
+          description_ar: 'بوابة WebSocket للتحديثات الفورية'
+    metrics_path: /metrics
+
+  # Crop Health - صحة المحاصيل
+  - job_name: 'crop-health'
+    static_configs:
+      - targets: ['crop_health:8100']
+        labels:
+          tier: 'application'
+          component: 'crop-monitoring'
+          service: 'crop-health'
+          language: 'python'
+          description: 'Crop Health Monitoring'
+          description_ar: 'مراقبة صحة المحاصيل'
+    metrics_path: /metrics
+
+  # Agro Rules Worker - عامل القواعد الزراعية
+  - job_name: 'agro-rules'
+    static_configs:
+      - targets: ['agro_rules:8080']
+        labels:
+          tier: 'application'
+          component: 'automation'
+          service: 'agro-rules'
+          language: 'python'
+          description: 'Agricultural Rules Engine Worker'
+          description_ar: 'عامل محرك القواعد الزراعية'
+    metrics_path: /metrics
+
+  # Task Service - خدمة المهام
+  - job_name: 'task-service'
+    static_configs:
+      - targets: ['task_service:8103']
+        labels:
+          tier: 'application'
+          component: 'task-management'
+          service: 'task-service'
+          language: 'python'
+          description: 'Agricultural Task Management'
+          description_ar: 'إدارة المهام الزراعية'
+    metrics_path: /metrics
+
+  # Equipment Service - خدمة المعدات
+  - job_name: 'equipment-service'
+    static_configs:
+      - targets: ['equipment_service:8101']
+        labels:
+          tier: 'application'
+          component: 'equipment-management'
+          service: 'equipment-service'
+          language: 'python'
+          description: 'Equipment Management Service'
+          description_ar: 'خدمة إدارة المعدات'
+    metrics_path: /metrics
+
+  # Provider Configuration - إعدادات المزودين
+  - job_name: 'provider-config'
+    static_configs:
+      - targets: ['provider_config:8104']
+        labels:
+          tier: 'application'
+          component: 'configuration'
+          service: 'provider-config'
+          language: 'python'
+          description: 'Provider Configuration Service'
+          description_ar: 'خدمة إعدادات المزودين'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # AI & ML Services - خدمات الذكاء الاصطناعي والتعلم الآلي
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Crop Health AI - الذكاء الاصطناعي لصحة المحاصيل
+  - job_name: 'crop-health-ai'
+    static_configs:
+      - targets: ['crop_health_ai:8095']
+        labels:
+          tier: 'ai-ml'
+          component: 'computer-vision'
+          service: 'crop-health-ai'
+          language: 'python'
+          description: 'AI-Powered Crop Disease Detection'
+          description_ar: 'كشف أمراض المحاصيل بالذكاء الاصطناعي'
+    metrics_path: /metrics
+
+  # Virtual Sensors - المستشعرات الافتراضية
+  - job_name: 'virtual-sensors'
+    static_configs:
+      - targets: ['virtual_sensors:8096']
+        labels:
+          tier: 'ai-ml'
+          component: 'sensor-fusion'
+          service: 'virtual-sensors'
+          language: 'python'
+          description: 'Virtual Sensors Engine (FAO-56 ET0)'
+          description_ar: 'محرك المستشعرات الافتراضية (FAO-56)'
+    metrics_path: /metrics
+
+  # Yield Engine - محرك التنبؤ بالإنتاجية
+  - job_name: 'yield-engine'
+    static_configs:
+      - targets: ['yield_engine:8098']
+        labels:
+          tier: 'ai-ml'
+          component: 'prediction'
+          service: 'yield-engine'
+          language: 'python'
+          description: 'ML-Based Crop Yield Prediction'
+          description_ar: 'التنبؤ بإنتاجية المحاصيل بالتعلم الآلي'
+    metrics_path: /metrics
+
+  # AI Advisor - المستشار الذكي
+  - job_name: 'ai-advisor'
+    static_configs:
+      - targets: ['ai_advisor:8112']
+        labels:
+          tier: 'ai-ml'
+          component: 'ai-advisory'
+          service: 'ai-advisor'
+          language: 'python'
+          description: 'Multi-Agent AI Advisor with RAG'
+          description_ar: 'المستشار الذكي متعدد الوكلاء مع RAG'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Smart Agriculture Services - خدمات الزراعة الذكية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Irrigation Smart - الري الذكي
+  - job_name: 'irrigation-smart'
+    static_configs:
+      - targets: ['irrigation_smart:8094']
+        labels:
+          tier: 'smart-agriculture'
+          component: 'irrigation'
+          service: 'irrigation-smart'
+          language: 'python'
+          description: 'Smart Irrigation Management (FAO-56)'
+          description_ar: 'إدارة الري الذكي (FAO-56)'
+    metrics_path: /metrics
+
+  # Fertilizer Advisor - مستشار التسميد
+  - job_name: 'fertilizer-advisor'
+    static_configs:
+      - targets: ['fertilizer_advisor:8093']
+        labels:
+          tier: 'smart-agriculture'
+          component: 'fertilization'
+          service: 'fertilizer-advisor'
+          language: 'python'
+          description: 'Smart Fertilization Recommendations'
+          description_ar: 'توصيات التسميد الذكية'
+    metrics_path: /metrics
+
+  # Indicators Service - خدمة المؤشرات
+  - job_name: 'indicators-service'
+    static_configs:
+      - targets: ['indicators_service:8091']
+        labels:
+          tier: 'smart-agriculture'
+          component: 'analytics'
+          service: 'indicators-service'
+          language: 'python'
+          description: 'Agricultural KPIs & Analytics'
+          description_ar: 'مؤشرات الأداء والتحليلات الزراعية'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Satellite & Weather Services - خدمات الأقمار الصناعية والطقس
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Satellite Service - خدمة الأقمار الصناعية
+  - job_name: 'satellite-service'
+    static_configs:
+      - targets: ['satellite_service:8090']
+        labels:
+          tier: 'remote-sensing'
+          component: 'satellite'
+          service: 'satellite-service'
+          language: 'python'
+          description: 'Multi-Provider Satellite Imagery & NDVI'
+          description_ar: 'صور الأقمار الصناعية ومؤشر NDVI'
+    metrics_path: /metrics
+
+  # Weather Advanced - الطقس المتقدم
+  - job_name: 'weather-advanced'
+    static_configs:
+      - targets: ['weather_advanced:8092']
+        labels:
+          tier: 'remote-sensing'
+          component: 'weather'
+          service: 'weather-advanced'
+          language: 'python'
+          description: 'Advanced Agricultural Weather Forecasting'
+          description_ar: 'التنبؤ الجوي الزراعي المتقدم'
+    metrics_path: /metrics
+
+  # Astronomical Calendar - التقويم الفلكي
+  - job_name: 'astronomical-calendar'
+    static_configs:
+      - targets: ['astronomical_calendar:8111']
+        labels:
+          tier: 'remote-sensing'
+          component: 'calendar'
+          service: 'astronomical-calendar'
+          language: 'python'
+          description: 'Yemeni Agricultural Astronomical Calendar'
+          description_ar: 'التقويم الفلكي الزراعي اليمني'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Communication Services - خدمات الاتصالات
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Community Chat - دردشة المجتمع
+  - job_name: 'community-chat'
+    static_configs:
+      - targets: ['community_chat:8097']
+        labels:
+          tier: 'communication'
+          component: 'chat'
+          service: 'community-chat'
+          language: 'nodejs'
+          description: 'Real-time Community Chat (Socket.io)'
+          description_ar: 'دردشة المجتمع الفورية'
+    metrics_path: /metrics
+
+  # Notification Service - خدمة الإشعارات
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification_service:8110']
+        labels:
+          tier: 'communication'
+          component: 'notifications'
+          service: 'notification-service'
+          language: 'python'
+          description: 'Push Notifications & Alerts'
+          description_ar: 'الإشعارات والتنبيهات الذكية'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Research & Scientific Services - خدمات البحث العلمي
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Research Core - نواة البحث العلمي
+  - job_name: 'research-core'
+    static_configs:
+      - targets: ['research_core:3015']
+        labels:
+          tier: 'research'
+          component: 'research-management'
+          service: 'research-core'
+          language: 'nodejs'
+          description: 'Scientific Research Management (NestJS)'
+          description_ar: 'إدارة التجارب الزراعية العلمية'
+    metrics_path: /api/v1/metrics
+
+  # Disaster Assessment - تقييم الكوارث
+  - job_name: 'disaster-assessment'
+    static_configs:
+      - targets: ['disaster_assessment:3020']
+        labels:
+          tier: 'research'
+          component: 'disaster'
+          service: 'disaster-assessment'
+          language: 'nodejs'
+          description: 'Agricultural Disaster Assessment'
+          description_ar: 'تقييم الكوارث الزراعية'
+    metrics_path: /api/v1/metrics
+
+  # Yield Prediction - التنبؤ بالإنتاجية
+  - job_name: 'yield-prediction'
+    static_configs:
+      - targets: ['yield_prediction:3021']
+        labels:
+          tier: 'research'
+          component: 'yield-prediction'
+          service: 'yield-prediction'
+          language: 'nodejs'
+          description: 'Advanced Yield Prediction Models'
+          description_ar: 'نماذج التنبؤ المتقدمة بالإنتاجية'
+    metrics_path: /api/v1/metrics
+
+  # LAI Estimation - تقدير مؤشر مساحة الأوراق
+  - job_name: 'lai-estimation'
+    static_configs:
+      - targets: ['lai_estimation:3022']
+        labels:
+          tier: 'research'
+          component: 'lai'
+          service: 'lai-estimation'
+          language: 'nodejs'
+          description: 'Leaf Area Index (LAI) Estimation'
+          description_ar: 'تقدير مؤشر مساحة الأوراق LAI'
+    metrics_path: /api/v1/metrics
+
+  # Crop Growth Model - نموذج نمو المحاصيل
+  - job_name: 'crop-growth-model'
+    static_configs:
+      - targets: ['crop_growth_model:3023']
+        labels:
+          tier: 'research'
+          component: 'crop-modeling'
+          service: 'crop-growth-model'
+          language: 'nodejs'
+          description: 'Mechanistic Crop Growth Models (WOFOST/DSSAT)'
+          description_ar: 'نماذج نمو المحاصيل الآلية'
+    metrics_path: /api/v1/metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Business Services - الخدمات التجارية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Marketplace Service - خدمة السوق
+  - job_name: 'marketplace-service'
+    static_configs:
+      - targets: ['marketplace_service:3010']
+        labels:
+          tier: 'business'
+          component: 'marketplace'
+          service: 'marketplace-service'
+          language: 'nodejs'
+          description: 'SAHOOL Marketplace & E-commerce'
+          description_ar: 'سوق سهول والتجارة الإلكترونية'
+    metrics_path: /api/v1/metrics
+
+  # Billing Core - خدمة الفوترة
+  - job_name: 'billing-core'
+    static_configs:
+      - targets: ['billing_core:8089']
+        labels:
+          tier: 'business'
+          component: 'billing'
+          service: 'billing-core'
+          language: 'python'
+          description: 'Billing & Subscription Management'
+          description_ar: 'خدمة الفوترة وإدارة الاشتراكات'
+    metrics_path: /metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Frontend Services - خدمات الواجهة الأمامية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Admin Dashboard - لوحة تحكم المشرفين
+  - job_name: 'admin-dashboard'
+    static_configs:
+      - targets: ['admin_dashboard:3001']
+        labels:
+          tier: 'frontend'
+          component: 'admin'
+          service: 'admin-dashboard'
+          language: 'nodejs'
+          description: 'Admin Dashboard (Next.js)'
+          description_ar: 'لوحة تحكم المشرفين'
+    metrics_path: /api/metrics
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Monitoring & Observability - المراقبة والرصد
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Alertmanager - مدير التنبيهات
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+        labels:
+          tier: 'monitoring'
+          component: 'alerting'
+          service: 'alertmanager'
+          description: 'Prometheus Alertmanager'
+          description_ar: 'مدير التنبيهات'
+    metrics_path: /metrics
+
+  # Grafana - لوحات المراقبة
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+        labels:
+          tier: 'monitoring'
+          component: 'visualization'
+          service: 'grafana'
+          description: 'Grafana Dashboards'
+          description_ar: 'لوحات المراقبة Grafana'
+    metrics_path: /metrics

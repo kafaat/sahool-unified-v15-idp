@@ -1,0 +1,632 @@
+_format_version: "3.0"
+_transform: true
+
+# ============================================================================
+# تكوين مستهلكي الخدمة ومجموعات التحكم في الوصول
+# SAHOOL Platform Consumers and ACL Groups Configuration
+# ============================================================================
+# يحدد هذا الملف:
+# - مجموعات المستخدمين حسب الباقات
+# - أسرار JWT لكل مجموعة
+# - صلاحيات الوصول ACL
+# - حدود الطلبات لكل باقة
+# ============================================================================
+
+# ============================================================================
+# مستهلكو الباقة الأساسية - Starter Package Consumers
+# للمزارعين الصغار وملاك الأراضي الجدد
+# Rate Limit: 100 requests/minute
+# ============================================================================
+
+consumers:
+  # ============================================================================
+  # مستخدم الباقة الأساسية النموذجي
+  # Starter Package Sample User
+  # ============================================================================
+  - username: starter-user-demo
+    custom_id: starter-demo-001
+    tags:
+      - starter
+      - demo
+      - package:starter
+    # JWT Configuration
+    jwt_secrets:
+      - key: starter-jwt-demo-key
+        algorithm: HS256
+        secret: ${STARTER_JWT_SECRET}
+    # ACL Groups
+    groups:
+      - name: starter-users
+    # Plugins
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+          day: 100000
+          policy: local
+          fault_tolerant: true
+      - name: response-ratelimiting
+        config:
+          limits:
+            minute: 100
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 10
+
+  # ============================================================================
+  # مستخدم الباقة الأساسية - المزارع الصغير
+  # Starter Package - Small Farmer
+  # ============================================================================
+  - username: starter-farmer-001
+    custom_id: starter-001
+    tags:
+      - starter
+      - farmer
+      - package:starter
+    jwt_secrets:
+      - key: starter-jwt-001
+        algorithm: HS256
+        secret: ${STARTER_JWT_SECRET}
+    groups:
+      - name: starter-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+
+  # ============================================================================
+  # مستخدم الباقة الأساسية - مالك أرض جديد
+  # Starter Package - New Landowner
+  # ============================================================================
+  - username: starter-landowner-001
+    custom_id: starter-002
+    tags:
+      - starter
+      - landowner
+      - package:starter
+    jwt_secrets:
+      - key: starter-jwt-002
+        algorithm: HS256
+        secret: ${STARTER_JWT_SECRET}
+    groups:
+      - name: starter-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+
+# ============================================================================
+# مستهلكو الباقة المتوسطة - Professional Package Consumers
+# للمزارعين المحترفين والتعاونيات
+# Rate Limit: 1000 requests/minute
+# ============================================================================
+
+  # ============================================================================
+  # مستخدم الباقة المتوسطة النموذجي
+  # Professional Package Sample User
+  # ============================================================================
+  - username: professional-user-demo
+    custom_id: professional-demo-001
+    tags:
+      - professional
+      - demo
+      - package:professional
+    jwt_secrets:
+      - key: professional-jwt-demo-key
+        algorithm: HS256
+        secret: ${PROFESSIONAL_JWT_SECRET}
+    groups:
+      - name: professional-users
+      - name: starter-users  # يمكنهم الوصول لخدمات الباقة الأساسية أيضاً
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+          day: 1000000
+          policy: local
+          fault_tolerant: true
+      - name: response-ratelimiting
+        config:
+          limits:
+            minute: 1000
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 50
+
+  # ============================================================================
+  # مستخدم الباقة المتوسطة - مزارع محترف
+  # Professional Package - Professional Farmer
+  # ============================================================================
+  - username: professional-farmer-001
+    custom_id: professional-001
+    tags:
+      - professional
+      - farmer
+      - package:professional
+    jwt_secrets:
+      - key: professional-jwt-001
+        algorithm: HS256
+        secret: ${PROFESSIONAL_JWT_SECRET}
+    groups:
+      - name: professional-users
+      - name: starter-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+
+  # ============================================================================
+  # مستخدم الباقة المتوسطة - تعاونية زراعية
+  # Professional Package - Agricultural Cooperative
+  # ============================================================================
+  - username: professional-cooperative-001
+    custom_id: professional-002
+    tags:
+      - professional
+      - cooperative
+      - package:professional
+    jwt_secrets:
+      - key: professional-jwt-002
+        algorithm: HS256
+        secret: ${PROFESSIONAL_JWT_SECRET}
+    groups:
+      - name: professional-users
+      - name: starter-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+
+# ============================================================================
+# مستهلكو الباقة المتقدمة - Enterprise Package Consumers
+# للشركات الزراعية الكبرى
+# Rate Limit: 10000 requests/minute
+# ============================================================================
+
+  # ============================================================================
+  # مستخدم الباقة المتقدمة النموذجي
+  # Enterprise Package Sample User
+  # ============================================================================
+  - username: enterprise-user-demo
+    custom_id: enterprise-demo-001
+    tags:
+      - enterprise
+      - demo
+      - package:enterprise
+    jwt_secrets:
+      - key: enterprise-jwt-demo-key
+        algorithm: HS256
+        secret: ${ENTERPRISE_JWT_SECRET}
+    groups:
+      - name: enterprise-users
+      - name: professional-users  # يمكنهم الوصول لخدمات المتوسطة
+      - name: starter-users  # ويمكنهم الوصول لخدمات الأساسية
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+          day: 10000000
+          policy: local
+          fault_tolerant: true
+      - name: response-ratelimiting
+        config:
+          limits:
+            minute: 10000
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 100
+
+  # ============================================================================
+  # مستخدم الباقة المتقدمة - شركة زراعية كبرى
+  # Enterprise Package - Large Agribusiness
+  # ============================================================================
+  - username: enterprise-agribusiness-001
+    custom_id: enterprise-001
+    tags:
+      - enterprise
+      - agribusiness
+      - package:enterprise
+    jwt_secrets:
+      - key: enterprise-jwt-001
+        algorithm: HS256
+        secret: ${ENTERPRISE_JWT_SECRET}
+    groups:
+      - name: enterprise-users
+      - name: professional-users
+      - name: starter-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+
+  # ============================================================================
+  # مستخدم الباقة المتقدمة - مركز بحثي تجاري
+  # Enterprise Package - Commercial Research Center
+  # ============================================================================
+  - username: enterprise-research-center-001
+    custom_id: enterprise-002
+    tags:
+      - enterprise
+      - research-center
+      - package:enterprise
+    jwt_secrets:
+      - key: enterprise-jwt-002
+        algorithm: HS256
+        secret: ${ENTERPRISE_JWT_SECRET}
+    groups:
+      - name: enterprise-users
+      - name: professional-users
+      - name: starter-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+
+# ============================================================================
+# مستهلكو باقة البحث العلمي - Research Package Consumers
+# للجامعات ومراكز البحث الأكاديمية
+# Rate Limit: 10000 requests/minute
+# ============================================================================
+
+  # ============================================================================
+  # مستخدم باقة البحث العلمي النموذجي
+  # Research Package Sample User
+  # ============================================================================
+  - username: research-user-demo
+    custom_id: research-demo-001
+    tags:
+      - research
+      - demo
+      - package:research
+    jwt_secrets:
+      - key: research-jwt-demo-key
+        algorithm: HS256
+        secret: ${RESEARCH_JWT_SECRET}
+    groups:
+      - name: research-users
+      - name: enterprise-users  # لديهم نفس صلاحيات المؤسسات
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+          day: 10000000
+          policy: local
+          fault_tolerant: true
+      - name: response-ratelimiting
+        config:
+          limits:
+            minute: 10000
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 100
+
+  # ============================================================================
+  # مستخدم باقة البحث - جامعة
+  # Research Package - University
+  # ============================================================================
+  - username: research-university-001
+    custom_id: research-001
+    tags:
+      - research
+      - university
+      - package:research
+    jwt_secrets:
+      - key: research-jwt-001
+        algorithm: HS256
+        secret: ${RESEARCH_JWT_SECRET}
+    groups:
+      - name: research-users
+      - name: enterprise-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+
+  # ============================================================================
+  # مستخدم باقة البحث - مركز بحثي حكومي
+  # Research Package - Government Research Center
+  # ============================================================================
+  - username: research-gov-center-001
+    custom_id: research-002
+    tags:
+      - research
+      - government
+      - package:research
+    jwt_secrets:
+      - key: research-jwt-002
+        algorithm: HS256
+        secret: ${RESEARCH_JWT_SECRET}
+    groups:
+      - name: research-users
+      - name: enterprise-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+
+# ============================================================================
+# المسؤولون - Admin Consumers
+# لإدارة المنصة والمراقبة
+# Rate Limit: Unlimited (في بيئة الإنتاج استخدم حد معقول)
+# ============================================================================
+
+  # ============================================================================
+  # مسؤول النظام - System Admin
+  # ============================================================================
+  - username: admin-system
+    custom_id: admin-001
+    tags:
+      - admin
+      - system
+      - role:admin
+    jwt_secrets:
+      - key: admin-jwt-system-key
+        algorithm: HS256
+        secret: ${ADMIN_JWT_SECRET}
+    groups:
+      - name: admin-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50000
+          hour: 2000000
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8      # شبكة داخلية
+            - 172.16.0.0/12   # شبكة داخلية
+            - 192.168.0.0/16  # شبكة داخلية
+
+  # ============================================================================
+  # مسؤول المراقبة - Monitoring Admin
+  # ============================================================================
+  - username: admin-monitoring
+    custom_id: admin-002
+    tags:
+      - admin
+      - monitoring
+      - role:admin
+    jwt_secrets:
+      - key: admin-jwt-monitoring-key
+        algorithm: HS256
+        secret: ${ADMIN_JWT_SECRET}
+    groups:
+      - name: admin-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50000
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+
+  # ============================================================================
+  # مسؤول الدعم الفني - Support Admin
+  # ============================================================================
+  - username: admin-support
+    custom_id: admin-003
+    tags:
+      - admin
+      - support
+      - role:admin
+    jwt_secrets:
+      - key: admin-jwt-support-key
+        algorithm: HS256
+        secret: ${ADMIN_JWT_SECRET}
+    groups:
+      - name: admin-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 20000
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+
+# ============================================================================
+# المستخدمون الآليون - Service Accounts / Bots
+# للتكاملات والخدمات الآلية
+# ============================================================================
+
+  # ============================================================================
+  # حساب خدمة المراقبة - Monitoring Service Account
+  # ============================================================================
+  - username: service-monitoring-bot
+    custom_id: service-001
+    tags:
+      - service-account
+      - monitoring
+      - bot
+    jwt_secrets:
+      - key: service-jwt-monitoring
+        algorithm: HS256
+        secret: ${SERVICE_JWT_SECRET}
+    groups:
+      - name: service-accounts
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100000
+      - name: bot-detection
+        config:
+          allow:
+            - monitoring-bot
+            - prometheus
+            - grafana
+
+  # ============================================================================
+  # حساب خدمة CI/CD - CI/CD Service Account
+  # ============================================================================
+  - username: service-cicd-bot
+    custom_id: service-002
+    tags:
+      - service-account
+      - cicd
+      - bot
+    jwt_secrets:
+      - key: service-jwt-cicd
+        algorithm: HS256
+        secret: ${SERVICE_JWT_SECRET}
+    groups:
+      - name: service-accounts
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # حساب خدمة التكامل - Integration Service Account
+  # ============================================================================
+  - username: service-integration-bot
+    custom_id: service-003
+    tags:
+      - service-account
+      - integration
+      - bot
+    jwt_secrets:
+      - key: service-jwt-integration
+        algorithm: HS256
+        secret: ${SERVICE_JWT_SECRET}
+    groups:
+      - name: service-accounts
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 20000
+
+# ============================================================================
+# مستخدمو التجربة المجانية - Trial Users
+# للفترة التجريبية المحدودة
+# Rate Limit: 50 requests/minute
+# ============================================================================
+
+  # ============================================================================
+  # مستخدم تجريبي - Trial User
+  # ============================================================================
+  - username: trial-user-001
+    custom_id: trial-001
+    tags:
+      - trial
+      - limited
+      - package:trial
+    jwt_secrets:
+      - key: trial-jwt-001
+        algorithm: HS256
+        secret: ${TRIAL_JWT_SECRET}
+    groups:
+      - name: trial-users
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 50
+          hour: 2000
+          day: 30000
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 5
+      - name: request-termination
+        enabled: false  # يمكن تفعيله لإنهاء الفترة التجريبية
+
+# ============================================================================
+# مجموعات التحكم في الوصول - ACL Groups
+# ============================================================================
+
+acls:
+  # Starter Package ACLs
+  - consumer: starter-user-demo
+    group: starter-users
+  - consumer: starter-farmer-001
+    group: starter-users
+  - consumer: starter-landowner-001
+    group: starter-users
+
+  # Professional Package ACLs
+  - consumer: professional-user-demo
+    group: professional-users
+  - consumer: professional-user-demo
+    group: starter-users
+  - consumer: professional-farmer-001
+    group: professional-users
+  - consumer: professional-farmer-001
+    group: starter-users
+  - consumer: professional-cooperative-001
+    group: professional-users
+  - consumer: professional-cooperative-001
+    group: starter-users
+
+  # Enterprise Package ACLs
+  - consumer: enterprise-user-demo
+    group: enterprise-users
+  - consumer: enterprise-user-demo
+    group: professional-users
+  - consumer: enterprise-user-demo
+    group: starter-users
+  - consumer: enterprise-agribusiness-001
+    group: enterprise-users
+  - consumer: enterprise-agribusiness-001
+    group: professional-users
+  - consumer: enterprise-agribusiness-001
+    group: starter-users
+  - consumer: enterprise-research-center-001
+    group: enterprise-users
+  - consumer: enterprise-research-center-001
+    group: professional-users
+  - consumer: enterprise-research-center-001
+    group: starter-users
+
+  # Research Package ACLs
+  - consumer: research-user-demo
+    group: research-users
+  - consumer: research-user-demo
+    group: enterprise-users
+  - consumer: research-university-001
+    group: research-users
+  - consumer: research-university-001
+    group: enterprise-users
+  - consumer: research-gov-center-001
+    group: research-users
+  - consumer: research-gov-center-001
+    group: enterprise-users
+
+  # Admin ACLs
+  - consumer: admin-system
+    group: admin-users
+  - consumer: admin-monitoring
+    group: admin-users
+  - consumer: admin-support
+    group: admin-users
+
+  # Service Accounts ACLs
+  - consumer: service-monitoring-bot
+    group: service-accounts
+  - consumer: service-cicd-bot
+    group: service-accounts
+  - consumer: service-integration-bot
+    group: service-accounts
+
+  # Trial ACLs
+  - consumer: trial-user-001
+    group: trial-users
+
+# ============================================================================
+# نهاية التكوين
+# End of Consumers Configuration
+# ============================================================================

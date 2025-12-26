@@ -28,14 +28,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const login = useCallback(async (email: string, password: string) => {
-    const response = await apiClient.post('/api/v1/auth/login', { email, password });
-    const { access_token, user } = response.data;
-    Cookies.set('access_token', access_token, { expires: 7 });
-    setUser(user);
+    const response = await apiClient.login(email, password);
+    if (response.success && response.data) {
+      const { access_token, user } = response.data;
+      Cookies.set('access_token', access_token, { expires: 7 });
+      apiClient.setToken(access_token);
+      setUser(user);
+    } else {
+      throw new Error(response.error || 'Login failed');
+    }
   }, []);
 
   const logout = useCallback(() => {
     Cookies.remove('access_token');
+    apiClient.clearToken();
     setUser(null);
   }, []);
 
@@ -46,10 +52,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
         return;
       }
-      const response = await apiClient.get('/api/v1/auth/me');
-      setUser(response.data);
+      apiClient.setToken(token);
+      const response = await apiClient.getCurrentUser();
+      if (response.success && response.data) {
+        setUser(response.data);
+      } else {
+        setUser(null);
+        Cookies.remove('access_token');
+        apiClient.clearToken();
+      }
     } catch {
       setUser(null);
+      Cookies.remove('access_token');
+      apiClient.clearToken();
     } finally {
       setIsLoading(false);
     }

@@ -287,7 +287,8 @@ export const fieldsApi = {
       const total = MOCK_FIELDS.length;
       const totalArea = MOCK_FIELDS.reduce((sum, f) => sum + f.area, 0);
       const byCrop = MOCK_FIELDS.reduce((acc, f) => {
-        acc[f.crop] = (acc[f.crop] || 0) + 1;
+        const crop = f.crop || 'unknown';
+        acc[crop] = (acc[crop] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 

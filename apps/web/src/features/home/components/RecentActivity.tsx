@@ -17,8 +17,6 @@ interface ActivityItem {
   description: string;
   descriptionAr: string;
   timestamp: string;
-  icon: React.ReactNode;
-  color: string;
 }
 
 const activityIcons: Record<string, { icon: React.ReactNode; color: string }> = {

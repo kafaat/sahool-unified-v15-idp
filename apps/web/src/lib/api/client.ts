@@ -80,6 +80,28 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Authentication API
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async login(email: string, password: string) {
+    return this.request<{ access_token: string; user: any }>('/api/v1/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  async getCurrentUser() {
+    return this.request<any>('/api/v1/auth/me');
+  }
+
+  async refreshToken(refreshToken: string) {
+    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Field Operations API
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -495,6 +517,12 @@ class SahoolApiClient {
     return this.request<any>(`/api/v1/tasks/${taskId}/complete`, {
       method: 'POST',
       body: JSON.stringify({ notes }),
+    });
+  }
+
+  async deleteTask(taskId: string) {
+    return this.request<void>(`/api/v1/tasks/${taskId}`, {
+      method: 'DELETE',
     });
   }
 

@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { TasksList } from '@/features/tasks';
 import { TaskForm } from '@/features/tasks/components/TaskForm';
-import { TaskFilters } from '@/features/tasks/components/TaskFilters';
+import { TaskFiltersComponent as TaskFilters } from '@/features/tasks/components/TaskFilters';
 import { Modal } from '@/components/ui/modal';
 import { Plus, Filter } from 'lucide-react';
 import type { TaskFilters as TaskFiltersType } from '@/features/tasks/types';

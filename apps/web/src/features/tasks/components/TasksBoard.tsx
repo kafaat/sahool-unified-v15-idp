@@ -16,9 +16,9 @@ interface TasksBoardProps {
 
 const columns: TaskBoardColumn[] = [
   {
-    id: 'pending',
-    title: 'Pending',
-    titleAr: 'قيد الانتظار',
+    id: 'open',
+    title: 'Open',
+    titleAr: 'جديدة',
     tasks: [],
     color: 'bg-gray-50 border-gray-200',
   },
@@ -30,8 +30,8 @@ const columns: TaskBoardColumn[] = [
     color: 'bg-blue-50 border-blue-200',
   },
   {
-    id: 'completed',
-    title: 'Completed',
+    id: 'done',
+    title: 'Done',
     titleAr: 'مكتملة',
     tasks: [],
     color: 'bg-green-50 border-green-200',

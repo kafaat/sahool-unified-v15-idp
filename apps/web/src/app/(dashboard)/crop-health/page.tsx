@@ -8,7 +8,7 @@
 import React, { useState } from 'react';
 import { Metadata } from 'next';
 import { Camera, Activity } from 'lucide-react';
-import { HealthDashboard, DiagnosisTool, DiagnosisResult } from '@/features/crop-health';
+import { HealthDashboard, DiagnosisTool, DiagnosisResultView } from '@/features/crop-health';
 
 export default function CropHealthPage() {
   const [activeView, setActiveView] = useState<'dashboard' | 'diagnosis'>('dashboard');
@@ -65,7 +65,7 @@ export default function CropHealthPage() {
             >
               ← العودة
             </button>
-            <DiagnosisResult requestId={diagnosisId} />
+            <DiagnosisResultView requestId={diagnosisId} />
           </div>
         ) : activeView === 'dashboard' ? (
           <HealthDashboard />

@@ -1,8 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { apiClient } from '@/lib/api';
 import { SkeletonCard } from './ui/Skeleton';
+
+// Constants for health thresholds
+const HEALTH_THRESHOLDS = {
+  GOOD: 70,
+  MODERATE: 50,
+} as const;
+
+const HEALTH_COLORS = {
+  GOOD: '#10b981',
+  MODERATE: '#f59e0b',
+  POOR: '#ef4444',
+} as const;
 
 interface Stats {
   totalFields: number;
@@ -26,23 +38,50 @@ interface StatsCardProps {
   progress?: number;
 }
 
-function StatsCard({ title, value, icon, subtitle, color = 'text-gray-800', progress }: StatsCardProps) {
+// Memoized StatsCard component to prevent unnecessary re-renders
+const StatsCard = React.memo<StatsCardProps>(function StatsCard({
+  title,
+  value,
+  icon,
+  subtitle,
+  color = 'text-gray-800',
+  progress
+}) {
+  // Memoize the progress bar color calculation
+  const progressColor = useMemo(() => {
+    if (progress === undefined) return undefined;
+    if (progress >= HEALTH_THRESHOLDS.GOOD) return HEALTH_COLORS.GOOD;
+    if (progress >= HEALTH_THRESHOLDS.MODERATE) return HEALTH_COLORS.MODERATE;
+    return HEALTH_COLORS.POOR;
+  }, [progress]);
+
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm transition-transform hover:scale-[1.02]">
+    <div
+      className="bg-white rounded-xl p-4 shadow-sm transition-transform hover:scale-[1.02]"
+      role="article"
+      aria-label={`${title}: ${value}`}
+    >
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs text-gray-500">{title}</p>
           <p className={`text-2xl font-bold ${color}`}>{value}</p>
         </div>
-        <span className="text-3xl">{icon}</span>
+        <span className="text-3xl" role="img" aria-hidden="true">{icon}</span>
       </div>
       {progress !== undefined && (
-        <div className="mt-2 h-1.5 rounded-full overflow-hidden bg-gray-100">
+        <div
+          className="mt-2 h-1.5 rounded-full overflow-hidden bg-gray-100"
+          role="progressbar"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`${title} progress`}
+        >
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
               width: `${progress}%`,
-              backgroundColor: progress >= 70 ? '#10b981' : progress >= 50 ? '#f59e0b' : '#ef4444'
+              backgroundColor: progressColor
             }}
           />
         </div>
@@ -52,7 +91,7 @@ function StatsCard({ title, value, icon, subtitle, color = 'text-gray-800', prog
       )}
     </div>
   );
-}
+});
 
 interface StatsCardsProps {
   tenantId?: string;
@@ -63,60 +102,62 @@ export function StatsCards({ tenantId }: StatsCardsProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
+  // Memoized fetch function
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Try to fetch from API
-        if (tenantId) {
-          const [ndviSummary, weatherData] = await Promise.all([
-            apiClient.getNdviSummary(tenantId).catch(() => null),
-            apiClient.getWeather(15.37, 44.19).catch(() => null), // Sanaa coordinates
-          ]);
+      // Try to fetch from API
+      if (tenantId) {
+        const [ndviSummary, weatherData] = await Promise.all([
+          apiClient.getNdviSummary(tenantId).catch(() => null),
+          apiClient.getWeather(15.37, 44.19).catch(() => null), // Sanaa coordinates
+        ]);
 
-          if (ndviSummary?.success) {
-            setStats({
-              totalFields: ndviSummary.data?.totalFields || 0,
-              totalArea: ndviSummary.data?.totalAreaHectares || 0,
-              healthScore: Math.round((ndviSummary.data?.averageHealth || 0) * 100),
-              pendingTasks: 8, // TODO: Fetch from task service
-              completedTasks: 4,
-              activeAlerts: 3,
-              temperature: weatherData?.data?.current?.temperature || 32,
-              weatherCondition: weatherData?.data?.current?.description || 'مشمس',
-              waterUsage: 85,
-              waterSaving: 15,
-            });
-            setError(null);
-            return;
-          }
+        if (ndviSummary?.success) {
+          setStats({
+            totalFields: ndviSummary.data?.totalFields || 0,
+            totalArea: ndviSummary.data?.totalAreaHectares || 0,
+            healthScore: Math.round((ndviSummary.data?.averageHealth || 0) * 100),
+            pendingTasks: 8,
+            completedTasks: 4,
+            activeAlerts: 3,
+            temperature: weatherData?.data?.current?.temperature || 32,
+            weatherCondition: weatherData?.data?.current?.description || 'مشمس',
+            waterUsage: 85,
+            waterSaving: 15,
+          });
+          setError(null);
+          return;
         }
-
-        // Fallback to demo data
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setStats({
-          totalFields: 4,
-          totalArea: 29.5,
-          healthScore: 72,
-          pendingTasks: 8,
-          completedTasks: 4,
-          activeAlerts: 3,
-          temperature: 32,
-          weatherCondition: 'مشمس',
-          waterUsage: 85,
-          waterSaving: 15,
-        });
-        setError(null);
-      } catch (err) {
-        setError('فشل تحميل الإحصائيات');
-      } finally {
-        setLoading(false);
       }
-    };
 
-    fetchStats();
+      // Fallback to demo data
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setStats({
+        totalFields: 4,
+        totalArea: 29.5,
+        healthScore: 72,
+        pendingTasks: 8,
+        completedTasks: 4,
+        activeAlerts: 3,
+        temperature: 32,
+        weatherCondition: 'مشمس',
+        waterUsage: 85,
+        waterSaving: 15,
+      });
+      setError(null);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'فشل تحميل الإحصائيات';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   }, [tenantId]);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   if (loading) {
     return (

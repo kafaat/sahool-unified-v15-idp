@@ -24,13 +24,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<TaskFormData>({
     title: task?.title || '',
-    titleAr: task?.titleAr || '',
+    titleAr: task?.title || '', // Use title as fallback
     description: task?.description || '',
-    descriptionAr: task?.descriptionAr || '',
-    dueDate: task?.dueDate ? task.dueDate.split('T')[0] : '',
+    descriptionAr: task?.description || '', // Use description as fallback
+    dueDate: task?.due_date ? task.due_date.split('T')[0] : '',
     priority: task?.priority || 'medium',
-    status: task?.status || 'pending',
-    fieldId: task?.fieldId || '',
+    status: task?.status || 'open',
+    fieldId: task?.field_id || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -126,10 +126,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               onChange={(e) => handleChange('status', e.target.value as TaskStatus)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             >
-              <option value="pending">قيد الانتظار - Pending</option>
+              <option value="open">جديدة - Open</option>
               <option value="in_progress">قيد التنفيذ - In Progress</option>
-              <option value="completed">مكتملة - Completed</option>
-              <option value="cancelled">ملغاة - Cancelled</option>
+              <option value="done">مكتملة - Done</option>
+              <option value="canceled">ملغاة - Canceled</option>
             </select>
           </div>
 

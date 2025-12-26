@@ -34,7 +34,7 @@ export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   const maxWaitValue = maxing ? Math.max(maxWait, wait) : 0;
 
   function invokeFunc(time: number): ReturnType<T> {
-    const args = lastArgs!;
+    const args = lastArgs as Parameters<T>;
     lastArgs = null;
     lastInvokeTime = time;
     result = func(...args);
@@ -154,11 +154,11 @@ export function memoize<T extends (...args: Parameters<T>) => ReturnType<T>>(
     keyGenerator?: (...args: Parameters<T>) => string;
   } = {}
 ): T & { cache: Map<string, { value: ReturnType<T>; timestamp: number }>; clear: () => void } {
-  const { maxSize = 100, ttl, keyGenerator = JSON.stringify } = options;
+  const { maxSize = 100, ttl, keyGenerator = ((...a: unknown[]) => JSON.stringify(a)) as (...args: Parameters<T>) => string } = options;
   const cache = new Map<string, { value: ReturnType<T>; timestamp: number }>();
 
   function memoized(this: unknown, ...args: Parameters<T>): ReturnType<T> {
-    const key = keyGenerator(...args);
+    const key = keyGenerator(...(args as Parameters<T>));
     const cached = cache.get(key);
     const now = Date.now();
 

@@ -216,66 +216,11 @@ db-shell: ## الاتصال بطرفية قاعدة البيانات - Connect t
 	@echo "$(BLUE)🗄️  الاتصال بقاعدة البيانات - Connecting to database...$(RESET)"
 	docker exec -it sahool-postgres psql -U sahool -d sahool
 
-db-backup: ## نسخ احتياطي لقاعدة البيانات - Backup database (simple)
+db-backup: ## نسخ احتياطي لقاعدة البيانات - Backup database
 	@echo "$(YELLOW)💾 إنشاء نسخة احتياطية - Creating database backup...$(RESET)"
 	@mkdir -p backups
 	docker exec sahool-postgres pg_dump -U sahool sahool > backups/backup_$(shell date +%Y%m%d_%H%M%S).sql
 	@echo "$(GREEN)✅ تم إنشاء النسخة الاحتياطية - Backup created in backups/ directory!$(RESET)"
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Backup & Disaster Recovery - النسخ الاحتياطي والتعافي من الكوارث
-# ═══════════════════════════════════════════════════════════════════════════════
-
-backup: ## إنشاء نسخة احتياطية كاملة - Create full backup (database, redis, nats, files)
-	@echo "$(YELLOW)💾 إنشاء نسخة احتياطية كاملة - Creating full backup...$(RESET)"
-	./scripts/backup/backup.sh daily
-	@echo "$(GREEN)✅ اكتملت النسخة الاحتياطية - Backup complete!$(RESET)"
-
-backup-daily: ## نسخة احتياطية يومية - Daily backup
-	@echo "$(YELLOW)📅 نسخة احتياطية يومية - Creating daily backup...$(RESET)"
-	./scripts/backup/backup.sh daily
-
-backup-weekly: ## نسخة احتياطية أسبوعية - Weekly backup
-	@echo "$(YELLOW)📅 نسخة احتياطية أسبوعية - Creating weekly backup...$(RESET)"
-	./scripts/backup/backup.sh weekly
-
-backup-monthly: ## نسخة احتياطية شهرية - Monthly backup
-	@echo "$(YELLOW)📅 نسخة احتياطية شهرية - Creating monthly backup...$(RESET)"
-	./scripts/backup/backup.sh monthly
-
-backup-restore: ## استعادة من نسخة احتياطية - Restore from backup (interactive)
-	@echo "$(BLUE)🔄 استعادة من نسخة احتياطية - Restoring from backup...$(RESET)"
-	@echo "$(RED)⚠️  WARNING: This will overwrite current data!$(RESET)"
-	./scripts/backup/restore.sh
-
-backup-verify: ## التحقق من النسخة الاحتياطية - Verify backup integrity
-	@echo "$(BLUE)🔍 التحقق من النسخة الاحتياطية - Verifying backup...$(RESET)"
-	./scripts/backup/verify-backup.sh
-
-backup-list: ## عرض النسخ الاحتياطية - List available backups
-	@echo "$(BLUE)📋 النسخ الاحتياطية المتاحة - Available backups:$(RESET)"
-	@echo ""
-	@ls -lh backups/sahool_backup_*.tar.gz 2>/dev/null || echo "No backups found"
-	@echo ""
-
-backup-infra-up: ## تشغيل البنية التحتية للنسخ الاحتياطي - Start backup infrastructure (MinIO, scheduler)
-	@echo "$(GREEN)🚀 تشغيل البنية التحتية للنسخ الاحتياطي - Starting backup infrastructure...$(RESET)"
-	docker compose -f scripts/backup/docker-compose.backup.yml up -d
-	@echo "$(GREEN)✅ البنية جاهزة - Infrastructure ready!$(RESET)"
-	@echo "$(BLUE)MinIO Console:$(RESET) http://localhost:9001"
-	@echo "$(BLUE)Backup Monitor:$(RESET) http://localhost:8082"
-
-backup-infra-down: ## إيقاف البنية التحتية للنسخ الاحتياطي - Stop backup infrastructure
-	@echo "$(RED)🛑 إيقاف البنية التحتية للنسخ الاحتياطي - Stopping backup infrastructure...$(RESET)"
-	docker compose -f scripts/backup/docker-compose.backup.yml down
-	@echo "$(GREEN)✅ تم الإيقاف - Stopped!$(RESET)"
-
-backup-logs: ## عرض سجلات النسخ الاحتياطي - View backup logs
-	@echo "$(BLUE)📋 سجلات النسخ الاحتياطي - Backup logs:$(RESET)"
-	@docker logs -f sahool-backup-scheduler 2>/dev/null || \
-		(echo "Backup scheduler not running. Start with: make backup-infra-up" && \
-		 echo "Or view log files:" && \
-		 ls -lh logs/backup/*.log 2>/dev/null || echo "No logs found")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Testing - الاختبارات

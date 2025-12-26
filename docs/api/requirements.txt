@@ -1,0 +1,17 @@
+# SAHOOL API Documentation Aggregator - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# HTTP requests library for fetching OpenAPI specs
+requests>=2.31.0
+
+# YAML parsing and serialization
+PyYAML>=6.0.1
+
+# Optional: Better console output
+colorama>=0.4.6
+
+# Optional: Progress bars for fetching
+tqdm>=4.66.0
+
+# Optional: JSON validation
+jsonschema>=4.20.0

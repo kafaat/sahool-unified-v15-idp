@@ -58,9 +58,45 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="SAHOOL Inventory Service", description="Agricultural inventory management, forecasting, and analytics", version="1.0.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
+@app.get("/health")
+async def health(db: AsyncSession = Depends(get_db)):
+    """Health check with dependency verification"""
+    # Check database connection
+    db_healthy = False
+    try:
+        await db.execute(select(1))
+        db_healthy = True
+    except Exception as e:
+        print(f"Database health check failed: {e}")
+
+    return {
+        "status": "healthy",
+        "service": "inventory-service",
+        "version": "1.0.0",
+        "dependencies": {
+            "postgres": "connected" if db_healthy else "disconnected"
+        }
+    }
+
 @app.get("/healthz")
-def health():
+def healthz():
+    """Simple health check for Kubernetes liveness probe"""
     return {"status": "healthy", "service": "inventory-service", "version": "1.0.0"}
+
+@app.get("/readyz")
+async def readiness(db: AsyncSession = Depends(get_db)):
+    """Readiness check for Kubernetes readiness probe"""
+    ready = True
+    try:
+        await db.execute(select(1))
+    except Exception:
+        ready = False
+
+    return {
+        "status": "ready" if ready else "not_ready",
+        "service": "inventory-service",
+        "database": ready
+    }
 
 class ItemCategoryCreate(BaseModel):
     name_en: str

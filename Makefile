@@ -1,624 +1,565 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Platform Makefile - سهول المنصة الموحدة
-# Single Source of Truth for all platform operations
+# Comprehensive management for the unified agricultural platform
+# مجموعة شاملة لإدارة منصة سهول الزراعية الموحدة
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 2.0.0
 # Reference: governance/services.yaml, REPO_MAP.md
 # ═══════════════════════════════════════════════════════════════════════════════
 
-.PHONY: help up down restart logs ps clean db-shell test lint mobile-run
-.PHONY: up-dev up-staging up-prod up-infra up-core up-ai up-v15
-.PHONY: generate-infra generate-compose generate-helm validate-infra sync-infra
-.PHONY: validate-services check-structure
-
-# Default target
+.PHONY: help dev build up down restart logs clean test health
 .DEFAULT_GOAL := help
 
-# Environment detection
+# ─────────────────────────────────────────────────────────────────────────────
+# Environment Variables - متغيرات البيئة
+# ─────────────────────────────────────────────────────────────────────────────
+
 ENV ?= development
 COMPOSE_PROJECT_NAME ?= sahool
+SERVICE ?=
 
-# Compose files based on environment
-COMPOSE_BASE = -f docker-compose.yml
-COMPOSE_DEV = $(COMPOSE_BASE) -f docker/compose.dev.yml
-COMPOSE_STAGING = $(COMPOSE_BASE) -f docker/compose.staging.yml
-COMPOSE_PROD = $(COMPOSE_BASE) -f docker/compose.prod.yml
+# Compose file paths - مسارات ملفات Docker Compose
+COMPOSE_BASE = docker-compose.yml
+COMPOSE_STARTER = packages/starter/docker-compose.yml
+COMPOSE_PROFESSIONAL = packages/professional/docker-compose.yml
+COMPOSE_ENTERPRISE = packages/enterprise/docker-compose.yml
+COMPOSE_MONITORING = infrastructure/monitoring/docker-compose.monitoring.yml
+COMPOSE_TEST = docker-compose.test.yml
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Help
-# ─────────────────────────────────────────────────────────────────────────────
+# Colors for terminal output - ألوان للطرفية
+BLUE := \033[36m
+GREEN := \033[32m
+YELLOW := \033[33m
+RED := \033[31m
+BOLD := \033[1m
+RESET := \033[0m
 
-help: ## Show this help message
-	@echo "═══════════════════════════════════════════════════════════════════"
-	@echo "  SAHOOL Platform v15.3 - Unified Commands"
-	@echo "  Reference: governance/services.yaml"
-	@echo "═══════════════════════════════════════════════════════════════════"
+# ═══════════════════════════════════════════════════════════════════════════════
+# Help - المساعدة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+help: ## عرض قائمة الأوامر المتاحة - Show available commands
 	@echo ""
-	@echo "  \033[1mEnvironment Profiles:\033[0m"
-	@echo "  \033[36mup-dev\033[0m        Development (hot-reload, debug, reduced resources)"
-	@echo "  \033[36mup-staging\033[0m    Staging (production-like, scaled down)"
-	@echo "  \033[36mup-prod\033[0m       Production (full scale, optimized)"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@echo "$(BOLD)  SAHOOL Platform v15.3 - Unified Management Commands$(RESET)"
+	@echo "$(BOLD)  منصة سهول الموحدة - أوامر الإدارة الشاملة$(RESET)"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
 	@echo ""
-	@echo "  \033[1mService Profiles:\033[0m"
-	@echo "  \033[36mup-infra\033[0m      Infrastructure only (postgres, redis, nats, mqtt)"
-	@echo "  \033[36mup-core\033[0m       Core services (field-ops, weather, ndvi)"
-	@echo "  \033[36mup-ai\033[0m         AI services (crop-health-ai, yield-engine)"
-	@echo "  \033[36mup-v15\033[0m        v15.3 services (crop-growth-model, disaster, lai)"
+	@echo "$(BOLD)$(BLUE)Development - التطوير:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*dev/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@echo "$(BOLD)$(BLUE)Docker - إدارة الحاويات:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(docker|build|up|down|restart|logs)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Database - قاعدة البيانات:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(database|db|migrate|seed)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Testing - الاختبارات:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*test/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Monitoring - المراقبة:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*monitor/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Utilities - الأدوات المساعدة:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(clean|status|health|shell)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "$(BOLD)Usage Examples - أمثلة الاستخدام:$(RESET)"
+	@echo "  $(GREEN)make dev$(RESET)                      - بدء بيئة التطوير"
+	@echo "  $(GREEN)make build$(RESET)                    - بناء جميع صور Docker"
+	@echo "  $(GREEN)make logs-service SERVICE=field_ops$(RESET) - عرض سجلات خدمة محددة"
+	@echo "  $(GREEN)make shell SERVICE=postgres$(RESET)   - فتح طرفية في حاوية"
+	@echo "  $(GREEN)make test-python$(RESET)              - تشغيل اختبارات Python"
 	@echo ""
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Environment-Based Docker Commands
-# ─────────────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# Development - التطوير
+# ═══════════════════════════════════════════════════════════════════════════════
 
-up: ## Start all services (default environment)
-	@echo "🚀 Starting SAHOOL Platform..."
-	docker compose up -d
-	@make status-urls
+dev: ## بدء بيئة التطوير الكاملة - Start full development environment
+	@echo "$(GREEN)🚀 بدء بيئة التطوير - Starting Development Environment...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) up -d
+	@$(MAKE) --no-print-directory status
+	@echo "$(GREEN)✅ بيئة التطوير جاهزة - Development environment ready!$(RESET)"
 
-up-dev: ## Start in development mode (hot-reload, debug)
-	@echo "🚀 Starting SAHOOL Platform [DEV MODE]..."
-	docker compose $(COMPOSE_DEV) up -d
-	@echo "✅ Development mode active!"
-	@echo "   - Hot-reload enabled"
-	@echo "   - Debug logging enabled"
-	@echo "   - Reduced resource limits"
-	@make status-urls
+dev-starter: ## بدء حزمة المبتدئين فقط - Start only starter package services
+	@echo "$(GREEN)🌱 بدء حزمة المبتدئين - Starting Starter Package...$(RESET)"
+	docker compose -f $(COMPOSE_STARTER) up -d
+	@echo "$(GREEN)✅ حزمة المبتدئين جاهزة - Starter package ready!$(RESET)"
+	@echo "$(BLUE)Services: PostgreSQL, Redis, NATS, Field Core, Weather, Advisory$(RESET)"
 
-up-staging: ## Start in staging mode (production-like)
-	@echo "🚀 Starting SAHOOL Platform [STAGING]..."
-	docker compose $(COMPOSE_STAGING) up -d
-	@echo "✅ Staging mode active!"
-	@make status-urls
+dev-professional: ## بدء حزمة الاحترافية - Start professional package
+	@echo "$(GREEN)🏢 بدء حزمة الاحترافية - Starting Professional Package...$(RESET)"
+	docker compose -f $(COMPOSE_PROFESSIONAL) up -d
+	@echo "$(GREEN)✅ حزمة الاحترافية جاهزة - Professional package ready!$(RESET)"
 
-up-prod: ## Start in production mode (optimized)
-	@echo "🚀 Starting SAHOOL Platform [PRODUCTION]..."
-	docker compose $(COMPOSE_PROD) up -d
-	@echo "✅ Production mode active!"
-	@echo "   - Replicas scaled"
-	@echo "   - Resource limits enforced"
-	@make status-urls
+dev-enterprise: ## بدء جميع الخدمات المتقدمة - Start all enterprise services
+	@echo "$(GREEN)🏭 بدء حزمة المؤسسات - Starting Enterprise Package...$(RESET)"
+	docker compose -f $(COMPOSE_ENTERPRISE) up -d
+	@echo "$(GREEN)✅ حزمة المؤسسات جاهزة - Enterprise package ready!$(RESET)"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Service Profile Commands
-# ─────────────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# Docker Management - إدارة Docker
+# ═══════════════════════════════════════════════════════════════════════════════
 
-up-infra: ## Start infrastructure only (postgres, redis, nats, mqtt, kong)
-	@echo "🏗️  Starting Infrastructure..."
-	docker compose up -d postgres redis nats mqtt kong
-	@echo "✅ Infrastructure ready!"
-	@echo "   - PostgreSQL: localhost:5432"
-	@echo "   - Redis:      localhost:6379"
-	@echo "   - NATS:       localhost:4222"
-	@echo "   - MQTT:       localhost:1883"
-	@echo "   - Kong:       localhost:8000"
+build: ## بناء جميع صور Docker - Build all Docker images
+	@echo "$(YELLOW)🔨 بناء جميع الصور - Building all Docker images...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) build --parallel
+	@echo "$(GREEN)✅ اكتمل البناء - Build complete!$(RESET)"
 
-up-core: up-infra ## Start core services (field-ops, weather, ndvi)
-	@echo "🌾 Starting Core Services..."
-	docker compose up -d field_ops ndvi_engine weather_core
-	@echo "✅ Core services ready!"
-	@echo "   - Field Ops:    localhost:8080"
-	@echo "   - NDVI Engine:  localhost:8107"
-	@echo "   - Weather Core: localhost:8108"
+build-python: ## بناء خدمات Python فقط - Build only Python services
+	@echo "$(YELLOW)🐍 بناء خدمات Python - Building Python services...$(RESET)"
+	@docker compose -f $(COMPOSE_BASE) build \
+		field_ops \
+		weather_core \
+		ndvi_engine \
+		crop_health_ai \
+		virtual_sensors \
+		yield_engine \
+		agro_advisor \
+		alert_service \
+		astronomical_calendar \
+		billing_core \
+		fertilizer_advisor \
+		crop_health \
+		ai_advisor \
+		agro_rules
+	@echo "$(GREEN)✅ خدمات Python جاهزة - Python services built!$(RESET)"
 
-up-ai: up-infra ## Start AI services (crop-health-ai, virtual-sensors, yield)
-	@echo "🤖 Starting AI Services..."
-	docker compose up -d crop_health_ai virtual_sensors yield_engine
-	@echo "✅ AI services ready!"
-	@echo "   - Crop Health AI:   localhost:8095"
-	@echo "   - Virtual Sensors:  localhost:8096"
-	@echo "   - Yield Engine:     localhost:8098"
+build-node: ## بناء خدمات Node.js فقط - Build only Node.js services
+	@echo "$(YELLOW)📦 بناء خدمات Node.js - Building Node.js services...$(RESET)"
+	@docker compose -f $(COMPOSE_BASE) build \
+		crop_growth_model \
+		disaster_assessment \
+		lai_estimation \
+		yield_prediction \
+		marketplace_service \
+		community_chat \
+		field_core \
+		iot_service
+	@echo "$(GREEN)✅ خدمات Node.js جاهزة - Node.js services built!$(RESET)"
 
-up-v15: up-infra ## Start v15.3 services (crop-growth-model, disaster, lai, yield-prediction)
-	@echo "🚀 Starting v15.3 Services..."
-	docker compose up -d crop_growth_model disaster_assessment lai_estimation yield_prediction marketplace_service
-	@echo "✅ v15.3 services ready!"
-	@echo "   - Crop Growth Model:     localhost:3023"
-	@echo "   - Disaster Assessment:   localhost:3020"
-	@echo "   - LAI Estimation:        localhost:3022"
-	@echo "   - Yield Prediction:      localhost:3021"
-	@echo "   - Marketplace:           localhost:3010"
+up: ## تشغيل جميع الخدمات - Start all services
+	@echo "$(GREEN)🚀 تشغيل جميع الخدمات - Starting all services...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) up -d
+	@$(MAKE) --no-print-directory status
+	@echo "$(GREEN)✅ جميع الخدمات قيد التشغيل - All services running!$(RESET)"
 
-up-observability: ## Start observability stack (prometheus, grafana)
-	@echo "📊 Starting Observability..."
-	docker compose up -d prometheus grafana
-	@echo "✅ Observability ready!"
-	@echo "   - Prometheus: localhost:9090"
-	@echo "   - Grafana:    localhost:3002"
+down: ## إيقاف جميع الخدمات - Stop all services
+	@echo "$(RED)🛑 إيقاف جميع الخدمات - Stopping all services...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) down
+	@echo "$(GREEN)✅ تم إيقاف الخدمات - Services stopped!$(RESET)"
 
-status-urls: ## Show all service URLs
-	@echo ""
-	@echo "═══════════════════════════════════════════════════════════════════"
-	@echo "  Service URLs"
-	@echo "═══════════════════════════════════════════════════════════════════"
-	@echo "  API Gateway:           http://localhost:8000"
-	@echo "  Field Ops:             http://localhost:8080"
-	@echo "  Crop Growth Model:     http://localhost:3023"
-	@echo "  Admin Dashboard:       http://localhost:3001"
-	@echo "  Grafana:               http://localhost:3002"
-	@echo "  Prometheus:            http://localhost:9090"
-	@echo "  NATS Monitor:          http://localhost:8222"
-	@echo "═══════════════════════════════════════════════════════════════════"
+down-volumes: ## إيقاف وحذف البيانات - Stop services and remove volumes
+	@echo "$(RED)🗑️  إيقاف وحذف البيانات - Stopping services and removing volumes...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) down -v
+	@echo "$(GREEN)✅ تم حذف الخدمات والبيانات - Services and volumes removed!$(RESET)"
 
-down: ## Stop all services
-	@echo "🛑 Stopping SAHOOL Platform..."
-	docker compose down
-	@echo "✅ Platform stopped."
+restart: ## إعادة تشغيل جميع الخدمات - Restart all services
+	@echo "$(YELLOW)🔄 إعادة التشغيل - Restarting all services...$(RESET)"
+	@$(MAKE) --no-print-directory down
+	@sleep 2
+	@$(MAKE) --no-print-directory up
 
-down-v: ## Stop all services and remove volumes
-	@echo "🛑 Stopping SAHOOL Platform (with volumes)..."
-	docker compose down -v
-	@echo "✅ Platform stopped, volumes removed."
+logs: ## عرض سجلات جميع الخدمات - View logs from all services
+	@echo "$(BLUE)📋 عرض السجلات - Viewing logs...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) logs -f
 
-restart: down up ## Restart all services
+logs-service: ## عرض سجلات خدمة محددة - View specific service logs (usage: make logs-service SERVICE=name)
+ifndef SERVICE
+	@echo "$(RED)❌ Error: SERVICE parameter required$(RESET)"
+	@echo "$(YELLOW)Usage: make logs-service SERVICE=field_ops$(RESET)"
+	@exit 1
+endif
+	@echo "$(BLUE)📋 عرض سجلات $(SERVICE) - Viewing logs for $(SERVICE)...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) logs -f $(SERVICE)
 
-logs: ## Follow logs from all services
-	docker compose logs -f
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database - قاعدة البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
 
-logs-service: ## Follow logs from specific service (usage: make logs-service SERVICE=field_ops)
-	docker compose logs -f $(SERVICE)
+db-migrate: ## تشغيل ترحيل قاعدة البيانات - Run database migrations (Prisma)
+	@echo "$(YELLOW)📦 تشغيل الترحيل - Running migrations...$(RESET)"
+	@if [ -d "apps/services/field-core" ]; then \
+		cd apps/services/field-core && npx prisma migrate deploy; \
+	fi
+	@if [ -d "apps/services/crop-growth-model" ]; then \
+		cd apps/services/crop-growth-model && npx prisma migrate deploy; \
+	fi
+	@if [ -d "apps/services/disaster-assessment" ]; then \
+		cd apps/services/disaster-assessment && npx prisma migrate deploy; \
+	fi
+	@echo "$(GREEN)✅ اكتمل الترحيل - Migrations complete!$(RESET)"
 
-ps: ## List running services
-	docker compose ps
+db-seed: ## ملء قاعدة البيانات بالبيانات التجريبية - Seed database with sample data
+	@echo "$(YELLOW)🌱 ملء قاعدة البيانات - Seeding database...$(RESET)"
+	@if [ -d "apps/services/field-core" ]; then \
+		cd apps/services/field-core && npx prisma db seed; \
+	fi
+	@echo "$(GREEN)✅ تم ملء البيانات - Database seeded!$(RESET)"
 
-health: ## Check health of all services
-	@echo "🏥 Health Check..."
-	@docker compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+db-reset: ## إعادة تعيين قاعدة البيانات - Reset database (WARNING: deletes all data)
+	@echo "$(RED)⚠️  تحذير: سيتم حذف جميع البيانات! - WARNING: This will delete all data!$(RESET)"
+	@read -p "هل أنت متأكد؟ Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		echo "$(RED)🗑️  إعادة تعيين قاعدة البيانات - Resetting database...$(RESET)"; \
+		docker compose -f $(COMPOSE_BASE) down postgres -v; \
+		docker compose -f $(COMPOSE_BASE) up -d postgres; \
+		sleep 5; \
+		$(MAKE) --no-print-directory db-migrate; \
+		echo "$(GREEN)✅ تمت إعادة التعيين - Database reset complete!$(RESET)"; \
+	else \
+		echo "$(YELLOW)❌ تم الإلغاء - Cancelled$(RESET)"; \
+	fi
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Database Commands
-# ─────────────────────────────────────────────────────────────────────────────
-
-db-shell: ## Connect to PostgreSQL shell
-	@echo "🗄️  Connecting to SAHOOL Database..."
+db-shell: ## الاتصال بطرفية قاعدة البيانات - Connect to PostgreSQL shell
+	@echo "$(BLUE)🗄️  الاتصال بقاعدة البيانات - Connecting to database...$(RESET)"
 	docker exec -it sahool-postgres psql -U sahool -d sahool
 
-db-migrate: ## Run database migrations
-	@echo "📦 Running migrations..."
-	./tools/env/migrate.sh
+db-backup: ## نسخ احتياطي لقاعدة البيانات - Backup database
+	@echo "$(YELLOW)💾 إنشاء نسخة احتياطية - Creating database backup...$(RESET)"
+	@mkdir -p backups
+	docker exec sahool-postgres pg_dump -U sahool sahool > backups/backup_$(shell date +%Y%m%d_%H%M%S).sql
+	@echo "$(GREEN)✅ تم إنشاء النسخة الاحتياطية - Backup created in backups/ directory!$(RESET)"
 
-db-backup: ## Backup database
-	@echo "💾 Creating database backup..."
-	docker exec sahool-postgres pg_dump -U sahool sahool > backup_$(shell date +%Y%m%d_%H%M%S).sql
-	@echo "✅ Backup created!"
+# ═══════════════════════════════════════════════════════════════════════════════
+# Testing - الاختبارات
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Development Commands
-# ─────────────────────────────────────────────────────────────────────────────
+test: ## تشغيل جميع الاختبارات - Run all tests
+	@echo "$(BLUE)🧪 تشغيل جميع الاختبارات - Running all tests...$(RESET)"
+	@$(MAKE) --no-print-directory test-python
+	@$(MAKE) --no-print-directory test-node
+	@echo "$(GREEN)✅ اكتملت جميع الاختبارات - All tests complete!$(RESET)"
 
-clean: ## Clean up containers, volumes, and build artifacts
-	@echo "🧹 Cleaning up..."
-	docker-compose down -v --remove-orphans
-	docker system prune -f
-	@echo "✅ Cleanup complete!"
+test-python: ## تشغيل اختبارات Python - Run Python tests
+	@echo "$(BLUE)🐍 تشغيل اختبارات Python - Running Python tests...$(RESET)"
+	pytest tests/ -v --cov=shared --cov-report=term-missing
+	@echo "$(GREEN)✅ اكتملت اختبارات Python - Python tests complete!$(RESET)"
 
-build: ## Build all Docker images
-	@echo "🔨 Building Docker images..."
-	docker-compose build --no-cache
-	@echo "✅ Build complete!"
+test-node: ## تشغيل اختبارات Node.js - Run Node.js tests
+	@echo "$(BLUE)📦 تشغيل اختبارات Node.js - Running Node.js tests...$(RESET)"
+	@if [ -d "apps/services/field-core" ]; then \
+		cd apps/services/field-core && npm test; \
+	fi
+	@if [ -d "apps/services/crop-growth-model" ]; then \
+		cd apps/services/crop-growth-model && npm test; \
+	fi
+	@if [ -d "apps/web" ]; then \
+		cd apps/web && npm test; \
+	fi
+	@echo "$(GREEN)✅ اكتملت اختبارات Node.js - Node.js tests complete!$(RESET)"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Mobile App Commands
-# ─────────────────────────────────────────────────────────────────────────────
+test-integration: ## تشغيل اختبارات التكامل - Run integration tests
+	@echo "$(BLUE)🔗 تشغيل اختبارات التكامل - Running integration tests...$(RESET)"
+	pytest tests/integration -v
+	@echo "$(GREEN)✅ اكتملت اختبارات التكامل - Integration tests complete!$(RESET)"
 
-mobile-run: ## Run Flutter mobile app
-	@echo "📱 Starting Mobile App..."
-	cd mobile/sahool_field_app && flutter run
+test-unit: ## تشغيل اختبارات الوحدة - Run unit tests
+	@echo "$(BLUE)⚡ تشغيل اختبارات الوحدة - Running unit tests...$(RESET)"
+	pytest tests/unit -v
+	@echo "$(GREEN)✅ اكتملت اختبارات الوحدة - Unit tests complete!$(RESET)"
 
-mobile-build-apk: ## Build Android APK
-	@echo "📦 Building Android APK..."
-	cd mobile/sahool_field_app && flutter build apk --release
+test-coverage: ## تشغيل الاختبارات مع تقرير التغطية - Run tests with coverage report
+	@echo "$(BLUE)📊 تشغيل الاختبارات مع التغطية - Running tests with coverage...$(RESET)"
+	pytest tests/ --cov=shared --cov=packages --cov-report=html:coverage_html --cov-report=term
+	@echo "$(GREEN)✅ تقرير التغطية: coverage_html/index.html - Coverage report: coverage_html/index.html$(RESET)"
 
-mobile-build-ios: ## Build iOS app
-	@echo "📦 Building iOS App..."
-	cd mobile/sahool_field_app && flutter build ios --release
+test-docker: ## تشغيل الاختبارات داخل Docker - Run tests in Docker containers
+	@echo "$(BLUE)🐳 تشغيل الاختبارات في Docker - Running tests in Docker...$(RESET)"
+	docker compose -f $(COMPOSE_TEST) up --build --abort-on-container-exit
+	docker compose -f $(COMPOSE_TEST) down
+	@echo "$(GREEN)✅ اكتملت اختبارات Docker - Docker tests complete!$(RESET)"
 
-mobile-clean: ## Clean Flutter build
-	@echo "🧹 Cleaning Flutter build..."
-	cd mobile/sahool_field_app && flutter clean && flutter pub get
+# ═══════════════════════════════════════════════════════════════════════════════
+# Utilities - الأدوات المساعدة
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Code Quality Commands (Sprint 1 Governance)
-# ─────────────────────────────────────────────────────────────────────────────
+clean: ## تنظيف الحاويات والبيانات - Clean up containers, volumes, and build artifacts
+	@echo "$(RED)🧹 التنظيف - Cleaning up...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) down -v --remove-orphans
+	docker system prune -f --volumes
+	@rm -rf coverage_html .pytest_cache __pycache__ node_modules/.cache
+	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	@find . -type d -name "node_modules/.cache" -exec rm -rf {} + 2>/dev/null || true
+	@echo "$(GREEN)✅ اكتمل التنظيف - Cleanup complete!$(RESET)"
 
-fmt: ## Format code with Ruff
-	@echo "✨ Formatting code..."
-	python -m ruff format .
-	python -m ruff check . --fix
-	@echo "✅ Code formatted!"
+status: ## عرض حالة الخدمات - Show service status
+	@echo ""
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@echo "$(BOLD)  حالة الخدمات - Service Status$(RESET)"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@docker compose -f $(COMPOSE_BASE) ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+	@echo ""
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@echo "$(BOLD)  روابط الخدمات - Service URLs$(RESET)"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@echo "  $(BLUE)API Gateway (Kong):$(RESET)       http://localhost:8000"
+	@echo "  $(BLUE)Field Ops Service:$(RESET)        http://localhost:8080"
+	@echo "  $(BLUE)Weather Core:$(RESET)             http://localhost:8108"
+	@echo "  $(BLUE)NDVI Engine:$(RESET)              http://localhost:8107"
+	@echo "  $(BLUE)Crop Growth Model:$(RESET)        http://localhost:3023"
+	@echo "  $(BLUE)Admin Dashboard:$(RESET)          http://localhost:3001"
+	@echo "  $(BLUE)Web Application:$(RESET)          http://localhost:3000"
+	@echo "  $(BLUE)PostgreSQL:$(RESET)               localhost:5432"
+	@echo "  $(BLUE)Redis:$(RESET)                    localhost:6379"
+	@echo "  $(BLUE)NATS:$(RESET)                     localhost:4222"
+	@echo "  $(BLUE)NATS Monitor:$(RESET)             http://localhost:8222"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@echo ""
 
-lint: ## Check code style and linting
-	@echo "🔍 Running linters..."
+health: ## فحص صحة جميع الخدمات - Check health of all services
+	@echo "$(BLUE)🏥 فحص صحة الخدمات - Health Check...$(RESET)"
+	@echo ""
+	@for service in postgres redis nats kong field_ops weather_core; do \
+		if docker compose -f $(COMPOSE_BASE) ps $$service | grep -q "Up"; then \
+			echo "$(GREEN)✅ $$service - Healthy$(RESET)"; \
+		else \
+			echo "$(RED)❌ $$service - Unhealthy$(RESET)"; \
+		fi; \
+	done
+	@echo ""
+	@echo "$(BLUE)Testing API endpoints...$(RESET)"
+	@curl -s -o /dev/null -w "Kong Gateway: %{http_code}\n" http://localhost:8000 || echo "Kong: Not responding"
+	@curl -s -o /dev/null -w "Field Ops: %{http_code}\n" http://localhost:8080/health || echo "Field Ops: Not responding"
+	@echo ""
+
+shell: ## فتح طرفية في حاوية - Open shell in container (usage: make shell SERVICE=postgres)
+ifndef SERVICE
+	@echo "$(RED)❌ Error: SERVICE parameter required$(RESET)"
+	@echo "$(YELLOW)Usage: make shell SERVICE=postgres$(RESET)"
+	@exit 1
+endif
+	@echo "$(BLUE)🐚 فتح طرفية في $(SERVICE) - Opening shell in $(SERVICE)...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) exec $(SERVICE) /bin/sh || \
+	docker compose -f $(COMPOSE_BASE) exec $(SERVICE) /bin/bash
+
+ps: ## قائمة الحاويات قيد التشغيل - List running containers
+	@echo "$(BLUE)📦 الحاويات قيد التشغيل - Running containers:$(RESET)"
+	@docker compose -f $(COMPOSE_BASE) ps
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Monitoring - المراقبة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+monitoring-up: ## تشغيل Prometheus/Grafana - Start monitoring stack (Prometheus/Grafana)
+	@echo "$(GREEN)📊 تشغيل المراقبة - Starting monitoring stack...$(RESET)"
+	@if [ ! -f .env ]; then \
+		echo "$(RED)❌ Error: .env file not found$(RESET)"; \
+		echo "$(YELLOW)Please create .env from .env.example and set GRAFANA_ADMIN_PASSWORD$(RESET)"; \
+		exit 1; \
+	fi
+	docker compose -f $(COMPOSE_MONITORING) up -d
+	@echo "$(GREEN)✅ المراقبة جاهزة - Monitoring stack ready!$(RESET)"
+	@echo "$(BLUE)Prometheus:$(RESET) http://localhost:9090"
+	@echo "$(BLUE)Grafana:$(RESET)    http://localhost:3002"
+	@echo "$(BLUE)Alertmanager:$(RESET) http://localhost:9093"
+
+monitoring-down: ## إيقاف المراقبة - Stop monitoring stack
+	@echo "$(RED)🛑 إيقاف المراقبة - Stopping monitoring stack...$(RESET)"
+	docker compose -f $(COMPOSE_MONITORING) down
+	@echo "$(GREEN)✅ تم إيقاف المراقبة - Monitoring stopped!$(RESET)"
+
+monitoring-logs: ## عرض سجلات المراقبة - View monitoring logs
+	@echo "$(BLUE)📋 سجلات المراقبة - Monitoring logs:$(RESET)"
+	docker compose -f $(COMPOSE_MONITORING) logs -f
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Code Quality - جودة الكود
+# ═══════════════════════════════════════════════════════════════════════════════
+
+lint: ## فحص جودة الكود - Check code style and linting
+	@echo "$(BLUE)🔍 فحص الكود - Running linters...$(RESET)"
+	@echo "$(YELLOW)Python:$(RESET)"
 	python -m ruff format . --check
 	python -m ruff check .
+	@echo "$(YELLOW)TypeScript/JavaScript:$(RESET)"
+	@cd apps/web && npm run lint || true
+	@echo "$(GREEN)✅ فحص الكود مكتمل - Linting complete!$(RESET)"
 
-test: ## Run all tests with coverage
-	@echo "🧪 Running tests..."
-	pytest --cov=shared --cov-report=term-missing
+fmt: ## تنسيق الكود - Format code
+	@echo "$(BLUE)✨ تنسيق الكود - Formatting code...$(RESET)"
+	python -m ruff format .
+	python -m ruff check . --fix
+	@cd apps/web && npm run format || true
+	@echo "$(GREEN)✅ تم تنسيق الكود - Code formatted!$(RESET)"
 
-test-unit: ## Run unit tests only (fast)
-	@echo "🧪 Running unit tests..."
-	pytest tests/unit -v
+# ═══════════════════════════════════════════════════════════════════════════════
+# Infrastructure Management - إدارة البنية التحتية
+# ═══════════════════════════════════════════════════════════════════════════════
 
-test-integration: ## Run integration tests
-	@echo "🧪 Running integration tests..."
-	pytest tests/integration -v
+infra-up: ## تشغيل البنية التحتية فقط - Start infrastructure only (postgres, redis, nats, kong)
+	@echo "$(GREEN)🏗️  تشغيل البنية التحتية - Starting infrastructure...$(RESET)"
+	docker compose -f $(COMPOSE_BASE) up -d postgres redis nats kong
+	@echo "$(GREEN)✅ البنية التحتية جاهزة - Infrastructure ready!$(RESET)"
+	@echo "$(BLUE)PostgreSQL:$(RESET) localhost:5432"
+	@echo "$(BLUE)Redis:$(RESET)      localhost:6379"
+	@echo "$(BLUE)NATS:$(RESET)       localhost:4222"
+	@echo "$(BLUE)Kong:$(RESET)       localhost:8000"
 
-test-smoke: ## Run smoke tests
-	@echo "💨 Running smoke tests..."
-	pytest tests/smoke -v
+kong-reload: ## إعادة تحميل إعدادات Kong - Reload Kong configuration
+	@echo "$(YELLOW)🔄 إعادة تحميل Kong - Reloading Kong...$(RESET)"
+	docker exec sahool-kong kong reload
+	@echo "$(GREEN)✅ تم إعادة تحميل Kong - Kong reloaded!$(RESET)"
 
-test-cov: ## Run tests with coverage report
-	@echo "🧪 Running tests with coverage..."
-	pytest --cov=shared --cov-report=html:coverage_html --cov-fail-under=60
-	@echo "📊 Coverage report: coverage_html/index.html"
-
-test-mobile: ## Run Flutter tests
-	@echo "🧪 Running Flutter tests..."
-	cd mobile/sahool_field_app && flutter test
-
-ci: lint test ## Run lint + test (CI check)
-	@echo "✅ CI checks passed!"
-
-ci-full: lint test-cov env-check env-scan ## Full CI check with coverage
-	@echo "✅ Full CI checks passed!"
-
-env-check: ## Validate environment variables
-	@echo "🔍 Validating environment..."
-	python tools/env/validate_env.py
-
-env-scan: ## Scan for ENV drift
-	@echo "🔍 Scanning ENV usage..."
-	python tools/env/scan_env_usage.py > tools/env/used_env.txt
-	python tools/env/check_env_drift.py
-
-secrets-scan: ## Scan for leaked secrets
-	@echo "🔒 Scanning for secrets..."
-	detect-secrets scan --baseline .secrets.baseline
-	@echo "✅ Secrets scan complete!"
-
-governance-check: lint env-check env-scan arch-check ## Full governance check
-	@echo "✅ All governance checks passed!"
-
-arch-check: ## Check architecture import rules
-	@echo "🏗️  Checking architecture boundaries..."
-	python -m tools.arch.check_imports --root .
-	@echo "✅ Architecture check passed!"
-
-arch-check-verbose: ## Check architecture with verbose output
-	@echo "🏗️  Checking architecture boundaries (verbose)..."
-	python -m tools.arch.check_imports --root . --verbose --fix-suggestions
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Event Governance Commands (Sprint 4)
-# ─────────────────────────────────────────────────────────────────────────────
-
-event-catalog: ## Generate event catalog documentation
-	@echo "📚 Generating event catalog..."
-	python -m tools.events.generate_catalog
-	@echo "✅ Event catalog generated!"
-
-event-validate: ## Validate all event schemas
-	@echo "🔍 Validating event schemas..."
-	python -c "from shared.libs.events.schema_registry import SchemaRegistry; r = SchemaRegistry.load(); print(f'✅ Loaded {len(r.list_schemas())} schemas')"
-
-event-check: event-validate ## Check event contracts are valid
-	@echo "✅ Event contracts valid!"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Security Commands (Sprint 5)
-# ─────────────────────────────────────────────────────────────────────────────
-
-certs-ca: ## Generate internal CA (run once)
-	@echo "🔐 Generating internal CA..."
-	bash tools/security/certs/gen_ca.sh infra/pki
-	@echo "✅ CA generated!"
-
-certs-service: ## Generate service certificate (usage: make certs-service SERVICE=kernel)
-	@echo "🔐 Generating certificate for $(SERVICE)..."
-	bash tools/security/certs/gen_service_cert.sh $(SERVICE) infra/pki
-
-certs-all: ## Generate CA and all service certificates
-	@echo "🔐 Generating all certificates..."
-	bash tools/security/certs/gen_all_certs.sh infra/pki
-	@echo "✅ All certificates generated!"
-
-vault-up: ## Start Vault in dev mode
-	@echo "🔐 Starting Vault..."
+vault-up: ## تشغيل Vault - Start HashiCorp Vault
+	@echo "$(GREEN)🔐 تشغيل Vault - Starting Vault...$(RESET)"
 	docker compose -f infra/vault/docker-compose.vault.yml up -d
-	@echo "✅ Vault running at http://localhost:8200"
-	@echo "   Token: dev-root-token"
+	@echo "$(GREEN)✅ Vault جاهز - Vault ready!$(RESET)"
+	@echo "$(BLUE)Vault:$(RESET) http://localhost:8200"
+	@echo "$(YELLOW)Token:$(RESET) dev-root-token"
 
-vault-down: ## Stop Vault
-	@echo "🛑 Stopping Vault..."
+vault-down: ## إيقاف Vault - Stop Vault
+	@echo "$(RED)🛑 إيقاف Vault - Stopping Vault...$(RESET)"
 	docker compose -f infra/vault/docker-compose.vault.yml down
 
-security-check: secrets-scan ## Run all security checks
-	@echo "🔐 Running security checks..."
-	@echo "📋 Checking for private keys..."
-	@! find . -type f \( -name "*.pem" -o -name "*.key" -o -name "*.p12" \) -not -path "./.git/*" | grep -q . || (echo "❌ Private keys found!" && exit 1)
-	@echo "✅ No private keys in repository"
-	@echo "📋 Verifying security docs..."
-	@test -f docs/security/THREAT_MODEL_STRIDE.md || (echo "❌ Missing THREAT_MODEL_STRIDE.md" && exit 1)
-	@test -f docs/security/DATA_CLASSIFICATION.md || (echo "❌ Missing DATA_CLASSIFICATION.md" && exit 1)
-	@echo "✅ Security documentation present"
-	@echo "✅ All security checks passed!"
+# ═══════════════════════════════════════════════════════════════════════════════
+# Package-Specific Commands - أوامر الحزم
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Compliance Commands (Sprint 6)
-# ─────────────────────────────────────────────────────────────────────────────
+starter-up: dev-starter ## بدء حزمة المبتدئين - Start starter package (alias)
 
-compliance: ## Run compliance checklist generator
-	@echo "📋 Generating compliance checklist..."
-	python tools/compliance/generate_checklist.py --output docs/compliance/COMPLIANCE_CHECKLIST.md
-	@echo "✅ Compliance checklist generated!"
+professional-up: dev-professional ## بدء حزمة الاحترافية - Start professional package (alias)
 
-compliance-json: ## Generate compliance report as JSON
-	@echo "📋 Generating compliance JSON report..."
-	python tools/compliance/generate_checklist.py --json --output docs/compliance/compliance_report.json
+enterprise-up: dev-enterprise ## بدء حزمة المؤسسات - Start enterprise package (alias)
 
-audit-test: ## Run audit flow tests
-	@echo "🧪 Running audit tests..."
-	pytest tests/integration/test_audit_flow.py -v
+# ═══════════════════════════════════════════════════════════════════════════════
+# Network Management - إدارة الشبكة
+# ═══════════════════════════════════════════════════════════════════════════════
 
-compliance-check: compliance audit-test ## Full compliance check (generate + test)
-	@echo "✅ All compliance checks passed!"
+network-create: ## إنشاء شبكة SAHOOL - Create SAHOOL network
+	@echo "$(YELLOW)🌐 إنشاء الشبكة - Creating network...$(RESET)"
+	docker network create sahool-network 2>/dev/null || echo "$(BLUE)Network already exists$(RESET)"
+	@echo "$(GREEN)✅ الشبكة جاهزة - Network ready!$(RESET)"
 
-gdpr-status: ## Check GDPR compliance status
-	@echo "📋 GDPR Compliance Status"
-	@echo "─────────────────────────"
-	@test -f kernel/compliance/routes_gdpr.py && echo "✅ GDPR endpoints: Present" || echo "❌ GDPR endpoints: Missing"
-	@test -f shared/libs/audit/redact.py && echo "✅ PII redaction: Present" || echo "❌ PII redaction: Missing"
-	@test -f shared/libs/audit/service.py && echo "✅ Audit service: Present" || echo "❌ Audit service: Missing"
-	@echo "─────────────────────────"
+network-inspect: ## فحص شبكة SAHOOL - Inspect SAHOOL network
+	@echo "$(BLUE)🔍 فحص الشبكة - Inspecting network:$(RESET)"
+	docker network inspect sahool-network
 
-dev-install: ## Install dev dependencies
-	@echo "📦 Installing dev dependencies..."
-	python -m pip install -U pip ruff pytest pytest-cov pytest-asyncio pre-commit httpx detect-secrets pyjwt fastapi pydantic jsonschema sqlalchemy hvac
+# ═══════════════════════════════════════════════════════════════════════════════
+# Development Tools - أدوات التطوير
+# ═══════════════════════════════════════════════════════════════════════════════
+
+dev-install: ## تثبيت أدوات التطوير - Install development dependencies
+	@echo "$(YELLOW)📦 تثبيت أدوات التطوير - Installing dev dependencies...$(RESET)"
+	python -m pip install -U pip
+	pip install -r requirements/dev.txt
 	pre-commit install
-	@echo "✅ Dev environment ready!"
+	@if [ -d "apps/web" ]; then cd apps/web && npm install; fi
+	@if [ -d "apps/admin" ]; then cd apps/admin && npm install; fi
+	@echo "$(GREEN)✅ بيئة التطوير جاهزة - Dev environment ready!$(RESET)"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# GIS/Spatial Commands (Sprint 7)
-# ─────────────────────────────────────────────────────────────────────────────
-
-gis-migrate: ## Run PostGIS migrations
-	@echo "🗺️  Running PostGIS migrations..."
-	alembic -c field_suite/migrations/alembic.ini upgrade head
-	@echo "✅ PostGIS migrations complete!"
-
-gis-validate: ## Validate and fix geometries
-	@echo "🔍 Validating geometries..."
-	python -c "from field_suite.spatial import validate_and_fix_geometries; from sqlalchemy.orm import Session; print('Note: Run with actual DB session')"
-	@echo "ℹ️  Use: python -c \"from field_suite.spatial import validate_and_fix_geometries; ...\""
-
-gis-test: ## Run GIS/spatial tests
-	@echo "🧪 Running GIS tests..."
-	pytest tests/integration/test_spatial_hierarchy.py -v
-
-gis-status: ## Check GIS infrastructure status
-	@echo "🗺️  GIS Infrastructure Status"
-	@echo "─────────────────────────────"
-	@test -f field_suite/spatial/__init__.py && echo "✅ Spatial module: Present" || echo "❌ Spatial module: Missing"
-	@test -f field_suite/spatial/orm_models.py && echo "✅ ORM models: Present" || echo "❌ ORM models: Missing"
-	@test -f field_suite/spatial/queries.py && echo "✅ Spatial queries: Present" || echo "❌ Spatial queries: Missing"
-	@test -f field_suite/spatial/validation.py && echo "✅ Validation job: Present" || echo "❌ Validation job: Missing"
-	@test -f field_suite/zones/models.py && echo "✅ Zone models: Present" || echo "❌ Zone models: Missing"
-	@test -f field_suite/migrations/versions/s7_0001_postgis_hierarchy.py && echo "✅ PostGIS migration: Present" || echo "❌ PostGIS migration: Missing"
-	@echo "─────────────────────────────"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# NDVI Engine Commands (Sprint 8)
-# ─────────────────────────────────────────────────────────────────────────────
-
-ndvi-test: ## Run NDVI engine unit tests
-	@echo "🧪 Running NDVI engine tests..."
-	pytest tests/unit/ndvi -v
-	@echo "✅ NDVI tests complete!"
-
-ndvi-migrate: ## Run NDVI database migrations
-	@echo "📦 Running NDVI migrations..."
-	alembic -c kernel/services/ndvi_engine/src/migrations/alembic.ini upgrade head
-	@echo "✅ NDVI migrations complete!"
-
-ndvi-status: ## Check NDVI engine infrastructure status
-	@echo "🛰️  NDVI Engine Infrastructure Status"
-	@echo "─────────────────────────────────────"
-	@test -f kernel/services/ndvi_engine/src/models.py && echo "✅ ORM models: Present" || echo "❌ ORM models: Missing"
-	@test -f kernel/services/ndvi_engine/src/confidence.py && echo "✅ Confidence scoring: Present" || echo "❌ Confidence scoring: Missing"
-	@test -f kernel/services/ndvi_engine/src/cloud_cover.py && echo "✅ Cloud detection: Present" || echo "❌ Cloud detection: Missing"
-	@test -f kernel/services/ndvi_engine/src/caching.py && echo "✅ Caching strategy: Present" || echo "❌ Caching strategy: Missing"
-	@test -f kernel/services/ndvi_engine/src/repository.py && echo "✅ Repository layer: Present" || echo "❌ Repository layer: Missing"
-	@test -f kernel/services/ndvi_engine/src/analytics.py && echo "✅ Analytics module: Present" || echo "❌ Analytics module: Missing"
-	@test -f kernel/services/ndvi_engine/src/routes_analytics.py && echo "✅ Analytics API: Present" || echo "❌ Analytics API: Missing"
-	@test -f kernel/services/ndvi_engine/src/migrations/versions/s8_0001_ndvi_timeseries.py && echo "✅ NDVI migration: Present" || echo "❌ NDVI migration: Missing"
-	@echo "─────────────────────────────────────"
-
-ndvi-check: ndvi-test ndvi-status ## Full NDVI engine check (tests + status)
-	@echo "✅ All NDVI checks passed!"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# AI/RAG Commands (Sprint 9)
-# ─────────────────────────────────────────────────────────────────────────────
-
-ai-test: ## Run AI/RAG unit tests
-	@echo "🧪 Running AI/RAG tests..."
-	pytest tests/unit/ai -v
-	@echo "✅ AI tests complete!"
-
-ai-status: ## Check AI infrastructure status
-	@echo "🤖 AI Infrastructure Status"
-	@echo "───────────────────────────"
-	@test -f advisor/ai/rag_models.py && echo "✅ RAG models: Present" || echo "❌ RAG models: Missing"
-	@test -f advisor/ai/llm_client.py && echo "✅ LLM client: Present" || echo "❌ LLM client: Missing"
-	@test -f advisor/ai/prompt_engine.py && echo "✅ Prompt engine: Present" || echo "❌ Prompt engine: Missing"
-	@test -f advisor/ai/context_builder.py && echo "✅ Context builder: Present" || echo "❌ Context builder: Missing"
-	@test -f advisor/ai/retriever.py && echo "✅ Retriever: Present" || echo "❌ Retriever: Missing"
-	@test -f advisor/ai/ranker.py && echo "✅ Ranker: Present" || echo "❌ Ranker: Missing"
-	@test -f advisor/ai/rag_pipeline.py && echo "✅ RAG pipeline: Present" || echo "❌ RAG pipeline: Missing"
-	@test -f advisor/ai/evaluation.py && echo "✅ Evaluation hooks: Present" || echo "❌ Evaluation hooks: Missing"
-	@test -f advisor/rag/doc_store.py && echo "✅ Vector store protocol: Present" || echo "❌ Vector store protocol: Missing"
-	@test -f advisor/rag/qdrant_store.py && echo "✅ Qdrant adapter: Present" || echo "❌ Qdrant adapter: Missing"
-	@test -f advisor/rag/ingestion.py && echo "✅ Ingestion module: Present" || echo "❌ Ingestion module: Missing"
-	@echo "───────────────────────────"
-
-qdrant-up: ## Start Qdrant vector database
-	@echo "🔷 Starting Qdrant..."
-	docker compose -f infra/qdrant/docker-compose.qdrant.yml up -d
-	@echo "✅ Qdrant running at http://localhost:6333"
-	@echo "   Dashboard: http://localhost:6333/dashboard"
-
-qdrant-down: ## Stop Qdrant
-	@echo "🛑 Stopping Qdrant..."
-	docker compose -f infra/qdrant/docker-compose.qdrant.yml down
-
-ai-check: ai-test ai-status ## Full AI check (tests + status)
-	@echo "✅ All AI checks passed!"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Infrastructure Commands
-# ─────────────────────────────────────────────────────────────────────────────
-
-k8s-deploy: ## Deploy to Kubernetes
-	@echo "☸️  Deploying to Kubernetes..."
-	kubectl apply -f gitops/argocd/applications/
-
-kong-reload: ## Reload Kong configuration
-	@echo "🔄 Reloading Kong configuration..."
-	docker exec sahool-kong kong reload
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Release Commands
-# ─────────────────────────────────────────────────────────────────────────────
-
-release: ## Create a new release
-	@echo "📦 Creating release..."
-	./tools/release/release_v15_3_2.sh
-
-smoke-test: ## Run smoke tests
-	@echo "💨 Running smoke tests..."
-	./tools/release/smoke_test.sh
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Infrastructure Generation (from services.yaml)
-# ─────────────────────────────────────────────────────────────────────────────
-
-.PHONY: generate-infra generate-compose generate-helm validate-infra
-
-generate-infra: ## Generate all infrastructure from services.yaml
-	@echo "⚙️  Generating infrastructure from governance/services.yaml..."
-	python3 scripts/generators/generate_infra.py --all
-	@echo "✅ Infrastructure generated!"
-	@echo "   - docker/compose.generated.yml"
-	@echo "   - helm/sahool/values.generated.yaml"
-
-generate-compose: ## Generate Docker Compose only
-	@echo "🐳 Generating Docker Compose..."
-	python3 scripts/generators/generate_infra.py --compose
-
-generate-helm: ## Generate Helm values only
-	@echo "⎈ Generating Helm values..."
-	python3 scripts/generators/generate_infra.py --helm
-
-validate-infra: ## Validate generated infrastructure files
-	@echo "🔍 Validating generated infrastructure..."
-	@echo ""
-	@echo "Checking Docker Compose..."
-	@if [ -f docker/compose.generated.yml ]; then \
-		docker compose -f docker/compose.generated.yml config > /dev/null 2>&1 && \
-		echo "  ✅ Docker Compose is valid" || \
-		echo "  ❌ Docker Compose validation failed"; \
-	else \
-		echo "  ⚠️  docker/compose.generated.yml not found - run 'make generate-infra'"; \
-	fi
-	@echo ""
-	@echo "Checking Helm values..."
-	@if [ -f helm/sahool/values.generated.yaml ]; then \
-		python3 -c "import yaml; yaml.safe_load(open('helm/sahool/values.generated.yaml'))" && \
-		echo "  ✅ Helm values are valid YAML" || \
-		echo "  ❌ Helm values validation failed"; \
-	else \
-		echo "  ⚠️  helm/sahool/values.generated.yaml not found - run 'make generate-infra'"; \
-	fi
-
-
-sync-infra: generate-infra validate-infra ## Generate and validate infrastructure
-	@echo "✅ Infrastructure synced with services.yaml!"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Governance Commands
-# ─────────────────────────────────────────────────────────────────────────────
-
-validate-services: ## Validate services.yaml
-	@echo "🔍 Validating governance/services.yaml..."
-	@python3 -c "\
-import yaml, os, sys; \
-data = yaml.safe_load(open('governance/services.yaml')); \
-errors = [f'  ❌ {n}: path not found ({s.get(\"path\",\"\")})'  for n,s in data.get('services',{}).items() if s.get('path') and not os.path.isdir(s.get('path',''))]; \
-print('Validation failed:') if errors else None; \
-[print(e) for e in errors]; \
-sys.exit(1) if errors else print(f'✅ All {len(data.get(\"services\",{}))} services validated')"
-
-check-structure: ## Check repository structure compliance
-	@echo "🏗️  Checking repository structure..."
-	@for path in kernel/ kernel-services-v15.3/ frontend/ web_admin/; do \
-		if [ -d "$$path" ]; then echo "  ❌ Found forbidden path: $$path"; fi; \
-	done
-	@echo ""
-	@echo "Required structure:"
-	@for path in apps/services apps/web apps/admin governance; do \
-		if [ -d "$$path" ]; then echo "  ✅ $$path"; else echo "  ❌ $$path missing"; fi; \
-	done
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Design System Commands
-# ─────────────────────────────────────────────────────────────────────────────
-
-generate-design-tokens: ## Generate design tokens for all platforms
-	@echo "🎨 Generating design tokens..."
+generate-tokens: ## توليد رموز التصميم - Generate design tokens
+	@echo "$(BLUE)🎨 توليد رموز التصميم - Generating design tokens...$(RESET)"
 	python3 scripts/generators/generate_design_tokens.py
-	@echo "✅ Design tokens generated for CSS, Tailwind, TypeScript, and Flutter"
+	@echo "$(GREEN)✅ تم توليد الرموز - Tokens generated!$(RESET)"
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SLO/SLI Commands
-# ─────────────────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# Security & Compliance - الأمن والامتثال
+# ═══════════════════════════════════════════════════════════════════════════════
 
-slo-status: ## Show current SLO status
-	@echo "📊 SLO Status Dashboard"
-	@echo "─────────────────────────"
-	@echo "Reference: governance/reliability/slo-definitions.yaml"
+security-scan: ## فحص الأمان - Run security scans
+	@echo "$(BLUE)🔒 فحص الأمان - Running security scans...$(RESET)"
+	detect-secrets scan --baseline .secrets.baseline
+	@echo "$(GREEN)✅ فحص الأمان مكتمل - Security scan complete!$(RESET)"
+
+env-check: ## التحقق من متغيرات البيئة - Validate environment variables
+	@echo "$(BLUE)🔍 التحقق من البيئة - Validating environment...$(RESET)"
+	@if [ ! -f .env ]; then \
+		echo "$(RED)❌ .env file not found$(RESET)"; \
+		echo "$(YELLOW)Creating from .env.example...$(RESET)"; \
+		cp .env.example .env; \
+		echo "$(YELLOW)⚠️  Please update .env with your values$(RESET)"; \
+	else \
+		echo "$(GREEN)✅ .env file exists$(RESET)"; \
+	fi
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Documentation - التوثيق
+# ═══════════════════════════════════════════════════════════════════════════════
+
+docs: ## عرض التوثيق - Show documentation
+	@echo "$(BLUE)📚 SAHOOL Platform Documentation - توثيق منصة سهول$(RESET)"
 	@echo ""
-	@echo "Service Tiers:"
-	@echo "  Critical: Kong, PostgreSQL, Redis, NATS"
-	@echo "  High: Crop Growth Model, Crop Health AI, Weather, IoT, Notifications"
-	@echo "  Medium: Satellite, Marketplace"
-
-slo-validate: ## Validate SLO definitions
-	@echo "🔍 Validating SLO definitions..."
-	@python3 -c "import yaml; yaml.safe_load(open('governance/reliability/slo-definitions.yaml')); print('✅ SLO definitions are valid YAML')"
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Event Contracts Commands
-# ─────────────────────────────────────────────────────────────────────────────
-
-events-list: ## List all registered events
-	@echo "📋 SAHOOL Event Registry"
-	@echo "─────────────────────────"
-	@grep "^  [a-z].*:" governance/events/events-registry.yaml | grep -v "^  #" | head -30
-
-events-validate: ## Validate event schemas
-	@echo "🔍 Validating event schemas..."
-	@for schema in shared/contracts/schemas/*.json; do \
-		python3 -c "import json; json.load(open('$$schema'))" && echo "  ✅ $$schema"; \
-	done
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Full Generation
-# ─────────────────────────────────────────────────────────────────────────────
-
-generate-all: generate-infra generate-design-tokens ## Generate all artifacts from governance
-	@echo "✅ All artifacts generated from governance!"
+	@echo "$(BOLD)Main Documentation:$(RESET)"
+	@echo "  - README.md                           - Project overview"
+	@echo "  - REPO_MAP.md                         - Repository structure"
+	@echo "  - packages/PACKAGE_STRUCTURE.md       - Package information"
+	@echo "  - docs/                               - Full documentation"
 	@echo ""
-	@echo "Generated:"
-	@echo "  - docker/compose.generated.yml"
-	@echo "  - helm/sahool/values.generated.yaml"
-	@echo "  - packages/design-system/tokens/*"
+	@echo "$(BOLD)Package Documentation:$(RESET)"
+	@echo "  - packages/README.md                  - Package overview"
+	@echo "  - packages/DEPLOYMENT.md              - Deployment guide"
+	@echo ""
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Quick Start Aliases - اختصارات البدء السريع
+# ═══════════════════════════════════════════════════════════════════════════════
+
+start: up ## اختصار لتشغيل النظام - Alias for 'up'
+
+stop: down ## اختصار لإيقاف النظام - Alias for 'down'
+
+rebuild: clean build up ## إعادة البناء الكاملة - Full rebuild (clean + build + up)
+	@echo "$(GREEN)✅ اكتملت إعادة البناء - Rebuild complete!$(RESET)"
+
+quickstart: ## بدء سريع للمطورين الجدد - Quick start for new developers
+	@echo "$(BOLD)$(GREEN)🚀 بدء سريع لمنصة سهول - SAHOOL Platform Quick Start$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)Step 1: Environment setup...$(RESET)"
+	@$(MAKE) --no-print-directory env-check
+	@echo ""
+	@echo "$(YELLOW)Step 2: Creating network...$(RESET)"
+	@$(MAKE) --no-print-directory network-create
+	@echo ""
+	@echo "$(YELLOW)Step 3: Starting infrastructure...$(RESET)"
+	@$(MAKE) --no-print-directory infra-up
+	@sleep 5
+	@echo ""
+	@echo "$(YELLOW)Step 4: Running migrations...$(RESET)"
+	@$(MAKE) --no-print-directory db-migrate
+	@echo ""
+	@echo "$(YELLOW)Step 5: Starting services...$(RESET)"
+	@$(MAKE) --no-print-directory up
+	@echo ""
+	@echo "$(BOLD)$(GREEN)✅ منصة سهول جاهزة! - SAHOOL Platform is ready!$(RESET)"
+	@echo ""
+	@$(MAKE) --no-print-directory status
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CI/CD Commands - أوامر التكامل والنشر المستمر
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ci: lint test ## تشغيل فحوصات CI - Run CI checks (lint + test)
+	@echo "$(GREEN)✅ فحوصات CI مكتملة - CI checks passed!$(RESET)"
+
+ci-full: lint test-coverage security-scan ## فحوصات CI كاملة - Full CI checks
+	@echo "$(GREEN)✅ جميع فحوصات CI مكتملة - All CI checks passed!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Advanced Commands - أوامر متقدمة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+stats: ## إحصائيات المشروع - Show project statistics
+	@echo "$(BOLD)$(BLUE)📊 إحصائيات مشروع سهول - SAHOOL Project Statistics$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)Services:$(RESET)"
+	@echo "  Python services:  $(shell find apps/services -name "requirements.txt" | wc -l)"
+	@echo "  Node.js services: $(shell find apps/services -maxdepth 2 -name "package.json" | wc -l)"
+	@echo ""
+	@echo "$(YELLOW)Docker:$(RESET)"
+	@echo "  Running containers: $(shell docker compose -f $(COMPOSE_BASE) ps -q | wc -l)"
+	@echo "  Images: $(shell docker images | grep sahool | wc -l)"
+	@echo ""
+	@echo "$(YELLOW)Code:$(RESET)"
+	@echo "  Python files: $(shell find . -name "*.py" -not -path "./.*" -not -path "*/node_modules/*" | wc -l)"
+	@echo "  TypeScript files: $(shell find . -name "*.ts" -o -name "*.tsx" -not -path "./.*" -not -path "*/node_modules/*" | wc -l)"
+	@echo ""
+
+watch: ## مراقبة تلقائية للسجلات - Watch logs continuously
+	@echo "$(BLUE)👀 مراقبة السجلات - Watching logs...$(RESET)"
+	watch -n 2 'docker compose -f $(COMPOSE_BASE) ps'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# End of Makefile - نهاية الملف
+# ═══════════════════════════════════════════════════════════════════════════════

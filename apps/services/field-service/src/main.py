@@ -124,9 +124,23 @@ setup_cors_middleware(app)
 # ============== Health Endpoints ==============
 
 
-@app.get("/healthz")
+@app.get("/health")
 def health():
-    """فحص الصحة"""
+    """فحص الصحة - Health check with dependencies"""
+    return {
+        "status": "healthy",
+        "service": "field-service",
+        "version": "16.0.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "dependencies": {
+            "nats": "connected" if (hasattr(app.state, "publisher") and app.state.publisher is not None) else "disconnected"
+        }
+    }
+
+
+@app.get("/healthz")
+def healthz():
+    """فحص الصحة - Kubernetes liveness probe"""
     return {
         "status": "healthy",
         "service": "field-service",
@@ -137,7 +151,7 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """فحص الجاهزية"""
+    """فحص الجاهزية - Kubernetes readiness probe"""
     return {
         "status": "ready",
         "nats": hasattr(app.state, "publisher") and app.state.publisher is not None,

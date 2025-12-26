@@ -1,3 +1,3 @@
 """SAHOOL WebSocket Gateway Service"""
 
-__version__ = "15.3.3"
+__version__ = "16.0.0"

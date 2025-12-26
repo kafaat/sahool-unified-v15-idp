@@ -703,20 +703,22 @@ consumers:
     custom_id: web-client
     jwt_secrets:
       - key: sahool-web-key
-        algorithm: RS256
-        # RSA public key should be configured in environment
+        algorithm: HS256
+        secret: sahool-web-secret-change-in-production
 
   - username: sahool-mobile-app
     custom_id: mobile-client
     jwt_secrets:
       - key: sahool-mobile-key
-        algorithm: RS256
+        algorithm: HS256
+        secret: sahool-mobile-secret-change-in-production
 
   - username: sahool-internal-service
     custom_id: internal-service
     jwt_secrets:
       - key: sahool-internal-key
-        algorithm: RS256
+        algorithm: HS256
+        secret: sahool-internal-secret-change-in-production
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Services Definition (Using Upstreams)

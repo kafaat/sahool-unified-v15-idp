@@ -1,0 +1,31 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Grafana Datasources Configuration for SAHOOL Telemetry
+# تكوين مصادر البيانات Grafana لقياس عن بعد سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: 1
+
+datasources:
+  # Prometheus datasource
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+    jsonData:
+      httpMethod: POST
+      timeInterval: 30s
+
+  # Jaeger datasource for distributed tracing
+  - name: Jaeger
+    type: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: true
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: 'loki'
+        spanStartTimeShift: '-1h'
+        spanEndTimeShift: '1h'
+        tags: ['trace_id']

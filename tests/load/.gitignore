@@ -1,0 +1,29 @@
+# k6 Load Test Results
+results/
+*.json
+*.html
+*.csv
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Node modules (if using k6 extensions)
+node_modules/
+
+# Docker volumes
+grafana-data/
+influxdb-data/

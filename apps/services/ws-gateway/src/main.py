@@ -1,10 +1,9 @@
 """
 SAHOOL WebSocket Gateway Service
 Real-time communication hub for all platform events
-Port: 8090
+Port: 8081
 """
 
-import json
 import logging
 import os
 from contextlib import asynccontextmanager
@@ -16,6 +15,11 @@ from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
+from .rooms import RoomManager, RoomType
+from .handlers import WebSocketMessageHandler
+from .nats_bridge import NATSBridge
+from .events import EventType
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -24,7 +28,7 @@ logging.basicConfig(
 logger = logging.getLogger("ws-gateway")
 
 # JWT Configuration - Always required in production
-JWT_SECRET = os.getenv("JWT_SECRET", "")
+JWT_SECRET = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 
 
@@ -46,136 +50,44 @@ async def validate_jwt_token(token: str) -> dict:
         raise ValueError(f"Invalid token: {str(e)}")
 
 
-class ConnectionManager:
-    """Manages WebSocket connections"""
-
-    def __init__(self):
-        # Map of connection_id -> WebSocket
-        self.active_connections: dict[str, WebSocket] = {}
-        # Map of tenant_id -> set of connection_ids
-        self.tenant_connections: dict[str, set] = {}
-        # Map of connection_id -> set of subscribed topics
-        self.subscriptions: dict[str, set] = {}
-
-    async def connect(self, websocket: WebSocket, connection_id: str, tenant_id: str):
-        await websocket.accept()
-        self.active_connections[connection_id] = websocket
-        if tenant_id not in self.tenant_connections:
-            self.tenant_connections[tenant_id] = set()
-        self.tenant_connections[tenant_id].add(connection_id)
-        self.subscriptions[connection_id] = set()
-
-    def disconnect(self, connection_id: str, tenant_id: str):
-        if connection_id in self.active_connections:
-            del self.active_connections[connection_id]
-        if tenant_id in self.tenant_connections:
-            self.tenant_connections[tenant_id].discard(connection_id)
-        if connection_id in self.subscriptions:
-            del self.subscriptions[connection_id]
-
-    def subscribe(self, connection_id: str, topic: str):
-        if connection_id in self.subscriptions:
-            self.subscriptions[connection_id].add(topic)
-
-    def unsubscribe(self, connection_id: str, topic: str):
-        if connection_id in self.subscriptions:
-            self.subscriptions[connection_id].discard(topic)
-
-    async def send_personal(self, connection_id: str, message: dict):
-        if connection_id in self.active_connections:
-            try:
-                await self.active_connections[connection_id].send_json(message)
-            except Exception:
-                pass
-
-    async def broadcast_to_tenant(self, tenant_id: str, message: dict):
-        if tenant_id in self.tenant_connections:
-            for conn_id in self.tenant_connections[tenant_id]:
-                await self.send_personal(conn_id, message)
-
-    async def broadcast_to_topic(self, topic: str, message: dict):
-        for conn_id, topics in self.subscriptions.items():
-            if topic in topics or "*" in topics:
-                await self.send_personal(conn_id, message)
-
-    @property
-    def stats(self) -> dict:
-        return {
-            "total_connections": len(self.active_connections),
-            "tenants": len(self.tenant_connections),
-            "connections_by_tenant": {
-                t: len(c) for t, c in self.tenant_connections.items()
-            },
-        }
-
-
-manager = ConnectionManager()
+# Initialize managers
+room_manager = RoomManager()
+message_handler = WebSocketMessageHandler(room_manager)
+nats_bridge = NATSBridge(room_manager)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🔌 Starting WebSocket Gateway...")
-    app.state.nats_connected = False
-    app.state.nats_task = None
+    logger.info("🔌 Starting WebSocket Gateway...")
 
-    # Try NATS connection for event bridging
+    # Connect to NATS for event bridging
     nats_url = os.getenv("NATS_URL")
     if nats_url:
         try:
-            import nats
-
-            nc = await nats.connect(nats_url)
-            app.state.nc = nc
+            await nats_bridge.connect(nats_url)
             app.state.nats_connected = True
-            print("✅ NATS connected")
-
-            # Subscribe to platform events and bridge to WebSockets
-            async def message_handler(msg):
-                try:
-                    data = json.loads(msg.data.decode())
-                    topic = msg.subject
-                    tenant_id = data.get("tenant_id")
-
-                    ws_message = {
-                        "type": "event",
-                        "topic": topic,
-                        "data": data,
-                        "timestamp": datetime.utcnow().isoformat(),
-                    }
-
-                    # Broadcast to topic subscribers
-                    await manager.broadcast_to_topic(topic, ws_message)
-
-                    # Also send to tenant if specified
-                    if tenant_id:
-                        await manager.broadcast_to_tenant(tenant_id, ws_message)
-                except Exception as e:
-                    print(f"Error handling NATS message: {e}")
-
-            # Subscribe to all sahool events
-            sub = await nc.subscribe("sahool.>", cb=message_handler)
-            app.state.nats_sub = sub
-            print("✅ Subscribed to sahool.> events")
-
+            logger.info("✅ NATS bridge connected and subscribed to events")
         except Exception as e:
-            print(f"⚠️ NATS connection failed: {e}")
-            app.state.nc = None
+            logger.error(f"⚠️ NATS connection failed: {e}")
+            app.state.nats_connected = False
+    else:
+        logger.warning("⚠️ NATS_URL not configured")
+        app.state.nats_connected = False
 
-    print("✅ WebSocket Gateway ready on port 8090")
+    port = int(os.getenv("PORT", 8081))
+    logger.info(f"✅ WebSocket Gateway ready on port {port}")
     yield
 
     # Cleanup
-    if hasattr(app.state, "nats_sub"):
-        await app.state.nats_sub.unsubscribe()
-    if hasattr(app.state, "nc") and app.state.nc:
-        await app.state.nc.close()
-    print("👋 WebSocket Gateway shutting down")
+    if nats_bridge.is_connected:
+        await nats_bridge.disconnect()
+    logger.info("👋 WebSocket Gateway shutting down")
 
 
 app = FastAPI(
     title="SAHOOL WebSocket Gateway",
-    description="Real-time WebSocket communication hub",
-    version="15.3.3",
+    description="Real-time WebSocket communication hub with room-based messaging",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -188,7 +100,7 @@ def health():
     return {
         "status": "healthy",
         "service": "ws-gateway",
-        "version": "15.3.3",
+        "version": "16.0.0",
         "timestamp": datetime.utcnow().isoformat(),
     }
 
@@ -197,17 +109,18 @@ def health():
 def readiness():
     return {
         "status": "ok",
-        "nats": getattr(app.state, "nats_connected", False),
-        "connections": manager.stats,
+        "nats": nats_bridge.is_connected,
+        "connections": room_manager.get_stats(),
     }
 
 
 @app.get("/stats")
 def get_stats():
-    """Get gateway statistics"""
+    """Get gateway statistics including room and NATS information"""
     return {
-        "connections": manager.stats,
-        "nats_connected": getattr(app.state, "nats_connected", False),
+        "connections": room_manager.get_stats(),
+        "nats": nats_bridge.get_stats(),
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -222,6 +135,7 @@ async def websocket_endpoint(
 ):
     """
     Main WebSocket endpoint for real-time communication
+    نقطة نهاية WebSocket للاتصال في الوقت الفعلي
 
     Query params:
     - tenant_id: Required tenant identifier
@@ -274,121 +188,93 @@ async def websocket_endpoint(
         await websocket.close(code=4001, reason="Authentication failed")
         return
 
-    await manager.connect(websocket, connection_id, tenant_id)
+    # Accept connection and add to room manager
+    await websocket.accept()
+    await room_manager.add_connection(
+        connection_id=connection_id,
+        websocket=websocket,
+        user_id=user_id,
+        tenant_id=tenant_id
+    )
 
     # Send connection confirmation
     await websocket.send_json(
         {
             "type": "connected",
             "connection_id": connection_id,
+            "user_id": user_id,
             "tenant_id": tenant_id,
             "timestamp": datetime.utcnow().isoformat(),
+            "message_ar": "تم الاتصال بنجاح",
         }
     )
 
     try:
         while True:
             data = await websocket.receive_json()
-            await handle_client_message(connection_id, tenant_id, data)
+            # Handle message using the message handler
+            response = await message_handler.handle_message(connection_id, data)
+            if response:
+                await websocket.send_json(response)
     except WebSocketDisconnect:
-        manager.disconnect(connection_id, tenant_id)
+        logger.info(f"Client {connection_id} disconnected")
+        await room_manager.remove_connection(connection_id)
     except Exception as e:
-        print(f"WebSocket error: {e}")
-        manager.disconnect(connection_id, tenant_id)
-
-
-async def handle_client_message(connection_id: str, tenant_id: str, data: dict):
-    """Handle incoming WebSocket messages from clients"""
-    msg_type = data.get("type")
-
-    if msg_type == "subscribe":
-        # Subscribe to topics
-        topics = data.get("topics", [])
-        for topic in topics:
-            manager.subscribe(connection_id, topic)
-        await manager.send_personal(
-            connection_id,
-            {
-                "type": "subscribed",
-                "topics": topics,
-            },
-        )
-
-    elif msg_type == "unsubscribe":
-        # Unsubscribe from topics
-        topics = data.get("topics", [])
-        for topic in topics:
-            manager.unsubscribe(connection_id, topic)
-        await manager.send_personal(
-            connection_id,
-            {
-                "type": "unsubscribed",
-                "topics": topics,
-            },
-        )
-
-    elif msg_type == "ping":
-        # Respond to ping
-        await manager.send_personal(
-            connection_id,
-            {
-                "type": "pong",
-                "timestamp": datetime.utcnow().isoformat(),
-            },
-        )
-
-    elif msg_type == "broadcast":
-        # Broadcast message to tenant (if authorized)
-        message = data.get("message", {})
-        await manager.broadcast_to_tenant(
-            tenant_id,
-            {
-                "type": "broadcast",
-                "from": connection_id,
-                "message": message,
-                "timestamp": datetime.utcnow().isoformat(),
-            },
-        )
-
-    else:
-        # Unknown message type
-        await manager.send_personal(
-            connection_id,
-            {
-                "type": "error",
-                "message": f"Unknown message type: {msg_type}",
-            },
-        )
+        logger.error(f"WebSocket error for {connection_id}: {e}", exc_info=True)
+        await room_manager.remove_connection(connection_id)
 
 
 # ============== REST API for sending messages ==============
 
 
 class BroadcastRequest(BaseModel):
-    tenant_id: str
+    """Request model for broadcasting messages"""
+    tenant_id: Optional[str] = None
+    user_id: Optional[str] = None
+    field_id: Optional[str] = None
+    room: Optional[str] = None
     message: dict
-    topic: Optional[str] = None
 
 
 @app.post("/broadcast")
 async def broadcast_message(req: BroadcastRequest):
-    """Broadcast a message to all connections for a tenant"""
+    """
+    Broadcast a message to specific rooms or users
+    بث رسالة إلى غرف أو مستخدمين محددين
+    """
     ws_message = {
         "type": "broadcast",
         "message": req.message,
         "timestamp": datetime.utcnow().isoformat(),
     }
 
-    if req.topic:
-        await manager.broadcast_to_topic(req.topic, ws_message)
-    else:
-        await manager.broadcast_to_tenant(req.tenant_id, ws_message)
+    sent_count = 0
 
-    return {"status": "sent", "tenant_id": req.tenant_id}
+    # Send to specific room
+    if req.room:
+        sent_count = await room_manager.broadcast_to_room(req.room, ws_message)
+
+    # Send to tenant
+    elif req.tenant_id:
+        sent_count = await room_manager.send_to_tenant(req.tenant_id, ws_message)
+
+    # Send to user
+    elif req.user_id:
+        sent_count = await room_manager.send_to_user(req.user_id, ws_message)
+
+    # Send to field
+    elif req.field_id:
+        sent_count = await room_manager.send_to_field(req.field_id, ws_message)
+
+    return {
+        "status": "sent",
+        "recipients": sent_count,
+        "timestamp": datetime.utcnow().isoformat(),
+    }
 
 
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8090))
+    port = int(os.getenv("PORT", 8081))
     uvicorn.run(app, host="0.0.0.0", port=port)

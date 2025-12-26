@@ -1,0 +1,222 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Prometheus Configuration for SAHOOL Platform Telemetry
+# تكوين Prometheus لقياس عن بعد منصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2025-12-26
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  scrape_timeout: 10s
+  external_labels:
+    cluster: 'sahool-platform'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load rules
+rule_files:
+  # - '/etc/prometheus/alerts/alerts.yml'
+
+# Scrape configurations
+scrape_configs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus itself
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # OpenTelemetry Collector
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets:
+          - 'otel-collector:8888'
+          - 'otel-collector:8889'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Jaeger
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Core Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-field-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'field_core:9090'
+          - 'field_ops:9090'
+          - 'field_service:9090'
+        labels:
+          service_group: 'core'
+          category: 'field'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Weather Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-weather-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'weather_core:9090'
+          - 'weather_advanced:9090'
+        labels:
+          service_group: 'weather'
+          category: 'data'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Satellite Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-satellite-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'satellite_service:9090'
+          - 'ndvi_engine:9090'
+          - 'ndvi_processor:9090'
+        labels:
+          service_group: 'satellite'
+          category: 'imagery'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL AI/ML Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-ai-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'crop_health_ai:9090'
+          - 'crop_health:9090'
+          - 'crop_growth_model:9090'
+          - 'lai_estimation:9090'
+          - 'yield_engine:9090'
+          - 'yield_prediction:9090'
+        labels:
+          service_group: 'ai'
+          category: 'ml'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Advisory Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-advisory-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'ai_advisor:9090'
+          - 'agro_advisor:9090'
+          - 'agro_rules:9090'
+          - 'fertilizer_advisor:9090'
+          - 'irrigation_smart:9090'
+        labels:
+          service_group: 'advisory'
+          category: 'recommendations'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL IoT Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-iot-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'iot_gateway:9090'
+          - 'iot_service:9090'
+          - 'virtual_sensors:9090'
+        labels:
+          service_group: 'iot'
+          category: 'sensors'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Analytics Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-analytics-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'indicators_service:9090'
+          - 'astronomical_calendar:9090'
+          - 'disaster_assessment:9090'
+        labels:
+          service_group: 'analytics'
+          category: 'insights'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Communication Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-communication-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'notification_service:9090'
+          - 'alert_service:9090'
+          - 'chat_service:9090'
+          - 'community_chat:9090'
+          - 'field_chat:9090'
+        labels:
+          service_group: 'communication'
+          category: 'messaging'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Business Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-business-services'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'billing_core:9090'
+          - 'marketplace_service:9090'
+          - 'inventory_service:9090'
+          - 'equipment_service:9090'
+          - 'task_service:9090'
+          - 'research_core:9090'
+        labels:
+          service_group: 'business'
+          category: 'enterprise'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SAHOOL Infrastructure Services
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'sahool-infrastructure'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'ws_gateway:9090'
+          - 'kong:8001'
+        labels:
+          service_group: 'infrastructure'
+          category: 'gateway'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Database & Cache Exporters
+  # ─────────────────────────────────────────────────────────────────────────────
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels:
+          service_group: 'infrastructure'
+          category: 'database'
+
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+        labels:
+          service_group: 'infrastructure'
+          category: 'cache'
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          service_group: 'infrastructure'
+          category: 'system'

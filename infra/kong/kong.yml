@@ -676,27 +676,36 @@ upstreams:
 # JWT Consumers for Authentication
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────────────────────
+# JWT Consumers Configuration
+# SECURITY: Secrets MUST be provided via environment variables in production
+# Use Kong's environment variable injection: $(KONG_JWT_WEB_SECRET)
+# ─────────────────────────────────────────────────────────────────────────────
 consumers:
   - username: sahool-web-app
     custom_id: web-client
     jwt_secrets:
       - key: sahool-web-key
         algorithm: HS256
-        secret: sahool-web-secret-change-in-production
+        # SECURITY: Set KONG_JWT_WEB_SECRET environment variable in production
+        # This value is overridden by Kong's environment variable substitution
+        secret: ${KONG_JWT_WEB_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 
   - username: sahool-mobile-app
     custom_id: mobile-client
     jwt_secrets:
       - key: sahool-mobile-key
         algorithm: HS256
-        secret: sahool-mobile-secret-change-in-production
+        # SECURITY: Set KONG_JWT_MOBILE_SECRET environment variable in production
+        secret: ${KONG_JWT_MOBILE_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 
   - username: sahool-internal-service
     custom_id: internal-service
     jwt_secrets:
       - key: sahool-internal-key
         algorithm: HS256
-        secret: sahool-internal-secret-change-in-production
+        # SECURITY: Set KONG_JWT_INTERNAL_SECRET environment variable in production
+        secret: ${KONG_JWT_INTERNAL_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Services Definition (Using Upstreams)

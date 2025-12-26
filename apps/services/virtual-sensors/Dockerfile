@@ -38,7 +38,7 @@ LABEL description="Virtual Sensors Engine for Smart Irrigation - FAO-56 ET0"
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
-    PORT=8096 \
+    PORT=8116 \
     LOG_LEVEL=INFO
 
 WORKDIR /app
@@ -56,11 +56,11 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 sahool && \
 USER sahool
 
 # Expose port
-EXPOSE 8096
+EXPOSE 8116
 
 # Health check using Python (no curl needed)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8116/healthz')" || exit 1
 
 # Run the application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8096"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8116"]

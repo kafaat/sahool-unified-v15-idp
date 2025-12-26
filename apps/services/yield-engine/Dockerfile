@@ -34,7 +34,7 @@ LABEL description="ML-powered crop yield prediction for Yemen agriculture"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PORT=8098 \
+    PORT=8117 \
     LOG_LEVEL=INFO
 
 WORKDIR /app
@@ -51,9 +51,9 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 sahool && \
     chown -R sahool:sahool /app
 USER sahool
 
-EXPOSE 8098
+EXPOSE 8117
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8098/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8117/healthz')" || exit 1
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8098", "--workers", "2"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8117", "--workers", "2"]

@@ -5,6 +5,7 @@ Port: 8115
 """
 
 import os
+import logging
 from contextlib import asynccontextmanager
 from typing import Optional, List
 from datetime import date, datetime
@@ -17,7 +18,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
 import sys
-sys.path.append('/home/user/sahool-unified-v15-idp/apps/services/shared')
+# Use relative path instead of hardcoded absolute path
+shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+sys.path.append(shared_path)
 from database.base import Base
 
 from .models.inventory import (
@@ -25,6 +28,10 @@ from .models.inventory import (
     Warehouse, ItemCategory, Supplier, MovementType, TransactionType
 )
 from .inventory_analytics import InventoryAnalytics
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_inventory")
 engine = create_async_engine(DATABASE_URL, echo=os.getenv("SQL_ECHO", "false").lower() == "true", pool_pre_ping=True)
@@ -43,23 +50,23 @@ async def get_db():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("📦 Starting Inventory Service...")
+    logger.info("Starting Inventory Service...")
     try:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        print("✅ Database tables ready")
+        logger.info("Database tables ready")
     except Exception as e:
-        print(f"⚠️ Database setup warning: {e}")
-    print("✅ Inventory Service ready on port 8115")
+        logger.warning(f"Database setup warning: {e}")
+    logger.info("Inventory Service ready on port 8115")
     yield
     await engine.dispose()
-    print("👋 Inventory Service shutting down")
+    logger.info("Inventory Service shutting down")
 
 app = FastAPI(title="SAHOOL Inventory Service", description="Agricultural inventory management, forecasting, and analytics", version="1.0.0", lifespan=lifespan)
 
 # CORS Configuration - secure origins from environment
 CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
-app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"], allow_headers=["Content-Type", "Authorization", "X-Tenant-Id"])
 
 @app.get("/health")
 async def health(db: AsyncSession = Depends(get_db)):

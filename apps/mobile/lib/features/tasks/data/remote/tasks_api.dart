@@ -34,75 +34,61 @@ class TasksApi {
 
   /// Fetch single task by ID
   Future<FieldTask?> fetchTaskById(String taskId) async {
-    try {
-      final response = await _client.get('/tasks/$taskId');
+    final response = await _client.get('/tasks/$taskId');
 
-      if (response is Map<String, dynamic>) {
-        return FieldTask.fromJson(response);
-      }
-    } catch (e) {
-      print('❌ Failed to fetch task $taskId: $e');
+    if (response is Map<String, dynamic>) {
+      return FieldTask.fromJson(response);
     }
 
-    return null;
+    throw ApiException(
+      code: 'PARSE_ERROR',
+      message: 'فشل في تحليل بيانات المهمة',
+    );
   }
 
   /// Complete a task with evidence
-  Future<bool> completeTask({
+  Future<void> completeTask({
     required String taskId,
     String? notes,
     List<String>? photos,
   }) async {
-    try {
-      await _client.post(
-        '/tasks/$taskId/complete',
-        {
-          'tenant_id': _client.tenantId,
-          'evidence_notes': notes,
-          'evidence_photos': photos ?? [],
-        },
-      );
-      return true;
-    } catch (e) {
-      print('❌ Failed to complete task $taskId: $e');
-      return false;
-    }
+    await _client.post(
+      '/tasks/$taskId/complete',
+      {
+        'tenant_id': _client.tenantId,
+        'evidence_notes': notes,
+        'evidence_photos': photos ?? [],
+      },
+    );
   }
 
   /// Update task status
-  Future<bool> updateTaskStatus({
+  Future<void> updateTaskStatus({
     required String taskId,
     required TaskStatus status,
   }) async {
-    try {
-      await _client.put(
-        '/tasks/$taskId',
-        {
-          'status': status.value,
-        },
-      );
-      return true;
-    } catch (e) {
-      print('❌ Failed to update task status: $e');
-      return false;
-    }
+    await _client.put(
+      '/tasks/$taskId',
+      {
+        'status': status.value,
+      },
+    );
   }
 
   /// Create new task
-  Future<FieldTask?> createTask(FieldTask task) async {
-    try {
-      final response = await _client.post(
-        '/tasks',
-        task.toJson(),
-      );
+  Future<FieldTask> createTask(FieldTask task) async {
+    final response = await _client.post(
+      '/tasks',
+      task.toJson(),
+    );
 
-      if (response is Map<String, dynamic>) {
-        return FieldTask.fromJson(response);
-      }
-    } catch (e) {
-      print('❌ Failed to create task: $e');
+    if (response is Map<String, dynamic>) {
+      return FieldTask.fromJson(response);
     }
 
-    return null;
+    throw ApiException(
+      code: 'PARSE_ERROR',
+      message: 'فشل في إنشاء المهمة',
+    );
   }
 }

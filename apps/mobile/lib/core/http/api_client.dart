@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../config/config.dart';
 
 /// SAHOOL API Client with offline handling
@@ -192,22 +193,31 @@ class _AuthInterceptor extends Interceptor {
 }
 
 /// Logging Interceptor
+/// Only logs in debug mode to prevent sensitive data exposure in production
 class _LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('📤 ${options.method} ${options.path}');
+    if (kDebugMode) {
+      print('📤 ${options.method} ${options.path}');
+      // Note: Authorization headers and request body are intentionally not logged
+    }
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print('📥 ${response.statusCode} ${response.requestOptions.path}');
+    if (kDebugMode) {
+      print('📥 ${response.statusCode} ${response.requestOptions.path}');
+      // Note: Response body is intentionally not logged to prevent data leakage
+    }
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    print('❌ ${err.type} ${err.requestOptions.path}');
+    if (kDebugMode) {
+      print('❌ ${err.type} ${err.requestOptions.path}');
+    }
     handler.next(err);
   }
 }

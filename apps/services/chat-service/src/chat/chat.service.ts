@@ -165,55 +165,68 @@ export class ChatService {
    * إرسال رسالة
    */
   async sendMessage(dto: SendMessageDto) {
-    // Verify conversation exists
-    const conversation = await this.prisma.conversation.findUnique({
-      where: { id: dto.conversationId },
-    });
+    try {
+      // Verify conversation exists
+      const conversation = await this.prisma.conversation.findUnique({
+        where: { id: dto.conversationId },
+      });
 
-    if (!conversation) {
-      throw new NotFoundException('Conversation not found');
+      if (!conversation) {
+        throw new NotFoundException('Conversation not found');
+      }
+
+      // Verify sender is a participant
+      if (!conversation.participantIds.includes(dto.senderId)) {
+        throw new BadRequestException('User is not a participant in this conversation');
+      }
+
+      // Use transaction to ensure atomicity
+      const message = await this.prisma.$transaction(async (tx) => {
+        // Create message
+        const newMessage = await tx.message.create({
+          data: {
+            conversationId: dto.conversationId,
+            senderId: dto.senderId,
+            content: dto.content,
+            messageType: dto.messageType || 'TEXT',
+            attachmentUrl: dto.attachmentUrl,
+            offerAmount: dto.offerAmount,
+            offerCurrency: dto.offerCurrency || 'YER',
+          },
+        });
+
+        // Update conversation's last message
+        await tx.conversation.update({
+          where: { id: dto.conversationId },
+          data: {
+            lastMessage: dto.content,
+            lastMessageAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+
+        // Update unread count for other participants
+        await tx.participant.updateMany({
+          where: {
+            conversationId: dto.conversationId,
+            userId: { not: dto.senderId },
+          },
+          data: {
+            unreadCount: { increment: 1 },
+          },
+        });
+
+        return newMessage;
+      });
+
+      return message;
+    } catch (error) {
+      // Sanitize error messages - don't expose internal details
+      if (error instanceof NotFoundException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException('Failed to send message');
     }
-
-    // Verify sender is a participant
-    if (!conversation.participantIds.includes(dto.senderId)) {
-      throw new BadRequestException('User is not a participant in this conversation');
-    }
-
-    // Create message
-    const message = await this.prisma.message.create({
-      data: {
-        conversationId: dto.conversationId,
-        senderId: dto.senderId,
-        content: dto.content,
-        messageType: dto.messageType || 'TEXT',
-        attachmentUrl: dto.attachmentUrl,
-        offerAmount: dto.offerAmount,
-        offerCurrency: dto.offerCurrency || 'YER',
-      },
-    });
-
-    // Update conversation's last message
-    await this.prisma.conversation.update({
-      where: { id: dto.conversationId },
-      data: {
-        lastMessage: dto.content,
-        lastMessageAt: new Date(),
-        updatedAt: new Date(),
-      },
-    });
-
-    // Update unread count for other participants
-    await this.prisma.participant.updateMany({
-      where: {
-        conversationId: dto.conversationId,
-        userId: { not: dto.senderId },
-      },
-      data: {
-        unreadCount: { increment: 1 },
-      },
-    });
-
-    return message;
   }
 
   /**

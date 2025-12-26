@@ -56,14 +56,13 @@ jobs:
           pip install Pillow
           mkdir -p assets/icon assets/images assets/icons
           python3 scripts/generate_icons.py
-        continue-on-error: true
 
       - name: Create .env file
         run: |
           cat > .env << 'EOF'
           API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=demo_key
-          MAPS_API_KEY=demo_key
+          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+          MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
 
@@ -93,15 +92,12 @@ jobs:
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"
-        continue-on-error: true
 
       - name: Generate native splash
         run: dart run flutter_native_splash:create || echo "Splash generation skipped"
-        continue-on-error: true
 
       - name: Analyze code before build
         run: flutter analyze --no-fatal-infos || echo "Analysis warnings found"
-        continue-on-error: true
 
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}

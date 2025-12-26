@@ -3,7 +3,7 @@
  * بيانات إرسال رسالة
  */
 
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, IsUrl, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export enum MessageType {
@@ -36,6 +36,7 @@ export class SendMessageDto {
   })
   @IsNotEmpty()
   @IsString()
+  @MaxLength(10000)
   content: string;
 
   @ApiPropertyOptional({
@@ -52,7 +53,7 @@ export class SendMessageDto {
     example: 'https://cdn.sahool.com/images/product-photo.jpg',
   })
   @IsOptional()
-  @IsString()
+  @IsUrl()
   attachmentUrl?: string;
 
   @ApiPropertyOptional({
@@ -61,6 +62,7 @@ export class SendMessageDto {
   })
   @IsOptional()
   @IsNumber()
+  @Min(0)
   offerAmount?: number;
 
   @ApiPropertyOptional({

@@ -766,7 +766,7 @@ async def root():
     }
 
 
-@app.get("/health")
+@app.get("/healthz")
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "timestamp": datetime.utcnow()}

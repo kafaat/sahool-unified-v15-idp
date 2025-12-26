@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Restrict default permissions for all jobs
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   secrets-scan:
     name: Secrets Scan
@@ -134,7 +139,7 @@ jobs:
           fi
 
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         id: trivy
         with:
           scan-type: 'fs'

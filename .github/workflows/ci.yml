@@ -12,6 +12,11 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Restrict default permissions for all jobs
+permissions:
+  contents: read
+  actions: read
+
 env:
   PYTHON_VERSION: "3.11"
   NODE_VERSION: "20"
@@ -351,7 +356,7 @@ jobs:
         run: bandit -r apps/ shared/ -ll -x "**/tests/**" || true
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           scan-ref: '.'

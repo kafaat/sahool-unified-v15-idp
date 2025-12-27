@@ -13,12 +13,14 @@ import {
   EquipmentForm,
   MaintenanceSchedule,
   useEquipmentStats,
+  useEquipmentDetails,
 } from '@/features/equipment';
 
 export default function EquipmentPage() {
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const { data: stats, isLoading: statsLoading } = useEquipmentStats();
+  const { data: selectedEquipment } = useEquipmentDetails(selectedEquipmentId || '');
 
   const handleEquipmentClick = (equipmentId: string) => {
     setSelectedEquipmentId(equipmentId);
@@ -63,15 +65,15 @@ export default function EquipmentPage() {
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">قيد التشغيل</p>
-            <p className="text-3xl font-bold text-green-600">{stats.active || 0}</p>
+            <p className="text-3xl font-bold text-green-600">{stats.byStatus?.['active'] || 0}</p>
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">قيد الصيانة</p>
-            <p className="text-3xl font-bold text-orange-600">{stats.maintenance || 0}</p>
+            <p className="text-3xl font-bold text-orange-600">{stats.byStatus?.['maintenance'] || 0}</p>
           </div>
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <p className="text-sm text-gray-600 mb-1">بحاجة لصيانة</p>
-            <p className="text-3xl font-bold text-red-600">{stats.needsMaintenance || 0}</p>
+            <p className="text-3xl font-bold text-red-600">{stats.maintenanceDue || 0}</p>
           </div>
         </div>
       )}
@@ -86,23 +88,27 @@ export default function EquipmentPage() {
                 {selectedEquipmentId ? 'تعديل معدة' : 'إضافة معدة جديدة'}
               </h2>
               <EquipmentForm
-                equipmentId={selectedEquipmentId || undefined}
+                equipment={selectedEquipment}
                 onSuccess={handleFormSuccess}
                 onCancel={() => setShowForm(false)}
               />
             </div>
           ) : selectedEquipmentId ? (
             <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+              <div className="mb-4">
+                <button
+                  onClick={() => setSelectedEquipmentId(null)}
+                  className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                >
+                  ← العودة للقائمة
+                </button>
+              </div>
               <EquipmentDetails
                 equipmentId={selectedEquipmentId}
-                onBack={() => setSelectedEquipmentId(null)}
               />
             </div>
           ) : (
-            <EquipmentList
-              onFieldClick={handleEquipmentClick}
-              onCreateClick={handleCreateClick}
-            />
+            <EquipmentList />
           )}
         </div>
 
@@ -110,7 +116,7 @@ export default function EquipmentPage() {
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">جدول الصيانة</h2>
           <p className="text-sm text-gray-600 mb-6">Maintenance Schedule</p>
-          <MaintenanceSchedule limit={10} />
+          <MaintenanceSchedule />
         </div>
       </div>
     </div>

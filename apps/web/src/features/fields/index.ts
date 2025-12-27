@@ -12,9 +12,22 @@ export { FieldMap } from './components/FieldMap';
 export {
   useFields,
   useField,
+  useFieldStats,
   useCreateField,
   useUpdateField,
   useDeleteField,
+  fieldKeys,
 } from './hooks/useFields';
 
-export type { Field, FieldFormData, FieldFilters, FieldViewMode } from './types';
+export { fieldsApi, ERROR_MESSAGES } from './api';
+
+export type {
+  Field,
+  FieldFormData,
+  FieldFilters,
+  FieldViewMode,
+  FieldStats,
+  FieldError,
+  GeoPolygon,
+  GeoPoint,
+} from './types';

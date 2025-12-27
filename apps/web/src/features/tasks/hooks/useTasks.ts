@@ -5,7 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/client';
-import type { Task, TaskFormData, TaskFilters, TaskStatus } from '../types';
+import type { Task, TaskFormData, TaskFilters, TaskStatus, Priority } from '../types';
 
 // Map frontend status to backend status
 const mapStatusToBackend = (status: TaskStatus): string => {
@@ -30,168 +30,151 @@ const mapStatusToFrontend = (status: string): TaskStatus => {
 };
 
 async function fetchTasks(filters?: TaskFilters): Promise<Task[]> {
-  const params: Record<string, string> = {};
+  const options: {
+    tenantId?: string;
+    fieldId?: string;
+    userId?: string;
+    status?: string;
+    limit?: number;
+    offset?: number;
+  } = {};
 
-  if (filters?.fieldId) params.field_id = filters.fieldId;
-  if (filters?.status) params.status = mapStatusToBackend(filters.status);
-  if (filters?.priority) params.priority = filters.priority;
-  if (filters?.assignedTo) params.assigned_to = filters.assignedTo;
-  if (filters?.search) params.search = filters.search;
+  if (filters?.fieldId) options.fieldId = filters.fieldId;
+  if (filters?.status) options.status = mapStatusToBackend(filters.status);
+  if (filters?.assignedTo) options.userId = filters.assignedTo;
 
-  const response = await apiClient.get<{
-    tasks: Array<{
-      task_id: string;
-      title: string;
-      title_ar?: string;
-      description?: string;
-      description_ar?: string;
-      status: string;
-      priority: string;
-      due_date?: string;
-      field_id?: string;
-      assigned_to?: string;
-      created_at: string;
-      updated_at: string;
-    }>;
-  }>('http://localhost:8103/api/v1/tasks', { params });
+  const response = await apiClient.getTasks(options);
 
-  // Transform backend data to frontend format
-  return response.data.tasks?.map(task => ({
-    id: task.task_id,
+  if (!response.success || !response.data) {
+    return [];
+  }
+
+  // Transform backend data to Task format
+  return response.data.map((task: any) => ({
+    id: task.id || task.task_id,
+    tenant_id: task.tenant_id || task.tenantId || '',
+    field_id: task.field_id || task.fieldId || '',
+    farm_id: task.farm_id || task.farmId,
     title: task.title,
-    titleAr: task.title_ar || '',
+    title_ar: task.title_ar,
     description: task.description,
-    descriptionAr: task.description_ar,
+    description_ar: task.description_ar,
     status: mapStatusToFrontend(task.status),
-    priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
-    dueDate: task.due_date || '',
-    fieldId: task.field_id,
-    assignedTo: task.assigned_to,
-    createdAt: task.created_at,
-    updatedAt: task.updated_at,
-  })) || [];
+    priority: task.priority,
+    type: task.type || task.taskType,
+    due_date: task.due_date || task.dueDate,
+    assigned_to: task.assigned_to || task.assigneeId,
+    evidence_photos: task.evidence_photos || [],
+    evidence_notes: task.evidence_notes,
+    created_at: task.created_at || task.createdAt || new Date().toISOString(),
+    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
+  }));
 }
 
 async function fetchTaskById(id: string): Promise<Task> {
-  const response = await apiClient.get<{
-    task_id: string;
-    title: string;
-    title_ar?: string;
-    description?: string;
-    description_ar?: string;
-    status: string;
-    priority: string;
-    due_date?: string;
-    field_id?: string;
-    assigned_to?: string;
-    created_at: string;
-    updated_at: string;
-  }>(`http://localhost:8103/api/v1/tasks/${id}`);
+  const response = await apiClient.getTask(id);
+
+  if (!response.success || !response.data) {
+    throw new Error(response.error || 'Failed to fetch task');
+  }
 
   const task = response.data;
   return {
-    id: task.task_id,
+    id: task.id || task.task_id,
+    tenant_id: task.tenant_id || task.tenantId || '',
+    field_id: task.field_id || task.fieldId || '',
+    farm_id: task.farm_id || task.farmId,
     title: task.title,
-    titleAr: task.title_ar || '',
+    title_ar: task.title_ar,
     description: task.description,
-    descriptionAr: task.description_ar,
+    description_ar: task.description_ar,
     status: mapStatusToFrontend(task.status),
-    priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
-    dueDate: task.due_date || '',
-    fieldId: task.field_id,
-    assignedTo: task.assigned_to,
-    createdAt: task.created_at,
-    updatedAt: task.updated_at,
+    priority: task.priority,
+    type: task.type || task.taskType,
+    due_date: task.due_date || task.dueDate,
+    assigned_to: task.assigned_to || task.assigneeId,
+    evidence_photos: task.evidence_photos || [],
+    evidence_notes: task.evidence_notes,
+    created_at: task.created_at || task.createdAt || new Date().toISOString(),
+    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
   };
 }
 
 async function createTask(data: TaskFormData): Promise<Task> {
   const payload = {
     title: data.title,
-    title_ar: data.titleAr,
     description: data.description,
-    description_ar: data.descriptionAr,
-    priority: data.priority,
-    due_date: data.dueDate,
-    field_id: data.fieldId,
-    assigned_to: data.assignedTo,
-    status: data.status ? mapStatusToBackend(data.status) : 'pending',
+    fieldId: data.fieldId || '',
+    assigneeId: data.assignedTo,
+    dueDate: data.dueDate,
+    priority: data.priority as 'low' | 'medium' | 'high',
+    taskType: 'general',
   };
 
-  const response = await apiClient.post<{
-    task_id: string;
-    title: string;
-    title_ar?: string;
-    description?: string;
-    description_ar?: string;
-    status: string;
-    priority: string;
-    due_date?: string;
-    field_id?: string;
-    assigned_to?: string;
-    created_at: string;
-    updated_at: string;
-  }>('http://localhost:8103/api/v1/tasks', payload);
+  const response = await apiClient.createTask(payload);
+
+  if (!response.success || !response.data) {
+    throw new Error(response.error || 'Failed to create task');
+  }
 
   const task = response.data;
   return {
-    id: task.task_id,
+    id: task.id || task.task_id,
+    tenant_id: task.tenant_id || task.tenantId || '',
+    field_id: task.field_id || task.fieldId || '',
+    farm_id: task.farm_id || task.farmId,
     title: task.title,
-    titleAr: task.title_ar || '',
+    title_ar: task.title_ar,
     description: task.description,
-    descriptionAr: task.description_ar,
-    status: mapStatusToFrontend(task.status),
-    priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
-    dueDate: task.due_date || '',
-    fieldId: task.field_id,
-    assignedTo: task.assigned_to,
-    createdAt: task.created_at,
-    updatedAt: task.updated_at,
+    description_ar: task.description_ar,
+    status: mapStatusToFrontend(task.status || 'pending'),
+    priority: task.priority,
+    type: task.type || task.taskType,
+    due_date: task.due_date || task.dueDate,
+    assigned_to: task.assigned_to || task.assigneeId,
+    evidence_photos: task.evidence_photos || [],
+    evidence_notes: task.evidence_notes,
+    created_at: task.created_at || task.createdAt || new Date().toISOString(),
+    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
   };
 }
 
 async function updateTask(id: string, data: Partial<TaskFormData>): Promise<Task> {
-  const payload: Record<string, unknown> = {};
+  const payload: {
+    status?: string;
+    title?: string;
+    description?: string;
+  } = {};
 
   if (data.title !== undefined) payload.title = data.title;
-  if (data.titleAr !== undefined) payload.title_ar = data.titleAr;
   if (data.description !== undefined) payload.description = data.description;
-  if (data.descriptionAr !== undefined) payload.description_ar = data.descriptionAr;
-  if (data.priority !== undefined) payload.priority = data.priority;
-  if (data.dueDate !== undefined) payload.due_date = data.dueDate;
-  if (data.fieldId !== undefined) payload.field_id = data.fieldId;
-  if (data.assignedTo !== undefined) payload.assigned_to = data.assignedTo;
   if (data.status !== undefined) payload.status = mapStatusToBackend(data.status);
 
-  const response = await apiClient.put<{
-    task_id: string;
-    title: string;
-    title_ar?: string;
-    description?: string;
-    description_ar?: string;
-    status: string;
-    priority: string;
-    due_date?: string;
-    field_id?: string;
-    assigned_to?: string;
-    created_at: string;
-    updated_at: string;
-  }>(`http://localhost:8103/api/v1/tasks/${id}`, payload);
+  const response = await apiClient.updateTask(id, payload);
+
+  if (!response.success || !response.data) {
+    throw new Error(response.error || 'Failed to update task');
+  }
 
   const task = response.data;
   return {
-    id: task.task_id,
+    id: task.id || task.task_id,
+    tenant_id: task.tenant_id || task.tenantId || '',
+    field_id: task.field_id || task.fieldId || '',
+    farm_id: task.farm_id || task.farmId,
     title: task.title,
-    titleAr: task.title_ar || '',
+    title_ar: task.title_ar,
     description: task.description,
-    descriptionAr: task.description_ar,
+    description_ar: task.description_ar,
     status: mapStatusToFrontend(task.status),
-    priority: task.priority as 'low' | 'medium' | 'high' | 'urgent',
-    dueDate: task.due_date || '',
-    fieldId: task.field_id,
-    assignedTo: task.assigned_to,
-    createdAt: task.created_at,
-    updatedAt: task.updated_at,
+    priority: task.priority,
+    type: task.type || task.taskType,
+    due_date: task.due_date || task.dueDate,
+    assigned_to: task.assigned_to || task.assigneeId,
+    evidence_photos: task.evidence_photos || [],
+    evidence_notes: task.evidence_notes,
+    created_at: task.created_at || task.createdAt || new Date().toISOString(),
+    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
   };
 }
 
@@ -200,7 +183,10 @@ async function updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {
 }
 
 async function deleteTask(id: string): Promise<void> {
-  await apiClient.delete(`http://localhost:8103/api/v1/tasks/${id}`);
+  const response = await apiClient.deleteTask(id);
+  if (!response.success) {
+    throw new Error(response.error || 'Failed to delete task');
+  }
 }
 
 export function useTasks(filters?: TaskFilters) {

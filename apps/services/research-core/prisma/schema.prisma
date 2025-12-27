@@ -41,7 +41,201 @@ enum LogCategory {
   harvest
   weather
   pest
+  planting
+  germination
   other
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Germplasm & Seed Management - إدارة الأصول الوراثية والبذور
+// Based on MIAPPE, BrAPI, and GRIN-Global standards
+// ═══════════════════════════════════════════════════════════════════════════════
+
+enum GermplasmType {
+  seed
+  cutting
+  tissue
+  pollen
+  other
+}
+
+enum SeedQualityGrade {
+  certified       // بذور معتمدة
+  foundation      // بذور أساس
+  registered      // بذور مسجلة
+  breeder         // بذور مربي
+  commercial      // بذور تجارية
+  farmer_saved    // بذور محفوظة من المزارع
+}
+
+// الأصول الوراثية - Germplasm Accession
+model Germplasm {
+  id                    String            @id @default(uuid())
+  accessionNumber       String            @unique @map("accession_number") @db.VarChar(50)
+  commonName            String            @map("common_name") @db.VarChar(255)
+  commonNameAr          String?           @map("common_name_ar") @db.VarChar(255)
+  scientificName        String?           @map("scientific_name") @db.VarChar(255)
+  genus                 String?           @db.VarChar(100)
+  species               String?           @db.VarChar(100)
+  subspecies            String?           @db.VarChar(100)
+  cultivar              String?           @db.VarChar(100)
+  variety               String?           @db.VarChar(100)
+  pedigree              String?           @db.Text
+  type                  GermplasmType     @default(seed)
+
+  // Origin - المنشأ
+  countryOfOrigin       String?           @map("country_of_origin") @db.VarChar(100)
+  regionOfOrigin        String?           @map("region_of_origin") @db.VarChar(255)
+  collectionSite        String?           @map("collection_site") @db.VarChar(255)
+  collectionDate        DateTime?         @map("collection_date") @db.Date
+  collectedBy           String?           @map("collected_by")
+  donorInstitution      String?           @map("donor_institution") @db.VarChar(255)
+  donorAccessionNumber  String?           @map("donor_accession_number") @db.VarChar(50)
+
+  // Characteristics - الخصائص
+  growthHabit           String?           @map("growth_habit") @db.VarChar(100)
+  maturityDays          Int?              @map("maturity_days")
+  yieldPotential        String?           @map("yield_potential") @db.VarChar(100)
+  droughtTolerance      String?           @map("drought_tolerance") @db.VarChar(50)
+  diseaseResistance     Json              @default("{}") @map("disease_resistance")
+  pestResistance        Json              @default("{}") @map("pest_resistance")
+  qualityTraits         Json              @default("{}") @map("quality_traits")
+
+  // Storage - التخزين
+  storageLocation       String?           @map("storage_location") @db.VarChar(255)
+  storageConditions     String?           @map("storage_conditions") @db.VarChar(255)
+  storageTemperature    Decimal?          @map("storage_temperature") @db.Decimal(5, 2)
+  storageHumidity       Decimal?          @map("storage_humidity") @db.Decimal(5, 2)
+
+  // Availability - التوفر
+  isAvailable           Boolean           @default(true) @map("is_available")
+  quantityAvailable     Decimal?          @map("quantity_available") @db.Decimal(10, 3)
+  quantityUnit          String?           @map("quantity_unit") @db.VarChar(50)
+
+  description           String?           @db.Text
+  descriptionAr         String?           @map("description_ar") @db.Text
+  photos                String[]          @default([])
+  documents             String[]          @default([])
+  metadata              Json              @default("{}")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  seedLots              SeedLot[]
+  plantings             Planting[]
+
+  @@map("germplasm")
+}
+
+// دفعات البذور - Seed Lots
+model SeedLot {
+  id                    String            @id @default(uuid())
+  germplasmId           String            @map("germplasm_id")
+  lotNumber             String            @unique @map("lot_number") @db.VarChar(50)
+
+  // Quantity - الكمية
+  initialQuantity       Decimal           @map("initial_quantity") @db.Decimal(10, 3)
+  currentQuantity       Decimal           @map("current_quantity") @db.Decimal(10, 3)
+  quantityUnit          String            @map("quantity_unit") @db.VarChar(50)
+  seedCount             Int?              @map("seed_count")
+  thousandSeedWeight    Decimal?          @map("thousand_seed_weight") @db.Decimal(8, 3)
+
+  // Quality - الجودة
+  qualityGrade          SeedQualityGrade  @default(commercial) @map("quality_grade")
+  germinationRate       Decimal?          @map("germination_rate") @db.Decimal(5, 2)
+  germinationTestDate   DateTime?         @map("germination_test_date") @db.Date
+  purityPercentage      Decimal?          @map("purity_percentage") @db.Decimal(5, 2)
+  moistureContent       Decimal?          @map("moisture_content") @db.Decimal(5, 2)
+  vigorIndex            Decimal?          @map("vigor_index") @db.Decimal(5, 2)
+
+  // Production - الإنتاج
+  productionDate        DateTime?         @map("production_date") @db.Date
+  harvestDate           DateTime?         @map("harvest_date") @db.Date
+  productionLocation    String?           @map("production_location") @db.VarChar(255)
+  productionSeason      String?           @map("production_season") @db.VarChar(50)
+  producedBy            String?           @map("produced_by")
+
+  // Certification - الاعتماد
+  certificationNumber   String?           @map("certification_number") @db.VarChar(100)
+  certifiedBy           String?           @map("certified_by") @db.VarChar(255)
+  certificationDate     DateTime?         @map("certification_date") @db.Date
+  expiryDate            DateTime?         @map("expiry_date") @db.Date
+
+  // Treatment - معالجة البذور
+  isTreated             Boolean           @default(false) @map("is_treated")
+  treatmentType         String?           @map("treatment_type") @db.VarChar(100)
+  treatmentProduct      String?           @map("treatment_product") @db.VarChar(255)
+  treatmentDate         DateTime?         @map("treatment_date") @db.Date
+
+  // Storage - التخزين
+  storageLocation       String?           @map("storage_location") @db.VarChar(255)
+  storageConditions     String?           @map("storage_conditions") @db.VarChar(255)
+
+  notes                 String?           @db.Text
+  notesAr               String?           @map("notes_ar") @db.Text
+  photos                String[]          @default([])
+  documents             String[]          @default([])
+  metadata              Json              @default("{}")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  germplasm             Germplasm         @relation(fields: [germplasmId], references: [id], onDelete: Cascade)
+  plantings             Planting[]
+
+  @@map("seed_lots")
+}
+
+// الزراعة/البذر - Planting Event
+model Planting {
+  id                    String            @id @default(uuid())
+  experimentId          String            @map("experiment_id")
+  plotId                String?           @map("plot_id")
+  germplasmId           String            @map("germplasm_id")
+  seedLotId             String?           @map("seed_lot_id")
+
+  // Planting Details - تفاصيل الزراعة
+  plantingDate          DateTime          @map("planting_date") @db.Date
+  plantingMethod        String?           @map("planting_method") @db.VarChar(100)
+  seedingRate           Decimal?          @map("seeding_rate") @db.Decimal(10, 3)
+  seedingRateUnit       String?           @map("seeding_rate_unit") @db.VarChar(50)
+  seedsPerHill          Int?              @map("seeds_per_hill")
+  seedDepth             Decimal?          @map("seed_depth") @db.Decimal(5, 2)
+  seedDepthUnit         String?           @map("seed_depth_unit") @db.VarChar(20)
+
+  // Spacing - المسافات
+  rowSpacing            Decimal?          @map("row_spacing") @db.Decimal(6, 2)
+  plantSpacing          Decimal?          @map("plant_spacing") @db.Decimal(6, 2)
+  spacingUnit           String?           @map("spacing_unit") @db.VarChar(20)
+
+  // Area - المساحة
+  plantedArea           Decimal?          @map("planted_area") @db.Decimal(10, 2)
+  plantedAreaUnit       String?           @map("planted_area_unit") @db.VarChar(20)
+  numberOfRows          Int?              @map("number_of_rows")
+  plantsPerRow          Int?              @map("plants_per_row")
+  totalPlantsExpected   Int?              @map("total_plants_expected")
+
+  // Germination - الإنبات
+  germinationDate       DateTime?         @map("germination_date") @db.Date
+  emergenceDate         DateTime?         @map("emergence_date") @db.Date
+  germinationCount      Int?              @map("germination_count")
+  germinationPercentage Decimal?          @map("germination_percentage") @db.Decimal(5, 2)
+
+  // Thinning - الخف
+  thinningDate          DateTime?         @map("thinning_date") @db.Date
+  finalPlantCount       Int?              @map("final_plant_count")
+
+  plantedBy             String            @map("planted_by")
+  notes                 String?           @db.Text
+  notesAr               String?           @map("notes_ar") @db.Text
+  photos                String[]          @default([])
+  metadata              Json              @default("{}")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  experiment            Experiment        @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  germplasm             Germplasm         @relation(fields: [germplasmId], references: [id])
+  seedLot               SeedLot?          @relation(fields: [seedLotId], references: [id])
+
+  @@map("plantings")
 }
 
 model Experiment {
@@ -73,6 +267,7 @@ model Experiment {
   samples       LabSample[]
   collaborators ExperimentCollaborator[]
   auditLogs     ExperimentAuditLog[]
+  plantings     Planting[]
 
   @@map("experiments")
 }

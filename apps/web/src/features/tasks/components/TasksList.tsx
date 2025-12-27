@@ -41,25 +41,25 @@ export const TasksList: React.FC<TasksListProps> = ({ filters, onTaskClick }) =>
 
   // Group tasks by status
   const groupedTasks = {
-    pending: tasks.filter(t => t.status === 'pending'),
+    open: tasks.filter(t => t.status === 'open'),
     in_progress: tasks.filter(t => t.status === 'in_progress'),
-    completed: tasks.filter(t => t.status === 'completed'),
-    cancelled: tasks.filter(t => t.status === 'cancelled'),
+    done: tasks.filter(t => t.status === 'done'),
+    canceled: tasks.filter(t => t.status === 'canceled'),
   };
 
   return (
     <div className="space-y-6">
       {/* Pending Tasks */}
-      {groupedTasks.pending.length > 0 && (
+      {groupedTasks.open.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-5 h-5 text-gray-600" />
             <h3 className="text-lg font-semibold text-gray-900">
-              قيد الانتظار ({groupedTasks.pending.length})
+              قيد الانتظار ({groupedTasks.open.length})
             </h3>
           </div>
           <div className="space-y-3">
-            {groupedTasks.pending.map((task) => (
+            {groupedTasks.open.map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}
@@ -92,16 +92,16 @@ export const TasksList: React.FC<TasksListProps> = ({ filters, onTaskClick }) =>
       )}
 
       {/* Completed Tasks */}
-      {groupedTasks.completed.length > 0 && (
+      {groupedTasks.done.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle2 className="w-5 h-5 text-green-600" />
             <h3 className="text-lg font-semibold text-gray-900">
-              مكتملة ({groupedTasks.completed.length})
+              مكتملة ({groupedTasks.done.length})
             </h3>
           </div>
           <div className="space-y-3">
-            {groupedTasks.completed.map((task) => (
+            {groupedTasks.done.map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}
@@ -113,16 +113,16 @@ export const TasksList: React.FC<TasksListProps> = ({ filters, onTaskClick }) =>
       )}
 
       {/* Cancelled Tasks */}
-      {groupedTasks.cancelled.length > 0 && (
+      {groupedTasks.canceled.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-4">
             <XCircle className="w-5 h-5 text-red-600" />
             <h3 className="text-lg font-semibold text-gray-900">
-              ملغاة ({groupedTasks.cancelled.length})
+              ملغاة ({groupedTasks.canceled.length})
             </h3>
           </div>
           <div className="space-y-3">
-            {groupedTasks.cancelled.map((task) => (
+            {groupedTasks.canceled.map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}

@@ -10,7 +10,9 @@ import { Cloud, CloudRain, Sun, Wind, Droplets, Gauge, Eye, Sunrise } from 'luci
 import { useCurrentWeather } from '../hooks/useWeather';
 
 interface CurrentWeatherProps {
-  location?: string;
+  lat?: number;
+  lon?: number;
+  enabled?: boolean;
 }
 
 const getWeatherIcon = (condition?: string) => {
@@ -22,8 +24,8 @@ const getWeatherIcon = (condition?: string) => {
   return <Cloud className="w-16 h-16 text-gray-400" />;
 };
 
-export const CurrentWeather: React.FC<CurrentWeatherProps> = ({ location }) => {
-  const { data: weather, isLoading } = useCurrentWeather(location);
+export const CurrentWeather: React.FC<CurrentWeatherProps> = ({ lat, lon, enabled }) => {
+  const { data: weather, isLoading } = useCurrentWeather({ lat, lon, enabled });
 
   if (isLoading) {
     return (

@@ -49,9 +49,9 @@ jobs:
 
       - name: Lint
         run: |
-          isort --check-only kernel/ shared/
-          black --check kernel/ shared/
-          ruff check kernel/ shared/
+          isort --check-only apps/services/ shared/
+          black --check apps/services/ shared/
+          ruff check apps/services/ shared/
 
       - name: Test
         run: |
@@ -93,7 +93,7 @@ jobs:
       - name: Check if service exists
         id: check
         run: |
-          if [ -d "kernel/services/${{ matrix.service }}" ]; then
+          if [ -d "apps/services/${{ matrix.service }}" ]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -103,7 +103,7 @@ jobs:
         if: steps.check.outputs.exists == 'true'
         uses: docker/build-push-action@v5
         with:
-          context: ./kernel/services/${{ matrix.service }}
+          context: ./apps/services/${{ matrix.service }}
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ needs.validate.outputs.version }}

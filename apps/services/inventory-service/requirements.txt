@@ -1,0 +1,19 @@
+# SAHOOL Inventory Service Dependencies
+# Updated: December 2025
+# Version: 1.0.0
+
+# Base requirements
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+python-dotenv==1.0.1
+
+# Database
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0
+asyncpg>=0.29.0
+greenlet>=3.0.0
+
+# Utilities
+python-dateutil==2.8.2
+httpx==0.28.1

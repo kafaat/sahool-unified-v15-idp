@@ -11,9 +11,9 @@ LABEL version="16.0.0"
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies with retry for network resilience
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy source code
 COPY . .
@@ -31,7 +31,7 @@ RUN apk add --no-cache curl
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm install --only=production
+RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy built application
 COPY --from=builder /app/dist ./dist
@@ -44,7 +44,7 @@ RUN chown -R node:node /app
 USER node
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3023/api/v1/simulation/health || exit 1
 
 # Run the application

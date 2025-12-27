@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   keywords: ['سهول', 'زراعة', 'اليمن', 'sahool', 'agriculture', 'yemen'],
 };
 
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: {

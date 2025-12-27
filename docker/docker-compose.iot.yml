@@ -1,76 +1,118 @@
-version: '3.8'
-
+# ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL IoT Services - Docker Compose
-# Includes MQTT broker and IoT Gateway
+# خدمات إنترنت الأشياء لمنصة سهول
+#
+# DEPRECATED: This file is for standalone IoT testing only.
+# For production, use the main docker-compose.yml which includes:
+#   - mqtt (eclipse-mosquitto)
+#   - iot_gateway (apps/services/iot-gateway)
+#   - agro_rules (apps/services/agro-rules)
+#
+# Usage (standalone testing only):
+#   docker-compose -f docker/docker-compose.iot.yml up -d
+# ═══════════════════════════════════════════════════════════════════════════════
 
 services:
-  # MQTT Broker (Mosquitto)
-  mqtt-broker:
-    image: eclipse-mosquitto:2
-    container_name: sahool-mqtt
+  # MQTT Broker (Mosquitto) - Standalone testing only
+  # NOTE: Uses different container name to avoid conflict with main compose
+  mqtt-broker-test:
+    image: eclipse-mosquitto:2.0.20
+    container_name: sahool-mqtt-test
     ports:
-      - "1883:1883"
-      - "9001:9001"
+      - "11883:1883"   # Different port to avoid conflict
+      - "19001:9001"   # Different port to avoid conflict
     volumes:
       - ./mosquitto/config:/mosquitto/config
-      - mqtt-data:/mosquitto/data
-      - mqtt-log:/mosquitto/log
+      - mqtt-test-data:/mosquitto/data
+      - mqtt-test-log:/mosquitto/log
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -W 3 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
     networks:
       - sahool-network
     restart: unless-stopped
 
-  # IoT Gateway Service
-  iot-gateway:
+  # IoT Gateway Service - Standalone testing only
+  # NOTE: Uses different port to avoid conflict with virtual_sensors
+  iot-gateway-test:
     build:
-      context: ../kernel/services/iot_gateway
+      context: ../apps/services/iot-gateway
       dockerfile: Dockerfile
-    container_name: sahool-iot-gateway
+    container_name: sahool-iot-gateway-test
     ports:
-      - "8096:8096"
+      - "18096:8106"   # Different external port, internal matches service
     environment:
-      - MQTT_BROKER=mqtt-broker
+      - MQTT_BROKER=mqtt-broker-test
       - MQTT_PORT=1883
       - MQTT_TOPIC=sahool/sensors/#
-      - NATS_URL=nats://nats:4222
+      - NATS_URL=nats://nats-test:4222
       - DEFAULT_TENANT=default
+      - LOG_LEVEL=INFO
     depends_on:
-      - mqtt-broker
-      - nats
+      mqtt-broker-test:
+        condition: service_healthy
+      nats-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8106/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - sahool-network
     restart: unless-stopped
 
-  # IoT Rules Worker
-  iot-rules-worker:
+  # IoT Rules Worker - Standalone testing only
+  iot-rules-worker-test:
     build:
-      context: ../kernel/services/agro_rules
-      dockerfile: Dockerfile.iot
-    container_name: sahool-iot-rules
+      context: ../apps/services/agro-rules
+      dockerfile: Dockerfile
+    container_name: sahool-iot-rules-test
     environment:
-      - NATS_URL=nats://nats:4222
+      - NATS_URL=nats://nats-test:4222
       - FIELDOPS_URL=http://fieldops:8080
+      - LOG_LEVEL=INFO
     depends_on:
-      - nats
+      nats-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "python"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - sahool-network
     restart: unless-stopped
 
-  # NATS (if not already running)
-  nats:
-    image: nats:2.10-alpine
-    container_name: sahool-nats
+  # NATS for standalone testing
+  nats-test:
+    image: nats:2.10.24-alpine
+    container_name: sahool-nats-test
     ports:
-      - "4222:4222"
-      - "8222:8222"
-    command: ["-js", "-m", "8222"]
+      - "14222:4222"   # Different port to avoid conflict
+      - "18222:8222"   # Different port to avoid conflict
+    command: ["--jetstream", "--store_dir=/data", "-m", "8222"]
+    volumes:
+      - nats-test-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - sahool-network
     restart: unless-stopped
 
 volumes:
-  mqtt-data:
-  mqtt-log:
+  mqtt-test-data:
+    name: sahool-mqtt-test-data
+  mqtt-test-log:
+    name: sahool-mqtt-test-log
 
 networks:
   sahool-network:
-    driver: bridge
+    name: sahool-network
+    external: true

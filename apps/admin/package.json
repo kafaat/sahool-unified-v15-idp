@@ -1,6 +1,6 @@
 {
   "name": "sahool-admin-dashboard",
-  "version": "17.0.0",
+  "version": "16.0.0",
   "description": "Sahool Agricultural Platform - Admin Dashboard",
   "private": true,
   "scripts": {
@@ -9,6 +9,7 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -18,15 +19,15 @@
     "@sahool/shared-ui": "*",
     "@sahool/shared-utils": "*",
     "@sahool/shared-hooks": "*",
-    "next": "15.1.2",
+    "next": "15.5.9",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "leaflet": "1.9.4",
     "react-leaflet": "4.2.1",
     "@tanstack/react-query": "5.62.8",
-    "axios": "1.7.9",
+    "axios": "1.13.2",
     "date-fns": "4.1.0",
-    "recharts": "2.14.1",
+    "recharts": "2.15.3",
     "lucide-react": "0.468.0",
     "clsx": "2.1.1",
     "tailwind-merge": "2.6.0",
@@ -43,13 +44,13 @@
     "tailwindcss": "3.4.17",
     "postcss": "8.4.49",
     "autoprefixer": "10.4.20",
-    "eslint": "9.17.0",
-    "eslint-config-next": "15.1.2",
-    "vitest": "2.1.8",
-    "@vitejs/plugin-react": "4.3.4",
-    "@vitest/coverage-v8": "2.1.8",
-    "@testing-library/react": "16.1.0",
+    "eslint": "9.28.0",
+    "eslint-config-next": "15.5.9",
+    "vitest": "3.2.4",
+    "@vitejs/plugin-react": "4.5.2",
+    "@vitest/coverage-v8": "3.2.4",
+    "@testing-library/react": "16.3.0",
     "@testing-library/jest-dom": "6.6.3",
-    "jsdom": "25.0.1"
+    "jsdom": "26.1.0"
   }
 }

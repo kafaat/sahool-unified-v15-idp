@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { StatsCards } from './StatsCards';
 import { TaskList } from './TaskList';
@@ -14,6 +14,7 @@ import { AlertPanel } from './AlertPanel';
 import { QuickActions } from './QuickActions';
 import { useAlerts } from '../../hooks/useAlerts';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
+import type { KPI } from '@/types';
 
 // Dynamic import for MapView (client-side only, requires maplibre-gl)
 const MapView = dynamic(() => import('./MapView'), {
@@ -36,7 +37,8 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = 'tenant_1' }) => {
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const { alerts, dismiss, dismissAll } = useAlerts();
 
-  const handleFieldSelect = (fieldId: string | null) => {
+  // Memoized handlers with useCallback
+  const handleFieldSelect = useCallback((fieldId: string | null) => {
     setSelectedField(fieldId);
     ErrorTracking.addBreadcrumb({
       type: 'click',
@@ -44,51 +46,61 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = 'tenant_1' }) => {
       message: 'Field selected',
       data: { fieldId },
     });
-  };
+  }, []);
 
-  const handleKPIClick = (kpi: any) => {
+  // Fixed: Changed from 'any' to proper KPI type
+  const handleKPIClick = useCallback((kpi: KPI) => {
     ErrorTracking.addBreadcrumb({
       type: 'click',
       category: 'ui',
       message: 'KPI clicked',
-      data: { kpiId: kpi?.id, kpiLabel: kpi?.label },
+      data: { kpiId: kpi.id, kpiLabel: kpi.label },
     });
-  };
+  }, []);
 
-  const handleAction = (actionId: string) => {
+  const handleAction = useCallback((actionId: string) => {
     ErrorTracking.addBreadcrumb({
       type: 'click',
       category: 'ui',
       message: 'Quick action triggered',
       data: { actionId },
     });
-  };
+  }, []);
 
-  const handleAlertAction = (url: string) => {
-    window.open(url, '_blank');
-  };
+  const handleAlertAction = useCallback((url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, []);
+
+  // Memoized formatted date
+  const formattedDate = useMemo(() =>
+    new Date().toLocaleDateString('ar-YE', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }),
+    []
+  );
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Header */}
-      <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+      <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between" role="banner">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">لوحة التحكم</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {new Date().toLocaleDateString('ar-YE', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
+          <p className="text-sm text-gray-500 mt-1" aria-label="التاريخ الحالي">
+            {formattedDate}
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+          <div className="flex items-center gap-2 text-sm" role="status" aria-label="حالة الاتصال">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" aria-hidden="true"></span>
             <span className="text-gray-600">متصل</span>
           </div>
-          <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-emerald-700 transition-colors">
+          <button
+            className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            aria-label="إضافة مهمة جديدة"
+          >
             + مهمة جديدة
           </button>
         </div>

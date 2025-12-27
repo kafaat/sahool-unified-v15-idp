@@ -1,0 +1,89 @@
+# Docker Compose configuration for SAHOOL Profitability Analysis Service
+# This runs alongside the main field-core TypeScript service
+
+version: '3.8'
+
+services:
+  # Main field-core service (TypeScript/Node.js)
+  field-core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-postgresql://sahool:sahool@db:5432/sahool_fields}
+    depends_on:
+      - db
+    networks:
+      - sahool-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Profitability analysis service (Python/FastAPI)
+  field-profitability:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+      - DATABASE_URL=${DATABASE_URL:-postgresql://sahool:sahool@db:5432/sahool_fields}
+      - NATS_URL=${NATS_URL:-nats://nats:4222}
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - db
+    networks:
+      - sahool-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL with PostGIS
+  db:
+    image: postgis/postgis:15-3.3-alpine
+    environment:
+      - POSTGRES_USER=sahool
+      - POSTGRES_PASSWORD=sahool
+      - POSTGRES_DB=sahool_fields
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sahool-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sahool"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # NATS (optional - for event streaming)
+  nats:
+    image: nats:2.10-alpine
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - sahool-network
+    restart: unless-stopped
+    command: ["--http_port", "8222", "--js"]
+
+networks:
+  sahool-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

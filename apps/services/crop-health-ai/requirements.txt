@@ -3,8 +3,8 @@
 # Updated: December 2025
 
 # Web Framework
-fastapi==0.126.0
-uvicorn[standard]==0.27.0
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
 python-multipart==0.0.18
 
 # Image Processing
@@ -17,7 +17,7 @@ numpy>=1.26.0,<2.1.0
 tensorflow-cpu==2.18.0
 
 # Data Validation
-pydantic==2.9.2
+pydantic==2.10.3
 
 # HTTP Client (for webhook callbacks)
 httpx==0.28.1

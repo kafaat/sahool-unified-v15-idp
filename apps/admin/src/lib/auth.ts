@@ -11,6 +11,11 @@ const AUTH_USER_KEY = 'sahool_admin_user';
 // API URL - configurable via environment
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
+// Enforce HTTPS in production
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && !API_URL.startsWith('https://')) {
+  throw new Error('API_URL must use HTTPS in production environment');
+}
+
 export interface User {
   id: string;
   email: string;

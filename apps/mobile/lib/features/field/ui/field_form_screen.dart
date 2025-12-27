@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
+import '../../../core/http/api_client.dart';
+import '../../crops/data/models/crop_model.dart';
+import '../../crops/data/remote/crops_api.dart';
+import '../../crops/data/repositories/crops_repository.dart';
 
 /// شاشة إضافة/تعديل الحقل - Smart Form
 /// نموذج بسيط وسهل الاستخدام لإدخال بيانات الحقل
@@ -17,13 +22,61 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _areaController = TextEditingController();
-  
+
   String? _selectedCrop;
   String? _selectedIrrigation;
   DateTime? _plantingDate;
   bool _hasBoundary = false;
 
+  // Crops data
+  List<Crop> _crops = [];
+  bool _isLoadingCrops = true;
+  String? _cropsError;
+  late CropsRepository _cropsRepository;
+
   bool get isEditing => widget.fieldId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCropsRepository();
+  }
+
+  Future<void> _initializeCropsRepository() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final apiClient = ApiClient();
+      final cropsApi = CropsApi(apiClient);
+      _cropsRepository = CropsRepository(api: cropsApi, prefs: prefs);
+
+      await _loadCrops();
+    } catch (e) {
+      setState(() {
+        _cropsError = 'فشل تحميل قائمة المحاصيل';
+        _isLoadingCrops = false;
+      });
+    }
+  }
+
+  Future<void> _loadCrops() async {
+    setState(() {
+      _isLoadingCrops = true;
+      _cropsError = null;
+    });
+
+    try {
+      final crops = await _cropsRepository.getAllCrops();
+      setState(() {
+        _crops = crops;
+        _isLoadingCrops = false;
+      });
+    } catch (e) {
+      setState(() {
+        _cropsError = 'فشل تحميل قائمة المحاصيل';
+        _isLoadingCrops = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -78,29 +131,7 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
               const SizedBox(height: 16),
 
               // نوع المحصول
-              DropdownButtonFormField<String>(
-                value: _selectedCrop,
-                decoration: const InputDecoration(
-                  labelText: "نوع المحصول",
-                  prefixIcon: Icon(Icons.grass),
-                ),
-                items: const [
-                  DropdownMenuItem(value: "wheat", child: Text("قمح")),
-                  DropdownMenuItem(value: "corn", child: Text("ذرة")),
-                  DropdownMenuItem(value: "tomato", child: Text("طماطم")),
-                  DropdownMenuItem(value: "potato", child: Text("بطاطس")),
-                  DropdownMenuItem(value: "onion", child: Text("بصل")),
-                  DropdownMenuItem(value: "alfalfa", child: Text("برسيم")),
-                  DropdownMenuItem(value: "other", child: Text("أخرى")),
-                ],
-                onChanged: (v) => setState(() => _selectedCrop = v),
-                validator: (value) {
-                  if (value == null) {
-                    return 'الرجاء اختيار نوع المحصول';
-                  }
-                  return null;
-                },
-              ),
+              _buildCropDropdown(),
               const SizedBox(height: 16),
 
               // المساحة
@@ -240,6 +271,186 @@ class _FieldFormScreenState extends State<FieldFormScreen> {
         ),
       ],
     );
+  }
+
+  Widget _buildCropDropdown() {
+    if (_isLoadingCrops) {
+      return InputDecorator(
+        decoration: const InputDecoration(
+          labelText: "نوع المحصول",
+          prefixIcon: Icon(Icons.grass),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            SizedBox(width: 8),
+            Text("جاري التحميل...", style: TextStyle(fontSize: 12)),
+          ],
+        ),
+      );
+    }
+
+    if (_cropsError != null) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InputDecorator(
+            decoration: const InputDecoration(
+              labelText: "نوع المحصول",
+              prefixIcon: Icon(Icons.grass),
+            ),
+            child: Text(
+              _cropsError!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: _loadCrops,
+            icon: const Icon(Icons.refresh),
+            label: const Text("إعادة المحاولة"),
+          ),
+        ],
+      );
+    }
+
+    if (_crops.isEmpty) {
+      return InputDecorator(
+        decoration: const InputDecoration(
+          labelText: "نوع المحصول",
+          prefixIcon: Icon(Icons.grass),
+        ),
+        child: const Text(
+          "لا توجد محاصيل متاحة",
+          style: TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+      );
+    }
+
+    return DropdownButtonFormField<String>(
+      value: _selectedCrop,
+      decoration: InputDecoration(
+        labelText: "نوع المحصول",
+        prefixIcon: const Icon(Icons.grass),
+        suffixIcon: _crops.length > 10
+            ? IconButton(
+                icon: const Icon(Icons.search, size: 20),
+                onPressed: _showCropSearchDialog,
+                tooltip: "البحث عن محصول",
+              )
+            : null,
+      ),
+      items: _crops.map((crop) {
+        return DropdownMenuItem<String>(
+          value: crop.code,
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  crop.nameAr,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                crop.nameEn,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+      onChanged: (v) => setState(() => _selectedCrop = v),
+      validator: (value) {
+        if (value == null) {
+          return 'الرجاء اختيار نوع المحصول';
+        }
+        return null;
+      },
+      isExpanded: true,
+      menuMaxHeight: 400,
+    );
+  }
+
+  Future<void> _showCropSearchDialog() async {
+    String searchQuery = '';
+    final selectedCrop = await showDialog<Crop>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final filteredCrops = searchQuery.isEmpty
+              ? _crops
+              : _crops.where((crop) {
+                  final query = searchQuery.toLowerCase();
+                  return crop.nameAr.contains(searchQuery) ||
+                      crop.nameEn.toLowerCase().contains(query);
+                }).toList();
+
+          return AlertDialog(
+            title: const Text("اختر المحصول"),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    decoration: const InputDecoration(
+                      labelText: "البحث",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        searchQuery = value;
+                      });
+                    },
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: filteredCrops.length,
+                      itemBuilder: (context, index) {
+                        final crop = filteredCrops[index];
+                        return ListTile(
+                          title: Text(crop.nameAr),
+                          subtitle: Text(
+                            '${crop.nameEn} • ${crop.category.nameAr}',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                          onTap: () => Navigator.pop(context, crop),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("إلغاء"),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    if (selectedCrop != null) {
+      setState(() {
+        _selectedCrop = selectedCrop.code;
+      });
+    }
   }
 
   Widget _buildMapCard() {

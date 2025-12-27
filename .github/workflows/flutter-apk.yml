@@ -56,14 +56,39 @@ jobs:
           pip install Pillow
           mkdir -p assets/icon assets/images assets/icons
           python3 scripts/generate_icons.py
-        continue-on-error: true
+
+      - name: Validate required secrets
+        run: |
+          echo "Validating required API keys..."
+          MISSING_SECRETS=0
+
+          if [ -z "${{ secrets.WEATHER_API_KEY }}" ]; then
+            echo "❌ ERROR: WEATHER_API_KEY secret is not set"
+            MISSING_SECRETS=1
+          else
+            echo "✅ WEATHER_API_KEY is configured"
+          fi
+
+          if [ -z "${{ secrets.MAPS_API_KEY }}" ]; then
+            echo "❌ ERROR: MAPS_API_KEY secret is not set"
+            MISSING_SECRETS=1
+          else
+            echo "✅ MAPS_API_KEY is configured"
+          fi
+
+          if [ $MISSING_SECRETS -eq 1 ]; then
+            echo "Please configure the missing secrets in repository settings"
+            exit 1
+          fi
+
+          echo "All required secrets are configured"
 
       - name: Create .env file
         run: |
           cat > .env << 'EOF'
           API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=demo_key
-          MAPS_API_KEY=demo_key
+          WEATHER_API_KEY=${{ secrets.WEATHER_API_KEY }}
+          MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
           ENV=production
           EOF
 
@@ -93,15 +118,12 @@ jobs:
 
       - name: Generate launcher icons
         run: dart run flutter_launcher_icons || echo "Launcher icons generation skipped"
-        continue-on-error: true
 
       - name: Generate native splash
         run: dart run flutter_native_splash:create || echo "Splash generation skipped"
-        continue-on-error: true
 
       - name: Analyze code before build
         run: flutter analyze --no-fatal-infos || echo "Analysis warnings found"
-        continue-on-error: true
 
       - name: Build Release APK
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}

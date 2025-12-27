@@ -9,6 +9,7 @@ import 'dart:io';
 class ServicePorts {
   static const int fieldCore = 3000;
   static const int marketplace = 3010; // Marketplace & FinTech Service
+  static const int chat = 3011; // Chat/Messaging Service (REST + Socket.io)
   static const int satellite = 8090;
   static const int indicators = 8091;
   static const int weather = 8092;
@@ -18,6 +19,7 @@ class ServicePorts {
   static const int virtualSensors = 8096; // Virtual Sensors Engine
   static const int communityChat = 8097; // Community Chat (Socket.io)
   static const int equipment = 8101;
+  static const int inventory = 8102; // Inventory Management Service
   static const int notifications = 8110; // Notification Service
   static const int gateway = 8000; // Kong API Gateway
 }
@@ -65,23 +67,26 @@ class ApiConfig {
   static String get _protocol => isProduction ? 'https' : 'http';
 
   /// Base URL for field-core service (legacy)
-  static String get baseUrl => 'http://$_host:${ServicePorts.fieldCore}';
+  static String get baseUrl => '$_protocol://$_host:${ServicePorts.fieldCore}';
 
   /// Gateway URL (production-like routing)
-  static String get gatewayUrl => 'http://$_host:${ServicePorts.gateway}';
+  static String get gatewayUrl => '$_protocol://$_host:${ServicePorts.gateway}';
 
   /// Service-specific URLs for direct access
-  static String get satelliteServiceUrl => 'http://$_host:${ServicePorts.satellite}';
-  static String get indicatorsServiceUrl => 'http://$_host:${ServicePorts.indicators}';
-  static String get weatherServiceUrl => 'http://$_host:${ServicePorts.weather}';
-  static String get fertilizerServiceUrl => 'http://$_host:${ServicePorts.fertilizer}';
-  static String get irrigationServiceUrl => 'http://$_host:${ServicePorts.irrigation}';
-  static String get cropHealthServiceUrl => 'http://$_host:${ServicePorts.cropHealth}';
-  static String get virtualSensorsServiceUrl => 'http://$_host:${ServicePorts.virtualSensors}';
-  static String get communityChatServiceUrl => 'http://$_host:${ServicePorts.communityChat}';
-  static String get equipmentServiceUrl => 'http://$_host:${ServicePorts.equipment}';
-  static String get notificationsServiceUrl => 'http://$_host:${ServicePorts.notifications}';
-  static String get marketplaceServiceUrl => 'http://$_host:${ServicePorts.marketplace}';
+  static String get satelliteServiceUrl => '$_protocol://$_host:${ServicePorts.satellite}';
+  static String get indicatorsServiceUrl => '$_protocol://$_host:${ServicePorts.indicators}';
+  static String get weatherServiceUrl => '$_protocol://$_host:${ServicePorts.weather}';
+  static String get fertilizerServiceUrl => '$_protocol://$_host:${ServicePorts.fertilizer}';
+  static String get irrigationServiceUrl => '$_protocol://$_host:${ServicePorts.irrigation}';
+  static String get cropHealthServiceUrl => '$_protocol://$_host:${ServicePorts.cropHealth}';
+  static String get virtualSensorsServiceUrl => '$_protocol://$_host:${ServicePorts.virtualSensors}';
+  static String get communityChatServiceUrl => '$_protocol://$_host:${ServicePorts.communityChat}';
+  static String get chatServiceUrl => '$_protocol://$_host:${ServicePorts.chat}';
+  static String get equipmentServiceUrl => '$_protocol://$_host:${ServicePorts.equipment}';
+  static String get inventoryServiceUrl => '$_protocol://$_host:${ServicePorts.inventory}';
+  static String get notificationsServiceUrl => '$_protocol://$_host:${ServicePorts.notifications}';
+  static String get sprayServiceUrl => '$_protocol://$_host:${ServicePorts.spray}';
+  static String get marketplaceServiceUrl => '$_protocol://$_host:${ServicePorts.marketplace}';
 
   /// Production base URL (Kong Gateway)
   static const String productionBaseUrl = 'https://api.sahool.io';
@@ -136,9 +141,23 @@ class ApiConfig {
   static String get ndvi => '$_satelliteBase/v1/analyze';
   static String ndviByFieldId(String fieldId) => '$_satelliteBase/v1/analyze/$fieldId';
   static String get ndviTimeseries => '$_satelliteBase/v1/timeseries';
+  static String ndviTimeseriesByFieldId(String fieldId) => '$_satelliteBase/v1/timeseries/$fieldId';
   static String get satellites => '$_satelliteBase/v1/satellites';
   static String get regions => '$_satelliteBase/v1/regions';
   static String get imagery => '$_satelliteBase/v1/imagery';
+  static String imageryByFieldId(String fieldId) => '$_satelliteBase/v1/imagery/$fieldId';
+
+  /// Vegetation indices endpoints
+  static String get indices => '$_satelliteBase/v1/indices';
+  static String indicesByFieldId(String fieldId) => '$_satelliteBase/v1/indices/$fieldId';
+
+  /// Field health endpoints
+  static String get fieldHealth => '$_satelliteBase/v1/health';
+  static String fieldHealthByFieldId(String fieldId) => '$_satelliteBase/v1/health/$fieldId';
+
+  /// Phenology endpoints
+  static String get phenology => '$_satelliteBase/v1/phenology';
+  static String phenologyByFieldId(String fieldId) => '$_satelliteBase/v1/phenology/$fieldId';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Weather Service Endpoints (port 8092)
@@ -152,8 +171,10 @@ class ApiConfig {
   static String weatherByLocation(String location) => '$_weatherBase/v1/current/$location';
   static String get forecast => '$_weatherBase/v1/forecast';
   static String forecastByLocation(String location) => '$_weatherBase/v1/forecast/$location';
+  static String forecastByFieldId(String fieldId) => '$_weatherBase/v1/forecast/field/$fieldId';
   static String get weatherAlerts => '$_weatherBase/v1/alerts';
   static String weatherAlertsByLocation(String location) => '$_weatherBase/v1/alerts/$location';
+  static String weatherAlertsByFieldId(String fieldId) => '$_weatherBase/v1/alerts/field/$fieldId';
   static String get weatherLocations => '$_weatherBase/v1/locations';
   static String get agriculturalCalendar => '$_weatherBase/v1/agricultural-calendar';
 
@@ -315,7 +336,9 @@ class ApiConfig {
     'cropHealth': healthCheck(cropHealthServiceUrl),
     'virtualSensors': healthCheck(virtualSensorsServiceUrl),
     'communityChat': healthCheck(communityChatServiceUrl),
+    'chat': healthCheck(chatServiceUrl),
     'equipment': healthCheck(equipmentServiceUrl),
+    'inventory': healthCheck(inventoryServiceUrl),
     'notifications': healthCheck(notificationsServiceUrl),
     'marketplace': healthCheck(marketplaceServiceUrl),
   };
@@ -378,4 +401,24 @@ class ApiConfig {
   static String userMarketOrders(String userId) => '$_marketplaceBase/api/v1/market/orders/user/$userId';
   static String get marketStats => '$_marketplaceBase/api/v1/market/stats';
   static String get marketplaceHealthz => '$_marketplaceBase/healthz';
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Chat/Messaging Service Endpoints (port 3011)
+  // خدمة المحادثات والرسائل
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  static String get _chatBase => useDirectServices ? chatServiceUrl : effectiveBaseUrl;
+
+  /// Chat REST endpoints
+  static String get chatConversations => '$_chatBase/api/v1/conversations';
+  static String chatConversationById(String id) => '$_chatBase/api/v1/conversations/$id';
+  static String chatMessages(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/messages';
+  static String chatSendMessage(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/messages';
+  static String chatMarkRead(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/read';
+  static String get chatCreateConversation => '$_chatBase/api/v1/conversations';
+  static String get chatUnreadCount => '$_chatBase/api/v1/conversations/unread-count';
+  static String get chatHealthz => '$_chatBase/healthz';
+
+  /// Chat Socket.io URL
+  static String get chatSocketUrl => chatServiceUrl;
 }

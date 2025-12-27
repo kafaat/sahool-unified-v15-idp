@@ -1,9 +1,9 @@
 // Sahool Admin Dashboard - API Configuration
 // إعدادات الاتصال بالخادم
 
-import axios from 'axios';
+import axios, { type AxiosResponse, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
-import { getAuthHeaders, getToken } from './auth';
+import { getToken } from './auth';
 
 // Service ports
 const PORTS = {
@@ -63,7 +63,7 @@ export const apiClient = axios.create({
 });
 
 // Add auth token interceptor
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -73,8 +73,8 @@ apiClient.interceptors.request.use((config) => {
 
 // Add response interceptor for auth errors
 apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response: AxiosResponse) => response,
+  (error: AxiosError) => {
     if (error.response?.status === 401) {
       // Redirect to login on unauthorized
       if (typeof window !== 'undefined') {

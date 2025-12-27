@@ -1,0 +1,61 @@
+# FastAPI and Web Framework Dependencies
+# تبعيات FastAPI وإطار العمل
+fastapi==0.115.0
+uvicorn[standard]==0.32.1
+httpx==0.27.0
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+# LangChain and AI Framework
+# إطار عمل LangChain والذكاء الاصطناعي
+# Security updates for CVE-2025-68664, CVE-2025-65106, CVE-2025-6984
+# Note: langchain-community 0.3.27 requires langchain>=0.3.26
+#       langchain-core 0.3.81 requires langsmith>=0.3.45
+langchain>=0.3.26
+langchain-anthropic==0.3.1
+langchain-community==0.3.27  # Fix CVE-2025-6984
+langchain-core==0.3.81  # Fix CVE-2025-68664, CVE-2025-65106
+
+# Anthropic Claude API (Primary)
+# واجهة برمجة Claude من Anthropic (الأساسي)
+# langchain-anthropic 0.3.1 requires anthropic>=0.41.0
+anthropic>=0.41.0,<1.0.0
+
+# OpenAI GPT API (Optional Fallback)
+# واجهة برمجة OpenAI (بديل اختياري)
+openai>=1.0.0
+
+# Google Gemini API (Optional)
+# واجهة برمجة Google Gemini (اختياري)
+google-generativeai>=0.3.0
+
+# Embeddings and Vector Search
+# التضمينات والبحث الموجه
+sentence-transformers==2.7.0
+qdrant-client==1.11.1
+
+# NATS Messaging
+# نظام الرسائل NATS
+nats-py==2.9.0
+
+# Utilities
+# أدوات مساعدة
+python-dotenv==1.0.1
+python-multipart==0.0.18  # Security fix for CVE-2024-53981
+aiofiles==24.1.0
+tenacity==8.5.0
+
+# Monitoring and Logging
+# المراقبة والتسجيل
+prometheus-client==0.20.0
+structlog==24.4.0
+
+# Data Processing
+# معالجة البيانات
+numpy==1.26.4
+pandas==2.2.2
+
+# Testing (optional)
+# الاختبار (اختياري)
+pytest==8.3.2
+pytest-asyncio==0.24.0

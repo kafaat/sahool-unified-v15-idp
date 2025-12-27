@@ -1,5 +1,5 @@
 """
-💰 SAHOOL Billing Core Service v15.5
+💰 SAHOOL Billing Core Service v15.6
 خدمة الفوترة الأساسية - إدارة الاشتراكات والمدفوعات
 
 Features:
@@ -7,40 +7,187 @@ Features:
 - Tenant/subscription lifecycle
 - Usage-based billing
 - Invoice generation
-- Payment processing (Stripe integration)
+- Payment processing (Stripe + Tharwatt integration)
 - Multi-currency support (USD, YER)
+- NATS event publishing for billing events
 """
 
 import os
 import uuid
+import hmac
+import hashlib
 import logging
+import asyncio
 from datetime import datetime, date, timedelta
 from decimal import Decimal
 from typing import Optional, List, Dict, Any
 from enum import Enum
+from contextlib import asynccontextmanager
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Header, Depends, BackgroundTasks
+import httpx
+import nats
+from nats.js.api import StreamConfig, RetentionPolicy
+from fastapi import FastAPI, HTTPException, Query, Header, Depends, BackgroundTasks, Request
 from pydantic import BaseModel, Field, EmailStr
+
+# Authentication imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+try:
+    from auth.dependencies import (
+        get_current_active_user,
+        require_roles,
+        api_key_auth,
+    )
+    from auth.models import User
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback for when auth module is not available
+    AUTH_AVAILABLE = False
+    User = None
+
+    async def get_current_active_user():
+        """Fallback - no auth check"""
+        return None
+
+    def require_roles(roles):
+        """Fallback - no role check"""
+        async def no_check():
+            return None
+        return no_check
+
+    async def api_key_auth():
+        """Fallback - no API key check"""
+        return None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sahool-billing")
 
 # =============================================================================
+# NATS Configuration - تكوين الرسائل
+# =============================================================================
+
+NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
+nats_client = None
+js = None  # JetStream context
+
+
+async def init_nats():
+    """Initialize NATS connection and JetStream"""
+    global nats_client, js
+    try:
+        nats_client = await nats.connect(NATS_URL)
+        js = nats_client.jetstream()
+
+        # Create billing stream if not exists
+        try:
+            await js.add_stream(
+                name="BILLING",
+                subjects=["sahool.billing.*", "sahool.payment.*", "sahool.subscription.*"],
+                retention=RetentionPolicy.LIMITS,
+                max_age=86400 * 30  # 30 days
+            )
+        except Exception:
+            pass  # Stream already exists
+
+        logger.info("NATS connected and JetStream initialized")
+    except Exception as e:
+        logger.warning(f"NATS connection failed: {e}. Events will be logged only.")
+
+
+async def publish_event(subject: str, data: dict):
+    """Publish event to NATS JetStream"""
+    if js:
+        try:
+            import json
+            payload = json.dumps(data, default=str).encode()
+            await js.publish(subject, payload)
+            logger.info(f"Event published: {subject}")
+        except Exception as e:
+            logger.warning(f"Failed to publish event {subject}: {e}")
+    else:
+        logger.info(f"Event (local): {subject} - {data}")
+
+# =============================================================================
 # App Configuration
 # =============================================================================
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """App lifespan events"""
+    await init_nats()
+    yield
+    if nats_client:
+        await nats_client.close()
+
+
 app = FastAPI(
     title="SAHOOL Billing Core | خدمة الفوترة",
-    version="15.5.0",
+    version="15.6.0",
     description="Complete billing, subscription, and payment management for SAHOOL platform",
+    lifespan=lifespan,
 )
+
+# Rate Limiting - Security measure for payment endpoints
+try:
+    from middleware.rate_limiter import setup_rate_limiting
+    rate_limiter = setup_rate_limiting(
+        app,
+        use_redis=os.getenv("REDIS_URL") is not None,
+        exclude_paths=["/healthz", "/v1/webhooks/stripe", "/v1/webhooks/tharwatt"],
+    )
+    logger.info("Rate limiting enabled for billing-core")
+except ImportError:
+    logger.warning("Rate limiter not available - proceeding without rate limiting")
 
 # Environment configuration
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 DEFAULT_CURRENCY = os.getenv("DEFAULT_CURRENCY", "USD")
 YER_EXCHANGE_RATE = float(os.getenv("YER_EXCHANGE_RATE", "250"))  # 1 USD = 250 YER
+
+# Tharwatt Payment Gateway Configuration - بوابة ثروات
+THARWATT_BASE_URL = os.getenv("THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253")
+THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
+THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
+THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
+
+
+# =============================================================================
+# Authentication Helpers - مساعدات المصادقة
+# =============================================================================
+
+
+def verify_tenant_access(current_user, tenant_id: str) -> bool:
+    """
+    Verify user can access the specified tenant
+    التحقق من أن المستخدم يمكنه الوصول إلى المستأجر المحدد
+    """
+    if not AUTH_AVAILABLE or current_user is None:
+        return True  # No auth - allow access (dev mode)
+
+    # Super admins can access any tenant
+    if hasattr(current_user, 'has_any_role') and current_user.has_any_role(['super_admin']):
+        return True
+
+    # Users can only access their own tenant
+    user_tenant = getattr(current_user, 'tenant_id', None)
+    return user_tenant == tenant_id
+
+
+def require_tenant_or_admin(current_user, tenant_id: str):
+    """
+    Require user to be tenant owner or admin, raise 403 if not
+    يتطلب أن يكون المستخدم مالك المستأجر أو مسؤول، ورفع 403 إذا لم يكن كذلك
+    """
+    if not verify_tenant_access(current_user, tenant_id):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied - cannot access this tenant's data"
+        )
 
 
 # =============================================================================
@@ -84,6 +231,7 @@ class PaymentMethod(str, Enum):
     BANK_TRANSFER = "bank_transfer"
     MOBILE_MONEY = "mobile_money"
     CASH = "cash"
+    THARWATT = "tharwatt"  # بوابة ثروات اليمنية
 
 
 class PaymentStatus(str, Enum):
@@ -651,7 +799,10 @@ def get_plan(plan_id: str):
 
 
 @app.post("/v1/plans")
-def create_plan(request: CreatePlanRequest):
+async def create_plan(
+    request: CreatePlanRequest,
+    current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
+):
     """إنشاء خطة جديدة (للمسؤولين)"""
     plan_id = request.name.lower().replace(" ", "_")
 
@@ -750,8 +901,14 @@ def create_tenant(request: CreateTenantRequest):
 
 
 @app.get("/v1/tenants/{tenant_id}")
-def get_tenant(tenant_id: str):
+async def get_tenant(
+    tenant_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """معلومات المستأجر"""
+    # Verify tenant access
+    require_tenant_or_admin(current_user, tenant_id)
+
     tenant = TENANTS.get(tenant_id)
     if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
@@ -779,8 +936,13 @@ def get_tenant(tenant_id: str):
 
 
 @app.get("/v1/tenants/{tenant_id}/subscription")
-def get_subscription(tenant_id: str):
+async def get_subscription(
+    tenant_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """تفاصيل الاشتراك"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -801,8 +963,14 @@ def get_subscription(tenant_id: str):
 
 
 @app.patch("/v1/tenants/{tenant_id}/subscription")
-def update_subscription(tenant_id: str, request: UpdateSubscriptionRequest):
+async def update_subscription(
+    tenant_id: str,
+    request: UpdateSubscriptionRequest,
+    current_user=Depends(get_current_active_user),
+):
     """تحديث الاشتراك (ترقية/تخفيض)"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -840,8 +1008,14 @@ def update_subscription(tenant_id: str, request: UpdateSubscriptionRequest):
 
 
 @app.post("/v1/tenants/{tenant_id}/cancel")
-def cancel_subscription(tenant_id: str, immediate: bool = False):
+async def cancel_subscription(
+    tenant_id: str,
+    immediate: bool = False,
+    current_user=Depends(get_current_active_user),
+):
     """إلغاء الاشتراك"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -876,8 +1050,14 @@ def cancel_subscription(tenant_id: str, immediate: bool = False):
 
 
 @app.post("/v1/tenants/{tenant_id}/usage")
-def record_usage(tenant_id: str, request: RecordUsageRequest):
+async def record_usage(
+    tenant_id: str,
+    request: RecordUsageRequest,
+    current_user=Depends(get_current_active_user),
+):
     """تسجيل استخدام"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     if tenant_id not in TENANTS:
         raise HTTPException(404, "المستأجر غير موجود")
 
@@ -906,8 +1086,13 @@ def record_usage(tenant_id: str, request: RecordUsageRequest):
 
 
 @app.get("/v1/tenants/{tenant_id}/quota")
-def get_quota(tenant_id: str):
+async def get_quota(
+    tenant_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """حالة الحصة والاستخدام"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     tenant = TENANTS.get(tenant_id)
     if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
@@ -948,9 +1133,10 @@ def get_quota(tenant_id: str):
 
 
 @app.get("/v1/enforce")
-def enforce_quota(
+async def enforce_quota(
     x_tenant_id: Optional[str] = Header(default=None),
     metric: str = Query(...),
+    api_key: str = Depends(api_key_auth),  # Service-to-service auth
 ):
     """التحقق من الصلاحيات (للـ Gateway)"""
     if not x_tenant_id:
@@ -983,12 +1169,15 @@ def enforce_quota(
 
 
 @app.get("/v1/tenants/{tenant_id}/invoices")
-def list_invoices(
+async def list_invoices(
     tenant_id: str,
     status: Optional[InvoiceStatus] = None,
     limit: int = Query(default=20, le=100),
+    current_user=Depends(get_current_active_user),
 ):
     """قائمة الفواتير"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     if tenant_id not in TENANTS:
         raise HTTPException(404, "المستأجر غير موجود")
 
@@ -1006,11 +1195,17 @@ def list_invoices(
 
 
 @app.get("/v1/invoices/{invoice_id}")
-def get_invoice(invoice_id: str):
+async def get_invoice(
+    invoice_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """تفاصيل فاتورة"""
     invoice = INVOICES.get(invoice_id)
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
+
+    # Verify tenant access for this invoice
+    require_tenant_or_admin(current_user, invoice.tenant_id)
 
     tenant = TENANTS.get(invoice.tenant_id)
 
@@ -1022,8 +1217,14 @@ def get_invoice(invoice_id: str):
 
 
 @app.post("/v1/tenants/{tenant_id}/invoices/generate")
-def generate_tenant_invoice(tenant_id: str, background_tasks: BackgroundTasks):
+async def generate_tenant_invoice(
+    tenant_id: str,
+    background_tasks: BackgroundTasks,
+    current_user=Depends(get_current_active_user),
+):
     """توليد فاتورة يدوياً"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -1049,12 +1250,71 @@ def generate_tenant_invoice(tenant_id: str, background_tasks: BackgroundTasks):
 # =============================================================================
 
 
+async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
+    """Call Tharwatt payment gateway API"""
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        try:
+            response = await client.post(
+                f"{THARWATT_BASE_URL}/api/v1/payment/deposit",
+                headers={
+                    "Authorization": f"Bearer {THARWATT_API_KEY}",
+                    "X-Merchant-Id": THARWATT_MERCHANT_ID,
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "reference": payment.payment_id,
+                    "amount": float(payment.amount),
+                    "currency": "YER",
+                    "phone_number": phone_number,
+                    "description": f"SAHOOL Invoice Payment - {payment.invoice_id}",
+                    "callback_url": "https://api.sahool.com/api/v1/webhooks/tharwatt",
+                },
+            )
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPError as e:
+            logger.error(f"Tharwatt API error: {e}")
+            # Security: Don't expose internal error details to client
+            raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
+
+
+async def call_stripe_api(payment: Any, token: str) -> dict:
+    """Call Stripe payment API"""
+    try:
+        import stripe
+        stripe.api_key = STRIPE_API_KEY
+
+        charge = stripe.Charge.create(
+            amount=int(payment.amount * 100),  # Stripe uses cents
+            currency=payment.currency.value.lower(),
+            source=token,
+            description=f"SAHOOL Invoice Payment - {payment.invoice_id}",
+            metadata={
+                "payment_id": payment.payment_id,
+                "invoice_id": payment.invoice_id,
+                "tenant_id": payment.tenant_id,
+            },
+        )
+        return {"stripe_charge_id": charge.id, "status": charge.status}
+    except Exception as e:
+        logger.error(f"Stripe API error: {e}")
+        # Security: Don't expose internal error details to client
+        raise HTTPException(502, "Payment processing failed. Please try again or contact support.")
+
+
 @app.post("/v1/payments")
-def create_payment(request: CreatePaymentRequest):
+async def create_payment(
+    request: CreatePaymentRequest,
+    background_tasks: BackgroundTasks,
+    current_user=Depends(get_current_active_user),
+):
     """تسجيل دفعة"""
     invoice = INVOICES.get(request.invoice_id)
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
+
+    # Verify user can make payment for this tenant's invoice
+    require_tenant_or_admin(current_user, invoice.tenant_id)
 
     if invoice.status == InvoiceStatus.PAID:
         raise HTTPException(400, "الفاتورة مدفوعة بالفعل")
@@ -1069,12 +1329,39 @@ def create_payment(request: CreatePaymentRequest):
         method=request.method,
     )
 
+    tharwatt_response = None
+    stripe_response = None
+
     # Process payment based on method
     if request.method == PaymentMethod.CREDIT_CARD and STRIPE_API_KEY:
-        # TODO: Integrate with Stripe
-        # stripe.Charge.create(...)
-        payment.status = PaymentStatus.SUCCEEDED
-        payment.processed_at = datetime.utcnow()
+        # Stripe Payment Processing
+        token = getattr(request, 'stripe_token', None)
+        if token:
+            stripe_response = await call_stripe_api(payment, token)
+            if stripe_response.get("status") == "succeeded":
+                payment.status = PaymentStatus.SUCCEEDED
+                payment.processed_at = datetime.utcnow()
+                payment.stripe_payment_id = stripe_response.get("stripe_charge_id")
+            else:
+                payment.status = PaymentStatus.PROCESSING
+        else:
+            # Mark as pending for client-side Stripe checkout
+            payment.status = PaymentStatus.PENDING
+
+    elif request.method == PaymentMethod.THARWATT and THARWATT_API_KEY:
+        # Tharwatt Payment Gateway - بوابة ثروات
+        phone_number = getattr(request, 'phone_number', '')
+        if phone_number:
+            tharwatt_response = await call_tharwatt_api(payment, phone_number)
+            payment.status = PaymentStatus.PROCESSING
+            logger.info(f"Tharwatt payment initiated: {payment.payment_id} - Response: {tharwatt_response}")
+        else:
+            payment.status = PaymentStatus.PENDING
+            logger.info(f"Tharwatt payment pending phone: {payment.payment_id}")
+
+    elif request.method == PaymentMethod.MOBILE_MONEY:
+        # Mobile Money (Yemen operators) - الدفع بالمحفظة
+        payment.status = PaymentStatus.PENDING
     elif request.method == PaymentMethod.BANK_TRANSFER:
         payment.status = PaymentStatus.PENDING
     elif request.method == PaymentMethod.CASH:
@@ -1097,16 +1384,39 @@ def create_payment(request: CreatePaymentRequest):
 
     logger.info(f"Payment {payment.payment_id} created for invoice {request.invoice_id}")
 
+    # Publish payment event
+    background_tasks.add_task(
+        publish_event,
+        "sahool.payment.created",
+        {
+            "payment_id": payment.payment_id,
+            "invoice_id": payment.invoice_id,
+            "tenant_id": payment.tenant_id,
+            "amount": float(payment.amount),
+            "currency": payment.currency.value,
+            "method": payment.method.value,
+            "status": payment.status.value,
+        }
+    )
+
     return {
         "success": True,
         "payment": payment.dict(),
         "invoice_status": invoice.status.value,
+        "tharwatt_response": tharwatt_response,
+        "stripe_response": stripe_response,
     }
 
 
 @app.get("/v1/tenants/{tenant_id}/payments")
-def list_payments(tenant_id: str, limit: int = Query(default=20, le=100)):
+async def list_payments(
+    tenant_id: str,
+    limit: int = Query(default=20, le=100),
+    current_user=Depends(get_current_active_user),
+):
     """قائمة المدفوعات"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     payments = [p for p in PAYMENTS.values() if p.tenant_id == tenant_id]
     payments.sort(key=lambda x: x.created_at, reverse=True)
 
@@ -1117,16 +1427,283 @@ def list_payments(tenant_id: str, limit: int = Query(default=20, le=100)):
 
 
 # =============================================================================
+# Tharwatt Webhook - ويب هوك ثروات
+# =============================================================================
+
+
+class TharwattWebhookPayload(BaseModel):
+    """Tharwatt webhook payload"""
+    transaction_id: str
+    status: str  # 'completed', 'failed', 'cancelled'
+    amount: Decimal
+    currency: str = "YER"
+    phone_number: Optional[str] = None
+    reference: Optional[str] = None  # Our payment_id
+    timestamp: Optional[str] = None
+    error_message: Optional[str] = None
+
+
+def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
+    """
+    Verify Tharwatt webhook signature using HMAC-SHA256
+    التحقق من توقيع ويب هوك ثروات
+    """
+    if not THARWATT_WEBHOOK_SECRET:
+        logger.warning("THARWATT_WEBHOOK_SECRET not configured - skipping signature verification")
+        return True  # Skip verification in dev only
+
+    try:
+        expected_signature = hmac.new(
+            THARWATT_WEBHOOK_SECRET.encode('utf-8'),
+            payload,
+            hashlib.sha256
+        ).hexdigest()
+
+        # Use constant-time comparison to prevent timing attacks
+        return hmac.compare_digest(signature.lower(), expected_signature.lower())
+    except Exception as e:
+        logger.error(f"Tharwatt signature verification error: {e}")
+        return False
+
+
+@app.post("/v1/webhooks/tharwatt")
+async def tharwatt_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+):
+    """
+    Tharwatt payment webhook callback
+    ويب هوك لتأكيد المدفوعات من ثروات
+    """
+    # Security: Verify webhook signature
+    raw_body = await request.body()
+    signature = request.headers.get("X-Tharwatt-Signature", "")
+
+    if not verify_tharwatt_signature(raw_body, signature):
+        logger.warning("Tharwatt webhook: Invalid signature")
+        raise HTTPException(401, "Invalid webhook signature")
+
+    # Parse payload after verification
+    try:
+        import json
+        payload_dict = json.loads(raw_body)
+        payload = TharwattWebhookPayload(**payload_dict)
+    except Exception as e:
+        logger.error(f"Tharwatt webhook: Invalid payload: {e}")
+        raise HTTPException(400, "Invalid payload format")
+
+    # Find payment by reference
+    payment = None
+    for p in PAYMENTS.values():
+        if p.payment_id == payload.reference:
+            payment = p
+            break
+
+    if not payment:
+        logger.warning(f"Tharwatt webhook: Payment not found for reference {payload.reference}")
+        raise HTTPException(404, "Payment not found")
+
+    # Update payment status
+    if payload.status == "completed":
+        payment.status = PaymentStatus.SUCCEEDED
+        payment.processed_at = datetime.utcnow()
+
+        # Update invoice
+        invoice = INVOICES.get(payment.invoice_id)
+        if invoice:
+            invoice.amount_paid += payment.amount
+            invoice.amount_due = invoice.total - invoice.amount_paid
+            if invoice.amount_due <= 0:
+                invoice.status = InvoiceStatus.PAID
+                invoice.paid_date = date.today()
+
+        logger.info(f"Tharwatt payment completed: {payment.payment_id}")
+
+        # Publish payment success event
+        background_tasks.add_task(
+            publish_event,
+            "sahool.payment.succeeded",
+            {
+                "payment_id": payment.payment_id,
+                "invoice_id": payment.invoice_id,
+                "tenant_id": payment.tenant_id,
+                "amount": float(payment.amount),
+                "method": "tharwatt",
+                "transaction_id": payload.transaction_id,
+            }
+        )
+
+    elif payload.status == "failed":
+        payment.status = PaymentStatus.FAILED
+        payment.failure_reason = payload.error_message or "Payment failed"
+        logger.warning(f"Tharwatt payment failed: {payment.payment_id} - {payload.error_message}")
+
+        # Publish payment failed event
+        background_tasks.add_task(
+            publish_event,
+            "sahool.payment.failed",
+            {
+                "payment_id": payment.payment_id,
+                "invoice_id": payment.invoice_id,
+                "error": payload.error_message,
+            }
+        )
+
+    elif payload.status == "cancelled":
+        payment.status = PaymentStatus.FAILED
+        payment.failure_reason = "Payment cancelled by user"
+        logger.info(f"Tharwatt payment cancelled: {payment.payment_id}")
+
+    return {
+        "success": True,
+        "payment_id": payment.payment_id,
+        "status": payment.status.value,
+    }
+
+
+# =============================================================================
+# Stripe Webhook - ويب هوك سترايب
+# =============================================================================
+
+
+class StripeWebhookPayload(BaseModel):
+    """Stripe webhook event payload"""
+    id: str
+    type: str
+    data: Dict[str, Any]
+
+
+def verify_stripe_signature(payload: bytes, signature: str) -> bool:
+    """Verify Stripe webhook signature"""
+    if not STRIPE_WEBHOOK_SECRET:
+        return True  # Skip verification in dev
+
+    try:
+        import stripe
+        stripe.Webhook.construct_event(payload, signature, STRIPE_WEBHOOK_SECRET)
+        return True
+    except Exception as e:
+        logger.warning(f"Stripe signature verification failed: {e}")
+        return False
+
+
+@app.post("/v1/webhooks/stripe")
+async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
+    """
+    Stripe payment webhook callback
+    ويب هوك لتأكيد المدفوعات من سترايب
+    """
+    payload = await request.body()
+    signature = request.headers.get("stripe-signature", "")
+
+    if not verify_stripe_signature(payload, signature):
+        raise HTTPException(400, "Invalid signature")
+
+    try:
+        import json
+        event = json.loads(payload)
+    except json.JSONDecodeError:
+        raise HTTPException(400, "Invalid payload")
+
+    event_type = event.get("type", "")
+    data = event.get("data", {}).get("object", {})
+
+    # Handle different event types
+    if event_type == "charge.succeeded":
+        payment_id = data.get("metadata", {}).get("payment_id")
+        if payment_id:
+            payment = PAYMENTS.get(payment_id)
+            if payment:
+                payment.status = PaymentStatus.SUCCEEDED
+                payment.processed_at = datetime.utcnow()
+                payment.stripe_payment_id = data.get("id")
+
+                # Update invoice
+                invoice = INVOICES.get(payment.invoice_id)
+                if invoice:
+                    invoice.amount_paid += payment.amount
+                    invoice.amount_due = invoice.total - invoice.amount_paid
+                    if invoice.amount_due <= 0:
+                        invoice.status = InvoiceStatus.PAID
+                        invoice.paid_date = date.today()
+
+                logger.info(f"Stripe payment succeeded: {payment_id}")
+
+                # Publish payment success event
+                background_tasks.add_task(
+                    publish_event,
+                    "sahool.payment.succeeded",
+                    {
+                        "payment_id": payment_id,
+                        "invoice_id": payment.invoice_id,
+                        "tenant_id": payment.tenant_id,
+                        "amount": float(payment.amount),
+                        "method": "stripe",
+                        "stripe_charge_id": data.get("id"),
+                    }
+                )
+
+    elif event_type == "charge.failed":
+        payment_id = data.get("metadata", {}).get("payment_id")
+        if payment_id:
+            payment = PAYMENTS.get(payment_id)
+            if payment:
+                payment.status = PaymentStatus.FAILED
+                payment.failure_reason = data.get("failure_message", "Payment failed")
+                logger.warning(f"Stripe payment failed: {payment_id}")
+
+                # Publish payment failed event
+                background_tasks.add_task(
+                    publish_event,
+                    "sahool.payment.failed",
+                    {
+                        "payment_id": payment_id,
+                        "error": payment.failure_reason,
+                    }
+                )
+
+    elif event_type == "customer.subscription.updated":
+        # Handle subscription updates from Stripe
+        subscription_id = data.get("metadata", {}).get("subscription_id")
+        if subscription_id:
+            subscription = SUBSCRIPTIONS.get(subscription_id)
+            if subscription:
+                stripe_status = data.get("status")
+                if stripe_status == "active":
+                    subscription.status = SubscriptionStatus.ACTIVE
+                elif stripe_status == "past_due":
+                    subscription.status = SubscriptionStatus.PAST_DUE
+                elif stripe_status == "canceled":
+                    subscription.status = SubscriptionStatus.CANCELED
+
+                logger.info(f"Stripe subscription updated: {subscription_id} -> {stripe_status}")
+
+                # Publish subscription event
+                background_tasks.add_task(
+                    publish_event,
+                    "sahool.subscription.updated",
+                    {
+                        "subscription_id": subscription_id,
+                        "tenant_id": subscription.tenant_id,
+                        "status": subscription.status.value,
+                    }
+                )
+
+    return {"received": True}
+
+
+# =============================================================================
 # API Endpoints - Reports & Analytics
 # =============================================================================
 
 
 @app.get("/v1/reports/revenue")
-def get_revenue_report(
+async def get_revenue_report(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
+    current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
 ):
-    """تقرير الإيرادات"""
+    """تقرير الإيرادات (للمسؤولين)"""
     if not start_date:
         start_date = date.today().replace(day=1)
     if not end_date:
@@ -1166,8 +1743,10 @@ def get_revenue_report(
 
 
 @app.get("/v1/reports/subscriptions")
-def get_subscriptions_report():
-    """تقرير الاشتراكات"""
+async def get_subscriptions_report(
+    current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
+):
+    """تقرير الاشتراكات (للمسؤولين)"""
     by_status = {}
     by_plan = {}
 

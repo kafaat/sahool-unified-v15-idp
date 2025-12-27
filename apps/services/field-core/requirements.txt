@@ -1,0 +1,25 @@
+# SAHOOL Field Core Service Dependencies
+# Updated: December 2025
+# Version: 15.3.3
+
+# Base requirements
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.3
+httpx==0.28.1
+python-dotenv==1.0.1
+
+# Infrastructure requirements
+asyncpg==0.30.0
+tortoise-orm==0.21.7
+nats-py==2.9.0
+redis==5.2.1
+python-jose[cryptography]>=3.4.0
+passlib[bcrypt]==1.7.4
+
+# Service-specific dependencies
+python-dateutil==2.8.2
+
+# For PDF export (optional)
+# reportlab==4.0.9
+# pillow==10.1.0

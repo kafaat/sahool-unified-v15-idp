@@ -1,0 +1,44 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Test Runner Dockerfile
+# Dockerfile لتشغيل اختبارات سهول
+#
+# This Dockerfile creates a container for running tests
+# ═══════════════════════════════════════════════════════════════════════════════
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    wget \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements files
+COPY requirements/test-requirements.txt ./requirements/
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements/test-requirements.txt
+
+# Copy test configuration
+COPY pytest.ini ./
+COPY conftest.py ./
+
+# Copy source code and tests
+COPY tests ./tests
+COPY apps ./apps
+COPY packages ./packages
+COPY shared ./shared
+
+# Create directory for test results
+RUN mkdir -p test-results
+
+# Set environment
+ENV PYTHONPATH=/app
+ENV ENVIRONMENT=test
+
+# Default command runs all tests
+CMD ["pytest", "tests/", "-v", "--tb=short"]

@@ -1,0 +1,37 @@
+# SAHOOL Field Core - Python Profitability Service
+# Crop profitability analysis and financial insights
+# Port: 8090
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Python source files
+COPY src/profitability_analyzer.py ./
+COPY src/main.py ./
+COPY src/__init__.py ./
+
+# Create non-root user for security
+RUN groupadd -r sahool && \
+    useradd -r -g sahool -u 1001 sahool && \
+    chown -R sahool:sahool /app
+
+USER sahool
+
+# Environment
+ENV PORT=8090
+ENV PYTHONUNBUFFERED=1
+
+# Expose port
+EXPOSE 8090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8090/healthz')" || exit 1
+
+# Run application
+CMD ["python", "main.py"]

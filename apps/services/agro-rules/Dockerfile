@@ -31,7 +31,7 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip (non-fatal in case of network issues)
-RUN pip install --upgrade pip || true
+RUN pip install --no-cache-dir --upgrade pip || true
 
 # Create non-root user
 RUN groupadd --system sahool && \

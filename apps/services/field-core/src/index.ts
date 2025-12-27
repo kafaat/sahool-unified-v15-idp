@@ -23,10 +23,44 @@ const app = express();
 const PORT = parseInt(process.env.PORT || "3000");
 
 // ─────────────────────────────────────────────────────────────────────────────
+// CORS Configuration - Restrict to allowed origins
+// ─────────────────────────────────────────────────────────────────────────────
+
+const allowedOrigins = [
+    'https://sahool.app',
+    'https://admin.sahool.app',
+    'https://api.sahool.app',
+    'https://api.sahool.io',
+    // Development origins - remove in production
+    ...(process.env.NODE_ENV !== 'production' ? [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:8080'
+    ] : [])
+];
+
+const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, etc)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn(`⚠️ CORS blocked request from: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'If-Match', 'X-Request-ID', 'X-Tenant-ID']
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Middleware
 // ─────────────────────────────────────────────────────────────────────────────
 
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // ETag header middleware

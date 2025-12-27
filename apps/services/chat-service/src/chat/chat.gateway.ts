@@ -19,6 +19,7 @@ import { JoinConversationDto } from './dto/join-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingIndicatorDto } from './dto/typing-indicator.dto';
 import { ReadReceiptDto } from './dto/read-receipt.dto';
+import * as jwt from 'jsonwebtoken';
 
 @WebSocketGateway({
   cors: {
@@ -60,7 +61,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   /**
    * Verify JWT token from socket handshake
-   * In production, this should validate actual JWT tokens
+   * Validates JWT tokens in production
    */
   private verifyAuthentication(client: Socket): string | null {
     try {
@@ -72,21 +73,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return null;
       }
 
-      // In production, validate JWT token here
-      // For now, we'll extract userId from token (simplified)
-      // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      // return decoded.userId;
+      // Validate JWT token
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        this.logger.error('JWT_SECRET environment variable is not set');
+        return null;
+      }
 
-      // Simplified: extract from query for now, but in production use JWT
-      const userId = client.handshake.query?.userId as string;
+      const decoded = jwt.verify(token, jwtSecret) as { userId: string; sub?: string };
+      const userId = decoded.userId || decoded.sub;
+
       if (!userId) {
-        this.logger.warn('No userId found in token');
+        this.logger.warn('No userId found in decoded token');
         return null;
       }
 
       return userId;
     } catch (error) {
-      this.logger.error('Authentication verification failed');
+      this.logger.error('Authentication verification failed', error instanceof Error ? error.message : 'Unknown error');
       return null;
     }
   }

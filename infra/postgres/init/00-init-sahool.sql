@@ -1281,6 +1281,20 @@ CREATE TRIGGER calculate_field_area_trigger
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- SECTION 17: DEMO DATA
 -- ═══════════════════════════════════════════════════════════════════════════════
+-- ╔═══════════════════════════════════════════════════════════════════════════════╗
+-- ║  ⚠️  SECURITY WARNING - FOR DEVELOPMENT/TESTING ONLY ⚠️                      ║
+-- ║                                                                               ║
+-- ║  The following demo data contains HARDCODED PASSWORDS that must NEVER be     ║
+-- ║  used in production environments. Before deploying to production:            ║
+-- ║                                                                               ║
+-- ║  1. DELETE all demo users or change their passwords                          ║
+-- ║  2. Use environment variables for admin credentials                          ║
+-- ║  3. Generate strong, unique passwords (min 16 chars, mixed case, symbols)    ║
+-- ║  4. Enable password policies in your application                             ║
+-- ║                                                                               ║
+-- ║  Run in production: DELETE FROM users WHERE email LIKE '%@sahool.io';        ║
+-- ║  Or disable this section by setting SKIP_DEMO_DATA=true                      ║
+-- ╚═══════════════════════════════════════════════════════════════════════════════╝
 
 -- Insert default tenant
 INSERT INTO tenants (id, name, name_ar, slug, subscription_tier, subscription_status, max_users, max_fields, contact_email)

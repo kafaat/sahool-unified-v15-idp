@@ -16,11 +16,14 @@ import {
 
 describe('Performance Optimization', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'],
+    });
   });
 
   afterEach(() => {
     vi.useRealTimers();
+    vi.restoreAllMocks();
   });
 
   describe('debounce', () => {

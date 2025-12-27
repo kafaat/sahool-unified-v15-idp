@@ -548,7 +548,7 @@ def calculate_lai(ndvi: float) -> float:
     try:
         lai = -math.log((0.69 - min(ndvi, 0.68)) / 0.59) / 0.91
         return round(max(0, min(lai, 8)), 2)
-    except:
+    except (ValueError, ZeroDivisionError, OverflowError):
         return 0.0
 
 
@@ -2526,7 +2526,8 @@ async def get_yield_history(
                 ["WHEAT", "SORGHUM", "TOMATO", "POTATO", "ONION", "CORN"],
                 k=min(seasons, 3)
             )
-    except:
+    except (ValueError, KeyError, IndexError) as e:
+        logger.warning(f"Error selecting crop codes: {e}")
         crop_codes = ["WHEAT", "TOMATO", "POTATO"]
 
     # Generate historical predictions
@@ -2539,7 +2540,8 @@ async def get_yield_history(
             crop_info = get_crop(crop_code_selected)
             crop_name_ar = crop_info.name_ar if crop_info else crop_code_selected
             base_yield = crop_info.base_yield_ton_ha if crop_info else 2.0
-        except:
+        except (ImportError, AttributeError, KeyError) as e:
+            logger.debug(f"Could not get crop info for {crop_code_selected}: {e}")
             crop_name_ar = crop_code_selected
             base_yield = 2.0
 

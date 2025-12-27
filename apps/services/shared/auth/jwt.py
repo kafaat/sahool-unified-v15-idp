@@ -144,18 +144,46 @@ def verify_token(token: str, token_type: str = "access") -> bool:
         return False
 
 
-def decode_token(token: str) -> TokenData:
+def decode_token(token: str, verify_audience: bool = True) -> TokenData:
     """
-    Decode and validate a JWT token
-    فك تشفير والتحقق من رمز JWT
+    Decode and validate a JWT token with issuer and audience verification.
+    فك تشفير والتحقق من رمز JWT مع التحقق من المُصدر والجمهور.
     """
     config = get_auth_config()
 
+    # Expected issuer and audience for SAHOOL platform
+    expected_issuer = getattr(config, 'issuer', 'sahool-auth')
+    expected_audience = getattr(config, 'audience', 'sahool-api')
+
     try:
+        # Build decode options with security validations
+        decode_options = {
+            "verify_signature": True,
+            "verify_exp": True,
+            "verify_iat": True,
+            "require": ["exp", "iat", "sub"],
+        }
+
+        # Add issuer/audience verification if configured
+        decode_kwargs = {
+            "algorithms": [config.algorithm],
+            "options": decode_options,
+        }
+
+        # Verify issuer if present in token
+        if expected_issuer:
+            decode_kwargs["issuer"] = expected_issuer
+            decode_options["verify_iss"] = True
+
+        # Verify audience if enabled and configured
+        if verify_audience and expected_audience:
+            decode_kwargs["audience"] = expected_audience
+            decode_options["verify_aud"] = True
+
         payload = jwt.decode(
             token,
             config.secret_key,
-            algorithms=[config.algorithm],
+            **decode_kwargs,
         )
 
         return TokenData(

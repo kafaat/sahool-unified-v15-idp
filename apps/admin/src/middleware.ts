@@ -39,9 +39,21 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Token exists, allow request
-  // Note: Token validation should be done on API calls
-  return NextResponse.next();
+  // Token exists - add security headers
+  const response = NextResponse.next();
+
+  // Add security headers
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+
+  // HSTS - only in production with HTTPS
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  }
+
+  return response;
 }
 
 export const config = {

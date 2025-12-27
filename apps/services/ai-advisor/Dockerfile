@@ -9,7 +9,7 @@ FROM python:3.11-slim as builder
 WORKDIR /app
 
 # Install system dependencies | تثبيت تبعيات النظام
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     g++ \
@@ -20,8 +20,8 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 
 # Install Python dependencies | تثبيت تبعيات Python
-RUN pip install --upgrade pip 
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Runtime
 # المرحلة 2: وقت التشغيل

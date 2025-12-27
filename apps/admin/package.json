@@ -1,6 +1,6 @@
 {
   "name": "sahool-admin-dashboard",
-  "version": "17.0.0",
+  "version": "16.0.0",
   "description": "Sahool Agricultural Platform - Admin Dashboard",
   "private": true,
   "scripts": {
@@ -9,15 +9,16 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@sahool/api-client": "^17.0.0",
-    "@sahool/shared-ui": "^17.0.0",
-    "@sahool/shared-utils": "^17.0.0",
-    "@sahool/shared-hooks": "^17.0.0",
+    "@sahool/api-client": "*",
+    "@sahool/shared-ui": "*",
+    "@sahool/shared-utils": "*",
+    "@sahool/shared-hooks": "*",
     "next": "15.1.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",

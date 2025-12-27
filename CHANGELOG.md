@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [16.0.1] - 2024-12-24
+
+### Security
+- **API Gateway Security Hardening**
+  - Removed wildcard CORS (`allow_origins=["*"]`) from 4 core services
+  - Implemented centralized CORS configuration with environment-based whitelisting
+  - Added production, development, and staging origin whitelists
+  - Enhanced WebSocket gateway with mandatory authentication (removed `WS_REQUIRE_AUTH` bypass)
+  - Comprehensive JWT validation with error logging
+  - IoT Gateway hardening with device authorization and sensor validation
+  - Added tenant isolation checks across all IoT operations
+
+- **Kong Configuration Enhancements**
+  - Fixed service port mappings (ws-gateway: 8089→8081, crop-growth-model: 3000→3023)
+  - Added 7 missing services from docker-compose to Kong configuration
+  - Standardized health checks to `/healthz` endpoint across all 31 services
+  - Implemented consistent service naming (kebab-case)
+  - Total: 31 upstreams configured with active/passive health monitoring
+
+### Added
+- **Mobile App - Golden Release Improvements**
+  - Comprehensive testing infrastructure with fixtures, mocks, and test helpers
+  - 17 new loading state components (Shimmer, Skeleton patterns)
+  - 20+ predefined empty states with Arabic/RTL support
+  - Performance monitoring with FPS tracking
+  - Optimized list components with pagination support
+  - 23 new database indexes for query optimization
+  - Token refresh mechanism in auth service
+  - AES-256 encryption for sensitive data
+  - Local notification service with 6 channels
+  - Firebase Cloud Messaging integration
+  - Deep linking support for notifications
+
+- **Web & Admin Dashboard Improvements**
+  - Real-time alert panel with WebSocket integration
+  - KPI cards and responsive grid layouts
+  - Quick action buttons for common operations
+  - Enhanced settings page with comprehensive configuration options
+  - Improved error boundaries with detailed error states
+  - WebSocket hooks for real-time data updates
+  - Enhanced epidemic, irrigation, and sensor monitoring pages
+
+### Changed
+- Database schema updated to v5 with performance optimizations
+- Biometric service enhanced with Arabic prompts
+- Auth interceptor with automatic 401 handling
+- Improved field, task, and weather data fetching hooks
+
+### Fixed
+- Docker build compatibility issues across multiple services
+- Android dexing problems in mobile app
+- Package-lock.json synchronization issues
+- Merge conflicts in multiple service configurations
+
+## [16.0.0] - 2024-12-17
+
 ### Added
 - Sprint 1 Governance Pack
   - Ruff linter/formatter with strict configuration
@@ -15,8 +71,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - ENV drift detection and validation
   - Migration rules documentation
   - Contract structure for events/APIs
-
-## [16.0.0] - 2025-12-17
 
 ### Added
 - **Sprint 10**: AI Explainability & Feedback System
@@ -75,7 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/kafaat/sahool-unified-v15-idp/compare/v16.0.0...HEAD
+[Unreleased]: https://github.com/kafaat/sahool-unified-v15-idp/compare/v16.0.1...HEAD
+[16.0.1]: https://github.com/kafaat/sahool-unified-v15-idp/compare/v16.0.0...v16.0.1
 [16.0.0]: https://github.com/kafaat/sahool-unified-v15-idp/compare/v15.3.2...v16.0.0
 [15.3.2]: https://github.com/kafaat/sahool-unified-v15-idp/compare/v15.2.0...v15.3.2
 [15.2.0]: https://github.com/kafaat/sahool-unified-v15-idp/releases/tag/v15.2.0

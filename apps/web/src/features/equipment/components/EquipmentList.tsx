@@ -11,7 +11,12 @@ import { EquipmentCard } from './EquipmentCard';
 import type { EquipmentFilters, EquipmentType, EquipmentStatus } from '../types';
 import { Search, Filter, Loader2 } from 'lucide-react';
 
-export function EquipmentList() {
+interface EquipmentListProps {
+  onFieldClick?: (equipmentId: string) => void;
+  onCreateClick?: () => void;
+}
+
+export function EquipmentList({ onFieldClick, onCreateClick }: EquipmentListProps) {
   const [filters, setFilters] = useState<EquipmentFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const { data: equipment, isLoading, error } = useEquipment(filters);
@@ -155,7 +160,9 @@ export function EquipmentList() {
       {equipment && equipment.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {equipment.map((item) => (
-            <EquipmentCard key={item.id} equipment={item} />
+            <div key={item.id} onClick={() => onFieldClick?.(item.id)}>
+              <EquipmentCard equipment={item} />
+            </div>
           ))}
         </div>
       ) : (

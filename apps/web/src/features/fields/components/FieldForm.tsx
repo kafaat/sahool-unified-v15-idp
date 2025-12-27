@@ -24,13 +24,13 @@ export const FieldForm: React.FC<FieldFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<FieldFormData>({
     name: field?.name || '',
-    nameAr: field?.nameAr || '',
+    name_ar: field?.name_ar || '',
     area: field?.area || 0,
     crop: field?.crop || '',
-    cropAr: field?.cropAr || '',
+    crop_ar: field?.crop_ar || '',
     description: field?.description || '',
-    descriptionAr: field?.descriptionAr || '',
-    farmId: field?.farmId || '',
+    description_ar: field?.description_ar || '',
+    farm_id: field?.farm_id || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,8 +57,8 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           <input
             type="text"
             required
-            value={formData.nameAr}
-            onChange={(e) => handleChange('nameAr', e.target.value)}
+            value={formData.name_ar}
+            onChange={(e) => handleChange('name_ar', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="أدخل اسم الحقل"
           />
@@ -104,8 +104,8 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           </label>
           <input
             type="text"
-            value={formData.cropAr}
-            onChange={(e) => handleChange('cropAr', e.target.value)}
+            value={formData.crop_ar}
+            onChange={(e) => handleChange('crop_ar', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="نوع المحصول"
           />
@@ -132,8 +132,8 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             الوصف (بالعربية)
           </label>
           <textarea
-            value={formData.descriptionAr}
-            onChange={(e) => handleChange('descriptionAr', e.target.value)}
+            value={formData.description_ar}
+            onChange={(e) => handleChange('description_ar', e.target.value)}
             rows={3}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="وصف الحقل"

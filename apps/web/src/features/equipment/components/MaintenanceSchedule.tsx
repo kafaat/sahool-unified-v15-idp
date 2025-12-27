@@ -12,6 +12,7 @@ import { Calendar, Clock, CheckCircle, AlertCircle, Loader2, Plus } from 'lucide
 
 interface MaintenanceScheduleProps {
   equipmentId?: string;
+  limit?: number;
 }
 
 const statusColors: Record<MaintenanceStatus, string> = {
@@ -35,7 +36,7 @@ const typeLabels = {
   emergency: 'طارئة',
 };
 
-export function MaintenanceSchedule({ equipmentId }: MaintenanceScheduleProps) {
+export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleProps) {
   const [showForm, setShowForm] = useState(false);
   const { data: records, isLoading, error } = useMaintenanceRecords(equipmentId);
   const completeMutation = useCompleteMaintenance();
@@ -67,11 +68,11 @@ export function MaintenanceSchedule({ equipmentId }: MaintenanceScheduleProps) {
 
   const upcomingRecords = records?.filter(
     (r) => r.status === 'scheduled' && new Date(r.scheduledDate) >= new Date()
-  );
+  ).slice(0, limit);
   const overdueRecords = records?.filter(
     (r) => r.status === 'scheduled' && new Date(r.scheduledDate) < new Date()
-  );
-  const completedRecords = records?.filter((r) => r.status === 'completed');
+  ).slice(0, limit);
+  const completedRecords = records?.filter((r) => r.status === 'completed').slice(0, limit || 5);
 
   return (
     <div className="space-y-6">

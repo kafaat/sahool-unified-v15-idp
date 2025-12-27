@@ -39,55 +39,55 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
             id: 'task_001',
             title: 'ري الطماطم - الصباح',
             description: 'ري الحقل الشمالي لمدة 30 دقيقة',
-            fieldId: 'field_001',
+            field_id: 'field_001',
             fieldName: 'حقل الطماطم',
             status: 'pending',
             priority: 'high',
             taskType: 'irrigation',
-            dueDate: new Date().toISOString(),
+            due_date: new Date().toISOString(),
             assigneeName: 'أحمد',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           },
           {
             id: 'task_002',
             title: 'رش مبيدات وقائية',
             description: 'رش مبيد فطري للوقاية من البياض الدقيقي',
-            fieldId: 'field_001',
+            field_id: 'field_001',
             fieldName: 'حقل الطماطم',
             status: 'in_progress',
             priority: 'medium',
             taskType: 'pesticide',
-            dueDate: new Date(Date.now() + 86400000).toISOString(),
+            due_date: new Date(Date.now() + 86400000).toISOString(),
             assigneeName: 'محمد',
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           },
           {
             id: 'task_003',
             title: 'فحص مرض صدأ البن',
             description: 'فحص ميداني للكشف عن علامات مرض صدأ الأوراق',
-            fieldId: 'field_002',
+            field_id: 'field_002',
             fieldName: 'حقل البن',
             status: 'pending',
             priority: 'high',
             taskType: 'inspection',
-            dueDate: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            due_date: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           },
           {
             id: 'task_004',
             title: 'حصاد الموز الناضج',
             description: 'جمع العناقيد الناضجة من الصف 1-5',
-            fieldId: 'field_004',
+            field_id: 'field_004',
             fieldName: 'حقل الموز',
             status: 'completed',
             priority: 'medium',
             taskType: 'harvest',
-            completedAt: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            completed_at: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           },
         ]);
       } finally {
@@ -103,7 +103,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
     // Update local state optimistically
     setTasks((prev) =>
       prev.map((t) =>
-        t.id === taskId ? { ...t, status: 'completed' as const, completedAt: new Date().toISOString() } : t
+        t.id === taskId ? { ...t, status: 'completed' as const, completed_at: new Date().toISOString() } : t
       )
     );
 
@@ -113,7 +113,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
       // Revert on failure - log to error tracking instead of console
       setTasks((prev) =>
         prev.map((t) =>
-          t.id === taskId ? { ...t, status: 'pending' as const, completedAt: undefined } : t
+          t.id === taskId ? { ...t, status: 'pending' as const, completed_at: undefined } : t
         )
       );
     }

@@ -9,17 +9,21 @@ import { useActuators, useControlActuator, useSetActuatorMode } from '../hooks/u
 import type { Actuator, ActuatorStatus } from '../types';
 import { Power, Loader2, Settings, Zap } from 'lucide-react';
 
-const statusColors: Record<ActuatorStatus, string> = {
+const statusColors: Record<string, string> = {
   on: 'bg-green-100 text-green-800',
   off: 'bg-gray-100 text-gray-800',
   auto: 'bg-blue-100 text-blue-800',
+  online: 'bg-green-100 text-green-800',
+  offline: 'bg-gray-100 text-gray-800',
   error: 'bg-red-100 text-red-800',
 };
 
-const statusLabels: Record<ActuatorStatus, string> = {
+const statusLabels: Record<string, string> = {
   on: 'مُشغّل',
   off: 'مُطفأ',
   auto: 'تلقائي',
+  online: 'متصل',
+  offline: 'غير متصل',
   error: 'خطأ',
 };
 

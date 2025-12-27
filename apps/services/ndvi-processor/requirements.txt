@@ -2,7 +2,7 @@
 # خدمة معالجة صور الأقمار الصناعية
 
 # Web Framework
-fastapi==0.115.6
+fastapi==0.115.5
 uvicorn[standard]==0.32.1
 
 # Data Validation

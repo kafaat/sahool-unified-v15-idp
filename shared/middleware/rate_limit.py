@@ -269,15 +269,33 @@ async def rate_limit_middleware(request: Request, call_next: Callable) -> Respon
 
 
 def rate_limit(
-    requests_per_minute: int = 60, requests_per_hour: int = 1000, burst_limit: int = 10
+    requests_per_minute: int = 60,
+    requests_per_hour: int = 1000,
+    burst_limit: int = 10,
+    key_func: Optional[Callable[[Request], str]] = None,
 ):
     """
     Decorator for endpoint-specific rate limiting
 
+    Args:
+        requests_per_minute: Maximum requests per minute
+        requests_per_hour: Maximum requests per hour
+        burst_limit: Maximum burst requests
+        key_func: Optional function to extract custom rate limit key from request
+
     Usage:
         @app.get("/expensive-endpoint")
         @rate_limit(requests_per_minute=10)
-        async def expensive_endpoint():
+        async def expensive_endpoint(request: Request):
+            ...
+
+        # Custom key function
+        def custom_key(request: Request) -> str:
+            return f"api_key:{request.headers.get('X-API-Key')}"
+
+        @app.get("/api-endpoint")
+        @rate_limit(requests_per_minute=100, key_func=custom_key)
+        async def api_endpoint(request: Request):
             ...
     """
     config = RateLimitConfig(
@@ -293,7 +311,34 @@ def rate_limit(
 
     def decorator(func: Callable):
         @wraps(func)
-        async def wrapper(request: Request, *args, **kwargs):
+        async def wrapper(*args, **kwargs):
+            # Extract request from args or kwargs
+            request = None
+            for arg in args:
+                if isinstance(arg, Request):
+                    request = arg
+                    break
+
+            if request is None and "request" in kwargs:
+                request = kwargs["request"]
+
+            if request is None:
+                # If no request found, skip rate limiting
+                return await func(*args, **kwargs)
+
+            # Use custom key function if provided
+            if key_func:
+                client_ip = request.client.host if request.client else "unknown"
+                tenant_id = request.headers.get("X-Tenant-ID", "default")
+                original_key = f"{tenant_id}:{client_ip}"
+
+                # Create a modified request-like object with custom key
+                custom_key = key_func(request)
+                # Store original values
+                original_client = request.client
+                # Temporarily modify for rate limit check
+                request.state._rate_limit_key = custom_key
+
             allowed, headers = limiter.check_rate_limit(request)
 
             if not allowed:
@@ -302,12 +347,92 @@ def rate_limit(
                     detail={
                         "error": "Rate limit exceeded",
                         "error_ar": "تم تجاوز حد الطلبات",
+                        "message": "Too many requests. Please try again later.",
+                        "message_ar": "طلبات كثيرة جداً. يرجى المحاولة لاحقاً.",
                     },
                     headers=headers,
                 )
 
-            return await func(request, *args, **kwargs)
+            return await func(*args, **kwargs)
 
         return wrapper
 
     return decorator
+
+
+def rate_limit_by_user(
+    requests_per_minute: int = 60,
+    requests_per_hour: int = 1000,
+):
+    """
+    Decorator for user-based rate limiting (requires authentication)
+
+    Usage:
+        @app.get("/user-endpoint")
+        @rate_limit_by_user(requests_per_minute=30)
+        async def user_endpoint(request: Request):
+            user = request.state.user
+            ...
+    """
+
+    def user_key(request: Request) -> str:
+        if hasattr(request.state, "user") and request.state.user:
+            return f"user:{request.state.user.id}"
+        return f"ip:{request.client.host if request.client else 'unknown'}"
+
+    return rate_limit(
+        requests_per_minute=requests_per_minute,
+        requests_per_hour=requests_per_hour,
+        key_func=user_key,
+    )
+
+
+def rate_limit_by_api_key(
+    requests_per_minute: int = 100,
+    requests_per_hour: int = 5000,
+    header_name: str = "X-API-Key",
+):
+    """
+    Decorator for API key-based rate limiting
+
+    Usage:
+        @app.get("/api-endpoint")
+        @rate_limit_by_api_key(requests_per_minute=100)
+        async def api_endpoint(request: Request):
+            ...
+    """
+
+    def api_key_func(request: Request) -> str:
+        api_key = request.headers.get(header_name, "anonymous")
+        return f"api_key:{api_key}"
+
+    return rate_limit(
+        requests_per_minute=requests_per_minute,
+        requests_per_hour=requests_per_hour,
+        key_func=api_key_func,
+    )
+
+
+def rate_limit_by_tenant(
+    requests_per_minute: int = 200,
+    requests_per_hour: int = 10000,
+):
+    """
+    Decorator for tenant-based rate limiting
+
+    Usage:
+        @app.get("/tenant-endpoint")
+        @rate_limit_by_tenant(requests_per_minute=200)
+        async def tenant_endpoint(request: Request):
+            ...
+    """
+
+    def tenant_key(request: Request) -> str:
+        tenant_id = request.headers.get("X-Tenant-ID", "default")
+        return f"tenant:{tenant_id}"
+
+    return rate_limit(
+        requests_per_minute=requests_per_minute,
+        requests_per_hour=requests_per_hour,
+        key_func=tenant_key,
+    )

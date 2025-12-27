@@ -1,0 +1,11 @@
+# Redis Sentinel Python Dependencies
+# ====================================
+
+# Redis client with Sentinel support
+redis>=5.0.0,<6.0.0
+
+# Optional: hiredis for better performance
+hiredis>=2.2.0,<3.0.0
+
+# Type hints support
+typing-extensions>=4.5.0

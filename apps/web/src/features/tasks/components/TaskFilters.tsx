@@ -72,8 +72,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
             <option value="">الكل</option>
             <option value="open">قيد الانتظار</option>
             <option value="in_progress">قيد التنفيذ</option>
-            <option value="done">مكتملة</option>
-            <option value="canceled">ملغاة</option>
+            <option value="completed">مكتملة</option>
+            <option value="cancelled">ملغاة</option>
           </select>
         </div>
 
@@ -101,8 +101,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
           </label>
           <input
             type="text"
-            value={filters.fieldId || ''}
-            onChange={(e) => handleChange('fieldId', e.target.value)}
+            value={filters.field_id || ''}
+            onChange={(e) => handleChange('field_id', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="معرّف الحقل"
           />
@@ -115,8 +115,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
           </label>
           <input
             type="date"
-            value={filters.dueDateFrom || ''}
-            onChange={(e) => handleChange('dueDateFrom', e.target.value)}
+            value={filters.due_date_from || ''}
+            onChange={(e) => handleChange('due_date_from', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -127,8 +127,8 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
           </label>
           <input
             type="date"
-            value={filters.dueDateTo || ''}
-            onChange={(e) => handleChange('dueDateTo', e.target.value)}
+            value={filters.due_date_to || ''}
+            onChange={(e) => handleChange('due_date_to', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>

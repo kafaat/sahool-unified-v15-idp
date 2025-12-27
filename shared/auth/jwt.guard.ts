@@ -1,6 +1,11 @@
 /**
  * JWT Guards for NestJS
  * Authentication and authorization guards for SAHOOL platform
+ *
+ * Enhanced with:
+ * - Detailed logging for failed authentication attempts
+ * - Better error messages
+ * - Request tracking
  */
 
 import {
@@ -9,6 +14,7 @@ import {
   ExecutionContext,
   UnauthorizedException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
@@ -18,7 +24,10 @@ import { AuthErrors } from './config';
 /**
  * JWT Authentication Guard
  *
- * Extends the default Passport JWT guard with custom error messages
+ * Extends the default Passport JWT guard with:
+ * - Custom error messages
+ * - Detailed logging
+ * - Request tracking
  *
  * @example
  * ```typescript
@@ -34,6 +43,8 @@ import { AuthErrors } from './config';
  */
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
+  private readonly logger = new Logger(JwtAuthGuard.name);
+
   constructor(private reflector: Reflector) {
     super();
   }
@@ -58,20 +69,45 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   /**
-   * Handle authentication errors
+   * Handle authentication errors with logging
    */
-  handleRequest(err: any, user: any, info: any) {
+  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
+    const request = context.switchToHttp().getRequest();
+    const path = request.url;
+    const method = request.method;
+
     if (err || !user) {
       if (info?.name === 'TokenExpiredError') {
+        this.logger.warn(
+          `Authentication failed [${method} ${path}]: Token expired`,
+        );
         throw new UnauthorizedException(AuthErrors.EXPIRED_TOKEN.en);
       }
 
       if (info?.name === 'JsonWebTokenError') {
+        this.logger.warn(
+          `Authentication failed [${method} ${path}]: Invalid token - ${info.message}`,
+        );
         throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
       }
 
-      throw err || new UnauthorizedException(AuthErrors.MISSING_TOKEN.en);
+      if (err) {
+        this.logger.error(
+          `Authentication error [${method} ${path}]: ${err.message}`,
+          err.stack,
+        );
+        throw err;
+      }
+
+      this.logger.warn(
+        `Authentication failed [${method} ${path}]: Missing token`,
+      );
+      throw new UnauthorizedException(AuthErrors.MISSING_TOKEN.en);
     }
+
+    this.logger.debug(
+      `Authentication successful [${method} ${path}]: User ${user.id}`,
+    );
 
     return user;
   }

@@ -1,0 +1,154 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Prometheus Redis Exporter Configuration
+# تكوين Prometheus لمراقبة Redis
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# استخدم هذا الملف مع Prometheus لمراقبة Redis Sentinel
+
+# أضف هذا التكوين إلى prometheus.yml:
+
+scrape_configs:
+  # Redis Master Metrics
+  - job_name: 'redis-master'
+    static_configs:
+      - targets: ['localhost:9121']
+        labels:
+          instance: 'redis-master'
+          role: 'master'
+          service: 'redis'
+
+  # Redis Sentinel Metrics (if using redis_exporter for sentinel)
+  - job_name: 'redis-sentinel'
+    static_configs:
+      - targets: ['localhost:26379']
+        labels:
+          instance: 'sentinel-1'
+          role: 'sentinel'
+          service: 'redis-sentinel'
+      - targets: ['localhost:26380']
+        labels:
+          instance: 'sentinel-2'
+          role: 'sentinel'
+          service: 'redis-sentinel'
+      - targets: ['localhost:26381']
+        labels:
+          instance: 'sentinel-3'
+          role: 'sentinel'
+          service: 'redis-sentinel'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Alert Rules
+# قواعد التنبيه
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# أضف هذه القواعد إلى ملف alerts.yml:
+
+groups:
+  - name: redis_alerts
+    interval: 30s
+    rules:
+      # Redis Down Alert
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis instance is down"
+          description: "Redis instance {{ $labels.instance }} is down for more than 1 minute."
+
+      # High Memory Usage
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis instance {{ $labels.instance }} is using {{ $value | humanizePercentage }} of available memory."
+
+      # Replication Lag
+      - alert: RedisReplicationLag
+        expr: redis_connected_slaves < 2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis replication lag"
+          description: "Redis master {{ $labels.instance }} has {{ $value }} connected slaves (expected 2)."
+
+      # High Connection Count
+      - alert: RedisHighConnectionCount
+        expr: redis_connected_clients > 500
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis high connection count"
+          description: "Redis instance {{ $labels.instance }} has {{ $value }} connected clients."
+
+      # Rejected Connections
+      - alert: RedisRejectedConnections
+        expr: rate(redis_rejected_connections_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis rejecting connections"
+          description: "Redis instance {{ $labels.instance }} is rejecting connections."
+
+      # Slow Commands
+      - alert: RedisSlowCommands
+        expr: rate(redis_slowlog_length[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis slow commands detected"
+          description: "Redis instance {{ $labels.instance }} has slow commands in the log."
+
+      # Sentinel Master Changed
+      - alert: SentinelMasterChanged
+        expr: changes(redis_sentinel_master_status[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Sentinel master changed"
+          description: "Redis Sentinel detected a master change on {{ $labels.instance }}."
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Grafana Dashboard Queries
+# استعلامات لوحة Grafana
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Commands Per Second
+rate(redis_commands_processed_total[1m])
+
+# Memory Usage
+redis_memory_used_bytes / redis_memory_max_bytes * 100
+
+# Connected Clients
+redis_connected_clients
+
+# Keys Count
+redis_db_keys{db="db0"}
+
+# Hit Rate
+rate(redis_keyspace_hits_total[5m]) / (rate(redis_keyspace_hits_total[5m]) + rate(redis_keyspace_misses_total[5m])) * 100
+
+# Network I/O
+rate(redis_net_input_bytes_total[1m])
+rate(redis_net_output_bytes_total[1m])
+
+# Replication Lag
+redis_connected_slaves
+
+# Evicted Keys
+rate(redis_evicted_keys_total[5m])
+
+# Expired Keys
+rate(redis_expired_keys_total[5m])
+
+# Command Latency
+redis_command_duration_seconds_sum / redis_command_duration_seconds_count

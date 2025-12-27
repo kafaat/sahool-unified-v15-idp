@@ -523,6 +523,7 @@ def service_urls() -> Dict[str, str]:
     return {
         # Starter Package
         "field_core": "http://localhost:3000",
+        "field_ops": "http://localhost:8080",
         "weather_core": "http://localhost:8108",
         "astronomical_calendar": "http://localhost:8111",
         "agro_advisor": "http://localhost:8105",
@@ -541,6 +542,14 @@ def service_urls() -> Dict[str, str]:
         "marketplace_service": "http://localhost:3010",
         "billing_core": "http://localhost:8089",
         "research_core": "http://localhost:3015",
+
+        # Additional Services
+        "alert_service": "http://localhost:8113",
+        "task_service": "http://localhost:8103",
+        "ws_gateway": "http://localhost:8081",
+        "equipment_service": "http://localhost:8101",
+        "yield_engine": "http://localhost:3021",
+        "provider_config": "http://localhost:8104",
     }
 
 
@@ -589,3 +598,326 @@ async def wait_for_services(http_client: AsyncClient, service_urls: Dict[str, st
         return await wait_for_service_health(http_client, url, max_retries=timeout // 2)
 
     return wait
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Additional Test Data Factories - مصانع بيانات اختبار إضافية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class AlertFactory:
+    """Factory for creating alert data - مصنع لإنشاء بيانات التنبيهات"""
+
+    @staticmethod
+    def create(alert_type: str = "weather", severity: str = "medium") -> Dict[str, Any]:
+        """Create an alert - إنشاء تنبيه"""
+        return {
+            "type": alert_type,
+            "subtype": "general",
+            "severity": severity,
+            "title": faker_en.sentence(),
+            "title_ar": faker_ar.sentence(),
+            "description": faker_en.text(),
+            "description_ar": faker_ar.text(),
+            "valid_from": datetime.utcnow().isoformat(),
+            "valid_until": (datetime.utcnow() + timedelta(hours=24)).isoformat(),
+        }
+
+
+class MarketplaceProductFactory:
+    """Factory for creating marketplace product data - مصنع لإنشاء بيانات منتجات السوق"""
+
+    @staticmethod
+    def create(product_type: str = "fertilizer") -> Dict[str, Any]:
+        """Create a marketplace product - إنشاء منتج للسوق"""
+        return {
+            "name": f"Test {product_type.title()} {faker_en.uuid4()[:8]}",
+            "name_ar": f"{product_type} اختبار {faker_ar.uuid4()[:8]}",
+            "description": faker_en.text(),
+            "description_ar": faker_ar.text(),
+            "category": "inputs",
+            "price": faker_en.random_int(min=1000, max=50000),
+            "currency": "YER",
+            "unit": "kg",
+            "quantity_available": faker_en.random_int(min=50, max=1000),
+        }
+
+
+class TaskFactory:
+    """Factory for creating task data - مصنع لإنشاء بيانات المهام"""
+
+    @staticmethod
+    def create(task_type: str = "irrigation") -> Dict[str, Any]:
+        """Create a task - إنشاء مهمة"""
+        return {
+            "title": f"Test Task - {task_type.title()}",
+            "title_ar": f"مهمة اختبار - {task_type}",
+            "description": faker_en.text(),
+            "task_type": task_type,
+            "priority": faker_en.random_element(["low", "medium", "high"]),
+            "due_date": (datetime.utcnow() + timedelta(days=faker_en.random_int(1, 7))).isoformat(),
+            "status": "pending"
+        }
+
+
+class SubscriptionFactory:
+    """Factory for creating subscription data - مصنع لإنشاء بيانات الاشتراكات"""
+
+    @staticmethod
+    def create(plan_id: str = "starter") -> Dict[str, Any]:
+        """Create a subscription - إنشاء اشتراك"""
+        return {
+            "name": f"Test Tenant {faker_en.uuid4()[:8]}",
+            "name_ar": f"مستأجر اختبار {faker_ar.uuid4()[:8]}",
+            "email": faker_en.email(),
+            "phone": faker_en.phone_number(),
+            "plan_id": plan_id,
+            "billing_cycle": "monthly"
+        }
+
+
+class OrderFactory:
+    """Factory for creating order data - مصنع لإنشاء بيانات الطلبات"""
+
+    @staticmethod
+    def create(item_count: int = 2) -> Dict[str, Any]:
+        """Create an order - إنشاء طلب"""
+        items = []
+        for _ in range(item_count):
+            items.append({
+                "product_id": f"product-{faker_en.uuid4()[:8]}",
+                "quantity": faker_en.random_int(min=1, max=20),
+                "unit_price": faker_en.random_int(min=5000, max=50000)
+            })
+
+        return {
+            "items": items,
+            "delivery_address": {
+                "name": faker_en.name(),
+                "phone": faker_en.phone_number(),
+                "street": faker_en.street_address(),
+                "city": "Sana'a",
+                "city_ar": "صنعاء"
+            },
+            "payment_method": "tharwatt"
+        }
+
+
+class DeviceFactory:
+    """Factory for creating IoT device data - مصنع لإنشاء بيانات أجهزة IoT"""
+
+    @staticmethod
+    def create(device_type: str = "soil_moisture_sensor") -> Dict[str, Any]:
+        """Create an IoT device - إنشاء جهاز IoT"""
+        return {
+            "device_id": f"device-{faker_en.uuid4()[:12]}",
+            "device_type": device_type,
+            "device_type_ar": f"مستشعر {device_type}",
+            "manufacturer": faker_en.company(),
+            "model": f"MODEL-{faker_en.random_int(100, 999)}",
+            "firmware_version": f"{faker_en.random_int(1, 3)}.{faker_en.random_int(0, 9)}.0",
+            "location": {
+                "latitude": 15.3694,
+                "longitude": 44.1910
+            }
+        }
+
+
+class ReviewFactory:
+    """Factory for creating product review data - مصنع لإنشاء بيانات مراجعات المنتجات"""
+
+    @staticmethod
+    def create(rating: int = 5) -> Dict[str, Any]:
+        """Create a product review - إنشاء مراجعة منتج"""
+        return {
+            "product_id": f"product-{faker_en.uuid4()[:8]}",
+            "rating": rating,
+            "title": faker_en.sentence(),
+            "title_ar": faker_ar.sentence(),
+            "review": faker_en.text(),
+            "review_ar": faker_ar.text(),
+            "verified_purchase": True
+        }
+
+
+# Pytest fixtures for the new factories
+
+
+@pytest.fixture
+def alert_factory() -> AlertFactory:
+    """Alert factory - مصنع التنبيهات"""
+    return AlertFactory()
+
+
+@pytest.fixture
+def marketplace_factory() -> MarketplaceProductFactory:
+    """Marketplace product factory - مصنع منتجات السوق"""
+    return MarketplaceProductFactory()
+
+
+@pytest.fixture
+def task_factory() -> TaskFactory:
+    """Task factory - مصنع المهام"""
+    return TaskFactory()
+
+
+@pytest.fixture
+def subscription_factory() -> SubscriptionFactory:
+    """Subscription factory - مصنع الاشتراكات"""
+    return SubscriptionFactory()
+
+
+@pytest.fixture
+def order_factory() -> OrderFactory:
+    """Order factory - مصنع الطلبات"""
+    return OrderFactory()
+
+
+@pytest.fixture
+def device_factory() -> DeviceFactory:
+    """IoT device factory - مصنع أجهزة IoT"""
+    return DeviceFactory()
+
+
+@pytest.fixture
+def review_factory() -> ReviewFactory:
+    """Review factory - مصنع المراجعات"""
+    return ReviewFactory()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Convenience Fixtures for Common Test Data - إعدادات ملائمة لبيانات الاختبار الشائعة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def sample_field(field_factory: FieldFactory) -> Dict[str, Any]:
+    """Sample field data - بيانات حقل نموذجي"""
+    return field_factory.create()
+
+
+@pytest.fixture
+def sample_location() -> Dict[str, float]:
+    """Sample location (Sana'a, Yemen) - موقع نموذجي (صنعاء، اليمن)"""
+    return {
+        "latitude": 15.3694,
+        "longitude": 44.1910
+    }
+
+
+@pytest.fixture
+def sample_ai_question(ai_query_factory: AIQueryFactory) -> Dict[str, Any]:
+    """Sample AI question - سؤال ذكاء اصطناعي نموذجي"""
+    return ai_query_factory.create()
+
+
+@pytest.fixture
+def sample_payment(payment_factory: PaymentFactory) -> Dict[str, Any]:
+    """Sample payment data - بيانات دفع نموذجية"""
+    return payment_factory.create()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Service-Specific HTTP Clients - عملاء HTTP خاصة بالخدمات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+async def field_ops_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+    """HTTP client for field operations service - عميل HTTP لخدمة عمليات الحقول"""
+    base_url = service_urls.get("field_core", "http://localhost:3000")
+    http_client.base_url = base_url
+    return http_client
+
+
+@pytest.fixture
+async def weather_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+    """HTTP client for weather service - عميل HTTP لخدمة الطقس"""
+    base_url = service_urls.get("weather_core", "http://localhost:8108")
+    http_client.base_url = base_url
+    return http_client
+
+
+@pytest.fixture
+async def ndvi_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+    """HTTP client for NDVI engine - عميل HTTP لمحرك NDVI"""
+    base_url = service_urls.get("ndvi_engine", "http://localhost:8107")
+    http_client.base_url = base_url
+    return http_client
+
+
+@pytest.fixture
+async def ai_advisor_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+    """HTTP client for AI advisor - عميل HTTP للمستشار الذكي"""
+    base_url = service_urls.get("ai_advisor", "http://localhost:8112")
+    http_client.base_url = base_url
+    return http_client
+
+
+@pytest.fixture
+async def billing_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+    """HTTP client for billing service - عميل HTTP لخدمة الفوترة"""
+    base_url = service_urls.get("billing_core", "http://localhost:8089")
+    http_client.base_url = base_url
+    return http_client
+
+
+@pytest.fixture
+async def kong_client() -> AsyncGenerator[AsyncClient, None]:
+    """HTTP client for Kong API Gateway - عميل HTTP لبوابة Kong API"""
+    async with AsyncClient(base_url="http://localhost:8000", timeout=Timeout(30.0)) as client:
+        yield client
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Mock Data and Utilities - بيانات وهمية وأدوات مساعدة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@pytest.fixture
+def mock_jwt_token(test_config: TestConfig) -> str:
+    """Generate a mock JWT token for testing - إنشاء رمز JWT وهمي للاختبار"""
+    try:
+        import jwt
+        from datetime import datetime, timedelta
+
+        payload = {
+            "sub": "test-user-123",
+            "tenant_id": "test-tenant-123",
+            "role": "farmer",
+            "exp": datetime.utcnow() + timedelta(hours=1),
+            "iat": datetime.utcnow(),
+        }
+
+        token = jwt.encode(payload, test_config.jwt_secret, algorithm="HS256")
+        return token
+    except ImportError:
+        # If PyJWT not available, return a placeholder
+        return "mock-jwt-token-for-testing"
+
+
+@pytest.fixture
+def mock_nats_message() -> Dict[str, Any]:
+    """Mock NATS message for testing - رسالة NATS وهمية للاختبار"""
+    return {
+        "subject": "test.subject",
+        "data": {
+            "event_type": "test_event",
+            "timestamp": datetime.utcnow().isoformat(),
+            "payload": {"test": "data"}
+        }
+    }
+
+
+@pytest.fixture
+def mock_redis_connection():
+    """Mock Redis connection for testing - اتصال Redis وهمي للاختبار"""
+    try:
+        from unittest.mock import MagicMock
+        mock = MagicMock()
+        mock.get.return_value = None
+        mock.set.return_value = True
+        mock.delete.return_value = True
+        return mock
+    except ImportError:
+        return None

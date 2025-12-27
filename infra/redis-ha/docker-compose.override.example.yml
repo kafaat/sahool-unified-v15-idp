@@ -1,0 +1,61 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Docker Compose Override Example
+# مثال على تخصيص التكوين
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# استخدم هذا الملف لتخصيص التكوين في بيئتك المحلية
+# انسخه إلى docker-compose.override.yml وعدّل حسب الحاجة
+#
+# cp docker-compose.override.example.yml docker-compose.override.yml
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # تخصيص Redis Master
+  redis-master:
+    # تخصيص الذاكرة
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --masterauth ${REDIS_PASSWORD}
+      --appendonly yes
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+
+    # تخصيص الموارد
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+
+  # تخصيص Sentinel
+  redis-sentinel-1:
+    # تخصيص معلمات Sentinel
+    command: >
+      sh -c "echo '
+      port 26379
+      sentinel monitor sahool-master redis-master 6379 2
+      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
+      sentinel down-after-milliseconds sahool-master 3000
+      sentinel parallel-syncs sahool-master 1
+      sentinel failover-timeout sahool-master 5000
+      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+
+  # إضافة خدمة إضافية للمراقبة
+  redis-commander:
+    # Pinned version 0.8.0 for stability
+    image: rediscommander/redis-commander:0.8.0
+    container_name: sahool-redis-commander
+    environment:
+      - REDIS_HOST=redis-master
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      - redis-master
+    networks:
+      - redis-ha-network

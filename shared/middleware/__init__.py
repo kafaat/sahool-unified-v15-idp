@@ -13,9 +13,13 @@ from .cors import setup_cors, get_cors_origins, get_cors_config
 from .rate_limit import (
     rate_limit_middleware,
     rate_limit,
+    rate_limit_by_user,
+    rate_limit_by_api_key,
+    rate_limit_by_tenant,
     RateLimiter,
     RateLimitConfig,
     TierConfig,
+    TokenBucket,
 )
 from .request_size import (
     request_size_middleware,
@@ -32,9 +36,13 @@ __all__ = [
     # Rate Limiting
     "rate_limit_middleware",
     "rate_limit",
+    "rate_limit_by_user",
+    "rate_limit_by_api_key",
+    "rate_limit_by_tenant",
     "RateLimiter",
     "RateLimitConfig",
     "TierConfig",
+    "TokenBucket",
     # Request Size
     "request_size_middleware",
     "configure_size_limits",

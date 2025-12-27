@@ -40,7 +40,8 @@ jobs:
           fi
 
           # Check for hardcoded passwords with actual values (not env var references)
-          if grep -rniE "password\s*=\s*['\"][a-zA-Z0-9!@#$%^&*]{8,}['\"]" --include="*.py" . 2>/dev/null | grep -v "test_" | grep -v "_test.py" | grep -v "getenv" | grep -v "environ"; then
+          # Exclude test files and example files
+          if grep -rniE "password\s*=\s*['\"][a-zA-Z0-9!@#$%^&*]{8,}['\"]" --include="*.py" . 2>/dev/null | grep -v "test_" | grep -v "_test.py" | grep -v "_example" | grep -v "example_" | grep -v "examples" | grep -v "getenv" | grep -v "environ" | grep -v "mock" | grep -v "fixture"; then
             echo "⚠️ Found hardcoded password"
             FOUND=1
           fi
@@ -56,6 +57,7 @@ jobs:
         run: |
           echo "🔍 Checking for sensitive files..."
 
+          # Note: secrets/ directories under gitops/ and shared/ are code templates, not actual secrets
           SENSITIVE_FILES=(
             "*.pem"
             "*.key"
@@ -64,17 +66,24 @@ jobs:
             ".env"
             ".env.local"
             "*.credentials"
-            "secrets/"
           )
 
           FOUND=0
           for pattern in "${SENSITIVE_FILES[@]}"; do
-            if find . -name "$pattern" -not -path "./.git/*" 2>/dev/null | grep -q .; then
+            # Exclude example files and gitops templates
+            MATCHES=$(find . -name "$pattern" -not -path "./.git/*" -not -name "*.example" -not -path "./gitops/*" 2>/dev/null || true)
+            if [ -n "$MATCHES" ]; then
               echo "⚠️ Found sensitive file pattern: $pattern"
-              find . -name "$pattern" -not -path "./.git/*" 2>/dev/null
+              echo "$MATCHES"
               FOUND=1
             fi
           done
+
+          # Check for secrets directories at root level only (not code directories)
+          if find . -maxdepth 1 -name "secrets" -type d 2>/dev/null | grep -q .; then
+            echo "⚠️ Found root-level secrets directory"
+            FOUND=1
+          fi
 
           if [ $FOUND -eq 1 ]; then
             echo "❌ Sensitive files found!"

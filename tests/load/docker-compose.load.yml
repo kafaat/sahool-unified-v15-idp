@@ -113,7 +113,9 @@ services:
 
   # Load test data initializer
   load-test-init:
-    image: curlimages/curl:latest
+    # Using 8.5.0 - stable curl version for reliable HTTP requests
+    # استخدام الإصدار 8.5.0 - إصدار ثابت من curl لطلبات HTTP موثوقة
+    image: curlimages/curl:8.5.0
     container_name: sahool-loadtest-init
     networks:
       - load-test

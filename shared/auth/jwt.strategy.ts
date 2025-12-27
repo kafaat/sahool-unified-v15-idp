@@ -1,12 +1,19 @@
 /**
  * JWT Strategy for NestJS Passport Authentication
  * Implements passport-jwt strategy for SAHOOL platform
+ *
+ * Enhanced with:
+ * - Database user validation
+ * - Redis caching for performance
+ * - User status checks (active, verified, deleted, suspended)
+ * - Failed authentication logging
  */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JWTConfig, AuthErrors } from './config';
+import { UserValidationService } from './user-validation.service';
 
 /**
  * JWT Token Payload Interface
@@ -40,6 +47,7 @@ export interface AuthenticatedUser {
  * ```typescript
  * // In your auth.module.ts
  * import { JwtStrategy } from '@shared/auth/jwt.strategy';
+ * import { UserValidationService } from '@shared/auth/user-validation.service';
  *
  * @Module({
  *   imports: [
@@ -49,7 +57,7 @@ export interface AuthenticatedUser {
  *       signOptions: JWTConfig.getJwtOptions().signOptions,
  *     }),
  *   ],
- *   providers: [JwtStrategy],
+ *   providers: [JwtStrategy, UserValidationService],
  *   exports: [JwtStrategy],
  * })
  * export class AuthModule {}
@@ -57,7 +65,9 @@ export interface AuthenticatedUser {
  */
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  private readonly logger = new Logger(JwtStrategy.name);
+
+  constructor(private readonly userValidationService?: UserValidationService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -66,13 +76,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       audience: JWTConfig.AUDIENCE,
       algorithms: [JWTConfig.ALGORITHM],
     });
+
+    if (!userValidationService) {
+      this.logger.warn(
+        'UserValidationService not provided - database validation disabled',
+      );
+    }
   }
 
   /**
    * Validate JWT payload and return user object
    *
    * This method is called automatically by Passport after token verification.
-   * Add additional validation logic here (e.g., check if user exists in database).
+   * It performs additional validation:
+   * 1. Checks if user exists in database (with caching)
+   * 2. Validates user status (active, verified, not deleted/suspended)
+   * 3. Logs failed authentication attempts
    *
    * @param payload - Decoded JWT payload
    * @returns Authenticated user object
@@ -81,31 +100,59 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     // Ensure required fields exist
     if (!payload.sub) {
+      this.logger.warn('JWT validation failed: Missing subject (user ID)');
       throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
     }
 
-    // Optional: Check if user exists in database
-    // const user = await this.userService.findById(payload.sub);
-    // if (!user || !user.isActive) {
-    //   throw new UnauthorizedException(AuthErrors.ACCOUNT_DISABLED.en);
-    // }
+    const userId = payload.sub;
 
-    // Optional: Check token revocation
-    // if (JWTConfig.TOKEN_REVOCATION_ENABLED && payload.jti) {
-    //   const isRevoked = await this.tokenRevocationService.isRevoked(payload.jti);
-    //   if (isRevoked) {
-    //     throw new UnauthorizedException(AuthErrors.TOKEN_REVOKED.en);
-    //   }
-    // }
+    try {
+      // Validate user with database lookup and caching
+      if (this.userValidationService) {
+        const userData =
+          await this.userValidationService.validateUser(userId);
 
-    // Return user object
-    return {
-      id: payload.sub,
-      roles: payload.roles || [],
-      tenantId: payload.tid,
-      permissions: payload.permissions || [],
-      tokenId: payload.jti,
-    };
+        this.logger.debug(
+          `JWT validated successfully for user ${userId} (${userData.email})`,
+        );
+
+        // Return user object with database data
+        return {
+          id: userId,
+          roles: userData.roles || payload.roles || [],
+          tenantId: userData.tenantId || payload.tid,
+          permissions: payload.permissions || [],
+          tokenId: payload.jti,
+        };
+      }
+
+      // No validation service - return user from token only
+      this.logger.debug(
+        `JWT validated successfully for user ${userId} (token only)`,
+      );
+
+      return {
+        id: userId,
+        roles: payload.roles || [],
+        tenantId: payload.tid,
+        permissions: payload.permissions || [],
+        tokenId: payload.jti,
+      };
+    } catch (error) {
+      // Log the error and re-throw
+      if (error instanceof UnauthorizedException) {
+        this.logger.warn(
+          `JWT validation failed for user ${userId}: ${error.message}`,
+        );
+        throw error;
+      }
+
+      this.logger.error(
+        `JWT validation error for user ${userId}: ${error.message}`,
+        error.stack,
+      );
+      throw new UnauthorizedException(AuthErrors.INVALID_TOKEN.en);
+    }
   }
 }
 

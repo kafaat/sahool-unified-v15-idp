@@ -43,4 +43,8 @@ data:
               url: ${K8S_CLUSTER_URL}
               authProvider: serviceAccount
               serviceAccountToken: ${K8S_SA_TOKEN}
-              skipTLSVerify: true
+              # TLS verification enabled for security - use caData or caFile in production
+              skipTLSVerify: false
+              # Uncomment and configure for production:
+              # caData: ${K8S_CA_DATA}  # Base64 encoded CA certificate
+              # caFile: /etc/backstage/k8s-ca.crt

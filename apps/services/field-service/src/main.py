@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from typing import Optional, List
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi import FastAPI, HTTPException, Query, Response, Header, Depends
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
@@ -58,6 +58,16 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+# ============== Authentication ==============
+
+
+def get_tenant_id(x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
 
 
 # ============== In-Memory Data Store ==============
@@ -162,8 +172,11 @@ def readiness():
 
 
 @app.post("/fields", response_model=FieldResponse, status_code=201)
-async def create_field(field: FieldCreate):
+async def create_field(field: FieldCreate, tenant_id: str = Depends(get_tenant_id)):
     """إنشاء حقل جديد"""
+    # Validate tenant matches the request
+    if field.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     field_id = str(uuid4())
     now = datetime.now(timezone.utc).isoformat()
 
@@ -212,12 +225,15 @@ async def create_field(field: FieldCreate):
 
 
 @app.get("/fields/{field_id}", response_model=FieldDetailResponse)
-async def get_field(field_id: str):
+async def get_field(field_id: str, tenant_id: str = Depends(get_tenant_id)):
     """جلب تفاصيل حقل"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
     field_data = _fields[field_id]
+    # Validate tenant access
+    if field_data["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
 
     # جلب البيانات الإضافية
     field_zones = [z for z in _zones.values() if z["field_id"] == field_id]
@@ -260,17 +276,15 @@ async def get_field(field_id: str):
 
 @app.get("/fields")
 async def list_fields(
-    tenant_id: str = Query(None),
     user_id: str = Query(None),
     status: Optional[str] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """قائمة الحقول"""
-    filtered = list(_fields.values())
-
-    if tenant_id:
-        filtered = [f for f in filtered if f["tenant_id"] == tenant_id]
+    # Filter by tenant from header (required)
+    filtered = [f for f in _fields.values() if f["tenant_id"] == tenant_id]
     if user_id:
         filtered = [f for f in filtered if f["user_id"] == user_id]
     if status:
@@ -289,12 +303,15 @@ async def list_fields(
 
 
 @app.patch("/fields/{field_id}", response_model=FieldResponse)
-async def update_field(field_id: str, update: FieldUpdate):
+async def update_field(field_id: str, update: FieldUpdate, tenant_id: str = Depends(get_tenant_id)):
     """تحديث بيانات حقل"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
     field_data = _fields[field_id]
+    # Validate tenant access
+    if field_data["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
     update_dict = update.model_dump(exclude_unset=True)
     updated_fields = []
 
@@ -326,12 +343,15 @@ async def update_field(field_id: str, update: FieldUpdate):
 
 
 @app.delete("/fields/{field_id}")
-async def delete_field(field_id: str):
+async def delete_field(field_id: str, tenant_id: str = Depends(get_tenant_id)):
     """حذف حقل"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
     field_data = _fields[field_id]
+    # Validate tenant access
+    if field_data["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
     del _fields[field_id]
 
     # حذف البيانات المرتبطة

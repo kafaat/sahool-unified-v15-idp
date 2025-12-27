@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Depends
+from fastapi import FastAPI, HTTPException, Query, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -312,8 +312,10 @@ seed_demo_data()
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(x_tenant_id: str = "tenant_demo") -> str:
-    """Extract tenant ID from header (simplified)"""
+def get_tenant_id(x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract tenant ID from X-Tenant-Id header"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
     return x_tenant_id
 
 

@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional, List
 from uuid import uuid4
 
-from fastapi import FastAPI, HTTPException, Query, Path, Depends
+from fastapi import FastAPI, HTTPException, Query, Path, Depends, Header
 from pydantic import BaseModel
 
 # Add path to shared config
@@ -45,6 +45,18 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Authentication
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def get_tenant_id(x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")) -> str:
+    """Extract and validate tenant ID from X-Tenant-Id header"""
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    return x_tenant_id
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -313,25 +325,36 @@ async def create_alert_internal(alert_data: AlertCreate) -> dict:
 
 
 @app.post("/alerts", response_model=AlertResponse, tags=["Alerts"])
-async def create_alert(alert_data: AlertCreate):
+async def create_alert(alert_data: AlertCreate, tenant_id: str = Depends(get_tenant_id)):
     """
     إنشاء تنبيه جديد
     Create a new alert
     """
+    # Validate tenant matches request
+    if alert_data.tenant_id and alert_data.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
+    alert_data.tenant_id = tenant_id
     alert = await create_alert_internal(alert_data)
     logger.info(f"Created alert {alert['id']} for field {alert['field_id']}")
     return alert
 
 
 @app.get("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
-async def get_alert(alert_id: str = Path(..., description="معرف التنبيه")):
+async def get_alert(
+    alert_id: str = Path(..., description="معرف التنبيه"),
+    tenant_id: str = Depends(get_tenant_id)
+):
     """
     جلب تنبيه محدد
     Get a specific alert
     """
     if alert_id not in _alerts:
         raise HTTPException(status_code=404, detail="Alert not found")
-    return _alerts[alert_id]
+    alert = _alerts[alert_id]
+    # Validate tenant access
+    if alert["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    return alert
 
 
 @app.get("/alerts/field/{field_id}", response_model=PaginatedResponse, tags=["Alerts"])
@@ -341,14 +364,15 @@ async def get_alerts_by_field(
     severity: Optional[AlertSeverity] = Query(None, description="تصفية حسب الخطورة"),
     alert_type: Optional[AlertType] = Query(None, alias="type", description="تصفية حسب النوع"),
     skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=100)
+    limit: int = Query(50, ge=1, le=100),
+    tenant_id: str = Depends(get_tenant_id)
 ):
     """
     جلب تنبيهات حقل معين
     Get alerts for a specific field
     """
-    # Filter alerts
-    filtered = [a for a in _alerts.values() if a["field_id"] == field_id]
+    # Filter alerts by field AND tenant
+    filtered = [a for a in _alerts.values() if a["field_id"] == field_id and a["tenant_id"] == tenant_id]
 
     if status:
         filtered = [a for a in filtered if a["status"] == status.value]
@@ -376,7 +400,8 @@ async def get_alerts_by_field(
 @app.patch("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
 async def update_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    update_data: AlertUpdate = None
+    update_data: AlertUpdate = None,
+    tenant_id: str = Depends(get_tenant_id)
 ):
     """
     تحديث حالة تنبيه
@@ -386,6 +411,9 @@ async def update_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert = _alerts[alert_id]
+    # Validate tenant access
+    if alert["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
     old_status = alert["status"]
     now = datetime.now(timezone.utc)
 
@@ -420,13 +448,21 @@ async def update_alert(
 
 
 @app.delete("/alerts/{alert_id}", tags=["Alerts"])
-async def delete_alert(alert_id: str = Path(..., description="معرف التنبيه")):
+async def delete_alert(
+    alert_id: str = Path(..., description="معرف التنبيه"),
+    tenant_id: str = Depends(get_tenant_id)
+):
     """
     حذف تنبيه
     Delete an alert
     """
     if alert_id not in _alerts:
         raise HTTPException(status_code=404, detail="Alert not found")
+
+    alert = _alerts[alert_id]
+    # Validate tenant access
+    if alert["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
 
     del _alerts[alert_id]
     logger.info(f"Deleted alert {alert_id}")
@@ -441,7 +477,8 @@ async def delete_alert(alert_id: str = Path(..., description="معرف التن�
 @app.post("/alerts/{alert_id}/acknowledge", response_model=AlertResponse, tags=["Alert Actions"])
 async def acknowledge_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    user_id: str = Query(..., description="معرف المستخدم")
+    user_id: str = Query(..., description="معرف المستخدم"),
+    tenant_id: str = Depends(get_tenant_id)
 ):
     """
     الإقرار بتنبيه
@@ -451,6 +488,9 @@ async def acknowledge_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert = _alerts[alert_id]
+    # Validate tenant access
+    if alert["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
     if alert["status"] != AlertStatus.ACTIVE.value:
         raise HTTPException(status_code=400, detail=f"Cannot acknowledge alert with status: {alert['status']}")
 
@@ -468,7 +508,8 @@ async def acknowledge_alert(
 async def resolve_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
     user_id: str = Query(..., description="معرف المستخدم"),
-    note: Optional[str] = Query(None, description="ملاحظة الحل")
+    note: Optional[str] = Query(None, description="ملاحظة الحل"),
+    tenant_id: str = Depends(get_tenant_id)
 ):
     """
     حل تنبيه
@@ -478,6 +519,9 @@ async def resolve_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert = _alerts[alert_id]
+    # Validate tenant access
+    if alert["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
     if alert["status"] == AlertStatus.RESOLVED.value:
         raise HTTPException(status_code=400, detail="Alert is already resolved")
 
@@ -495,7 +539,8 @@ async def resolve_alert(
 @app.post("/alerts/{alert_id}/dismiss", response_model=AlertResponse, tags=["Alert Actions"])
 async def dismiss_alert(
     alert_id: str = Path(..., description="معرف التنبيه"),
-    user_id: str = Query(..., description="معرف المستخدم")
+    user_id: str = Query(..., description="معرف المستخدم"),
+    tenant_id: str = Depends(get_tenant_id)
 ):
     """
     رفض تنبيه
@@ -505,6 +550,9 @@ async def dismiss_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert = _alerts[alert_id]
+    # Validate tenant access
+    if alert["tenant_id"] != tenant_id:
+        raise HTTPException(status_code=403, detail="Access denied")
     if alert["status"] == AlertStatus.DISMISSED.value:
         raise HTTPException(status_code=400, detail="Alert is already dismissed")
 

@@ -1,0 +1,161 @@
+{{- if .Values.nats.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sahool-nats
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.nats.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None  # Headless service
+  ports:
+    - name: client
+      port: 4222
+      targetPort: client
+      protocol: TCP
+    - name: monitoring
+      port: 8222
+      targetPort: monitoring
+      protocol: TCP
+  selector:
+    {{- include "infra.nats.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sahool-nats-config
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.nats.labels" . | nindent 4 }}
+data:
+  nats.conf: |
+    # NATS Server Configuration
+    port: 4222
+    http_port: 8222
+
+    # Server name
+    server_name: $POD_NAME
+
+    {{- if .Values.nats.jetstream.enabled }}
+    # JetStream configuration
+    jetstream {
+      {{- if .Values.nats.jetstream.memStorage.enabled }}
+      max_mem: {{ .Values.nats.jetstream.memStorage.size }}
+      {{- end }}
+
+      {{- if .Values.nats.jetstream.fileStorage.enabled }}
+      store_dir: /data/jetstream
+      max_file: {{ .Values.nats.jetstream.fileStorage.size }}
+      {{- end }}
+    }
+    {{- end }}
+
+    # Logging
+    debug: false
+    trace: false
+    logtime: true
+
+    # Limits
+    max_connections: 64K
+    max_control_line: 4KB
+    max_payload: 8MB
+    max_pending: 64MB
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sahool-nats
+  namespace: {{ include "infra.namespace" . }}
+  labels:
+    {{- include "infra.nats.labels" . | nindent 4 }}
+spec:
+  serviceName: sahool-nats
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "infra.nats.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "infra.nats.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+        runAsNonRoot: true
+      containers:
+        - name: nats
+          image: "{{ .Values.nats.image.repository }}:{{ .Values.nats.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: client
+              containerPort: 4222
+              protocol: TCP
+            - name: monitoring
+              containerPort: 8222
+              protocol: TCP
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          command:
+            - nats-server
+            - --config
+            - /etc/nats/nats.conf
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nats
+            {{- if .Values.nats.jetstream.fileStorage.enabled }}
+            - name: data
+              mountPath: /data/jetstream
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: monitoring
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.nats.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: config
+          configMap:
+            name: sahool-nats-config
+  {{- if .Values.nats.jetstream.fileStorage.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "infra.nats.labels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.nats.jetstream.fileStorage.size | quote }}
+  {{- end }}
+{{- end }}

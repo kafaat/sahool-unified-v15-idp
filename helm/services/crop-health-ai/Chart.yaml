@@ -1,0 +1,6 @@
+apiVersion: v2
+name: crop-health-ai
+description: SAHOOL Crop Health AI Service
+type: application
+version: 1.0.0
+appVersion: "15.3.2"

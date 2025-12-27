@@ -64,48 +64,13 @@ Consumer groups and ACL configuration:
 
 ## Service Port Registry | سجل منافذ الخدمات
 
-### Kong Infrastructure Ports | منافذ البنية التحتية لـ Kong
+### Infrastructure Services | الخدمات الأساسية
 ```yaml
-# Kong Gateway
-kong:
-  - 8000: HTTP Proxy (Proxy HTTP)
-  - 8443: HTTPS Proxy (Proxy HTTPS)
-  - 8001: Admin API HTTP
-  - 8444: Admin API HTTPS
-
-# Kong Database (PostgreSQL)
-kong-database:
-  - 5433: PostgreSQL (mapped to avoid conflicts with main PostgreSQL on 5432)
-
-# Kong Redis
-kong-redis:
-  - 6380: Redis (mapped to avoid conflicts with main Redis on 6379)
-
-# Kong Monitoring Stack
-konga:
-  - 1337: Konga Admin UI
-
-prometheus:
-  - 9090: Prometheus Web UI
-
-grafana:
-  - 3002: Grafana Dashboard (mapped to avoid conflicts with field-core on 3000)
-
-# Metrics Exporters
-postgres-exporter:
-  - 9187: PostgreSQL Metrics
-
-redis-exporter:
-  - 9121: Redis Metrics
-
-node-exporter:
-  - 9100: System Metrics
-
-alertmanager:
-  - 9093: Alertmanager Web UI
+postgres: 5432
+redis: 6379
+nats: 4222
+kong: 8000 (proxy), 8001 (admin)
 ```
-
-### Application Services Ports | منافذ خدمات التطبيق
 
 ### Starter Package Services | خدمات الباقة الأساسية
 ```yaml

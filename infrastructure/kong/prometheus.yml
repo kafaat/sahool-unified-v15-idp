@@ -99,14 +99,14 @@ scrape_configs:
           - 'node-exporter:9100'
 
   # ============================================================================
-  # cAdvisor - Container Metrics (Optional - uncomment if using cAdvisor)
-  # مقاييس الحاويات (اختياري - قم بإلغاء التعليق إذا كنت تستخدم cAdvisor)
+  # cAdvisor - Container Metrics
+  # مقاييس الحاويات
   # ============================================================================
-  # - job_name: 'cadvisor'
-  #   scrape_interval: 15s
-  #   static_configs:
-  #     - targets:
-  #         - 'cadvisor:8080'
+  - job_name: 'cadvisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'cadvisor:8080'
 
   # ============================================================================
   # SAHOOL Microservices Metrics
@@ -271,34 +271,34 @@ scrape_configs:
         replacement: 'enterprise'
 
   # ============================================================================
-  # Service Discovery via Consul (Optional - uncomment if using Consul)
-  # اكتشاف الخدمة عبر Consul (اختياري - قم بإلغاء التعليق إذا كنت تستخدم Consul)
+  # Service Discovery via Consul (Optional)
+  # اكتشاف الخدمة عبر Consul (اختياري)
   # ============================================================================
-  # - job_name: 'consul-services'
-  #   consul_sd_configs:
-  #     - server: 'consul:8500'
-  #       services: []
-  #
-  #   relabel_configs:
-  #     # Only keep services with 'prometheus' tag
-  #     - source_labels: [__meta_consul_tags]
-  #       regex: '.*,prometheus,.*'
-  #       action: keep
-  #
-  #     # Use service name as job label
-  #     - source_labels: [__meta_consul_service]
-  #       target_label: job
-  #
-  #     # Use service ID as instance label
-  #     - source_labels: [__meta_consul_service_id]
-  #       target_label: instance
-  #
-  #     # Add service metadata
-  #     - source_labels: [__meta_consul_service_metadata_package]
-  #       target_label: package
-  #
-  #     - source_labels: [__meta_consul_service_metadata_version]
-  #       target_label: version
+  - job_name: 'consul-services'
+    consul_sd_configs:
+      - server: 'consul:8500'
+        services: []
+
+    relabel_configs:
+      # Only keep services with 'prometheus' tag
+      - source_labels: [__meta_consul_tags]
+        regex: '.*,prometheus,.*'
+        action: keep
+
+      # Use service name as job label
+      - source_labels: [__meta_consul_service]
+        target_label: job
+
+      # Use service ID as instance label
+      - source_labels: [__meta_consul_service_id]
+        target_label: instance
+
+      # Add service metadata
+      - source_labels: [__meta_consul_service_metadata_package]
+        target_label: package
+
+      - source_labels: [__meta_consul_service_metadata_version]
+        target_label: version
 
 # ============================================================================
 # Recording Rules - Pre-computed queries for performance

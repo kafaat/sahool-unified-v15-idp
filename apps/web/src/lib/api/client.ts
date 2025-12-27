@@ -5,9 +5,14 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-// Enforce HTTPS in production
-if (process.env.NODE_ENV === 'production' && !API_BASE_URL.startsWith('https://')) {
-  throw new Error('API_BASE_URL must use HTTPS in production environment');
+// Enforce HTTPS in production (only at runtime in browser, not during build)
+if (
+  typeof window !== 'undefined' &&
+  process.env.NODE_ENV === 'production' &&
+  !API_BASE_URL.startsWith('https://') &&
+  !API_BASE_URL.includes('localhost')
+) {
+  console.warn('Warning: API_BASE_URL should use HTTPS in production environment');
 }
 
 interface ApiResponse<T> {

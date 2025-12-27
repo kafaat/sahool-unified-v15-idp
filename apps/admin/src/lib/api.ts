@@ -3,7 +3,7 @@
 
 import axios, { type AxiosResponse, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
-import { getAuthHeaders, getToken } from './auth';
+import { getToken } from './auth';
 
 // Service ports
 const PORTS = {

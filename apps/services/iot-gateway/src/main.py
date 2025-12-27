@@ -1,7 +1,7 @@
 """
 SAHOOL IoT Gateway - Main API Service
 MQTT → NATS bridge for sensor data ingestion
-Port: 8096
+Port: 8106
 """
 
 import asyncio
@@ -27,7 +27,7 @@ logging.basicConfig(
 logger = logging.getLogger("iot-gateway")
 
 # Configuration
-MQTT_BROKER = os.getenv("MQTT_BROKER", "localhost")
+MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 MQTT_TOPIC = os.getenv("MQTT_TOPIC", "sahool/sensors/#")
 DEFAULT_TENANT = os.getenv("DEFAULT_TENANT", "default")

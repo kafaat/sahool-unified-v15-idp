@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
-import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import {
   CreateProductDto,
   CreateOrderDto,
@@ -274,6 +274,7 @@ export class AppController {
    * PUT /api/v1/fintech/loans/:id/approve
    */
   @Put('fintech/loans/:id/approve')
+  @UseGuards(JwtAuthGuard)
   async approveLoan(@Param('id') id: string) {
     return this.fintechService.approveLoan(id);
   }
@@ -283,6 +284,7 @@ export class AppController {
    * POST /api/v1/fintech/loans/:id/repay
    */
   @Post('fintech/loans/:id/repay')
+  @UseGuards(JwtAuthGuard)
   async repayLoan(@Param('id') id: string, @Body() body: { amount: number }) {
     return this.fintechService.repayLoan(id, body.amount);
   }
@@ -336,6 +338,7 @@ export class AppController {
    * POST /api/v1/fintech/escrow
    */
   @Post('fintech/escrow')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createEscrow(
     @Body()
@@ -361,6 +364,7 @@ export class AppController {
    * POST /api/v1/fintech/escrow/:id/release
    */
   @Post('fintech/escrow/:id/release')
+  @UseGuards(JwtAuthGuard)
   async releaseEscrow(
     @Param('id') id: string,
     @Body() body: { notes?: string },
@@ -373,6 +377,7 @@ export class AppController {
    * POST /api/v1/fintech/escrow/:id/refund
    */
   @Post('fintech/escrow/:id/refund')
+  @UseGuards(JwtAuthGuard)
   async refundEscrow(
     @Param('id') id: string,
     @Body() body: { reason?: string },

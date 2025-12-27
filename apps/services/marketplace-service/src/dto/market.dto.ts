@@ -1,13 +1,19 @@
 /**
  * Marketplace DTOs - Data Transfer Objects
  * كائنات نقل البيانات للسوق
+ *
+ * These DTOs must match the interfaces defined in the service files
  */
 
-import { IsString, IsNumber, IsOptional, IsPositive, Min, Max, IsEnum, IsUUID, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsPositive, IsArray, ValidateNested, IsBoolean, IsIn, Min, Max, IsNotEmpty, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Market DTOs
+// ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Create Product DTO
- * كائن إنشاء منتج
+ * Create Product DTO - matches CreateProductDto in market.service.ts
  */
 export class CreateProductDto {
   @IsString()
@@ -15,12 +21,8 @@ export class CreateProductDto {
   name: string;
 
   @IsString()
-  @IsOptional()
-  nameAr?: string;
-
-  @IsString()
-  @IsOptional()
-  description?: string;
+  @IsNotEmpty()
+  nameAr: string;
 
   @IsString()
   @IsNotEmpty()
@@ -31,16 +33,116 @@ export class CreateProductDto {
   price: number;
 
   @IsNumber()
-  @IsPositive()
-  quantity: number;
+  @Min(0)
+  stock: number;
+
+  @IsString()
+  @IsNotEmpty()
+  unit: string;
 
   @IsString()
   @IsOptional()
-  unit?: string;
+  description?: string;
+
+  @IsString()
+  @IsOptional()
+  descriptionAr?: string;
+
+  @IsString()
+  @IsOptional()
+  imageUrl?: string;
 
   @IsString()
   @IsNotEmpty()
   sellerId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  sellerType: string;
+
+  @IsString()
+  @IsOptional()
+  sellerName?: string;
+
+  @IsString()
+  @IsOptional()
+  cropType?: string;
+
+  @IsString()
+  @IsOptional()
+  governorate?: string;
+}
+
+/**
+ * Order Item for CreateOrderDto
+ */
+class OrderItemDto {
+  @IsString()
+  @IsNotEmpty()
+  productId: string;
+
+  @IsNumber()
+  @IsPositive()
+  quantity: number;
+}
+
+/**
+ * Create Order DTO - matches CreateOrderDto in market.service.ts
+ */
+export class CreateOrderDto {
+  @IsString()
+  @IsNotEmpty()
+  buyerId: string;
+
+  @IsString()
+  @IsOptional()
+  buyerName?: string;
+
+  @IsString()
+  @IsOptional()
+  buyerPhone?: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemDto)
+  items: OrderItemDto[];
+
+  @IsString()
+  @IsOptional()
+  deliveryAddress?: string;
+
+  @IsString()
+  @IsOptional()
+  paymentMethod?: string;
+}
+
+/**
+ * YieldData for ListHarvestDto - matches YieldData in market.service.ts
+ */
+class YieldDataDto {
+  @IsString()
+  @IsNotEmpty()
+  crop: string;
+
+  @IsString()
+  @IsNotEmpty()
+  cropAr: string;
+
+  @IsNumber()
+  @IsPositive()
+  predictedYieldTons: number;
+
+  @IsNumber()
+  @IsPositive()
+  pricePerTon: number;
+
+  @IsString()
+  @IsOptional()
+  harvestDate?: string;
+
+  @IsString()
+  @IsOptional()
+  qualityGrade?: string;
 
   @IsString()
   @IsOptional()
@@ -48,100 +150,162 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
-  imageUrl?: string;
-}
-
-/**
- * Create Order DTO
- * كائن إنشاء طلب
- */
-export class CreateOrderDto {
-  @IsString()
-  @IsNotEmpty()
-  productId: string;
-
-  @IsString()
-  @IsNotEmpty()
-  buyerId: string;
-
-  @IsNumber()
-  @IsPositive()
-  quantity: number;
-
-  @IsString()
-  @IsOptional()
-  shippingAddress?: string;
-
-  @IsString()
-  @IsOptional()
-  notes?: string;
+  district?: string;
 }
 
 /**
  * List Harvest DTO
- * كائن عرض الحصاد
  */
 export class ListHarvestDto {
   @IsString()
   @IsNotEmpty()
   userId: string;
 
+  @ValidateNested()
+  @Type(() => YieldDataDto)
+  yieldData: YieldDataDto;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FinTech DTOs
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * FarmData for CalculateCreditScoreDto - matches FarmData in fintech.service.ts
+ */
+class FarmDataDto {
+  @IsNumber()
+  @Min(0)
+  totalArea: number;
+
+  @IsNumber()
+  @Min(0)
+  activeSeasons: number;
+
+  @IsNumber()
+  @Min(0)
+  fieldCount: number;
+
+  @IsString()
+  @IsIn(['Low', 'Medium', 'High'])
+  diseaseRisk: 'Low' | 'Medium' | 'High';
+
+  @IsString()
   @IsNotEmpty()
-  yieldData: {
-    fieldId: string;
-    cropType: string;
-    estimatedQuantity: number;
-    harvestDate?: string;
-    quality?: string;
-  };
+  irrigationType: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  avgYieldScore: number;
+
+  @IsNumber()
+  @Min(0)
+  onTimePayments: number;
+
+  @IsNumber()
+  @Min(0)
+  latePayments: number;
 }
 
 /**
- * Calculate Credit Score DTO
- * كائن حساب التصنيف الائتماني
+ * Calculate Credit Score DTO - matches FarmData interface
  */
 export class CalculateCreditScoreDto {
   @IsString()
   @IsNotEmpty()
   userId: string;
 
-  @IsNotEmpty()
-  farmData: {
-    fieldCount?: number;
-    totalArea?: number;
-    avgNdvi?: number;
-    cropDiversity?: number;
-    harvestHistory?: number;
-  };
+  @ValidateNested()
+  @Type(() => FarmDataDto)
+  farmData: FarmDataDto;
+}
+
+/**
+ * CreditFactors for CalculateAdvancedCreditScoreDto - matches CreditFactors in fintech.service.ts
+ */
+class CreditFactorsDto {
+  @IsNumber()
+  @Min(0)
+  farmArea: number;
+
+  @IsNumber()
+  @Min(0)
+  numberOfSeasons: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  diseaseRiskScore: number;
+
+  @IsString()
+  @IsIn(['rainfed', 'drip', 'flood', 'sprinkler'])
+  irrigationType: 'rainfed' | 'drip' | 'flood' | 'sprinkler';
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  yieldScore: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  paymentHistory: number;
+
+  @IsNumber()
+  @Min(1)
+  @Max(10)
+  cropDiversity: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  marketplaceHistory: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  loanRepaymentRate: number;
+
+  @IsString()
+  @IsIn(['basic', 'verified', 'premium'])
+  verificationLevel: 'basic' | 'verified' | 'premium';
+
+  @IsString()
+  @IsIn(['owned', 'leased', 'shared'])
+  landOwnership: 'owned' | 'leased' | 'shared';
+
+  @IsBoolean()
+  cooperativeMember: boolean;
+
+  @IsNumber()
+  @Min(0)
+  yearsOfExperience: number;
+
+  @IsBoolean()
+  satelliteVerified: boolean;
 }
 
 /**
  * Calculate Advanced Credit Score DTO
- * كائن حساب التصنيف الائتماني المتقدم
  */
 export class CalculateAdvancedCreditScoreDto {
   @IsString()
   @IsNotEmpty()
   userId: string;
 
-  @IsNotEmpty()
-  factors: {
-    fieldHealth?: number;
-    paymentHistory?: number;
-    marketActivity?: number;
-    loanRepayment?: number;
-    verificationLevel?: string;
-  };
+  @ValidateNested()
+  @Type(() => CreditFactorsDto)
+  factors: CreditFactorsDto;
 }
 
 /**
- * Record Credit Event DTO
- * كائن تسجيل حدث ائتماني
+ * Record Credit Event DTO - matches RecordCreditEventDto in fintech.service.ts
  */
 export class RecordCreditEventDto {
   @IsString()
   @IsNotEmpty()
-  userId: string;
+  walletId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -152,19 +316,15 @@ export class RecordCreditEventDto {
   amount?: number;
 
   @IsString()
-  @IsOptional()
-  description?: string;
+  @IsNotEmpty()
+  description: string;
 
-  @IsNumber()
   @IsOptional()
-  @Min(-100)
-  @Max(100)
-  scoreImpact?: number;
+  metadata?: any;
 }
 
 /**
- * Request Loan DTO
- * كائن طلب قرض
+ * Request Loan DTO - matches CreateLoanDto in fintech.service.ts
  */
 export class RequestLoanDto {
   @IsString()
@@ -175,10 +335,6 @@ export class RequestLoanDto {
   @IsPositive()
   amount: number;
 
-  @IsString()
-  @IsNotEmpty()
-  purpose: string;
-
   @IsNumber()
   @IsPositive()
   @Min(1)
@@ -186,13 +342,25 @@ export class RequestLoanDto {
   termMonths: number;
 
   @IsString()
+  @IsNotEmpty()
+  purpose: string;
+
+  @IsString()
   @IsOptional()
-  collateral?: string;
+  purposeDetails?: string;
+
+  @IsString()
+  @IsOptional()
+  collateralType?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
+  collateralValue?: number;
 }
 
 /**
  * Deposit/Withdraw DTO
- * كائن الإيداع/السحب
  */
 export class WalletTransactionDto {
   @IsNumber()
@@ -206,7 +374,6 @@ export class WalletTransactionDto {
 
 /**
  * Repay Loan DTO
- * كائن سداد القرض
  */
 export class RepayLoanDto {
   @IsNumber()
@@ -216,7 +383,6 @@ export class RepayLoanDto {
 
 /**
  * Create Escrow DTO
- * كائن إنشاء الإسكرو
  */
 export class CreateEscrowDto {
   @IsString()
@@ -242,7 +408,6 @@ export class CreateEscrowDto {
 
 /**
  * Release/Refund Escrow DTO
- * كائن إطلاق/استرداد الإسكرو
  */
 export class EscrowActionDto {
   @IsString()
@@ -256,7 +421,6 @@ export class EscrowActionDto {
 
 /**
  * Create Scheduled Payment DTO
- * كائن إنشاء دفعة مجدولة
  */
 export class CreateScheduledPaymentDto {
   @IsNumber()

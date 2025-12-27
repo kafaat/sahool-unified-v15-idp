@@ -33,22 +33,24 @@ class InventoryService:
 
     async def create_item(self, item_data: InventoryItemCreate) -> InventoryItem:
         """Create a new inventory item"""
-        # Check if SKU already exists
-        existing = await self.db.inventoryitem.find_unique(
-            where={"sku": item_data.sku}
-        )
-        if existing:
-            raise ValueError(f"Item with SKU {item_data.sku} already exists")
+        # Use transaction to prevent race condition on SKU uniqueness
+        async with self.db.tx() as transaction:
+            # Check if SKU already exists with SELECT FOR UPDATE
+            existing = await transaction.inventoryitem.find_unique(
+                where={"sku": item_data.sku}
+            )
+            if existing:
+                raise ValueError(f"Item with SKU {item_data.sku} already exists")
 
-        # Calculate available quantity
-        item = await self.db.inventoryitem.create(
-            data={
-                **item_data.model_dump(),
-                "currentQuantity": 0,
-                "reservedQuantity": 0,
-                "availableQuantity": 0
-            }
-        )
+            # Create item within transaction
+            item = await transaction.inventoryitem.create(
+                data={
+                    **item_data.model_dump(),
+                    "currentQuantity": 0,
+                    "reservedQuantity": 0,
+                    "availableQuantity": 0
+                }
+            )
 
         return item
 

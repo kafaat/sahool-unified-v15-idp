@@ -50,6 +50,89 @@ export const YieldChart: React.FC<YieldChartProps> = ({
     );
   }
 
+  const renderChart = () => {
+    const commonProps = {
+      data,
+    };
+
+    const tooltipStyle = {
+      backgroundColor: '#fff',
+      border: '1px solid #e5e7eb',
+      borderRadius: '8px',
+      padding: '8px 12px',
+    };
+
+    switch (chartType) {
+      case 'bar':
+        return (
+          <BarChart {...commonProps}>
+            {showGrid && <CartesianGrid strokeDasharray="3 3" />}
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip contentStyle={tooltipStyle} />
+            {showLegend && <Legend />}
+            <Bar dataKey="value" fill="#10b981" name="الإنتاج" radius={[8, 8, 0, 0]} />
+          </BarChart>
+        );
+      case 'area':
+        return (
+          <AreaChart {...commonProps}>
+            {showGrid && <CartesianGrid strokeDasharray="3 3" />}
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip contentStyle={tooltipStyle} />
+            {showLegend && <Legend />}
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke="#10b981"
+              fill="#10b981"
+              fillOpacity={0.3}
+              name="الإنتاج"
+            />
+          </AreaChart>
+        );
+      case 'line':
+      default:
+        return (
+          <LineChart {...commonProps}>
+            {showGrid && <CartesianGrid strokeDasharray="3 3" />}
+            <XAxis
+              dataKey="label"
+              tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
+            />
+            <YAxis tick={{ fontSize: 12 }} />
+            <Tooltip contentStyle={tooltipStyle} />
+            {showLegend && <Legend />}
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#10b981"
+              strokeWidth={2}
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
+              name="الإنتاج"
+            />
+          </LineChart>
+        );
+    }
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
       {(title || titleAr) && (
@@ -65,92 +148,7 @@ export const YieldChart: React.FC<YieldChartProps> = ({
 
       <div style={{ height: `${height}px` }}>
         <ResponsiveContainer width="100%" height="100%">
-          {chartType === 'line' && (
-            <LineChart data={data}>
-              {showGrid && <CartesianGrid strokeDasharray="3 3" />}
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 12 }}
-                angle={-45}
-                textAnchor="end"
-                height={80}
-              />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                }}
-              />
-              {showLegend && <Legend />}
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="#10b981"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 6 }}
-                name="الإنتاج"
-              />
-            </LineChart>
-          )}
-
-          {chartType === 'bar' && (
-            <BarChart data={data}>
-              {showGrid && <CartesianGrid strokeDasharray="3 3" />}
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 12 }}
-                angle={-45}
-                textAnchor="end"
-                height={80}
-              />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                }}
-              />
-              {showLegend && <Legend />}
-              <Bar dataKey="value" fill="#10b981" name="الإنتاج" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          )}
-
-          {chartType === 'area' && (
-            <AreaChart data={data}>
-              {showGrid && <CartesianGrid strokeDasharray="3 3" />}
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 12 }}
-                angle={-45}
-                textAnchor="end"
-                height={80}
-              />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                }}
-              />
-              {showLegend && <Legend />}
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="#10b981"
-                fill="#10b981"
-                fillOpacity={0.3}
-                name="الإنتاج"
-              />
-            </AreaChart>
-          )}
+          {renderChart()}
         </ResponsiveContainer>
       </div>
     </div>

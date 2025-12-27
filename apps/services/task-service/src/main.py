@@ -322,7 +322,7 @@ def get_tenant_id(x_tenant_id: str = "tenant_demo") -> str:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-@app.get("/health")
+@app.get("/healthz")
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "service": SERVICE_NAME}

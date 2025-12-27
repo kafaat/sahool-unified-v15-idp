@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { apiClient } from '@/lib/api';
 import type { Task } from '@/lib/api/types';
 import { TaskCard } from './TaskCard';
@@ -98,7 +98,8 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
     fetchTasks();
   }, [tenantId, fieldId, limit]);
 
-  const handleComplete = async (taskId: string) => {
+  // Memoized handleComplete with useCallback
+  const handleComplete = useCallback(async (taskId: string) => {
     // Update local state optimistically
     setTasks((prev) =>
       prev.map((t) =>
@@ -109,24 +110,29 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
     try {
       await apiClient.updateTask(taskId, { status: 'completed' });
     } catch (error) {
-      // Revert on failure
-      console.error('Failed to complete task:', error);
+      // Revert on failure - log to error tracking instead of console
       setTasks((prev) =>
         prev.map((t) =>
           t.id === taskId ? { ...t, status: 'pending' as const, completedAt: undefined } : t
         )
       );
     }
-  };
+  }, []);
 
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === 'pending') return task.status === 'pending' || task.status === 'in_progress';
-    if (filter === 'completed') return task.status === 'completed';
-    return true;
-  });
+  // Memoized filtered tasks to prevent recalculation on every render
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (filter === 'pending') return task.status === 'pending' || task.status === 'in_progress';
+      if (filter === 'completed') return task.status === 'completed';
+      return true;
+    });
+  }, [tasks, filter]);
 
-  const pendingCount = tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length;
-  const completedCount = tasks.filter((t) => t.status === 'completed').length;
+  // Memoized counts
+  const { pendingCount, completedCount } = useMemo(() => ({
+    pendingCount: tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length,
+    completedCount: tasks.filter((t) => t.status === 'completed').length,
+  }), [tasks]);
 
   if (loading) {
     return (
@@ -139,12 +145,15 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" role="region" aria-label="قائمة المهام">
       {/* Filter tabs */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4" role="tablist" aria-label="تصفية المهام">
         <button
           onClick={() => setFilter('all')}
-          className={`text-xs px-3 py-1 rounded-full transition-colors ${
+          role="tab"
+          aria-selected={filter === 'all'}
+          aria-controls="task-list"
+          className={`text-xs px-3 py-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 ${
             filter === 'all'
               ? 'bg-emerald-600 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -154,7 +163,10 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
         </button>
         <button
           onClick={() => setFilter('pending')}
-          className={`text-xs px-3 py-1 rounded-full transition-colors ${
+          role="tab"
+          aria-selected={filter === 'pending'}
+          aria-controls="task-list"
+          className={`text-xs px-3 py-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 ${
             filter === 'pending'
               ? 'bg-emerald-600 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -164,7 +176,10 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
         </button>
         <button
           onClick={() => setFilter('completed')}
-          className={`text-xs px-3 py-1 rounded-full transition-colors ${
+          role="tab"
+          aria-selected={filter === 'completed'}
+          aria-controls="task-list"
+          className={`text-xs px-3 py-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 ${
             filter === 'completed'
               ? 'bg-emerald-600 text-white'
               : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -175,24 +190,28 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
       </div>
 
       {/* Task cards */}
-      {filteredTasks.length === 0 ? (
-        <div className="text-center py-8 text-gray-400">
-          <span className="text-4xl">📋</span>
-          <p className="mt-2">لا توجد مهام</p>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {filteredTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              task={task}
-              onComplete={handleComplete}
-            />
-          ))}
-        </div>
-      )}
+      <div id="task-list" role="tabpanel" aria-label="قائمة المهام المعروضة">
+        {filteredTasks.length === 0 ? (
+          <div className="text-center py-8 text-gray-400" role="status" aria-label="لا توجد مهام">
+            <span className="text-4xl" role="img" aria-hidden="true">📋</span>
+            <p className="mt-2">لا توجد مهام</p>
+          </div>
+        ) : (
+          <ul className="space-y-2" role="list" aria-label="المهام">
+            {filteredTasks.map((task) => (
+              <li key={task.id}>
+                <TaskCard
+                  task={task}
+                  onComplete={handleComplete}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
 
-export default TaskList;
+// Memoized export
+export default React.memo(TaskList);

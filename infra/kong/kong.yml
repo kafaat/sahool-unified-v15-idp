@@ -254,28 +254,6 @@ upstreams:
           http_failures: 5
           timeouts: 3
 
-  - name: community-upstream
-    targets:
-      - target: sahool-community-service:8102
-        weight: 100
-    healthchecks:
-      active:
-        type: http
-        http_path: /healthz
-        healthy:
-          interval: 10
-          successes: 2
-        unhealthy:
-          interval: 5
-          http_failures: 3
-          timeouts: 3
-      passive:
-        healthy:
-          successes: 5
-        unhealthy:
-          http_failures: 5
-          timeouts: 3
-
   - name: provider-config-upstream
     targets:
       - target: sahool-provider-config:8104
@@ -698,25 +676,36 @@ upstreams:
 # JWT Consumers for Authentication
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────────────────────
+# JWT Consumers Configuration
+# SECURITY: Secrets MUST be provided via environment variables in production
+# Use Kong's environment variable injection: $(KONG_JWT_WEB_SECRET)
+# ─────────────────────────────────────────────────────────────────────────────
 consumers:
   - username: sahool-web-app
     custom_id: web-client
     jwt_secrets:
       - key: sahool-web-key
-        algorithm: RS256
-        # RSA public key should be configured in environment
+        algorithm: HS256
+        # SECURITY: Set KONG_JWT_WEB_SECRET environment variable in production
+        # This value is overridden by Kong's environment variable substitution
+        secret: ${KONG_JWT_WEB_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 
   - username: sahool-mobile-app
     custom_id: mobile-client
     jwt_secrets:
       - key: sahool-mobile-key
-        algorithm: RS256
+        algorithm: HS256
+        # SECURITY: Set KONG_JWT_MOBILE_SECRET environment variable in production
+        secret: ${KONG_JWT_MOBILE_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 
   - username: sahool-internal-service
     custom_id: internal-service
     jwt_secrets:
       - key: sahool-internal-key
-        algorithm: RS256
+        algorithm: HS256
+        # SECURITY: Set KONG_JWT_INTERNAL_SECRET environment variable in production
+        secret: ${KONG_JWT_INTERNAL_SECRET:-CHANGE_ME_IN_PRODUCTION_32CHARS}
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Services Definition (Using Upstreams)
@@ -934,31 +923,6 @@ services:
         paths:
           - /api/v1/equipment
         strip_path: false
-
-  # Community Service
-  - name: community-service
-    host: community-upstream
-    port: 80
-    protocol: http
-    retries: 3
-    connect_timeout: 30000
-    write_timeout: 60000
-    read_timeout: 60000
-    routes:
-      - name: community-route
-        paths:
-          - /api/v1/posts
-          - /api/v1/comments
-          - /api/v1/stories
-          - /api/v1/community
-          - /api/v1/experts
-        strip_path: false
-        plugins:
-          - name: rate-limiting
-            config:
-              minute: 60
-              hour: 1500
-              policy: local
 
   # Provider Configuration Service
   - name: provider-config-service

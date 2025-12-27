@@ -154,11 +154,12 @@ class InventoryAnalytics:
         total_consumption = sum(daily_consumption.values())
         days_with_data = len(daily_consumption)
 
+        # Prevent division by zero
         avg_daily = total_consumption / max(days_with_data, 1)
         avg_weekly = avg_daily * 7
         avg_monthly = avg_daily * 30
 
-        # Calculate days until stockout
+        # Calculate days until stockout - prevent division by zero
         if avg_daily > 0:
             days_until_stockout = int(item.available_stock / avg_daily)
         else:
@@ -183,9 +184,9 @@ class InventoryAnalytics:
         if days_with_data >= 30:
             # Calculate coefficient of variation
             values = list(daily_consumption.values())
-            if len(values) > 1:
+            if len(values) > 1 and avg_daily > 0:
                 std_dev = statistics.stdev(values)
-                cv = std_dev / avg_daily if avg_daily > 0 else 0
+                cv = std_dev / avg_daily  # avg_daily > 0 checked above
                 confidence = max(0.0, min(1.0, 1.0 - (cv / 2)))
             else:
                 confidence = 0.5
@@ -310,9 +311,9 @@ class InventoryAnalytics:
         item_values.sort(key=lambda x: x['value'], reverse=True)
         top_items = item_values[:10]
 
-        # Add percentages
+        # Add percentages - prevent division by zero
         for item in top_items:
-            item['percentage'] = round((item['value'] / total_value * 100), 2) if total_value > 0 else 0
+            item['percentage'] = round((item['value'] / total_value * 100), 2) if total_value > 0 else 0.0
 
         return InventoryValuation(
             total_value=round(total_value, 2),
@@ -365,10 +366,10 @@ class InventoryAnalytics:
             # Average inventory value (simplified: current stock * average cost)
             avg_inventory_value = item.current_stock * item.average_cost
 
-            # Calculate turnover ratio
+            # Calculate turnover ratio - prevent division by zero
             if avg_inventory_value > 0:
                 turnover_ratio = float(cogs / avg_inventory_value)
-                days_of_inventory = 365 / turnover_ratio if turnover_ratio > 0 else 999
+                days_of_inventory = 365 / turnover_ratio if turnover_ratio > 0 else 999.0
             else:
                 turnover_ratio = 0.0
                 days_of_inventory = 999.0
@@ -559,10 +560,10 @@ class InventoryAnalytics:
         # Calculate monthly consumption
         monthly_consumption = {int(row.month): float(row.total_qty) for row in rows}
 
-        # Calculate average
-        avg_consumption = sum(monthly_consumption.values()) / len(monthly_consumption)
+        # Calculate average - prevent division by zero
+        avg_consumption = sum(monthly_consumption.values()) / max(len(monthly_consumption), 1)
 
-        # Calculate seasonal factors (relative to average)
+        # Calculate seasonal factors (relative to average) - prevent division by zero
         seasonal_factor = {}
         for month, consumption in monthly_consumption.items():
             seasonal_factor[month] = round(consumption / avg_consumption, 2) if avg_consumption > 0 else 1.0
@@ -677,7 +678,8 @@ class InventoryAnalytics:
 
         for item in item_values:
             cumulative_value += item['value']
-            percentage = (cumulative_value / total_value * 100) if total_value > 0 else 0
+            # Prevent division by zero
+            percentage = (cumulative_value / total_value * 100) if total_value > 0 else 0.0
 
             item['cumulative_value'] = round(cumulative_value, 2)
             item['cumulative_percentage'] = round(percentage, 2)

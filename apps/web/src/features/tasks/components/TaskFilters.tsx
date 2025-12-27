@@ -70,10 +70,10 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           >
             <option value="">الكل</option>
-            <option value="pending">قيد الانتظار</option>
+            <option value="open">قيد الانتظار</option>
             <option value="in_progress">قيد التنفيذ</option>
-            <option value="completed">مكتملة</option>
-            <option value="cancelled">ملغاة</option>
+            <option value="done">مكتملة</option>
+            <option value="canceled">ملغاة</option>
           </select>
         </div>
 

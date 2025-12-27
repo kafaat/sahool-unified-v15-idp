@@ -51,8 +51,12 @@ COPY --from=builder /app/package*.json ./
 RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and regenerate client for production environment
+# Add retry logic for network resilience
 COPY --from=builder /app/prisma ./prisma
-RUN npx prisma generate
+RUN npx prisma generate || \
+    (sleep 5 && npx prisma generate) || \
+    (sleep 10 && npx prisma generate) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy built files
 COPY --from=builder /app/dist ./dist

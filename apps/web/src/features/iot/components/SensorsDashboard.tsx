@@ -9,7 +9,11 @@ import { useSensors, useSensorStats } from '../hooks/useSensors';
 import { SensorCard } from './SensorCard';
 import { Activity, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 
-export function SensorsDashboard() {
+interface SensorsDashboardProps {
+  onSensorClick?: (sensorId: string) => void;
+}
+
+export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) {
   const { data: sensors, isLoading: sensorsLoading } = useSensors();
   const { data: stats, isLoading: statsLoading } = useSensorStats();
 
@@ -106,7 +110,7 @@ export function SensorsDashboard() {
         {sensors && sensors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sensors.map((sensor) => (
-              <SensorCard key={sensor.id} sensor={sensor} />
+              <SensorCard key={sensor.id} sensor={sensor} onClick={onSensorClick} />
             ))}
           </div>
         ) : (

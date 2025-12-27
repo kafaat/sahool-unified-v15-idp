@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo, useCallback } from 'react';
 import type { Task } from '@/lib/api/types';
 
 interface TaskCardProps {
@@ -27,21 +28,55 @@ const PRIORITY_ICONS: Record<string, string> = {
   high: '🔴',
 };
 
-export function TaskCard({ task, onComplete, onSelect }: TaskCardProps) {
-  const isCompleted = task.status === 'completed' || task.status === 'cancelled';
-  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-  const isOverdue = dueDate && dueDate < new Date() && !isCompleted;
+// Memoized TaskCard component
+const TaskCard = React.memo<TaskCardProps>(function TaskCard({ task, onComplete, onSelect }) {
+  // Memoized derived values
+  const isCompleted = useMemo(() =>
+    task.status === 'completed' || task.status === 'cancelled',
+    [task.status]
+  );
+
+  const dueDate = useMemo(() =>
+    task.dueDate ? new Date(task.dueDate) : null,
+    [task.dueDate]
+  );
+
+  const isOverdue = useMemo(() =>
+    dueDate && dueDate < new Date() && !isCompleted,
+    [dueDate, isCompleted]
+  );
+
+  // Memoized handlers
+  const handleClick = useCallback(() => {
+    onSelect?.(task.id);
+  }, [task.id, onSelect]);
+
+  const handleComplete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onComplete?.(task.id);
+  }, [task.id, onComplete]);
+
+  // Memoized class names
+  const cardClassName = useMemo(() => {
+    const baseClasses = 'p-3 rounded-lg border transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500';
+    const stateClasses = isCompleted ? 'bg-gray-50 opacity-60' : 'bg-white hover:shadow-md';
+    const priorityClasses = {
+      high: 'border-r-4 border-r-red-400',
+      medium: 'border-r-4 border-r-yellow-400',
+      low: 'border-r-4 border-r-blue-400',
+    }[task.priority] || '';
+
+    return `${baseClasses} ${stateClasses} ${priorityClasses}`;
+  }, [isCompleted, task.priority]);
 
   return (
     <div
-      onClick={() => onSelect?.(task.id)}
-      className={`
-        p-3 rounded-lg border transition-all cursor-pointer
-        ${isCompleted ? 'bg-gray-50 opacity-60' : 'bg-white hover:shadow-md'}
-        ${task.priority === 'high' ? 'border-r-4 border-r-red-400' : ''}
-        ${task.priority === 'medium' ? 'border-r-4 border-r-yellow-400' : ''}
-        ${task.priority === 'low' ? 'border-r-4 border-r-blue-400' : ''}
-      `}
+      onClick={handleClick}
+      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      tabIndex={0}
+      role="button"
+      aria-label={`مهمة: ${task.title} - الحالة: ${STATUS_LABELS[task.status]} - الأولوية: ${PRIORITY_LABELS[task.priority]}`}
+      className={cardClassName}
     >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
@@ -101,11 +136,9 @@ export function TaskCard({ task, onComplete, onSelect }: TaskCardProps) {
         {/* Complete button */}
         {!isCompleted && (
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onComplete?.(task.id);
-            }}
-            className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors"
+            onClick={handleComplete}
+            aria-label={`إنهاء مهمة: ${task.title}`}
+            className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             ✓ إنهاء
           </button>
@@ -113,6 +146,7 @@ export function TaskCard({ task, onComplete, onSelect }: TaskCardProps) {
       </div>
     </div>
   );
-}
+});
 
+export { TaskCard };
 export default TaskCard;

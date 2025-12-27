@@ -5,6 +5,16 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Enforce HTTPS in production (only at runtime in browser, not during build)
+if (
+  typeof window !== 'undefined' &&
+  process.env.NODE_ENV === 'production' &&
+  !API_BASE_URL.startsWith('https://') &&
+  !API_BASE_URL.includes('localhost')
+) {
+  console.warn('Warning: API_BASE_URL should use HTTPS in production environment');
+}
+
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -77,6 +87,28 @@ class SahoolApiClient {
         error: error instanceof Error ? error.message : 'Network error',
       };
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Authentication API
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async login(email: string, password: string) {
+    return this.request<{ access_token: string; user: any }>('/api/v1/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+  }
+
+  async getCurrentUser() {
+    return this.request<any>('/api/v1/auth/me');
+  }
+
+  async refreshToken(refreshToken: string) {
+    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -495,6 +527,12 @@ class SahoolApiClient {
     return this.request<any>(`/api/v1/tasks/${taskId}/complete`, {
       method: 'POST',
       body: JSON.stringify({ notes }),
+    });
+  }
+
+  async deleteTask(taskId: string) {
+    return this.request<void>(`/api/v1/tasks/${taskId}`, {
+      method: 'DELETE',
     });
   }
 

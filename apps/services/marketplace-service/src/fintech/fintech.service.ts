@@ -25,7 +25,7 @@ interface FarmData {
 }
 
 // ⭐ Advanced Credit Factors Interface
-interface CreditFactors {
+export interface CreditFactors {
   // Existing basic factors
   farmArea: number;
   numberOfSeasons: number;
@@ -45,14 +45,14 @@ interface CreditFactors {
   satelliteVerified: boolean; // Farm verified by satellite
 }
 
-interface CreditRecommendation {
+export interface CreditRecommendation {
   action: string;
   impact: number; // Potential score increase
   priority: 'high' | 'medium' | 'low';
   category: string;
 }
 
-interface CreditReport {
+export interface CreditReport {
   userId: string;
   currentScore: number;
   creditTier: string;

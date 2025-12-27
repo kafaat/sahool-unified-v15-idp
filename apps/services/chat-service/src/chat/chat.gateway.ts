@@ -19,6 +19,7 @@ import { JoinConversationDto } from './dto/join-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
 import { TypingIndicatorDto } from './dto/typing-indicator.dto';
 import { ReadReceiptDto } from './dto/read-receipt.dto';
+import * as jwt from 'jsonwebtoken';
 
 @WebSocketGateway({
   cors: {
@@ -37,29 +38,101 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server: Server;
 
   private readonly logger = new Logger(ChatGateway.name);
-  private userSocketMap = new Map<string, string>(); // userId -> socketId
+  private userSocketMap = new Map<string, { socketId: string; timestamp: number }>(); // userId -> {socketId, timestamp}
+  private readonly SOCKET_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-  constructor(private readonly chatService: ChatService) {}
+  constructor(private readonly chatService: ChatService) {
+    // Periodically clean up stale socket entries
+    setInterval(() => this.cleanupStaleEntries(), 5 * 60 * 1000); // Every 5 minutes
+  }
+
+  /**
+   * Clean up stale socket entries to prevent memory leak
+   */
+  private cleanupStaleEntries() {
+    const now = Date.now();
+    for (const [userId, data] of this.userSocketMap.entries()) {
+      if (now - data.timestamp > this.SOCKET_TIMEOUT) {
+        this.logger.log(`Removing stale socket entry for user ${userId}`);
+        this.userSocketMap.delete(userId);
+      }
+    }
+  }
+
+  /**
+   * Verify JWT token from socket handshake
+   * Validates JWT tokens in production
+   */
+  private verifyAuthentication(client: Socket): string | null {
+    try {
+      // Extract token from auth or query parameters
+      const token = client.handshake.auth?.token || client.handshake.query?.token;
+
+      if (!token) {
+        this.logger.warn('No authentication token provided');
+        return null;
+      }
+
+      // Validate JWT token
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) {
+        this.logger.error('JWT_SECRET environment variable is not set');
+        return null;
+      }
+
+      const decoded = jwt.verify(token, jwtSecret) as { userId: string; sub?: string };
+      const userId = decoded.userId || decoded.sub;
+
+      if (!userId) {
+        this.logger.warn('No userId found in decoded token');
+        return null;
+      }
+
+      return userId;
+    } catch (error) {
+      this.logger.error('Authentication verification failed', error instanceof Error ? error.message : 'Unknown error');
+      return null;
+    }
+  }
 
   /**
    * Handle client connection
    */
   async handleConnection(client: Socket) {
-    this.logger.log(`Client connected: ${client.id}`);
+    this.logger.log(`Client attempting connection: ${client.id}`);
 
-    // Get userId from handshake query or auth
-    const userId = client.handshake.query.userId as string;
+    // Verify authentication
+    const userId = this.verifyAuthentication(client);
 
-    if (userId) {
-      this.userSocketMap.set(userId, client.id);
+    if (!userId) {
+      this.logger.warn(`Unauthenticated connection attempt from ${client.id}`);
+      client.emit('error', { message: 'Authentication required' });
+      client.disconnect();
+      return;
+    }
 
+    // Store userId in client data for later use
+    client.data.userId = userId;
+
+    // Update userSocketMap with timestamp
+    this.userSocketMap.set(userId, {
+      socketId: client.id,
+      timestamp: Date.now(),
+    });
+
+    try {
       // Update user online status
       await this.chatService.updateOnlineStatus(userId, true);
 
       // Notify other users that this user is online
       this.server.emit('user_online', { userId, timestamp: new Date() });
 
-      this.logger.log(`User ${userId} connected with socket ${client.id}`);
+      this.logger.log(`User ${userId} authenticated and connected with socket ${client.id}`);
+    } catch (error) {
+      this.logger.error('Failed to update user online status');
+      // Don't expose internal error to client
+      client.emit('error', { message: 'Connection failed' });
+      client.disconnect();
     }
   }
 
@@ -69,27 +142,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
 
-    // Find and remove user from map
-    let disconnectedUserId: string | null = null;
-    for (const [userId, socketId] of this.userSocketMap.entries()) {
-      if (socketId === client.id) {
-        disconnectedUserId = userId;
-        this.userSocketMap.delete(userId);
-        break;
-      }
-    }
+    // Get userId from client data (set during authentication)
+    const disconnectedUserId = client.data.userId;
 
     if (disconnectedUserId) {
-      // Update user offline status
-      await this.chatService.updateOnlineStatus(disconnectedUserId, false);
+      // Remove from userSocketMap
+      this.userSocketMap.delete(disconnectedUserId);
 
-      // Notify other users that this user is offline
-      this.server.emit('user_offline', {
-        userId: disconnectedUserId,
-        timestamp: new Date(),
-      });
+      try {
+        // Update user offline status
+        await this.chatService.updateOnlineStatus(disconnectedUserId, false);
 
-      this.logger.log(`User ${disconnectedUserId} disconnected`);
+        // Notify other users that this user is offline
+        this.server.emit('user_offline', {
+          userId: disconnectedUserId,
+          timestamp: new Date(),
+        });
+
+        this.logger.log(`User ${disconnectedUserId} disconnected`);
+      } catch (error) {
+        this.logger.error('Failed to update user offline status');
+        // Don't expose error details
+      }
     }
   }
 
@@ -103,7 +177,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const { conversationId, userId } = data;
+      const { conversationId } = data;
+
+      // Use authenticated userId from client.data, not from client-provided data
+      const userId = client.data.userId;
+
+      if (!userId) {
+        return {
+          event: 'error',
+          data: { message: 'Authentication required' },
+        };
+      }
 
       // Verify conversation exists and user is a participant
       const conversation = await this.chatService.getConversationById(conversationId);
@@ -111,7 +195,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (!conversation.participantIds.includes(userId)) {
         return {
           event: 'error',
-          data: { message: 'User is not a participant in this conversation' },
+          data: { message: 'Access denied' },
         };
       }
 
@@ -129,10 +213,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         },
       };
     } catch (error) {
-      this.logger.error(`Error joining conversation: ${error.message}`);
+      this.logger.error('Error joining conversation');
       return {
         event: 'error',
-        data: { message: error.message },
+        data: { message: 'Failed to join conversation' },
       };
     }
   }
@@ -147,6 +231,24 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
+      // Use authenticated userId from client.data, not from client-provided data
+      const authenticatedUserId = client.data.userId;
+
+      if (!authenticatedUserId) {
+        return {
+          event: 'error',
+          data: { message: 'Authentication required' },
+        };
+      }
+
+      // Verify the authenticated user matches the senderId
+      if (authenticatedUserId !== data.senderId) {
+        return {
+          event: 'error',
+          data: { message: 'Unauthorized' },
+        };
+      }
+
       // Save message to database
       const message = await this.chatService.sendMessage(data);
 
@@ -157,7 +259,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       this.logger.log(
-        `Message sent in conversation ${data.conversationId} by ${data.senderId}`,
+        `Message sent in conversation ${data.conversationId} by ${authenticatedUserId}`,
       );
 
       return {
@@ -165,10 +267,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data: { message },
       };
     } catch (error) {
-      this.logger.error(`Error sending message: ${error.message}`);
+      this.logger.error('Error sending message');
       return {
         event: 'error',
-        data: { message: error.message },
+        data: { message: 'Failed to send message' },
       };
     }
   }
@@ -183,7 +285,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const { conversationId, userId, isTyping } = data;
+      const { conversationId, isTyping } = data;
+
+      // Use authenticated userId from client.data
+      const userId = client.data.userId;
+
+      if (!userId) {
+        return {
+          event: 'error',
+          data: { message: 'Authentication required' },
+        };
+      }
 
       // Update typing status in database
       await this.chatService.updateTypingIndicator(conversationId, userId, isTyping);
@@ -201,10 +313,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data: { conversationId, userId, isTyping },
       };
     } catch (error) {
-      this.logger.error(`Error updating typing indicator: ${error.message}`);
+      this.logger.error('Error updating typing indicator');
       return {
         event: 'error',
-        data: { message: error.message },
+        data: { message: 'Failed to update typing indicator' },
       };
     }
   }
@@ -219,7 +331,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const { conversationId, userId, messageId } = data;
+      const { conversationId, messageId } = data;
+
+      // Use authenticated userId from client.data
+      const userId = client.data.userId;
+
+      if (!userId) {
+        return {
+          event: 'error',
+          data: { message: 'Authentication required' },
+        };
+      }
 
       // Mark message as read
       await this.chatService.markMessageAsRead(messageId, userId);
@@ -237,10 +359,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data: { messageId, userId },
       };
     } catch (error) {
-      this.logger.error(`Error handling read receipt: ${error.message}`);
+      this.logger.error('Error handling read receipt');
       return {
         event: 'error',
-        data: { message: error.message },
+        data: { message: 'Failed to mark message as read' },
       };
     }
   }
@@ -251,11 +373,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    */
   @SubscribeMessage('mark_conversation_read')
   async handleMarkConversationRead(
-    @MessageBody() data: { conversationId: string; userId: string },
+    @MessageBody() data: { conversationId: string },
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      const { conversationId, userId } = data;
+      const { conversationId } = data;
+
+      // Use authenticated userId from client.data
+      const userId = client.data.userId;
+
+      if (!userId) {
+        return {
+          event: 'error',
+          data: { message: 'Authentication required' },
+        };
+      }
 
       // Mark all messages as read
       await this.chatService.markConversationAsRead(conversationId, userId);
@@ -272,10 +404,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         data: { conversationId, userId },
       };
     } catch (error) {
-      this.logger.error(`Error marking conversation as read: ${error.message}`);
+      this.logger.error('Error marking conversation as read');
       return {
         event: 'error',
-        data: { message: error.message },
+        data: { message: 'Failed to mark conversation as read' },
       };
     }
   }
@@ -286,10 +418,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    */
   @SubscribeMessage('leave_conversation')
   handleLeaveConversation(
-    @MessageBody() data: { conversationId: string; userId: string },
+    @MessageBody() data: { conversationId: string },
     @ConnectedSocket() client: Socket,
   ) {
-    const { conversationId, userId } = data;
+    const { conversationId } = data;
+
+    // Use authenticated userId from client.data
+    const userId = client.data.userId;
+
+    if (!userId) {
+      return {
+        event: 'error',
+        data: { message: 'Authentication required' },
+      };
+    }
 
     client.leave(conversationId);
 
@@ -312,9 +454,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * Send notification to specific user
    */
   sendToUser(userId: string, event: string, data: any) {
-    const socketId = this.userSocketMap.get(userId);
-    if (socketId) {
-      this.server.to(socketId).emit(event, data);
+    const socketData = this.userSocketMap.get(userId);
+    if (socketData) {
+      this.server.to(socketData.socketId).emit(event, data);
     }
   }
 }

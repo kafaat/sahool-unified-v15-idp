@@ -111,8 +111,6 @@ volumes:
     name: sahool-mqtt-test-data
   mqtt-test-log:
     name: sahool-mqtt-test-log
-  nats-test-data:
-    name: sahool-nats-test-data
 
 networks:
   sahool-network:

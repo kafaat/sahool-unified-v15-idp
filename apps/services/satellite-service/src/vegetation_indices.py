@@ -261,7 +261,7 @@ class VegetationIndicesCalculator:
             # Capped at NDVI=0.68 to avoid unrealistic values
             lai = 3.618 * math.exp(2.907 * min(ndvi, 0.68)) - 3.618
             return round(max(0, min(lai, 8)), 2)
-        except:
+        except (ValueError, OverflowError, ZeroDivisionError):
             return 0.0
 
     def ndmi(self, b: BandData) -> float:
@@ -412,7 +412,7 @@ class VegetationIndicesCalculator:
             sqrt_term = math.sqrt(max(0, term2 - term3))
             msavi_val = (term1 - sqrt_term) / 2
             return round(max(-1, min(msavi_val, 1)), 4)
-        except:
+        except (ValueError, ZeroDivisionError, OverflowError):
             return 0.0
 
     def osavi(self, b: BandData, Y: float = 0.16) -> float:

@@ -24,15 +24,12 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-<<<<<<< HEAD
 # Install system dependencies first (using HTTP), then configure HTTPS
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https && \
     sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
     rm -rf /var/lib/apt/lists/*
 
-=======
->>>>>>> 546958803f1f396157d2354dd4648aa2bd57566b
 # Upgrade pip (non-fatal in case of network issues)
 RUN pip install --upgrade pip || true
 

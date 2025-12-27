@@ -1,0 +1,79 @@
+# SAHOOL Infrastructure Values
+# ═══════════════════════════════════════════════════════════════════════════════
+
+environment: staging
+
+# Namespace configuration
+namespace:
+  create: true
+  name: sahool-staging
+
+# PostgreSQL Configuration
+postgresql:
+  enabled: true
+  image:
+    repository: postgis/postgis
+    tag: "16-3.4"
+  auth:
+    username: sahool
+    database: sahool
+    existingSecret: sahool-postgresql-secret
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: ""
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+
+# Redis Configuration
+redis:
+  enabled: true
+  image:
+    repository: redis
+    tag: "7.4-alpine"
+  auth:
+    enabled: true
+    existingSecret: sahool-redis-secret
+    existingSecretPasswordKey: redis-password
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# NATS Configuration
+nats:
+  enabled: true
+  image:
+    repository: nats
+    tag: "2.10.24-alpine"
+  jetstream:
+    enabled: true
+    memStorage:
+      enabled: true
+      size: 2Gi
+    fileStorage:
+      enabled: true
+      size: 10Gi
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 200m
+      memory: 512Mi

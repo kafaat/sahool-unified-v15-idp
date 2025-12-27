@@ -1,0 +1,33 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/kafaat/sahool/satellite-service
+  tag: "15.3.2"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+environment: staging
+deploymentSlot: blue
+
+secrets:
+  jwtSecret: ""
+
+database:
+  url: ""
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80

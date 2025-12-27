@@ -1,0 +1,15 @@
+apiVersion: v2
+name: sahool-infra
+description: SAHOOL Infrastructure Services (PostgreSQL, Redis, NATS)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - infrastructure
+  - postgresql
+  - redis
+  - nats
+home: https://github.com/kafaat/sahool-unified-v15-idp
+maintainers:
+  - name: SAHOOL Team
+    email: support@sahool.io

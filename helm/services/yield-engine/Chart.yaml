@@ -1,0 +1,6 @@
+apiVersion: v2
+name: yield-engine
+description: SAHOOL Yield Engine Service
+type: application
+version: 1.0.0
+appVersion: "15.3.2"

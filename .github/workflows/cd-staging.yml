@@ -3,6 +3,9 @@
 # Version: 16.0.0
 # Triggers: Push to main branch
 # Deployment Order: Starter → Professional → Enterprise (with tests between each)
+#
+# NOTE: Deployment is skipped when KUBE_CONFIG_STAGING secret is not configured.
+#       The workflow will show as successful when intentionally skipped.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 name: Deploy to Staging
@@ -482,7 +485,7 @@ jobs:
   deployment-summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
-    needs: [smoke-tests, pre-deploy-checks]
+    needs: [pre-deploy-checks]
     if: always()
     steps:
       - name: Generate deployment summary

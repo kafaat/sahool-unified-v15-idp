@@ -45,11 +45,24 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       deployment_id: ${{ steps.id.outputs.deployment_id }}
+      kubeconfig_available: ${{ steps.secrets.outputs.kubeconfig_available }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.inputs.version || github.ref }}
+
+      - name: Check required secrets
+        id: secrets
+        run: |
+          if [ -z "${{ secrets.KUBE_CONFIG_PRODUCTION }}" ]; then
+            echo "⚠️ KUBE_CONFIG_PRODUCTION secret is not configured"
+            echo "Deployment will be skipped - configure the secret to enable deployments"
+            echo "kubeconfig_available=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ KUBE_CONFIG_PRODUCTION secret is available"
+            echo "kubeconfig_available=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Extract version
         id: version
@@ -127,7 +140,7 @@ jobs:
     name: Backup Production State
     runs-on: ubuntu-latest
     needs: [validate-release, approval]
-    if: always() && needs.validate-release.result == 'success' && (needs.approval.result == 'success' || needs.approval.result == 'skipped')
+    if: always() && needs.validate-release.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true' && (needs.approval.result == 'success' || needs.approval.result == 'skipped')
     steps:
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
@@ -175,7 +188,7 @@ jobs:
     name: Deploy to Green Environment
     runs-on: ubuntu-latest
     needs: [validate-release, approval, backup-production]
-    if: always() && needs.validate-release.result == 'success' && needs.backup-production.result == 'success'
+    if: always() && needs.validate-release.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true' && needs.backup-production.result == 'success'
     environment:
       name: production
       url: https://sahool.io
@@ -326,7 +339,8 @@ jobs:
   test-green:
     name: Test Green Environment
     runs-on: ubuntu-latest
-    needs: [deploy-green]
+    needs: [deploy-green, validate-release]
+    if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -367,6 +381,7 @@ jobs:
     name: Switch Traffic to Green
     runs-on: ubuntu-latest
     needs: [test-green, validate-release]
+    if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
@@ -434,7 +449,8 @@ jobs:
   verify-production:
     name: Verify Production
     runs-on: ubuntu-latest
-    needs: [switch-traffic]
+    needs: [switch-traffic, validate-release]
+    if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Run production verification tests
         run: |
@@ -459,7 +475,8 @@ jobs:
   cleanup-blue:
     name: Cleanup Blue Environment
     runs-on: ubuntu-latest
-    needs: [verify-production]
+    needs: [verify-production, validate-release]
+    if: needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
@@ -485,8 +502,8 @@ jobs:
   rollback:
     name: Rollback Deployment
     runs-on: ubuntu-latest
-    needs: [deploy-green, test-green, switch-traffic]
-    if: failure()
+    needs: [deploy-green, test-green, switch-traffic, validate-release]
+    if: failure() && needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
@@ -537,22 +554,33 @@ jobs:
     name: Deployment Summary
     runs-on: ubuntu-latest
     needs: [verify-production, validate-release]
-    if: success()
+    if: always()
     steps:
       - name: Generate summary
         run: |
-          echo "## 🎉 Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Version:** ${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Deployment ID:** ${{ needs.validate-release.outputs.deployment_id }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Deployed at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### URLs" >> $GITHUB_STEP_SUMMARY
-          echo "- **Production:** https://sahool.io" >> $GITHUB_STEP_SUMMARY
-          echo "- **API Docs:** https://sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status:** https://status.sahool.io" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.validate-release.outputs.kubeconfig_available }}" != "true" ]; then
+            echo "## ⚠️ Production Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Version:** ${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Kubernetes deployment was skipped because \`KUBE_CONFIG_PRODUCTION\` secret is not configured." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To enable deployments, configure the secret in repository settings." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## 🎉 Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Version:** ${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Deployment ID:** ${{ needs.validate-release.outputs.deployment_id }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Deployed at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### URLs" >> $GITHUB_STEP_SUMMARY
+            echo "- **Production:** https://sahool.io" >> $GITHUB_STEP_SUMMARY
+            echo "- **API Docs:** https://sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status:** https://status.sahool.io" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Notify success
+        if: needs.validate-release.outputs.kubeconfig_available == 'true' && success()
         uses: 8398a7/action-slack@v3
         with:
           status: custom

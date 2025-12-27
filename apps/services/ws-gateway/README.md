@@ -1,238 +1,645 @@
-# WebSocket Gateway Service
+# SAHOOL WebSocket Gateway
 
-**بوابة WebSocket - مركز الاتصالات الفورية**
+Real-time communication hub for the SAHOOL platform with room-based messaging and NATS event bridging.
 
-## Overview | نظرة عامة
+## Features
 
-Real-time WebSocket communication hub for all platform events. Manages authenticated WebSocket connections, topic subscriptions, and broadcasts events to connected clients.
+- **Room-Based Messaging**: Organized message routing using rooms (field, farm, user, tenant, etc.)
+- **NATS Event Bridge**: Automatic forwarding of NATS events to WebSocket clients
+- **JWT Authentication**: Secure WebSocket connections with JWT token validation
+- **Auto-Reconnection**: Client-side automatic reconnection with exponential backoff
+- **Event Types**: Comprehensive event system for all platform activities
+- **Arabic Support**: Bilingual event messages (Arabic and English)
 
-مركز اتصالات WebSocket الفوري لجميع أحداث المنصة. يدير اتصالات WebSocket المصادق عليها واشتراكات المواضيع وبث الأحداث للعملاء المتصلين.
-
-## Port
+## Architecture
 
 ```
-8090
+┌─────────────────┐     NATS      ┌──────────────────┐     WebSocket    ┌────────────┐
+│ Backend Services│ ───────────►  │  WS Gateway      │ ───────────────► │  Clients   │
+│  (Publishers)   │               │  - NATS Bridge   │                  │  (Flutter) │
+└─────────────────┘               │  - Room Manager  │                  └────────────┘
+                                  │  - Event Handler │
+                                  └──────────────────┘
 ```
 
-## Features | الميزات
+## Connection
 
-### Connection Management | إدارة الاتصالات
-- JWT-authenticated connections
-- Tenant isolation
-- Connection tracking
+### WebSocket URL
 
-### Topic Subscriptions | اشتراكات المواضيع
-- Field-specific topics
-- Event type filtering
-- Dynamic subscribe/unsubscribe
-
-### Event Broadcasting | بث الأحداث
-- Tenant-scoped broadcasts
-- Topic-based routing
-- Connection-specific messages
-
-### Presence Tracking | تتبع الحضور
-- Online users per tenant
-- Connection metadata
-- Last activity tracking
-
-## WebSocket Endpoints
-
-### Main Connection
 ```
-ws://localhost:8090/ws?token=JWT_TOKEN
+ws://localhost:8081/ws?tenant_id={tenant_id}&token={jwt_token}
 ```
 
-### With Tenant Override
+### Parameters
+
+- `tenant_id` (required): Tenant identifier
+- `token` (required): JWT authentication token
+
+### Example Connection (JavaScript)
+
+```javascript
+const token = "your_jwt_token";
+const tenantId = "tenant_123";
+const ws = new WebSocket(`ws://localhost:8081/ws?tenant_id=${tenantId}&token=${token}`);
+
+ws.onopen = () => {
+  console.log('Connected to WebSocket');
+};
+
+ws.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Received:', data);
+};
 ```
-ws://localhost:8090/ws?token=JWT_TOKEN&tenant_id=tenant_001
+
+### Example Connection (Flutter)
+
+```dart
+import 'package:sahool/core/websocket/websocket_service.dart';
+
+final wsService = WebSocketService(
+  baseUrl: 'http://localhost:8081',
+  getToken: () => authService.token,
+  getTenantId: () => authService.tenantId,
+);
+
+await wsService.connect();
+
+wsService.events.listen((event) {
+  print('Event: ${event.eventType}');
+});
 ```
 
-## Message Protocol
+## Room Types
 
-### Client → Server
+### Automatic Rooms
 
-#### Subscribe to Topic
+When a client connects, they are automatically joined to:
+
+- `tenant:{tenant_id}` - All users in the tenant
+- `user:{user_id}` - All connections of the user
+
+### Available Room Types
+
+| Room Type | Format | Description |
+|-----------|--------|-------------|
+| Field | `field:{field_id}` | Updates for a specific field |
+| Farm | `farm:{farm_id}` | Updates for a farm |
+| User | `user:{user_id}` | Personal messages to a user |
+| Tenant | `tenant:{tenant_id}` | Tenant-wide broadcasts |
+| Alerts | `alerts` | Critical system alerts |
+| Weather | `weather` | Weather updates |
+| Chat | `chat:{room_id}` | Chat room messages |
+| Global | `global` | Global announcements |
+
+## Message Types
+
+### Client → Server Messages
+
+#### 1. Subscribe to Topics
+
 ```json
 {
   "type": "subscribe",
-  "topic": "field.field_001.ndvi"
+  "topics": ["field:123", "weather", "alerts"]
 }
 ```
 
-#### Unsubscribe
+Response:
+```json
+{
+  "type": "subscribed",
+  "topics": ["field:123", "weather", "alerts"],
+  "failed": [],
+  "timestamp": "2024-01-15T10:30:00Z",
+  "message_ar": "تم الاشتراك في 3 موضوع"
+}
+```
+
+#### 2. Unsubscribe from Topics
+
 ```json
 {
   "type": "unsubscribe",
-  "topic": "field.field_001.ndvi"
+  "topics": ["field:123"]
 }
 ```
 
-#### Ping
+#### 3. Join Room
+
+```json
+{
+  "type": "join_room",
+  "room": "field:123"
+}
+```
+
+#### 4. Leave Room
+
+```json
+{
+  "type": "leave_room",
+  "room": "field:123"
+}
+```
+
+#### 5. Broadcast Message
+
+```json
+{
+  "type": "broadcast",
+  "room": "field:123",
+  "message": {
+    "action": "update",
+    "data": {...}
+  }
+}
+```
+
+#### 6. Ping (Keep-Alive)
+
 ```json
 {
   "type": "ping"
 }
 ```
 
-### Server → Client
-
-#### Event Message
-```json
-{
-  "type": "event",
-  "topic": "field.field_001.ndvi",
-  "data": {
-    "ndvi": 0.72,
-    "timestamp": "2025-12-23T10:00:00Z"
-  },
-  "timestamp": "2025-12-23T10:00:00Z"
-}
-```
-
-#### Subscription Confirmed
-```json
-{
-  "type": "subscribed",
-  "topic": "field.field_001.ndvi"
-}
-```
-
-#### Pong
+Response:
 ```json
 {
   "type": "pong",
-  "timestamp": "2025-12-23T10:00:00Z"
+  "timestamp": "2024-01-15T10:30:00Z"
 }
 ```
 
-#### Error
+#### 7. Typing Indicator
+
 ```json
 {
-  "type": "error",
-  "message": "Invalid topic format",
-  "code": "INVALID_TOPIC"
+  "type": "typing",
+  "room": "chat:456",
+  "typing": true
 }
 ```
 
-## Topic Patterns
+#### 8. Read Receipt
 
-| Pattern | Example | Description |
-|---------|---------|-------------|
-| `field.{id}.*` | `field.field_001.*` | All events for a field |
-| `field.{id}.ndvi` | `field.field_001.ndvi` | NDVI updates |
-| `field.{id}.weather` | `field.field_001.weather` | Weather alerts |
-| `field.{id}.iot` | `field.field_001.iot` | IoT sensor readings |
-| `field.{id}.task` | `field.field_001.task` | Task updates |
-| `tenant.{id}.alerts` | `tenant.tenant_001.alerts` | Tenant-wide alerts |
-
-## API Endpoints (HTTP)
-
-### Health
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/healthz` | Health check |
-
-### Stats
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/stats` | Connection statistics |
-| GET | `/stats/tenant/{id}` | Tenant-specific stats |
-
-### Admin
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/broadcast` | Broadcast message (admin) |
-| DELETE | `/connections/{id}` | Force disconnect |
-
-## Usage Examples | أمثلة الاستخدام
-
-### JavaScript Client
-```javascript
-const ws = new WebSocket('ws://localhost:8090/ws?token=YOUR_JWT');
-
-ws.onopen = () => {
-  // Subscribe to field events
-  ws.send(JSON.stringify({
-    type: 'subscribe',
-    topic: 'field.field_001.*'
-  }));
-};
-
-ws.onmessage = (event) => {
-  const msg = JSON.parse(event.data);
-  if (msg.type === 'event') {
-    console.log(`Event on ${msg.topic}:`, msg.data);
-  }
-};
+```json
+{
+  "type": "read",
+  "room": "chat:456",
+  "message_id": "msg_789"
+}
 ```
 
-### Python Client
+### Server → Client Events
+
+#### Event Structure
+
+```json
+{
+  "type": "event",
+  "event_type": "field.updated",
+  "priority": "medium",
+  "message": "Field data updated",
+  "message_ar": "تم تحديث بيانات الحقل",
+  "data": {
+    "field_id": "123",
+    "tenant_id": "tenant_456",
+    ...
+  },
+  "subject": "sahool.fields.123.updated",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+## Event Types
+
+### Field Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `field.updated` | Medium | Field data updated |
+| `field.created` | Medium | New field created |
+| `field.deleted` | Medium | Field deleted |
+
+### Weather Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `weather.alert` | High | Important weather alert |
+| `weather.updated` | Low | Weather data updated |
+
+### Satellite Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `satellite.ready` | Low | Satellite imagery ready |
+| `satellite.processing` | Low | Processing satellite imagery |
+| `satellite.failed` | Medium | Satellite processing failed |
+
+### NDVI Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `ndvi.updated` | Low | NDVI data updated |
+| `ndvi.analysis.ready` | Low | NDVI analysis completed |
+
+### Inventory Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `inventory.low_stock` | Medium | Low stock alert |
+| `inventory.out_of_stock` | High | Out of stock |
+| `inventory.updated` | Low | Stock updated |
+
+### Crop Health Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `crop.disease.detected` | High | Disease detected |
+| `crop.pest.detected` | High | Pest detected |
+| `crop.health.alert` | High | Health issue detected |
+
+### Spray Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `spray.window.optimal` | Medium | Optimal spray window |
+| `spray.window.warning` | Medium | Spray window warning |
+| `spray.scheduled` | Low | Spray operation scheduled |
+
+### Chat Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `chat.message` | Low | New message |
+| `chat.typing` | Low | User typing |
+| `chat.read` | Low | Message read |
+
+### Task Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `task.created` | Low | Task created |
+| `task.updated` | Low | Task updated |
+| `task.completed` | Low | Task completed |
+| `task.overdue` | Medium | Task overdue |
+
+### IoT Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `iot.reading` | Low | Sensor reading |
+| `iot.alert` | High | Sensor alert |
+| `iot.offline` | Medium | Sensor offline |
+
+### System Events
+
+| Event Type | Priority | Description |
+|------------|----------|-------------|
+| `system.notification` | Medium | System notification |
+| `sync_required` | Low | Sync required |
+
+## REST API Endpoints
+
+### Health Check
+
+```
+GET /healthz
+```
+
+Response:
+```json
+{
+  "status": "healthy",
+  "service": "ws-gateway",
+  "version": "16.0.0",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### Readiness Check
+
+```
+GET /readyz
+```
+
+Response:
+```json
+{
+  "status": "ok",
+  "nats": true,
+  "connections": {
+    "total_connections": 150,
+    "total_rooms": 45,
+    "rooms": {...}
+  }
+}
+```
+
+### Statistics
+
+```
+GET /stats
+```
+
+Response:
+```json
+{
+  "connections": {
+    "total_connections": 150,
+    "total_rooms": 45,
+    "connections_by_room_type": {
+      "tenant": 150,
+      "user": 150,
+      "field": 75
+    }
+  },
+  "nats": {
+    "connected": true,
+    "subscriptions": 11
+  },
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+### Broadcast Message
+
+```
+POST /broadcast
+```
+
+Request Body:
+```json
+{
+  "tenant_id": "tenant_123",
+  "message": {
+    "type": "announcement",
+    "text": "System maintenance scheduled"
+  }
+}
+```
+
+Or target specific rooms/users:
+```json
+{
+  "room": "field:123",
+  "message": {...}
+}
+```
+
+```json
+{
+  "user_id": "user_456",
+  "message": {...}
+}
+```
+
+```json
+{
+  "field_id": "field_789",
+  "message": {...}
+}
+```
+
+Response:
+```json
+{
+  "status": "sent",
+  "recipients": 25,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+## NATS Event Integration
+
+The WebSocket gateway automatically subscribes to these NATS subjects:
+
+- `sahool.fields.>` - Field events
+- `sahool.weather.>` - Weather events
+- `sahool.satellite.>` - Satellite events
+- `sahool.ndvi.>` - NDVI events
+- `sahool.inventory.>` - Inventory events
+- `sahool.crop.>` - Crop health events
+- `sahool.spray.>` - Spray events
+- `sahool.chat.>` - Chat events
+- `sahool.tasks.>` - Task events
+- `sahool.iot.>` - IoT events
+- `sahool.alerts.>` - Alert events
+
+### Publishing Events to WebSocket
+
+From any backend service, publish to NATS and it will be automatically forwarded to WebSocket clients:
+
 ```python
-import websockets
+import nats
 import json
 
-async def connect():
-    uri = "ws://localhost:8090/ws?token=YOUR_JWT"
-    async with websockets.connect(uri) as ws:
-        # Subscribe
-        await ws.send(json.dumps({
-            "type": "subscribe",
-            "topic": "field.field_001.ndvi"
-        }))
+nc = await nats.connect("nats://localhost:4222")
 
-        # Listen for events
-        async for message in ws:
-            data = json.loads(message)
-            print(f"Received: {data}")
+# Publish field update
+await nc.publish(
+    "sahool.fields.123.updated",
+    json.dumps({
+        "field_id": "123",
+        "tenant_id": "tenant_456",
+        "name": "North Field",
+        "updated_at": "2024-01-15T10:30:00Z"
+    }).encode()
+)
 ```
 
-## JWT Token Claims
+## Error Codes
 
-Required claims in JWT token:
-```json
-{
-  "sub": "user_001",
-  "tenant_id": "tenant_001",
-  "exp": 1735000000,
-  "iat": 1734900000
-}
-```
-
-## Connection Limits
-
-| Limit | Value |
-|-------|-------|
-| Max connections per tenant | 1000 |
-| Max subscriptions per connection | 50 |
-| Message size limit | 64 KB |
-| Idle timeout | 5 minutes |
-| Ping interval | 30 seconds |
-
-## Dependencies
-
-- FastAPI
-- WebSockets
-- python-jose (JWT)
-- NATS (for event ingestion)
+| Code | Reason | Description |
+|------|--------|-------------|
+| 4001 | Authentication Required | Missing or invalid token |
+| 4003 | Tenant Mismatch | Token tenant doesn't match requested tenant |
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PORT` | Service port | `8090` |
-| `JWT_SECRET` | JWT signing key | **required** |
-| `JWT_ALGORITHM` | JWT algorithm | `HS256` |
-| `WS_REQUIRE_AUTH` | Require authentication | `true` |
-| `NATS_URL` | NATS server URL | - |
-| `MAX_CONNECTIONS_PER_TENANT` | Connection limit | `1000` |
+```bash
+PORT=8081
+NATS_URL=nats://nats:4222
+REDIS_URL=redis://:password@redis:6379/0
+JWT_SECRET_KEY=your-secret-key
+JWT_ALGORITHM=HS256
+LOG_LEVEL=INFO
+ENVIRONMENT=production
+CORS_ALLOWED_ORIGINS=https://app.sahool.com
+```
 
-## Events Consumed (from NATS)
+## Docker Deployment
 
-All events from other services are forwarded to WebSocket clients:
-- `ndvi.*`
-- `weather.*`
-- `iot.*`
-- `task.*`
-- `alert.*`
-- `field.*`
+The service is already configured in `docker-compose.yml`:
+
+```yaml
+ws_gateway:
+  build:
+    context: ./apps/services/ws-gateway
+    dockerfile: Dockerfile
+  container_name: sahool-ws-gateway
+  environment:
+    - PORT=8081
+    - NATS_URL=nats://nats:4222
+    - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+    - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+  ports:
+    - "8081:8081"
+  depends_on:
+    - nats
+    - redis
+```
+
+## Flutter Integration
+
+### Setup
+
+1. Add dependencies to `pubspec.yaml`:
+
+```yaml
+dependencies:
+  web_socket_channel: ^2.4.0
+  flutter_riverpod: ^2.4.0
+```
+
+2. Initialize WebSocket on app startup:
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return ProviderScope(
+    child: WebSocketEventListener(
+      child: MaterialApp(
+        home: HomePage(),
+      ),
+    ),
+  );
+}
+```
+
+3. Connect when user logs in:
+
+```dart
+final wsConnection = ref.watch(webSocketConnectionProvider.notifier);
+await wsConnection.connect();
+```
+
+### Subscribe to Field Updates
+
+```dart
+final fieldEvents = ref.watch(fieldEventsProvider('field_123'));
+
+fieldEvents.when(
+  data: (event) {
+    // Handle field update
+    print('Field event: ${event.eventType}');
+  },
+  loading: () => CircularProgressIndicator(),
+  error: (err, stack) => Text('Error: $err'),
+);
+```
+
+### Listen to Alerts
+
+```dart
+final alerts = ref.watch(highPriorityAlertsProvider);
+
+alerts.when(
+  data: (event) {
+    // Show alert dialog or notification
+    _showAlert(event);
+  },
+  loading: () {},
+  error: (err, stack) {},
+);
+```
+
+## Testing
+
+### Testing with wscat
+
+```bash
+# Install wscat
+npm install -g wscat
+
+# Connect to WebSocket
+wscat -c "ws://localhost:8081/ws?tenant_id=test&token=your_jwt_token"
+
+# Subscribe to topics
+> {"type":"subscribe","topics":["weather","alerts"]}
+
+# Send ping
+> {"type":"ping"}
+```
+
+### Load Testing
+
+```bash
+# Using autocannon
+npm install -g autocannon
+autocannon -c 100 -d 30 ws://localhost:8081/ws?tenant_id=test&token=token
+```
+
+## Monitoring
+
+### Connection Statistics
+
+```bash
+curl http://localhost:8081/stats
+```
+
+### Health Check
+
+```bash
+curl http://localhost:8081/healthz
+```
+
+## Security Considerations
+
+1. **Always use WSS (WebSocket Secure) in production**
+2. **JWT tokens should have short expiration times**
+3. **Validate tenant permissions server-side**
+4. **Rate limit connections per IP/tenant**
+5. **Monitor for abnormal connection patterns**
+
+## Troubleshooting
+
+### Connection Refused
+
+- Check if the service is running: `docker ps | grep ws-gateway`
+- Check logs: `docker logs sahool-ws-gateway`
+- Verify NATS is running: `curl http://localhost:8222/healthz`
+
+### Authentication Fails
+
+- Verify JWT_SECRET_KEY matches across services
+- Check token expiration
+- Ensure tenant_id in token matches query parameter
+
+### Events Not Received
+
+- Verify NATS connection: Check `/readyz` endpoint
+- Confirm you're subscribed to the correct room
+- Check NATS subject matches event type
+
+## Development
+
+### Running Locally
+
+```bash
+cd apps/services/ws-gateway
+pip install -r requirements.txt
+python -m src.main
+```
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+## License
+
+Copyright © 2024 SAHOOL. All rights reserved.

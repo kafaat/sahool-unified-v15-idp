@@ -1,0 +1,306 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - OpenTelemetry Distributed Tracing Stack
+# تكوين Docker Compose لتتبع الموزع
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2025-12-26
+# Components: Jaeger, OpenTelemetry Collector, Prometheus, Grafana
+# Purpose: Distributed tracing across all 44+ SAHOOL microservices
+
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Services - الخدمات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Jaeger All-in-One - Distributed Tracing Backend
+  # Jaeger - نظام التتبع الموزع
+  # ─────────────────────────────────────────────────────────────────────────────
+  jaeger:
+    image: jaegertracing/all-in-one:1.53
+    container_name: sahool-telemetry-jaeger
+    restart: unless-stopped
+    ports:
+      # Jaeger UI - واجهة Jaeger
+      - "16686:16686"
+      # Collector HTTP - مجمع HTTP
+      - "14268:14268"
+      # Collector gRPC - مجمع gRPC
+      - "14250:14250"
+      # Agent zipkin.thrift - وكيل Zipkin
+      - "5775:5775/udp"
+      # Agent compact - وكيل مضغوط
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      # Agent binary - وكيل ثنائي
+      - "5778:5778"
+      # OTLP gRPC - بروتوكول OTLP
+      - "4317:4317"
+      # OTLP HTTP - بروتوكول OTLP HTTP
+      - "4318:4318"
+    environment:
+      # Collector settings - إعدادات المجمع
+      - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+      - COLLECTOR_OTLP_ENABLED=true
+
+      # Storage settings - إعدادات التخزين
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
+
+      # Query settings - إعدادات الاستعلام
+      - QUERY_BASE_PATH=/
+      - QUERY_MAX_CLOCK_SKEW_ADJUSTMENT=0s
+
+      # Log level - مستوى السجل
+      - LOG_LEVEL=${JAEGER_LOG_LEVEL:-info}
+
+      # Metrics backend - خلفية المقاييس
+      - METRICS_STORAGE_TYPE=prometheus
+      - PROMETHEUS_SERVER_URL=http://prometheus:9090
+    volumes:
+      # Persistent storage for spans - تخزين دائم للآثار
+      - jaeger_data:/badger
+    networks:
+      - sahool-network
+      - telemetry-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:14269/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      com.sahool.service: "jaeger"
+      com.sahool.tier: "telemetry"
+      com.sahool.description: "Jaeger Distributed Tracing"
+      com.sahool.description_ar: "تتبع موزع Jaeger"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # OpenTelemetry Collector - Telemetry Data Pipeline
+  # مجمع OpenTelemetry - خط بيانات القياس عن بعد
+  # ─────────────────────────────────────────────────────────────────────────────
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.93.0
+    container_name: sahool-telemetry-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    ports:
+      # OTLP gRPC receiver - مستقبل OTLP gRPC
+      - "4317:4317"
+      # OTLP HTTP receiver - مستقبل OTLP HTTP
+      - "4318:4318"
+      # Prometheus exporter - مُصدِّر Prometheus
+      - "8889:8889"
+      # Health check - فحص الصحة
+      - "13133:13133"
+      # Legacy Jaeger receivers
+      - "14250:14250"
+      - "6831:6831/udp"
+      # Zipkin receiver
+      - "9411:9411"
+    volumes:
+      # Configuration - الإعدادات
+      - ./shared/telemetry/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    environment:
+      - JAEGER_ENDPOINT=jaeger:14250
+      - PROMETHEUS_ENDPOINT=prometheus:9090
+    networks:
+      - sahool-network
+      - telemetry-network
+    depends_on:
+      jaeger:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:13133/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      com.sahool.service: "otel-collector"
+      com.sahool.tier: "telemetry"
+      com.sahool.description: "OpenTelemetry Collector"
+      com.sahool.description_ar: "مجمع OpenTelemetry"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Prometheus - Metrics Collection (if not already running)
+  # Prometheus - جمع المقاييس
+  # ─────────────────────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: sahool-telemetry-prometheus
+    restart: unless-stopped
+    user: root
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=10GB'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--web.external-url=http://localhost:9090'
+    ports:
+      - "9090:9090"
+    volumes:
+      # Configuration files - ملفات الإعدادات
+      - ./shared/telemetry/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      # Data persistence - استمرارية البيانات
+      - prometheus_telemetry_data:/prometheus
+    environment:
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    networks:
+      - sahool-network
+      - telemetry-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      com.sahool.service: "prometheus"
+      com.sahool.tier: "telemetry"
+      com.sahool.description: "Prometheus Metrics Database"
+      com.sahool.description_ar: "قاعدة بيانات المقاييس"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Grafana - Visualization & Dashboards
+  # Grafana - لوحات المراقبة والتصور
+  # ─────────────────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: sahool-telemetry-grafana
+    restart: unless-stopped
+    user: root
+    ports:
+      - "3002:3000"
+    volumes:
+      # Provisioning - التوفير التلقائي
+      - ./shared/telemetry/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./shared/telemetry/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      # Dashboards - لوحات المراقبة
+      - ./shared/telemetry/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      # Data persistence - استمرارية البيانات
+      - grafana_telemetry_data:/var/lib/grafana
+    environment:
+      # Security - الأمان
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD is required}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+
+      # Server settings - إعدادات الخادم
+      - GF_SERVER_ROOT_URL=${GRAFANA_ROOT_URL:-http://localhost:3002}
+      - GF_SERVER_DOMAIN=${GRAFANA_DOMAIN:-localhost}
+
+      # Database - قاعدة البيانات
+      - GF_DATABASE_TYPE=sqlite3
+
+      # Plugins - الإضافات
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource,grafana-piechart-panel,grafana-jaeger-datasource
+
+      # Logging - السجلات
+      - GF_LOG_MODE=console
+      - GF_LOG_LEVEL=${GF_LOG_LEVEL:-info}
+
+      # Alerting - التنبيهات
+      - GF_ALERTING_ENABLED=true
+      - GF_UNIFIED_ALERTING_ENABLED=true
+
+      # Arabic support - دعم العربية
+      - GF_DEFAULT_LANGUAGE=en
+      - GF_DATE_FORMATS_DEFAULT_TIMEZONE=Asia/Riyadh
+    networks:
+      - telemetry-network
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      jaeger:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    labels:
+      com.sahool.service: "grafana"
+      com.sahool.tier: "telemetry"
+      com.sahool.description: "Grafana Dashboards"
+      com.sahool.description_ar: "لوحات التحكم Grafana"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Networks - الشبكات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+networks:
+  # Connect to main SAHOOL network - الاتصال بشبكة سهول الرئيسية
+  sahool-network:
+    external: true
+    name: sahool-network
+
+  # Internal telemetry network - شبكة القياس عن بعد الداخلية
+  telemetry-network:
+    driver: bridge
+    name: sahool-telemetry-network
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Volumes - وحدات التخزين
+# ═══════════════════════════════════════════════════════════════════════════════
+
+volumes:
+  # Jaeger data - بيانات Jaeger
+  jaeger_data:
+    name: sahool-telemetry-jaeger-data
+    driver: local
+
+  # Prometheus data - بيانات Prometheus
+  prometheus_telemetry_data:
+    name: sahool-telemetry-prometheus-data
+    driver: local
+
+  # Grafana data - بيانات Grafana
+  grafana_telemetry_data:
+    name: sahool-telemetry-grafana-data
+    driver: local

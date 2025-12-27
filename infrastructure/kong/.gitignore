@@ -1,0 +1,81 @@
+# ============================================================================
+# Kong API Gateway .gitignore
+# ============================================================================
+
+# Environment files - NEVER commit secrets!
+.env
+.env.local
+.env.production
+.env.staging
+.env.*.local
+
+# Secrets and certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secrets/
+ssl/
+
+# Kong data
+kong-data/
+kong-postgres-data/
+
+# Logs
+*.log
+logs/
+kong-logs/
+
+# Backup files
+*.bak
+*.backup
+backups/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docker volumes
+postgres-data/
+redis-data/
+prometheus-data/
+grafana-data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Database dumps
+*.sql
+*.dump
+
+# Coverage and test reports
+coverage/
+*.coverage
+.nyc_output/
+
+# Node modules (if using deck or other Node tools)
+node_modules/
+
+# Terraform state (if using Terraform)
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Ansible vault files (if using Ansible)
+*.vault
+
+# Generated files
+generated/
+dist/
+build/

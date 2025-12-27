@@ -1,0 +1,64 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform Backup Crontab
+# Automated backup schedule configuration
+# جدولة النسخ الاحتياطي الآلي لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Environment variables - متغيرات البيئة
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Backup Schedules - جداول النسخ الاحتياطي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Daily backup at 2:00 AM - نسخ احتياطي يومي في الساعة 2:00 صباحاً
+0 2 * * * /scripts/backup-cron.sh daily >> /var/log/cron/daily_backup.log 2>&1
+
+# Weekly backup on Sunday at 3:00 AM - نسخ احتياطي أسبوعي الأحد 3:00 صباحاً
+0 3 * * 0 /scripts/backup-cron.sh weekly >> /var/log/cron/weekly_backup.log 2>&1
+
+# Monthly backup on 1st day at 4:00 AM - نسخ احتياطي شهري في اليوم الأول 4:00 صباحاً
+0 4 1 * * /scripts/backup-cron.sh monthly >> /var/log/cron/monthly_backup.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Backup Verification - التحقق من النسخ الاحتياطي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Verify latest backup every Sunday at 6:00 AM - التحقق من آخر نسخة احتياطية الأحد 6:00 صباحاً
+0 6 * * 0 /scripts/verify-backup.sh >> /var/log/cron/verification.log 2>&1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Maintenance Tasks - مهام الصيانة
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Cleanup old logs every Monday at 1:00 AM - تنظيف السجلات القديمة كل اثنين 1:00 صباحاً
+0 1 * * 1 find /var/log/backup -name "*.log" -mtime +30 -delete 2>&1
+
+# Compress old logs every Sunday at 5:00 AM - ضغط السجلات القديمة كل أحد 5:00 صباحاً
+0 5 * * 0 find /var/log/backup -name "*.log" -mtime +7 ! -name "*.gz" -exec gzip {} \; 2>&1
+
+# Health check: Log cron status every hour - فحص الصحة: تسجيل حالة cron كل ساعة
+0 * * * * echo "Cron is running - $(date)" >> /var/log/cron/health.log 2>&1
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Custom Schedules - جداول مخصصة
+# ═══════════════════════════════════════════════════════════════════════════════
+# Add custom backup schedules below - أضف جداول النسخ الاحتياطي المخصصة أدناه
+
+# Example: Backup every 6 hours (uncomment to enable)
+# مثال: نسخ احتياطي كل 6 ساعات (قم بإلغاء التعليق للتفعيل)
+# 0 */6 * * * /scripts/backup-cron.sh daily >> /var/log/cron/hourly_backup.log 2>&1
+
+# Example: Backup before maintenance window (Wednesday 1 AM)
+# مثال: نسخ احتياطي قبل فترة الصيانة (الأربعاء 1:00 صباحاً)
+# 0 1 * * 3 /scripts/backup-cron.sh weekly >> /var/log/cron/maintenance_backup.log 2>&1
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# End of crontab - نهاية ملف crontab
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Required empty line at end of file

@@ -195,6 +195,10 @@ class EnvConfig {
     }
   }
 
+  /// WebSocket Gateway URL (alias for wsBaseUrl)
+  /// عنوان بوابة WebSocket
+  static String get wsGatewayUrl => wsBaseUrl;
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Maps Configuration
   // ═══════════════════════════════════════════════════════════════════════════

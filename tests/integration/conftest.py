@@ -2,8 +2,12 @@
 SAHOOL Integration Test Configuration
 تكوين اختبارات التكامل لمنصة سهول
 
-Integration test fixtures for all 41+ SAHOOL services
-Provides service clients, configuration, and helper functions
+Comprehensive pytest fixtures for integration testing:
+- Docker Compose setup/teardown
+- Database connections (PostgreSQL with PostGIS)
+- NATS messaging connections
+- HTTP client with retries
+- Test data factories
 
 Author: SAHOOL Platform Team
 """
@@ -11,512 +15,532 @@ Author: SAHOOL Platform Team
 from __future__ import annotations
 
 import os
-from typing import AsyncGenerator, Dict, Any
+import time
+import asyncio
+from typing import AsyncGenerator, Dict, Any, Generator
 from dataclasses import dataclass
+from contextlib import asynccontextmanager
 
 import pytest
 import httpx
-
+from httpx import AsyncClient, Timeout
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from faker import Faker
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Service Configuration - تكوين الخدمات
+# Test Configuration - تكوين الاختبارات
 # ═══════════════════════════════════════════════════════════════════════════════
+
+# Initialize Faker with Arabic locale
+faker_ar = Faker('ar_SA')
+faker_en = Faker('en_US')
+
 
 @dataclass
-class ServiceConfig:
-    """Service configuration - تكوين الخدمة"""
-    name: str
-    url: str
-    health_endpoint: str
-    timeout: int = 30
+class TestConfig:
+    """Test environment configuration"""
+    # Database
+    postgres_host: str = os.getenv("POSTGRES_HOST", "localhost")
+    postgres_port: int = int(os.getenv("POSTGRES_PORT", "5432"))
+    postgres_user: str = os.getenv("POSTGRES_USER", "sahool_test")
+    postgres_password: str = os.getenv("POSTGRES_PASSWORD", "test_password_123")
+    postgres_db: str = os.getenv("POSTGRES_DB", "sahool_test")
+
+    # Redis
+    redis_host: str = os.getenv("REDIS_HOST", "localhost")
+    redis_port: int = int(os.getenv("REDIS_PORT", "6379"))
+    redis_password: str = os.getenv("REDIS_PASSWORD", "test_redis_pass")
+
+    # NATS
+    nats_host: str = os.getenv("NATS_HOST", "localhost")
+    nats_port: int = int(os.getenv("NATS_PORT", "4222"))
+
+    # Qdrant
+    qdrant_host: str = os.getenv("QDRANT_HOST", "localhost")
+    qdrant_port: int = int(os.getenv("QDRANT_PORT", "6333"))
+
+    # JWT
+    jwt_secret: str = os.getenv("JWT_SECRET_KEY", "test-secret-key-for-tests-only-do-not-use-in-production-32chars")
+
+    # Test timeouts
+    service_startup_timeout: int = 60
+    http_timeout: int = 30
+
+    @property
+    def postgres_url(self) -> str:
+        """PostgreSQL connection URL"""
+        return f"postgresql://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
+
+    @property
+    def redis_url(self) -> str:
+        """Redis connection URL"""
+        return f"redis://:{self.redis_password}@{self.redis_host}:{self.redis_port}/0"
+
+    @property
+    def nats_url(self) -> str:
+        """NATS connection URL"""
+        return f"nats://{self.nats_host}:{self.nats_port}"
 
 
-# Infrastructure Services - الخدمات الأساسية
-INFRASTRUCTURE_SERVICES = {
-    "postgres": ServiceConfig(
-        name="PostgreSQL",
-        url="postgresql://localhost:5432",
-        health_endpoint="",  # No HTTP endpoint
-        timeout=10
-    ),
-    "kong": ServiceConfig(
-        name="Kong API Gateway",
-        url="http://localhost:8000",
-        health_endpoint="/",
-        timeout=10
-    ),
-    "nats": ServiceConfig(
-        name="NATS Messaging",
-        url="http://localhost:8222",
-        health_endpoint="/healthz",
-        timeout=10
-    ),
-    "redis": ServiceConfig(
-        name="Redis Cache",
-        url="redis://localhost:6379",
-        health_endpoint="",  # No HTTP endpoint
-        timeout=10
-    ),
-    "qdrant": ServiceConfig(
-        name="Qdrant Vector DB",
-        url="http://localhost:6333",
-        health_endpoint="/healthz",
-        timeout=10
-    ),
-    "mqtt": ServiceConfig(
-        name="MQTT Broker",
-        url="mqtt://localhost:1883",
-        health_endpoint="",  # No HTTP endpoint
-        timeout=10
-    ),
-    "prometheus": ServiceConfig(
-        name="Prometheus",
-        url="http://localhost:9090",
-        health_endpoint="/-/healthy",
-        timeout=10
-    ),
-    "grafana": ServiceConfig(
-        name="Grafana",
-        url="http://localhost:3002",
-        health_endpoint="/api/health",
-        timeout=10
-    ),
-}
-
-# Application Services - خدمات التطبيق
-APPLICATION_SERVICES = {
-    "field_core": ServiceConfig(
-        name="Field Core Service",
-        url="http://localhost:3000",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "field_ops": ServiceConfig(
-        name="Field Operations Service",
-        url="http://localhost:8080",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "ndvi_engine": ServiceConfig(
-        name="NDVI Engine",
-        url="http://localhost:8107",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "weather_core": ServiceConfig(
-        name="Weather Core Service",
-        url="http://localhost:8108",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "field_chat": ServiceConfig(
-        name="Field Chat Service",
-        url="http://localhost:8099",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "iot_gateway": ServiceConfig(
-        name="IoT Gateway",
-        url="http://localhost:8106",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "agro_advisor": ServiceConfig(
-        name="Agro Advisor Service",
-        url="http://localhost:8105",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "ws_gateway": ServiceConfig(
-        name="WebSocket Gateway",
-        url="http://localhost:8081",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "crop_health": ServiceConfig(
-        name="Crop Health Service",
-        url="http://localhost:8100",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "task_service": ServiceConfig(
-        name="Task Service",
-        url="http://localhost:8103",
-        health_endpoint="/health",
-        timeout=30
-    ),
-    "equipment_service": ServiceConfig(
-        name="Equipment Service",
-        url="http://localhost:8101",
-        health_endpoint="/health",
-        timeout=30
-    ),
-    "provider_config": ServiceConfig(
-        name="Provider Configuration Service",
-        url="http://localhost:8104",
-        health_endpoint="/health",
-        timeout=30
-    ),
-    "crop_health_ai": ServiceConfig(
-        name="Crop Health AI",
-        url="http://localhost:8095",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "virtual_sensors": ServiceConfig(
-        name="Virtual Sensors Engine",
-        url="http://localhost:8096",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "community_chat": ServiceConfig(
-        name="Community Chat Service",
-        url="http://localhost:8097",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "yield_engine": ServiceConfig(
-        name="Yield Prediction Engine",
-        url="http://localhost:8098",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "irrigation_smart": ServiceConfig(
-        name="Smart Irrigation Service",
-        url="http://localhost:8094",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "fertilizer_advisor": ServiceConfig(
-        name="Fertilizer Advisor Service",
-        url="http://localhost:8093",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "indicators_service": ServiceConfig(
-        name="Agricultural Indicators Service",
-        url="http://localhost:8091",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "satellite_service": ServiceConfig(
-        name="Satellite Service",
-        url="http://localhost:8090",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "weather_advanced": ServiceConfig(
-        name="Weather Advanced Service",
-        url="http://localhost:8092",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "notification_service": ServiceConfig(
-        name="Notification Service",
-        url="http://localhost:8110",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "research_core": ServiceConfig(
-        name="Research Core Service",
-        url="http://localhost:3015",
-        health_endpoint="/api/v1/healthz",
-        timeout=30
-    ),
-    "disaster_assessment": ServiceConfig(
-        name="Disaster Assessment Service",
-        url="http://localhost:3020",
-        health_endpoint="/api/v1/disasters/health",
-        timeout=30
-    ),
-    "yield_prediction": ServiceConfig(
-        name="Yield Prediction Service",
-        url="http://localhost:3021",
-        health_endpoint="/api/v1/yield/health",
-        timeout=30
-    ),
-    "lai_estimation": ServiceConfig(
-        name="LAI Estimation Service",
-        url="http://localhost:3022",
-        health_endpoint="/api/v1/lai/health",
-        timeout=30
-    ),
-    "crop_growth_model": ServiceConfig(
-        name="Crop Growth Model Service",
-        url="http://localhost:3023",
-        health_endpoint="/api/v1/simulation/health",
-        timeout=30
-    ),
-    "marketplace_service": ServiceConfig(
-        name="Marketplace Service",
-        url="http://localhost:3010",
-        health_endpoint="/api/v1/healthz",
-        timeout=30
-    ),
-    "admin_dashboard": ServiceConfig(
-        name="Admin Dashboard",
-        url="http://localhost:3001",
-        health_endpoint="/",
-        timeout=30
-    ),
-    "billing_core": ServiceConfig(
-        name="Billing Core Service",
-        url="http://localhost:8089",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "ai_advisor": ServiceConfig(
-        name="AI Advisor Multi-Agent System",
-        url="http://localhost:8112",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-    "astronomical_calendar": ServiceConfig(
-        name="Astronomical Calendar Service",
-        url="http://localhost:8111",
-        health_endpoint="/healthz",
-        timeout=30
-    ),
-}
-
-# All services combined - جميع الخدمات
-ALL_SERVICES = {**INFRASTRUCTURE_SERVICES, **APPLICATION_SERVICES}
+@pytest.fixture(scope="session")
+def test_config() -> TestConfig:
+    """Test configuration - تكوين الاختبارات"""
+    return TestConfig()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# HTTP Client Fixtures - عملاء HTTP
+# Docker Compose Fixtures - إعدادات Docker Compose
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@pytest.fixture(scope="session", autouse=True)
+def docker_compose_setup():
+    """
+    Setup and teardown Docker Compose environment
+    إعداد وتنظيف بيئة Docker Compose
+
+    Note: This assumes docker-compose.test.yml is already running
+    ملاحظة: يفترض هذا أن docker-compose.test.yml يعمل بالفعل
+    """
+    # In CI/CD, Docker Compose should be started before tests
+    # We just verify services are ready
+    yield
+    # Cleanup happens in CI/CD after tests complete
+
+
+def wait_for_service(url: str, max_retries: int = 30, delay: float = 2.0) -> bool:
+    """
+    Wait for a service to become available
+    انتظار حتى تصبح الخدمة متاحة
+    """
+    import requests
+    from requests.exceptions import RequestException
+
+    for attempt in range(max_retries):
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code < 500:  # Any non-server error is considered "available"
+                return True
+        except RequestException:
+            pass
+
+        if attempt < max_retries - 1:
+            time.sleep(delay)
+
+    return False
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Fixtures - إعدادات قاعدة البيانات
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @pytest.fixture(scope="session")
-async def http_client() -> AsyncGenerator[httpx.AsyncClient, None]:
+def db_connection(test_config: TestConfig) -> Generator[psycopg2.extensions.connection, None, None]:
     """
-    Shared async HTTP client for all tests
-    عميل HTTP غير متزامن مشترك لجميع الاختبارات
+    PostgreSQL database connection
+    اتصال قاعدة بيانات PostgreSQL
     """
-    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+    # Wait for PostgreSQL to be ready
+    max_retries = 30
+    for attempt in range(max_retries):
+        try:
+            conn = psycopg2.connect(
+                host=test_config.postgres_host,
+                port=test_config.postgres_port,
+                user=test_config.postgres_user,
+                password=test_config.postgres_password,
+                dbname=test_config.postgres_db,
+                cursor_factory=RealDictCursor
+            )
+            conn.autocommit = True
+            yield conn
+            conn.close()
+            return
+        except psycopg2.OperationalError:
+            if attempt < max_retries - 1:
+                time.sleep(2)
+            else:
+                raise
+
+    pytest.fail("Failed to connect to PostgreSQL")
+
+
+@pytest.fixture
+def db_cursor(db_connection):
+    """
+    Database cursor for executing queries
+    مؤشر قاعدة البيانات لتنفيذ الاستعلامات
+    """
+    cursor = db_connection.cursor()
+    yield cursor
+    cursor.close()
+
+
+@pytest.fixture(autouse=True)
+def cleanup_test_data(db_cursor):
+    """
+    Clean up test data before each test
+    تنظيف بيانات الاختبار قبل كل اختبار
+    """
+    yield
+    # Cleanup after test
+    try:
+        # Clean up test tables in reverse order of dependencies
+        tables = [
+            'notifications',
+            'alerts',
+            'inventory_items',
+            'experiments',
+            'marketplace_listings',
+            'subscriptions',
+            'payments',
+            'iot_readings',
+            'satellite_analyses',
+            'ndvi_analyses',
+            'weather_forecasts',
+            'tasks',
+            'fields',
+        ]
+
+        for table in tables:
+            try:
+                db_cursor.execute(f"DELETE FROM {table} WHERE name LIKE '%test%' OR name LIKE '%Test%'")
+            except psycopg2.errors.UndefinedTable:
+                # Table might not exist, skip
+                pass
+    except Exception as e:
+        # Ignore cleanup errors
+        pass
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# NATS Connection Fixtures - إعدادات اتصال NATS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@pytest.fixture(scope="session")
+async def nats_client(test_config: TestConfig):
+    """
+    NATS messaging client
+    عميل رسائل NATS
+    """
+    try:
+        from nats.aio.client import Client as NATS
+
+        nc = NATS()
+
+        # Wait for NATS to be ready
+        max_retries = 30
+        for attempt in range(max_retries):
+            try:
+                await nc.connect(test_config.nats_url)
+                yield nc
+                await nc.close()
+                return
+            except Exception:
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2)
+                else:
+                    raise
+    except ImportError:
+        # NATS client not installed, yield mock
+        from unittest.mock import AsyncMock
+        yield AsyncMock()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HTTP Client Fixtures - إعدادات عميل HTTP
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class RetryTransport(httpx.AsyncHTTPTransport):
+    """
+    HTTP transport with automatic retries
+    نقل HTTP مع إعادة المحاولات التلقائية
+    """
+    def __init__(self, *args, max_retries: int = 3, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.max_retries = max_retries
+
+    async def handle_async_request(self, request):
+        for attempt in range(self.max_retries):
+            try:
+                response = await super().handle_async_request(request)
+                if response.status_code < 500 or attempt == self.max_retries - 1:
+                    return response
+            except (httpx.ConnectError, httpx.TimeoutException) as e:
+                if attempt == self.max_retries - 1:
+                    raise
+
+            await asyncio.sleep(2 ** attempt)  # Exponential backoff
+
+
+@pytest.fixture(scope="session")
+async def http_client(test_config: TestConfig) -> AsyncGenerator[AsyncClient, None]:
+    """
+    HTTP client with retries and timeout configuration
+    عميل HTTP مع إعادة المحاولات وتكوين المهلة
+    """
+    transport = RetryTransport(max_retries=3)
+    timeout = Timeout(timeout=test_config.http_timeout)
+
+    async with AsyncClient(
+        transport=transport,
+        timeout=timeout,
+        follow_redirects=True
+    ) as client:
         yield client
 
 
-@pytest.fixture(scope="session")
-def service_configs() -> Dict[str, ServiceConfig]:
-    """
-    All service configurations
-    تكوينات جميع الخدمات
-    """
-    return ALL_SERVICES
-
-
-@pytest.fixture(scope="session")
-def infrastructure_configs() -> Dict[str, ServiceConfig]:
-    """
-    Infrastructure service configurations
-    تكوينات الخدمات الأساسية
-    """
-    return INFRASTRUCTURE_SERVICES
-
-
-@pytest.fixture(scope="session")
-def application_configs() -> Dict[str, ServiceConfig]:
-    """
-    Application service configurations
-    تكوينات خدمات التطبيق
-    """
-    return APPLICATION_SERVICES
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Authentication Fixtures - الاعتماد
-# ═══════════════════════════════════════════════════════════════════════════════
-
 @pytest.fixture
-def test_token() -> str:
-    """
-    Test JWT token for authenticated requests
-    رمز JWT للطلبات المصادق عليها
-    """
-    return os.getenv("TEST_JWT_TOKEN", "test-token-123")
-
-
-@pytest.fixture
-def auth_headers(test_token: str) -> Dict[str, str]:
+def auth_headers(test_config: TestConfig) -> Dict[str, str]:
     """
     Authentication headers for API requests
     رؤوس المصادقة لطلبات API
     """
+    # In a real scenario, generate a proper JWT token
+    # For testing, use a simple token
     return {
-        "Authorization": f"Bearer {test_token}",
+        "Authorization": f"Bearer {test_config.jwt_secret}",
         "Content-Type": "application/json",
         "Accept": "application/json",
     }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Database Fixtures - قاعدة البيانات
+# Test Data Factories - مصانع بيانات الاختبار
 # ═══════════════════════════════════════════════════════════════════════════════
 
-@pytest.fixture(scope="session")
-def postgres_url() -> str:
-    """PostgreSQL connection URL"""
-    user = os.getenv("POSTGRES_USER", "sahool")
-    password = os.getenv("POSTGRES_PASSWORD", "sahool")
-    host = os.getenv("POSTGRES_HOST", "localhost")
-    port = os.getenv("POSTGRES_PORT", "5432")
-    db = os.getenv("POSTGRES_DB", "sahool")
-    return f"postgresql://{user}:{password}@{host}:{port}/{db}"
+class FieldFactory:
+    """Factory for creating test field data - مصنع لإنشاء بيانات حقول الاختبار"""
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Redis Fixtures - ذاكرة التخزين المؤقت
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@pytest.fixture(scope="session")
-def redis_url() -> str:
-    """Redis connection URL"""
-    password = os.getenv("REDIS_PASSWORD", "changeme")
-    host = os.getenv("REDIS_HOST", "localhost")
-    port = os.getenv("REDIS_PORT", "6379")
-    return f"redis://:{password}@{host}:{port}/0"
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# NATS Fixtures - نظام الرسائل
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@pytest.fixture(scope="session")
-def nats_url() -> str:
-    """NATS connection URL"""
-    host = os.getenv("NATS_HOST", "localhost")
-    port = os.getenv("NATS_PORT", "4222")
-    return f"nats://{host}:{port}"
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Qdrant Fixtures - قاعدة البيانات المتجهة
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@pytest.fixture(scope="session")
-def qdrant_config() -> Dict[str, Any]:
-    """Qdrant configuration"""
-    return {
-        "host": os.getenv("QDRANT_HOST", "localhost"),
-        "port": int(os.getenv("QDRANT_PORT", "6333")),
-        "grpc_port": int(os.getenv("QDRANT_GRPC_PORT", "6334")),
-    }
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Service Client Fixtures - عملاء الخدمات
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@pytest.fixture
-async def field_ops_client(http_client: httpx.AsyncClient) -> httpx.AsyncClient:
-    """Field Operations service client"""
-    http_client.base_url = "http://localhost:8080"
-    return http_client
-
-
-@pytest.fixture
-async def weather_client(http_client: httpx.AsyncClient) -> httpx.AsyncClient:
-    """Weather service client"""
-    http_client.base_url = "http://localhost:8108"
-    return http_client
-
-
-@pytest.fixture
-async def ndvi_client(http_client: httpx.AsyncClient) -> httpx.AsyncClient:
-    """NDVI Engine client"""
-    http_client.base_url = "http://localhost:8107"
-    return http_client
-
-
-@pytest.fixture
-async def ai_advisor_client(http_client: httpx.AsyncClient) -> httpx.AsyncClient:
-    """AI Advisor service client"""
-    http_client.base_url = "http://localhost:8112"
-    return http_client
-
-
-@pytest.fixture
-async def billing_client(http_client: httpx.AsyncClient) -> httpx.AsyncClient:
-    """Billing Core service client"""
-    http_client.base_url = "http://localhost:8089"
-    return http_client
-
-
-@pytest.fixture
-async def kong_client(http_client: httpx.AsyncClient) -> httpx.AsyncClient:
-    """Kong API Gateway client"""
-    http_client.base_url = "http://localhost:8000"
-    return http_client
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Test Data Fixtures - بيانات الاختبار
-# ═══════════════════════════════════════════════════════════════════════════════
-
-@pytest.fixture
-def sample_field() -> Dict[str, Any]:
-    """
-    Sample field data for testing
-    بيانات حقل عينة للاختبار
-    """
-    return {
-        "name": "Test Field",
-        "name_ar": "حقل الاختبار",
-        "area_hectares": 10.5,
-        "crop_type": "wheat",
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-                [
+    @staticmethod
+    def create(name: str = None, crop_type: str = "wheat") -> Dict[str, Any]:
+        """Create a test field - إنشاء حقل اختبار"""
+        return {
+            "name": name or f"Test Field {faker_en.uuid4()[:8]}",
+            "name_ar": f"حقل اختبار {faker_ar.uuid4()[:8]}",
+            "area_hectares": faker_en.pyfloat(min_value=1.0, max_value=100.0, right_digits=2),
+            "crop_type": crop_type,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [[
                     [44.0, 15.0],
                     [44.1, 15.0],
                     [44.1, 15.1],
                     [44.0, 15.1],
                     [44.0, 15.0]
-                ]
-            ]
+                ]]
+            }
         }
-    }
+
+
+class WeatherQueryFactory:
+    """Factory for creating weather query data - مصنع لإنشاء بيانات استعلام الطقس"""
+
+    @staticmethod
+    def create(latitude: float = 15.3694, longitude: float = 44.1910) -> Dict[str, Any]:
+        """Create a weather query - إنشاء استعلام طقس"""
+        return {
+            "latitude": latitude,
+            "longitude": longitude,
+            "days": 7
+        }
+
+
+class NotificationFactory:
+    """Factory for creating notification data - مصنع لإنشاء بيانات الإشعارات"""
+
+    @staticmethod
+    def create(user_id: str = "test-user-123", notification_type: str = "weather_alert") -> Dict[str, Any]:
+        """Create a notification - إنشاء إشعار"""
+        return {
+            "user_id": user_id,
+            "type": notification_type,
+            "title": faker_en.sentence(),
+            "title_ar": faker_ar.sentence(),
+            "message": faker_en.text(),
+            "message_ar": faker_ar.text(),
+            "priority": "high",
+            "channels": ["push", "email"]
+        }
+
+
+class InventoryItemFactory:
+    """Factory for creating inventory item data - مصنع لإنشاء بيانات المخزون"""
+
+    @staticmethod
+    def create(item_type: str = "fertilizer") -> Dict[str, Any]:
+        """Create an inventory item - إنشاء عنصر مخزون"""
+        return {
+            "name": f"Test {item_type.title()} {faker_en.uuid4()[:8]}",
+            "name_ar": f"{item_type} اختبار {faker_ar.uuid4()[:8]}",
+            "type": item_type,
+            "quantity": faker_en.random_int(min=10, max=1000),
+            "unit": "kg",
+            "low_stock_threshold": 50,
+            "location": faker_en.city()
+        }
+
+
+class AIQueryFactory:
+    """Factory for creating AI advisor queries - مصنع لإنشاء استعلامات المستشار الذكي"""
+
+    @staticmethod
+    def create(language: str = "ar") -> Dict[str, Any]:
+        """Create an AI query - إنشاء استعلام ذكي"""
+        if language == "ar":
+            return {
+                "question": "ما هو أفضل وقت لزراعة القمح في اليمن؟",
+                "field_id": "test-field-123",
+                "language": "ar",
+                "context": {
+                    "crop_type": "wheat",
+                    "location": "Sana'a, Yemen"
+                }
+            }
+        else:
+            return {
+                "question": "What is the best time to plant wheat in Yemen?",
+                "field_id": "test-field-123",
+                "language": "en",
+                "context": {
+                    "crop_type": "wheat",
+                    "location": "Sana'a, Yemen"
+                }
+            }
+
+
+class PaymentFactory:
+    """Factory for creating payment data - مصنع لإنشاء بيانات الدفع"""
+
+    @staticmethod
+    def create(amount: float = 100.0, currency: str = "YER") -> Dict[str, Any]:
+        """Create a payment - إنشاء دفعة"""
+        return {
+            "amount": amount,
+            "currency": currency,
+            "payment_method": "tharwatt",
+            "description": "SAHOOL Subscription - Test",
+            "customer_email": faker_en.email(),
+            "customer_phone": faker_en.phone_number()
+        }
+
+
+class IoTReadingFactory:
+    """Factory for creating IoT sensor readings - مصنع لإنشاء قراءات أجهزة IoT"""
+
+    @staticmethod
+    def create(sensor_type: str = "soil_moisture") -> Dict[str, Any]:
+        """Create an IoT reading - إنشاء قراءة IoT"""
+        return {
+            "device_id": f"device-{faker_en.uuid4()[:8]}",
+            "sensor_type": sensor_type,
+            "value": faker_en.pyfloat(min_value=0, max_value=100, right_digits=2),
+            "unit": "%" if sensor_type == "soil_moisture" else "°C",
+            "latitude": 15.3694,
+            "longitude": 44.1910,
+            "timestamp": faker_en.iso8601()
+        }
+
+
+class ExperimentFactory:
+    """Factory for creating research experiments - مصنع لإنشاء التجارب البحثية"""
+
+    @staticmethod
+    def create() -> Dict[str, Any]:
+        """Create a research experiment - إنشاء تجربة بحثية"""
+        return {
+            "title": f"Test Experiment {faker_en.uuid4()[:8]}",
+            "title_ar": f"تجربة اختبار {faker_ar.uuid4()[:8]}",
+            "description": faker_en.text(),
+            "description_ar": faker_ar.text(),
+            "status": "active",
+            "start_date": faker_en.date_this_year().isoformat(),
+            "variables": {
+                "fertilizer_type": "NPK",
+                "irrigation_frequency": "daily"
+            }
+        }
 
 
 @pytest.fixture
-def sample_location() -> Dict[str, float]:
-    """
-    Sample location (Sana'a, Yemen)
-    موقع عينة (صنعاء، اليمن)
-    """
-    return {
-        "latitude": 15.3694,
-        "longitude": 44.1910
-    }
+def field_factory() -> FieldFactory:
+    """Field data factory - مصنع بيانات الحقول"""
+    return FieldFactory()
 
 
 @pytest.fixture
-def sample_ai_question() -> Dict[str, Any]:
-    """
-    Sample AI advisor question
-    سؤال عينة للمستشار الذكي
-    """
-    return {
-        "question": "ما هو أفضل وقت لزراعة القمح في اليمن؟",
-        "question_en": "What is the best time to plant wheat in Yemen?",
-        "field_id": "test-field-123",
-        "language": "ar"
-    }
+def weather_factory() -> WeatherQueryFactory:
+    """Weather query factory - مصنع استعلامات الطقس"""
+    return WeatherQueryFactory()
 
 
 @pytest.fixture
-def sample_payment() -> Dict[str, Any]:
+def notification_factory() -> NotificationFactory:
+    """Notification factory - مصنع الإشعارات"""
+    return NotificationFactory()
+
+
+@pytest.fixture
+def inventory_factory() -> InventoryItemFactory:
+    """Inventory item factory - مصنع عناصر المخزون"""
+    return InventoryItemFactory()
+
+
+@pytest.fixture
+def ai_query_factory() -> AIQueryFactory:
+    """AI query factory - مصنع استعلامات الذكاء الاصطناعي"""
+    return AIQueryFactory()
+
+
+@pytest.fixture
+def payment_factory() -> PaymentFactory:
+    """Payment factory - مصنع الدفعات"""
+    return PaymentFactory()
+
+
+@pytest.fixture
+def iot_factory() -> IoTReadingFactory:
+    """IoT reading factory - مصنع قراءات IoT"""
+    return IoTReadingFactory()
+
+
+@pytest.fixture
+def experiment_factory() -> ExperimentFactory:
+    """Experiment factory - مصنع التجارب"""
+    return ExperimentFactory()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Service URL Fixtures - إعدادات عناوين الخدمات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@pytest.fixture
+def service_urls() -> Dict[str, str]:
     """
-    Sample payment data
-    بيانات دفع عينة
+    Service URLs for integration testing
+    عناوين الخدمات لاختبارات التكامل
     """
     return {
-        "amount": 100.00,
-        "currency": "YER",
-        "payment_method": "tharwatt",
-        "description": "SAHOOL Subscription - Monthly"
+        # Starter Package
+        "field_core": "http://localhost:3000",
+        "weather_core": "http://localhost:8108",
+        "astronomical_calendar": "http://localhost:8111",
+        "agro_advisor": "http://localhost:8105",
+        "notification_service": "http://localhost:8110",
+
+        # Professional Package
+        "satellite_service": "http://localhost:8090",
+        "ndvi_engine": "http://localhost:8107",
+        "crop_health_ai": "http://localhost:8095",
+        "irrigation_smart": "http://localhost:8094",
+        "inventory_service": "http://localhost:8116",
+
+        # Enterprise Package
+        "ai_advisor": "http://localhost:8112",
+        "iot_gateway": "http://localhost:8106",
+        "marketplace_service": "http://localhost:3010",
+        "billing_core": "http://localhost:8089",
+        "research_core": "http://localhost:3015",
     }
 
 
@@ -524,35 +548,22 @@ def sample_payment() -> Dict[str, Any]:
 # Helper Functions - دوال مساعدة
 # ═══════════════════════════════════════════════════════════════════════════════
 
-async def wait_for_service(
-    client: httpx.AsyncClient,
-    config: ServiceConfig,
-    max_retries: int = 10,
+async def wait_for_service_health(
+    client: AsyncClient,
+    url: str,
+    health_endpoint: str = "/healthz",
+    max_retries: int = 30,
     delay: float = 2.0
 ) -> bool:
     """
     Wait for a service to become healthy
-    انتظار حتى تصبح الخدمة جاهزة
-
-    Args:
-        client: HTTP client
-        config: Service configuration
-        max_retries: Maximum retry attempts
-        delay: Delay between retries in seconds
-
-    Returns:
-        True if service is healthy, False otherwise
+    انتظار حتى تصبح الخدمة صحية
     """
-    import asyncio
-
-    if not config.health_endpoint:
-        return True  # Services without health endpoints are assumed ready
-
-    url = f"{config.url}{config.health_endpoint}"
+    full_url = f"{url}{health_endpoint}"
 
     for attempt in range(max_retries):
         try:
-            response = await client.get(url, timeout=config.timeout)
+            response = await client.get(full_url)
             if response.status_code in (200, 204):
                 return True
         except (httpx.ConnectError, httpx.TimeoutException):
@@ -565,19 +576,16 @@ async def wait_for_service(
 
 
 @pytest.fixture
-async def ensure_services_ready(
-    http_client: httpx.AsyncClient,
-    service_configs: Dict[str, ServiceConfig]
-) -> None:
+async def wait_for_services(http_client: AsyncClient, service_urls: Dict[str, str]):
     """
-    Ensure all critical services are ready before running tests
-    التأكد من أن جميع الخدمات الحرجة جاهزة قبل تشغيل الاختبارات
+    Wait for all services to be ready
+    انتظار حتى تصبح جميع الخدمات جاهزة
     """
-    critical_services = ["kong", "nats", "field_ops", "weather_core"]
+    async def wait(service_name: str, timeout: int = 60) -> bool:
+        url = service_urls.get(service_name)
+        if not url:
+            return False
 
-    for service_name in critical_services:
-        if service_name in service_configs:
-            config = service_configs[service_name]
-            is_ready = await wait_for_service(http_client, config)
-            if not is_ready:
-                pytest.skip(f"Service {config.name} is not ready")
+        return await wait_for_service_health(http_client, url, max_retries=timeout // 2)
+
+    return wait

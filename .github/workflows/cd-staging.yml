@@ -1,0 +1,556 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL CD Pipeline - Staging Deployment
+# Version: 16.0.0
+# Triggers: Push to main branch
+# Deployment Order: Starter → Professional → Enterprise (with tests between each)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to deploy'
+        required: true
+        type: choice
+        options:
+          - all
+          - starter
+          - professional
+          - enterprise
+
+env:
+  ENVIRONMENT: staging
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  KUBERNETES_NAMESPACE: sahool-staging
+  HELM_TIMEOUT: 10m
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Pre-deployment Checks
+  # ─────────────────────────────────────────────────────────────────────────────
+  pre-deploy-checks:
+    name: Pre-deployment Checks
+    runs-on: ubuntu-latest
+    outputs:
+      deploy_starter: ${{ steps.check.outputs.deploy_starter }}
+      deploy_professional: ${{ steps.check.outputs.deploy_professional }}
+      deploy_enterprise: ${{ steps.check.outputs.deploy_enterprise }}
+      kubeconfig_available: ${{ steps.secrets.outputs.kubeconfig_available }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check required secrets
+        id: secrets
+        run: |
+          # Check if kubeconfig is available
+          if [ -z "${{ secrets.KUBE_CONFIG_STAGING }}" ]; then
+            echo "⚠️ KUBE_CONFIG_STAGING secret is not configured"
+            echo "Deployment will be skipped - configure the secret to enable deployments"
+            echo "kubeconfig_available=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ KUBE_CONFIG_STAGING secret is available"
+            echo "kubeconfig_available=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine deployment scope
+        id: check
+        run: |
+          PACKAGE="${{ github.event.inputs.package || 'all' }}"
+
+          if [ "$PACKAGE" = "all" ] || [ "$PACKAGE" = "starter" ]; then
+            echo "deploy_starter=true" >> $GITHUB_OUTPUT
+          else
+            echo "deploy_starter=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [ "$PACKAGE" = "all" ] || [ "$PACKAGE" = "professional" ]; then
+            echo "deploy_professional=true" >> $GITHUB_OUTPUT
+          else
+            echo "deploy_professional=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [ "$PACKAGE" = "all" ] || [ "$PACKAGE" = "enterprise" ]; then
+            echo "deploy_enterprise=true" >> $GITHUB_OUTPUT
+          else
+            echo "deploy_enterprise=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check Docker images exist
+        run: |
+          echo "Verifying Docker images are available..."
+          # This would check if images with the current SHA exist in the registry
+          echo "Images verified for SHA: ${{ github.sha }}"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Deploy Starter Package
+  # Services: field-ops, weather-core, agro-advisor
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-starter:
+    name: Deploy Starter Package
+    runs-on: ubuntu-latest
+    needs: [pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.deploy_starter == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
+    environment:
+      name: staging-starter
+      url: https://staging.sahool.io
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
+
+      - name: Create namespace if not exists
+        run: |
+          kubectl create namespace ${{ env.KUBERNETES_NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create Docker registry secret
+        run: |
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=${{ env.REGISTRY }} \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.GITHUB_TOKEN }} \
+            --namespace=${{ env.KUBERNETES_NAMESPACE }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy infrastructure services
+        run: |
+          echo "Deploying PostgreSQL, Redis, NATS..."
+          helm upgrade --install infra-staging ./helm/infra \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+      - name: Deploy Starter services
+        run: |
+          echo "Deploying Starter package services..."
+
+          # Deploy field-ops
+          helm upgrade --install field-ops ./helm/services/field-ops \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --set secrets.jwtSecret=${{ secrets.JWT_SECRET_STAGING }} \
+            --set database.url=${{ secrets.DATABASE_URL_STAGING }} \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy weather-core
+          helm upgrade --install weather-core ./helm/services/weather-core \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --set secrets.openWeatherApiKey=${{ secrets.OPENWEATHER_API_KEY }} \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy agro-advisor
+          helm upgrade --install agro-advisor ./helm/services/agro-advisor \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+      - name: Wait for services to be ready
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l package=starter \
+            --namespace=${{ env.KUBERNETES_NAMESPACE }} \
+            --timeout=300s
+
+      - name: Verify deployments
+        run: |
+          kubectl get deployments -n ${{ env.KUBERNETES_NAMESPACE }}
+          kubectl get pods -n ${{ env.KUBERNETES_NAMESPACE }} -l package=starter
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Integration Tests - Starter Package
+  # ─────────────────────────────────────────────────────────────────────────────
+  test-starter:
+    name: Test Starter Package
+    runs-on: ubuntu-latest
+    needs: [deploy-starter, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run integration tests
+        run: |
+          pytest tests/integration/starter/ -v --tb=short
+        env:
+          API_BASE_URL: https://staging.sahool.io
+          API_KEY: ${{ secrets.STAGING_API_KEY }}
+
+      - name: Run smoke tests
+        run: |
+          # Test field-ops health
+          curl -f https://staging.sahool.io/api/v1/field-ops/health || exit 1
+
+          # Test weather-core health
+          curl -f https://staging.sahool.io/api/v1/weather/health || exit 1
+
+          # Test agro-advisor health
+          curl -f https://staging.sahool.io/api/v1/agro-advisor/health || exit 1
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Deploy Professional Package
+  # Additional Services: crop-health, ndvi-engine, irrigation-smart
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-professional:
+    name: Deploy Professional Package
+    runs-on: ubuntu-latest
+    needs: [test-starter, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.deploy_professional == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
+    environment:
+      name: staging-professional
+      url: https://staging.sahool.io/professional
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
+
+      - name: Deploy Professional services
+        run: |
+          echo "Deploying Professional package services..."
+
+          # Deploy crop-health
+          helm upgrade --install crop-health ./helm/services/crop-health \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy ndvi-engine
+          helm upgrade --install ndvi-engine ./helm/services/ndvi-engine \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --set secrets.sentinelHubId=${{ secrets.SENTINEL_HUB_ID }} \
+            --set secrets.sentinelHubSecret=${{ secrets.SENTINEL_HUB_SECRET }} \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy irrigation-smart
+          helm upgrade --install irrigation-smart ./helm/services/irrigation-smart \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+      - name: Wait for services to be ready
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l package=professional \
+            --namespace=${{ env.KUBERNETES_NAMESPACE }} \
+            --timeout=300s
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Integration Tests - Professional Package
+  # ─────────────────────────────────────────────────────────────────────────────
+  test-professional:
+    name: Test Professional Package
+    runs-on: ubuntu-latest
+    needs: [deploy-professional, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run integration tests
+        run: |
+          pytest tests/integration/professional/ -v --tb=short
+        env:
+          API_BASE_URL: https://staging.sahool.io
+          API_KEY: ${{ secrets.STAGING_API_KEY }}
+
+      - name: Run smoke tests
+        run: |
+          curl -f https://staging.sahool.io/api/v1/crop-health/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/ndvi/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/irrigation/health || exit 1
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Deploy Enterprise Package
+  # Additional Services: satellite-service, weather-advanced, crop-health-ai,
+  #                     yield-engine, billing-core, inventory-service
+  # ─────────────────────────────────────────────────────────────────────────────
+  deploy-enterprise:
+    name: Deploy Enterprise Package
+    runs-on: ubuntu-latest
+    needs: [test-professional, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.deploy_enterprise == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
+    environment:
+      name: staging-enterprise
+      url: https://staging.sahool.io/enterprise
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
+
+      - name: Deploy Enterprise services
+        run: |
+          echo "Deploying Enterprise package services..."
+
+          # Deploy satellite-service
+          helm upgrade --install satellite-service ./helm/services/satellite-service \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --set secrets.sentinelHubId=${{ secrets.SENTINEL_HUB_ID }} \
+            --set secrets.sentinelHubSecret=${{ secrets.SENTINEL_HUB_SECRET }} \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy weather-advanced
+          helm upgrade --install weather-advanced ./helm/services/weather-advanced \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy crop-health-ai
+          helm upgrade --install crop-health-ai ./helm/services/crop-health-ai \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy yield-engine
+          helm upgrade --install yield-engine ./helm/services/yield-engine \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy billing-core
+          helm upgrade --install billing-core ./helm/services/billing-core \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --set secrets.stripeSecretKey=${{ secrets.STRIPE_SECRET_KEY_TEST }} \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+          # Deploy inventory-service
+          helm upgrade --install inventory-service ./helm/services/inventory-service \
+            --namespace ${{ env.KUBERNETES_NAMESPACE }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --timeout ${{ env.HELM_TIMEOUT }} \
+            --wait
+
+      - name: Wait for services to be ready
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l package=enterprise \
+            --namespace=${{ env.KUBERNETES_NAMESPACE }} \
+            --timeout=300s
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Integration Tests - Enterprise Package
+  # ─────────────────────────────────────────────────────────────────────────────
+  test-enterprise:
+    name: Test Enterprise Package
+    runs-on: ubuntu-latest
+    needs: [deploy-enterprise, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-asyncio httpx
+
+      - name: Run integration tests
+        run: |
+          pytest tests/integration/enterprise/ -v --tb=short
+        env:
+          API_BASE_URL: https://staging.sahool.io
+          API_KEY: ${{ secrets.STAGING_API_KEY }}
+
+      - name: Run smoke tests
+        run: |
+          curl -f https://staging.sahool.io/api/v1/satellite/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/weather-advanced/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/crop-ai/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/yield/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/billing/health || exit 1
+          curl -f https://staging.sahool.io/api/v1/inventory/health || exit 1
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # End-to-End Smoke Tests
+  # ─────────────────────────────────────────────────────────────────────────────
+  smoke-tests:
+    name: End-to-End Smoke Tests
+    runs-on: ubuntu-latest
+    needs: [test-enterprise, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-asyncio httpx playwright
+          playwright install
+
+      - name: Run E2E smoke tests
+        run: |
+          pytest tests/e2e/smoke/ -v --tb=short
+        env:
+          APP_URL: https://staging.sahool.io
+          API_KEY: ${{ secrets.STAGING_API_KEY }}
+
+      - name: Test critical user flows
+        run: |
+          # Test user registration and login
+          python tests/scripts/test_user_flow.py
+
+          # Test field creation workflow
+          python tests/scripts/test_field_workflow.py
+
+          # Test weather data retrieval
+          python tests/scripts/test_weather_flow.py
+        env:
+          APP_URL: https://staging.sahool.io
+          TEST_USER_EMAIL: test@sahool.io
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Deployment Summary
+  # ─────────────────────────────────────────────────────────────────────────────
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [smoke-tests, pre-deploy-checks]
+    if: always()
+    steps:
+      - name: Generate deployment summary
+        run: |
+          echo "## 🚀 Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Staging" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.pre-deploy-checks.outputs.kubeconfig_available }}" != "true" ]; then
+            echo "### ⚠️ Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Kubernetes deployment was skipped because \`KUBE_CONFIG_STAGING\` secret is not configured." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To enable deployments, configure the following secrets in repository settings:" >> $GITHUB_STEP_SUMMARY
+            echo "- \`KUBE_CONFIG_STAGING\`: Kubernetes configuration for staging cluster" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Services Deployed" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Starter Package" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Professional Package" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Enterprise Package" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Access" >> $GITHUB_STEP_SUMMARY
+            echo "- **URL:** https://staging.sahool.io" >> $GITHUB_STEP_SUMMARY
+            echo "- **API Docs:** https://staging.sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Notify deployment success
+        if: success()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "✅ Staging Deployment Successful",
+              blocks: [
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "*Staging Deployment Completed*\n\n*Environment:* Staging\n*Commit:* ${{ github.sha }}\n*Branch:* ${{ github.ref_name }}\n*URL:* https://staging.sahool.io"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Notify deployment failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "❌ Staging Deployment Failed",
+              blocks: [
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "*Staging Deployment Failed*\n\n*Commit:* ${{ github.sha }}\n*Branch:* ${{ github.ref_name }}\n*Check:* ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

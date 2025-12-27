@@ -1,0 +1,119 @@
+{{- if .Values.infrastructure.kong.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sahool.fullname" . }}-kong-proxy
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kong-proxy
+spec:
+  type: LoadBalancer
+  ports:
+    - name: proxy
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+    - name: proxy-ssl
+      port: 443
+      targetPort: 8443
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "sahool.name" . }}
+    app.kubernetes.io/component: kong
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sahool.fullname" . }}-kong-admin
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kong-admin
+spec:
+  type: ClusterIP
+  ports:
+    - name: admin
+      port: 8001
+      targetPort: 8001
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: {{ include "sahool.name" . }}
+    app.kubernetes.io/component: kong
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sahool.fullname" . }}-kong
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: kong
+spec:
+  replicas: {{ .Values.infrastructure.kong.replicaCount | default 2 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sahool.name" . }}
+      app.kubernetes.io/component: kong
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sahool.name" . }}
+        app.kubernetes.io/component: kong
+    spec:
+      containers:
+        - name: kong
+          image: "{{ .Values.infrastructure.kong.image.repository }}:{{ .Values.infrastructure.kong.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: KONG_DATABASE
+              value: {{ .Values.infrastructure.kong.database }}
+            - name: KONG_PG_HOST
+              value: {{ include "sahool.fullname" . }}-postgresql
+            - name: KONG_PG_PORT
+              value: "5432"
+            - name: KONG_PG_USER
+              value: {{ .Values.infrastructure.postgresql.auth.username }}
+            - name: KONG_PG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.infrastructure.postgresql.auth.existingSecret }}
+                  key: password
+            - name: KONG_PG_DATABASE
+              value: kong
+            - name: KONG_PROXY_ACCESS_LOG
+              value: /dev/stdout
+            - name: KONG_ADMIN_ACCESS_LOG
+              value: /dev/stdout
+            - name: KONG_PROXY_ERROR_LOG
+              value: /dev/stderr
+            - name: KONG_ADMIN_ERROR_LOG
+              value: /dev/stderr
+            - name: KONG_ADMIN_LISTEN
+              value: "0.0.0.0:8001"
+          ports:
+            - name: proxy
+              containerPort: 8000
+              protocol: TCP
+            - name: proxy-ssl
+              containerPort: 8443
+              protocol: TCP
+            - name: admin
+              containerPort: 8001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /status
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /status
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.infrastructure.kong.resources | nindent 12 }}
+{{- end }}

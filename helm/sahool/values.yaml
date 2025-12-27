@@ -1,13 +1,21 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SAHOOL Helm Chart Values
-# v16.0.0
+# SAHOOL Helm Chart Values - منصة سهول الزراعية
+# v15.3.2
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Global settings
+# ─────────────────────────────────────────────────────────────────────────────
+# Global Settings
+# ─────────────────────────────────────────────────────────────────────────────
+
 global:
-  imageRegistry: ""
+  imageRegistry: "ghcr.io/sahool"
   imagePullSecrets: []
-  storageClass: ""
+  storageClass: "standard"
+  environment: "development"  # development, staging, production
+
+# Deployment Package Tier (controls which services are enabled)
+# Options: starter, professional, enterprise
+packageTier: "starter"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Common Configuration
@@ -15,7 +23,9 @@ global:
 
 nameOverride: ""
 fullnameOverride: ""
+namespaceOverride: ""
 
+# Default replica count for services
 replicaCount: 1
 
 image:
@@ -24,12 +34,28 @@ image:
 serviceAccount:
   create: true
   annotations: {}
-  name: ""
+  name: "sahool-sa"
+  automountServiceAccountToken: true
 
-podAnnotations: {}
-podSecurityContext: {}
-securityContext: {}
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
 
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+
+# Default resource limits
 resources:
   limits:
     cpu: 500m
@@ -46,54 +72,406 @@ affinity: {}
 # Infrastructure Dependencies
 # ─────────────────────────────────────────────────────────────────────────────
 
-postgresql:
-  enabled: true
-  auth:
-    # IMPORTANT: Override these in your values-production.yaml or via --set
-    # Never use default passwords in production!
-    username: sahool
-    # password: "" # Must be set via existingSecret or --set
-    database: sahool
-    existingSecret: "sahool-postgresql-secret"  # Create this secret with key "password"
-  primary:
-    persistence:
-      enabled: true
-      size: 10Gi
+infrastructure:
+  postgresql:
+    enabled: true
+    image:
+      repository: postgis/postgis
+      tag: "16-3.4"
+    auth:
+      username: sahool
+      database: sahool
+      existingSecret: "sahool-postgresql-secret"
+    primary:
+      persistence:
+        enabled: true
+        size: 20Gi
+        storageClass: ""
+      resources:
+        limits:
+          cpu: 2000m
+          memory: 4Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
 
-nats:
-  enabled: true
+  redis:
+    enabled: true
+    image:
+      repository: redis
+      tag: "7.4-alpine"
+    auth:
+      enabled: true
+      existingSecret: "sahool-redis-secret"
+    master:
+      persistence:
+        enabled: true
+        size: 5Gi
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1Gi
+        requests:
+          cpu: 100m
+          memory: 256Mi
+
   nats:
+    enabled: true
+    image:
+      repository: nats
+      tag: "2.10.24-alpine"
     jetstream:
       enabled: true
       memStorage:
         enabled: true
-        size: 1Gi
+        size: 2Gi
       fileStorage:
         enabled: true
-        size: 5Gi
+        size: 10Gi
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
 
-redis:
-  enabled: true
-  auth:
+  kong:
     enabled: true
-    existingSecret: "sahool-redis-secret"  # Create this secret with key "redis-password"
-  master:
+    image:
+      repository: kong
+      tag: "3.4"
+    database: postgres
+    admin:
+      enabled: true
+      http:
+        enabled: true
+        servicePort: 8001
+    proxy:
+      enabled: true
+      http:
+        enabled: true
+        servicePort: 8000
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+
+  qdrant:
+    enabled: false  # Only for Enterprise
+    image:
+      repository: qdrant/qdrant
+      tag: "v1.10.1"
     persistence:
       enabled: true
-      size: 1Gi
+      size: 10Gi
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Application Services
+# Application Services - Organized by Package Tier
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
-  fieldOps:
+  # ═════════════════════════════════════════════════════════════════════════════
+  # 🌱 STARTER PACKAGE - Basic Services
+  # ═════════════════════════════════════════════════════════════════════════════
+
+  fieldCore:
     enabled: true
-    name: field-ops
+    name: field-core
+    package: starter
     image:
-      repository: sahool/field-ops
-      tag: "16.0.0"
-    port: 8080
+      repository: field-core
+      tag: "15.3.2"
+    port: 3000
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 5
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+    env:
+      - name: NODE_ENV
+        value: production
+      - name: PORT
+        value: "3000"
+
+  weatherCore:
+    enabled: true
+    name: weather-core
+    package: starter
+    image:
+      repository: weather-core
+      tag: "15.3.2"
+    port: 8108
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  astronomicalCalendar:
+    enabled: true
+    name: astronomical-calendar
+    package: starter
+    image:
+      repository: astronomical-calendar
+      tag: "15.3.2"
+    port: 8111
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 250m
+        memory: 256Mi
+      requests:
+        cpu: 50m
+        memory: 128Mi
+    autoscaling:
+      enabled: false
+
+  agroAdvisor:
+    enabled: true
+    name: agro-advisor
+    package: starter
+    image:
+      repository: agro-advisor
+      tag: "15.3.2"
+    port: 8105
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  notificationService:
+    enabled: true
+    name: notification-service
+    package: starter
+    image:
+      repository: notification-service
+      tag: "15.3.2"
+    port: 8110
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  # ═════════════════════════════════════════════════════════════════════════════
+  # 🚜 PROFESSIONAL PACKAGE - Additional Services
+  # ═════════════════════════════════════════════════════════════════════════════
+
+  satelliteService:
+    enabled: false  # Enable when packageTier >= professional
+    name: satellite-service
+    package: professional
+    image:
+      repository: satellite-service
+      tag: "15.3.2"
+    port: 8090
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+      targetCPUUtilization: 75
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  ndviEngine:
+    enabled: false
+    name: ndvi-engine
+    package: professional
+    image:
+      repository: ndvi-engine
+      tag: "15.3.2"
+    port: 8107
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 5
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  cropHealthAi:
+    enabled: false
+    name: crop-health-ai
+    package: professional
+    image:
+      repository: crop-health-ai
+      tag: "15.3.2"
+    port: 8095
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+      targetCPUUtilization: 75
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  irrigationSmart:
+    enabled: false
+    name: irrigation-smart
+    package: professional
+    image:
+      repository: irrigation-smart
+      tag: "15.3.2"
+    port: 8094
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: false
+
+  virtualSensors:
+    enabled: false
+    name: virtual-sensors
+    package: professional
+    image:
+      repository: virtual-sensors
+      tag: "15.3.2"
+    port: 8096
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: false
+
+  yieldEngine:
+    enabled: false
+    name: yield-engine
+    package: professional
+    image:
+      repository: yield-engine
+      tag: "15.3.2"
+    port: 8098
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 200m
+        memory: 512Mi
+    autoscaling:
+      enabled: false
+
+  fertilizerAdvisor:
+    enabled: false
+    name: fertilizer-advisor
+    package: professional
+    image:
+      repository: fertilizer-advisor
+      tag: "15.3.2"
+    port: 8093
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    autoscaling:
+      enabled: false
+
+  inventoryService:
+    enabled: false
+    name: inventory-service
+    package: professional
+    image:
+      repository: inventory-service
+      tag: "15.3.2"
+    port: 8116
     replicaCount: 2
     resources:
       limits:
@@ -101,65 +479,61 @@ services:
         memory: 1Gi
       requests:
         cpu: 200m
-        memory: 256Mi
-    # Autoscaling configuration
+        memory: 512Mi
     autoscaling:
       enabled: true
       minReplicas: 2
-      maxReplicas: 10
+      maxReplicas: 4
       targetCPUUtilization: 70
-      targetMemoryUtilization: 80
-    # Pod Disruption Budget
     pdb:
       enabled: true
       minAvailable: 1
-    # Progressive Delivery (requires Argo Rollouts)
-    rollout:
-      enabled: false  # Enable for canary deployments
-      strategy: canary
-      canary:
-        steps:
-          - setWeight: 20
-          - pause: {duration: 2m}
-          - setWeight: 50
-          - pause: {duration: 5m}
-          - setWeight: 80
-          - pause: {duration: 2m}
 
-  ndviEngine:
-    enabled: true
-    name: ndvi-engine
-    image:
-      repository: sahool/ndvi-engine
-      tag: "16.0.0"
-    port: 8097
-    replicaCount: 1
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
+  # ═════════════════════════════════════════════════════════════════════════════
+  # 🏢 ENTERPRISE PACKAGE - Advanced Services
+  # ═════════════════════════════════════════════════════════════════════════════
 
-  weatherCore:
-    enabled: true
-    name: weather-core
+  aiAdvisor:
+    enabled: false  # Enable when packageTier == enterprise
+    name: ai-advisor
+    package: enterprise
     image:
-      repository: sahool/weather-core
-      tag: "16.0.0"
-    port: 8098
-    replicaCount: 1
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
-
-  fieldChat:
-    enabled: true
-    name: field-chat
-    image:
-      repository: sahool/field-chat
-      tag: "16.0.0"
-    port: 8099
+      repository: ai-advisor
+      tag: "15.3.2"
+    port: 8112
     replicaCount: 2
+    resources:
+      limits:
+        cpu: 4000m
+        memory: 8Gi
+      requests:
+        cpu: 1000m
+        memory: 4Gi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 6
+      targetCPUUtilization: 75
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  iotGateway:
+    enabled: false
+    name: iot-gateway
+    package: enterprise
+    image:
+      repository: iot-gateway
+      tag: "15.3.2"
+    port: 8106
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
     autoscaling:
       enabled: true
       minReplicas: 2
@@ -169,48 +543,131 @@ services:
       enabled: true
       minAvailable: 1
 
-  iotGateway:
-    enabled: true
-    name: iot-gateway
+  researchCore:
+    enabled: false
+    name: research-core
+    package: enterprise
     image:
-      repository: sahool/iot-gateway
-      tag: "16.0.0"
-    port: 8094
+      repository: research-core
+      tag: "15.3.2"
+    port: 3015
     replicaCount: 1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
     autoscaling:
       enabled: false
-    pdb:
-      enabled: false
 
-  agroAdvisor:
-    enabled: true
-    name: agro-advisor
+  marketplaceService:
+    enabled: false
+    name: marketplace-service
+    package: enterprise
     image:
-      repository: sahool/agro-advisor
-      tag: "16.0.0"
-    port: 8095
-    replicaCount: 1
-    autoscaling:
-      enabled: false
-    pdb:
-      enabled: false
-
-  wsGateway:
-    enabled: true
-    name: ws-gateway
-    image:
-      repository: sahool/ws-gateway
-      tag: "16.0.0"
-    port: 8090
+      repository: marketplace-service
+      tag: "15.3.2"
+    port: 3010
     replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
     autoscaling:
       enabled: true
       minReplicas: 2
-      maxReplicas: 10
-      targetCPUUtilization: 60
+      maxReplicas: 6
+      targetCPUUtilization: 70
     pdb:
       enabled: true
       minAvailable: 1
+
+  billingCore:
+    enabled: false
+    name: billing-core
+    package: enterprise
+    image:
+      repository: billing-core
+      tag: "15.3.2"
+    port: 8089
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+      targetCPUUtilization: 70
+    pdb:
+      enabled: true
+      minAvailable: 1
+
+  disasterAssessment:
+    enabled: false
+    name: disaster-assessment
+    package: enterprise
+    image:
+      repository: disaster-assessment
+      tag: "15.3.2"
+    port: 3020
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+    autoscaling:
+      enabled: false
+
+  cropGrowthModel:
+    enabled: false
+    name: crop-growth-model
+    package: enterprise
+    image:
+      repository: crop-growth-model
+      tag: "15.3.2"
+    port: 3023
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    autoscaling:
+      enabled: false
+
+  laiEstimation:
+    enabled: false
+    name: lai-estimation
+    package: enterprise
+    image:
+      repository: lai-estimation
+      tag: "15.3.2"
+    port: 3022
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+    autoscaling:
+      enabled: false
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Ingress Configuration
@@ -220,36 +677,110 @@ ingress:
   enabled: true
   className: "nginx"
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
   hosts:
-    - host: sahool.local
+    - host: api.sahool.ag
       paths:
-        - path: /api/fieldops
+        # Starter Package Routes
+        - path: /api/v1/fields
           pathType: Prefix
-          service: field-ops
-        - path: /api/ndvi
-          pathType: Prefix
-          service: ndvi-engine
-        - path: /api/weather
+          service: field-core
+          port: 3000
+        - path: /api/v1/weather
           pathType: Prefix
           service: weather-core
-        - path: /api/chat
+          port: 8108
+        - path: /api/v1/calendar
           pathType: Prefix
-          service: field-chat
-        - path: /api/iot
-          pathType: Prefix
-          service: iot-gateway
-        - path: /api/agro
+          service: astronomical-calendar
+          port: 8111
+        - path: /api/v1/advisory
           pathType: Prefix
           service: agro-advisor
-        - path: /ws
+          port: 8105
+        - path: /api/v1/notifications
           pathType: Prefix
-          service: ws-gateway
+          service: notification-service
+          port: 8110
+        # Professional Package Routes
+        - path: /api/v1/satellite
+          pathType: Prefix
+          service: satellite-service
+          port: 8090
+        - path: /api/v1/ndvi
+          pathType: Prefix
+          service: ndvi-engine
+          port: 8107
+        - path: /api/v1/crop-health
+          pathType: Prefix
+          service: crop-health-ai
+          port: 8095
+        - path: /api/v1/inventory
+          pathType: Prefix
+          service: inventory-service
+          port: 8116
+        # Enterprise Package Routes
+        - path: /api/v1/ai-advisor
+          pathType: Prefix
+          service: ai-advisor
+          port: 8112
+        - path: /api/v1/iot
+          pathType: Prefix
+          service: iot-gateway
+          port: 8106
+        - path: /api/v1/marketplace
+          pathType: Prefix
+          service: marketplace-service
+          port: 3010
+        - path: /api/v1/billing
+          pathType: Prefix
+          service: billing-core
+          port: 8089
   tls:
-    - secretName: sahool-tls
+    - secretName: sahool-tls-prod
       hosts:
-        - sahool.local
+        - api.sahool.ag
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Network Policies
+# ─────────────────────────────────────────────────────────────────────────────
+
+networkPolicy:
+  enabled: true
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: sahool
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: sahool
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: TCP
+          port: 5432  # PostgreSQL
+        - protocol: TCP
+          port: 6379  # Redis
+        - protocol: TCP
+          port: 4222  # NATS
+        - protocol: TCP
+          port: 53    # DNS
+          protocol: UDP
+          port: 53
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Security Configuration
@@ -257,33 +788,80 @@ ingress:
 
 security:
   jwt:
-    algorithm: RS256  # RS256 is more secure than HS256
-    issuer: sahool-idp
-    audience: sahool-platform
+    algorithm: HS256
+    issuer: sahool-platform
+    audience: sahool-api
     accessExpireMinutes: 30
     refreshExpireDays: 7
-    # Keys must be provided via secrets, not values
-    existingSecret: "sahool-jwt-secret"  # Must contain jwt-private-key and jwt-public-key
+    existingSecret: "sahool-jwt-secret"
 
   rbac:
     enabled: true
+    rules:
+      - apiGroups: [""]
+        resources: ["pods", "services", "configmaps"]
+        verbs: ["get", "list", "watch"]
 
-  audit:
-    enabled: true
+  podSecurityPolicy:
+    enabled: false
 
   mtls:
     enabled: false
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Monitoring (Optional)
+# Monitoring & Observability
 # ─────────────────────────────────────────────────────────────────────────────
 
 monitoring:
   enabled: false
   prometheus:
     enabled: false
+    scrapeInterval: 30s
+    retention: 15d
+    resources:
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+      requests:
+        cpu: 500m
+        memory: 2Gi
   grafana:
     enabled: false
+    adminPassword: ""  # Set via secret
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Configuration Management
+# ─────────────────────────────────────────────────────────────────────────────
+
+configMap:
+  # Common environment variables for all services
+  commonEnv:
+    LOG_LEVEL: "info"
+    NODE_ENV: "production"
+    TZ: "Asia/Riyadh"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Secrets Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+secrets:
+  # External secrets to be created manually or via External Secrets Operator
+  externalSecrets:
+    - sahool-postgresql-secret
+    - sahool-redis-secret
+    - sahool-jwt-secret
+    - sahool-tls-prod
+    - sahool-api-keys
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Feature Flags
@@ -293,19 +871,17 @@ features:
   enableSecurity: true
   enableAuditLogging: true
   enableRateLimiting: true
-  enableMetrics: false
+  enableMetrics: true
+  enableTracing: false
+  enableCaching: true
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Governance Configuration
+# Backup & Disaster Recovery
 # ─────────────────────────────────────────────────────────────────────────────
 
-governance:
-  owner: "platform"
-  team: "sahool"
-  lifecycle: "production"
-  tier: "tier-1"
-  labels:
-    sahool.io/owner: "platform"
-    sahool.io/team: "sahool"
-    sahool.io/lifecycle: "production"
-    sahool.io/tier: "tier-1"
+backup:
+  enabled: false
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: 30  # days
+  storageClass: "standard"
+  size: 50Gi

@@ -131,6 +131,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Rate Limiting - Security measure for payment endpoints
+try:
+    from middleware.rate_limiter import setup_rate_limiting
+    rate_limiter = setup_rate_limiting(
+        app,
+        use_redis=os.getenv("REDIS_URL") is not None,
+        exclude_paths=["/healthz", "/v1/webhooks/stripe", "/v1/webhooks/tharwatt"],
+    )
+    logger.info("Rate limiting enabled for billing-core")
+except ImportError:
+    logger.warning("Rate limiter not available - proceeding without rate limiting")
+
 # Environment configuration
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
@@ -1262,7 +1274,8 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
             return response.json()
         except httpx.HTTPError as e:
             logger.error(f"Tharwatt API error: {e}")
-            raise HTTPException(502, f"Tharwatt payment gateway error: {str(e)}")
+            # Security: Don't expose internal error details to client
+            raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
 
 
 async def call_stripe_api(payment: Any, token: str) -> dict:
@@ -1285,7 +1298,8 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
         return {"stripe_charge_id": charge.id, "status": charge.status}
     except Exception as e:
         logger.error(f"Stripe API error: {e}")
-        raise HTTPException(502, f"Stripe payment error: {str(e)}")
+        # Security: Don't expose internal error details to client
+        raise HTTPException(502, "Payment processing failed. Please try again or contact support.")
 
 
 @app.post("/v1/payments")
@@ -1429,12 +1443,55 @@ class TharwattWebhookPayload(BaseModel):
     error_message: Optional[str] = None
 
 
+def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
+    """
+    Verify Tharwatt webhook signature using HMAC-SHA256
+    التحقق من توقيع ويب هوك ثروات
+    """
+    if not THARWATT_WEBHOOK_SECRET:
+        logger.warning("THARWATT_WEBHOOK_SECRET not configured - skipping signature verification")
+        return True  # Skip verification in dev only
+
+    try:
+        expected_signature = hmac.new(
+            THARWATT_WEBHOOK_SECRET.encode('utf-8'),
+            payload,
+            hashlib.sha256
+        ).hexdigest()
+
+        # Use constant-time comparison to prevent timing attacks
+        return hmac.compare_digest(signature.lower(), expected_signature.lower())
+    except Exception as e:
+        logger.error(f"Tharwatt signature verification error: {e}")
+        return False
+
+
 @app.post("/v1/webhooks/tharwatt")
-async def tharwatt_webhook(payload: TharwattWebhookPayload, background_tasks: BackgroundTasks):
+async def tharwatt_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+):
     """
     Tharwatt payment webhook callback
     ويب هوك لتأكيد المدفوعات من ثروات
     """
+    # Security: Verify webhook signature
+    raw_body = await request.body()
+    signature = request.headers.get("X-Tharwatt-Signature", "")
+
+    if not verify_tharwatt_signature(raw_body, signature):
+        logger.warning("Tharwatt webhook: Invalid signature")
+        raise HTTPException(401, "Invalid webhook signature")
+
+    # Parse payload after verification
+    try:
+        import json
+        payload_dict = json.loads(raw_body)
+        payload = TharwattWebhookPayload(**payload_dict)
+    except Exception as e:
+        logger.error(f"Tharwatt webhook: Invalid payload: {e}")
+        raise HTTPException(400, "Invalid payload format")
+
     # Find payment by reference
     payment = None
     for p in PAYMENTS.values():

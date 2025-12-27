@@ -33,7 +33,19 @@ from .inventory_analytics import InventoryAnalytics
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_inventory")
+# Security: Require DATABASE_URL from environment, no hardcoded defaults
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # Fallback for local development only - requires explicit opt-in
+    if os.getenv("ALLOW_DEV_DEFAULTS", "false").lower() == "true":
+        DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_inventory"
+        logger.warning("⚠️ Using development database defaults - NOT FOR PRODUCTION")
+    else:
+        raise ValueError(
+            "DATABASE_URL environment variable is required. "
+            "Set ALLOW_DEV_DEFAULTS=true for local development only."
+        )
+
 engine = create_async_engine(DATABASE_URL, echo=os.getenv("SQL_ECHO", "false").lower() == "true", pool_pre_ping=True)
 AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 

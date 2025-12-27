@@ -12,6 +12,11 @@ on:
       - 'apps/web/**'
       - '.github/workflows/e2e-tests.yml'
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   e2e-tests:
     name: Run E2E Tests
@@ -58,9 +63,10 @@ jobs:
 
       - name: Run E2E tests
         working-directory: apps/web
-        run: npx playwright test --project=${{ matrix.browser }} || true
+        run: npx playwright test --project=${{ matrix.browser }} --reporter=junit,html || true
         env:
           CI: true
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/results.xml
           PLAYWRIGHT_BASE_URL: http://localhost:3000
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL || 'test@example.com' }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD || 'testpassword123' }}
@@ -104,7 +110,8 @@ jobs:
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
+        continue-on-error: true
         with:
-          files: artifacts/**/results.json
+          files: artifacts/**/results.xml
           check_name: E2E Test Results
-          comment_mode: always
+          comment_mode: off

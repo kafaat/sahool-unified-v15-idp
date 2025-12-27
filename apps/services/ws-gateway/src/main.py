@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, HTTPException, Header
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
@@ -237,15 +237,56 @@ class BroadcastRequest(BaseModel):
 
 
 @app.post("/broadcast")
-async def broadcast_message(req: BroadcastRequest):
+async def broadcast_message(
+    req: BroadcastRequest,
+    authorization: Optional[str] = Header(None),
+):
     """
-    Broadcast a message to specific rooms or users
-    بث رسالة إلى غرف أو مستخدمين محددين
+    Broadcast a message to specific rooms or users.
+    Requires valid JWT token with matching tenant_id.
+
+    بث رسالة إلى غرف أو مستخدمين محددين.
+    يتطلب رمز JWT صالح مع tenant_id مطابق.
     """
+    # Extract token from Authorization header
+    token = None
+    if authorization:
+        if authorization.startswith("Bearer "):
+            token = authorization[7:]
+        else:
+            token = authorization
+
+    if not token:
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization token required for broadcast"
+        )
+
+    try:
+        # Validate token and check tenant ownership
+        payload = await validate_jwt_token(token)
+        token_tenant_id = payload.get("tenant_id")
+
+        # Ensure user can only broadcast to their own tenant
+        if token_tenant_id != req.tenant_id:
+            # Allow super_admin to broadcast to any tenant
+            roles = payload.get("roles", [])
+            if "super_admin" not in roles:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cannot broadcast to a different tenant"
+                )
+
+        logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")
+
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+
     ws_message = {
         "type": "broadcast",
         "message": req.message,
         "timestamp": datetime.utcnow().isoformat(),
+        "sender": payload.get("sub"),
     }
 
     sent_count = 0

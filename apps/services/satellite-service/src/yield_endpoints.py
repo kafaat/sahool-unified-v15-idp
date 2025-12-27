@@ -245,7 +245,7 @@ async def get_yield_history(
                 ["WHEAT", "SORGHUM", "TOMATO", "POTATO", "ONION", "CORN"],
                 k=min(seasons, 3)
             )
-    except:
+    except (ValueError, KeyError, IndexError):
         crop_codes = ["WHEAT", "TOMATO", "POTATO"]
 
     # Generate historical predictions
@@ -258,7 +258,7 @@ async def get_yield_history(
             crop_info = get_crop(crop_code_selected)
             crop_name_ar = crop_info.name_ar if crop_info else crop_code_selected
             base_yield = crop_info.base_yield_ton_ha if crop_info else 2.0
-        except:
+        except (ImportError, AttributeError, KeyError):
             crop_name_ar = crop_code_selected
             base_yield = 2.0
 

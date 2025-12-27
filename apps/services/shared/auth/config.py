@@ -22,6 +22,10 @@ class AuthConfig:
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
 
+    # JWT Issuer and Audience (for token validation)
+    issuer: str = "sahool-auth"
+    audience: str = "sahool-api"
+
     # API Key Settings
     api_key_header: str = "X-API-Key"
     api_keys: List[str] = field(default_factory=list)
@@ -56,6 +60,8 @@ class AuthConfig:
             refresh_token_expire_days=int(os.getenv(
                 f"{prefix}_REFRESH_TOKEN_EXPIRE_DAYS", "7"
             )),
+            issuer=os.getenv(f"{prefix}_ISSUER", "sahool-auth"),
+            audience=os.getenv(f"{prefix}_AUDIENCE", "sahool-api"),
             api_key_header=os.getenv(f"{prefix}_API_KEY_HEADER", "X-API-Key"),
             api_keys=api_keys,
             password_min_length=int(os.getenv(f"{prefix}_PASSWORD_MIN_LENGTH", "8")),

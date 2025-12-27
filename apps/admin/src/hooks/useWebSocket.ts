@@ -11,7 +11,6 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   getWebSocketClient,
   ConnectionStatus,
-  type WebSocketMessage,
   type AlertMessage,
   type SensorMessage,
   type IrrigationMessage,

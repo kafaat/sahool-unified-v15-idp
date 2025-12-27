@@ -4,7 +4,7 @@ WORKDIR /app
 
 
 # Upgrade pip to latest version
-RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
 # Install dependencies
 COPY requirements.txt .

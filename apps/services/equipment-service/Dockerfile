@@ -25,20 +25,18 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 
-# Upgrade pip (non-fatal in case of network issues)
-RUN pip install --upgrade pip || true
-
 # Install dependencies (using shared requirements)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared libraries
 
 # Copy source
 COPY src/ ./src/
 
-# Set ownership
-RUN chown -R sahool:sahool /app
+# Upgrade pip, install dependencies, and set ownership
+RUN pip install --upgrade pip || true && \
+    pip install --no-cache-dir -r requirements.txt && \
+    chown -R sahool:sahool /app
 
 USER sahool
 

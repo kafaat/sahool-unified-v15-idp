@@ -57,6 +57,32 @@ jobs:
           mkdir -p assets/icon assets/images assets/icons
           python3 scripts/generate_icons.py
 
+      - name: Validate required secrets
+        run: |
+          echo "Validating required API keys..."
+          MISSING_SECRETS=0
+
+          if [ -z "${{ secrets.WEATHER_API_KEY }}" ]; then
+            echo "❌ ERROR: WEATHER_API_KEY secret is not set"
+            MISSING_SECRETS=1
+          else
+            echo "✅ WEATHER_API_KEY is configured"
+          fi
+
+          if [ -z "${{ secrets.MAPS_API_KEY }}" ]; then
+            echo "❌ ERROR: MAPS_API_KEY secret is not set"
+            MISSING_SECRETS=1
+          else
+            echo "✅ MAPS_API_KEY is configured"
+          fi
+
+          if [ $MISSING_SECRETS -eq 1 ]; then
+            echo "Please configure the missing secrets in repository settings"
+            exit 1
+          fi
+
+          echo "All required secrets are configured"
+
       - name: Create .env file
         run: |
           cat > .env << 'EOF'

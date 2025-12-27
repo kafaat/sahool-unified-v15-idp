@@ -10,9 +10,8 @@ name: Security Scanning
 on:
   push:
     branches: [main, develop]
-  # Disabled on PRs to prevent blocking merges
-  # pull_request:
-  #   branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
   schedule:
     # Run security scans daily at 2 AM UTC
     - cron: '0 2 * * *'
@@ -41,7 +40,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog Secrets Scan
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@v3.88.0
         continue-on-error: true
         with:
           path: ./

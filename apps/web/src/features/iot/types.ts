@@ -12,9 +12,9 @@ export type SensorType =
   | 'pressure'
   | 'rain'
   | 'wind';
-export type SensorStatus = 'active' | 'inactive' | 'error' | 'maintenance';
+export type SensorStatus = 'online' | 'offline' | 'error' | 'maintenance' | 'active' | 'inactive';
 export type ActuatorType = 'valve' | 'pump' | 'fan' | 'heater' | 'light' | 'sprinkler';
-export type ActuatorStatus = 'on' | 'off' | 'auto' | 'error';
+export type ActuatorStatus = 'online' | 'offline' | 'error' | 'on' | 'off' | 'auto';
 
 export interface Sensor {
   id: string;
@@ -23,6 +23,8 @@ export interface Sensor {
   type: SensorType;
   status: SensorStatus;
   deviceId: string;
+  unit: string;
+  unitAr: string;
   location?: {
     latitude: number;
     longitude: number;
@@ -103,6 +105,7 @@ export interface SensorReadingsQuery {
   startDate?: string;
   endDate?: string;
   interval?: '1h' | '1d' | '1w' | '1m';
+  limit?: number;
 }
 
 export interface ActuatorControlData {

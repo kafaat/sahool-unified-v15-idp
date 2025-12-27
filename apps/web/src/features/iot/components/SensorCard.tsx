@@ -15,16 +15,20 @@ interface SensorCardProps {
   onClick?: (sensorId: string) => void;
 }
 
-const statusColors = {
+const statusColors: Record<string, string> = {
   active: 'bg-green-100 text-green-800',
   inactive: 'bg-gray-100 text-gray-800',
+  online: 'bg-green-100 text-green-800',
+  offline: 'bg-gray-100 text-gray-800',
   error: 'bg-red-100 text-red-800',
   maintenance: 'bg-yellow-100 text-yellow-800',
 };
 
-const statusLabels = {
+const statusLabels: Record<string, string> = {
   active: 'نشط',
   inactive: 'غير نشط',
+  online: 'متصل',
+  offline: 'غير متصل',
   error: 'خطأ',
   maintenance: 'صيانة',
 };

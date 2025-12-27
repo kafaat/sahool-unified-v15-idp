@@ -25,8 +25,8 @@ export default function IoTPage() {
   const { data: actuators, isLoading: actuatorsLoading } = useActuators();
   const { data: alertRules, isLoading: alertRulesLoading } = useAlertRules();
 
-  const activeSensors = sensors?.filter((s) => s.status === 'online').length || 0;
-  const activeActuators = actuators?.filter((a) => a.status === 'online').length || 0;
+  const activeSensors = sensors?.filter((s) => s.status === 'active').length || 0;
+  const activeActuators = actuators?.filter((a) => a.status === 'on').length || 0;
   const activeAlerts = alertRules?.filter((r) => r.enabled).length || 0;
 
   return (
@@ -114,7 +114,6 @@ export default function IoTPage() {
 function SensorReadingsSection({ sensorId }: { sensorId: string }) {
   const { data: readings } = useSensorReadings({
     sensorId,
-    limit: 50,
   });
   const { data: sensors } = useSensors();
   const sensor = sensors?.find((s) => s.id === sensorId);
@@ -127,8 +126,8 @@ function SensorReadingsSection({ sensorId }: { sensorId: string }) {
       <SensorChart
         readings={readings}
         sensorType={sensor.type}
-        sensorUnit={sensor.unit}
-        sensorUnitAr={sensor.unitAr}
+        sensorUnit={sensor.lastReading?.unit || ''}
+        sensorUnitAr={sensor.lastReading?.unit || ''}
         showStats={true}
       />
 
@@ -136,7 +135,7 @@ function SensorReadingsSection({ sensorId }: { sensorId: string }) {
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-4">قراءات {sensor.nameAr}</h2>
         <p className="text-sm text-gray-600 mb-6">Recent Readings - {sensor.name}</p>
-        <SensorReadings sensorId={sensorId} limit={20} />
+        <SensorReadings sensorId={sensorId} sensorName={sensor.name} unit={sensor.lastReading?.unit || ''} />
       </div>
     </>
   );

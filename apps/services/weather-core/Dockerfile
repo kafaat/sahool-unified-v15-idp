@@ -2,9 +2,7 @@
 # ============================
 # Uses shared base image for consistency
 # Version: 16.0.0
-
-ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim AS base
+FROM python:3.11-slim
 
 # Build arguments
 ARG SERVICE_NAME=weather-core
@@ -24,32 +22,27 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Configure apt to use HTTPS and install system dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https && \
-    rm -rf /var/lib/apt/lists/*
-
-# Upgrade pip (non-fatal in case of network issues)
-RUN pip install --upgrade pip || true
 
 # Install dependencies (using shared requirements)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared libraries
 
 # Copy source
 COPY src/ ./src/
 
-# Set ownership
-RUN chown -R sahool:sahool /app
+# Upgrade pip, install dependencies, and set ownership
+RUN pip install --upgrade pip || true && \
+    pip install --no-cache-dir -r requirements.txt && \
+    chown -R sahool:sahool /app
 
 USER sahool
 
-EXPOSE 8098
+# Default port (can be overridden via PORT env var)
+ENV PORT=8108
+EXPOSE 8108
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8098/healthz || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')" || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8098"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]

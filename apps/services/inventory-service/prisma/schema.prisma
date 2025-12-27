@@ -1,0 +1,393 @@
+// SAHOOL Inventory Service Schema
+// مخطط قاعدة بيانات خدمة المخزون
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 1. Inventory Items - عناصر المخزون
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model InventoryItem {
+  id              String   @id @default(uuid())
+  tenantId        String   @map("tenant_id")
+
+  // Basic info
+  name            String
+  nameAr          String   @map("name_ar")
+  sku             String?  @unique
+  category        ItemCategory
+  description     String?
+  descriptionAr   String?  @map("description_ar")
+
+  // Quantities
+  quantity        Float    @default(0)
+  unit            String   // kg, liter, bag, bottle, etc.
+  reorderLevel    Float    @default(0) @map("reorder_level")
+  reorderPoint    Float?   @map("reorder_point")
+  maxStock        Float?   @map("max_stock")
+
+  // Pricing
+  unitCost        Float?   @map("unit_cost")
+  sellingPrice    Float?   @map("selling_price")
+
+  // Storage
+  location        String?  // Warehouse location
+  batchNumber     String?  @map("batch_number")
+  expiryDate      DateTime? @map("expiry_date")
+
+  // Storage conditions
+  minTemperature  Float?   @map("min_temperature")
+  maxTemperature  Float?   @map("max_temperature")
+  minHumidity     Float?   @map("min_humidity")
+  maxHumidity     Float?   @map("max_humidity")
+
+  // Metadata
+  supplier        String?
+  barcode         String?
+  imageUrl        String?  @map("image_url")
+  notes           String?
+
+  // Tracking
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  lastRestocked   DateTime? @map("last_restocked")
+
+  // Relations
+  movements       InventoryMovement[]
+  alerts          InventoryAlert[]
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([quantity])
+  @@index([expiryDate])
+  @@map("inventory_items")
+}
+
+enum ItemCategory {
+  SEEDS            // بذور
+  FERTILIZER       // أسمدة
+  PESTICIDE        // مبيدات
+  HERBICIDE        // مبيدات أعشاب
+  FUNGICIDE        // مبيدات فطرية
+  INSECTICIDE      // مبيدات حشرية
+  EQUIPMENT        // معدات
+  TOOLS            // أدوات
+  IRRIGATION       // معدات الري
+  PACKAGING        // مواد التعبئة
+  FUEL             // وقود
+  OTHER            // أخرى
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 2. Inventory Movements - حركات المخزون
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model InventoryMovement {
+  id              String       @id @default(uuid())
+  itemId          String       @map("item_id")
+  tenantId        String       @map("tenant_id")
+
+  // Movement details
+  type            MovementType
+  quantity        Float
+  unitCost        Float?       @map("unit_cost")
+
+  // Reference
+  referenceId     String?      @map("reference_id")
+  referenceType   String?      @map("reference_type") // purchase_order, sale, waste, adjustment
+
+  // Location
+  fromLocation    String?      @map("from_location")
+  toLocation      String?      @map("to_location")
+
+  // Notes
+  notes           String?
+  notesAr         String?      @map("notes_ar")
+
+  // Tracking
+  performedBy     String       @map("performed_by")
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  item            InventoryItem @relation(fields: [itemId], references: [id])
+
+  @@index([itemId])
+  @@index([tenantId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("inventory_movements")
+}
+
+enum MovementType {
+  PURCHASE         // شراء
+  SALE             // بيع
+  RETURN           // إرجاع
+  ADJUSTMENT       // تعديل
+  TRANSFER         // نقل
+  WASTE            // هدر
+  USAGE            // استخدام
+  PRODUCTION       // إنتاج
+  RESTOCK          // إعادة تخزين
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3. Inventory Alerts - تنبيهات المخزون
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model InventoryAlert {
+  id              String       @id @default(uuid())
+  alertType       AlertType    @map("alert_type")
+  priority        AlertPriority
+  status          AlertStatus  @default(ACTIVE)
+
+  // Item reference
+  itemId          String       @map("item_id")
+  itemName        String       @map("item_name")
+  itemNameAr      String       @map("item_name_ar")
+
+  // Alert content
+  titleEn         String       @map("title_en")
+  titleAr         String       @map("title_ar")
+  messageEn       String       @map("message_en")
+  messageAr       String       @map("message_ar")
+
+  // Thresholds
+  currentValue    Float        @map("current_value")
+  thresholdValue  Float        @map("threshold_value")
+
+  // Recommended actions
+  recommendedActionEn String   @map("recommended_action_en")
+  recommendedActionAr String   @map("recommended_action_ar")
+  actionUrl       String?      @map("action_url")
+
+  // Timing
+  createdAt       DateTime     @default(now()) @map("created_at")
+  acknowledgedAt  DateTime?    @map("acknowledged_at")
+  acknowledgedBy  String?      @map("acknowledged_by")
+  resolvedAt      DateTime?    @map("resolved_at")
+  resolvedBy      String?      @map("resolved_by")
+  resolutionNotes String?      @map("resolution_notes")
+  snoozeUntil     DateTime?    @map("snooze_until")
+
+  // Relations
+  item            InventoryItem @relation(fields: [itemId], references: [id])
+
+  @@index([status, priority])
+  @@index([itemId])
+  @@index([alertType])
+  @@index([createdAt])
+  @@map("inventory_alerts")
+}
+
+enum AlertType {
+  LOW_STOCK
+  OUT_OF_STOCK
+  EXPIRING_SOON
+  EXPIRED
+  REORDER_POINT
+  OVERSTOCK
+  STORAGE_CONDITION
+}
+
+enum AlertPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+  SNOOZED
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 4. Alert Settings - إعدادات التنبيهات
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model AlertSettings {
+  id                    String   @id @default(uuid())
+  tenantId              String   @unique @map("tenant_id")
+
+  // Expiry warnings
+  expiryWarningDays     Int      @default(30) @map("expiry_warning_days")
+  expiryCriticalDays    Int      @default(7)  @map("expiry_critical_days")
+
+  // Stock thresholds
+  defaultReorderLevel   Float    @default(10) @map("default_reorder_level")
+
+  // Notification preferences
+  enableEmailAlerts     Boolean  @default(true) @map("enable_email_alerts")
+  enablePushAlerts      Boolean  @default(true) @map("enable_push_alerts")
+  enableSmsAlerts       Boolean  @default(false) @map("enable_sms_alerts")
+
+  // Alert frequency
+  alertCheckInterval    Int      @default(60) @map("alert_check_interval") // minutes
+  maxAlertsPerDay       Int      @default(100) @map("max_alerts_per_day")
+
+  // Auto-resolve settings
+  autoResolveOnRestock  Boolean  @default(true) @map("auto_resolve_on_restock")
+  autoResolveExpired    Boolean  @default(false) @map("auto_resolve_expired")
+
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("alert_settings")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 5. Warehouse Management - إدارة المستودعات
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model Warehouse {
+  id              String   @id @default(uuid())
+  name            String
+  nameAr          String   @map("name_ar")
+  warehouseType   WarehouseType @map("warehouse_type")
+  latitude        Float?
+  longitude       Float?
+  address         String?
+  governorate     String?
+
+  // Capacity
+  capacityValue   Float    @map("capacity_value")
+  capacityUnit    String   @default("cubic_meter") @map("capacity_unit")
+  currentUsage    Float    @default(0) @map("current_usage")
+
+  // Conditions
+  storageCondition StorageCondition @default(AMBIENT) @map("storage_condition")
+  tempMin         Float?   @map("temp_min")
+  tempMax         Float?   @map("temp_max")
+  humidityMin     Float?   @map("humidity_min")
+  humidityMax     Float?   @map("humidity_max")
+
+  // Status
+  isActive        Boolean  @default(true) @map("is_active")
+  managerId       String?  @map("manager_id")
+  managerName     String?  @map("manager_name")
+
+  zones           Zone[]
+  transfersFrom   StockTransfer[] @relation("FromWarehouse")
+  transfersTo     StockTransfer[] @relation("ToWarehouse")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("warehouses")
+}
+
+enum WarehouseType {
+  MAIN       // مستودع رئيسي
+  FIELD      // مخزن حقلي
+  COLD       // تخزين بارد
+  CHEMICAL   // مخزن كيماويات
+  SEED       // بنك بذور
+  FUEL       // مخزن وقود
+}
+
+enum StorageCondition {
+  AMBIENT     // درجة حرارة الغرفة
+  COOL        // بارد 10-15°C
+  COLD        // بارد 2-8°C
+  FROZEN      // مجمد
+  DRY         // جاف
+  CONTROLLED  // محكم التحكم
+}
+
+// Zone within a warehouse
+model Zone {
+  id            String    @id @default(uuid())
+  warehouseId   String    @map("warehouse_id")
+  warehouse     Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  name          String
+  nameAr        String?   @map("name_ar")
+  capacity      Float
+  currentUsage  Float     @default(0) @map("current_usage")
+  condition     StorageCondition?
+
+  locations     StorageLocation[]
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("zones")
+  @@index([warehouseId])
+}
+
+// Storage Location (specific bin/shelf)
+model StorageLocation {
+  id            String   @id @default(uuid())
+  zoneId        String   @map("zone_id")
+  zone          Zone     @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  aisle         String
+  shelf         String
+  bin           String
+  locationCode  String   @unique @map("location_code")  // A-01-03-B
+  capacity      Float
+  isOccupied    Boolean  @default(false) @map("is_occupied")
+  currentItemId String?  @map("current_item_id")
+  currentQty    Float    @default(0) @map("current_qty")
+
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("storage_locations")
+  @@index([zoneId])
+  @@index([locationCode])
+}
+
+// Stock Transfer between warehouses
+model StockTransfer {
+  id              String    @id @default(uuid())
+  itemId          String    @map("item_id")
+  fromWarehouseId String?   @map("from_warehouse_id")
+  fromWarehouse   Warehouse? @relation("FromWarehouse", fields: [fromWarehouseId], references: [id])
+  toWarehouseId   String    @map("to_warehouse_id")
+  toWarehouse     Warehouse @relation("ToWarehouse", fields: [toWarehouseId], references: [id])
+
+  quantity        Float
+  unitCost        Float?    @map("unit_cost")
+  totalCost       Float?    @map("total_cost")
+
+  transferType    TransferType @map("transfer_type")
+  status          TransferStatus @default(PENDING)
+
+  // Tracking
+  requestedBy     String    @map("requested_by")
+  approvedBy      String?   @map("approved_by")
+  performedBy     String?   @map("performed_by")
+
+  // Dates
+  requestedAt     DateTime  @default(now()) @map("requested_at")
+  approvedAt      DateTime? @map("approved_at")
+  completedAt     DateTime? @map("completed_at")
+
+  notes           String?
+
+  @@map("stock_transfers")
+  @@index([itemId])
+  @@index([fromWarehouseId])
+  @@index([toWarehouseId])
+  @@index([status])
+}
+
+enum TransferType {
+  INTER_WAREHOUSE  // نقل بين المستودعات
+  RECEIVING        // استلام من المورد
+  DISPATCH         // إرسال للحقل/العميل
+}
+
+enum TransferStatus {
+  PENDING      // معلق
+  APPROVED     // موافق عليه
+  IN_TRANSIT   // قيد النقل
+  COMPLETED    // مكتمل
+  CANCELLED    // ملغي
+}

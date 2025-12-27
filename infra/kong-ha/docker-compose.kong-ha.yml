@@ -1,12 +1,20 @@
-version: '3.8'
-
+# ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Kong HA Cluster
+# عنقود Kong عالي التوفر لمنصة سهول
+#
 # 3-node Kong cluster with nginx load balancer for high availability
+#
+# Usage:
+#   docker compose -f infra/kong-ha/docker-compose.kong-ha.yml up -d
+#
+# NOTE: This is for production HA setup. For development, use the main
+#       docker-compose.yml which has a single Kong instance.
+# ═══════════════════════════════════════════════════════════════════════════════
 
 services:
   # Primary Kong node
   kong-primary:
-    image: kong:3.4.0-ubuntu
+    image: kong:3.9
     container_name: sahool-kong-primary
     environment:
       KONG_DATABASE: "off"
@@ -15,7 +23,7 @@ services:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"  # SECURITY: localhost only
       KONG_STATUS_LISTEN: "0.0.0.0:8100"
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_LOG_LEVEL: info
@@ -29,7 +37,7 @@ services:
     volumes:
       - ./kong/declarative:/kong/declarative:ro
     networks:
-      - kong-net
+      - sahool-network
     deploy:
       resources:
         limits:
@@ -41,14 +49,14 @@ services:
 
   # Secondary Kong node
   kong-secondary:
-    image: kong:3.4.0-ubuntu
+    image: kong:3.9
     container_name: sahool-kong-secondary
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"  # SECURITY: localhost only
       KONG_STATUS_LISTEN: "0.0.0.0:8100"
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_LOG_LEVEL: info
@@ -61,7 +69,7 @@ services:
     volumes:
       - ./kong/declarative:/kong/declarative:ro
     networks:
-      - kong-net
+      - sahool-network
     deploy:
       resources:
         limits:
@@ -73,14 +81,14 @@ services:
 
   # Tertiary Kong node
   kong-tertiary:
-    image: kong:3.4.0-ubuntu
+    image: kong:3.9
     container_name: sahool-kong-tertiary
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"  # SECURITY: localhost only
       KONG_STATUS_LISTEN: "0.0.0.0:8100"
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_LOG_LEVEL: info
@@ -93,7 +101,7 @@ services:
     volumes:
       - ./kong/declarative:/kong/declarative:ro
     networks:
-      - kong-net
+      - sahool-network
     deploy:
       resources:
         limits:
@@ -105,11 +113,11 @@ services:
 
   # Nginx Load Balancer
   kong-loadbalancer:
-    image: nginx:alpine
+    image: nginx:1.27-alpine
     container_name: sahool-kong-lb
     ports:
-      - "8000:80"     # API Gateway
-      - "8001:8001"   # Admin API (internal)
+      - "8000:80"                # API Gateway
+      - "127.0.0.1:8001:8001"    # Admin API - localhost only for security
     volumes:
       - ./nginx-kong-ha.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -125,7 +133,7 @@ services:
       timeout: 5s
       retries: 3
     networks:
-      - kong-net
+      - sahool-network
     deploy:
       resources:
         limits:
@@ -133,8 +141,6 @@ services:
           memory: 128M
 
 networks:
-  kong-net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.28.0.0/16
+  sahool-network:
+    name: sahool-network
+    external: true

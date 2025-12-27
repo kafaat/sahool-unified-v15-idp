@@ -96,7 +96,9 @@ export interface CreateTaskRequest {
   field_id: string;
   farm_id?: string;
   title: string;
+  title_ar?: string;
   description?: string;
+  description_ar?: string;
   priority?: Priority;
   type?: string;
   due_date?: string;

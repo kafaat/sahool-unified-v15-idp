@@ -14,9 +14,9 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies first (better caching)
+# Install dependencies first (better caching) with retry for network resilience
 COPY package*.json ./
-RUN npm install
+RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
@@ -43,15 +43,23 @@ WORKDIR /app
 RUN addgroup --system sahool && \
     adduser --system --ingroup sahool --disabled-password --gecos "" sahool
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl ca-certificates
+# Install curl for healthcheck and OpenSSL for Prisma compatibility
+RUN apk add --no-cache curl ca-certificates openssl
 
-# Copy built files, Prisma, and production dependencies
-COPY --from=builder /app/dist ./dist
+# Copy package files and install production dependencies
 COPY --from=builder /app/package*.json ./
+RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+
+# Copy Prisma schema and regenerate client for production environment
+# Add retry logic for network resilience
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-RUN npm install --only=production --silent && npx prisma generate
+RUN npx prisma generate || \
+    (sleep 5 && npx prisma generate) || \
+    (sleep 10 && npx prisma generate) || \
+    (echo "Prisma generate failed after retries" && exit 1)
+
+# Copy built files
+COPY --from=builder /app/dist ./dist
 
 # Set ownership
 RUN chown -R sahool:sahool /app
@@ -65,6 +73,6 @@ ENV PORT=3000
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:3000/healthz || exit 1
+    CMD node -e "require('http').get('http://localhost:3000/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 CMD ["npm", "start"]

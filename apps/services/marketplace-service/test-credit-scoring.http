@@ -1,0 +1,405 @@
+### SAHOOL Advanced Credit Scoring - HTTP Test Examples
+### Use with VS Code REST Client extension or similar tools
+
+@baseUrl = http://localhost:3003/api/v1
+@userId = test-farmer-001
+@walletId = test-wallet-001
+
+###############################################################################
+# 1. WALLET & BASIC OPERATIONS
+###############################################################################
+
+### Get or Create Wallet
+GET {{baseUrl}}/fintech/wallet/{{userId}}
+
+### Deposit Money
+POST {{baseUrl}}/fintech/wallet/{{walletId}}/deposit
+Content-Type: application/json
+
+{
+  "amount": 10000,
+  "description": "إيداع أولي"
+}
+
+###############################################################################
+# 2. ADVANCED CREDIT SCORING
+###############################################################################
+
+### Calculate Advanced Credit Score (New Farmer)
+POST {{baseUrl}}/fintech/calculate-advanced-score
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "factors": {
+    "farmArea": 2.5,
+    "numberOfSeasons": 1,
+    "diseaseRiskScore": 70,
+    "irrigationType": "rainfed",
+    "yieldScore": 65,
+    "paymentHistory": 0,
+    "cropDiversity": 2,
+    "marketplaceHistory": 0,
+    "loanRepaymentRate": 0,
+    "verificationLevel": "basic",
+    "landOwnership": "leased",
+    "cooperativeMember": false,
+    "yearsOfExperience": 1,
+    "satelliteVerified": false
+  }
+}
+
+### Calculate Advanced Credit Score (Experienced Farmer)
+POST {{baseUrl}}/fintech/calculate-advanced-score
+Content-Type: application/json
+
+{
+  "userId": "experienced-farmer-001",
+  "factors": {
+    "farmArea": 8.5,
+    "numberOfSeasons": 12,
+    "diseaseRiskScore": 92,
+    "irrigationType": "drip",
+    "yieldScore": 88,
+    "paymentHistory": 95,
+    "cropDiversity": 6,
+    "marketplaceHistory": 45,
+    "loanRepaymentRate": 98,
+    "verificationLevel": "premium",
+    "landOwnership": "owned",
+    "cooperativeMember": true,
+    "yearsOfExperience": 8,
+    "satelliteVerified": true
+  }
+}
+
+### Calculate Advanced Credit Score (PLATINUM Tier Target)
+POST {{baseUrl}}/fintech/calculate-advanced-score
+Content-Type: application/json
+
+{
+  "userId": "platinum-farmer-001",
+  "factors": {
+    "farmArea": 15,
+    "numberOfSeasons": 20,
+    "diseaseRiskScore": 95,
+    "irrigationType": "drip",
+    "yieldScore": 95,
+    "paymentHistory": 100,
+    "cropDiversity": 8,
+    "marketplaceHistory": 80,
+    "loanRepaymentRate": 100,
+    "verificationLevel": "premium",
+    "landOwnership": "owned",
+    "cooperativeMember": true,
+    "yearsOfExperience": 12,
+    "satelliteVerified": true
+  }
+}
+
+###############################################################################
+# 3. CREDIT FACTORS
+###############################################################################
+
+### Get Credit Factors for User
+GET {{baseUrl}}/fintech/credit-factors/{{userId}}
+
+###############################################################################
+# 4. CREDIT EVENTS (Score Impact)
+###############################################################################
+
+### Record Positive Event: Farm Verified via Satellite
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "FARM_VERIFIED",
+  "description": "تم التحقق من المزرعة عبر صور الأقمار الصناعية",
+  "metadata": {
+    "satelliteProvider": "Sentinel-2",
+    "verificationDate": "2025-12-25",
+    "farmCoordinates": {
+      "lat": 15.3694,
+      "lng": 44.1910
+    }
+  }
+}
+
+### Record Positive Event: Land Ownership Verified
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "LAND_VERIFIED",
+  "description": "تم التحقق من ملكية الأرض",
+  "metadata": {
+    "documentType": "title_deed",
+    "areaHectares": 5.5,
+    "verifiedBy": "Ministry of Agriculture"
+  }
+}
+
+### Record Positive Event: Joined Cooperative
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "COOPERATIVE_JOINED",
+  "description": "انضم إلى تعاونية الخير الزراعية",
+  "metadata": {
+    "cooperativeId": "coop-001",
+    "cooperativeName": "تعاونية الخير الزراعية",
+    "membershipNumber": "M-2025-123"
+  }
+}
+
+### Record Positive Event: Account Verification Upgraded
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "VERIFICATION_UPGRADE",
+  "description": "تمت ترقية مستوى التحقق إلى Premium",
+  "metadata": {
+    "fromLevel": "verified",
+    "toLevel": "premium",
+    "documentsVerified": ["national_id", "farm_registration", "land_deed"]
+  }
+}
+
+### Record Positive Event: Loan Repaid On Time
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "LOAN_REPAID_ONTIME",
+  "amount": 5000,
+  "description": "سداد قرض شراء بذور في الموعد المحدد",
+  "metadata": {
+    "loanId": "loan-123",
+    "dueDate": "2025-12-31",
+    "paidDate": "2025-12-25",
+    "daysEarly": 6
+  }
+}
+
+### Record Positive Event: Order Completed
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "ORDER_COMPLETED",
+  "amount": 15000,
+  "description": "إتمام بيع محصول الطماطم بنجاح",
+  "metadata": {
+    "orderId": "order-456",
+    "buyerId": "buyer-789",
+    "productType": "tomatoes",
+    "quantityKg": 500
+  }
+}
+
+### Record Negative Event: Loan Repaid Late
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "LOAN_REPAID_LATE",
+  "amount": 3000,
+  "description": "سداد قرض متأخر بـ 10 أيام",
+  "metadata": {
+    "loanId": "loan-124",
+    "dueDate": "2025-12-15",
+    "paidDate": "2025-12-25",
+    "daysLate": 10
+  }
+}
+
+### Record Negative Event: Order Cancelled
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "ORDER_CANCELLED",
+  "amount": 8000,
+  "description": "إلغاء طلب بيع محصول",
+  "metadata": {
+    "orderId": "order-457",
+    "cancellationReason": "Product quality issue",
+    "cancelledBy": "buyer"
+  }
+}
+
+### Record Negative Event: Loan Defaulted (Severe)
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "eventType": "LOAN_DEFAULTED",
+  "amount": 10000,
+  "description": "تعثر في سداد قرض",
+  "metadata": {
+    "loanId": "loan-125",
+    "dueDate": "2025-11-30",
+    "currentDate": "2025-12-25",
+    "daysOverdue": 25,
+    "outstandingAmount": 10000
+  }
+}
+
+###############################################################################
+# 5. CREDIT REPORT (Comprehensive)
+###############################################################################
+
+### Get Full Credit Report with Recommendations
+GET {{baseUrl}}/fintech/credit-report/{{userId}}
+
+###############################################################################
+# 6. TRADITIONAL CREDIT SCORING (Legacy - Backward Compatible)
+###############################################################################
+
+### Calculate Credit Score (Old Method - Still Works)
+POST {{baseUrl}}/fintech/calculate-score
+Content-Type: application/json
+
+{
+  "userId": "{{userId}}",
+  "farmData": {
+    "totalArea": 5.5,
+    "activeSeasons": 4,
+    "fieldCount": 3,
+    "diseaseRisk": "Low",
+    "irrigationType": "drip",
+    "avgYieldScore": 85,
+    "onTimePayments": 10,
+    "latePayments": 1
+  }
+}
+
+###############################################################################
+# 7. LOAN OPERATIONS WITH CREDIT SCORING
+###############################################################################
+
+### Request Agricultural Loan (Credit Score Dependent)
+POST {{baseUrl}}/fintech/loans
+Content-Type: application/json
+
+{
+  "walletId": "{{walletId}}",
+  "amount": 8000,
+  "termMonths": 6,
+  "purpose": "SEEDS",
+  "purposeDetails": "شراء بذور محسنة للموسم القادم",
+  "collateralType": "crop",
+  "collateralValue": 12000
+}
+
+### Get User Loans
+GET {{baseUrl}}/fintech/loans/{{walletId}}
+
+###############################################################################
+# 8. SIMULATION: FARMER CREDIT JOURNEY
+###############################################################################
+
+### Step 1: New farmer joins (basic tier)
+POST {{baseUrl}}/fintech/calculate-advanced-score
+Content-Type: application/json
+
+{
+  "userId": "journey-farmer-001",
+  "factors": {
+    "farmArea": 2,
+    "numberOfSeasons": 1,
+    "diseaseRiskScore": 60,
+    "irrigationType": "rainfed",
+    "yieldScore": 55,
+    "paymentHistory": 0,
+    "cropDiversity": 1,
+    "marketplaceHistory": 0,
+    "loanRepaymentRate": 0,
+    "verificationLevel": "basic",
+    "landOwnership": "leased",
+    "cooperativeMember": false,
+    "yearsOfExperience": 0,
+    "satelliteVerified": false
+  }
+}
+# Expected: ~350-400 points (BRONZE)
+
+### Step 2: Farmer verifies farm via satellite (+20 points)
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "journey-wallet-001",
+  "eventType": "FARM_VERIFIED",
+  "description": "Satellite verification completed"
+}
+
+### Step 3: Completes first marketplace order (+5 points)
+POST {{baseUrl}}/fintech/credit-history
+Content-Type: application/json
+
+{
+  "walletId": "journey-wallet-001",
+  "eventType": "ORDER_COMPLETED",
+  "amount": 3000,
+  "description": "First sale completed"
+}
+
+### Step 4: After 6 months - recalculate with improvements
+POST {{baseUrl}}/fintech/calculate-advanced-score
+Content-Type: application/json
+
+{
+  "userId": "journey-farmer-001",
+  "factors": {
+    "farmArea": 2.5,
+    "numberOfSeasons": 2,
+    "diseaseRiskScore": 75,
+    "irrigationType": "drip",
+    "yieldScore": 70,
+    "paymentHistory": 100,
+    "cropDiversity": 3,
+    "marketplaceHistory": 8,
+    "loanRepaymentRate": 100,
+    "verificationLevel": "verified",
+    "landOwnership": "leased",
+    "cooperativeMember": true,
+    "yearsOfExperience": 1,
+    "satelliteVerified": true
+  }
+}
+# Expected: ~550-600 points (SILVER)
+
+###############################################################################
+# 9. ANALYTICS & STATS
+###############################################################################
+
+### Get Financial Statistics
+GET {{baseUrl}}/fintech/stats
+
+###############################################################################
+# 10. WALLET OPERATIONS
+###############################################################################
+
+### Get Transactions
+GET {{baseUrl}}/fintech/wallet/{{walletId}}/transactions?limit=20
+
+### Withdraw Money
+POST {{baseUrl}}/fintech/wallet/{{walletId}}/withdraw
+Content-Type: application/json
+
+{
+  "amount": 2000,
+  "description": "سحب نقدي"
+}

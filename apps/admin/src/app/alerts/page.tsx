@@ -11,15 +11,12 @@ import {
   Sun,
   CloudRain,
   Wind,
-  Thermometer,
   Droplets,
   AlertTriangle,
   Bell,
   MapPin,
   Calendar,
   RefreshCw,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 
 interface WeatherData {

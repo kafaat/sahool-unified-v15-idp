@@ -13,9 +13,9 @@ import type {
   WalletStats,
 } from './types';
 
-const API_BASE = '/api/wallet';
+const API_BASE = '/api/v1/billing';
 
-// Mock data for development
+// Mock data for development fallback
 const mockTransactions: Transaction[] = [
   {
     id: '1',
@@ -95,140 +95,241 @@ const mockWallet: Wallet = {
   updatedAt: new Date().toISOString(),
 };
 
+/**
+ * Error messages in Arabic
+ * رسائل الخطأ بالعربية
+ */
+const errorMessages = {
+  networkError: 'فشل الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت.',
+  walletNotFound: 'لم يتم العثور على المحفظة.',
+  transactionNotFound: 'لم يتم العثور على المعاملة.',
+  insufficientBalance: 'رصيد غير كاف لإتمام العملية.',
+  invalidAmount: 'المبلغ المدخل غير صحيح.',
+  serverError: 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.',
+  unauthorized: 'غير مصرح لك بهذه العملية.',
+};
+
+/**
+ * Make API request with error handling
+ */
+async function apiRequest<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<{ data?: T; error?: string; errorAr?: string }> {
+  try {
+    const response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers,
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorAr =
+        response.status === 404 ? errorMessages.walletNotFound :
+        response.status === 401 ? errorMessages.unauthorized :
+        response.status === 400 ? errorMessages.invalidAmount :
+        errorMessages.serverError;
+
+      return {
+        error: data.message || data.error || 'Request failed',
+        errorAr,
+      };
+    }
+
+    return { data };
+  } catch (error) {
+    console.error('API request error:', error);
+    return {
+      error: error instanceof Error ? error.message : 'Network error',
+      errorAr: errorMessages.networkError,
+    };
+  }
+}
+
+/**
+ * Filter transactions locally (for mock data)
+ */
+function filterTransactions(transactions: Transaction[], filters?: TransactionFilters): Transaction[] {
+  let filtered = [...transactions];
+
+  if (filters?.type) {
+    filtered = filtered.filter((t) => t.type === filters.type);
+  }
+
+  if (filters?.status) {
+    filtered = filtered.filter((t) => t.status === filters.status);
+  }
+
+  if (filters?.dateFrom) {
+    const fromDate = new Date(filters.dateFrom);
+    filtered = filtered.filter((t) => new Date(t.createdAt) >= fromDate);
+  }
+
+  if (filters?.dateTo) {
+    const toDate = new Date(filters.dateTo);
+    filtered = filtered.filter((t) => new Date(t.createdAt) <= toDate);
+  }
+
+  if (filters?.minAmount !== undefined) {
+    filtered = filtered.filter((t) => t.amount >= filters.minAmount!);
+  }
+
+  if (filters?.maxAmount !== undefined) {
+    filtered = filtered.filter((t) => t.amount <= filters.maxAmount!);
+  }
+
+  // Sort by date (newest first)
+  filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  return filtered;
+}
+
 export const walletApi = {
   /**
    * Get wallet details
+   * الحصول على تفاصيل المحفظة
    */
   async getWallet(): Promise<Wallet> {
-    return new Promise((resolve) => setTimeout(() => resolve(mockWallet), 300));
+    const response = await apiRequest<Wallet>('/wallet');
+
+    if (response.error || !response.data) {
+      console.warn('Failed to fetch wallet, using mock data:', response.error);
+      return mockWallet;
+    }
+
+    return response.data;
   },
 
   /**
    * Get wallet statistics
+   * الحصول على إحصائيات المحفظة
    */
   async getStats(): Promise<WalletStats> {
-    const stats: WalletStats = {
-      currentBalance: mockWallet.balance,
-      pendingBalance: mockWallet.pendingBalance,
-      totalIncome: mockWallet.totalDeposits,
-      totalExpenses: mockWallet.totalWithdrawals,
-      monthlyIncome: 1500,
-      monthlyExpenses: 557,
-      transactionCount: mockWallet.totalTransactions,
-      currency: mockWallet.currency,
-    };
-    return new Promise((resolve) => setTimeout(() => resolve(stats), 300));
+    const response = await apiRequest<WalletStats>('/wallet/stats');
+
+    if (response.error || !response.data) {
+      console.warn('Failed to fetch wallet stats, using mock data:', response.error);
+
+      // Calculate stats from mock wallet
+      const stats: WalletStats = {
+        currentBalance: mockWallet.balance,
+        pendingBalance: mockWallet.pendingBalance,
+        totalIncome: mockWallet.totalDeposits,
+        totalExpenses: mockWallet.totalWithdrawals,
+        monthlyIncome: 1500,
+        monthlyExpenses: 557,
+        transactionCount: mockWallet.totalTransactions,
+        currency: mockWallet.currency,
+      };
+
+      return stats;
+    }
+
+    return response.data;
   },
 
   /**
    * Get transactions list
+   * الحصول على قائمة المعاملات
    */
   async getTransactions(filters?: TransactionFilters): Promise<Transaction[]> {
-    let transactions = [...mockTransactions];
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (filters?.type) params.append('type', filters.type);
+    if (filters?.status) params.append('status', filters.status);
+    if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
+    if (filters?.dateTo) params.append('dateTo', filters.dateTo);
+    if (filters?.minAmount !== undefined) params.append('minAmount', filters.minAmount.toString());
+    if (filters?.maxAmount !== undefined) params.append('maxAmount', filters.maxAmount.toString());
 
-    if (filters?.type) {
-      transactions = transactions.filter((t) => t.type === filters.type);
+    const queryString = params.toString();
+    const endpoint = `/transactions${queryString ? `?${queryString}` : ''}`;
+
+    const response = await apiRequest<Transaction[]>(endpoint);
+
+    if (response.error || !response.data) {
+      console.warn('Failed to fetch transactions, using mock data:', response.error);
+      return filterTransactions(mockTransactions, filters);
     }
 
-    if (filters?.status) {
-      transactions = transactions.filter((t) => t.status === filters.status);
-    }
-
-    if (filters?.dateFrom) {
-      const fromDate = new Date(filters.dateFrom);
-      transactions = transactions.filter((t) => new Date(t.createdAt) >= fromDate);
-    }
-
-    if (filters?.dateTo) {
-      const toDate = new Date(filters.dateTo);
-      transactions = transactions.filter((t) => new Date(t.createdAt) <= toDate);
-    }
-
-    if (filters?.minAmount !== undefined) {
-      transactions = transactions.filter((t) => t.amount >= filters.minAmount!);
-    }
-
-    if (filters?.maxAmount !== undefined) {
-      transactions = transactions.filter((t) => t.amount <= filters.maxAmount!);
-    }
-
-    // Sort by date (newest first)
-    transactions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-    return new Promise((resolve) => setTimeout(() => resolve(transactions), 500));
+    return response.data;
   },
 
   /**
    * Get transaction by ID
+   * الحصول على معاملة حسب المعرف
    */
   async getTransactionById(id: string): Promise<Transaction> {
-    const transaction = mockTransactions.find((t) => t.id === id);
-    if (!transaction) {
-      throw new Error('Transaction not found');
+    const response = await apiRequest<Transaction>(`/transactions/${id}`);
+
+    if (response.error || !response.data) {
+      console.warn('Failed to fetch transaction, using mock data:', response.error);
+
+      const transaction = mockTransactions.find((t) => t.id === id);
+      if (!transaction) {
+        throw new Error(errorMessages.transactionNotFound);
+      }
+      return transaction;
     }
-    return new Promise((resolve) => setTimeout(() => resolve(transaction), 300));
+
+    return response.data;
   },
 
   /**
    * Create deposit
+   * إنشاء إيداع
    */
   async deposit(data: DepositFormData): Promise<Transaction> {
-    const transaction: Transaction = {
-      id: Date.now().toString(),
-      userId: 'current-user',
-      type: 'deposit',
-      status: 'pending',
-      amount: data.amount,
-      currency: 'SAR',
-      description: 'Deposit',
-      descriptionAr: 'إيداع',
-      paymentMethod: data.paymentMethod,
-      createdAt: new Date().toISOString(),
-    };
-    return new Promise((resolve) => setTimeout(() => resolve(transaction), 500));
+    const response = await apiRequest<Transaction>('/deposit', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (response.error || !response.data) {
+      // If API fails, throw error with Arabic message
+      throw new Error(response.errorAr || errorMessages.serverError);
+    }
+
+    return response.data;
   },
 
   /**
    * Create withdrawal
+   * إنشاء سحب
    */
   async withdraw(data: WithdrawalFormData): Promise<Transaction> {
-    const transaction: Transaction = {
-      id: Date.now().toString(),
-      userId: 'current-user',
-      type: 'withdrawal',
-      status: 'pending',
-      amount: data.amount,
-      currency: 'SAR',
-      description: 'Withdrawal',
-      descriptionAr: 'سحب',
-      metadata: {
-        bankAccount: data.bankAccount,
-      },
-      createdAt: new Date().toISOString(),
-    };
-    return new Promise((resolve) => setTimeout(() => resolve(transaction), 500));
+    const response = await apiRequest<Transaction>('/withdraw', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (response.error || !response.data) {
+      // If API fails, throw error with Arabic message
+      throw new Error(response.errorAr || errorMessages.serverError);
+    }
+
+    return response.data;
   },
 
   /**
    * Transfer money to another user
+   * تحويل الأموال إلى مستخدم آخر
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
-    const transaction: Transaction = {
-      id: Date.now().toString(),
-      userId: 'current-user',
-      type: 'transfer_out',
-      status: 'completed',
-      amount: data.amount,
-      currency: 'SAR',
-      fee: data.amount * 0.01, // 1% fee
-      description: data.description || 'Transfer',
-      descriptionAr: data.descriptionAr || 'تحويل',
-      metadata: {
-        recipientId: data.recipientId,
-      },
-      createdAt: new Date().toISOString(),
-      completedAt: new Date().toISOString(),
-    };
-    return new Promise((resolve) => setTimeout(() => resolve(transaction), 500));
+    const response = await apiRequest<Transaction>('/transfer', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (response.error || !response.data) {
+      // If API fails, throw error with Arabic message
+      throw new Error(response.errorAr || errorMessages.serverError);
+    }
+
+    return response.data;
   },
 };

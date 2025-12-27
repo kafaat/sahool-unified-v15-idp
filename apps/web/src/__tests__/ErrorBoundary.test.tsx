@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary } from '../components/common/ErrorBoundary';
 
@@ -37,22 +37,24 @@ describe('Web App ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeInTheDocument();
     expect(screen.getByText('إعادة المحاولة')).toBeInTheDocument();
     expect(screen.getByText('تحديث الصفحة')).toBeInTheDocument();
   });
 
   it('shows error details in development mode', () => {
-    // Note: NODE_ENV is read-only in this test environment,
-    // test the error UI is visible without modifying NODE_ENV
+    const originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'development';
+
     render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
 
-    // In test environment, the error UI should be visible
-    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('تفاصيل الخطأ (للمطورين فقط)')).toBeInTheDocument();
+
+    process.env.NODE_ENV = originalEnv;
   });
 
   it('calls onError callback', () => {
@@ -76,7 +78,7 @@ describe('Web App ErrorBoundary', () => {
     );
 
     // Should show error UI
-    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeInTheDocument();
 
     // Re-render with new key and without error
     rerender(
@@ -97,7 +99,7 @@ describe('Web App ErrorBoundary', () => {
     );
 
     // Should show error UI
-    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeInTheDocument();
 
     // Retry button should be present and clickable
     const retryButton = screen.getByText('إعادة المحاولة');

@@ -6,130 +6,146 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/client';
 import type { Field, FieldFormData, FieldFilters } from '../types';
+import { fieldsApi } from '../api';
 
-async function fetchFields(filters?: FieldFilters): Promise<Field[]> {
-  const params: Record<string, string> = {};
+// Query Keys
+export const fieldKeys = {
+  all: ['fields'] as const,
+  lists: () => [...fieldKeys.all, 'list'] as const,
+  list: (filters?: FieldFilters) => [...fieldKeys.lists(), filters] as const,
+  detail: (id: string) => [...fieldKeys.all, 'detail', id] as const,
+  stats: (farmId?: string) => [...fieldKeys.all, 'stats', farmId] as const,
+};
 
-  if (filters?.farm_id) params.farm_id = filters.farm_id;
-  if (filters?.crop) params.crop = filters.crop;
-  if (filters?.status) params.status = filters.status;
-  if (filters?.search) params.search = filters.search;
-
-  const response = await apiClient.get<{
-    fields: Array<{
-      id: string;
-      name: string;
-      name_ar?: string;
-      farm_id: string;
-      area: number;
-      crop?: string;
-      crop_ar?: string;
-      description?: string;
-      description_ar?: string;
-      polygon?: {
-        type: 'Polygon';
-        coordinates: number[][][];
-      };
-      status: string;
-      created_at?: string;
-      updated_at?: string;
-    }>;
-  }>('http://localhost:3000/fields', { params });
-
-  return response.data.fields || [];
-}
-
-async function fetchFieldById(id: string): Promise<Field> {
-  const response = await apiClient.get<Field>(`http://localhost:3000/fields/${id}`);
-  return response.data;
-}
-
-async function createField(data: FieldFormData): Promise<Field> {
-  const payload = {
-    name: data.name,
-    name_ar: data.name_ar,
-    farm_id: data.farm_id || 'default-farm',
-    area: data.area,
-    crop: data.crop,
-    crop_ar: data.crop_ar,
-    description: data.description,
-    description_ar: data.description_ar,
-    polygon: data.polygon,
-    status: 'active',
-  };
-
-  const response = await apiClient.post<Field>('http://localhost:3000/fields', payload);
-  return response.data;
-}
-
-async function updateField(id: string, data: Partial<FieldFormData>): Promise<Field> {
-  const payload: Record<string, unknown> = {};
-
-  if (data.name !== undefined) payload.name = data.name;
-  if (data.name_ar !== undefined) payload.name_ar = data.name_ar;
-  if (data.area !== undefined) payload.area = data.area;
-  if (data.crop !== undefined) payload.crop = data.crop;
-  if (data.crop_ar !== undefined) payload.crop_ar = data.crop_ar;
-  if (data.description !== undefined) payload.description = data.description;
-  if (data.description_ar !== undefined) payload.description_ar = data.description_ar;
-  if (data.polygon !== undefined) payload.polygon = data.polygon;
-
-  const response = await apiClient.patch<Field>(`http://localhost:3000/fields/${id}`, payload);
-  return response.data;
-}
-
-async function deleteField(id: string): Promise<void> {
-  await apiClient.delete(`http://localhost:3000/fields/${id}`);
-}
-
+/**
+ * Hook to fetch all fields with optional filters
+ * خطاف لجلب جميع الحقول مع تصفية اختيارية
+ */
 export function useFields(filters?: FieldFilters) {
   return useQuery({
-    queryKey: ['fields', filters],
-    queryFn: () => fetchFields(filters),
+    queryKey: fieldKeys.list(filters),
+    queryFn: () => fieldsApi.getFields(filters),
     staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: 1, // Retry once before falling back to mock data
   });
 }
 
+/**
+ * Hook to fetch a single field by ID
+ * خطاف لجلب حقل واحد بواسطة المعرف
+ */
 export function useField(id: string) {
   return useQuery({
-    queryKey: ['fields', id],
-    queryFn: () => fetchFieldById(id),
+    queryKey: fieldKeys.detail(id),
+    queryFn: () => fieldsApi.getFieldById(id),
     enabled: !!id,
     staleTime: 2 * 60 * 1000,
+    retry: 1,
   });
 }
 
+/**
+ * Hook to fetch field statistics
+ * خطاف لجلب إحصائيات الحقول
+ */
+export function useFieldStats(farmId?: string) {
+  return useQuery({
+    queryKey: fieldKeys.stats(farmId),
+    queryFn: () => fieldsApi.getStats(farmId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+  });
+}
+
+/**
+ * Hook to create a new field
+ * خطاف لإنشاء حقل جديد
+ */
 export function useCreateField() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: createField,
+    mutationFn: ({ data, tenantId }: { data: FieldFormData; tenantId?: string }) =>
+      fieldsApi.createField(data, tenantId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fields'] });
+      // Invalidate all field queries to refetch
+      queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
+    },
+    onError: (error: any) => {
+      // Parse error message
+      try {
+        const errorData = JSON.parse(error.message);
+        console.error('Create field error:', errorData.messageAr || errorData.message);
+      } catch {
+        console.error('Create field error:', error.message);
+      }
     },
   });
 }
 
+/**
+ * Hook to update an existing field
+ * خطاف لتحديث حقل موجود
+ */
 export function useUpdateField() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<FieldFormData> }) =>
-      updateField(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['fields'] });
-      queryClient.invalidateQueries({ queryKey: ['fields', variables.id] });
+    mutationFn: ({
+      id,
+      data,
+      tenantId
+    }: {
+      id: string;
+      data: Partial<FieldFormData>;
+      tenantId?: string;
+    }) => fieldsApi.updateField(id, data, tenantId),
+    onSuccess: (updatedField, variables) => {
+      // Update cache with new data
+      queryClient.setQueryData(fieldKeys.detail(variables.id), updatedField);
+
+      // Invalidate lists to refetch
+      queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
+    },
+    onError: (error: any) => {
+      // Parse error message
+      try {
+        const errorData = JSON.parse(error.message);
+        console.error('Update field error:', errorData.messageAr || errorData.message);
+      } catch {
+        console.error('Update field error:', error.message);
+      }
     },
   });
 }
 
+/**
+ * Hook to delete a field
+ * خطاف لحذف حقل
+ */
 export function useDeleteField() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: deleteField,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fields'] });
+    mutationFn: (id: string) => fieldsApi.deleteField(id),
+    onSuccess: (_: void, id: string) => {
+      // Remove from cache
+      queryClient.removeQueries({ queryKey: fieldKeys.detail(id) });
+
+      // Invalidate lists to refetch
+      queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
+    },
+    onError: (error: any) => {
+      // Parse error message
+      try {
+        const errorData = JSON.parse(error.message);
+        console.error('Delete field error:', errorData.messageAr || errorData.message);
+      } catch {
+        console.error('Delete field error:', error.message);
+      }
     },
   });
 }

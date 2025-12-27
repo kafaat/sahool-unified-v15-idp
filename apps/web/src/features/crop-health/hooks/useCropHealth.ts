@@ -208,10 +208,10 @@ export function useDiagnosisResult(requestId: string) {
     },
     enabled: !!requestId,
     refetchInterval: (query) => {
-      // Poll every 5 seconds if status is pending or analyzing
-      const data = query?.state?.data as DiagnosisResult | undefined;
-      const status = data?.status;
-      return status === 'pending' || status === 'analyzing' ? 5000 : false;
+      // Poll every 5 seconds if we don't have a result yet (no analyzedAt means still processing)
+      const data = query.state.data;
+      // If no data or no analyzedAt, keep polling
+      return !data || !data.analyzedAt ? 5000 : false;
     },
   });
 }

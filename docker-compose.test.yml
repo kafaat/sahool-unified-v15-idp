@@ -1,0 +1,308 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL v15.3.2 Test Environment - Docker Compose
+# بيئة الاختبار لمنصة سهول
+#
+# This docker-compose file sets up a test environment for running integration
+# and E2E tests. It uses the same services as production but with test-specific
+# configurations.
+#
+# Usage:
+#   docker-compose -f docker-compose.test.yml up -d
+#   docker-compose -f docker-compose.test.yml down
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.9'
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Infrastructure Services - الخدمات الأساسية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  postgres_test:
+    image: postgis/postgis:16-3.4
+    container_name: sahool-postgres-test
+    environment:
+      POSTGRES_USER: sahool_test
+      POSTGRES_PASSWORD: test_password_123
+      POSTGRES_DB: sahool_test
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sahool_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sahool-test-network
+
+  redis_test:
+    image: redis:7.4-alpine
+    container_name: sahool-redis-test
+    command: ["redis-server", "--requirepass", "test_redis_pass"]
+    environment:
+      - REDIS_PASSWORD=test_redis_pass
+    ports:
+      - "6380:6379"  # Different port
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a test_redis_pass ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sahool-test-network
+
+  nats_test:
+    image: nats:2.10.24-alpine
+    container_name: sahool-nats-test
+    command: ["--jetstream", "--store_dir=/data", "-m", "8222"]
+    ports:
+      - "4223:4222"  # Different port
+      - "8223:8222"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - sahool-test-network
+
+  qdrant_test:
+    image: qdrant/qdrant:v1.10.1
+    container_name: sahool-qdrant-test
+    ports:
+      - "6335:6333"  # Different port
+      - "6336:6334"
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sahool-test-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Core Application Services - الخدمات الأساسية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  field_ops_test:
+    build:
+      context: ./apps/services/field-ops
+      dockerfile: Dockerfile
+    container_name: sahool-field-ops-test
+    environment:
+      - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
+      - NATS_URL=nats://nats_test:4222
+      - REDIS_URL=redis://:test_redis_pass@redis_test:6379/0
+      - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
+      - JWT_ALGORITHM=HS256
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=test
+    ports:
+      - "8180:8080"  # Different port
+    depends_on:
+      postgres_test:
+        condition: service_healthy
+      nats_test:
+        condition: service_healthy
+      redis_test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sahool-test-network
+
+  ndvi_engine_test:
+    build:
+      context: ./apps/services/ndvi-engine
+      dockerfile: Dockerfile
+    container_name: sahool-ndvi-engine-test
+    environment:
+      - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
+      - NATS_URL=nats://nats_test:4222
+      - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
+      - JWT_ALGORITHM=HS256
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=test
+      - PORT=8107
+    ports:
+      - "8207:8107"
+    depends_on:
+      postgres_test:
+        condition: service_healthy
+      nats_test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8107/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sahool-test-network
+
+  weather_core_test:
+    build:
+      context: ./apps/services/weather-core
+      dockerfile: Dockerfile
+    container_name: sahool-weather-core-test
+    environment:
+      - DATABASE_URL=postgres://sahool_test:test_password_123@postgres_test:5432/sahool_test
+      - NATS_URL=nats://nats_test:4222
+      - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
+      - JWT_ALGORITHM=HS256
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=test
+      - PORT=8108
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
+    ports:
+      - "8208:8108"
+    depends_on:
+      postgres_test:
+        condition: service_healthy
+      nats_test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8108/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sahool-test-network
+
+  billing_core_test:
+    build:
+      context: ./apps/services/billing-core
+      dockerfile: Dockerfile
+    container_name: sahool-billing-core-test
+    environment:
+      - PORT=8089
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=test
+      - DATABASE_URL=postgresql://sahool_test:test_password_123@postgres_test:5432/sahool_test
+      - REDIS_URL=redis://:test_redis_pass@redis_test:6379/0
+      - STRIPE_API_KEY=${STRIPE_API_KEY:-test_stripe_key}
+      - THARWATT_API_KEY=${THARWATT_API_KEY:-test_tharwatt_key}
+      - THARWATT_BASE_URL=https://developers-test.tharwatt.com:5253
+    ports:
+      - "8189:8089"
+    depends_on:
+      postgres_test:
+        condition: service_healthy
+      redis_test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - sahool-test-network
+
+  ai_advisor_test:
+    build:
+      context: ./apps/services/ai-advisor
+      dockerfile: Dockerfile
+    container_name: sahool-ai-advisor-test
+    environment:
+      - SERVICE_PORT=8112
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=test
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - CROP_HEALTH_URL=http://crop_health_ai_test:8095
+      - WEATHER_URL=http://weather_core_test:8108
+      - SATELLITE_URL=http://satellite_service_test:8090
+      - AGRO_ADVISOR_URL=http://agro_advisor_test:8105
+      - NDVI_URL=http://ndvi_engine_test:8107
+      - QDRANT_HOST=qdrant_test
+      - QDRANT_PORT=6333
+      - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
+      - NATS_URL=nats://nats_test:4222
+    ports:
+      - "8212:8112"
+    depends_on:
+      - qdrant_test
+      - nats_test
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8112/healthz"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+    networks:
+      - sahool-test-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Test Runner Service - خدمة تشغيل الاختبارات
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  test_runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: sahool-test-runner
+    volumes:
+      - ./tests:/app/tests
+      - ./apps:/app/apps
+      - ./pytest.ini:/app/pytest.ini
+      - ./test-results:/app/test-results
+    environment:
+      - ENVIRONMENT=test
+      - POSTGRES_USER=sahool_test
+      - POSTGRES_PASSWORD=test_password_123
+      - POSTGRES_HOST=postgres_test
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=sahool_test
+      - REDIS_PASSWORD=test_redis_pass
+      - REDIS_HOST=redis_test
+      - REDIS_PORT=6379
+      - NATS_HOST=nats_test
+      - NATS_PORT=4222
+      - QDRANT_HOST=qdrant_test
+      - QDRANT_PORT=6333
+      - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
+      - TEST_JWT_TOKEN=test-jwt-token-for-e2e-tests
+    depends_on:
+      - postgres_test
+      - redis_test
+      - nats_test
+      - qdrant_test
+      - field_ops_test
+      - ndvi_engine_test
+      - weather_core_test
+      - billing_core_test
+    command: |
+      sh -c "
+        echo 'Waiting for services to be ready...'
+        sleep 10
+        echo 'Running tests...'
+        pytest tests/ -v --tb=short --junit-xml=test-results/junit.xml --html=test-results/report.html
+      "
+    networks:
+      - sahool-test-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks - الشبكات
+# ─────────────────────────────────────────────────────────────────────────────
+
+networks:
+  sahool-test-network:
+    driver: bridge
+    name: sahool-test-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes - وحدات التخزين
+# ─────────────────────────────────────────────────────────────────────────────
+
+volumes:
+  postgres_test_data:
+    name: sahool-postgres-test-data
+  redis_test_data:
+    name: sahool-redis-test-data
+  nats_test_data:
+    name: sahool-nats-test-data
+  qdrant_test_data:
+    name: sahool-qdrant-test-data

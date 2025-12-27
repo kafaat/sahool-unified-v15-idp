@@ -1,7 +1,15 @@
-version: '3.8'
-
+# ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL PGBouncer Connection Pooling
+# تجميع اتصالات قاعدة البيانات لمنع استنزاف الاتصالات
+#
 # Prevents PostgreSQL connection exhaustion under load
+#
+# Usage:
+#   docker compose -f infra/pgbouncer/docker-compose.pgbouncer.yml up -d
+#
+# NOTE: Requires the main docker-compose.yml to be running first
+#       (for sahool-network and postgres service)
+# ═══════════════════════════════════════════════════════════════════════════════
 
 services:
   pgbouncer:
@@ -9,7 +17,7 @@ services:
     container_name: sahool-pgbouncer
     environment:
       # Database connection
-      DATABASE_URL: postgres://sahool_app:${POSTGRES_PASSWORD}@postgres:5432/sahool
+      DATABASE_URL: postgres://sahool_app:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/sahool
 
       # Pool settings (can override pgbouncer.ini)
       POOL_MODE: transaction
@@ -34,7 +42,7 @@ services:
       - ./userlist.txt:/etc/pgbouncer/userlist.txt:ro
 
     ports:
-      - "6432:6432"
+      - "127.0.0.1:6432:6432"  # SECURITY: localhost only
 
     networks:
       - sahool-network
@@ -57,30 +65,7 @@ services:
 
     restart: unless-stopped
 
-    depends_on:
-      - postgres
-
-  # PostgreSQL (reference - usually in main docker-compose)
-  postgres:
-    image: postgis/postgis:16-3.4-alpine
-    container_name: sahool-postgres
-    environment:
-      POSTGRES_DB: sahool
-      POSTGRES_USER: sahool_app
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sahool_dev_password}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - sahool-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sahool_app -d sahool"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 networks:
   sahool-network:
-    driver: bridge
-
-volumes:
-  postgres_data:
+    name: sahool-network
+    external: true

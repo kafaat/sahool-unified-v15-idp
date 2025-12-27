@@ -239,6 +239,240 @@ Response: { "status": "ready", "database": "connected" }
 
 ---
 
+---
+
+## تحليل الربحية | Profitability Analysis
+
+### نظرة عامة | Overview
+
+تحليل شامل لربحية المحاصيل لمساعدة المزارعين على فهم أي المحاصيل أكثر ربحية. مستوحى من LiteFarm.
+
+Comprehensive crop profitability analysis to help farmers understand which crops are most profitable. Inspired by LiteFarm.
+
+**Port:** 8090 (Python Service)
+**Features:**
+- تحليل ربحية المحصول الفردي | Individual Crop Analysis
+- ملخص الموسم مع الترتيب | Season Summary with Rankings
+- تحليل التعادل | Break-even Analysis
+- المعايير الإقليمية | Regional Benchmarks
+- الاتجاهات التاريخية | Historical Trends
+- مقارنة المحاصيل | Crop Comparison
+- تفصيل التكاليف | Cost Breakdown
+- دعم العربية والإنجليزية | Arabic & English Support
+
+### المحاصيل المدعومة | Supported Crops
+
+| المحصول | Crop | الإنتاجية (كجم/هكتار) | السعر (ريال/كجم) |
+|---------|------|----------------------|------------------|
+| قمح | Wheat | 2,800 | 550 |
+| طماطم | Tomato | 25,000 | 280 |
+| ذرة رفيعة | Sorghum | 2,200 | 400 |
+| بطاطس | Potato | 18,000 | 350 |
+| بصل | Onion | 22,000 | 300 |
+| بن | Coffee | 800 | 8,500 |
+| قات | Qat | 3,500 | 3,500 |
+| شعير | Barley | 2,500 | 480 |
+| ذرة شامية | Maize | 3,200 | 520 |
+| خيار | Cucumber | 20,000 | 250 |
+| بطيخ | Watermelon | 30,000 | 180 |
+| مانجو | Mango | 12,000 | 800 |
+
+### فئات التكاليف | Cost Categories
+
+- بذور | Seeds
+- أسمدة | Fertilizer
+- مبيدات | Pesticides
+- ري | Irrigation
+- عمالة | Labor
+- آلات | Machinery
+- أرض | Land
+- تسويق | Marketing
+- أخرى | Other
+
+### المقاييس المحسوبة | Calculated Metrics
+
+```
+إجمالي الربح = الإيرادات - التكاليف المباشرة
+Gross Profit = Revenue - Direct Costs
+
+هامش الربح الإجمالي % = إجمالي الربح / الإيرادات × 100
+Gross Margin % = Gross Profit / Revenue × 100
+
+صافي الربح = إجمالي الربح - التكاليف العامة
+Net Profit = Gross Profit - Overhead
+
+العائد على الاستثمار % = صافي الربح / إجمالي التكاليف × 100
+ROI % = Net Profit / Total Costs × 100
+
+إنتاجية التعادل = إجمالي التكاليف / السعر للوحدة
+Break-even Yield = Total Costs / Price per Unit
+
+الربح لكل هكتار = صافي الربح / المساحة
+Profit per Hectare = Net Profit / Area
+```
+
+### Profitability API Endpoints
+
+```http
+# تحليل محصول | Analyze Crop
+POST /v1/profitability/analyze
+{
+    "field_id": "field-001",
+    "crop_season_id": "season-2025-1",
+    "crop_code": "wheat",
+    "area_ha": 2.5,
+    "costs": [
+        {
+            "category": "seeds",
+            "description": "بذور قمح ممتازة",
+            "amount": 200000,
+            "unit": "YER",
+            "quantity": 75
+        }
+    ],
+    "revenues": [
+        {
+            "description": "حصاد القمح",
+            "quantity": 7500,
+            "unit": "kg",
+            "unit_price": 550
+        }
+    ]
+}
+
+# ملخص الموسم | Season Summary
+POST /v1/profitability/season
+{
+    "farmer_id": "farmer-001",
+    "season_year": "2025",
+    "crops": [
+        {"field_id": "field-001", "crop_code": "wheat", "area_ha": 2.5},
+        {"field_id": "field-002", "crop_code": "tomato", "area_ha": 1.0}
+    ]
+}
+
+# مقارنة المحاصيل | Compare Crops
+GET /v1/profitability/compare?crops=wheat,tomato,potato&area_ha=1&region=sanaa
+
+# حساب التعادل | Break-even Calculation
+GET /v1/profitability/break-even?crop_code=wheat&area_ha=2.5&total_costs=670000&expected_price=550
+
+# المعايير الإقليمية | Regional Benchmarks
+GET /v1/profitability/benchmarks/wheat?region=sanaa
+
+# تفصيل التكاليف | Cost Breakdown
+GET /v1/profitability/cost-breakdown/wheat?area_ha=2.5
+
+# البيانات التاريخية | Historical Data
+GET /v1/profitability/history/field-001/wheat?years=5
+
+# قائمة المحاصيل | List Crops
+GET /v1/crops/list
+
+# فئات التكاليف | Cost Categories
+GET /v1/costs/categories
+```
+
+### Running Python Profitability Service
+
+```bash
+# Development
+cd apps/services/field-core
+pip install -r requirements.txt
+python src/main.py
+
+# Docker
+docker build -f Dockerfile.python -t sahool-field-profitability .
+docker run -p 8090:8090 sahool-field-profitability
+
+# Docker Compose
+services:
+  field-profitability:
+    build:
+      context: ./apps/services/field-core
+      dockerfile: Dockerfile.python
+    ports:
+      - "8090:8090"
+    environment:
+      - PORT=8090
+      - DATABASE_URL=postgresql://user:pass@db:5432/sahool
+```
+
+### Testing
+
+```bash
+# Install test dependencies
+pip install pytest pytest-asyncio httpx
+
+# Run profitability tests
+pytest tests/test_profitability.py -v
+
+# Run API integration tests
+pytest tests/test_api.py -v
+
+# Run all tests with coverage
+pytest tests/ --cov=src --cov-report=html
+```
+
+### أمثلة الاستخدام | Usage Examples
+
+#### تحليل محصول مع البيانات الإقليمية
+```bash
+curl "http://localhost:8090/v1/profitability/crop/season-2025-1?\
+field_id=field-123&\
+crop_code=wheat&\
+area_ha=2.5"
+```
+
+#### تحليل مع التكاليف والإيرادات المخصصة
+```bash
+curl -X POST "http://localhost:8090/v1/profitability/analyze" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "field_id": "field-123",
+    "crop_season_id": "season-2025-1",
+    "crop_code": "wheat",
+    "area_ha": 2.5,
+    "costs": [
+      {
+        "category": "seeds",
+        "description": "بذور قمح - صنف ممتاز",
+        "amount": 200000,
+        "unit": "YER",
+        "quantity": 75,
+        "unit_cost": 2666.67
+      }
+    ],
+    "revenues": [
+      {
+        "description": "حصاد القمح - درجة ممتازة",
+        "quantity": 7500,
+        "unit": "kg",
+        "unit_price": 550,
+        "grade": "premium"
+      }
+    ]
+  }'
+```
+
+#### مقارنة المحاصيل للتخطيط
+```bash
+curl "http://localhost:8090/v1/profitability/compare?\
+crops=wheat,tomato,potato,coffee&\
+area_ha=5&\
+region=sanaa"
+```
+
+### Integration with SAHOOL Platform
+
+The profitability service integrates with:
+- **Field Service** - Field and crop season data
+- **Field Ops** - Operation costs and harvest data
+- **Market Service** - Real-time crop prices
+- **Advisory Services** - Recommendations based on profitability
+
+---
+
 ## الترخيص | License
 
 Proprietary - KAFAAT © 2024

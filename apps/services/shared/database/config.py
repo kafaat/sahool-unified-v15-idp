@@ -18,7 +18,8 @@ class DatabaseConfig:
     port: int = 5432
     database: str = "sahool"
     username: str = "sahool"
-    password: str = "sahool_secret"
+    # SECURITY: No default password - MUST be provided via environment variable
+    password: str = ""
 
     # Pool settings
     pool_size: int = 5
@@ -34,13 +35,30 @@ class DatabaseConfig:
 
     @classmethod
     def from_env(cls, prefix: str = "DB") -> "DatabaseConfig":
-        """Load configuration from environment variables"""
+        """Load configuration from environment variables
+
+        SECURITY: Password must be provided via environment variable.
+        An empty password is allowed only in test environment.
+        """
+        environment = os.getenv("ENVIRONMENT", "production").lower()
+        password = os.getenv(f"{prefix}_PASSWORD", "")
+
+        # Enforce password in non-test environments
+        if not password and environment not in ("test", "testing", "ci"):
+            import warnings
+            warnings.warn(
+                f"SECURITY WARNING: {prefix}_PASSWORD environment variable is not set. "
+                "This is required for production environments.",
+                UserWarning,
+                stacklevel=2
+            )
+
         return cls(
             host=os.getenv(f"{prefix}_HOST", "localhost"),
             port=int(os.getenv(f"{prefix}_PORT", "5432")),
             database=os.getenv(f"{prefix}_NAME", "sahool"),
             username=os.getenv(f"{prefix}_USER", "sahool"),
-            password=os.getenv(f"{prefix}_PASSWORD", "sahool_secret"),
+            password=password,
             pool_size=int(os.getenv(f"{prefix}_POOL_SIZE", "5")),
             max_overflow=int(os.getenv(f"{prefix}_MAX_OVERFLOW", "10")),
             pool_timeout=int(os.getenv(f"{prefix}_POOL_TIMEOUT", "30")),

@@ -5,6 +5,7 @@ Port: 8090
 """
 
 import json
+import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import datetime
@@ -15,10 +16,16 @@ from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
-# JWT Configuration
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("ws-gateway")
+
+# JWT Configuration - Always required in production
 JWT_SECRET = os.getenv("JWT_SECRET", "")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-REQUIRE_AUTH = os.getenv("WS_REQUIRE_AUTH", "true").lower() == "true"
 
 
 async def validate_jwt_token(token: str) -> dict:
@@ -179,8 +186,8 @@ app = FastAPI(
 @app.get("/healthz")
 def health():
     return {
-        "status": "ok",
-        "service": "ws_gateway",
+        "status": "healthy",
+        "service": "ws-gateway",
         "version": "15.3.3",
         "timestamp": datetime.utcnow().isoformat(),
     }
@@ -211,41 +218,61 @@ def get_stats():
 async def websocket_endpoint(
     websocket: WebSocket,
     tenant_id: str = Query(...),
-    token: Optional[str] = Query(None),
+    token: str = Query(...),
 ):
     """
     Main WebSocket endpoint for real-time communication
 
     Query params:
     - tenant_id: Required tenant identifier
-    - token: JWT token for authentication (required in production)
+    - token: JWT token for authentication (REQUIRED)
     """
     connection_id = str(uuid4())
     user_id = None
 
+    # JWT authentication is always required
+    if not token:
+        logger.warning(
+            f"WebSocket connection attempt without token. "
+            f"Connection ID: {connection_id}, Tenant: {tenant_id}"
+        )
+        await websocket.close(code=4001, reason="Authentication required")
+        return
+
     # Validate JWT token
-    if REQUIRE_AUTH:
-        if not token:
-            await websocket.close(code=4001, reason="Authentication required")
+    try:
+        payload = await validate_jwt_token(token)
+        user_id = payload.get("sub") or payload.get("user_id")
+        token_tenant = payload.get("tenant_id")
+
+        # Verify tenant_id matches token
+        if token_tenant and token_tenant != tenant_id:
+            logger.error(
+                f"Tenant mismatch for connection {connection_id}. "
+                f"Token tenant: {token_tenant}, Requested tenant: {tenant_id}, "
+                f"User: {user_id}"
+            )
+            await websocket.close(code=4003, reason="Tenant mismatch")
             return
-        try:
-            payload = await validate_jwt_token(token)
-            user_id = payload.get("sub") or payload.get("user_id")
-            token_tenant = payload.get("tenant_id")
-            # Verify tenant_id matches token
-            if token_tenant and token_tenant != tenant_id:
-                await websocket.close(code=4003, reason="Tenant mismatch")
-                return
-        except ValueError as e:
-            await websocket.close(code=4001, reason=str(e))
-            return
-    elif token:
-        # Optional auth: validate if token provided
-        try:
-            payload = await validate_jwt_token(token)
-            user_id = payload.get("sub") or payload.get("user_id")
-        except ValueError:
-            pass  # Continue without auth in dev mode
+
+        logger.info(
+            f"WebSocket authenticated successfully. "
+            f"Connection ID: {connection_id}, User: {user_id}, Tenant: {tenant_id}"
+        )
+    except ValueError as e:
+        logger.error(
+            f"JWT validation failed for connection {connection_id}. "
+            f"Error: {str(e)}, Tenant: {tenant_id}"
+        )
+        await websocket.close(code=4001, reason="Invalid authentication token")
+        return
+    except Exception as e:
+        logger.error(
+            f"Unexpected authentication error for connection {connection_id}. "
+            f"Error: {str(e)}, Tenant: {tenant_id}"
+        )
+        await websocket.close(code=4001, reason="Authentication failed")
+        return
 
     await manager.connect(websocket, connection_id, tenant_id)
 
@@ -344,12 +371,59 @@ class BroadcastRequest(BaseModel):
 
 
 @app.post("/broadcast")
-async def broadcast_message(req: BroadcastRequest):
-    """Broadcast a message to all connections for a tenant"""
+async def broadcast_message(
+    req: BroadcastRequest,
+    authorization: str = Query(None, alias="Authorization"),
+):
+    """
+    Broadcast a message to all connections for a tenant.
+    Requires valid JWT token with matching tenant_id.
+
+    بث رسالة لجميع الاتصالات لمستأجر معين.
+    يتطلب رمز JWT صالح مع tenant_id مطابق.
+    """
+    # Extract token from Authorization header or query param
+    token = None
+    if authorization:
+        if authorization.startswith("Bearer "):
+            token = authorization[7:]
+        else:
+            token = authorization
+
+    if not token:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization token required for broadcast"
+        )
+
+    try:
+        # Validate token and check tenant ownership
+        payload = await validate_jwt_token(token)
+        token_tenant_id = payload.get("tenant_id")
+
+        # Ensure user can only broadcast to their own tenant
+        if token_tenant_id != req.tenant_id:
+            # Allow super_admin to broadcast to any tenant
+            roles = payload.get("roles", [])
+            if "super_admin" not in roles:
+                from fastapi import HTTPException
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cannot broadcast to a different tenant"
+                )
+
+        logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")
+
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail=str(e))
+
     ws_message = {
         "type": "broadcast",
         "message": req.message,
         "timestamp": datetime.utcnow().isoformat(),
+        "sender": payload.get("sub"),
     }
 
     if req.topic:

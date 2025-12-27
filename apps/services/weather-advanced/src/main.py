@@ -869,7 +869,7 @@ def get_spray_windows(hourly: List[HourlyForecast]) -> List[str]:
 @app.get("/healthz")
 def health():
     return {
-        "status": "ok",
+        "status": "healthy",
         "service": "weather-advanced",
         "version": "15.4.0",
         "locations_count": len(YEMEN_LOCATIONS),

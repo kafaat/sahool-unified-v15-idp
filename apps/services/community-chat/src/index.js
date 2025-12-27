@@ -18,8 +18,8 @@ const PORT = process.env.PORT || 8097;
 const SERVICE_NAME = 'community-chat';
 const SERVICE_VERSION = '1.0.0';
 
-// JWT Configuration
-const JWT_SECRET = process.env.JWT_SECRET || '';
+// JWT Configuration - Use standard JWT_SECRET_KEY
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || '';
 const REQUIRE_AUTH = process.env.CHAT_REQUIRE_AUTH !== 'false';
 
 // CORS Origins - configurable via environment
@@ -47,11 +47,15 @@ const verifyToken = (token) => {
   if (!token) {
     throw new Error('Token required');
   }
-  if (!JWT_SECRET) {
-    console.warn('⚠️ JWT_SECRET not configured - auth disabled');
+  if (!JWT_SECRET_KEY) {
+    // In production, JWT_SECRET_KEY must be configured
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('JWT_SECRET_KEY not configured');
+    }
+    console.warn('⚠️ JWT_SECRET_KEY not configured - using anonymous auth (dev only)');
     return { sub: 'anonymous', role: 'user' };
   }
-  return jwt.verify(token, JWT_SECRET);
+  return jwt.verify(token, JWT_SECRET_KEY);
 };
 
 // Socket.io setup with CORS and authentication
@@ -179,6 +183,64 @@ io.on('connection', (socket) => {
   socket.on('join_room', (data) => {
     const { roomId, userName, userType } = data;
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECURITY: Room Access Validation
+    // التحقق من صلاحية الوصول للغرفة
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // Validate room ID format (prevent injection)
+    if (!roomId || typeof roomId !== 'string' || roomId.length > 100) {
+      socket.emit('error', {
+        code: 'INVALID_ROOM_ID',
+        message: 'معرف الغرفة غير صالح'
+      });
+      return;
+    }
+
+    // Validate userName
+    if (!userName || typeof userName !== 'string' || userName.length > 100) {
+      socket.emit('error', {
+        code: 'INVALID_USERNAME',
+        message: 'اسم المستخدم غير صالح'
+      });
+      return;
+    }
+
+    // Validate userType
+    const validUserTypes = ['farmer', 'expert', 'admin', 'support'];
+    if (!validUserTypes.includes(userType)) {
+      socket.emit('error', {
+        code: 'INVALID_USER_TYPE',
+        message: 'نوع المستخدم غير صالح'
+      });
+      return;
+    }
+
+    // Check if user is authenticated (from middleware)
+    const authenticatedUser = socket.user;
+
+    // For support rooms, verify access rights
+    if (roomId.startsWith('support_')) {
+      const room = rooms.get(roomId);
+      if (room) {
+        // Only the original farmer or assigned expert can join support rooms
+        const isOriginalFarmer = room.farmerId === authenticatedUser?.sub;
+        const isAssignedExpert = room.expertId === authenticatedUser?.sub;
+        const isAdmin = authenticatedUser?.role === 'admin' || authenticatedUser?.role === 'super_admin';
+
+        if (!isOriginalFarmer && !isAssignedExpert && !isAdmin && userType !== 'expert') {
+          socket.emit('error', {
+            code: 'ACCESS_DENIED',
+            message: 'لا يمكنك الوصول لهذه الغرفة'
+          });
+          console.warn(`⚠️ Access denied to room ${roomId} for user ${userName}`);
+          return;
+        }
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+
     socket.join(roomId);
     console.log(`🚪 ${userName} joined room: ${roomId}`);
 
@@ -188,14 +250,20 @@ io.on('connection', (socket) => {
         id: roomId,
         createdAt: getFormattedTime(),
         participants: [],
-        status: 'active'
+        status: 'active',
+        createdBy: authenticatedUser?.sub || userName
       });
     }
 
     // Add participant to room
     const room = rooms.get(roomId);
     if (!room.participants.find(p => p.name === userName)) {
-      room.participants.push({ name: userName, type: userType, joinedAt: getFormattedTime() });
+      room.participants.push({
+        name: userName,
+        type: userType,
+        joinedAt: getFormattedTime(),
+        odolUserId: authenticatedUser?.sub
+      });
     }
 
     // Send message history to joining user
@@ -217,13 +285,70 @@ io.on('connection', (socket) => {
   socket.on('send_message', (data) => {
     const { roomId, author, authorType, message, attachments } = data;
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECURITY: Message Validation
+    // التحقق من صحة الرسالة
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // Validate roomId
+    if (!roomId || typeof roomId !== 'string' || roomId.length > 100) {
+      socket.emit('error', { code: 'INVALID_ROOM_ID', message: 'معرف الغرفة غير صالح' });
+      return;
+    }
+
+    // Validate author
+    if (!author || typeof author !== 'string' || author.length > 100) {
+      socket.emit('error', { code: 'INVALID_AUTHOR', message: 'اسم المؤلف غير صالح' });
+      return;
+    }
+
+    // Validate message content
+    if (!message || typeof message !== 'string') {
+      socket.emit('error', { code: 'INVALID_MESSAGE', message: 'محتوى الرسالة غير صالح' });
+      return;
+    }
+
+    // Limit message length (prevent DoS)
+    const MAX_MESSAGE_LENGTH = 10000;
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      socket.emit('error', { code: 'MESSAGE_TOO_LONG', message: `الرسالة طويلة جداً` });
+      return;
+    }
+
+    // Validate authorType
+    const validAuthorTypes = ['farmer', 'expert', 'admin', 'support', 'system'];
+    const safeAuthorType = validAuthorTypes.includes(authorType) ? authorType : 'farmer';
+
+    // Validate attachments (if provided)
+    let safeAttachments = [];
+    if (attachments && Array.isArray(attachments)) {
+      const ALLOWED_DOMAINS = ['sahool.io', 'sahool.app', 'localhost'];
+      safeAttachments = attachments.slice(0, 10).filter(att => {
+        if (!att || typeof att !== 'object') return false;
+        if (att.url && typeof att.url === 'string') {
+          try {
+            const url = new URL(att.url);
+            return ALLOWED_DOMAINS.some(d => url.hostname.endsWith(d));
+          } catch { return false; }
+        }
+        return true;
+      });
+    }
+
+    // Sanitize message content (basic XSS prevention)
+    const sanitizedMessage = message
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+
+    // ═══════════════════════════════════════════════════════════════════════════
+
     const messageData = {
       id: uuidv4(),
       roomId,
       author,
-      authorType: authorType || 'farmer',
-      message,
-      attachments: attachments || [],
+      authorType: safeAuthorType,
+      message: sanitizedMessage,
+      attachments: safeAttachments,
       timestamp: getFormattedTime(),
       status: 'delivered'
     };

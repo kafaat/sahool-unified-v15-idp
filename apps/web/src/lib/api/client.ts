@@ -5,6 +5,16 @@
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+// Enforce HTTPS in production (only at runtime in browser, not during build)
+if (
+  typeof window !== 'undefined' &&
+  process.env.NODE_ENV === 'production' &&
+  !API_BASE_URL.startsWith('https://') &&
+  !API_BASE_URL.includes('localhost')
+) {
+  console.warn('Warning: API_BASE_URL should use HTTPS in production environment');
+}
+
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -80,102 +90,25 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Generic HTTP Methods
+  // Authentication API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async get<T>(url: string, options?: { params?: Record<string, string> }): Promise<{ data: T }> {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-      throw new Error(error.message || 'An error occurred');
-    }
-
-    const data = await response.json();
-    return { data };
-  }
-
-  async post<T>(url: string, data?: any): Promise<{ data: T }> {
-    const response = await fetch(url, {
+  async login(email: string, password: string) {
+    return this.request<{ access_token: string; user: any }>('/api/v1/auth/login', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-      },
-      body: data ? JSON.stringify(data) : undefined,
+      body: JSON.stringify({ email, password }),
     });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-      throw new Error(error.message || 'An error occurred');
-    }
-
-    const responseData = await response.json();
-    return { data: responseData };
   }
 
-  async patch<T>(url: string, data?: any): Promise<{ data: T }> {
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-      },
-      body: data ? JSON.stringify(data) : undefined,
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-      throw new Error(error.message || 'An error occurred');
-    }
-
-    const responseData = await response.json();
-    return { data: responseData };
+  async getCurrentUser() {
+    return this.request<any>('/api/v1/auth/me');
   }
 
-  async put<T>(url: string, data?: any): Promise<{ data: T }> {
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-      },
-      body: data ? JSON.stringify(data) : undefined,
+  async refreshToken(refreshToken: string) {
+    return this.request<{ access_token: string }>('/api/v1/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: refreshToken }),
     });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-      throw new Error(error.message || 'An error occurred');
-    }
-
-    const responseData = await response.json();
-    return { data: responseData };
-  }
-
-  async delete<T>(url: string): Promise<{ data: T }> {
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
-      },
-    });
-
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-      throw new Error(error.message || 'An error occurred');
-    }
-
-    // DELETE might return empty response
-    const text = await response.text();
-    const responseData = text ? JSON.parse(text) : null;
-    return { data: responseData };
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -594,6 +527,12 @@ class SahoolApiClient {
     return this.request<any>(`/api/v1/tasks/${taskId}/complete`, {
       method: 'POST',
       body: JSON.stringify({ notes }),
+    });
+  }
+
+  async deleteTask(taskId: string) {
+    return this.request<void>(`/api/v1/tasks/${taskId}`, {
+      method: 'DELETE',
     });
   }
 

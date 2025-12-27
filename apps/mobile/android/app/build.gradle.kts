@@ -44,14 +44,40 @@ android {
         }
     }
 
+    // Release signing configuration
+    // SECURITY: In production, use proper keystore via environment variables:
+    // - KEYSTORE_FILE: Path to the keystore file
+    // - KEYSTORE_PASSWORD: Keystore password
+    // - KEY_ALIAS: Key alias
+    // - KEY_PASSWORD: Key password
+    signingConfigs {
+        create("release") {
+            val keystoreFile = System.getenv("KEYSTORE_FILE")
+            if (keystoreFile != null && file(keystoreFile).exists()) {
+                storeFile = file(keystoreFile)
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias = System.getenv("KEY_ALIAS") ?: "sahool"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // Disable code shrinking and minification to fix build errors
-            isMinifyEnabled = false
-            isShrinkResources = false
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Enable code shrinking and minification for production
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            // Use release signing if available, otherwise fall back to debug for development
+            val releaseConfig = signingConfigs.findByName("release")
+            signingConfig = if (releaseConfig?.storeFile != null) {
+                releaseConfig
+            } else {
+                // WARNING: Debug signing for development only
+                println("WARNING: Using debug signing config. Set KEYSTORE_* env vars for production.")
+                signingConfigs.getByName("debug")
+            }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

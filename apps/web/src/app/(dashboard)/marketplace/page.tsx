@@ -9,7 +9,7 @@ import React, { useState } from 'react';
 import { ShoppingCart as ShoppingCartIcon, Package, TrendingUp } from 'lucide-react';
 import {
   ProductsGrid,
-  CartComponent,
+  CartSidebar,
   CartProvider,
   useCart,
   useProducts,
@@ -144,7 +144,7 @@ function MarketplaceContent() {
       </div>
 
       {/* Cart Sidebar */}
-      <CartComponent
+      <CartSidebar
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         onCheckout={handleCheckout}

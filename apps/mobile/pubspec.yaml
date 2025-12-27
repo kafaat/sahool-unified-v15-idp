@@ -26,6 +26,7 @@ dependencies:
   dio: ^5.7.0
   http: ^1.2.2
   connectivity_plus: ^6.1.1
+  socket_io_client: ^2.0.3+1
 
   # Background Tasks
   workmanager: ^0.6.0
@@ -46,9 +47,13 @@ dependencies:
   # Charts
   fl_chart: ^0.69.2
 
-  # Maps
+  # Maps - Multiple Providers Support
+  # دعم متعدد لمزودي الخرائط
   flutter_map: ^7.0.2
+  maplibre_gl: ^0.19.0  # MapLibre GL - Open Source (no API key required)
   latlong2: ^0.9.1
+  vector_map_tiles: ^8.0.0  # Vector tiles support
+  flutter_map_tile_caching: ^9.1.0  # Offline map caching
 
   # Environment Configuration
   flutter_dotenv: ^5.2.1

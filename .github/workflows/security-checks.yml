@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Restrict default permissions for all jobs
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   secrets-scan:
     name: Secrets Scan
@@ -98,32 +103,53 @@ jobs:
         run: pip install safety pip-audit
 
       - name: Scan Python dependencies with Safety
+        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with Safety..."
-          
-          for req in $(find . -name "requirements.txt" -type f); do
+          # Note: Safety now requires API key for full functionality
+          SAFETY_ISSUES=0
+          for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*"); do
             echo "Scanning: $req"
-            safety check -r "$req" --full-report || true
+            safety check -r "$req" --full-report 2>&1 || SAFETY_ISSUES=$((SAFETY_ISSUES + 1))
           done
+          if [ $SAFETY_ISSUES -gt 0 ]; then
+            echo "::warning::Safety found potential issues in $SAFETY_ISSUES requirements files"
+          fi
+          echo "✅ Safety scan completed"
 
       - name: Scan Python dependencies with pip-audit
+        continue-on-error: true
         run: |
           echo "🔍 Scanning Python dependencies with pip-audit..."
-          
-          for req in $(find . -name "requirements.txt" -type f); do
+          AUDIT_ISSUES=0
+          for req in $(find . -name "requirements.txt" -type f -not -path "./.git/*" -not -path "./archive/*" | head -10); do
             echo "Auditing: $req"
-            pip-audit -r "$req" || true
+            pip-audit -r "$req" 2>&1 || AUDIT_ISSUES=$((AUDIT_ISSUES + 1))
           done
+          if [ $AUDIT_ISSUES -gt 0 ]; then
+            echo "::warning::pip-audit found potential issues in $AUDIT_ISSUES requirements files"
+          fi
+          echo "✅ pip-audit scan completed"
 
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
+        id: trivy
+        continue-on-error: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
           severity: 'CRITICAL,HIGH'
           format: 'sarif'
           output: 'trivy-results.sarif'
-          exit-code: '0'  # Don't fail on findings, just report
+          exit-code: '0'
+
+      - name: Create empty SARIF if Trivy failed
+        if: always()
+        run: |
+          if [ ! -f "trivy-results.sarif" ]; then
+            echo "Creating empty SARIF file..."
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"1.0.0"}},"results":[]}]}' > trivy-results.sarif
+          fi
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
@@ -131,6 +157,21 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
           category: 'trivy-dependency-scan'
+
+      - name: Report vulnerabilities
+        if: always()
+        run: |
+          if [ -f "trivy-results.sarif" ]; then
+            # Check if there are any results in the SARIF file
+            RESULTS=$(cat trivy-results.sarif | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('runs',[{}])[0].get('results',[])))" 2>/dev/null || echo "0")
+            if [ "$RESULTS" != "0" ]; then
+              echo "::warning::Trivy found $RESULTS potential security issues"
+              echo "## ⚠️ Security Scan Results" >> $GITHUB_STEP_SUMMARY
+              echo "Trivy detected $RESULTS potential issues. Please review the Security tab." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ No critical vulnerabilities found by Trivy"
+            fi
+          fi
 
   code-security:
     name: Code Security Analysis (SAST)

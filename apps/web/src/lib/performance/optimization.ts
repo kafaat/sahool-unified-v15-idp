@@ -18,13 +18,13 @@
  * Debounce function execution
  * تأخير تنفيذ الدالة حتى توقف الاستدعاءات
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: Parameters<T>) => ReturnType<T>>(
   func: T,
   wait: number,
   options: { leading?: boolean; trailing?: boolean; maxWait?: number } = {}
 ): T & { cancel: () => void; flush: () => void } {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
-  let lastArgs: any[] | null = null;
+  let lastArgs: Parameters<T> | null = null;
   let lastCallTime: number | null = null;
   let lastInvokeTime = 0;
   let result: ReturnType<T>;
@@ -34,7 +34,7 @@ export function debounce<T extends (...args: any[]) => any>(
   const maxWaitValue = maxing ? Math.max(maxWait, wait) : 0;
 
   function invokeFunc(time: number): ReturnType<T> {
-    const args = lastArgs!;
+    const args = lastArgs as Parameters<T>;
     lastArgs = null;
     lastInvokeTime = time;
     result = func(...args);
@@ -146,19 +146,19 @@ export function throttle<T extends (...args: Parameters<T>) => ReturnType<T>>(
  * Memoize function results with cache
  * حفظ نتائج الدالة في الذاكرة
  */
-export function memoize<T extends (...args: any[]) => any>(
+export function memoize<T extends (...args: Parameters<T>) => ReturnType<T>>(
   func: T,
   options: {
     maxSize?: number;
     ttl?: number;
-    keyGenerator?: (...args: any[]) => string;
+    keyGenerator?: (...args: Parameters<T>) => string;
   } = {}
 ): T & { cache: Map<string, { value: ReturnType<T>; timestamp: number }>; clear: () => void } {
-  const { maxSize = 100, ttl, keyGenerator = JSON.stringify } = options;
+  const { maxSize = 100, ttl, keyGenerator = ((...a: unknown[]) => JSON.stringify(a)) as (...args: Parameters<T>) => string } = options;
   const cache = new Map<string, { value: ReturnType<T>; timestamp: number }>();
 
-  function memoized(this: unknown, ...args: any[]): ReturnType<T> {
-    const key = keyGenerator(args);
+  function memoized(this: unknown, ...args: Parameters<T>): ReturnType<T> {
+    const key = keyGenerator(...(args as Parameters<T>));
     const cached = cache.get(key);
     const now = Date.now();
 

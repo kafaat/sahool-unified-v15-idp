@@ -1,0 +1,20 @@
+# MQTT Password File Template
+# ملف قالب كلمات مرور MQTT
+#
+# IMPORTANT: Do NOT commit actual passwords to git!
+# This file is a template. In production:
+#
+# 1. Create the password file:
+#    docker run -it --rm -v $(pwd):/mosquitto/config eclipse-mosquitto mosquitto_passwd -c /mosquitto/config/passwd sahool_iot
+#
+# 2. Add additional users:
+#    docker run -it --rm -v $(pwd):/mosquitto/config eclipse-mosquitto mosquitto_passwd /mosquitto/config/passwd device_gateway
+#
+# 3. Mount the file in docker-compose.yml
+#
+# Default users needed:
+# - sahool_iot: Main IoT gateway service user
+# - device_gateway: For device authentication proxy
+# - sensor_publisher: For sensor data publishers
+#
+# The actual passwd file should be in .gitignore

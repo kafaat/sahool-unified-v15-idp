@@ -10,10 +10,8 @@
 # ───────────────────────────────────────────────────────────────────────────────
 FROM python:3.11-slim AS builder
 
-# Configure apt to use HTTPS and install build dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && apt-get install -y --no-install-recommends \
-    apt-transport-https \
+# Install build dependencies (needed for compiling Python packages)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
@@ -45,13 +43,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Configure apt to use HTTPS and install only runtime system dependencies
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
@@ -67,9 +58,9 @@ USER sahool
 # Expose port
 EXPOSE 8096
 
-# Health check
+# Health check using Python (no curl needed)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8096/healthz || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')" || exit 1
 
 # Run the application
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8096"]

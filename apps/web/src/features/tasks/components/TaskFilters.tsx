@@ -15,11 +15,11 @@ interface TaskFiltersProps {
   onReset?: () => void;
 }
 
-export function TaskFilters({
+export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
   filters,
   onChange,
   onReset,
-}: TaskFiltersProps) {
+}) => {
   const handleChange = (key: keyof TaskFilters, value: any) => {
     onChange({ ...filters, [key]: value || undefined });
   };
@@ -70,11 +70,10 @@ export function TaskFilters({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           >
             <option value="">الكل</option>
-            <option value="open">مفتوحة</option>
-            <option value="pending">قيد الانتظار</option>
+            <option value="open">قيد الانتظار</option>
             <option value="in_progress">قيد التنفيذ</option>
-            <option value="completed">مكتملة</option>
-            <option value="cancelled">ملغاة</option>
+            <option value="done">مكتملة</option>
+            <option value="canceled">ملغاة</option>
           </select>
         </div>
 
@@ -89,10 +88,9 @@ export function TaskFilters({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           >
             <option value="">الكل</option>
-            <option value="urgent">عاجلة</option>
-            <option value="high">عالية</option>
-            <option value="medium">متوسطة</option>
             <option value="low">منخفضة</option>
+            <option value="medium">متوسطة</option>
+            <option value="high">عالية</option>
           </select>
         </div>
 
@@ -103,8 +101,8 @@ export function TaskFilters({
           </label>
           <input
             type="text"
-            value={filters.field_id || ''}
-            onChange={(e) => handleChange('field_id', e.target.value)}
+            value={filters.fieldId || ''}
+            onChange={(e) => handleChange('fieldId', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="معرّف الحقل"
           />
@@ -117,8 +115,8 @@ export function TaskFilters({
           </label>
           <input
             type="date"
-            value={filters.due_date_from || ''}
-            onChange={(e) => handleChange('due_date_from', e.target.value)}
+            value={filters.dueDateFrom || ''}
+            onChange={(e) => handleChange('dueDateFrom', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
@@ -129,14 +127,14 @@ export function TaskFilters({
           </label>
           <input
             type="date"
-            value={filters.due_date_to || ''}
-            onChange={(e) => handleChange('due_date_to', e.target.value)}
+            value={filters.dueDateTo || ''}
+            onChange={(e) => handleChange('dueDateTo', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
           />
         </div>
       </div>
     </div>
   );
-}
+};
 
-export default TaskFilters;
+export default TaskFiltersComponent;

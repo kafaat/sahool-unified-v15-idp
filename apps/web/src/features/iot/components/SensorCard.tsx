@@ -12,6 +12,7 @@ import { Activity, Battery, MapPin, Signal, TrendingUp } from 'lucide-react';
 
 interface SensorCardProps {
   sensor: Sensor;
+  onClick?: (sensorId: string) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -54,14 +55,25 @@ const typeIcons = {
   wind: '🌬️',
 };
 
-export function SensorCard({ sensor }: SensorCardProps) {
+export function SensorCard({ sensor, onClick }: SensorCardProps) {
   const { data: latestReading } = useLatestReading(sensor.id);
 
   const reading = latestReading || sensor.lastReading;
 
-  return (
-    <Link href={`/iot/sensors/${sensor.id}`}>
-      <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer">
+  const handleClick = () => {
+    if (onClick) {
+      onClick(sensor.id);
+    }
+  };
+
+  const cardContent = (
+    <div
+      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer"
+      onClick={onClick ? handleClick : undefined}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && handleClick() : undefined}
+    >
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3 flex-1">
@@ -128,6 +140,16 @@ export function SensorCard({ sensor }: SensorCardProps) {
           </div>
         </div>
       </div>
+  );
+
+  // If onClick is provided, don't wrap with Link
+  if (onClick) {
+    return cardContent;
+  }
+
+  return (
+    <Link href={`/iot/sensors/${sensor.id}`}>
+      {cardContent}
     </Link>
   );
 }

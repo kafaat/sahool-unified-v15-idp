@@ -3,23 +3,63 @@
  * أنواع ميزة الحقول
  */
 
-import type { Field, GeoPolygon } from '@sahool/api-client';
+// GeoJSON types
+export interface GeoPolygon {
+  type: 'Polygon';
+  coordinates: number[][][];
+}
+
+export interface GeoPoint {
+  type: 'Point';
+  coordinates: [number, number]; // [lng, lat]
+}
+
+// Field type
+export interface Field {
+  id: string;
+  name: string;
+  nameAr: string;
+  area: number; // in hectares
+  crop?: string;
+  cropAr?: string;
+  farmId?: string;
+  polygon?: GeoPolygon;
+  centroid?: GeoPoint;
+  description?: string;
+  descriptionAr?: string;
+  status?: 'active' | 'inactive' | 'deleted';
+  soilType?: string;
+  irrigationType?: string;
+  plantingDate?: string;
+  expectedHarvest?: string;
+  ndviValue?: number;
+  healthScore?: number;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface FieldFormData {
   name: string;
-  name_ar: string;
+  nameAr: string;
   area: number;
   crop?: string;
-  crop_ar?: string;
+  cropAr?: string;
   polygon?: GeoPolygon;
-  farm_id?: string;
+  farmId?: string;
   description?: string;
-  description_ar?: string;
+  descriptionAr?: string;
+  status?: 'active' | 'inactive';
+  soilType?: string;
+  irrigationType?: string;
+  plantingDate?: string;
+  expectedHarvest?: string;
+  metadata?: Record<string, any>;
 }
 
 export interface FieldFilters {
   search?: string;
-  farm_id?: string;
+  farmId?: string;
   crop?: string;
   minArea?: number;
   maxArea?: number;
@@ -30,4 +70,13 @@ export interface FieldViewMode {
   mode: 'grid' | 'list' | 'map';
 }
 
-export type { Field };
+export interface FieldStats {
+  total: number;
+  totalArea: number;
+  byCrop: Record<string, number>;
+}
+
+export interface FieldError {
+  message: string;
+  messageAr: string;
+}

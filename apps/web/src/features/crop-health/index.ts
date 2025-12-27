@@ -13,7 +13,7 @@
 // Component exports
 export { HealthDashboard } from './components/HealthDashboard';
 export { DiagnosisTool } from './components/DiagnosisTool';
-export { DiagnosisResult as DiagnosisResultComponent } from './components/DiagnosisResult';
+export { DiagnosisResult as DiagnosisResultView } from './components/DiagnosisResult';
 
 // Hook exports
 export {

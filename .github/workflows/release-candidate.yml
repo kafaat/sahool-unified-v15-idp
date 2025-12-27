@@ -24,7 +24,7 @@ jobs:
         image: postgis/postgis:15-3.4
         env:
           POSTGRES_USER: sahool
-          POSTGRES_PASSWORD: testpass
+          POSTGRES_PASSWORD: ${{ secrets.TEST_POSTGRES_PASSWORD }}
           POSTGRES_DB: sahool_test
         ports:
           - 5432:5432
@@ -52,16 +52,21 @@ jobs:
           pip install ruff pytest pytest-cov mypy httpx
 
       - name: Lint with Ruff
-        run: ruff check . || true
+        run: ruff check .
 
       - name: Type check
-        run: mypy advisor --ignore-missing-imports || true
+        run: mypy advisor --ignore-missing-imports
 
       - name: Run tests
         env:
-          DATABASE_URL: postgresql://sahool:testpass@localhost:5432/sahool_test
-          SECRET_KEY: test-secret-key
-        run: pytest --cov --cov-fail-under=50 || true
+          DATABASE_URL: postgresql://sahool:${{ secrets.TEST_POSTGRES_PASSWORD }}@localhost:5432/sahool_test
+          SECRET_KEY: ${{ secrets.TEST_SECRET_KEY }}
+        run: |
+          if find . -name "test_*.py" -o -name "*_test.py" | head -1 | grep -q .; then
+            pytest --cov --cov-fail-under=50
+          else
+            echo "No tests found, skipping..."
+          fi
 
   # ═══════════════════════════════════════════════════════════════
   # Security Gate
@@ -87,9 +92,16 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Dependency check
+        continue-on-error: true
         run: |
-          pip install safety
-          safety check -r requirements.txt || true
+          pip install safety pip-audit
+          # Safety now requires API key, use pip-audit as fallback
+          if [ -f requirements.txt ]; then
+            echo "Running pip-audit..."
+            pip-audit -r requirements.txt 2>&1 || echo "::warning::Vulnerabilities found in dependencies"
+            echo "Running safety check..."
+            safety check -r requirements.txt 2>&1 || echo "::warning::Safety check failed (may require API key)"
+          fi
 
   # ═══════════════════════════════════════════════════════════════
   # Web Build Gate
@@ -106,15 +118,15 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Check web_admin exists
+      - name: Check apps/admin exists
         run: |
-          if [ -d "web_admin" ]; then
-            cd web_admin
+          if [ -d "apps/admin" ]; then
+            cd apps/admin
             npm ci || npm install
             npm run lint || true
             npm run build || true
           else
-            echo "web_admin directory not found, skipping..."
+            echo "apps/admin directory not found, skipping..."
           fi
 
   # ═══════════════════════════════════════════════════════════════
@@ -135,22 +147,22 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter pub get
 
       - name: Analyze
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter analyze --no-fatal-infos || true
 
       - name: Run tests
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter test || true
 
       - name: Build Android APK
         run: |
-          cd mobile/sahool_field_app
+          cd apps/mobile
           flutter build apk --release || true
 
   # ═══════════════════════════════════════════════════════════════

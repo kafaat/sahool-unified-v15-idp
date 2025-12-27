@@ -18,37 +18,23 @@ const columns: TaskBoardColumn[] = [
   {
     id: 'open',
     title: 'Open',
-    title_ar: 'مفتوحة',
-    tasks: [],
-    color: 'bg-gray-100 border-gray-300',
-  },
-  {
-    id: 'pending',
-    title: 'Pending',
-    title_ar: 'قيد الانتظار',
+    titleAr: 'جديدة',
     tasks: [],
     color: 'bg-gray-50 border-gray-200',
   },
   {
     id: 'in_progress',
     title: 'In Progress',
-    title_ar: 'قيد التنفيذ',
+    titleAr: 'قيد التنفيذ',
     tasks: [],
     color: 'bg-blue-50 border-blue-200',
   },
   {
-    id: 'completed',
-    title: 'Completed',
-    title_ar: 'مكتملة',
+    id: 'done',
+    title: 'Done',
+    titleAr: 'مكتملة',
     tasks: [],
     color: 'bg-green-50 border-green-200',
-  },
-  {
-    id: 'cancelled',
-    title: 'Cancelled',
-    title_ar: 'ملغاة',
-    tasks: [],
-    color: 'bg-red-50 border-red-200',
   },
 ];
 
@@ -99,7 +85,7 @@ export const TasksBoard: React.FC<TasksBoardProps> = ({ onTaskClick }) => {
         >
           {/* Column Header */}
           <div className="mb-4">
-            <h3 className="text-lg font-bold text-gray-900">{column.title_ar}</h3>
+            <h3 className="text-lg font-bold text-gray-900">{column.titleAr}</h3>
             <p className="text-sm text-gray-500">{column.title}</p>
             <div className="mt-2 text-sm text-gray-600">
               {column.tasks.length} {column.tasks.length === 1 ? 'مهمة' : 'مهام'}

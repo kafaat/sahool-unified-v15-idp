@@ -1,0 +1,309 @@
+# ============================================================================
+# Prometheus Configuration for SAHOOL Kong API Gateway
+# تكوين Prometheus لبوابة Kong API لمنصة سهول
+# ============================================================================
+
+global:
+  scrape_interval: 15s      # كل 15 ثانية
+  evaluation_interval: 15s  # تقييم القواعد كل 15 ثانية
+  scrape_timeout: 10s       # مهلة الكشط
+
+  # External labels for all metrics
+  external_labels:
+    cluster: 'sahool-production'
+    platform: 'sahool'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'alertmanager:9093'
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # ============================================================================
+  # Kong API Gateway Metrics
+  # مقاييس بوابة Kong API
+  # ============================================================================
+  - job_name: 'kong'
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - 'kong:8001'
+    metrics_path: '/metrics'
+    scheme: http
+
+    # Relabel configuration
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'kong-gateway'
+
+    # Metric relabeling
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'kong_.*'
+        action: keep
+
+  # ============================================================================
+  # Kong Database (PostgreSQL) Metrics
+  # مقاييس قاعدة بيانات Kong (PostgreSQL)
+  # ============================================================================
+  - job_name: 'kong-postgres'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'postgres-exporter:9187'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'kong-database'
+
+  # ============================================================================
+  # Redis Metrics
+  # مقاييس Redis
+  # ============================================================================
+  - job_name: 'kong-redis'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'redis-exporter:9121'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'kong-redis'
+
+  # ============================================================================
+  # Prometheus Self Monitoring
+  # المراقبة الذاتية لـ Prometheus
+  # ============================================================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:
+          - 'localhost:9090'
+
+  # ============================================================================
+  # Node Exporter - System Metrics
+  # مقاييس النظام
+  # ============================================================================
+  - job_name: 'node-exporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'node-exporter:9100'
+
+  # ============================================================================
+  # cAdvisor - Container Metrics
+  # مقاييس الحاويات
+  # ============================================================================
+  - job_name: 'cadvisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'cadvisor:8080'
+
+  # ============================================================================
+  # SAHOOL Microservices Metrics
+  # مقاييس الخدمات المصغرة لمنصة سهول
+  # ============================================================================
+
+  # Starter Package Services
+  - job_name: 'field-core'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'field-core:3000'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'field-core'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'starter'
+
+  - job_name: 'weather-core'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'weather-core:8108'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'weather-core'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'starter'
+
+  - job_name: 'astronomical-calendar'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'astronomical-calendar:8111'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'astronomical-calendar'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'starter'
+
+  - job_name: 'agro-advisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'agro-advisor:8105'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'agro-advisor'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'starter'
+
+  - job_name: 'notification-service'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'notification-service:8110'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'notification-service'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'starter'
+
+  # Professional Package Services
+  - job_name: 'satellite-service'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'satellite-service:8090'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'satellite-service'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'professional'
+
+  - job_name: 'ndvi-engine'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'ndvi-engine:8107'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'ndvi-engine'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'professional'
+
+  - job_name: 'crop-health-ai'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'crop-health-ai:8095'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'crop-health-ai'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'professional'
+
+  # Enterprise Package Services
+  - job_name: 'ai-advisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'ai-advisor:8112'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'ai-advisor'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'enterprise'
+
+  - job_name: 'iot-gateway'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'iot-gateway:8106'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'iot-gateway'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'enterprise'
+
+  - job_name: 'marketplace-service'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'marketplace-service:3010'
+    metrics_path: '/metrics'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: service
+        replacement: 'marketplace-service'
+      - source_labels: [__address__]
+        target_label: package
+        replacement: 'enterprise'
+
+  # ============================================================================
+  # Service Discovery via Consul (Optional)
+  # اكتشاف الخدمة عبر Consul (اختياري)
+  # ============================================================================
+  - job_name: 'consul-services'
+    consul_sd_configs:
+      - server: 'consul:8500'
+        services: []
+
+    relabel_configs:
+      # Only keep services with 'prometheus' tag
+      - source_labels: [__meta_consul_tags]
+        regex: '.*,prometheus,.*'
+        action: keep
+
+      # Use service name as job label
+      - source_labels: [__meta_consul_service]
+        target_label: job
+
+      # Use service ID as instance label
+      - source_labels: [__meta_consul_service_id]
+        target_label: instance
+
+      # Add service metadata
+      - source_labels: [__meta_consul_service_metadata_package]
+        target_label: package
+
+      - source_labels: [__meta_consul_service_metadata_version]
+        target_label: version
+
+# ============================================================================
+# Recording Rules - Pre-computed queries for performance
+# قواعد التسجيل - استعلامات محسوبة مسبقاً للأداء
+# ============================================================================
+
+# These can be placed in a separate file and included in rule_files
+# Example: recording_rules.yml

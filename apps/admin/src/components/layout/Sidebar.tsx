@@ -20,7 +20,14 @@ import {
   Activity,
   Cpu,
   Droplets,
+  Sprout,
+  FileText,
+  DollarSign,
+  Satellite,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
+import { useState } from 'react';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
@@ -35,8 +42,25 @@ const navigation = [
   { name: 'الإعدادات', href: '/settings', icon: Settings },
 ];
 
+const precisionAgricultureNav = [
+  { name: 'التطبيق المتغير (VRA)', href: '/precision-agriculture/vra', icon: FileText },
+  { name: 'درجات النمو (GDD)', href: '/precision-agriculture/gdd', icon: Thermometer },
+  { name: 'إدارة الرش', href: '/precision-agriculture/spray', icon: Droplets },
+];
+
+const analyticsNav = [
+  { name: 'تحليل الربحية', href: '/analytics/profitability', icon: DollarSign },
+  { name: 'تحليلات الأقمار', href: '/analytics/satellite', icon: Satellite },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
+  const [precisionExpanded, setPrecisionExpanded] = useState(
+    pathname?.startsWith('/precision-agriculture')
+  );
+  const [analyticsExpanded, setAnalyticsExpanded] = useState(
+    pathname?.startsWith('/analytics')
+  );
 
   return (
     <aside className="fixed inset-y-0 right-0 w-64 bg-white border-l border-gray-200 flex flex-col z-50">
@@ -78,6 +102,92 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* Precision Agriculture Section */}
+        <div className="pt-2">
+          <button
+            onClick={() => setPrecisionExpanded(!precisionExpanded)}
+            className={cn(
+              'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
+              pathname?.startsWith('/precision-agriculture')
+                ? 'bg-sahool-50 text-sahool-700'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            )}
+          >
+            <Sprout className={cn('w-5 h-5', pathname?.startsWith('/precision-agriculture') ? 'text-sahool-600' : 'text-gray-400')} />
+            الزراعة الدقيقة
+            {precisionExpanded ? (
+              <ChevronDown className="w-4 h-4 mr-auto" />
+            ) : (
+              <ChevronRight className="w-4 h-4 mr-auto" />
+            )}
+          </button>
+          {precisionExpanded && (
+            <div className="mr-4 mt-1 space-y-1">
+              {precisionAgricultureNav.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all',
+                      isActive
+                        ? 'bg-sahool-100 text-sahool-700 font-medium'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    )}
+                  >
+                    <item.icon className={cn('w-4 h-4', isActive ? 'text-sahool-600' : 'text-gray-400')} />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Analytics Section */}
+        <div className="pt-2">
+          <button
+            onClick={() => setAnalyticsExpanded(!analyticsExpanded)}
+            className={cn(
+              'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
+              pathname?.startsWith('/analytics')
+                ? 'bg-sahool-50 text-sahool-700'
+                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+            )}
+          >
+            <TrendingUp className={cn('w-5 h-5', pathname?.startsWith('/analytics') ? 'text-sahool-600' : 'text-gray-400')} />
+            التحليلات
+            {analyticsExpanded ? (
+              <ChevronDown className="w-4 h-4 mr-auto" />
+            ) : (
+              <ChevronRight className="w-4 h-4 mr-auto" />
+            )}
+          </button>
+          {analyticsExpanded && (
+            <div className="mr-4 mt-1 space-y-1">
+              {analyticsNav.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all',
+                      isActive
+                        ? 'bg-sahool-100 text-sahool-700 font-medium'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    )}
+                  >
+                    <item.icon className={cn('w-4 h-4', isActive ? 'text-sahool-600' : 'text-gray-400')} />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </nav>
 
       {/* User section */}

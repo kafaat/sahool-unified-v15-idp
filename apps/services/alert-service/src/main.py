@@ -216,9 +216,23 @@ setup_cors_middleware(app)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-@app.get("/healthz", tags=["Health"])
+@app.get("/health", tags=["Health"])
 def health():
-    """فحص صحة الخدمة"""
+    """فحص صحة الخدمة - Health check with dependencies"""
+    return {
+        "status": "healthy",
+        "service": "alert-service",
+        "version": "16.0.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "dependencies": {
+            "nats": "connected" if getattr(app.state, "publisher", None) is not None else "disconnected"
+        }
+    }
+
+
+@app.get("/healthz", tags=["Health"])
+def healthz():
+    """فحص صحة الخدمة - Kubernetes liveness probe"""
     return {
         "status": "healthy",
         "service": "alert-service",
@@ -229,7 +243,7 @@ def health():
 
 @app.get("/readyz", tags=["Health"])
 def readiness():
-    """فحص جاهزية الخدمة"""
+    """فحص جاهزية الخدمة - Kubernetes readiness probe"""
     return {
         "status": "ready",
         "nats_publisher": getattr(app.state, "publisher", None) is not None,

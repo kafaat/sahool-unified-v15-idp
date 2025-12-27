@@ -1,0 +1,524 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Prometheus Alert Rules
+# قواعد التنبيهات لمنصة سهول الزراعية
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2025-12-25
+
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Service Availability Alerts - تنبيهات توفر الخدمات
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_service_availability
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} is down"
+          summary_ar: "الخدمة {{ $labels.service }} متوقفة"
+          description: |
+            Service {{ $labels.service }} ({{ $labels.tier }}) has been down for more than 2 minutes.
+            Job: {{ $labels.job }}
+            Instance: {{ $labels.instance }}
+          description_ar: |
+            الخدمة {{ $labels.service }} ({{ $labels.tier }}) متوقفة منذ أكثر من دقيقتين.
+            الوظيفة: {{ $labels.job }}
+            المثيل: {{ $labels.instance }}
+          impact: "Users cannot access {{ $labels.service }} functionality"
+          impact_ar: "المستخدمون لا يمكنهم الوصول إلى وظائف {{ $labels.service }}"
+          action: "Check service logs and restart if necessary"
+          action_ar: "تحقق من سجلات الخدمة وأعد التشغيل إذا لزم الأمر"
+
+      - alert: ServiceDegradedAvailability
+        expr: avg_over_time(up[5m]) < 0.95
+        for: 5m
+        labels:
+          severity: warning
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.service }} has degraded availability"
+          summary_ar: "الخدمة {{ $labels.service }} لديها توفر منخفض"
+          description: "Service availability is {{ $value | humanizePercentage }} over the last 5 minutes"
+          description_ar: "توفر الخدمة {{ $value | humanizePercentage }} خلال آخر 5 دقائق"
+
+      - alert: MultipleServicesDown
+        expr: count(up{tier="application"} == 0) > 3
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+          platform: sahool
+        annotations:
+          summary: "Multiple services are down ({{ $value }} services)"
+          summary_ar: "عدة خدمات متوقفة ({{ $value }} خدمة)"
+          description: "Platform is experiencing widespread outage"
+          description_ar: "المنصة تعاني من انقطاع واسع النطاق"
+          action: "URGENT: Check infrastructure services (Postgres, Redis, NATS)"
+          action_ar: "عاجل: تحقق من خدمات البنية التحتية (Postgres, Redis, NATS)"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Performance Alerts - تنبيهات الأداء
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_service_performance
+    interval: 15s
+    rules:
+      - alert: HighLatencyP95
+        expr: |
+          histogram_quantile(0.95,
+            sum by (service, tier, le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          platform: sahool
+        annotations:
+          summary: "High P95 latency for {{ $labels.service }}"
+          summary_ar: "زمن استجابة عالي P95 لخدمة {{ $labels.service }}"
+          description: "95th percentile latency is {{ $value }}s (threshold: 500ms)"
+          description_ar: "زمن الاستجابة في النسبة المئوية 95 هو {{ $value }} ثانية (الحد: 500 مللي ثانية)"
+          impact: "Users experiencing slow response times"
+          impact_ar: "المستخدمون يعانون من أوقات استجابة بطيئة"
+
+      - alert: HighLatencyP99
+        expr: |
+          histogram_quantile(0.99,
+            sum by (service, tier, le) (
+              rate(http_request_duration_seconds_bucket[5m])
+            )
+          ) > 1
+        for: 3m
+        labels:
+          severity: critical
+          category: performance
+          platform: sahool
+        annotations:
+          summary: "Very high P99 latency for {{ $labels.service }}"
+          summary_ar: "زمن استجابة عالي جداً P99 لخدمة {{ $labels.service }}"
+          description: "99th percentile latency is {{ $value }}s (threshold: 1s)"
+          description_ar: "زمن الاستجابة في النسبة المئوية 99 هو {{ $value }} ثانية (الحد: 1 ثانية)"
+
+      - alert: HighAverageLatency
+        expr: |
+          rate(http_request_duration_seconds_sum[5m])
+          /
+          rate(http_request_duration_seconds_count[5m])
+          > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+          platform: sahool
+        annotations:
+          summary: "High average latency for {{ $labels.service }}"
+          summary_ar: "متوسط زمن استجابة عالي لخدمة {{ $labels.service }}"
+          description: "Average latency is {{ $value }}s"
+          description_ar: "متوسط زمن الاستجابة {{ $value }} ثانية"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Error Rate Alerts - تنبيهات معدل الأخطاء
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_error_rates
+    interval: 30s
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum by (service, tier) (rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum by (service, tier) (rate(http_requests_total[5m]))
+          ) > 0.01
+        for: 3m
+        labels:
+          severity: critical
+          category: errors
+          platform: sahool
+        annotations:
+          summary: "High error rate for {{ $labels.service }}"
+          summary_ar: "معدل أخطاء عالي لخدمة {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 1%)"
+          description_ar: "معدل الأخطاء {{ $value | humanizePercentage }} (الحد: 1%)"
+          impact: "Service reliability is degraded"
+          impact_ar: "موثوقية الخدمة منخفضة"
+          action: "Check application logs for error patterns"
+          action_ar: "تحقق من سجلات التطبيق لأنماط الأخطاء"
+
+      - alert: CriticalErrorRate
+        expr: |
+          (
+            sum by (service, tier) (rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum by (service, tier) (rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+          category: errors
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Very high error rate for {{ $labels.service }}"
+          summary_ar: "حرج: معدل أخطاء عالي جداً لخدمة {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+          description_ar: "معدل الأخطاء {{ $value | humanizePercentage }} (الحد: 5%)"
+          action: "URGENT: Service may need immediate attention or rollback"
+          action_ar: "عاجل: الخدمة قد تحتاج اهتمام فوري أو التراجع عن التحديث"
+
+      - alert: ElevatedClientErrors
+        expr: |
+          (
+            sum by (service, tier) (rate(http_requests_total{status=~"4.."}[5m]))
+            /
+            sum by (service, tier) (rate(http_requests_total[5m]))
+          ) > 0.10
+        for: 5m
+        labels:
+          severity: warning
+          category: errors
+          platform: sahool
+        annotations:
+          summary: "Elevated 4xx error rate for {{ $labels.service }}"
+          summary_ar: "ارتفاع معدل أخطاء 4xx لخدمة {{ $labels.service }}"
+          description: "Client error rate is {{ $value | humanizePercentage }}"
+          description_ar: "معدل أخطاء العميل {{ $value | humanizePercentage }}"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Database Alerts - تنبيهات قاعدة البيانات
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_database_alerts
+    interval: 30s
+    rules:
+      - alert: DatabaseConnectionPoolExhausted
+        expr: |
+          (
+            pg_stat_database_numbackends{datname="sahool"}
+            /
+            pg_settings_max_connections
+          ) > 0.85
+        for: 3m
+        labels:
+          severity: critical
+          category: database
+          platform: sahool
+        annotations:
+          summary: "PostgreSQL connection pool nearly exhausted"
+          summary_ar: "مجموعة اتصالات PostgreSQL شبه مستنفدة"
+          description: "Database is using {{ $value | humanizePercentage }} of available connections"
+          description_ar: "قاعدة البيانات تستخدم {{ $value | humanizePercentage }} من الاتصالات المتاحة"
+          impact: "New connections may be rejected"
+          impact_ar: "قد يتم رفض الاتصالات الجديدة"
+          action: "Investigate connection leaks or increase max_connections"
+          action_ar: "تحقق من تسرب الاتصالات أو زيادة max_connections"
+
+      - alert: DatabaseHighConnectionRate
+        expr: rate(pg_stat_database_numbackends[5m]) > 50
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "High database connection rate"
+          summary_ar: "معدل اتصال عالي بقاعدة البيانات"
+          description: "Connection rate is {{ $value }}/sec"
+          description_ar: "معدل الاتصال {{ $value }}/ثانية"
+
+      - alert: DatabaseSlowQueries
+        expr: pg_stat_activity_max_tx_duration > 30
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Slow database queries detected"
+          summary_ar: "تم اكتشاف استعلامات بطيئة في قاعدة البيانات"
+          description: "Longest running query: {{ $value }}s"
+          description_ar: "أطول استعلام قيد التشغيل: {{ $value }} ثانية"
+          action: "Check pg_stat_activity for slow queries"
+          action_ar: "تحقق من pg_stat_activity للاستعلامات البطيئة"
+
+      - alert: DatabaseDeadlocks
+        expr: rate(pg_stat_database_deadlocks[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          category: database
+          platform: sahool
+        annotations:
+          summary: "Database deadlocks detected"
+          summary_ar: "تم اكتشاف جمود في قاعدة البيانات"
+          description: "Deadlock rate: {{ $value }}/sec"
+          description_ar: "معدل الجمود: {{ $value }}/ثانية"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Redis Alerts - تنبيهات Redis
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_redis_alerts
+    interval: 30s
+    rules:
+      - alert: RedisMemoryHigh
+        expr: |
+          (
+            redis_memory_used_bytes
+            /
+            redis_memory_max_bytes
+          ) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+          category: cache
+          platform: sahool
+        annotations:
+          summary: "Redis memory usage is high"
+          summary_ar: "استخدام ذاكرة Redis عالي"
+          description: "Redis is using {{ $value | humanizePercentage }} of allocated memory"
+          description_ar: "Redis يستخدم {{ $value | humanizePercentage }} من الذاكرة المخصصة"
+          impact: "Cache eviction may increase, reducing performance"
+          impact_ar: "قد يزداد طرد الذاكرة المؤقتة، مما يقلل الأداء"
+          action: "Consider increasing Redis memory limit or reviewing cache policies"
+          action_ar: "فكر في زيادة حد ذاكرة Redis أو مراجعة سياسات الذاكرة المؤقتة"
+
+      - alert: RedisCriticalMemory
+        expr: |
+          (
+            redis_memory_used_bytes
+            /
+            redis_memory_max_bytes
+          ) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          category: cache
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Redis memory nearly exhausted"
+          summary_ar: "حرج: ذاكرة Redis شبه مستنفدة"
+          description: "Redis is using {{ $value | humanizePercentage }} of allocated memory"
+          description_ar: "Redis يستخدم {{ $value | humanizePercentage }} من الذاكرة المخصصة"
+
+      - alert: RedisHighEvictionRate
+        expr: rate(redis_evicted_keys_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: cache
+          platform: sahool
+        annotations:
+          summary: "High Redis key eviction rate"
+          summary_ar: "معدل طرد مفاتيح Redis عالي"
+          description: "Redis is evicting {{ $value }} keys/sec"
+          description_ar: "Redis يطرد {{ $value }} مفتاح/ثانية"
+
+      - alert: RedisHighConnectionCount
+        expr: redis_connected_clients > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: cache
+          platform: sahool
+        annotations:
+          summary: "High number of Redis connections"
+          summary_ar: "عدد كبير من اتصالات Redis"
+          description: "{{ $value }} clients connected to Redis"
+          description_ar: "{{ $value }} عميل متصل بـ Redis"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NATS Message Queue Alerts - تنبيهات نظام الرسائل NATS
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_nats_alerts
+    interval: 30s
+    rules:
+      - alert: NATSQueueBacklog
+        expr: nats_consumer_num_pending > 10000
+        for: 5m
+        labels:
+          severity: warning
+          category: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS queue has high backlog"
+          summary_ar: "طابور NATS لديه تراكم عالي"
+          description: "Consumer {{ $labels.consumer }} has {{ $value }} pending messages"
+          description_ar: "المستهلك {{ $labels.consumer }} لديه {{ $value }} رسالة معلقة"
+          impact: "Message processing is delayed"
+          impact_ar: "معالجة الرسائل متأخرة"
+          action: "Check consumer health and processing rate"
+          action_ar: "تحقق من صحة المستهلك ومعدل المعالجة"
+
+      - alert: NATSCriticalBacklog
+        expr: nats_consumer_num_pending > 50000
+        for: 2m
+        labels:
+          severity: critical
+          category: message-queue
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: NATS queue critically backed up"
+          summary_ar: "حرج: طابور NATS متراكم بشكل حرج"
+          description: "Consumer {{ $labels.consumer }} has {{ $value }} pending messages"
+          description_ar: "المستهلك {{ $labels.consumer }} لديه {{ $value }} رسالة معلقة"
+
+      - alert: NATSConsumerLag
+        expr: nats_consumer_num_ack_pending > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS consumer has high unacked messages"
+          summary_ar: "مستهلك NATS لديه رسائل غير مؤكدة عالية"
+          description: "{{ $value }} messages awaiting acknowledgment"
+          description_ar: "{{ $value }} رسالة في انتظار التأكيد"
+
+      - alert: NATSSlowConsumer
+        expr: rate(nats_consumer_delivered_consumer_seq[5m]) < 10
+        for: 10m
+        labels:
+          severity: warning
+          category: message-queue
+          platform: sahool
+        annotations:
+          summary: "NATS consumer is processing slowly"
+          summary_ar: "مستهلك NATS يعالج ببطء"
+          description: "Processing rate: {{ $value }} messages/sec"
+          description_ar: "معدل المعالجة: {{ $value }} رسالة/ثانية"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Infrastructure Health - صحة البنية التحتية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_infrastructure_health
+    interval: 30s
+    rules:
+      - alert: PostgreSQLDown
+        expr: up{service="postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: PostgreSQL database is down"
+          summary_ar: "حرج: قاعدة بيانات PostgreSQL متوقفة"
+          description: "Primary database is unavailable - platform-wide outage"
+          description_ar: "قاعدة البيانات الرئيسية غير متاحة - انقطاع على مستوى المنصة"
+          impact: "ENTIRE PLATFORM IS DOWN"
+          impact_ar: "المنصة بأكملها متوقفة"
+
+      - alert: RedisDown
+        expr: up{service="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: Redis cache is down"
+          summary_ar: "حرج: ذاكرة التخزين المؤقت Redis متوقفة"
+          description: "Cache and session store unavailable"
+          description_ar: "الذاكرة المؤقتة ومخزن الجلسات غير متاحين"
+
+      - alert: NATSDown
+        expr: up{service="nats"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: NATS message queue is down"
+          summary_ar: "حرج: نظام الرسائل NATS متوقف"
+          description: "Message queue unavailable - async processing stopped"
+          description_ar: "نظام الرسائل غير متاح - توقفت المعالجة غير المتزامنة"
+
+      - alert: QdrantDown
+        expr: up{service="qdrant"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          category: infrastructure
+          platform: sahool
+        annotations:
+          summary: "Qdrant vector database is down"
+          summary_ar: "قاعدة البيانات المتجهة Qdrant متوقفة"
+          description: "AI advisor RAG functionality unavailable"
+          description_ar: "وظيفة RAG للمستشار الذكي غير متاحة"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Business Metrics - المؤشرات التجارية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_business_metrics
+    interval: 60s
+    rules:
+      - alert: LowActiveUsers
+        expr: sahool_active_users_gauge < 10
+        for: 15m
+        labels:
+          severity: info
+          category: business
+          platform: sahool
+        annotations:
+          summary: "Low active user count"
+          summary_ar: "عدد المستخدمين النشطين منخفض"
+          description: "Only {{ $value }} active users in the last 15 minutes"
+          description_ar: "فقط {{ $value }} مستخدم نشط خلال آخر 15 دقيقة"
+
+      - alert: HighAPIUsageRate
+        expr: |
+          sum(rate(http_requests_total[5m])) > 1000
+        for: 10m
+        labels:
+          severity: info
+          category: business
+          platform: sahool
+        annotations:
+          summary: "High API request rate"
+          summary_ar: "معدل طلبات API عالي"
+          description: "API receiving {{ $value }} requests/sec"
+          description_ar: "API تستقبل {{ $value }} طلب/ثانية"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AI/ML Service Alerts - تنبيهات خدمات الذكاء الاصطناعي
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_ai_ml_alerts
+    interval: 60s
+    rules:
+      - alert: AIAdvisorHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (
+              rate(http_request_duration_seconds_bucket{service="ai-advisor"}[5m])
+            )
+          ) > 3
+        for: 5m
+        labels:
+          severity: warning
+          category: ai-ml
+          platform: sahool
+        annotations:
+          summary: "AI Advisor experiencing high latency"
+          summary_ar: "المستشار الذكي يعاني من تأخير عالي"
+          description: "P95 latency is {{ $value }}s for AI processing"
+          description_ar: "زمن الاستجابة P95 هو {{ $value }} ثانية لمعالجة الذكاء الاصطناعي"
+
+      - alert: CropHealthAIModelErrors
+        expr: rate(ai_model_errors_total{service="crop-health-ai"}[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          category: ai-ml
+          platform: sahool
+        annotations:
+          summary: "Crop Health AI model experiencing errors"
+          summary_ar: "نموذج الذكاء الاصطناعي لصحة المحاصيل يواجه أخطاء"
+          description: "Model error rate: {{ $value }}/sec"
+          description_ar: "معدل أخطاء النموذج: {{ $value }}/ثانية"

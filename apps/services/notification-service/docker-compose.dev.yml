@@ -23,6 +23,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    security_opt:
+      - no-new-privileges:true
     networks:
       - sahool-network
 
@@ -39,6 +41,9 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
     networks:
       - sahool-network
 
@@ -56,6 +61,8 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
+    security_opt:
+      - no-new-privileges:true
     networks:
       - sahool-network
     profiles:

@@ -514,7 +514,7 @@ jobs:
           fi
 
       - name: Notify deployment success
-        if: success()
+        if: success() && secrets.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@v3
         with:
           status: custom
@@ -535,7 +535,7 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: Notify deployment failure
-        if: failure()
+        if: failure() && secrets.SLACK_WEBHOOK_URL != ''
         uses: 8398a7/action-slack@v3
         with:
           status: custom

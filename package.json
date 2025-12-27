@@ -21,13 +21,20 @@
     "build:web": "npm run build --workspace=apps/web",
     "build:admin": "npm run build --workspace=apps/admin",
     "build:all": "npm run build:packages && npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
     "lint:all": "npm run lint --workspaces --if-present",
     "type-check": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "clean": "rm -rf node_modules **/node_modules **/dist"
   },
   "devDependencies": {
     "typescript": "5.7.2",
-    "@types/node": "22.10.2"
+    "@types/node": "22.10.2",
+    "vitest": "2.1.8",
+    "@vitest/coverage-v8": "2.1.8"
   },
   "engines": {
     "node": ">=20.0.0",

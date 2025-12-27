@@ -8,10 +8,11 @@ import { AppController } from './app.controller';
 import { PrismaService } from './prisma/prisma.service';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
+import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
 
 @Module({
   imports: [],
   controllers: [AppController],
-  providers: [PrismaService, MarketService, FintechService],
+  providers: [PrismaService, MarketService, FintechService, JwtAuthGuard, OptionalJwtAuthGuard],
 })
 export class AppModule {}

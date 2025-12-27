@@ -14,7 +14,7 @@ class DatabaseConfig:
     """Database configuration settings"""
 
     # Connection settings
-    host: str = "localhost"
+    host: str = "postgres"
     port: int = 5432
     database: str = "sahool"
     username: str = "sahool"
@@ -54,7 +54,7 @@ class DatabaseConfig:
             )
 
         return cls(
-            host=os.getenv(f"{prefix}_HOST", "localhost"),
+            host=os.getenv(f"{prefix}_HOST", "postgres"),
             port=int(os.getenv(f"{prefix}_PORT", "5432")),
             database=os.getenv(f"{prefix}_NAME", "sahool"),
             username=os.getenv(f"{prefix}_USER", "sahool"),

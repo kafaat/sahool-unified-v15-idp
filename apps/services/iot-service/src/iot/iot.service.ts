@@ -100,7 +100,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   // ==========================================================================
 
   private async connectToMqtt(): Promise<void> {
-    const brokerUrl = process.env.MQTT_BROKER_URL || 'mqtt://localhost:1883';
+    const brokerUrl = process.env.MQTT_BROKER_URL || 'mqtt://mqtt:1883';
 
     this.client = mqtt.connect(brokerUrl, {
       clientId: `sahool-iot-service-${Date.now()}`,

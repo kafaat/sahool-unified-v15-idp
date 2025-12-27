@@ -3,6 +3,7 @@ JWT Authentication Middleware for FastAPI
 Middleware to extract and validate JWT tokens from requests
 """
 
+import json
 import logging
 import time
 from typing import Callable, Optional
@@ -424,7 +425,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
             # Check burst limit using token bucket
             if burst_data:
-                burst_info = eval(burst_data)
+                burst_info = json.loads(burst_data)
                 tokens = burst_info['tokens']
                 last_update = burst_info['last_update']
 

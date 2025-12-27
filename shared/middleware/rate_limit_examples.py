@@ -220,12 +220,14 @@ def example_6_custom_key_function():
     def organization_key(request: Request) -> str:
         """Rate limit by organization ID"""
         org_id = request.headers.get("X-Organization-ID", "default")
+        # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
         return f"org:{org_id}"
 
     def combined_key(request: Request) -> str:
         """Rate limit by combination of user and organization"""
         user_id = getattr(request.state, "user_id", "anonymous")
         org_id = request.headers.get("X-Organization-ID", "default")
+        # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
         return f"user:{user_id}:org:{org_id}"
 
     @app.get("/org/resources")

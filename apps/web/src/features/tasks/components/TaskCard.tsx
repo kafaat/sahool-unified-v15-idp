@@ -24,13 +24,14 @@ const priorityColors: Record<string, string> = {
 
 const statusColors: Record<string, string> = {
   open: 'border-gray-200',
+  pending: 'border-gray-200',
   in_progress: 'border-blue-300 bg-blue-50',
-  done: 'border-green-300 bg-green-50',
-  canceled: 'border-red-300 bg-red-50',
+  completed: 'border-green-300 bg-green-50',
+  cancelled: 'border-red-300 bg-red-50',
 };
 
 export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, draggable = false }) => {
-  const isOverdue = task.due_date ? new Date(task.due_date) < new Date() && task.status !== 'done' : false;
+  const isOverdue = task.due_date ? new Date(task.due_date) < new Date() && task.status !== 'completed' : false;
 
   return (
     <div

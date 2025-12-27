@@ -41,10 +41,10 @@ export const TasksList: React.FC<TasksListProps> = ({ filters, onTaskClick }) =>
 
   // Group tasks by status
   const groupedTasks = {
-    open: tasks.filter(t => t.status === 'open'),
+    open: tasks.filter(t => t.status === 'open' || t.status === 'pending'),
     in_progress: tasks.filter(t => t.status === 'in_progress'),
-    done: tasks.filter(t => t.status === 'done'),
-    canceled: tasks.filter(t => t.status === 'canceled'),
+    completed: tasks.filter(t => t.status === 'completed'),
+    cancelled: tasks.filter(t => t.status === 'cancelled'),
   };
 
   return (
@@ -92,16 +92,16 @@ export const TasksList: React.FC<TasksListProps> = ({ filters, onTaskClick }) =>
       )}
 
       {/* Completed Tasks */}
-      {groupedTasks.done.length > 0 && (
+      {groupedTasks.completed.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-4">
             <CheckCircle2 className="w-5 h-5 text-green-600" />
             <h3 className="text-lg font-semibold text-gray-900">
-              مكتملة ({groupedTasks.done.length})
+              مكتملة ({groupedTasks.completed.length})
             </h3>
           </div>
           <div className="space-y-3">
-            {groupedTasks.done.map((task) => (
+            {groupedTasks.completed.map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}
@@ -113,16 +113,16 @@ export const TasksList: React.FC<TasksListProps> = ({ filters, onTaskClick }) =>
       )}
 
       {/* Cancelled Tasks */}
-      {groupedTasks.canceled.length > 0 && (
+      {groupedTasks.cancelled.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-4">
             <XCircle className="w-5 h-5 text-red-600" />
             <h3 className="text-lg font-semibold text-gray-900">
-              ملغاة ({groupedTasks.canceled.length})
+              ملغاة ({groupedTasks.cancelled.length})
             </h3>
           </div>
           <div className="space-y-3">
-            {groupedTasks.canceled.map((task) => (
+            {groupedTasks.cancelled.map((task) => (
               <TaskCard
                 key={task.id}
                 task={task}

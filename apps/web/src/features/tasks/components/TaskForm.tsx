@@ -24,13 +24,13 @@ export const TaskForm: React.FC<TaskFormProps> = ({
 }) => {
   const [formData, setFormData] = useState<TaskFormData>({
     title: task?.title || '',
-    titleAr: task?.title || '', // Use title as fallback
+    title_ar: task?.title || '', // Use title as fallback
     description: task?.description || '',
-    descriptionAr: task?.description || '', // Use description as fallback
-    dueDate: task?.due_date ? task.due_date.split('T')[0] : '',
+    description_ar: task?.description || '', // Use description as fallback
+    due_date: task?.due_date ? task.due_date.split('T')[0] : '',
     priority: task?.priority || 'medium',
     status: task?.status || 'open',
-    fieldId: task?.field_id || '',
+    field_id: task?.field_id || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,8 +57,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           <input
             type="text"
             required
-            value={formData.titleAr}
-            onChange={(e) => handleChange('titleAr', e.target.value)}
+            value={formData.title_ar}
+            onChange={(e) => handleChange('title_ar', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="أدخل عنوان المهمة"
           />
@@ -90,8 +90,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             <input
               type="date"
               required
-              value={formData.dueDate}
-              onChange={(e) => handleChange('dueDate', e.target.value)}
+              value={formData.due_date}
+              onChange={(e) => handleChange('due_date', e.target.value)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             />
           </div>
@@ -128,8 +128,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             >
               <option value="open">جديدة - Open</option>
               <option value="in_progress">قيد التنفيذ - In Progress</option>
-              <option value="done">مكتملة - Done</option>
-              <option value="canceled">ملغاة - Canceled</option>
+              <option value="completed">مكتملة - Completed</option>
+              <option value="cancelled">ملغاة - Cancelled</option>
             </select>
           </div>
 
@@ -140,8 +140,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             </label>
             <input
               type="text"
-              value={formData.fieldId}
-              onChange={(e) => handleChange('fieldId', e.target.value)}
+              value={formData.field_id}
+              onChange={(e) => handleChange('field_id', e.target.value)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
               placeholder="معرّف الحقل"
             />
@@ -154,8 +154,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             الوصف (بالعربية)
           </label>
           <textarea
-            value={formData.descriptionAr}
-            onChange={(e) => handleChange('descriptionAr', e.target.value)}
+            value={formData.description_ar}
+            onChange={(e) => handleChange('description_ar', e.target.value)}
             rows={4}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="وصف المهمة"

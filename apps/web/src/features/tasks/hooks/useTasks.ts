@@ -9,11 +9,12 @@ import type { Task, TaskFormData, TaskFilters, TaskStatus, Priority } from '../t
 
 // Map frontend status to backend status
 const mapStatusToBackend = (status: TaskStatus): string => {
-  const statusMap: Record<TaskStatus, string> = {
+  const statusMap: Record<string, string> = {
     'open': 'pending',
+    'pending': 'pending',
     'in_progress': 'in_progress',
-    'done': 'completed',
-    'canceled': 'cancelled',
+    'completed': 'completed',
+    'cancelled': 'cancelled',
   };
   return statusMap[status] || status;
 };
@@ -22,9 +23,10 @@ const mapStatusToBackend = (status: TaskStatus): string => {
 const mapStatusToFrontend = (status: string): TaskStatus => {
   const statusMap: Record<string, TaskStatus> = {
     'pending': 'open',
+    'open': 'open',
     'in_progress': 'in_progress',
-    'completed': 'done',
-    'cancelled': 'canceled',
+    'completed': 'completed',
+    'cancelled': 'cancelled',
   };
   return (statusMap[status] as TaskStatus) || 'open';
 };
@@ -39,9 +41,9 @@ async function fetchTasks(filters?: TaskFilters): Promise<Task[]> {
     offset?: number;
   } = {};
 
-  if (filters?.fieldId) options.fieldId = filters.fieldId;
+  if (filters?.field_id) options.fieldId = filters.field_id;
   if (filters?.status) options.status = mapStatusToBackend(filters.status);
-  if (filters?.assignedTo) options.userId = filters.assignedTo;
+  if (filters?.assigned_to) options.userId = filters.assigned_to;
 
   const response = await apiClient.getTasks(options);
 
@@ -104,9 +106,9 @@ async function createTask(data: TaskFormData): Promise<Task> {
   const payload = {
     title: data.title,
     description: data.description,
-    fieldId: data.fieldId || '',
-    assigneeId: data.assignedTo,
-    dueDate: data.dueDate,
+    fieldId: data.field_id || '',
+    assigneeId: data.assigned_to,
+    dueDate: data.due_date,
     priority: data.priority as 'low' | 'medium' | 'high',
     taskType: 'general',
   };

@@ -7,13 +7,13 @@ import type { Task, TaskStatus, Priority } from '@sahool/api-client';
 
 export interface TaskFormData {
   title: string;
-  titleAr: string;
+  title_ar: string;
   description?: string;
-  descriptionAr?: string;
-  dueDate: string;
+  description_ar?: string;
+  due_date: string;
   priority: Priority;
-  fieldId?: string;
-  assignedTo?: string;
+  field_id?: string;
+  assigned_to?: string;
   status?: TaskStatus;
 }
 
@@ -21,16 +21,16 @@ export interface TaskFilters {
   search?: string;
   status?: TaskStatus;
   priority?: Priority;
-  fieldId?: string;
-  assignedTo?: string;
-  dueDateFrom?: string;
-  dueDateTo?: string;
+  field_id?: string;
+  assigned_to?: string;
+  due_date_from?: string;
+  due_date_to?: string;
 }
 
 export interface TaskBoardColumn {
   id: TaskStatus;
   title: string;
-  titleAr: string;
+  title_ar: string;
   tasks: Task[];
   color: string;
 }

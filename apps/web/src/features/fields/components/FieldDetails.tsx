@@ -29,7 +29,7 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
-              {field.nameAr || field.name}
+              {field.name_ar || field.name}
             </h2>
             <p className="text-gray-600">{field.name}</p>
           </div>
@@ -65,7 +65,7 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
               </div>
               <div>
                 <p className="text-sm text-gray-600">المحصول</p>
-                <p className="font-semibold text-gray-900">{field.cropAr || field.crop}</p>
+                <p className="font-semibold text-gray-900">{field.crop_ar || field.crop}</p>
               </div>
             </div>
           )}
@@ -77,7 +77,7 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
             <div>
               <p className="text-sm text-gray-600">تاريخ الإضافة</p>
               <p className="font-semibold text-gray-900">
-                {field.createdAt ? new Date(field.createdAt).toLocaleDateString('ar-EG') : 'N/A'}
+                {field.created_at ? new Date(field.created_at).toLocaleDateString('ar-EG') : 'N/A'}
               </p>
             </div>
           </div>
@@ -89,24 +89,24 @@ export const FieldDetails: React.FC<FieldDetailsProps> = ({
             <div>
               <p className="text-sm text-gray-600">الموقع</p>
               <p className="font-semibold text-gray-900">
-                {field.polygon ? 'تم تحديد الموقع' : 'لم يتم التحديد'}
+                {field.polygon || field.geometry ? 'تم تحديد الموقع' : 'لم يتم التحديد'}
               </p>
             </div>
           </div>
         </div>
 
         {/* Description */}
-        {(field.description || field.descriptionAr) && (
+        {(field.description || field.description_ar) && (
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">الوصف</h3>
             <p className="text-gray-600 leading-relaxed">
-              {field.descriptionAr || field.description}
+              {field.description_ar || field.description}
             </p>
           </div>
         )}
 
         {/* Map Placeholder */}
-        {field.polygon && (
+        {(field.polygon || field.geometry) && (
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">الخريطة</h3>
             <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">

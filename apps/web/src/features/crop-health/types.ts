@@ -105,6 +105,7 @@ export interface DiagnosisResult {
   requestId: string;
   diseases: DiagnosedDisease[];
   confidence: number; // overall confidence percentage
+  status: DiagnosisStatus;
   analyzedAt: string;
   notes?: string;
   notesAr?: string;

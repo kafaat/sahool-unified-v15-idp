@@ -3,8 +3,27 @@
 # Docker Compose for backup services with MinIO and automated cron
 # البنية التحتية للنسخ الاحتياطي لمنصة سهول
 # ═══════════════════════════════════════════════════════════════════════════════
-# Version: 1.0.0
-# Usage: docker compose -f docker-compose.backup.yml up -d
+# Version: 2.0.0
+# Updated: 2025-12-27
+#
+# Usage:
+#   docker compose -f docker-compose.backup.yml up -d
+#
+# Services:
+#   - MinIO: S3-compatible object storage for backups
+#   - MinIO Client: Setup and management of MinIO buckets
+#   - Backup Scheduler: Automated backup execution with cron
+#   - Backup Monitor: Web UI for browsing and monitoring backups
+#
+# Environment Variables Required:
+#   - POSTGRES_PASSWORD: PostgreSQL password
+#   - REDIS_PASSWORD: Redis password
+#   - MINIO_ROOT_USER: MinIO admin username
+#   - MINIO_ROOT_PASSWORD: MinIO admin password
+#
+# Access:
+#   - MinIO Console: http://localhost:9001
+#   - Backup Monitor: http://localhost:8082
 # ═══════════════════════════════════════════════════════════════════════════════
 
 version: '3.8'
@@ -15,6 +34,8 @@ services:
   # MinIO - تخزين كائنات متوافق مع S3 للنسخ الاحتياطي
   # ─────────────────────────────────────────────────────────────────────────────
   minio:
+    # Using latest stable release with security improvements
+    # استخدام أحدث إصدار ثابت مع تحسينات أمنية
     image: minio/minio:latest
     container_name: sahool-backup-minio
     command: server /data --console-address ":9001"
@@ -23,6 +44,10 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sahool_backup_password_change_me}
       MINIO_DOMAIN: ${MINIO_DOMAIN:-minio}
       MINIO_SERVER_URL: ${MINIO_SERVER_URL:-http://minio:9000}
+      # Enable browser access
+      MINIO_BROWSER: ${MINIO_BROWSER:-on}
+      # Prometheus metrics
+      MINIO_PROMETHEUS_AUTH_TYPE: ${MINIO_PROMETHEUS_AUTH_TYPE:-public}
     ports:
       - "127.0.0.1:9000:9000"   # MinIO API
       - "127.0.0.1:9001:9001"   # MinIO Console
@@ -36,6 +61,14 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     networks:
       - backup-network
     labels:
@@ -47,6 +80,8 @@ services:
   # عميل MinIO - واجهة سطر الأوامر لإدارة MinIO
   # ─────────────────────────────────────────────────────────────────────────────
   minio-client:
+    # Using latest MinIO client for compatibility
+    # استخدام أحدث إصدار من عميل MinIO
     image: minio/mc:latest
     container_name: sahool-backup-mc
     depends_on:
@@ -58,7 +93,11 @@ services:
       /usr/bin/mc alias set sahool http://minio:9000 ${MINIO_ROOT_USER:-sahool_backup} ${MINIO_ROOT_PASSWORD:-sahool_backup_password_change_me};
       /usr/bin/mc mb --ignore-existing sahool/sahool-backups;
       /usr/bin/mc mb --ignore-existing sahool/sahool-backups-archive;
+      /usr/bin/mc mb --ignore-existing sahool/postgres-backups;
+      /usr/bin/mc mb --ignore-existing sahool/redis-backups;
+      /usr/bin/mc mb --ignore-existing sahool/minio-backups;
       /usr/bin/mc policy set download sahool/sahool-backups;
+      /usr/bin/mc version enable sahool/sahool-backups;
       echo 'MinIO buckets configured successfully - تم تكوين حاويات MinIO بنجاح';
       tail -f /dev/null
       "
@@ -66,6 +105,7 @@ services:
       - backup-network
     labels:
       com.sahool.service: "backup-client"
+      com.sahool.description: "MinIO client for bucket management"
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Backup Scheduler - Automated backup with cron
@@ -128,6 +168,13 @@ services:
       - ./backup-cron.sh:/scripts/backup-cron.sh:ro
       - ./verify-backup.sh:/scripts/verify-backup.sh:ro
 
+      # New modular backup scripts - النصوص الجديدة المنفصلة
+      - ./backup_postgres.sh:/scripts/backup_postgres.sh:ro
+      - ./backup_redis.sh:/scripts/backup_redis.sh:ro
+      - ./backup_minio.sh:/scripts/backup_minio.sh:ro
+      - ./restore_postgres.sh:/scripts/restore_postgres.sh:ro
+      - ./backup_all.sh:/scripts/backup_all.sh:ro
+
       # Cron configuration - تكوين cron
       - ./crontab:/etc/cron.d/backup-cron:ro
     depends_on:
@@ -146,6 +193,8 @@ services:
   # مراقب النسخ الاحتياطي - واجهة ويب للمراقبة (اختياري)
   # ─────────────────────────────────────────────────────────────────────────────
   backup-monitor:
+    # Using latest stable release with improved file browsing features
+    # استخدام أحدث إصدار ثابت مع ميزات تصفح محسّنة
     image: filebrowser/filebrowser:latest
     container_name: sahool-backup-monitor
     environment:
@@ -153,6 +202,9 @@ services:
       - FB_ROOT=/srv
       - FB_LOG=stdout
       - FB_NOAUTH=false
+      # Default credentials: admin / admin (change after first login)
+      - FB_USERNAME=${FB_USERNAME:-admin}
+      - FB_PASSWORD=${FB_PASSWORD:-admin}
     ports:
       - "127.0.0.1:8082:80"
     volumes:
@@ -160,6 +212,14 @@ services:
       - backup_logs:/srv/logs:ro
       - filebrowser_db:/database
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     networks:
       - backup-network
     labels:

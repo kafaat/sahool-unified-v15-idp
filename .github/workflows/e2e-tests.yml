@@ -1,0 +1,112 @@
+name: E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/e2e-tests.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/e2e-tests.yml'
+
+jobs:
+  e2e-tests:
+    name: Run E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd apps/web
+          npm ci
+
+      - name: Install Playwright Browsers
+        run: |
+          cd apps/web
+          npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: Build application
+        run: |
+          cd apps/web
+          npm run build
+
+      - name: Start application
+        run: |
+          cd apps/web
+          npm run start &
+          npx wait-on http://localhost:3000 -t 60000
+        env:
+          NODE_ENV: production
+
+      - name: Run E2E tests
+        run: |
+          cd apps/web
+          npx playwright test --project=${{ matrix.browser }}
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-${{ matrix.browser }}
+          path: apps/web/test-results/
+          retention-days: 7
+
+      - name: Upload playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: apps/web/playwright-report/
+          retention-days: 7
+
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ matrix.browser }}
+          path: apps/web/test-results/**/*.png
+          retention-days: 7
+
+  report:
+    name: Publish Test Report
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: artifacts/**/results.json
+          check_name: E2E Test Results
+          comment_mode: always

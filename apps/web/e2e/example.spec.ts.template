@@ -1,0 +1,268 @@
+/**
+ * Example E2E Test Template
+ * قالب نموذجي لاختبار E2E
+ *
+ * This file serves as a template for creating new E2E tests.
+ * Copy this file and rename it to match your feature (e.g., marketplace.spec.ts)
+ *
+ * هذا الملف بمثابة قالب لإنشاء اختبارات E2E جديدة.
+ * انسخ هذا الملف وأعد تسميته ليتناسب مع الميزة (مثل marketplace.spec.ts)
+ */
+
+import { test, expect } from './fixtures/test-fixtures';
+import { navigateAndWait, waitForToast, waitForPageLoad } from './helpers/page.helpers';
+
+/**
+ * Feature E2E Tests
+ * اختبارات E2E للميزة
+ */
+
+test.describe('Feature Name', () => {
+  /**
+   * Setup before each test
+   * الإعداد قبل كل اختبار
+   */
+  test.beforeEach(async ({ page, authenticatedPage }) => {
+    // authenticatedPage fixture automatically logs in the user
+    // إعداد authenticatedPage يسجل دخول المستخدم تلقائياً
+
+    // Navigate to your feature page
+    await navigateAndWait(page, '/your-feature');
+  });
+
+  /**
+   * Cleanup after each test (optional)
+   * التنظيف بعد كل اختبار (اختياري)
+   */
+  test.afterEach(async ({ page }) => {
+    // Add cleanup code here if needed
+    // أضف كود التنظيف هنا إذا لزم الأمر
+  });
+
+  /**
+   * Basic test example
+   * مثال اختبار أساسي
+   */
+  test('should display feature page correctly', async ({ page }) => {
+    // Check page title
+    await expect(page).toHaveTitle(/Feature Name|اسم الميزة/i);
+
+    // Check for main heading
+    const heading = page.locator('h1, h2').first();
+    await expect(heading).toBeVisible();
+
+    // Check for specific text
+    await expect(page.locator('text=/Feature|الميزة/i')).toBeVisible();
+  });
+
+  /**
+   * Test with form interaction
+   * اختبار مع تفاعل النموذج
+   */
+  test('should submit form successfully', async ({ page }) => {
+    // Click add button
+    const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة")').first();
+    await addButton.click();
+
+    // Wait for form to appear
+    await page.waitForTimeout(1000);
+
+    // Fill form fields
+    await page.fill('input[name="title"]', 'Test Title');
+    await page.fill('textarea[name="description"]', 'Test Description');
+
+    // Submit form
+    const submitButton = page.locator('button[type="submit"]').first();
+    await submitButton.click();
+
+    // Wait for success message
+    const hasToast = await waitForToast(page);
+    expect(hasToast).toBe(true);
+
+    // Verify form closed
+    const modal = page.locator('[role="dialog"]');
+    await expect(modal).not.toBeVisible();
+  });
+
+  /**
+   * Test with API interaction
+   * اختبار مع تفاعل API
+   */
+  test('should load data from API', async ({ page }) => {
+    // Wait for API call
+    const response = await page.waitForResponse(
+      (response) => response.url().includes('/api/your-endpoint'),
+      { timeout: 10000 }
+    );
+
+    // Check response status
+    expect(response.status()).toBe(200);
+
+    // Wait for data to be displayed
+    await page.waitForTimeout(1000);
+
+    // Verify data is shown
+    const dataElements = page.locator('[data-testid="data-item"]');
+    const count = await dataElements.count();
+    expect(count).toBeGreaterThan(0);
+  });
+
+  /**
+   * Test with navigation
+   * اختبار مع التنقل
+   */
+  test('should navigate to detail page', async ({ page }) => {
+    // Click on first item
+    const firstItem = page.locator('[data-testid="item"]').first();
+    await firstItem.click();
+
+    // Should navigate to detail page
+    await expect(page).toHaveURL(/\/detail/);
+
+    // Wait for page to load
+    await waitForPageLoad(page);
+
+    // Verify detail page content
+    const detailHeading = page.locator('h1');
+    await expect(detailHeading).toBeVisible();
+  });
+
+  /**
+   * Test with search/filter
+   * اختبار مع البحث/التصفية
+   */
+  test('should filter results by search', async ({ page }) => {
+    // Find search input
+    const searchInput = page.locator('input[type="search"]').first();
+    await searchInput.fill('test query');
+
+    // Wait for results to update
+    await page.waitForTimeout(1000);
+
+    // Verify filtered results
+    const results = page.locator('[data-testid="result-item"]');
+    const count = await results.count();
+
+    console.log(`Found ${count} results`);
+  });
+
+  /**
+   * Test for error handling
+   * اختبار للتعامل مع الأخطاء
+   */
+  test('should handle errors gracefully', async ({ page }) => {
+    // Trigger an error (e.g., invalid input)
+    const input = page.locator('input[name="email"]').first();
+    await input.fill('invalid-email');
+    await input.blur();
+
+    // Check for error message
+    const errorMessage = page.locator('[class*="error"], [role="alert"]');
+    const hasError = await errorMessage.isVisible({ timeout: 2000 }).catch(() => false);
+
+    if (hasError) {
+      console.log('Error message displayed correctly');
+    }
+  });
+
+  /**
+   * Grouped tests - Feature Category 1
+   * اختبارات مجمعة - فئة الميزة 1
+   */
+  test.describe('Category 1', () => {
+    test('should do something specific', async ({ page }) => {
+      // Your test code here
+    });
+
+    test('should do something else', async ({ page }) => {
+      // Your test code here
+    });
+  });
+
+  /**
+   * Grouped tests - Feature Category 2
+   * اختبارات مجمعة - فئة الميزة 2
+   */
+  test.describe('Category 2', () => {
+    test('should perform action A', async ({ page }) => {
+      // Your test code here
+    });
+
+    test('should perform action B', async ({ page }) => {
+      // Your test code here
+    });
+  });
+
+  /**
+   * Skip test (for features not yet implemented)
+   * تخطي الاختبار (للميزات غير المنفذة بعد)
+   */
+  test.skip('should implement future feature', async ({ page }) => {
+    // This test will be skipped
+    // هذا الاختبار سيتم تخطيه
+  });
+
+  /**
+   * Conditional test
+   * اختبار شرطي
+   */
+  test('should show optional feature', async ({ page }) => {
+    const optionalFeature = page.locator('[data-testid="optional-feature"]');
+    const isVisible = await optionalFeature.isVisible({ timeout: 3000 }).catch(() => false);
+
+    if (isVisible) {
+      // Test the optional feature
+      await expect(optionalFeature).toBeVisible();
+    } else {
+      // Skip or log
+      console.log('Optional feature not available');
+    }
+  });
+});
+
+/**
+ * Mobile-specific tests
+ * اختبارات خاصة بالجوال
+ */
+test.describe('Mobile Tests', () => {
+  test.use({
+    viewport: { width: 375, height: 667 }, // iPhone SE size
+  });
+
+  test.beforeEach(async ({ page, authenticatedPage }) => {
+    await navigateAndWait(page, '/your-feature');
+  });
+
+  test('should work on mobile viewport', async ({ page }) => {
+    // Your mobile-specific test code
+  });
+});
+
+/**
+ * TIPS FOR WRITING GOOD E2E TESTS:
+ * نصائح لكتابة اختبارات E2E جيدة:
+ *
+ * 1. Use data-testid attributes for reliable element selection
+ *    استخدم سمات data-testid لاختيار العناصر بشكل موثوق
+ *
+ * 2. Wait for elements properly instead of using fixed timeouts
+ *    انتظر العناصر بشكل صحيح بدلاً من استخدام مهل زمنية ثابتة
+ *
+ * 3. Make tests independent - each test should work on its own
+ *    اجعل الاختبارات مستقلة - كل اختبار يجب أن يعمل بمفرده
+ *
+ * 4. Use descriptive test names that explain what is being tested
+ *    استخدم أسماء اختبار وصفية تشرح ما يتم اختباره
+ *
+ * 5. Clean up after tests (delete created data, etc.)
+ *    نظف بعد الاختبارات (احذف البيانات المنشأة، إلخ)
+ *
+ * 6. Use helper functions for common operations
+ *    استخدم الدوال المساعدة للعمليات الشائعة
+ *
+ * 7. Add comments in both Arabic and English
+ *    أضف تعليقات بالعربية والإنجليزية
+ *
+ * 8. Handle both success and error cases
+ *    تعامل مع حالات النجاح والخطأ
+ */

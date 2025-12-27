@@ -183,7 +183,9 @@ services:
   # Optional Kong Admin Dashboard
   # ============================================================================
   konga:
-    image: pantsel/konga:latest
+    # Using 0.14.9 - last stable release for Kong 3.x compatibility
+    # استخدام الإصدار 0.14.9 - آخر إصدار ثابت متوافق مع Kong 3.x
+    image: pantsel/konga:0.14.9
     container_name: kong-admin-ui
     restart: unless-stopped
     networks:
@@ -218,7 +220,9 @@ services:
   # Monitoring and Metrics
   # ============================================================================
   prometheus:
-    image: prom/prometheus:latest
+    # Using v2.48.1 - LTS release with enhanced security and performance
+    # استخدام الإصدار v2.48.1 - إصدار دعم طويل الأمد مع أمان وأداء محسّن
+    image: prom/prometheus:v2.48.1
     container_name: kong-prometheus
     restart: unless-stopped
     networks:
@@ -250,7 +254,9 @@ services:
   # Monitoring Dashboard
   # ============================================================================
   grafana:
-    image: grafana/grafana:latest
+    # Using 10.2.3 - stable release matching load test environment
+    # استخدام الإصدار 10.2.3 - إصدار ثابت متوافق مع بيئة اختبار الأحمال
+    image: grafana/grafana:10.2.3
     container_name: kong-grafana
     restart: unless-stopped
     networks:

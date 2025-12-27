@@ -4,7 +4,10 @@
 # JWT
 PyJWT==2.10.1
 
-# Password hashing
+# Password hashing - Primary: Argon2id (OWASP recommended)
+argon2-cffi==23.1.0
+
+# Password hashing - Legacy support
 bcrypt==4.2.1
 
 # FastAPI (pinned for consistency)

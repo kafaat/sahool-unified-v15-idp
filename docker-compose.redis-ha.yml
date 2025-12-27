@@ -1,0 +1,398 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Redis High Availability with Sentinel
+# يوفر التوافر العالي (High Availability) لـ Redis
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Architecture:
+# - 1 Redis Master
+# - 2 Redis Replicas
+# - 3 Sentinel instances (quorum = 2)
+#
+# Features:
+# - Automatic failover
+# - High availability
+# - Data replication
+# - Health monitoring
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Redis Master
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-master:
+    image: redis:7-alpine
+    container_name: sahool-redis-master
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --masterauth ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --appendonly yes
+      --appendfilename "appendonly.aof"
+      --appendfsync everysec
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 300
+      --tcp-backlog 511
+      --databases 16
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --stop-writes-on-bgsave-error yes
+      --rdbcompression yes
+      --rdbchecksum yes
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - REDIS_REPLICATION_MODE=master
+    volumes:
+      - redis_master_data:/data
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1536M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - redis-ha-network
+    labels:
+      - "com.sahool.service=redis-master"
+      - "com.sahool.role=master"
+      - "com.sahool.tier=infrastructure"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Redis Replica 1
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-replica-1:
+    image: redis:7-alpine
+    container_name: sahool-redis-replica-1
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --masterauth ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --replicaof redis-master 6379
+      --appendonly yes
+      --appendfilename "appendonly.aof"
+      --appendfsync everysec
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 300
+      --replica-read-only yes
+      --replica-serve-stale-data yes
+      --replica-priority 100
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_PORT_NUMBER=6379
+    volumes:
+      - redis_replica_1_data:/data
+    ports:
+      - "127.0.0.1:6380:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1536M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - redis-ha-network
+    labels:
+      - "com.sahool.service=redis-replica"
+      - "com.sahool.role=replica"
+      - "com.sahool.tier=infrastructure"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Redis Replica 2
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-replica-2:
+    image: redis:7-alpine
+    container_name: sahool-redis-replica-2
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --masterauth ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      --replicaof redis-master 6379
+      --appendonly yes
+      --appendfilename "appendonly.aof"
+      --appendfsync everysec
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 300
+      --replica-read-only yes
+      --replica-serve-stale-data yes
+      --replica-priority 100
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_PORT_NUMBER=6379
+    volumes:
+      - redis_replica_2_data:/data
+    ports:
+      - "127.0.0.1:6381:6379"
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1536M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - redis-ha-network
+    labels:
+      - "com.sahool.service=redis-replica"
+      - "com.sahool.role=replica"
+      - "com.sahool.tier=infrastructure"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Sentinel 1
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-sentinel-1:
+    image: redis:7-alpine
+    container_name: sahool-redis-sentinel-1
+    command: >
+      sh -c "echo '
+      port 26379
+      sentinel monitor sahool-master redis-master 6379 2
+      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
+      sentinel down-after-milliseconds sahool-master 5000
+      sentinel parallel-syncs sahool-master 1
+      sentinel failover-timeout sahool-master 10000
+      sentinel deny-scripts-reconfig yes
+      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - SENTINEL_QUORUM=2
+      - SENTINEL_DOWN_AFTER=5000
+      - SENTINEL_FAILOVER_TIMEOUT=10000
+    ports:
+      - "127.0.0.1:26379:26379"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -p 26379 ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - redis-ha-network
+    labels:
+      - "com.sahool.service=redis-sentinel"
+      - "com.sahool.role=sentinel"
+      - "com.sahool.tier=infrastructure"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Sentinel 2
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-sentinel-2:
+    image: redis:7-alpine
+    container_name: sahool-redis-sentinel-2
+    command: >
+      sh -c "echo '
+      port 26379
+      sentinel monitor sahool-master redis-master 6379 2
+      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
+      sentinel down-after-milliseconds sahool-master 5000
+      sentinel parallel-syncs sahool-master 1
+      sentinel failover-timeout sahool-master 10000
+      sentinel deny-scripts-reconfig yes
+      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - SENTINEL_QUORUM=2
+      - SENTINEL_DOWN_AFTER=5000
+      - SENTINEL_FAILOVER_TIMEOUT=10000
+    ports:
+      - "127.0.0.1:26380:26379"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -p 26379 ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - redis-ha-network
+    labels:
+      - "com.sahool.service=redis-sentinel"
+      - "com.sahool.role=sentinel"
+      - "com.sahool.tier=infrastructure"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Sentinel 3
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-sentinel-3:
+    image: redis:7-alpine
+    container_name: sahool-redis-sentinel-3
+    command: >
+      sh -c "echo '
+      port 26379
+      sentinel monitor sahool-master redis-master 6379 2
+      sentinel auth-pass sahool-master ${REDIS_PASSWORD}
+      sentinel down-after-milliseconds sahool-master 5000
+      sentinel parallel-syncs sahool-master 1
+      sentinel failover-timeout sahool-master 10000
+      sentinel deny-scripts-reconfig yes
+      ' > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      - SENTINEL_QUORUM=2
+      - SENTINEL_DOWN_AFTER=5000
+      - SENTINEL_FAILOVER_TIMEOUT=10000
+    ports:
+      - "127.0.0.1:26381:26379"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -p 26379 ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    networks:
+      - redis-ha-network
+    labels:
+      - "com.sahool.service=redis-sentinel"
+      - "com.sahool.role=sentinel"
+      - "com.sahool.tier=infrastructure"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Redis Exporter for Prometheus (Monitoring)
+  # ─────────────────────────────────────────────────────────────────────────────
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: sahool-redis-exporter
+    command:
+      - '--redis.addr=redis-master:6379'
+      - '--redis.password=${REDIS_PASSWORD}'
+    environment:
+      - REDIS_ADDR=redis-master:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+    ports:
+      - "127.0.0.1:9121:9121"
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+    networks:
+      - redis-ha-network
+    labels:
+      - "com.sahool.service=redis-exporter"
+      - "com.sahool.role=monitoring"
+      - "com.sahool.tier=observability"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Networks
+# ═══════════════════════════════════════════════════════════════════════════════
+networks:
+  redis-ha-network:
+    name: sahool-redis-ha-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/16
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Volumes
+# ═══════════════════════════════════════════════════════════════════════════════
+volumes:
+  redis_master_data:
+    name: sahool-redis-master-data
+    driver: local
+  redis_replica_1_data:
+    name: sahool-redis-replica-1-data
+    driver: local
+  redis_replica_2_data:
+    name: sahool-redis-replica-2-data
+    driver: local

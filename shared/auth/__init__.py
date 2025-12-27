@@ -1,6 +1,13 @@
 """
 SAHOOL Platform Authentication Module
 Shared JWT authentication and authorization for Python (FastAPI) services
+
+Enhanced with:
+- Database user validation
+- Redis caching for performance
+- User status checks (active, verified, deleted, suspended)
+- Failed authentication logging
+- Improved rate limiting
 """
 
 from .config import JWTConfig, config
@@ -12,6 +19,19 @@ from .dependencies import (
     require_farm_access,
     require_permissions,
     require_roles,
+)
+from .user_cache import (
+    UserCache,
+    get_user_cache,
+    init_user_cache,
+    close_user_cache,
+)
+from .user_repository import (
+    UserRepository,
+    UserValidationData,
+    InMemoryUserRepository,
+    get_user_repository,
+    set_user_repository,
 )
 from .jwt_handler import (
     create_access_token,
@@ -51,6 +71,17 @@ from .service_middleware import (
     require_service_auth,
     verify_service_request,
 )
+from .token_revocation import (
+    RedisTokenRevocationStore,
+    get_revocation_store,
+    revoke_token,
+    revoke_all_user_tokens,
+    is_token_revoked,
+)
+from .revocation_middleware import (
+    TokenRevocationMiddleware,
+    RevocationCheckDependency,
+)
 
 __all__ = [
     # Configuration
@@ -71,6 +102,17 @@ __all__ = [
     "require_permissions",
     "require_farm_access",
     "rate_limit_dependency",
+    # User Cache
+    "UserCache",
+    "get_user_cache",
+    "init_user_cache",
+    "close_user_cache",
+    # User Repository
+    "UserRepository",
+    "UserValidationData",
+    "InMemoryUserRepository",
+    "get_user_repository",
+    "set_user_repository",
     # Middleware
     "JWTAuthMiddleware",
     "TenantContextMiddleware",
@@ -97,4 +139,12 @@ __all__ = [
     "require_service_auth",
     "get_calling_service",
     "is_service_request",
+    # Token Revocation
+    "RedisTokenRevocationStore",
+    "get_revocation_store",
+    "revoke_token",
+    "revoke_all_user_tokens",
+    "is_token_revoked",
+    "TokenRevocationMiddleware",
+    "RevocationCheckDependency",
 ]

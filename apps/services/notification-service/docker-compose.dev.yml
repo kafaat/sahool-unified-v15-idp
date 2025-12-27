@@ -49,7 +49,9 @@ services:
 
   # pgAdmin (Database UI - Optional)
   pgadmin:
-    image: dpage/pgadmin4:latest
+    # Using 8.2 - stable release with improved PostgreSQL 15 support
+    # استخدام الإصدار 8.2 - إصدار ثابت مع دعم محسّن لـ PostgreSQL 15
+    image: dpage/pgadmin4:8.2
     container_name: sahool-notification-pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@sahool.com

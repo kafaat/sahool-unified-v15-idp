@@ -342,7 +342,8 @@ services:
   # Redis Exporter for Prometheus (Monitoring)
   # ─────────────────────────────────────────────────────────────────────────────
   redis-exporter:
-    image: oliver006/redis_exporter:latest
+    # Pinned version v1.55.0 for stability
+    image: oliver006/redis_exporter:v1.55.0
     container_name: sahool-redis-exporter
     command:
       - '--redis.addr=redis-master:6379'

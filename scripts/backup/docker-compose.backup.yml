@@ -34,9 +34,9 @@ services:
   # MinIO - تخزين كائنات متوافق مع S3 للنسخ الاحتياطي
   # ─────────────────────────────────────────────────────────────────────────────
   minio:
-    # Using latest stable release with security improvements
-    # استخدام أحدث إصدار ثابت مع تحسينات أمنية
-    image: minio/minio:latest
+    # Pinned version for stability - RELEASE.2024-01-16T16-07-38Z
+    # إصدار ثابت للاستقرار
+    image: minio/minio:RELEASE.2024-01-16T16-07-38Z
     container_name: sahool-backup-minio
     command: server /data --console-address ":9001"
     environment:
@@ -80,9 +80,9 @@ services:
   # عميل MinIO - واجهة سطر الأوامر لإدارة MinIO
   # ─────────────────────────────────────────────────────────────────────────────
   minio-client:
-    # Using latest MinIO client for compatibility
-    # استخدام أحدث إصدار من عميل MinIO
-    image: minio/mc:latest
+    # Pinned version compatible with MinIO server - RELEASE.2024-01-16T16-06-34Z
+    # إصدار ثابت متوافق مع خادم MinIO
+    image: minio/mc:RELEASE.2024-01-16T16-06-34Z
     container_name: sahool-backup-mc
     depends_on:
       minio:
@@ -193,9 +193,9 @@ services:
   # مراقب النسخ الاحتياطي - واجهة ويب للمراقبة (اختياري)
   # ─────────────────────────────────────────────────────────────────────────────
   backup-monitor:
-    # Using latest stable release with improved file browsing features
-    # استخدام أحدث إصدار ثابت مع ميزات تصفح محسّنة
-    image: filebrowser/filebrowser:latest
+    # Pinned stable version v2.27.0 with improved file browsing features
+    # إصدار ثابت v2.27.0 مع ميزات تصفح محسّنة
+    image: filebrowser/filebrowser:v2.27.0
     container_name: sahool-backup-monitor
     environment:
       - FB_DATABASE=/database/filebrowser.db

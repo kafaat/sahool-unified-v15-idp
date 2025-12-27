@@ -46,7 +46,8 @@ services:
 
   # إضافة خدمة إضافية للمراقبة
   redis-commander:
-    image: rediscommander/redis-commander:latest
+    # Pinned version 0.8.0 for stability
+    image: rediscommander/redis-commander:0.8.0
     container_name: sahool-redis-commander
     environment:
       - REDIS_HOST=redis-master

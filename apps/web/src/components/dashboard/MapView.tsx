@@ -193,22 +193,36 @@ export default function MapView({ tenantId, onFieldSelect, fields: propFields }:
         setSelectedField(fieldId);
         onFieldSelect?.(fieldId);
 
-        // Show popup
+        // Show popup with escaped content to prevent XSS
+        const escapeHtml = (text: string | number | undefined): string => {
+          if (text === undefined || text === null) return '';
+          const str = String(text);
+          const div = document.createElement('div');
+          div.textContent = str;
+          return div.innerHTML;
+        };
+
+        const safeName = escapeHtml(props?.name) || 'حقل';
+        const safeCrop = escapeHtml(props?.crop) || '-';
+        const safeArea = escapeHtml(props?.area) || '0';
+        const safeNdvi = props?.ndvi ? escapeHtml(props.ndvi.toFixed(2)) : 'N/A';
+        const statusClass = props?.status === 'healthy' ? 'bg-green-100 text-green-800' :
+                           props?.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                           'bg-red-100 text-red-800';
+        const statusText = props?.status === 'healthy' ? 'صحي' :
+                          props?.status === 'warning' ? 'تحذير' : 'حرج';
+
         new maplibregl.Popup()
           .setLngLat(e.lngLat)
           .setHTML(`
             <div class="p-2 text-right" dir="rtl">
-              <h4 class="font-bold text-sm">${props?.name || 'حقل'}</h4>
-              <p class="text-xs text-gray-600">المحصول: ${props?.crop || '-'}</p>
-              <p class="text-xs text-gray-600">المساحة: ${props?.area || 0} هكتار</p>
-              <p class="text-xs text-gray-600">NDVI: ${props?.ndvi?.toFixed(2) || 'N/A'}</p>
+              <h4 class="font-bold text-sm">${safeName}</h4>
+              <p class="text-xs text-gray-600">المحصول: ${safeCrop}</p>
+              <p class="text-xs text-gray-600">المساحة: ${safeArea} هكتار</p>
+              <p class="text-xs text-gray-600">NDVI: ${safeNdvi}</p>
               <div class="mt-2">
-                <span class="text-xs px-2 py-0.5 rounded-full ${
-                  props?.status === 'healthy' ? 'bg-green-100 text-green-800' :
-                  props?.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800'
-                }">
-                  ${props?.status === 'healthy' ? 'صحي' : props?.status === 'warning' ? 'تحذير' : 'حرج'}
+                <span class="text-xs px-2 py-0.5 rounded-full ${statusClass}">
+                  ${statusText}
                 </span>
               </div>
             </div>

@@ -14,10 +14,25 @@ import {
   HttpCode,
   HttpStatus,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import {
+  CreateProductDto,
+  CreateOrderDto,
+  ListHarvestDto,
+  CalculateCreditScoreDto,
+  CalculateAdvancedCreditScoreDto,
+  RecordCreditEventDto,
+  RequestLoanDto,
+  WalletTransactionDto,
+  RepayLoanDto,
+  CreateEscrowDto,
+  EscrowActionDto,
+  CreateScheduledPaymentDto,
+} from './dto/market.dto';
 
 @Controller()
 export class AppController {
@@ -79,8 +94,9 @@ export class AppController {
    * POST /api/v1/market/products
    */
   @Post('market/products')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createProduct(@Body() body: any) {
+  async createProduct(@Body(ValidationPipe) body: CreateProductDto) {
     return this.marketService.createProduct(body);
   }
 
@@ -89,8 +105,9 @@ export class AppController {
    * POST /api/v1/market/list-harvest
    */
   @Post('market/list-harvest')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async listHarvest(@Body() body: { userId: string; yieldData: any }) {
+  async listHarvest(@Body(ValidationPipe) body: ListHarvestDto) {
     return this.marketService.convertYieldToProduct(body.userId, body.yieldData);
   }
 
@@ -99,8 +116,9 @@ export class AppController {
    * POST /api/v1/market/orders
    */
   @Post('market/orders')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async createOrder(@Body() body: any) {
+  async createOrder(@Body(ValidationPipe) body: CreateOrderDto) {
     return this.marketService.createOrder(body);
   }
 
@@ -146,9 +164,10 @@ export class AppController {
    * POST /api/v1/fintech/wallet/:walletId/deposit
    */
   @Post('fintech/wallet/:walletId/deposit')
+  @UseGuards(JwtAuthGuard)
   async deposit(
     @Param('walletId') walletId: string,
-    @Body() body: { amount: number; description?: string },
+    @Body(ValidationPipe) body: WalletTransactionDto,
   ) {
     return this.fintechService.deposit(walletId, body.amount, body.description);
   }
@@ -158,9 +177,10 @@ export class AppController {
    * POST /api/v1/fintech/wallet/:walletId/withdraw
    */
   @Post('fintech/wallet/:walletId/withdraw')
+  @UseGuards(JwtAuthGuard)
   async withdraw(
     @Param('walletId') walletId: string,
-    @Body() body: { amount: number; description?: string },
+    @Body(ValidationPipe) body: WalletTransactionDto,
   ) {
     return this.fintechService.withdraw(walletId, body.amount, body.description);
   }
@@ -185,7 +205,8 @@ export class AppController {
    * POST /api/v1/fintech/calculate-score
    */
   @Post('fintech/calculate-score')
-  async calculateCreditScore(@Body() body: { userId: string; farmData: any }) {
+  @UseGuards(JwtAuthGuard)
+  async calculateCreditScore(@Body(ValidationPipe) body: CalculateCreditScoreDto) {
     return this.fintechService.calculateCreditScore(body.userId, body.farmData);
   }
 
@@ -194,8 +215,9 @@ export class AppController {
    * POST /api/v1/fintech/calculate-advanced-score
    */
   @Post('fintech/calculate-advanced-score')
+  @UseGuards(JwtAuthGuard)
   async calculateAdvancedCreditScore(
-    @Body() body: { userId: string; factors: any },
+    @Body(ValidationPipe) body: CalculateAdvancedCreditScoreDto,
   ) {
     return this.fintechService.calculateAdvancedCreditScore(
       body.userId,
@@ -217,8 +239,9 @@ export class AppController {
    * POST /api/v1/fintech/credit-history
    */
   @Post('fintech/credit-history')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async recordCreditEvent(@Body() body: any) {
+  async recordCreditEvent(@Body(ValidationPipe) body: RecordCreditEventDto) {
     return this.fintechService.recordCreditEvent(body);
   }
 
@@ -240,8 +263,9 @@ export class AppController {
    * POST /api/v1/fintech/loans
    */
   @Post('fintech/loans')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async requestLoan(@Body() body: any) {
+  async requestLoan(@Body(ValidationPipe) body: RequestLoanDto) {
     return this.fintechService.requestLoan(body);
   }
 

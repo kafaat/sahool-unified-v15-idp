@@ -44,9 +44,23 @@ jobs:
       deploy_starter: ${{ steps.check.outputs.deploy_starter }}
       deploy_professional: ${{ steps.check.outputs.deploy_professional }}
       deploy_enterprise: ${{ steps.check.outputs.deploy_enterprise }}
+      kubeconfig_available: ${{ steps.secrets.outputs.kubeconfig_available }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Check required secrets
+        id: secrets
+        run: |
+          # Check if kubeconfig is available
+          if [ -z "${{ secrets.KUBE_CONFIG_STAGING }}" ]; then
+            echo "⚠️ KUBE_CONFIG_STAGING secret is not configured"
+            echo "Deployment will be skipped - configure the secret to enable deployments"
+            echo "kubeconfig_available=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ KUBE_CONFIG_STAGING secret is available"
+            echo "kubeconfig_available=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Determine deployment scope
         id: check
@@ -85,7 +99,7 @@ jobs:
     name: Deploy Starter Package
     runs-on: ubuntu-latest
     needs: [pre-deploy-checks]
-    if: needs.pre-deploy-checks.outputs.deploy_starter == 'true'
+    if: needs.pre-deploy-checks.outputs.deploy_starter == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     environment:
       name: staging-starter
       url: https://staging.sahool.io
@@ -170,7 +184,8 @@ jobs:
   test-starter:
     name: Test Starter Package
     runs-on: ubuntu-latest
-    needs: [deploy-starter]
+    needs: [deploy-starter, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -210,7 +225,7 @@ jobs:
     name: Deploy Professional Package
     runs-on: ubuntu-latest
     needs: [test-starter, pre-deploy-checks]
-    if: needs.pre-deploy-checks.outputs.deploy_professional == 'true'
+    if: needs.pre-deploy-checks.outputs.deploy_professional == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     environment:
       name: staging-professional
       url: https://staging.sahool.io/professional
@@ -267,7 +282,8 @@ jobs:
   test-professional:
     name: Test Professional Package
     runs-on: ubuntu-latest
-    needs: [deploy-professional]
+    needs: [deploy-professional, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -303,7 +319,7 @@ jobs:
     name: Deploy Enterprise Package
     runs-on: ubuntu-latest
     needs: [test-professional, pre-deploy-checks]
-    if: needs.pre-deploy-checks.outputs.deploy_enterprise == 'true'
+    if: needs.pre-deploy-checks.outputs.deploy_enterprise == 'true' && needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     environment:
       name: staging-enterprise
       url: https://staging.sahool.io/enterprise
@@ -385,7 +401,8 @@ jobs:
   test-enterprise:
     name: Test Enterprise Package
     runs-on: ubuntu-latest
-    needs: [deploy-enterprise]
+    needs: [deploy-enterprise, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -421,7 +438,8 @@ jobs:
   smoke-tests:
     name: End-to-End Smoke Tests
     runs-on: ubuntu-latest
-    needs: [test-enterprise]
+    needs: [test-enterprise, pre-deploy-checks]
+    if: needs.pre-deploy-checks.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -464,7 +482,7 @@ jobs:
   deployment-summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
-    needs: [smoke-tests]
+    needs: [smoke-tests, pre-deploy-checks]
     if: always()
     steps:
       - name: Generate deployment summary
@@ -474,16 +492,26 @@ jobs:
           echo "**Environment:** Staging" >> $GITHUB_STEP_SUMMARY
           echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Deployed at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Services Deployed" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Starter Package" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Professional Package" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ Enterprise Package" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Access" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL:** https://staging.sahool.io" >> $GITHUB_STEP_SUMMARY
-          echo "- **API Docs:** https://staging.sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.pre-deploy-checks.outputs.kubeconfig_available }}" != "true" ]; then
+            echo "### ⚠️ Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Kubernetes deployment was skipped because \`KUBE_CONFIG_STAGING\` secret is not configured." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "To enable deployments, configure the following secrets in repository settings:" >> $GITHUB_STEP_SUMMARY
+            echo "- \`KUBE_CONFIG_STAGING\`: Kubernetes configuration for staging cluster" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Services Deployed" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Starter Package" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Professional Package" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Enterprise Package" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Access" >> $GITHUB_STEP_SUMMARY
+            echo "- **URL:** https://staging.sahool.io" >> $GITHUB_STEP_SUMMARY
+            echo "- **API Docs:** https://staging.sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Notify deployment success
         if: success()

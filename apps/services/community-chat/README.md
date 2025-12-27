@@ -1,260 +1,190 @@
-# Community Chat - مجتمع المزارعين
+# 🌿 Sahool Community Chat Service
+# خدمة الدردشة الحية لمجتمع سهول
 
-## نظرة عامة | Overview
+[![Service Status](https://img.shields.io/badge/status-active-success)](http://localhost:8097/healthz)
+[![API Docs](https://img.shields.io/badge/API-documented-blue)](http://localhost:8097/api-docs)
+[![Version](https://img.shields.io/badge/version-1.0.0-green)](./CHANGELOG.md)
+[![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen)](https://nodejs.org)
 
-خدمة التواصل والمحادثة بين المزارعين لتبادل الخبرات والمعرفة الزراعية.
+Real-time chat service connecting farmers with agricultural experts on the Sahool platform.
 
-Farmers community chat service for sharing agricultural knowledge and experiences.
+خدمة دردشة فورية تربط المزارعين بالخبراء الزراعيين في منصة سهول.
 
-**Port:** 8106
-**Version:** 15.4.0
-
----
-
-## الميزات | Features
-
-### المحادثات | Conversations
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| محادثات خاصة | Private Chat | بين مزارعين |
-| مجموعات | Groups | مجموعات نقاش |
-| قنوات | Channels | قنوات عامة للمتابعة |
-| استشارات | Consultations | استشارات من الخبراء |
-
-### المحتوى | Content
-| الميزة | Feature | الوصف |
-|--------|---------|--------|
-| نص | Text | رسائل نصية |
-| صور | Images | مشاركة صور المحاصيل |
-| موقع | Location | مشاركة مواقع الحقول |
-| ملفات | Files | مشاركة وثائق |
+**Port:** 8097
+**Version:** 1.0.0
 
 ---
 
-## API Endpoints
+## 📋 Table of Contents / جدول المحتويات
 
-### المحادثات | Conversations
-
-```http
-# جلب المحادثات
-GET /conversations?type=group&limit=20
-
-# إنشاء محادثة
-POST /conversations
-{
-    "type": "group",
-    "name": "مزارعي البن - حضرموت",
-    "members": ["user-001", "user-002"],
-    "crop_type": "coffee"
-}
-
-# جلب محادثة
-GET /conversations/{conversation_id}
-
-# تحديث محادثة
-PATCH /conversations/{conversation_id}
-{
-    "name": "اسم جديد"
-}
-```
-
-### الرسائل | Messages
-
-```http
-# جلب الرسائل
-GET /conversations/{conversation_id}/messages?limit=50&before={message_id}
-
-# إرسال رسالة
-POST /conversations/{conversation_id}/messages
-{
-    "content": "السلام عليكم، كيف أتعامل مع صدأ البن؟",
-    "type": "text",
-    "attachments": []
-}
-
-# رفع مرفق
-POST /messages/upload
-Content-Type: multipart/form-data
-{
-    "file": <image>
-}
-
-# حذف رسالة
-DELETE /messages/{message_id}
-```
-
-### المجموعات | Groups
-
-```http
-# إنشاء مجموعة
-POST /groups
-{
-    "name": "مزارعي القمح",
-    "description": "مجموعة لمزارعي القمح في اليمن",
-    "region": "المرتفعات الشمالية",
-    "crop_types": ["wheat", "barley"],
-    "is_public": true
-}
-
-# انضمام لمجموعة
-POST /groups/{group_id}/join
-
-# مغادرة مجموعة
-POST /groups/{group_id}/leave
-
-# أعضاء المجموعة
-GET /groups/{group_id}/members
-```
-
-### القنوات | Channels
-
-```http
-# القنوات العامة
-GET /channels?category=agricultural_tips
-
-# الاشتراك في قناة
-POST /channels/{channel_id}/subscribe
-
-# إلغاء الاشتراك
-DELETE /channels/{channel_id}/subscribe
-```
-
-### البحث | Search
-
-```http
-# البحث في الرسائل
-GET /search/messages?q=صدأ+البن&crop_type=coffee
-
-# البحث عن مزارعين
-GET /search/farmers?region=hadhramaut&crop=coffee
-```
+- [Features](#-features--الميزات)
+- [Quick Start](#-quick-start--البدء-السريع)
+- [API Documentation](#-api-documentation--توثيق-الـ-api)
+- [Usage Examples](#-usage-examples--أمثلة-الاستخدام)
+- [Security](#-security--الأمان)
+- [Support](#-support--الدعم)
 
 ---
 
-## نماذج البيانات | Data Models
+## ✨ Features / الميزات
 
-### Conversation
-```json
-{
-    "id": "conv-001",
-    "type": "group",
-    "name": "مزارعي البن - حضرموت",
-    "members_count": 156,
-    "crop_types": ["coffee"],
-    "last_message": {
-        "content": "شكراً على النصيحة",
-        "sender_name": "أحمد محمد",
-        "sent_at": "2024-01-15T14:30:00Z"
-    },
-    "unread_count": 3,
-    "created_at": "2024-01-01T00:00:00Z"
-}
-```
+### Core Features / الميزات الأساسية
+- 🔌 **Real-time Communication** - Socket.io for instant messaging
+- 👥 **Farmer-Expert Matching** - Connect farmers with agricultural experts
+- 💬 **Group Chat Rooms** - Multi-participant support sessions
+- 📝 **Message History** - Persistent chat history
+- ✍️ **Typing Indicators** - Real-time typing status
+- 👤 **Presence Tracking** - Online/offline status
+- 📎 **File Attachments** - Support for images and documents
+- 🔐 **JWT Authentication** - Secure token-based auth
+- 🌐 **Bilingual Support** - Arabic and English
 
-### Message
-```json
-{
-    "id": "msg-001",
-    "conversation_id": "conv-001",
-    "sender": {
-        "id": "user-001",
-        "name": "أحمد محمد",
-        "avatar_url": "https://..."
-    },
-    "content": "هذه صورة لأوراق البن المصابة",
-    "type": "image",
-    "attachments": [
-        {
-            "type": "image",
-            "url": "https://...",
-            "thumbnail_url": "https://..."
-        }
-    ],
-    "reactions": {
-        "helpful": 5,
-        "thanks": 3
-    },
-    "sent_at": "2024-01-15T10:30:00Z"
-}
-```
+### Technical Features / الميزات التقنية
+- ⚡ **High Performance** - Optimized for concurrent connections
+- 🔒 **Security First** - Input validation, XSS prevention, access control
+- 📊 **Real-time Stats** - Service metrics and monitoring
+- 🎯 **RESTful API** - Clean REST endpoints for management
+- 📚 **OpenAPI 3.0** - Complete API documentation
+- 🧪 **Testable** - Example clients and Postman collection
 
 ---
 
-## WebSocket Events
+## 🚀 Quick Start / البدء السريع
+
+```bash
+# Install dependencies
+npm install
+
+# Set environment variables
+export JWT_SECRET_KEY="your-secret-key-minimum-32-characters-long"
+export PORT=8097
+
+# Start service
+npm start
+
+# Open API documentation
+open http://localhost:8097/api-docs
+```
+
+👉 **For detailed setup, see [QUICK_START.md](./QUICK_START.md)**
+
+---
+
+## 📚 API Documentation / توثيق الـ API
+
+### Interactive Documentation / التوثيق التفاعلي
+
+| Documentation | URL | Description |
+|---------------|-----|-------------|
+| **Swagger UI** | http://localhost:8097/api-docs | Interactive API testing |
+| **ReDoc** | http://localhost:8097/redoc | Clean, readable docs |
+| **OpenAPI JSON** | http://localhost:8097/api-docs.json | Machine-readable spec |
+
+### REST API Endpoints
+
+```http
+GET  /healthz                          # Health check
+GET  /v1/requests                      # Get support requests
+GET  /v1/rooms/:roomId/messages        # Get room messages
+GET  /v1/experts/online                # Get online experts
+GET  /v1/stats                         # Get statistics
+```
+
+### WebSocket Events
+
+**Client → Server:**
+- `register_user` - Register user
+- `join_room` - Join chat room
+- `send_message` - Send message
+- `request_expert` - Request help
+- `accept_request` - Accept request
+
+**Server → Client:**
+- `receive_message` - New message
+- `user_joined` - User joined
+- `expert_online` - Expert online
+- `load_history` - Message history
+
+👉 **Complete API docs: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)**
+
+---
+
+## 💡 Usage Examples / أمثلة الاستخدام
+
+### Node.js Client
 
 ```javascript
-// الاتصال (استخدم wss:// في الإنتاج)
-wss://community-chat:8106/ws?token={jwt}
+const io = require('socket.io-client');
 
-// استقبال رسالة
-{
-    "event": "message",
-    "data": {
-        "conversation_id": "conv-001",
-        "message": {...}
-    }
-}
+const socket = io('http://localhost:8097', {
+  auth: { token: 'your-jwt-token' }
+});
 
-// إرسال رسالة
-{
-    "event": "send_message",
-    "data": {
-        "conversation_id": "conv-001",
-        "content": "مرحبا"
-    }
-}
+socket.on('connect', () => {
+  socket.emit('register_user', {
+    userId: '12345',
+    userName: 'محمد أحمد',
+    userType: 'farmer',
+    governorate: 'القاهرة'
+  });
+});
 
-// حالة الكتابة
-{
-    "event": "typing",
-    "data": {
-        "conversation_id": "conv-001",
-        "user_id": "user-001",
-        "is_typing": true
-    }
-}
+socket.on('receive_message', (message) => {
+  console.log('New message:', message);
+});
 ```
+
+👉 **More examples: [examples/](./examples/)**
 
 ---
 
-## متغيرات البيئة | Environment Variables
+## 🔒 Security / الأمان
 
-```env
-# الخادم
-PORT=8106
-HOST=0.0.0.0
+### Authentication / المصادقة
+- ✅ JWT token required
+- ✅ Token validation
+- ✅ Role verification
 
-# قاعدة البيانات
-DATABASE_URL=postgresql://...
-REDIS_URL=redis://redis:6379
+### Input Validation / التحقق
+- ✅ XSS prevention
+- ✅ Length limits
+- ✅ URL whitelisting
 
-# التخزين
-S3_BUCKET=sahool-chat-media
-MAX_FILE_SIZE_MB=10
-
-# الحدود
-MAX_MESSAGE_LENGTH=2000
-MAX_GROUP_MEMBERS=500
-```
+### Network Security / أمان الشبكة
+- ✅ CORS protection
+- ✅ Rate limiting (recommended)
+- ✅ HTTPS (production)
 
 ---
 
-## Health Check
+## 📞 Support / الدعم
 
-```http
-GET /healthz
+### Documentation / التوثيق
+- 📖 [API Documentation](./API_DOCUMENTATION.md) - Complete reference
+- 🚀 [Quick Start](./QUICK_START.md) - 5-minute setup
+- 💡 [Examples](./examples/README.md) - Integration examples
+- 📝 [Changelog](./CHANGELOG.md) - Version history
 
-Response:
-{
-    "status": "healthy",
-    "service": "community-chat",
-    "version": "15.4.0",
-    "websocket_connections": 1250
-}
-```
+### Links / الروابط
+- 🔧 Swagger UI: http://localhost:8097/api-docs
+- 💚 Health Check: http://localhost:8097/healthz
+- 📧 Email: support@sahool.io
+- 🌐 Website: https://sahool.io
 
 ---
 
-## الترخيص | License
+## 📄 License / الترخيص
 
-Proprietary - KAFAAT © 2024
+Proprietary - Sahool Platform © 2025
+
+---
+
+<div align="center">
+
+**Built with ❤️ for Sahool Agricultural Platform**
+
+**مبني بكل ❤️ لمنصة سهول الزراعية**
+
+[Documentation](./API_DOCUMENTATION.md) • [Quick Start](./QUICK_START.md) • [Examples](./examples/) • [Changelog](./CHANGELOG.md)
+
+</div>

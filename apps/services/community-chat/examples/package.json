@@ -1,0 +1,14 @@
+{
+  "name": "sahool-chat-examples",
+  "version": "1.0.0",
+  "description": "Example clients for Sahool Community Chat Service",
+  "private": true,
+  "scripts": {
+    "farmer": "node client-example.js farmer",
+    "expert": "node client-example.js expert",
+    "rest": "node client-example.js rest"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.8.1"
+  }
+}

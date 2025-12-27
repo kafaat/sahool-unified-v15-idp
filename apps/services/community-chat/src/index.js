@@ -12,15 +12,30 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
+const { setupSwagger } = require('./swagger');
 
 // Configuration
 const PORT = process.env.PORT || 8097;
 const SERVICE_NAME = 'community-chat';
 const SERVICE_VERSION = '1.0.0';
 
-// JWT Configuration - Use standard JWT_SECRET_KEY
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || '';
-const REQUIRE_AUTH = process.env.CHAT_REQUIRE_AUTH !== 'false';
+// JWT Configuration - SECURITY: JWT_SECRET_KEY is required
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECURITY HARDENING: JWT_SECRET_KEY must always be configured
+// المصادقة إلزامية دائماً - لا يمكن تشغيل الخدمة بدون JWT_SECRET_KEY
+// ═══════════════════════════════════════════════════════════════════════════════
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+
+if (!JWT_SECRET_KEY || JWT_SECRET_KEY.trim().length === 0) {
+  console.error('❌ FATAL: JWT_SECRET_KEY environment variable is required');
+  console.error('❌ خطأ فادح: متغير JWT_SECRET_KEY مطلوب');
+  console.error('Set JWT_SECRET_KEY in your environment before starting the service');
+  process.exit(1);
+}
+
+// Authentication is always required - no bypass option
+// المصادقة إلزامية دائماً - لا يمكن تعطيلها
+const REQUIRE_AUTH = true;
 
 // CORS Origins - configurable via environment
 const ALLOWED_ORIGINS = process.env.CORS_ORIGINS
@@ -40,22 +55,44 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Setup Swagger API Documentation
+setupSwagger(app);
+
 const server = http.createServer(app);
 
 // JWT Verification middleware for Socket.io
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECURITY HARDENING: Strict token verification - no fallbacks or anonymous access
+// التحقق الصارم من التوكن - لا استثناءات ولا وصول مجهول
+// ═══════════════════════════════════════════════════════════════════════════════
 const verifyToken = (token) => {
-  if (!token) {
-    throw new Error('Token required');
+  // SECURITY: Token is required - no exceptions
+  if (!token || typeof token !== 'string' || token.trim().length === 0) {
+    throw new Error('Authentication token is required');
   }
-  if (!JWT_SECRET_KEY) {
-    // In production, JWT_SECRET_KEY must be configured
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('JWT_SECRET_KEY not configured');
+
+  // SECURITY: JWT_SECRET_KEY is guaranteed to exist (checked at startup)
+  // Verify token signature and expiration
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+
+    // SECURITY: Additional validation of decoded token
+    if (!decoded.sub) {
+      throw new Error('Invalid token: missing subject (sub)');
     }
-    console.warn('⚠️ JWT_SECRET_KEY not configured - using anonymous auth (dev only)');
-    return { sub: 'anonymous', role: 'user' };
+
+    return decoded;
+  } catch (error) {
+    // Provide specific error messages for debugging while maintaining security
+    if (error.name === 'TokenExpiredError') {
+      throw new Error('Authentication token has expired');
+    } else if (error.name === 'JsonWebTokenError') {
+      throw new Error('Invalid authentication token');
+    } else if (error.name === 'NotBeforeError') {
+      throw new Error('Token not yet valid');
+    }
+    throw error;
   }
-  return jwt.verify(token, JWT_SECRET_KEY);
 };
 
 // Socket.io setup with CORS and authentication
@@ -70,23 +107,37 @@ const io = new Server(server, {
 });
 
 // Socket.io authentication middleware
+// ═══════════════════════════════════════════════════════════════════════════════
+// SECURITY HARDENING: Authentication is always required - no bypass mechanism
+// المصادقة إلزامية دائماً - لا يوجد آلية لتجاوزها
+// ═══════════════════════════════════════════════════════════════════════════════
 io.use((socket, next) => {
-  if (!REQUIRE_AUTH) {
-    return next();
-  }
-
+  // SECURITY: Authentication is mandatory - removed REQUIRE_AUTH bypass
+  // Extract token from auth or query (for backward compatibility)
   const token = socket.handshake.auth.token || socket.handshake.query.token;
 
   if (!token) {
-    return next(new Error('Authentication required'));
+    console.warn('⚠️ Connection attempt without token from:', socket.handshake.address);
+    return next(new Error('Authentication required - no token provided'));
   }
 
   try {
     const decoded = verifyToken(token);
+
+    // SECURITY: Additional user validation
+    if (!decoded.sub || !decoded.role) {
+      console.warn('⚠️ Invalid token structure from:', socket.handshake.address);
+      return next(new Error('Invalid token structure'));
+    }
+
+    // Attach authenticated user to socket
     socket.user = decoded;
+
+    console.log(`✅ Authenticated user: ${decoded.sub} (${decoded.role})`);
     next();
   } catch (err) {
-    next(new Error('Invalid token: ' + err.message));
+    console.warn('⚠️ Authentication failed:', err.message, 'from:', socket.handshake.address);
+    return next(new Error('Authentication failed: ' + err.message));
   }
 });
 

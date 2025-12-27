@@ -1,0 +1,331 @@
+{
+  "info": {
+    "name": "Sahool Community Chat API",
+    "description": "API collection for Sahool Community Chat Service\nخدمة الدردشة الحية لمجتمع سهول",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "sahool-chat-api-v1",
+    "version": "1.0.0"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8097",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "your-jwt-token-here",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/healthz",
+              "host": ["{{base_url}}"],
+              "path": ["healthz"]
+            },
+            "description": "Check service health and get current status\nفحص صحة الخدمة والحصول على الحالة الحالية"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/stats",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "stats"]
+            },
+            "description": "Get comprehensive service statistics\nالحصول على إحصائيات شاملة للخدمة"
+          },
+          "response": []
+        }
+      ],
+      "description": "Health check and service status endpoints\nنقاط نهاية فحص الصحة وحالة الخدمة"
+    },
+    {
+      "name": "Experts",
+      "item": [
+        {
+          "name": "Get Online Experts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/experts/online",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "experts", "online"]
+            },
+            "description": "Get the count of currently online experts\nالحصول على عدد الخبراء المتصلين حالياً"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/experts/online",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "experts", "online"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"count\": 5,\n  \"available\": true\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Expert availability and management\nتوفر الخبراء وإدارتهم"
+    },
+    {
+      "name": "Support Requests",
+      "item": [
+        {
+          "name": "Get All Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/requests",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "requests"]
+            },
+            "description": "Get all support requests\nالحصول على جميع طلبات الدعم"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/requests?status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "requests"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "Filter by request status"
+                }
+              ]
+            },
+            "description": "Get pending support requests\nالحصول على طلبات الدعم المعلقة"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/requests?status=pending",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "requests"],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "pending"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"roomId\": \"support_12345_1735295400000\",\n    \"farmerId\": \"12345\",\n    \"farmerName\": \"محمد أحمد\",\n    \"governorate\": \"القاهرة\",\n    \"topic\": \"مرض في نباتات الطماطم\",\n    \"diagnosisId\": \"diag_98765\",\n    \"status\": \"pending\",\n    \"createdAt\": \"2025-12-27T10:30:00.000Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Active Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/requests?status=active",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "requests"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Filter by active status"
+                }
+              ]
+            },
+            "description": "Get active support requests (with assigned experts)\nالحصول على طلبات الدعم النشطة (مع خبراء معينين)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Support request management\nإدارة طلبات الدعم"
+    },
+    {
+      "name": "Rooms & Messages",
+      "item": [
+        {
+          "name": "Get Room Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/v1/rooms/:roomId/messages",
+              "host": ["{{base_url}}"],
+              "path": ["v1", "rooms", ":roomId", "messages"],
+              "variable": [
+                {
+                  "key": "roomId",
+                  "value": "support_12345_1735295400000",
+                  "description": "Room identifier"
+                }
+              ]
+            },
+            "description": "Get message history for a specific chat room\nالحصول على سجل الرسائل لغرفة دردشة محددة"
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/v1/rooms/support_12345_1735295400000/messages",
+                  "host": ["{{base_url}}"],
+                  "path": ["v1", "rooms", "support_12345_1735295400000", "messages"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"roomId\": \"support_12345_1735295400000\",\n    \"author\": \"محمد أحمد\",\n    \"authorType\": \"farmer\",\n    \"message\": \"السلام عليكم، أحتاج استشارة\",\n    \"attachments\": [],\n    \"timestamp\": \"2025-12-27T10:30:00.000Z\",\n    \"status\": \"delivered\"\n  },\n  {\n    \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n    \"roomId\": \"support_12345_1735295400000\",\n    \"author\": \"د. أحمد الخبير\",\n    \"authorType\": \"expert\",\n    \"message\": \"وعليكم السلام، تفضل كيف يمكنني مساعدتك؟\",\n    \"attachments\": [],\n    \"timestamp\": \"2025-12-27T10:31:00.000Z\",\n    \"status\": \"delivered\"\n  }\n]"
+            }
+          ]
+        }
+      ],
+      "description": "Chat room and message management\nإدارة غرف الدردشة والرسائل"
+    },
+    {
+      "name": "Documentation",
+      "item": [
+        {
+          "name": "Get OpenAPI Spec (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api-docs.json",
+              "host": ["{{base_url}}"],
+              "path": ["api-docs.json"]
+            },
+            "description": "Get OpenAPI specification in JSON format\nالحصول على مواصفات OpenAPI بصيغة JSON"
+          },
+          "response": []
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api-docs",
+              "host": ["{{base_url}}"],
+              "path": ["api-docs"]
+            },
+            "description": "Open Swagger UI documentation\nفتح واجهة توثيق Swagger"
+          },
+          "response": []
+        },
+        {
+          "name": "ReDoc UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/redoc",
+              "host": ["{{base_url}}"],
+              "path": ["redoc"]
+            },
+            "description": "Open ReDoc documentation UI\nفتح واجهة توثيق ReDoc"
+          },
+          "response": []
+        }
+      ],
+      "description": "API documentation endpoints\nنقاط نهاية توثيق الـ API"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for requests",
+          "pm.environment.set('timestamp', new Date().toISOString());"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response tests",
+          "pm.test('Status code is 200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('Response time is less than 500ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(500);",
+          "});",
+          "",
+          "pm.test('Response is JSON', function () {",
+          "    pm.response.to.be.json;",
+          "});"
+        ]
+      }
+    }
+  ]
+}

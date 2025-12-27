@@ -1,0 +1,8 @@
+[tool.aerich]
+tortoise_orm = "apps.services.notification_service.src.database.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./."
+
+[tool.aerich.models]
+models = "models"
+default_connection = "default"

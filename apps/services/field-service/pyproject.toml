@@ -1,0 +1,9 @@
+[tool.aerich]
+tortoise_orm = "src.database.TORTOISE_ORM"
+location = "./src/migrations"
+src_folder = "./src"
+
+[project]
+name = "field-service"
+version = "1.0.0"
+description = "SAHOOL Field Service - خدمة الحقول الزراعية"

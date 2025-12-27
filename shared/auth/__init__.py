@@ -35,6 +35,22 @@ from .models import (
     TokenPayload,
     User,
 )
+from .service_auth import (
+    ALLOWED_SERVICES,
+    SERVICE_COMMUNICATION_MATRIX,
+    ServiceToken,
+    create_service_token,
+    get_allowed_targets,
+    is_service_authorized,
+    verify_service_token,
+)
+from .service_middleware import (
+    ServiceAuthMiddleware,
+    get_calling_service,
+    is_service_request,
+    require_service_auth,
+    verify_service_request,
+)
 
 __all__ = [
     # Configuration
@@ -67,4 +83,18 @@ __all__ = [
     "AuthException",
     "AuthErrors",
     "AuthErrorMessage",
+    # Service-to-Service Authentication
+    "ServiceToken",
+    "create_service_token",
+    "verify_service_token",
+    "is_service_authorized",
+    "get_allowed_targets",
+    "ALLOWED_SERVICES",
+    "SERVICE_COMMUNICATION_MATRIX",
+    # Service Authentication Middleware
+    "ServiceAuthMiddleware",
+    "verify_service_request",
+    "require_service_auth",
+    "get_calling_service",
+    "is_service_request",
 ]

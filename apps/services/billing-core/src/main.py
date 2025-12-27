@@ -30,6 +30,12 @@ import nats
 from nats.js.api import StreamConfig, RetentionPolicy
 from fastapi import FastAPI, HTTPException, Query, Header, Depends, BackgroundTasks, Request
 from pydantic import BaseModel, Field, EmailStr
+from sqlalchemy.ext.asyncio import AsyncSession
+
+# Database imports
+from .database import get_db, init_db, close_db, check_db_connection, db_health_check
+from .repository import BillingRepository
+from . import models as db_models
 
 # Authentication imports
 import sys
@@ -139,10 +145,28 @@ async def publish_event(subject: str, data: dict):
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """App lifespan events"""
+    # Initialize NATS
     await init_nats()
+
+    # Initialize Database
+    try:
+        await init_db()
+        db_connected = await check_db_connection()
+        if db_connected:
+            logger.info("Database initialized and connected successfully")
+        else:
+            logger.warning("Database connection check failed - some features may not work")
+    except Exception as e:
+        logger.error(f"Database initialization failed: {e}")
+        logger.warning("Service will start but database features will be unavailable")
+
     yield
+
+    # Cleanup
     if nats_client:
         await nats_client.close()
+
+    await close_db()
 
 
 app = FastAPI(
@@ -763,14 +787,17 @@ def generate_invoice(subscription: Subscription) -> Invoice:
 
 
 @app.get("/healthz")
-def health_check():
+async def health_check():
+    """Health check endpoint with database status"""
+    db_status = await db_health_check()
+
     return {
-        "status": "ok",
+        "status": "ok" if db_status.get("status") == "healthy" else "degraded",
         "service": "billing-core",
-        "version": "15.5.0",
+        "version": "15.6.0",
+        "database": db_status,
+        "nats": "connected" if nats_client else "disconnected",
         "plans_count": len(PLANS),
-        "tenants_count": len(TENANTS),
-        "active_subscriptions": sum(1 for s in SUBSCRIPTIONS.values() if s.status == SubscriptionStatus.ACTIVE),
     }
 
 
@@ -869,7 +896,10 @@ async def create_plan(
 
 
 @app.post("/v1/tenants")
-def create_tenant(request: CreateTenantRequest):
+async def create_tenant(
+    request: CreateTenantRequest,
+    db: AsyncSession = Depends(get_db),
+):
     """تسجيل مستأجر جديد مع اشتراك"""
     tenant_id = str(uuid.uuid4())
 
@@ -878,7 +908,7 @@ def create_tenant(request: CreateTenantRequest):
     if not plan:
         raise HTTPException(400, "الخطة غير موجودة")
 
-    # Create tenant
+    # Create tenant (still in memory for now, will migrate later)
     tenant = Tenant(
         tenant_id=tenant_id,
         name=request.name,
@@ -892,29 +922,27 @@ def create_tenant(request: CreateTenantRequest):
     )
     TENANTS[tenant_id] = tenant
 
-    # Create subscription
+    # Create subscription in database
     today = date.today()
     trial_end = today + timedelta(days=plan.trial_days) if plan.trial_days > 0 else None
 
-    subscription = Subscription(
-        subscription_id=str(uuid.uuid4()),
+    repo = BillingRepository(db)
+    subscription = await repo.subscriptions.create(
         tenant_id=tenant_id,
         plan_id=request.plan_id,
-        status=SubscriptionStatus.TRIAL if trial_end else SubscriptionStatus.ACTIVE,
         billing_cycle=request.billing_cycle,
         start_date=today,
         end_date=get_billing_period_end(today, request.billing_cycle),
+        status=db_models.SubscriptionStatus.TRIAL if trial_end else db_models.SubscriptionStatus.ACTIVE,
         trial_end_date=trial_end,
-        next_billing_date=trial_end or get_billing_period_end(today, request.billing_cycle),
     )
-    SUBSCRIPTIONS[subscription.subscription_id] = subscription
 
-    logger.info(f"Tenant created: {tenant_id} with subscription {subscription.subscription_id}")
+    logger.info(f"Tenant created: {tenant_id} with subscription {subscription.id}")
 
     return {
         "success": True,
         "tenant_id": tenant_id,
-        "subscription_id": subscription.subscription_id,
+        "subscription_id": str(subscription.id),
         "status": subscription.status.value,
         "trial_ends": trial_end.isoformat() if trial_end else None,
         "message_ar": f"مرحباً {request.name_ar}! تم إنشاء حسابك بنجاح.",
@@ -960,15 +988,14 @@ async def get_tenant(
 async def get_subscription(
     tenant_id: str,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """تفاصيل الاشتراك"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    subscription = None
-    for sub in SUBSCRIPTIONS.values():
-        if sub.tenant_id == tenant_id:
-            subscription = sub
-            break
+    # Get subscription from database
+    repo = BillingRepository(db)
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
 
     if not subscription:
         raise HTTPException(404, "لا يوجد اشتراك")
@@ -976,10 +1003,21 @@ async def get_subscription(
     plan = PLANS.get(subscription.plan_id)
 
     return {
-        "subscription": subscription.dict(),
+        "subscription": {
+            "subscription_id": str(subscription.id),
+            "tenant_id": subscription.tenant_id,
+            "plan_id": subscription.plan_id,
+            "status": subscription.status.value,
+            "billing_cycle": subscription.billing_cycle.value,
+            "currency": subscription.currency.value,
+            "start_date": subscription.start_date.isoformat(),
+            "end_date": subscription.end_date.isoformat(),
+            "next_billing_date": subscription.next_billing_date.isoformat(),
+            "trial_end_date": subscription.trial_end_date.isoformat() if subscription.trial_end_date else None,
+        },
         "plan": plan.dict() if plan else None,
         "days_remaining": (subscription.end_date - date.today()).days,
-        "is_trial": subscription.status == SubscriptionStatus.TRIAL,
+        "is_trial": subscription.status == db_models.SubscriptionStatus.TRIAL,
     }
 
 
@@ -1075,12 +1113,20 @@ async def record_usage(
     tenant_id: str,
     request: RecordUsageRequest,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """تسجيل استخدام"""
     require_tenant_or_admin(current_user, tenant_id)
 
     if tenant_id not in TENANTS:
         raise HTTPException(404, "المستأجر غير موجود")
+
+    # Get subscription
+    repo = BillingRepository(db)
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
+
+    if not subscription:
+        raise HTTPException(404, "لا يوجد اشتراك نشط")
 
     # Check limit before recording
     limit_check = check_usage_limit(tenant_id, request.metric)
@@ -1090,18 +1136,18 @@ async def record_usage(
             f"تم تجاوز الحد الأقصى للاستخدام: {request.metric}. الحد: {limit_check.get('limit', 'N/A')}, المستخدم: {limit_check.get('used', 'N/A')}"
         )
 
-    record = UsageRecord(
-        record_id=str(uuid.uuid4()),
+    # Create usage record in database
+    record = await repo.usage_records.create(
+        subscription_id=subscription.id,
         tenant_id=tenant_id,
-        metric=request.metric,
+        metric_type=request.metric,
         quantity=request.quantity,
         metadata=request.metadata,
     )
-    USAGE_RECORDS.append(record)
 
     return {
         "success": True,
-        "record_id": record.record_id,
+        "record_id": str(record.id),
         "remaining": limit_check.get("remaining", 0) - request.quantity,
     }
 
@@ -1242,27 +1288,72 @@ async def generate_tenant_invoice(
     tenant_id: str,
     background_tasks: BackgroundTasks,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """توليد فاتورة يدوياً"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    subscription = None
-    for sub in SUBSCRIPTIONS.values():
-        if sub.tenant_id == tenant_id:
-            subscription = sub
-            break
+    # Get subscription from database
+    repo = BillingRepository(db)
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
 
     if not subscription:
         raise HTTPException(404, "لا يوجد اشتراك")
 
-    invoice = generate_invoice(subscription)
-    INVOICES[invoice.invoice_id] = invoice
+    # Generate invoice data
+    plan = PLANS.get(subscription.plan_id)
+    if not plan:
+        raise HTTPException(404, "الخطة غير موجودة")
+
+    price = get_plan_price(plan, subscription.billing_cycle)
+
+    line_items = [
+        {
+            "description": f"{plan.name} - {subscription.billing_cycle.value.title()}",
+            "description_ar": f"{plan.name_ar} - {'شهري' if subscription.billing_cycle == BillingCycle.MONTHLY else 'ربع سنوي' if subscription.billing_cycle == BillingCycle.QUARTERLY else 'سنوي'}",
+            "quantity": 1,
+            "unit_price": float(price),
+            "amount": float(price),
+            "is_usage_based": False,
+        }
+    ]
+
+    subtotal = price
+    tax_amount = Decimal("0")
+    total = subtotal + tax_amount
+
+    # Create invoice in database
+    invoice = await repo.invoices.create(
+        invoice_number=generate_invoice_number(),
+        tenant_id=tenant_id,
+        subscription_id=subscription.id,
+        currency=db_models.Currency(subscription.currency.value),
+        issue_date=date.today(),
+        due_date=date.today() + timedelta(days=7),
+        subtotal=subtotal,
+        total=total,
+        amount_due=total,
+        line_items=line_items,
+        status=db_models.InvoiceStatus.PENDING,
+        notes_ar="شكراً لاختياركم منصة سهول الزراعية",
+    )
 
     logger.info(f"Invoice generated: {invoice.invoice_number} for tenant {tenant_id}")
 
     return {
         "success": True,
-        "invoice": invoice.dict(),
+        "invoice": {
+            "invoice_id": str(invoice.id),
+            "invoice_number": invoice.invoice_number,
+            "tenant_id": invoice.tenant_id,
+            "subscription_id": str(invoice.subscription_id),
+            "status": invoice.status.value,
+            "currency": invoice.currency.value,
+            "total": float(invoice.total),
+            "amount_due": float(invoice.amount_due),
+            "issue_date": invoice.issue_date.isoformat(),
+            "due_date": invoice.due_date.isoformat(),
+        },
     }
 
 
@@ -1328,26 +1419,36 @@ async def create_payment(
     request: CreatePaymentRequest,
     background_tasks: BackgroundTasks,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """تسجيل دفعة"""
-    invoice = INVOICES.get(request.invoice_id)
+    # Parse invoice_id (could be UUID string)
+    try:
+        invoice_uuid = uuid.UUID(request.invoice_id)
+    except (ValueError, AttributeError):
+        raise HTTPException(400, "معرف فاتورة غير صالح")
+
+    # Get invoice from database
+    repo = BillingRepository(db)
+    invoice = await repo.invoices.get_by_id(invoice_uuid)
+
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
 
     # Verify user can make payment for this tenant's invoice
     require_tenant_or_admin(current_user, invoice.tenant_id)
 
-    if invoice.status == InvoiceStatus.PAID:
+    if invoice.status == db_models.InvoiceStatus.PAID:
         raise HTTPException(400, "الفاتورة مدفوعة بالفعل")
 
-    payment = Payment(
-        payment_id=str(uuid.uuid4()),
-        invoice_id=request.invoice_id,
+    # Create payment in database
+    payment = await repo.payments.create(
+        invoice_id=invoice.id,
         tenant_id=invoice.tenant_id,
         amount=request.amount,
-        currency=invoice.currency,
-        status=PaymentStatus.PENDING,
-        method=request.method,
+        currency=db_models.Currency(invoice.currency.value),
+        method=db_models.PaymentMethod(request.method.value),
+        status=db_models.PaymentStatus.PENDING,
     )
 
     tharwatt_response = None
@@ -1358,60 +1459,55 @@ async def create_payment(
         # Stripe Payment Processing
         token = getattr(request, 'stripe_token', None)
         if token:
-            stripe_response = await call_stripe_api(payment, token)
+            # Create temporary payment object for API call
+            temp_payment = type('obj', (object,), {
+                'payment_id': str(payment.id),
+                'invoice_id': str(payment.invoice_id),
+                'tenant_id': payment.tenant_id,
+                'amount': payment.amount,
+                'currency': payment.currency,
+            })()
+            stripe_response = await call_stripe_api(temp_payment, token)
             if stripe_response.get("status") == "succeeded":
-                payment.status = PaymentStatus.SUCCEEDED
-                payment.processed_at = datetime.utcnow()
-                payment.stripe_payment_id = stripe_response.get("stripe_charge_id")
+                await repo.payments.mark_succeeded(
+                    payment.id,
+                    external_id=stripe_response.get("stripe_charge_id")
+                )
             else:
-                payment.status = PaymentStatus.PROCESSING
-        else:
-            # Mark as pending for client-side Stripe checkout
-            payment.status = PaymentStatus.PENDING
+                await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
 
     elif request.method == PaymentMethod.THARWATT and THARWATT_API_KEY:
         # Tharwatt Payment Gateway - بوابة ثروات
         phone_number = getattr(request, 'phone_number', '')
         if phone_number:
-            tharwatt_response = await call_tharwatt_api(payment, phone_number)
-            payment.status = PaymentStatus.PROCESSING
-            logger.info(f"Tharwatt payment initiated: {payment.payment_id} - Response: {tharwatt_response}")
-        else:
-            payment.status = PaymentStatus.PENDING
-            logger.info(f"Tharwatt payment pending phone: {payment.payment_id}")
+            temp_payment = type('obj', (object,), {
+                'payment_id': str(payment.id),
+                'invoice_id': str(payment.invoice_id),
+                'amount': payment.amount,
+            })()
+            tharwatt_response = await call_tharwatt_api(temp_payment, phone_number)
+            await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
+            logger.info(f"Tharwatt payment initiated: {payment.id} - Response: {tharwatt_response}")
 
-    elif request.method == PaymentMethod.MOBILE_MONEY:
-        # Mobile Money (Yemen operators) - الدفع بالمحفظة
-        payment.status = PaymentStatus.PENDING
-    elif request.method == PaymentMethod.BANK_TRANSFER:
-        payment.status = PaymentStatus.PENDING
     elif request.method == PaymentMethod.CASH:
-        payment.status = PaymentStatus.SUCCEEDED
-        payment.processed_at = datetime.utcnow()
-    else:
-        payment.status = PaymentStatus.SUCCEEDED
-        payment.processed_at = datetime.utcnow()
+        await repo.payments.mark_succeeded(payment.id)
 
-    PAYMENTS[payment.payment_id] = payment
+    # Refresh payment to get updated status
+    payment = await repo.payments.get_by_id(payment.id)
 
     # Update invoice if payment succeeded
-    if payment.status == PaymentStatus.SUCCEEDED:
-        invoice.amount_paid += request.amount
-        invoice.amount_due = invoice.total - invoice.amount_paid
+    if payment.status == db_models.PaymentStatus.SUCCEEDED:
+        await repo.invoices.mark_paid(invoice.id, request.amount)
 
-        if invoice.amount_due <= 0:
-            invoice.status = InvoiceStatus.PAID
-            invoice.paid_date = date.today()
-
-    logger.info(f"Payment {payment.payment_id} created for invoice {request.invoice_id}")
+    logger.info(f"Payment {payment.id} created for invoice {request.invoice_id}")
 
     # Publish payment event
     background_tasks.add_task(
         publish_event,
         "sahool.payment.created",
         {
-            "payment_id": payment.payment_id,
-            "invoice_id": payment.invoice_id,
+            "payment_id": str(payment.id),
+            "invoice_id": str(payment.invoice_id),
             "tenant_id": payment.tenant_id,
             "amount": float(payment.amount),
             "currency": payment.currency.value,
@@ -1420,9 +1516,21 @@ async def create_payment(
         }
     )
 
+    # Refresh invoice to get updated status
+    invoice = await repo.invoices.get_by_id(invoice.id)
+
     return {
         "success": True,
-        "payment": payment.dict(),
+        "payment": {
+            "payment_id": str(payment.id),
+            "invoice_id": str(payment.invoice_id),
+            "tenant_id": payment.tenant_id,
+            "amount": float(payment.amount),
+            "currency": payment.currency.value,
+            "method": payment.method.value,
+            "status": payment.status.value,
+            "created_at": payment.created_at.isoformat(),
+        },
         "invoice_status": invoice.status.value,
         "tharwatt_response": tharwatt_response,
         "stripe_response": stripe_response,

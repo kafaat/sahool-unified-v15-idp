@@ -1,0 +1,984 @@
+openapi: 3.0.3
+info:
+  title: Sahool Community Chat Service API
+  version: 1.0.0
+  description: |
+    # خدمة الدردشة الحية لمجتمع سهول الزراعي
+    Sahool Real-time Chat Service - Communication between farmers and agricultural experts
+
+    ## Features
+    - Real-time messaging using Socket.io
+    - Expert-Farmer consultation sessions
+    - Support request management
+    - Message history and persistence
+    - Typing indicators
+    - Online presence tracking
+
+    ## Authentication
+    Authentication is performed via JWT tokens for Socket.io connections.
+    REST API endpoints are currently open for internal microservices communication.
+
+    ## WebSocket Events
+    This service uses Socket.io for real-time communication. See the WebSocket Events section below.
+
+  contact:
+    name: Sahool Platform
+    url: https://sahool.io
+  license:
+    name: Proprietary
+
+servers:
+  - url: http://localhost:8097
+    description: Local Development
+  - url: https://chat.sahool.io
+    description: Production
+
+tags:
+  - name: Health
+    description: Service health and status endpoints
+  - name: Rooms
+    description: Chat room management and history
+  - name: Experts
+    description: Expert availability and management
+  - name: Support Requests
+    description: Support ticket and request management
+  - name: Statistics
+    description: Service metrics and analytics
+  - name: WebSocket Events
+    description: Real-time Socket.io events
+
+paths:
+  /healthz:
+    get:
+      tags:
+        - Health
+      summary: Health Check
+      description: Check service health and get current status
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: healthy
+                service: community-chat
+                version: 1.0.0
+                activeConnections: 42
+                onlineExperts: 5
+                activeRooms: 12
+                timestamp: "2025-12-27T10:30:00.000Z"
+
+  /v1/requests:
+    get:
+      tags:
+        - Support Requests
+      summary: Get Support Requests
+      description: Retrieve all active support requests, optionally filtered by status
+      operationId: getSupportRequests
+      parameters:
+        - name: status
+          in: query
+          description: Filter by request status
+          required: false
+          schema:
+            type: string
+            enum:
+              - pending
+              - active
+              - resolved
+              - closed
+          example: pending
+      responses:
+        '200':
+          description: List of support requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupportRequest'
+              example:
+                - roomId: "support_12345_1735295400000"
+                  farmerId: "12345"
+                  farmerName: "محمد أحمد"
+                  governorate: "القاهرة"
+                  topic: "مرض في نباتات الطماطم"
+                  diagnosisId: "diag_98765"
+                  status: "pending"
+                  createdAt: "2025-12-27T10:30:00.000Z"
+                - roomId: "support_67890_1735295460000"
+                  farmerId: "67890"
+                  farmerName: "فاطمة محمود"
+                  governorate: "الجيزة"
+                  topic: "استشارة عن التسميد"
+                  status: "active"
+                  expertId: "expert_123"
+                  expertName: "د. أحمد الخبير"
+                  createdAt: "2025-12-27T10:31:00.000Z"
+                  acceptedAt: "2025-12-27T10:32:00.000Z"
+
+  /v1/rooms/{roomId}/messages:
+    get:
+      tags:
+        - Rooms
+      summary: Get Room Messages
+      description: Retrieve message history for a specific chat room
+      operationId: getRoomMessages
+      parameters:
+        - name: roomId
+          in: path
+          description: Unique room identifier
+          required: true
+          schema:
+            type: string
+          example: "support_12345_1735295400000"
+      responses:
+        '200':
+          description: List of messages in the room
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+              example:
+                - id: "550e8400-e29b-41d4-a716-446655440000"
+                  roomId: "support_12345_1735295400000"
+                  author: "محمد أحمد"
+                  authorType: "farmer"
+                  message: "السلام عليكم، أحتاج استشارة"
+                  attachments: []
+                  timestamp: "2025-12-27T10:30:00.000Z"
+                  status: "delivered"
+                - id: "550e8400-e29b-41d4-a716-446655440001"
+                  roomId: "support_12345_1735295400000"
+                  author: "د. أحمد الخبير"
+                  authorType: "expert"
+                  message: "وعليكم السلام، تفضل كيف يمكنني مساعدتك؟"
+                  attachments: []
+                  timestamp: "2025-12-27T10:31:00.000Z"
+                  status: "delivered"
+
+  /v1/experts/online:
+    get:
+      tags:
+        - Experts
+      summary: Get Online Experts
+      description: Get the count of currently online experts
+      operationId: getOnlineExperts
+      responses:
+        '200':
+          description: Online experts information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnlineExpertsResponse'
+              example:
+                count: 5
+                available: true
+
+  /v1/stats:
+    get:
+      tags:
+        - Statistics
+      summary: Get Service Statistics
+      description: Get comprehensive statistics about the chat service
+      operationId: getStats
+      responses:
+        '200':
+          description: Service statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+              example:
+                totalConnections: 42
+                onlineExperts: 5
+                activeRooms: 12
+                totalMessages: 1548
+                timestamp: "2025-12-27T10:30:00.000Z"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Health status of the service
+          enum:
+            - healthy
+            - degraded
+            - unhealthy
+          example: healthy
+        service:
+          type: string
+          description: Service name
+          example: community-chat
+        version:
+          type: string
+          description: Service version
+          example: 1.0.0
+        activeConnections:
+          type: integer
+          description: Number of active WebSocket connections
+          example: 42
+        onlineExperts:
+          type: integer
+          description: Number of online experts
+          example: 5
+        activeRooms:
+          type: integer
+          description: Number of active chat rooms
+          example: 12
+        timestamp:
+          type: string
+          format: date-time
+          description: Current server timestamp
+          example: "2025-12-27T10:30:00.000Z"
+      required:
+        - status
+        - service
+        - version
+        - activeConnections
+        - onlineExperts
+        - activeRooms
+        - timestamp
+
+    SupportRequest:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: Unique room identifier
+          example: "support_12345_1735295400000"
+        farmerId:
+          type: string
+          description: Farmer's user ID
+          example: "12345"
+        farmerName:
+          type: string
+          description: Farmer's display name
+          example: "محمد أحمد"
+        governorate:
+          type: string
+          description: Farmer's governorate
+          example: "القاهرة"
+        topic:
+          type: string
+          description: Support request topic
+          example: "مرض في نباتات الطماطم"
+        diagnosisId:
+          type: string
+          description: Related disease diagnosis ID (if any)
+          example: "diag_98765"
+          nullable: true
+        status:
+          type: string
+          description: Request status
+          enum:
+            - pending
+            - active
+            - resolved
+            - closed
+          example: pending
+        expertId:
+          type: string
+          description: Assigned expert's user ID
+          example: "expert_123"
+          nullable: true
+        expertName:
+          type: string
+          description: Assigned expert's display name
+          example: "د. أحمد الخبير"
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Request creation timestamp
+          example: "2025-12-27T10:30:00.000Z"
+        acceptedAt:
+          type: string
+          format: date-time
+          description: Request acceptance timestamp
+          example: "2025-12-27T10:32:00.000Z"
+          nullable: true
+      required:
+        - roomId
+        - farmerId
+        - farmerName
+        - status
+        - createdAt
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique message identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        roomId:
+          type: string
+          description: Room identifier where message was sent
+          example: "support_12345_1735295400000"
+        author:
+          type: string
+          description: Message author name
+          example: "محمد أحمد"
+        authorType:
+          type: string
+          description: Type of message author
+          enum:
+            - farmer
+            - expert
+            - admin
+            - support
+            - system
+          example: farmer
+        message:
+          type: string
+          description: Message content (HTML-escaped for security)
+          example: "السلام عليكم، أحتاج استشارة"
+        attachments:
+          type: array
+          description: Message attachments (images, files)
+          items:
+            $ref: '#/components/schemas/Attachment'
+          example: []
+        timestamp:
+          type: string
+          format: date-time
+          description: Message timestamp
+          example: "2025-12-27T10:30:00.000Z"
+        status:
+          type: string
+          description: Message delivery status
+          enum:
+            - sent
+            - delivered
+            - read
+            - failed
+          example: delivered
+      required:
+        - id
+        - roomId
+        - author
+        - authorType
+        - message
+        - timestamp
+        - status
+
+    Attachment:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+          description: Attachment URL (must be from allowed domains)
+          example: "https://sahool.io/uploads/image123.jpg"
+        type:
+          type: string
+          description: Attachment type
+          enum:
+            - image
+            - document
+            - video
+            - audio
+          example: image
+        name:
+          type: string
+          description: Attachment filename
+          example: "plant_disease.jpg"
+        size:
+          type: integer
+          description: Attachment size in bytes
+          example: 245678
+      required:
+        - url
+        - type
+
+    OnlineExpertsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Number of online experts
+          example: 5
+        available:
+          type: boolean
+          description: Whether experts are available
+          example: true
+      required:
+        - count
+        - available
+
+    StatsResponse:
+      type: object
+      properties:
+        totalConnections:
+          type: integer
+          description: Total active connections
+          example: 42
+        onlineExperts:
+          type: integer
+          description: Online experts count
+          example: 5
+        activeRooms:
+          type: integer
+          description: Active chat rooms count
+          example: 12
+        totalMessages:
+          type: integer
+          description: Total messages across all rooms
+          example: 1548
+        timestamp:
+          type: string
+          format: date-time
+          description: Statistics timestamp
+          example: "2025-12-27T10:30:00.000Z"
+      required:
+        - totalConnections
+        - onlineExperts
+        - activeRooms
+        - totalMessages
+        - timestamp
+
+    # WebSocket Event Schemas
+
+    RegisterUserEvent:
+      type: object
+      description: Event to register a user on connection
+      properties:
+        userId:
+          type: string
+          description: User's unique identifier
+          example: "12345"
+        userName:
+          type: string
+          description: User's display name
+          example: "محمد أحمد"
+        userNameAr:
+          type: string
+          description: User's Arabic name
+          example: "محمد أحمد"
+          nullable: true
+        userType:
+          type: string
+          description: User type
+          enum:
+            - farmer
+            - expert
+            - admin
+            - support
+          example: farmer
+        governorate:
+          type: string
+          description: User's governorate
+          example: "القاهرة"
+      required:
+        - userId
+        - userName
+        - userType
+
+    JoinRoomEvent:
+      type: object
+      description: Event to join a chat room
+      properties:
+        roomId:
+          type: string
+          description: Room identifier to join
+          maxLength: 100
+          example: "support_12345_1735295400000"
+        userName:
+          type: string
+          description: User's display name
+          maxLength: 100
+          example: "محمد أحمد"
+        userType:
+          type: string
+          description: User type
+          enum:
+            - farmer
+            - expert
+            - admin
+            - support
+          example: farmer
+      required:
+        - roomId
+        - userName
+        - userType
+
+    SendMessageEvent:
+      type: object
+      description: Event to send a message
+      properties:
+        roomId:
+          type: string
+          description: Target room identifier
+          maxLength: 100
+          example: "support_12345_1735295400000"
+        author:
+          type: string
+          description: Message author name
+          maxLength: 100
+          example: "محمد أحمد"
+        authorType:
+          type: string
+          description: Author type
+          enum:
+            - farmer
+            - expert
+            - admin
+            - support
+            - system
+          example: farmer
+        message:
+          type: string
+          description: Message content
+          maxLength: 10000
+          example: "السلام عليكم، أحتاج استشارة"
+        attachments:
+          type: array
+          description: Message attachments (max 10)
+          maxItems: 10
+          items:
+            $ref: '#/components/schemas/Attachment'
+          example: []
+      required:
+        - roomId
+        - author
+        - authorType
+        - message
+
+    TypingEvent:
+      type: object
+      description: Typing indicator event
+      properties:
+        roomId:
+          type: string
+          description: Room identifier
+          example: "support_12345_1735295400000"
+        userName:
+          type: string
+          description: User who is typing
+          example: "محمد أحمد"
+      required:
+        - roomId
+        - userName
+
+    RequestExpertEvent:
+      type: object
+      description: Event to request expert assistance
+      properties:
+        farmerId:
+          type: string
+          description: Farmer's user ID
+          example: "12345"
+        farmerName:
+          type: string
+          description: Farmer's display name
+          example: "محمد أحمد"
+        governorate:
+          type: string
+          description: Farmer's governorate
+          example: "القاهرة"
+        topic:
+          type: string
+          description: Consultation topic
+          example: "مرض في نباتات الطماطم"
+        diagnosisId:
+          type: string
+          description: Related diagnosis ID (optional)
+          example: "diag_98765"
+          nullable: true
+      required:
+        - farmerId
+        - farmerName
+        - governorate
+
+    AcceptRequestEvent:
+      type: object
+      description: Event when expert accepts a support request
+      properties:
+        roomId:
+          type: string
+          description: Support request room ID
+          example: "support_12345_1735295400000"
+        expertId:
+          type: string
+          description: Expert's user ID
+          example: "expert_123"
+        expertName:
+          type: string
+          description: Expert's display name
+          example: "د. أحمد الخبير"
+      required:
+        - roomId
+        - expertId
+        - expertName
+
+    LeaveRoomEvent:
+      type: object
+      description: Event to leave a chat room
+      properties:
+        roomId:
+          type: string
+          description: Room identifier to leave
+          example: "support_12345_1735295400000"
+        userName:
+          type: string
+          description: User's display name
+          example: "محمد أحمد"
+      required:
+        - roomId
+        - userName
+
+    ErrorEvent:
+      type: object
+      description: Error event emitted to client
+      properties:
+        code:
+          type: string
+          description: Error code
+          enum:
+            - INVALID_ROOM_ID
+            - INVALID_USERNAME
+            - INVALID_USER_TYPE
+            - INVALID_AUTHOR
+            - INVALID_MESSAGE
+            - MESSAGE_TOO_LONG
+            - ACCESS_DENIED
+          example: ACCESS_DENIED
+        message:
+          type: string
+          description: Error message in Arabic
+          example: "لا يمكنك الوصول لهذه الغرفة"
+      required:
+        - code
+        - message
+
+  # Security Schemes
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token authentication for WebSocket connections.
+        Pass the token in Socket.io handshake:
+        ```javascript
+        const socket = io('http://localhost:8097', {
+          auth: { token: 'your-jwt-token' }
+        });
+        ```
+
+# WebSocket Events Documentation
+x-websocket-events:
+  description: |
+    ## Socket.io Real-time Events
+
+    This service uses Socket.io for bi-directional real-time communication.
+
+    ### Connection
+    ```javascript
+    const io = require('socket.io-client');
+    const socket = io('http://localhost:8097', {
+      auth: { token: 'your-jwt-token' }
+    });
+    ```
+
+    ### Authentication
+    - JWT token required (unless CHAT_REQUIRE_AUTH=false)
+    - Token can be passed via `auth.token` or `query.token`
+    - Token must be signed with JWT_SECRET_KEY
+
+  events:
+    client-to-server:
+      - name: register_user
+        description: Register user on connection
+        schema:
+          $ref: '#/components/schemas/RegisterUserEvent'
+        response:
+          name: registration_confirmed
+          description: Confirmation of successful registration
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+              socketId:
+                type: string
+                example: "abc123def456"
+              onlineExperts:
+                type: integer
+                example: 5
+
+      - name: join_room
+        description: Join a chat room
+        schema:
+          $ref: '#/components/schemas/JoinRoomEvent'
+        responses:
+          - name: load_history
+            description: Receive room message history
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Message'
+          - name: user_joined (broadcast to room)
+            description: Notify room about new participant
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                userType:
+                  type: string
+                time:
+                  type: string
+                  format: date-time
+          - name: error
+            description: Error if access denied or invalid data
+            schema:
+              $ref: '#/components/schemas/ErrorEvent'
+
+      - name: send_message
+        description: Send a message to a room
+        schema:
+          $ref: '#/components/schemas/SendMessageEvent'
+        response:
+          name: receive_message (broadcast to room)
+          description: Message delivered to all room participants
+          schema:
+            $ref: '#/components/schemas/Message'
+
+      - name: typing_start
+        description: Indicate user started typing
+        schema:
+          $ref: '#/components/schemas/TypingEvent'
+        response:
+          name: user_typing (broadcast to room)
+          description: Notify others in room about typing
+          schema:
+            type: object
+            properties:
+              userName:
+                type: string
+              isTyping:
+                type: boolean
+                example: true
+
+      - name: typing_stop
+        description: Indicate user stopped typing
+        schema:
+          $ref: '#/components/schemas/TypingEvent'
+        response:
+          name: user_typing (broadcast to room)
+          description: Notify others typing stopped
+          schema:
+            type: object
+            properties:
+              userName:
+                type: string
+              isTyping:
+                type: boolean
+                example: false
+
+      - name: request_expert
+        description: Farmer requests expert assistance
+        schema:
+          $ref: '#/components/schemas/RequestExpertEvent'
+        responses:
+          - name: expert_request_created
+            description: Confirmation of request creation
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                roomId:
+                  type: string
+                message:
+                  type: string
+          - name: new_support_request (broadcast to all)
+            description: Notify all experts about new request
+            schema:
+              $ref: '#/components/schemas/SupportRequest'
+
+      - name: accept_request
+        description: Expert accepts a support request
+        schema:
+          $ref: '#/components/schemas/AcceptRequestEvent'
+        responses:
+          - name: expert_joined (to room)
+            description: Notify farmer that expert joined
+            schema:
+              type: object
+              properties:
+                expertId:
+                  type: string
+                expertName:
+                  type: string
+                message:
+                  type: string
+          - name: request_taken (broadcast to all)
+            description: Notify other experts request is taken
+            schema:
+              type: object
+              properties:
+                roomId:
+                  type: string
+                expertName:
+                  type: string
+
+      - name: leave_room
+        description: Leave a chat room
+        schema:
+          $ref: '#/components/schemas/LeaveRoomEvent'
+        response:
+          name: user_left (broadcast to room)
+          description: Notify room about user leaving
+          schema:
+            type: object
+            properties:
+              userName:
+                type: string
+              time:
+                type: string
+                format: date-time
+
+      - name: disconnect
+        description: Client disconnects
+        responses:
+          - name: expert_offline (broadcast if user was expert)
+            description: Notify all about expert going offline
+            schema:
+              type: object
+              properties:
+                expertId:
+                  type: string
+
+    server-to-client:
+      - name: registration_confirmed
+        description: Sent after successful user registration
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            socketId:
+              type: string
+            onlineExperts:
+              type: integer
+
+      - name: expert_online
+        description: Broadcast when expert comes online
+        schema:
+          type: object
+          properties:
+            expertId:
+              type: string
+            expertName:
+              type: string
+
+      - name: expert_offline
+        description: Broadcast when expert goes offline
+        schema:
+          type: object
+          properties:
+            expertId:
+              type: string
+
+      - name: load_history
+        description: Send room message history to joining user
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+
+      - name: user_joined
+        description: Broadcast to room when user joins
+        schema:
+          type: object
+          properties:
+            userName:
+              type: string
+            userType:
+              type: string
+            time:
+              type: string
+              format: date-time
+
+      - name: user_left
+        description: Broadcast to room when user leaves
+        schema:
+          type: object
+          properties:
+            userName:
+              type: string
+            time:
+              type: string
+              format: date-time
+
+      - name: receive_message
+        description: Broadcast message to all room participants
+        schema:
+          $ref: '#/components/schemas/Message'
+
+      - name: user_typing
+        description: Typing indicator for room participants
+        schema:
+          type: object
+          properties:
+            userName:
+              type: string
+            isTyping:
+              type: boolean
+
+      - name: new_support_request
+        description: Broadcast to all experts about new support request
+        schema:
+          $ref: '#/components/schemas/SupportRequest'
+
+      - name: expert_request_created
+        description: Confirmation to farmer that request was created
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            roomId:
+              type: string
+            message:
+              type: string
+
+      - name: expert_joined
+        description: Notify room that expert has joined
+        schema:
+          type: object
+          properties:
+            expertId:
+              type: string
+            expertName:
+              type: string
+            message:
+              type: string
+
+      - name: request_taken
+        description: Notify experts that request has been accepted
+        schema:
+          type: object
+          properties:
+            roomId:
+              type: string
+            expertName:
+              type: string
+
+      - name: error
+        description: Error notification
+        schema:
+          $ref: '#/components/schemas/ErrorEvent'

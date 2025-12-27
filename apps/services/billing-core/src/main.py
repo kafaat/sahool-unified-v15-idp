@@ -1267,7 +1267,7 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
                     "currency": "YER",
                     "phone_number": phone_number,
                     "description": f"SAHOOL Invoice Payment - {payment.invoice_id}",
-                    "callback_url": f"https://api.sahool.com/api/v1/webhooks/tharwatt",
+                    "callback_url": "https://api.sahool.com/api/v1/webhooks/tharwatt",
                 },
             )
             response.raise_for_status()

@@ -1,0 +1,681 @@
+"""
+📊 SAHOOL Billing Core - Database Models
+نماذج قاعدة البيانات - SQLAlchemy ORM Models
+
+This module defines the database schema for:
+- Subscriptions (الاشتراكات)
+- Invoices (الفواتير)
+- Payments (المدفوعات)
+- Usage Records (سجلات الاستخدام)
+"""
+
+import uuid
+from datetime import datetime, date
+from decimal import Decimal
+from typing import Optional
+
+from sqlalchemy import (
+    String,
+    Integer,
+    Numeric,
+    DateTime,
+    Date,
+    Boolean,
+    Text,
+    Enum as SQLEnum,
+    ForeignKey,
+    Index,
+    CheckConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import UUID, JSONB
+
+from .database import Base
+
+# Import enums from main (we'll reference the existing ones)
+# These will be defined in main.py
+import enum
+
+
+# =============================================================================
+# Enums - نسخة من الـEnums الموجودة في main.py
+# =============================================================================
+
+class SubscriptionStatus(str, enum.Enum):
+    """حالة الاشتراك"""
+    ACTIVE = "active"
+    TRIAL = "trial"
+    PAST_DUE = "past_due"
+    CANCELED = "canceled"
+    SUSPENDED = "suspended"
+    EXPIRED = "expired"
+
+
+class InvoiceStatus(str, enum.Enum):
+    """حالة الفاتورة"""
+    DRAFT = "draft"
+    PENDING = "pending"
+    PAID = "paid"
+    OVERDUE = "overdue"
+    CANCELED = "canceled"
+    REFUNDED = "refunded"
+
+
+class PaymentMethod(str, enum.Enum):
+    """طريقة الدفع"""
+    CREDIT_CARD = "credit_card"
+    BANK_TRANSFER = "bank_transfer"
+    MOBILE_MONEY = "mobile_money"
+    CASH = "cash"
+    THARWATT = "tharwatt"
+
+
+class PaymentStatus(str, enum.Enum):
+    """حالة الدفعة"""
+    PENDING = "pending"
+    PROCESSING = "processing"
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    REFUNDED = "refunded"
+
+
+class Currency(str, enum.Enum):
+    """العملة"""
+    USD = "USD"
+    YER = "YER"
+
+
+class BillingCycle(str, enum.Enum):
+    """دورة الفوترة"""
+    MONTHLY = "monthly"
+    QUARTERLY = "quarterly"
+    YEARLY = "yearly"
+
+
+# =============================================================================
+# Database Models
+# =============================================================================
+
+class Subscription(Base):
+    """
+    Subscription Model - نموذج الاشتراك
+
+    Represents a tenant's subscription to a plan
+    يمثل اشتراك المستأجر في خطة
+    """
+    __tablename__ = "subscriptions"
+
+    # Primary Key
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
+    )
+
+    # Foreign Keys
+    tenant_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        index=True,
+        comment="المستأجر/العميل"
+    )
+
+    plan_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        index=True,
+        comment="معرف الخطة"
+    )
+
+    # Status
+    status: Mapped[SubscriptionStatus] = mapped_column(
+        SQLEnum(SubscriptionStatus, name="subscription_status_enum"),
+        nullable=False,
+        default=SubscriptionStatus.ACTIVE,
+        index=True,
+        comment="حالة الاشتراك"
+    )
+
+    billing_cycle: Mapped[BillingCycle] = mapped_column(
+        SQLEnum(BillingCycle, name="billing_cycle_enum"),
+        nullable=False,
+        default=BillingCycle.MONTHLY,
+        comment="دورة الفوترة"
+    )
+
+    currency: Mapped[Currency] = mapped_column(
+        SQLEnum(Currency, name="currency_enum"),
+        nullable=False,
+        default=Currency.USD,
+        comment="العملة"
+    )
+
+    # Dates
+    start_date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+        comment="تاريخ البدء"
+    )
+
+    end_date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+        comment="تاريخ الانتهاء"
+    )
+
+    trial_end_date: Mapped[Optional[date]] = mapped_column(
+        Date,
+        nullable=True,
+        comment="تاريخ انتهاء الفترة التجريبية"
+    )
+
+    canceled_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="تاريخ الإلغاء"
+    )
+
+    # Billing Dates
+    next_billing_date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+        index=True,
+        comment="تاريخ الفوترة التالي"
+    )
+
+    last_billing_date: Mapped[Optional[date]] = mapped_column(
+        Date,
+        nullable=True,
+        comment="تاريخ آخر فوترة"
+    )
+
+    # Payment Method
+    payment_method: Mapped[Optional[PaymentMethod]] = mapped_column(
+        SQLEnum(PaymentMethod, name="payment_method_enum"),
+        nullable=True,
+        comment="طريقة الدفع"
+    )
+
+    # External IDs
+    stripe_subscription_id: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        index=True,
+        comment="معرف الاشتراك في Stripe"
+    )
+
+    # Metadata
+    metadata: Mapped[Optional[dict]] = mapped_column(
+        JSONB,
+        nullable=True,
+        default={},
+        server_default="{}",
+        comment="بيانات إضافية"
+    )
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ الإنشاء"
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ آخر تحديث"
+    )
+
+    # Relationships
+    invoices: Mapped[list["Invoice"]] = relationship(
+        "Invoice",
+        back_populates="subscription",
+        cascade="all, delete-orphan",
+    )
+
+    usage_records: Mapped[list["UsageRecord"]] = relationship(
+        "UsageRecord",
+        back_populates="subscription",
+        cascade="all, delete-orphan",
+    )
+
+    # Indexes
+    __table_args__ = (
+        Index("idx_subscription_tenant_status", "tenant_id", "status"),
+        Index("idx_subscription_next_billing", "next_billing_date", "status"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Subscription(id={self.id}, tenant={self.tenant_id}, plan={self.plan_id}, status={self.status})>"
+
+
+class Invoice(Base):
+    """
+    Invoice Model - نموذج الفاتورة
+
+    Represents a billing invoice for a subscription
+    يمثل فاتورة للاشتراك
+    """
+    __tablename__ = "invoices"
+
+    # Primary Key
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
+    )
+
+    # Invoice Number (human-readable)
+    invoice_number: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="رقم الفاتورة (SAH-2025-0001)"
+    )
+
+    # Foreign Keys
+    tenant_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        index=True,
+        comment="المستأجر/العميل"
+    )
+
+    subscription_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("subscriptions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="معرف الاشتراك"
+    )
+
+    # Status
+    status: Mapped[InvoiceStatus] = mapped_column(
+        SQLEnum(InvoiceStatus, name="invoice_status_enum"),
+        nullable=False,
+        default=InvoiceStatus.DRAFT,
+        index=True,
+        comment="حالة الفاتورة"
+    )
+
+    currency: Mapped[Currency] = mapped_column(
+        SQLEnum(Currency, name="currency_enum"),
+        nullable=False,
+        default=Currency.USD,
+        comment="العملة"
+    )
+
+    # Dates
+    issue_date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+        index=True,
+        comment="تاريخ الإصدار"
+    )
+
+    due_date: Mapped[date] = mapped_column(
+        Date,
+        nullable=False,
+        index=True,
+        comment="تاريخ الاستحقاق"
+    )
+
+    paid_date: Mapped[Optional[date]] = mapped_column(
+        Date,
+        nullable=True,
+        comment="تاريخ الدفع"
+    )
+
+    # Amounts (stored as Numeric for precision)
+    subtotal: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        comment="المجموع الفرعي"
+    )
+
+    tax_rate: Mapped[Decimal] = mapped_column(
+        Numeric(5, 2),
+        nullable=False,
+        default=Decimal("0"),
+        server_default="0",
+        comment="معدل الضريبة"
+    )
+
+    tax_amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        default=Decimal("0"),
+        server_default="0",
+        comment="مبلغ الضريبة"
+    )
+
+    discount_amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        default=Decimal("0"),
+        server_default="0",
+        comment="مبلغ الخصم"
+    )
+
+    total: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        comment="المجموع الكلي"
+    )
+
+    amount_paid: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        default=Decimal("0"),
+        server_default="0",
+        comment="المبلغ المدفوع"
+    )
+
+    amount_due: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        comment="المبلغ المستحق"
+    )
+
+    # Line Items (stored as JSONB for flexibility)
+    line_items: Mapped[list] = mapped_column(
+        JSONB,
+        nullable=False,
+        default=[],
+        server_default="[]",
+        comment="بنود الفاتورة"
+    )
+
+    # Notes
+    notes: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        comment="ملاحظات (EN)"
+    )
+
+    notes_ar: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        comment="ملاحظات (AR)"
+    )
+
+    # External IDs
+    stripe_invoice_id: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        index=True,
+        comment="معرف الفاتورة في Stripe"
+    )
+
+    # Metadata
+    metadata: Mapped[Optional[dict]] = mapped_column(
+        JSONB,
+        nullable=True,
+        default={},
+        server_default="{}",
+        comment="بيانات إضافية"
+    )
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ الإنشاء"
+    )
+
+    # Relationships
+    subscription: Mapped["Subscription"] = relationship(
+        "Subscription",
+        back_populates="invoices",
+    )
+
+    payments: Mapped[list["Payment"]] = relationship(
+        "Payment",
+        back_populates="invoice",
+        cascade="all, delete-orphan",
+    )
+
+    # Constraints
+    __table_args__ = (
+        CheckConstraint("subtotal >= 0", name="check_subtotal_positive"),
+        CheckConstraint("total >= 0", name="check_total_positive"),
+        CheckConstraint("amount_paid >= 0", name="check_amount_paid_positive"),
+        CheckConstraint("amount_due >= 0", name="check_amount_due_positive"),
+        Index("idx_invoice_tenant_status", "tenant_id", "status"),
+        Index("idx_invoice_due_date_status", "due_date", "status"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Invoice(id={self.id}, number={self.invoice_number}, total={self.total}, status={self.status})>"
+
+
+class Payment(Base):
+    """
+    Payment Model - نموذج الدفعة
+
+    Represents a payment made towards an invoice
+    يمثل دفعة تم إجراؤها للفاتورة
+    """
+    __tablename__ = "payments"
+
+    # Primary Key
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
+    )
+
+    # Foreign Keys
+    invoice_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("invoices.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="معرف الفاتورة"
+    )
+
+    tenant_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        index=True,
+        comment="المستأجر/العميل"
+    )
+
+    # Amount
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(12, 2),
+        nullable=False,
+        comment="المبلغ"
+    )
+
+    currency: Mapped[Currency] = mapped_column(
+        SQLEnum(Currency, name="currency_enum"),
+        nullable=False,
+        default=Currency.USD,
+        comment="العملة"
+    )
+
+    # Status & Method
+    status: Mapped[PaymentStatus] = mapped_column(
+        SQLEnum(PaymentStatus, name="payment_status_enum"),
+        nullable=False,
+        default=PaymentStatus.PENDING,
+        index=True,
+        comment="حالة الدفعة"
+    )
+
+    method: Mapped[PaymentMethod] = mapped_column(
+        SQLEnum(PaymentMethod, name="payment_method_enum"),
+        nullable=False,
+        comment="طريقة الدفع"
+    )
+
+    # Processing Details
+    paid_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="تاريخ الدفع الفعلي"
+    )
+
+    processed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="تاريخ المعالجة"
+    )
+
+    failure_reason: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        comment="سبب الفشل"
+    )
+
+    # External References
+    stripe_payment_id: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        index=True,
+        comment="معرف الدفعة في Stripe"
+    )
+
+    tharwatt_transaction_id: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        index=True,
+        comment="معرف المعاملة في ثروات"
+    )
+
+    receipt_url: Mapped[Optional[str]] = mapped_column(
+        String(500),
+        nullable=True,
+        comment="رابط الإيصال"
+    )
+
+    # Metadata
+    metadata: Mapped[Optional[dict]] = mapped_column(
+        JSONB,
+        nullable=True,
+        default={},
+        server_default="{}",
+        comment="بيانات إضافية"
+    )
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ الإنشاء"
+    )
+
+    # Relationships
+    invoice: Mapped["Invoice"] = relationship(
+        "Invoice",
+        back_populates="payments",
+    )
+
+    # Constraints
+    __table_args__ = (
+        CheckConstraint("amount > 0", name="check_payment_amount_positive"),
+        Index("idx_payment_tenant_status", "tenant_id", "status"),
+        Index("idx_payment_created", "created_at"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Payment(id={self.id}, amount={self.amount}, method={self.method}, status={self.status})>"
+
+
+class UsageRecord(Base):
+    """
+    Usage Record Model - نموذج سجل الاستخدام
+
+    Tracks usage metrics for usage-based billing
+    يتتبع مقاييس الاستخدام للفوترة المستندة إلى الاستخدام
+    """
+    __tablename__ = "usage_records"
+
+    # Primary Key
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
+    )
+
+    # Foreign Keys
+    subscription_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("subscriptions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+        comment="معرف الاشتراك"
+    )
+
+    tenant_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        index=True,
+        comment="المستأجر/العميل"
+    )
+
+    # Metric Details
+    metric_type: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        index=True,
+        comment="نوع المقياس (e.g., satellite_analyses, api_calls)"
+    )
+
+    quantity: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+        comment="الكمية"
+    )
+
+    # Timestamps
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        index=True,
+        comment="تاريخ التسجيل"
+    )
+
+    # Metadata
+    metadata: Mapped[Optional[dict]] = mapped_column(
+        JSONB,
+        nullable=True,
+        default={},
+        server_default="{}",
+        comment="بيانات إضافية (e.g., resource_id, user_id)"
+    )
+
+    # Relationships
+    subscription: Mapped["Subscription"] = relationship(
+        "Subscription",
+        back_populates="usage_records",
+    )
+
+    # Constraints
+    __table_args__ = (
+        CheckConstraint("quantity > 0", name="check_quantity_positive"),
+        Index("idx_usage_subscription_metric", "subscription_id", "metric_type"),
+        Index("idx_usage_tenant_metric_date", "tenant_id", "metric_type", "recorded_at"),
+        Index("idx_usage_recorded_at", "recorded_at"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<UsageRecord(id={self.id}, metric={self.metric_type}, quantity={self.quantity}, recorded_at={self.recorded_at})>"

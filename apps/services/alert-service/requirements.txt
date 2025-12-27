@@ -12,7 +12,9 @@ pydantic==2.10.3
 httpx==0.28.1
 
 # Database & ORM
-tortoise-orm==0.21.7
+sqlalchemy==2.0.23
+alembic==1.13.1
+psycopg2-binary==2.9.9
 asyncpg==0.30.0
 
 # NATS Messaging

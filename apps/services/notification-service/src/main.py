@@ -21,9 +21,18 @@ from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict, Any
 from enum import Enum
+from uuid import UUID, uuid4
 import asyncio
-import uuid
 import logging
+import os
+
+# Database imports
+from .database import init_db, close_db, check_db_health, get_db_stats
+from .repository import (
+    NotificationRepository,
+    NotificationTemplateRepository,
+    NotificationPreferenceRepository,
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -269,7 +278,7 @@ FARMER_NOTIFICATIONS: Dict[str, List[str]] = {}  # farmer_id -> [notification_id
 # =============================================================================
 
 
-def create_notification(
+async def create_notification(
     type: NotificationType,
     priority: NotificationPriority,
     title: str,
@@ -282,67 +291,82 @@ def create_notification(
     target_crops: List[CropType] = [],
     channels: List[NotificationChannel] = [NotificationChannel.IN_APP],
     expires_in_hours: Optional[int] = 24,
-) -> Notification:
-    """إنشاء إشعار جديد"""
-    notification_id = str(uuid.uuid4())
+    tenant_id: Optional[str] = None,
+):
+    """إنشاء إشعار جديد - Database version"""
 
-    notification = Notification(
-        id=notification_id,
-        type=type,
-        type_ar=NOTIFICATION_TYPE_AR[type],
-        priority=priority,
-        priority_ar=PRIORITY_AR[priority],
-        title=title,
-        title_ar=title_ar,
-        body=body,
-        body_ar=body_ar,
-        data=data,
+    # Determine target farmers based on criteria
+    recipients = determine_recipients_by_criteria(
         target_farmers=target_farmers,
         target_governorates=target_governorates,
         target_crops=target_crops,
-        channels=channels,
-        created_at=datetime.utcnow(),
-        expires_at=datetime.utcnow() + timedelta(hours=expires_in_hours)
-        if expires_in_hours
-        else None,
     )
 
-    NOTIFICATIONS[notification_id] = notification
-
-    # Determine target farmers
-    recipients = determine_recipients(notification)
-
+    # Create notification for each recipient
+    notifications = []
     for farmer_id in recipients:
-        if farmer_id not in FARMER_NOTIFICATIONS:
-            FARMER_NOTIFICATIONS[farmer_id] = []
-        FARMER_NOTIFICATIONS[farmer_id].append(notification_id)
+        # Get primary channel from list
+        channel = channels[0].value if channels else "in_app"
+
+        notification = await NotificationRepository.create(
+            user_id=farmer_id,
+            title=title,
+            title_ar=title_ar,
+            body=body,
+            body_ar=body_ar,
+            type=type.value,
+            channel=channel,
+            priority=priority.value,
+            tenant_id=tenant_id,
+            data={
+                **data,
+                "type_ar": NOTIFICATION_TYPE_AR[type],
+                "priority_ar": PRIORITY_AR[priority],
+                "channels": [ch.value for ch in channels],
+            },
+            target_governorates=[g.value for g in target_governorates] if target_governorates else None,
+            target_crops=[c.value for c in target_crops] if target_crops else None,
+            expires_in_hours=expires_in_hours,
+        )
+        notifications.append(notification)
 
     logger.info(
-        f"📬 Notification created: {notification_id} for {len(recipients)} farmers"
+        f"📬 Created {len(notifications)} notification(s) for {len(recipients)} farmer(s)"
     )
 
-    return notification
+    # Return first notification for API response compatibility
+    return notifications[0] if notifications else None
 
 
-def determine_recipients(notification: Notification) -> List[str]:
+def determine_recipients_by_criteria(
+    target_farmers: List[str] = [],
+    target_governorates: List[Governorate] = [],
+    target_crops: List[CropType] = [],
+) -> List[str]:
     """تحديد المستلمين بناءً على معايير الإشعار"""
-    if notification.target_farmers:
-        return notification.target_farmers
+    # If specific farmers targeted, return them
+    if target_farmers:
+        return target_farmers
 
+    # Otherwise filter from registered farmers
     recipients = set()
 
     for farmer_id, profile in FARMER_PROFILES.items():
         # Filter by governorate
-        if notification.target_governorates:
-            if profile.governorate not in notification.target_governorates:
+        if target_governorates:
+            if profile.governorate not in target_governorates:
                 continue
 
         # Filter by crops
-        if notification.target_crops:
-            if not any(crop in profile.crops for crop in notification.target_crops):
+        if target_crops:
+            if not any(crop in profile.crops for crop in target_crops):
                 continue
 
         recipients.add(farmer_id)
+
+    # If no farmers match, return all registered farmers (broadcast)
+    if not recipients and not target_governorates and not target_crops:
+        return list(FARMER_PROFILES.keys())
 
     return list(recipients)
 
@@ -462,26 +486,53 @@ def create_notification_from_nats(notification_data: Dict[str, Any]):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifespan - manage NATS connection"""
+    """Application lifespan - manage database and NATS connections"""
     global _nats_subscriber
 
     # Startup
+    logger.info("🚀 Starting Notification Service...")
+
+    # Initialize database
+    try:
+        # In production, set create_db=False and use migrations
+        create_db = os.getenv("CREATE_DB_SCHEMA", "false").lower() == "true"
+        await init_db(create_db=create_db)
+        logger.info("✅ Database initialized")
+    except Exception as e:
+        logger.error(f"❌ Failed to initialize database: {e}")
+        raise
+
+    # Start NATS subscriber (optional)
     if _nats_available:
         try:
             _nats_subscriber = await start_subscription(create_notification_from_nats)
-            logger.info("NATS subscriber started")
+            logger.info("✅ NATS subscriber started")
         except Exception as e:
-            logger.warning(f"Failed to start NATS subscriber: {e}")
+            logger.warning(f"⚠️  Failed to start NATS subscriber: {e}")
+
+    logger.info("✅ Notification Service ready")
 
     yield
 
     # Shutdown
+    logger.info("🛑 Shutting down Notification Service...")
+
+    # Stop NATS subscriber
     if _nats_available and _nats_subscriber:
         try:
             await stop_subscription()
-            logger.info("NATS subscriber stopped")
+            logger.info("✅ NATS subscriber stopped")
         except Exception as e:
-            logger.error(f"Error stopping NATS subscriber: {e}")
+            logger.error(f"❌ Error stopping NATS subscriber: {e}")
+
+    # Close database connections
+    try:
+        await close_db()
+        logger.info("✅ Database connections closed")
+    except Exception as e:
+        logger.error(f"❌ Error closing database: {e}")
+
+    logger.info("✅ Notification Service stopped")
 
 
 # =============================================================================
@@ -502,21 +553,26 @@ app = FastAPI(
 
 
 @app.get("/healthz")
-def health_check():
+async def health_check():
+    """Health check endpoint with database status"""
+    db_health = await check_db_health()
+    db_stats = await get_db_stats() if db_health.get("connected") else {}
+
     return {
-        "status": "ok",
+        "status": "ok" if db_health.get("connected") else "degraded",
         "service": "notification-service",
         "version": "15.4.0",
         "nats_connected": _nats_available and _nats_subscriber is not None,
-        "active_notifications": len(NOTIFICATIONS),
-        "registered_farmers": len(FARMER_PROFILES),
+        "database": db_health,
+        "stats": db_stats,
+        "registered_farmers": len(FARMER_PROFILES),  # In-memory cache
     }
 
 
-@app.post("/v1/notifications", response_model=Notification)
-def create_custom_notification(request: CreateNotificationRequest):
+@app.post("/v1/notifications")
+async def create_custom_notification(request: CreateNotificationRequest):
     """إنشاء إشعار مخصص"""
-    return create_notification(
+    notification = await create_notification(
         type=request.type,
         priority=request.priority,
         title=request.title,
@@ -531,9 +587,29 @@ def create_custom_notification(request: CreateNotificationRequest):
         expires_in_hours=request.expires_in_hours,
     )
 
+    if not notification:
+        raise HTTPException(status_code=400, detail="Failed to create notification")
 
-@app.post("/v1/alerts/weather", response_model=Notification)
-def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
+    # Return in expected format
+    return {
+        "id": str(notification.id),
+        "type": notification.type,
+        "type_ar": notification.data.get("type_ar", ""),
+        "priority": notification.priority,
+        "priority_ar": notification.data.get("priority_ar", ""),
+        "title": notification.title,
+        "title_ar": notification.title_ar,
+        "body": notification.body,
+        "body_ar": notification.body_ar,
+        "data": notification.data,
+        "created_at": notification.created_at,
+        "expires_at": notification.expires_at,
+        "status": notification.status,
+    }
+
+
+@app.post("/v1/alerts/weather")
+async def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
@@ -541,7 +617,7 @@ def create_weather_alert(request: WeatherAlertRequest, background_tasks: Backgro
         request.alert_type, request.governorates[0]
     )
 
-    notification = create_notification(
+    notification = await create_notification(
         type=NotificationType.WEATHER_ALERT,
         priority=request.severity,
         title=title,
@@ -561,16 +637,25 @@ def create_weather_alert(request: WeatherAlertRequest, background_tasks: Backgro
     logger.info(
         f"🌤️ Weather alert created for {len(request.governorates)} governorates"
     )
-    return notification
+
+    return {
+        "id": str(notification.id),
+        "type": notification.type,
+        "title": notification.title,
+        "title_ar": notification.title_ar,
+        "body": notification.body,
+        "body_ar": notification.body_ar,
+        "created_at": notification.created_at,
+    }
 
 
-@app.post("/v1/alerts/pest", response_model=Notification)
-def create_pest_alert(request: PestAlertRequest):
+@app.post("/v1/alerts/pest")
+async def create_pest_alert(request: PestAlertRequest):
     """إنشاء تنبيه انتشار آفات"""
     gov_ar = GOVERNORATE_AR[request.governorate]
     crops_ar = ", ".join([CROP_AR[c] for c in request.affected_crops])
 
-    notification = create_notification(
+    notification = await create_notification(
         type=NotificationType.PEST_OUTBREAK,
         priority=request.severity,
         title=f"Pest Outbreak: {request.pest_name}",
@@ -591,15 +676,24 @@ def create_pest_alert(request: PestAlertRequest):
     )
 
     logger.info(f"🐛 Pest alert created for {request.governorate.value}")
-    return notification
+
+    return {
+        "id": str(notification.id),
+        "type": notification.type,
+        "title": notification.title,
+        "title_ar": notification.title_ar,
+        "body": notification.body,
+        "body_ar": notification.body_ar,
+        "created_at": notification.created_at,
+    }
 
 
-@app.post("/v1/reminders/irrigation", response_model=Notification)
-def create_irrigation_reminder(request: IrrigationReminderRequest):
+@app.post("/v1/reminders/irrigation")
+async def create_irrigation_reminder(request: IrrigationReminderRequest):
     """إنشاء تذكير ري مخصص"""
     crop_ar = CROP_AR.get(request.crop, request.crop.value)
 
-    notification = create_notification(
+    notification = await create_notification(
         type=NotificationType.IRRIGATION_REMINDER,
         priority=request.urgency,
         title=f"Irrigation Reminder: {request.field_name}",
@@ -617,95 +711,137 @@ def create_irrigation_reminder(request: IrrigationReminderRequest):
         expires_in_hours=12,
     )
 
-    return notification
+    return {
+        "id": str(notification.id),
+        "type": notification.type,
+        "title": notification.title,
+        "title_ar": notification.title_ar,
+        "body": notification.body,
+        "body_ar": notification.body_ar,
+        "created_at": notification.created_at,
+    }
 
 
 @app.get("/v1/notifications/farmer/{farmer_id}")
-def get_farmer_notifications(
+async def get_farmer_notifications(
     farmer_id: str,
     unread_only: bool = Query(default=False),
     type: Optional[NotificationType] = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
 ):
     """الحصول على إشعارات مزارع معين"""
-    notification_ids = FARMER_NOTIFICATIONS.get(farmer_id, [])
+    # Get notifications from database
+    notifications = await NotificationRepository.get_by_user(
+        user_id=farmer_id,
+        unread_only=unread_only,
+        type=type.value if type else None,
+        limit=limit,
+        offset=offset,
+        include_expired=False,
+    )
 
-    notifications = []
-    for nid in notification_ids:
-        if nid in NOTIFICATIONS:
-            n = NOTIFICATIONS[nid]
+    # Get unread count
+    unread_count = await NotificationRepository.get_unread_count(user_id=farmer_id)
 
-            # Filter expired
-            if n.expires_at and n.expires_at < datetime.utcnow():
-                continue
-
-            # Filter by read status
-            if unread_only and n.is_read:
-                continue
-
-            # Filter by type
-            if type and n.type != type:
-                continue
-
-            notifications.append(n)
-
-    # Sort by created_at descending
-    notifications.sort(key=lambda x: x.created_at, reverse=True)
+    # Format response
+    notification_list = [
+        {
+            "id": str(n.id),
+            "type": n.type,
+            "type_ar": n.data.get("type_ar", ""),
+            "priority": n.priority,
+            "priority_ar": n.data.get("priority_ar", ""),
+            "title": n.title,
+            "title_ar": n.title_ar,
+            "body": n.body,
+            "body_ar": n.body_ar,
+            "data": n.data,
+            "is_read": n.is_read,
+            "created_at": n.created_at,
+            "expires_at": n.expires_at,
+            "action_url": n.action_url,
+        }
+        for n in notifications
+    ]
 
     return {
         "farmer_id": farmer_id,
-        "total": len(notifications),
-        "unread_count": sum(1 for n in notifications if not n.is_read),
-        "notifications": notifications[:limit],
+        "total": len(notification_list),
+        "unread_count": unread_count,
+        "notifications": notification_list,
     }
 
 
 @app.patch("/v1/notifications/{notification_id}/read")
-def mark_notification_read(notification_id: str, farmer_id: str):
+async def mark_notification_read(notification_id: str, farmer_id: str = Query(...)):
     """تحديد إشعار كمقروء"""
-    if notification_id not in NOTIFICATIONS:
-        raise HTTPException(status_code=404, detail="Notification not found")
+    try:
+        # Convert string to UUID
+        notif_uuid = UUID(notification_id)
 
-    # In real implementation, track read status per farmer
-    # For now, we just return success
-    return {"success": True, "notification_id": notification_id, "is_read": True}
+        # Check if notification exists and belongs to farmer
+        notification = await NotificationRepository.get_by_id(notif_uuid)
+        if not notification:
+            raise HTTPException(status_code=404, detail="Notification not found")
+
+        if notification.user_id != farmer_id:
+            raise HTTPException(status_code=403, detail="Not authorized to mark this notification")
+
+        # Mark as read
+        success = await NotificationRepository.mark_as_read(notif_uuid)
+
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to mark notification as read")
+
+        return {
+            "success": True,
+            "notification_id": notification_id,
+            "is_read": True,
+            "read_at": datetime.utcnow().isoformat(),
+        }
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid notification ID format")
 
 
 @app.get("/v1/notifications/broadcast")
-def get_broadcast_notifications(
+async def get_broadcast_notifications(
     governorate: Optional[Governorate] = None,
     crop: Optional[CropType] = None,
     limit: int = Query(default=20, ge=1, le=50),
 ):
     """الحصول على الإشعارات العامة (البث)"""
-    notifications = []
+    # Get broadcast notifications from database
+    notifications = await NotificationRepository.get_broadcast_notifications(
+        governorate=governorate.value if governorate else None,
+        crop=crop.value if crop else None,
+        limit=limit,
+    )
 
-    for n in NOTIFICATIONS.values():
-        # Skip expired
-        if n.expires_at and n.expires_at < datetime.utcnow():
-            continue
-
-        # Skip targeted notifications
-        if n.target_farmers:
-            continue
-
-        # Filter by governorate
-        if governorate and n.target_governorates:
-            if governorate not in n.target_governorates:
-                continue
-
-        # Filter by crop
-        if crop and n.target_crops:
-            if crop not in n.target_crops:
-                continue
-
-        notifications.append(n)
-
-    notifications.sort(key=lambda x: x.created_at, reverse=True)
+    # Format response
+    notification_list = [
+        {
+            "id": str(n.id),
+            "type": n.type,
+            "type_ar": n.data.get("type_ar", ""),
+            "priority": n.priority,
+            "priority_ar": n.data.get("priority_ar", ""),
+            "title": n.title,
+            "title_ar": n.title_ar,
+            "body": n.body,
+            "body_ar": n.body_ar,
+            "data": n.data,
+            "created_at": n.created_at,
+            "expires_at": n.expires_at,
+            "target_governorates": n.target_governorates,
+            "target_crops": n.target_crops,
+        }
+        for n in notifications
+    ]
 
     return {
-        "total": len(notifications),
-        "notifications": notifications[:limit],
+        "total": len(notification_list),
+        "notifications": notification_list,
     }
 
 
@@ -726,43 +862,78 @@ def register_farmer(profile: FarmerProfile):
 
 
 @app.put("/v1/farmers/{farmer_id}/preferences")
-def update_preferences(farmer_id: str, preferences: NotificationPreferences):
+async def update_preferences(farmer_id: str, preferences: NotificationPreferences):
     """تحديث تفضيلات الإشعارات"""
-    if farmer_id not in FARMER_PROFILES:
-        raise HTTPException(status_code=404, detail="Farmer not found")
+    # Update preferences for each channel
+    channels = ["push", "sms", "in_app"]
+    updated_prefs = []
 
-    # Store preferences (in real implementation, save to database)
+    for channel in channels:
+        # Determine if channel is enabled based on preferences
+        enabled = True
+        if channel == "push":
+            enabled = preferences.weather_alerts or preferences.pest_alerts
+        elif channel == "sms":
+            enabled = preferences.irrigation_reminders
+
+        pref = await NotificationPreferenceRepository.create_or_update(
+            user_id=farmer_id,
+            channel=channel,
+            enabled=enabled,
+            quiet_hours_start=datetime.strptime(preferences.quiet_hours_start, "%H:%M").time() if preferences.quiet_hours_start else None,
+            quiet_hours_end=datetime.strptime(preferences.quiet_hours_end, "%H:%M").time() if preferences.quiet_hours_end else None,
+            min_priority=preferences.min_priority.value,
+            notification_types={
+                "weather_alerts": preferences.weather_alerts,
+                "pest_alerts": preferences.pest_alerts,
+                "irrigation_reminders": preferences.irrigation_reminders,
+                "crop_health_alerts": preferences.crop_health_alerts,
+                "market_prices": preferences.market_prices,
+            },
+        )
+        updated_prefs.append(pref)
+
     return {
         "success": True,
         "farmer_id": farmer_id,
         "preferences": preferences.dict(),
         "message": "تم تحديث التفضيلات",
+        "message_en": "Preferences updated successfully",
     }
 
 
 @app.get("/v1/stats")
-def get_notification_stats():
+async def get_notification_stats():
     """إحصائيات الإشعارات"""
-    type_counts = {}
-    for n in NOTIFICATIONS.values():
-        type_counts[n.type.value] = type_counts.get(n.type.value, 0) + 1
+    db_stats = await get_db_stats()
+
+    # Get additional stats from database
+    from .models import Notification as NotificationModel
+
+    total_by_type = {}
+    for ntype in NotificationType:
+        count = await NotificationModel.filter(type=ntype.value).count()
+        total_by_type[ntype.value] = count
+
+    active_weather = await NotificationModel.filter(
+        type=NotificationType.WEATHER_ALERT.value,
+        expires_at__gt=datetime.utcnow(),
+    ).count()
+
+    active_pest = await NotificationModel.filter(
+        type=NotificationType.PEST_OUTBREAK.value,
+        expires_at__gt=datetime.utcnow(),
+    ).count()
 
     return {
-        "total_notifications": len(NOTIFICATIONS),
-        "registered_farmers": len(FARMER_PROFILES),
-        "by_type": type_counts,
-        "active_weather_alerts": sum(
-            1
-            for n in NOTIFICATIONS.values()
-            if n.type == NotificationType.WEATHER_ALERT
-            and (not n.expires_at or n.expires_at > datetime.utcnow())
-        ),
-        "active_pest_alerts": sum(
-            1
-            for n in NOTIFICATIONS.values()
-            if n.type == NotificationType.PEST_OUTBREAK
-            and (not n.expires_at or n.expires_at > datetime.utcnow())
-        ),
+        "total_notifications": db_stats.get("total_notifications", 0),
+        "pending_notifications": db_stats.get("pending_notifications", 0),
+        "registered_farmers": len(FARMER_PROFILES),  # In-memory cache
+        "total_templates": db_stats.get("total_templates", 0),
+        "total_preferences": db_stats.get("total_preferences", 0),
+        "by_type": total_by_type,
+        "active_weather_alerts": active_weather,
+        "active_pest_alerts": active_pest,
     }
 
 

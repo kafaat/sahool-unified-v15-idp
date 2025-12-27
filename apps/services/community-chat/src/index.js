@@ -183,6 +183,64 @@ io.on('connection', (socket) => {
   socket.on('join_room', (data) => {
     const { roomId, userName, userType } = data;
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECURITY: Room Access Validation
+    // التحقق من صلاحية الوصول للغرفة
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // Validate room ID format (prevent injection)
+    if (!roomId || typeof roomId !== 'string' || roomId.length > 100) {
+      socket.emit('error', {
+        code: 'INVALID_ROOM_ID',
+        message: 'معرف الغرفة غير صالح'
+      });
+      return;
+    }
+
+    // Validate userName
+    if (!userName || typeof userName !== 'string' || userName.length > 100) {
+      socket.emit('error', {
+        code: 'INVALID_USERNAME',
+        message: 'اسم المستخدم غير صالح'
+      });
+      return;
+    }
+
+    // Validate userType
+    const validUserTypes = ['farmer', 'expert', 'admin', 'support'];
+    if (!validUserTypes.includes(userType)) {
+      socket.emit('error', {
+        code: 'INVALID_USER_TYPE',
+        message: 'نوع المستخدم غير صالح'
+      });
+      return;
+    }
+
+    // Check if user is authenticated (from middleware)
+    const authenticatedUser = socket.user;
+
+    // For support rooms, verify access rights
+    if (roomId.startsWith('support_')) {
+      const room = rooms.get(roomId);
+      if (room) {
+        // Only the original farmer or assigned expert can join support rooms
+        const isOriginalFarmer = room.farmerId === authenticatedUser?.sub;
+        const isAssignedExpert = room.expertId === authenticatedUser?.sub;
+        const isAdmin = authenticatedUser?.role === 'admin' || authenticatedUser?.role === 'super_admin';
+
+        if (!isOriginalFarmer && !isAssignedExpert && !isAdmin && userType !== 'expert') {
+          socket.emit('error', {
+            code: 'ACCESS_DENIED',
+            message: 'لا يمكنك الوصول لهذه الغرفة'
+          });
+          console.warn(`⚠️ Access denied to room ${roomId} for user ${userName}`);
+          return;
+        }
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+
     socket.join(roomId);
     console.log(`🚪 ${userName} joined room: ${roomId}`);
 
@@ -192,14 +250,20 @@ io.on('connection', (socket) => {
         id: roomId,
         createdAt: getFormattedTime(),
         participants: [],
-        status: 'active'
+        status: 'active',
+        createdBy: authenticatedUser?.sub || userName
       });
     }
 
     // Add participant to room
     const room = rooms.get(roomId);
     if (!room.participants.find(p => p.name === userName)) {
-      room.participants.push({ name: userName, type: userType, joinedAt: getFormattedTime() });
+      room.participants.push({
+        name: userName,
+        type: userType,
+        joinedAt: getFormattedTime(),
+        odolUserId: authenticatedUser?.sub
+      });
     }
 
     // Send message history to joining user

@@ -371,12 +371,59 @@ class BroadcastRequest(BaseModel):
 
 
 @app.post("/broadcast")
-async def broadcast_message(req: BroadcastRequest):
-    """Broadcast a message to all connections for a tenant"""
+async def broadcast_message(
+    req: BroadcastRequest,
+    authorization: str = Query(None, alias="Authorization"),
+):
+    """
+    Broadcast a message to all connections for a tenant.
+    Requires valid JWT token with matching tenant_id.
+
+    بث رسالة لجميع الاتصالات لمستأجر معين.
+    يتطلب رمز JWT صالح مع tenant_id مطابق.
+    """
+    # Extract token from Authorization header or query param
+    token = None
+    if authorization:
+        if authorization.startswith("Bearer "):
+            token = authorization[7:]
+        else:
+            token = authorization
+
+    if not token:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=401,
+            detail="Authorization token required for broadcast"
+        )
+
+    try:
+        # Validate token and check tenant ownership
+        payload = await validate_jwt_token(token)
+        token_tenant_id = payload.get("tenant_id")
+
+        # Ensure user can only broadcast to their own tenant
+        if token_tenant_id != req.tenant_id:
+            # Allow super_admin to broadcast to any tenant
+            roles = payload.get("roles", [])
+            if "super_admin" not in roles:
+                from fastapi import HTTPException
+                raise HTTPException(
+                    status_code=403,
+                    detail="Cannot broadcast to a different tenant"
+                )
+
+        logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")
+
+    except ValueError as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail=str(e))
+
     ws_message = {
         "type": "broadcast",
         "message": req.message,
         "timestamp": datetime.utcnow().isoformat(),
+        "sender": payload.get("sub"),
     }
 
     if req.topic:

@@ -14,10 +14,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@sahool/api-client": "*",
-    "@sahool/shared-hooks": "*",
-    "@sahool/shared-ui": "*",
-    "@sahool/shared-utils": "*",
+    "@sahool/api-client": "^17.0.0",
+    "@sahool/shared-hooks": "^17.0.0",
+    "@sahool/shared-ui": "^17.0.0",
+    "@sahool/shared-utils": "^17.0.0",
     "@tanstack/react-query": "5.62.8",
     "axios": "1.7.9",
     "clsx": "2.1.1",

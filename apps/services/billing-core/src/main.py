@@ -43,22 +43,43 @@ try:
     from auth.models import User
     AUTH_AVAILABLE = True
 except ImportError:
-    # Fallback for when auth module is not available
+    # SECURITY: Auth module not available - restrict access in production
     AUTH_AVAILABLE = False
     User = None
+    ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()
+
+    if ENVIRONMENT not in ("development", "dev", "test", "testing"):
+        logger.critical("AUTH MODULE NOT AVAILABLE IN PRODUCTION - SECURITY RISK!")
 
     async def get_current_active_user():
-        """Fallback - no auth check"""
+        """Fallback - blocks access in production, allows in dev only"""
+        if ENVIRONMENT not in ("development", "dev", "test", "testing"):
+            raise HTTPException(
+                status_code=503,
+                detail="Authentication service unavailable"
+            )
+        logger.warning("Auth bypass active - DEVELOPMENT MODE ONLY")
         return None
 
     def require_roles(roles):
-        """Fallback - no role check"""
-        async def no_check():
+        """Fallback - blocks access in production, allows in dev only"""
+        async def check_roles():
+            if ENVIRONMENT not in ("development", "dev", "test", "testing"):
+                raise HTTPException(
+                    status_code=503,
+                    detail="Authorization service unavailable"
+                )
+            logger.warning(f"Role check bypassed for {roles} - DEVELOPMENT MODE ONLY")
             return None
-        return no_check
+        return check_roles
 
     async def api_key_auth():
-        """Fallback - no API key check"""
+        """Fallback - blocks access in production, allows in dev only"""
+        if ENVIRONMENT not in ("development", "dev", "test", "testing"):
+            raise HTTPException(
+                status_code=503,
+                detail="API key auth service unavailable"
+            )
         return None
 
 # Configure logging

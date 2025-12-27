@@ -1,0 +1,199 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform Backup Infrastructure
+# Docker Compose for backup services with MinIO and automated cron
+# البنية التحتية للنسخ الاحتياطي لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Usage: docker compose -f docker-compose.backup.yml up -d
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+services:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # MinIO - S3-Compatible Object Storage for Backups
+  # MinIO - تخزين كائنات متوافق مع S3 للنسخ الاحتياطي
+  # ─────────────────────────────────────────────────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: sahool-backup-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-sahool_backup}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sahool_backup_password_change_me}
+      MINIO_DOMAIN: ${MINIO_DOMAIN:-minio}
+      MINIO_SERVER_URL: ${MINIO_SERVER_URL:-http://minio:9000}
+    ports:
+      - "127.0.0.1:9000:9000"   # MinIO API
+      - "127.0.0.1:9001:9001"   # MinIO Console
+    volumes:
+      - minio_data:/data
+      - ./minio-config:/root/.minio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    networks:
+      - backup-network
+    labels:
+      com.sahool.service: "backup-storage"
+      com.sahool.description: "S3-compatible object storage for backups"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # MinIO Client (MC) - CLI for MinIO management
+  # عميل MinIO - واجهة سطر الأوامر لإدارة MinIO
+  # ─────────────────────────────────────────────────────────────────────────────
+  minio-client:
+    image: minio/mc:latest
+    container_name: sahool-backup-mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set sahool http://minio:9000 ${MINIO_ROOT_USER:-sahool_backup} ${MINIO_ROOT_PASSWORD:-sahool_backup_password_change_me};
+      /usr/bin/mc mb --ignore-existing sahool/sahool-backups;
+      /usr/bin/mc mb --ignore-existing sahool/sahool-backups-archive;
+      /usr/bin/mc policy set download sahool/sahool-backups;
+      echo 'MinIO buckets configured successfully - تم تكوين حاويات MinIO بنجاح';
+      tail -f /dev/null
+      "
+    networks:
+      - backup-network
+    labels:
+      com.sahool.service: "backup-client"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Backup Scheduler - Automated backup with cron
+  # مجدول النسخ الاحتياطي - نسخ احتياطي آلي مع cron
+  # ─────────────────────────────────────────────────────────────────────────────
+  backup-scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    container_name: sahool-backup-scheduler
+    environment:
+      # Database credentials - بيانات اعتماد قاعدة البيانات
+      - POSTGRES_USER=${POSTGRES_USER:-sahool}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-sahool}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+
+      # Backup configuration - تكوين النسخ الاحتياطي
+      - BACKUP_DIR=/backups
+      - BACKUP_RETENTION_DAYS=30
+
+      # S3/MinIO configuration - تكوين S3/MinIO
+      - S3_BACKUP_ENABLED=true
+      - S3_ENDPOINT=http://minio:9000
+      - S3_BUCKET=sahool-backups
+      - S3_ACCESS_KEY=${MINIO_ROOT_USER:-sahool_backup}
+      - S3_SECRET_KEY=${MINIO_ROOT_PASSWORD:-sahool_backup_password_change_me}
+      - AWS_REGION=us-east-1
+
+      # Notification configuration - تكوين الإشعارات
+      - EMAIL_NOTIFICATIONS_ENABLED=${EMAIL_NOTIFICATIONS_ENABLED:-false}
+      - BACKUP_EMAIL_TO=${BACKUP_EMAIL_TO:-admin@sahool.com}
+      - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_USER=${SMTP_USER:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
+      - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-backup@sahool.com}
+
+      - SLACK_NOTIFICATIONS_ENABLED=${SLACK_NOTIFICATIONS_ENABLED:-false}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL:-}
+
+      # Docker socket access - الوصول إلى Docker socket
+      - POSTGRES_CONTAINER=sahool-postgres
+      - REDIS_CONTAINER=sahool-redis
+      - NATS_CONTAINER=sahool-nats
+
+      # Timezone - المنطقة الزمنية
+      - TZ=${TZ:-Asia/Riyadh}
+    volumes:
+      # Backup storage - تخزين النسخ الاحتياطي
+      - backup_data:/backups
+      - backup_logs:/var/log/backup
+
+      # Docker socket for container access - Docker socket للوصول إلى الحاويات
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+      # Backup scripts - سكريبتات النسخ الاحتياطي
+      - ./backup.sh:/scripts/backup.sh:ro
+      - ./restore.sh:/scripts/restore.sh:ro
+      - ./backup-cron.sh:/scripts/backup-cron.sh:ro
+      - ./verify-backup.sh:/scripts/verify-backup.sh:ro
+
+      # Cron configuration - تكوين cron
+      - ./crontab:/etc/cron.d/backup-cron:ro
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - backup-network
+      - sahool-network  # Connect to main network for database access
+    labels:
+      com.sahool.service: "backup-scheduler"
+      com.sahool.description: "Automated backup scheduler with cron"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Backup Monitor - Web UI for backup monitoring (optional)
+  # مراقب النسخ الاحتياطي - واجهة ويب للمراقبة (اختياري)
+  # ─────────────────────────────────────────────────────────────────────────────
+  backup-monitor:
+    image: filebrowser/filebrowser:latest
+    container_name: sahool-backup-monitor
+    environment:
+      - FB_DATABASE=/database/filebrowser.db
+      - FB_ROOT=/srv
+      - FB_LOG=stdout
+      - FB_NOAUTH=false
+    ports:
+      - "127.0.0.1:8082:80"
+    volumes:
+      - backup_data:/srv/backups:ro
+      - backup_logs:/srv/logs:ro
+      - filebrowser_db:/database
+    restart: unless-stopped
+    networks:
+      - backup-network
+    labels:
+      com.sahool.service: "backup-monitor"
+      com.sahool.description: "File browser for backup monitoring"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Networks - الشبكات
+# ─────────────────────────────────────────────────────────────────────────────
+networks:
+  backup-network:
+    driver: bridge
+    name: sahool-backup-network
+
+  sahool-network:
+    external: true
+    name: sahool-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes - وحدات التخزين
+# ─────────────────────────────────────────────────────────────────────────────
+volumes:
+  minio_data:
+    name: sahool-minio-data
+    driver: local
+
+  backup_data:
+    name: sahool-backup-data
+    driver: local
+
+  backup_logs:
+    name: sahool-backup-logs
+    driver: local
+
+  filebrowser_db:
+    name: sahool-filebrowser-db
+    driver: local

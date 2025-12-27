@@ -1,0 +1,43 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Integration Tests - Python Dependencies
+# متطلبات Python لاختبارات التكامل
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Testing Framework
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-html>=3.2.0
+pytest-timeout>=2.1.0
+pytest-xdist>=3.3.0
+
+# HTTP Client
+httpx>=0.24.0
+requests>=2.31.0
+
+# Database
+psycopg2-binary>=2.9.6
+SQLAlchemy>=2.0.0
+
+# NATS Messaging
+nats-py>=2.3.0
+
+# Data Generation
+Faker>=19.0.0
+
+# Image Processing (for crop health tests)
+Pillow>=10.0.0
+
+# Utilities
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+
+# Code Quality
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.4.0
+
+# Additional Testing Tools
+pytest-mock>=3.11.0
+pytest-benchmark>=4.0.0
+pytest-randomly>=3.13.0

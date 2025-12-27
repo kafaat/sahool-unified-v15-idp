@@ -1,0 +1,135 @@
+{{- if .Values.infrastructure.nats.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sahool.fullname" . }}-nats
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: nats
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: client
+      port: 4222
+      targetPort: 4222
+    - name: cluster
+      port: 6222
+      targetPort: 6222
+    - name: monitor
+      port: 8222
+      targetPort: 8222
+  selector:
+    app.kubernetes.io/name: {{ include "sahool.name" . }}
+    app.kubernetes.io/component: nats
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "sahool.fullname" . }}-nats
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: nats
+spec:
+  serviceName: {{ include "sahool.fullname" . }}-nats
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "sahool.name" . }}
+      app.kubernetes.io/component: nats
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "sahool.name" . }}
+        app.kubernetes.io/component: nats
+    spec:
+      containers:
+        - name: nats
+          image: "{{ .Values.infrastructure.nats.image.repository }}:{{ .Values.infrastructure.nats.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command:
+            - nats-server
+            - --config
+            - /etc/nats/nats.conf
+          ports:
+            - name: client
+              containerPort: 4222
+            - name: cluster
+              containerPort: 6222
+            - name: monitor
+              containerPort: 8222
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8222
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8222
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.infrastructure.nats.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nats
+            {{- if .Values.infrastructure.nats.jetstream.enabled }}
+            - name: jetstream-storage
+              mountPath: /data
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "sahool.fullname" . }}-nats-config
+  {{- if .Values.infrastructure.nats.jetstream.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: jetstream-storage
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        {{- if .Values.global.storageClass }}
+        storageClassName: {{ .Values.global.storageClass }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.infrastructure.nats.jetstream.fileStorage.size }}
+  {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "sahool.fullname" . }}-nats-config
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    app.kubernetes.io/component: nats
+data:
+  nats.conf: |
+    port: 4222
+    monitor_port: 8222
+    http_port: 8222
+
+    {{- if .Values.infrastructure.nats.jetstream.enabled }}
+    jetstream {
+      store_dir: /data
+      {{- if .Values.infrastructure.nats.jetstream.memStorage.enabled }}
+      max_mem: {{ .Values.infrastructure.nats.jetstream.memStorage.size }}
+      {{- end }}
+      {{- if .Values.infrastructure.nats.jetstream.fileStorage.enabled }}
+      max_file: {{ .Values.infrastructure.nats.jetstream.fileStorage.size }}
+      {{- end }}
+    }
+    {{- end }}
+
+    # Logging
+    log_file: "/dev/stdout"
+    logtime: true
+    debug: false
+    trace: false
+{{- end }}

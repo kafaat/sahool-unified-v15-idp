@@ -1,0 +1,29 @@
+# ============================================================================
+# Grafana Dashboard Provisioning Configuration
+# تكوين توفير لوحات معلومات Grafana
+# ============================================================================
+
+apiVersion: 1
+
+providers:
+  - name: 'SAHOOL Platform Dashboards'
+    orgId: 1
+    folder: 'SAHOOL'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: true
+
+  - name: 'Kong Dashboards'
+    orgId: 1
+    folder: 'Kong API Gateway'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/kong
+      foldersFromFilesStructure: true

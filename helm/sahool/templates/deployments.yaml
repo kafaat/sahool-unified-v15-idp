@@ -1,0 +1,150 @@
+{{/*
+This template dynamically creates deployments and services for all enabled SAHOOL services
+based on the package tier configuration.
+*/}}
+
+{{- range $serviceName, $service := .Values.services }}
+{{- if eq (include "sahool.shouldDeploy" (dict "root" $ "service" $service)) "true" }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sahool.service.fullname" (dict "root" $ "service" $service) }}
+  labels:
+    {{- include "sahool.service.labels" (dict "root" $ "service" $service) | nindent 4 }}
+spec:
+  {{- if not $service.autoscaling.enabled }}
+  replicas: {{ $service.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sahool.service.selectorLabels" (dict "root" $ "service" $service) | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") $ | sha256sum }}
+        {{- with $.Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "sahool.service.selectorLabels" (dict "root" $ "service" $service) | nindent 8 }}
+    spec:
+      {{- with $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "sahool.serviceAccountName" $ }}
+      securityContext:
+        {{- include "sahool.podSecurityContext" $ | nindent 8 }}
+      containers:
+        - name: {{ $service.name }}
+          securityContext:
+            {{- include "sahool.securityContext" $ | nindent 12 }}
+          image: {{ include "sahool.image" (dict "root" $ "service" $service) }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $service.port }}
+              protocol: TCP
+          env:
+            {{- include "sahool.commonEnv" $ | nindent 12 }}
+            - name: PORT
+              value: "{{ $service.port }}"
+            - name: SERVICE_NAME
+              value: "{{ $service.name }}"
+            {{- with $service.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- include "sahool.livenessProbe" $service | nindent 10 }}
+          {{- include "sahool.readinessProbe" $service | nindent 10 }}
+          {{- include "sahool.resources" $service | nindent 10 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            - name: cache
+              mountPath: /app/.cache
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sahool.service.fullname" (dict "root" $ "service" $service) }}
+  labels:
+    {{- include "sahool.service.labels" (dict "root" $ "service" $service) | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ $service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "sahool.service.selectorLabels" (dict "root" $ "service" $service) | nindent 4 }}
+{{- if $service.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "sahool.service.fullname" (dict "root" $ "service" $service) }}
+  labels:
+    {{- include "sahool.service.labels" (dict "root" $ "service" $service) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "sahool.service.fullname" (dict "root" $ "service" $service) }}
+  minReplicas: {{ $service.autoscaling.minReplicas }}
+  maxReplicas: {{ $service.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $service.autoscaling.targetCPUUtilization }}
+    {{- if $service.autoscaling.targetMemoryUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ $service.autoscaling.targetMemoryUtilization }}
+    {{- end }}
+{{- end }}
+{{- if $service.pdb.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sahool.service.fullname" (dict "root" $ "service" $service) }}
+  labels:
+    {{- include "sahool.service.labels" (dict "root" $ "service" $service) | nindent 4 }}
+spec:
+  minAvailable: {{ $service.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "sahool.service.selectorLabels" (dict "root" $ "service" $service) | nindent 6 }}
+{{- end }}
+{{- end }}
+{{- end }}

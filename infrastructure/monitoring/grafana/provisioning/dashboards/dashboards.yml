@@ -1,0 +1,18 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Grafana Dashboard Provisioning Configuration
+# إعدادات توفير لوحات المراقبة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: 1
+
+providers:
+  - name: 'SAHOOL Platform Dashboards'
+    orgId: 1
+    folder: 'SAHOOL'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: true

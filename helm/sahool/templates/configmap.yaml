@@ -21,3 +21,21 @@ data:
   ENABLE_AUDIT_LOGGING: {{ .Values.features.enableAuditLogging | quote }}
   ENABLE_RATE_LIMITING: {{ .Values.features.enableRateLimiting | quote }}
   ENABLE_METRICS: {{ .Values.features.enableMetrics | quote }}
+  ENABLE_TRACING: {{ .Values.features.enableTracing | quote }}
+  ENABLE_CACHING: {{ .Values.features.enableCaching | quote }}
+
+  # Environment Configuration
+  NODE_ENV: {{ .Values.configMap.commonEnv.NODE_ENV | default "production" | quote }}
+  TZ: {{ .Values.configMap.commonEnv.TZ | default "Asia/Riyadh" | quote }}
+
+  # Database Configuration
+  DATABASE_HOST: {{ include "sahool.fullname" . }}-postgresql
+  DATABASE_PORT: "5432"
+
+  # Redis Configuration
+  REDIS_HOST: {{ include "sahool.fullname" . }}-redis-master
+  REDIS_PORT: "6379"
+
+  # NATS Configuration
+  NATS_HOST: {{ include "sahool.fullname" . }}-nats
+  NATS_PORT: "4222"

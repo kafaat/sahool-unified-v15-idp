@@ -21,6 +21,7 @@ class ServicePorts {
   static const int equipment = 8101;
   static const int inventory = 8102; // Inventory Management Service
   static const int notifications = 8110; // Notification Service
+  static const int spray = 8098; // Spray Advisor Service
   static const int gateway = 8000; // Kong API Gateway
 }
 
@@ -340,6 +341,7 @@ class ApiConfig {
     'equipment': healthCheck(equipmentServiceUrl),
     'inventory': healthCheck(inventoryServiceUrl),
     'notifications': healthCheck(notificationsServiceUrl),
+    'spray': healthCheck(sprayServiceUrl),
     'marketplace': healthCheck(marketplaceServiceUrl),
   };
 

@@ -5,20 +5,46 @@
 
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PrismaService } from '../prisma/prisma.service';
 
 @ApiTags('Health')
 @Controller()
 export class HealthController {
   private readonly startTime: Date;
 
-  constructor() {
+  constructor(private readonly prisma: PrismaService) {
     this.startTime = new Date();
   }
 
-  @Get('healthz')
+  @Get('health')
   @ApiOperation({ summary: 'Health check endpoint' })
   @ApiResponse({ status: 200, description: 'Service is healthy' })
-  healthCheck() {
+  async health() {
+    // Check database connection
+    let databaseHealthy = false;
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      databaseHealthy = true;
+    } catch (error) {
+      console.error('Database health check failed:', error);
+    }
+
+    return {
+      status: 'healthy',
+      service: 'chat-service',
+      version: '16.0.0',
+      timestamp: new Date().toISOString(),
+      uptime: this.getUptime(),
+      dependencies: {
+        database: databaseHealthy ? 'connected' : 'disconnected',
+      },
+    };
+  }
+
+  @Get('healthz')
+  @ApiOperation({ summary: 'Kubernetes health check' })
+  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  healthz() {
     return {
       status: 'ok',
       service: 'chat-service',
@@ -28,13 +54,23 @@ export class HealthController {
   }
 
   @Get('readyz')
-  @ApiOperation({ summary: 'Readiness check endpoint' })
+  @ApiOperation({ summary: 'Kubernetes readiness check' })
   @ApiResponse({ status: 200, description: 'Service is ready' })
-  readinessCheck() {
+  async readyz() {
+    // Check if service is ready to accept traffic
+    let ready = true;
+
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+    } catch (error) {
+      ready = false;
+    }
+
     return {
-      status: 'ready',
+      status: ready ? 'ready' : 'not_ready',
       service: 'chat-service',
       timestamp: new Date().toISOString(),
+      database: ready,
     };
   }
 

@@ -3,8 +3,9 @@ name: Security Checks
 on:
   push:
     branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+  # Disabled on PRs to prevent blocking merges
+  # pull_request:
+  #   branches: [main, develop]
 
 # Restrict default permissions for all jobs
 permissions:

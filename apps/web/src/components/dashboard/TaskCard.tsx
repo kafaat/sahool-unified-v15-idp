@@ -20,12 +20,14 @@ const PRIORITY_LABELS: Record<string, string> = {
   low: 'منخفضة',
   medium: 'متوسطة',
   high: 'عالية',
+  urgent: 'عاجلة',
 };
 
 const PRIORITY_ICONS: Record<string, string> = {
   low: '🔵',
   medium: '🟡',
   high: '🔴',
+  urgent: '🚨',
 };
 
 // Memoized TaskCard component
@@ -64,6 +66,7 @@ const TaskCard = React.memo<TaskCardProps>(function TaskCard({ task, onComplete,
       high: 'border-r-4 border-r-red-400',
       medium: 'border-r-4 border-r-yellow-400',
       low: 'border-r-4 border-r-blue-400',
+      urgent: 'border-r-4 border-r-purple-500',
     }[task.priority] || '';
 
     return `${baseClasses} ${stateClasses} ${priorityClasses}`;

@@ -769,4 +769,4 @@ def get_notification_stats():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8109)
+    uvicorn.run(app, host="0.0.0.0", port=8110)

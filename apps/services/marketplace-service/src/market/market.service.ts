@@ -171,66 +171,75 @@ export class MarketService {
 
   /**
    * إنشاء طلب جديد
+   * Uses transaction to prevent race conditions in stock management
    */
   async createOrder(data: CreateOrderDto) {
-    // حساب المبالغ
-    let subtotal = 0;
-    const orderItems: any[] = [];
+    // Use transaction to ensure atomic stock check and decrement
+    return this.prisma.$transaction(async (tx) => {
+      // حساب المبالغ
+      let subtotal = 0;
+      const orderItems: any[] = [];
 
-    for (const item of data.items) {
-      const product = await this.findProductById(item.productId);
+      for (const item of data.items) {
+        // Lock the product row during transaction
+        const product = await tx.product.findUnique({
+          where: { id: item.productId },
+        });
 
-      if (product.stock < item.quantity) {
-        throw new Error(`الكمية المطلوبة غير متوفرة للمنتج: ${product.nameAr}`);
+        if (!product) {
+          throw new Error(`المنتج غير موجود: ${item.productId}`);
+        }
+
+        if (product.stock < item.quantity) {
+          throw new Error(`الكمية المطلوبة غير متوفرة للمنتج: ${product.nameAr}`);
+        }
+
+        const totalPrice = product.price * item.quantity;
+        subtotal += totalPrice;
+
+        orderItems.push({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitPrice: product.price,
+          totalPrice,
+        });
+
+        // تحديث المخزون atomically within transaction
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        });
       }
 
-      const totalPrice = product.price * item.quantity;
-      subtotal += totalPrice;
+      const serviceFee = subtotal * 0.02; // 2% رسوم خدمة
+      const deliveryFee = 500; // رسوم توصيل ثابتة (ريال يمني)
+      const totalAmount = subtotal + serviceFee + deliveryFee;
 
-      orderItems.push({
-        productId: item.productId,
-        quantity: item.quantity,
-        unitPrice: product.price,
-        totalPrice,
-      });
-    }
+      // إنشاء رقم الطلب
+      const orderNumber = `SAH-${Date.now().toString(36).toUpperCase()}`;
 
-    const serviceFee = subtotal * 0.02; // 2% رسوم خدمة
-    const deliveryFee = 500; // رسوم توصيل ثابتة (ريال يمني)
-    const totalAmount = subtotal + serviceFee + deliveryFee;
-
-    // إنشاء رقم الطلب
-    const orderNumber = `SAH-${Date.now().toString(36).toUpperCase()}`;
-
-    // إنشاء الطلب
-    const order = await this.prisma.order.create({
-      data: {
-        orderNumber,
-        buyerId: data.buyerId,
-        buyerName: data.buyerName,
-        buyerPhone: data.buyerPhone,
-        subtotal,
-        serviceFee,
-        deliveryFee,
-        totalAmount,
-        deliveryAddress: data.deliveryAddress,
-        paymentMethod: data.paymentMethod,
-        items: {
-          create: orderItems,
+      // إنشاء الطلب
+      const order = await tx.order.create({
+        data: {
+          orderNumber,
+          buyerId: data.buyerId,
+          buyerName: data.buyerName,
+          buyerPhone: data.buyerPhone,
+          subtotal,
+          serviceFee,
+          deliveryFee,
+          totalAmount,
+          deliveryAddress: data.deliveryAddress,
+          paymentMethod: data.paymentMethod,
+          items: {
+            create: orderItems,
+          },
         },
-      },
-      include: { items: true },
-    });
-
-    // تحديث المخزون
-    for (const item of data.items) {
-      await this.prisma.product.update({
-        where: { id: item.productId },
-        data: { stock: { decrement: item.quantity } },
+        include: { items: true },
       });
-    }
 
-    return order;
+      return order;
+    });
   }
 
   /**

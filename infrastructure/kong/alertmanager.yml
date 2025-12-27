@@ -1,0 +1,192 @@
+# ============================================================================
+# Alertmanager Configuration for SAHOOL Kong API Gateway
+# تكوين Alertmanager لبوابة Kong API لمنصة سهول
+# ============================================================================
+# This configuration defines how alerts are routed, grouped, and notified
+# يحدد هذا التكوين كيفية توجيه التنبيهات وتجميعها وإرسال الإشعارات
+# ============================================================================
+
+global:
+  # Time to wait before sending a notification about new alerts
+  # الوقت الذي يجب انتظاره قبل إرسال إشعار حول التنبيهات الجديدة
+  resolve_timeout: 5m
+
+  # SMTP configuration (configure these for email alerts)
+  # تكوين SMTP (قم بتكوين هذه للحصول على تنبيهات البريد الإلكتروني)
+  # smtp_smarthost: 'smtp.gmail.com:587'
+  # smtp_from: 'alertmanager@sahool.io'
+  # smtp_auth_username: 'alertmanager@sahool.io'
+  # smtp_auth_password: 'your-password'
+  # smtp_require_tls: true
+
+# Templates for alert notifications
+# قوالب إشعارات التنبيه
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route configuration - how alerts are grouped and sent
+# تكوين التوجيه - كيفية تجميع التنبيهات وإرسالها
+route:
+  # Default receiver for all alerts
+  # المستقبل الافتراضي لجميع التنبيهات
+  receiver: 'default-receiver'
+
+  # Group alerts by these labels
+  # تجميع التنبيهات حسب هذه التسميات
+  group_by: ['alertname', 'cluster', 'service']
+
+  # Wait time before sending first notification for a group
+  # وقت الانتظار قبل إرسال أول إشعار لمجموعة
+  group_wait: 30s
+
+  # Wait time before sending notification about new alerts in a group
+  # وقت الانتظار قبل إرسال إشعار حول التنبيهات الجديدة في مجموعة
+  group_interval: 5m
+
+  # Wait time before sending notification again for the same alert
+  # وقت الانتظار قبل إرسال إشعار مرة أخرى لنفس التنبيه
+  repeat_interval: 4h
+
+  # Sub-routes for specific alert types
+  # المسارات الفرعية لأنواع التنبيهات المحددة
+  routes:
+    # Critical alerts - immediate notification
+    # التنبيهات الحرجة - إشعار فوري
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+
+    # Warning alerts - less urgent
+    # تنبيهات التحذير - أقل إلحاحاً
+    - match:
+        severity: warning
+      receiver: 'warning-receiver'
+      group_wait: 1m
+      group_interval: 10m
+      repeat_interval: 12h
+
+    # Database alerts
+    # تنبيهات قاعدة البيانات
+    - match_re:
+        alertname: '(PostgreSQL|Redis|Database).*'
+      receiver: 'database-receiver'
+      group_by: ['alertname', 'instance']
+
+    # Kong-specific alerts
+    # تنبيهات خاصة بـ Kong
+    - match_re:
+        alertname: 'Kong.*'
+      receiver: 'kong-receiver'
+      group_by: ['alertname', 'service', 'route']
+
+# Inhibition rules - suppress certain alerts when others are firing
+# قواعد التثبيط - قمع بعض التنبيهات عندما تكون تنبيهات أخرى نشطة
+inhibit_rules:
+  # Inhibit warning if critical alert is firing
+  # قمع التحذير إذا كان التنبيه الحرج نشطاً
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+
+  # Inhibit service down alerts if Kong itself is down
+  # قمع تنبيهات توقف الخدمة إذا كان Kong نفسه متوقفاً
+  - source_match:
+      alertname: 'KongDown'
+    target_match_re:
+      alertname: '.*ServiceDown'
+    equal: ['cluster']
+
+# Receiver configurations - where to send alerts
+# تكوينات المستقبل - إلى أين ترسل التنبيهات
+receivers:
+  # Default receiver - logs alerts to console
+  # المستقبل الافتراضي - يسجل التنبيهات في وحدة التحكم
+  - name: 'default-receiver'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Critical alerts receiver
+  # مستقبل التنبيهات الحرجة
+  - name: 'critical-receiver'
+    # Email configuration (uncomment and configure)
+    # تكوين البريد الإلكتروني (قم بإلغاء التعليق والتكوين)
+    # email_configs:
+    #   - to: 'ops-team@sahool.io'
+    #     from: 'alertmanager@sahool.io'
+    #     subject: '[CRITICAL] {{ .GroupLabels.alertname }}'
+    #     html: '{{ template "email.default.html" . }}'
+
+    # Slack configuration (uncomment and configure)
+    # تكوين Slack (قم بإلغاء التعليق والتكوين)
+    # slack_configs:
+    #   - api_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'
+    #     channel: '#alerts-critical'
+    #     title: '[{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+    # PagerDuty configuration (uncomment and configure)
+    # تكوين PagerDuty (قم بإلغاء التعليق والتكوين)
+    # pagerduty_configs:
+    #   - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY'
+
+    # Webhook for custom integrations
+    # Webhook للتكاملات المخصصة
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Warning alerts receiver
+  # مستقبل تنبيهات التحذير
+  - name: 'warning-receiver'
+    # email_configs:
+    #   - to: 'dev-team@sahool.io'
+    #     from: 'alertmanager@sahool.io'
+    #     subject: '[WARNING] {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Database alerts receiver
+  # مستقبل تنبيهات قاعدة البيانات
+  - name: 'database-receiver'
+    # email_configs:
+    #   - to: 'dba-team@sahool.io'
+    #     from: 'alertmanager@sahool.io'
+    #     subject: '[DB] {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+  # Kong-specific alerts receiver
+  # مستقبل تنبيهات Kong المحددة
+  - name: 'kong-receiver'
+    # email_configs:
+    #   - to: 'api-team@sahool.io'
+    #     from: 'alertmanager@sahool.io'
+    #     subject: '[KONG] {{ .GroupLabels.alertname }}'
+    webhook_configs:
+      - url: 'http://localhost:9093/api/v1/alerts'
+        send_resolved: true
+
+# ============================================================================
+# Configuration Notes:
+# ملاحظات التكوين:
+# ============================================================================
+# 1. Uncomment and configure email/slack/pagerduty sections for notifications
+#    قم بإلغاء التعليق وتكوين أقسام البريد الإلكتروني/Slack/PagerDuty للإشعارات
+#
+# 2. Alert rules are defined in Prometheus (alerts/*.yml)
+#    يتم تعريف قواعد التنبيه في Prometheus (alerts/*.yml)
+#
+# 3. Update receiver URLs to match your infrastructure
+#    قم بتحديث عناوين URL للمستقبلات لتتطابق مع البنية التحتية الخاصة بك
+#
+# 4. Test your configuration with: amtool check-config alertmanager.yml
+#    اختبر التكوين الخاص بك باستخدام: amtool check-config alertmanager.yml
+# ============================================================================

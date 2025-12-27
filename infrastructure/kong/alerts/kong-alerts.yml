@@ -1,0 +1,351 @@
+# ============================================================================
+# Kong API Gateway Alert Rules
+# قواعد تنبيهات بوابة Kong API
+# ============================================================================
+# SAHOOL Platform - Agricultural Intelligence Platform
+# منصة سهول - منصة الذكاء الزراعي
+# ============================================================================
+
+groups:
+  # ============================================================================
+  # Service Availability Alerts
+  # تنبيهات توفر الخدمة
+  # ============================================================================
+  - name: service_availability
+    interval: 30s
+    rules:
+      # Kong Gateway Down
+      # بوابة Kong متوقفة
+      - alert: KongDown
+        expr: up{job="kong"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: kong
+          category: availability
+        annotations:
+          summary: "Kong API Gateway is down"
+          description: "Kong Gateway {{ $labels.instance }} has been down for more than 1 minute."
+          impact: "All API traffic is blocked. Immediate action required."
+          runbook: "https://docs.sahool.io/runbooks/kong-down"
+
+      # PostgreSQL Down
+      # قاعدة بيانات PostgreSQL متوقفة
+      - alert: PostgreSQLDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: postgresql
+          category: availability
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "PostgreSQL instance {{ $labels.instance }} has been down for more than 1 minute."
+          impact: "Kong cannot access its database. Service degradation expected."
+          runbook: "https://docs.sahool.io/runbooks/postgresql-down"
+
+      # Redis Down
+      # Redis متوقف
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+          category: availability
+        annotations:
+          summary: "Redis is down"
+          description: "Redis instance {{ $labels.instance }} has been down for more than 1 minute."
+          impact: "Rate limiting and caching are unavailable. Performance degradation expected."
+          runbook: "https://docs.sahool.io/runbooks/redis-down"
+
+      # Prometheus Down
+      # Prometheus متوقف
+      - alert: PrometheusDown
+        expr: up{job="prometheus"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: prometheus
+          category: availability
+        annotations:
+          summary: "Prometheus is down"
+          description: "Prometheus instance has been down for more than 5 minutes."
+          impact: "Monitoring and alerting are unavailable. No immediate service impact."
+
+      # Service Exporter Down
+      # مُصدِّر الخدمة متوقف
+      - alert: ExporterDown
+        expr: up{job=~".*-exporter"} == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: exporter
+          category: availability
+        annotations:
+          summary: "Metrics exporter is down"
+          description: "Exporter {{ $labels.job }} on {{ $labels.instance }} has been down for more than 5 minutes."
+          impact: "Metrics collection for {{ $labels.job }} is unavailable."
+
+  # ============================================================================
+  # High Latency Alerts
+  # تنبيهات الكمون العالي
+  # ============================================================================
+  - name: high_latency
+    interval: 30s
+    rules:
+      # High Request Latency (P95)
+      # كمون طلب مرتفع (P95)
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, sum(rate(kong_latency_bucket[5m])) by (le, service)) > 5000
+        for: 5m
+        labels:
+          severity: critical
+          service: kong
+          category: performance
+        annotations:
+          summary: "High request latency detected"
+          description: "Service {{ $labels.service }} has P95 latency of {{ $value }}ms (threshold: 5000ms)."
+          impact: "Users experiencing slow API responses. Service degradation."
+          runbook: "https://docs.sahool.io/runbooks/high-latency"
+
+      # High Request Latency Warning (P95)
+      # تحذير كمون طلب مرتفع (P95)
+      - alert: HighRequestLatencyWarning
+        expr: histogram_quantile(0.95, sum(rate(kong_latency_bucket[5m])) by (le, service)) > 2000
+        for: 10m
+        labels:
+          severity: warning
+          service: kong
+          category: performance
+        annotations:
+          summary: "Elevated request latency detected"
+          description: "Service {{ $labels.service }} has P95 latency of {{ $value }}ms (threshold: 2000ms)."
+          impact: "API responses are slower than normal. Monitor closely."
+          runbook: "https://docs.sahool.io/runbooks/high-latency"
+
+      # High Upstream Latency
+      # كمون المنبع العالي
+      - alert: HighUpstreamLatency
+        expr: histogram_quantile(0.95, sum(rate(kong_upstream_latency_bucket[5m])) by (le, service)) > 3000
+        for: 5m
+        labels:
+          severity: warning
+          service: kong
+          category: performance
+        annotations:
+          summary: "High upstream service latency"
+          description: "Upstream service {{ $labels.service }} has P95 latency of {{ $value }}ms."
+          impact: "Backend services are responding slowly. Investigate upstream services."
+          runbook: "https://docs.sahool.io/runbooks/upstream-latency"
+
+      # Database Connection Slow
+      # اتصال قاعدة البيانات بطيء
+      - alert: SlowDatabaseQueries
+        expr: rate(pg_stat_activity_max_tx_duration[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+          category: performance
+        annotations:
+          summary: "Slow database queries detected"
+          description: "PostgreSQL queries are taking longer than expected on {{ $labels.instance }}."
+          impact: "Database performance degradation. May affect Kong operations."
+
+  # ============================================================================
+  # High Error Rate Alerts
+  # تنبيهات معدل الخطأ العالي
+  # ============================================================================
+  - name: high_error_rate
+    interval: 30s
+    rules:
+      # High 5xx Error Rate
+      # معدل خطأ 5xx مرتفع
+      - alert: HighErrorRate5xx
+        expr: (sum(rate(kong_http_requests_total{code=~"5.."}[5m])) / sum(rate(kong_http_requests_total[5m]))) * 100 > 5
+        for: 5m
+        labels:
+          severity: critical
+          service: kong
+          category: errors
+        annotations:
+          summary: "High 5xx error rate"
+          description: "5xx error rate is {{ $value | humanize }}% (threshold: 5%)."
+          impact: "Critical errors affecting users. Service degradation or outage."
+          runbook: "https://docs.sahool.io/runbooks/high-error-rate"
+
+      # High 5xx Error Rate Warning
+      # تحذير معدل خطأ 5xx مرتفع
+      - alert: HighErrorRate5xxWarning
+        expr: (sum(rate(kong_http_requests_total{code=~"5.."}[5m])) / sum(rate(kong_http_requests_total[5m]))) * 100 > 1
+        for: 10m
+        labels:
+          severity: warning
+          service: kong
+          category: errors
+        annotations:
+          summary: "Elevated 5xx error rate"
+          description: "5xx error rate is {{ $value | humanize }}% (threshold: 1%)."
+          impact: "Some users experiencing errors. Monitor closely."
+          runbook: "https://docs.sahool.io/runbooks/high-error-rate"
+
+      # High 4xx Error Rate
+      # معدل خطأ 4xx مرتفع
+      - alert: HighErrorRate4xx
+        expr: (sum(rate(kong_http_requests_total{code=~"4.."}[5m])) / sum(rate(kong_http_requests_total[5m]))) * 100 > 20
+        for: 10m
+        labels:
+          severity: warning
+          service: kong
+          category: errors
+        annotations:
+          summary: "High 4xx error rate"
+          description: "4xx error rate is {{ $value | humanize }}% (threshold: 20%)."
+          impact: "High rate of client errors. May indicate API misuse or client issues."
+          runbook: "https://docs.sahool.io/runbooks/client-errors"
+
+      # Upstream Service Errors
+      # أخطاء خدمة المنبع
+      - alert: UpstreamServiceErrors
+        expr: sum(rate(kong_http_requests_total{code=~"5..", service!=""}[5m])) by (service) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: kong
+          category: errors
+        annotations:
+          summary: "Upstream service {{ $labels.service }} returning errors"
+          description: "Service {{ $labels.service }} is returning {{ $value }} errors/sec."
+          impact: "Backend service {{ $labels.service }} is experiencing issues."
+          runbook: "https://docs.sahool.io/runbooks/upstream-errors"
+
+  # ============================================================================
+  # Resource Utilization Alerts
+  # تنبيهات استخدام الموارد
+  # ============================================================================
+  - name: resource_utilization
+    interval: 1m
+    rules:
+      # High CPU Usage
+      # استخدام وحدة المعالجة المركزية العالي
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: system
+          category: resources
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage on {{ $labels.instance }} is {{ $value | humanize }}%."
+          impact: "System performance may be degraded."
+
+      # High Memory Usage
+      # استخدام الذاكرة العالي
+      - alert: HighMemoryUsage
+        expr: 100 * (1 - ((node_memory_MemAvailable_bytes or node_memory_Buffers_bytes + node_memory_Cached_bytes + node_memory_MemFree_bytes) / node_memory_MemTotal_bytes)) > 85
+        for: 10m
+        labels:
+          severity: warning
+          service: system
+          category: resources
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage on {{ $labels.instance }} is {{ $value | humanize }}%."
+          impact: "System may start swapping. Performance degradation expected."
+
+      # Database Connections High
+      # اتصالات قاعدة البيانات عالية
+      - alert: HighDatabaseConnections
+        expr: sum(pg_stat_activity_count) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: postgresql
+          category: resources
+        annotations:
+          summary: "High number of database connections"
+          description: "PostgreSQL has {{ $value }} active connections (threshold: 80)."
+          impact: "Database may reach connection limit. New connections may fail."
+
+      # Redis Memory Usage High
+      # استخدام ذاكرة Redis عالي
+      - alert: RedisMemoryHigh
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+          category: resources
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is {{ $value | humanize }}% on {{ $labels.instance }}."
+          impact: "Redis may start evicting keys. Cache performance may degrade."
+
+  # ============================================================================
+  # Kong-Specific Alerts
+  # تنبيهات خاصة بـ Kong
+  # ============================================================================
+  - name: kong_specific
+    interval: 30s
+    rules:
+      # Kong Database Unreachable
+      # قاعدة بيانات Kong غير قابلة للوصول
+      - alert: KongDatabaseUnreachable
+        expr: kong_datastore_reachable == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: kong
+          category: availability
+        annotations:
+          summary: "Kong cannot reach its database"
+          description: "Kong instance {{ $labels.instance }} cannot reach its database."
+          impact: "Kong cannot persist configuration changes. Service degradation."
+          runbook: "https://docs.sahool.io/runbooks/kong-db-unreachable"
+
+      # High Request Rate
+      # معدل طلب مرتفع
+      - alert: HighRequestRate
+        expr: sum(rate(kong_http_requests_total[5m])) > 1000
+        for: 10m
+        labels:
+          severity: info
+          service: kong
+          category: traffic
+        annotations:
+          summary: "High request rate detected"
+          description: "Kong is handling {{ $value | humanize }} requests/sec."
+          impact: "Informational: High traffic volume. Monitor for performance issues."
+
+      # No Requests (Possible Service Issue)
+      # لا توجد طلبات (مشكلة محتملة في الخدمة)
+      - alert: NoRequestsReceived
+        expr: sum(rate(kong_http_requests_total[5m])) == 0
+        for: 10m
+        labels:
+          severity: warning
+          service: kong
+          category: traffic
+        annotations:
+          summary: "No requests received by Kong"
+          description: "Kong has not received any requests in the last 10 minutes."
+          impact: "Possible routing issue or upstream service problem."
+
+# ============================================================================
+# Alert Configuration Notes:
+# ملاحظات تكوين التنبيه:
+# ============================================================================
+# 1. Adjust thresholds based on your SLA requirements
+#    اضبط العتبات بناءً على متطلبات SLA الخاصة بك
+#
+# 2. Update runbook URLs to point to your documentation
+#    قم بتحديث عناوين URL لدفتر التشغيل للإشارة إلى الوثائق الخاصة بك
+#
+# 3. Severity levels: critical > warning > info
+#    مستويات الخطورة: حرج > تحذير > معلومات
+#
+# 4. Test alerts with: promtool check rules alerts/kong-alerts.yml
+#    اختبر التنبيهات باستخدام: promtool check rules alerts/kong-alerts.yml
+# ============================================================================

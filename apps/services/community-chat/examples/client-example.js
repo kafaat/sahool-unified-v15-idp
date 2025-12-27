@@ -233,53 +233,53 @@ class ChatClient {
   setupEventListeners() {
     // Message received
     this.socket.on('receive_message', (message) => {
-      console.log(`📩 New message from ${message.author}:`, message.message);
+      console.log('📩 New message from %s: %s', message.author, message.message);
       // Handle new message (update UI, etc.)
     });
 
     // User joined room
     this.socket.on('user_joined', (data) => {
-      console.log(`👋 ${data.userName} (${data.userType}) joined the room`);
+      console.log('👋 %s (%s) joined the room', data.userName, data.userType);
     });
 
     // User left room
     this.socket.on('user_left', (data) => {
-      console.log(`👋 ${data.userName} left the room`);
+      console.log('👋 %s left the room', data.userName);
     });
 
     // Typing indicator
     this.socket.on('user_typing', (data) => {
       if (data.isTyping) {
-        console.log(`✍️ ${data.userName} is typing...`);
+        console.log('✍️ %s is typing...', data.userName);
       } else {
-        console.log(`✍️ ${data.userName} stopped typing`);
+        console.log('✍️ %s stopped typing', data.userName);
       }
     });
 
     // Expert online
     this.socket.on('expert_online', (data) => {
-      console.log(`🟢 Expert ${data.expertName} is now online`);
+      console.log('🟢 Expert %s is now online', data.expertName);
     });
 
     // Expert offline
     this.socket.on('expert_offline', (data) => {
-      console.log(`🔴 Expert ${data.expertId} is now offline`);
+      console.log('🔴 Expert %s is now offline', data.expertId);
     });
 
     // New support request (for experts)
     this.socket.on('new_support_request', (request) => {
-      console.log(`🆘 New support request from ${request.farmerName}:`, request.topic);
+      console.log('🆘 New support request from %s: %s', request.farmerName, request.topic);
       // Notify expert about new request
     });
 
     // Expert joined (for farmers)
     this.socket.on('expert_joined', (data) => {
-      console.log(`✅ Expert ${data.expertName} joined your consultation`);
+      console.log('✅ Expert %s joined your consultation', data.expertName);
     });
 
     // Request taken (for experts)
     this.socket.on('request_taken', (data) => {
-      console.log(`ℹ️ Request ${data.roomId} was taken by ${data.expertName}`);
+      console.log('ℹ️ Request %s was taken by %s', data.roomId, data.expertName);
     });
   }
 

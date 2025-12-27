@@ -37,8 +37,8 @@ const TaskCard = React.memo<TaskCardProps>(function TaskCard({ task, onComplete,
   );
 
   const dueDate = useMemo(() =>
-    task.dueDate ? new Date(task.dueDate) : null,
-    [task.dueDate]
+    task.due_date ? new Date(task.due_date) : null,
+    [task.due_date]
   );
 
   const isOverdue = useMemo(() =>

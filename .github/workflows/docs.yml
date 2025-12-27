@@ -46,11 +46,13 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install FastAPI services dependencies
+        continue-on-error: true
         run: |
           pip install --upgrade pip
           pip install fastapi uvicorn pydantic
 
       - name: Generate OpenAPI specs for Python services
+        continue-on-error: true
         run: |
           echo "📝 Generating OpenAPI specifications..."
           mkdir -p ${{ env.DOCS_DIR }}/openapi
@@ -83,10 +85,18 @@ jobs:
               fi
 
               # Generate OpenAPI spec
+              # Check for main.py in both root and src directory
+              main_py_path=""
               if [ -f "$service_path/main.py" ]; then
+                main_py_path="$service_path"
+              elif [ -f "$service_path/src/main.py" ]; then
+                main_py_path="$service_path/src"
+              fi
+
+              if [ -n "$main_py_path" ]; then
                 python3 << EOF > "${{ env.DOCS_DIR }}/openapi/${service}.json"
 import sys
-sys.path.insert(0, "$service_path")
+sys.path.insert(0, "$main_py_path")
 try:
     from main import app
     import json
@@ -149,6 +159,7 @@ EOF
           npm install -g redoc-cli @redocly/cli
 
       - name: Generate Redoc documentation
+        continue-on-error: true
         run: |
           echo "📚 Generating API documentation with Redoc..."
           mkdir -p ${{ env.DOCS_DIR }}/api

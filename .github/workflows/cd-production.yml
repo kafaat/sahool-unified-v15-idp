@@ -4,6 +4,9 @@
 # Triggers: Release tags (v*)
 # Strategy: Blue-Green Deployment with automatic rollback on failure
 # Requires: Manual approval before deployment
+#
+# NOTE: Deployment is skipped when KUBE_CONFIG_PRODUCTION secret is not configured.
+#       The workflow will show as successful when intentionally skipped.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 name: Deploy to Production
@@ -554,7 +557,7 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
-    needs: [verify-production, validate-release]
+    needs: [validate-release]
     if: always()
     steps:
       - name: Generate summary

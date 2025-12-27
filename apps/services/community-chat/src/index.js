@@ -285,13 +285,70 @@ io.on('connection', (socket) => {
   socket.on('send_message', (data) => {
     const { roomId, author, authorType, message, attachments } = data;
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECURITY: Message Validation
+    // التحقق من صحة الرسالة
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    // Validate roomId
+    if (!roomId || typeof roomId !== 'string' || roomId.length > 100) {
+      socket.emit('error', { code: 'INVALID_ROOM_ID', message: 'معرف الغرفة غير صالح' });
+      return;
+    }
+
+    // Validate author
+    if (!author || typeof author !== 'string' || author.length > 100) {
+      socket.emit('error', { code: 'INVALID_AUTHOR', message: 'اسم المؤلف غير صالح' });
+      return;
+    }
+
+    // Validate message content
+    if (!message || typeof message !== 'string') {
+      socket.emit('error', { code: 'INVALID_MESSAGE', message: 'محتوى الرسالة غير صالح' });
+      return;
+    }
+
+    // Limit message length (prevent DoS)
+    const MAX_MESSAGE_LENGTH = 10000;
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      socket.emit('error', { code: 'MESSAGE_TOO_LONG', message: `الرسالة طويلة جداً` });
+      return;
+    }
+
+    // Validate authorType
+    const validAuthorTypes = ['farmer', 'expert', 'admin', 'support', 'system'];
+    const safeAuthorType = validAuthorTypes.includes(authorType) ? authorType : 'farmer';
+
+    // Validate attachments (if provided)
+    let safeAttachments = [];
+    if (attachments && Array.isArray(attachments)) {
+      const ALLOWED_DOMAINS = ['sahool.io', 'sahool.app', 'localhost'];
+      safeAttachments = attachments.slice(0, 10).filter(att => {
+        if (!att || typeof att !== 'object') return false;
+        if (att.url && typeof att.url === 'string') {
+          try {
+            const url = new URL(att.url);
+            return ALLOWED_DOMAINS.some(d => url.hostname.endsWith(d));
+          } catch { return false; }
+        }
+        return true;
+      });
+    }
+
+    // Sanitize message content (basic XSS prevention)
+    const sanitizedMessage = message
+      .replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#x27;');
+
+    // ═══════════════════════════════════════════════════════════════════════════
+
     const messageData = {
       id: uuidv4(),
       roomId,
       author,
-      authorType: authorType || 'farmer',
-      message,
-      attachments: attachments || [],
+      authorType: safeAuthorType,
+      message: sanitizedMessage,
+      attachments: safeAttachments,
       timestamp: getFormattedTime(),
       status: 'delivered'
     };

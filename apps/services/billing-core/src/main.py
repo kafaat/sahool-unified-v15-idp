@@ -23,12 +23,43 @@ from decimal import Decimal
 from typing import Optional, List, Dict, Any
 from enum import Enum
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import httpx
 import nats
 from nats.js.api import StreamConfig, RetentionPolicy
 from fastapi import FastAPI, HTTPException, Query, Header, Depends, BackgroundTasks, Request
 from pydantic import BaseModel, Field, EmailStr
+
+# Authentication imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+try:
+    from auth.dependencies import (
+        get_current_active_user,
+        require_roles,
+        api_key_auth,
+    )
+    from auth.models import User
+    AUTH_AVAILABLE = True
+except ImportError:
+    # Fallback for when auth module is not available
+    AUTH_AVAILABLE = False
+    User = None
+
+    async def get_current_active_user():
+        """Fallback - no auth check"""
+        return None
+
+    def require_roles(roles):
+        """Fallback - no role check"""
+        async def no_check():
+            return None
+        return no_check
+
+    async def api_key_auth():
+        """Fallback - no API key check"""
+        return None
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -111,6 +142,40 @@ THARWATT_BASE_URL = os.getenv("THARWATT_BASE_URL", "https://developers-test.thar
 THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
 THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
 THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
+
+
+# =============================================================================
+# Authentication Helpers - مساعدات المصادقة
+# =============================================================================
+
+
+def verify_tenant_access(current_user, tenant_id: str) -> bool:
+    """
+    Verify user can access the specified tenant
+    التحقق من أن المستخدم يمكنه الوصول إلى المستأجر المحدد
+    """
+    if not AUTH_AVAILABLE or current_user is None:
+        return True  # No auth - allow access (dev mode)
+
+    # Super admins can access any tenant
+    if hasattr(current_user, 'has_any_role') and current_user.has_any_role(['super_admin']):
+        return True
+
+    # Users can only access their own tenant
+    user_tenant = getattr(current_user, 'tenant_id', None)
+    return user_tenant == tenant_id
+
+
+def require_tenant_or_admin(current_user, tenant_id: str):
+    """
+    Require user to be tenant owner or admin, raise 403 if not
+    يتطلب أن يكون المستخدم مالك المستأجر أو مسؤول، ورفع 403 إذا لم يكن كذلك
+    """
+    if not verify_tenant_access(current_user, tenant_id):
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied - cannot access this tenant's data"
+        )
 
 
 # =============================================================================
@@ -722,7 +787,10 @@ def get_plan(plan_id: str):
 
 
 @app.post("/v1/plans")
-def create_plan(request: CreatePlanRequest):
+async def create_plan(
+    request: CreatePlanRequest,
+    current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
+):
     """إنشاء خطة جديدة (للمسؤولين)"""
     plan_id = request.name.lower().replace(" ", "_")
 
@@ -821,8 +889,14 @@ def create_tenant(request: CreateTenantRequest):
 
 
 @app.get("/v1/tenants/{tenant_id}")
-def get_tenant(tenant_id: str):
+async def get_tenant(
+    tenant_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """معلومات المستأجر"""
+    # Verify tenant access
+    require_tenant_or_admin(current_user, tenant_id)
+
     tenant = TENANTS.get(tenant_id)
     if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
@@ -850,8 +924,13 @@ def get_tenant(tenant_id: str):
 
 
 @app.get("/v1/tenants/{tenant_id}/subscription")
-def get_subscription(tenant_id: str):
+async def get_subscription(
+    tenant_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """تفاصيل الاشتراك"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -872,8 +951,14 @@ def get_subscription(tenant_id: str):
 
 
 @app.patch("/v1/tenants/{tenant_id}/subscription")
-def update_subscription(tenant_id: str, request: UpdateSubscriptionRequest):
+async def update_subscription(
+    tenant_id: str,
+    request: UpdateSubscriptionRequest,
+    current_user=Depends(get_current_active_user),
+):
     """تحديث الاشتراك (ترقية/تخفيض)"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -911,8 +996,14 @@ def update_subscription(tenant_id: str, request: UpdateSubscriptionRequest):
 
 
 @app.post("/v1/tenants/{tenant_id}/cancel")
-def cancel_subscription(tenant_id: str, immediate: bool = False):
+async def cancel_subscription(
+    tenant_id: str,
+    immediate: bool = False,
+    current_user=Depends(get_current_active_user),
+):
     """إلغاء الاشتراك"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -947,8 +1038,14 @@ def cancel_subscription(tenant_id: str, immediate: bool = False):
 
 
 @app.post("/v1/tenants/{tenant_id}/usage")
-def record_usage(tenant_id: str, request: RecordUsageRequest):
+async def record_usage(
+    tenant_id: str,
+    request: RecordUsageRequest,
+    current_user=Depends(get_current_active_user),
+):
     """تسجيل استخدام"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     if tenant_id not in TENANTS:
         raise HTTPException(404, "المستأجر غير موجود")
 
@@ -977,8 +1074,13 @@ def record_usage(tenant_id: str, request: RecordUsageRequest):
 
 
 @app.get("/v1/tenants/{tenant_id}/quota")
-def get_quota(tenant_id: str):
+async def get_quota(
+    tenant_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """حالة الحصة والاستخدام"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     tenant = TENANTS.get(tenant_id)
     if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
@@ -1019,9 +1121,10 @@ def get_quota(tenant_id: str):
 
 
 @app.get("/v1/enforce")
-def enforce_quota(
+async def enforce_quota(
     x_tenant_id: Optional[str] = Header(default=None),
     metric: str = Query(...),
+    api_key: str = Depends(api_key_auth),  # Service-to-service auth
 ):
     """التحقق من الصلاحيات (للـ Gateway)"""
     if not x_tenant_id:
@@ -1054,12 +1157,15 @@ def enforce_quota(
 
 
 @app.get("/v1/tenants/{tenant_id}/invoices")
-def list_invoices(
+async def list_invoices(
     tenant_id: str,
     status: Optional[InvoiceStatus] = None,
     limit: int = Query(default=20, le=100),
+    current_user=Depends(get_current_active_user),
 ):
     """قائمة الفواتير"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     if tenant_id not in TENANTS:
         raise HTTPException(404, "المستأجر غير موجود")
 
@@ -1077,11 +1183,17 @@ def list_invoices(
 
 
 @app.get("/v1/invoices/{invoice_id}")
-def get_invoice(invoice_id: str):
+async def get_invoice(
+    invoice_id: str,
+    current_user=Depends(get_current_active_user),
+):
     """تفاصيل فاتورة"""
     invoice = INVOICES.get(invoice_id)
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
+
+    # Verify tenant access for this invoice
+    require_tenant_or_admin(current_user, invoice.tenant_id)
 
     tenant = TENANTS.get(invoice.tenant_id)
 
@@ -1093,8 +1205,14 @@ def get_invoice(invoice_id: str):
 
 
 @app.post("/v1/tenants/{tenant_id}/invoices/generate")
-def generate_tenant_invoice(tenant_id: str, background_tasks: BackgroundTasks):
+async def generate_tenant_invoice(
+    tenant_id: str,
+    background_tasks: BackgroundTasks,
+    current_user=Depends(get_current_active_user),
+):
     """توليد فاتورة يدوياً"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     subscription = None
     for sub in SUBSCRIPTIONS.values():
         if sub.tenant_id == tenant_id:
@@ -1171,11 +1289,18 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
 
 
 @app.post("/v1/payments")
-async def create_payment(request: CreatePaymentRequest, background_tasks: BackgroundTasks):
+async def create_payment(
+    request: CreatePaymentRequest,
+    background_tasks: BackgroundTasks,
+    current_user=Depends(get_current_active_user),
+):
     """تسجيل دفعة"""
     invoice = INVOICES.get(request.invoice_id)
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
+
+    # Verify user can make payment for this tenant's invoice
+    require_tenant_or_admin(current_user, invoice.tenant_id)
 
     if invoice.status == InvoiceStatus.PAID:
         raise HTTPException(400, "الفاتورة مدفوعة بالفعل")
@@ -1270,8 +1395,14 @@ async def create_payment(request: CreatePaymentRequest, background_tasks: Backgr
 
 
 @app.get("/v1/tenants/{tenant_id}/payments")
-def list_payments(tenant_id: str, limit: int = Query(default=20, le=100)):
+async def list_payments(
+    tenant_id: str,
+    limit: int = Query(default=20, le=100),
+    current_user=Depends(get_current_active_user),
+):
     """قائمة المدفوعات"""
+    require_tenant_or_admin(current_user, tenant_id)
+
     payments = [p for p in PAYMENTS.values() if p.tenant_id == tenant_id]
     payments.sort(key=lambda x: x.created_at, reverse=True)
 
@@ -1510,11 +1641,12 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
 
 
 @app.get("/v1/reports/revenue")
-def get_revenue_report(
+async def get_revenue_report(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
+    current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
 ):
-    """تقرير الإيرادات"""
+    """تقرير الإيرادات (للمسؤولين)"""
     if not start_date:
         start_date = date.today().replace(day=1)
     if not end_date:
@@ -1554,8 +1686,10 @@ def get_revenue_report(
 
 
 @app.get("/v1/reports/subscriptions")
-def get_subscriptions_report():
-    """تقرير الاشتراكات"""
+async def get_subscriptions_report(
+    current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
+):
+    """تقرير الاشتراكات (للمسؤولين)"""
     by_status = {}
     by_plan = {}
 

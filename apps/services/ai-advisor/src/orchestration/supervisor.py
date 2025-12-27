@@ -136,7 +136,7 @@ Respond with a JSON object containing:
             import json
             try:
                 routing = json.loads(response.content)
-            except:
+            except (json.JSONDecodeError, TypeError, ValueError):
                 # Fallback: route to all agents if parsing fails
                 # احتياطي: التوجيه لجميع الوكلاء إذا فشل التحليل
                 routing = {

@@ -260,17 +260,41 @@ class DiagnosisService:
             "last_updated": datetime.utcnow().isoformat()
         }
 
+    # Allowed image extensions for security
+    ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'}
+    MAX_FILENAME_LENGTH = 255
+
     def _save_image(
         self,
         image_bytes: bytes,
         filename: str,
         diagnosis_id: str,
     ) -> Optional[str]:
-        """حفظ الصورة على القرص"""
+        """حفظ الصورة على القرص مع التحقق من الأمان"""
         try:
-            file_ext = filename.split(".")[-1] if "." in filename else "jpg"
+            # Security: Validate and sanitize filename
+            if not filename or len(filename) > self.MAX_FILENAME_LENGTH:
+                logger.warning(f"Invalid filename length: {len(filename) if filename else 0}")
+                filename = "image.jpg"
+
+            # Extract and validate extension
+            file_ext = filename.split(".")[-1].lower() if "." in filename else "jpg"
+
+            # Security: Only allow safe image extensions
+            if file_ext not in self.ALLOWED_EXTENSIONS:
+                logger.warning(f"Blocked unsafe file extension: {file_ext}")
+                file_ext = "jpg"  # Default to safe extension
+
+            # Security: Use UUID-based filename to prevent path traversal
+            # Discard original filename completely
             new_filename = f"{diagnosis_id}.{file_ext}"
             file_path = UPLOAD_DIR / new_filename
+
+            # Security: Ensure path doesn't escape upload directory
+            resolved_path = file_path.resolve()
+            if not str(resolved_path).startswith(str(UPLOAD_DIR.resolve())):
+                logger.error(f"Path traversal attempt detected: {filename}")
+                return None
 
             with open(file_path, "wb") as f:
                 f.write(image_bytes)

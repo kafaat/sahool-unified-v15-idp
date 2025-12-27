@@ -75,11 +75,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts --legacy-peer-deps || npm install --ignore-scripts --legacy-peer-deps
-
-      - name: Install test dependencies
-        run: |
-          npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom --legacy-peer-deps
+        run: npm ci --ignore-scripts --legacy-peer-deps
 
       - name: Run shared-hooks tests
         run: |

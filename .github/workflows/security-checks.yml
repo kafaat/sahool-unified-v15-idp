@@ -159,13 +159,19 @@ jobs:
           category: 'trivy-dependency-scan'
 
       - name: Report vulnerabilities
-        if: steps.trivy.outcome == 'failure'
+        if: always()
         run: |
-          echo "::warning::Critical or High vulnerabilities found by Trivy"
-          echo "Please review the security tab for details"
-          echo "## ⚠️ Security Vulnerabilities Found" >> $GITHUB_STEP_SUMMARY
-          echo "Trivy detected critical or high severity vulnerabilities." >> $GITHUB_STEP_SUMMARY
-          echo "Please review the Security tab for details." >> $GITHUB_STEP_SUMMARY
+          if [ -f "trivy-results.sarif" ]; then
+            # Check if there are any results in the SARIF file
+            RESULTS=$(cat trivy-results.sarif | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('runs',[{}])[0].get('results',[])))" 2>/dev/null || echo "0")
+            if [ "$RESULTS" != "0" ]; then
+              echo "::warning::Trivy found $RESULTS potential security issues"
+              echo "## ⚠️ Security Scan Results" >> $GITHUB_STEP_SUMMARY
+              echo "Trivy detected $RESULTS potential issues. Please review the Security tab." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "✅ No critical vulnerabilities found by Trivy"
+            fi
+          fi
 
   code-security:
     name: Code Security Analysis (SAST)

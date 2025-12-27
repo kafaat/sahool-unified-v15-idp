@@ -422,10 +422,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose-plugin
+      - name: Verify Docker Compose
+        run: docker compose version
 
       - name: Create .env file for Docker Compose
         run: |

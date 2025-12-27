@@ -104,7 +104,7 @@ export default function DashboardPage() {
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
 
   // WebSocket integration for real-time updates
-  const { isConnected, status } = useWebSocket({ autoConnect: true });
+  const { isConnected } = useWebSocket({ autoConnect: true });
   const { unreadCount, criticalAlerts } = useRealTimeAlerts({
     enableNotifications: true,
     minSeverity: 'medium',

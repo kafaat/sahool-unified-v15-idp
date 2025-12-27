@@ -1,0 +1,39 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Grafana Datasource Configuration - Prometheus
+# إعدادات مصدر البيانات Prometheus
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: 1
+
+datasources:
+  # Primary Prometheus Datasource - مصدر البيانات الرئيسي
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      timeInterval: 15s
+      queryTimeout: 60s
+      customQueryParameters: ''
+      manageAlerts: true
+      prometheusType: Prometheus
+      prometheusVersion: 2.48.0
+      exemplarTraceIdDestinations: []
+    version: 1
+
+  # Prometheus for Alerting - مصدر البيانات للتنبيهات
+  - name: Prometheus-Alerts
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+    editable: false
+    jsonData:
+      httpMethod: POST
+      timeInterval: 15s
+      queryTimeout: 30s
+      manageAlerts: true
+    version: 1

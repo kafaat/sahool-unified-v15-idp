@@ -1,0 +1,48 @@
+# Flutter Localization Configuration for SAHOOL Mobile App
+# This file configures how Flutter generates localization code from ARB files
+
+# ARB files directory
+arb-dir: lib/l10n
+
+# Template ARB file (used as the source of truth for keys)
+template-arb-file: app_en.arb
+
+# Output directory for generated localization files
+output-dir: lib/generated/l10n
+
+# Output localization file
+output-localization-file: app_localizations.dart
+
+# Class name for the generated localizations
+output-class: AppLocalizations
+
+# Use escaping for messages
+use-escaping: true
+
+# Preferred supported locales (Arabic is the primary locale for Yemen)
+preferred-supported-locales:
+  - ar
+
+# Generate synthetic package
+synthetic-package: false
+
+# Header to add to generated files
+header: |
+  /// SAHOOL Mobile App - Generated Localization Files
+  /// DO NOT EDIT MANUALLY - Generated from ARB files in lib/l10n/
+  ///
+  /// Supported locales:
+  /// - ar (Arabic) - Primary language for Yemen
+  /// - en (English)
+
+# Untranslated messages file (optional - for tracking missing translations)
+untranslated-messages-file: lib/l10n/untranslated.json
+
+# Nullable getter (set to false for backwards compatibility)
+nullable-getter: true
+
+# Format (use true for ARB format validation)
+format: true
+
+# Use deferred loading (false for immediate loading)
+use-deferred-loading: false

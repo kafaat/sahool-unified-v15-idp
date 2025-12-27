@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAHOOL Platform API Documentation - واجهات برمجة منصة سهول</title>
+    <meta name="description" content="Unified API documentation for SAHOOL Agricultural Platform">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌾%3C/text%3E%3C/svg%3E">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- ReDoc Standalone -->
+    <script src="https://cdn.jsdelivr.net/npm/redoc@2.1.3/bundles/redoc.standalone.js"></script>
+
+    <!-- Swagger UI -->
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui.css" />
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #2E7D32;
+            --primary-dark: #1B5E20;
+            --primary-light: #4CAF50;
+            --accent-color: #FF6F00;
+            --bg-color: #FAFAFA;
+            --text-color: #212121;
+            --border-color: #E0E0E0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-lg: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        body[dir="rtl"] {
+            font-family: 'Tajawal', 'IBM Plex Sans', sans-serif;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary-dark);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn.active {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 140px;
+            z-index: 999;
+        }
+
+        .tab-nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .tab-nav-container::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tab-nav-container::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .tab-btn {
+            padding: 1.2rem 2rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1rem;
+            color: var(--text-color);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            background: rgba(46, 125, 50, 0.05);
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background: rgba(46, 125, 50, 0.08);
+        }
+
+        /* Package Badges */
+        .tier-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tier-starter {
+            background: linear-gradient(135deg, #81C784 0%, #66BB6A 100%);
+            color: white;
+        }
+
+        .tier-professional {
+            background: linear-gradient(135deg, #42A5F5 0%, #1E88E5 100%);
+            color: white;
+        }
+
+        .tier-enterprise {
+            background: linear-gradient(135deg, #7E57C2 0%, #5E35B1 100%);
+            color: white;
+        }
+
+        /* Content Container */
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .tab-content {
+            display: none;
+            min-height: 600px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Package Info Cards */
+        .package-info {
+            background: white;
+            padding: 2rem;
+            margin: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .package-info h2 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .package-info p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        .package-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .feature {
+            display: flex;
+            align-items: start;
+            gap: 0.8rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 0.3rem;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* API Viewer Container */
+        .api-viewer {
+            background: white;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-color);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            background: #FFF3E0;
+            border: 1px solid #FFB74D;
+            border-left: 5px solid #FF9800;
+            padding: 1.5rem;
+            margin: 2rem;
+            border-radius: 8px;
+            color: #E65100;
+        }
+
+        .error-message h3 {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* RTL Support */
+        [dir="rtl"] .header-top,
+        [dir="rtl"] .controls,
+        [dir="rtl"] .info-item {
+            flex-direction: row-reverse;
+        }
+
+        [dir="rtl"] .package-info {
+            border-left: none;
+            border-right: 5px solid var(--primary-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls {
+                justify-content: center;
+            }
+
+            .tab-btn {
+                padding: 1rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .package-features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Swagger UI Customization */
+        .swagger-ui .topbar {
+            display: none;
+        }
+
+        .swagger-ui .info {
+            margin: 2rem 0;
+        }
+
+        /* ReDoc Customization */
+        redoc {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="header-top">
+                <div class="logo">
+                    <span class="logo-icon">🌾</span>
+                    <div>
+                        <div>SAHOOL Platform API</div>
+                        <div style="font-size: 0.9rem; opacity: 0.9; font-weight: 400;">واجهات برمجة منصة سهول</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-secondary" onclick="toggleLanguage()" id="langBtn">
+                        🌐 العربية
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleViewer('redoc')" id="redocBtn">
+                        📚 ReDoc
+                    </button>
+                    <button class="btn btn-secondary active" onclick="toggleViewer('swagger')" id="swaggerBtn">
+                        📖 Swagger UI
+                    </button>
+                    <a href="openapi-unified.yaml" class="btn btn-primary" download>
+                        ⬇️ Download YAML
+                    </a>
+                    <a href="openapi-unified.json" class="btn btn-primary" download>
+                        ⬇️ Download JSON
+                    </a>
+                </div>
+            </div>
+
+            <div class="header-info">
+                <div class="info-item">
+                    <span>📦</span>
+                    <span>39 Microservices</span>
+                </div>
+                <div class="info-item">
+                    <span>🚀</span>
+                    <span>3 Package Tiers</span>
+                </div>
+                <div class="info-item">
+                    <span>🌍</span>
+                    <span>Bilingual (EN/AR)</span>
+                </div>
+                <div class="info-item">
+                    <span>📡</span>
+                    <span>Version 1.0.0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Tab Navigation -->
+    <nav class="tab-nav">
+        <div class="tab-nav-container">
+            <button class="tab-btn active" onclick="switchTab('all')" id="tab-all">
+                🌐 All Services - جميع الخدمات
+            </button>
+            <button class="tab-btn" onclick="switchTab('starter')" id="tab-starter">
+                🌱 <span class="tier-badge tier-starter">Starter</span> المبتدئة
+            </button>
+            <button class="tab-btn" onclick="switchTab('professional')" id="tab-professional">
+                🚜 <span class="tier-badge tier-professional">Professional</span> الاحترافية
+            </button>
+            <button class="tab-btn" onclick="switchTab('enterprise')" id="tab-enterprise">
+                🏢 <span class="tier-badge tier-enterprise">Enterprise</span> المؤسسية
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- All Services Tab -->
+        <div id="content-all" class="tab-content active">
+            <div class="api-viewer">
+                <div id="swagger-ui-all"></div>
+                <div id="redoc-all" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Starter Package Tab -->
+        <div id="content-starter" class="tab-content">
+            <div class="package-info">
+                <h2>🌱 Starter Package - الباقة المبتدئة</h2>
+                <p>Essential agricultural services for small farms and individual farmers. Get started with core features for field management, weather monitoring, and basic advisory services.</p>
+                <p style="direction: rtl; text-align: right;">خدمات زراعية أساسية للمزارع الصغيرة والمزارعين الأفراد. ابدأ بالميزات الأساسية لإدارة الحقول ومراقبة الطقس والخدمات الإرشادية الأساسية.</p>
+
+                <div class="package-features">
+                    <div class="feature">
+                        <span class="feature-icon">🗺️</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Field Management</div>
+                            <div class="feature-desc">إدارة الحقول الزراعية</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🌤️</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Weather Services</div>
+                            <div class="feature-desc">خدمات الطقس والتنبؤات</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📅</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Agricultural Calendar</div>
+                            <div class="feature-desc">التقويم الزراعي اليمني</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💡</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Agro Advisory</div>
+                            <div class="feature-desc">الإرشاد الزراعي</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔔</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Notifications</div>
+                            <div class="feature-desc">خدمة الإشعارات</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="api-viewer">
+                <div id="swagger-ui-starter"></div>
+                <div id="redoc-starter" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Professional Package Tab -->
+        <div id="content-professional" class="tab-content">
+            <div class="package-info">
+                <h2>🚜 Professional Package - الباقة الاحترافية</h2>
+                <p>Advanced agricultural intelligence for commercial farms. Includes satellite imagery, AI-powered crop health monitoring, smart irrigation, and yield prediction.</p>
+                <p style="direction: rtl; text-align: right;">ذكاء زراعي متقدم للمزارع التجارية. يشمل صور الأقمار الصناعية، ومراقبة صحة المحاصيل بالذكاء الاصطناعي، والري الذكي، والتنبؤ بالإنتاجية.</p>
+
+                <div class="package-features">
+                    <div class="feature">
+                        <span class="feature-icon">🛰️</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Satellite Imagery</div>
+                            <div class="feature-desc">صور الأقمار الصناعية</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🤖</span>
+                        <div class="feature-text">
+                            <div class="feature-title">AI Crop Health</div>
+                            <div class="feature-desc">صحة المحاصيل بالذكاء الاصطناعي</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💧</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Smart Irrigation</div>
+                            <div class="feature-desc">الري الذكي</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📊</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Yield Prediction</div>
+                            <div class="feature-desc">التنبؤ بالإنتاجية</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📦</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Inventory Management</div>
+                            <div class="feature-desc">إدارة المخزون</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🌿</span>
+                        <div class="feature-text">
+                            <div class="feature-title">NDVI Analysis</div>
+                            <div class="feature-desc">تحليل الغطاء النباتي</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="api-viewer">
+                <div id="swagger-ui-professional"></div>
+                <div id="redoc-professional" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Enterprise Package Tab -->
+        <div id="content-enterprise" class="tab-content">
+            <div class="package-info">
+                <h2>🏢 Enterprise Package - الباقة المؤسسية</h2>
+                <p>Complete agricultural platform for large enterprises and organizations. Includes advanced AI, IoT integration, research management, marketplace, and comprehensive analytics.</p>
+                <p style="direction: rtl; text-align: right;">منصة زراعية متكاملة للمؤسسات والمنظمات الكبيرة. تشمل الذكاء الاصطناعي المتقدم، وتكامل إنترنت الأشياء، وإدارة البحوث، والسوق، والتحليلات الشاملة.</p>
+
+                <div class="package-features">
+                    <div class="feature">
+                        <span class="feature-icon">🧠</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Multi-Agent AI</div>
+                            <div class="feature-desc">الذكاء الاصطناعي متعدد الوكلاء</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📡</span>
+                        <div class="feature-text">
+                            <div class="feature-title">IoT Gateway</div>
+                            <div class="feature-desc">بوابة إنترنت الأشياء</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔬</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Research Core</div>
+                            <div class="feature-desc">نواة البحث العلمي</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🏪</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Marketplace</div>
+                            <div class="feature-desc">السوق الزراعي</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">💳</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Billing System</div>
+                            <div class="feature-desc">نظام الفوترة</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">⚠️</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Disaster Assessment</div>
+                            <div class="feature-desc">تقييم الكوارث</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🌱</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Crop Growth Model</div>
+                            <div class="feature-desc">نموذج نمو المحاصيل</div>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">📈</span>
+                        <div class="feature-text">
+                            <div class="feature-title">Advanced Analytics</div>
+                            <div class="feature-desc">التحليلات المتقدمة</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="api-viewer">
+                <div id="swagger-ui-enterprise"></div>
+                <div id="redoc-enterprise" style="display: none;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global state
+        let currentViewer = 'swagger';
+        let currentTab = 'all';
+        let currentLang = 'en';
+        let swaggerInstances = {};
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeSwagger();
+        });
+
+        // Initialize Swagger UI
+        function initializeSwagger() {
+            const tabs = ['all', 'starter', 'professional', 'enterprise'];
+
+            tabs.forEach(tab => {
+                swaggerInstances[tab] = SwaggerUIBundle({
+                    url: 'openapi-unified.yaml',
+                    dom_id: `#swagger-ui-${tab}`,
+                    deepLinking: true,
+                    presets: [
+                        SwaggerUIBundle.presets.apis,
+                        SwaggerUIStandalonePreset
+                    ],
+                    plugins: [
+                        SwaggerUIBundle.plugins.DownloadUrl
+                    ],
+                    layout: "BaseLayout",
+                    defaultModelsExpandDepth: 1,
+                    defaultModelExpandDepth: 1,
+                    docExpansion: "list",
+                    filter: tab !== 'all',
+                    tagsSorter: "alpha",
+                    operationsSorter: "alpha",
+                    onComplete: function() {
+                        if (tab !== 'all') {
+                            filterByTier(tab);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Filter API by tier
+        function filterByTier(tier) {
+            // This would need custom Swagger UI plugin to truly filter
+            // For now, we rely on the spec's tag groups
+            console.log('Filtering by tier:', tier);
+        }
+
+        // Switch between tabs
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`content-${tab}`).classList.add('active');
+
+            currentTab = tab;
+        }
+
+        // Toggle between ReDoc and Swagger UI
+        function toggleViewer(viewer) {
+            if (viewer === currentViewer) return;
+
+            currentViewer = viewer;
+
+            // Update buttons
+            document.getElementById('redocBtn').classList.toggle('active', viewer === 'redoc');
+            document.getElementById('swaggerBtn').classList.toggle('active', viewer === 'swagger');
+
+            // Toggle visibility
+            const tabs = ['all', 'starter', 'professional', 'enterprise'];
+            tabs.forEach(tab => {
+                const swaggerEl = document.getElementById(`swagger-ui-${tab}`);
+                const redocEl = document.getElementById(`redoc-${tab}`);
+
+                if (viewer === 'swagger') {
+                    swaggerEl.style.display = 'block';
+                    redocEl.style.display = 'none';
+                } else {
+                    swaggerEl.style.display = 'none';
+                    redocEl.style.display = 'block';
+
+                    // Initialize ReDoc if not already done
+                    if (!redocEl.hasChildNodes()) {
+                        Redoc.init(
+                            'openapi-unified.yaml',
+                            {
+                                scrollYOffset: 200,
+                                hideDownloadButton: false,
+                                expandResponses: "200,201",
+                                jsonSampleExpandLevel: 2,
+                                theme: {
+                                    colors: {
+                                        primary: {
+                                            main: '#2E7D32'
+                                        }
+                                    },
+                                    typography: {
+                                        fontSize: '15px',
+                                        fontFamily: 'IBM Plex Sans, Tajawal, sans-serif',
+                                        headings: {
+                                            fontFamily: 'IBM Plex Sans, Tajawal, sans-serif',
+                                            fontWeight: '600'
+                                        },
+                                        code: {
+                                            fontFamily: 'IBM Plex Mono, monospace'
+                                        }
+                                    }
+                                }
+                            },
+                            redocEl
+                        );
+                    }
+                }
+            });
+        }
+
+        // Toggle language/RTL
+        function toggleLanguage() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            if (currentLang === 'en') {
+                body.setAttribute('dir', 'rtl');
+                html.setAttribute('dir', 'rtl');
+                html.setAttribute('lang', 'ar');
+                document.getElementById('langBtn').textContent = '🌐 English';
+                currentLang = 'ar';
+            } else {
+                body.setAttribute('dir', 'ltr');
+                html.setAttribute('dir', 'ltr');
+                html.setAttribute('lang', 'en');
+                document.getElementById('langBtn').textContent = '🌐 العربية';
+                currentLang = 'en';
+            }
+        }
+
+        // Handle errors
+        window.addEventListener('error', function(e) {
+            console.error('Error loading API documentation:', e);
+
+            const errorHtml = `
+                <div class="error-message">
+                    <h3>⚠️ Error Loading API Documentation</h3>
+                    <p>Could not load the OpenAPI specification file. Please ensure:</p>
+                    <ul style="margin-left: 2rem; margin-top: 0.5rem;">
+                        <li>The openapi-unified.yaml file exists in this directory</li>
+                        <li>You have run the aggregator script: <code>python openapi-aggregator.py</code></li>
+                        <li>The services are running to fetch their specs</li>
+                    </ul>
+                    <p style="margin-top: 1rem; direction: rtl; text-align: right;">
+                        <strong>خطأ في تحميل التوثيق:</strong>
+                        تأكد من تشغيل السكريبت أولاً وأن الخدمات تعمل
+                    </p>
+                </div>
+            `;
+
+            document.querySelectorAll('.api-viewer').forEach(viewer => {
+                if (!viewer.querySelector('.error-message')) {
+                    viewer.innerHTML = errorHtml + viewer.innerHTML;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

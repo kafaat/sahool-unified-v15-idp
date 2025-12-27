@@ -1,0 +1,10 @@
+{{- if .Values.namespaceOverride }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.namespaceOverride }}
+  labels:
+    {{- include "sahool.labels" . | nindent 4 }}
+    sahool.io/environment: {{ .Values.global.environment }}
+    sahool.io/package-tier: {{ .Values.packageTier }}
+{{- end }}

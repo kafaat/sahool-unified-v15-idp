@@ -156,9 +156,25 @@ async def process_job_background(job_id: str, request: ProcessRequest):
 # ============== Health Endpoints ==============
 
 
-@app.get("/healthz")
+@app.get("/health")
 def health():
-    """فحص الصحة"""
+    """فحص الصحة - Health check with metrics"""
+    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
+    return {
+        "status": "healthy",
+        "service": "ndvi-processor",
+        "version": "16.0.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "metrics": {
+            "queue_size": active_jobs,
+            "total_jobs": len(list_jobs())
+        }
+    }
+
+
+@app.get("/healthz")
+def healthz():
+    """فحص الصحة - Kubernetes liveness probe"""
     active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
@@ -171,8 +187,8 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """فحص الجاهزية"""
-    return {"status": "ready"}
+    """فحص الجاهزية - Kubernetes readiness probe"""
+    return {"status": "ready", "service": "ndvi-processor"}
 
 
 # ============== Processing Endpoints ==============

@@ -58,7 +58,7 @@ describe('Error Tracking', () => {
 
       const breadcrumbs = getBreadcrumbs();
       expect(breadcrumbs).toHaveLength(1);
-      expect(breadcrumbs[0].category).toBe('navigation');
+      expect(breadcrumbs[0]?.category).toBe('navigation');
     });
 
     it('should limit breadcrumbs to max size', () => {
@@ -83,7 +83,7 @@ describe('Error Tracking', () => {
       });
 
       const breadcrumbs = getBreadcrumbs();
-      expect(breadcrumbs[0].timestamp).toBeDefined();
+      expect(breadcrumbs[0]?.timestamp).toBeDefined();
     });
   });
 

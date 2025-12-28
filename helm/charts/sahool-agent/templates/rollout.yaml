@@ -447,7 +447,7 @@ spec:
               restartPolicy: Never
               containers:
               - name: smoke-test
-                image: {{ .Values.rollout.analysis.smokeTests.image | default "curlimages/curl:latest" }}
+                image: {{ .Values.rollout.analysis.smokeTests.image | default "curlimages/curl:8.5.0" }}
                 command:
                 - sh
                 - -c

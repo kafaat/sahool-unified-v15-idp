@@ -11,6 +11,7 @@ import DataTable from '@/components/ui/DataTable';
 import { fetchFarms } from '@/lib/api';
 import { formatDate, formatArea, getHealthScoreColor, cn } from '@/lib/utils';
 import type { Farm } from '@/types';
+import type { BaseFarmData } from '@/components/maps/FarmsMap';
 import { YEMEN_GOVERNORATES } from '@/types';
 import {
   MapPin,
@@ -100,8 +101,8 @@ export default function FarmsPage() {
     return stats;
   }, [farms]);
 
-  const handleFarmClick = (farm: Farm) => {
-    setSelectedFarm(farm);
+  const handleFarmClick = (farm: BaseFarmData) => {
+    setSelectedFarm(farm as Farm);
   };
 
   // Table columns

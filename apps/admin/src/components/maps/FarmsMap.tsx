@@ -5,8 +5,20 @@
 
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import type { Farm } from '@/types';
 import { getHealthScoreColor } from '@/lib/utils';
+
+// Minimal interface for map farms - compatible with both Farm and MapFarm types
+export interface BaseFarmData {
+  id: string;
+  name?: string;
+  nameAr?: string;
+  coordinates: { lat: number; lng: number };
+  healthScore: number;
+  area: number;
+  crops: string[];
+  governorate?: string;
+  status?: string;
+}
 
 // Dynamic import for Leaflet (SSR not supported)
 const MapContainer = dynamic(
@@ -30,9 +42,9 @@ const CircleMarker = dynamic(
   { ssr: false }
 );
 
-interface FarmsMapProps {
-  farms: Farm[];
-  onFarmClick?: (farm: Farm) => void;
+interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
+  farms: T[];
+  onFarmClick?: (farm: T) => void;
   selectedFarmId?: string;
   showHealthOverlay?: boolean;
   className?: string;
@@ -42,13 +54,13 @@ interface FarmsMapProps {
 const YEMEN_CENTER: [number, number] = [15.5527, 48.5164];
 const DEFAULT_ZOOM = 6;
 
-export default function FarmsMap({
+export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   farms,
   onFarmClick,
   selectedFarmId,
   showHealthOverlay = true,
   className = '',
-}: FarmsMapProps) {
+}: FarmsMapProps<T>) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -125,12 +137,14 @@ export default function FarmsMap({
           >
             <Popup>
               <div className="text-right font-arabic" dir="rtl">
-                <h3 className="font-bold text-lg mb-2">{farm.nameAr}</h3>
+                <h3 className="font-bold text-lg mb-2">{farm.nameAr || farm.name || 'مزرعة'}</h3>
                 <div className="space-y-1 text-sm">
-                  <p>
-                    <span className="text-gray-500">المحافظة:</span>{' '}
-                    <span className="font-medium">{farm.governorate}</span>
-                  </p>
+                  {farm.governorate && (
+                    <p>
+                      <span className="text-gray-500">المحافظة:</span>{' '}
+                      <span className="font-medium">{farm.governorate}</span>
+                    </p>
+                  )}
                   <p>
                     <span className="text-gray-500">المساحة:</span>{' '}
                     <span className="font-medium">{farm.area.toFixed(1)} هكتار</span>

@@ -74,6 +74,7 @@ dependencies:
   equatable: ^2.0.7
   freezed_annotation: ^2.4.4  # Compatible with freezed 2.5.8
   json_annotation: ^4.9.0
+  crypto: ^3.0.6  # For SSL certificate pinning hash validation
 
   # Date/Time
   jiffy: ^6.3.1

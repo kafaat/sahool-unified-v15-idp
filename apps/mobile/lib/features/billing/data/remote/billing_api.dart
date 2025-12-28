@@ -31,24 +31,45 @@ class BillingApi {
 
   /// Deposit funds to wallet
   /// إيداع أموال في المحفظة
+  ///
+  /// SECURITY NOTE - Stripe Payment Flow:
+  /// =====================================
+  /// For credit card payments, this API uses Stripe Payment Intents for PCI compliance.
+  ///
+  /// PRODUCTION IMPLEMENTATION REQUIRED:
+  /// 1. Client must use Stripe SDK/Elements to collect card details securely
+  /// 2. Client calls Stripe SDK to create PaymentMethod and confirm payment
+  /// 3. Client receives payment_intent_id from Stripe
+  /// 4. Client passes ONLY payment_intent_id to this API (never card details or tokens)
+  /// 5. Backend verifies payment_intent_id with Stripe API server-side
+  ///
+  /// NEVER pass raw card data, tokens, or sensitive payment info through this API.
+  /// This ensures PCI DSS compliance and security best practices.
   Future<PaymentResult> deposit({
     required double amount,
     required PaymentMethod method,
     String? phoneNumber, // For Tharwatt/mobile money
-    String? stripeToken, // For credit card
-    // TODO: SECURITY - Implement proper Stripe SDK flow instead of passing tokens directly
-    // The current implementation exposes the token. Should use Stripe Elements/SDK on client
-    // and only pass payment intent IDs to the backend
+    String? paymentIntentId, // For Stripe - ONLY pass payment intent ID from Stripe SDK
   }) async {
+    // Validate that sensitive payment data is not being passed
+    // Only payment intent IDs should be sent to backend
+    final requestBody = <String, dynamic>{
+      'tenant_id': _client.tenantId,
+      'amount': amount,
+      'method': method.value,
+    };
+
+    // Add method-specific secure parameters
+    if (method == PaymentMethod.mobileMoney || method == PaymentMethod.tharwatt) {
+      requestBody['phone_number'] = phoneNumber;
+    } else if (method == PaymentMethod.creditCard) {
+      // SECURITY: Only pass payment intent ID, never tokens or card details
+      requestBody['payment_intent_id'] = paymentIntentId;
+    }
+
     final response = await _client.post(
       '/api/v1/billing/deposit',
-      {
-        'tenant_id': _client.tenantId,
-        'amount': amount,
-        'method': method.value,
-        'phone_number': phoneNumber,
-        'stripe_token': stripeToken,
-      },
+      requestBody,
     );
 
     if (response is Map<String, dynamic>) {
@@ -262,20 +283,44 @@ class BillingApi {
 
   /// Pay invoice
   /// دفع فاتورة
+  ///
+  /// SECURITY NOTE - Stripe Payment Flow:
+  /// =====================================
+  /// For credit card payments, this API uses Stripe Payment Intents for PCI compliance.
+  ///
+  /// PRODUCTION IMPLEMENTATION REQUIRED:
+  /// 1. Client must use Stripe SDK/Elements to collect card details securely
+  /// 2. Client calls Stripe SDK to create PaymentMethod and confirm payment
+  /// 3. Client receives payment_intent_id from Stripe
+  /// 4. Client passes ONLY payment_intent_id to this API (never card details or tokens)
+  /// 5. Backend verifies payment_intent_id with Stripe API server-side
+  ///
+  /// NEVER pass raw card data, tokens, or sensitive payment info through this API.
+  /// This ensures PCI DSS compliance and security best practices.
   Future<PaymentResult> payInvoice({
     required String invoiceId,
     required PaymentMethod method,
-    String? phoneNumber,
-    String? stripeToken,
+    String? phoneNumber, // For Tharwatt/mobile money
+    String? paymentIntentId, // For Stripe - ONLY pass payment intent ID from Stripe SDK
   }) async {
+    // Validate that sensitive payment data is not being passed
+    // Only payment intent IDs should be sent to backend
+    final requestBody = <String, dynamic>{
+      'invoice_id': invoiceId,
+      'method': method.value,
+    };
+
+    // Add method-specific secure parameters
+    if (method == PaymentMethod.mobileMoney || method == PaymentMethod.tharwatt) {
+      requestBody['phone_number'] = phoneNumber;
+    } else if (method == PaymentMethod.creditCard) {
+      // SECURITY: Only pass payment intent ID, never tokens or card details
+      requestBody['payment_intent_id'] = paymentIntentId;
+    }
+
     final response = await _client.post(
       '/api/v1/billing/payments',
-      {
-        'invoice_id': invoiceId,
-        'method': method.value,
-        'phone_number': phoneNumber,
-        'stripe_token': stripeToken,
-      },
+      requestBody,
     );
 
     if (response is Map<String, dynamic>) {

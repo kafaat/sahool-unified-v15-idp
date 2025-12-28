@@ -28,8 +28,6 @@ class GDDDashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _GDDDashboardScreenState extends ConsumerState<GDDDashboardScreen> {
-  final _dateFormat = DateFormat('dd MMM yyyy', 'ar');
-  final _timeFormat = DateFormat('HH:mm', 'ar');
 
   @override
   void initState() {
@@ -202,8 +200,8 @@ class _GDDDashboardScreenState extends ConsumerState<GDDDashboardScreen> {
               context,
               'تاريخ الزراعة',
               settings?.plantingDate != null
-                  ? _dateFormat.format(settings!.plantingDate)
-                  : _dateFormat.format(gdd.startDate),
+                  ? DateFormat('dd MMM yyyy', Localizations.localeOf(context).languageCode).format(settings!.plantingDate)
+                  : DateFormat('dd MMM yyyy', Localizations.localeOf(context).languageCode).format(gdd.startDate),
               Icons.event,
             ),
             _buildInfoRow(
@@ -360,6 +358,7 @@ class _GDDDashboardScreenState extends ConsumerState<GDDDashboardScreen> {
             ),
             const Divider(height: 24),
             ...gdd.recentRecords.take(5).map((record) {
+              final dateFormat = DateFormat('dd MMM yyyy', Localizations.localeOf(context).languageCode);
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Row(
@@ -378,7 +377,7 @@ class _GDDDashboardScreenState extends ConsumerState<GDDDashboardScreen> {
                       child: Column(
                         children: [
                           Text(
-                            _dateFormat.format(record.date).split(' ')[0],
+                            dateFormat.format(record.date).split(' ')[0],
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -387,7 +386,7 @@ class _GDDDashboardScreenState extends ConsumerState<GDDDashboardScreen> {
                                 ),
                           ),
                           Text(
-                            _dateFormat.format(record.date).split(' ')[1],
+                            dateFormat.format(record.date).split(' ')[1],
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],

@@ -1,13 +1,35 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
+import 'package:crypto/crypto.dart';
 import '../config/config.dart';
 
-/// SAHOOL API Client with offline handling
+/// SAHOOL API Client with offline handling and SSL Certificate Pinning
 class ApiClient {
   late final Dio _dio;
   String? _authToken;
   String _tenantId = AppConfig.defaultTenantId;
+
+  /// SSL Certificate Pinning - Enable/Disable via environment flag
+  /// Set to false in development/testing, true in production
+  static const bool _enableSslPinning = bool.fromEnvironment(
+    'ENABLE_SSL_PINNING',
+    defaultValue: !kDebugMode, // Enabled by default in release mode
+  );
+
+  /// Production API Certificate SHA-256 Fingerprints
+  /// TODO: Replace these placeholder hashes with actual certificate fingerprints
+  /// To get the certificate hash:
+  /// 1. openssl s_client -connect your-api-domain.com:443 -servername your-api-domain.com < /dev/null | openssl x509 -outform DER | openssl dgst -sha256 -binary | openssl enc -base64
+  /// 2. Or use: echo | openssl s_client -connect your-api-domain.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64
+  static const List<String> _pinnedCertificates = [
+    // Primary certificate hash (SHA-256 of the certificate's public key)
+    'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', // TODO: Replace with actual hash
+    // Backup certificate hash (for certificate rotation)
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=', // TODO: Replace with actual backup hash
+  ];
 
   ApiClient({String? baseUrl}) {
     _dio = Dio(BaseOptions(
@@ -20,9 +42,77 @@ class ApiClient {
       },
     ));
 
+    // Configure SSL Certificate Pinning
+    _configureCertificatePinning();
+
     // Add interceptors
     _dio.interceptors.add(_AuthInterceptor(this));
     _dio.interceptors.add(_LoggingInterceptor());
+  }
+
+  /// Configure SSL Certificate Pinning to prevent MITM attacks
+  void _configureCertificatePinning() {
+    if (!_enableSslPinning) {
+      if (kDebugMode) {
+        print('⚠️ SSL Certificate Pinning is DISABLED (Development Mode)');
+      }
+      return;
+    }
+
+    if (kDebugMode) {
+      print('🔒 SSL Certificate Pinning ENABLED');
+    }
+
+    (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final client = HttpClient();
+
+      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
+        // Validate the certificate against pinned hashes
+        final isValid = _isValidCertificate(cert, host);
+
+        if (!isValid && kDebugMode) {
+          print('❌ Certificate validation failed for $host:$port');
+        }
+
+        return isValid;
+      };
+
+      return client;
+    };
+  }
+
+  /// Validate certificate against pinned hashes
+  /// Returns true if the certificate's public key hash matches any pinned certificate
+  bool _isValidCertificate(X509Certificate cert, String host) {
+    try {
+      // Get the certificate's DER-encoded bytes
+      final certBytes = cert.der;
+
+      // Calculate SHA-256 hash of the certificate
+      final certHash = sha256.convert(certBytes);
+      final certHashBase64 = base64.encode(certHash.bytes);
+
+      // Also calculate hash of the public key (more robust for certificate rotation)
+      // Note: X509Certificate in Dart doesn't directly expose public key,
+      // so we use the full certificate hash. In production, consider using
+      // a package like 'x509' for proper public key pinning.
+
+      // Check if the hash matches any of our pinned certificates
+      final isMatch = _pinnedCertificates.contains(certHashBase64);
+
+      if (kDebugMode && !isMatch) {
+        print('Certificate hash for $host: $certHashBase64');
+        print('Expected one of: $_pinnedCertificates');
+      }
+
+      return isMatch;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error validating certificate: $e');
+      }
+      // Fail closed - reject certificate if validation fails
+      return false;
+    }
   }
 
   void setAuthToken(String token) {

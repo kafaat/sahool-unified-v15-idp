@@ -77,7 +77,7 @@ class LlmClient(ABC):
         self.timeout = timeout
         self.max_tokens = max_tokens
         self._request_count = 0
-        self._last_request_time = 0.0
+        self._window_start_time = 0.0
 
     @abstractmethod
     def _generate_impl(self, prompt: str) -> LlmResponse:
@@ -116,8 +116,10 @@ class LlmClient(ABC):
                 self._check_rate_limit()
                 
                 # Track request
+                current_time = time.time()
+                if self._request_count == 0:
+                    self._window_start_time = current_time
                 self._request_count += 1
-                self._last_request_time = time.time()
                 
                 # Call implementation
                 logger.info(f"LLM request attempt {attempt + 1}/{self.max_retries}")
@@ -188,14 +190,20 @@ class LlmClient(ABC):
             LlmRateLimitError: If rate limit exceeded
         """
         # Simple rate limiting: max 60 requests per minute
-        if self._request_count >= 60:
-            time_since_first = time.time() - self._last_request_time
-            if time_since_first < 60:
-                raise LlmRateLimitError(
-                    f"Rate limit exceeded: {self._request_count} requests in {time_since_first:.1f}s"
-                )
-            # Reset counter if more than a minute has passed
+        current_time = time.time()
+        time_since_window_start = current_time - self._window_start_time
+        
+        # If more than a minute has passed, reset the window
+        if time_since_window_start >= 60:
             self._request_count = 0
+            self._window_start_time = current_time
+            return
+        
+        # Check if we've hit the limit within the current window
+        if self._request_count >= 60:
+            raise LlmRateLimitError(
+                f"Rate limit exceeded: {self._request_count} requests in {time_since_window_start:.1f}s"
+            )
 
 
 class MockLlmClient(LlmClient):

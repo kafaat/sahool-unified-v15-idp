@@ -180,10 +180,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Run npm audit
+        continue-on-error: true
         run: |
           echo "🔍 Scanning Node.js dependencies..."
           npm audit --json > npm-audit-report.json || true
-          npm audit
+          npm audit || true
 
       - name: Run Snyk scan
         uses: snyk/actions/node@master

@@ -121,9 +121,9 @@ services:
   # Field Core Service - خدمة الحقول الجغرافية
   field_core:
     build:
-      context: ../../apps/services/field-core
+      context: ../../apps/services/field-management-service
       dockerfile: Dockerfile
-    container_name: sahool-starter-field-core
+    container_name: sahool-starter-field-management-service
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -162,9 +162,9 @@ services:
   # Weather Core Service - خدمة الطقس
   weather_core:
     build:
-      context: ../../apps/services/weather-core
+      context: ../../apps/services/weather-service
       dockerfile: Dockerfile
-    container_name: sahool-starter-weather-core
+    container_name: sahool-starter-weather-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -239,9 +239,9 @@ services:
   # Agro Advisor - المستشار الزراعي
   agro_advisor:
     build:
-      context: ../../apps/services/agro-advisor
+      context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-starter-agro-advisor
+    container_name: sahool-starter-advisory-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222

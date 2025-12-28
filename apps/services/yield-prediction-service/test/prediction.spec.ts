@@ -3,8 +3,9 @@
  * اختبارات خدمة التنبؤ بالإنتاجية
  */
 
-import express, { Express } from 'express';
-import request from 'supertest';
+import * as express from 'express';
+import { Express } from 'express';
+import * as request from 'supertest';
 
 function createTestApp(): Express {
   const app = express();

@@ -42,11 +42,12 @@ class Settings(BaseSettings):
     temperature: float = 0.7
 
     # External Services | الخدمات الخارجية
-    # Ports from docker-compose.yml: crop-health-ai=8095, weather-core=8108, satellite-service=8090, agro-advisor=8105
-    crop_health_ai_url: str = "http://crop-health-ai:8095"
-    weather_core_url: str = "http://weather-core:8108"
-    satellite_service_url: str = "http://satellite-service:8090"
-    agro_advisor_url: str = "http://agro-advisor:8105"
+    # Updated to use consolidated services (v16.0.0+)
+    # crop-intelligence-service=8095, weather-service=8092, vegetation-analysis-service=8090, advisory-service=8093
+    crop_health_ai_url: str = "http://crop-intelligence-service:8095"
+    weather_core_url: str = "http://weather-service:8092"
+    satellite_service_url: str = "http://vegetation-analysis-service:8090"
+    agro_advisor_url: str = "http://advisory-service:8093"
 
     # Qdrant Vector Database | قاعدة بيانات المتجهات Qdrant
     qdrant_host: str = "qdrant"

@@ -119,9 +119,9 @@ services:
 
   field_core:
     build:
-      context: ../../apps/services/field-core
+      context: ../../apps/services/field-management-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-field-core
+    container_name: sahool-pro-field-management-service
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -159,9 +159,9 @@ services:
 
   weather_core:
     build:
-      context: ../../apps/services/weather-core
+      context: ../../apps/services/weather-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-weather-core
+    container_name: sahool-pro-weather-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -234,9 +234,9 @@ services:
 
   agro_advisor:
     build:
-      context: ../../apps/services/agro-advisor
+      context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-agro-advisor
+    container_name: sahool-pro-advisory-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -321,9 +321,9 @@ services:
   # Satellite Service - خدمة الأقمار الصناعية
   satellite_service:
     build:
-      context: ../../apps/services/satellite-service
+      context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-satellite-service
+    container_name: sahool-pro-vegetation-analysis-service
     environment:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -366,9 +366,9 @@ services:
   # NDVI Engine - محرك NDVI
   ndvi_engine:
     build:
-      context: ../../apps/services/ndvi-engine
+      context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-ndvi-engine
+    container_name: sahool-pro-vegetation-analysis-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -405,9 +405,9 @@ services:
   # Crop Health AI - الذكاء الاصطناعي لصحة المحاصيل
   crop_health_ai:
     build:
-      context: ../../apps/services/crop-health-ai
+      context: ../../apps/services/crop-intelligence-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-crop-health-ai
+    container_name: sahool-pro-crop-intelligence-service
     environment:
       - PORT=8095
       - MODEL_PATH=/app/models/plant_disease.tflite
@@ -519,9 +519,9 @@ services:
   # Yield Engine - محرك التنبؤ بالإنتاجية
   yield_engine:
     build:
-      context: ../../apps/services/yield-engine
+      context: ../../apps/services/yield-prediction-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-yield-engine
+    container_name: sahool-pro-yield-prediction-service
     environment:
       - PORT=8098
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -556,9 +556,9 @@ services:
   # Fertilizer Advisor - مستشار التسميد
   fertilizer_advisor:
     build:
-      context: ../../apps/services/fertilizer-advisor
+      context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-pro-fertilizer-advisor
+    container_name: sahool-pro-advisory-service-fertilizer
     environment:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}

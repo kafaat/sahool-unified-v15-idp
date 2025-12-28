@@ -204,12 +204,13 @@ services:
   # Node.js Services (10)
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Field Core Service - Geospatial Field Management
-  field_core:
+  # Field Management Service - Unified Field Operations
+  # Consolidates: field-core, field-service, field-ops
+  field-management-service:
     build:
-      context: ./apps/services/field-core
+      context: ./apps/services/field-management-service
       dockerfile: Dockerfile
-    container_name: sahool-field-core
+    container_name: sahool-field-management-service
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -377,7 +378,9 @@ services:
     networks:
       - sahool-network
 
-  # Yield Prediction Service
+  # ⚠️ DEPRECATED: yield_prediction - Migrating to yield-prediction-service
+  # This service is being consolidated into yield-prediction-service (Port 8098)
+  # Kept temporarily for backwards compatibility
   yield_prediction:
     build:
       context: ./apps/services/yield-prediction
@@ -420,7 +423,9 @@ services:
     networks:
       - sahool-network
 
-  # LAI Estimation Service
+  # ⚠️ DEPRECATED: lai_estimation - Migrating to vegetation-analysis-service
+  # This service is being consolidated into vegetation-analysis-service (Port 8090)
+  # Kept temporarily for backwards compatibility
   lai_estimation:
     build:
       context: ./apps/services/lai-estimation
@@ -463,7 +468,9 @@ services:
     networks:
       - sahool-network
 
-  # Crop Growth Model Service
+  # ⚠️ DEPRECATED: crop_growth_model - Migrating to crop-intelligence-service
+  # This service is being consolidated into crop-intelligence-service (Port 8095)
+  # Kept temporarily for backwards compatibility
   crop_growth_model:
     build:
       context: ./apps/services/crop-growth-model
@@ -594,7 +601,9 @@ services:
     networks:
       - sahool-network
 
-  # Community Chat - Real-time Community Messaging
+  # ⚠️ DEPRECATED: community_chat - Migrating to chat-service
+  # This service is being consolidated into chat-service (Port 8114)
+  # Kept temporarily for backwards compatibility
   community_chat:
     build:
       context: ./apps/services/community-chat
@@ -638,7 +647,9 @@ services:
   # Python Services (29)
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Field Operations Service
+  # ⚠️ DEPRECATED: field_ops - Migrating to field-management-service
+  # This service is being consolidated into field-management-service (Port 3000)
+  # Kept temporarily for backwards compatibility
   field_ops:
     build:
       context: ./apps/services/field-ops
@@ -766,12 +777,13 @@ services:
     networks:
       - sahool-network
 
-  # Satellite Service
-  satellite_service:
+  # Vegetation Analysis Service - Unified Satellite & Vegetation Analysis
+  # Consolidates: satellite-service, ndvi-processor, ndvi-engine, lai-estimation
+  vegetation-analysis-service:
     build:
-      context: ./apps/services/satellite-service
+      context: ./apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-satellite-service
+    container_name: sahool-vegetation-analysis-service
     environment:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -850,12 +862,13 @@ services:
     networks:
       - sahool-network
 
-  # Weather Advanced Service
-  weather_advanced:
+  # Weather Service - Unified Weather Operations
+  # Consolidates: weather-core, weather-advanced
+  weather-service:
     build:
-      context: ./apps/services/weather-advanced
+      context: ./apps/services/weather-service
       dockerfile: Dockerfile
-    container_name: sahool-weather-advanced
+    container_name: sahool-weather-service
     environment:
       - PORT=8092
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -889,12 +902,13 @@ services:
     networks:
       - sahool-network
 
-  # Fertilizer Advisor Service
-  fertilizer_advisor:
+  # Advisory Service - Unified Agricultural Advisory
+  # Consolidates: agro-advisor, fertilizer-advisor
+  advisory-service:
     build:
-      context: ./apps/services/fertilizer-advisor
+      context: ./apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-fertilizer-advisor
+    container_name: sahool-advisory-service
     environment:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -964,12 +978,13 @@ services:
     networks:
       - sahool-network
 
-  # Crop Health AI Service
-  crop_health_ai:
+  # Crop Intelligence Service - Unified Crop Analysis
+  # Consolidates: crop-health, crop-health-ai, crop-growth-model
+  crop-intelligence-service:
     build:
-      context: ./apps/services/crop-health-ai
+      context: ./apps/services/crop-intelligence-service
       dockerfile: Dockerfile
-    container_name: sahool-crop-health-ai
+    container_name: sahool-crop-intelligence-service
     environment:
       - PORT=8095
       - MODEL_PATH=/app/models/plant_disease.tflite
@@ -1041,12 +1056,13 @@ services:
     networks:
       - sahool-network
 
-  # Yield Engine
-  yield_engine:
+  # Yield Prediction Service - Unified Yield Analysis
+  # Consolidates: yield-engine, yield-prediction
+  yield-prediction-service:
     build:
-      context: ./apps/services/yield-engine
+      context: ./apps/services/yield-prediction-service
       dockerfile: Dockerfile
-    container_name: sahool-yield-engine
+    container_name: sahool-yield-prediction-service
     environment:
       - PORT=8098
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -1221,7 +1237,9 @@ services:
     networks:
       - sahool-network
 
-  # Agro Advisor Service
+  # ⚠️ DEPRECATED: agro_advisor - Migrating to advisory-service
+  # This service is being consolidated into advisory-service (Port 8093)
+  # Kept temporarily for backwards compatibility
   agro_advisor:
     build:
       context: ./apps/services/agro-advisor
@@ -1306,7 +1324,9 @@ services:
     networks:
       - sahool-network
 
-  # NDVI Engine
+  # ⚠️ DEPRECATED: ndvi_engine - Migrating to vegetation-analysis-service
+  # This service is being consolidated into vegetation-analysis-service (Port 8090)
+  # Kept temporarily for backwards compatibility
   ndvi_engine:
     build:
       context: ./apps/services/ndvi-engine
@@ -1345,7 +1365,9 @@ services:
     networks:
       - sahool-network
 
-  # Weather Core Service
+  # ⚠️ DEPRECATED: weather_core - Migrating to weather-service
+  # This service is being consolidated into weather-service (Port 8092)
+  # Kept temporarily for backwards compatibility
   weather_core:
     build:
       context: ./apps/services/weather-core
@@ -1487,12 +1509,12 @@ services:
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
-      # External service URLs
-      - CROP_HEALTH_URL=http://crop_health_ai:8095
-      - WEATHER_URL=http://weather_core:8108
-      - SATELLITE_URL=http://satellite_service:8090
-      - AGRO_ADVISOR_URL=http://agro_advisor:8105
-      - NDVI_URL=http://ndvi_engine:8107
+      # External service URLs - Updated to consolidated services
+      - CROP_HEALTH_URL=http://crop-intelligence-service:8095
+      - WEATHER_URL=http://weather-service:8092
+      - SATELLITE_URL=http://vegetation-analysis-service:8090
+      - AGRO_ADVISOR_URL=http://advisory-service:8093
+      - NDVI_URL=http://vegetation-analysis-service:8090
       # RAG Configuration
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
@@ -1505,15 +1527,13 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
-      crop_health_ai:
+      crop-intelligence-service:
         condition: service_healthy
-      weather_core:
+      weather-service:
         condition: service_healthy
-      agro_advisor:
+      advisory-service:
         condition: service_healthy
-      satellite_service:
-        condition: service_healthy
-      ndvi_engine:
+      vegetation-analysis-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')"]
@@ -1573,7 +1593,9 @@ services:
     networks:
       - sahool-network
 
-  # Field Service
+  # ⚠️ DEPRECATED: field_service - Migrating to field-management-service
+  # This service is being consolidated into field-management-service (Port 3000)
+  # Kept temporarily for backwards compatibility
   field_service:
     build:
       context: ./apps/services/field-service
@@ -1650,7 +1672,9 @@ services:
     networks:
       - sahool-network
 
-  # NDVI Processor
+  # ⚠️ DEPRECATED: ndvi_processor - Migrating to vegetation-analysis-service
+  # This service is being consolidated into vegetation-analysis-service (Port 8090)
+  # Kept temporarily for backwards compatibility
   ndvi_processor:
     build:
       context: ./apps/services/ndvi-processor
@@ -1690,7 +1714,9 @@ services:
     networks:
       - sahool-network
 
-  # Crop Health Service - Agricultural Crop Health Diagnostics
+  # ⚠️ DEPRECATED: crop_health - Migrating to crop-intelligence-service
+  # This service is being consolidated into crop-intelligence-service (Port 8095)
+  # Kept temporarily for backwards compatibility
   crop_health:
     build:
       context: ./apps/services/crop-health

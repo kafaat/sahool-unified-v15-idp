@@ -36,7 +36,7 @@ upstreams:
 
   - name: ndvi-engine-upstream
     targets:
-      - target: sahool-ndvi-engine:8107
+      - target: sahool-vegetation-analysis-service:8090
         weight: 100
     healthchecks:
       active:
@@ -58,7 +58,7 @@ upstreams:
 
   - name: weather-upstream
     targets:
-      - target: sahool-weather-core:8108
+      - target: sahool-weather-service:8092
         weight: 100
     healthchecks:
       active:
@@ -124,7 +124,7 @@ upstreams:
 
   - name: advisor-upstream
     targets:
-      - target: sahool-agro-advisor:8105
+      - target: sahool-advisory-service:8093
         weight: 100
     healthchecks:
       active:
@@ -190,7 +190,7 @@ upstreams:
 
   - name: field-core-upstream
     targets:
-      - target: sahool-field-core:3000
+      - target: sahool-field-management-service:3000
         weight: 100
     healthchecks:
       active:
@@ -278,7 +278,7 @@ upstreams:
 
   - name: satellite-upstream
     targets:
-      - target: sahool-satellite-service:8090
+      - target: sahool-vegetation-analysis-service:8090
         weight: 100
     healthchecks:
       active:
@@ -322,7 +322,7 @@ upstreams:
 
   - name: weather-advanced-upstream
     targets:
-      - target: sahool-weather-advanced:8092
+      - target: sahool-weather-service:8092
         weight: 100
     healthchecks:
       active:
@@ -366,7 +366,7 @@ upstreams:
 
   - name: fertilizer-upstream
     targets:
-      - target: sahool-fertilizer-advisor:8093
+      - target: sahool-advisory-service:8093
         weight: 100
     healthchecks:
       active:
@@ -410,7 +410,7 @@ upstreams:
 
   - name: crop-health-ai-upstream
     targets:
-      - target: sahool-crop-health-ai:8095
+      - target: sahool-crop-intelligence-service:8095
         weight: 100
     healthchecks:
       active:
@@ -476,7 +476,7 @@ upstreams:
 
   - name: yield-engine-upstream
     targets:
-      - target: sahool-yield-engine:8098
+      - target: sahool-yield-prediction-service:8098
         weight: 100
     healthchecks:
       active:
@@ -498,7 +498,7 @@ upstreams:
 
   - name: crop-growth-upstream
     targets:
-      - target: sahool-crop-growth-model:3023
+      - target: sahool-crop-intelligence-service:8095
         weight: 100
     healthchecks:
       active:
@@ -608,7 +608,7 @@ upstreams:
 
   - name: lai-estimation-upstream
     targets:
-      - target: sahool-lai-estimation:3022
+      - target: sahool-vegetation-analysis-service:8090
         weight: 100
     healthchecks:
       active:

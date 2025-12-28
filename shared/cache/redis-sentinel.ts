@@ -306,10 +306,12 @@ export class RedisSentinelClient {
 
           if (attempt < maxRetries - 1) {
             const delay = retryDelay * Math.pow(2, attempt); // Exponential backoff
-            console.warn(
-              `Retry ${attempt + 1}/${maxRetries} after ${delay}ms due to:`,
-              error
-            );
+            console.warn('Retry attempt after delay due to error', {
+              attempt: attempt + 1,
+              maxRetries,
+              delayMs: delay,
+              error,
+            });
             await new Promise((resolve) => setTimeout(resolve, delay));
           }
         }

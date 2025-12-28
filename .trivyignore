@@ -1,0 +1,2 @@
+# Exclude archived/legacy code from security scans
+archive/

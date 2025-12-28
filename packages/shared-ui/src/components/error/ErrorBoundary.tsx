@@ -9,13 +9,14 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
-// Optional Sentry import
+// Optional Sentry import - using require() is intentional here to make Sentry
+// truly optional without affecting module loading or requiring async handling
 let Sentry: typeof import('@sentry/nextjs') | undefined;
 try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   Sentry = require('@sentry/nextjs');
 } catch {
-  // Sentry not available
+  // Sentry not available - this is expected when @sentry/nextjs is not installed
 }
 
 interface Props {

@@ -61,7 +61,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       apiClient.setToken(token);
       const response = await apiClient.getCurrentUser();
       if (response.success && response.data) {
-        setUser(response.data);
+        const userData = response.data;
+        setUser({
+          id: userData.id,
+          email: userData.email,
+          name: userData.name,
+          name_ar: userData.name, // Use name as fallback
+          role: userData.role,
+          tenant_id: userData.tenantId,
+        });
       } else {
         setUser(null);
         Cookies.remove('access_token');

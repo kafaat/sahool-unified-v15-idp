@@ -308,7 +308,7 @@ export function getOptimalImageSize(containerWidth: number): number {
       return size;
     }
   }
-  return IMAGE_SIZES[IMAGE_SIZES.length - 1]; // Return max size
+  return IMAGE_SIZES[IMAGE_SIZES.length - 1] ?? 1920; // Return max size
 }
 
 /**

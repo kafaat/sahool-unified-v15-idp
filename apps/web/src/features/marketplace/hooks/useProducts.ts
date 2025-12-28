@@ -7,6 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { marketplaceApi } from '../api';
+import type { ProductFilters, OrderFilters, Order } from '../types';
 
 // Query Keys
 export const marketplaceKeys = {

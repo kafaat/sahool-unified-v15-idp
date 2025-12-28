@@ -7,6 +7,8 @@ const config: Config = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     '../../packages/shared-ui/src/**/*.{js,ts,jsx,tsx}',
   ],
+  // Dark mode configuration - use class-based dark mode for better control
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -46,9 +48,32 @@ const config: Config = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
+      // Additional useful utilities
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-in': 'slideIn 0.3s ease-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideIn: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
     },
   },
   plugins: [],
+  // Performance: Disable unused features
+  corePlugins: {
+    // Enable all core plugins, but can be customized if needed
+  },
+  // Future flags for upcoming Tailwind CSS features
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
 };
 
 export default config;

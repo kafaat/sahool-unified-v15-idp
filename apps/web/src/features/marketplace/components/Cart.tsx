@@ -5,7 +5,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 

@@ -307,40 +307,48 @@ export function getServiceUrl(service: ServiceType, baseHost: string = 'localhos
   return `http://${baseHost}:${serviceConfig.port}${serviceConfig.endpoint}`;
 }
 
+interface HealthCheckResult {
+  healthy: boolean;
+  latency: number;
+}
+
+interface ServiceHealth {
+  legacy?: HealthCheckResult;
+  modern: HealthCheckResult;
+  mock?: HealthCheckResult;
+}
+
 /**
  * فحص صحة جميع الخدمات
  */
-export async function checkServicesHealth(): Promise<Record<ServiceType, {
-  legacy?: { healthy: boolean; latency: number };
-  modern: { healthy: boolean; latency: number };
-  mock?: { healthy: boolean; latency: number };
-}>> {
-  const results: any = {};
+export async function checkServicesHealth(): Promise<Record<ServiceType, ServiceHealth>> {
+  const results: Record<string, ServiceHealth> = {};
 
   for (const [serviceType, config] of Object.entries(SERVICE_REGISTRY)) {
-    results[serviceType] = {};
-
-    // فحص النسخة الحديثة
-    results[serviceType].modern = await checkEndpointHealth(
-      `http://localhost:${config.modern.port}/healthz`
-    );
+    const serviceHealth: ServiceHealth = {
+      modern: await checkEndpointHealth(
+        `http://localhost:${config.modern.port}/healthz`
+      ),
+    };
 
     // فحص النسخة القديمة إذا وجدت
     if (config.legacy) {
-      results[serviceType].legacy = await checkEndpointHealth(
+      serviceHealth.legacy = await checkEndpointHealth(
         `http://localhost:${config.legacy.port}/healthz`
       );
     }
 
     // فحص Mock إذا وجد
     if (config.mock) {
-      results[serviceType].mock = await checkEndpointHealth(
+      serviceHealth.mock = await checkEndpointHealth(
         `http://localhost:${config.mock.port}/healthz`
       );
     }
+
+    results[serviceType] = serviceHealth;
   }
 
-  return results;
+  return results as Record<ServiceType, ServiceHealth>;
 }
 
 /**
@@ -368,18 +376,28 @@ async function checkEndpointHealth(url: string): Promise<{ healthy: boolean; lat
   }
 }
 
+interface ServiceComparisonResult<T> {
+  data: T | null;
+  latency: number;
+  error?: string;
+}
+
+interface ComparisonResults<T> {
+  legacy?: ServiceComparisonResult<T>;
+  modern: ServiceComparisonResult<T>;
+}
+
 /**
  * مقارنة استجابة خدمتين
  */
 export async function compareServices<T>(
   service: ServiceType,
   requestFn: (url: string) => Promise<T>
-): Promise<{
-  legacy?: { data: T | null; latency: number; error?: string };
-  modern: { data: T | null; latency: number; error?: string };
-}> {
+): Promise<ComparisonResults<T>> {
   const config = SERVICE_REGISTRY[service];
-  const results: any = {};
+  const results: ComparisonResults<T> = {
+    modern: { data: null, latency: 0 },
+  };
 
   // Modern service
   const modernStart = performance.now();

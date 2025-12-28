@@ -10,7 +10,7 @@ test.describe('Navigation Flow', () => {
   // Use authenticated fixture to ensure user is logged in
   test.use({ storageState: undefined });
 
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login automatically
     await navigateAndWait(page, '/dashboard');
   });
@@ -25,7 +25,8 @@ test.describe('Navigation Flow', () => {
 
     // Should be on dashboard
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.locator('text=/Dashboard|لوحة التحكم/i')).toBeVisible();
+    // Check for welcome message on dashboard
+    await expect(page.locator('h1:has-text("مرحباً")')).toBeVisible({ timeout: 10000 });
   });
 
   test('should navigate to Fields page', async ({ page }) => {
@@ -250,7 +251,7 @@ test.describe('Navigation Flow', () => {
 
     // Should successfully load the page
     await expect(page).toHaveURL(/\/settings/);
-    await expect(page.locator('text=/Settings|الإعدادات/i')).toBeVisible();
+    await expect(page.locator('h1:has-text("الإعدادات")')).toBeVisible();
   });
 
   test('should handle 404 for non-existent routes', async ({ page }) => {
@@ -278,7 +279,7 @@ test.describe('Mobile Navigation', () => {
     viewport: { width: 375, height: 667 }, // iPhone SE size
   });
 
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     await navigateAndWait(page, '/dashboard');
   });
 

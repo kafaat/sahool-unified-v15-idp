@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useRef, ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
@@ -22,6 +22,17 @@ const ToastContext = createContext<ToastContextType | null>(null);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
+  const hideToast = useCallback((id: string) => {
+    // Clear the timeout if it exists
+    const timeout = timeoutsRef.current.get(id);
+    if (timeout) {
+      clearTimeout(timeout);
+      timeoutsRef.current.delete(id);
+    }
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
   const showToast = useCallback((toast: Omit<Toast, 'id'>) => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -30,17 +41,21 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => [...prev, newToast]);
 
     const duration = toast.duration || 5000;
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
       hideToast(id);
     }, duration);
-  }, []);
 
-  const hideToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
-  }, []);
+    // Store the timeout ID for cleanup
+    timeoutsRef.current.set(id, timeout);
+  }, [hideToast]);
+
+  const value = useMemo(
+    () => ({ showToast, hideToast }),
+    [showToast, hideToast]
+  );
 
   return (
-    <ToastContext.Provider value={{ showToast, hideToast }}>
+    <ToastContext.Provider value={value}>
       {children}
       <ToastContainer toasts={toasts} onClose={hideToast} />
     </ToastContext.Provider>

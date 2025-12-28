@@ -23,35 +23,61 @@ export function useWebSocket({
   const [error, setError] = useState<string | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const onMessageRef = useRef(onMessage);
+  const isMountedRef = useRef(true);
+
+  // Update callback ref when it changes
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
 
   const connect = useCallback(() => {
-    if (!enabled) return;
+    // Don't connect if unmounted or disabled
+    if (!isMountedRef.current || !enabled) return;
 
     try {
+      // Clean up existing connection
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+
       wsRef.current = new WebSocket(url);
 
       wsRef.current.onopen = () => {
+        if (!isMountedRef.current) {
+          wsRef.current?.close();
+          return;
+        }
         setIsConnected(true);
         setError(null);
         console.log('WebSocket connected');
       };
 
       wsRef.current.onmessage = (event) => {
+        if (!isMountedRef.current) return;
         try {
           const message: WSMessage = JSON.parse(event.data);
-          onMessage?.(message);
+          onMessageRef.current?.(message);
         } catch (err) {
           console.error('Failed to parse WebSocket message:', err);
         }
       };
 
       wsRef.current.onclose = () => {
+        if (!isMountedRef.current) return;
         setIsConnected(false);
         console.log('WebSocket disconnected, reconnecting...');
+
+        // Clear any existing timeout before setting new one
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+        }
         reconnectTimeoutRef.current = setTimeout(connect, reconnectInterval);
       };
 
       wsRef.current.onerror = (event) => {
+        if (!isMountedRef.current) return;
         console.error('WebSocket error:', event);
         setError('Connection error');
       };
@@ -59,18 +85,27 @@ export function useWebSocket({
       console.error('Failed to connect WebSocket:', err);
       setError(err instanceof Error ? err.message : 'Failed to connect');
     }
-  }, [url, onMessage, reconnectInterval, enabled]);
+  }, [url, reconnectInterval, enabled]);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (enabled) {
       connect();
     }
 
     return () => {
+      isMountedRef.current = false;
+
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
       }
-      wsRef.current?.close();
+
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
     };
   }, [connect, enabled]);
 

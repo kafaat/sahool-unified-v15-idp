@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 interface SkeletonProps {
   className?: string;
   variant?: 'text' | 'rectangular' | 'circular';
@@ -7,12 +9,12 @@ interface SkeletonProps {
   height?: string | number;
 }
 
-export function Skeleton({
+export const Skeleton = React.memo<SkeletonProps>(function Skeleton({
   className = '',
   variant = 'rectangular',
   width,
   height,
-}: SkeletonProps) {
+}) {
   const variantStyles = {
     text: 'h-4 rounded',
     rectangular: 'rounded-lg',
@@ -28,13 +30,15 @@ export function Skeleton({
     <div
       className={`animate-pulse bg-gray-200 ${variantStyles[variant]} ${className}`}
       style={style}
+      aria-busy="true"
+      aria-label="جاري التحميل"
     />
   );
-}
+});
 
-export function SkeletonCard() {
+export const SkeletonCard = React.memo(function SkeletonCard() {
   return (
-    <div className="bg-white rounded-xl p-4 space-y-3 shadow-sm">
+    <div className="bg-white rounded-xl p-4 space-y-3 shadow-sm" aria-busy="true" aria-label="جاري تحميل البطاقة">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Skeleton width={80} height={12} variant="text" />
@@ -45,11 +49,11 @@ export function SkeletonCard() {
       <Skeleton width={100} height={12} variant="text" />
     </div>
   );
-}
+});
 
-export function SkeletonTaskItem() {
+export const SkeletonTaskItem = React.memo(function SkeletonTaskItem() {
   return (
-    <div className="bg-white rounded-lg p-3 border-r-4 border-gray-300 space-y-2">
+    <div className="bg-white rounded-lg p-3 border-r-4 border-gray-300 space-y-2" aria-busy="true" aria-label="جاري تحميل المهمة">
       <div className="flex justify-between items-start">
         <Skeleton width="60%" height={16} variant="text" />
         <Skeleton width={60} height={20} variant="rectangular" />
@@ -61,11 +65,11 @@ export function SkeletonTaskItem() {
       </div>
     </div>
   );
-}
+});
 
-export function SkeletonEventItem() {
+export const SkeletonEventItem = React.memo(function SkeletonEventItem() {
   return (
-    <div className="bg-white rounded-lg p-3 border space-y-2">
+    <div className="bg-white rounded-lg p-3 border space-y-2" aria-busy="true" aria-label="جاري تحميل الحدث">
       <div className="flex items-center gap-2">
         <Skeleton width={24} height={24} variant="circular" />
         <Skeleton width="50%" height={14} variant="text" />
@@ -74,4 +78,4 @@ export function SkeletonEventItem() {
       <Skeleton width={60} height={10} variant="text" />
     </div>
   );
-}
+});

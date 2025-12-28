@@ -8,10 +8,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { equipmentApi } from '../api';
 import type {
-  Equipment,
   EquipmentFilters,
   EquipmentFormData,
-  MaintenanceRecord,
   MaintenanceFormData,
 } from '../types';
 

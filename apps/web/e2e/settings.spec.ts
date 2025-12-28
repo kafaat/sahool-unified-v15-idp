@@ -7,30 +7,33 @@ import { navigateAndWait, waitForToast, waitForPageLoad } from './helpers/page.h
  */
 
 test.describe('Settings Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, '/settings');
   });
 
   test('should display settings page correctly', async ({ page }) => {
     // Check page title
-    await expect(page).toHaveTitle(/Settings|الإعدادات/i);
+    await expect(page).toHaveTitle(/Settings.*SAHOOL/i);
 
-    // Check for settings heading
-    const heading = page.locator('text=/Settings|الإعدادات/i').first();
+    // Check for settings heading in Arabic
+    const heading = page.locator('h1:has-text("الإعدادات")');
     await expect(heading).toBeVisible();
+
+    // Check for Settings subtitle in English
+    const subtitle = page.locator('text=/^Settings$/');
+    await expect(subtitle).toBeVisible();
   });
 
   test.describe('Profile Settings', () => {
     test('should display profile information section', async ({ page }) => {
-      const profileSection = page.locator('text=/Profile|الملف الشخصي|Account|الحساب/i');
-      const isVisible = await profileSection.isVisible({ timeout: 5000 }).catch(() => false);
+      // Profile tab should be active by default
+      const profileTab = page.locator('button:has-text("الملف الشخصي")');
+      await expect(profileTab).toBeVisible({ timeout: 5000 });
 
-      if (isVisible) {
-        await expect(profileSection).toBeVisible();
-      } else {
-        console.log('Profile section not found');
-      }
+      // Profile heading should be visible in main content
+      const profileHeading = page.locator('h2:has-text("الملف الشخصي")');
+      await expect(profileHeading).toBeVisible();
     });
 
     test('should display user name', async ({ page }) => {
@@ -141,14 +144,18 @@ test.describe('Settings Page', () => {
 
   test.describe('Password Settings', () => {
     test('should display change password section', async ({ page }) => {
-      const passwordSection = page.locator('text=/Password|كلمة المرور|Change Password|تغيير كلمة المرور/i');
-      const isVisible = await passwordSection.isVisible({ timeout: 5000 }).catch(() => false);
+      // Click on Security tab first
+      const securityTab = page.locator('button:has-text("الأمان")');
+      await securityTab.click();
+      await page.waitForTimeout(500);
 
-      if (isVisible) {
-        await expect(passwordSection).toBeVisible();
-      } else {
-        console.log('Password section not found');
-      }
+      // Check for security heading
+      const securityHeading = page.locator('h2:has-text("الأمان")');
+      await expect(securityHeading).toBeVisible({ timeout: 5000 });
+
+      // Check for password change section
+      const passwordSection = page.locator('h3:has-text("تغيير كلمة المرور")');
+      await expect(passwordSection).toBeVisible();
     });
 
     test('should have password input fields', async ({ page }) => {
@@ -190,21 +197,21 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test.skip('should change password successfully', async ({ page }) => {
+    test.skip('should change password successfully', async ({}) => {
       // Skip - requires valid current password
     });
   });
 
   test.describe('Notification Settings', () => {
     test('should display notification preferences', async ({ page }) => {
-      const notificationSection = page.locator('text=/Notification|الإشعارات|Preferences|التفضيلات/i');
-      const isVisible = await notificationSection.isVisible({ timeout: 5000 }).catch(() => false);
+      // Click on Notifications tab
+      const notificationsTab = page.locator('button:has-text("الإشعارات")');
+      await notificationsTab.click();
+      await page.waitForTimeout(500);
 
-      if (isVisible) {
-        await expect(notificationSection).toBeVisible();
-      } else {
-        console.log('Notification section not found');
-      }
+      // Check for notifications heading
+      const notificationHeading = page.locator('h2:has-text("إعدادات الإشعارات")');
+      await expect(notificationHeading).toBeVisible({ timeout: 5000 });
     });
 
     test('should have notification toggles', async ({ page }) => {
@@ -314,7 +321,7 @@ test.describe('Settings Page', () => {
       const darkModeToggle = page.locator('input[name*="dark"], [aria-label*="dark"]').first();
 
       if (await darkModeToggle.isVisible({ timeout: 3000 })) {
-        const initialState = await darkModeToggle.isChecked();
+        // const initialState = await darkModeToggle.isChecked();
 
         // Toggle dark mode
         await darkModeToggle.click();

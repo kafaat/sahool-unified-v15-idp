@@ -58,13 +58,13 @@ const reportSections: Array<{
   },
 ];
 
-export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ filters }) => {
+export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
   const [config, setConfig] = useState<ReportConfig>({
     title: 'تقرير التحليلات الزراعية',
     titleAr: 'تقرير التحليلات الزراعية',
     period: {
-      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      end: new Date().toISOString().split('T')[0],
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!,
+      end: new Date().toISOString().split('T')[0]!,
     },
     sections: reportSections.map((section) => ({
       type: section.type,

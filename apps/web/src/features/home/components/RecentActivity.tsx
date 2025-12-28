@@ -31,8 +31,8 @@ const ActivityItemComponent: React.FC<{ activity: ActivityItem }> = ({ activity 
 
   return (
     <div className="flex items-start gap-4 p-4 hover:bg-gray-50 rounded-lg transition-colors">
-      <div className={`p-2 rounded-lg ${iconConfig.color} flex-shrink-0`}>
-        {iconConfig.icon}
+      <div className={`p-2 rounded-lg ${iconConfig!.color} flex-shrink-0`}>
+        {iconConfig!.icon}
       </div>
       <div className="flex-1 min-w-0">
         <p className="font-medium text-gray-900">{activity.titleAr}</p>

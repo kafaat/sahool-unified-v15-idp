@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { apiClient } from '@/lib/api/client';
 
@@ -31,9 +31,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const response = await apiClient.login(email, password);
     if (response.success && response.data) {
       const { access_token, user } = response.data;
-      Cookies.set('access_token', access_token, { expires: 7 });
+      // Set cookie with security flags
+      // Note: httpOnly cannot be set from client-side JS - server should set this
+      Cookies.set('access_token', access_token, {
+        expires: 7,
+        secure: true, // Only send over HTTPS
+        sameSite: 'strict' // CSRF protection
+      });
       apiClient.setToken(access_token);
-      setUser(user);
+      setUser(user as any);
     } else {
       throw new Error(response.error || 'Login failed');
     }
@@ -70,8 +76,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const value = useMemo(
+    () => ({
+      user,
+      isAuthenticated: !!user,
+      isLoading,
+      login,
+      logout,
+      checkAuth,
+    }),
+    [user, isLoading, login, logout, checkAuth]
+  );
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, checkAuth }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

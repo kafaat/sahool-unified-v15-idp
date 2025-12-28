@@ -7,7 +7,6 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { actuatorsApi, alertRulesApi } from '../api';
-import type { Actuator, ActuatorControlData, AlertRule, AlertRuleFormData } from '../types';
 
 // Query Keys
 export const actuatorKeys = {

@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures/test-fixtures';
-import { navigateAndWait, waitForToast, fillFieldByLabel, clickButtonByText } from './helpers/page.helpers';
+import { navigateAndWait, waitForToast } from './helpers/page.helpers';
 
 /**
  * Forms E2E Tests
@@ -7,7 +7,7 @@ import { navigateAndWait, waitForToast, fillFieldByLabel, clickButtonByText } fr
  */
 
 test.describe('Form Interactions', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, '/dashboard');
   });
@@ -18,29 +18,27 @@ test.describe('Form Interactions', () => {
     });
 
     test('should display add field button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة"), button:has-text("New"), button:has-text("جديد")').first();
+      const addButton = page.locator('button:has-text("إضافة حقل جديد")');
 
       // Button should be visible
-      const isVisible = await addButton.isVisible({ timeout: 5000 }).catch(() => false);
-      console.log(`Add field button visible: ${isVisible}`);
+      await expect(addButton).toBeVisible({ timeout: 5000 });
     });
 
     test('should open add field form', async ({ page }) => {
-      // Look for add button
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة"), [data-testid="add-field"]').first();
+      // Look for add button with exact text
+      const addButton = page.locator('button:has-text("إضافة حقل جديد")');
+      await addButton.click();
 
-      if (await addButton.isVisible({ timeout: 5000 })) {
-        await addButton.click();
+      // Wait for modal or form to appear
+      await page.waitForTimeout(1000);
 
-        // Wait for modal or form to appear
-        await page.waitForTimeout(1000);
+      // Check if modal is visible
+      const modal = page.locator('[role="dialog"]');
+      await expect(modal).toBeVisible();
 
-        // Check if form is visible
-        const formVisible = await page.locator('form, [role="dialog"], .modal').isVisible().catch(() => false);
-        expect(formVisible).toBe(true);
-      } else {
-        test.skip();
-      }
+      // Check for modal title
+      const modalTitle = page.locator('text=/إضافة حقل جديد|Create New Field/i');
+      await expect(modalTitle).toBeVisible();
     });
 
     test('should validate required fields in add field form', async ({ page }) => {
@@ -97,24 +95,22 @@ test.describe('Form Interactions', () => {
     });
 
     test('should display add task button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة"), button:has-text("New Task")').first();
-
-      const isVisible = await addButton.isVisible({ timeout: 5000 }).catch(() => false);
-      console.log(`Add task button visible: ${isVisible}`);
+      const addButton = page.locator('button:has-text("إضافة مهمة جديدة")');
+      await expect(addButton).toBeVisible({ timeout: 5000 });
     });
 
     test('should open add task form', async ({ page }) => {
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة"), [data-testid="add-task"]').first();
+      const addButton = page.locator('button:has-text("إضافة مهمة جديدة")');
+      await addButton.click();
+      await page.waitForTimeout(1000);
 
-      if (await addButton.isVisible({ timeout: 5000 })) {
-        await addButton.click();
-        await page.waitForTimeout(1000);
+      // Check if modal is visible
+      const modal = page.locator('[role="dialog"]');
+      await expect(modal).toBeVisible();
 
-        const formVisible = await page.locator('form, [role="dialog"]').isVisible().catch(() => false);
-        expect(formVisible).toBe(true);
-      } else {
-        test.skip();
-      }
+      // Check for modal title
+      const modalTitle = page.locator('text=/إضافة مهمة جديدة|Create New Task/i');
+      await expect(modalTitle).toBeVisible();
     });
 
     test.skip('should successfully create a new task', async ({ page }) => {
@@ -209,7 +205,7 @@ test.describe('Form Interactions', () => {
       const count = await dateInputs.count();
 
       if (count > 0) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0]!;
         await dateInputs.first().fill(today);
 
         await page.waitForTimeout(1000);
@@ -296,12 +292,12 @@ test.describe('Form Interactions', () => {
   });
 
   test.describe('Multi-step Forms', () => {
-    test.skip('should navigate through wizard steps', async ({ page }) => {
+    test.skip('should navigate through wizard steps', async ({}) => {
       // Skip if no multi-step forms exist
       // This is a placeholder for wizard-style forms
     });
 
-    test.skip('should save progress in multi-step form', async ({ page }) => {
+    test.skip('should save progress in multi-step form', async ({}) => {
       // Test form state persistence across steps
     });
   });
@@ -325,11 +321,11 @@ test.describe('Form Interactions', () => {
       }
     });
 
-    test.skip('should validate file type', async ({ page }) => {
+    test.skip('should validate file type', async ({}) => {
       // Test file type validation
     });
 
-    test.skip('should validate file size', async ({ page }) => {
+    test.skip('should validate file size', async ({}) => {
       // Test file size validation
     });
   });
@@ -360,7 +356,7 @@ test.describe('Form Interactions', () => {
       }
     });
 
-    test.skip('should filter autocomplete suggestions', async ({ page }) => {
+    test.skip('should filter autocomplete suggestions', async ({}) => {
       // Test autocomplete filtering
     });
   });

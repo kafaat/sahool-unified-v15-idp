@@ -10,7 +10,7 @@ import {
   User,
   Bell,
   Shield,
-  Lock,
+
   Eye,
   Monitor,
   Link as LinkIcon,
@@ -24,9 +24,7 @@ import {
   useSecuritySettings,
   useUpdatePassword,
   usePrivacySettings,
-  useUpdatePrivacySettings,
   useDisplayPreferences,
-  useUpdateDisplayPreferences,
   useSubscriptionInfo,
 } from '../hooks/useSettings';
 
@@ -341,7 +339,7 @@ const SecurityTab: React.FC = () => {
 // Privacy Tab
 const PrivacyTab: React.FC = () => {
   const { data: privacy, isLoading } = usePrivacySettings();
-  const updatePrivacy = useUpdatePrivacySettings();
+  // const updatePrivacy = useUpdatePrivacySettings();
 
   if (isLoading || !privacy) {
     return <div>Loading...</div>;
@@ -358,7 +356,7 @@ const PrivacyTab: React.FC = () => {
 // Display Tab
 const DisplayTab: React.FC = () => {
   const { data: display, isLoading } = useDisplayPreferences();
-  const updateDisplay = useUpdateDisplayPreferences();
+  // const updateDisplay = useUpdateDisplayPreferences();
 
   if (isLoading || !display) {
     return <div>Loading...</div>;

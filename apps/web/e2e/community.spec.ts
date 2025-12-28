@@ -2,11 +2,8 @@ import { test, expect } from './fixtures/test-fixtures';
 import {
   navigateAndWait,
   waitForPageLoad,
-  isElementVisible,
-  scrollIntoView,
-  waitForApiResponse,
 } from './helpers/page.helpers';
-import { selectors, timeouts } from './helpers/test-data';
+import { timeouts } from './helpers/test-data';
 
 /**
  * Community E2E Tests
@@ -14,7 +11,7 @@ import { selectors, timeouts } from './helpers/test-data';
  */
 
 test.describe('Community Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, '/community');
   });
@@ -22,7 +19,7 @@ test.describe('Community Page', () => {
   test.describe('Page Load and Basic Structure', () => {
     test('should display community page correctly', async ({ page }) => {
       // Check page title
-      await expect(page).toHaveTitle(/Farmer Community|مجتمع/i);
+      await expect(page).toHaveTitle(/Farmer Community.*SAHOOL/i);
 
       // Check for main heading in Arabic
       const arabicHeading = page.locator('h1:has-text("مجتمع المزارعين")');

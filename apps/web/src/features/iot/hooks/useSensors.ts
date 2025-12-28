@@ -8,7 +8,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { sensorsApi } from '../api';
-import type { Sensor, SensorFilters, SensorReading, SensorReadingsQuery } from '../types';
 
 // Query Keys
 export const sensorKeys = {

@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useFields, useField, useCreateField, useUpdateField, useDeleteField, useFieldStats } from '../hooks/useFields';
+import { useFields, useField, useUpdateField, useDeleteField, useFieldStats } from '../hooks/useFields';
 import { useAuth } from '@/stores/auth.store';
 import type { FieldFormData } from '../types';
 

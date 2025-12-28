@@ -20,7 +20,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
   field,
   fields,
   height = '400px',
-  onFieldClick,
+
 }) => {
   // TODO: Implement actual map with Leaflet
   // For now, showing a placeholder

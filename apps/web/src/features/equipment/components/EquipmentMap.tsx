@@ -7,7 +7,6 @@
 
 import { useEffect, useRef } from 'react';
 import { useEquipment } from '../hooks/useEquipment';
-import type { Equipment } from '../types';
 import { MapPin, Loader2 } from 'lucide-react';
 
 export function EquipmentMap() {

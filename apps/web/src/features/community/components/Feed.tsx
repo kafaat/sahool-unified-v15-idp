@@ -6,7 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Search, Filter, TrendingUp } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { usePosts } from '../hooks/useCommunity';
 import { PostCard } from './PostCard';
 import { CreatePost } from './CreatePost';

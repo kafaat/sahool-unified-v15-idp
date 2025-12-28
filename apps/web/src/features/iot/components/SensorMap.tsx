@@ -7,7 +7,6 @@
 
 import { useEffect, useRef } from 'react';
 import { useSensors } from '../hooks/useSensors';
-import type { Sensor } from '../types';
 import { MapPin, Loader2 } from 'lucide-react';
 
 const typeLabels = {

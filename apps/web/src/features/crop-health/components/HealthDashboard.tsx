@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   TrendingDown,
-  TrendingUp,
+  
   Leaf,
   Search,
 } from 'lucide-react';
@@ -19,7 +19,7 @@ import { useHealthSummary, useHealthRecords, useDiseaseAlerts } from '../hooks/u
 import type { HealthFilters } from '../types';
 
 export const HealthDashboard: React.FC = () => {
-  const [filters, setFilters] = useState<HealthFilters>({});
+  const [filters] = useState<HealthFilters>({});
 
   const { data: summary, isLoading: summaryLoading } = useHealthSummary(filters);
   const { data: records, isLoading: recordsLoading } = useHealthRecords(filters);

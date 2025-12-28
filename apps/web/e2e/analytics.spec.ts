@@ -2,11 +2,6 @@ import { test, expect } from './fixtures/test-fixtures';
 import {
   navigateAndWait,
   waitForPageLoad,
-  waitForApiResponse,
-  isElementVisible,
-  waitForToast,
-  selectDropdownOption,
-  hasErrorMessage
 } from './helpers/page.helpers';
 import { pages, timeouts } from './helpers/test-data';
 
@@ -16,7 +11,7 @@ import { pages, timeouts } from './helpers/test-data';
  */
 
 test.describe('Analytics Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, pages.analytics);
   });
@@ -24,13 +19,17 @@ test.describe('Analytics Page', () => {
   test.describe('Page Load and Basic Display', () => {
     test('should display analytics page correctly', async ({ page }) => {
       // Check page title
-      await expect(page).toHaveTitle(/Analytics|التحليلات/i);
+      await expect(page).toHaveTitle(/Analytics.*Reports.*SAHOOL/i);
 
-      // Check for main heading
-      const heading = page.locator('h1:has-text("التحليلات والتقارير"), h1:has-text("Analytics")');
+      // Check for main heading in Arabic
+      const heading = page.locator('h1:has-text("التحليلات والتقارير")');
       await expect(heading).toBeVisible({ timeout: timeouts.long });
 
-      // Verify page structure is loaded
+      // Check for subtitle in English
+      const subtitle = page.locator('text=/Analytics & Reports/i');
+      await expect(subtitle).toBeVisible();
+
+      // Verify page structure is loaded (RTL div)
       const pageContent = page.locator('[dir="rtl"]').first();
       await expect(pageContent).toBeVisible();
     });
@@ -39,34 +38,31 @@ test.describe('Analytics Page', () => {
       await page.waitForTimeout(2000);
 
       // Check for analytics title
-      const title = page.locator('text=/التحليلات والتقارير|Analytics/i');
+      const title = page.locator('h1:has-text("التحليلات والتقارير")');
       await expect(title).toBeVisible();
 
-      // Check for period selector
-      const periodSelector = page.locator('select, [class*="select"]').first();
+      // Check for period selector with label
+      const periodLabel = page.locator('text=/الفترة:/i');
+      await expect(periodLabel).toBeVisible();
+
+      const periodSelector = page.locator('select').first();
       await expect(periodSelector).toBeVisible();
     });
 
     test('should display navigation tabs', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Check for main tabs
+      // Check for main tabs - using Arabic labels from AnalyticsDashboard
       const tabs = [
-        /نظرة عامة|Overview/i,
-        /تحليل المحصول|Yield Analysis/i,
-        /تحليل التكاليف|Cost Analysis/i,
-        /التقارير|Reports/i,
+        'نظرة عامة',
+        'تحليل المحصول',
+        'تحليل التكاليف',
+        'التقارير',
       ];
 
-      for (const tabPattern of tabs) {
-        const tab = page.locator(`button:has-text("${tabPattern.source.replace(/\//g, '').replace(/i$/, '')}")`).first();
-        const isVisible = await tab.isVisible({ timeout: 3000 }).catch(() => false);
-
-        if (isVisible) {
-          await expect(tab).toBeVisible();
-        } else {
-          console.log(`Tab ${tabPattern} not found - may be optional`);
-        }
+      for (const tabText of tabs) {
+        const tab = page.locator(`button:has-text("${tabText}")`);
+        await expect(tab).toBeVisible({ timeout: 3000 });
       }
     });
   });
@@ -302,7 +298,7 @@ test.describe('Analytics Page', () => {
 
       if (await periodSelector.isVisible()) {
         // Get initial content
-        const initialContent = await page.locator('[class*="grid"]').first().textContent();
+        // const initialContent = await page.locator('[class*="grid"]').first().textContent();
 
         // Change period
         await periodSelector.selectOption({ index: 1 });
@@ -550,14 +546,14 @@ test.describe('Analytics Page', () => {
 
         if (await sectionCard.isVisible({ timeout: 2000 })) {
           // Get initial state
-          const initialClass = await sectionCard.getAttribute('class');
+          // const initialClass = await sectionCard.getAttribute('class');
 
           // Click to toggle
           await sectionCard.click();
           await page.waitForTimeout(500);
 
           // State should change
-          const newClass = await sectionCard.getAttribute('class');
+          // const newClass = await sectionCard.getAttribute('class');
 
           console.log('Section toggle works');
         }

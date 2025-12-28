@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures/test-fixtures';
-import { navigateAndWait, waitForPageLoad, isElementVisible } from './helpers/page.helpers';
+import { navigateAndWait, waitForPageLoad } from './helpers/page.helpers';
 import { pages, timeouts } from './helpers/test-data';
 
 /**
@@ -8,7 +8,7 @@ import { pages, timeouts } from './helpers/test-data';
  */
 
 test.describe('IoT & Sensors Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, pages.iot);
   });
@@ -19,8 +19,8 @@ test.describe('IoT & Sensors Page', () => {
    */
   test.describe('Page Loading', () => {
     test('should display IoT page correctly', async ({ page }) => {
-      // Check page title
-      await expect(page).toHaveTitle(/IoT|إنترنت الأشياء/i);
+      // Check page title - uses default SAHOOL title
+      await expect(page).toHaveTitle(/SAHOOL|سهول/i);
 
       // Check for main heading in Arabic
       const heading = page.locator('h1:has-text("إنترنت الأشياء والمستشعرات")');

@@ -115,7 +115,7 @@ export const SensorChart: React.FC<SensorChartProps> = ({
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-600 mb-1">الحالي | Current</p>
             <p className="text-xl font-bold" style={{ color }}>
-              {stats.current.toFixed(2)}
+              {stats.current!.toFixed(2)}
               <span className="text-sm text-gray-600 mr-1">{sensorUnitAr}</span>
             </p>
           </div>
@@ -269,7 +269,7 @@ export const SensorChart: React.FC<SensorChartProps> = ({
       {/* Time Range Info */}
       {chartData.length > 0 && (
         <div className="text-center text-sm text-gray-500">
-          {chartData.length} قراءة من {chartData[0].time} إلى {chartData[chartData.length - 1].time}
+          {chartData.length} قراءة من {chartData[0]!.time} إلى {chartData[chartData.length - 1]!.time}
         </div>
       )}
     </div>

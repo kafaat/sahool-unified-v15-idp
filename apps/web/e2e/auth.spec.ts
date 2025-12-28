@@ -17,8 +17,9 @@ test.describe('Authentication Flow', () => {
     // Navigate to login page
     await page.goto('/login');
 
-    // Check page title
-    await expect(page).toHaveTitle(/Login|تسجيل الدخول/);
+    // Check page title - login page doesn't set a custom title
+    // Just verify we're on the page and can see the main heading
+    await expect(page.locator('text=/تسجيل الدخول إلى سهول/i')).toBeVisible();
 
     // Check for SAHOOL branding
     await expect(page.locator('text=/SAHOOL|سهول/i')).toBeVisible();
@@ -33,7 +34,7 @@ test.describe('Authentication Flow', () => {
     await expect(page.locator('button[type="submit"]')).toBeVisible();
 
     // Check for forgot password link
-    await expect(page.locator('text=/Forgot Password|نسيت كلمة المرور/i')).toBeVisible();
+    await expect(page.locator('text=/نسيت كلمة المرور.*Forgot Password/i')).toBeVisible();
   });
 
   test('should show error for invalid credentials', async ({ page }) => {

@@ -62,6 +62,11 @@ let sessionId: string | null = null;
 let userId: string | null = null;
 let isInitialized = false;
 
+// Store original handlers for cleanup
+let originalPushState: typeof history.pushState | null = null;
+let originalFetch: typeof fetch | null = null;
+let clickListener: ((event: MouseEvent) => void) | null = null;
+
 // ═══════════════════════════════════════════════════════════════════════════
 // Session Management
 // ═══════════════════════════════════════════════════════════════════════════
@@ -279,7 +284,7 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
   };
 
   // Track navigation
-  const originalPushState = history.pushState;
+  originalPushState = history.pushState;
   history.pushState = function (...args) {
     addBreadcrumb({
       type: 'navigation',
@@ -287,11 +292,11 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
       message: `Navigate to ${args[2]}`,
       data: { from: window.location.href, to: args[2] as string },
     });
-    return originalPushState.apply(this, args);
+    return originalPushState!.apply(this, args);
   };
 
   // Track clicks
-  document.addEventListener('click', (event) => {
+  clickListener = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
     const text = target.innerText?.substring(0, 50) || target.className;
     addBreadcrumb({
@@ -300,10 +305,11 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
       message: `Click on ${target.tagName.toLowerCase()}`,
       data: { text, className: target.className },
     });
-  }, { passive: true });
+  };
+  document.addEventListener('click', clickListener, { passive: true });
 
   // Track XHR/Fetch
-  const originalFetch = window.fetch;
+  originalFetch = window.fetch;
   window.fetch = async function (...args) {
     const url = typeof args[0] === 'string' ? args[0] : (args[0] as Request).url;
     const method = (args[1]?.method || 'GET').toUpperCase();
@@ -315,7 +321,7 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
     });
 
     try {
-      const response = await originalFetch.apply(this, args);
+      const response = await originalFetch!.apply(this, args);
       addBreadcrumb({
         type: 'xhr',
         category: 'fetch',
@@ -336,6 +342,39 @@ export function initializeErrorTracking(options?: { userId?: string }): void {
 
   isInitialized = true;
   console.log('🔍 Error tracking initialized');
+}
+
+/**
+ * Clean up error tracking and restore original handlers
+ */
+export function cleanupErrorTracking(): void {
+  if (!isInitialized || typeof window === 'undefined') return;
+
+  // Restore original handlers
+  window.onerror = null;
+  window.onunhandledrejection = null;
+
+  if (originalPushState) {
+    history.pushState = originalPushState;
+    originalPushState = null;
+  }
+
+  if (originalFetch) {
+    window.fetch = originalFetch;
+    originalFetch = null;
+  }
+
+  if (clickListener) {
+    document.removeEventListener('click', clickListener);
+    clickListener = null;
+  }
+
+  // Clear state
+  clearBreadcrumbs();
+  userId = null;
+  isInitialized = false;
+
+  console.log('🔍 Error tracking cleaned up');
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -368,6 +407,7 @@ export function getMonitoringContext() {
 
 export const ErrorTracking = {
   initialize: initializeErrorTracking,
+  cleanup: cleanupErrorTracking,
   captureError,
   captureMessage,
   addBreadcrumb,

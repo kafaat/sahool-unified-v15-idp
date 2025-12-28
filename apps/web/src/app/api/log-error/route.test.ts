@@ -127,7 +127,7 @@ describe('POST /api/log-error', () => {
     it('should reject empty payload', async () => {
       const request = createMockRequest({});
       const response = await POST(request);
-      const data = await response.json();
+      // const data = await response.json();
 
       expect(response.status).toBe(400);
     });

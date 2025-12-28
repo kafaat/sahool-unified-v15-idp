@@ -25,7 +25,7 @@ const priorityColors = {
   low: 'bg-green-100 text-green-700 border-green-200',
 };
 
-const TaskItem: React.FC<TaskItemProps> = ({ title, titleAr, dueDate, priority, status }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ titleAr, dueDate, priority, status }) => {
   const isOverdue = new Date(dueDate) < new Date() && status !== 'completed';
 
   return (

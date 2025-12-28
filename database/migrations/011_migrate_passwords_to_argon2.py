@@ -15,13 +15,15 @@ Options:
 """
 
 import sys
+from pathlib import Path
 import argparse
 import logging
 from typing import List, Tuple
 from datetime import datetime
 
-# Add parent directory to path to import shared modules
-sys.path.insert(0, '/home/user/sahool-unified-v15-idp')
+# Add project root directory to path to import shared modules dynamically
+BASE_DIR = str(Path(__file__).parent.parent.parent)
+sys.path.insert(0, BASE_DIR)
 
 try:
     from shared.auth.password_hasher import (

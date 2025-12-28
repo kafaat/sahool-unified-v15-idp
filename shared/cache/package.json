@@ -1,6 +1,6 @@
 {
   "name": "@sahool/cache",
-  "version": "1.0.0",
+  "version": "16.0.0",
   "description": "Redis Sentinel client with high availability for Sahool platform",
   "main": "redis-sentinel.ts",
   "types": "redis-sentinel.ts",

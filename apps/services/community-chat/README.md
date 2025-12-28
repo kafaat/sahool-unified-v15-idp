@@ -1,3 +1,19 @@
+# ⚠️ DEPRECATED - Use chat-service instead
+
+This service has been deprecated. All chat functionality is now handled by `chat-service` (Port 8114).
+
+## Migration Guide
+
+The `chat-service` provides:
+- Persistent message storage (PostgreSQL)
+- Real-time messaging (Socket.IO)
+- Read receipts and typing indicators
+- Multiple message types (TEXT, IMAGE, OFFER, SYSTEM)
+
+Please update your references to use `chat-service` instead.
+
+---
+
 # 🌿 Sahool Community Chat Service
 # خدمة الدردشة الحية لمجتمع سهول
 

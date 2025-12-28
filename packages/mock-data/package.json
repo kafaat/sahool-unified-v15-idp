@@ -1,6 +1,6 @@
 {
   "name": "@sahool/mock-data",
-  "version": "1.0.0",
+  "version": "16.0.0",
   "description": "Mock data generators for SAHOOL development and testing",
   "main": "./src/index.ts",
   "types": "./src/index.ts",

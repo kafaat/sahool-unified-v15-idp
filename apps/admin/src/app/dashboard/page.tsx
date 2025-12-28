@@ -11,6 +11,7 @@ import AlertBadge from '@/components/ui/AlertBadge';
 import { fetchDashboardStats, fetchFarms, fetchDiagnoses } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import type { DashboardStats, Farm, DiagnosisRecord } from '@/types';
+import type { BaseFarmData } from '@/components/maps/FarmsMap';
 import {
   MapPin,
   Leaf,
@@ -181,8 +182,9 @@ export default function DashboardPage() {
     }
   }, [criticalAlerts.length]);
 
-  const handleFarmClick = (farm: Farm) => {
-    setSelectedFarm(farm);
+  // Accept any farm-like object that has at least the base properties
+  const handleFarmClick = (farm: BaseFarmData) => {
+    setSelectedFarm(farm as Farm);
   };
 
   if (isLoading) {

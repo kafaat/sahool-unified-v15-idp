@@ -11,7 +11,7 @@ LABEL version="15.3.0"
 WORKDIR /app
 
 # Install dependencies (with retries for network resilience)
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and generate client
@@ -37,7 +37,7 @@ WORKDIR /app
 RUN apk add --no-cache curl openssl
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 # Install with increased retries and timeout for network resilience
 RUN npm install --only=production --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 

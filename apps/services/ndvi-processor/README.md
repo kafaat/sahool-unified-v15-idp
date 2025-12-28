@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED - Use vegetation-analysis-service instead
+
+This service has been deprecated and merged into `vegetation-analysis-service`.
+Please update your references to use `vegetation-analysis-service` on port 8090.
+
+---
+
+
 # NDVI Processor - معالج NDVI
 
 ## نظرة عامة | Overview

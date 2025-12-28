@@ -1,6 +1,6 @@
 {
   "name": "sahool-chat-examples",
-  "version": "1.0.0",
+  "version": "16.0.0",
   "description": "Example clients for Sahool Community Chat Service",
   "private": true,
   "scripts": {

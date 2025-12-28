@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED - Use crop-intelligence-service instead
+
+This service has been deprecated and merged into `crop-intelligence-service`.
+Please update your references to use `crop-intelligence-service` on port 8095.
+
+---
+
+
 # Crop Health Service
 
 **خدمة صحة المحاصيل - التشخيص الذكي للحقول الزراعية**

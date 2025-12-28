@@ -20,13 +20,18 @@ const InteractiveMap = dynamic(() => import('@/components/maps/FarmsMap'), {
 
 export interface MapFarm {
   id: string;
-  name: string;
-  nameAr: string;
+  name?: string;
+  nameAr?: string;
   coordinates: { lat: number; lng: number };
   healthScore: number;
   area: number;
   crops: string[];
-  status: 'active' | 'inactive' | 'warning';
+  status?: string;
+  // Optional properties for Farm type compatibility
+  governorate?: string;
+  ownerId?: string;
+  lastUpdated?: string;
+  createdAt?: string;
 }
 
 interface MapOverviewProps {

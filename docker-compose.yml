@@ -1473,11 +1473,11 @@ services:
       - PORT=8111
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - WEATHER_SERVICE_URL=http://weather_advanced:8092
+      - WEATHER_SERVICE_URL=http://weather-service:8092
     ports:
       - "8111:8111"
     depends_on:
-      weather_advanced:
+      weather-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/healthz')"]

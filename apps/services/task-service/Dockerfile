@@ -16,7 +16,9 @@ LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DEFAULT_TIMEOUT=300 \
+    PIP_RETRIES=10
 
 WORKDIR /app
 
@@ -26,16 +28,27 @@ RUN groupadd --system sahool && \
 
 # Install system dependencies first (using HTTP), then configure HTTPS
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https && \
+    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https build-essential && \
     sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
     rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip (non-fatal in case of network issues)
-RUN pip install --upgrade pip || true
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+
+# Configure pip for better network resilience
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
+    echo "[install]" >> /root/.pip/pip.conf && \
+    echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
 # Copy shared libraries
 

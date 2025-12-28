@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED - Use field-management-service instead
+
+This service has been deprecated and merged into `field-management-service`.
+Please update your references to use `field-management-service` on port 3000.
+
+---
+
+
 # Field Core Service - خدمة الحقول الأساسية
 
 ## نظرة عامة | Overview

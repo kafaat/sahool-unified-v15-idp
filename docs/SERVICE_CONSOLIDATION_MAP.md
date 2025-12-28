@@ -51,27 +51,36 @@ This document tracks the consolidation of microservices from 40+ to ~25 services
 
 ---
 
-### 🔄 Pending Consolidations
-
 #### 5. Advisory Services → `advisory-service`
-| Service | Port | Recommendation |
-|---------|------|----------------|
-| agro-advisor | 8095 | Merge |
-| fertilizer-advisor | 8093 | Merge |
-| ai-advisor | 8112 | Keep as orchestrator |
+| Old Service | Port | Status | New Service |
+|-------------|------|--------|-------------|
+| agro-advisor | 8095 | ⚠️ Deprecated | advisory-service |
+| fertilizer-advisor | 8093 | ⚠️ Deprecated | advisory-service |
+
+**New Service:** `advisory-service` (Port 8093)
+
+> **Note:** `ai-advisor` (Port 8112) remains as separate orchestrator service
+
+---
 
 #### 6. Yield Services → `yield-prediction-service`
-| Service | Port | Recommendation |
-|---------|------|----------------|
-| yield-engine | 8098 | Merge |
-| yield-prediction | 8103 | Merge |
+| Old Service | Port | Status | New Service |
+|-------------|------|--------|-------------|
+| yield-engine | 8098 | ⚠️ Deprecated | yield-prediction-service |
+| yield-prediction | 8103 | ⚠️ Deprecated | yield-prediction-service |
+
+**New Service:** `yield-prediction-service` (Port 8103)
+
+---
 
 #### 7. Field Services → `field-management-service`
-| Service | Port | Recommendation |
-|---------|------|----------------|
-| field-core | 3000 | Primary |
-| field-service | 8115 | Merge (Python features) |
-| field-ops | 8080 | Merge |
+| Old Service | Port | Status | New Service |
+|-------------|------|--------|-------------|
+| field-core | 3000 | ⚠️ Deprecated | field-management-service |
+| field-service | 8115 | ⚠️ Deprecated | field-management-service |
+| field-ops | 8080 | ⚠️ Deprecated | field-management-service |
+
+**New Service:** `field-management-service` (Port 3000)
 
 ---
 
@@ -83,7 +92,22 @@ This document tracks the consolidation of microservices from 40+ to ~25 services
 | Chat | 2 | 1 | -1 |
 | Crop Intelligence | 3 | 1 | -2 |
 | Vegetation | 4 | 1 | -3 |
-| **Total Reduced** | **11** | **4** | **-7** |
+| Advisory | 2 | 1 | -1 |
+| Yield | 2 | 1 | -1 |
+| Field | 3 | 1 | -2 |
+| **Total Reduced** | **18** | **7** | **-11** |
+
+## New Unified Services
+
+| Service | Port | Replaces | Features |
+|---------|------|----------|----------|
+| `weather-service` | 8108 | weather-core, weather-advanced | Weather data, forecasting, agricultural alerts |
+| `chat-service` | 8114 | community-chat | Real-time messaging, Socket.IO |
+| `crop-intelligence-service` | 8095 | crop-health, crop-health-ai, crop-growth-model | Health monitoring, disease diagnosis, growth simulation |
+| `vegetation-analysis-service` | 8090 | satellite-service, ndvi-*, lai-estimation | Satellite imagery, vegetation indices, LAI |
+| `advisory-service` | 8093 | agro-advisor, fertilizer-advisor | Disease diagnosis, fertilizer planning |
+| `yield-prediction-service` | 8103 | yield-engine, yield-prediction | ML predictions, scenario analysis |
+| `field-management-service` | 3000 | field-core, field-service, field-ops | Field CRUD, tasks, mobile sync |
 
 ## Migration Guide
 
@@ -115,6 +139,13 @@ This document tracks the consolidation of microservices from 40+ to ~25 services
 | ndvi-processor | 2024-12-28 | v17.0.0 |
 | ndvi-engine | 2024-12-28 | v17.0.0 |
 | lai-estimation | 2024-12-28 | v17.0.0 |
+| agro-advisor | 2024-12-28 | v17.0.0 |
+| fertilizer-advisor | 2024-12-28 | v17.0.0 |
+| yield-engine | 2024-12-28 | v17.0.0 |
+| yield-prediction | 2024-12-28 | v17.0.0 |
+| field-core | 2024-12-28 | v17.0.0 |
+| field-service | 2024-12-28 | v17.0.0 |
+| field-ops | 2024-12-28 | v17.0.0 |
 
 ## Architecture Benefits
 
@@ -126,8 +157,10 @@ This document tracks the consolidation of microservices from 40+ to ~25 services
 - Inconsistent APIs
 
 ### After Consolidation
-- ~25-28 microservices
+- ~25 microservices
 - Cleaner architecture
 - Reduced maintenance burden
 - Single source of truth
 - Unified API patterns
+- Faster deployments
+- Easier debugging

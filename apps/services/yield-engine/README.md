@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED - Use yield-prediction-service instead
+
+This service has been deprecated and merged into `yield-prediction-service`.
+Please update your references to use `yield-prediction-service` on port 8103.
+
+---
+
+
 # Yield Engine - محرك الإنتاجية
 
 ## نظرة عامة | Overview

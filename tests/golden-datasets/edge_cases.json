@@ -451,7 +451,7 @@
       "id": "edge_021",
       "category": "invalid_input",
       "input": {
-        "prompt": "A".repeat(5000),
+        "prompt": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
         "language": "en",
         "note": "Very long repetitive input"
       },

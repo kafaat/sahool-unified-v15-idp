@@ -77,7 +77,7 @@ class LlmClient(ABC):
         self.timeout = timeout
         self.max_tokens = max_tokens
         self._request_count = 0
-        self._window_start_time = 0.0
+        self._window_start_time = None  # Will be set on first request
 
     @abstractmethod
     def _generate_impl(self, prompt: str) -> LlmResponse:
@@ -115,10 +115,9 @@ class LlmClient(ABC):
                 # Check rate limit FIRST, before tracking request
                 self._check_rate_limit()
                 
-                # Track request AFTER rate limit check
-                current_time = time.time()
-                if self._request_count == 0:
-                    self._window_start_time = current_time
+                # Track request AFTER rate limit check passes
+                if self._request_count == 0 and self._window_start_time is None:
+                    self._window_start_time = time.time()
                 self._request_count += 1
                 
                 # Call implementation
@@ -189,11 +188,18 @@ class LlmClient(ABC):
         Raises:
             LlmRateLimitError: If rate limit exceeded
         """
-        # Simple rate limiting: max 60 requests per minute (sliding window)
         current_time = time.time()
+        
+        # Initialize window on first request
+        if self._window_start_time is None:
+            self._window_start_time = current_time
+            return  # First request always passes
+        
         time_since_window_start = current_time - self._window_start_time
         
         # Check if we've hit the limit within the current window FIRST
+        # Note: _request_count hasn't been incremented yet, so we check >= 60
+        # which means we've already made 60 requests
         if self._request_count >= 60:
             # If we're still within the window, raise error
             if time_since_window_start < 60:

@@ -155,7 +155,11 @@ def run_rag(
         )
         
     except Exception as e:
-        logger.error(f"RAG pipeline error: {e}", exc_info=True)
+        # Log detailed error for debugging (server-side only)
+        logger.error(f"RAG pipeline error: {type(e).__name__}")
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Pipeline error details", exc_info=True)
+        
         # Return error response instead of raising
         return RagResponse(
             answer="عذراً، حدث خطأ في النظام. يرجى المحاولة مرة أخرى.",

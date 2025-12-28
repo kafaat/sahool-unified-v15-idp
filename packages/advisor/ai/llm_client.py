@@ -112,10 +112,10 @@ class LlmClient(ABC):
 
         for attempt in range(self.max_retries):
             try:
-                # Rate limiting check
+                # Check rate limit FIRST, before tracking request
                 self._check_rate_limit()
                 
-                # Track request
+                # Track request AFTER rate limit check
                 current_time = time.time()
                 if self._request_count == 0:
                     self._window_start_time = current_time
@@ -189,21 +189,20 @@ class LlmClient(ABC):
         Raises:
             LlmRateLimitError: If rate limit exceeded
         """
-        # Simple rate limiting: max 60 requests per minute
+        # Simple rate limiting: max 60 requests per minute (sliding window)
         current_time = time.time()
         time_since_window_start = current_time - self._window_start_time
         
-        # If more than a minute has passed, reset the window
-        if time_since_window_start >= 60:
+        # Check if we've hit the limit within the current window FIRST
+        if self._request_count >= 60:
+            # If we're still within the window, raise error
+            if time_since_window_start < 60:
+                raise LlmRateLimitError(
+                    f"Rate limit exceeded: {self._request_count} requests in {time_since_window_start:.1f}s"
+                )
+            # If window has expired, reset and allow
             self._request_count = 0
             self._window_start_time = current_time
-            return
-        
-        # Check if we've hit the limit within the current window
-        if self._request_count >= 60:
-            raise LlmRateLimitError(
-                f"Rate limit exceeded: {self._request_count} requests in {time_since_window_start:.1f}s"
-            )
 
 
 class MockLlmClient(LlmClient):

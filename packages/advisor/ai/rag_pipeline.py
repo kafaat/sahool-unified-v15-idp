@@ -82,7 +82,7 @@ def run_rag(
 
     try:
         # Step 1: Retrieve relevant chunks
-        logger.info(f"Retrieving top {top_k} chunks for query: {req.question[:100]}...")
+        logger.info(f"Retrieving top {top_k} chunks (query length: {len(req.question)} chars)")
         raw_chunks = retrieve(store, collection=collection, query=req.question, k=top_k)
 
         # Step 2: Rank chunks deterministically
@@ -132,7 +132,7 @@ def run_rag(
                 answer=fallback_text,
                 confidence=0.2,
                 sources=[],
-                explanation=f"LLM generation failed: {str(e)}",
+                explanation="LLM generation error occurred",
                 mode="error",
             )
 
@@ -161,7 +161,7 @@ def run_rag(
             answer="عذراً، حدث خطأ في النظام. يرجى المحاولة مرة أخرى.",
             confidence=0.0,
             sources=[],
-            explanation=f"Pipeline error: {str(e)}",
+            explanation="Internal pipeline error",
             mode="error",
         )
 

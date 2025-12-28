@@ -54,7 +54,7 @@ export function initSentry(config: SentryConfig): void {
     ],
 
     // Filter out non-critical errors
-    beforeSend(event, hint) {
+    beforeSend(event: Sentry.ErrorEvent, hint: Sentry.EventHint) {
       const error = hint.originalException as Error;
 
       // Ignore network errors that are often user-side
@@ -71,7 +71,7 @@ export function initSentry(config: SentryConfig): void {
     },
 
     // Don't send PII
-    beforeBreadcrumb(breadcrumb) {
+    beforeBreadcrumb(breadcrumb: Sentry.Breadcrumb) {
       // Remove sensitive data from breadcrumbs
       if (breadcrumb.category === 'xhr' || breadcrumb.category === 'fetch') {
         if (breadcrumb.data?.url?.includes('password')) {

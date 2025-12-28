@@ -8,7 +8,15 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import * as Sentry from '@sentry/nextjs';
+
+// Optional Sentry import
+let Sentry: typeof import('@sentry/nextjs') | undefined;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  Sentry = require('@sentry/nextjs');
+} catch {
+  // Sentry not available
+}
 
 interface Props {
   children: ReactNode;
@@ -42,12 +50,14 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // Log to Sentry
-    Sentry.captureException(error, {
-      extra: {
-        componentStack: errorInfo.componentStack,
-      },
-    });
+    // Log to Sentry if available
+    if (Sentry) {
+      Sentry.captureException(error, {
+        extra: {
+          componentStack: errorInfo.componentStack,
+        },
+      });
+    }
 
     // Update state with error info
     this.setState({ errorInfo });

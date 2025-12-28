@@ -14,7 +14,9 @@ from typing import Dict, Any, List
 
 
 # Locate golden datasets
-REPO_ROOT = Path(__file__).parent.parent.parent.parent.parent
+# Path: apps/services/ai-advisor/tests/evaluation/test_golden_dataset.py
+# Going up: evaluation -> tests -> ai-advisor -> services -> apps -> repo_root (6 levels)
+REPO_ROOT = Path(__file__).parent.parent.parent.parent.parent.parent
 GOLDEN_DATASETS_DIR = REPO_ROOT / "tests" / "golden-datasets"
 EVALUATION_DATASETS_DIR = REPO_ROOT / "tests" / "evaluation" / "datasets"
 

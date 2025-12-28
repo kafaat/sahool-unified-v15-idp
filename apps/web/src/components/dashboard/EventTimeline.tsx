@@ -1,7 +1,6 @@
-import React from 'react';
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { wsClient, TimelineEvent, getEventIcon, getEventColor, formatEventType } from '@/lib/ws';
 import { SkeletonEventItem } from './ui/Skeleton';
 
@@ -159,8 +158,8 @@ export const EventTimeline = React.memo<EventTimelineProps>(function EventTimeli
     // Simulate new events for demo mode
     const interval = setInterval(() => {
       if (!wsClient.isConnected) {
-        const eventTypes = ['task_created', 'task_completed', 'weather_alert_issued', 'ndvi_processed', 'image_diagnosed'];
-        const randomType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+        const eventTypes = ['task_created', 'task_completed', 'weather_alert_issued', 'ndvi_processed', 'image_diagnosed'] as const;
+        const randomType = eventTypes[Math.floor(Math.random() * eventTypes.length)] ?? 'task_created';
 
         const newEvent: TimelineEvent = {
           event_id: `evt_${Date.now()}`,

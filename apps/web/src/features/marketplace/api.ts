@@ -3,7 +3,7 @@
  * واجهة برمجية لميزة السوق الزراعي
  */
 
-import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
+import type { Product, ProductFilters, Order, OrderFilters } from './types';
 
 // const API_BASE = '/api/marketplace';
 
@@ -138,7 +138,7 @@ export const marketplaceApi = {
   /**
    * Get orders list
    */
-  async getOrders(filters?: OrderFilters): Promise<Order[]> {
+  async getOrders(_filters?: OrderFilters): Promise<Order[]> {
     // Mock orders data
     const orders: Order[] = [];
     return new Promise((resolve) => setTimeout(() => resolve(orders), 500));
@@ -147,7 +147,7 @@ export const marketplaceApi = {
   /**
    * Get order by ID
    */
-  async getOrderById(id: string): Promise<Order> {
+  async getOrderById(_id: string): Promise<Order> {
     throw new Error('Order not found');
   },
 
@@ -183,7 +183,7 @@ export const marketplaceApi = {
   /**
    * Cancel order
    */
-  async cancelOrder(id: string): Promise<Order> {
+  async cancelOrder(_id: string): Promise<Order> {
     throw new Error('Not implemented');
   },
 };

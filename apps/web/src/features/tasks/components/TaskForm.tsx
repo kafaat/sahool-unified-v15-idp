@@ -27,7 +27,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     title_ar: task?.title || '', // Use title as fallback
     description: task?.description || '',
     description_ar: task?.description || '', // Use description as fallback
-    due_date: task?.due_date ? task.due_date.split('T')[0] : '',
+    due_date: task?.due_date ? (task.due_date.split('T')[0] ?? '') : '',
     priority: task?.priority || 'medium',
     status: task?.status || 'open',
     field_id: task?.field_id || '',

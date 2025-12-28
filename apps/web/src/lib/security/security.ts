@@ -71,7 +71,7 @@ export function getCsrfToken(): string | null {
 
   const cookieName = config.csrfCookieName || 'csrf_token';
   const match = document.cookie.match(new RegExp(`(^| )${cookieName}=([^;]+)`));
-  return match ? match[2] : null;
+  return match ? (match[2] ?? null) : null;
 }
 
 /**
@@ -293,7 +293,7 @@ export function getCookie(name: string): string | null {
   const match = document.cookie.match(
     new RegExp(`(^| )${encodeURIComponent(name)}=([^;]+)`)
   );
-  return match ? decodeURIComponent(match[2]) : null;
+  return match && match[2] ? decodeURIComponent(match[2]) : null;
 }
 
 /**

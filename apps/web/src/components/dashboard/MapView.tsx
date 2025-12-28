@@ -248,8 +248,8 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     if (geojsonData.features.length > 0) {
       const bounds = new maplibregl.LngLatBounds();
       geojsonData.features.forEach(feature => {
-        if (feature.geometry.type === 'Polygon') {
-          feature.geometry.coordinates![0].forEach(coord => {
+        if (feature?.geometry?.type === 'Polygon' && feature.geometry.coordinates?.[0]) {
+          feature.geometry.coordinates[0].forEach(coord => {
             bounds.extend(coord as [number, number]);
           });
         }

@@ -18,9 +18,16 @@ COPY rotation-requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r rotation-requirements.txt
 
+# Create non-root user for security
+RUN groupadd --gid 1000 sahool && \
+    useradd --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
 # Copy source code
-COPY src/ ./src/
-COPY ../shared/ ./shared/
+COPY --chown=sahool:sahool src/ ./src/
+COPY --chown=sahool:sahool ../shared/ ./shared/
+
+# Switch to non-root user
+USER sahool
 
 # Expose port
 EXPOSE 8099

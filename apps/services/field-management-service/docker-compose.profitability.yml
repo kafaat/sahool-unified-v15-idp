@@ -63,6 +63,11 @@ services:
     networks:
       - sahool-network
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp
+      - /run
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U sahool"]
       interval: 10s
@@ -78,6 +83,11 @@ services:
     networks:
       - sahool-network
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
     command: ["--http_port", "8222", "--js"]
 
 networks:

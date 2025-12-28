@@ -12,7 +12,7 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Copy requirements
-COPY requirements.txt .
+COPY apps/services/mcp-server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared modules

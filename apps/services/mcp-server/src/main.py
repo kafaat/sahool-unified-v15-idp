@@ -46,6 +46,12 @@ HOST = os.getenv("MCP_SERVER_HOST", "0.0.0.0")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 SAHOOL_API_URL = os.getenv("SAHOOL_API_URL", "http://localhost:8000")
 
+# CORS Configuration - environment-based allowed origins
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:8080,https://sahool.com,https://app.sahool.com"
+).split(",")
+
 # Logging
 logging.basicConfig(
     level=getattr(logging, LOG_LEVEL.upper()),
@@ -111,13 +117,13 @@ app = FastAPI(
 # Store MCP server in app state
 app.state.mcp_server = mcp_server
 
-# CORS middleware
+# CORS middleware - using environment-based allowed origins instead of wildcard
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
 

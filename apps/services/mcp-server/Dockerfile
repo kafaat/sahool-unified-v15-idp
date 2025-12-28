@@ -7,6 +7,10 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
 # Copy requirements
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -17,8 +21,14 @@ COPY shared/ /app/shared/
 # Copy service code
 COPY apps/services/mcp-server/src/ /app/src/
 
+# Set ownership
+RUN chown -R sahool:sahool /app
+
 # Set Python path
 ENV PYTHONPATH=/app
+
+# Switch to non-root user
+USER sahool
 
 # Expose port
 EXPOSE 8200

@@ -23,7 +23,7 @@ services:
   # إدارة الحقول - Field Management
   # ============================================================================
   - name: field-core
-    url: http://field-core:3000
+    url: http://field-management-service:3000
     tags:
       - starter
       - core
@@ -75,7 +75,7 @@ services:
   # خدمة الطقس - Weather Service
   # ============================================================================
   - name: weather-core
-    url: http://weather-core:8108
+    url: http://weather-service:8108
     tags:
       - starter
       - weather
@@ -190,7 +190,7 @@ services:
   # خدمة الأقمار الصناعية - Satellite Service
   # ============================================================================
   - name: satellite-service
-    url: http://satellite-service:8090
+    url: http://vegetation-analysis-service:8090
     tags:
       - professional
       - satellite
@@ -246,7 +246,7 @@ services:
   # الذكاء الاصطناعي لصحة المحاصيل - Crop Health AI
   # ============================================================================
   - name: crop-health-ai
-    url: http://crop-health-ai:8095
+    url: http://crop-intelligence-service:8095
     tags:
       - professional
       - ai
@@ -324,7 +324,7 @@ services:
   # محرك توقع الإنتاجية - Yield Engine
   # ============================================================================
   - name: yield-engine
-    url: http://yield-engine:8098
+    url: http://yield-prediction-service:8103
     tags:
       - professional
       - analytics
@@ -348,7 +348,7 @@ services:
   # مستشار التسميد - Fertilizer Advisor
   # ============================================================================
   - name: fertilizer-advisor
-    url: http://fertilizer-advisor:8093
+    url: http://advisory-service:8093
     tags:
       - professional
       - advisory
@@ -606,7 +606,7 @@ services:
   # عمليات الحقول - Field Operations
   # ============================================================================
   - name: field-ops
-    url: http://field-ops:8080
+    url: http://field-management-service:3000
     tags:
       - shared
       - operations
@@ -680,7 +680,7 @@ services:
   # الطقس المتقدم - Advanced Weather
   # ============================================================================
   - name: weather-advanced
-    url: http://weather-advanced:8092
+    url: http://weather-service:8108
     tags:
       - professional
       - weather
@@ -900,7 +900,7 @@ services:
   # خدمة الحقول - Field Service
   # ============================================================================
   - name: field-service
-    url: http://field-service:8115
+    url: http://field-management-service:3000
     tags:
       - shared
       - fields

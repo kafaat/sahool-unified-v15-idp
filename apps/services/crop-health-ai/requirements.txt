@@ -17,7 +17,7 @@ numpy>=1.26.0,<2.1.0
 tensorflow-cpu==2.18.0
 
 # Data Validation
-pydantic==2.10.3
+pydantic>=2.10.0,<3.0.0
 
 # HTTP Client (for webhook callbacks)
 httpx==0.28.1

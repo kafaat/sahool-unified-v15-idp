@@ -1,5 +1,17 @@
 FROM python:3.11-slim
 
+# Labels
+LABEL org.opencontainers.image.title="SAHOOL irrigation-smart"
+LABEL org.opencontainers.image.version="16.0.0"
+LABEL maintainer="KAFAAT <dev@kafaat.sa>"
+
+# Environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PORT=8094
+
 WORKDIR /app
 
 # Create non-root user for security

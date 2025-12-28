@@ -5,7 +5,7 @@
 FROM python:3.11-slim
 
 # Build arguments
-ARG SERVICE_NAME=weather-core
+ARG SERVICE_NAME=weather-service
 ARG SERVICE_VERSION=16.0.0
 
 LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}"

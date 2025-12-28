@@ -37,6 +37,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY src/ ./src/
 
+# Copy shared configuration (needed for cors_config)
+# Note: Build context must be set to apps/services/ directory
+COPY shared/__init__.py ./shared/
+COPY shared/config/ ./shared/config/
+
 # Create temp directory
 RUN mkdir -p /tmp/ndvi && chown -R sahool:sahool /tmp/ndvi
 

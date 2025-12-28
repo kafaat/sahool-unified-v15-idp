@@ -1473,11 +1473,11 @@ services:
       - PORT=8111
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - WEATHER_SERVICE_URL=http://weather_advanced:8092
+      - WEATHER_SERVICE_URL=http://weather-service:8092
     ports:
       - "8111:8111"
     depends_on:
-      weather_advanced:
+      weather-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/healthz')"]
@@ -1693,7 +1693,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
-      - SATELLITE_SERVICE_URL=http://satellite_service:8090
+      - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
       - "8118:8118"
     depends_on:
@@ -1701,7 +1701,7 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
-      satellite_service:
+      vegetation-analysis-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8118/healthz')"]

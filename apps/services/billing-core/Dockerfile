@@ -30,6 +30,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Note: shared libraries will be mounted or copied at deployment time if needed
 COPY src ./src
 
+# Copy Alembic migrations
+COPY alembic ./alembic
+COPY alembic.ini ./alembic.ini
+
 # Set ownership
 RUN chown -R sahool:sahool /app
 

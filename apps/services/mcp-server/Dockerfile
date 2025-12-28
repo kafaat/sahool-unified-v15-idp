@@ -1,4 +1,21 @@
-FROM python:3.11-slim
+# SAHOOL MCP Server Service
+# ==========================
+# Build context: repository root
+# Version: 16.0.0
+
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION}-slim
+
+# Build arguments
+ARG SERVICE_NAME=mcp-server
+ARG SERVICE_VERSION=16.0.0
+
+LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}"
+LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
@@ -12,10 +29,10 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Copy requirements
-COPY requirements.txt .
+COPY apps/services/mcp-server/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy shared modules
+# Copy shared modules (build context is repository root)
 COPY shared/ /app/shared/
 
 # Copy service code

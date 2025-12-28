@@ -31,6 +31,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code | نسخ الكود المصدري
 COPY src/ ./src/
 
+# Copy migrations | نسخ الترحيلات
+COPY migrations/ ./migrations/
+
 # Change ownership | تغيير الملكية
 RUN chown -R sahool:sahool /app
 

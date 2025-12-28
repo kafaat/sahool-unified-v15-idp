@@ -1,22 +1,34 @@
 FROM python:3.11-slim
 
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app:/app/shared \
+    PIP_NO_CACHE_DIR=1
+
 WORKDIR /app
 
+# Create non-root user
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Upgrade pip to latest version
-RUN pip install --no-cache-dir --upgrade pip
+# Upgrade pip to latest version (non-fatal in case of network issues)
+RUN pip install --no-cache-dir --upgrade pip || true
 
 # Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy shared libraries from parent services directory
+COPY ../shared/ ./shared/
+
 # Copy source code
 COPY src/ ./src/
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash --uid 1000 appuser && \
-    chown -R appuser:appuser /app
-USER appuser
+# Set ownership
+RUN chown -R sahool:sahool /app
+
+USER sahool
 
 # Expose port
 EXPOSE 8093

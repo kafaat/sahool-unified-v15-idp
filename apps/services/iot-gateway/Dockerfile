@@ -1,6 +1,6 @@
 # SAHOOL IoT Gateway Service
 # ===========================
-# Uses shared base image for consistency
+# Build context: service directory (./apps/services/iot-gateway)
 # Version: 16.0.0
 
 ARG PYTHON_VERSION=3.11

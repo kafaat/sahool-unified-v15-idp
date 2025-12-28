@@ -1,9 +1,22 @@
-# SAHOOL Agent Registry Service - Dockerfile
-# ===========================================
+# SAHOOL Agent Registry Service
+# ==============================
+# Build context: repository root
+# Version: 16.0.0
 
-FROM python:3.11-slim
+ARG PYTHON_VERSION=3.11
+FROM python:${PYTHON_VERSION}-slim
 
-# Set working directory
+# Build arguments
+ARG SERVICE_NAME=agent-registry
+ARG SERVICE_VERSION=16.0.0
+
+LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}"
+LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
 WORKDIR /app
 
 # Install system dependencies
@@ -16,19 +29,22 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Copy requirements
-COPY requirements.txt .
+COPY apps/services/agent-registry/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy shared registry code
-COPY ../shared/registry /app/shared/registry
+# Copy shared registry code (build context is repository root)
+COPY shared/registry /app/shared/registry
 
 # Copy service code
-COPY src /app/src
+COPY apps/services/agent-registry/src /app/src
 
 # Set ownership
 RUN chown -R sahool:sahool /app
+
+# Set Python path
+ENV PYTHONPATH=/app
 
 # Switch to non-root user
 USER sahool

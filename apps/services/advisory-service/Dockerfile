@@ -15,7 +15,7 @@ LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
+    PYTHONPATH=/app:/app/shared \
     PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
@@ -32,7 +32,8 @@ RUN pip install --no-cache-dir --upgrade pip || true
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy shared libraries
+# Copy shared libraries from parent services directory
+COPY ../shared/ ./shared/
 
 # Copy source
 COPY src/ ./src/

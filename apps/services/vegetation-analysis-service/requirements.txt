@@ -1,5 +1,5 @@
-# Satellite Service - Requirements
-# خدمة الأقمار الصناعية
+# Vegetation Analysis Service - Requirements
+# خدمة تحليل النباتات
 # Updated: December 2025
 
 # Web Framework

@@ -34,6 +34,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source
 COPY src/ ./src/
 
+# Copy Alembic migrations
+COPY alembic/ ./alembic/
+COPY alembic.ini ./alembic.ini
+
 # Set ownership
 RUN chown -R sahool:sahool /app
 

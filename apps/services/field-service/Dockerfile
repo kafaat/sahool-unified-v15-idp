@@ -1,7 +1,7 @@
 # ============================================
 # SAHOOL Field Service Dockerfile
 # خدمة إدارة الحقول الزراعية
-# Port: 3000
+# Port: 8115
 # ============================================
 
 FROM python:3.11-slim
@@ -12,9 +12,10 @@ LABEL service="field-service"
 LABEL version="16.0.0"
 
 # Environment
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PORT=8115
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PORT=8115
 
 # Create non-root user
 RUN groupadd -r sahool && useradd -r -g sahool sahool
@@ -40,11 +41,11 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Expose port
-EXPOSE 3000
+EXPOSE 8115
 
 # Health check using Python
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3000/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8115/healthz')" || exit 1
 
 # Run application
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8115"]

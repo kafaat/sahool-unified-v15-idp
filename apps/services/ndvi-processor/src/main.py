@@ -12,9 +12,10 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query, Response, BackgroundTasks
 
-# Add path to shared config
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
-from cors_config import setup_cors_middleware
+# Import CORS configuration from shared module
+# The shared/config directory is copied to the container root by Dockerfile
+sys.path.insert(0, '/app')
+from shared.config.cors_config import setup_cors_middleware
 
 from .models import (
     ProcessRequest,

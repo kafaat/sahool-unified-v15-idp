@@ -1,0 +1,15 @@
+# SAHOOL MCP Requirements
+# ========================
+# Model Context Protocol integration dependencies
+# Updated: December 2025
+# Version: 1.0.0
+
+# Base requirements (inherited)
+-r base.txt
+
+# Observability (for MCP server)
+prometheus-client==0.21.1
+structlog==24.4.0
+
+# Note: MCP protocol is implemented directly using FastAPI and Pydantic
+# No additional MCP-specific packages required

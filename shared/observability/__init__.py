@@ -2,23 +2,54 @@
 Observability Module
 وحدة المراقبة
 
-Provides logging, metrics, tracing, and health check utilities.
+Provides comprehensive observability infrastructure:
+- Structured logging with sensitive data masking
+- Prometheus metrics collection
+- OpenTelemetry distributed tracing
+- FastAPI middleware for auto-instrumentation
+- Health checks
+- Agent-specific metrics and cost tracking
 """
 
+# Logging
 from .logging import (
     setup_logging,
     get_logger,
     set_request_context,
     clear_request_context,
     ServiceLogger,
+    SensitiveDataMasker,
+    JSONFormatter,
+    ColoredFormatter,
 )
 
+# Metrics
 from .metrics import (
     MetricsCollector,
     NDVIMetrics,
+    AgentMetrics,
+    CostTracker,
     timed,
 )
 
+# Tracing
+from .tracing import (
+    TracingConfig,
+    DistributedTracer,
+    setup_tracing,
+    get_tracer,
+    trace_function,
+)
+
+# Middleware
+from .middleware import (
+    ObservabilityMiddleware,
+    RequestLoggingMiddleware,
+    MetricsMiddleware,
+    setup_observability_middleware,
+)
+
+# Health
 from .health import (
     HealthChecker,
     HealthStatus,
@@ -32,6 +63,7 @@ from .health import (
     check_memory,
 )
 
+# Endpoints
 from .endpoints import (
     create_metrics_router,
     create_observability_router,
@@ -49,10 +81,30 @@ __all__ = [
     'set_request_context',
     'clear_request_context',
     'ServiceLogger',
+    'SensitiveDataMasker',
+    'JSONFormatter',
+    'ColoredFormatter',
+
     # Metrics
     'MetricsCollector',
     'NDVIMetrics',
+    'AgentMetrics',
+    'CostTracker',
     'timed',
+
+    # Tracing
+    'TracingConfig',
+    'DistributedTracer',
+    'setup_tracing',
+    'get_tracer',
+    'trace_function',
+
+    # Middleware
+    'ObservabilityMiddleware',
+    'RequestLoggingMiddleware',
+    'MetricsMiddleware',
+    'setup_observability_middleware',
+
     # Health
     'HealthChecker',
     'HealthStatus',
@@ -64,6 +116,7 @@ __all__ = [
     'check_nats',
     'check_disk_space',
     'check_memory',
+
     # Endpoints
     'create_metrics_router',
     'create_observability_router',

@@ -1,0 +1,736 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Agent Registry - Governance Definition
+# سجل حوكمة وكلاء سهول
+#
+# A2A Protocol-compliant agent definitions for the SAHOOL platform.
+# تعريفات الوكلاء المتوافقة مع بروتوكول A2A لمنصة سهول.
+#
+# This file defines all AI agents in the SAHOOL ecosystem, their capabilities,
+# dependencies, and operational parameters.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "1.0.0"
+last_updated: "2025-12-28"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Agent Registry Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+
+registry:
+  service: "agent-registry"
+  endpoint: "https://api.sahool.app/registry/v1"
+  protocol: "A2A"
+  version: "1.0.0"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Agent Categories
+# ─────────────────────────────────────────────────────────────────────────────
+
+categories:
+  intelligence:
+    description: "AI and intelligence agents / وكلاء الذكاء الاصطناعي"
+    description_ar: "وكلاء الذكاء الاصطناعي والتحليل"
+
+  advisory:
+    description: "Agricultural advisory agents / وكلاء الاستشارات الزراعية"
+    description_ar: "وكلاء الإرشاد والاستشارات الزراعية"
+
+  analysis:
+    description: "Data analysis and processing agents / وكلاء تحليل البيانات"
+    description_ar: "وكلاء تحليل ومعالجة البيانات"
+
+  monitoring:
+    description: "Monitoring and assessment agents / وكلاء المراقبة والتقييم"
+    description_ar: "وكلاء المراقبة والتقييم"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SAHOOL AI Agents
+# ─────────────────────────────────────────────────────────────────────────────
+
+agents:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FIELD ANALYST AGENT - وكيل تحليل الحقول
+  # ═══════════════════════════════════════════════════════════════════════════
+  field-analyst-agent:
+    name: "Field Analyst Agent"
+    name_ar: "وكيل تحليل الحقول"
+    version: "1.0.0"
+    category: analysis
+    description: "Analyzes field conditions using satellite data, IoT sensors, and historical patterns"
+    description_ar: "يحلل ظروف الحقل باستخدام بيانات الأقمار الصناعية وأجهزة الاستشعار والأنماط التاريخية"
+
+    capabilities:
+      - name: "analyze_field"
+        description: "Comprehensive field analysis including NDVI, soil, and weather"
+        input_schema:
+          type: object
+          required: ["field_id"]
+          properties:
+            field_id: { type: string }
+            crop_type: { type: string }
+        output_schema:
+          type: object
+          properties:
+            health_score: { type: number }
+            recommendations: { type: array }
+
+      - name: "assess_field_health"
+        description: "Assess overall field health from multiple data sources"
+        input_schema:
+          type: object
+          required: ["field_id"]
+        output_schema:
+          type: object
+          properties:
+            status: { type: string }
+            issues: { type: array }
+
+    skills:
+      - skill_id: "remote_sensing"
+        name: "Remote Sensing Analysis"
+        name_ar: "تحليل الاستشعار عن بعد"
+        level: "expert"
+        keywords: ["ndvi", "satellite", "imagery", "remote-sensing"]
+
+      - skill_id: "field_assessment"
+        name: "Field Assessment"
+        name_ar: "تقييم الحقول"
+        level: "expert"
+        keywords: ["field", "assessment", "evaluation", "analysis"]
+
+    dependencies:
+      - satellite-service
+      - ndvi-processor
+      - weather-service
+      - iot-gateway
+
+    endpoint:
+      url: "https://api.sahool.app/agents/field-analyst/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/field-analyst/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "field-analysis", "satellite", "ndvi"]
+      organization: "SAHOOL"
+      license: "MIT"
+      homepage: "https://sahool.app"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DISEASE EXPERT AGENT - وكيل خبير الأمراض
+  # ═══════════════════════════════════════════════════════════════════════════
+  disease-expert-agent:
+    name: "Disease Expert Agent"
+    name_ar: "وكيل خبير الأمراض"
+    version: "1.0.0"
+    category: intelligence
+    description: "AI-powered crop disease diagnosis and treatment recommendations"
+    description_ar: "تشخيص أمراض المحاصيل وتوصيات العلاج بالذكاء الاصطناعي"
+
+    capabilities:
+      - name: "diagnose_disease"
+        description: "Diagnose crop diseases from symptoms and images"
+        input_schema:
+          type: object
+          required: ["crop_type", "symptoms"]
+          properties:
+            crop_type: { type: string }
+            symptoms: { type: object }
+            image_url: { type: string }
+        output_schema:
+          type: object
+          properties:
+            disease: { type: string }
+            confidence: { type: number }
+            treatment: { type: array }
+
+      - name: "assess_disease_risk"
+        description: "Assess disease risk based on environmental conditions"
+        input_schema:
+          type: object
+          required: ["crop_type", "location"]
+        output_schema:
+          type: object
+          properties:
+            risk_level: { type: string }
+            diseases: { type: array }
+
+      - name: "recommend_treatment"
+        description: "Recommend treatment for identified diseases"
+        input_schema:
+          type: object
+          required: ["disease", "crop_type"]
+        output_schema:
+          type: object
+          properties:
+            treatments: { type: array }
+            preventive_measures: { type: array }
+
+    skills:
+      - skill_id: "crop_pathology"
+        name: "Crop Pathology"
+        name_ar: "أمراض المحاصيل"
+        level: "expert"
+        keywords: ["disease", "pathology", "diagnosis", "pest"]
+
+      - skill_id: "computer_vision"
+        name: "Computer Vision"
+        name_ar: "رؤية الحاسوب"
+        level: "advanced"
+        keywords: ["vision", "image", "detection", "recognition"]
+
+    dependencies:
+      - crop-health-service
+      - crop-health-ai
+      - weather-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/disease-expert/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/disease-expert/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "ai", "disease", "diagnosis", "computer-vision"]
+      organization: "SAHOOL"
+      license: "MIT"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IRRIGATION ADVISOR AGENT - وكيل مستشار الري
+  # ═══════════════════════════════════════════════════════════════════════════
+  irrigation-advisor-agent:
+    name: "Irrigation Advisor Agent"
+    name_ar: "وكيل مستشار الري"
+    version: "1.0.0"
+    category: advisory
+    description: "Smart irrigation recommendations based on soil, weather, and crop needs"
+    description_ar: "توصيات الري الذكي بناءً على التربة والطقس واحتياجات المحصول"
+
+    capabilities:
+      - name: "recommend_irrigation"
+        description: "Recommend irrigation schedule and amount"
+        input_schema:
+          type: object
+          required: ["crop_type", "growth_stage"]
+          properties:
+            crop_type: { type: string }
+            growth_stage: { type: string }
+            soil_moisture: { type: number }
+            weather_forecast: { type: object }
+        output_schema:
+          type: object
+          properties:
+            schedule: { type: array }
+            amount_mm: { type: number }
+            next_irrigation: { type: string }
+
+      - name: "calculate_water_needs"
+        description: "Calculate crop water requirements (ETc)"
+        input_schema:
+          type: object
+          required: ["crop_type", "area_hectares"]
+        output_schema:
+          type: object
+          properties:
+            etc_mm_day: { type: number }
+            total_volume_m3: { type: number }
+
+    skills:
+      - skill_id: "irrigation_science"
+        name: "Irrigation Science"
+        name_ar: "علم الري"
+        level: "expert"
+        keywords: ["irrigation", "water", "scheduling", "etc"]
+
+      - skill_id: "agronomy"
+        name: "Agronomy"
+        name_ar: "علم الزراعة"
+        level: "expert"
+        keywords: ["crop", "agronomy", "cultivation"]
+
+    dependencies:
+      - irrigation-smart
+      - weather-service
+      - iot-gateway
+
+    endpoint:
+      url: "https://api.sahool.app/agents/irrigation-advisor/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/irrigation-advisor/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "irrigation", "water-management", "smart-farming"]
+      organization: "SAHOOL"
+      license: "MIT"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # YIELD PREDICTOR AGENT - وكيل توقع الإنتاج
+  # ═══════════════════════════════════════════════════════════════════════════
+  yield-predictor-agent:
+    name: "Yield Predictor Agent"
+    name_ar: "وكيل توقع الإنتاج"
+    version: "1.0.0"
+    category: intelligence
+    description: "AI-powered yield prediction using ML models and historical data"
+    description_ar: "توقع الإنتاج بالذكاء الاصطناعي باستخدام نماذج التعلم الآلي"
+
+    capabilities:
+      - name: "predict_yield"
+        description: "Predict crop yield for current season"
+        input_schema:
+          type: object
+          required: ["crop_type", "area_hectares"]
+          properties:
+            crop_type: { type: string }
+            area_hectares: { type: number }
+            growth_stage: { type: string }
+            field_data: { type: object }
+        output_schema:
+          type: object
+          properties:
+            predicted_yield_tons: { type: number }
+            confidence_interval: { type: object }
+            factors: { type: array }
+
+      - name: "analyze_yield_factors"
+        description: "Analyze factors affecting yield"
+        input_schema:
+          type: object
+          required: ["field_id"]
+        output_schema:
+          type: object
+          properties:
+            limiting_factors: { type: array }
+            optimization_suggestions: { type: array }
+
+    skills:
+      - skill_id: "yield_modeling"
+        name: "Yield Modeling"
+        name_ar: "نمذجة الإنتاج"
+        level: "expert"
+        keywords: ["yield", "prediction", "forecasting", "modeling"]
+
+      - skill_id: "machine_learning"
+        name: "Machine Learning"
+        name_ar: "التعلم الآلي"
+        level: "expert"
+        keywords: ["ml", "ai", "prediction", "model"]
+
+    dependencies:
+      - yield-prediction-service
+      - crop-growth-model
+      - weather-service
+      - satellite-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/yield-predictor/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/yield-predictor/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "ai", "yield", "prediction", "machine-learning"]
+      organization: "SAHOOL"
+      license: "MIT"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FERTILIZER ADVISOR AGENT - وكيل مستشار الأسمدة
+  # ═══════════════════════════════════════════════════════════════════════════
+  fertilizer-advisor-agent:
+    name: "Fertilizer Advisor Agent"
+    name_ar: "وكيل مستشار الأسمدة"
+    version: "1.0.0"
+    category: advisory
+    description: "Fertilizer recommendations based on soil analysis and crop needs"
+    description_ar: "توصيات الأسمدة بناءً على تحليل التربة واحتياجات المحصول"
+
+    capabilities:
+      - name: "recommend_fertilizer"
+        description: "Recommend fertilizer type and amount"
+        input_schema:
+          type: object
+          required: ["crop_type", "growth_stage"]
+          properties:
+            crop_type: { type: string }
+            growth_stage: { type: string }
+            soil_analysis: { type: object }
+        output_schema:
+          type: object
+          properties:
+            fertilizers: { type: array }
+            application_schedule: { type: array }
+            npk_ratio: { type: string }
+
+      - name: "calculate_nutrient_needs"
+        description: "Calculate crop nutrient requirements"
+        input_schema:
+          type: object
+          required: ["crop_type", "target_yield"]
+        output_schema:
+          type: object
+          properties:
+            nitrogen_kg_ha: { type: number }
+            phosphorus_kg_ha: { type: number }
+            potassium_kg_ha: { type: number }
+
+    skills:
+      - skill_id: "soil_science"
+        name: "Soil Science"
+        name_ar: "علم التربة"
+        level: "expert"
+        keywords: ["soil", "nutrients", "fertility", "npk"]
+
+      - skill_id: "plant_nutrition"
+        name: "Plant Nutrition"
+        name_ar: "تغذية النبات"
+        level: "expert"
+        keywords: ["nutrition", "fertilizer", "nutrients"]
+
+    dependencies:
+      - fertilizer-advisor
+      - agro-advisor
+
+    endpoint:
+      url: "https://api.sahool.app/agents/fertilizer-advisor/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/fertilizer-advisor/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "fertilizer", "soil", "nutrients"]
+      organization: "SAHOOL"
+      license: "MIT"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CROP GROWTH MONITOR AGENT - وكيل مراقبة نمو المحاصيل
+  # ═══════════════════════════════════════════════════════════════════════════
+  crop-growth-monitor-agent:
+    name: "Crop Growth Monitor Agent"
+    name_ar: "وكيل مراقبة نمو المحاصيل"
+    version: "1.0.0"
+    category: monitoring
+    description: "Monitors crop growth stages and development using phenological models"
+    description_ar: "يراقب مراحل نمو المحصول والتطور باستخدام النماذج الفينولوجية"
+
+    capabilities:
+      - name: "track_growth_stage"
+        description: "Track current crop growth stage"
+        input_schema:
+          type: object
+          required: ["crop_type", "planting_date"]
+        output_schema:
+          type: object
+          properties:
+            current_stage: { type: string }
+            days_since_planting: { type: number }
+            next_stage: { type: string }
+
+      - name: "predict_growth_timeline"
+        description: "Predict future growth stages and milestones"
+        input_schema:
+          type: object
+          required: ["crop_type", "variety"]
+        output_schema:
+          type: object
+          properties:
+            timeline: { type: array }
+            harvest_date: { type: string }
+
+    skills:
+      - skill_id: "phenology"
+        name: "Crop Phenology"
+        name_ar: "فينولوجيا المحاصيل"
+        level: "expert"
+        keywords: ["phenology", "growth", "stages", "development"]
+
+    dependencies:
+      - crop-growth-model
+      - weather-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/crop-growth-monitor/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/crop-growth-monitor/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "crop", "growth", "monitoring", "phenology"]
+      organization: "SAHOOL"
+      license: "MIT"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # WEATHER ADVISOR AGENT - وكيل مستشار الطقس
+  # ═══════════════════════════════════════════════════════════════════════════
+  weather-advisor-agent:
+    name: "Weather Advisor Agent"
+    name_ar: "وكيل مستشار الطقس"
+    version: "1.0.0"
+    category: advisory
+    description: "Weather-based agricultural recommendations and alerts"
+    description_ar: "توصيات وتنبيهات زراعية بناءً على الطقس"
+
+    capabilities:
+      - name: "analyze_weather_impact"
+        description: "Analyze weather impact on crops"
+        input_schema:
+          type: object
+          required: ["location", "crop_type"]
+        output_schema:
+          type: object
+          properties:
+            risks: { type: array }
+            recommendations: { type: array }
+
+      - name: "recommend_field_operations"
+        description: "Recommend optimal timing for field operations"
+        input_schema:
+          type: object
+          required: ["location", "operation_type"]
+        output_schema:
+          type: object
+          properties:
+            optimal_dates: { type: array }
+            weather_conditions: { type: object }
+
+    skills:
+      - skill_id: "agrometeorology"
+        name: "Agrometeorology"
+        name_ar: "الأرصاد الجوية الزراعية"
+        level: "expert"
+        keywords: ["weather", "meteorology", "climate", "forecast"]
+
+    dependencies:
+      - weather-service
+      - weather-advanced
+
+    endpoint:
+      url: "https://api.sahool.app/agents/weather-advisor/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/weather-advisor/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "weather", "advisory", "meteorology"]
+      organization: "SAHOOL"
+      license: "MIT"
+
+    status: "active"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SATELLITE ANALYST AGENT - وكيل تحليل الأقمار الصناعية
+  # ═══════════════════════════════════════════════════════════════════════════
+  satellite-analyst-agent:
+    name: "Satellite Analyst Agent"
+    name_ar: "وكيل تحليل الأقمار الصناعية"
+    version: "1.0.0"
+    category: analysis
+    description: "Satellite imagery analysis for vegetation indices and field monitoring"
+    description_ar: "تحليل صور الأقمار الصناعية لمؤشرات الغطاء النباتي ومراقبة الحقول"
+
+    capabilities:
+      - name: "analyze_ndvi"
+        description: "Analyze NDVI from satellite imagery"
+        input_schema:
+          type: object
+          required: ["field_id"]
+        output_schema:
+          type: object
+          properties:
+            ndvi_mean: { type: number }
+            ndvi_distribution: { type: object }
+            health_zones: { type: array }
+
+      - name: "detect_changes"
+        description: "Detect temporal changes in vegetation"
+        input_schema:
+          type: object
+          required: ["field_id", "time_range"]
+        output_schema:
+          type: object
+          properties:
+            changes: { type: array }
+            trend: { type: string }
+
+    skills:
+      - skill_id: "remote_sensing"
+        name: "Remote Sensing"
+        name_ar: "الاستشعار عن بعد"
+        level: "expert"
+        keywords: ["satellite", "ndvi", "remote-sensing", "imagery"]
+
+      - skill_id: "geospatial_analysis"
+        name: "Geospatial Analysis"
+        name_ar: "التحليل الجغرافي المكاني"
+        level: "expert"
+        keywords: ["gis", "geospatial", "mapping"]
+
+    dependencies:
+      - satellite-service
+      - ndvi-processor
+      - vegetation-analysis-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/satellite-analyst/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/satellite-analyst/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "satellite", "ndvi", "remote-sensing", "geospatial"]
+      organization: "SAHOOL"
+      license: "MIT"
+
+    status: "active"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Agent Orchestration Rules
+# ─────────────────────────────────────────────────────────────────────────────
+
+orchestration:
+  supervisor:
+    description: "Multi-agent orchestration supervisor / مشرف تنسيق متعدد الوكلاء"
+    routing_strategy: "capability-based"
+    max_concurrent_agents: 5
+    timeout_seconds: 300
+
+  collaboration_patterns:
+    field_analysis:
+      description: "Complete field analysis workflow"
+      agents:
+        - field-analyst-agent
+        - satellite-analyst-agent
+        - weather-advisor-agent
+      execution: "parallel"
+
+    disease_diagnosis:
+      description: "Disease diagnosis and treatment"
+      agents:
+        - disease-expert-agent
+        - weather-advisor-agent
+      execution: "sequential"
+
+    yield_optimization:
+      description: "Yield prediction and optimization"
+      agents:
+        - yield-predictor-agent
+        - fertilizer-advisor-agent
+        - irrigation-advisor-agent
+        - crop-growth-monitor-agent
+      execution: "parallel"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Service Level Objectives (SLOs)
+# ─────────────────────────────────────────────────────────────────────────────
+
+slos:
+  availability:
+    target: "99.9%"
+    measurement_window: "30d"
+
+  response_time:
+    p50: "200ms"
+    p95: "1s"
+    p99: "3s"
+
+  error_rate:
+    target: "<0.1%"
+
+  health_check:
+    interval: "60s"
+    timeout: "5s"
+    failure_threshold: 3
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Compliance & Governance
+# ─────────────────────────────────────────────────────────────────────────────
+
+compliance:
+  data_privacy:
+    - "GDPR compliant"
+    - "Data minimization"
+    - "Encrypted at rest and in transit"
+
+  security:
+    - "Bearer token authentication"
+    - "API key management"
+    - "Rate limiting enabled"
+    - "Audit logging"
+
+  ethics:
+    - "Transparent AI decisions"
+    - "Bias monitoring"
+    - "Farmer data ownership"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Monitoring & Observability
+# ─────────────────────────────────────────────────────────────────────────────
+
+monitoring:
+  metrics:
+    - agent_invocation_count
+    - agent_response_time
+    - agent_error_rate
+    - agent_health_status
+
+  alerts:
+    - name: "agent_unhealthy"
+      condition: "health_status == unhealthy"
+      severity: "critical"
+
+    - name: "high_error_rate"
+      condition: "error_rate > 5%"
+      severity: "warning"
+
+    - name: "slow_response"
+      condition: "p95_response_time > 5s"
+      severity: "warning"
+
+  logging:
+    level: "INFO"
+    format: "json"
+    retention: "30d"

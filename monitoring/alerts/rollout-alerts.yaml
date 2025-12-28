@@ -1,0 +1,417 @@
+---
+# Prometheus Alert Rules for SAHOOL Deployment Rollouts
+# Monitors canary deployments, rollouts, and triggers alerts on failures
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: sahool-rollout-alerts
+  namespace: monitoring
+  labels:
+    app: sahool
+    component: alerts
+    prometheus: kube-prometheus
+    role: alert-rules
+spec:
+  groups:
+  # Rollout Health Alerts
+  - name: rollout.health
+    interval: 30s
+    rules:
+    # Alert when rollout is degraded
+    - alert: RolloutDegraded
+      expr: |
+        argo_rollout_phase{namespace="sahool", phase="Degraded"} > 0
+      for: 5m
+      labels:
+        severity: warning
+        component: rollout
+        team: platform
+      annotations:
+        summary: "Rollout {{ $labels.rollout }} is degraded"
+        description: "Rollout {{ $labels.rollout }} in namespace {{ $labels.namespace }} has been in Degraded state for more than 5 minutes."
+        runbook_url: "https://docs.sahool.io/runbooks/rollout-degraded"
+        dashboard_url: "https://grafana.sahool.io/d/rollouts/rollout-dashboard?var-rollout={{ $labels.rollout }}"
+
+    # Alert when rollout fails
+    - alert: RolloutFailed
+      expr: |
+        argo_rollout_phase{namespace="sahool", phase=~"Error|Failed"} > 0
+      for: 1m
+      labels:
+        severity: critical
+        component: rollout
+        team: platform
+        page: "true"
+      annotations:
+        summary: "Rollout {{ $labels.rollout }} has failed"
+        description: "Rollout {{ $labels.rollout }} in namespace {{ $labels.namespace }} is in {{ $labels.phase }} state."
+        runbook_url: "https://docs.sahool.io/runbooks/rollout-failed"
+        action_required: "Execute: kubectl argo rollouts get rollout {{ $labels.rollout }} -n {{ $labels.namespace }} && /home/user/sahool-unified-v15-idp/scripts/deploy/rollback.sh --service {{ $labels.rollout }} --namespace {{ $labels.namespace }}"
+
+    # Alert when rollout is stuck in progressing
+    - alert: RolloutStuckProgressing
+      expr: |
+        argo_rollout_phase{namespace="sahool", phase="Progressing"} > 0
+        and
+        time() - argo_rollout_phase_transition_time{namespace="sahool", phase="Progressing"} > 1800
+      for: 5m
+      labels:
+        severity: warning
+        component: rollout
+        team: platform
+      annotations:
+        summary: "Rollout {{ $labels.rollout }} stuck in Progressing state"
+        description: "Rollout {{ $labels.rollout }} has been progressing for more than 30 minutes."
+        runbook_url: "https://docs.sahool.io/runbooks/rollout-stuck"
+
+    # Alert when analysis run fails
+    - alert: AnalysisRunFailed
+      expr: |
+        argo_rollout_analysis_run_phase{namespace="sahool", phase="Failed"} > 0
+      for: 1m
+      labels:
+        severity: critical
+        component: rollout
+        team: platform
+      annotations:
+        summary: "Analysis run failed for {{ $labels.rollout }}"
+        description: "Analysis run {{ $labels.analysisrun }} for rollout {{ $labels.rollout }} has failed. Rollout will be aborted."
+        runbook_url: "https://docs.sahool.io/runbooks/analysis-failed"
+
+  # Canary Health Alerts
+  - name: canary.health
+    interval: 30s
+    rules:
+    # Alert on high canary error rate
+    - alert: CanaryHighErrorRate
+      expr: |
+        (
+          sum(rate(http_requests_total{service=~".*-canary", status=~"5.."}[5m])) by (service, namespace) /
+          sum(rate(http_requests_total{service=~".*-canary"}[5m])) by (service, namespace)
+        ) > 0.05
+      for: 5m
+      labels:
+        severity: critical
+        component: canary
+        team: platform
+        page: "true"
+      annotations:
+        summary: "High error rate in canary deployment {{ $labels.service }}"
+        description: "Canary deployment {{ $labels.service }} has error rate of {{ $value | humanizePercentage }} (threshold: 5%)."
+        runbook_url: "https://docs.sahool.io/runbooks/canary-high-error-rate"
+        action_required: "Rollback immediately: /home/user/sahool-unified-v15-idp/scripts/deploy/rollback.sh --immediate --force"
+
+    # Alert on canary high latency
+    - alert: CanaryHighLatency
+      expr: |
+        histogram_quantile(0.95,
+          sum(rate(http_request_duration_seconds_bucket{service=~".*-canary"}[5m])) by (service, namespace, le)
+        ) * 1000 > 1000
+      for: 10m
+      labels:
+        severity: warning
+        component: canary
+        team: platform
+      annotations:
+        summary: "High latency in canary deployment {{ $labels.service }}"
+        description: "Canary deployment {{ $labels.service }} P95 latency is {{ $value | humanize }}ms (threshold: 1000ms)."
+        runbook_url: "https://docs.sahool.io/runbooks/canary-high-latency"
+
+    # Alert when canary success rate drops below stable
+    - alert: CanarySuccessRateBelowStable
+      expr: |
+        (
+          sum(rate(http_requests_total{service=~".*-canary", status=~"2.."}[5m])) by (service, namespace) /
+          sum(rate(http_requests_total{service=~".*-canary"}[5m])) by (service, namespace)
+        )
+        <
+        (
+          sum(rate(http_requests_total{service=~".*-stable", status=~"2.."}[5m])) by (service, namespace) /
+          sum(rate(http_requests_total{service=~".*-stable"}[5m])) by (service, namespace)
+        ) * 0.95
+      for: 5m
+      labels:
+        severity: warning
+        component: canary
+        team: platform
+      annotations:
+        summary: "Canary success rate below stable for {{ $labels.service }}"
+        description: "Canary deployment has significantly lower success rate than stable version."
+        runbook_url: "https://docs.sahool.io/runbooks/canary-success-rate-low"
+
+    # Alert on canary pod crash loop
+    - alert: CanaryPodCrashLoop
+      expr: |
+        rate(kube_pod_container_status_restarts_total{pod=~".*-canary-.*", namespace="sahool"}[15m]) > 0
+      for: 5m
+      labels:
+        severity: critical
+        component: canary
+        team: platform
+      annotations:
+        summary: "Canary pod {{ $labels.pod }} is crash looping"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted {{ $value }} times in the last 15 minutes."
+        runbook_url: "https://docs.sahool.io/runbooks/pod-crash-loop"
+        action_required: "Check logs: kubectl logs {{ $labels.pod }} -n {{ $labels.namespace }} --previous"
+
+    # Alert when canary pods are not ready
+    - alert: CanaryPodsNotReady
+      expr: |
+        (
+          kube_deployment_status_replicas_ready{deployment=~".*-canary", namespace="sahool"}
+          <
+          kube_deployment_spec_replicas{deployment=~".*-canary", namespace="sahool"}
+        )
+        and
+        (
+          kube_deployment_spec_replicas{deployment=~".*-canary", namespace="sahool"} > 0
+        )
+      for: 10m
+      labels:
+        severity: warning
+        component: canary
+        team: platform
+      annotations:
+        summary: "Canary deployment {{ $labels.deployment }} has unready pods"
+        description: "Canary deployment {{ $labels.deployment }} has {{ $value }} pods not ready."
+        runbook_url: "https://docs.sahool.io/runbooks/pods-not-ready"
+
+  # Traffic Management Alerts
+  - name: traffic.management
+    interval: 30s
+    rules:
+    # Alert when canary traffic weight is high for too long
+    - alert: CanaryTrafficHighForTooLong
+      expr: |
+        (
+          istio_request_total{destination_workload=~".*-canary"} /
+          (istio_request_total{destination_workload=~".*-canary"} + istio_request_total{destination_workload=~".*-stable"})
+        ) > 0.5
+      for: 30m
+      labels:
+        severity: warning
+        component: traffic
+        team: platform
+      annotations:
+        summary: "Canary traffic weight has been high for too long"
+        description: "Canary is receiving {{ $value | humanizePercentage }} of traffic for over 30 minutes. Consider promoting or rolling back."
+        runbook_url: "https://docs.sahool.io/runbooks/canary-traffic-high"
+
+    # Alert on traffic routing failures
+    - alert: TrafficRoutingFailures
+      expr: |
+        sum(rate(istio_requests_total{response_code=~"5..", destination_workload=~"sahool.*"}[5m])) by (destination_workload) > 10
+      for: 5m
+      labels:
+        severity: warning
+        component: traffic
+        team: platform
+      annotations:
+        summary: "High rate of 5xx errors in {{ $labels.destination_workload }}"
+        description: "Service {{ $labels.destination_workload }} is experiencing {{ $value }} 5xx errors per second."
+        runbook_url: "https://docs.sahool.io/runbooks/traffic-routing-failures"
+
+  # Resource Alerts
+  - name: canary.resources
+    interval: 1m
+    rules:
+    # Alert when canary pods use excessive CPU
+    - alert: CanaryHighCPU
+      expr: |
+        (
+          sum(rate(container_cpu_usage_seconds_total{pod=~".*-canary-.*", namespace="sahool"}[5m])) by (pod) /
+          sum(container_spec_cpu_quota{pod=~".*-canary-.*", namespace="sahool"} / container_spec_cpu_period{pod=~".*-canary-.*", namespace="sahool"}) by (pod)
+        ) > 0.9
+      for: 10m
+      labels:
+        severity: warning
+        component: canary
+        team: platform
+      annotations:
+        summary: "Canary pod {{ $labels.pod }} high CPU usage"
+        description: "Pod {{ $labels.pod }} is using {{ $value | humanizePercentage }} of CPU limit."
+        runbook_url: "https://docs.sahool.io/runbooks/high-cpu"
+
+    # Alert when canary pods use excessive memory
+    - alert: CanaryHighMemory
+      expr: |
+        (
+          sum(container_memory_working_set_bytes{pod=~".*-canary-.*", namespace="sahool"}) by (pod) /
+          sum(container_spec_memory_limit_bytes{pod=~".*-canary-.*", namespace="sahool"}) by (pod)
+        ) > 0.9
+      for: 10m
+      labels:
+        severity: warning
+        component: canary
+        team: platform
+      annotations:
+        summary: "Canary pod {{ $labels.pod }} high memory usage"
+        description: "Pod {{ $labels.pod }} is using {{ $value | humanizePercentage }} of memory limit."
+        runbook_url: "https://docs.sahool.io/runbooks/high-memory"
+
+    # Alert on OOM kills
+    - alert: CanaryOOMKilled
+      expr: |
+        sum(kube_pod_container_status_last_terminated_reason{reason="OOMKilled", pod=~".*-canary-.*", namespace="sahool"}) by (pod) > 0
+      labels:
+        severity: critical
+        component: canary
+        team: platform
+      annotations:
+        summary: "Canary pod {{ $labels.pod }} was OOM killed"
+        description: "Pod {{ $labels.pod }} was terminated due to out of memory."
+        runbook_url: "https://docs.sahool.io/runbooks/oom-killed"
+        action_required: "Review memory limits and optimize application"
+
+  # Deployment Duration Alerts
+  - name: rollout.duration
+    interval: 1m
+    rules:
+    # Alert when rollout takes too long
+    - alert: RolloutTakingTooLong
+      expr: |
+        time() - argo_rollout_phase_transition_time{phase="Progressing", namespace="sahool"} > 3600
+      labels:
+        severity: warning
+        component: rollout
+        team: platform
+      annotations:
+        summary: "Rollout {{ $labels.rollout }} is taking too long"
+        description: "Rollout {{ $labels.rollout }} has been progressing for over 1 hour."
+        runbook_url: "https://docs.sahool.io/runbooks/rollout-slow"
+
+    # Alert on frequent rollbacks
+    - alert: FrequentRollbacks
+      expr: |
+        sum(increase(argo_rollout_phase_total{phase=~"Degraded|Failed", namespace="sahool"}[1h])) by (rollout) > 3
+      labels:
+        severity: warning
+        component: rollout
+        team: platform
+      annotations:
+        summary: "Frequent rollbacks for {{ $labels.rollout }}"
+        description: "Rollout {{ $labels.rollout }} has had {{ $value }} failures in the last hour."
+        runbook_url: "https://docs.sahool.io/runbooks/frequent-rollbacks"
+
+  # SLO Violations
+  - name: canary.slo
+    interval: 1m
+    rules:
+    # Alert on SLO violation during canary
+    - alert: CanarySLOViolation
+      expr: |
+        (
+          sum(rate(http_requests_total{service=~"sahool.*", status=~"[45].."}[5m])) by (service) /
+          sum(rate(http_requests_total{service=~"sahool.*"}[5m])) by (service)
+        ) > 0.01
+      for: 5m
+      labels:
+        severity: critical
+        component: slo
+        team: platform
+        page: "true"
+      annotations:
+        summary: "SLO violation for {{ $labels.service }}"
+        description: "Service {{ $labels.service }} error budget exhausted. Current error rate: {{ $value | humanizePercentage }}"
+        runbook_url: "https://docs.sahool.io/runbooks/slo-violation"
+        action_required: "Immediate rollback required"
+
+    # Alert on latency SLO violation
+    - alert: CanaryLatencySLOViolation
+      expr: |
+        histogram_quantile(0.99,
+          sum(rate(http_request_duration_seconds_bucket{service=~"sahool.*"}[5m])) by (service, le)
+        ) > 2
+      for: 10m
+      labels:
+        severity: warning
+        component: slo
+        team: platform
+      annotations:
+        summary: "Latency SLO violation for {{ $labels.service }}"
+        description: "Service {{ $labels.service }} P99 latency is {{ $value }}s (SLO: 2s)"
+        runbook_url: "https://docs.sahool.io/runbooks/latency-slo-violation"
+
+---
+# AlertManager Configuration for Rollout Alerts
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-rollout-config
+  namespace: monitoring
+  labels:
+    app: alertmanager
+    component: config
+data:
+  rollout-routing.yml: |
+    # Routing rules for rollout alerts
+    route:
+      receiver: 'default'
+      group_by: ['alertname', 'namespace', 'service']
+      group_wait: 10s
+      group_interval: 5m
+      repeat_interval: 3h
+
+      routes:
+      # Critical rollout failures - immediate notification
+      - match:
+          severity: critical
+          component: rollout
+        receiver: 'pagerduty-critical'
+        group_wait: 0s
+        repeat_interval: 5m
+        continue: true
+
+      # Critical rollout failures - Slack
+      - match:
+          severity: critical
+          component: rollout
+        receiver: 'slack-deployments'
+        continue: true
+
+      # Canary alerts
+      - match:
+          component: canary
+        receiver: 'slack-deployments'
+        group_wait: 30s
+        repeat_interval: 30m
+
+      # Warning level alerts
+      - match:
+          severity: warning
+        receiver: 'slack-alerts'
+        repeat_interval: 1h
+
+    receivers:
+    - name: 'default'
+      webhook_configs:
+      - url: 'http://alertmanager-webhook:8080/webhook'
+
+    - name: 'pagerduty-critical'
+      pagerduty_configs:
+      - service_key: '$PAGERDUTY_SERVICE_KEY'
+        description: '{{ .CommonAnnotations.summary }}'
+        severity: 'critical'
+
+    - name: 'slack-deployments'
+      slack_configs:
+      - api_url: '$SLACK_WEBHOOK_DEPLOYMENTS'
+        channel: '#deployments'
+        title: '{{ .CommonAnnotations.summary }}'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          {{ if .Annotations.action_required }}*Action Required:* {{ .Annotations.action_required }}{{ end }}
+          *Runbook:* {{ .Annotations.runbook_url }}
+          {{ end }}
+        send_resolved: true
+        color: '{{ if eq .Status "firing" }}danger{{ else }}good{{ end }}'
+
+    - name: 'slack-alerts'
+      slack_configs:
+      - api_url: '$SLACK_WEBHOOK_ALERTS'
+        channel: '#alerts'
+        title: '{{ .CommonAnnotations.summary }}'
+        send_resolved: true

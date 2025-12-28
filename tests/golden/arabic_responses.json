@@ -1,0 +1,1365 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "Arabic language test cases with Yemen dialect focus",
+    "total_test_cases": 45,
+    "dialects": ["Modern Standard Arabic (MSA)", "Yemeni Arabic", "Gulf Arabic"],
+    "categories": ["weather", "crop_health", "irrigation", "fertilizer", "pest_management", "general_advice"]
+  },
+  "test_cases": [
+    {
+      "id": "ar_001",
+      "category": "weather",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "ما هي حالة الطقس المتوقعة لهذا الأسبوع في صنعاء؟",
+        "translation": "What is the expected weather for this week in Sana'a?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "بناءً على البيانات الجوية لصنعاء",
+          "توقعات الطقس لصنعاء تشير",
+          "حالة الطقس في صنعاء خلال الأسبوع"
+        ],
+        "required_elements": [
+          "درجات الحرارة",
+          "احتمالية الأمطار",
+          "الرياح",
+          "التأثير على الزراعة"
+        ],
+        "tone": "formal_helpful",
+        "must_use_arabic_numbers": false
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "cultural_appropriateness": 0.9,
+        "technical_accuracy": 0.9,
+        "completeness": 0.85
+      }
+    },
+    {
+      "id": "ar_002",
+      "category": "crop_health",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "القمح عندي فيه بقع صفراء والسيقان ذابلة، إيش المشكلة؟",
+        "translation": "My wheat has yellow spots and wilted stems, what's the problem?",
+        "language": "ar",
+        "dialect_notes": "Uses Yemeni 'إيش' instead of 'ما' or 'ماذا'"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الأعراض التي تصفها",
+          "قد تكون المشكلة",
+          "هذه العلامات تشير إلى"
+        ],
+        "required_elements": [
+          "تشخيص محتمل للمرض",
+          "أسئلة توضيحية",
+          "توصيات للعلاج",
+          "إجراءات وقائية"
+        ],
+        "should_understand_dialect": true,
+        "response_dialect": "MSA with some Yemeni terms acceptable"
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "arabic_fluency": 0.9,
+        "diagnostic_quality": 0.85
+      }
+    },
+    {
+      "id": "ar_003",
+      "category": "irrigation",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "كم مرة يجب أن أروي حقل الذرة في فصل الصيف؟",
+        "translation": "How many times should I irrigate the corn field in summer?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الذرة في مرحلة النمو",
+          "في الظروف الحارة",
+          "يعتمد على نوع التربة"
+        ],
+        "required_elements": [
+          "تكرار الري",
+          "كمية الماء",
+          "مؤشرات رطوبة التربة",
+          "اعتبارات مرحلة النمو"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "technical_accuracy": 0.9,
+        "practical_advice": 0.9
+      }
+    },
+    {
+      "id": "ar_004",
+      "category": "fertilizer",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "أي نوع من الأسمدة أستخدم لزراعة القمح؟",
+        "translation": "What type of fertilizer should I use for wheat cultivation?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "للقمح في مرحلة ما قبل الزراعة",
+          "استخدم سماد NPK",
+          "الأسمدة المتوازنة"
+        ],
+        "required_elements": [
+          "نسبة NPK",
+          "معدل الإضافة",
+          "توقيت الاستخدام",
+          "طريقة الخلط"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "specific_recommendations": 0.9
+      }
+    },
+    {
+      "id": "ar_005",
+      "category": "pest_management",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "عندي ذباب أبيض تحت أوراق الفلفل، كيف أتخلص منه؟",
+        "translation": "I have white flies under pepper leaves, how do I get rid of them?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الذباب الأبيض على الفلفل",
+          "حشرة الذبابة البيضاء",
+          "من الآفات الشائعة"
+        ],
+        "required_elements": [
+          "تعريف الآفة",
+          "وصف الضرر",
+          "طرق المكافحة العضوية",
+          "خيارات المبيدات",
+          "الإدارة المتكاملة للآفات"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "pest_identification": 0.95,
+        "solution_diversity": 0.85
+      }
+    },
+    {
+      "id": "ar_006",
+      "category": "general_advice",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "ما هي أفضل المحاصيل للزراعة في اليمن خلال موسم الأمطار؟",
+        "translation": "What are the best crops to grow in Yemen during rainy season?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "خلال موسم الأمطار في اليمن",
+          "المحاصيل المناسبة",
+          "التي تزدهر مع"
+        ],
+        "required_elements": [
+          "قائمة المحاصيل المناسبة",
+          "توقيت الزراعة",
+          "متطلبات الأمطار",
+          "إدارة الأمراض",
+          "اختلافات إقليمية"
+        ],
+        "yemen_specific": true
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "yemen_relevance": 0.95,
+        "practical_advice": 0.9
+      }
+    },
+    {
+      "id": "ar_007",
+      "category": "crop_health",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "أوراق الطماطم تتحول إلى اللون الأخضر الباهت من الأسفل إلى الأعلى",
+        "translation": "Tomato leaves are turning pale green from bottom to top",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الأوراق الخضراء الباهتة",
+          "تشير إلى نقص النيتروجين",
+          "عادة ما يكون"
+        ],
+        "required_elements": [
+          "تحديد نقص العنصر الغذائي",
+          "توصية بالسماد",
+          "طريقة الاستخدام",
+          "إرشادات الجرعة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "diagnostic_accuracy": 0.9
+      }
+    },
+    {
+      "id": "ar_008",
+      "category": "weather",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الحرارة راح توصل 40 درجة، إيش أسوي لحماية النباتات؟",
+        "translation": "Temperature will reach 40 degrees, what should I do to protect plants?",
+        "language": "ar",
+        "dialect_notes": "Uses Yemeni 'راح' (will) and 'إيش أسوي' (what do I do)"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "درجات الحرارة المرتفعة",
+          "يسبب إجهاد حراري",
+          "احمِ نباتاتك"
+        ],
+        "required_elements": [
+          "تحديد الإجهاد الحراري",
+          "تعديلات الري",
+          "خيارات التظليل",
+          "الرش الورقي"
+        ],
+        "urgency_tone": true
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "urgency_appropriate": 0.9,
+        "practical_solutions": 0.9
+      }
+    },
+    {
+      "id": "ar_009",
+      "category": "irrigation",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "هل يمكنني استخدام الري بالتنقيط لحديقة الخضروات؟",
+        "translation": "Can I use drip irrigation for my vegetable garden?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "نعم، الري بالتنقيط",
+          "فعال جداً للخضروات",
+          "يوفر المياه"
+        ],
+        "required_elements": [
+          "فوائد الري بالتنقيط",
+          "ملاءمة المحاصيل",
+          "كفاءة المياه",
+          "إرشادات التركيب"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "technical_accuracy": 0.9
+      }
+    },
+    {
+      "id": "ar_010",
+      "category": "fertilizer",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "أوراق النبات صارت صفراء بين العروق، والعروق خضراء",
+        "translation": "Plant leaves turned yellow between veins, and veins are green",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "اصفرار بين العروق",
+          "يشير إلى نقص الحديد",
+          "عادة ما يحدث"
+        ],
+        "required_elements": [
+          "تحديد نقص العناصر الصغرى",
+          "علاقة الحموضة",
+          "توصية بالحديد المخلبي",
+          "الرش الورقي"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "diagnostic_accuracy": 0.95
+      }
+    },
+    {
+      "id": "ar_011",
+      "category": "pest_management",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "كيف أكافح المن بدون استخدام مبيدات كيميائية قوية؟",
+        "translation": "How can I control aphids without using strong chemical pesticides?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "لمكافحة المن",
+          "الطرق العضوية",
+          "الإدارة المتكاملة"
+        ],
+        "required_elements": [
+          "طرق المكافحة الثقافية",
+          "المكافحة البيولوجية",
+          "المبيدات العضوية",
+          "طرق المراقبة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "organic_focus": 0.9
+      }
+    },
+    {
+      "id": "ar_012",
+      "category": "crop_health",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الخيار عندي فيه نقط كأنها موزاييك والورق ملتف",
+        "translation": "My cucumber has mosaic-like spots and curled leaves",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "نمط الموزاييك",
+          "يشير إلى فيروس",
+          "فيروس موزاييك الخيار"
+        ],
+        "required_elements": [
+          "تحديد المرض الفيروسي",
+          "إدارة الناقلات",
+          "إزالة النباتات المصابة",
+          "استراتيجيات الوقاية"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "disease_identification": 0.9
+      }
+    },
+    {
+      "id": "ar_013",
+      "category": "weather",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "متى أفضل وقت للري حسب حالة الطقس اليوم؟",
+        "translation": "When is the best time to irrigate based on today's weather?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "أفضل وقت للري",
+          "في الصباح الباكر",
+          "أو في المساء"
+        ],
+        "required_elements": [
+          "توصية بالوقت المحدد",
+          "اعتبار درجة الحرارة",
+          "نصائح كفاءة المياه"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "timing_specificity": 0.9
+      }
+    },
+    {
+      "id": "ar_014",
+      "category": "irrigation",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الماء عندي محدود، كيف أقلل استهلاك الماء وما أضر المحصول؟",
+        "translation": "My water is limited, how do I reduce water consumption without harming the crop?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "مع محدودية المياه",
+          "تقنيات توفير المياه",
+          "الري الناقص"
+        ],
+        "required_elements": [
+          "استراتيجيات توفير المياه",
+          "المراحل الحرجة",
+          "تحليل تأثير المحصول",
+          "كفاءة استخدام المياه"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "water_conservation_focus": 0.95
+      }
+    },
+    {
+      "id": "ar_015",
+      "category": "fertilizer",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "ما هي البدائل العضوية للأسمدة الكيميائية NPK؟",
+        "translation": "What are organic alternatives to chemical NPK fertilizers?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "البدائل العضوية",
+          "السماد العضوي",
+          "الكومبوست"
+        ],
+        "required_elements": [
+          "خيارات عضوية متعددة",
+          "مقارنة المحتوى الغذائي",
+          "معدلات الاستخدام",
+          "التوفر في اليمن"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "organic_focus": 0.9,
+        "local_relevance": 0.85
+      }
+    },
+    {
+      "id": "ar_016",
+      "category": "pest_management",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الجراد راح يهاجم المنطقة، كيف أحمي المحاصيل؟",
+        "translation": "Locusts will attack the area, how do I protect crops?",
+        "language": "ar",
+        "context": "Yemen-specific locust concern"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الوقاية من الجراد",
+          "يتطلب تنسيق",
+          "أنظمة الإنذار المبكر"
+        ],
+        "required_elements": [
+          "توصيات المراقبة",
+          "علامات الإنذار المبكر",
+          "إجراءات وقائية",
+          "التنسيق المجتمعي",
+          "جهات الاتصال الطارئة"
+        ],
+        "yemen_specific": true,
+        "urgency_appropriate": true
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "yemen_context": 0.95,
+        "emergency_appropriate": 0.9
+      }
+    },
+    {
+      "id": "ar_017",
+      "category": "crop_health",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "كيف أعرف متى يكون القمح جاهزاً للحصاد؟",
+        "translation": "How do I know when wheat is ready for harvest?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "جاهزية القمح للحصاد",
+          "مؤشرات النضج",
+          "محتوى الرطوبة"
+        ],
+        "required_elements": [
+          "المؤشرات البصرية",
+          "الاختبارات الفيزيائية",
+          "محتوى الرطوبة المستهدف",
+          "اعتبارات الطقس"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "practical_indicators": 0.9
+      }
+    },
+    {
+      "id": "ar_018",
+      "category": "weather",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "في تحذير من عاصفة ترابية بكرة، إيش أسوي؟",
+        "translation": "There's a dust storm warning tomorrow, what should I do?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "العواصف الترابية",
+          "تضر المحاصيل",
+          "إجراءات حماية فورية"
+        ],
+        "required_elements": [
+          "خطوات العمل الفورية",
+          "طرق حماية المحاصيل",
+          "التقييم بعد العاصفة"
+        ],
+        "urgency_appropriate": true
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "urgency_appropriate": 0.9,
+        "actionable_advice": 0.95
+      }
+    },
+    {
+      "id": "ar_019",
+      "category": "irrigation",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "الحقل يبقى مغموراً بالماء بعد الري والنباتات تصفر",
+        "translation": "The field stays waterlogged after irrigation and plants are yellowing",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الغمر بالماء",
+          "نقص الأكسجين",
+          "تحسين الصرف"
+        ],
+        "required_elements": [
+          "تشخيص الغمر",
+          "حلول الصرف",
+          "تعديلات الري",
+          "الأحواض المرتفعة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "problem_diagnosis": 0.9
+      }
+    },
+    {
+      "id": "ar_020",
+      "category": "fertilizer",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "أطراف الأوراق محروقة والنمو الأخضر زايد، هل زدت السماد؟",
+        "translation": "Leaf tips are burned and green growth is excessive, did I over-fertilize?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "أطراف محروقة",
+          "إفراط في التسميد",
+          "سمية النيتروجين"
+        ],
+        "required_elements": [
+          "تأكيد الأعراض",
+          "إجراءات علاجية",
+          "توصيات الغسل",
+          "الوقاية المستقبلية"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "diagnostic_accuracy": 0.9,
+        "remedial_focus": 0.85
+      }
+    },
+    {
+      "id": "ar_021",
+      "category": "general_advice",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "كيف أصنع سماداً عضوياً من مخلفات المزرعة؟",
+        "translation": "How do I make organic compost from farm waste?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "صنع السماد العضوي",
+          "من مخلفات المزرعة",
+          "خطوة بخطوة"
+        ],
+        "required_elements": [
+          "نسبة المواد",
+          "طريقة التكديس",
+          "إدارة الرطوبة",
+          "جدول التقليب",
+          "مؤشرات النضج"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "step_by_step_clarity": 0.9
+      }
+    },
+    {
+      "id": "ar_022",
+      "category": "pest_management",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "النباتات قصيرة وفيها عقد في الجذور، إيش السبب؟",
+        "translation": "Plants are stunted with knots in roots, what's the cause?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "عقد في الجذور",
+          "نيماتودا تعقد الجذور",
+          "شائعة في التربة الرملية"
+        ],
+        "required_elements": [
+          "تشخيص النيماتودا",
+          "استراتيجية التناوب",
+          "الأصناف المقاومة",
+          "التشميس الشمسي للتربة"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "diagnostic_accuracy": 0.9
+      }
+    },
+    {
+      "id": "ar_023",
+      "category": "crop_health",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "ثمار الطماطم فيها بقع داكنة في نهاية الزهرة",
+        "translation": "Tomato fruits have dark spots at the blossom end",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "بقع داكنة في نهاية الزهرة",
+          "عفن طرف الزهرة",
+          "نقص الكالسيوم"
+        ],
+        "required_elements": [
+          "تحديد الاضطراب",
+          "علاقة الكالسيوم",
+          "إدارة الري",
+          "استراتيجيات الوقاية"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "physiological_understanding": 0.9
+      }
+    },
+    {
+      "id": "ar_024",
+      "category": "weather",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الرطوبة عالية في الصوبة وطالع أمراض، كيف أخفضها؟",
+        "translation": "Humidity is high in greenhouse and diseases appearing, how do I reduce it?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الرطوبة العالية في الصوب",
+          "تشجع الأمراض الفطرية",
+          "تحسين التهوية"
+        ],
+        "required_elements": [
+          "قياس الرطوبة",
+          "تحسين التهوية",
+          "استراتيجيات التدفئة",
+          "تعديلات المسافات",
+          "توقيت الري"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "environmental_control": 0.9
+      }
+    },
+    {
+      "id": "ar_025",
+      "category": "irrigation",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "هل يمكنني إضافة الأسمدة من خلال نظام الري بالتنقيط؟",
+        "translation": "Can I add fertilizers through the drip irrigation system?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "نعم، التسميد من خلال الري",
+          "فعال جداً",
+          "يحسن كفاءة استخدام العناصر"
+        ],
+        "required_elements": [
+          "فوائد التسميد بالري",
+          "الأسمدة المناسبة",
+          "طرق الحقن",
+          "حسابات التركيز"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "technical_accuracy": 0.9
+      }
+    },
+    {
+      "id": "ar_026",
+      "category": "pest_management",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الحشائش منافسة المحصول، إيش أحسن طريقة للمكافحة؟",
+        "translation": "Weeds are competing with the crop, what's the best control method?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "إدارة الحشائش",
+          "يتطلب نهج متكامل",
+          "طرق ثقافية وميكانيكية"
+        ],
+        "required_elements": [
+          "تحديد الحشائش",
+          "طرق المكافحة الثقافية",
+          "الطرق الميكانيكية",
+          "خيارات مبيدات الأعشاب"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "integrated_approach": 0.85
+      }
+    },
+    {
+      "id": "ar_027",
+      "category": "fertilizer",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "متى وكيف يجب أن أختبر التربة؟",
+        "translation": "When and how should I test soil?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "اختبار التربة",
+          "ضروري لقرارات التسميد",
+          "توقيت وإجراءات"
+        ],
+        "required_elements": [
+          "توقيت الاختبار",
+          "إجراءات أخذ العينات",
+          "المعايير المطلوب اختبارها",
+          "خيارات المختبرات"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "practical_guidance": 0.9
+      }
+    },
+    {
+      "id": "ar_028",
+      "category": "crop_health",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "البادرات تنقلب وتموت عند مستوى التربة",
+        "translation": "Seedlings fall over and die at soil level",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "سقوط البادرات",
+          "مرض التخميد",
+          "عدوى فطرية"
+        ],
+        "required_elements": [
+          "تحديد مرض التخميد",
+          "مسببات فطرية",
+          "إجراءات التعقيم",
+          "معالجة بالمبيدات الفطرية",
+          "الضوابط البيئية"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "disease_identification": 0.95
+      }
+    },
+    {
+      "id": "ar_029",
+      "category": "general_advice",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "كيف أزيد من المادة العضوية في التربة الرملية؟",
+        "translation": "How do I increase organic matter in sandy soil?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "زيادة المادة العضوية",
+          "في التربة الرملية",
+          "يحسن قدرة حفظ الماء"
+        ],
+        "required_elements": [
+          "مصادر المادة العضوية",
+          "طرق الإضافة",
+          "معدلات الإضافة",
+          "المحاصيل الغطائية"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "multiple_methods": 0.85
+      }
+    },
+    {
+      "id": "ar_030",
+      "category": "weather",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الرياح القوية كسرت سيقان الذرة، إيش أسوي؟",
+        "translation": "Strong winds broke corn stalks, what should I do?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الرقود بسبب الرياح",
+          "في مرحلة التزهير",
+          "تقييم الضرر"
+        ],
+        "required_elements": [
+          "تقييم الضرر",
+          "إمكانية الاستعادة",
+          "توصيات التدعيم",
+          "المساعدة في التلقيح"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "recovery_focused": 0.85
+      }
+    },
+    {
+      "id": "ar_031",
+      "category": "irrigation",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "فتحات الري بالتنقيط تسد باستمرار، كيف أصلح هذا؟",
+        "translation": "Drip irrigation emitters keep clogging, how do I fix this?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "انسداد الفتحات",
+          "بسبب الترسبات المعدنية",
+          "الصيانة الدورية"
+        ],
+        "required_elements": [
+          "أسباب الانسداد",
+          "أنظمة الترشيح",
+          "المعالجة الكيميائية",
+          "إجراءات التنظيف"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "maintenance_focused": 0.9
+      }
+    },
+    {
+      "id": "ar_032",
+      "category": "pest_management",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "الطيور تاكل الفواكه الناضجة، كيف أحميها؟",
+        "translation": "Birds are eating ripe fruits, how do I protect them?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "ضرر الطيور",
+          "طرق ردع غير قاتلة",
+          "إنسانية وفعالة"
+        ],
+        "required_elements": [
+          "حلول الشباك",
+          "العوائق البصرية",
+          "العوائق الصوتية",
+          "فعالية التكلفة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "humane_methods": 0.9
+      }
+    },
+    {
+      "id": "ar_033",
+      "category": "general_advice",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "كيف يجب أن أجفف الحبوب المحصودة لمنع العفن؟",
+        "translation": "How should I dry harvested grains to prevent mold?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "تجفيف الحبوب",
+          "ضروري لمنع العفن",
+          "خاصة في المناخ الرطب"
+        ],
+        "required_elements": [
+          "أهداف محتوى الرطوبة",
+          "طرق التجفيف",
+          "تقنيات التجفيف الشمسي",
+          "اختبار الرطوبة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "storage_safety": 0.9
+      }
+    },
+    {
+      "id": "ar_034",
+      "category": "fertilizer",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "إيش هي الأسمدة الحيوية؟ ولازم استخدمها؟",
+        "translation": "What are biofertilizers? Should I use them?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الأسمدة الحيوية",
+          "تحتوي على كائنات دقيقة",
+          "تعزز توفر العناصر"
+        ],
+        "required_elements": [
+          "أنواع الأسمدة الحيوية",
+          "آلية العمل",
+          "طرق الاستخدام",
+          "الفوائد والقيود"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "scientific_accuracy": 0.85
+      }
+    },
+    {
+      "id": "ar_035",
+      "category": "crop_health",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "غطاء أبيض مسحوقي على أوراق العنب",
+        "translation": "Powdery white coating on grape leaves",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الغطاء الأبيض المسحوقي",
+          "البياض الدقيقي",
+          "مرض فطري"
+        ],
+        "required_elements": [
+          "تحديد المرض",
+          "خيارات المبيدات الفطرية",
+          "الضوابط الثقافية",
+          "الأصناف المقاومة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "disease_identification": 0.95
+      }
+    },
+    {
+      "id": "ar_036",
+      "category": "general_advice",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "التربة صارت قاسية ومتماسكة، إيش الحل؟",
+        "translation": "Soil became hard and compacted, what's the solution?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "انضغاط التربة",
+          "مشكلة شائعة",
+          "يقلل نمو الجذور"
+        ],
+        "required_elements": [
+          "أسباب الانضغاط",
+          "حلول الحرث",
+          "إضافة المادة العضوية",
+          "المحاصيل الغطائية"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "sustainable_solutions": 0.85
+      }
+    },
+    {
+      "id": "ar_037",
+      "category": "weather",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "درجة الحرارة ستنخفض إلى 2 درجة الليلة، كيف أحمي الشتلات؟",
+        "translation": "Temperature will drop to 2 degrees tonight, how do I protect seedlings?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "عند درجة حرارة 2",
+          "خطر الصقيع",
+          "إجراءات حماية عاجلة"
+        ],
+        "required_elements": [
+          "تقييم خطر الصقيع",
+          "طرق الحماية الفورية",
+          "مواد التغطية",
+          "توقيت الري"
+        ],
+        "urgency_appropriate": true
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "urgency_appropriate": 0.95,
+        "practical_methods": 0.9
+      }
+    },
+    {
+      "id": "ar_038",
+      "category": "irrigation",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "ماء الري يبين مالح شوي، هل آمن للمحاصيل؟",
+        "translation": "Irrigation water looks slightly salty, is it safe for crops?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الماء المالح",
+          "يمكن أن يضر المحاصيل",
+          "اختبار الملوحة"
+        ],
+        "required_elements": [
+          "توصية باختبار الماء",
+          "قيم عتبة الملوحة",
+          "تحمل المحاصيل للملوحة",
+          "استراتيجيات التخفيف"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "safety_emphasis": 0.9
+      }
+    },
+    {
+      "id": "ar_039",
+      "category": "pest_management",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "هل يمكن استخدام المحاصيل الفخ لحماية المحصول الرئيسي من الآفات؟",
+        "translation": "Can I use trap crops to protect the main crop from pests?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "المحاصيل الفخ",
+          "تستخدم نباتات تضحية",
+          "لجذب الآفات"
+        ],
+        "required_elements": [
+          "اختيار المحصول الفخ",
+          "ترتيب الزراعة",
+          "استراتيجية الإدارة",
+          "التكامل مع طرق أخرى"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "ecological_approach": 0.8
+      }
+    },
+    {
+      "id": "ar_040",
+      "category": "general_advice",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "كيف أقدر محصول القمح قبل الحصاد؟",
+        "translation": "How do I estimate wheat yield before harvest?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "تقدير المحصول",
+          "قبل الحصاد",
+          "أخذ عينات النباتات"
+        ],
+        "required_elements": [
+          "طريقة أخذ العينات",
+          "مكونات المحصول",
+          "معادلة الحساب",
+          "عوامل الدقة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "includes_calculation": 0.85
+      }
+    },
+    {
+      "id": "ar_041",
+      "category": "fertilizer",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "هل يجب أن أضيف كل السماد دفعة واحدة أم أقسمه على دفعات؟",
+        "translation": "Should I apply all fertilizer at once or split into batches?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "الإضافة المجزأة",
+          "موصى بها بشدة",
+          "لتحسين كفاءة"
+        ],
+        "required_elements": [
+          "فوائد الإضافة المجزأة",
+          "جدول الإضافة",
+          "توقيت مراحل النمو",
+          "مقارنة الكفاءة"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "timing_specific": 0.9
+      }
+    },
+    {
+      "id": "ar_042",
+      "category": "crop_health",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "ثمار الفلفل فيها بقع بيضاء على الجانب المواجه للشمس",
+        "translation": "Pepper fruits have white patches on the sun-facing side",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "بقع بيضاء",
+          "لفحة الشمس",
+          "اضطراب فسيولوجي"
+        ],
+        "required_elements": [
+          "تحديد لفحة الشمس",
+          "استراتيجيات التظليل",
+          "اختيار الأصناف",
+          "طرق الوقاية"
+        ]
+      },
+      "evaluation_criteria": {
+        "dialect_comprehension": 0.95,
+        "physiological_disorder": 0.9
+      }
+    },
+    {
+      "id": "ar_043",
+      "category": "general_advice",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "ما هي المحاصيل الغطائية التي يجب أن أزرعها بين المواسم؟",
+        "translation": "What cover crops should I plant between seasons?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "المحاصيل الغطائية",
+          "تحسن صحة التربة",
+          "تمنع التعرية"
+        ],
+        "required_elements": [
+          "أنواع المحاصيل الغطائية",
+          "الفوائد حسب النوع",
+          "توقيت الزراعة",
+          "طرق الإنهاء"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "species_specific": 0.85
+      }
+    },
+    {
+      "id": "ar_044",
+      "category": "irrigation",
+      "dialect": "Yemeni",
+      "input": {
+        "prompt": "كيف أحسب احتياجات الري للحقل؟",
+        "translation": "How do I calculate irrigation requirements for the field?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "حساب احتياجات الري",
+          "يتضمن طلب الماء للمحصول",
+          "الأمطار الفعالة"
+        ],
+        "required_elements": [
+          "حساب التبخر والنتح",
+          "اعتبار الأمطار الفعالة",
+          "كفاءة الري",
+          "مثال على الحساب"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.9,
+        "includes_calculation": 0.9
+      }
+    },
+    {
+      "id": "ar_045",
+      "category": "general_advice",
+      "dialect": "MSA",
+      "input": {
+        "prompt": "كيف أقلل من الكدمات والأضرار أثناء الحصاد؟",
+        "translation": "How do I minimize bruising and damage during harvest?",
+        "language": "ar"
+      },
+      "expected_output": {
+        "language": "ar",
+        "must_be_arabic": true,
+        "acceptable_patterns": [
+          "تقليل أضرار الحصاد",
+          "يتطلب تعامل حذر",
+          "لإطالة عمر التخزين"
+        ],
+        "required_elements": [
+          "أفضل ممارسات التعامل",
+          "اختيار الحاويات",
+          "تدريب العمال",
+          "اعتبارات النقل"
+        ]
+      },
+      "evaluation_criteria": {
+        "arabic_fluency": 0.95,
+        "practical_techniques": 0.85
+      }
+    }
+  ],
+  "evaluation_guidelines": {
+    "language_quality": {
+      "fluency": "Natural, grammatically correct Modern Standard Arabic",
+      "dialect_handling": "Understand Yemeni and Gulf dialects, respond primarily in MSA with occasional dialect terms where culturally appropriate",
+      "terminology": "Use correct agricultural terminology in Arabic",
+      "tone": "Professional, helpful, and culturally respectful"
+    },
+    "cultural_considerations": {
+      "yemen_context": "Acknowledge Yemen-specific agricultural challenges (water scarcity, locust threats, climate conditions)",
+      "local_practices": "Reference local farming methods and available resources",
+      "seasonal_awareness": "Consider Yemen's agricultural calendar and seasonal patterns"
+    },
+    "response_quality": {
+      "completeness": "Provide comprehensive answers covering all aspects of the question",
+      "accuracy": "Ensure technical accuracy of agricultural advice",
+      "actionability": "Give specific, implementable recommendations",
+      "safety": "Emphasize safety and best practices"
+    }
+  }
+}

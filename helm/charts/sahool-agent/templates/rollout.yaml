@@ -1,0 +1,466 @@
+{{- if .Values.rollout.enabled }}
+---
+# Argo Rollouts Configuration for SAHOOL Agent
+# Provides advanced deployment strategies with automated analysis and rollback
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{ include "sahool-agent.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool-agent.labels" . | nindent 4 }}
+    rollout-type: {{ .Values.rollout.strategy | default "canary" }}
+  annotations:
+    notifications.argoproj.io/subscribe.on-rollout-completed.slack: {{ .Values.rollout.notifications.slack.channel | default "deployments" }}
+    notifications.argoproj.io/subscribe.on-rollout-aborted.slack: {{ .Values.rollout.notifications.slack.channel | default "deployments" }}
+    notifications.argoproj.io/subscribe.on-analysis-run-failed.slack: {{ .Values.rollout.notifications.slack.channel | default "deployments" }}
+spec:
+  replicas: {{ .Values.replicaCount | default 3 }}
+  revisionHistoryLimit: {{ .Values.rollout.revisionHistoryLimit | default 5 }}
+
+  # Selector for pods
+  selector:
+    matchLabels:
+      {{- include "sahool-agent.selectorLabels" . | nindent 6 }}
+
+  # Workload reference
+  workloadRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "sahool-agent.fullname" . }}
+
+  # Pod template
+  template:
+    metadata:
+      labels:
+        {{- include "sahool-agent.selectorLabels" . | nindent 8 }}
+        environment: {{ .Values.environment }}
+        rollout-version: {{ .Chart.AppVersion | quote }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        sidecar.istio.io/inject: "true"
+    spec:
+      serviceAccountName: {{ include "sahool-agent.serviceAccountName" . }}
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.environment | quote }}
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "sahool-agent.fullname" . }}-secrets
+              key: database-url
+
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          capabilities:
+            drop:
+            - ALL
+
+  # Deployment Strategy
+  strategy:
+    {{- if eq (.Values.rollout.strategy | default "canary") "canary" }}
+    canary:
+      # Canary service for gradual traffic shift
+      canaryService: {{ include "sahool-agent.fullname" . }}-canary
+      stableService: {{ include "sahool-agent.fullname" . }}-stable
+
+      # Traffic routing (Istio, Nginx, etc.)
+      trafficRouting:
+        {{- if .Values.rollout.trafficRouting.istio.enabled }}
+        istio:
+          virtualService:
+            name: {{ include "sahool-agent.fullname" . }}
+            routes:
+            - primary
+          destinationRule:
+            name: {{ include "sahool-agent.fullname" . }}
+            canarySubsetName: canary
+            stableSubsetName: stable
+        {{- else if .Values.rollout.trafficRouting.nginx.enabled }}
+        nginx:
+          stableIngress: {{ include "sahool-agent.fullname" . }}
+          annotationPrefix: nginx.ingress.kubernetes.io
+          additionalIngressAnnotations:
+            canary-by-header: X-Canary
+            canary-by-header-value: "true"
+        {{- else if .Values.rollout.trafficRouting.alb.enabled }}
+        alb:
+          ingress: {{ include "sahool-agent.fullname" . }}
+          servicePort: {{ .Values.service.port | default 8080 }}
+          annotationPrefix: alb.ingress.kubernetes.io
+        {{- end }}
+
+      # Canary steps - gradual traffic increase
+      steps:
+      {{- if .Values.rollout.canary.steps }}
+      {{- toYaml .Values.rollout.canary.steps | nindent 6 }}
+      {{- else }}
+      # Initial canary deployment - 5% traffic
+      - setWeight: 5
+      - pause:
+          duration: {{ .Values.rollout.canary.initialPauseDuration | default "2m" }}
+
+      # Run analysis on initial traffic
+      - analysis:
+          templates:
+          - templateName: {{ include "sahool-agent.fullname" . }}-success-rate
+          - templateName: {{ include "sahool-agent.fullname" . }}-latency
+          args:
+          - name: service-name
+            value: {{ include "sahool-agent.fullname" . }}-canary
+          - name: prometheus-url
+            value: {{ .Values.rollout.analysis.prometheusUrl | default "http://prometheus:9090" }}
+
+      # Increase to 20%
+      - setWeight: 20
+      - pause:
+          duration: {{ .Values.rollout.canary.stepPauseDuration | default "5m" }}
+
+      # Increase to 40%
+      - setWeight: 40
+      - pause:
+          duration: {{ .Values.rollout.canary.stepPauseDuration | default "5m" }}
+
+      # Run comprehensive analysis before majority traffic
+      - analysis:
+          templates:
+          - templateName: {{ include "sahool-agent.fullname" . }}-success-rate
+          - templateName: {{ include "sahool-agent.fullname" . }}-latency
+          - templateName: {{ include "sahool-agent.fullname" . }}-error-rate
+          args:
+          - name: service-name
+            value: {{ include "sahool-agent.fullname" . }}-canary
+
+      # Increase to 60%
+      - setWeight: 60
+      - pause:
+          duration: {{ .Values.rollout.canary.stepPauseDuration | default "5m" }}
+
+      # Increase to 80%
+      - setWeight: 80
+      - pause:
+          duration: {{ .Values.rollout.canary.stepPauseDuration | default "5m" }}
+
+      # Final analysis before full promotion
+      - analysis:
+          templates:
+          - templateName: {{ include "sahool-agent.fullname" . }}-success-rate
+          - templateName: {{ include "sahool-agent.fullname" . }}-latency
+          - templateName: {{ include "sahool-agent.fullname" . }}-error-rate
+          - templateName: {{ include "sahool-agent.fullname" . }}-cpu-memory
+      {{- end }}
+
+      # Analysis configuration
+      analysis:
+        templates:
+        - templateName: {{ include "sahool-agent.fullname" . }}-background-analysis
+        startingStep: 2
+        args:
+        - name: service-name
+          value: {{ include "sahool-agent.fullname" . }}-canary
+        - name: stable-service-name
+          value: {{ include "sahool-agent.fullname" . }}-stable
+
+      # Anti-affinity to ensure canary and stable on different nodes
+      antiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          weight: 100
+
+    {{- else if eq .Values.rollout.strategy "blueGreen" }}
+    blueGreen:
+      # Blue-Green deployment strategy
+      activeService: {{ include "sahool-agent.fullname" . }}
+      previewService: {{ include "sahool-agent.fullname" . }}-preview
+
+      # Auto-promotion settings
+      autoPromotionEnabled: {{ .Values.rollout.blueGreen.autoPromotionEnabled | default false }}
+      autoPromotionSeconds: {{ .Values.rollout.blueGreen.autoPromotionSeconds | default 300 }}
+
+      # Scale down old version after promotion
+      scaleDownDelaySeconds: {{ .Values.rollout.blueGreen.scaleDownDelaySeconds | default 30 }}
+      scaleDownDelayRevisionLimit: {{ .Values.rollout.blueGreen.scaleDownDelayRevisionLimit | default 1 }}
+
+      # Preview replica count
+      previewReplicaCount: {{ .Values.rollout.blueGreen.previewReplicaCount | default 1 }}
+
+      # Pre-promotion analysis
+      prePromotionAnalysis:
+        templates:
+        - templateName: {{ include "sahool-agent.fullname" . }}-smoke-tests
+        - templateName: {{ include "sahool-agent.fullname" . }}-success-rate
+        args:
+        - name: service-name
+          value: {{ include "sahool-agent.fullname" . }}-preview
+
+      # Post-promotion analysis
+      postPromotionAnalysis:
+        templates:
+        - templateName: {{ include "sahool-agent.fullname" . }}-success-rate
+        - templateName: {{ include "sahool-agent.fullname" . }}-latency
+        args:
+        - name: service-name
+          value: {{ include "sahool-agent.fullname" . }}
+    {{- end }}
+
+  # Minimum ready seconds before considering pod available
+  minReadySeconds: {{ .Values.rollout.minReadySeconds | default 30 }}
+
+  # Revision history limit
+  revisionHistoryLimit: {{ .Values.rollout.revisionHistoryLimit | default 5 }}
+
+  # Progressive deadline - max time for rollout
+  progressDeadlineSeconds: {{ .Values.rollout.progressDeadlineSeconds | default 600 }}
+
+  # Abort conditions
+  progressDeadlineAbort: {{ .Values.rollout.progressDeadlineAbort | default true }}
+
+---
+# Analysis Template: Success Rate
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "sahool-agent.fullname" . }}-success-rate
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool-agent.labels" . | nindent 4 }}
+spec:
+  args:
+  - name: service-name
+  - name: prometheus-url
+    value: {{ .Values.rollout.analysis.prometheusUrl | default "http://prometheus:9090" }}
+  - name: success-rate-threshold
+    value: {{ .Values.rollout.analysis.successRateThreshold | default "0.95" | quote }}
+
+  metrics:
+  - name: success-rate
+    interval: {{ .Values.rollout.analysis.interval | default "1m" }}
+    successCondition: result[0] >= {{ .Values.rollout.analysis.successRateThreshold | default "0.95" }}
+    failureLimit: {{ .Values.rollout.analysis.failureLimit | default 3 }}
+    provider:
+      prometheus:
+        address: "{{`{{args.prometheus-url}}`}}"
+        query: |
+          sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}",status=~"2.."}[5m])) /
+          sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}"}[5m]))
+
+---
+# Analysis Template: Latency (P95)
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "sahool-agent.fullname" . }}-latency
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool-agent.labels" . | nindent 4 }}
+spec:
+  args:
+  - name: service-name
+  - name: prometheus-url
+    value: {{ .Values.rollout.analysis.prometheusUrl | default "http://prometheus:9090" }}
+  - name: latency-threshold-ms
+    value: {{ .Values.rollout.analysis.latencyThresholdMs | default "500" | quote }}
+
+  metrics:
+  - name: p95-latency
+    interval: {{ .Values.rollout.analysis.interval | default "1m" }}
+    successCondition: result[0] <= {{ .Values.rollout.analysis.latencyThresholdMs | default 500 }}
+    failureLimit: {{ .Values.rollout.analysis.failureLimit | default 3 }}
+    provider:
+      prometheus:
+        address: "{{`{{args.prometheus-url}}`}}"
+        query: |
+          histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{service="{{`{{args.service-name}}`}}"}[5m])) by (le)
+          ) * 1000
+
+---
+# Analysis Template: Error Rate
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "sahool-agent.fullname" . }}-error-rate
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool-agent.labels" . | nindent 4 }}
+spec:
+  args:
+  - name: service-name
+  - name: prometheus-url
+    value: {{ .Values.rollout.analysis.prometheusUrl | default "http://prometheus:9090" }}
+  - name: error-rate-threshold
+    value: {{ .Values.rollout.analysis.errorRateThreshold | default "0.05" | quote }}
+
+  metrics:
+  - name: error-rate
+    interval: {{ .Values.rollout.analysis.interval | default "1m" }}
+    successCondition: result[0] <= {{ .Values.rollout.analysis.errorRateThreshold | default "0.05" }}
+    failureLimit: {{ .Values.rollout.analysis.failureLimit | default 3 }}
+    provider:
+      prometheus:
+        address: "{{`{{args.prometheus-url}}`}}"
+        query: |
+          sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}",status=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}"}[5m]))
+
+---
+# Analysis Template: CPU and Memory Usage
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "sahool-agent.fullname" . }}-cpu-memory
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool-agent.labels" . | nindent 4 }}
+spec:
+  args:
+  - name: service-name
+  - name: prometheus-url
+    value: {{ .Values.rollout.analysis.prometheusUrl | default "http://prometheus:9090" }}
+
+  metrics:
+  - name: cpu-usage
+    interval: {{ .Values.rollout.analysis.interval | default "1m" }}
+    successCondition: result[0] <= 0.8
+    failureLimit: 5
+    provider:
+      prometheus:
+        address: "{{`{{args.prometheus-url}}`}}"
+        query: |
+          sum(rate(container_cpu_usage_seconds_total{pod=~"{{`{{args.service-name}}`}}.*"}[5m])) /
+          sum(container_spec_cpu_quota{pod=~"{{`{{args.service-name}}`}}.*"} / container_spec_cpu_period{pod=~"{{`{{args.service-name}}`}}.*"})
+
+  - name: memory-usage
+    interval: {{ .Values.rollout.analysis.interval | default "1m" }}
+    successCondition: result[0] <= 0.8
+    failureLimit: 5
+    provider:
+      prometheus:
+        address: "{{`{{args.prometheus-url}}`}}"
+        query: |
+          sum(container_memory_working_set_bytes{pod=~"{{`{{args.service-name}}`}}.*"}) /
+          sum(container_spec_memory_limit_bytes{pod=~"{{`{{args.service-name}}`}}.*"})
+
+---
+# Analysis Template: Background Analysis (runs continuously)
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "sahool-agent.fullname" . }}-background-analysis
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool-agent.labels" . | nindent 4 }}
+spec:
+  args:
+  - name: service-name
+  - name: stable-service-name
+  - name: prometheus-url
+    value: {{ .Values.rollout.analysis.prometheusUrl | default "http://prometheus:9090" }}
+
+  metrics:
+  # Compare canary vs stable success rates
+  - name: canary-vs-stable-success-rate
+    interval: 2m
+    successCondition: result[0] >= 0.95
+    failureLimit: 3
+    provider:
+      prometheus:
+        address: "{{`{{args.prometheus-url}}`}}"
+        query: |
+          (sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}",status=~"2.."}[5m])) /
+          sum(rate(http_requests_total{service="{{`{{args.service-name}}`}}"}[5m]))) /
+          (sum(rate(http_requests_total{service="{{`{{args.stable-service-name}}`}}",status=~"2.."}[5m])) /
+          sum(rate(http_requests_total{service="{{`{{args.stable-service-name}}`}}"}[5m])))
+
+---
+# Analysis Template: Smoke Tests
+{{- if .Values.rollout.analysis.smokeTests.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ include "sahool-agent.fullname" . }}-smoke-tests
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "sahool-agent.labels" . | nindent 4 }}
+spec:
+  args:
+  - name: service-name
+
+  metrics:
+  - name: smoke-test
+    count: 1
+    provider:
+      job:
+        spec:
+          backoffLimit: 0
+          template:
+            spec:
+              restartPolicy: Never
+              containers:
+              - name: smoke-test
+                image: {{ .Values.rollout.analysis.smokeTests.image | default "curlimages/curl:latest" }}
+                command:
+                - sh
+                - -c
+                - |
+                  set -e
+                  echo "Running smoke tests against {{`{{args.service-name}}`}}"
+
+                  # Health check
+                  curl -f http://{{`{{args.service-name}}`}}:8080/health/ready || exit 1
+
+                  # API endpoint check
+                  curl -f http://{{`{{args.service-name}}`}}:8080/api/v1/status || exit 1
+
+                  echo "Smoke tests passed!"
+{{- end }}
+{{- end }}

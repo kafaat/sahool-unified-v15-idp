@@ -1,0 +1,932 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "Edge case scenarios for AI agent robustness testing",
+    "total_test_cases": 40,
+    "categories": ["invalid_input", "out_of_scope", "ambiguous", "contradictory", "extreme_values", "multilingual_mix", "incomplete_context"]
+  },
+  "test_cases": [
+    {
+      "id": "edge_001",
+      "category": "invalid_input",
+      "input": {
+        "prompt": "",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_handle_gracefully": true,
+        "acceptable_responses": [
+          "How can I help you with your agricultural questions?",
+          "Please ask me about farming, crops, or agricultural advice",
+          "I'm here to assist with agricultural topics. What would you like to know?"
+        ]
+      },
+      "evaluation_criteria": {
+        "no_error": true,
+        "helpful_prompt": true
+      }
+    },
+    {
+      "id": "edge_002",
+      "category": "invalid_input",
+      "input": {
+        "prompt": "asdfghjkl qwertyuiop zxcvbnm",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_handle_gracefully": true,
+        "acceptable_responses": [
+          "I don't understand that input. Can you please rephrase your agricultural question?",
+          "Could you please ask a clear question about farming or crops?",
+          "I'm not sure what you're asking. How can I help with agricultural advice?"
+        ]
+      },
+      "evaluation_criteria": {
+        "polite_confusion": true,
+        "asks_for_clarification": true
+      }
+    },
+    {
+      "id": "edge_003",
+      "category": "invalid_input",
+      "input": {
+        "prompt": "12345 67890 !@#$% ^&*()",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_handle_gracefully": true,
+        "acceptable_responses": [
+          "I see only numbers and symbols. Please ask about agricultural topics in words",
+          "Could you rephrase that as a question about farming?",
+          "I'm here to help with agricultural questions. What would you like to know?"
+        ]
+      },
+      "evaluation_criteria": {
+        "handles_non_text": true,
+        "redirects_helpfully": true
+      }
+    },
+    {
+      "id": "edge_004",
+      "category": "out_of_scope",
+      "input": {
+        "prompt": "What is the capital of France?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_reject_politely": true,
+        "acceptable_responses": [
+          "I specialize in agricultural advice, not geography",
+          "That's outside my expertise. I can help with farming questions",
+          "I focus on agricultural topics. Do you have farming-related questions?"
+        ]
+      },
+      "evaluation_criteria": {
+        "stays_in_scope": true,
+        "polite_rejection": true
+      }
+    },
+    {
+      "id": "edge_005",
+      "category": "out_of_scope",
+      "input": {
+        "prompt": "How do I fix my computer?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_reject_politely": true,
+        "acceptable_responses": [
+          "I specialize in agricultural advice, not computer repair",
+          "I can't help with computer issues, but I can assist with farming questions",
+          "That's outside my area. Do you have agricultural questions?"
+        ]
+      },
+      "evaluation_criteria": {
+        "stays_in_scope": true,
+        "offers_alternative": true
+      }
+    },
+    {
+      "id": "edge_006",
+      "category": "ambiguous",
+      "input": {
+        "prompt": "My plants are dying",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_clarifying_questions": true,
+        "required_clarifications": [
+          "what_type_of_plants",
+          "symptoms",
+          "growing_conditions",
+          "recent_changes"
+        ],
+        "acceptable_responses": [
+          "I'm sorry to hear your plants are dying. To help diagnose the problem, I need more information...",
+          "Let me help you troubleshoot. What type of plants are affected?",
+          "Several factors could cause this. Can you describe the symptoms in more detail?"
+        ]
+      },
+      "evaluation_criteria": {
+        "asks_questions": true,
+        "empathetic_tone": true,
+        "structured_diagnosis": true
+      }
+    },
+    {
+      "id": "edge_007",
+      "category": "ambiguous",
+      "input": {
+        "prompt": "When should I plant?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_clarifying_questions": true,
+        "required_clarifications": [
+          "what_crop",
+          "location",
+          "season_preferences"
+        ],
+        "acceptable_responses": [
+          "Planting timing depends on what you want to grow. What crop are you planning?",
+          "To recommend planting time, I need to know: What are you planting? Where are you located?",
+          "Planting schedules vary by crop and location. What would you like to plant?"
+        ]
+      },
+      "evaluation_criteria": {
+        "asks_essential_questions": true,
+        "remains_helpful": true
+      }
+    },
+    {
+      "id": "edge_008",
+      "category": "contradictory",
+      "input": {
+        "prompt": "I have drought conditions but my field is waterlogged. What should I do?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_identify_contradiction": true,
+        "should_seek_clarification": true,
+        "acceptable_responses": [
+          "I notice a contradiction - drought and waterlogging don't usually occur together. Could you clarify the situation?",
+          "Can you help me understand? Are you experiencing drought in general but waterlogging in specific areas?",
+          "These conditions seem contradictory. Perhaps you mean localized waterlogging despite overall dry conditions?"
+        ]
+      },
+      "evaluation_criteria": {
+        "identifies_contradiction": true,
+        "seeks_clarification_politely": true,
+        "offers_interpretation": true
+      }
+    },
+    {
+      "id": "edge_009",
+      "category": "contradictory",
+      "input": {
+        "prompt": "My organic farm uses heavy chemical pesticides. Is this normal?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_identify_contradiction": true,
+        "should_educate": true,
+        "acceptable_responses": [
+          "Organic farming standards prohibit heavy chemical pesticides. Are you interested in transitioning to organic methods?",
+          "There's a contradiction here - organic farming doesn't allow synthetic chemical pesticides. Would you like to learn about organic pest control?",
+          "Organic certification requires avoiding synthetic chemical pesticides. Perhaps you're using conventional farming methods?"
+        ]
+      },
+      "evaluation_criteria": {
+        "identifies_contradiction": true,
+        "educates_politely": true,
+        "offers_guidance": true
+      }
+    },
+    {
+      "id": "edge_010",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "I need to irrigate 10000 hectares immediately",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_acknowledge_scale": true,
+        "should_provide_realistic_advice": true,
+        "acceptable_responses": [
+          "Irrigating 10,000 hectares is a large-scale operation requiring significant infrastructure and planning...",
+          "That's a very large area. Commercial irrigation systems for this scale typically require...",
+          "For such extensive acreage, you'll need industrial-scale irrigation planning..."
+        ]
+      },
+      "evaluation_criteria": {
+        "acknowledges_scale": true,
+        "realistic_advice": true,
+        "appropriate_recommendations": true
+      }
+    },
+    {
+      "id": "edge_011",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "Temperature reached 70°C today. Is this bad for crops?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_question_value": true,
+        "should_provide_context": true,
+        "acceptable_responses": [
+          "70°C is extremely unusual for air temperature - this would be lethal to all crops. Could you verify this reading?",
+          "That temperature is extraordinarily high. Are you measuring air temperature or soil surface temperature?",
+          "Such extreme heat would be catastrophic for any vegetation. Please check if the thermometer is functioning correctly"
+        ]
+      },
+      "evaluation_criteria": {
+        "questions_extreme_value": true,
+        "suggests_verification": true,
+        "provides_context": true
+      }
+    },
+    {
+      "id": "edge_012",
+      "category": "multilingual_mix",
+      "input": {
+        "prompt": "My wheat القمح has yellow leaves ورقة صفراء what should I do?",
+        "language": "mixed_en_ar"
+      },
+      "expected_behavior": {
+        "should_understand_mixed_language": true,
+        "should_respond_appropriately": true,
+        "acceptable_responses": [
+          "I understand you're asking about yellow leaves on wheat. Yellow leaves can indicate...",
+          "أفهم أن لديك مشكلة أوراق صفراء في القمح (I understand you have yellow leaf problem in wheat)...",
+          "Yellow leaves in wheat can be caused by several factors..."
+        ],
+        "can_respond_in_either_language": true
+      },
+      "evaluation_criteria": {
+        "understands_mixed_input": true,
+        "provides_helpful_response": true,
+        "language_flexibility": true
+      }
+    },
+    {
+      "id": "edge_013",
+      "category": "multilingual_mix",
+      "input": {
+        "prompt": "Comment puis-je cultiver tomatoes في اليمن?",
+        "language": "mixed_fr_en_ar",
+        "translation": "How can I grow tomatoes in Yemen?"
+      },
+      "expected_behavior": {
+        "should_detect_primary_intent": true,
+        "should_respond_in_supported_language": true,
+        "acceptable_responses": [
+          "I can help with growing tomatoes in Yemen. (Responds in English about tomato cultivation)",
+          "يمكنني مساعدتك في زراعة الطماطم في اليمن (I can help you grow tomatoes in Yemen)",
+          "I understand you're asking about tomato cultivation in Yemen..."
+        ]
+      },
+      "evaluation_criteria": {
+        "extracts_intent": true,
+        "responds_in_supported_language": true
+      }
+    },
+    {
+      "id": "edge_014",
+      "category": "incomplete_context",
+      "input": {
+        "prompt": "Should I water it?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_for_context": true,
+        "required_information": [
+          "what_plant",
+          "current_conditions",
+          "last_watering"
+        ],
+        "acceptable_responses": [
+          "To advise on watering, I need to know: What plant are you asking about? When did you last water? What are the current conditions?",
+          "I'd be happy to help with watering advice. Can you tell me what you're growing?",
+          "Watering needs depend on several factors. What plant are you referring to?"
+        ]
+      },
+      "evaluation_criteria": {
+        "identifies_missing_context": true,
+        "asks_structured_questions": true
+      }
+    },
+    {
+      "id": "edge_015",
+      "category": "incomplete_context",
+      "input": {
+        "prompt": "Is this normal?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_what_is_being_referred_to": true,
+        "acceptable_responses": [
+          "I'd like to help, but I need more information. What are you observing?",
+          "Can you describe what you're seeing and which crop you're asking about?",
+          "To determine if something is normal, please tell me what you're observing in your crops"
+        ]
+      },
+      "evaluation_criteria": {
+        "seeks_clarification": true,
+        "remains_helpful": true
+      }
+    },
+    {
+      "id": "edge_016",
+      "category": "ambiguous",
+      "input": {
+        "prompt": "Help with pests",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_clarifying_questions": true,
+        "required_clarifications": [
+          "what_pests",
+          "which_crops",
+          "extent_of_infestation",
+          "current_symptoms"
+        ],
+        "acceptable_responses": [
+          "I can help with pest management. What type of pests are you dealing with? Which crops are affected?",
+          "To provide effective pest control advice, I need details: What pests have you observed? What crops are affected?",
+          "Let me help you with pest issues. Can you describe the pests and the damage you're seeing?"
+        ]
+      },
+      "evaluation_criteria": {
+        "asks_diagnostic_questions": true,
+        "structured_approach": true
+      }
+    },
+    {
+      "id": "edge_017",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "I want to apply 500 kg of fertilizer per square meter",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_warn_about_excess": true,
+        "should_provide_correct_values": true,
+        "acceptable_responses": [
+          "500 kg per square meter is extremely excessive and would severely damage crops. Typical rates are 50-200 grams per square meter",
+          "That's far too much fertilizer - it would cause fertilizer burn and environmental damage. Normal application rates are much lower",
+          "This amount would be toxic to plants. Standard fertilizer rates are measured in grams, not kilograms per square meter"
+        ]
+      },
+      "evaluation_criteria": {
+        "warns_about_danger": true,
+        "provides_correct_range": true,
+        "emphasizes_safety": true
+      }
+    },
+    {
+      "id": "edge_018",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "I planted my seeds 5 meters deep",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_identify_problem": true,
+        "should_educate": true,
+        "acceptable_responses": [
+          "5 meters is far too deep - seeds won't germinate at that depth. Most seeds need to be planted 1-5 cm deep",
+          "That's extremely deep and seeds won't be able to emerge. Typical planting depth is a few centimeters",
+          "Seeds planted that deep won't survive. Proper planting depth varies by seed size but is usually very shallow"
+        ]
+      },
+      "evaluation_criteria": {
+        "identifies_error": true,
+        "provides_correct_information": true,
+        "helpful_correction": true
+      }
+    },
+    {
+      "id": "edge_019",
+      "category": "out_of_scope",
+      "input": {
+        "prompt": "What is the meaning of life?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_redirect_politely": true,
+        "acceptable_responses": [
+          "That's a philosophical question beyond my agricultural expertise. I can help with farming questions though",
+          "I specialize in agricultural advice rather than philosophy. Do you have farming questions?",
+          "While that's an interesting question, I'm designed to help with agricultural topics"
+        ]
+      },
+      "evaluation_criteria": {
+        "polite_decline": true,
+        "offers_alternative": true
+      }
+    },
+    {
+      "id": "edge_020",
+      "category": "out_of_scope",
+      "input": {
+        "prompt": "Recommend a good restaurant in Sana'a",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_redirect": true,
+        "acceptable_responses": [
+          "I specialize in agricultural advice, not restaurant recommendations. Can I help with farming questions?",
+          "That's outside my expertise. I focus on agricultural topics for Yemen",
+          "I can't help with restaurant recommendations, but I can assist with agricultural questions"
+        ]
+      },
+      "evaluation_criteria": {
+        "stays_in_scope": true,
+        "polite_redirection": true
+      }
+    },
+    {
+      "id": "edge_021",
+      "category": "invalid_input",
+      "input": {
+        "prompt": "A".repeat(5000),
+        "language": "en",
+        "note": "Very long repetitive input"
+      },
+      "expected_behavior": {
+        "should_handle_gracefully": true,
+        "should_not_crash": true,
+        "acceptable_responses": [
+          "I see a very long repetitive input. Could you please ask a clear agricultural question?",
+          "I'm not sure what you're asking. Please provide a specific farming question",
+          "That doesn't appear to be a coherent question. How can I help with agricultural advice?"
+        ]
+      },
+      "evaluation_criteria": {
+        "no_error": true,
+        "graceful_handling": true
+      }
+    },
+    {
+      "id": "edge_022",
+      "category": "invalid_input",
+      "input": {
+        "prompt": "​​​​​​​​​​",
+        "language": "en",
+        "note": "Zero-width characters"
+      },
+      "expected_behavior": {
+        "should_handle_as_empty": true,
+        "acceptable_responses": [
+          "I didn't receive a question. How can I help with agricultural advice?",
+          "Please ask me about farming, crops, or agricultural topics",
+          "I'm here to help with farming questions. What would you like to know?"
+        ]
+      },
+      "evaluation_criteria": {
+        "handles_special_characters": true,
+        "helpful_response": true
+      }
+    },
+    {
+      "id": "edge_023",
+      "category": "ambiguous",
+      "input": {
+        "prompt": "It's not working",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_what_is_not_working": true,
+        "acceptable_responses": [
+          "I'd like to help troubleshoot. What specifically isn't working? Is it related to your crops, irrigation system, or equipment?",
+          "Can you provide more details? What aspect of your farming operation is having issues?",
+          "To assist you, I need to know what you're referring to. What's not working?"
+        ]
+      },
+      "evaluation_criteria": {
+        "seeks_clarification": true,
+        "offers_categories": true
+      }
+    },
+    {
+      "id": "edge_024",
+      "category": "contradictory",
+      "input": {
+        "prompt": "I need drought-resistant crops that require lots of water",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_identify_contradiction": true,
+        "should_educate": true,
+        "acceptable_responses": [
+          "There's a contradiction - drought-resistant crops are selected because they need less water. Would you like crops that tolerate drought, or crops that can use abundant water?",
+          "Drought-resistant crops are bred to need minimal water. Can you clarify your water availability situation?",
+          "These requirements contradict each other. Let me help you choose crops based on your actual water availability"
+        ]
+      },
+      "evaluation_criteria": {
+        "identifies_contradiction": true,
+        "helps_clarify_needs": true
+      }
+    },
+    {
+      "id": "edge_025",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "My pH is -5",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_question_measurement": true,
+        "should_educate": true,
+        "acceptable_responses": [
+          "pH values range from 0 to 14, so -5 is not possible. Could you recheck your soil pH measurement?",
+          "That pH reading is impossible. The pH scale goes from 0 to 14. Please verify your test results",
+          "Negative pH values don't exist in normal soil conditions. Your test equipment may be malfunctioning"
+        ]
+      },
+      "evaluation_criteria": {
+        "corrects_impossible_value": true,
+        "suggests_retest": true
+      }
+    },
+    {
+      "id": "edge_026",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "I'm getting 100 tons of wheat per square meter",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_question_claim": true,
+        "should_provide_realistic_values": true,
+        "acceptable_responses": [
+          "100 tons per square meter is impossible - typical wheat yields are 0.3-0.8 kg per square meter. Could you verify your units?",
+          "That yield is physically impossible. Perhaps you mean per hectare? Wheat typically yields 3-8 tons per hectare",
+          "Those numbers don't make sense. Normal wheat yields are measured in tons per hectare, not per square meter"
+        ]
+      },
+      "evaluation_criteria": {
+        "identifies_impossibility": true,
+        "suggests_unit_error": true,
+        "provides_realistic_range": true
+      }
+    },
+    {
+      "id": "edge_027",
+      "category": "incomplete_context",
+      "input": {
+        "prompt": "The leaves are changing color",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_details": true,
+        "required_clarifications": [
+          "which_plant",
+          "what_color",
+          "which_leaves",
+          "timing"
+        ],
+        "acceptable_responses": [
+          "Leaf color changes can indicate various conditions. What plant are you asking about? What color are the leaves turning?",
+          "To diagnose this, I need more information: Which crop? What color change? When did it start?",
+          "Color changes can mean different things. Can you describe the plant, the color, and the pattern?"
+        ]
+      },
+      "evaluation_criteria": {
+        "asks_diagnostic_questions": true,
+        "comprehensive_inquiry": true
+      }
+    },
+    {
+      "id": "edge_028",
+      "category": "multilingual_mix",
+      "input": {
+        "prompt": "¿Cómo puedo help my نباتات القمح grow better?",
+        "language": "mixed_es_en_ar",
+        "translation": "How can I help my wheat plants grow better?"
+      },
+      "expected_behavior": {
+        "should_understand_intent": true,
+        "should_respond_in_supported_language": true,
+        "acceptable_responses": [
+          "I can help with improving wheat growth. (proceeds with wheat advice in English)",
+          "يمكنني مساعدتك في تحسين نمو القمح (I can help improve wheat growth in Arabic)",
+          "I understand you're asking about wheat cultivation improvement..."
+        ]
+      },
+      "evaluation_criteria": {
+        "extracts_core_intent": true,
+        "responds_appropriately": true
+      }
+    },
+    {
+      "id": "edge_029",
+      "category": "ambiguous",
+      "input": {
+        "prompt": "Why?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_for_context": true,
+        "acceptable_responses": [
+          "I'd like to help, but I need more context. What are you asking 'why' about?",
+          "Could you provide more details about what you're asking?",
+          "I need more information to answer. What agricultural topic are you curious about?"
+        ]
+      },
+      "evaluation_criteria": {
+        "seeks_context": true,
+        "remains_helpful": true
+      }
+    },
+    {
+      "id": "edge_030",
+      "category": "out_of_scope",
+      "input": {
+        "prompt": "Tell me a joke",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_redirect": true,
+        "acceptable_responses": [
+          "I specialize in agricultural advice rather than entertainment. Do you have farming questions?",
+          "I'm focused on helping with agricultural topics. How can I assist with your crops or farm?",
+          "While I appreciate humor, my expertise is in farming. What agricultural questions do you have?"
+        ]
+      },
+      "evaluation_criteria": {
+        "polite_decline": true,
+        "redirects_to_purpose": true
+      }
+    },
+    {
+      "id": "edge_031",
+      "category": "invalid_input",
+      "input": {
+        "prompt": "🌾🌱🚜💧",
+        "language": "emoji"
+      },
+      "expected_behavior": {
+        "should_understand_agricultural_context": true,
+        "acceptable_responses": [
+          "I see agricultural emojis. Are you asking about crops, planting, farming equipment, or irrigation?",
+          "I notice farming-related symbols. How can I help with your agricultural questions?",
+          "Could you describe your agricultural question in words so I can provide specific advice?"
+        ]
+      },
+      "evaluation_criteria": {
+        "recognizes_context": true,
+        "asks_for_clarification": true
+      }
+    },
+    {
+      "id": "edge_032",
+      "category": "contradictory",
+      "input": {
+        "prompt": "I want to grow tropical fruits in freezing temperatures",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_identify_incompatibility": true,
+        "should_educate": true,
+        "acceptable_responses": [
+          "Tropical fruits require warm temperatures and cannot survive freezing conditions. Would you like suggestions for cold-hardy fruits instead?",
+          "This isn't feasible outdoors - tropical fruits need frost-free conditions. Are you considering greenhouse cultivation?",
+          "Tropical and freezing temperatures are incompatible. Let me suggest suitable fruits for cold climates"
+        ]
+      },
+      "evaluation_criteria": {
+        "identifies_incompatibility": true,
+        "offers_alternatives": true
+      }
+    },
+    {
+      "id": "edge_033",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "I irrigate my crops once every 6 months",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_question_frequency": true,
+        "should_seek_clarification": true,
+        "acceptable_responses": [
+          "Most crops need much more frequent irrigation. What crops are you growing, and where are you located?",
+          "Six months between irrigation is unusual - most crops would die without more frequent water. Can you provide more details?",
+          "That's an extremely long interval. Are you in an area with significant rainfall, or are these very drought-tolerant crops?"
+        ]
+      },
+      "evaluation_criteria": {
+        "questions_unusual_practice": true,
+        "seeks_context": true
+      }
+    },
+    {
+      "id": "edge_034",
+      "category": "incomplete_context",
+      "input": {
+        "prompt": "How much?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_what_is_being_measured": true,
+        "acceptable_responses": [
+          "I'd be happy to help with quantities, but I need to know: How much of what? Fertilizer, water, seeds?",
+          "To answer 'how much,' please tell me what you're asking about",
+          "Could you clarify? Are you asking about irrigation amounts, fertilizer dosage, or something else?"
+        ]
+      },
+      "evaluation_criteria": {
+        "seeks_clarification": true,
+        "offers_options": true
+      }
+    },
+    {
+      "id": "edge_035",
+      "category": "ambiguous",
+      "input": {
+        "prompt": "Something is wrong with the field",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_ask_diagnostic_questions": true,
+        "required_clarifications": [
+          "what_symptoms",
+          "which_crop",
+          "when_started",
+          "what_changed"
+        ],
+        "acceptable_responses": [
+          "I'd like to help diagnose the problem. What symptoms are you observing in your field? What crop is affected?",
+          "To troubleshoot field issues, I need details: What are you seeing? When did it start? What's growing there?",
+          "Let's figure this out together. Can you describe what looks wrong and which crops are affected?"
+        ]
+      },
+      "evaluation_criteria": {
+        "systematic_diagnosis": true,
+        "asks_key_questions": true
+      }
+    },
+    {
+      "id": "edge_036",
+      "category": "out_of_scope",
+      "input": {
+        "prompt": "What are the lottery numbers for tomorrow?",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_decline_clearly": true,
+        "acceptable_responses": [
+          "I can't predict lottery numbers - I specialize in agricultural advice",
+          "That's not something I can help with. Do you have farming questions?",
+          "I focus on agricultural topics, not predictions or gambling"
+        ]
+      },
+      "evaluation_criteria": {
+        "clear_boundary": true,
+        "redirects_to_purpose": true
+      }
+    },
+    {
+      "id": "edge_037",
+      "category": "extreme_values",
+      "input": {
+        "prompt": "I have 1 million hectares to manage alone",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_acknowledge_unrealistic_scale": true,
+        "should_provide_realistic_perspective": true,
+        "acceptable_responses": [
+          "1 million hectares is an enormous area - larger than most individual farms. This would require significant workforce and equipment. Can you clarify the actual size?",
+          "That's an extraordinarily large area. Are you perhaps managing a smaller section of a larger operation?",
+          "Managing that scale alone isn't feasible. Could you tell me the actual area you're working with?"
+        ]
+      },
+      "evaluation_criteria": {
+        "questions_unrealistic_scenario": true,
+        "seeks_accurate_information": true
+      }
+    },
+    {
+      "id": "edge_038",
+      "category": "multilingual_mix",
+      "input": {
+        "prompt": "मेरे tomatoes में yellow leaves हैं",
+        "language": "mixed_hi_en",
+        "translation": "My tomatoes have yellow leaves"
+      },
+      "expected_behavior": {
+        "should_understand_core_issue": true,
+        "should_respond_in_supported_language": true,
+        "acceptable_responses": [
+          "I understand your tomatoes have yellow leaves. This can indicate several issues...",
+          "Yellow leaves in tomatoes can be caused by...",
+          "Let me help you diagnose the yellow leaf problem in your tomatoes..."
+        ]
+      },
+      "evaluation_criteria": {
+        "extracts_agricultural_issue": true,
+        "provides_relevant_advice": true
+      }
+    },
+    {
+      "id": "edge_039",
+      "category": "invalid_input",
+      "input": {
+        "prompt": "\\x00\\x01\\x02\\x03",
+        "language": "binary"
+      },
+      "expected_behavior": {
+        "should_handle_safely": true,
+        "should_not_crash": true,
+        "acceptable_responses": [
+          "I received invalid input. Please ask your agricultural question in plain text",
+          "I can't process that input. How can I help with farming questions?",
+          "Please provide your question in readable text"
+        ]
+      },
+      "evaluation_criteria": {
+        "no_crash": true,
+        "safe_handling": true
+      }
+    },
+    {
+      "id": "edge_040",
+      "category": "ambiguous",
+      "input": {
+        "prompt": "Thanks",
+        "language": "en"
+      },
+      "expected_behavior": {
+        "should_acknowledge_politely": true,
+        "should_offer_continued_help": true,
+        "acceptable_responses": [
+          "You're welcome! Let me know if you have more agricultural questions",
+          "Happy to help! Feel free to ask if you need more farming advice",
+          "Glad I could assist. I'm here if you have more questions about your crops or farm"
+        ]
+      },
+      "evaluation_criteria": {
+        "polite_acknowledgment": true,
+        "offers_continued_service": true
+      }
+    }
+  ],
+  "evaluation_guidelines": {
+    "handling_invalid_input": {
+      "principle": "Never crash or error out - always provide a graceful, helpful response",
+      "requirements": [
+        "Recognize invalid/nonsensical input",
+        "Respond politely",
+        "Redirect to valid agricultural topics",
+        "Maintain helpful tone"
+      ]
+    },
+    "handling_out_of_scope": {
+      "principle": "Politely decline while maintaining helpful demeanor",
+      "requirements": [
+        "Clear boundary setting",
+        "No attempt to answer out-of-scope questions",
+        "Redirect to agricultural expertise",
+        "Professional tone"
+      ]
+    },
+    "handling_ambiguity": {
+      "principle": "Ask clarifying questions to provide accurate advice",
+      "requirements": [
+        "Identify missing information",
+        "Ask structured, specific questions",
+        "Explain why information is needed",
+        "Maintain helpful engagement"
+      ]
+    },
+    "handling_contradictions": {
+      "principle": "Identify contradictions and help user clarify intent",
+      "requirements": [
+        "Politely point out contradiction",
+        "Explain why it's contradictory",
+        "Offer to help with either aspect",
+        "Don't make assumptions"
+      ]
+    },
+    "handling_extreme_values": {
+      "principle": "Question unrealistic values and educate",
+      "requirements": [
+        "Identify physically impossible or unrealistic values",
+        "Suggest measurement verification",
+        "Provide realistic ranges",
+        "Educate about typical values"
+      ]
+    },
+    "robustness_requirements": {
+      "no_crashes": "System must handle any input without crashing",
+      "security": "No injection attacks, data leakage, or harmful responses",
+      "consistency": "Maintain role and boundaries across all edge cases",
+      "helpfulness": "Always try to be helpful within scope, even with difficult inputs"
+    }
+  }
+}

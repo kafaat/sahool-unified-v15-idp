@@ -362,3 +362,305 @@ class NDVIMetrics(MetricsCollector):
         self._metrics['anomalies_detected'].labels(
             anomaly_type=anomaly_type,
         ).inc()
+
+
+# AI/Agent-specific metrics
+class AgentMetrics(MetricsCollector):
+    """
+    AI Agent-specific metrics collector.
+    جامع مقاييس عامل الذكاء الاصطناعي.
+
+    Tracks:
+    - Token usage
+    - Model costs
+    - Success/failure rates
+    - Response times
+    - Cache hit rates
+    """
+
+    def __init__(self, service_name: str = 'ai_agent', registry: Optional['CollectorRegistry'] = None):
+        super().__init__(service_name, registry)
+        self._setup_agent_metrics()
+
+    def _setup_agent_metrics(self) -> None:
+        """Setup AI agent-specific metrics."""
+        if not PROMETHEUS_AVAILABLE:
+            return
+
+        # Token usage metrics
+        self._metrics['tokens_used'] = Counter(
+            f'{self.service_name}_tokens_used_total',
+            'Total tokens used by agent',
+            ['agent_name', 'model', 'token_type'],
+            registry=self.registry,
+        )
+
+        # Cost tracking
+        self._metrics['cost_usd'] = Counter(
+            f'{self.service_name}_cost_usd_total',
+            'Total cost in USD',
+            ['agent_name', 'model'],
+            registry=self.registry,
+        )
+
+        # Agent calls
+        self._metrics['agent_calls'] = Counter(
+            f'{self.service_name}_calls_total',
+            'Total agent calls',
+            ['agent_name', 'model', 'status'],
+            registry=self.registry,
+        )
+
+        # Agent response time
+        self._metrics['agent_duration'] = Histogram(
+            f'{self.service_name}_duration_seconds',
+            'Agent call duration in seconds',
+            ['agent_name', 'model'],
+            buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0, 120.0],
+            registry=self.registry,
+        )
+
+        # Success rate
+        self._metrics['agent_success'] = Counter(
+            f'{self.service_name}_success_total',
+            'Successful agent calls',
+            ['agent_name', 'model'],
+            registry=self.registry,
+        )
+
+        self._metrics['agent_failure'] = Counter(
+            f'{self.service_name}_failure_total',
+            'Failed agent calls',
+            ['agent_name', 'model', 'error_type'],
+            registry=self.registry,
+        )
+
+        # Cache metrics
+        self._metrics['cache_hits'] = Counter(
+            f'{self.service_name}_cache_hits_total',
+            'Cache hits',
+            ['agent_name'],
+            registry=self.registry,
+        )
+
+        self._metrics['cache_misses'] = Counter(
+            f'{self.service_name}_cache_misses_total',
+            'Cache misses',
+            ['agent_name'],
+            registry=self.registry,
+        )
+
+        # Token limits and throttling
+        self._metrics['rate_limit_hits'] = Counter(
+            f'{self.service_name}_rate_limit_hits_total',
+            'Rate limit hits',
+            ['agent_name', 'model'],
+            registry=self.registry,
+        )
+
+        # Response quality metrics
+        self._metrics['response_length'] = Histogram(
+            f'{self.service_name}_response_length_chars',
+            'Response length in characters',
+            ['agent_name', 'model'],
+            buckets=[100, 500, 1000, 2000, 5000, 10000, 20000],
+            registry=self.registry,
+        )
+
+    def record_agent_call(
+        self,
+        agent_name: str,
+        model: str,
+        duration: float,
+        prompt_tokens: Optional[int] = None,
+        completion_tokens: Optional[int] = None,
+        total_tokens: Optional[int] = None,
+        cost: Optional[float] = None,
+        success: bool = True,
+        error_type: Optional[str] = None,
+        response_length: Optional[int] = None,
+    ) -> None:
+        """
+        Record an agent call with all relevant metrics.
+        تسجيل استدعاء عامل مع جميع المقاييس ذات الصلة.
+
+        Args:
+            agent_name: Name of the agent
+            model: Model name (e.g., 'gpt-4', 'claude-3-opus')
+            duration: Call duration in seconds
+            prompt_tokens: Number of prompt tokens
+            completion_tokens: Number of completion tokens
+            total_tokens: Total tokens used
+            cost: Cost in USD
+            success: Whether the call succeeded
+            error_type: Type of error if failed
+            response_length: Length of response in characters
+        """
+        if not PROMETHEUS_AVAILABLE:
+            return
+
+        # Record call
+        status = 'success' if success else 'failure'
+        self._metrics['agent_calls'].labels(
+            agent_name=agent_name,
+            model=model,
+            status=status,
+        ).inc()
+
+        # Record duration
+        self._metrics['agent_duration'].labels(
+            agent_name=agent_name,
+            model=model,
+        ).observe(duration)
+
+        # Record tokens
+        if prompt_tokens:
+            self._metrics['tokens_used'].labels(
+                agent_name=agent_name,
+                model=model,
+                token_type='prompt',
+            ).inc(prompt_tokens)
+
+        if completion_tokens:
+            self._metrics['tokens_used'].labels(
+                agent_name=agent_name,
+                model=model,
+                token_type='completion',
+            ).inc(completion_tokens)
+
+        if total_tokens:
+            self._metrics['tokens_used'].labels(
+                agent_name=agent_name,
+                model=model,
+                token_type='total',
+            ).inc(total_tokens)
+
+        # Record cost
+        if cost:
+            self._metrics['cost_usd'].labels(
+                agent_name=agent_name,
+                model=model,
+            ).inc(cost)
+
+        # Record success/failure
+        if success:
+            self._metrics['agent_success'].labels(
+                agent_name=agent_name,
+                model=model,
+            ).inc()
+        else:
+            self._metrics['agent_failure'].labels(
+                agent_name=agent_name,
+                model=model,
+                error_type=error_type or 'unknown',
+            ).inc()
+
+        # Record response length
+        if response_length:
+            self._metrics['response_length'].labels(
+                agent_name=agent_name,
+                model=model,
+            ).observe(response_length)
+
+    def record_cache_hit(self, agent_name: str) -> None:
+        """Record a cache hit."""
+        if not PROMETHEUS_AVAILABLE:
+            return
+        self._metrics['cache_hits'].labels(agent_name=agent_name).inc()
+
+    def record_cache_miss(self, agent_name: str) -> None:
+        """Record a cache miss."""
+        if not PROMETHEUS_AVAILABLE:
+            return
+        self._metrics['cache_misses'].labels(agent_name=agent_name).inc()
+
+    def record_rate_limit(self, agent_name: str, model: str) -> None:
+        """Record a rate limit hit."""
+        if not PROMETHEUS_AVAILABLE:
+            return
+        self._metrics['rate_limit_hits'].labels(
+            agent_name=agent_name,
+            model=model,
+        ).inc()
+
+
+class CostTracker:
+    """
+    Cost tracking utility for AI/LLM services.
+    أداة تتبع التكلفة لخدمات الذكاء الاصطناعي/LLM.
+
+    Provides centralized cost calculation based on token usage and model pricing.
+    """
+
+    # Pricing per 1K tokens (as of December 2024, in USD)
+    MODEL_PRICING = {
+        # OpenAI GPT-4
+        'gpt-4': {'prompt': 0.03, 'completion': 0.06},
+        'gpt-4-turbo': {'prompt': 0.01, 'completion': 0.03},
+        'gpt-4o': {'prompt': 0.005, 'completion': 0.015},
+        'gpt-4o-mini': {'prompt': 0.00015, 'completion': 0.0006},
+
+        # OpenAI GPT-3.5
+        'gpt-3.5-turbo': {'prompt': 0.0005, 'completion': 0.0015},
+        'gpt-3.5-turbo-16k': {'prompt': 0.003, 'completion': 0.004},
+
+        # Anthropic Claude
+        'claude-3-opus': {'prompt': 0.015, 'completion': 0.075},
+        'claude-3-sonnet': {'prompt': 0.003, 'completion': 0.015},
+        'claude-3-haiku': {'prompt': 0.00025, 'completion': 0.00125},
+        'claude-3-5-sonnet': {'prompt': 0.003, 'completion': 0.015},
+
+        # Google Gemini
+        'gemini-pro': {'prompt': 0.00025, 'completion': 0.0005},
+        'gemini-ultra': {'prompt': 0.00125, 'completion': 0.00375},
+
+        # Default fallback
+        'default': {'prompt': 0.001, 'completion': 0.002},
+    }
+
+    @classmethod
+    def calculate_cost(
+        cls,
+        model: str,
+        prompt_tokens: int,
+        completion_tokens: int,
+    ) -> float:
+        """
+        Calculate cost based on token usage.
+        حساب التكلفة بناءً على استخدام الرموز.
+
+        Args:
+            model: Model name
+            prompt_tokens: Number of prompt tokens
+            completion_tokens: Number of completion tokens
+
+        Returns:
+            Cost in USD
+        """
+        # Normalize model name
+        model_key = model.lower()
+
+        # Get pricing or use default
+        pricing = cls.MODEL_PRICING.get(model_key, cls.MODEL_PRICING['default'])
+
+        # Calculate cost
+        prompt_cost = (prompt_tokens / 1000) * pricing['prompt']
+        completion_cost = (completion_tokens / 1000) * pricing['completion']
+
+        return prompt_cost + completion_cost
+
+    @classmethod
+    def update_pricing(cls, model: str, prompt_price: float, completion_price: float) -> None:
+        """
+        Update pricing for a model.
+        تحديث الأسعار لنموذج.
+
+        Args:
+            model: Model name
+            prompt_price: Price per 1K prompt tokens
+            completion_price: Price per 1K completion tokens
+        """
+        cls.MODEL_PRICING[model.lower()] = {
+            'prompt': prompt_price,
+            'completion': completion_price,
+        }

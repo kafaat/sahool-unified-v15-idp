@@ -33,6 +33,15 @@ except ImportError:
     # Fallback: define secure origins locally if shared module not available
     setup_cors_middleware = None
 
+# Import A2A Protocol Support | استيراد دعم بروتوكول A2A
+try:
+    from a2a.server import create_a2a_router
+    from .a2a_adapter import create_ai_advisor_a2a_agent
+    A2A_AVAILABLE = True
+except ImportError:
+    A2A_AVAILABLE = False
+    logger.warning("A2A protocol support not available")
+
 # Configure structured logging | تكوين السجلات المنظمة
 structlog.configure(
     processors=[
@@ -157,6 +166,20 @@ async def lifespan(app: FastAPI):
         app_state["agents"] = agents
         app_state["supervisor"] = supervisor
 
+        # Initialize A2A agent if available | تهيئة وكيل A2A إذا كان متاحاً
+        if A2A_AVAILABLE:
+            try:
+                base_url = os.getenv("SERVICE_BASE_URL", f"http://localhost:{settings.service_port}")
+                a2a_agent = create_ai_advisor_a2a_agent(
+                    base_url=base_url,
+                    agents=agents,
+                    supervisor=supervisor
+                )
+                app_state["a2a_agent"] = a2a_agent
+                logger.info("a2a_agent_initialized", agent_id=a2a_agent.agent_id)
+            except Exception as e:
+                logger.error("a2a_agent_initialization_failed", error=str(e))
+
         logger.info("ai_advisor_service_started_successfully")
 
     except Exception as e:
@@ -199,6 +222,17 @@ else:
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Accept", "Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
     )
+
+# Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
+if A2A_AVAILABLE:
+    @app.on_event("startup")
+    async def setup_a2a_routes():
+        """Setup A2A protocol routes after startup"""
+        a2a_agent = app_state.get("a2a_agent")
+        if a2a_agent:
+            a2a_router = create_a2a_router(a2a_agent, prefix="/a2a")
+            app.include_router(a2a_router)
+            logger.info("a2a_routes_registered")
 
 
 # Endpoints | نقاط النهاية

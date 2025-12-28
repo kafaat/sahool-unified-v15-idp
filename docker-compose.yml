@@ -1781,6 +1781,46 @@ services:
     networks:
       - sahool-network
 
+  # MCP Server - Model Context Protocol Integration
+  # Exposes SAHOOL capabilities to AI assistants (Claude, ChatGPT, etc.)
+  mcp-server:
+    build:
+      context: .
+      dockerfile: apps/services/mcp-server/Dockerfile
+    container_name: sahool-mcp-server
+    environment:
+      - SAHOOL_API_URL=http://kong:8000
+      - MCP_SERVER_PORT=8200
+      - MCP_SERVER_HOST=0.0.0.0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8200:8200"
+    depends_on:
+      kong:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    networks:
+      - sahool-network
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Networks
 # ─────────────────────────────────────────────────────────────────────────────

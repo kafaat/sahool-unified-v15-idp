@@ -14,7 +14,9 @@ LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DEFAULT_TIMEOUT=300 \
+    PIP_RETRIES=10
 
 WORKDIR /app
 
@@ -22,6 +24,19 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
+
+# Configure pip for better network resilience
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "timeout = 300" >> /root/.pip/pip.conf && \
+    echo "retries = 10" >> /root/.pip/pip.conf && \
+    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
+    echo "[install]" >> /root/.pip/pip.conf && \
+    echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies (using shared requirements)
 COPY requirements.txt .
@@ -31,9 +46,8 @@ COPY requirements.txt .
 # Copy source
 COPY src/ ./src/
 
-# Upgrade pip, install dependencies, and set ownership
-RUN pip install --upgrade pip || true && \
-    pip install --no-cache-dir -r requirements.txt && \
+# Install dependencies and set ownership
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
     chown -R sahool:sahool /app
 
 USER sahool

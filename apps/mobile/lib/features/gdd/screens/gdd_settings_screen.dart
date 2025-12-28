@@ -275,7 +275,7 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.event),
-              title: Text(DateFormat('dd MMMM yyyy', 'ar').format(_plantingDate)),
+              title: Text(DateFormat('dd MMMM yyyy', Localizations.localeOf(context).languageCode).format(_plantingDate)),
               subtitle: const Text('اضغط للتغيير'),
               onTap: () => _selectPlantingDate(context),
             ),
@@ -295,7 +295,7 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
               leading: const Icon(Icons.event_available),
               title: Text(
                 _harvestDate != null
-                    ? DateFormat('dd MMMM yyyy', 'ar').format(_harvestDate!)
+                    ? DateFormat('dd MMMM yyyy', Localizations.localeOf(context).languageCode).format(_harvestDate!)
                     : 'غير محدد',
               ),
               subtitle: const Text('اضغط للتغيير'),

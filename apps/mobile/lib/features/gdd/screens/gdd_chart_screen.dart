@@ -195,7 +195,7 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
   }
 
   Widget _buildDateRangeInfo(BuildContext context) {
-    final dateFormat = DateFormat('dd MMM yyyy', 'ar');
+    final dateFormat = DateFormat('dd MMM yyyy', Localizations.localeOf(context).languageCode);
     return Card(
       color: Theme.of(context).primaryColor.withOpacity(0.1),
       child: Padding(
@@ -402,7 +402,7 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
             ),
             const Divider(height: 24),
             ...forecasts.take(7).map((forecast) {
-              final dateFormat = DateFormat('EEEE dd MMM', 'ar');
+              final dateFormat = DateFormat('EEEE dd MMM', Localizations.localeOf(context).languageCode);
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: Row(

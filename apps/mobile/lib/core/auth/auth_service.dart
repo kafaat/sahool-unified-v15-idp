@@ -14,12 +14,32 @@ import 'biometric_service.dart';
 /// - Secure token storage
 /// - Biometric authentication support
 /// - Session management
+/// - Inactivity timeout and auto-logout
+
+/// Session Configuration
+class SessionConfig {
+  /// Duration of inactivity before auto-logout
+  final Duration inactivityTimeout;
+
+  /// Whether session timeout is enabled
+  final bool enableTimeout;
+
+  const SessionConfig({
+    this.inactivityTimeout = const Duration(minutes: 30),
+    this.enableTimeout = true,
+  });
+
+  const SessionConfig.disabled()
+      : inactivityTimeout = const Duration(minutes: 30),
+        enableTimeout = false;
+}
 
 // Providers
 final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
     secureStorage: ref.read(secureStorageProvider),
     biometricService: ref.read(biometricServiceProvider),
+    sessionConfig: const SessionConfig(), // Default 30 minutes timeout
   );
 });
 
@@ -127,13 +147,18 @@ class AuthStateNotifier extends StateNotifier<AuthState> {
 class AuthService {
   final SecureStorageService secureStorage;
   final BiometricService biometricService;
+  final SessionConfig sessionConfig;
 
   Timer? _refreshTimer;
+  Timer? _inactivityTimer;
+  DateTime? _lastActivityTime;
+
   static const _tokenRefreshBuffer = Duration(minutes: 5);
 
   AuthService({
     required this.secureStorage,
     required this.biometricService,
+    this.sessionConfig = const SessionConfig(),
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -171,6 +196,9 @@ class AuthService {
 
       // Schedule token refresh
       _scheduleTokenRefresh(tokens.expiresIn);
+
+      // Start inactivity timer
+      _startInactivityTimer();
 
       AppLogger.i('Login successful', tag: 'AUTH');
       return user;
@@ -211,6 +239,9 @@ class AuthService {
     // Refresh token to get new access token
     await refreshToken;
 
+    // Start inactivity timer
+    _startInactivityTimer();
+
     // Get current user
     return getCurrentUser();
   }
@@ -220,6 +251,7 @@ class AuthService {
     AppLogger.i('Logout', tag: 'AUTH');
 
     _cancelTokenRefresh();
+    _cancelInactivityTimer();
 
     // Clear stored tokens
     await secureStorage.clearAll();
@@ -241,11 +273,15 @@ class AuthService {
       // Token expired, try to refresh
       try {
         await refreshToken();
+        _startInactivityTimer(); // Restart inactivity timer after refresh
         return true;
       } catch (e) {
         return false;
       }
     }
+
+    // Start inactivity timer for existing session
+    _startInactivityTimer();
 
     return true;
   }
@@ -337,9 +373,84 @@ class AuthService {
     _refreshTimer = null;
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Session Timeout Management
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Start or reset inactivity timer
+  void _startInactivityTimer() {
+    if (!sessionConfig.enableTimeout) return;
+
+    _cancelInactivityTimer();
+    _lastActivityTime = DateTime.now();
+
+    _inactivityTimer = Timer(sessionConfig.inactivityTimeout, () async {
+      AppLogger.w(
+        'Session timeout: User inactive for ${sessionConfig.inactivityTimeout.inMinutes} minutes',
+        tag: 'AUTH',
+      );
+      await _handleSessionTimeout();
+    });
+
+    AppLogger.d(
+      'Inactivity timer started: ${sessionConfig.inactivityTimeout.inMinutes} minutes',
+      tag: 'AUTH',
+    );
+  }
+
+  /// Cancel inactivity timer
+  void _cancelInactivityTimer() {
+    _inactivityTimer?.cancel();
+    _inactivityTimer = null;
+  }
+
+  /// Handle session timeout (auto-logout)
+  Future<void> _handleSessionTimeout() async {
+    AppLogger.i('Auto-logout due to inactivity', tag: 'AUTH');
+    await logout();
+  }
+
+  /// Record user activity and reset inactivity timer
+  /// Call this method whenever user interacts with the app
+  void recordActivity() {
+    if (!sessionConfig.enableTimeout) return;
+
+    final now = DateTime.now();
+
+    // Only reset timer if significant time has passed to avoid excessive timer resets
+    if (_lastActivityTime == null ||
+        now.difference(_lastActivityTime!).inSeconds > 10) {
+      _lastActivityTime = now;
+      _startInactivityTimer();
+
+      AppLogger.d('User activity recorded', tag: 'AUTH');
+    }
+  }
+
+  /// Get time remaining until session timeout
+  Duration? getTimeUntilTimeout() {
+    if (!sessionConfig.enableTimeout || _lastActivityTime == null) {
+      return null;
+    }
+
+    final elapsed = DateTime.now().difference(_lastActivityTime!);
+    final remaining = sessionConfig.inactivityTimeout - elapsed;
+
+    return remaining.isNegative ? Duration.zero : remaining;
+  }
+
+  /// Check if session is about to expire (within 5 minutes)
+  bool isSessionExpiringSoon() {
+    final remaining = getTimeUntilTimeout();
+    if (remaining == null) return false;
+
+    return remaining.inMinutes <= 5 && remaining > Duration.zero;
+  }
+
   /// Dispose resources
   void dispose() {
     _cancelTokenRefresh();
+    _cancelInactivityTimer();
   }
 }
 

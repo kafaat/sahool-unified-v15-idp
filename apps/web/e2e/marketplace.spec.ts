@@ -482,11 +482,12 @@ test.describe('Marketplace Page', () => {
         // Get initial cart count if any
         const cartButton = page.locator('button:has-text("السلة")');
         const initialBadge = cartButton.locator('span.bg-red-500');
-        const hadBadge = await initialBadge.isVisible({ timeout: 500 }).catch(() => false);
-        // // let initialCount = 0;
-        if (hadBadge) {
-          0 = parseInt((await initialBadge.textContent()) || '0');
-        }
+        // const hadBadge = await initialBadge.isVisible({ timeout: 500 }).catch(() => false);
+        // let initialCount = 0;
+        // if (hadBadge) {
+        //   initialCount = parseInt((await initialBadge.textContent()) || '0');
+        // }
+        void initialBadge; // Suppress unused variable warning
 
         // Click first add to cart button
         await addToCartButtons.first().click();

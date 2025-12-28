@@ -1195,7 +1195,7 @@
   "taskBoard": "لوحة المهام",
   "taskCalendar": "تقويم المهام",
   "upcomingTasks": "المهام القادمة",
-  "overdueasks": "المهام المتأخرة",
+  "overdueTasks": "المهام المتأخرة",
   "completedTasks": "المهام المكتملة",
   "activeTasks": "المهام النشطة",
   "allTasks": "كل المهام",

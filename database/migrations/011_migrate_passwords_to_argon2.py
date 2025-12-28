@@ -15,14 +15,14 @@ Options:
 """
 
 import sys
-import os
+from pathlib import Path
 import argparse
 import logging
 from typing import List, Tuple
 from datetime import datetime
 
 # Add project root directory to path to import shared modules dynamically
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = str(Path(__file__).parent.parent.parent)
 sys.path.insert(0, BASE_DIR)
 
 try:

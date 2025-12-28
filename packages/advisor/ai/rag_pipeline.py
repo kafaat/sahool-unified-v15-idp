@@ -155,8 +155,13 @@ def run_rag(
         )
         
     except Exception as e:
-        # Log detailed error for debugging (server-side only)
-        logger.error(f"RAG pipeline error: {type(e).__name__}")
+        # Log error type and sanitized message for debugging
+        error_type = type(e).__name__
+        # Sanitize message: remove paths, internal details
+        error_msg = str(e).split('\n')[0][:100]  # First line, max 100 chars
+        logger.error(f"RAG pipeline error [{error_type}]: {error_msg}")
+        
+        # Full details ONLY at DEBUG level (developer only)
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Pipeline error details", exc_info=True)
         

@@ -183,10 +183,10 @@ class LlmClient(ABC):
             raise LlmValidationError("LLM returned empty response")
 
     def _check_rate_limit(self) -> None:
-        """Check if rate limit would be exceeded.
+        """Check if rate limit would be exceeded by this request.
         
         Raises:
-            LlmRateLimitError: If rate limit exceeded
+            LlmRateLimitError: If rate limit would be exceeded
         """
         current_time = time.time()
         
@@ -197,18 +197,19 @@ class LlmClient(ABC):
         
         time_since_window_start = current_time - self._window_start_time
         
-        # Check if we've hit the limit within the current window FIRST
-        # Note: _request_count hasn't been incremented yet, so we check >= 60
-        # which means we've already made 60 requests
-        if self._request_count >= 60:
-            # If we're still within the window, raise error
-            if time_since_window_start < 60:
-                raise LlmRateLimitError(
-                    f"Rate limit exceeded: {self._request_count} requests in {time_since_window_start:.1f}s"
-                )
-            # If window has expired, reset and allow
+        # If window has expired, reset counters
+        if time_since_window_start >= 60:
             self._request_count = 0
             self._window_start_time = current_time
+            return  # Request allowed after reset
+        
+        # Check if this request would exceed the limit
+        # Count is currently at N, this would be request N+1
+        # So we block if N >= 60 (meaning this would be the 61st+)
+        if self._request_count >= 60:
+            raise LlmRateLimitError(
+                f"Rate limit exceeded: {self._request_count} requests in {time_since_window_start:.1f}s"
+            )
 
 
 class MockLlmClient(LlmClient):

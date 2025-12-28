@@ -185,7 +185,8 @@ test.describe('Settings Page', () => {
       const isVisible = await currentPasswordInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
-        expect(await currentPasswordInput.isRequired()).toBe(true);
+        const isRequired = await currentPasswordInput.getAttribute('required');
+        expect(isRequired !== null).toBe(true);
       }
     });
 

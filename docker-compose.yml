@@ -231,7 +231,7 @@ services:
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -272,7 +272,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
     ports:
-      - "3010:3010"
+      - "127.0.0.1:3010:3010"
     depends_on:
       postgres:
         condition: service_healthy
@@ -316,7 +316,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3015:3015"
+      - "127.0.0.1:3015:3015"
     depends_on:
       postgres:
         condition: service_healthy
@@ -359,7 +359,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3020:3020"
+      - "127.0.0.1:3020:3020"
     depends_on:
       postgres:
         condition: service_healthy
@@ -404,7 +404,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3021:3021"
+      - "127.0.0.1:3021:3021"
     depends_on:
       postgres:
         condition: service_healthy
@@ -449,7 +449,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3022:3022"
+      - "127.0.0.1:3022:3022"
     depends_on:
       postgres:
         condition: service_healthy
@@ -494,7 +494,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3023:3023"
+      - "127.0.0.1:3023:3023"
     depends_on:
       postgres:
         condition: service_healthy
@@ -535,7 +535,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8114:8114"
+      - "127.0.0.1:8114:8114"
     depends_on:
       postgres:
         condition: service_healthy
@@ -580,7 +580,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8117:8117"
+      - "127.0.0.1:8117:8117"
     depends_on:
       postgres:
         condition: service_healthy
@@ -624,7 +624,7 @@ services:
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
-      - "8097:8097"
+      - "127.0.0.1:8097:8097"
     depends_on:
       postgres:
         condition: service_healthy
@@ -672,7 +672,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -714,7 +714,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     depends_on:
       nats:
         condition: service_healthy
@@ -758,7 +758,7 @@ services:
       - THARWATT_MERCHANT_ID=${THARWATT_MERCHANT_ID:-}
       - THARWATT_WEBHOOK_SECRET=${THARWATT_WEBHOOK_SECRET:-}
     ports:
-      - "8089:8089"
+      - "127.0.0.1:8089:8089"
     depends_on:
       postgres:
         condition: service_healthy
@@ -806,7 +806,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8090:8090"
+      - "127.0.0.1:8090:8090"
     depends_on:
       postgres:
         condition: service_healthy
@@ -845,7 +845,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8091:8091"
+      - "127.0.0.1:8091:8091"
     depends_on:
       postgres:
         condition: service_healthy
@@ -885,7 +885,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8092:8092"
+      - "127.0.0.1:8092:8092"
     depends_on:
       postgres:
         condition: service_healthy
@@ -923,7 +923,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8093:8093"
+      - "127.0.0.1:8093:8093"
     depends_on:
       postgres:
         condition: service_healthy
@@ -961,7 +961,7 @@ services:
       - NATS_URL=nats://nats:4222
       - IOT_GATEWAY_URL=http://iot_gateway:8106
     ports:
-      - "8094:8094"
+      - "127.0.0.1:8094:8094"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1000,7 +1000,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8095:8095"
+      - "127.0.0.1:8095:8095"
     volumes:
       - ./models:/app/models:ro
     depends_on:
@@ -1039,7 +1039,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8096:8096"
+      - "127.0.0.1:8096:8096"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1077,7 +1077,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8098:8098"
+      - "127.0.0.1:8098:8098"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1117,7 +1117,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8099:8099"
+      - "127.0.0.1:8099:8099"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1155,7 +1155,7 @@ services:
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8101:8101"
+      - "127.0.0.1:8101:8101"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1191,7 +1191,7 @@ services:
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8103:8103"
+      - "127.0.0.1:8103:8103"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1225,7 +1225,7 @@ services:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8104:8104"
+      - "127.0.0.1:8104:8104"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/health')"]
       interval: 30s
@@ -1261,7 +1261,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8105:8105"
+      - "127.0.0.1:8105:8105"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1305,7 +1305,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8106:8106"
+      - "127.0.0.1:8106:8106"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1348,7 +1348,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8107:8107"
+      - "127.0.0.1:8107:8107"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1393,7 +1393,7 @@ services:
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
-      - "8108:8108"
+      - "127.0.0.1:8108:8108"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1437,7 +1437,7 @@ services:
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
       - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
     ports:
-      - "8110:8110"
+      - "127.0.0.1:8110:8110"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1475,7 +1475,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
     ports:
-      - "8111:8111"
+      - "127.0.0.1:8111:8111"
     depends_on:
       weather-service:
         condition: service_healthy
@@ -1528,7 +1528,7 @@ services:
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://nats:4222
     ports:
-      - "8112:8112"
+      - "127.0.0.1:8112:8112"
     depends_on:
       qdrant:
         condition: service_healthy
@@ -1574,7 +1574,7 @@ services:
       - NATS_URL=nats://nats:4222
       - NOTIFICATION_SERVICE_URL=http://notification_service:8110
     ports:
-      - "8113:8113"
+      - "127.0.0.1:8113:8113"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1616,7 +1616,7 @@ services:
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8115:8115"
+      - "127.0.0.1:8115:8115"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1655,7 +1655,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8116:8116"
+      - "127.0.0.1:8116:8116"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1695,7 +1695,7 @@ services:
       - NATS_URL=nats://nats:4222
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
-      - "8118:8118"
+      - "127.0.0.1:8118:8118"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1735,7 +1735,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CDN_BASE_URL=${CDN_BASE_URL:-https://cdn.sahool.io}
     ports:
-      - "8100:8100"
+      - "127.0.0.1:8100:8100"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')"]
       interval: 30s
@@ -1802,7 +1802,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8200:8200"
+      - "127.0.0.1:8200:8200"
     depends_on:
       kong:
         condition: service_healthy

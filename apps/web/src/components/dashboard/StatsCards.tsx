@@ -55,41 +55,68 @@ const StatsCard = React.memo<StatsCardProps>(function StatsCard({
     return HEALTH_COLORS.POOR;
   }, [progress]);
 
+  // Create accessible progress description
+  const progressDescription = useMemo(() => {
+    if (progress === undefined) return '';
+    if (progress >= HEALTH_THRESHOLDS.GOOD) return 'ممتاز';
+    if (progress >= HEALTH_THRESHOLDS.MODERATE) return 'جيد';
+    return 'يحتاج تحسين';
+  }, [progress]);
+
   return (
-    <div
-      className="bg-white rounded-xl p-4 shadow-sm transition-transform hover:scale-[1.02]"
+    <article
+      className="bg-white rounded-xl p-4 shadow-sm transition-transform hover:scale-[1.02] focus-within:ring-2 focus-within:ring-blue-500 focus-within:outline-none"
       role="article"
-      aria-label={`${title}: ${value}`}
+      aria-label={`${title}: ${value}${progress !== undefined ? `, ${progressDescription}` : ''}`}
+      dir="rtl"
     >
       <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-gray-500">{title}</p>
-          <p className={`text-2xl font-bold ${color}`}>{value}</p>
+        <div className="flex-1">
+          <h3 className="text-xs text-gray-500 font-medium" id={`stat-title-${title}`}>
+            {title}
+          </h3>
+          <p
+            className={`text-2xl font-bold ${color} mt-1`}
+            aria-describedby={`stat-title-${title}`}
+          >
+            {value}
+          </p>
         </div>
-        <span className="text-3xl" role="img" aria-hidden="true">{icon}</span>
+        <span
+          className="text-3xl mr-3"
+          role="img"
+          aria-label={title}
+        >
+          {icon}
+        </span>
       </div>
       {progress !== undefined && (
-        <div
-          className="mt-2 h-1.5 rounded-full overflow-hidden bg-gray-100"
-          role="progressbar"
-          aria-valuenow={progress}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`${title} progress`}
-        >
+        <div className="mt-3">
           <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{
-              width: `${progress}%`,
-              backgroundColor: progressColor
-            }}
-          />
+            className="h-1.5 rounded-full overflow-hidden bg-gray-100"
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${title}: ${progress}% - ${progressDescription}`}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-500 ease-out"
+              style={{
+                width: `${progress}%`,
+                backgroundColor: progressColor
+              }}
+            />
+          </div>
+          <span className="sr-only">{progressDescription}</span>
         </div>
       )}
       {subtitle && (
-        <p className="text-xs mt-2 text-gray-500">{subtitle}</p>
+        <p className="text-xs mt-2 text-gray-600" role="note">
+          {subtitle}
+        </p>
       )}
-    </div>
+    </article>
   );
 });
 
@@ -97,15 +124,17 @@ interface StatsCardsProps {
   tenantId?: string;
 }
 
-export function StatsCards({ tenantId }: StatsCardsProps) {
+export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({ tenantId }) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
 
   // Memoized fetch function
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
 
       // Try to fetch from API
       if (tenantId) {
@@ -148,12 +177,22 @@ export function StatsCards({ tenantId }: StatsCardsProps) {
       });
       setError(null);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'فشل تحميل الإحصائيات';
+      const errorMessage = err instanceof Error
+        ? `خطأ في تحميل البيانات: ${err.message}`
+        : 'فشل تحميل الإحصائيات. يرجى المحاولة مرة أخرى.';
       setError(errorMessage);
+      console.error('Error fetching stats:', err);
     } finally {
       setLoading(false);
+      setRetrying(false);
     }
   }, [tenantId]);
+
+  // Handle retry with loading state
+  const handleRetry = useCallback(() => {
+    setRetrying(true);
+    fetchStats();
+  }, [fetchStats]);
 
   useEffect(() => {
     fetchStats();
@@ -161,37 +200,79 @@ export function StatsCards({ tenantId }: StatsCardsProps) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <section
+        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+        aria-busy="true"
+        aria-label="جاري تحميل الإحصائيات"
+        dir="rtl"
+      >
         {[...Array(6)].map((_, i) => (
           <SkeletonCard key={i} />
         ))}
-      </div>
+      </section>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 rounded-xl p-4 text-center">
-        <p className="text-red-500">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-2 px-4 py-2 text-sm rounded-lg bg-red-500 text-white hover:bg-red-600"
-        >
-          إعادة المحاولة
-        </button>
-      </div>
+      <section
+        className="bg-red-50 border border-red-200 rounded-xl p-6 text-center"
+        role="alert"
+        aria-live="assertive"
+        dir="rtl"
+      >
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-4xl" role="img" aria-label="خطأ">⚠️</span>
+          <p className="text-red-700 font-medium text-sm">{error}</p>
+          <button
+            onClick={handleRetry}
+            disabled={retrying}
+            className="mt-2 px-6 py-2.5 text-sm font-medium rounded-lg bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+            aria-label="إعادة محاولة تحميل الإحصائيات"
+          >
+            {retrying ? (
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                جاري إعادة المحاولة...
+              </span>
+            ) : (
+              '🔄 إعادة المحاولة'
+            )}
+          </button>
+        </div>
+      </section>
     );
   }
 
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <section
+        className="bg-gray-50 border border-gray-200 rounded-xl p-6 text-center"
+        role="status"
+        aria-live="polite"
+        dir="rtl"
+      >
+        <p className="text-gray-500 text-sm">لا توجد بيانات متاحة</p>
+      </section>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <section
+      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
+      role="region"
+      aria-label="إحصائيات لوحة التحكم"
+      aria-live="polite"
+      dir="rtl"
+    >
       <StatsCard
-        title="الحقول"
+        title="إجمالي الحقول"
         value={stats.totalFields}
         icon="🌱"
-        subtitle={`${stats.totalArea} هكتار`}
+        subtitle={`المساحة: ${stats.totalArea.toFixed(1)} هكتار`}
       />
 
       <StatsCard
@@ -203,24 +284,24 @@ export function StatsCards({ tenantId }: StatsCardsProps) {
       />
 
       <StatsCard
-        title="مهام معلقة"
+        title="المهام المعلقة"
         value={stats.pendingTasks}
         icon="📋"
-        subtitle={`✓ ${stats.completedTasks} مكتملة اليوم`}
+        subtitle={`✓ ${stats.completedTasks} مهمة مكتملة اليوم`}
         color="text-blue-600"
       />
 
       <StatsCard
-        title="تنبيهات نشطة"
+        title="التنبيهات النشطة"
         value={stats.activeAlerts}
         icon={stats.activeAlerts > 0 ? '🔔' : '✅'}
-        subtitle={stats.activeAlerts > 0 ? 'تحتاج مراجعة' : 'لا توجد تنبيهات'}
-        color={stats.activeAlerts > 0 ? 'text-red-600' : 'text-gray-500'}
+        subtitle={stats.activeAlerts > 0 ? 'تحتاج إلى مراجعة' : 'لا توجد تنبيهات'}
+        color={stats.activeAlerts > 0 ? 'text-red-600' : 'text-emerald-600'}
       />
 
       <StatsCard
-        title="الطقس اليوم"
-        value={`${stats.temperature}°`}
+        title="حالة الطقس"
+        value={`${stats.temperature}°س`}
         icon="☀️"
         subtitle={`صنعاء - ${stats.weatherCondition}`}
         color="text-cyan-600"
@@ -230,11 +311,11 @@ export function StatsCards({ tenantId }: StatsCardsProps) {
         title="استهلاك المياه"
         value={`${stats.waterUsage}%`}
         icon="💧"
-        subtitle={`↓ ${stats.waterSaving}% توفير`}
+        subtitle={`↓ توفير ${stats.waterSaving}% من المياه`}
         color="text-blue-600"
       />
-    </div>
+    </section>
   );
-}
+});
 
 export default StatsCards;

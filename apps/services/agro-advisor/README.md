@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED - Use advisory-service instead
+
+This service has been deprecated and merged into `advisory-service`.
+Please update your references to use `advisory-service` on port 8093.
+
+---
+
+
 # Agro Advisor Service
 
 **المستشار الزراعي - تشخيص الأمراض وتخطيط التسميد**

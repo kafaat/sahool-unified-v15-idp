@@ -13,7 +13,7 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 
 # Install all dependencies (including devDependencies for build) with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
@@ -37,7 +37,7 @@ RUN apk add --no-cache curl
 WORKDIR /app
 
 # Copy only production dependencies with retry for network resilience
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
 
 # Copy source code

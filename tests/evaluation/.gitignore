@@ -1,0 +1,31 @@
+# Evaluation results and temporary files
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Evaluation outputs
+evaluation-results.json
+evaluation-metrics.json
+evaluation-summary.json
+evaluation-report.html
+evaluation-detailed-report.md
+regression-report.json
+junit-results.xml
+
+# Temporary datasets
+datasets/temp_*.json
+datasets/test_*.json
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

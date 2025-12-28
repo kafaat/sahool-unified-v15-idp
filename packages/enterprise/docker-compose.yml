@@ -32,8 +32,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ../../infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    # Use tmpfs for temporary data (security hardening)
+    tmpfs:
+      - /tmp
+      - /run/postgresql
     ports:
       - "127.0.0.1:5432:5432"
+    # Security options for container hardening
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool} -d ${POSTGRES_DB:-sahool}"]
       interval: 10s
@@ -179,9 +186,9 @@ services:
 
   field_core:
     build:
-      context: ../../apps/services/field-core
+      context: ../../apps/services/field-management-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-field-core
+    container_name: sahool-enterprise-field-management-service
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -219,9 +226,9 @@ services:
 
   weather_core:
     build:
-      context: ../../apps/services/weather-core
+      context: ../../apps/services/weather-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-weather-core
+    container_name: sahool-enterprise-weather-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -294,9 +301,9 @@ services:
 
   agro_advisor:
     build:
-      context: ../../apps/services/agro-advisor
+      context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-agro-advisor
+    container_name: sahool-enterprise-advisory-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -381,9 +388,9 @@ services:
 
   satellite_service:
     build:
-      context: ../../apps/services/satellite-service
+      context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-satellite-service
+    container_name: sahool-enterprise-vegetation-analysis-service
     environment:
       - PORT=8090
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -426,9 +433,9 @@ services:
 
   ndvi_engine:
     build:
-      context: ../../apps/services/ndvi-engine
+      context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-ndvi-engine
+    container_name: sahool-enterprise-vegetation-analysis-service
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
@@ -464,9 +471,9 @@ services:
 
   crop_health_ai:
     build:
-      context: ../../apps/services/crop-health-ai
+      context: ../../apps/services/crop-intelligence-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-crop-health-ai
+    container_name: sahool-enterprise-crop-intelligence-service
     environment:
       - PORT=8095
       - MODEL_PATH=/app/models/plant_disease.tflite
@@ -576,9 +583,9 @@ services:
 
   yield_engine:
     build:
-      context: ../../apps/services/yield-engine
+      context: ../../apps/services/yield-prediction-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-yield-engine
+    container_name: sahool-enterprise-yield-prediction-service
     environment:
       - PORT=8098
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -612,9 +619,9 @@ services:
 
   fertilizer_advisor:
     build:
-      context: ../../apps/services/fertilizer-advisor
+      context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-fertilizer-advisor
+    container_name: sahool-enterprise-advisory-service
     environment:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -965,9 +972,9 @@ services:
   # Crop Growth Model - نموذج نمو المحاصيل
   crop_growth_model:
     build:
-      context: ../../apps/services/crop-growth-model
+      context: ../../apps/services/crop-intelligence-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-crop-growth-model
+    container_name: sahool-enterprise-crop-intelligence-service
     environment:
       - PORT=3023
       - NODE_ENV=production
@@ -1005,9 +1012,9 @@ services:
   # LAI Estimation - تقدير مؤشر مساحة الأوراق
   lai_estimation:
     build:
-      context: ../../apps/services/lai-estimation
+      context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
-    container_name: sahool-enterprise-lai-estimation
+    container_name: sahool-enterprise-vegetation-analysis-service
     environment:
       - PORT=3022
       - NODE_ENV=production

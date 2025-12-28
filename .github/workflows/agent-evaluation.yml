@@ -1,0 +1,397 @@
+name: Agent Evaluation Pipeline
+# خط أنابيب تقييم الوكلاء
+
+on:
+  pull_request:
+    paths:
+      # Trigger on changes to AI/Agent services
+      - 'apps/services/ai-advisor/**'
+      - 'apps/services/agro-advisor/**'
+      - 'tests/evaluation/**'
+      - '.github/workflows/agent-evaluation.yml'
+    branches:
+      - main
+      - develop
+      - 'release/**'
+
+  # Manual trigger for on-demand evaluation
+  workflow_dispatch:
+    inputs:
+      evaluation_set:
+        description: 'Evaluation dataset to use (golden, extended, custom)'
+        required: false
+        default: 'golden'
+      min_score_threshold:
+        description: 'Minimum evaluation score threshold (0-100)'
+        required: false
+        default: '85'
+
+env:
+  PYTHON_VERSION: '3.11'
+  MIN_EVALUATION_SCORE: ${{ github.event.inputs.min_score_threshold || '85' }}
+  EVALUATION_DATASET: ${{ github.event.inputs.evaluation_set || 'golden' }}
+
+jobs:
+  agent-evaluation:
+    name: Run Agent Evaluation Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # Service containers for evaluation (optional - tests can run without them)
+    services:
+      qdrant:
+        image: qdrant/qdrant:v1.7.0
+        ports:
+          - 6333:6333
+        env:
+          QDRANT__SERVICE__ENABLE_TLS: "false"
+        options: >-
+          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:6333/readyz || exit 1"
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 10
+          --health-start-period 30s
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: apps/services/ai-advisor
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov pytest-html pytest-json-report
+          pip install scikit-learn nltk sacrebleu rouge-score  # For evaluation metrics
+
+      - name: Download evaluation datasets
+        run: |
+          mkdir -p tests/evaluation/datasets
+          # Create golden dataset if not exists
+          if [ ! -f "tests/evaluation/datasets/golden_dataset.json" ]; then
+            echo "Creating default golden dataset..."
+            python tests/evaluation/scripts/create_golden_dataset.py
+          fi
+
+          # Validate dataset format
+          python tests/evaluation/scripts/validate_dataset.py
+
+      - name: Load cached embeddings model
+        id: cache-embeddings
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: embeddings-model-${{ hashFiles('apps/services/ai-advisor/requirements.txt') }}
+          restore-keys: |
+            embeddings-model-
+
+      - name: Run agent evaluation tests
+        id: run_tests
+        continue-on-error: true
+        working-directory: apps/services/ai-advisor
+        env:
+          # Test API keys (use secrets in production)
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+
+          # Service configuration
+          QDRANT_HOST: localhost
+          QDRANT_PORT: 6333
+          REDIS_URL: redis://localhost:6379
+
+          # Evaluation configuration
+          EVALUATION_MODE: true
+          EVALUATION_DATASET: ${{ env.EVALUATION_DATASET }}
+          ENABLE_SAFETY_CHECKS: true
+          ENABLE_LATENCY_TRACKING: true
+
+          # Logging
+          LOG_LEVEL: DEBUG
+          STRUCTLOG_FORMAT: json
+        run: |
+          pytest tests/evaluation/ \
+            -v \
+            --tb=short \
+            --cov=src \
+            --cov-report=xml:coverage.xml \
+            --cov-report=html:htmlcov \
+            --html=evaluation-report.html \
+            --self-contained-html \
+            --json-report \
+            --json-report-file=evaluation-metrics.json \
+            --junit-xml=junit-results.xml || true
+
+      - name: Create fallback evaluation files
+        if: steps.run_tests.outcome == 'failure'
+        working-directory: apps/services/ai-advisor
+        run: |
+          echo "Creating fallback evaluation files due to test failures..."
+
+          # Create minimal evaluation-metrics.json
+          cat > evaluation-metrics.json << 'METRICS_EOF'
+          {
+            "created": "$(date -Iseconds)",
+            "duration": 0,
+            "exitcode": 1,
+            "root": "tests/evaluation",
+            "summary": {
+              "passed": 0,
+              "failed": 0,
+              "error": 1,
+              "skipped": 0
+            },
+            "tests": []
+          }
+          METRICS_EOF
+
+          # Create minimal evaluation-report.html
+          echo "<html><body><h1>Evaluation Report</h1><p>Tests could not run - infrastructure setup failed</p></body></html>" > evaluation-report.html
+
+          # Create minimal coverage.xml
+          echo '<?xml version="1.0" ?><coverage version="1.0"><packages></packages></coverage>' > coverage.xml
+
+          mkdir -p htmlcov
+          echo "<html><body><h1>Coverage Report</h1><p>No coverage data available</p></body></html>" > htmlcov/index.html
+
+      - name: Calculate evaluation scores
+        id: calculate_scores
+        continue-on-error: true
+        working-directory: apps/services/ai-advisor
+        run: |
+          # Try to calculate scores, create fallback if it fails
+          if python ../../../tests/evaluation/scripts/calculate_scores.py \
+            --metrics-file evaluation-metrics.json \
+            --output evaluation-summary.json 2>/dev/null; then
+            echo "Evaluation scores calculated successfully"
+          else
+            echo "Creating fallback evaluation-summary.json..."
+            cat > evaluation-summary.json << 'SUMMARY_EOF'
+          {
+            "overall_score": 0,
+            "accuracy": 0,
+            "latency_score": 0,
+            "safety_score": 0,
+            "arabic_support": 0,
+            "english_support": 0,
+            "total_tests": 0,
+            "passed_tests": 0,
+            "failed_tests": 0,
+            "avg_latency_ms": 0,
+            "status": "infrastructure_failure"
+          }
+          SUMMARY_EOF
+          fi
+
+          # Extract overall score (with fallback)
+          OVERALL_SCORE=$(python -c "import json; print(json.load(open('evaluation-summary.json')).get('overall_score', 0))" 2>/dev/null || echo "0")
+          echo "overall_score=$OVERALL_SCORE" >> $GITHUB_OUTPUT
+          echo "Overall Evaluation Score: $OVERALL_SCORE"
+
+          # Extract component scores (with fallbacks)
+          ACCURACY=$(python -c "import json; print(json.load(open('evaluation-summary.json')).get('accuracy', 0))" 2>/dev/null || echo "0")
+          LATENCY=$(python -c "import json; print(json.load(open('evaluation-summary.json')).get('latency_score', 0))" 2>/dev/null || echo "0")
+          SAFETY=$(python -c "import json; print(json.load(open('evaluation-summary.json')).get('safety_score', 0))" 2>/dev/null || echo "0")
+
+          echo "accuracy=$ACCURACY" >> $GITHUB_OUTPUT
+          echo "latency=$LATENCY" >> $GITHUB_OUTPUT
+          echo "safety=$SAFETY" >> $GITHUB_OUTPUT
+
+      - name: Generate evaluation report
+        continue-on-error: true
+        working-directory: apps/services/ai-advisor
+        run: |
+          if ! python ../../../tests/evaluation/scripts/generate_report.py \
+            --metrics evaluation-summary.json \
+            --output evaluation-detailed-report.md 2>/dev/null; then
+            echo "# Evaluation Report" > evaluation-detailed-report.md
+            echo "" >> evaluation-detailed-report.md
+            echo "⚠️ **Infrastructure setup failed** - Tests could not run" >> evaluation-detailed-report.md
+            echo "" >> evaluation-detailed-report.md
+            echo "Please check the workflow logs for details about the container initialization failure." >> evaluation-detailed-report.md
+          fi
+
+      - name: Upload evaluation artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evaluation-results
+          path: |
+            apps/services/ai-advisor/evaluation-report.html
+            apps/services/ai-advisor/evaluation-metrics.json
+            apps/services/ai-advisor/evaluation-summary.json
+            apps/services/ai-advisor/evaluation-detailed-report.md
+            apps/services/ai-advisor/coverage.xml
+            apps/services/ai-advisor/htmlcov/
+          retention-days: 30
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: apps/services/ai-advisor/coverage.xml
+          flags: agent-evaluation
+          name: agent-evaluation-coverage
+
+      - name: Comment PR with evaluation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = JSON.parse(fs.readFileSync('apps/services/ai-advisor/evaluation-summary.json', 'utf8'));
+            const report = fs.readFileSync('apps/services/ai-advisor/evaluation-detailed-report.md', 'utf8');
+
+            const overallScore = summary.overall_score;
+            const passed = overallScore >= ${{ env.MIN_EVALUATION_SCORE }};
+            const emoji = passed ? '✅' : '❌';
+
+            const comment = `## ${emoji} Agent Evaluation Results
+
+            **Overall Score:** ${overallScore.toFixed(2)}% ${passed ? '(PASS)' : '(FAIL)'}
+            **Minimum Required:** ${{ env.MIN_EVALUATION_SCORE }}%
+
+            ### Component Scores:
+            - **Accuracy:** ${summary.accuracy.toFixed(2)}%
+            - **Latency Score:** ${summary.latency_score.toFixed(2)}%
+            - **Safety Score:** ${summary.safety_score.toFixed(2)}%
+
+            ### Language Support:
+            - **Arabic:** ${summary.arabic_support.toFixed(2)}%
+            - **English:** ${summary.english_support.toFixed(2)}%
+
+            ### Test Summary:
+            - **Total Tests:** ${summary.total_tests}
+            - **Passed:** ${summary.passed_tests}
+            - **Failed:** ${summary.failed_tests}
+            - **Average Response Time:** ${summary.avg_latency_ms.toFixed(0)}ms
+
+            <details>
+            <summary>📊 Detailed Report</summary>
+
+            ${report}
+            </details>
+
+            ---
+            *Generated by SAHOOL Agent Evaluation Pipeline*
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Check evaluation threshold
+        if: always()
+        run: |
+          SCORE=${{ steps.calculate_scores.outputs.overall_score }}
+          MIN_SCORE=${{ env.MIN_EVALUATION_SCORE }}
+
+          echo "Evaluation Score: $SCORE"
+          echo "Minimum Required: $MIN_SCORE"
+
+          if (( $(echo "$SCORE < $MIN_SCORE" | bc -l) )); then
+            echo "❌ Evaluation score ($SCORE%) is below minimum threshold ($MIN_SCORE%)"
+            echo "Please improve agent performance before merging."
+            exit 1
+          else
+            echo "✅ Evaluation score ($SCORE%) meets minimum threshold ($MIN_SCORE%)"
+          fi
+
+  regression-detection:
+    name: Detect Performance Regression
+    runs-on: ubuntu-latest
+    needs: agent-evaluation
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download current evaluation results
+        uses: actions/download-artifact@v4
+        with:
+          name: evaluation-results
+          path: current-results/
+
+      - name: Get baseline evaluation results
+        run: |
+          # Fetch baseline results from main branch
+          git fetch origin main
+          git checkout origin/main -- tests/evaluation/baselines/latest-baseline.json || echo "{}" > baseline.json
+
+      - name: Compare with baseline
+        run: |
+          python tests/evaluation/scripts/compare_with_baseline.py \
+            --current current-results/evaluation-summary.json \
+            --baseline tests/evaluation/baselines/latest-baseline.json \
+            --output regression-report.json
+
+      - name: Check for regression
+        run: |
+          REGRESSION=$(python -c "import json; print(json.load(open('regression-report.json'))['has_regression'])")
+
+          if [ "$REGRESSION" = "True" ]; then
+            echo "⚠️ Performance regression detected!"
+            cat regression-report.json
+            # Don't fail the build, just warn
+            echo "::warning::Performance regression detected. Review the changes carefully."
+          else
+            echo "✅ No performance regression detected"
+          fi
+
+  update-baseline:
+    name: Update Evaluation Baseline
+    runs-on: ubuntu-latest
+    needs: agent-evaluation
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download evaluation results
+        uses: actions/download-artifact@v4
+        with:
+          name: evaluation-results
+          path: evaluation-results/
+
+      - name: Update baseline
+        run: |
+          mkdir -p tests/evaluation/baselines
+          cp evaluation-results/evaluation-summary.json \
+             tests/evaluation/baselines/latest-baseline.json
+
+          # Also create timestamped baseline
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          cp evaluation-results/evaluation-summary.json \
+             tests/evaluation/baselines/baseline-${TIMESTAMP}.json
+
+      - name: Commit baseline update
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add tests/evaluation/baselines/
+          git commit -m "chore: update agent evaluation baseline [skip ci]" || echo "No changes to commit"
+          git push

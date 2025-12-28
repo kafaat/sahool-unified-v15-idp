@@ -1,3 +1,7 @@
+# ⚠️ DEPRECATED - Use weather-service instead
+This service has been deprecated and merged into `weather-service`.
+Please update your references to use `weather-service` on port 8108.
+
 # Weather Core Service
 
 **خدمة الطقس الأساسية - التقييم والتنبيهات الزراعية**

@@ -13,7 +13,7 @@ authors = [
 base = [
     "fastapi==0.126.0",
     "uvicorn[standard]==0.27.0",
-    "pydantic==2.9.2",
+    "pydantic>=2.10.0,<3.0.0",
     "httpx==0.28.1",
     "python-dotenv==1.0.1",
     "aiohttp>=3.11.12",  # Security fix for CVE-2025-53643
@@ -24,7 +24,7 @@ infrastructure = [
     "aerich==0.7.2",
     "nats-py==2.9.0",
     "redis==5.2.1",
-    "python-jose[cryptography]==3.3.0",
+    "python-jose[cryptography]==3.4.0",  # CVE-2024-33663, CVE-2024-33664
     "passlib[bcrypt]==1.7.4",
 ]
 observability = [

@@ -10,7 +10,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy root package files for workspace resolution
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json* ./
 
 # Copy workspace package definitions
 COPY packages/shared-utils/package.json ./packages/shared-utils/

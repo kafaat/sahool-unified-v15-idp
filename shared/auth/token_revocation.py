@@ -11,6 +11,7 @@ Provides:
 - High-performance async operations
 """
 
+import json
 import logging
 import time
 from typing import Optional, Dict, Any
@@ -241,8 +242,7 @@ class RedisTokenRevocationStore:
 
             if value:
                 # Parse stored value
-                import ast
-                return ast.literal_eval(value)
+                return json.loads(value)
 
             return None
 
@@ -341,8 +341,7 @@ class RedisTokenRevocationStore:
             value = await self._redis.get(key)
 
             if value:
-                import ast
-                data = ast.literal_eval(value)
+                data = json.loads(value)
                 revoked_at = data.get("revoked_at", 0)
 
                 # Token is revoked if it was issued before revocation
@@ -465,8 +464,7 @@ class RedisTokenRevocationStore:
             value = await self._redis.get(key)
 
             if value:
-                import ast
-                data = ast.literal_eval(value)
+                data = json.loads(value)
                 revoked_at = data.get("revoked_at", 0)
 
                 return token_issued_at < revoked_at

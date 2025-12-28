@@ -42,7 +42,7 @@ VERSIONS = {
     "pyjwt": "2.10.1",
     "bcrypt": "4.2.1",
     "passlib": "1.7.4",
-    "python-jose": "3.3.0",  # Legacy, prefer PyJWT
+    "python-jose": "3.4.0",  # CVE-2024-33663, CVE-2024-33664 fixed
 
     # Validation
     "jsonschema": "4.23.0",

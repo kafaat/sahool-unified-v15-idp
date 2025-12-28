@@ -14,7 +14,7 @@ LABEL version="16.0.0"
 # Environment
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=3000
+ENV PORT=8115
 
 # Create non-root user
 RUN groupadd -r sahool && useradd -r -g sahool sahool
@@ -47,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:3000/healthz')" || exit 1
 
 # Run application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8115"]

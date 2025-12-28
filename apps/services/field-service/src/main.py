@@ -97,7 +97,7 @@ async def lifespan(app: FastAPI):
         logger.warning(f"NATS connection failed: {e}")
         app.state.publisher = None
 
-    logger.info("Field Service ready on port 3000")
+    logger.info("Field Service ready on port 8115")
     yield
 
     # التنظيف
@@ -910,5 +910,5 @@ async def get_user_fields_stats(user_id: str, tenant_id: str = Query(...)):
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 3000))
+    port = int(os.getenv("PORT", 8115))
     uvicorn.run(app, host="0.0.0.0", port=port)

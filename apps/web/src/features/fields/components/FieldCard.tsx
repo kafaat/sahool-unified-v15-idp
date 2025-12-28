@@ -23,7 +23,7 @@ export const FieldCard: React.FC<FieldCardProps> = ({ field, onClick }) => {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900">{field.name_ar || field.name}</h3>
+          <h3 className="text-lg font-bold text-gray-900">{field.nameAr || field.name}</h3>
           <p className="text-sm text-gray-500">{field.name}</p>
         </div>
         <div className="p-2 bg-green-50 rounded-lg">
@@ -43,16 +43,16 @@ export const FieldCard: React.FC<FieldCardProps> = ({ field, onClick }) => {
           <div className="flex items-center gap-2 text-sm">
             <Sprout className="w-4 h-4 text-gray-400" />
             <span className="text-gray-600">المحصول:</span>
-            <span className="font-semibold text-gray-900">{field.crop_ar || field.crop}</span>
+            <span className="font-semibold text-gray-900">{field.cropAr || field.crop}</span>
           </div>
         )}
 
-        {field.created_at && (
+        {field.createdAt && (
           <div className="flex items-center gap-2 text-sm">
             <Calendar className="w-4 h-4 text-gray-400" />
             <span className="text-gray-600">تاريخ الإضافة:</span>
             <span className="text-gray-500">
-              {new Date(field.created_at).toLocaleDateString('ar-EG')}
+              {new Date(field.createdAt).toLocaleDateString('ar-EG')}
             </span>
           </div>
         )}
@@ -62,7 +62,7 @@ export const FieldCard: React.FC<FieldCardProps> = ({ field, onClick }) => {
       {field.description && (
         <div className="mt-4 pt-4 border-t border-gray-100">
           <p className="text-sm text-gray-600 line-clamp-2">
-            {field.description_ar || field.description}
+            {field.descriptionAr || field.description}
           </p>
         </div>
       )}

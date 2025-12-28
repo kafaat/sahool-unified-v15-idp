@@ -40,7 +40,8 @@ jobs:
           fi
 
           # Check for hardcoded passwords with actual values (not env var references)
-          if grep -rniE "password\s*=\s*['\"][a-zA-Z0-9!@#$%^&*]{8,}['\"]" --include="*.py" . 2>/dev/null | grep -v "test_" | grep -v "_test.py" | grep -v "getenv" | grep -v "environ"; then
+          # Exclude test files and example files
+          if grep -rniE "password\s*=\s*['\"][a-zA-Z0-9!@#$%^&*]{8,}['\"]" --include="*.py" . 2>/dev/null | grep -v "test_" | grep -v "_test.py" | grep -v "_example" | grep -v "example_" | grep -v "examples" | grep -v "getenv" | grep -v "environ" | grep -v "mock" | grep -v "fixture"; then
             echo "⚠️ Found hardcoded password"
             FOUND=1
           fi

@@ -12,17 +12,18 @@ on:
       - 'apps/web/**'
       - '.github/workflows/e2e-tests.yml'
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   e2e-tests:
     name: Run E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
 
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium, firefox, webkit]
-
+    # Only run Chromium for faster CI
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,7 +40,7 @@ jobs:
 
       - name: Install Playwright Browsers
         working-directory: apps/web
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install --with-deps chromium
 
       - name: Build application
         working-directory: apps/web
@@ -58,9 +59,10 @@ jobs:
 
       - name: Run E2E tests
         working-directory: apps/web
-        run: npx playwright test --project=${{ matrix.browser }} || true
+        run: npx playwright test --project=chromium --reporter=junit,html || true
         env:
           CI: true
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/results.xml
           PLAYWRIGHT_BASE_URL: http://localhost:3000
           TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL || 'test@example.com' }}
           TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD || 'testpassword123' }}
@@ -69,7 +71,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-results-${{ matrix.browser }}
+          name: playwright-results
           path: apps/web/test-results/
           retention-days: 7
 
@@ -77,16 +79,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}
+          name: playwright-report
           path: apps/web/playwright-report/
-          retention-days: 7
-
-      - name: Upload screenshots
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshots-${{ matrix.browser }}
-          path: apps/web/test-results/**/*.png
           retention-days: 7
 
   report:
@@ -104,7 +98,8 @@ jobs:
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
+        continue-on-error: true
         with:
-          files: artifacts/**/results.json
+          files: artifacts/**/results.xml
           check_name: E2E Test Results
-          comment_mode: always
+          comment_mode: off

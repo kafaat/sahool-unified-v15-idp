@@ -16,10 +16,10 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
 
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Use 2 workers in CI for faster execution */
+  workers: process.env.CI ? 2 : undefined,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
@@ -34,19 +34,19 @@ export default defineConfig({
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: process.env.CI ? 'off' : 'on-first-retry',
 
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
 
-    /* Video on first retry */
-    video: 'retain-on-failure',
+    /* Disable video in CI for faster tests */
+    video: process.env.CI ? 'off' : 'retain-on-failure',
 
     /* Default timeout for actions */
-    actionTimeout: 15000,
+    actionTimeout: 10000,
 
     /* Default navigation timeout */
-    navigationTimeout: 30000,
+    navigationTimeout: 20000,
   },
 
   /* Configure projects for major browsers */
@@ -96,10 +96,10 @@ export default defineConfig({
   },
 
   /* Global timeout for each test */
-  timeout: 60 * 1000,
+  timeout: 30 * 1000, // 30 seconds
 
   /* Global timeout for the entire test run */
-  globalTimeout: 30 * 60 * 1000, // 30 minutes
+  globalTimeout: 15 * 60 * 1000, // 15 minutes
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
   outputDir: 'test-results/',

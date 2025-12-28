@@ -1,0 +1,272 @@
+{
+  "mcpServers": {
+    "sahool": {
+      "command": "python",
+      "args": ["-m", "shared.mcp.server", "--transport", "stdio"],
+      "env": {
+        "SAHOOL_API_URL": "http://localhost:8000"
+      },
+      "description": "SAHOOL Agricultural Intelligence Platform MCP Server",
+      "capabilities": {
+        "tools": true,
+        "resources": true,
+        "prompts": true
+      }
+    },
+    "sahool-http": {
+      "url": "http://localhost:8200/mcp",
+      "transport": "http",
+      "description": "SAHOOL MCP Server via HTTP",
+      "capabilities": {
+        "tools": true,
+        "resources": true,
+        "prompts": true
+      }
+    }
+  },
+  "tools": {
+    "get_weather_forecast": {
+      "provider": "sahool",
+      "description": "Get weather forecast for a specific location with agricultural advisories",
+      "parameters": {
+        "latitude": {
+          "type": "number",
+          "required": true,
+          "description": "Latitude of the location"
+        },
+        "longitude": {
+          "type": "number",
+          "required": true,
+          "description": "Longitude of the location"
+        },
+        "days": {
+          "type": "integer",
+          "required": false,
+          "default": 7,
+          "description": "Number of forecast days (1-14)"
+        }
+      },
+      "examples": [
+        {
+          "description": "Get 7-day forecast for Sana'a, Yemen",
+          "parameters": {
+            "latitude": 15.5527,
+            "longitude": 48.5164,
+            "days": 7
+          }
+        }
+      ]
+    },
+    "analyze_crop_health": {
+      "provider": "sahool",
+      "description": "Analyze crop health using satellite imagery and NDVI analysis",
+      "parameters": {
+        "field_id": {
+          "type": "string",
+          "required": true,
+          "description": "Unique identifier for the agricultural field"
+        },
+        "analysis_type": {
+          "type": "string",
+          "required": false,
+          "default": "ndvi",
+          "enum": ["ndvi", "ndwi", "full"],
+          "description": "Type of analysis (ndvi, ndwi, or full)"
+        },
+        "date": {
+          "type": "string",
+          "required": false,
+          "description": "Analysis date in YYYY-MM-DD format"
+        }
+      },
+      "examples": [
+        {
+          "description": "Analyze crop health for a field",
+          "parameters": {
+            "field_id": "field-123",
+            "analysis_type": "ndvi"
+          }
+        }
+      ]
+    },
+    "get_field_data": {
+      "provider": "sahool",
+      "description": "Retrieve comprehensive field data including boundaries, soil, and activities",
+      "parameters": {
+        "field_id": {
+          "type": "string",
+          "required": true,
+          "description": "Unique identifier for the field"
+        },
+        "include_history": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Include historical data"
+        },
+        "include_sensors": {
+          "type": "boolean",
+          "required": false,
+          "default": false,
+          "description": "Include IoT sensor data"
+        }
+      }
+    },
+    "calculate_irrigation": {
+      "provider": "sahool",
+      "description": "Calculate optimal irrigation requirements based on soil, weather, and crop",
+      "parameters": {
+        "field_id": {
+          "type": "string",
+          "required": true,
+          "description": "Unique identifier for the field"
+        },
+        "crop_type": {
+          "type": "string",
+          "required": true,
+          "description": "Type of crop (e.g., wheat, corn, tomatoes)"
+        },
+        "soil_moisture": {
+          "type": "number",
+          "required": true,
+          "description": "Current soil moisture percentage (0-100)"
+        },
+        "growth_stage": {
+          "type": "string",
+          "required": true,
+          "enum": ["germination", "vegetative", "flowering", "fruiting", "maturation"],
+          "description": "Current growth stage"
+        }
+      },
+      "examples": [
+        {
+          "description": "Calculate irrigation for wheat field during flowering",
+          "parameters": {
+            "field_id": "field-123",
+            "crop_type": "wheat",
+            "soil_moisture": 45.5,
+            "growth_stage": "flowering"
+          }
+        }
+      ]
+    },
+    "get_fertilizer_recommendation": {
+      "provider": "sahool",
+      "description": "Get fertilizer recommendations based on soil analysis and crop requirements",
+      "parameters": {
+        "field_id": {
+          "type": "string",
+          "required": true,
+          "description": "Unique identifier for the field"
+        },
+        "crop_type": {
+          "type": "string",
+          "required": true,
+          "description": "Type of crop"
+        },
+        "soil_test": {
+          "type": "object",
+          "required": false,
+          "description": "Soil test results with NPK values and pH",
+          "properties": {
+            "nitrogen_ppm": {
+              "type": "number"
+            },
+            "phosphorus_ppm": {
+              "type": "number"
+            },
+            "potassium_ppm": {
+              "type": "number"
+            },
+            "ph": {
+              "type": "number"
+            },
+            "organic_matter_pct": {
+              "type": "number"
+            }
+          }
+        },
+        "target_yield": {
+          "type": "number",
+          "required": false,
+          "description": "Target yield in tons per hectare"
+        }
+      }
+    }
+  },
+  "resources": {
+    "field": {
+      "provider": "sahool",
+      "uriTemplate": "field://{field_id}/{resource_type}",
+      "description": "Access field data including boundaries, soil info, and activities",
+      "resourceTypes": ["info", "boundaries", "soil", "activities"]
+    },
+    "weather": {
+      "provider": "sahool",
+      "uriTemplate": "weather://{resource_type}",
+      "description": "Access weather forecasts, current conditions, and advisories",
+      "resourceTypes": ["current", "forecast/7day", "forecast/14day", "advisories", "historical/30day"]
+    },
+    "crops": {
+      "provider": "sahool",
+      "uriTemplate": "crops://{crop_id}/{resource_type}",
+      "description": "Access crop catalog, growing guides, and pest/disease management",
+      "resourceTypes": ["catalog", "info", "growing-guide", "pests", "diseases"]
+    }
+  },
+  "prompts": {
+    "field_analysis": {
+      "provider": "sahool",
+      "description": "Comprehensive field analysis including health, weather, and recommendations",
+      "arguments": [
+        {
+          "name": "field_id",
+          "description": "ID of the field to analyze",
+          "required": true
+        }
+      ]
+    },
+    "irrigation_plan": {
+      "provider": "sahool",
+      "description": "Create irrigation plan based on weather forecast and soil conditions",
+      "arguments": [
+        {
+          "name": "field_id",
+          "description": "ID of the field",
+          "required": true
+        },
+        {
+          "name": "days",
+          "description": "Number of days to plan for",
+          "required": false,
+          "default": 7
+        }
+      ]
+    },
+    "crop_recommendation": {
+      "provider": "sahool",
+      "description": "Recommend crops suitable for field conditions",
+      "arguments": [
+        {
+          "name": "field_id",
+          "description": "ID of the field",
+          "required": true
+        },
+        {
+          "name": "season",
+          "description": "Growing season",
+          "required": false
+        }
+      ]
+    }
+  },
+  "configuration": {
+    "version": "1.0.0",
+    "protocol": "2024-11-05",
+    "features": {
+      "streaming": true,
+      "batching": false,
+      "progress": false
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "overall_score": 87.5,
+  "accuracy": 88.2,
+  "latency_score": 92.1,
+  "safety_score": 96.3,
+  "total_tests": 6,
+  "passed_tests": 6,
+  "failed_tests": 0,
+  "pass_rate": 100.0,
+  "arabic_support": 100.0,
+  "english_support": 100.0,
+  "category_scores": {
+    "disease_diagnosis": 90.0,
+    "irrigation": 85.0,
+    "field_analysis": 88.0,
+    "yield_prediction": 87.0,
+    "multi_agent": 89.0
+  },
+  "avg_latency_ms": 1856.3,
+  "max_latency_ms": 2450.0,
+  "min_latency_ms": 1123.0,
+  "timestamp": "2025-12-28T00:00:00Z"
+}

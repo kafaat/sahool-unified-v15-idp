@@ -1,0 +1,477 @@
+---
+# Istio Virtual Service for SAHOOL Agent
+# Provides advanced traffic management for canary deployments
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sahool-agent
+  namespace: sahool
+  labels:
+    app: sahool-agent
+    app.kubernetes.io/name: sahool-agent
+    app.kubernetes.io/component: traffic-management
+    managed-by: argo-rollouts
+  annotations:
+    description: "Traffic routing for SAHOOL Agent with canary support"
+spec:
+  # Hosts that this virtual service applies to
+  hosts:
+  - sahool-agent
+  - sahool-agent.sahool.svc.cluster.local
+  - api.sahool.io
+  - "*.sahool.io"
+
+  # Gateway attachment (for external traffic)
+  gateways:
+  - sahool-gateway
+  - mesh  # Internal mesh traffic
+
+  # HTTP routing rules
+  http:
+  # Priority 1: Canary testing via header
+  - name: canary-header-route
+    match:
+    - headers:
+        X-Canary:
+          exact: "true"
+    - headers:
+        X-Canary-User:
+          regex: "^(beta|canary|test).*"
+    route:
+    - destination:
+        host: sahool-agent-canary
+        port:
+          number: 8080
+        subset: canary
+      weight: 100
+    headers:
+      response:
+        add:
+          X-Served-By: canary
+          X-Canary-Version: v2
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+
+  # Priority 2: Beta users via cookie
+  - name: beta-user-route
+    match:
+    - headers:
+        Cookie:
+          regex: ".*beta_user=true.*"
+    route:
+    - destination:
+        host: sahool-agent-canary
+        port:
+          number: 8080
+        subset: canary
+      weight: 100
+    headers:
+      response:
+        add:
+          X-Served-By: canary
+          X-Beta-User: "true"
+
+  # Priority 3: Weighted canary traffic (controlled by Argo Rollouts)
+  - name: canary-weight-route
+    match:
+    - uri:
+        prefix: /api/
+    route:
+    # Canary destination - weight controlled by rollout controller
+    - destination:
+        host: sahool-agent-canary
+        port:
+          number: 8080
+        subset: canary
+      weight: 0  # Dynamically updated by Argo Rollouts
+      headers:
+        response:
+          add:
+            X-Served-By: canary
+
+    # Stable destination
+    - destination:
+        host: sahool-agent-stable
+        port:
+          number: 8080
+        subset: stable
+      weight: 100  # Dynamically updated by Argo Rollouts
+      headers:
+        response:
+          add:
+            X-Served-By: stable
+
+    # Fault injection for testing (disabled in production)
+    # fault:
+    #   delay:
+    #     percentage:
+    #       value: 0.1
+    #     fixedDelay: 5s
+    #   abort:
+    #     percentage:
+    #       value: 0.01
+    #     httpStatus: 500
+
+    # Timeouts and retries
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+
+    # Traffic mirroring to canary (shadow traffic)
+    # mirror:
+    #   host: sahool-agent-canary
+    #   subset: canary
+    # mirrorPercentage:
+    #   value: 10.0
+
+  # Priority 4: Health check routes (always go to both)
+  - name: health-check-route
+    match:
+    - uri:
+        prefix: /health/
+    route:
+    - destination:
+        host: sahool-agent-stable
+        port:
+          number: 8080
+        subset: stable
+      weight: 100
+    timeout: 5s
+    retries:
+      attempts: 1
+      perTryTimeout: 3s
+
+  # Priority 5: Default route
+  - name: default-route
+    route:
+    - destination:
+        host: sahool-agent-stable
+        port:
+          number: 8080
+        subset: stable
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+
+  # gRPC routes (if applicable)
+  # - name: grpc-route
+  #   match:
+  #   - port: 9000
+  #   route:
+  #   - destination:
+  #       host: sahool-agent-stable
+  #       port:
+  #         number: 9000
+  #       subset: stable
+  #     weight: 100
+
+---
+# Istio Destination Rule for SAHOOL Agent
+# Defines subsets and traffic policies
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: sahool-agent
+  namespace: sahool
+  labels:
+    app: sahool-agent
+    app.kubernetes.io/name: sahool-agent
+    app.kubernetes.io/component: traffic-management
+spec:
+  host: sahool-agent
+
+  # Traffic policy (applies to all subsets unless overridden)
+  trafficPolicy:
+    # Connection pool settings
+    connectionPool:
+      tcp:
+        maxConnections: 1000
+        connectTimeout: 30s
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 1024
+        http2MaxRequests: 1024
+        maxRequestsPerConnection: 100
+        maxRetries: 3
+
+    # Load balancer settings
+    loadBalancer:
+      simple: LEAST_REQUEST  # Options: ROUND_ROBIN, LEAST_REQUEST, RANDOM, PASSTHROUGH
+      # Consistent hash for session affinity (if needed)
+      # consistentHash:
+      #   httpCookie:
+      #     name: session-cookie
+      #     ttl: 3600s
+
+    # Outlier detection (circuit breaker)
+    outlierDetection:
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 40
+      consecutiveGatewayErrors: 3
+
+    # TLS settings for mTLS
+    tls:
+      mode: ISTIO_MUTUAL
+      # For external services:
+      # mode: SIMPLE
+      # sni: api.external.com
+
+  # Subsets for canary and stable
+  subsets:
+  # Stable subset
+  - name: stable
+    labels:
+      deployment-type: stable
+      track: stable
+    trafficPolicy:
+      # Override connection pool for stable
+      connectionPool:
+        tcp:
+          maxConnections: 2000
+        http:
+          http2MaxRequests: 2000
+
+  # Canary subset
+  - name: canary
+    labels:
+      deployment-type: canary
+      track: canary
+    trafficPolicy:
+      # More conservative settings for canary
+      connectionPool:
+        tcp:
+          maxConnections: 500
+        http:
+          http2MaxRequests: 500
+      # Stricter outlier detection for canary
+      outlierDetection:
+        consecutive5xxErrors: 3
+        interval: 10s
+        baseEjectionTime: 60s
+        maxEjectionPercent: 30
+
+  # Preview subset (for blue-green deployments)
+  - name: preview
+    labels:
+      deployment-type: preview
+      track: preview
+
+---
+# Istio Gateway for external traffic
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: sahool-gateway
+  namespace: sahool
+  labels:
+    app: sahool-agent
+    app.kubernetes.io/name: sahool-agent
+    app.kubernetes.io/component: gateway
+spec:
+  # Use the istio-ingressgateway
+  selector:
+    istio: ingressgateway
+
+  servers:
+  # HTTPS server
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: sahool-tls-cert  # Secret containing TLS cert
+      minProtocolVersion: TLSV1_2
+      cipherSuites:
+      - ECDHE-RSA-AES128-GCM-SHA256
+      - ECDHE-RSA-AES256-GCM-SHA384
+    hosts:
+    - "api.sahool.io"
+    - "*.sahool.io"
+
+  # HTTP server (redirect to HTTPS)
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "api.sahool.io"
+    - "*.sahool.io"
+    tls:
+      httpsRedirect: true
+
+  # gRPC server
+  - port:
+      number: 9000
+      name: grpc
+      protocol: GRPC
+    tls:
+      mode: SIMPLE
+      credentialName: sahool-tls-cert
+    hosts:
+    - "grpc.sahool.io"
+
+---
+# Service Entry for external dependencies (if needed)
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-dependencies
+  namespace: sahool
+  labels:
+    app: sahool-agent
+spec:
+  hosts:
+  - "*.googleapis.com"
+  - "*.cloudflare.com"
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+---
+# Peer Authentication for mTLS enforcement
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: sahool-agent-mtls
+  namespace: sahool
+  labels:
+    app: sahool-agent
+spec:
+  selector:
+    matchLabels:
+      app: sahool-agent
+  mtls:
+    mode: STRICT  # Enforce mTLS for all traffic
+
+---
+# Authorization Policy for SAHOOL Agent
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: sahool-agent-authz
+  namespace: sahool
+  labels:
+    app: sahool-agent
+spec:
+  selector:
+    matchLabels:
+      app: sahool-agent
+
+  # Default action (ALLOW or DENY)
+  action: ALLOW
+
+  rules:
+  # Allow from ingress gateway
+  - from:
+    - source:
+        namespaces: ["istio-system"]
+        principals: ["cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]
+    to:
+    - operation:
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+        paths: ["/api/*"]
+
+  # Allow from other services in the same namespace
+  - from:
+    - source:
+        namespaces: ["sahool"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+
+  # Allow health checks from anywhere
+  - to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/health/*"]
+
+  # Allow metrics scraping from Prometheus
+  - from:
+    - source:
+        namespaces: ["monitoring"]
+        principals: ["cluster.local/ns/monitoring/sa/prometheus"]
+    to:
+    - operation:
+        methods: ["GET"]
+        paths: ["/metrics"]
+        ports: ["9090"]
+
+---
+# Request Authentication for JWT validation
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: sahool-agent-jwt
+  namespace: sahool
+  labels:
+    app: sahool-agent
+spec:
+  selector:
+    matchLabels:
+      app: sahool-agent
+  jwtRules:
+  - issuer: "https://auth.sahool.io"
+    jwksUri: "https://auth.sahool.io/.well-known/jwks.json"
+    audiences:
+    - "sahool-api"
+    forwardOriginalToken: true
+    outputPayloadToHeader: "X-JWT-Payload"
+
+---
+# Telemetry for enhanced observability
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: sahool-agent-telemetry
+  namespace: sahool
+  labels:
+    app: sahool-agent
+spec:
+  selector:
+    matchLabels:
+      app: sahool-agent
+
+  # Access logging
+  accessLogging:
+  - providers:
+    - name: envoy
+
+  # Metrics customization
+  metrics:
+  - providers:
+    - name: prometheus
+    dimensions:
+      deployment_type: # Add deployment type to metrics
+        value: "deployment_type"
+      canary_version:
+        value: "version"
+
+  # Distributed tracing
+  tracing:
+  - providers:
+    - name: zipkin
+    randomSamplingPercentage: 1.0
+    customTags:
+      deployment_type:
+        literal:
+          value: "deployment_type"
+      canary_version:
+        literal:
+          value: "version"

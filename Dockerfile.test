@@ -17,6 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Create non-root user for running tests
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
 # Copy requirements files
 COPY requirements/test-requirements.txt ./requirements/
 
@@ -36,9 +40,15 @@ COPY shared ./shared
 # Create directory for test results
 RUN mkdir -p test-results
 
+# Set ownership
+RUN chown -R sahool:sahool /app
+
 # Set environment
 ENV PYTHONPATH=/app
 ENV ENVIRONMENT=test
+
+# Switch to non-root user
+USER sahool
 
 # Default command runs all tests
 CMD ["pytest", "tests/", "-v", "--tb=short"]

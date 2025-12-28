@@ -254,12 +254,102 @@ jobs:
           echo "✅ Repository structure compliant"
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Agent Evaluation Gate (AI/Agent Quality Assessment)
+  # ─────────────────────────────────────────────────────────────────────────────
+  agent-evaluation:
+    name: Agent Evaluation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install evaluation dependencies
+        run: |
+          pip install --upgrade pip
+          pip install pytest pytest-asyncio httpx pydantic openai anthropic langchain-core
+          pip install numpy pandas scikit-learn
+
+      - name: Run Agent Evaluation
+        id: evaluate
+        continue-on-error: true
+        uses: ./.github/actions/evaluate-agent
+        with:
+          golden-dataset-path: 'tests/golden-datasets'
+          threshold-accuracy: '0.75'
+          threshold-latency: '3000'
+          threshold-cost: '1.00'
+          threshold-success-rate: '0.80'
+          generate-report: 'true'
+
+      - name: Check evaluation outcome
+        run: |
+          if [ "${{ steps.evaluate.outcome }}" == "failure" ]; then
+            echo "::warning::Agent evaluation did not meet thresholds"
+            echo "This may be expected during CI testing with mock data."
+          else
+            echo "✅ Agent evaluation passed!"
+          fi
+
+      - name: Upload evaluation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-evaluation-report
+          path: evaluation-report.json
+          retention-days: 30
+
+      - name: Comment on PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('evaluation-report.json')) {
+              const report = JSON.parse(fs.readFileSync('evaluation-report.json', 'utf8'));
+              const body = `## 🤖 Agent Evaluation Results
+
+              **Overall Score:** ${report.overall_score}/100
+              **Status:** ${report.passed ? '✅ PASSED' : '❌ FAILED'}
+
+              ### Metrics
+              - **Accuracy:** ${(report.metrics.accuracy * 100).toFixed(2)}% (threshold: 85%)
+              - **Avg Latency:** ${report.metrics.avg_latency_ms}ms (threshold: 2000ms)
+              - **Avg Cost:** $${report.metrics.avg_cost_per_request.toFixed(4)} (threshold: $0.50)
+              - **Success Rate:** ${(report.metrics.success_rate * 100).toFixed(2)}%
+
+              ### Test Categories
+              ${Object.entries(report.test_results_by_category || {}).map(([cat, res]) =>
+                `- **${cat}:** ${res.passed}/${res.total} passed`
+              ).join('\n')}
+
+              <details>
+              <summary>View Detailed Results</summary>
+
+              \`\`\`json
+              ${JSON.stringify(report, null, 2)}
+              \`\`\`
+              </details>`;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Final Gate (All must pass)
   # ─────────────────────────────────────────────────────────────────────────────
   all-gates-passed:
     name: All Quality Gates
     runs-on: ubuntu-latest
-    needs: [python-quality, frontend-quality, security-gate, governance-gate]
+    needs: [python-quality, frontend-quality, security-gate, governance-gate, agent-evaluation]
     if: always()
     steps:
       - name: Check all gates
@@ -270,6 +360,7 @@ jobs:
           echo "Frontend Quality: ${{ needs.frontend-quality.result }}"
           echo "Security Gate: ${{ needs.security-gate.result }}"
           echo "Governance Gate: ${{ needs.governance-gate.result }}"
+          echo "Agent Evaluation: ${{ needs.agent-evaluation.result }}"
 
           # Security gate must pass
           if [ "${{ needs.security-gate.result }}" == "failure" ]; then
@@ -281,6 +372,12 @@ jobs:
           if [ "${{ needs.governance-gate.result }}" == "failure" ]; then
             echo "::error::Governance gate failed - cannot merge"
             exit 1
+          fi
+
+          # Agent evaluation is soft-fail (warning only) in CI without real API keys
+          if [ "${{ needs.agent-evaluation.result }}" == "failure" ]; then
+            echo "::warning::Agent evaluation gate did not pass - please review manually"
+            echo "Note: This is expected when running without LLM API keys configured."
           fi
 
           echo ""

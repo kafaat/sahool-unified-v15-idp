@@ -1,0 +1,1575 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-12-28",
+    "description": "Golden dataset for AI agent agricultural advice testing",
+    "total_test_cases": 55,
+    "categories": ["weather", "crop_health", "irrigation", "fertilizer", "pest_management", "harvest", "soil"]
+  },
+  "test_cases": [
+    {
+      "id": "weather_001",
+      "category": "weather",
+      "subcategory": "rainfall_prediction",
+      "input": {
+        "prompt": "What is the weather forecast for the next week in Sana'a?",
+        "language": "en",
+        "context": {
+          "location": "Sana'a, Yemen",
+          "crop": "wheat",
+          "growth_stage": "vegetative"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Based on current meteorological data for Sana'a, the forecast shows...",
+        "acceptable_variations": [
+          "The weather forecast for Sana'a indicates...",
+          "Weather predictions for the next 7 days in Sana'a suggest...",
+          "According to recent weather models for Sana'a..."
+        ],
+        "required_elements": [
+          "temperature_range",
+          "precipitation_probability",
+          "wind_conditions",
+          "agricultural_impact"
+        ],
+        "prohibited_elements": [
+          "guaranteed_predictions",
+          "specific_hourly_data_beyond_48h"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "completeness_score": 0.9,
+        "relevance_score": 0.95,
+        "must_include_uncertainty": true
+      }
+    },
+    {
+      "id": "weather_002",
+      "category": "weather",
+      "subcategory": "irrigation_timing",
+      "input": {
+        "prompt": "When should I irrigate my tomato field based on today's weather?",
+        "language": "en",
+        "context": {
+          "location": "Taiz, Yemen",
+          "crop": "tomatoes",
+          "soil_moisture": "medium",
+          "temperature": 32
+        }
+      },
+      "expected_output": {
+        "primary_response": "Given the current temperature of 32°C and medium soil moisture, I recommend irrigating early morning (5-7 AM) or late evening (6-8 PM)...",
+        "acceptable_variations": [
+          "For optimal irrigation timing with these conditions, water during cooler hours...",
+          "To maximize water efficiency at 32°C, irrigate in the early morning or evening..."
+        ],
+        "required_elements": [
+          "specific_time_recommendation",
+          "temperature_consideration",
+          "soil_moisture_analysis",
+          "water_efficiency_tips"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "actionable_advice": true,
+        "timing_specificity": true
+      }
+    },
+    {
+      "id": "weather_003",
+      "category": "weather",
+      "subcategory": "extreme_weather",
+      "input": {
+        "prompt": "There's a dust storm warning for tomorrow. How should I protect my crops?",
+        "language": "en",
+        "context": {
+          "location": "Hodeidah, Yemen",
+          "crop": "vegetables",
+          "growth_stage": "flowering"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Dust storms can severely damage flowering vegetables. Take these immediate protective measures...",
+        "required_elements": [
+          "immediate_action_steps",
+          "crop_protection_methods",
+          "post_storm_assessment",
+          "urgency_indicator"
+        ],
+        "prohibited_elements": [
+          "downplaying_risk",
+          "vague_suggestions"
+        ]
+      },
+      "evaluation_criteria": {
+        "urgency_appropriate": true,
+        "actionable_steps": true,
+        "completeness_score": 0.95
+      }
+    },
+    {
+      "id": "crop_health_001",
+      "category": "crop_health",
+      "subcategory": "disease_diagnosis",
+      "input": {
+        "prompt": "My wheat plants have yellow spots on leaves and wilting stems. What's wrong?",
+        "language": "en",
+        "context": {
+          "crop": "wheat",
+          "growth_stage": "heading",
+          "location": "Sana'a",
+          "recent_weather": "humid"
+        }
+      },
+      "expected_output": {
+        "primary_response": "The symptoms you describe - yellow spots and wilting - could indicate a fungal infection, possibly wheat rust or fusarium wilt...",
+        "acceptable_variations": [
+          "These symptoms suggest a potential fungal disease such as...",
+          "Yellow spotting combined with wilting in wheat typically indicates..."
+        ],
+        "required_elements": [
+          "possible_diseases_list",
+          "diagnostic_questions",
+          "treatment_recommendations",
+          "prevention_measures",
+          "urgency_assessment"
+        ],
+        "prohibited_elements": [
+          "definitive_diagnosis_without_images",
+          "single_disease_conclusion"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "differential_diagnosis": true,
+        "asks_clarifying_questions": true
+      }
+    },
+    {
+      "id": "crop_health_002",
+      "category": "crop_health",
+      "subcategory": "nutrient_deficiency",
+      "input": {
+        "prompt": "My tomato leaves are turning pale green from the bottom up",
+        "language": "en",
+        "context": {
+          "crop": "tomatoes",
+          "soil_type": "sandy",
+          "fertilization": "minimal"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Pale green leaves starting from the bottom of the plant typically indicates nitrogen deficiency...",
+        "required_elements": [
+          "nutrient_deficiency_identification",
+          "fertilizer_recommendation",
+          "application_method",
+          "dosage_guidance",
+          "soil_test_suggestion"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "specific_recommendations": true
+      }
+    },
+    {
+      "id": "crop_health_003",
+      "category": "crop_health",
+      "subcategory": "pest_identification",
+      "input": {
+        "prompt": "I see small white flies under my pepper plant leaves",
+        "language": "en",
+        "context": {
+          "crop": "peppers",
+          "location": "Aden",
+          "temperature": 35
+        }
+      },
+      "expected_output": {
+        "primary_response": "White flies under pepper leaves are likely whiteflies (Bemisia tabaci), a common pest in warm climates...",
+        "required_elements": [
+          "pest_identification",
+          "damage_description",
+          "organic_control_methods",
+          "chemical_control_options",
+          "integrated_pest_management"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "multiple_control_options": true
+      }
+    },
+    {
+      "id": "irrigation_001",
+      "category": "irrigation",
+      "subcategory": "water_scheduling",
+      "input": {
+        "prompt": "How often should I water my corn field in summer?",
+        "language": "en",
+        "context": {
+          "crop": "corn",
+          "growth_stage": "vegetative",
+          "soil_type": "clay",
+          "climate": "hot_arid",
+          "location": "Marib"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Corn during vegetative growth in hot, arid conditions requires frequent irrigation. For clay soil, I recommend...",
+        "required_elements": [
+          "irrigation_frequency",
+          "water_depth_per_irrigation",
+          "soil_moisture_indicators",
+          "growth_stage_considerations",
+          "water_conservation_tips"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "considers_all_context": true
+      }
+    },
+    {
+      "id": "irrigation_002",
+      "category": "irrigation",
+      "subcategory": "drip_vs_flood",
+      "input": {
+        "prompt": "Should I use drip or flood irrigation for my vegetable garden?",
+        "language": "en",
+        "context": {
+          "crops": ["tomatoes", "cucumbers", "peppers"],
+          "water_availability": "limited",
+          "farm_size": "1 hectare"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Given your limited water availability and mixed vegetable crops, drip irrigation is strongly recommended...",
+        "required_elements": [
+          "comparison_of_methods",
+          "water_efficiency_analysis",
+          "cost_benefit_analysis",
+          "crop_suitability",
+          "implementation_guidance"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "practical_recommendation": true
+      }
+    },
+    {
+      "id": "irrigation_003",
+      "category": "irrigation",
+      "subcategory": "water_quality",
+      "input": {
+        "prompt": "My irrigation water looks slightly salty. Is it safe for crops?",
+        "language": "en",
+        "context": {
+          "crops": "vegetables",
+          "water_source": "well"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Salty irrigation water can harm crops, especially vegetables which are salt-sensitive. I recommend testing water salinity...",
+        "required_elements": [
+          "water_testing_recommendation",
+          "salinity_threshold_values",
+          "crop_salt_tolerance",
+          "mitigation_strategies",
+          "soil_management_advice"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "safety_emphasis": true
+      }
+    },
+    {
+      "id": "fertilizer_001",
+      "category": "fertilizer",
+      "subcategory": "npk_recommendation",
+      "input": {
+        "prompt": "What fertilizer should I use for wheat planting?",
+        "language": "en",
+        "context": {
+          "crop": "wheat",
+          "growth_stage": "pre_planting",
+          "soil_type": "loamy",
+          "previous_crop": "fallow"
+        }
+      },
+      "expected_output": {
+        "primary_response": "For wheat pre-planting in loamy soil, use a balanced NPK fertilizer with emphasis on nitrogen...",
+        "required_elements": [
+          "npk_ratio_recommendation",
+          "application_rate",
+          "application_timing",
+          "incorporation_method",
+          "soil_test_suggestion"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "specific_npk_ratios": true
+      }
+    },
+    {
+      "id": "fertilizer_002",
+      "category": "fertilizer",
+      "subcategory": "organic_options",
+      "input": {
+        "prompt": "What are organic fertilizer alternatives for chemical NPK?",
+        "language": "en",
+        "context": {
+          "farming_type": "organic",
+          "crops": "vegetables"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Excellent organic alternatives to chemical NPK include compost, manure, bone meal, and green manure...",
+        "required_elements": [
+          "multiple_organic_options",
+          "nutrient_content_comparison",
+          "application_rates",
+          "preparation_methods",
+          "availability_in_yemen"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "locally_relevant": true
+      }
+    },
+    {
+      "id": "fertilizer_003",
+      "category": "fertilizer",
+      "subcategory": "foliar_feeding",
+      "input": {
+        "prompt": "Can I spray fertilizer on leaves instead of soil application?",
+        "language": "en",
+        "context": {
+          "crop": "tomatoes",
+          "issue": "quick_nutrient_boost"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Yes, foliar feeding is effective for quick nutrient uptake, especially for micronutrients...",
+        "required_elements": [
+          "foliar_vs_soil_comparison",
+          "suitable_nutrients",
+          "concentration_guidelines",
+          "application_timing",
+          "safety_precautions"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "safety_included": true
+      }
+    },
+    {
+      "id": "pest_001",
+      "category": "pest_management",
+      "subcategory": "integrated_pest_management",
+      "input": {
+        "prompt": "How can I control aphids without heavy pesticide use?",
+        "language": "en",
+        "context": {
+          "crop": "vegetables",
+          "infestation_level": "moderate"
+        }
+      },
+      "expected_output": {
+        "primary_response": "For moderate aphid infestation, implement an integrated pest management approach combining multiple strategies...",
+        "required_elements": [
+          "cultural_controls",
+          "biological_controls",
+          "organic_pesticides",
+          "monitoring_methods",
+          "threshold_levels"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "multiple_strategies": true
+      }
+    },
+    {
+      "id": "pest_002",
+      "category": "pest_management",
+      "subcategory": "preventive_measures",
+      "input": {
+        "prompt": "What can I do to prevent locusts from attacking my crops?",
+        "language": "en",
+        "context": {
+          "location": "Yemen",
+          "crop": "cereals",
+          "season": "spring"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Locust prevention in Yemen requires coordinated monitoring and early warning systems...",
+        "required_elements": [
+          "monitoring_recommendations",
+          "early_warning_signs",
+          "preventive_measures",
+          "community_coordination",
+          "emergency_contacts"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "yemen_specific": true
+      }
+    },
+    {
+      "id": "harvest_001",
+      "category": "harvest",
+      "subcategory": "timing_determination",
+      "input": {
+        "prompt": "How do I know when my wheat is ready for harvest?",
+        "language": "en",
+        "context": {
+          "crop": "wheat",
+          "variety": "local",
+          "planting_date": "90_days_ago"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Wheat harvest readiness is determined by multiple indicators including grain moisture content, kernel hardness, and color...",
+        "required_elements": [
+          "visual_indicators",
+          "physical_tests",
+          "moisture_content_target",
+          "timing_optimization",
+          "weather_considerations"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "practical_tests": true
+      }
+    },
+    {
+      "id": "harvest_002",
+      "category": "harvest",
+      "subcategory": "post_harvest_handling",
+      "input": {
+        "prompt": "How should I store tomatoes after harvest to extend shelf life?",
+        "language": "en",
+        "context": {
+          "crop": "tomatoes",
+          "quantity": "large_harvest",
+          "destination": "local_market"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Proper tomato storage requires careful temperature and humidity control to extend shelf life...",
+        "required_elements": [
+          "temperature_recommendations",
+          "humidity_levels",
+          "ventilation_requirements",
+          "sorting_procedures",
+          "shelf_life_expectations"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "food_safety": true
+      }
+    },
+    {
+      "id": "soil_001",
+      "category": "soil",
+      "subcategory": "soil_health",
+      "input": {
+        "prompt": "My soil is becoming hard and compacted. What should I do?",
+        "language": "en",
+        "context": {
+          "soil_type": "clay",
+          "tillage_history": "conventional"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Soil compaction in clay soils is a common problem that reduces root growth and water infiltration...",
+        "required_elements": [
+          "causes_of_compaction",
+          "tillage_solutions",
+          "organic_matter_additions",
+          "cover_cropping",
+          "long_term_management"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "sustainable_solutions": true
+      }
+    },
+    {
+      "id": "soil_002",
+      "category": "soil",
+      "subcategory": "ph_management",
+      "input": {
+        "prompt": "My soil test shows pH 5.5. Is this good for vegetables?",
+        "language": "en",
+        "context": {
+          "crops": "vegetables",
+          "soil_type": "loamy"
+        }
+      },
+      "expected_output": {
+        "primary_response": "A pH of 5.5 is acidic and below optimal for most vegetables, which prefer pH 6.0-7.0...",
+        "required_elements": [
+          "ph_interpretation",
+          "crop_requirements",
+          "amendment_recommendations",
+          "lime_calculation",
+          "application_timing"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "specific_amendments": true
+      }
+    },
+    {
+      "id": "weather_004",
+      "category": "weather",
+      "subcategory": "frost_protection",
+      "input": {
+        "prompt": "Temperature will drop to 2°C tonight. How can I protect my seedlings?",
+        "language": "en",
+        "context": {
+          "crop": "tomato_seedlings",
+          "location": "highland_region"
+        }
+      },
+      "expected_output": {
+        "primary_response": "At 2°C, your tomato seedlings are at risk of frost damage. Implement these urgent protective measures...",
+        "required_elements": [
+          "frost_risk_assessment",
+          "immediate_protection_methods",
+          "covering_materials",
+          "irrigation_timing",
+          "damage_assessment_next_day"
+        ]
+      },
+      "evaluation_criteria": {
+        "urgency_appropriate": true,
+        "practical_methods": true
+      }
+    },
+    {
+      "id": "weather_005",
+      "category": "weather",
+      "subcategory": "heat_stress",
+      "input": {
+        "prompt": "It's been over 40°C for 3 days. My plants are wilting.",
+        "language": "en",
+        "context": {
+          "crop": "vegetables",
+          "irrigation": "available"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Extreme heat above 40°C causes severe plant stress. Implement these cooling and water management strategies...",
+        "required_elements": [
+          "heat_stress_identification",
+          "irrigation_adjustments",
+          "shading_options",
+          "foliar_spray_recommendations",
+          "long_term_adaptation"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "emergency_response": true
+      }
+    },
+    {
+      "id": "crop_health_004",
+      "category": "crop_health",
+      "subcategory": "viral_disease",
+      "input": {
+        "prompt": "My cucumber leaves show mosaic patterns and are curling",
+        "language": "en",
+        "context": {
+          "crop": "cucumbers",
+          "aphids_present": true
+        }
+      },
+      "expected_output": {
+        "primary_response": "Mosaic patterns with leaf curling in cucumbers strongly suggest a viral infection, likely Cucumber Mosaic Virus (CMV)...",
+        "required_elements": [
+          "viral_disease_identification",
+          "vector_management",
+          "infected_plant_removal",
+          "prevention_strategies",
+          "resistant_varieties"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "vector_control_included": true
+      }
+    },
+    {
+      "id": "crop_health_005",
+      "category": "crop_health",
+      "subcategory": "bacterial_infection",
+      "input": {
+        "prompt": "Dark water-soaked lesions appearing on tomato stems",
+        "language": "en",
+        "context": {
+          "crop": "tomatoes",
+          "weather": "humid_rainy"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Water-soaked lesions on tomato stems during humid conditions indicate bacterial infection, possibly bacterial wilt or canker...",
+        "required_elements": [
+          "bacterial_disease_diagnosis",
+          "sanitation_measures",
+          "copper_based_treatments",
+          "crop_rotation_advice",
+          "moisture_management"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "sanitation_emphasis": true
+      }
+    },
+    {
+      "id": "irrigation_004",
+      "category": "irrigation",
+      "subcategory": "deficit_irrigation",
+      "input": {
+        "prompt": "I have limited water. Can I irrigate less without harming yields?",
+        "language": "en",
+        "context": {
+          "crop": "wheat",
+          "water_scarcity": true,
+          "growth_stage": "grain_filling"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Deficit irrigation can be practiced, but timing is critical. During grain filling, wheat needs adequate water...",
+        "required_elements": [
+          "critical_growth_stages",
+          "deficit_irrigation_strategy",
+          "yield_impact_analysis",
+          "water_use_efficiency",
+          "monitoring_indicators"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "growth_stage_specific": true
+      }
+    },
+    {
+      "id": "irrigation_005",
+      "category": "irrigation",
+      "subcategory": "irrigation_scheduling",
+      "input": {
+        "prompt": "How do I calculate irrigation water requirements for my field?",
+        "language": "en",
+        "context": {
+          "crop": "maize",
+          "field_size": "2_hectares",
+          "soil_type": "sandy_loam"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Calculating irrigation requirements involves crop water demand (ETc), effective rainfall, and irrigation efficiency...",
+        "required_elements": [
+          "etc_calculation",
+          "effective_rainfall_consideration",
+          "irrigation_efficiency",
+          "calculation_example",
+          "adjustment_factors"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "includes_calculation_method": true
+      }
+    },
+    {
+      "id": "fertilizer_004",
+      "category": "fertilizer",
+      "subcategory": "micronutrient_deficiency",
+      "input": {
+        "prompt": "My plant leaves are yellowing between veins but veins stay green",
+        "language": "en",
+        "context": {
+          "crop": "citrus",
+          "soil_ph": 8.0
+        }
+      },
+      "expected_output": {
+        "primary_response": "Interveinal chlorosis (yellowing between veins) in citrus with high soil pH typically indicates iron deficiency...",
+        "required_elements": [
+          "micronutrient_identification",
+          "ph_relationship",
+          "chelated_iron_recommendation",
+          "foliar_application",
+          "soil_acidification_options"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "ph_consideration": true
+      }
+    },
+    {
+      "id": "fertilizer_005",
+      "category": "fertilizer",
+      "subcategory": "timing_split_application",
+      "input": {
+        "prompt": "Should I apply all fertilizer at once or split into multiple applications?",
+        "language": "en",
+        "context": {
+          "crop": "rice",
+          "fertilizer_type": "urea"
+        }
+      },
+      "expected_output": {
+        "primary_response": "For rice with urea, split application is strongly recommended to improve nitrogen use efficiency and reduce losses...",
+        "required_elements": [
+          "split_application_benefits",
+          "application_schedule",
+          "growth_stage_timing",
+          "efficiency_comparison",
+          "environmental_benefits"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "timing_specific": true
+      }
+    },
+    {
+      "id": "pest_003",
+      "category": "pest_management",
+      "subcategory": "rodent_control",
+      "input": {
+        "prompt": "Rats are eating my stored grain. How can I control them?",
+        "language": "en",
+        "context": {
+          "storage_type": "warehouse",
+          "grain_type": "wheat"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Rodent control in grain storage requires integrated approaches combining exclusion, sanitation, and population reduction...",
+        "required_elements": [
+          "exclusion_methods",
+          "sanitation_practices",
+          "trapping_strategies",
+          "rodenticide_options",
+          "safety_precautions"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "safety_emphasis": true
+      }
+    },
+    {
+      "id": "pest_004",
+      "category": "pest_management",
+      "subcategory": "beneficial_insects",
+      "input": {
+        "prompt": "What beneficial insects should I encourage in my garden?",
+        "language": "en",
+        "context": {
+          "farming_type": "organic",
+          "crops": "vegetables"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Beneficial insects provide natural pest control. Key species to encourage include ladybugs, lacewings, parasitic wasps...",
+        "required_elements": [
+          "beneficial_species_list",
+          "pest_targets",
+          "habitat_creation",
+          "companion_planting",
+          "pesticide_impact"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "ecosystem_approach": true
+      }
+    },
+    {
+      "id": "harvest_003",
+      "category": "harvest",
+      "subcategory": "yield_estimation",
+      "input": {
+        "prompt": "How can I estimate my wheat yield before harvest?",
+        "language": "en",
+        "context": {
+          "crop": "wheat",
+          "field_size": "5_hectares"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Pre-harvest yield estimation for wheat involves sampling plants and counting yield components...",
+        "required_elements": [
+          "sampling_method",
+          "yield_components",
+          "calculation_formula",
+          "accuracy_factors",
+          "adjustment_for_losses"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "includes_calculation": true
+      }
+    },
+    {
+      "id": "harvest_004",
+      "category": "harvest",
+      "subcategory": "harvesting_equipment",
+      "input": {
+        "prompt": "Should I harvest manually or use a combine harvester for my wheat?",
+        "language": "en",
+        "context": {
+          "field_size": "3_hectares",
+          "labor_availability": "limited"
+        }
+      },
+      "expected_output": {
+        "primary_response": "For 3 hectares with limited labor, mechanized harvesting is more efficient. However, consider cost-benefit analysis...",
+        "required_elements": [
+          "method_comparison",
+          "cost_analysis",
+          "quality_considerations",
+          "loss_comparison",
+          "rental_options"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "economic_analysis": true
+      }
+    },
+    {
+      "id": "soil_003",
+      "category": "soil",
+      "subcategory": "erosion_control",
+      "input": {
+        "prompt": "Heavy rains are washing away my topsoil. What can I do?",
+        "language": "en",
+        "context": {
+          "terrain": "sloped",
+          "soil_type": "loamy"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Soil erosion on slopes requires immediate intervention to prevent further topsoil loss...",
+        "required_elements": [
+          "erosion_assessment",
+          "contour_farming",
+          "cover_cropping",
+          "terracing_options",
+          "mulching_strategies"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "multiple_solutions": true
+      }
+    },
+    {
+      "id": "soil_004",
+      "category": "soil",
+      "subcategory": "salinization",
+      "input": {
+        "prompt": "White crust forming on soil surface. Plants growing poorly.",
+        "language": "en",
+        "context": {
+          "irrigation": "heavy",
+          "drainage": "poor"
+        }
+      },
+      "expected_output": {
+        "primary_response": "White crusty deposits indicate soil salinization, a serious problem requiring immediate drainage and leaching management...",
+        "required_elements": [
+          "salinity_diagnosis",
+          "drainage_improvement",
+          "leaching_requirements",
+          "salt_tolerant_crops",
+          "irrigation_management"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "urgency_appropriate": true
+      }
+    },
+    {
+      "id": "crop_health_006",
+      "category": "crop_health",
+      "subcategory": "fungal_disease",
+      "input": {
+        "prompt": "Powdery white coating on my grape leaves",
+        "language": "en",
+        "context": {
+          "crop": "grapes",
+          "weather": "warm_dry"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Powdery white coating on grape leaves is classic powdery mildew, a fungal disease favored by warm, dry conditions...",
+        "required_elements": [
+          "disease_identification",
+          "fungicide_options",
+          "cultural_controls",
+          "resistant_varieties",
+          "prevention_strategies"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.95,
+        "treatment_options": true
+      }
+    },
+    {
+      "id": "weather_006",
+      "category": "weather",
+      "subcategory": "seasonal_planning",
+      "input": {
+        "prompt": "What crops should I plant in Yemen during monsoon season?",
+        "language": "en",
+        "context": {
+          "location": "Coastal Yemen",
+          "season": "monsoon"
+        }
+      },
+      "expected_output": {
+        "primary_response": "During Yemen's monsoon season (June-September), focus on crops that thrive with higher rainfall and humidity...",
+        "required_elements": [
+          "suitable_crops_list",
+          "planting_timing",
+          "rainfall_requirements",
+          "disease_management",
+          "regional_variations"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "yemen_specific": true
+      }
+    },
+    {
+      "id": "irrigation_006",
+      "category": "irrigation",
+      "subcategory": "water_conservation",
+      "input": {
+        "prompt": "What are the best water-saving techniques for drought conditions?",
+        "language": "en",
+        "context": {
+          "water_scarcity": "severe",
+          "crops": "mixed_vegetables"
+        }
+      },
+      "expected_output": {
+        "primary_response": "In severe drought, implement multiple water conservation strategies to maintain crop survival...",
+        "required_elements": [
+          "mulching_techniques",
+          "drip_irrigation",
+          "crop_selection",
+          "irrigation_timing",
+          "soil_moisture_retention"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "practical_techniques": true
+      }
+    },
+    {
+      "id": "fertilizer_006",
+      "category": "fertilizer",
+      "subcategory": "compost_making",
+      "input": {
+        "prompt": "How do I make compost from farm waste?",
+        "language": "en",
+        "context": {
+          "materials_available": ["crop_residues", "animal_manure"],
+          "farm_size": "small"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Composting farm waste is an excellent way to recycle nutrients. Here's a step-by-step guide...",
+        "required_elements": [
+          "materials_ratio",
+          "layering_method",
+          "moisture_management",
+          "turning_schedule",
+          "maturity_indicators"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "step_by_step": true
+      }
+    },
+    {
+      "id": "pest_005",
+      "category": "pest_management",
+      "subcategory": "nematode_control",
+      "input": {
+        "prompt": "My plants are stunted with root knots. What's the problem?",
+        "language": "en",
+        "context": {
+          "crop": "tomatoes",
+          "soil_type": "sandy"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Stunted plants with root knots strongly indicate root-knot nematode infection, common in sandy soils...",
+        "required_elements": [
+          "nematode_diagnosis",
+          "crop_rotation_strategy",
+          "resistant_varieties",
+          "soil_solarization",
+          "organic_amendments"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "long_term_management": true
+      }
+    },
+    {
+      "id": "harvest_005",
+      "category": "harvest",
+      "subcategory": "quality_grading",
+      "input": {
+        "prompt": "How should I grade and sort my harvested vegetables for market?",
+        "language": "en",
+        "context": {
+          "crop": "mixed_vegetables",
+          "market": "local_and_export"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Vegetable grading ensures better market prices and customer satisfaction. Implement systematic sorting by size, quality, and appearance...",
+        "required_elements": [
+          "grading_standards",
+          "sorting_criteria",
+          "quality_parameters",
+          "packaging_requirements",
+          "price_differentiation"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "market_relevant": true
+      }
+    },
+    {
+      "id": "soil_005",
+      "category": "soil",
+      "subcategory": "organic_matter",
+      "input": {
+        "prompt": "How can I increase organic matter in my soil?",
+        "language": "en",
+        "context": {
+          "soil_type": "sandy",
+          "current_om": "low"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Increasing organic matter in sandy soils improves water retention, nutrient holding capacity, and soil structure...",
+        "required_elements": [
+          "organic_matter_sources",
+          "incorporation_methods",
+          "application_rates",
+          "cover_cropping",
+          "time_frame_expectations"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "multiple_methods": true
+      }
+    },
+    {
+      "id": "crop_health_007",
+      "category": "crop_health",
+      "subcategory": "physiological_disorder",
+      "input": {
+        "prompt": "Tomato fruits have dark patches at blossom end",
+        "language": "en",
+        "context": {
+          "crop": "tomatoes",
+          "irrigation": "irregular"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Dark patches at the blossom end of tomatoes indicate blossom end rot, a calcium deficiency disorder related to irregular watering...",
+        "required_elements": [
+          "disorder_identification",
+          "calcium_relationship",
+          "irrigation_management",
+          "soil_ph_consideration",
+          "prevention_strategies"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.95,
+        "physiological_not_pathological": true
+      }
+    },
+    {
+      "id": "weather_007",
+      "category": "weather",
+      "subcategory": "wind_damage",
+      "input": {
+        "prompt": "Strong winds damaged my corn stalks. What should I do?",
+        "language": "en",
+        "context": {
+          "crop": "corn",
+          "growth_stage": "tasseling",
+          "damage_level": "moderate_lodging"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Wind lodging in corn during tasseling affects pollination and yield. Assess damage severity and implement recovery measures...",
+        "required_elements": [
+          "damage_assessment",
+          "recovery_potential",
+          "staking_recommendations",
+          "pollination_assistance",
+          "future_prevention"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "growth_stage_specific": true
+      }
+    },
+    {
+      "id": "irrigation_007",
+      "category": "irrigation",
+      "subcategory": "system_maintenance",
+      "input": {
+        "prompt": "My drip irrigation emitters are clogging. How can I fix this?",
+        "language": "en",
+        "context": {
+          "system_type": "drip",
+          "water_source": "well",
+          "issue": "clogging"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Drip emitter clogging is usually caused by mineral deposits, algae, or sediment. Implement regular maintenance and filtration...",
+        "required_elements": [
+          "clogging_causes",
+          "filtration_systems",
+          "chemical_treatment",
+          "flushing_procedures",
+          "preventive_maintenance"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "maintenance_focused": true
+      }
+    },
+    {
+      "id": "fertilizer_007",
+      "category": "fertilizer",
+      "subcategory": "over_fertilization",
+      "input": {
+        "prompt": "My plants have burned leaf tips and excessive green growth. Did I over-fertilize?",
+        "language": "en",
+        "context": {
+          "recent_fertilization": "heavy",
+          "symptoms": "tip_burn_excessive_foliage"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Burned leaf tips with excessive vegetative growth indicate nitrogen over-fertilization, also called fertilizer burn...",
+        "required_elements": [
+          "symptom_confirmation",
+          "remedial_actions",
+          "leaching_recommendations",
+          "future_prevention",
+          "proper_dosage_calculation"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "remedial_actions": true
+      }
+    },
+    {
+      "id": "pest_006",
+      "category": "pest_management",
+      "subcategory": "bird_damage",
+      "input": {
+        "prompt": "Birds are eating my ripening fruits. How can I protect them?",
+        "language": "en",
+        "context": {
+          "crop": "fruits",
+          "farm_size": "medium"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Bird damage to ripening fruit requires non-lethal deterrent methods that are humane and effective...",
+        "required_elements": [
+          "netting_solutions",
+          "visual_deterrents",
+          "sound_deterrents",
+          "timing_strategies",
+          "cost_effectiveness"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "humane_methods": true
+      }
+    },
+    {
+      "id": "harvest_006",
+      "category": "harvest",
+      "subcategory": "drying_techniques",
+      "input": {
+        "prompt": "How should I dry my harvested grains to prevent mold?",
+        "language": "en",
+        "context": {
+          "crop": "wheat",
+          "climate": "humid",
+          "storage_duration": "6_months"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Proper grain drying is critical to prevent mold and storage losses, especially in humid climates...",
+        "required_elements": [
+          "moisture_content_targets",
+          "drying_methods",
+          "sun_drying_techniques",
+          "mechanical_drying",
+          "moisture_testing"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "storage_safety": true
+      }
+    },
+    {
+      "id": "soil_006",
+      "category": "soil",
+      "subcategory": "soil_testing",
+      "input": {
+        "prompt": "When and how should I test my soil?",
+        "language": "en",
+        "context": {
+          "field_use": "crop_production",
+          "testing_history": "never"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Regular soil testing is essential for informed fertilizer decisions and optimal crop production...",
+        "required_elements": [
+          "testing_timing",
+          "sampling_procedures",
+          "parameters_to_test",
+          "laboratory_options",
+          "interpretation_guidance"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "practical_guidance": true
+      }
+    },
+    {
+      "id": "crop_health_008",
+      "category": "crop_health",
+      "subcategory": "seedling_problems",
+      "input": {
+        "prompt": "My seedlings are falling over and dying at soil level",
+        "language": "en",
+        "context": {
+          "crop": "vegetable_seedlings",
+          "growing_conditions": "greenhouse"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Seedlings falling over at soil level indicates damping-off disease, a fungal infection common in greenhouses...",
+        "required_elements": [
+          "damping_off_identification",
+          "fungal_pathogens",
+          "sanitation_measures",
+          "fungicide_treatment",
+          "environmental_controls"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "prevention_emphasis": true
+      }
+    },
+    {
+      "id": "weather_008",
+      "category": "weather",
+      "subcategory": "humidity_management",
+      "input": {
+        "prompt": "High humidity is causing disease in my greenhouse. What can I do?",
+        "language": "en",
+        "context": {
+          "structure": "greenhouse",
+          "crops": "tomatoes",
+          "ventilation": "limited"
+        }
+      },
+      "expected_output": {
+        "primary_response": "High humidity in greenhouses promotes fungal diseases. Improve air circulation and reduce moisture levels through...",
+        "required_elements": [
+          "humidity_measurement",
+          "ventilation_improvement",
+          "heating_strategies",
+          "spacing_adjustments",
+          "irrigation_timing"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "environmental_control": true
+      }
+    },
+    {
+      "id": "fertilizer_008",
+      "category": "fertilizer",
+      "subcategory": "fertigation",
+      "input": {
+        "prompt": "Can I apply fertilizer through my drip irrigation system?",
+        "language": "en",
+        "context": {
+          "irrigation_system": "drip",
+          "crops": "vegetables"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Yes, fertigation (fertilizer application through irrigation) is highly efficient for drip systems, improving nutrient use efficiency...",
+        "required_elements": [
+          "fertigation_benefits",
+          "suitable_fertilizers",
+          "injection_methods",
+          "concentration_calculations",
+          "system_maintenance"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "technical_accuracy": true
+      }
+    },
+    {
+      "id": "pest_007",
+      "category": "pest_management",
+      "subcategory": "weed_control",
+      "input": {
+        "prompt": "Weeds are competing with my crops. What's the best control method?",
+        "language": "en",
+        "context": {
+          "crop": "wheat",
+          "weed_density": "moderate",
+          "organic_preference": false
+        }
+      },
+      "expected_output": {
+        "primary_response": "Weed management in wheat requires integrated approaches combining cultural, mechanical, and chemical methods...",
+        "required_elements": [
+          "weed_identification",
+          "cultural_controls",
+          "mechanical_methods",
+          "herbicide_options",
+          "timing_considerations"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "integrated_approach": true
+      }
+    },
+    {
+      "id": "crop_health_009",
+      "category": "crop_health",
+      "subcategory": "sunscald",
+      "input": {
+        "prompt": "My pepper fruits have white patches on the sun-facing side",
+        "language": "en",
+        "context": {
+          "crop": "peppers",
+          "weather": "very_hot_sunny"
+        }
+      },
+      "expected_output": {
+        "primary_response": "White patches on sun-exposed fruit surfaces indicate sunscald, a physiological disorder caused by intense sunlight and heat...",
+        "required_elements": [
+          "sunscald_identification",
+          "shading_strategies",
+          "variety_selection",
+          "foliage_management",
+          "prevention_methods"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "physiological_disorder": true
+      }
+    },
+    {
+      "id": "irrigation_008",
+      "category": "irrigation",
+      "subcategory": "waterlogging",
+      "input": {
+        "prompt": "My field stays waterlogged after irrigation. Plants are yellowing.",
+        "language": "en",
+        "context": {
+          "soil_type": "heavy_clay",
+          "drainage": "poor"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Waterlogging in clay soils causes oxygen deficiency in root zones, leading to yellowing and poor growth...",
+        "required_elements": [
+          "waterlogging_diagnosis",
+          "drainage_solutions",
+          "irrigation_adjustments",
+          "raised_beds",
+          "crop_selection"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.9,
+        "drainage_focus": true
+      }
+    },
+    {
+      "id": "soil_007",
+      "category": "soil",
+      "subcategory": "cover_cropping",
+      "input": {
+        "prompt": "What cover crops should I plant between growing seasons?",
+        "language": "en",
+        "context": {
+          "main_crop": "vegetables",
+          "season": "winter",
+          "goal": "soil_improvement"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Winter cover crops improve soil health, prevent erosion, and add organic matter. Suitable options include...",
+        "required_elements": [
+          "cover_crop_species",
+          "benefits_by_species",
+          "planting_timing",
+          "termination_methods",
+          "incorporation_strategies"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "species_specific": true
+      }
+    },
+    {
+      "id": "harvest_007",
+      "category": "harvest",
+      "subcategory": "mechanical_damage",
+      "input": {
+        "prompt": "How can I minimize bruising and damage during harvest?",
+        "language": "en",
+        "context": {
+          "crop": "fruits_vegetables",
+          "handling": "manual"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Minimizing harvest damage requires careful handling techniques and proper equipment to extend shelf life and market quality...",
+        "required_elements": [
+          "handling_best_practices",
+          "container_selection",
+          "worker_training",
+          "harvest_timing",
+          "transport_considerations"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "practical_techniques": true
+      }
+    },
+    {
+      "id": "fertilizer_009",
+      "category": "fertilizer",
+      "subcategory": "biofertilizers",
+      "input": {
+        "prompt": "What are biofertilizers and should I use them?",
+        "language": "en",
+        "context": {
+          "interest": "organic_farming",
+          "crops": "legumes"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Biofertilizers contain beneficial microorganisms that enhance nutrient availability. For legumes, rhizobium inoculants are particularly valuable...",
+        "required_elements": [
+          "biofertilizer_types",
+          "mechanism_of_action",
+          "application_methods",
+          "benefits_limitations",
+          "compatibility_with_crops"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.85,
+        "scientific_accuracy": true
+      }
+    },
+    {
+      "id": "pest_008",
+      "category": "pest_management",
+      "subcategory": "trap_cropping",
+      "input": {
+        "prompt": "Can I use trap crops to protect my main crop from pests?",
+        "language": "en",
+        "context": {
+          "main_crop": "tomatoes",
+          "pest_issue": "whiteflies"
+        }
+      },
+      "expected_output": {
+        "primary_response": "Trap cropping uses sacrificial plants to attract pests away from main crops. For whitefly management in tomatoes...",
+        "required_elements": [
+          "trap_crop_selection",
+          "planting_arrangement",
+          "management_strategy",
+          "effectiveness_expectations",
+          "integration_with_other_methods"
+        ]
+      },
+      "evaluation_criteria": {
+        "accuracy_threshold": 0.8,
+        "ecological_approach": true
+      }
+    }
+  ]
+}

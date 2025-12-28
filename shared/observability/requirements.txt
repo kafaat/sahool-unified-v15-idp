@@ -1,0 +1,152 @@
+# SAHOOL Observability Infrastructure Dependencies
+# Updated: December 2024
+# Version: 15.3.3
+#
+# Comprehensive observability stack for production-ready monitoring,
+# tracing, and logging following Google Cloud best practices.
+
+# ============================================================================
+# Core Observability - Prometheus Metrics
+# ============================================================================
+
+# Prometheus client for metrics collection and exposition
+prometheus-client>=0.19.0,<1.0.0
+
+# ============================================================================
+# OpenTelemetry - Distributed Tracing
+# ============================================================================
+
+# OpenTelemetry API and SDK
+opentelemetry-api>=1.21.0,<2.0.0
+opentelemetry-sdk>=1.21.0,<2.0.0
+
+# OpenTelemetry Instrumentation
+opentelemetry-instrumentation>=0.42b0,<1.0.0
+opentelemetry-instrumentation-fastapi>=0.42b0,<1.0.0
+opentelemetry-instrumentation-httpx>=0.42b0,<1.0.0
+opentelemetry-instrumentation-redis>=0.42b0,<1.0.0
+opentelemetry-instrumentation-asyncpg>=0.42b0,<1.0.0
+opentelemetry-instrumentation-requests>=0.42b0,<1.0.0
+opentelemetry-instrumentation-logging>=0.42b0,<1.0.0
+
+# OpenTelemetry Exporters
+# OTLP exporter for general-purpose trace export
+opentelemetry-exporter-otlp-proto-grpc>=1.21.0,<2.0.0
+opentelemetry-exporter-otlp-proto-http>=1.21.0,<2.0.0
+
+# Google Cloud Trace exporter (for GCP deployments)
+opentelemetry-exporter-gcp-trace>=1.6.0,<2.0.0
+
+# Jaeger exporter (optional, for local development)
+opentelemetry-exporter-jaeger>=1.21.0,<2.0.0
+
+# Propagators for context propagation
+opentelemetry-propagator-b3>=1.21.0,<2.0.0
+opentelemetry-propagator-jaeger>=1.21.0,<2.0.0
+
+# ============================================================================
+# Structured Logging
+# ============================================================================
+
+# Python standard logging is used (no additional deps needed)
+# JSON logging is built-in via custom formatters
+
+# Optional: python-json-logger for advanced JSON logging
+python-json-logger>=2.0.7,<3.0.0
+
+# ============================================================================
+# FastAPI Integration
+# ============================================================================
+
+# FastAPI and Starlette (should already be in service requirements)
+# Listed here for reference and version compatibility
+fastapi>=0.115.0,<1.0.0
+starlette>=0.37.0,<1.0.0
+
+# ============================================================================
+# Google Cloud Integration
+# ============================================================================
+
+# Google Cloud Logging (Cloud Logging API)
+google-cloud-logging>=3.8.0,<4.0.0
+
+# Google Cloud Monitoring (for custom metrics)
+google-cloud-monitoring>=2.18.0,<3.0.0
+
+# Google Cloud Trace (for distributed tracing)
+google-cloud-trace>=1.11.0,<2.0.0
+
+# Google Cloud Error Reporting
+google-cloud-error-reporting>=1.9.0,<2.0.0
+
+# ============================================================================
+# Additional Utilities
+# ============================================================================
+
+# For async support in monitoring
+aiohttp>=3.9.0,<4.0.0
+
+# For better performance with JSON
+orjson>=3.9.0,<4.0.0
+
+# Type hints support
+typing-extensions>=4.9.0
+
+# ============================================================================
+# Development and Testing (Optional)
+# ============================================================================
+
+# pytest with async support (for testing observability)
+# pytest>=7.4.0,<8.0.0
+# pytest-asyncio>=0.23.0,<1.0.0
+
+# Mock for testing
+# pytest-mock>=3.12.0,<4.0.0
+
+# ============================================================================
+# Notes
+# ============================================================================
+#
+# Installation:
+#   pip install -r requirements.txt
+#
+# For production (minimal install without dev dependencies):
+#   pip install -r requirements.txt --no-dev
+#
+# For Google Cloud Platform deployments:
+#   All google-cloud-* packages are included by default
+#
+# For local development:
+#   You may want to use the Jaeger exporter for local tracing
+#   Start Jaeger: docker run -d --name jaeger \
+#     -e COLLECTOR_ZIPKIN_HOST_PORT=:9411 \
+#     -p 5775:5775/udp \
+#     -p 6831:6831/udp \
+#     -p 6832:6832/udp \
+#     -p 5778:5778 \
+#     -p 16686:16686 \
+#     -p 14268:14268 \
+#     -p 14250:14250 \
+#     -p 9411:9411 \
+#     jaegertracing/all-in-one:latest
+#
+# Environment Variables:
+#   OTEL_EXPORTER_OTLP_ENDPOINT - OTLP collector endpoint
+#   OTEL_SERVICE_NAME - Service name for tracing
+#   OTEL_SAMPLE_RATE - Trace sampling rate (0.0 to 1.0)
+#   GCP_PROJECT_ID - Google Cloud project ID
+#   ENVIRONMENT - Environment name (development, staging, production)
+#   LOG_LEVEL - Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+#   OTEL_CONSOLE_EXPORT - Enable console trace export (true/false)
+#
+# Best Practices:
+#   1. Always use structured logging with JSON format in production
+#   2. Enable sensitive data masking in production environments
+#   3. Use appropriate sampling rates to control trace volume
+#   4. Monitor your observability costs (especially for high-traffic services)
+#   5. Set up alerts based on metrics and traces
+#   6. Use correlation IDs (request IDs) across all services
+#   7. Implement health checks for all critical dependencies
+#   8. Track token usage and costs for AI/LLM services
+#
+# ============================================================================

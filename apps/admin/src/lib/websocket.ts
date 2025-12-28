@@ -103,7 +103,22 @@ export class WebSocketClient {
   private statusListeners = new Set<(status: ConnectionStatus) => void>();
 
   constructor(config: WebSocketClientConfig = {}) {
-    const baseUrl = config.url || process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8090';
+    // Determine WebSocket protocol based on current page protocol (for security)
+    // Use wss:// in production (HTTPS) and ws:// only in local development
+    const getDefaultWsUrl = (): string => {
+      if (typeof window === 'undefined') return 'ws://localhost:8090';
+
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.hostname;
+      const port = process.env.NODE_ENV === 'production' ? '' : ':8090';
+
+      // In production, use secure WebSocket; in development, allow insecure for localhost
+      return process.env.NODE_ENV === 'production'
+        ? `${protocol}//${host}${port}`
+        : 'ws://localhost:8090';
+    };
+
+    const baseUrl = config.url || process.env.NEXT_PUBLIC_WS_URL || getDefaultWsUrl();
     this.url = `${baseUrl}/ws/admin`;
     this.reconnectInterval = config.reconnectInterval || 5000;
     this.maxReconnectAttempts = config.maxReconnectAttempts || 10;

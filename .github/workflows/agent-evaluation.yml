@@ -40,17 +40,17 @@ jobs:
     # Service containers for evaluation (optional - tests can run without them)
     services:
       qdrant:
-        image: qdrant/qdrant:v1.7.0
+        image: qdrant/qdrant:v1.10.1
         ports:
           - 6333:6333
         env:
           QDRANT__SERVICE__ENABLE_TLS: "false"
         options: >-
-          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:6333/readyz || exit 1"
-          --health-interval 15s
+          --health-cmd "curl -sf http://localhost:6333/healthz || exit 1"
+          --health-interval 10s
           --health-timeout 10s
-          --health-retries 10
-          --health-start-period 30s
+          --health-retries 20
+          --health-start-period 60s
 
       redis:
         image: redis:7-alpine

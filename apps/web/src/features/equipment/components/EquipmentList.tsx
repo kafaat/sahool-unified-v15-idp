@@ -16,7 +16,7 @@ interface EquipmentListProps {
   onCreateClick?: () => void;
 }
 
-export function EquipmentList({ onFieldClick, onCreateClick }: EquipmentListProps) {
+export function EquipmentList({ onFieldClick }: EquipmentListProps) {
   const [filters, setFilters] = useState<EquipmentFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const { data: equipment, isLoading, error } = useEquipment(filters);

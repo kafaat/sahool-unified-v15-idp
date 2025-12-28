@@ -5,7 +5,7 @@
 
 import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
 
-const API_BASE = '/api/marketplace';
+// const API_BASE = '/api/marketplace';
 
 // Mock data for development
 const mockProducts: Product[] = [

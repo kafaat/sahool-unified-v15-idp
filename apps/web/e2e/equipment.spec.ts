@@ -2,11 +2,8 @@ import { test, expect } from './fixtures/test-fixtures';
 import {
   navigateAndWait,
   waitForPageLoad,
-  waitForToast,
-  clickButtonByText,
-  isElementVisible,
 } from './helpers/page.helpers';
-import { testData, selectors, timeouts, pages } from './helpers/test-data';
+import { timeouts, pages } from './helpers/test-data';
 
 /**
  * Equipment E2E Tests
@@ -14,7 +11,7 @@ import { testData, selectors, timeouts, pages } from './helpers/test-data';
  */
 
 test.describe('Equipment Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, pages.equipment);
   });
@@ -22,7 +19,7 @@ test.describe('Equipment Page', () => {
   test.describe('Page Loading and Structure', () => {
     test('should display equipment page correctly', async ({ page }) => {
       // Check page title
-      await expect(page).toHaveTitle(/Equipment|المعدات|إدارة المعدات/i);
+      await expect(page).toHaveTitle(/Equipment Management.*SAHOOL/i);
 
       // Check for main heading in Arabic
       const headingAr = page.locator('text=/إدارة المعدات/i');
@@ -304,7 +301,7 @@ test.describe('Equipment Page', () => {
       await page.waitForTimeout(timeouts.medium);
 
       // Check for Arabic name field
-      const nameArInput = page.locator('input[value=""], input').filter({ hasText: '' }).first();
+      // const nameArInput = page.locator('input[value=""], input').filter({ hasText: '' }).first();
       const nameArLabel = page.locator('text=/الاسم بالعربية|Arabic Name/i');
 
       if (await nameArLabel.isVisible({ timeout: timeouts.medium }).catch(() => false)) {
@@ -521,7 +518,7 @@ test.describe('Equipment Page', () => {
         // Fill minimal required fields
         const inputs = page.locator('input[type="text"]');
         if (await inputs.count() > 0) {
-          const equipmentData = testData.randomEquipment();
+          // const equipmentData = testData.randomEquipment();
 
           // Note: This won't actually submit in test, just checking UI
           console.log('Form loading state check ready');

@@ -46,7 +46,9 @@ class WebSocketClient {
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 2000;
+  private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
   private subscriptions: string[] = [];
+  private shouldReconnect = true;
 
   constructor(url: string) {
     this.url = url;
@@ -58,6 +60,7 @@ class WebSocketClient {
       return;
     }
 
+    this.shouldReconnect = true;
     this.subscriptions = subscriptions;
 
     try {
@@ -109,6 +112,11 @@ class WebSocketClient {
   }
 
   private attemptReconnect() {
+    // Don't reconnect if explicitly disconnected
+    if (!this.shouldReconnect) {
+      return;
+    }
+
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.log('Max reconnect attempts reached');
       return;
@@ -119,16 +127,34 @@ class WebSocketClient {
 
     console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
 
-    setTimeout(() => {
+    // Clear any existing reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+    }
+
+    this.reconnectTimeout = setTimeout(() => {
+      this.reconnectTimeout = null;
       this.connect(this.subscriptions);
     }, delay);
   }
 
   disconnect() {
+    this.shouldReconnect = false;
+
+    // Clear reconnect timeout
+    if (this.reconnectTimeout) {
+      clearTimeout(this.reconnectTimeout);
+      this.reconnectTimeout = null;
+    }
+
+    // Close WebSocket
     if (this.ws) {
       this.ws.close();
       this.ws = null;
     }
+
+    // Reset reconnect attempts
+    this.reconnectAttempts = 0;
   }
 
   onEvent(handler: EventHandler) {

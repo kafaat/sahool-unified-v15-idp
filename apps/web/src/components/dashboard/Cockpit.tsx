@@ -14,7 +14,7 @@ import { AlertPanel } from './AlertPanel';
 import { QuickActions } from './QuickActions';
 import { useAlerts } from '../../hooks/useAlerts';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
-import type { KPI } from '@/types';
+// import type { KPI } from '@/types';
 
 // Dynamic import for MapView (client-side only, requires maplibre-gl)
 const MapView = dynamic(() => import('./MapView'), {
@@ -49,14 +49,14 @@ export const Cockpit: React.FC<CockpitProps> = ({ tenantId = 'tenant_1' }) => {
   }, []);
 
   // Fixed: Changed from 'any' to proper KPI type
-  const handleKPIClick = useCallback((kpi: KPI) => {
-    ErrorTracking.addBreadcrumb({
-      type: 'click',
-      category: 'ui',
-      message: 'KPI clicked',
-      data: { kpiId: kpi.id, kpiLabel: kpi.label },
-    });
-  }, []);
+  // const handleKPIClick = useCallback((kpi: KPI) => {
+  //   ErrorTracking.addBreadcrumb({
+  //     type: 'click',
+  //     category: 'ui',
+  //     message: 'KPI clicked',
+  //     data: { kpiId: kpi.id, kpiLabel: kpi.label },
+  //   });
+  // }, []);
 
   const handleAction = useCallback((actionId: string) => {
     ErrorTracking.addBreadcrumb({

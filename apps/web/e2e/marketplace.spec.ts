@@ -2,11 +2,8 @@ import { test, expect } from './fixtures/test-fixtures';
 import {
   navigateAndWait,
   waitForPageLoad,
-  isElementVisible,
-  waitForApiResponse,
-  scrollIntoView,
 } from './helpers/page.helpers';
-import { selectors, timeouts } from './helpers/test-data';
+import { timeouts } from './helpers/test-data';
 
 /**
  * Marketplace E2E Tests
@@ -14,15 +11,15 @@ import { selectors, timeouts } from './helpers/test-data';
  */
 
 test.describe('Marketplace Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, '/marketplace');
   });
 
   test.describe('Page Load and Basic Structure', () => {
     test('should display marketplace page correctly', async ({ page }) => {
-      // Check page title
-      await expect(page).toHaveTitle(/Marketplace|السوق|سوق/i);
+      // Check page title - uses default SAHOOL title
+      await expect(page).toHaveTitle(/SAHOOL|سهول/i);
 
       // Check for main heading in Arabic
       const arabicHeading = page.locator('text=/السوق الزراعي/i');
@@ -486,9 +483,9 @@ test.describe('Marketplace Page', () => {
         const cartButton = page.locator('button:has-text("السلة")');
         const initialBadge = cartButton.locator('span.bg-red-500');
         const hadBadge = await initialBadge.isVisible({ timeout: 500 }).catch(() => false);
-        let initialCount = 0;
+        // // let initialCount = 0;
         if (hadBadge) {
-          initialCount = parseInt((await initialBadge.textContent()) || '0');
+          0 = parseInt((await initialBadge.textContent()) || '0');
         }
 
         // Click first add to cart button

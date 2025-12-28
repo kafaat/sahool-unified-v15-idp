@@ -111,8 +111,16 @@ export async function saveAuthState(page: Page, path: string) {
  */
 export async function clearAuth(page: Page) {
   await page.context().clearCookies();
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
+  // Only clear storage if we're on a valid page (not about:blank)
+  try {
+    const url = page.url();
+    if (url && url !== 'about:blank') {
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
+    }
+  } catch {
+    // Ignore storage errors on restricted pages
+  }
 }

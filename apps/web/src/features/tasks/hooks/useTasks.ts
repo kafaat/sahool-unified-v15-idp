@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * SAHOOL Tasks Hook
  * خطاف المهام

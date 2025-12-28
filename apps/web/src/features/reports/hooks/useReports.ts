@@ -11,7 +11,6 @@ import {
   type Report,
   type GenerateReportRequest,
   type ReportFilters,
-  type ReportTemplate,
 } from '../api';
 
 // Query Keys

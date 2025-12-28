@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures/test-fixtures';
-import { navigateAndWait, waitForPageLoad, waitForToast, isElementVisible } from './helpers/page.helpers';
+import { navigateAndWait, waitForPageLoad } from './helpers/page.helpers';
 
 /**
  * Wallet E2E Tests
@@ -7,7 +7,7 @@ import { navigateAndWait, waitForPageLoad, waitForToast, isElementVisible } from
  */
 
 test.describe('Wallet Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, '/wallet');
   });
@@ -333,7 +333,7 @@ test.describe('Wallet Page', () => {
       await page.waitForTimeout(3000);
 
       const emptyStateMessage = page.locator('text=/لا توجد معاملات/i');
-      const emptyStateIcon = page.locator('svg').last();
+      // const emptyStateIcon = page.locator('svg').last();
 
       const hasEmptyMessage = await emptyStateMessage.isVisible({ timeout: 3000 }).catch(() => false);
 

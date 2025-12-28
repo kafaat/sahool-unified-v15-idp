@@ -1,4 +1,4 @@
-import { HTMLAttributes } from 'react';
+import React, { HTMLAttributes } from 'react';
 import { clsx } from 'clsx';
 
 export interface LoadingProps extends HTMLAttributes<HTMLDivElement> {
@@ -8,14 +8,14 @@ export interface LoadingProps extends HTMLAttributes<HTMLDivElement> {
   textAr?: string;
 }
 
-export function Loading({
+export const Loading = React.memo<LoadingProps>(function Loading({
   size = 'md',
   variant = 'spinner',
   text,
   textAr,
   className,
   ...props
-}: LoadingProps) {
+}) {
   const sizes = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
@@ -27,6 +27,10 @@ export function Loading({
     return (
       <div
         className={clsx('flex flex-col items-center justify-center gap-3', className)}
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        aria-label={textAr || text || 'جاري التحميل'}
         {...props}
       >
         <svg
@@ -34,6 +38,7 @@ export function Loading({
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <circle
             className="opacity-25"
@@ -71,9 +76,13 @@ export function Loading({
     return (
       <div
         className={clsx('flex flex-col items-center justify-center gap-3', className)}
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        aria-label={textAr || text || 'جاري التحميل'}
         {...props}
       >
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5" aria-hidden="true">
           <div
             className={clsx(
               'bg-sahool-green-600 rounded-full animate-bounce',
@@ -111,9 +120,13 @@ export function Loading({
   return (
     <div
       className={clsx('flex flex-col items-center justify-center gap-3', className)}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label={textAr || text || 'جاري التحميل'}
       {...props}
     >
-      <div className={clsx('bg-sahool-green-600 rounded-full animate-pulse', sizes[size])} />
+      <div className={clsx('bg-sahool-green-600 rounded-full animate-pulse', sizes[size])} aria-hidden="true" />
       {(text || textAr) && (
         <p className="text-sm text-gray-600">
           <span className="font-semibold">{textAr}</span>
@@ -123,4 +136,4 @@ export function Loading({
       )}
     </div>
   );
-}
+});

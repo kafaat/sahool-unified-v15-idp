@@ -354,6 +354,7 @@ type ObserverCallback = (entry: IntersectionObserverEntry) => void;
 
 const observers = new Map<string, IntersectionObserver>();
 const callbacks = new Map<Element, ObserverCallback>();
+const observerRefCounts = new Map<string, number>();
 
 /**
  * Create or get shared intersection observer
@@ -372,6 +373,7 @@ export function getIntersectionObserver(
       });
     }, options);
     observers.set(key, observer);
+    observerRefCounts.set(key, 0);
   }
 
   return observers.get(key)!;
@@ -386,14 +388,39 @@ export function observeElement(
   callback: ObserverCallback,
   options: IntersectionObserverInit = {}
 ): () => void {
+  const key = JSON.stringify(options);
   const observer = getIntersectionObserver(options);
   callbacks.set(element, callback);
   observer.observe(element);
 
+  // Increment ref count
+  observerRefCounts.set(key, (observerRefCounts.get(key) || 0) + 1);
+
   return () => {
     observer.unobserve(element);
     callbacks.delete(element);
+
+    // Decrement ref count and cleanup if no more references
+    const refCount = (observerRefCounts.get(key) || 1) - 1;
+    observerRefCounts.set(key, refCount);
+
+    if (refCount === 0) {
+      observer.disconnect();
+      observers.delete(key);
+      observerRefCounts.delete(key);
+    }
   };
+}
+
+/**
+ * Clean up all intersection observers
+ * تنظيف جميع مراقبي التقاطع
+ */
+export function cleanupIntersectionObservers(): void {
+  observers.forEach((observer) => observer.disconnect());
+  observers.clear();
+  callbacks.clear();
+  observerRefCounts.clear();
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -446,6 +473,7 @@ export const Performance = {
   generateBlurPlaceholder,
   getIntersectionObserver,
   observeElement,
+  cleanupIntersectionObservers,
   markPerformance,
   measurePerformance,
 };

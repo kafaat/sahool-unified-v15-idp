@@ -100,7 +100,7 @@ describe('Error Tracking', () => {
 
   describe('reportWebVitals', () => {
     it('should report web vitals metrics', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+      // // const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       reportWebVitals({
         name: 'LCP',

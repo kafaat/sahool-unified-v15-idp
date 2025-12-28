@@ -81,6 +81,20 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('X-XSS-Protection', '1; mode=block');
 
+  // Content Security Policy
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " + // Note: unsafe-eval needed for Next.js dev
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com; " +
+    "img-src 'self' data: https: blob:; " +
+    "connect-src 'self' http://localhost:* ws://localhost:* https://tile.openstreetmap.org https://sentinel-hub.com; " +
+    "frame-ancestors 'none'; " +
+    "base-uri 'self'; " +
+    "form-action 'self';"
+  );
+
   return response;
 }
 

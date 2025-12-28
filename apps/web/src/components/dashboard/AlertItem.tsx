@@ -58,11 +58,11 @@ function formatTimeAgo(dateString: string): string {
   return `منذ ${diffDays} يوم`;
 }
 
-export const AlertItem: React.FC<AlertItemProps> = ({
+export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
   alert,
   onDismiss,
   onAction,
-}) => {
+}) {
   const config = severityConfig[alert.severity];
   const timeAgo = formatTimeAgo(alert.createdAt);
 
@@ -74,9 +74,11 @@ export const AlertItem: React.FC<AlertItemProps> = ({
         ${alert.read ? 'opacity-60' : ''}
         transition-all duration-200
       `}
+      role="article"
+      aria-label={`تنبيه: ${alert.titleAr} - ${alert.messageAr}`}
     >
       <div className="flex items-start gap-3">
-        <div className={`text-xl ${config.iconColor}`}>
+        <div className={`text-xl ${config.iconColor}`} aria-hidden="true">
           {config.icon}
         </div>
 
@@ -88,8 +90,8 @@ export const AlertItem: React.FC<AlertItemProps> = ({
             {onDismiss && (
               <button
                 onClick={() => onDismiss(alert.id)}
-                className="p-1 rounded-full hover:bg-gray-200 transition-colors text-gray-500"
-                aria-label="إغلاق"
+                className="p-1 rounded-full hover:bg-gray-200 transition-colors text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                aria-label={`إغلاق تنبيه: ${alert.titleAr}`}
               >
                 ✕
               </button>
@@ -109,10 +111,11 @@ export const AlertItem: React.FC<AlertItemProps> = ({
             {alert.actionUrl && (
               <button
                 onClick={() => onAction?.(alert.actionUrl!)}
-                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                aria-label={`عرض تفاصيل: ${alert.titleAr}`}
               >
                 <span>التفاصيل</span>
-                <span>↗</span>
+                <span aria-hidden="true">↗</span>
               </button>
             )}
           </div>
@@ -120,6 +123,6 @@ export const AlertItem: React.FC<AlertItemProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default AlertItem;

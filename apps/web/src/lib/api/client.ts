@@ -3,6 +3,32 @@
  * Unified API client for connecting frontend to backend services
  */
 
+import type {
+  ApiResponse,
+  Field,
+  FieldCreateRequest,
+  FieldUpdateRequest,
+  NdviData,
+  NdviSummary,
+  WeatherData,
+  WeatherForecast,
+  AgriculturalRisk,
+  Sensor,
+  SensorReading,
+  IrrigationRecommendation,
+  ET0Calculation,
+  FertilizerRecommendation,
+  CropHealthAnalysis,
+  Task,
+  TaskCreateRequest,
+  Equipment,
+  MaintenanceSchedule,
+  MarketplaceListing,
+  Subscription,
+  Invoice,
+  User,
+} from './types';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Enforce HTTPS in production (only at runtime in browser, not during build)
@@ -15,15 +41,28 @@ if (
   console.warn('Warning: API_BASE_URL should use HTTPS in production environment');
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-}
-
 interface RequestOptions extends RequestInit {
   params?: Record<string, string>;
+  skipRetry?: boolean;
+  timeout?: number;
+}
+
+// Configuration
+const DEFAULT_TIMEOUT = 30000; // 30 seconds
+const MAX_RETRY_ATTEMPTS = 3;
+const RETRY_DELAY = 1000; // 1 second
+
+// Helper function to sanitize HTML and prevent XSS
+function sanitizeInput(input: string): string {
+  if (typeof input !== 'string') return input;
+  return input
+    .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
+    .trim();
+}
+
+// Helper function to delay for retry logic
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 class SahoolApiClient {
@@ -46,7 +85,7 @@ class SahoolApiClient {
     endpoint: string,
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
-    const { params, ...fetchOptions } = options;
+    const { params, skipRetry = false, timeout = DEFAULT_TIMEOUT, ...fetchOptions } = options;
 
     // Build URL with query params
     let url = `${this.baseUrl}${endpoint}`;
@@ -65,28 +104,92 @@ class SahoolApiClient {
       (headers as Record<string, string>)['Authorization'] = `Bearer ${this.token}`;
     }
 
-    try {
-      const response = await fetch(url, {
-        ...fetchOptions,
-        headers,
-      });
+    // Retry logic
+    let lastError: Error | null = null;
+    const maxAttempts = skipRetry ? 1 : MAX_RETRY_ATTEMPTS;
 
-      const data = await response.json();
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-      if (!response.ok) {
-        return {
-          success: false,
-          error: data.error || data.message || 'An error occurred',
-        };
+        const response = await fetch(url, {
+          ...fetchOptions,
+          headers,
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        // Parse response
+        let data: any;
+        const contentType = response.headers.get('content-type');
+
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            data = await response.json();
+          } catch (parseError) {
+            return {
+              success: false,
+              error: 'Invalid JSON response from server',
+            };
+          }
+        } else {
+          data = await response.text();
+        }
+
+        // Handle HTTP errors
+        if (!response.ok) {
+          // Don't retry client errors (4xx), only server errors (5xx) and network issues
+          if (response.status >= 400 && response.status < 500) {
+            return {
+              success: false,
+              error: data.error || data.message || `Request failed with status ${response.status}`,
+            };
+          }
+
+          // For server errors, retry if we have attempts left
+          if (attempt < maxAttempts - 1) {
+            await delay(RETRY_DELAY * (attempt + 1)); // Exponential backoff
+            continue;
+          }
+
+          return {
+            success: false,
+            error: data.error || data.message || `Server error: ${response.status}`,
+          };
+        }
+
+        // Successful response
+        return typeof data === 'object' && data !== null
+          ? data
+          : { success: true, data: data as T };
+
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Unknown error');
+
+        // Handle abort/timeout
+        if (error instanceof Error && error.name === 'AbortError') {
+          return {
+            success: false,
+            error: 'Request timeout - please try again',
+          };
+        }
+
+        // Retry on network errors if we have attempts left
+        if (attempt < maxAttempts - 1) {
+          await delay(RETRY_DELAY * (attempt + 1));
+          continue;
+        }
       }
-
-      return data;
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Network error',
-      };
     }
+
+    // All retries failed
+    return {
+      success: false,
+      error: lastError?.message || 'Network error - please check your connection',
+    };
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -94,14 +197,27 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async login(email: string, password: string) {
-    return this.request<{ access_token: string; user: any }>('/api/v1/auth/login', {
+    // Sanitize email input to prevent XSS
+    const sanitizedEmail = sanitizeInput(email);
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(sanitizedEmail)) {
+      return {
+        success: false,
+        error: 'Invalid email format',
+      };
+    }
+
+    return this.request<{ access_token: string; user: User }>('/api/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email: sanitizedEmail, password }),
+      skipRetry: true, // Don't retry auth requests
     });
   }
 
   async getCurrentUser() {
-    return this.request<any>('/api/v1/auth/me');
+    return this.request<User>('/api/v1/auth/me');
   }
 
   async refreshToken(refreshToken: string) {
@@ -116,7 +232,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFields(tenantId: string, options?: { limit?: number; offset?: number }) {
-    return this.request<any[]>('/api/v1/fields', {
+    return this.request<Field[]>('/api/v1/fields', {
       params: {
         tenantId,
         limit: String(options?.limit || 100),
@@ -126,27 +242,22 @@ class SahoolApiClient {
   }
 
   async getField(fieldId: string) {
-    return this.request<any>(`/api/v1/fields/${fieldId}`);
+    return this.request<Field>(`/api/v1/fields/${fieldId}`);
   }
 
-  async createField(data: {
-    name: string;
-    tenantId: string;
-    cropType: string;
-    coordinates?: number[][];
-  }) {
-    return this.request<any>('/api/v1/fields', {
+  async createField(data: FieldCreateRequest) {
+    return this.request<Field>('/api/v1/fields', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateField(fieldId: string, data: any, etag?: string) {
+  async updateField(fieldId: string, data: FieldUpdateRequest, etag?: string) {
     const headers: HeadersInit = {};
     if (etag) {
       headers['If-Match'] = etag;
     }
-    return this.request<any>(`/api/v1/fields/${fieldId}`, {
+    return this.request<Field>(`/api/v1/fields/${fieldId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
       headers,
@@ -160,7 +271,7 @@ class SahoolApiClient {
   }
 
   async getNearbyFields(lat: number, lng: number, radius: number = 5000) {
-    return this.request<any[]>('/api/v1/fields/nearby', {
+    return this.request<Field[]>('/api/v1/fields/nearby', {
       params: {
         lat: String(lat),
         lng: String(lng),
@@ -174,11 +285,11 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldNdvi(fieldId: string) {
-    return this.request<any>(`/api/v1/fields/${fieldId}/ndvi`);
+    return this.request<NdviData>(`/api/v1/fields/${fieldId}/ndvi`);
   }
 
   async getNdviSummary(tenantId: string) {
-    return this.request<any>('/api/v1/ndvi/summary', {
+    return this.request<NdviSummary>('/api/v1/ndvi/summary', {
       params: { tenantId },
     });
   }
@@ -188,7 +299,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getWeather(lat: number, lng: number) {
-    return this.request<any>('/api/v1/weather/current', {
+    return this.request<WeatherData>('/api/v1/weather/current', {
       params: {
         lat: String(lat),
         lng: String(lng),
@@ -197,7 +308,7 @@ class SahoolApiClient {
   }
 
   async getWeatherForecast(lat: number, lng: number, days: number = 7) {
-    return this.request<any>('/api/v1/weather/forecast', {
+    return this.request<WeatherForecast>('/api/v1/weather/forecast', {
       params: {
         lat: String(lat),
         lng: String(lng),
@@ -207,7 +318,7 @@ class SahoolApiClient {
   }
 
   async getAgriculturalRisks(lat: number, lng: number) {
-    return this.request<any>('/api/v1/weather/risks', {
+    return this.request<AgriculturalRisk[]>('/api/v1/weather/risks', {
       params: {
         lat: String(lat),
         lng: String(lng),
@@ -219,17 +330,73 @@ class SahoolApiClient {
   // Crop Health AI API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async analyzeCropHealth(imageFile: File) {
+  async analyzeCropHealth(imageFile: File): Promise<ApiResponse<CropHealthAnalysis>> {
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(imageFile.type)) {
+      return {
+        success: false,
+        error: 'Invalid file type. Please upload a JPEG, PNG, or WebP image.',
+      };
+    }
+
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (imageFile.size > maxSize) {
+      return {
+        success: false,
+        error: 'File size exceeds 10MB limit.',
+      };
+    }
+
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${this.baseUrl}/api/v1/crop-health/analyze`, {
-      method: 'POST',
-      headers: this.token ? { Authorization: `Bearer ${this.token}` } : {},
-      body: formData,
-    });
+    try {
+      // Create AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for image upload
 
-    return response.json();
+      const response = await fetch(`${this.baseUrl}/api/v1/crop-health/analyze`, {
+        method: 'POST',
+        headers: this.token ? { Authorization: `Bearer ${this.token}` } : {},
+        body: formData,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      let data: any;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        return {
+          success: false,
+          error: 'Invalid response from server',
+        };
+      }
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || data.message || 'Failed to analyze image',
+        };
+      }
+
+      return data;
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          error: 'Upload timeout - please try again with a smaller image',
+        };
+      }
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -237,11 +404,11 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSensorData(fieldId: string) {
-    return this.request<any>(`/api/v1/iot/fields/${fieldId}/sensors`);
+    return this.request<Sensor[]>(`/api/v1/iot/fields/${fieldId}/sensors`);
   }
 
   async getSensorHistory(sensorId: string, from: Date, to: Date) {
-    return this.request<any[]>(`/api/v1/iot/sensors/${sensorId}/history`, {
+    return this.request<SensorReading[]>(`/api/v1/iot/sensors/${sensorId}/history`, {
       params: {
         from: from.toISOString(),
         to: to.toISOString(),
@@ -254,7 +421,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getIrrigationRecommendation(fieldId: string) {
-    return this.request<any>(`/api/v1/irrigation/fields/${fieldId}/recommendation`);
+    return this.request<IrrigationRecommendation>(`/api/v1/irrigation/fields/${fieldId}/recommendation`);
   }
 
   async calculateET0(data: {
@@ -263,7 +430,7 @@ class SahoolApiClient {
     windSpeed: number;
     solarRadiation: number;
   }) {
-    return this.request<any>('/api/v1/irrigation/et0', {
+    return this.request<ET0Calculation>('/api/v1/irrigation/et0', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -284,7 +451,7 @@ class SahoolApiClient {
       ph: number;
     };
   }) {
-    return this.request<any>('/api/v1/fertilizer/recommend', {
+    return this.request<FertilizerRecommendation>('/api/v1/fertilizer/recommend', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -390,9 +557,27 @@ class SahoolApiClient {
   }
 
   async sendFieldMessage(fieldId: string, message: string) {
+    // Sanitize message to prevent XSS
+    const sanitizedMessage = sanitizeInput(message);
+
+    // Validate message length
+    if (sanitizedMessage.length === 0) {
+      return {
+        success: false,
+        error: 'Message cannot be empty',
+      };
+    }
+
+    if (sanitizedMessage.length > 2000) {
+      return {
+        success: false,
+        error: 'Message exceeds maximum length of 2000 characters',
+      };
+    }
+
     return this.request<any>(`/api/v1/field-chat/fields/${fieldId}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message: sanitizedMessage }),
     });
   }
 
@@ -435,13 +620,13 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getEquipment(tenantId: string) {
-    return this.request<any[]>('/api/v1/equipment', {
+    return this.request<Equipment[]>('/api/v1/equipment', {
       params: { tenantId },
     });
   }
 
   async getEquipmentById(equipmentId: string) {
-    return this.request<any>(`/api/v1/equipment/${equipmentId}`);
+    return this.request<Equipment>(`/api/v1/equipment/${equipmentId}`);
   }
 
   async createEquipment(data: {
@@ -450,21 +635,21 @@ class SahoolApiClient {
     tenantId: string;
     specifications?: any;
   }) {
-    return this.request<any>('/api/v1/equipment', {
+    return this.request<Equipment>('/api/v1/equipment', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateEquipmentStatus(equipmentId: string, status: string) {
-    return this.request<any>(`/api/v1/equipment/${equipmentId}/status`, {
+    return this.request<Equipment>(`/api/v1/equipment/${equipmentId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
   }
 
   async getEquipmentMaintenanceSchedule(equipmentId: string) {
-    return this.request<any[]>(`/api/v1/equipment/${equipmentId}/maintenance`);
+    return this.request<MaintenanceSchedule[]>(`/api/v1/equipment/${equipmentId}/maintenance`);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -487,44 +672,36 @@ class SahoolApiClient {
     if (options.limit) params.limit = String(options.limit);
     if (options.offset) params.offset = String(options.offset);
 
-    return this.request<any[]>('/api/v1/tasks', { params });
+    return this.request<Task[]>('/api/v1/tasks', { params });
   }
 
   async getTask(taskId: string) {
-    return this.request<any>(`/api/v1/tasks/${taskId}`);
+    return this.request<Task>(`/api/v1/tasks/${taskId}`);
   }
 
   async updateTask(taskId: string, data: { status?: string; title?: string; description?: string }) {
-    return this.request<any>(`/api/v1/tasks/${taskId}`, {
+    return this.request<Task>(`/api/v1/tasks/${taskId}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
-  async createTask(data: {
-    title: string;
-    description?: string;
-    fieldId: string;
-    assigneeId?: string;
-    dueDate?: string;
-    priority?: 'low' | 'medium' | 'high';
-    taskType: string;
-  }) {
-    return this.request<any>('/api/v1/tasks', {
+  async createTask(data: TaskCreateRequest) {
+    return this.request<Task>('/api/v1/tasks', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateTaskStatus(taskId: string, status: 'pending' | 'in_progress' | 'completed' | 'cancelled') {
-    return this.request<any>(`/api/v1/tasks/${taskId}/status`, {
+    return this.request<Task>(`/api/v1/tasks/${taskId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
     });
   }
 
   async completeTask(taskId: string, notes?: string) {
-    return this.request<any>(`/api/v1/tasks/${taskId}/complete`, {
+    return this.request<Task>(`/api/v1/tasks/${taskId}/complete`, {
       method: 'POST',
       body: JSON.stringify({ notes }),
     });
@@ -628,7 +805,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getMarketplaceListings(options?: { category?: string; region?: string }) {
-    return this.request<any[]>('/api/v1/marketplace/listings', {
+    return this.request<MarketplaceListing[]>('/api/v1/marketplace/listings', {
       params: options as Record<string, string>,
     });
   }
@@ -641,7 +818,7 @@ class SahoolApiClient {
     quantity: number;
     unit: string;
   }) {
-    return this.request<any>('/api/v1/marketplace/listings', {
+    return this.request<MarketplaceListing>('/api/v1/marketplace/listings', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -652,11 +829,11 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSubscription(tenantId: string) {
-    return this.request<any>(`/api/v1/billing/tenants/${tenantId}/subscription`);
+    return this.request<Subscription>(`/api/v1/billing/tenants/${tenantId}/subscription`);
   }
 
   async getInvoices(tenantId: string) {
-    return this.request<any[]>(`/api/v1/billing/tenants/${tenantId}/invoices`);
+    return this.request<Invoice[]>(`/api/v1/billing/tenants/${tenantId}/invoices`);
   }
 
   async getUsageStats(tenantId: string) {

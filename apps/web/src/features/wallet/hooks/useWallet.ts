@@ -8,13 +8,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { walletApi } from '../api';
 import type {
-  Wallet,
-  Transaction,
   TransactionFilters,
   TransferFormData,
   DepositFormData,
   WithdrawalFormData,
-  WalletStats,
 } from '../types';
 
 // Query Keys

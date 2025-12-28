@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   SERVICE_REGISTRY,
   ServiceType,
@@ -27,7 +27,7 @@ interface HealthStatus {
  * ServiceSwitcher Component
  * مكون التبديل بين الخدمات للمقارنة والاختبار
  */
-export function ServiceSwitcher() {
+export const ServiceSwitcher = React.memo(function ServiceSwitcher() {
   const [versions, setVersions] = useState<Record<ServiceType, ServiceVersion>>(getServiceVersions);
   const [healthStatus, setHealthStatus] = useState<Record<string, HealthStatus>>({});
   const [loading, setLoading] = useState(false);
@@ -44,22 +44,23 @@ export function ServiceSwitcher() {
     : (Object.entries(SERVICE_REGISTRY) as [ServiceType, typeof SERVICE_REGISTRY[ServiceType]][]);
 
   useEffect(() => {
-    const handleChange = (e: CustomEvent) => {
-      setVersions(e.detail);
+    const handleChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setVersions(customEvent.detail);
     };
 
-    window.addEventListener('service-versions-changed', handleChange as EventListener);
+    window.addEventListener('service-versions-changed', handleChange);
     return () => {
-      window.removeEventListener('service-versions-changed', handleChange as EventListener);
+      window.removeEventListener('service-versions-changed', handleChange);
     };
   }, []);
 
-  const handleVersionChange = (service: ServiceType, version: ServiceVersion) => {
+  const handleVersionChange = useCallback((service: ServiceType, version: ServiceVersion) => {
     setServiceVersion(service, version);
     setVersions((prev) => ({ ...prev, [service]: version }));
-  };
+  }, []);
 
-  const handleCheckHealth = async () => {
+  const handleCheckHealth = useCallback(async () => {
     setLoading(true);
     try {
       const results = await checkServicesHealth();
@@ -69,17 +70,17 @@ export function ServiceSwitcher() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     resetToDefaults();
     setVersions(getServiceVersions());
-  };
+  }, []);
 
-  const handleSwitchAll = (version: ServiceVersion) => {
+  const handleSwitchAll = useCallback((version: ServiceVersion) => {
     switchAllServices(version);
     setVersions(getServiceVersions());
-  };
+  }, []);
 
   const getStatusColor = (health?: ServiceHealth) => {
     if (!health) return 'bg-gray-200';
@@ -112,13 +113,15 @@ export function ServiceSwitcher() {
           <button
             onClick={handleCheckHealth}
             disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="فحص صحة الخدمات"
           >
             {loading ? '⏳ جاري الفحص...' : '🔍 فحص الصحة'}
           </button>
           <button
             onClick={handleReset}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+            aria-label="إعادة تعيين الخدمات للإعدادات الافتراضية"
           >
             ↩️ إعادة تعيين
           </button>
@@ -325,6 +328,6 @@ export function ServiceSwitcher() {
       </div>
     </div>
   );
-}
+});
 
 export default ServiceSwitcher;

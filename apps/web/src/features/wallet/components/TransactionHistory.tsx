@@ -10,9 +10,9 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   CreditCard,
-  Search,
+
   Filter,
-  Calendar,
+
 } from 'lucide-react';
 import { useTransactions } from '../hooks/useWallet';
 import type { Transaction, TransactionFilters, TransactionType } from '../types';

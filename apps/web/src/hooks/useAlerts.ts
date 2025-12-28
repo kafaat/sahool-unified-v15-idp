@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '@/lib/api';
 import { Alert } from '../types';
 
@@ -51,10 +51,33 @@ const DEFAULT_ALERTS: Alert[] = [
   },
 ];
 
+// Helper function to map API alerts to our Alert type
+const mapApiAlert = (alert: any): Alert => ({
+  id: alert.id,
+  title: alert.title || alert.type,
+  titleAr: alert.titleAr || alert.title,
+  message: alert.message || alert.description,
+  messageAr: alert.messageAr || alert.message,
+  severity: alert.severity || 'info',
+  category: alert.category || 'general',
+  status: alert.status || 'active',
+  fieldId: alert.fieldId,
+  fieldName: alert.fieldName,
+  createdAt: alert.createdAt || new Date().toISOString(),
+  read: alert.acknowledged || false,
+  actionUrl: alert.actionUrl,
+});
+
 export function useAlerts(tenantId?: string) {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const alertsRef = useRef<Alert[]>([]);
+
+  // Keep alerts ref in sync
+  useEffect(() => {
+    alertsRef.current = alerts;
+  }, [alerts]);
 
   useEffect(() => {
     async function fetchAlerts() {
@@ -66,21 +89,7 @@ export function useAlerts(tenantId?: string) {
           const response = await apiClient.getAlerts({ tenantId, status: 'active' });
           if (response.success && response.data) {
             // Map API alerts to our Alert type
-            const mappedAlerts: Alert[] = response.data.map((alert: any) => ({
-              id: alert.id,
-              title: alert.title || alert.type,
-              titleAr: alert.titleAr || alert.title,
-              message: alert.message || alert.description,
-              messageAr: alert.messageAr || alert.message,
-              severity: alert.severity || 'info',
-              category: alert.category || 'general',
-              status: alert.status || 'active',
-              fieldId: alert.fieldId,
-              fieldName: alert.fieldName,
-              createdAt: alert.createdAt || new Date().toISOString(),
-              read: alert.acknowledged || false,
-              actionUrl: alert.actionUrl,
-            }));
+            const mappedAlerts: Alert[] = response.data.map(mapApiAlert);
             setAlerts(mappedAlerts);
             setError(null);
             return;
@@ -116,18 +125,20 @@ export function useAlerts(tenantId?: string) {
   }, []);
 
   const dismissAll = useCallback(async () => {
-    const activeAlertIds = alerts.filter(a => !a.read).map(a => a.id);
+    // Use ref to get current alerts and avoid stale closure
+    const activeAlertIds = alertsRef.current.filter(a => !a.read).map(a => a.id);
     setAlerts(prev => prev.map(a => ({ ...a, read: true, status: 'acknowledged' as const })));
 
     // Acknowledge all in background
     for (const id of activeAlertIds) {
       try {
         await apiClient.acknowledgeAlert(id);
-      } catch {
-        // Ignore individual failures
+      } catch (err) {
+        // Log individual failures but don't throw
+        console.warn(`Failed to acknowledge alert ${id}:`, err);
       }
     }
-  }, [alerts]);
+  }, []);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
@@ -135,22 +146,11 @@ export function useAlerts(tenantId?: string) {
       if (tenantId) {
         const response = await apiClient.getAlerts({ tenantId, status: 'active' });
         if (response.success && response.data) {
-          const mappedAlerts: Alert[] = response.data.map((alert: any) => ({
-            id: alert.id,
-            title: alert.title || alert.type,
-            titleAr: alert.titleAr || alert.title,
-            message: alert.message || alert.description,
-            messageAr: alert.messageAr || alert.message,
-            severity: alert.severity || 'info',
-            category: alert.category || 'general',
-            status: alert.status || 'active',
-            fieldId: alert.fieldId,
-            fieldName: alert.fieldName,
-            createdAt: alert.createdAt || new Date().toISOString(),
-            read: alert.acknowledged || false,
-            actionUrl: alert.actionUrl,
-          }));
+          const mappedAlerts: Alert[] = response.data.map(mapApiAlert);
           setAlerts(mappedAlerts);
+          setError(null);
+        } else {
+          setError(response.error || 'Failed to refresh alerts');
         }
       }
     } catch (err) {

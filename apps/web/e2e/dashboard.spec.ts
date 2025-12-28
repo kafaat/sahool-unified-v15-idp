@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures/test-fixtures';
-import { navigateAndWait, isElementVisible, waitForPageLoad } from './helpers/page.helpers';
+import { navigateAndWait, waitForPageLoad } from './helpers/page.helpers';
 
 /**
  * Dashboard E2E Tests
@@ -7,27 +7,27 @@ import { navigateAndWait, isElementVisible, waitForPageLoad } from './helpers/pa
  */
 
 test.describe('Dashboard Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, '/dashboard');
   });
 
   test('should display dashboard page correctly', async ({ page }) => {
-    // Check page title
-    await expect(page).toHaveTitle(/Dashboard|لوحة التحكم/i);
+    // Check page title - uses default SAHOOL title
+    await expect(page).toHaveTitle(/SAHOOL|سهول/i);
 
-    // Check for main heading
-    const heading = page.locator('h1, h2').first();
-    await expect(heading).toBeVisible();
+    // Check for main heading with welcome message
+    const heading = page.locator('h1:has-text("مرحباً")');
+    await expect(heading).toBeVisible({ timeout: 10000 });
 
-    // Check for welcome message
-    const welcomeMessage = page.locator('text=/مرحباً|Welcome/i');
+    // Check for welcome message to SAHOOL platform
+    const welcomeMessage = page.locator('text=/Welcome back to SAHOOL/i');
     await expect(welcomeMessage).toBeVisible({ timeout: 10000 });
   });
 
   test('should display user information', async ({ page }) => {
-    // Look for user name or profile information
-    const userInfo = page.locator('[data-testid="user-info"], text=/مرحباً|Welcome/i');
+    // Look for welcome message with user name in heading
+    const userInfo = page.locator('h1:has-text("مرحباً")');
     await expect(userInfo).toBeVisible();
   });
 
@@ -60,7 +60,7 @@ test.describe('Dashboard Page', () => {
       await page.waitForTimeout(2000);
 
       // Get initial state
-      const initialContent = await page.content();
+      // const initialContent = await page.content();
 
       // Reload page
       await page.reload();

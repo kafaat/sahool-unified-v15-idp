@@ -15,13 +15,13 @@ const api = axios.create({
 });
 
 // Add auth token interceptor
+// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
+import Cookies from 'js-cookie';
+
 api.interceptors.request.use((config) => {
-  // Get token from cookie or local storage
+  // Get token from cookie using secure cookie parser
   if (typeof window !== 'undefined') {
-    const token = document.cookie
-      .split('; ')
-      .find((row) => row.startsWith('access_token='))
-      ?.split('=')[1];
+    const token = Cookies.get('access_token');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

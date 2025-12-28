@@ -8,9 +8,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   advisorApi,
-  type Recommendation,
   type AdvisorQuery,
-  type AdvisorResponse,
   type AdvisorFilters,
 } from '../api';
 

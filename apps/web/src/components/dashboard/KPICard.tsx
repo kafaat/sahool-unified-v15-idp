@@ -36,9 +36,16 @@ const iconMap: Record<string, string> = {
   alert: '⚠️',
 };
 
-export const KPICard: React.FC<KPICardProps> = ({ kpi, onClick }) => {
+export const KPICard = React.memo<KPICardProps>(function KPICard({ kpi, onClick }) {
   const icon = kpi.icon && iconMap[kpi.icon] ? iconMap[kpi.icon] : '📊';
   const trend = kpi.trend || 'stable';
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  };
 
   return (
     <div
@@ -48,15 +55,17 @@ export const KPICard: React.FC<KPICardProps> = ({ kpi, onClick }) => {
         ${statusColors[kpi.status] || statusColors.good}
       `}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
+      aria-label={`مؤشر ${kpi.labelAr}: ${kpi.value} ${kpi.unit}, الاتجاه: ${kpi.trendValue > 0 ? 'صاعد' : kpi.trendValue < 0 ? 'نازل' : 'مستقر'}`}
     >
       <div className="flex items-start justify-between">
-        <div className="p-2 rounded-lg bg-white/50 text-2xl">
+        <div className="p-2 rounded-lg bg-white/50 text-2xl" aria-hidden="true">
           {icon}
         </div>
         <div className={`flex items-center gap-1 ${trendColors[trend] || trendColors.stable}`}>
-          <span>{trendIcons[trend] || trendIcons.stable}</span>
+          <span aria-hidden="true">{trendIcons[trend] || trendIcons.stable}</span>
           <span className="text-sm font-medium">
             {kpi.trendValue > 0 ? '+' : ''}{kpi.trendValue}%
           </span>
@@ -72,6 +81,6 @@ export const KPICard: React.FC<KPICardProps> = ({ kpi, onClick }) => {
       </div>
     </div>
   );
-};
+});
 
 export default KPICard;

@@ -8,7 +8,7 @@
 import Link from 'next/link';
 import { useLatestReading } from '../hooks/useSensors';
 import type { Sensor } from '../types';
-import { Activity, Battery, MapPin, Signal, TrendingUp } from 'lucide-react';
+import { Activity, Battery, MapPin, Signal } from 'lucide-react';
 
 interface SensorCardProps {
   sensor: Sensor;

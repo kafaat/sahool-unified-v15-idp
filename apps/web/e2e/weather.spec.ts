@@ -1,5 +1,5 @@
 import { test, expect } from './fixtures/test-fixtures';
-import { navigateAndWait, waitForPageLoad, isElementVisible } from './helpers/page.helpers';
+import { navigateAndWait, waitForPageLoad } from './helpers/page.helpers';
 import { pages } from './helpers/test-data';
 
 /**
@@ -8,7 +8,7 @@ import { pages } from './helpers/test-data';
  */
 
 test.describe('Weather Page', () => {
-  test.beforeEach(async ({ page, authenticatedPage }) => {
+  test.beforeEach(async ({ page }) => {
     // authenticatedPage fixture handles login
     await navigateAndWait(page, pages.weather);
   });
@@ -19,15 +19,15 @@ test.describe('Weather Page', () => {
    */
   test.describe('Page Loading', () => {
     test('should display weather page correctly', async ({ page }) => {
-      // Check page title
-      await expect(page).toHaveTitle(/Weather|الطقس/i);
+      // Check page title - uses default SAHOOL title
+      await expect(page).toHaveTitle(/SAHOOL|سهول/i);
 
       // Check for main heading in Arabic
       const heading = page.locator('h1:has-text("الطقس")');
       await expect(heading).toBeVisible();
 
       // Check for English subtitle
-      const subtitle = page.locator('text=/Weather Dashboard/i');
+      const subtitle = page.locator('p:has-text("Weather Dashboard")');
       await expect(subtitle).toBeVisible();
     });
 
@@ -105,10 +105,10 @@ test.describe('Weather Page', () => {
       await page.waitForTimeout(2000);
 
       // Wait for API call when changing location
-      const responsePromise = page.waitForResponse(
-        response => response.url().includes('/api/weather') || response.url().includes('weather'),
-        { timeout: 10000 }
-      ).catch(() => null);
+      // const responsePromise = page.waitForResponse(
+      //   response => response.url().includes('/api/weather') || response.url().includes('weather'),
+      //   { timeout: 10000 }
+      // ).catch(() => null);
 
       // Change location
       const locationSelector = page.locator('select');
@@ -809,7 +809,7 @@ test.describe('Weather Page', () => {
       // Select a location
       const locationSelector = page.locator('select');
       await locationSelector.selectOption({ index: 2 });
-      const selectedValue = await locationSelector.inputValue();
+      // const selectedValue = await locationSelector.inputValue();
 
       // Navigate away
       await page.goto(pages.dashboard);

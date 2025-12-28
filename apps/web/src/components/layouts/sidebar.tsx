@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
@@ -85,11 +86,11 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function Sidebar() {
+export const Sidebar = React.memo(function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full">
+    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full" role="navigation" aria-label="القائمة الجانبية الرئيسية">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -116,17 +117,20 @@ export function Sidebar() {
                   href={item.href}
                   className={clsx(
                     'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors',
-                    'hover:bg-sahool-green-50 group',
+                    'hover:bg-sahool-green-50 group focus:outline-none focus:ring-2 focus:ring-sahool-green-500',
                     isActive
                       ? 'bg-sahool-green-100 text-sahool-green-700 font-medium'
                       : 'text-gray-700'
                   )}
+                  aria-current={isActive ? 'page' : undefined}
+                  aria-label={`${item.nameAr} - ${item.name}`}
                 >
                   <Icon
                     className={clsx(
                       'w-5 h-5 flex-shrink-0',
                       isActive ? 'text-sahool-green-600' : 'text-gray-400 group-hover:text-sahool-green-600'
                     )}
+                    aria-hidden="true"
                   />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium">{item.nameAr}</div>
@@ -148,4 +152,4 @@ export function Sidebar() {
       </div>
     </aside>
   );
-}
+});

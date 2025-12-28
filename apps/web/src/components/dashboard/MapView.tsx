@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { apiClient } from '@/lib/api';
@@ -26,10 +26,10 @@ function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' 
   return 'critical';
 }
 
-export default function MapView({ tenantId, onFieldSelect, fields: propFields }: MapViewProps) {
+const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSelect, fields: propFields }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<InstanceType<typeof maplibregl.Map> | null>(null);
-  const [selectedField, setSelectedField] = useState<string | null>(null);
+  const [, setSelectedField] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fields, setFields] = useState<Field[]>(propFields || []);
 
@@ -249,7 +249,7 @@ export default function MapView({ tenantId, onFieldSelect, fields: propFields }:
       const bounds = new maplibregl.LngLatBounds();
       geojsonData.features.forEach(feature => {
         if (feature.geometry.type === 'Polygon') {
-          feature.geometry.coordinates[0].forEach(coord => {
+          feature.geometry.coordinates![0].forEach(coord => {
             bounds.extend(coord as [number, number]);
           });
         }
@@ -289,6 +289,7 @@ export default function MapView({ tenantId, onFieldSelect, fields: propFields }:
       )}
     </div>
   );
-}
+});
 
 export { MapView };
+export default MapView;

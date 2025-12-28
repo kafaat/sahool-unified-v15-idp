@@ -6,9 +6,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useMaintenanceRecords, useCreateMaintenance, useCompleteMaintenance } from '../hooks/useEquipment';
+import { useMaintenanceRecords, useCompleteMaintenance } from '../hooks/useEquipment';
 import type { MaintenanceRecord, MaintenanceStatus } from '../types';
-import { Calendar, Clock, CheckCircle, AlertCircle, Loader2, Plus } from 'lucide-react';
+import { Calendar, CheckCircle, AlertCircle, Loader2, Plus } from 'lucide-react';
 
 interface MaintenanceScheduleProps {
   equipmentId?: string;

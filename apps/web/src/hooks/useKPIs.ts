@@ -71,15 +71,16 @@ async function fetchKPIs(tenantId?: string): Promise<KPI[]> {
 
     // NDVI KPI
     if (ndviSummary?.success && ndviSummary.data) {
+      const avgNdvi = ndviSummary.data.averageNdvi || 0;
       kpis.push({
         id: '1',
         label: 'Average NDVI',
         labelAr: 'متوسط NDVI',
-        value: ndviSummary.data.averageNdvi?.toFixed(2) || 0,
+        value: Number(avgNdvi.toFixed(2)),
         unit: '',
-        trend: ndviSummary.data.averageNdvi > 0.5 ? 'up' : 'down',
+        trend: avgNdvi > 0.5 ? 'up' : 'down',
         trendValue: 0,
-        status: ndviSummary.data.averageNdvi > 0.6 ? 'good' : ndviSummary.data.averageNdvi > 0.4 ? 'warning' : 'critical',
+        status: avgNdvi > 0.6 ? 'good' : avgNdvi > 0.4 ? 'warning' : 'critical',
         icon: 'leaf',
       });
     }
@@ -87,7 +88,7 @@ async function fetchKPIs(tenantId?: string): Promise<KPI[]> {
     // Fields KPI
     if (fields?.success && fields.data) {
       const activeFields = fields.data.filter(f => f.status === 'active').length;
-      const totalArea = fields.data.reduce((sum, f) => sum + (f.areaHectares || 0), 0);
+      const totalArea = fields.data.reduce((sum, f) => sum + (f.area_hectares || f.area || 0), 0);
 
       kpis.push({
         id: '2',
@@ -105,7 +106,7 @@ async function fetchKPIs(tenantId?: string): Promise<KPI[]> {
         id: '5',
         label: 'Total Area',
         labelAr: 'المساحة الكلية',
-        value: totalArea.toFixed(1),
+        value: Number(totalArea.toFixed(1)),
         unit: 'هكتار',
         trend: 'stable',
         trendValue: 0,

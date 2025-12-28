@@ -5,7 +5,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect } from 'react';
 import type { Product, CartItem, Cart } from '../types';
 
 interface CartContextType {
@@ -92,23 +92,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeItem(productId);
+      setItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
       return;
     }
 
     setItems((prevItems) =>
       prevItems.map((item) => (item.productId === productId ? { ...item, quantity } : item))
     );
-  }, [removeItem]);
+  }, []);
 
   const clearCart = useCallback(() => {
     setItems([]);
   }, []);
 
-  const cart = calculateTotals(items);
+  const cart = useMemo(() => calculateTotals(items), [items]);
+
+  const value = useMemo(
+    () => ({ cart, addItem, removeItem, updateQuantity, clearCart }),
+    [cart, addItem, removeItem, updateQuantity, clearCart]
+  );
 
   return (
-    <CartContext.Provider value={{ cart, addItem, removeItem, updateQuantity, clearCart }}>
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );

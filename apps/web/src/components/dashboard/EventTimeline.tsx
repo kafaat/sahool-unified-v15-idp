@@ -1,6 +1,7 @@
+import React from 'react';
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { wsClient, TimelineEvent, getEventIcon, getEventColor, formatEventType } from '@/lib/ws';
 import { SkeletonEventItem } from './ui/Skeleton';
 
@@ -63,16 +64,16 @@ function formatTimeAgo(timestamp: string): string {
   return then.toLocaleDateString('ar-YE');
 }
 
-function EventCard({ event }: { event: TimelineEvent }) {
+const EventCard = React.memo<{ event: TimelineEvent }>(function EventCard({ event }) {
   const icon = getEventIcon(event.event_type);
   const colorClass = getEventColor(event.event_type);
   const label = formatEventType(event.event_type);
 
   return (
-    <div className={`p-3 rounded-lg border ${colorClass} transition-all hover:shadow-sm`}>
+    <div className={`p-3 rounded-lg border ${colorClass} transition-all hover:shadow-sm`} role="article" aria-label={`حدث: ${label}`}>
       <div className="flex items-start gap-3">
         {/* Icon */}
-        <span className="text-xl">{icon}</span>
+        <span className="text-xl" aria-hidden="true">{icon}</span>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
@@ -125,13 +126,13 @@ function EventCard({ event }: { event: TimelineEvent }) {
       </div>
     </div>
   );
-}
+});
 
 interface EventTimelineProps {
   tenantId?: string;
 }
 
-export function EventTimeline({ tenantId }: EventTimelineProps) {
+export const EventTimeline = React.memo<EventTimelineProps>(function EventTimeline({ tenantId }) {
   const [events, setEvents] = useState<TimelineEvent[]>([]);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -221,6 +222,6 @@ export function EventTimeline({ tenantId }: EventTimelineProps) {
       )}
     </div>
   );
-}
+});
 
 export default EventTimeline;

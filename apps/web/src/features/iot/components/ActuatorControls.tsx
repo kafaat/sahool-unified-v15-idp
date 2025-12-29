@@ -7,7 +7,7 @@
 
 import { useActuators, useControlActuator, useSetActuatorMode } from '../hooks/useActuators';
 import type { Actuator, ActuatorStatus } from '../types';
-import { Power, Loader2, Settings, Zap } from 'lucide-react';
+import { Power, Loader2, Settings } from 'lucide-react';
 
 const statusColors: Record<string, string> = {
   on: 'bg-green-100 text-green-800',
@@ -46,7 +46,7 @@ const typeIcons = {
 };
 
 export function ActuatorControls() {
-  const { data: actuators, isLoading } = useActuators();
+  const { data: actuators, isLoading, error } = useActuators();
   const controlMutation = useControlActuator();
   const setModeMutation = useSetActuatorMode();
 
@@ -82,15 +82,17 @@ export function ActuatorControls() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">فشل تحميل المُشغلات</p>
+        <p className="text-sm text-gray-400 mt-2">Failed to load actuators</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-          <Zap className="w-6 h-6 ml-2 text-green-600" />
-          التحكم بالمُشغلات
-        </h2>
-      </div>
-
       {actuators && actuators.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {actuators.map((actuator) => (
@@ -104,7 +106,7 @@ export function ActuatorControls() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
+        <div className="text-center py-12">
           <p className="text-gray-500">لا توجد مُشغلات</p>
         </div>
       )}

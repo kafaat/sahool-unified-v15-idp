@@ -79,6 +79,13 @@ REDIS_PASSWORD=your_secure_password
 MINIO_ROOT_USER=sahool_backup
 MINIO_ROOT_PASSWORD=your_secure_password
 
+# التشفير (AES-256) - مطلوب للحماية
+BACKUP_ENCRYPTION_ENABLED=true
+BACKUP_ENCRYPTION_KEY=change_this_encryption_key_at_least_32_characters_long
+
+# الضغط
+BACKUP_COMPRESSION=gzip  # gzip, zstd, none
+
 # اختياري: رفع إلى S3
 S3_BACKUP_ENABLED=true
 AWS_ACCESS_KEY_ID=your_key
@@ -87,6 +94,64 @@ AWS_SECRET_ACCESS_KEY=your_secret
 # اختياري: الإشعارات
 SLACK_NOTIFICATIONS_ENABLED=true
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+```
+
+## 🔐 التشفير | Encryption
+
+### تفعيل التشفير | Enabling Encryption
+
+النسخ الاحتياطية محمية باستخدام تشفير AES-256-CBC مع PBKDF2:
+
+```bash
+# في ملف .env
+BACKUP_ENCRYPTION_ENABLED=true
+BACKUP_ENCRYPTION_KEY=your_strong_encryption_key_here
+```
+
+**⚠️ مهم جداً | Critical:**
+- احفظ مفتاح التشفير في مكان آمن
+- بدون المفتاح، لن تتمكن من استعادة النسخ الاحتياطية
+- استخدم مفتاح بطول 32 حرف على الأقل
+- لا تشارك المفتاح في نظام التحكم بالإصدارات
+
+### توليد مفتاح تشفير قوي | Generate Strong Key
+
+```bash
+# طريقة 1: استخدام OpenSSL
+openssl rand -base64 32
+
+# طريقة 2: استخدام /dev/urandom
+head -c 32 /dev/urandom | base64
+
+# طريقة 3: استخدام pwgen
+pwgen -s 48 1
+```
+
+### استعادة النسخ المشفرة | Restoring Encrypted Backups
+
+النسخ المشفرة تُفك تلقائياً عند الاستعادة:
+
+```bash
+# المفتاح من البيئة
+export BACKUP_ENCRYPTION_KEY=your_key_here
+./restore_postgres.sh backup.dump.gz.enc
+
+# أو سيطلب منك المفتاح تفاعلياً
+./restore_postgres.sh backup.dump.gz.enc
+# Enter encryption key: [سيطلب منك إدخال المفتاح]
+```
+
+### فك التشفير يدوياً | Manual Decryption
+
+```bash
+# فك تشفير ملف واحد
+openssl enc -aes-256-cbc -d -salt -pbkdf2 \
+  -in backup.dump.gz.enc \
+  -out backup.dump.gz \
+  -k "your_encryption_key"
+
+# ثم فك الضغط
+gunzip backup.dump.gz
 ```
 
 ## 📊 جدول النسخ الاحتياطي | Backup Schedule

@@ -80,7 +80,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div
+      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+      data-testid="post-card"
+    >
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-start justify-between">
@@ -108,7 +111,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             </div>
           </div>
 
-          <button className="text-gray-400 hover:text-gray-600">
+          <button
+            className="text-gray-400 hover:text-gray-600"
+            aria-label="خيارات المنشور"
+          >
             <MoreVertical className="w-5 h-5" />
           </button>
         </div>
@@ -137,7 +143,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <img
                 key={index}
                 src={image}
-                alt=""
+                alt={`Post image ${index + 1}`}
                 className="w-full h-48 object-cover rounded-lg"
               />
             ))}
@@ -147,9 +153,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         {/* Tags */}
         {post.tagsAr && post.tagsAr.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
-            {post.tagsAr.map((tag, index) => (
+            {post.tagsAr.map((tag) => (
               <span
-                key={index}
+                key={`tag-${post.id}-${tag}`}
                 className="text-sm text-green-600 hover:text-green-700 cursor-pointer"
               >
                 #{tag}
@@ -173,7 +179,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <button
             onClick={handleLike}
             disabled={likeMutation.isPending}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+            aria-label={post.isLiked ? 'إلغاء الإعجاب' : 'إعجاب بالمنشور'}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
               post.isLiked
                 ? 'bg-green-50 text-green-600'
                 : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -185,7 +192,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
           <button
             onClick={() => setShowComments(!showComments)}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+            aria-label={showComments ? 'إخفاء التعليقات' : 'عرض التعليقات'}
+            aria-expanded={showComments}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
             <MessageCircle className="w-5 h-5" />
             <span>تعليق</span>
@@ -194,7 +203,8 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <button
             onClick={handleShare}
             disabled={shareMutation.isPending}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+            aria-label="مشاركة المنشور"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
           >
             <Share2 className="w-5 h-5" />
             <span>مشاركة</span>
@@ -203,6 +213,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <button
             onClick={handleSave}
             disabled={saveMutation.isPending}
+            aria-label={post.isSaved ? 'إلغاء الحفظ' : 'حفظ المنشور'}
             className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
               post.isSaved
                 ? 'bg-green-50 text-green-600'

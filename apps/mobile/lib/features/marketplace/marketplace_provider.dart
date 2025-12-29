@@ -11,6 +11,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import '../../core/config/api_config.dart';
 
 // =============================================================================
 // Models
@@ -560,8 +561,8 @@ final marketUserIdProvider = StateProvider<String>((ref) => '');
 
 /// مزود رابط API
 final marketApiUrlProvider = Provider<String>((ref) {
-  const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction ? 'https://api.sahool.io' : 'http://localhost:3010';
+  // Use ApiConfig which handles production/development/emulator detection
+  return ApiConfig.marketplaceServiceUrl;
 });
 
 /// مزود السوق الرئيسي

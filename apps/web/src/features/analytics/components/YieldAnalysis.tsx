@@ -52,8 +52,9 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
           <h3 className="text-lg font-semibold text-gray-900">
             تحليل المحصول
           </h3>
-          <div className="flex gap-2">
+          <div className="flex gap-2" data-testid="chart-type-toggle">
             <button
+              data-testid="chart-type-bar"
               onClick={() => setChartType('bar')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 chartType === 'bar'
@@ -64,6 +65,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
               أعمدة
             </button>
             <button
+              data-testid="chart-type-line"
               onClick={() => setChartType('line')}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 chartType === 'line'
@@ -76,7 +78,7 @@ export const YieldAnalysis: React.FC<YieldAnalysisProps> = ({ filters }) => {
           </div>
         </div>
 
-        <div className="mt-6" style={{ height: '400px' }}>
+        <div className="mt-6" style={{ height: '400px' }} data-testid="yield-analysis-chart">
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'bar' ? (
               <BarChart data={chartData}>

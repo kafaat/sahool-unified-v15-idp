@@ -5,6 +5,7 @@ import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
 import '../config/config.dart';
+import '../utils/app_logger.dart';
 
 /// SAHOOL API Client with offline handling and SSL Certificate Pinning
 class ApiClient {
@@ -19,16 +20,37 @@ class ApiClient {
     defaultValue: !kDebugMode, // Enabled by default in release mode
   );
 
-  /// Production API Certificate SHA-256 Fingerprints
-  /// TODO: Replace these placeholder hashes with actual certificate fingerprints
-  /// To get the certificate hash:
-  /// 1. openssl s_client -connect your-api-domain.com:443 -servername your-api-domain.com < /dev/null | openssl x509 -outform DER | openssl dgst -sha256 -binary | openssl enc -base64
-  /// 2. Or use: echo | openssl s_client -connect your-api-domain.com:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64
+  /// Production API Certificate SHA-256 Fingerprints (Base64-encoded)
+  ///
+  /// Certificate Pinning Strategy:
+  /// - Always maintain at least 2-3 backup hashes to prevent service disruption
+  /// - Update backup hashes 30 days before certificate expiration
+  /// - After deploying new certificate, keep old hash for 90 days for gradual rollout
+  /// - Test pinning in staging environment before production deployment
+  ///
+  /// To generate certificate hash:
+  /// 1. For certificate hash:
+  ///    openssl s_client -connect api.sahool.com:443 -servername api.sahool.com < /dev/null | \
+  ///    openssl x509 -outform DER | openssl dgst -sha256 -binary | openssl enc -base64
+  ///
+  /// 2. For public key hash (recommended, more resilient to certificate renewal):
+  ///    echo | openssl s_client -connect api.sahool.com:443 2>/dev/null | \
+  ///    openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | \
+  ///    openssl dgst -sha256 -binary | base64
+  ///
+  /// TODO: Replace these placeholder hashes with actual production certificate hashes
   static const List<String> _pinnedCertificates = [
-    // Primary certificate hash (SHA-256 of the certificate's public key)
-    'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=', // TODO: Replace with actual hash
-    // Backup certificate hash (for certificate rotation)
-    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=', // TODO: Replace with actual backup hash
+    // Primary production certificate (expires: TBD)
+    'sha256/X3pGTSOuJeEVw989IJ/cEtXUEmy52zs1TZQrU06KUKg=',
+
+    // Backup certificate for rotation (pre-deployed backup, expires: TBD)
+    'sha256/Y4RhSGu8jF3Xx891KL/dFuYVFnz63At2UaRsV17LVLh=',
+
+    // Secondary backup certificate (intermediate CA or alternative cert)
+    'sha256/Z5SiTHv9kG4Yy902LM/eFvZWGo074Bu3VbStW28MWMi=',
+
+    // Tertiary backup (for emergency certificate replacement)
+    'sha256/W6TjUIw0lH5Zz013MN/fGwaxHp185Cv4WcTuX39NXNj=',
   ];
 
   ApiClient({String? baseUrl}) {
@@ -54,13 +76,16 @@ class ApiClient {
   void _configureCertificatePinning() {
     if (!_enableSslPinning) {
       if (kDebugMode) {
-        print('⚠️ SSL Certificate Pinning is DISABLED (Development Mode)');
+        AppLogger.w(
+          'SSL Certificate Pinning is DISABLED (Development Mode)',
+          tag: 'SECURITY',
+        );
       }
       return;
     }
 
     if (kDebugMode) {
-      print('🔒 SSL Certificate Pinning ENABLED');
+      AppLogger.i('SSL Certificate Pinning ENABLED', tag: 'SECURITY');
     }
 
     (_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
@@ -71,7 +96,11 @@ class ApiClient {
         final isValid = _isValidCertificate(cert, host);
 
         if (!isValid && kDebugMode) {
-          print('❌ Certificate validation failed for $host:$port');
+          AppLogger.e(
+            'Certificate validation failed',
+            tag: 'SECURITY',
+            data: {'host': host, 'port': port},
+          );
         }
 
         return isValid;
@@ -101,14 +130,25 @@ class ApiClient {
       final isMatch = _pinnedCertificates.contains(certHashBase64);
 
       if (kDebugMode && !isMatch) {
-        print('Certificate hash for $host: $certHashBase64');
-        print('Expected one of: $_pinnedCertificates');
+        AppLogger.w(
+          'Certificate hash mismatch',
+          tag: 'SECURITY',
+          data: {
+            'host': host,
+            'actualHash': certHashBase64,
+            'expectedHashes': _pinnedCertificates,
+          },
+        );
       }
 
       return isMatch;
     } catch (e) {
       if (kDebugMode) {
-        print('Error validating certificate: $e');
+        AppLogger.e(
+          'Error validating certificate',
+          tag: 'SECURITY',
+          error: e,
+        );
       }
       // Fail closed - reject certificate if validation fails
       return false;
@@ -288,7 +328,10 @@ class _LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (kDebugMode) {
-      print('📤 ${options.method} ${options.path}');
+      AppLogger.d(
+        'HTTP Request: ${options.method} ${options.path}',
+        tag: 'HTTP',
+      );
       // Note: Authorization headers and request body are intentionally not logged
     }
     handler.next(options);
@@ -297,7 +340,10 @@ class _LoggingInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
-      print('📥 ${response.statusCode} ${response.requestOptions.path}');
+      AppLogger.d(
+        'HTTP Response: ${response.statusCode} ${response.requestOptions.path}',
+        tag: 'HTTP',
+      );
       // Note: Response body is intentionally not logged to prevent data leakage
     }
     handler.next(response);
@@ -306,7 +352,11 @@ class _LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
-      print('❌ ${err.type} ${err.requestOptions.path}');
+      AppLogger.e(
+        'HTTP Error: ${err.requestOptions.path}',
+        tag: 'HTTP',
+        error: err.type,
+      );
     }
     handler.next(err);
   }

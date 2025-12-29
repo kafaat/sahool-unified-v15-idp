@@ -222,12 +222,13 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           أقسام التقرير
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="report-sections-grid">
           {reportSections.map((section) => {
             const enabled = config.sections.find((s) => s.type === section.type)?.enabled || false;
             return (
               <div
                 key={section.type}
+                data-testid={`report-section-${section.type}`}
                 onClick={() => toggleSection(section.type)}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                   enabled

@@ -34,14 +34,14 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="loading-state">
         <div className="flex items-center justify-between">
           <div className="h-10 w-64 bg-gray-200 rounded-lg animate-pulse" />
           <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-96 bg-gray-200 rounded-xl animate-pulse" />
+            <div key={`skeleton-product-${i}`} className="h-96 bg-gray-200 rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -84,7 +84,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50"
+              aria-label={showFilters ? 'إخفاء الفلاتر' : 'عرض الفلاتر'}
+              aria-expanded={showFilters}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Filter className="w-5 h-5" />
               <span>فلتر</span>
@@ -97,7 +99,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
           <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg">
             <button
               onClick={() => handleCategoryFilter(undefined)}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              aria-label="عرض جميع الفئات"
+              aria-pressed={!filters.category}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 !filters.category
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -107,7 +111,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('seeds')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              aria-label="تصفية حسب البذور"
+              aria-pressed={filters.category === 'seeds'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'seeds'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -117,7 +123,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('fertilizers')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              aria-label="تصفية حسب الأسمدة"
+              aria-pressed={filters.category === 'fertilizers'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'fertilizers'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -127,7 +135,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('pesticides')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              aria-label="تصفية حسب المبيدات"
+              aria-pressed={filters.category === 'pesticides'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'pesticides'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -137,7 +147,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('equipment')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              aria-label="تصفية حسب المعدات"
+              aria-pressed={filters.category === 'equipment'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'equipment'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -147,7 +159,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('tools')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              aria-label="تصفية حسب الأدوات"
+              aria-pressed={filters.category === 'tools'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'tools'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'

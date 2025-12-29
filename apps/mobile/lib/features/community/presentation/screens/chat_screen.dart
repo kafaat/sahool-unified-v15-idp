@@ -62,28 +62,51 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     );
 
     // Listen for messages
-    _messageSubscription = chatRepo.messageStream.listen((message) {
-      setState(() {
-        _messages.add(message);
-      });
-      _scrollToBottom();
-    });
+    _messageSubscription = chatRepo.messageStream.listen(
+      (message) {
+        setState(() {
+          _messages.add(message);
+        });
+        _scrollToBottom();
+      },
+      onError: (error) {
+        // Handle message stream errors
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('خطأ في استقبال الرسائل: ${error.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+    );
 
     // Listen for typing indicators
-    _typingSubscription = chatRepo.typingStream.listen((data) {
-      setState(() {
-        _isTyping = data['isTyping'] ?? false;
-        _typingUser = data['userName'];
-      });
-    });
+    _typingSubscription = chatRepo.typingStream.listen(
+      (data) {
+        setState(() {
+          _isTyping = data['isTyping'] ?? false;
+          _typingUser = data['userName'];
+        });
+      },
+      onError: (error) {
+        // Silent fail for typing indicators
+      },
+    );
 
     // Listen for expert joining
-    _expertJoinedSubscription = chatRepo.expertJoinedStream.listen((data) {
-      setState(() {
-        _expertJoined = true;
-      });
-      _showExpertJoinedSnackbar(data['expertName'] ?? 'خبير');
-    });
+    _expertJoinedSubscription = chatRepo.expertJoinedStream.listen(
+      (data) {
+        setState(() {
+          _expertJoined = true;
+        });
+        _showExpertJoinedSnackbar(data['expertName'] ?? 'خبير');
+      },
+      onError: (error) {
+        // Silent fail for expert joined events
+      },
+    );
 
     // Add welcome message
     _addSystemMessage('مرحباً بك في محادثة الخبراء. سيتم توصيلك بخبير زراعي قريباً...');

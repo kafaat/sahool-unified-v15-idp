@@ -78,6 +78,7 @@ export const HealthDashboard: React.FC = () => {
             <div className="relative">
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
+                data-testid="health-dashboard-search"
                 type="text"
                 placeholder="ابحث في الحقول..."
                 className="pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent w-64"
@@ -95,6 +96,7 @@ export const HealthDashboard: React.FC = () => {
             {alerts.map((alert) => (
               <div
                 key={alert.id}
+                data-testid="disease-alert"
                 className="bg-red-50 border-r-4 border-red-500 p-4 rounded-lg"
               >
                 <div className="flex items-start gap-3">
@@ -123,7 +125,7 @@ export const HealthDashboard: React.FC = () => {
 
         {/* Summary Cards */}
         {summaryLoading ? (
-          <div className="flex items-center justify-center h-64">
+          <div data-testid="health-dashboard-loading" className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
           </div>
         ) : summary ? (
@@ -131,7 +133,7 @@ export const HealthDashboard: React.FC = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {/* Healthy Fields */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div data-testid="stat-healthy-fields" className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">حقول صحية</p>
@@ -147,7 +149,7 @@ export const HealthDashboard: React.FC = () => {
               </div>
 
               {/* At Risk */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div data-testid="stat-at-risk" className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">معرضة للخطر</p>
@@ -163,7 +165,7 @@ export const HealthDashboard: React.FC = () => {
               </div>
 
               {/* Diseased */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div data-testid="stat-diseased" className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">حقول مصابة</p>
@@ -179,7 +181,7 @@ export const HealthDashboard: React.FC = () => {
               </div>
 
               {/* Average Health Score */}
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div data-testid="stat-avg-health" className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">متوسط الصحة</p>
@@ -195,7 +197,7 @@ export const HealthDashboard: React.FC = () => {
 
             {/* Top Diseases */}
             {summary.topDiseases && summary.topDiseases.length > 0 && (
-              <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
+              <div data-testid="top-diseases" className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
                   الأمراض الأكثر انتشاراً
                 </h3>
@@ -231,7 +233,7 @@ export const HealthDashboard: React.FC = () => {
         {/* Health Records */}
         {recordsLoading ? (
           <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500" data-testid="loading-spinner"></div>
           </div>
         ) : records && records.length > 0 ? (
           <div className="space-y-4">
@@ -244,6 +246,7 @@ export const HealthDashboard: React.FC = () => {
                 return (
                   <div
                     key={record.id}
+                    data-testid="health-record"
                     className={`p-6 rounded-xl shadow-sm border-2 ${config.bg} ${config.border}`}
                   >
                     <div className="flex items-start justify-between mb-4">

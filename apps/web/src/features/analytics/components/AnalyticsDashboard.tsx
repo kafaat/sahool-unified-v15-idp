@@ -72,13 +72,14 @@ export const AnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Tabs */}
-          <div className="mt-6 flex gap-4 overflow-x-auto">
+          <div className="mt-6 flex gap-4 overflow-x-auto" data-testid="analytics-tabs-container">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  data-testid={`tab-${tab.id}`}
                   className={`
                     flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap
                     ${
@@ -101,43 +102,43 @@ export const AnalyticsDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {summaryLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" data-testid="loading-spinner"></div>
           </div>
         ) : (
           <>
             {/* Summary Stats */}
             {summary && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-testid="summary-stats-grid">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-area">
                   <p className="text-sm text-gray-600">إجمالي المساحة</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalArea.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">هكتار</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-yield">
                   <p className="text-sm text-gray-600">إجمالي المحصول</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalYield.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">كجم</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">كجم</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-profit">
                   <p className="text-sm text-gray-600">صافي الربح</p>
                   <p className="text-3xl font-bold text-green-600 mt-2">
                     {summary.totalProfit.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">ريال</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">ريال</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-avg-productivity">
                   <p className="text-sm text-gray-600">متوسط الإنتاجية</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.averageYieldPerHectare.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">كجم/هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">كجم/هكتار</p>
                 </div>
               </div>
             )}

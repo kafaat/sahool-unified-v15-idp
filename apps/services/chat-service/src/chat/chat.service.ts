@@ -84,31 +84,31 @@ export class ChatService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                senderId: { not: userId },
+                isRead: false,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         updatedAt: 'desc',
       },
     });
 
-    // Calculate unread count for each conversation
-    const conversationsWithUnread = await Promise.all(
-      conversations.map(async (conv) => {
-        const participant = conv.participants[0];
-        const unreadCount = await this.prisma.message.count({
-          where: {
-            conversationId: conv.id,
-            senderId: { not: userId },
-            isRead: false,
-          },
-        });
-
-        return {
-          ...conv,
-          unreadCount,
-          lastReadAt: participant?.lastReadAt,
-        };
-      }),
-    );
+    // Map conversations with unread count from aggregation
+    const conversationsWithUnread = conversations.map((conv) => {
+      const participant = conv.participants[0];
+      return {
+        ...conv,
+        unreadCount: conv._count.messages,
+        lastReadAt: participant?.lastReadAt,
+      };
+    });
 
     return conversationsWithUnread;
   }

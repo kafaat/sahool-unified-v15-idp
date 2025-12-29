@@ -33,6 +33,10 @@ class EventEnvelope(BaseModel):
     # Multi-tenancy and tracing
     tenant_id: UUID = Field(..., description="Tenant that owns this event")
     correlation_id: UUID = Field(..., description="Correlation ID for request tracing")
+    idempotency_key: str | None = Field(
+        None,
+        description="Idempotency key for duplicate event detection. If not provided, event_id is used."
+    )
 
     # Timing
     occurred_at: datetime = Field(
@@ -55,6 +59,7 @@ class EventEnvelope(BaseModel):
             "event_version": self.event_version,
             "tenant_id": str(self.tenant_id),
             "correlation_id": str(self.correlation_id),
+            "idempotency_key": self.idempotency_key,
             "occurred_at": self.occurred_at.isoformat(),
             "schema_ref": self.schema_ref,
             "producer": self.producer,

@@ -15,6 +15,7 @@ import {
   HttpStatus,
   UseGuards,
   ValidationPipe,
+  HttpException,
 } from '@nestjs/common';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
@@ -71,13 +72,57 @@ export class AppController {
     @Query('minPrice') minPrice?: string,
     @Query('maxPrice') maxPrice?: string,
   ) {
-    return this.marketService.findAllProducts({
-      category,
-      governorate,
-      sellerId,
-      minPrice: minPrice ? parseFloat(minPrice) : undefined,
-      maxPrice: maxPrice ? parseFloat(maxPrice) : undefined,
-    });
+    try {
+      // Validate and sanitize price parameters
+      let validatedMinPrice: number | undefined;
+      let validatedMaxPrice: number | undefined;
+
+      if (minPrice) {
+        const parsedMin = parseFloat(minPrice);
+        if (isNaN(parsedMin) || parsedMin < 0) {
+          throw new HttpException(
+            'Invalid minPrice: must be a positive number',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        validatedMinPrice = parsedMin;
+      }
+
+      if (maxPrice) {
+        const parsedMax = parseFloat(maxPrice);
+        if (isNaN(parsedMax) || parsedMax < 0) {
+          throw new HttpException(
+            'Invalid maxPrice: must be a positive number',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        validatedMaxPrice = parsedMax;
+      }
+
+      // Ensure minPrice is not greater than maxPrice
+      if (validatedMinPrice !== undefined && validatedMaxPrice !== undefined && validatedMinPrice > validatedMaxPrice) {
+        throw new HttpException(
+          'minPrice cannot be greater than maxPrice',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      return await this.marketService.findAllProducts({
+        category,
+        governorate,
+        sellerId,
+        minPrice: validatedMinPrice,
+        maxPrice: validatedMaxPrice,
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        error.message || 'Failed to get products',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -86,7 +131,14 @@ export class AppController {
    */
   @Get('market/products/:id')
   async getProduct(@Param('id') id: string) {
-    return this.marketService.findProductById(id);
+    try {
+      return await this.marketService.findProductById(id);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to get product',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -108,7 +160,14 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async listHarvest(@Body(ValidationPipe) body: ListHarvestDto) {
-    return this.marketService.convertYieldToProduct(body.userId, body.yieldData);
+    try {
+      return await this.marketService.convertYieldToProduct(body.userId, body.yieldData);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to list harvest',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**
@@ -194,10 +253,30 @@ export class AppController {
     @Param('walletId') walletId: string,
     @Query('limit') limit?: string,
   ) {
-    return this.fintechService.getTransactions(
-      walletId,
-      limit ? parseInt(limit) : 20,
-    );
+    try {
+      // Validate and sanitize limit parameter
+      let validatedLimit = 20;
+      if (limit) {
+        const parsedLimit = parseInt(limit, 10);
+        if (isNaN(parsedLimit) || parsedLimit < 1) {
+          throw new HttpException(
+            'Invalid limit: must be a positive number',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        validatedLimit = Math.min(parsedLimit, 100); // Max 100 transactions
+      }
+
+      return await this.fintechService.getTransactions(walletId, validatedLimit);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        error.message || 'Failed to get transactions',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   /**

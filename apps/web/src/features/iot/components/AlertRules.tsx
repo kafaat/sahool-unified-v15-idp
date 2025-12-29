@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { useAlertRules, useToggleAlertRule, useDeleteAlertRule } from '../hooks/useActuators';
 import type { AlertRule } from '../types';
-import { Bell, AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
+import { AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
 
 const severityColors = {
   info: 'bg-blue-100 text-blue-800',
@@ -31,7 +31,7 @@ const conditionLabels = {
 
 export function AlertRules() {
   const [showForm, setShowForm] = useState(false);
-  const { data: rules, isLoading } = useAlertRules();
+  const { data: rules, isLoading, error } = useAlertRules();
   const toggleMutation = useToggleAlertRule();
   const deleteMutation = useDeleteAlertRule();
 
@@ -62,17 +62,22 @@ export function AlertRules() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500">فشل تحميل قواعد التنبيهات</p>
+        <p className="text-sm text-gray-400 mt-2">Failed to load alert rules</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-          <Bell className="w-6 h-6 ml-2 text-green-600" />
-          قواعد التنبيهات
-        </h2>
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center text-sm"
         >
           <Plus className="w-4 h-4 ml-2" />
           إضافة قاعدة
@@ -93,7 +98,7 @@ export function AlertRules() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-white rounded-lg shadow">
+        <div className="text-center py-12">
           <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-500">لا توجد قواعد تنبيهات</p>
           <button

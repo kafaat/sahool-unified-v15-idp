@@ -80,6 +80,7 @@ test.describe('Analytics Page', () => {
       const statsGrid = page.locator('[data-testid="summary-stats-grid"]');
       await expect(statsGrid).toBeVisible({ timeout: 5000 });
 
+
       // Look for statistics cards using data-testid
       const statCards = page.locator('[data-testid^="stat-card-"]');
       const count = await statCards.count();

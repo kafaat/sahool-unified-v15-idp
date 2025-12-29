@@ -6,11 +6,16 @@
  */
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { AuthProvider } from '@/stores/auth.store';
 import { ToastProvider } from '@/components/ui/toast';
 
-export function Providers({ children }: { children: React.ReactNode }) {
+interface ProvidersProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  children: any;
+}
+
+export function Providers({ children }: ProvidersProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({

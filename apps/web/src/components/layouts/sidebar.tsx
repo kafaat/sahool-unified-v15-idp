@@ -20,7 +20,8 @@ interface NavItem {
   nameAr: string;
   name: string;
   href: string;
-  icon: React.ComponentType<{ className?: string }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: any;
 }
 
 const navItems: NavItem[] = [

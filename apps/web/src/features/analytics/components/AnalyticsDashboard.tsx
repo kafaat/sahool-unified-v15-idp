@@ -72,7 +72,7 @@ export const AnalyticsDashboard: React.FC = () => {
           </div>
 
           {/* Tabs */}
-          <div className="mt-6 flex gap-4 overflow-x-auto">
+          <div className="mt-6 flex gap-4 overflow-x-auto" data-testid="analytics-tabs-container">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -102,7 +102,7 @@ export const AnalyticsDashboard: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {summaryLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" data-testid="loading-spinner"></div>
           </div>
         ) : (
           <>
@@ -114,7 +114,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalArea.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">هكتار</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-yield">
@@ -122,7 +122,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalYield.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">كجم</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">كجم</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-profit">
@@ -130,7 +130,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   <p className="text-3xl font-bold text-green-600 mt-2">
                     {summary.totalProfit.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">ريال</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">ريال</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-avg-productivity">
@@ -138,7 +138,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.averageYieldPerHectare.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">كجم/هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">كجم/هكتار</p>
                 </div>
               </div>
             )}

@@ -80,10 +80,8 @@ test.describe('Community Page', () => {
     test('should display posts in feed', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Look for post cards
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      // Look for post cards using data-testid
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
       console.log(`Found ${count} post cards`);
@@ -100,9 +98,7 @@ test.describe('Community Page', () => {
     test('should display post author information', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -126,9 +122,7 @@ test.describe('Community Page', () => {
     test('should display post type badges', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -148,9 +142,7 @@ test.describe('Community Page', () => {
     test('should display post content', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -177,9 +169,7 @@ test.describe('Community Page', () => {
     test('should display post statistics', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -203,9 +193,7 @@ test.describe('Community Page', () => {
     test('should display post images if present', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -228,9 +216,7 @@ test.describe('Community Page', () => {
     test('should display post tags if present', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -257,9 +243,7 @@ test.describe('Community Page', () => {
     test('should display user badges if present', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -277,9 +261,7 @@ test.describe('Community Page', () => {
     test('should display like button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -299,9 +281,7 @@ test.describe('Community Page', () => {
     test('should toggle like on post when clicked', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -325,9 +305,7 @@ test.describe('Community Page', () => {
     test('should show liked state with different styling', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -350,9 +328,7 @@ test.describe('Community Page', () => {
     test('should disable like button while request is pending', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -371,9 +347,7 @@ test.describe('Community Page', () => {
     test('should display comment button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -393,9 +367,7 @@ test.describe('Community Page', () => {
     test('should toggle comments section when comment button clicked', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -426,9 +398,7 @@ test.describe('Community Page', () => {
     test('should display comments count', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -451,9 +421,7 @@ test.describe('Community Page', () => {
     test('should display individual comments', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -487,9 +455,7 @@ test.describe('Community Page', () => {
     test('should display share button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -505,9 +471,7 @@ test.describe('Community Page', () => {
     test('should display save/bookmark button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -529,9 +493,7 @@ test.describe('Community Page', () => {
     test('should handle share button click', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -554,9 +516,7 @@ test.describe('Community Page', () => {
     test('should toggle save state when bookmark clicked', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1107,9 +1067,7 @@ test.describe('Community Page', () => {
     test('should display Arabic action button labels', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1161,9 +1119,7 @@ test.describe('Community Page', () => {
     test('should display Arabic post statistics labels', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1185,9 +1141,7 @@ test.describe('Community Page', () => {
     test('should display Arabic post type badges', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1207,9 +1161,7 @@ test.describe('Community Page', () => {
     test('should display Arabic timestamp labels', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1303,9 +1255,7 @@ test.describe('Community Page', () => {
     test('should handle multiple simultaneous interactions', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 

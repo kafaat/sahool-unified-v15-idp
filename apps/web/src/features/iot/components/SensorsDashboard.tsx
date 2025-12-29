@@ -19,7 +19,7 @@ export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) 
 
   if (sensorsLoading || statsLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12" data-testid="loading-state">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />
         <span className="mr-3 text-gray-600">جاري التحميل...</span>
       </div>

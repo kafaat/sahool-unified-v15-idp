@@ -323,13 +323,13 @@ test.describe('IoT & Sensors Page', () => {
         await sensorCard.click();
         await page.waitForTimeout(2000);
 
-        // Look for chart (SVG or canvas)
-        const chart = page.locator('svg, canvas').filter({
+        // Look for SVG chart (Recharts uses SVG)
+        const chart = page.locator('svg').filter({
           has: page.locator('path, rect')
         });
         const hasChart = await chart.isVisible({ timeout: 3000 }).catch(() => false);
 
-        console.log(`Sensor chart visible: ${hasChart}`);
+        console.log(`Sensor SVG chart visible: ${hasChart}`);
 
         if (hasChart) {
           await expect(chart.first()).toBeVisible();

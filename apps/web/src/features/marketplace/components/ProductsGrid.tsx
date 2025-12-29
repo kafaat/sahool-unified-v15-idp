@@ -34,7 +34,7 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="loading-state">
         <div className="flex items-center justify-between">
           <div className="h-10 w-64 bg-gray-200 rounded-lg animate-pulse" />
           <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse" />

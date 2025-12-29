@@ -233,7 +233,7 @@ export const HealthDashboard: React.FC = () => {
         {/* Health Records */}
         {recordsLoading ? (
           <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500" data-testid="loading-spinner"></div>
           </div>
         ) : records && records.length > 0 ? (
           <div className="space-y-4">

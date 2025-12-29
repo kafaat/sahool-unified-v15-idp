@@ -48,7 +48,7 @@ const WeatherFallback = () => (
 );
 
 const LoadingSkeleton = () => (
-  <div className="animate-pulse space-y-4">
+  <div className="animate-pulse space-y-4" data-testid="loading-state">
     <div className="h-20 bg-gray-200 rounded-xl" />
     <div className="h-20 bg-gray-200 rounded-xl" />
   </div>

@@ -163,6 +163,7 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(({ lat, lon, enabl
         role="status"
         aria-live="polite"
         aria-busy="true"
+        data-testid="loading-state"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6" dir="rtl">

@@ -11,6 +11,7 @@ from .field_analyst import FieldAnalystAgent
 from .disease_expert import DiseaseExpertAgent
 from .irrigation_advisor import IrrigationAdvisorAgent
 from .yield_predictor import YieldPredictorAgent
+from .ecological_expert import EcologicalExpertAgent
 
 __all__ = [
     "BaseAgent",
@@ -18,4 +19,5 @@ __all__ = [
     "DiseaseExpertAgent",
     "IrrigationAdvisorAgent",
     "YieldPredictorAgent",
+    "EcologicalExpertAgent",
 ]

@@ -39,6 +39,30 @@
       "version": 1,
       "owner": "advisor",
       "breaking_policy": "new_version"
+    },
+    {
+      "ref": "events.ecological.assessment:v1",
+      "file": "ecological.assessment.v1.json",
+      "topic": "ecological.assessment",
+      "version": 1,
+      "owner": "ecological",
+      "breaking_policy": "new_version"
+    },
+    {
+      "ref": "events.ecological.practice:v1",
+      "file": "ecological.practice.v1.json",
+      "topic": "ecological.practice",
+      "version": 1,
+      "owner": "ecological",
+      "breaking_policy": "new_version"
+    },
+    {
+      "ref": "events.ecological.pitfall:v1",
+      "file": "ecological.pitfall.v1.json",
+      "topic": "ecological.pitfall",
+      "version": 1,
+      "owner": "ecological",
+      "breaking_policy": "new_version"
     }
   ]
 }

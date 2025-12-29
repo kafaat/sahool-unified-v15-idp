@@ -686,6 +686,8 @@ class _SoilHealthRecordScreenState extends ConsumerState<SoilHealthRecordScreen>
         ecLevel: double.tryParse(_ecLevelController.text) ?? 0.0,
         earthwormCount: int.tryParse(_earthwormCountController.text) ?? 0,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       // حفظ السجل باستخدام المزود

@@ -124,6 +124,163 @@ enum SoilHealthStatus {
   }
 }
 
+/// نوع نسيج التربة | Soil texture type
+enum SoilTexture {
+  clay,
+  clayLoam,
+  loam,
+  sandyLoam,
+  sand,
+  silt,
+  siltLoam,
+  unknown;
+
+  String get value => switch (this) {
+    SoilTexture.clay => 'clay',
+    SoilTexture.clayLoam => 'clay_loam',
+    SoilTexture.loam => 'loam',
+    SoilTexture.sandyLoam => 'sandy_loam',
+    SoilTexture.sand => 'sand',
+    SoilTexture.silt => 'silt',
+    SoilTexture.siltLoam => 'silt_loam',
+    SoilTexture.unknown => 'unknown',
+  };
+
+  String get arabicName => switch (this) {
+    SoilTexture.clay => 'طيني',
+    SoilTexture.clayLoam => 'طيني طميي',
+    SoilTexture.loam => 'طميي',
+    SoilTexture.sandyLoam => 'رملي طميي',
+    SoilTexture.sand => 'رملي',
+    SoilTexture.silt => 'غريني',
+    SoilTexture.siltLoam => 'غريني طميي',
+    SoilTexture.unknown => 'غير معروف',
+  };
+
+  static SoilTexture fromString(String value) {
+    return SoilTexture.values.firstWhere(
+      (e) => e.value == value || e.name == value,
+      orElse: () => SoilTexture.unknown,
+    );
+  }
+}
+
+/// مصدر المياه | Water source type
+enum WaterSource {
+  well,
+  canal,
+  rainwater,
+  river,
+  municipal,
+  mixed,
+  other;
+
+  String get value => name;
+
+  String get arabicName => switch (this) {
+    WaterSource.well => 'بئر',
+    WaterSource.canal => 'قناة',
+    WaterSource.rainwater => 'مياه الأمطار',
+    WaterSource.river => 'نهر',
+    WaterSource.municipal => 'شبكة بلدية',
+    WaterSource.mixed => 'مختلط',
+    WaterSource.other => 'أخرى',
+  };
+
+  static WaterSource fromString(String value) {
+    return WaterSource.values.firstWhere(
+      (e) => e.value == value || e.name == value,
+      orElse: () => WaterSource.other,
+    );
+  }
+}
+
+/// طريقة الري | Irrigation method
+enum IrrigationMethod {
+  drip,
+  sprinkler,
+  flood,
+  furrow,
+  rainfed,
+  subsurface,
+  manual;
+
+  String get value => name;
+
+  String get arabicName => switch (this) {
+    IrrigationMethod.drip => 'تنقيط',
+    IrrigationMethod.sprinkler => 'رشاش',
+    IrrigationMethod.flood => 'غمر',
+    IrrigationMethod.furrow => 'أخاديد',
+    IrrigationMethod.rainfed => 'بعلي',
+    IrrigationMethod.subsurface => 'تحت السطح',
+    IrrigationMethod.manual => 'يدوي',
+  };
+
+  static IrrigationMethod fromString(String value) {
+    return IrrigationMethod.values.firstWhere(
+      (e) => e.value == value || e.name == value,
+      orElse: () => IrrigationMethod.manual,
+    );
+  }
+}
+
+/// نوع الممارسة الزراعية | Farm practice type
+enum PracticeType {
+  composting,
+  coverCropping,
+  cropRotation,
+  noTill,
+  reducedTillage,
+  companionPlanting,
+  mulching,
+  agroforestry,
+  integratedPestManagement,
+  organicFertilization,
+  waterHarvesting,
+  contourFarming,
+  other;
+
+  String get value => switch (this) {
+    PracticeType.composting => 'composting',
+    PracticeType.coverCropping => 'cover_cropping',
+    PracticeType.cropRotation => 'crop_rotation',
+    PracticeType.noTill => 'no_till',
+    PracticeType.reducedTillage => 'reduced_tillage',
+    PracticeType.companionPlanting => 'companion_planting',
+    PracticeType.mulching => 'mulching',
+    PracticeType.agroforestry => 'agroforestry',
+    PracticeType.integratedPestManagement => 'ipm',
+    PracticeType.organicFertilization => 'organic_fertilization',
+    PracticeType.waterHarvesting => 'water_harvesting',
+    PracticeType.contourFarming => 'contour_farming',
+    PracticeType.other => 'other',
+  };
+
+  String get arabicName => switch (this) {
+    PracticeType.composting => 'التسميد العضوي',
+    PracticeType.coverCropping => 'محاصيل التغطية',
+    PracticeType.cropRotation => 'الدورة الزراعية',
+    PracticeType.noTill => 'الزراعة بدون حراثة',
+    PracticeType.reducedTillage => 'الحراثة المخففة',
+    PracticeType.companionPlanting => 'الزراعة التصاحبية',
+    PracticeType.mulching => 'التغطية',
+    PracticeType.agroforestry => 'الحراجة الزراعية',
+    PracticeType.integratedPestManagement => 'المكافحة المتكاملة',
+    PracticeType.organicFertilization => 'التسميد العضوي',
+    PracticeType.waterHarvesting => 'حصاد المياه',
+    PracticeType.contourFarming => 'الزراعة الكنتورية',
+    PracticeType.other => 'أخرى',
+  };
+
+  static PracticeType fromString(String value) {
+    return PracticeType.values.firstWhere(
+      (e) => e.value == value || e.name == value,
+      orElse: () => PracticeType.other,
+    );
+  }
+}
+
 /// سجل التنوع البيولوجي
 class BiodiversityRecord {
   final String id;
@@ -284,7 +441,7 @@ class SoilHealthRecord {
 
   // الخصائص الفيزيائية
   final double? organicMatterPercent;
-  final String? soilTexture;
+  final SoilTexture? soilTexture;
   final double? bulkDensity;
   final double? waterInfiltrationRate;
   final double? aggregateStability;
@@ -389,7 +546,7 @@ class SoilHealthRecord {
       'sample_date': sampleDate.toIso8601String(),
       'sample_depth_cm': sampleDepthCm,
       'organic_matter_percent': organicMatterPercent,
-      'soil_texture': soilTexture,
+      'soil_texture': soilTexture?.value,
       'bulk_density': bulkDensity,
       'water_infiltration_rate': waterInfiltrationRate,
       'aggregate_stability': aggregateStability,
@@ -419,7 +576,9 @@ class SoilHealthRecord {
       sampleDate: DateTime.parse(json['sample_date'] as String),
       sampleDepthCm: json['sample_depth_cm'] as int?,
       organicMatterPercent: (json['organic_matter_percent'] as num?)?.toDouble(),
-      soilTexture: json['soil_texture'] as String?,
+      soilTexture: json['soil_texture'] != null
+          ? SoilTexture.fromString(json['soil_texture'] as String)
+          : null,
       bulkDensity: (json['bulk_density'] as num?)?.toDouble(),
       waterInfiltrationRate: (json['water_infiltration_rate'] as num?)?.toDouble(),
       aggregateStability: (json['aggregate_stability'] as num?)?.toDouble(),
@@ -449,7 +608,7 @@ class SoilHealthRecord {
     DateTime? sampleDate,
     int? sampleDepthCm,
     double? organicMatterPercent,
-    String? soilTexture,
+    SoilTexture? soilTexture,
     double? bulkDensity,
     double? waterInfiltrationRate,
     double? aggregateStability,
@@ -508,8 +667,8 @@ class WaterConservationRecord {
 
   // استخدام المياه
   final double? waterUsedLiters;
-  final String? waterSource;
-  final String? irrigationMethod;
+  final WaterSource? waterSource;
+  final IrrigationMethod? irrigationMethod;
 
   // مقاييس الكفاءة
   final double? waterPerHectare;
@@ -570,8 +729,8 @@ class WaterConservationRecord {
       'record_date': recordDate.toIso8601String(),
       'period_type': periodType,
       'water_used_liters': waterUsedLiters,
-      'water_source': waterSource,
-      'irrigation_method': irrigationMethod,
+      'water_source': waterSource?.value,
+      'irrigation_method': irrigationMethod?.value,
       'water_per_hectare': waterPerHectare,
       'efficiency_percentage': efficiencyPercentage,
       'comparison_to_baseline': comparisonToBaseline,
@@ -596,8 +755,12 @@ class WaterConservationRecord {
       recordDate: DateTime.parse(json['record_date'] as String),
       periodType: json['period_type'] as String,
       waterUsedLiters: (json['water_used_liters'] as num?)?.toDouble(),
-      waterSource: json['water_source'] as String?,
-      irrigationMethod: json['irrigation_method'] as String?,
+      waterSource: json['water_source'] != null
+          ? WaterSource.fromString(json['water_source'] as String)
+          : null,
+      irrigationMethod: json['irrigation_method'] != null
+          ? IrrigationMethod.fromString(json['irrigation_method'] as String)
+          : null,
       waterPerHectare: (json['water_per_hectare'] as num?)?.toDouble(),
       efficiencyPercentage: (json['efficiency_percentage'] as num?)?.toDouble(),
       comparisonToBaseline: (json['comparison_to_baseline'] as num?)?.toDouble(),
@@ -620,8 +783,8 @@ class WaterConservationRecord {
     DateTime? recordDate,
     String? periodType,
     double? waterUsedLiters,
-    String? waterSource,
-    String? irrigationMethod,
+    WaterSource? waterSource,
+    IrrigationMethod? irrigationMethod,
     double? waterPerHectare,
     double? efficiencyPercentage,
     double? comparisonToBaseline,
@@ -670,7 +833,7 @@ class FarmPracticeRecord {
   final String practiceId;
   final String practiceName;
   final String? practiceNameAr;
-  final String category;
+  final PracticeType practiceType;
 
   // التنفيذ
   final PracticeStatus status;
@@ -705,7 +868,7 @@ class FarmPracticeRecord {
     required this.practiceId,
     required this.practiceName,
     this.practiceNameAr,
-    required this.category,
+    required this.practiceType,
     required this.status,
     this.startDate,
     this.implementationDate,
@@ -743,7 +906,7 @@ class FarmPracticeRecord {
       'practice_id': practiceId,
       'practice_name': practiceName,
       'practice_name_ar': practiceNameAr,
-      'category': category,
+      'practice_type': practiceType.value,
       'status': status.value,
       'start_date': startDate?.toIso8601String(),
       'implementation_date': implementationDate?.toIso8601String(),
@@ -772,7 +935,7 @@ class FarmPracticeRecord {
       practiceId: json['practice_id'] as String,
       practiceName: json['practice_name'] as String,
       practiceNameAr: json['practice_name_ar'] as String?,
-      category: json['category'] as String,
+      practiceType: PracticeType.fromString(json['practice_type'] as String),
       status: PracticeStatus.fromString(json['status'] as String),
       startDate: json['start_date'] != null
           ? DateTime.parse(json['start_date'] as String)
@@ -811,7 +974,7 @@ class FarmPracticeRecord {
     String? practiceId,
     String? practiceName,
     String? practiceNameAr,
-    String? category,
+    PracticeType? practiceType,
     PracticeStatus? status,
     DateTime? startDate,
     DateTime? implementationDate,
@@ -836,7 +999,7 @@ class FarmPracticeRecord {
       practiceId: practiceId ?? this.practiceId,
       practiceName: practiceName ?? this.practiceName,
       practiceNameAr: practiceNameAr ?? this.practiceNameAr,
-      category: category ?? this.category,
+      practiceType: practiceType ?? this.practiceType,
       status: status ?? this.status,
       startDate: startDate ?? this.startDate,
       implementationDate: implementationDate ?? this.implementationDate,

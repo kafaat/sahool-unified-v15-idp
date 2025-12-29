@@ -477,17 +477,19 @@ class _BiodiversityRecordScreenState extends ConsumerState<BiodiversityRecordScr
         farmId: 'default_farm', // TODO: Get from context or parameter
         surveyDate: _surveyDate!,
         surveyType: surveyType,
-        speciesObserved: _speciesCountController.text.isNotEmpty
-            ? int.parse(_speciesCountController.text)
+        speciesCount: _speciesCountController.text.isNotEmpty
+            ? int.tryParse(_speciesCountController.text) ?? 0
             : 0,
-        beneficialInsectsCount: _beneficialInsectCountController.text.isNotEmpty
-            ? int.parse(_beneficialInsectCountController.text)
+        beneficialInsectCount: _beneficialInsectCountController.text.isNotEmpty
+            ? int.tryParse(_beneficialInsectCountController.text)
             : null,
-        pollinatorsCount: _pollinatorCountController.text.isNotEmpty
-            ? int.parse(_pollinatorCountController.text)
+        pollinatorCount: _pollinatorCountController.text.isNotEmpty
+            ? int.tryParse(_pollinatorCountController.text)
             : null,
         habitatFeatures: _selectedHabitatFeatures.toList(),
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       // حفظ السجل باستخدام المزود

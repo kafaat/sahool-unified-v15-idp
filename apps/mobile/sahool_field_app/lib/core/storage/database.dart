@@ -661,33 +661,109 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Ecological Records Methods | طرق السجلات الإيكولوجية
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Biodiversity Records | سجلات التنوع البيولوجي
+  Future<List<BiodiversityRecord>> getAllBiodiversityRecords(String tenantId) {
+    return (select(biodiversityRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.surveyDate)]))
+      .get();
+  }
+
+  Stream<List<BiodiversityRecord>> watchBiodiversityRecords(String tenantId, String fieldId) {
+    return (select(biodiversityRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.surveyDate)]))
+      .watch();
+  }
+
+  Future<void> upsertBiodiversityRecord(BiodiversityRecordsCompanion record) {
+    return into(biodiversityRecords).insertOnConflictUpdate(record);
+  }
+
+  Future<void> markBiodiversitySynced(String id) {
+    return (update(biodiversityRecords)..where((r) => r.id.equals(id)))
+      .write(const BiodiversityRecordsCompanion(synced: Value(true)));
+  }
+
+  // Soil Health Records | سجلات صحة التربة
+  Future<List<SoilHealthRecord>> getAllSoilHealthRecords(String tenantId) {
+    return (select(soilHealthRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.sampleDate)]))
+      .get();
+  }
+
+  Stream<List<SoilHealthRecord>> watchSoilHealthRecords(String tenantId, String fieldId) {
+    return (select(soilHealthRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.sampleDate)]))
+      .watch();
+  }
+
+  Future<void> upsertSoilHealthRecord(SoilHealthRecordsCompanion record) {
+    return into(soilHealthRecords).insertOnConflictUpdate(record);
+  }
+
+  Future<void> markSoilHealthSynced(String id) {
+    return (update(soilHealthRecords)..where((r) => r.id.equals(id)))
+      .write(const SoilHealthRecordsCompanion(synced: Value(true)));
+  }
+
+  // Water Conservation Records | سجلات الحفاظ على المياه
+  Future<List<WaterConservationRecord>> getAllWaterRecords(String tenantId) {
+    return (select(waterConservationRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.recordDate)]))
+      .get();
+  }
+
+  Stream<List<WaterConservationRecord>> watchWaterRecords(String tenantId, String fieldId) {
+    return (select(waterConservationRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.recordDate)]))
+      .watch();
+  }
+
+  Future<void> upsertWaterRecord(WaterConservationRecordsCompanion record) {
+    return into(waterConservationRecords).insertOnConflictUpdate(record);
+  }
+
+  Future<void> markWaterRecordSynced(String id) {
+    return (update(waterConservationRecords)..where((r) => r.id.equals(id)))
+      .write(const WaterConservationRecordsCompanion(synced: Value(true)));
+  }
+
+  // Farm Practice Records | سجلات الممارسات الزراعية
+  Future<List<FarmPracticeRecord>> getAllPracticeRecords(String tenantId) {
+    return (select(farmPracticeRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.startDate)]))
+      .get();
+  }
+
+  Stream<List<FarmPracticeRecord>> watchPracticeRecords(String tenantId, String fieldId) {
+    return (select(farmPracticeRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.startDate)]))
+      .watch();
+  }
+
+  Future<void> upsertPracticeRecord(FarmPracticeRecordsCompanion record) {
+    return into(farmPracticeRecords).insertOnConflictUpdate(record);
+  }
+
+  Future<void> markPracticeRecordSynced(String id) {
+    return (update(farmPracticeRecords)..where((r) => r.id.equals(id)))
+      .write(const FarmPracticeRecordsCompanion(synced: Value(true)));
+  }
+
   // ============================================================
   // Ecological Records Sync Operations
   // ============================================================
-
-  /// Mark biodiversity record as synced
-  Future<void> markBiodiversitySynced(String recordId) async {
-    await (update(biodiversityRecords)..where((r) => r.id.equals(recordId)))
-        .write(const BiodiversityRecordsCompanion(synced: Value(true)));
-  }
-
-  /// Mark soil health record as synced
-  Future<void> markSoilHealthSynced(String recordId) async {
-    await (update(soilHealthRecords)..where((r) => r.id.equals(recordId)))
-        .write(const SoilHealthRecordsCompanion(synced: Value(true)));
-  }
-
-  /// Mark water conservation record as synced
-  Future<void> markWaterConservationSynced(String recordId) async {
-    await (update(waterConservationRecords)..where((r) => r.id.equals(recordId)))
-        .write(const WaterConservationRecordsCompanion(synced: Value(true)));
-  }
-
-  /// Mark farm practice record as synced
-  Future<void> markPracticeRecordSynced(String recordId) async {
-    await (update(farmPracticeRecords)..where((r) => r.id.equals(recordId)))
-        .write(const FarmPracticeRecordsCompanion(synced: Value(true)));
-  }
 
   /// Upsert biodiversity records from server
   Future<void> upsertBiodiversityRecordsFromServer(

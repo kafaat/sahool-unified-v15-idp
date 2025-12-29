@@ -661,14 +661,52 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  // ============================================================
-  // Ecological Records Sync Operations
-  // ============================================================
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Ecological Records Methods | طرق السجلات الإيكولوجية
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Biodiversity Records | سجلات التنوع البيولوجي
+  Future<List<BiodiversityRecord>> getAllBiodiversityRecords(String tenantId) {
+    return (select(biodiversityRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.surveyDate)]))
+      .get();
+  }
+
+  Stream<List<BiodiversityRecord>> watchBiodiversityRecords(String tenantId, String fieldId) {
+    return (select(biodiversityRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.surveyDate)]))
+      .watch();
+  }
+
+  Future<void> upsertBiodiversityRecord(BiodiversityRecordsCompanion record) {
+    return into(biodiversityRecords).insertOnConflictUpdate(record);
+  }
 
   /// Mark biodiversity record as synced
   Future<void> markBiodiversitySynced(String recordId) async {
     await (update(biodiversityRecords)..where((r) => r.id.equals(recordId)))
         .write(const BiodiversityRecordsCompanion(synced: Value(true)));
+  }
+
+  // Soil Health Records | سجلات صحة التربة
+  Future<List<SoilHealthRecord>> getAllSoilHealthRecords(String tenantId) {
+    return (select(soilHealthRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.sampleDate)]))
+      .get();
+  }
+
+  Stream<List<SoilHealthRecord>> watchSoilHealthRecords(String tenantId, String fieldId) {
+    return (select(soilHealthRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.sampleDate)]))
+      .watch();
+  }
+
+  Future<void> upsertSoilHealthRecord(SoilHealthRecordsCompanion record) {
+    return into(soilHealthRecords).insertOnConflictUpdate(record);
   }
 
   /// Mark soil health record as synced
@@ -677,10 +715,48 @@ class AppDatabase extends _$AppDatabase {
         .write(const SoilHealthRecordsCompanion(synced: Value(true)));
   }
 
+  // Water Conservation Records | سجلات الحفاظ على المياه
+  Future<List<WaterConservationRecord>> getAllWaterRecords(String tenantId) {
+    return (select(waterConservationRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.recordDate)]))
+      .get();
+  }
+
+  Stream<List<WaterConservationRecord>> watchWaterRecords(String tenantId, String fieldId) {
+    return (select(waterConservationRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.recordDate)]))
+      .watch();
+  }
+
+  Future<void> upsertWaterRecord(WaterConservationRecordsCompanion record) {
+    return into(waterConservationRecords).insertOnConflictUpdate(record);
+  }
+
   /// Mark water conservation record as synced
   Future<void> markWaterConservationSynced(String recordId) async {
     await (update(waterConservationRecords)..where((r) => r.id.equals(recordId)))
         .write(const WaterConservationRecordsCompanion(synced: Value(true)));
+  }
+
+  // Farm Practice Records | سجلات الممارسات الزراعية
+  Future<List<FarmPracticeRecord>> getAllPracticeRecords(String tenantId) {
+    return (select(farmPracticeRecords)
+      ..where((r) => r.tenantId.equals(tenantId))
+      ..orderBy([(r) => OrderingTerm.desc(r.startDate)]))
+      .get();
+  }
+
+  Stream<List<FarmPracticeRecord>> watchPracticeRecords(String tenantId, String fieldId) {
+    return (select(farmPracticeRecords)
+      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
+      ..orderBy([(r) => OrderingTerm.desc(r.startDate)]))
+      .watch();
+  }
+
+  Future<void> upsertPracticeRecord(FarmPracticeRecordsCompanion record) {
+    return into(farmPracticeRecords).insertOnConflictUpdate(record);
   }
 
   /// Mark farm practice record as synced
@@ -688,6 +764,10 @@ class AppDatabase extends _$AppDatabase {
     await (update(farmPracticeRecords)..where((r) => r.id.equals(recordId)))
         .write(const FarmPracticeRecordsCompanion(synced: Value(true)));
   }
+
+  // ============================================================
+  // Ecological Records Sync Operations
+  // ============================================================
 
   /// Upsert biodiversity records from server
   Future<void> upsertBiodiversityRecordsFromServer(

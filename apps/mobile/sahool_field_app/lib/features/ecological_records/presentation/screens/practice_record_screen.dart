@@ -673,6 +673,8 @@ class _PracticeRecordScreenState extends ConsumerState<PracticeRecordScreen> {
         observedBenefits: _observedBenefits.isNotEmpty ? _observedBenefits : null,
         challenges: _challenges.isNotEmpty ? _challenges : null,
         notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       // حفظ السجل باستخدام المزود

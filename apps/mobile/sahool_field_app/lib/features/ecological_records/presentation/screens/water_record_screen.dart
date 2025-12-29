@@ -630,6 +630,8 @@ class _WaterRecordScreenState extends ConsumerState<WaterRecordScreen> {
             ? double.parse(_rainwaterHarvestedController.text)
             : null,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
       );
 
       // حفظ السجل باستخدام المزود

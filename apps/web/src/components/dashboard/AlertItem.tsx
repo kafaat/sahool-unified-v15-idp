@@ -63,7 +63,7 @@ export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
   onDismiss,
   onAction,
 }) {
-  const config = severityConfig[alert.severity];
+  const config = severityConfig[alert.severity] || severityConfig.info;
   const timeAgo = formatTimeAgo(alert.createdAt);
 
   return (

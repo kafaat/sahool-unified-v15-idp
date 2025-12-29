@@ -109,7 +109,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
 
     try {
       await apiClient.updateTask(taskId, { status: 'completed' });
-    } catch (error) {
+    } catch (_error) {
       // Revert on failure - log to error tracking instead of console
       setTasks((prev) =>
         prev.map((t) =>

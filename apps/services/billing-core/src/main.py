@@ -37,6 +37,10 @@ from .database import get_db, init_db, close_db, check_db_connection, db_health_
 from .repository import BillingRepository
 from . import models as db_models
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("sahool-billing")
+
 # Authentication imports
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
@@ -88,9 +92,6 @@ except ImportError:
             )
         return None
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-billing")
 
 # =============================================================================
 # NATS Configuration - تكوين الرسائل

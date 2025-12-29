@@ -22,11 +22,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@sahool/api-client": ["../../packages/api-client/src"],
-      "@sahool/shared-ui": ["../../packages/shared-ui/src"],
-      "@sahool/shared-utils": ["../../packages/shared-utils/src"],
-      "@sahool/shared-hooks": ["../../packages/shared-hooks/src"]
+      "@/*": ["./src/*"]
     },
     "target": "ES2017"
   },

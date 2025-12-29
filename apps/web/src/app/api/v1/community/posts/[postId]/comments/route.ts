@@ -6,6 +6,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { Comment } from '@/features/community/types';
 
+function isAuthenticated(request: NextRequest): boolean {
+  // For development/testing, allow requests without auth
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    return true;
+  }
+  const authHeader = request.headers.get('authorization');
+  return !!authHeader && authHeader.startsWith('Bearer ');
+}
+
 // Mock comments data
 const mockComments: Record<string, Comment[]> = {
   '1': [
@@ -101,6 +110,10 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ postId: string }> }
 ) {
+  if (!isAuthenticated(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { postId } = await params;
     const body = await request.json();

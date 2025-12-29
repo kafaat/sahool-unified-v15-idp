@@ -6,6 +6,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { Post } from '@/features/community/types';
 
+function isAuthenticated(request: NextRequest): boolean {
+  // For development/testing, allow requests without auth
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    return true;
+  }
+  const authHeader = request.headers.get('authorization');
+  return !!authHeader && authHeader.startsWith('Bearer ');
+}
+
 // Mock community posts data for development and testing
 const mockPosts: Post[] = [
   {
@@ -263,6 +272,10 @@ export async function GET(request: NextRequest) {
  * Create a new community post
  */
 export async function POST(request: NextRequest) {
+  if (!isAuthenticated(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const body = await request.json();
 

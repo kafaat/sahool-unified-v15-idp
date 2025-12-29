@@ -33,15 +33,6 @@ except ImportError:
     # Fallback: define secure origins locally if shared module not available
     setup_cors_middleware = None
 
-# Import A2A Protocol Support | استيراد دعم بروتوكول A2A
-try:
-    from a2a.server import create_a2a_router
-    from .a2a_adapter import create_ai_advisor_a2a_agent
-    A2A_AVAILABLE = True
-except ImportError:
-    A2A_AVAILABLE = False
-    logger.warning("A2A protocol support not available")
-
 # Configure structured logging | تكوين السجلات المنظمة
 structlog.configure(
     processors=[
@@ -55,6 +46,15 @@ structlog.configure(
 )
 
 logger = structlog.get_logger()
+
+# Import A2A Protocol Support | استيراد دعم بروتوكول A2A
+try:
+    from a2a.server import create_a2a_router
+    from .a2a_adapter import create_ai_advisor_a2a_agent
+    A2A_AVAILABLE = True
+except ImportError:
+    A2A_AVAILABLE = False
+    logger.warning("A2A protocol support not available")
 
 
 # Pydantic models for requests/responses

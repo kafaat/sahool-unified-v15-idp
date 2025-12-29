@@ -79,6 +79,7 @@ export const AnalyticsDashboard: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
+                  data-testid={`tab-${tab.id}`}
                   className={`
                     flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap
                     ${
@@ -107,8 +108,8 @@ export const AnalyticsDashboard: React.FC = () => {
           <>
             {/* Summary Stats */}
             {summary && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-testid="summary-stats-grid">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-area">
                   <p className="text-sm text-gray-600">إجمالي المساحة</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalArea.toLocaleString('ar-SA')}
@@ -116,7 +117,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   <p className="text-sm text-gray-500 mt-1">هكتار</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-yield">
                   <p className="text-sm text-gray-600">إجمالي المحصول</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.totalYield.toLocaleString('ar-SA')}
@@ -124,7 +125,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   <p className="text-sm text-gray-500 mt-1">كجم</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-profit">
                   <p className="text-sm text-gray-600">صافي الربح</p>
                   <p className="text-3xl font-bold text-green-600 mt-2">
                     {summary.totalProfit.toLocaleString('ar-SA')}
@@ -132,7 +133,7 @@ export const AnalyticsDashboard: React.FC = () => {
                   <p className="text-sm text-gray-500 mt-1">ريال</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-avg-productivity">
                   <p className="text-sm text-gray-600">متوسط الإنتاجية</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {summary.averageYieldPerHectare.toLocaleString('ar-SA')}

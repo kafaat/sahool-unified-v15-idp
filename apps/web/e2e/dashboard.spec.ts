@@ -362,8 +362,12 @@ test.describe('Dashboard Page', () => {
       console.log(`Found ${count} error fallback messages`);
 
       // Even with errors, page should not crash
-      const heading = page.locator('h1').first();
-      await expect(heading).toBeVisible();
+      // Use data-testid for more reliable selection
+      const heading = page.locator('[data-testid="dashboard-heading"]');
+      await expect(heading).toBeVisible({ timeout: 10000 });
+
+      // Verify the heading contains the welcome message
+      await expect(heading).toContainText('مرحباً');
     });
   });
 });

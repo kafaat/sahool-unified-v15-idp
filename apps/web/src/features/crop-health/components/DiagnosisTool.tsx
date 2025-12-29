@@ -132,7 +132,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6" dir="rtl">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+        <h2 data-testid="diagnosis-tool-heading" className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Camera className="w-6 h-6 text-green-500" />
           تشخيص الأمراض بالذكاء الاصطناعي
         </h2>
@@ -144,7 +144,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <div data-testid="diagnosis-error" className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <p className="text-sm text-red-800">{error}</p>
           </div>
@@ -178,6 +178,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
                 <Upload className="w-8 h-8 text-gray-400 mb-2" />
                 <span className="text-sm text-gray-600">تحميل صورة</span>
                 <input
+                  data-testid="diagnosis-image-upload"
                   type="file"
                   accept="image/*"
                   multiple
@@ -199,6 +200,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
             نوع المحصول *
           </label>
           <select
+            data-testid="diagnosis-crop-type"
             value={cropType}
             onChange={(e) => setCropType(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -220,6 +222,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
             وصف الأعراض (اختياري)
           </label>
           <textarea
+            data-testid="diagnosis-description"
             value={descriptionAr}
             onChange={(e) => setDescriptionAr(e.target.value)}
             rows={3}
@@ -232,6 +235,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
         {/* Submit Button */}
         <div className="flex justify-end gap-4">
           <button
+            data-testid="diagnosis-reset"
             type="button"
             onClick={() => {
               setImages([]);
@@ -247,6 +251,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
             إعادة تعيين
           </button>
           <button
+            data-testid="diagnosis-submit"
             type="submit"
             disabled={isLoading || images.length === 0 || !cropType}
             className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -267,7 +272,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
       </form>
 
       {/* Info Box */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div data-testid="diagnosis-tips" className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-start gap-3">
           <FileImage className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-blue-900">

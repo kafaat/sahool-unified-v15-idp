@@ -164,6 +164,15 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(({ lat, lon, enabl
         aria-live="polite"
         aria-busy="true"
       >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6" dir="rtl">
+          <h2 className="text-2xl font-bold text-gray-900">
+            الطقس الحالي
+          </h2>
+          <span className="text-sm text-gray-600" dir="ltr">
+            Current Weather
+          </span>
+        </div>
         <div className="h-64 flex items-center justify-center">
           <div className="animate-pulse text-gray-400" dir="rtl">
             جاري تحميل بيانات الطقس...
@@ -181,6 +190,15 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(({ lat, lon, enabl
         role="alert"
         aria-live="assertive"
       >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6" dir="rtl">
+          <h2 className="text-2xl font-bold text-gray-900">
+            الطقس الحالي
+          </h2>
+          <span className="text-sm text-gray-600" dir="ltr">
+            Current Weather
+          </span>
+        </div>
         <div className="text-center py-8">
           <Cloud className="w-16 h-16 mx-auto mb-4 text-red-300" aria-hidden="true" />
           <p className="text-gray-700 mb-2" dir="rtl">
@@ -214,6 +232,15 @@ export const CurrentWeather = React.memo<CurrentWeatherProps>(({ lat, lon, enabl
         role="status"
         aria-live="polite"
       >
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6" dir="rtl">
+          <h2 className="text-2xl font-bold text-gray-900">
+            الطقس الحالي
+          </h2>
+          <span className="text-sm text-gray-600" dir="ltr">
+            Current Weather
+          </span>
+        </div>
         <div className="text-center py-8 text-gray-500">
           <Cloud className="w-16 h-16 mx-auto mb-4 opacity-20" aria-hidden="true" />
           <p dir="rtl">بيانات الطقس غير متوفرة</p>

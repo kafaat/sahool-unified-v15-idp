@@ -71,8 +71,8 @@ test.describe('Analytics Page', () => {
     test('should display summary statistics cards', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for statistics cards
-      const statCards = page.locator('[class*="grid"] > div[class*="bg-white"]');
+      // Look for statistics cards using data-testid
+      const statCards = page.locator('[data-testid^="stat-card-"]');
       const count = await statCards.count();
 
       console.log(`Found ${count} summary stat cards`);
@@ -133,8 +133,8 @@ test.describe('Analytics Page', () => {
     test('should display chart in yield analysis tab', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Click on Yield Analysis tab
-      const yieldTab = page.locator('button:has-text("تحليل المحصول"), button:has-text("Yield Analysis")').first();
+      // Click on Yield Analysis tab using data-testid
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -151,8 +151,8 @@ test.describe('Analytics Page', () => {
     test('should display chart type toggle in yield analysis', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Navigate to yield analysis tab
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      // Navigate to yield analysis tab using data-testid
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -173,8 +173,8 @@ test.describe('Analytics Page', () => {
     test('should switch between chart types', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Navigate to yield analysis tab
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      // Navigate to yield analysis tab using data-testid
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -207,8 +207,8 @@ test.describe('Analytics Page', () => {
     test('should display chart legends', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Navigate to yield analysis
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      // Navigate to yield analysis using data-testid
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -225,8 +225,8 @@ test.describe('Analytics Page', () => {
     test('should display tooltips on chart hover', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Navigate to yield analysis
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      // Navigate to yield analysis using data-testid
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -317,8 +317,8 @@ test.describe('Analytics Page', () => {
     test('should display date range inputs in reports tab', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Navigate to Reports tab
-      const reportsTab = page.locator('button:has-text("التقارير"), button:has-text("Reports")').first();
+      // Navigate to Reports tab using data-testid
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -336,7 +336,7 @@ test.describe('Analytics Page', () => {
     test('should set start date', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -357,7 +357,7 @@ test.describe('Analytics Page', () => {
     test('should set end date', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -379,7 +379,7 @@ test.describe('Analytics Page', () => {
     test('should handle date range validation', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -405,7 +405,7 @@ test.describe('Analytics Page', () => {
     test('should display report configuration section', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير"), button:has-text("Reports")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -420,7 +420,7 @@ test.describe('Analytics Page', () => {
     test('should display report title input', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -439,7 +439,7 @@ test.describe('Analytics Page', () => {
     test('should display format selector', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -462,7 +462,7 @@ test.describe('Analytics Page', () => {
     test('should change export format', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -489,7 +489,7 @@ test.describe('Analytics Page', () => {
     test('should display language selector', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -511,7 +511,7 @@ test.describe('Analytics Page', () => {
     test('should display report sections toggles', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -535,7 +535,7 @@ test.describe('Analytics Page', () => {
     test('should toggle report sections', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -563,7 +563,7 @@ test.describe('Analytics Page', () => {
     test('should display generate report button', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -578,7 +578,7 @@ test.describe('Analytics Page', () => {
     test('should handle report generation click', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -610,7 +610,7 @@ test.describe('Analytics Page', () => {
     test('should display include charts checkbox', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -634,7 +634,7 @@ test.describe('Analytics Page', () => {
     test('should navigate to overview tab', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const overviewTab = page.locator('button:has-text("نظرة عامة"), button:has-text("Overview")').first();
+      const overviewTab = page.locator('[data-testid="tab-overview"]');
 
       if (await overviewTab.isVisible({ timeout: 3000 })) {
         await overviewTab.click();
@@ -649,7 +649,7 @@ test.describe('Analytics Page', () => {
     test('should navigate to yield analysis tab', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const yieldTab = page.locator('button:has-text("تحليل المحصول"), button:has-text("Yield Analysis")').first();
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -666,7 +666,7 @@ test.describe('Analytics Page', () => {
     test('should navigate to cost analysis tab', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const costTab = page.locator('button:has-text("تحليل التكاليف"), button:has-text("Cost Analysis")').first();
+      const costTab = page.locator('[data-testid="tab-cost"]');
 
       if (await costTab.isVisible({ timeout: 3000 })) {
         await costTab.click();
@@ -681,7 +681,7 @@ test.describe('Analytics Page', () => {
     test('should navigate to reports tab', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير"), button:has-text("Reports")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -697,14 +697,14 @@ test.describe('Analytics Page', () => {
       await page.waitForTimeout(2000);
 
       // Switch to yield analysis
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
         await page.waitForTimeout(1000);
       }
 
       // Switch back to overview
-      const overviewTab = page.locator('button:has-text("نظرة عامة")').first();
+      const overviewTab = page.locator('[data-testid="tab-overview"]');
       if (await overviewTab.isVisible({ timeout: 3000 })) {
         await overviewTab.click();
         await page.waitForTimeout(1000);
@@ -756,7 +756,7 @@ test.describe('Analytics Page', () => {
     test('should show loading state in report generation', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -779,7 +779,7 @@ test.describe('Analytics Page', () => {
     test('should handle chart loading in yield analysis', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -817,7 +817,7 @@ test.describe('Analytics Page', () => {
     test('should display error message on report generation failure', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();
@@ -850,7 +850,7 @@ test.describe('Analytics Page', () => {
     test('should handle empty yield data', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -957,7 +957,7 @@ test.describe('Analytics Page', () => {
       await waitForPageLoad(page);
       await page.waitForTimeout(2000);
 
-      const yieldTab = page.locator('button:has-text("تحليل المحصول")').first();
+      const yieldTab = page.locator('[data-testid="tab-yield"]');
 
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
@@ -1038,7 +1038,7 @@ test.describe('Analytics Page', () => {
     test('should have accessible form labels', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const reportsTab = page.locator('button:has-text("التقارير")').first();
+      const reportsTab = page.locator('[data-testid="tab-reports"]');
 
       if (await reportsTab.isVisible({ timeout: 3000 })) {
         await reportsTab.click();

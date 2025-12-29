@@ -16,6 +16,11 @@ import '../../features/advisor/ui/advisor_screen.dart';
 import '../../features/scanner/ui/scanner_screen.dart';
 import '../../features/scouting/ui/scouting_screen.dart';
 import '../../features/sync/ui/sync_screen.dart';
+import '../../features/ecological_records/presentation/screens/ecological_dashboard_screen.dart';
+import '../../features/ecological_records/presentation/screens/biodiversity_record_screen.dart';
+import '../../features/ecological_records/presentation/screens/soil_health_record_screen.dart';
+import '../../features/ecological_records/presentation/screens/water_record_screen.dart';
+import '../../features/ecological_records/presentation/screens/practice_record_screen.dart';
 
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
@@ -150,6 +155,51 @@ class AppRouter {
         path: '/sync',
         name: 'sync',
         builder: (context, state) => const SyncScreen(),
+      ),
+
+      // ═══════════════════════════════════════════════════════════════════════
+      // Ecological Records Routes
+      // مسارات السجلات البيئية
+      // ═══════════════════════════════════════════════════════════════════════
+
+      GoRoute(
+        path: '/ecological',
+        name: 'ecological-dashboard',
+        builder: (context, state) => const EcologicalDashboardScreen(),
+      ),
+
+      GoRoute(
+        path: '/ecological/biodiversity',
+        name: 'biodiversity-record',
+        builder: (context, state) => const BiodiversityRecordScreen(),
+      ),
+
+      GoRoute(
+        path: '/ecological/soil-health',
+        name: 'soil-health-record',
+        builder: (context, state) => const SoilHealthRecordScreen(),
+      ),
+
+      GoRoute(
+        path: '/ecological/water',
+        name: 'water-record',
+        builder: (context, state) => const WaterRecordScreen(),
+      ),
+
+      GoRoute(
+        path: '/ecological/practice',
+        name: 'practice-record',
+        builder: (context, state) => const PracticeRecordScreen(),
+      ),
+
+      // Field-specific ecological dashboard
+      GoRoute(
+        path: '/field/:id/ecological',
+        name: 'field-ecological',
+        builder: (context, state) {
+          final fieldId = state.pathParameters['id']!;
+          return EcologicalDashboardScreen(fieldId: fieldId);
+        },
       ),
     ],
 

@@ -70,11 +70,11 @@ const mockComments: Record<string, Comment[]> = {
  * Fetch comments for a specific post
  */
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { postId: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const { postId } = params;
+    const { postId } = await params;
 
     const comments = mockComments[postId] || [];
 
@@ -99,10 +99,10 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { postId: string } }
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const { postId } = params;
+    const { postId } = await params;
     const body = await request.json();
 
     const newComment: Comment = {

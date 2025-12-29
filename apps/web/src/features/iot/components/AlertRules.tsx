@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { useAlertRules, useToggleAlertRule, useDeleteAlertRule } from '../hooks/useActuators';
 import type { AlertRule } from '../types';
-import { Bell, AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
+import { AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
 
 const severityColors = {
   info: 'bg-blue-100 text-blue-800',

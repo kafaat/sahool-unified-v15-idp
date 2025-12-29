@@ -6,11 +6,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { postId: string } }
+  _request: NextRequest,
+  { params }: { params: Promise<{ postId: string }> }
 ) {
   try {
-    const { postId } = params;
+    const { postId } = await params;
 
     // In a real application, this would increment share count in database
     // For now, just return success

@@ -7,7 +7,7 @@
 
 import { useActuators, useControlActuator, useSetActuatorMode } from '../hooks/useActuators';
 import type { Actuator, ActuatorStatus } from '../types';
-import { Power, Loader2, Settings, Zap } from 'lucide-react';
+import { Power, Loader2, Settings } from 'lucide-react';
 
 const statusColors: Record<string, string> = {
   on: 'bg-green-100 text-green-800',

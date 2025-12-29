@@ -69,7 +69,16 @@ test.describe('Analytics Page', () => {
 
   test.describe('Summary Statistics Cards', () => {
     test('should display summary statistics cards', async ({ page }) => {
-      await page.waitForTimeout(3000);
+      // Wait for loading spinner to disappear (indicates data has loaded or failed)
+      const loadingSpinner = page.locator('[data-testid="loading-spinner"]');
+      await loadingSpinner.waitFor({ state: 'hidden', timeout: 10000 }).catch(() => {
+        // If spinner doesn't appear or is already gone, that's okay
+        console.log('Loading spinner not found or already hidden');
+      });
+
+      // Now wait for stats grid to be visible
+      const statsGrid = page.locator('[data-testid="summary-stats-grid"]');
+      await expect(statsGrid).toBeVisible({ timeout: 5000 });
 
       // Look for statistics cards using data-testid
       const statCards = page.locator('[data-testid^="stat-card-"]');
@@ -586,19 +595,11 @@ test.describe('Analytics Page', () => {
           // Click generate button
           await generateButton.click();
 
-          // Wait for loading state or response
-          await page.waitForTimeout(2000);
+          // Wait for response
+          await page.waitForTimeout(3000);
 
-          // Should show either loading state, success, or error message
-          const loadingIndicator = page.locator('[class*="animate-spin"]');
-          const successMessage = page.locator('text=/تم إنشاء التقرير بنجاح|Report generated successfully/i');
-          const errorMessage = page.locator('text=/فشل في إنشاء التقرير|Failed to generate/i');
-
-          const hasLoading = await loadingIndicator.isVisible({ timeout: 1000 }).catch(() => false);
-          const hasSuccess = await successMessage.isVisible({ timeout: 3000 }).catch(() => false);
-          const hasError = await errorMessage.isVisible({ timeout: 2000 }).catch(() => false);
-
-          console.log(`Report generation - Loading: ${hasLoading}, Success: ${hasSuccess}, Error: ${hasError}`);
+          // Button should still be visible (test completed successfully)
+          await expect(generateButton).toBeVisible();
         }
       }
     });
@@ -712,18 +713,10 @@ test.describe('Analytics Page', () => {
     });
   });
 
-  test.describe('Loading States', () => {
-    test('should display loading indicator on initial load', async ({ page }) => {
-      // Navigate fresh to analytics
+  test.describe('Content Rendering', () => {
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto(pages.analytics);
-
-      // Look for loading spinner
-      const loadingSpinner = page.locator('[class*="animate-spin"]');
-      const hasLoading = await loadingSpinner.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Loading state shown: ${hasLoading}`);
-
-      // Wait for content to load
       await page.waitForTimeout(3000);
 
       // Content should be visible after loading
@@ -731,17 +724,17 @@ test.describe('Analytics Page', () => {
       await expect(heading).toBeVisible();
     });
 
-    test('should show loading state when changing filters', async ({ page }) => {
+    test('should display content after changing filters', async ({ page }) => {
       await page.waitForTimeout(2000);
 
       const periodSelector = page.locator('select').first();
 
       if (await periodSelector.isVisible()) {
-        // Change period and look for loading state
+        // Change period
         await periodSelector.selectOption({ index: 2 });
 
-        // Might show loading briefly
-        await page.waitForTimeout(500);
+        // Wait for content to update
+        await page.waitForTimeout(1000);
 
         // Should complete successfully
         const heading = page.locator('h1').first();
@@ -749,7 +742,7 @@ test.describe('Analytics Page', () => {
       }
     });
 
-    test('should show loading state in report generation', async ({ page }) => {
+    test('should handle report generation interaction', async ({ page }) => {
       await page.waitForTimeout(2000);
 
       const reportsTab = page.locator('[data-testid="tab-reports"]');
@@ -763,16 +756,13 @@ test.describe('Analytics Page', () => {
         if (await generateButton.isVisible()) {
           await generateButton.click();
 
-          // Look for loading text
-          const loadingText = page.locator('text=/جاري إنشاء التقرير|Generating/i');
-          const hasLoadingText = await loadingText.isVisible({ timeout: 2000 }).catch(() => false);
-
-          console.log(`Report generation loading state: ${hasLoadingText}`);
+          // Wait for operation to process
+          await page.waitForTimeout(2000);
         }
       }
     });
 
-    test('should handle chart loading in yield analysis', async ({ page }) => {
+    test('should display yield analysis tab', async ({ page }) => {
       await page.waitForTimeout(2000);
 
       const yieldTab = page.locator('[data-testid="tab-yield"]');
@@ -780,13 +770,7 @@ test.describe('Analytics Page', () => {
       if (await yieldTab.isVisible({ timeout: 3000 })) {
         await yieldTab.click();
 
-        // Look for loading spinner
-        const loadingSpinner = page.locator('[class*="animate-spin"]');
-        const hasLoading = await loadingSpinner.isVisible({ timeout: 1000 }).catch(() => false);
-
-        console.log(`Yield chart loading state: ${hasLoading}`);
-
-        // Wait for chart to load
+        // Wait for chart to render
         await page.waitForTimeout(3000);
       }
     });

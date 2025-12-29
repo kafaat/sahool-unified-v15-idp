@@ -126,18 +126,14 @@ test.describe('Health Dashboard View', () => {
     }
   });
 
-  test('should display loading state while fetching data', async ({ page }) => {
-    // Navigate fresh to catch loading state
+  test('should display content after page load', async ({ page }) => {
+    // Navigate and wait for content to load
     await page.goto('/crop-health');
-
-    // Look for loading indicator
-    const loadingIndicator = page.locator('[data-testid="health-dashboard-loading"], [class*="animate-spin"]');
-    const hasLoader = await loadingIndicator.isVisible({ timeout: 1000 }).catch(() => false);
-
-    console.log(`Loading state shown: ${hasLoader}`);
-
-    // Wait for content to load
     await page.waitForTimeout(3000);
+
+    // Content should be visible
+    const content = page.locator('text=/صحة المحصول|Crop Health/i');
+    await expect(content).toBeVisible();
   });
 });
 
@@ -353,16 +349,9 @@ test.describe('Crop Health Responsiveness', () => {
 });
 
 test.describe('Crop Health Error Handling', () => {
-  test('should handle loading states gracefully', async ({ page }) => {
+  test('should display content after page load', async ({ page }) => {
+    // Navigate and wait for content to load
     await page.goto('/crop-health');
-
-    // Look for loading indicators
-    const loadingIndicator = page.locator('[class*="animate-spin"], [aria-busy="true"]');
-    const hasLoader = await loadingIndicator.isVisible({ timeout: 2000 }).catch(() => false);
-
-    console.log(`Loading state shown: ${hasLoader}`);
-
-    // Wait for content to load
     await page.waitForTimeout(3000);
 
     // Content should be visible

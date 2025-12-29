@@ -18,7 +18,12 @@ export const Feed: React.FC = () => {
   });
   const [showCreatePost, setShowCreatePost] = useState(false);
 
-  const { data: posts, isLoading } = usePosts(filters);
+  const { data: posts, isLoading, isError, error } = usePosts(filters);
+
+  // Log query state for debugging
+  if (typeof window !== 'undefined') {
+    console.log('Community Feed Query State:', { isLoading, isError, hasData: !!posts, postCount: posts?.length });
+  }
 
   const postTypes: Array<{ value: PostType | 'all'; label: string; labelAr: string }> = [
     { value: 'all', label: 'All', labelAr: 'الكل' },
@@ -102,6 +107,12 @@ export const Feed: React.FC = () => {
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" data-testid="loading-spinner"></div>
+          </div>
+        ) : isError ? (
+          <div className="bg-red-50 p-8 rounded-xl border border-red-200 text-center">
+            <p className="text-red-600 font-semibold">خطأ في تحميل المنشورات</p>
+            <p className="text-sm text-red-500 mt-1">Error loading posts</p>
+            {error && <p className="text-xs text-red-400 mt-2">{error instanceof Error ? error.message : 'Unknown error'}</p>}
           </div>
         ) : posts && posts.length > 0 ? (
           <div className="space-y-4">

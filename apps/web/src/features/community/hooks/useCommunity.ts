@@ -14,7 +14,25 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout
 });
+
+// Add response interceptor for better error logging
+api.interceptors.response.use(
+  (response) => {
+    console.log('API Response:', response.config.url, response.status);
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', {
+      url: error.config?.url,
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    return Promise.reject(error);
+  }
+);
 
 // Query Keys
 const COMMUNITY_KEYS = {
@@ -34,6 +52,8 @@ export function usePosts(filters?: CommunityFilters) {
   return useQuery({
     queryKey: COMMUNITY_KEYS.posts(filters),
     queryFn: async (): Promise<Post[]> => {
+      console.log('Fetching community posts with filters:', filters);
+
       const params = new URLSearchParams();
       if (filters?.type) params.set('type', filters.type);
       if (filters?.status) params.set('status', filters.status);
@@ -42,10 +62,16 @@ export function usePosts(filters?: CommunityFilters) {
       if (filters?.sortBy) params.set('sort_by', filters.sortBy);
       if (filters?.search) params.set('search', filters.search);
 
-      const response = await api.get(`/v1/community/posts?${params.toString()}`);
+      const url = `v1/community/posts${params.toString() ? '?' + params.toString() : ''}`;
+      console.log('Fetching from URL:', url, 'with baseURL:', api.defaults.baseURL);
+
+      const response = await api.get(url);
+      console.log('Received posts:', response.data?.length);
       return response.data;
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
+    retry: 2, // Retry failed requests twice
+    retryDelay: 1000, // Wait 1 second between retries
   });
 }
 
@@ -56,7 +82,7 @@ export function usePost(id: string) {
   return useQuery({
     queryKey: COMMUNITY_KEYS.post(id),
     queryFn: async (): Promise<Post> => {
-      const response = await api.get(`/v1/community/posts/${id}`);
+      const response = await api.get(`v1/community/posts/${id}`);
       return response.data;
     },
     enabled: !!id,
@@ -70,7 +96,7 @@ export function useTrendingPosts() {
   return useQuery({
     queryKey: COMMUNITY_KEYS.trending(),
     queryFn: async (): Promise<Post[]> => {
-      const response = await api.get('/v1/community/posts/trending');
+      const response = await api.get('v1/community/posts/trending');
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -84,7 +110,7 @@ export function useSavedPosts() {
   return useQuery({
     queryKey: COMMUNITY_KEYS.saved(),
     queryFn: async (): Promise<Post[]> => {
-      const response = await api.get('/v1/community/posts/saved');
+      const response = await api.get('v1/community/posts/saved');
       return response.data;
     },
     staleTime: 5 * 60 * 1000,
@@ -98,7 +124,7 @@ export function useMyPosts() {
   return useQuery({
     queryKey: COMMUNITY_KEYS.myPosts(),
     queryFn: async (): Promise<Post[]> => {
-      const response = await api.get('/v1/community/posts/my-posts');
+      const response = await api.get('v1/community/posts/my-posts');
       return response.data;
     },
     staleTime: 2 * 60 * 1000,
@@ -113,7 +139,7 @@ export function useCreatePost() {
 
   return useMutation({
     mutationFn: async (data: Partial<Post>): Promise<Post> => {
-      const response = await api.post('/v1/community/posts', data);
+      const response = await api.post('v1/community/posts', data);
       return response.data;
     },
     onSuccess: () => {
@@ -130,7 +156,7 @@ export function useUpdatePost() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Post> }): Promise<Post> => {
-      const response = await api.put(`/v1/community/posts/${id}`, data);
+      const response = await api.put(`v1/community/posts/${id}`, data);
       return response.data;
     },
     onSuccess: (_, { id }) => {
@@ -148,7 +174,7 @@ export function useDeletePost() {
 
   return useMutation({
     mutationFn: async (id: string): Promise<void> => {
-      await api.delete(`/v1/community/posts/${id}`);
+      await api.delete(`v1/community/posts/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.all });
@@ -164,7 +190,7 @@ export function useLikePost() {
 
   return useMutation({
     mutationFn: async (postId: string): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/like`);
+      await api.post(`v1/community/posts/${postId}/like`);
     },
     onSuccess: (_, postId) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
@@ -181,7 +207,7 @@ export function useSavePost() {
 
   return useMutation({
     mutationFn: async (postId: string): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/save`);
+      await api.post(`v1/community/posts/${postId}/save`);
     },
     onSuccess: (_, postId) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
@@ -198,7 +224,7 @@ export function useSharePost() {
 
   return useMutation({
     mutationFn: async (postId: string): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/share`);
+      await api.post(`v1/community/posts/${postId}/share`);
     },
     onSuccess: (_, postId) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.post(postId) });
@@ -213,7 +239,7 @@ export function useComments(postId: string) {
   return useQuery({
     queryKey: COMMUNITY_KEYS.comments(postId),
     queryFn: async (): Promise<Comment[]> => {
-      const response = await api.get(`/v1/community/posts/${postId}/comments`);
+      const response = await api.get(`v1/community/posts/${postId}/comments`);
       return response.data;
     },
     enabled: !!postId,
@@ -236,7 +262,7 @@ export function useAddComment() {
       content: string;
       parentId?: string;
     }): Promise<Comment> => {
-      const response = await api.post(`/v1/community/posts/${postId}/comments`, {
+      const response = await api.post(`v1/community/posts/${postId}/comments`, {
         content,
         parentId,
       });
@@ -257,7 +283,7 @@ export function useLikeComment() {
 
   return useMutation({
     mutationFn: async ({ postId, commentId }: { postId: string; commentId: string }): Promise<void> => {
-      await api.post(`/v1/community/posts/${postId}/comments/${commentId}/like`);
+      await api.post(`v1/community/posts/${postId}/comments/${commentId}/like`);
     },
     onSuccess: (_, { postId }) => {
       queryClient.invalidateQueries({ queryKey: COMMUNITY_KEYS.comments(postId) });

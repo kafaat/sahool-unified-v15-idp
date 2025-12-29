@@ -251,17 +251,9 @@ test.describe('Dashboard Page', () => {
   });
 
   test.describe('Dashboard Interactions', () => {
-    test('should handle loading states', async ({ page }) => {
-      // Navigate to dashboard
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto('/dashboard');
-
-      // Look for loading indicators initially
-      const loadingIndicator = page.locator('[class*="loading"], [class*="skeleton"], [aria-busy="true"]');
-      const hasLoader = await loadingIndicator.isVisible({ timeout: 1000 }).catch(() => false);
-
-      console.log(`Loading state shown: ${hasLoader}`);
-
-      // Wait for content to load
       await page.waitForTimeout(3000);
 
       // Content should be visible

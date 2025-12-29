@@ -18,6 +18,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
           queries: {
             staleTime: 60 * 1000, // 1 minute
             refetchOnWindowFocus: false,
+            retry: 1, // Reduce retries for faster failure feedback (especially for E2E tests)
+            retryDelay: 500, // Shorter delay between retries
           },
         },
       })

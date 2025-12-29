@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
+import '../providers/ecological_providers.dart';
+import '../../domain/entities/ecological_entities.dart';
 
 /// شاشة تسجيل بيانات الحفاظ على المياه
 /// Water Conservation Data Recording Screen
-class WaterRecordScreen extends StatefulWidget {
+class WaterRecordScreen extends ConsumerStatefulWidget {
   final String? recordId; // null = سجل جديد
 
   const WaterRecordScreen({super.key, this.recordId});
 
   @override
-  State<WaterRecordScreen> createState() => _WaterRecordScreenState();
+  ConsumerState<WaterRecordScreen> createState() => _WaterRecordScreenState();
 }
 
-class _WaterRecordScreenState extends State<WaterRecordScreen> {
+class _WaterRecordScreenState extends ConsumerState<WaterRecordScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Form Controllers
@@ -596,7 +599,7 @@ class _WaterRecordScreenState extends State<WaterRecordScreen> {
     }
   }
 
-  void _saveRecord() {
+  void _saveRecord() async {
     if (_formKey.currentState!.validate()) {
       if (_recordDate == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -609,30 +612,68 @@ class _WaterRecordScreenState extends State<WaterRecordScreen> {
       }
 
       // حفظ البيانات
-      final recordData = {
-        'recordDate': _recordDate!.toIso8601String(),
-        'periodType': _periodType,
-        'waterUsedLiters': double.parse(_waterUsedController.text),
-        'waterSource': _waterSource,
-        'irrigationMethod': _irrigationMethod,
-        'efficiencyPercentage': _efficiencyPercentage,
-        'mulchingApplied': _mulchingApplied,
-        'dripIrrigationUsed': _dripIrrigationUsed,
-        'rainwaterHarvestedLiters': _rainwaterHarvestedController.text.isNotEmpty
+      final WaterSource source = _parseWaterSource(_waterSource);
+      final IrrigationMethod method = _parseIrrigationMethod(_irrigationMethod);
+
+      final record = WaterConservationRecord(
+        id: widget.recordId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        farmId: 'default_farm', // TODO: Get from context or parameter
+        fieldId: 'default_field', // TODO: Get from context or parameter
+        recordDate: _recordDate!,
+        waterUsedLiters: double.parse(_waterUsedController.text),
+        waterSource: source,
+        irrigationMethod: method,
+        efficiencyPercentage: _efficiencyPercentage,
+        mulchingApplied: _mulchingApplied,
+        dripIrrigationUsed: _dripIrrigationUsed,
+        rainwaterHarvestedLiters: _rainwaterHarvestedController.text.isNotEmpty
             ? double.parse(_rainwaterHarvestedController.text)
-            : 0,
-        'notes': _notesController.text,
-      };
-
-      // TODO: حفظ البيانات في قاعدة البيانات أو API
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isEditing ? "تم تحديث السجل بنجاح" : "تم إضافة السجل بنجاح"),
-          backgroundColor: SahoolColors.forestGreen,
-        ),
+            : null,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
-      Navigator.pop(context, recordData);
+
+      // حفظ السجل باستخدام المزود
+      await ref.read(waterConservationProvider.notifier).addRecord(record);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حفظ السجل بنجاح'),
+            backgroundColor: SahoolColors.forestGreen,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  WaterSource _parseWaterSource(String? source) {
+    switch (source) {
+      case 'well':
+        return WaterSource.well;
+      case 'river':
+        return WaterSource.river;
+      case 'rainwater':
+        return WaterSource.rainwater;
+      case 'network':
+        return WaterSource.network;
+      default:
+        return WaterSource.well;
+    }
+  }
+
+  IrrigationMethod _parseIrrigationMethod(String? method) {
+    switch (method) {
+      case 'drip':
+        return IrrigationMethod.drip;
+      case 'sprinkler':
+        return IrrigationMethod.sprinkler;
+      case 'flood':
+        return IrrigationMethod.flood;
+      case 'pivot':
+        return IrrigationMethod.pivot;
+      default:
+        return IrrigationMethod.drip;
     }
   }
 

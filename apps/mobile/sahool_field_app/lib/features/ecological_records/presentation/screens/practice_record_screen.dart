@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
+import '../providers/ecological_providers.dart';
+import '../../domain/entities/ecological_entities.dart';
 
 /// شاشة تسجيل تطبيق الممارسات البيئية
 /// Ecological Practice Implementation Record Screen
-class PracticeRecordScreen extends StatefulWidget {
+class PracticeRecordScreen extends ConsumerStatefulWidget {
   final String? recordId; // null = إضافة جديد
 
   const PracticeRecordScreen({super.key, this.recordId});
 
   @override
-  State<PracticeRecordScreen> createState() => _PracticeRecordScreenState();
+  ConsumerState<PracticeRecordScreen> createState() => _PracticeRecordScreenState();
 }
 
-class _PracticeRecordScreenState extends State<PracticeRecordScreen> {
+class _PracticeRecordScreenState extends ConsumerState<PracticeRecordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _laborHoursController = TextEditingController();
   final _costEstimateController = TextEditingController();
@@ -619,7 +622,7 @@ class _PracticeRecordScreenState extends State<PracticeRecordScreen> {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
-  void _savePracticeRecord() {
+  void _savePracticeRecord() async {
     if (_formKey.currentState!.validate()) {
       // Validate at least one material is added if labor hours or cost is provided
       if ((_laborHoursController.text.isNotEmpty ||
@@ -647,37 +650,81 @@ class _PracticeRecordScreenState extends State<PracticeRecordScreen> {
         }
       }
 
-      // Build the data object
-      final practiceData = {
-        'practiceId': _selectedPractice,
-        'status': _selectedStatus,
-        'startDate': _startDate?.toIso8601String(),
-        'implementationDate': _implementationDate?.toIso8601String(),
-        'materialsUsed': _materialsUsed,
-        'laborHours': _laborHoursController.text.isNotEmpty
+      // Build the record object
+      final PracticeType practiceType = _parsePracticeType(_selectedPractice);
+      final PracticeStatus status = _parsePracticeStatus(_selectedStatus);
+
+      final record = FarmPracticeRecord(
+        id: widget.recordId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        farmId: 'default_farm', // TODO: Get from context or parameter
+        fieldId: 'default_field', // TODO: Get from context or parameter
+        practiceType: practiceType,
+        status: status,
+        startDate: _startDate,
+        implementationDate: _implementationDate,
+        materialsUsed: _materialsUsed,
+        laborHours: _laborHoursController.text.isNotEmpty
             ? double.parse(_laborHoursController.text)
             : null,
-        'costEstimate': _costEstimateController.text.isNotEmpty
+        costEstimate: _costEstimateController.text.isNotEmpty
             ? double.parse(_costEstimateController.text)
             : null,
-        'effectivenessRating': _effectivenessRating > 0 ? _effectivenessRating : null,
-        'observedBenefits': _observedBenefits,
-        'challenges': _challenges,
-        'notes': _notesController.text.trim(),
-      };
-
-      // TODO: Save to database/repository
-      print('Practice Record Data: $practiceData');
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isEditing ? "تم تحديث التسجيل بنجاح" : "تم حفظ التسجيل بنجاح",
-          ),
-          backgroundColor: SahoolColors.success,
-        ),
+        effectivenessRating: _effectivenessRating > 0 ? _effectivenessRating : null,
+        observedBenefits: _observedBenefits.isNotEmpty ? _observedBenefits : null,
+        challenges: _challenges.isNotEmpty ? _challenges : null,
+        notes: _notesController.text.trim().isNotEmpty ? _notesController.text.trim() : null,
       );
-      Navigator.pop(context, true);
+
+      // حفظ السجل باستخدام المزود
+      await ref.read(farmPracticesProvider.notifier).addRecord(record);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حفظ السجل بنجاح'),
+            backgroundColor: SahoolColors.success,
+          ),
+        );
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  PracticeType _parsePracticeType(String? type) {
+    switch (type) {
+      case 'composting':
+        return PracticeType.composting;
+      case 'no_till':
+        return PracticeType.noTill;
+      case 'companion_planting':
+        return PracticeType.companionPlanting;
+      case 'biological_control':
+        return PracticeType.biologicalControl;
+      case 'agroforestry':
+        return PracticeType.agroforestry;
+      case 'drip_irrigation':
+        return PracticeType.dripIrrigation;
+      case 'cover_crops':
+        return PracticeType.coverCrops;
+      case 'mulching':
+        return PracticeType.mulching;
+      default:
+        return PracticeType.composting;
+    }
+  }
+
+  PracticeStatus _parsePracticeStatus(String? status) {
+    switch (status) {
+      case 'planned':
+        return PracticeStatus.planned;
+      case 'in_progress':
+        return PracticeStatus.inProgress;
+      case 'completed':
+        return PracticeStatus.implemented;
+      case 'paused':
+        return PracticeStatus.planned; // Map paused to planned as fallback
+      default:
+        return PracticeStatus.planned;
     }
   }
 

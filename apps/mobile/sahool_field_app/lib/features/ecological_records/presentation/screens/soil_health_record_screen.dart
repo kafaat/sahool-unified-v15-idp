@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
+import '../providers/ecological_providers.dart';
+import '../../domain/entities/ecological_entities.dart';
 
 /// شاشة تسجيل صحة التربة - Soil Health Record Screen
 /// نموذج شامل لتسجيل بيانات صحة التربة مع مؤشر الصحة البصري
-class SoilHealthRecordScreen extends StatefulWidget {
+class SoilHealthRecordScreen extends ConsumerStatefulWidget {
   final String? recordId; // null = سجل جديد
   final String? fieldId; // معرف الحقل
 
@@ -15,10 +18,10 @@ class SoilHealthRecordScreen extends StatefulWidget {
   });
 
   @override
-  State<SoilHealthRecordScreen> createState() => _SoilHealthRecordScreenState();
+  ConsumerState<SoilHealthRecordScreen> createState() => _SoilHealthRecordScreenState();
 }
 
-class _SoilHealthRecordScreenState extends State<SoilHealthRecordScreen> {
+class _SoilHealthRecordScreenState extends ConsumerState<SoilHealthRecordScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Form Controllers
@@ -667,34 +670,37 @@ class _SoilHealthRecordScreenState extends State<SoilHealthRecordScreen> {
     return "حرجة (Critical)";
   }
 
-  void _saveSoilHealthRecord() {
+  void _saveSoilHealthRecord() async {
     if (_formKey.currentState!.validate()) {
       // حفظ البيانات
-      final data = {
-        'fieldId': widget.fieldId,
-        'sampleDate': _sampleDate?.toIso8601String(),
-        'sampleDepthCm': double.tryParse(_sampleDepthController.text),
-        'soilTexture': _soilTexture,
-        'organicMatterPercent': double.tryParse(_organicMatterController.text),
-        'phLevel': double.tryParse(_phLevelController.text),
-        'ecLevel': double.tryParse(_ecLevelController.text),
-        'earthwormCount': int.tryParse(_earthwormCountController.text),
-        'notes': _notesController.text,
-        'healthScore': _healthScore,
-      };
+      final SoilTexture texture = _parseSoilTexture(_soilTexture);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            isEditing
-                ? "تم تحديث سجل صحة التربة بنجاح"
-                : "تم إضافة سجل صحة التربة بنجاح",
-          ),
-          backgroundColor: SahoolColors.forestGreen,
-        ),
+      final record = SoilHealthRecord(
+        id: widget.recordId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        fieldId: widget.fieldId ?? 'default_field',
+        sampleDate: _sampleDate ?? DateTime.now(),
+        sampleDepthCm: double.tryParse(_sampleDepthController.text) ?? 0.0,
+        soilTexture: texture,
+        organicMatterPercent: double.tryParse(_organicMatterController.text) ?? 0.0,
+        phLevel: double.tryParse(_phLevelController.text) ?? 7.0,
+        ecLevel: double.tryParse(_ecLevelController.text) ?? 0.0,
+        earthwormCount: int.tryParse(_earthwormCountController.text) ?? 0,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
 
-      Navigator.pop(context, data);
+      // حفظ السجل باستخدام المزود
+      await ref.read(soilHealthProvider.notifier).addRecord(record);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حفظ السجل بنجاح'),
+            backgroundColor: SahoolColors.forestGreen,
+          ),
+        );
+
+        Navigator.pop(context);
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -702,6 +708,21 @@ class _SoilHealthRecordScreenState extends State<SoilHealthRecordScreen> {
           backgroundColor: SahoolColors.danger,
         ),
       );
+    }
+  }
+
+  SoilTexture _parseSoilTexture(String? texture) {
+    switch (texture) {
+      case 'sandy':
+        return SoilTexture.sandy;
+      case 'clay':
+        return SoilTexture.clay;
+      case 'loam':
+        return SoilTexture.loam;
+      case 'mixed':
+        return SoilTexture.mixed;
+      default:
+        return SoilTexture.loam;
     }
   }
 

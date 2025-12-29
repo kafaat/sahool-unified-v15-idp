@@ -1,68 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math' as math;
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
+import '../providers/ecological_providers.dart';
 
 /// شاشة لوحة السجلات الإيكولوجية
 /// Ecological Records Dashboard Screen
-class EcologicalDashboardScreen extends StatefulWidget {
+class EcologicalDashboardScreen extends ConsumerStatefulWidget {
   const EcologicalDashboardScreen({super.key});
 
   @override
-  State<EcologicalDashboardScreen> createState() => _EcologicalDashboardScreenState();
+  ConsumerState<EcologicalDashboardScreen> createState() => _EcologicalDashboardScreenState();
 }
 
-class _EcologicalDashboardScreenState extends State<EcologicalDashboardScreen> {
-  // بيانات تجريبية - سيتم استبدالها ببيانات من API
-  final int speciesCount = 24;
-  final double soilHealthScore = 78.5;
-  final double waterEfficiency = 82.0;
-  final int practicesCount = 12;
-  final double overallEcologicalScore = 76.0;
+class _EcologicalDashboardScreenState extends ConsumerState<EcologicalDashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load dashboard data after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(ecologicalDashboardProvider.notifier).loadDashboard(farmId: 'default_farm');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final dashboardState = ref.watch(ecologicalDashboardProvider);
+    final biodiversityState = ref.watch(biodiversityProvider);
+    final practicesState = ref.watch(farmPracticesProvider);
+
+    // Extract values from dashboard state
+    final overallEcologicalScore = dashboardState.overallScore.toDouble();
+    final soilHealthScore = dashboardState.soilHealthScore.toDouble();
+    final waterEfficiency = dashboardState.waterEfficiencyScore.toDouble();
+    final speciesCount = biodiversityState.records.length;
+    final practicesCount = practicesState.records.length;
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: SahoolColors.background,
         appBar: _buildAppBar(),
-        body: RefreshIndicator(
-          onRefresh: _refreshData,
-          color: SahoolColors.primary,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header Section
-                _buildHeaderSection(),
+        body: dashboardState.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: () => _refreshData(),
+                color: SahoolColors.primary,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Section
+                      _buildHeaderSection(),
 
-                const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                // Summary Cards Row
-                _buildSummaryCards(),
+                      // Summary Cards Row
+                      _buildSummaryCards(
+                        speciesCount: speciesCount,
+                        soilHealthScore: soilHealthScore,
+                        waterEfficiency: waterEfficiency,
+                        practicesCount: practicesCount,
+                      ),
 
-                const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                // Ecological Score Card
-                _buildEcologicalScoreCard(),
+                      // Ecological Score Card
+                      _buildEcologicalScoreCard(
+                        overallEcologicalScore: overallEcologicalScore,
+                        soilHealthScore: soilHealthScore,
+                        waterEfficiency: waterEfficiency,
+                        dashboardState: dashboardState,
+                      ),
 
-                const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                // Quick Actions Section
-                _buildQuickActionsSection(),
+                      // Quick Actions Section
+                      _buildQuickActionsSection(),
 
-                const SizedBox(height: 24),
+                      const SizedBox(height: 24),
 
-                // Recent Records Section
-                _buildRecentRecordsSection(),
+                      // Recent Records Section
+                      _buildRecentRecordsSection(),
 
-                const SizedBox(height: 100),
-              ],
-            ),
-          ),
-        ),
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -151,7 +178,12 @@ class _EcologicalDashboardScreenState extends State<EcologicalDashboardScreen> {
     );
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards({
+    required int speciesCount,
+    required double soilHealthScore,
+    required double waterEfficiency,
+    required int practicesCount,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GridView.count(
@@ -295,7 +327,12 @@ class _EcologicalDashboardScreenState extends State<EcologicalDashboardScreen> {
     );
   }
 
-  Widget _buildEcologicalScoreCard() {
+  Widget _buildEcologicalScoreCard({
+    required double overallEcologicalScore,
+    required double soilHealthScore,
+    required double waterEfficiency,
+    required dashboardState,
+  }) {
     final scoreColor = _getScoreColor(overallEcologicalScore);
     final scoreLabel = _getScoreLabel(overallEcologicalScore);
 
@@ -369,19 +406,27 @@ class _EcologicalDashboardScreenState extends State<EcologicalDashboardScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            _buildScoreBreakdown(),
+            _buildScoreBreakdown(
+              soilHealthScore: soilHealthScore,
+              waterEfficiency: waterEfficiency,
+              dashboardState: dashboardState,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildScoreBreakdown() {
+  Widget _buildScoreBreakdown({
+    required double soilHealthScore,
+    required double waterEfficiency,
+    required dashboardState,
+  }) {
     return Column(
       children: [
         _buildBreakdownItem(
           'التنوع البيولوجي',
-          72.0,
+          dashboardState.biodiversityScore.toDouble(),
           Icons.pets,
           SahoolColors.sageGreen,
         ),
@@ -402,7 +447,7 @@ class _EcologicalDashboardScreenState extends State<EcologicalDashboardScreen> {
         const SizedBox(height: 12),
         _buildBreakdownItem(
           'الممارسات المستدامة',
-          68.0,
+          dashboardState.practicesScore.toDouble(),
           Icons.checklist,
           SahoolColors.success,
         ),
@@ -753,11 +798,7 @@ class _EcologicalDashboardScreenState extends State<EcologicalDashboardScreen> {
   }
 
   Future<void> _refreshData() async {
-    // محاكاة تحديث البيانات
-    await Future.delayed(const Duration(seconds: 1));
-    setState(() {
-      // تحديث البيانات من API
-    });
+    await ref.read(ecologicalDashboardProvider.notifier).refresh(farmId: 'default_farm');
   }
 
   void _showFilterOptions() {

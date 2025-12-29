@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../../../../core/theme/organic_widgets.dart';
+import '../providers/ecological_providers.dart';
+import '../../domain/entities/ecological_entities.dart';
 
 /// شاشة تسجيل مراقبة التنوع البيولوجي
 /// Biodiversity Observation Recording Screen
-class BiodiversityRecordScreen extends StatefulWidget {
+class BiodiversityRecordScreen extends ConsumerStatefulWidget {
   final String? recordId; // null = سجل جديد
 
   const BiodiversityRecordScreen({super.key, this.recordId});
 
   @override
-  State<BiodiversityRecordScreen> createState() => _BiodiversityRecordScreenState();
+  ConsumerState<BiodiversityRecordScreen> createState() => _BiodiversityRecordScreenState();
 }
 
-class _BiodiversityRecordScreenState extends State<BiodiversityRecordScreen> {
+class _BiodiversityRecordScreenState extends ConsumerState<BiodiversityRecordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _speciesCountController = TextEditingController();
   final _beneficialInsectCountController = TextEditingController();
@@ -436,7 +439,7 @@ class _BiodiversityRecordScreenState extends State<BiodiversityRecordScreen> {
     }
   }
 
-  void _saveRecord() {
+  void _saveRecord() async {
     if (_formKey.currentState!.validate()) {
       // التحقق من أن تاريخ المسح محدد
       if (_surveyDate == null) {
@@ -467,32 +470,56 @@ class _BiodiversityRecordScreenState extends State<BiodiversityRecordScreen> {
       }
 
       // حفظ البيانات
-      final recordData = {
-        'surveyDate': _surveyDate!.toIso8601String(),
-        'surveyType': _selectedSurveyType,
-        'speciesCount': _speciesCountController.text.isNotEmpty
+      final BiodiversitySurveyType surveyType = _parseSurveyType(_selectedSurveyType);
+
+      final record = BiodiversityRecord(
+        id: widget.recordId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        farmId: 'default_farm', // TODO: Get from context or parameter
+        surveyDate: _surveyDate!,
+        surveyType: surveyType,
+        speciesObserved: _speciesCountController.text.isNotEmpty
             ? int.parse(_speciesCountController.text)
-            : null,
-        'beneficialInsectCount': _beneficialInsectCountController.text.isNotEmpty
+            : 0,
+        beneficialInsectsCount: _beneficialInsectCountController.text.isNotEmpty
             ? int.parse(_beneficialInsectCountController.text)
             : null,
-        'pollinatorCount': _pollinatorCountController.text.isNotEmpty
+        pollinatorsCount: _pollinatorCountController.text.isNotEmpty
             ? int.parse(_pollinatorCountController.text)
             : null,
-        'habitatFeatures': _selectedHabitatFeatures.toList(),
-        'notes': _notesController.text,
-      };
-
-      // عرض رسالة نجاح
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(isEditing ? "تم تحديث السجل بنجاح" : "تم حفظ السجل بنجاح"),
-          backgroundColor: SahoolColors.forestGreen,
-        ),
+        habitatFeatures: _selectedHabitatFeatures.toList(),
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
 
-      // العودة للشاشة السابقة
-      Navigator.pop(context, recordData);
+      // حفظ السجل باستخدام المزود
+      await ref.read(biodiversityProvider.notifier).addRecord(record);
+
+      // عرض رسالة نجاح
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم حفظ السجل بنجاح'),
+            backgroundColor: SahoolColors.forestGreen,
+          ),
+        );
+
+        // العودة للشاشة السابقة
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  BiodiversitySurveyType _parseSurveyType(String? type) {
+    switch (type) {
+      case 'species_count':
+        return BiodiversitySurveyType.speciesCount;
+      case 'habitat_assessment':
+        return BiodiversitySurveyType.habitatAssessment;
+      case 'beneficial_insects':
+        return BiodiversitySurveyType.beneficialInsects;
+      case 'soil_organisms':
+        return BiodiversitySurveyType.soilOrganisms;
+      default:
+        return BiodiversitySurveyType.general;
     }
   }
 

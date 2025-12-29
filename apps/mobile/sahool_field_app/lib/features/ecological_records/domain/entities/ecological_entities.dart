@@ -205,6 +205,34 @@ class BiodiversityRecord {
     };
   }
 
+  /// تحويل من JSON
+  /// Convert from JSON
+  factory BiodiversityRecord.fromJson(Map<String, dynamic> json) {
+    return BiodiversityRecord(
+      id: json['id'] as String,
+      farmId: json['farm_id'] as String,
+      tenantId: json['tenant_id'] as String,
+      surveyDate: DateTime.parse(json['survey_date'] as String),
+      surveyType: BiodiversitySurveyType.fromString(json['survey_type'] as String),
+      speciesCount: json['species_count'] as int?,
+      beneficialInsectCount: json['beneficial_insect_count'] as int?,
+      pollinatorCount: json['pollinator_count'] as int?,
+      speciesObserved: (json['species_observed'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ?? const [],
+      habitatFeatures: (json['habitat_features'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ?? const [],
+      diversityIndex: (json['diversity_index'] as num?)?.toDouble(),
+      habitatQualityScore: (json['habitat_quality_score'] as num?)?.toDouble(),
+      notes: json['notes'] as String?,
+      notesAr: json['notes_ar'] as String?,
+      synced: json['synced'] as bool? ?? true,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
+  }
+
   BiodiversityRecord copyWith({
     String? id,
     String? farmId,
@@ -381,6 +409,39 @@ class SoilHealthRecord {
     };
   }
 
+  /// تحويل من JSON
+  /// Convert from JSON
+  factory SoilHealthRecord.fromJson(Map<String, dynamic> json) {
+    return SoilHealthRecord(
+      id: json['id'] as String,
+      fieldId: json['field_id'] as String,
+      tenantId: json['tenant_id'] as String,
+      sampleDate: DateTime.parse(json['sample_date'] as String),
+      sampleDepthCm: json['sample_depth_cm'] as int?,
+      organicMatterPercent: (json['organic_matter_percent'] as num?)?.toDouble(),
+      soilTexture: json['soil_texture'] as String?,
+      bulkDensity: (json['bulk_density'] as num?)?.toDouble(),
+      waterInfiltrationRate: (json['water_infiltration_rate'] as num?)?.toDouble(),
+      aggregateStability: (json['aggregate_stability'] as num?)?.toDouble(),
+      earthwormCount: json['earthworm_count'] as int?,
+      microbialBiomass: (json['microbial_biomass'] as num?)?.toDouble(),
+      respirationRate: (json['respiration_rate'] as num?)?.toDouble(),
+      phLevel: (json['ph_level'] as num?)?.toDouble(),
+      ecLevel: (json['ec_level'] as num?)?.toDouble(),
+      cecLevel: (json['cec_level'] as num?)?.toDouble(),
+      healthScore: (json['health_score'] as num?)?.toDouble(),
+      status: json['status'] != null
+          ? SoilHealthStatus.fromString(json['status'] as String)
+          : null,
+      notes: json['notes'] as String?,
+      notesAr: json['notes_ar'] as String?,
+      labReportUrl: json['lab_report_url'] as String?,
+      synced: json['synced'] as bool? ?? true,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
+  }
+
   SoilHealthRecord copyWith({
     String? id,
     String? fieldId,
@@ -522,6 +583,33 @@ class WaterConservationRecord {
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
     };
+  }
+
+  /// تحويل من JSON
+  /// Convert from JSON
+  factory WaterConservationRecord.fromJson(Map<String, dynamic> json) {
+    return WaterConservationRecord(
+      id: json['id'] as String,
+      farmId: json['farm_id'] as String,
+      fieldId: json['field_id'] as String?,
+      tenantId: json['tenant_id'] as String,
+      recordDate: DateTime.parse(json['record_date'] as String),
+      periodType: json['period_type'] as String,
+      waterUsedLiters: (json['water_used_liters'] as num?)?.toDouble(),
+      waterSource: json['water_source'] as String?,
+      irrigationMethod: json['irrigation_method'] as String?,
+      waterPerHectare: (json['water_per_hectare'] as num?)?.toDouble(),
+      efficiencyPercentage: (json['efficiency_percentage'] as num?)?.toDouble(),
+      comparisonToBaseline: (json['comparison_to_baseline'] as num?)?.toDouble(),
+      mulchingApplied: json['mulching_applied'] as bool? ?? false,
+      dripIrrigationUsed: json['drip_irrigation_used'] as bool? ?? false,
+      rainwaterHarvestedLiters: (json['rainwater_harvested_liters'] as num?)?.toDouble(),
+      notes: json['notes'] as String?,
+      notesAr: json['notes_ar'] as String?,
+      synced: json['synced'] as bool? ?? true,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
   }
 
   WaterConservationRecord copyWith({
@@ -673,6 +761,48 @@ class FarmPracticeRecord {
     };
   }
 
+  /// تحويل من JSON
+  /// Convert from JSON
+  factory FarmPracticeRecord.fromJson(Map<String, dynamic> json) {
+    return FarmPracticeRecord(
+      id: json['id'] as String,
+      farmId: json['farm_id'] as String,
+      fieldId: json['field_id'] as String?,
+      tenantId: json['tenant_id'] as String,
+      practiceId: json['practice_id'] as String,
+      practiceName: json['practice_name'] as String,
+      practiceNameAr: json['practice_name_ar'] as String?,
+      category: json['category'] as String,
+      status: PracticeStatus.fromString(json['status'] as String),
+      startDate: json['start_date'] != null
+          ? DateTime.parse(json['start_date'] as String)
+          : null,
+      implementationDate: json['implementation_date'] != null
+          ? DateTime.parse(json['implementation_date'] as String)
+          : null,
+      implementationNotes: json['implementation_notes'] as String?,
+      implementationNotesAr: json['implementation_notes_ar'] as String?,
+      materialsUsed: (json['materials_used'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ?? const [],
+      laborHours: (json['labor_hours'] as num?)?.toDouble(),
+      costEstimate: (json['cost_estimate'] as num?)?.toDouble(),
+      observedBenefits: (json['observed_benefits'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ?? const [],
+      challenges: (json['challenges'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ?? const [],
+      effectivenessRating: json['effectiveness_rating'] as int?,
+      globalgapControlPoints: (json['globalgap_control_points'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList() ?? const [],
+      synced: json['synced'] as bool? ?? true,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
+  }
+
   FarmPracticeRecord copyWith({
     String? id,
     String? farmId,
@@ -769,5 +899,31 @@ class EcologicalDashboardData {
   bool get isFresh {
     if (lastUpdated == null) return false;
     return DateTime.now().difference(lastUpdated!).inDays <= 30;
+  }
+
+  /// تحويل من JSON
+  /// Convert from JSON
+  factory EcologicalDashboardData.fromJson(Map<String, dynamic> json) {
+    return EcologicalDashboardData(
+      overallScore: (json['overall_score'] as num).toDouble(),
+      biodiversityScore: (json['biodiversity_score'] as num).toDouble(),
+      soilHealthScore: (json['soil_health_score'] as num).toDouble(),
+      waterEfficiencyScore: (json['water_efficiency_score'] as num).toDouble(),
+      totalPractices: json['total_practices'] as int,
+      implementedPractices: json['implemented_practices'] as int,
+      latestBiodiversityRecord: json['latest_biodiversity_record'] != null
+          ? BiodiversityRecord.fromJson(json['latest_biodiversity_record'] as Map<String, dynamic>)
+          : null,
+      latestSoilHealthRecord: json['latest_soil_health_record'] != null
+          ? SoilHealthRecord.fromJson(json['latest_soil_health_record'] as Map<String, dynamic>)
+          : null,
+      latestWaterRecord: json['latest_water_record'] != null
+          ? WaterConservationRecord.fromJson(json['latest_water_record'] as Map<String, dynamic>)
+          : null,
+      totalRecordsCount: json['total_records_count'] as int,
+      lastUpdated: json['last_updated'] != null
+          ? DateTime.parse(json['last_updated'] as String)
+          : null,
+    );
   }
 }

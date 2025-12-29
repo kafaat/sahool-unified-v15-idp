@@ -684,9 +684,10 @@ class AppDatabase extends _$AppDatabase {
     return into(biodiversityRecords).insertOnConflictUpdate(record);
   }
 
-  Future<void> markBiodiversitySynced(String id) {
-    return (update(biodiversityRecords)..where((r) => r.id.equals(id)))
-      .write(const BiodiversityRecordsCompanion(synced: Value(true)));
+  /// Mark biodiversity record as synced
+  Future<void> markBiodiversitySynced(String recordId) async {
+    await (update(biodiversityRecords)..where((r) => r.id.equals(recordId)))
+        .write(const BiodiversityRecordsCompanion(synced: Value(true)));
   }
 
   // Soil Health Records | سجلات صحة التربة
@@ -708,9 +709,10 @@ class AppDatabase extends _$AppDatabase {
     return into(soilHealthRecords).insertOnConflictUpdate(record);
   }
 
-  Future<void> markSoilHealthSynced(String id) {
-    return (update(soilHealthRecords)..where((r) => r.id.equals(id)))
-      .write(const SoilHealthRecordsCompanion(synced: Value(true)));
+  /// Mark soil health record as synced
+  Future<void> markSoilHealthSynced(String recordId) async {
+    await (update(soilHealthRecords)..where((r) => r.id.equals(recordId)))
+        .write(const SoilHealthRecordsCompanion(synced: Value(true)));
   }
 
   // Water Conservation Records | سجلات الحفاظ على المياه
@@ -732,9 +734,10 @@ class AppDatabase extends _$AppDatabase {
     return into(waterConservationRecords).insertOnConflictUpdate(record);
   }
 
-  Future<void> markWaterRecordSynced(String id) {
-    return (update(waterConservationRecords)..where((r) => r.id.equals(id)))
-      .write(const WaterConservationRecordsCompanion(synced: Value(true)));
+  /// Mark water conservation record as synced
+  Future<void> markWaterConservationSynced(String recordId) async {
+    await (update(waterConservationRecords)..where((r) => r.id.equals(recordId)))
+        .write(const WaterConservationRecordsCompanion(synced: Value(true)));
   }
 
   // Farm Practice Records | سجلات الممارسات الزراعية
@@ -756,9 +759,10 @@ class AppDatabase extends _$AppDatabase {
     return into(farmPracticeRecords).insertOnConflictUpdate(record);
   }
 
-  Future<void> markPracticeRecordSynced(String id) {
-    return (update(farmPracticeRecords)..where((r) => r.id.equals(id)))
-      .write(const FarmPracticeRecordsCompanion(synced: Value(true)));
+  /// Mark farm practice record as synced
+  Future<void> markPracticeRecordSynced(String recordId) async {
+    await (update(farmPracticeRecords)..where((r) => r.id.equals(recordId)))
+        .write(const FarmPracticeRecordsCompanion(synced: Value(true)));
   }
 
   // ============================================================

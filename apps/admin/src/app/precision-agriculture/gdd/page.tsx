@@ -195,7 +195,7 @@ export default function GDDPage() {
                   <XAxis
                     dataKey="date"
                     tick={{ fontSize: 11 }}
-                    tickFormatter={(value) => new Date(value).toLocaleDateString('ar-YE', { month: 'short', day: 'numeric' })}
+                    tickFormatter={(value: string) => new Date(value).toLocaleDateString('ar-YE', { month: 'short', day: 'numeric' })}
                   />
                   <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip
@@ -205,7 +205,7 @@ export default function GDDPage() {
                       borderRadius: '8px',
                       direction: 'rtl',
                     }}
-                    labelFormatter={(value) => formatDate(value)}
+                    labelFormatter={(value: string) => formatDate(value)}
                   />
                   <Line
                     type="monotone"

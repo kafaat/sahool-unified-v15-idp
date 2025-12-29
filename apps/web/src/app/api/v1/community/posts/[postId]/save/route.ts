@@ -5,10 +5,23 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 
+function isAuthenticated(request: NextRequest): boolean {
+  // For development/testing, allow requests without auth
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    return true;
+  }
+  const authHeader = request.headers.get('authorization');
+  return !!authHeader && authHeader.startsWith('Bearer ');
+}
+
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ postId: string }> }
 ) {
+  if (!isAuthenticated(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const { postId } = await params;
 

@@ -153,7 +153,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={(entry) => `${entry.name}: ${((entry.value / totalCost) * 100).toFixed(1)}%`}
+                label={(entry: { name: string; value: number }) => `${entry.name}: ${((entry.value / totalCost) * 100).toFixed(1)}%`}
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"

@@ -74,6 +74,9 @@ BUCKETS_TO_BACKUP="${MINIO_BUCKETS:-uploads,documents,images,backups}"
 BACKUP_METHOD="${BACKUP_METHOD:-mirror}"  # mirror, snapshot, incremental
 VERIFY_BACKUP="${VERIFY_BACKUP:-true}"
 CREATE_ARCHIVE="${CREATE_ARCHIVE:-false}"
+COMPRESSION="${BACKUP_COMPRESSION:-gzip}"
+ENCRYPTION_ENABLED="${BACKUP_ENCRYPTION_ENABLED:-false}"
+ENCRYPTION_KEY="${BACKUP_ENCRYPTION_KEY:-}"
 
 # Notification configuration - إعدادات الإشعارات
 SLACK_NOTIFICATIONS="${SLACK_NOTIFICATIONS_ENABLED:-false}"
@@ -424,6 +427,43 @@ create_tar_archive() {
     fi
 }
 
+# Encrypt backup archive - تشفير أرشيف النسخة الاحتياطية
+encrypt_backup_archive() {
+    if [ "$ENCRYPTION_ENABLED" != "true" ]; then
+        return
+    fi
+
+    if [ -z "$ENCRYPTION_KEY" ]; then
+        warning_message "Encryption enabled but no key provided, skipping"
+        return
+    fi
+
+    # Find archive file
+    local archive_file="${BACKUP_DIR}.tar.gz"
+    if [ ! -f "$archive_file" ]; then
+        warning_message "No archive file found to encrypt"
+        return
+    fi
+
+    info_message "Encrypting backup archive with AES-256..."
+
+    local encrypted_file="${archive_file}.enc"
+
+    if openssl enc -aes-256-cbc -salt -pbkdf2 \
+        -in "${archive_file}" \
+        -out "${encrypted_file}" \
+        -k "${ENCRYPTION_KEY}"; then
+
+        # Remove unencrypted archive
+        rm -f "${archive_file}"
+
+        local encrypted_size=$(stat -f%z "${encrypted_file}" 2>/dev/null || stat -c%s "${encrypted_file}")
+        success_message "Encryption completed ($(format_bytes ${encrypted_size}))"
+    else
+        error_exit "Encryption failed"
+    fi
+}
+
 # Upload to AWS S3 - رفع إلى AWS S3
 upload_to_aws_s3() {
     if [ "$AWS_S3_ENABLED" != "true" ]; then
@@ -605,6 +645,9 @@ main() {
 
     # Create archive
     create_tar_archive
+
+    # Encrypt archive
+    encrypt_backup_archive
 
     # Verify backup
     verify_backup

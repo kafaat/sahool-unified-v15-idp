@@ -5,7 +5,7 @@
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
-  # Infrastructure Services (6)
+  # Infrastructure Services (7)
   # ─────────────────────────────────────────────────────────────────────────────
 
   # قاعدة البيانات المكانية (PostGIS)
@@ -44,6 +44,55 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    networks:
+      - sahool-network
+
+  # PgBouncer - Connection Pooler for PostgreSQL
+  # Prevents connection exhaustion with 39+ services
+  # تجميع اتصالات قاعدة البيانات
+  pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: sahool-pgbouncer
+    environment:
+      # Database connection
+      DATABASE_URL: postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      # Pool settings
+      POOL_MODE: transaction
+      MAX_DB_CONNECTIONS: 100
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      MAX_CLIENT_CONN: 500
+      # Timeouts
+      QUERY_TIMEOUT: 120
+      QUERY_WAIT_TIMEOUT: 30
+      # Auth
+      AUTH_TYPE: md5
+      # Admin
+      ADMIN_USERS: pgbouncer_admin
+      STATS_USERS: pgbouncer_stats
+    volumes:
+      - ./infrastructure/core/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./infrastructure/core/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    ports:
+      - "127.0.0.1:6432:6432"  # SECURITY: localhost only
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 -U ${POSTGRES_USER:-sahool}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     networks:
       - sahool-network
 

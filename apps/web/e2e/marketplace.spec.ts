@@ -641,27 +641,19 @@ test.describe('Marketplace Page', () => {
     });
   });
 
-  test.describe('Loading States', () => {
-    test('should display loading skeletons on initial load', async ({ page }) => {
-      // Navigate to marketplace without waiting for full load
+  test.describe('Content Rendering', () => {
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto('/marketplace');
-
-      // Look for loading skeletons or spinners
-      const loadingElements = page.locator('[class*="animate-pulse"], [class*="skeleton"], [aria-busy="true"]');
-      const hasLoading = await loadingElements.isVisible({ timeout: 1000 }).catch(() => false);
-
-      console.log(`Loading state shown: ${hasLoading}`);
-
-      // Wait for content to load
       await waitForPageLoad(page);
       await page.waitForTimeout(2000);
 
-      // Loading should be gone and content visible
+      // Content should be visible
       const heading = page.locator('h1:has-text("السوق الزراعي")');
       await expect(heading).toBeVisible();
     });
 
-    test('should show loading state during search', async ({ page }) => {
+    test('should display content after search', async ({ page }) => {
       await page.waitForTimeout(1000);
 
       const searchInput = page.locator('input[placeholder*="ابحث"], input[placeholder*="Search"]');
@@ -669,11 +661,8 @@ test.describe('Marketplace Page', () => {
       // Type search query
       await searchInput.fill('test search');
 
-      // There might be a brief loading state
-      await page.waitForTimeout(500);
-
-      // Results should eventually load
-      await page.waitForTimeout(1500);
+      // Wait for results to load
+      await page.waitForTimeout(2000);
 
       const pageContent = await page.textContent('body');
       expect(pageContent).toBeTruthy();

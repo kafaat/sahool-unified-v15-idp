@@ -883,18 +883,10 @@ test.describe('Community Page', () => {
     });
   });
 
-  test.describe('Loading States', () => {
-    test('should display loading spinner on initial load', async ({ page }) => {
-      // Navigate without waiting
+  test.describe('Content Rendering', () => {
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto('/community');
-
-      // Look for loading spinner
-      const loadingSpinner = page.locator('.animate-spin');
-      const hasLoading = await loadingSpinner.isVisible({ timeout: 1000 }).catch(() => false);
-
-      console.log(`Loading spinner shown: ${hasLoading}`);
-
-      // Wait for content to load
       await waitForPageLoad(page);
       await page.waitForTimeout(2000);
 
@@ -903,7 +895,7 @@ test.describe('Community Page', () => {
       await expect(heading).toBeVisible();
     });
 
-    test('should show loading state during filtering', async ({ page }) => {
+    test('should display content after filtering', async ({ page }) => {
       await page.waitForTimeout(1000);
 
       const typeFilter = page.locator('select').filter({
@@ -913,11 +905,8 @@ test.describe('Community Page', () => {
       // Change filter
       await typeFilter.selectOption({ label: 'نصائح' });
 
-      // There might be a brief loading state
-      await page.waitForTimeout(500);
-
-      // Results should eventually load
-      await page.waitForTimeout(1500);
+      // Wait for results to load
+      await page.waitForTimeout(2000);
 
       const heading = page.locator('h1:has-text("مجتمع المزارعين")');
       await expect(heading).toBeVisible();

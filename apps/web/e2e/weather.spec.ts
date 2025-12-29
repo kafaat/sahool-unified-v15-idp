@@ -45,18 +45,14 @@ test.describe('Weather Page', () => {
       await expect(locationSelector).toBeVisible();
     });
 
-    test('should show loading state initially', async ({ page }) => {
-      // Navigate to page and check for loading state
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto(pages.weather);
+      await page.waitForTimeout(3000);
 
-      // Look for loading indicators
-      const loadingText = page.locator('text=/جاري تحميل/i');
-      const loadingIndicator = page.locator('.animate-pulse');
-
-      // At least one loading indicator should appear briefly
-      const hasLoading = await loadingText.or(loadingIndicator).isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Loading state shown: ${hasLoading}`);
+      // Content should be visible
+      const heading = page.locator('h1').first();
+      await expect(heading).toBeVisible({ timeout: 5000 });
     });
   });
 
@@ -600,67 +596,51 @@ test.describe('Weather Page', () => {
   });
 
   /**
-   * Loading States Tests
-   * اختبارات حالات التحميل
+   * Content Rendering Tests
+   * اختبارات عرض المحتوى
    */
-  test.describe('Loading States', () => {
-    test('should show loading state for current weather', async ({ page }) => {
+  test.describe('Content Rendering', () => {
+    test('should display current weather after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto(pages.weather);
-
-      // Look for loading indicator
-      const loadingText = page.locator('text=/جاري تحميل بيانات الطقس/i');
-      const loadingPulse = page.locator('.animate-pulse');
-
-      const hasLoading = await loadingText.or(loadingPulse).isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Current weather loading state shown: ${hasLoading}`);
-    });
-
-    test('should show loading state for forecast', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Look for forecast loading state
-      const forecastSection = page.locator('text=/توقعات 7 أيام/i');
-      const loadingPulse = forecastSection.locator('..').locator('.animate-pulse');
-
-      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Forecast loading state shown: ${hasLoading}`);
-    });
-
-    test('should show loading state for alerts', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Look for alerts loading state
-      const alertsSection = page.locator('text=/تنبيهات الطقس/i');
-      const loadingPulse = alertsSection.locator('..').locator('.animate-pulse');
-
-      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Alerts loading state shown: ${hasLoading}`);
-    });
-
-    test('should transition from loading to content', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Wait for loading to disappear and content to appear
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(3000);
 
       // Content should be visible
+      const heading = page.locator('h1').first();
+      await expect(heading).toBeVisible({ timeout: 5000 });
+    });
+
+    test('should display forecast after page load', async ({ page }) => {
+      // Navigate and wait for content to load
+      await page.goto(pages.weather);
+      await page.waitForTimeout(3000);
+
+      // Forecast section should be visible
+      const forecastSection = page.locator('text=/توقعات 7 أيام/i');
+      await expect(forecastSection).toBeVisible({ timeout: 5000 });
+    });
+
+    test('should display alerts after page load', async ({ page }) => {
+      // Navigate and wait for content to load
+      await page.goto(pages.weather);
+      await page.waitForTimeout(3000);
+
+      // Alerts section should be visible
+      const alertsSection = page.locator('text=/تنبيهات الطقس/i');
+      await expect(alertsSection).toBeVisible({ timeout: 5000 });
+    });
+
+    test('should display weather content', async ({ page }) => {
+      // Navigate and wait for content to load
+      await page.goto(pages.weather);
+      await page.waitForTimeout(5000);
+
+      // Weather content should be visible
       const temperature = page.locator('text=/\\d+°C/').first();
       const hasContent = await temperature.isVisible({ timeout: 5000 }).catch(() => false);
 
-      console.log(`Content loaded successfully: ${hasContent}`);
-    });
-
-    test('should show skeleton loaders with correct structure', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Check for skeleton loaders
-      const skeletons = page.locator('.animate-pulse');
-      const count = await skeletons.count();
-
-      console.log(`Found ${count} skeleton loaders`);
+      // Content is expected to be visible
+      expect(hasContent).toBeTruthy();
     });
   });
 

@@ -165,8 +165,11 @@ const mockPosts: Post[] = [
  * Fetch community posts with optional filters
  */
 export async function GET(request: NextRequest) {
+  console.log('API Route: GET /api/v1/community/posts called');
+
   try {
     const { searchParams } = new URL(request.url);
+    console.log('Search params:', Object.fromEntries(searchParams.entries()));
 
     // Get query parameters
     const type = searchParams.get('type');
@@ -237,6 +240,8 @@ export async function GET(request: NextRequest) {
         filteredPosts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
+
+    console.log(`Returning ${filteredPosts.length} posts`);
 
     return NextResponse.json(filteredPosts, {
       status: 200,

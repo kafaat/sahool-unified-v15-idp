@@ -8,7 +8,6 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { randomBytes } from 'crypto';
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -38,9 +37,12 @@ const protectedRoutes = [
 
 /**
  * Generate a cryptographically secure nonce for CSP
+ * Uses Web Crypto API which is available in Edge Runtime
  */
 function generateNonce(): string {
-  return randomBytes(16).toString('base64');
+  const array = new Uint8Array(16);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array));
 }
 
 /**

@@ -18,50 +18,73 @@ import {
     calculatePolygonArea,
     GeoValidationResult
 } from "./middleware/validation";
+import { createRateLimiter } from "../../shared/middleware/rateLimiter";
+import {
+    securityHeaders,
+    removeSensitiveHeaders,
+    createSecureCorsOptions
+} from "../../shared/middleware-ts";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000");
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CORS Configuration - Restrict to allowed origins
+// Security Middleware
 // ─────────────────────────────────────────────────────────────────────────────
 
-const allowedOrigins = [
-    'https://sahool.app',
-    'https://admin.sahool.app',
-    'https://api.sahool.app',
-    'https://api.sahool.io',
-    // Development origins - remove in production
-    ...(process.env.NODE_ENV !== 'production' ? [
-        'http://localhost:3000',
-        'http://localhost:5173',
-        'http://localhost:8080'
-    ] : [])
-];
-
-const corsOptions: cors.CorsOptions = {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, etc)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.warn(`⚠️ CORS blocked request from: ${origin}`);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'If-Match', 'X-Request-ID', 'X-Tenant-ID']
-};
+// Remove sensitive headers that expose server information
+app.use(removeSensitiveHeaders);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Middleware
+// CORS Configuration - Strict origin validation with production security
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Use secure CORS configuration from shared middleware
+// In production: Rejects requests without Origin header
+// In development: Allows localhost and testing tools
+// Environment variable ALLOWED_ORIGINS can override default origins
+const corsOptions = createSecureCorsOptions({
+    // Reject requests without Origin header in production for enhanced security
+    // Set to true only if you need to support server-to-server API calls
+    allowNoOrigin: false,
+
+    // Additional custom origins beyond the defaults (if needed)
+    additionalOrigins: [],
+
+    // Allowed HTTP methods
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+
+    // Custom headers specific to this service
+    allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'If-Match',
+        'If-None-Match',
+        'X-Request-ID',
+        'X-Tenant-ID',
+        'X-User-ID',
+        'X-Device-ID'
+    ]
+});
 
 app.use(cors(corsOptions));
+
+// Add comprehensive security headers (CSP, HSTS, X-Frame-Options, etc.)
+app.use(securityHeaders);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Standard Middleware
+// ─────────────────────────────────────────────────────────────────────────────
+
 app.use(express.json());
+
+// Rate limiting middleware (Redis-backed distributed rate limiting)
+app.use(createRateLimiter({
+    redis: {
+        url: process.env.REDIS_URL || 'redis://localhost:6379'
+    },
+    skipPaths: ['/healthz', '/readyz']
+}));
 
 // ETag header middleware
 app.use(setETagHeader);
@@ -1113,46 +1136,49 @@ app.get("/api/v1/fields/:id/boundary-history", async (req: Request, res: Respons
         const { id } = req.params;
         const { limit = 20 } = req.query;
 
-        const historyRepo = AppDataSource.getRepository(FieldBoundaryHistory);
-        const history = await historyRepo.find({
-            where: { fieldId: id },
-            order: { createdAt: "DESC" },
-            take: Number(limit)
-        });
+        // Use single query with ST_AsGeoJSON to avoid N+1
+        const historyWithGeoJson = await AppDataSource.query(`
+            SELECT
+                id,
+                field_id,
+                version_at_change,
+                ST_AsGeoJSON(previous_boundary) as previous_boundary_geojson,
+                ST_AsGeoJSON(new_boundary) as new_boundary_geojson,
+                area_change_hectares,
+                changed_by,
+                change_reason,
+                change_source,
+                device_id,
+                created_at
+            FROM field_boundary_history
+            WHERE field_id = $1
+            ORDER BY created_at DESC
+            LIMIT $2
+        `, [id, Number(limit)]);
 
-        // Convert geometries to GeoJSON for response
-        const historyWithGeoJson = await Promise.all(history.map(async (entry) => {
-            const geoJsonResult = await AppDataSource.query(`
-                SELECT
-                    ST_AsGeoJSON(previous_boundary) as previous_boundary_geojson,
-                    ST_AsGeoJSON(new_boundary) as new_boundary_geojson
-                FROM field_boundary_history
-                WHERE id = $1
-            `, [entry.id]);
-
-            return {
-                id: entry.id,
-                fieldId: entry.fieldId,
-                versionAtChange: entry.versionAtChange,
-                previousBoundary: geoJsonResult[0]?.previous_boundary_geojson
-                    ? JSON.parse(geoJsonResult[0].previous_boundary_geojson)
-                    : null,
-                newBoundary: geoJsonResult[0]?.new_boundary_geojson
-                    ? JSON.parse(geoJsonResult[0].new_boundary_geojson)
-                    : null,
-                areaChangeHectares: entry.areaChangeHectares,
-                changedBy: entry.changedBy,
-                changeReason: entry.changeReason,
-                changeSource: entry.changeSource,
-                deviceId: entry.deviceId,
-                createdAt: entry.createdAt
-            };
+        // Parse GeoJSON strings
+        const parsedHistory = historyWithGeoJson.map((entry: any) => ({
+            id: entry.id,
+            fieldId: entry.field_id,
+            versionAtChange: entry.version_at_change,
+            previousBoundary: entry.previous_boundary_geojson
+                ? JSON.parse(entry.previous_boundary_geojson)
+                : null,
+            newBoundary: entry.new_boundary_geojson
+                ? JSON.parse(entry.new_boundary_geojson)
+                : null,
+            areaChangeHectares: entry.area_change_hectares,
+            changedBy: entry.changed_by,
+            changeReason: entry.change_reason,
+            changeSource: entry.change_source,
+            deviceId: entry.device_id,
+            createdAt: entry.created_at
         }));
 
         res.json({
             success: true,
-            data: historyWithGeoJson,
-            count: history.length
+            data: parsedHistory,
+            count: parsedHistory.length
         });
     } catch (error) {
         console.error("Error fetching boundary history:", error);

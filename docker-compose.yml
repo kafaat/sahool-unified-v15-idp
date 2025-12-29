@@ -85,6 +85,13 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -121,6 +128,13 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -149,6 +163,13 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -179,6 +200,13 @@ services:
       retries: 5
       start_period: 15s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -210,6 +238,8 @@ services:
       retries: 3
       start_period: 20s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -234,7 +264,7 @@ services:
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 127.0.0.1:8001
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
       - "127.0.0.1:8001:8001"
     volumes:
       - ./infra/kong/kong.yml:/kong/declarative/kong.yml:ro
@@ -245,6 +275,8 @@ services:
       retries: 3
       start_period: 30s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -295,6 +327,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -336,6 +370,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -380,6 +416,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -423,6 +461,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -468,6 +508,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -513,6 +555,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -599,6 +643,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -646,6 +692,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -688,6 +736,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -736,6 +786,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -776,6 +828,8 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -822,6 +876,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -870,6 +926,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -907,6 +965,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -947,6 +1007,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -985,6 +1047,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1023,6 +1087,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1064,6 +1130,8 @@ services:
       retries: 3
       start_period: 20s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1101,6 +1169,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1139,6 +1209,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1181,6 +1253,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1217,6 +1291,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1253,6 +1329,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1282,6 +1360,8 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1323,6 +1403,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1369,6 +1451,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1410,6 +1494,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1455,6 +1541,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1501,6 +1589,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1535,6 +1625,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1598,6 +1690,8 @@ services:
       retries: 3
       start_period: 40s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1638,6 +1732,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1680,6 +1776,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1717,6 +1815,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1759,6 +1859,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1792,6 +1894,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1826,6 +1930,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1847,7 +1953,7 @@ services:
     environment:
       - SAHOOL_API_URL=http://kong:8000
       - MCP_SERVER_PORT=8200
-      - MCP_SERVER_HOST=0.0.0.0
+      - MCP_SERVER_HOST=127.0.0.1
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
@@ -1866,6 +1972,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:

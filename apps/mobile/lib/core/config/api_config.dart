@@ -346,6 +346,62 @@ class ApiConfig {
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
+  // Configuration Validation
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /// Validate that API configuration is correct
+  /// يتحقق من صحة إعدادات الـ API
+  static void validate() {
+    final errors = <String>[];
+
+    // Validate base URL
+    if (baseUrl.isEmpty) {
+      errors.add('API base URL is not configured');
+    }
+
+    // Validate gateway URL
+    if (gatewayUrl.isEmpty) {
+      errors.add('API gateway URL is not configured');
+    }
+
+    // In production mode, ensure we're using HTTPS
+    if (isProduction) {
+      if (!effectiveBaseUrl.startsWith('https://')) {
+        errors.add('Production API must use HTTPS, got: $effectiveBaseUrl');
+      }
+    }
+
+    // Validate critical service URLs are not empty
+    final criticalServices = {
+      'marketplaceServiceUrl': marketplaceServiceUrl,
+      'notificationsServiceUrl': notificationsServiceUrl,
+      'weatherServiceUrl': weatherServiceUrl,
+      'cropHealthServiceUrl': cropHealthServiceUrl,
+    };
+
+    for (final entry in criticalServices.entries) {
+      if (entry.value.isEmpty) {
+        errors.add('${entry.key} is not configured');
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      throw StateError(
+        'API Configuration validation failed:\n${errors.map((e) => '  - $e').join('\n')}',
+      );
+    }
+  }
+
+  /// Validate a specific URL is not empty
+  /// يتحقق من أن URL معين غير فارغ
+  static String validateUrl(String url, String name) {
+    if (url.isEmpty) {
+      throw StateError('$name URL is not configured');
+    }
+    return url;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
   // Community Chat Service Endpoints (port 8097)
   // خدمة الدردشة المجتمعية
   // ─────────────────────────────────────────────────────────────────────────────

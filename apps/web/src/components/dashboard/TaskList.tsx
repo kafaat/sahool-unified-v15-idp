@@ -138,7 +138,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <SkeletonTaskItem key={i} />
+          <SkeletonTaskItem key={`skeleton-task-${i}`} />
         ))}
       </div>
     );

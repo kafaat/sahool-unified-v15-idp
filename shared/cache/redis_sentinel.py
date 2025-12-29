@@ -38,15 +38,35 @@ class RedisSentinelConfig:
     Environment Variables:
         REDIS_SENTINEL_HOSTS: قائمة بعناوين Sentinel (مفصولة بفاصلة)
         REDIS_SENTINEL_PORT: منفذ Sentinel (افتراضي: 26379)
-        REDIS_PASSWORD: كلمة مرور Redis
+        REDIS_PASSWORD: كلمة مرور Redis (REQUIRED in production)
         REDIS_MASTER_NAME: اسم المجموعة الرئيسية (افتراضي: sahool-master)
         REDIS_DB: رقم قاعدة البيانات (افتراضي: 0)
         REDIS_SOCKET_TIMEOUT: مهلة الاتصال بالثواني (افتراضي: 5)
         REDIS_SOCKET_CONNECT_TIMEOUT: مهلة الاتصال الأولي (افتراضي: 5)
         REDIS_MAX_CONNECTIONS: الحد الأقصى للاتصالات (افتراضي: 50)
+
+    Security:
+        - REDIS_PASSWORD must be set via environment variable in production
+        - Never use hardcoded passwords
     """
 
     def __init__(self):
+        # Validate required environment variables in production
+        environment = os.getenv('ENVIRONMENT', os.getenv('NODE_ENV', 'development'))
+        redis_password = os.getenv('REDIS_PASSWORD')
+
+        if environment == 'production' and not redis_password:
+            raise ValueError(
+                'SECURITY ERROR: REDIS_PASSWORD environment variable must be set in production. '
+                'Never use hardcoded passwords. Please set REDIS_PASSWORD in your .env file or environment.'
+            )
+
+        if not redis_password:
+            logger.warning(
+                'WARNING: REDIS_PASSWORD not set. Using None for development. '
+                'This is insecure for production!'
+            )
+
         # Sentinel configuration
         self.sentinel_hosts = os.getenv(
             'REDIS_SENTINEL_HOSTS',
@@ -56,7 +76,7 @@ class RedisSentinelConfig:
         self.sentinel_ports = [26379, 26380, 26381]  # Multiple sentinel ports
 
         # Redis configuration
-        self.password = os.getenv('REDIS_PASSWORD', 'redis_password')
+        self.password = redis_password
         self.master_name = os.getenv('REDIS_MASTER_NAME', 'sahool-master')
         self.db = int(os.getenv('REDIS_DB', '0'))
 

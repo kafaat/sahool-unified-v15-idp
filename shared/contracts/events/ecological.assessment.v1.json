@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "events.ecological.assessment.v1",
+  "title": "EcologicalAssessmentV1",
+  "description": "Event emitted when an ecological assessment is completed for a farm | حدث يُصدر عند اكتمال تقييم إيكولوجي للمزرعة",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["assessment_id", "farm_id", "tenant_id", "overall_score", "assessment_date", "created_at"],
+  "properties": {
+    "assessment_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the assessment | المعرف الفريد للتقييم"
+    },
+    "farm_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Farm that was assessed | المزرعة التي تم تقييمها"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Tenant that owns the farm | المستأجر الذي يملك المزرعة"
+    },
+    "overall_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Overall sustainability score (0-100) | الدرجة الإجمالية للاستدامة"
+    },
+    "biodiversity_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Biodiversity score | درجة التنوع البيولوجي"
+    },
+    "soil_health_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Soil health score | درجة صحة التربة"
+    },
+    "water_efficiency_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Water efficiency score | درجة كفاءة المياه"
+    },
+    "pest_management_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Natural pest management score | درجة المكافحة الطبيعية للآفات"
+    },
+    "score_change": {
+      "type": "number",
+      "description": "Change from previous assessment | التغير من التقييم السابق"
+    },
+    "assessment_type": {
+      "type": "string",
+      "enum": ["initial", "periodic", "certification_prep", "post_intervention"],
+      "description": "Type of assessment | نوع التقييم"
+    },
+    "recommendations_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of recommendations generated | عدد التوصيات المولدة"
+    },
+    "assessment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the assessment | تاريخ التقييم"
+    },
+    "assessed_by": {
+      "type": "string",
+      "format": "uuid",
+      "description": "User who performed the assessment | المستخدم الذي أجرى التقييم"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when the event was created | وقت إنشاء الحدث"
+    }
+  }
+}

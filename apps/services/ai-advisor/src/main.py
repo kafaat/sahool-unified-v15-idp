@@ -18,6 +18,7 @@ from .agents import (
     DiseaseExpertAgent,
     IrrigationAdvisorAgent,
     YieldPredictorAgent,
+    EcologicalExpertAgent,
 )
 from .tools import CropHealthTool, WeatherTool, SatelliteTool, AgroTool
 from .orchestration import Supervisor
@@ -99,6 +100,43 @@ class AgentResponse(BaseModel):
     error: Optional[str] = None
 
 
+class EcologicalAssessmentRequest(BaseModel):
+    """Ecological assessment request | طلب تقييم إيكولوجي"""
+    farm_id: str = Field(..., description="Farm identifier")
+    farm_data: Dict[str, Any] = Field(..., description="Farm location, size, crops")
+    current_practices: Dict[str, Any] = Field(..., description="Current farming practices")
+
+
+class EcologicalTransitionRequest(BaseModel):
+    """Ecological transition plan request | طلب خطة التحول الإيكولوجي"""
+    farm_id: str = Field(..., description="Farm identifier")
+    current_practices: Dict[str, Any] = Field(..., description="Current farming methods")
+    target_practices: List[str] = Field(..., description="Target ecological practices")
+    constraints: Optional[Dict[str, Any]] = Field(default=None, description="Budget, time, labor constraints")
+
+
+class EcologicalPracticesRequest(BaseModel):
+    """Ecological practices recommendation request | طلب توصية بالممارسات الإيكولوجية"""
+    crop_type: str = Field(..., description="Type of crop")
+    soil_type: str = Field(..., description="Soil characteristics")
+    climate: str = Field(..., description="Climate conditions")
+    goals: List[str] = Field(..., description="Farmer's goals (yield, quality, certification)")
+
+
+class PitfallDiagnosisRequest(BaseModel):
+    """Pitfall diagnosis request | طلب تشخيص المزالق"""
+    farm_id: str = Field(..., description="Farm identifier")
+    observed_issues: List[str] = Field(..., description="Observed problems")
+    current_practices: Dict[str, Any] = Field(..., description="Current farming practices")
+
+
+class CompanionPlantingRequest(BaseModel):
+    """Companion planting request | طلب الزراعة التصاحبية"""
+    main_crop: str = Field(..., description="Primary crop to grow")
+    field_size: float = Field(..., description="Field size in dunums")
+    existing_plants: Optional[List[str]] = Field(default=None, description="Already planted species")
+
+
 # Global instances | المثيلات العامة
 app_state = {}
 
@@ -144,12 +182,18 @@ async def lifespan(app: FastAPI):
             retriever=knowledge_retriever
         )
 
+        ecological_expert = EcologicalExpertAgent(
+            tools=[],
+            retriever=knowledge_retriever
+        )
+
         # Initialize supervisor | تهيئة المشرف
         agents = {
             "field_analyst": field_analyst,
             "disease_expert": disease_expert,
             "irrigation_advisor": irrigation_advisor,
             "yield_predictor": yield_predictor,
+            "ecological_expert": ecological_expert,
         }
 
         supervisor = Supervisor(agents=agents)
@@ -559,6 +603,210 @@ async def get_rag_info():
 
     except Exception as e:
         logger.error("get_rag_info_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Ecological Agriculture Endpoints
+# نقاط نهاية الزراعة الإيكولوجية
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/v1/advisor/ecological/assess", response_model=AgentResponse, tags=["Ecological"])
+async def ecological_assessment(request: EcologicalAssessmentRequest):
+    """
+    Assess farm ecological sustainability
+    تقييم الاستدامة الإيكولوجية للمزرعة
+
+    Uses ecological expert agent for comprehensive farm assessment.
+    يستخدم وكيل خبير الزراعة الإيكولوجية للتقييم الشامل للمزرعة.
+    """
+    try:
+        agents = app_state.get("agents")
+        if not agents:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Service not initialized"
+            )
+
+        ecological_expert = agents["ecological_expert"]
+
+        result = await ecological_expert.assess_farm_ecology(
+            farm_data=request.farm_data,
+            current_practices=request.current_practices,
+        )
+
+        return AgentResponse(
+            status="success",
+            data={
+                "farm_id": request.farm_id,
+                "assessment": result,
+            }
+        )
+
+    except Exception as e:
+        logger.error("ecological_assessment_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+@app.post("/v1/advisor/ecological/transition", response_model=AgentResponse, tags=["Ecological"])
+async def plan_ecological_transition(request: EcologicalTransitionRequest):
+    """
+    Plan ecological transition for a farm
+    تخطيط التحول الإيكولوجي للمزرعة
+
+    Creates a phased transition plan from conventional to ecological farming.
+    ينشئ خطة تحول مرحلية من الزراعة التقليدية إلى الإيكولوجية.
+    """
+    try:
+        agents = app_state.get("agents")
+        if not agents:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Service not initialized"
+            )
+
+        ecological_expert = agents["ecological_expert"]
+
+        result = await ecological_expert.plan_transition(
+            current_practices=request.current_practices,
+            target_practices=request.target_practices,
+            constraints=request.constraints,
+        )
+
+        return AgentResponse(
+            status="success",
+            data={
+                "farm_id": request.farm_id,
+                "transition_plan": result,
+            }
+        )
+
+    except Exception as e:
+        logger.error("plan_ecological_transition_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+@app.post("/v1/advisor/ecological/practices", response_model=AgentResponse, tags=["Ecological"])
+async def recommend_ecological_practices(request: EcologicalPracticesRequest):
+    """
+    Recommend ecological practices for specific conditions
+    التوصية بالممارسات الإيكولوجية لظروف محددة
+
+    Provides tailored recommendations based on crop, soil, climate, and goals.
+    يقدم توصيات مخصصة بناءً على المحصول والتربة والمناخ والأهداف.
+    """
+    try:
+        agents = app_state.get("agents")
+        if not agents:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Service not initialized"
+            )
+
+        ecological_expert = agents["ecological_expert"]
+
+        result = await ecological_expert.recommend_practices(
+            crop_type=request.crop_type,
+            soil_type=request.soil_type,
+            climate=request.climate,
+            goals=request.goals,
+        )
+
+        return AgentResponse(
+            status="success",
+            data=result
+        )
+
+    except Exception as e:
+        logger.error("recommend_ecological_practices_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+@app.post("/v1/advisor/ecological/pitfalls", response_model=AgentResponse, tags=["Ecological"])
+async def diagnose_agricultural_pitfalls(request: PitfallDiagnosisRequest):
+    """
+    Diagnose agricultural pitfalls
+    تشخيص المزالق الزراعية
+
+    Identifies common farming mistakes and provides remediation strategies.
+    يحدد الأخطاء الزراعية الشائعة ويقدم استراتيجيات العلاج.
+    """
+    try:
+        agents = app_state.get("agents")
+        if not agents:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Service not initialized"
+            )
+
+        ecological_expert = agents["ecological_expert"]
+
+        result = await ecological_expert.diagnose_pitfalls(
+            observed_issues=request.observed_issues,
+            current_practices=request.current_practices,
+        )
+
+        return AgentResponse(
+            status="success",
+            data={
+                "farm_id": request.farm_id,
+                "diagnosis": result,
+            }
+        )
+
+    except Exception as e:
+        logger.error("diagnose_agricultural_pitfalls_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+@app.post("/v1/advisor/ecological/companion-planting", response_model=AgentResponse, tags=["Ecological"])
+async def design_companion_planting(request: CompanionPlantingRequest):
+    """
+    Design companion planting layout
+    تصميم تخطيط الزراعة التصاحبية
+
+    Creates an optimal companion planting design for pest control and yield improvement.
+    ينشئ تصميم زراعة تصاحبية مثالي لمكافحة الآفات وتحسين المحصول.
+    """
+    try:
+        agents = app_state.get("agents")
+        if not agents:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Service not initialized"
+            )
+
+        ecological_expert = agents["ecological_expert"]
+
+        result = await ecological_expert.companion_planting_design(
+            main_crop=request.main_crop,
+            field_size=request.field_size,
+            existing_plants=request.existing_plants,
+        )
+
+        return AgentResponse(
+            status="success",
+            data=result
+        )
+
+    except Exception as e:
+        logger.error("design_companion_planting_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)

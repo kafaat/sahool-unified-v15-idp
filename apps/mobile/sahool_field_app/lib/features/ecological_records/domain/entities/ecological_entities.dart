@@ -10,6 +10,39 @@ enum PracticeStatus {
   implemented, // تم التنفيذ
   paused,     // متوقف
   abandoned,  // متروك
+  ;
+
+  String get value {
+    switch (this) {
+      case PracticeStatus.planned:
+        return 'planned';
+      case PracticeStatus.inProgress:
+        return 'in_progress';
+      case PracticeStatus.implemented:
+        return 'implemented';
+      case PracticeStatus.paused:
+        return 'paused';
+      case PracticeStatus.abandoned:
+        return 'abandoned';
+    }
+  }
+
+  static PracticeStatus fromString(String value) {
+    switch (value) {
+      case 'planned':
+        return PracticeStatus.planned;
+      case 'in_progress':
+        return PracticeStatus.inProgress;
+      case 'implemented':
+        return PracticeStatus.implemented;
+      case 'paused':
+        return PracticeStatus.paused;
+      case 'abandoned':
+        return PracticeStatus.abandoned;
+      default:
+        return PracticeStatus.planned;
+    }
+  }
 }
 
 /// نوع مسح التنوع البيولوجي
@@ -19,6 +52,39 @@ enum BiodiversitySurveyType {
   beneficialInsects,  // الحشرات النافعة
   soilOrganisms,      // كائنات التربة
   general,            // عام
+  ;
+
+  String get value {
+    switch (this) {
+      case BiodiversitySurveyType.speciesCount:
+        return 'species_count';
+      case BiodiversitySurveyType.habitatAssessment:
+        return 'habitat_assessment';
+      case BiodiversitySurveyType.beneficialInsects:
+        return 'beneficial_insects';
+      case BiodiversitySurveyType.soilOrganisms:
+        return 'soil_organisms';
+      case BiodiversitySurveyType.general:
+        return 'general';
+    }
+  }
+
+  static BiodiversitySurveyType fromString(String value) {
+    switch (value) {
+      case 'species_count':
+        return BiodiversitySurveyType.speciesCount;
+      case 'habitat_assessment':
+        return BiodiversitySurveyType.habitatAssessment;
+      case 'beneficial_insects':
+        return BiodiversitySurveyType.beneficialInsects;
+      case 'soil_organisms':
+        return BiodiversitySurveyType.soilOrganisms;
+      case 'general':
+        return BiodiversitySurveyType.general;
+      default:
+        return BiodiversitySurveyType.general;
+    }
+  }
 }
 
 /// حالة صحة التربة
@@ -27,6 +93,35 @@ enum SoilHealthStatus {
   fair,      // مقبول
   good,      // جيد
   excellent, // ممتاز
+  ;
+
+  String get value {
+    switch (this) {
+      case SoilHealthStatus.poor:
+        return 'poor';
+      case SoilHealthStatus.fair:
+        return 'fair';
+      case SoilHealthStatus.good:
+        return 'good';
+      case SoilHealthStatus.excellent:
+        return 'excellent';
+    }
+  }
+
+  static SoilHealthStatus fromString(String value) {
+    switch (value) {
+      case 'poor':
+        return SoilHealthStatus.poor;
+      case 'fair':
+        return SoilHealthStatus.fair;
+      case 'good':
+        return SoilHealthStatus.good;
+      case 'excellent':
+        return SoilHealthStatus.excellent;
+      default:
+        return SoilHealthStatus.fair;
+    }
+  }
 }
 
 /// سجل التنوع البيولوجي
@@ -85,6 +180,29 @@ class BiodiversityRecord {
     if (speciesCount == null) return 0;
     // تقدير بسيط: كل نوع يساوي 5 نقاط، بحد أقصى 100
     return (speciesCount! * 5).clamp(0, 100).toDouble();
+  }
+
+  /// تحويل إلى JSON للـ API
+  /// Convert to JSON for API
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'farm_id': farmId,
+      'tenant_id': tenantId,
+      'survey_date': surveyDate.toIso8601String(),
+      'survey_type': surveyType.value,
+      'species_count': speciesCount,
+      'beneficial_insect_count': beneficialInsectCount,
+      'pollinator_count': pollinatorCount,
+      'species_observed': speciesObserved,
+      'habitat_features': habitatFeatures,
+      'diversity_index': diversityIndex,
+      'habitat_quality_score': habitatQualityScore,
+      'notes': notes,
+      'notes_ar': notesAr,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
   }
 
   BiodiversityRecord copyWith({
@@ -233,6 +351,36 @@ class SoilHealthRecord {
     return SoilHealthStatus.poor;
   }
 
+  /// تحويل إلى JSON للـ API
+  /// Convert to JSON for API
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'field_id': fieldId,
+      'tenant_id': tenantId,
+      'sample_date': sampleDate.toIso8601String(),
+      'sample_depth_cm': sampleDepthCm,
+      'organic_matter_percent': organicMatterPercent,
+      'soil_texture': soilTexture,
+      'bulk_density': bulkDensity,
+      'water_infiltration_rate': waterInfiltrationRate,
+      'aggregate_stability': aggregateStability,
+      'earthworm_count': earthwormCount,
+      'microbial_biomass': microbialBiomass,
+      'respiration_rate': respirationRate,
+      'ph_level': phLevel,
+      'ec_level': ecLevel,
+      'cec_level': cecLevel,
+      'health_score': healthScore,
+      'status': status?.value,
+      'notes': notes,
+      'notes_ar': notesAr,
+      'lab_report_url': labReportUrl,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
   SoilHealthRecord copyWith({
     String? id,
     String? fieldId,
@@ -349,6 +497,32 @@ class WaterConservationRecord {
 
   /// نسبة التوفير
   double get savingsPercentage => comparisonToBaseline ?? 0;
+
+  /// تحويل إلى JSON للـ API
+  /// Convert to JSON for API
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'farm_id': farmId,
+      'field_id': fieldId,
+      'tenant_id': tenantId,
+      'record_date': recordDate.toIso8601String(),
+      'period_type': periodType,
+      'water_used_liters': waterUsedLiters,
+      'water_source': waterSource,
+      'irrigation_method': irrigationMethod,
+      'water_per_hectare': waterPerHectare,
+      'efficiency_percentage': efficiencyPercentage,
+      'comparison_to_baseline': comparisonToBaseline,
+      'mulching_applied': mulchingApplied,
+      'drip_irrigation_used': dripIrrigationUsed,
+      'rainwater_harvested_liters': rainwaterHarvestedLiters,
+      'notes': notes,
+      'notes_ar': notesAr,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
 
   WaterConservationRecord copyWith({
     String? id,
@@ -470,6 +644,35 @@ class FarmPracticeRecord {
   /// تقييم الفعالية كنسبة مئوية
   int get effectivenessPercentage => (effectivenessRating ?? 0) * 20;
 
+  /// تحويل إلى JSON للـ API
+  /// Convert to JSON for API
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'farm_id': farmId,
+      'field_id': fieldId,
+      'tenant_id': tenantId,
+      'practice_id': practiceId,
+      'practice_name': practiceName,
+      'practice_name_ar': practiceNameAr,
+      'category': category,
+      'status': status.value,
+      'start_date': startDate?.toIso8601String(),
+      'implementation_date': implementationDate?.toIso8601String(),
+      'implementation_notes': implementationNotes,
+      'implementation_notes_ar': implementationNotesAr,
+      'materials_used': materialsUsed,
+      'labor_hours': laborHours,
+      'cost_estimate': costEstimate,
+      'observed_benefits': observedBenefits,
+      'challenges': challenges,
+      'effectiveness_rating': effectivenessRating,
+      'globalgap_control_points': globalgapControlPoints,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
   FarmPracticeRecord copyWith({
     String? id,
     String? farmId,
@@ -520,5 +723,51 @@ class FarmPracticeRecord {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
+  }
+}
+
+/// بيانات لوحة المعلومات الإيكولوجية
+/// Ecological Dashboard Data
+class EcologicalDashboardData {
+  final double overallScore;
+  final double biodiversityScore;
+  final double soilHealthScore;
+  final double waterEfficiencyScore;
+  final int totalPractices;
+  final int implementedPractices;
+
+  final BiodiversityRecord? latestBiodiversityRecord;
+  final SoilHealthRecord? latestSoilHealthRecord;
+  final WaterConservationRecord? latestWaterRecord;
+
+  final int totalRecordsCount;
+  final DateTime? lastUpdated;
+
+  const EcologicalDashboardData({
+    required this.overallScore,
+    required this.biodiversityScore,
+    required this.soilHealthScore,
+    required this.waterEfficiencyScore,
+    required this.totalPractices,
+    required this.implementedPractices,
+    this.latestBiodiversityRecord,
+    this.latestSoilHealthRecord,
+    this.latestWaterRecord,
+    required this.totalRecordsCount,
+    this.lastUpdated,
+  });
+
+  /// نسبة تنفيذ الممارسات
+  /// Practice implementation percentage
+  double get practiceImplementationRate {
+    if (totalPractices == 0) return 0;
+    return (implementedPractices / totalPractices * 100);
+  }
+
+  /// هل البيانات محدثة؟ (آخر 30 يوم)
+  /// Is data fresh? (within last 30 days)
+  bool get isFresh {
+    if (lastUpdated == null) return false;
+    return DateTime.now().difference(lastUpdated!).inDays <= 30;
   }
 }

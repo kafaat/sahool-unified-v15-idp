@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -46,6 +47,30 @@ function generateNonce(): string {
 }
 
 /**
+ * Verify JWT token using jose library (edge-compatible)
+ * Returns true if valid, false otherwise
+ */
+async function verifyJWT(token: string): Promise<boolean> {
+  try {
+    // Get JWT secret from environment or use fallback
+    const secret = process.env.JWT_SECRET || 'sahool-default-secret-change-in-production';
+    const secretKey = new TextEncoder().encode(secret);
+
+    // Verify the JWT token
+    await jwtVerify(token, secretKey, {
+      // Verify standard claims (exp, nbf, etc.)
+      algorithms: ['HS256'],
+    });
+
+    return true;
+  } catch (error) {
+    // Token verification failed (invalid signature, expired, etc.)
+    console.error('JWT verification failed:', error instanceof Error ? error.message : 'Unknown error');
+    return false;
+  }
+}
+
+/**
  * Build Content Security Policy based on environment
  */
 function buildCSP(nonce: string, isDevelopment: boolean): string {
@@ -59,14 +84,14 @@ function buildCSP(nonce: string, isDevelopment: boolean): string {
 
   const connectSrc = isDevelopment
     ? `'self' http://localhost:* ws://localhost:* wss://localhost:* https://tile.openstreetmap.org https://sentinel-hub.com`
-    : `'self' wss: https: https://tile.openstreetmap.org https://sentinel-hub.com`;
+    : `'self' wss://*.sahool.com https://*.sahool.com https://tile.openstreetmap.org https://sentinel-hub.com`;
 
   // Build CSP directives
   const directives = [
     `default-src 'self'`,
     `script-src ${scriptSrc}`,
     `style-src ${styleSrc}`,
-    `img-src 'self' data: https: blob:`,
+    `img-src 'self' data: blob: https://tile.openstreetmap.org https://*.sahool.com`,
     `font-src 'self' https://fonts.gstatic.com`,
     `connect-src ${connectSrc}`,
     `frame-ancestors 'none'`,
@@ -85,7 +110,7 @@ function buildCSP(nonce: string, isDevelopment: boolean): string {
   return directives.join('; ') + ';';
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow static files and Next.js internals
@@ -122,7 +147,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Token exists - add security headers
+  // Verify JWT token
+  const isValidToken = await verifyJWT(token);
+
+  if (!isValidToken) {
+    // Token is invalid or expired - redirect to login
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnTo', pathname);
+    loginUrl.searchParams.set('error', 'session_expired');
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // Token is valid - add security headers
   const response = NextResponse.next();
 
   // Detect environment

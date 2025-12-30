@@ -40,6 +40,8 @@ export interface RateLimitOptions {
     keyGenerator?: (req: Request) => string;
     endpointTypeDetector?: (req: Request) => EndpointType;
     onLimitReached?: (req: Request, res: Response) => void;
+    trustedProxies?: string[]; // List of trusted proxy IPs
+    failClosedForAuth?: boolean; // If true, reject AUTH requests when Redis fails (default: true)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -66,6 +68,84 @@ const DEFAULT_RATE_LIMITS: Record<EndpointType, RateLimitConfig> = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// In-Memory Rate Limiter (Fallback)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+interface RequestEntry {
+    timestamp: number;
+}
+
+/**
+ * Simple in-memory rate limiter using Map
+ * Used as fallback when Redis is unavailable
+ */
+class InMemoryRateLimiter {
+    private requests: Map<string, RequestEntry[]> = new Map();
+    private cleanupInterval: NodeJS.Timeout;
+
+    constructor() {
+        // Cleanup expired entries every 60 seconds
+        this.cleanupInterval = setInterval(() => {
+            this.cleanup();
+        }, 60000);
+    }
+
+    checkLimit(
+        key: string,
+        config: RateLimitConfig
+    ): { allowed: boolean; remaining: number; resetTime: number } {
+        const now = Date.now();
+        const windowStart = now - config.windowMs;
+
+        // Get existing requests for this key
+        let entries = this.requests.get(key) || [];
+
+        // Filter out expired entries (outside the window)
+        entries = entries.filter(entry => entry.timestamp > windowStart);
+
+        // Check if limit exceeded
+        const currentCount = entries.length;
+        const allowed = currentCount < config.requestsPerMinute;
+        const remaining = Math.max(0, config.requestsPerMinute - currentCount - 1);
+
+        if (allowed) {
+            // Add current request
+            entries.push({ timestamp: now });
+            this.requests.set(key, entries);
+        }
+
+        return {
+            allowed,
+            remaining,
+            resetTime: Math.ceil(config.windowMs / 1000)
+        };
+    }
+
+    private cleanup(): void {
+        const now = Date.now();
+        const maxAge = 2 * 60000; // Keep entries for 2 minutes max
+
+        for (const [key, entries] of this.requests.entries()) {
+            // Remove entries older than maxAge
+            const filtered = entries.filter(entry => now - entry.timestamp < maxAge);
+
+            if (filtered.length === 0) {
+                this.requests.delete(key);
+            } else {
+                this.requests.set(key, filtered);
+            }
+        }
+    }
+
+    destroy(): void {
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+        }
+        this.requests.clear();
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // Redis Rate Limiter
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -73,9 +153,17 @@ export class RedisRateLimiter {
     private client: RedisClientType | null = null;
     private readonly keyPrefix: string;
     private connected: boolean = false;
+    private inMemoryLimiter: InMemoryRateLimiter;
+    private failClosedForAuth: boolean;
 
-    constructor(redisUrl?: string, keyPrefix: string = 'ratelimit:') {
+    constructor(
+        redisUrl?: string,
+        keyPrefix: string = 'ratelimit:',
+        failClosedForAuth: boolean = true
+    ) {
         this.keyPrefix = keyPrefix;
+        this.failClosedForAuth = failClosedForAuth;
+        this.inMemoryLimiter = new InMemoryRateLimiter();
 
         if (redisUrl) {
             this.initRedis(redisUrl);
@@ -122,16 +210,25 @@ export class RedisRateLimiter {
 
     async checkLimit(
         key: string,
-        config: RateLimitConfig
+        config: RateLimitConfig,
+        endpointType?: EndpointType
     ): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
-        // If Redis is not connected, allow the request (fail open)
+        // If Redis is not connected, use in-memory fallback
         if (!this.client || !this.connected) {
-            console.warn('Redis not available, allowing request');
-            return {
-                allowed: true,
-                remaining: config.requestsPerMinute,
-                resetTime: Math.ceil(config.windowMs / 1000)
-            };
+            console.warn('Redis not available, using in-memory rate limiter');
+
+            // SECURITY: Fail-closed for AUTH endpoints
+            if (this.failClosedForAuth && endpointType === EndpointType.AUTH) {
+                console.error('Redis unavailable - rejecting AUTH request (fail-closed)');
+                return {
+                    allowed: false,
+                    remaining: 0,
+                    resetTime: Math.ceil(config.windowMs / 1000)
+                };
+            }
+
+            // Use in-memory fallback for other endpoints
+            return this.inMemoryLimiter.checkLimit(key, config);
         }
 
         const redisKey = `${this.keyPrefix}${key}`;
@@ -173,12 +270,20 @@ export class RedisRateLimiter {
             };
         } catch (error) {
             console.error('Redis rate limit check failed:', error);
-            // Fail open - allow the request if Redis has issues
-            return {
-                allowed: true,
-                remaining: config.requestsPerMinute,
-                resetTime: Math.ceil(config.windowMs / 1000)
-            };
+
+            // SECURITY: Fail-closed for AUTH endpoints
+            if (this.failClosedForAuth && endpointType === EndpointType.AUTH) {
+                console.error('Redis error - rejecting AUTH request (fail-closed)');
+                return {
+                    allowed: false,
+                    remaining: 0,
+                    resetTime: Math.ceil(config.windowMs / 1000)
+                };
+            }
+
+            // Use in-memory fallback for other endpoints
+            console.warn('Using in-memory rate limiter due to Redis error');
+            return this.inMemoryLimiter.checkLimit(key, config);
         }
     }
 
@@ -187,6 +292,7 @@ export class RedisRateLimiter {
             await this.client.quit();
             this.connected = false;
         }
+        this.inMemoryLimiter.destroy();
     }
 }
 
@@ -196,13 +302,91 @@ export class RedisRateLimiter {
 
 /**
  * Default key generator - uses client IP address
+ * SECURITY: Does NOT use X-Forwarded-For without trusted proxy validation
  */
 const defaultKeyGenerator = (req: Request): string => {
-    const forwarded = req.headers['x-forwarded-for'];
-    const ip = forwarded
-        ? (Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0]).trim()
-        : req.ip || req.socket.remoteAddress || 'unknown';
-    return ip;
+    // Use direct connection IP (safe default)
+    return req.ip || req.socket.remoteAddress || 'unknown';
+};
+
+/**
+ * Create a key generator with trusted proxy support
+ * @param trustedProxies List of trusted proxy IPs (e.g., load balancer IPs)
+ */
+const createKeyGeneratorWithProxySupport = (trustedProxies: string[] = []) => {
+    return (req: Request): string => {
+        // Get the direct connection IP
+        const directIp = req.socket.remoteAddress || 'unknown';
+
+        // Only trust X-Forwarded-For if the direct connection is from a trusted proxy
+        if (trustedProxies.length > 0 && trustedProxies.includes(directIp)) {
+            const forwarded = req.headers['x-forwarded-for'];
+            if (forwarded) {
+                // Get the leftmost IP (client's real IP)
+                const clientIp = Array.isArray(forwarded)
+                    ? forwarded[0]
+                    : forwarded.split(',')[0];
+                return clientIp.trim();
+            }
+        }
+
+        // Fallback to direct IP (safe default)
+        return req.ip || directIp;
+    };
+};
+
+
+/**
+ * Normalize and sanitize path to prevent traversal attacks
+ * Removes ../, ./, and duplicate slashes
+ */
+const normalizePath = (path: string): string => {
+    // Remove query string and fragment
+    const cleanPath = path.split('?')[0].split('#')[0];
+
+    // Split by slash, filter out empty, '.', and '..' segments
+    const segments: string[] = [];
+    for (const segment of cleanPath.split('/')) {
+        if (segment === '' || segment === '.') {
+            continue;
+        }
+        if (segment === '..') {
+            // Remove last segment if going up (prevent path traversal)
+            segments.pop();
+        } else {
+            segments.push(segment);
+        }
+    }
+
+    // Reconstruct path with leading slash
+    return '/' + segments.join('/');
+};
+
+/**
+ * Check if a normalized path should be skipped for rate limiting
+ * Uses exact matching to prevent bypass attacks
+ * SECURITY: Prevents path traversal bypasses like /healthz/../../auth
+ */
+const shouldSkipPath = (requestPath: string, skipPaths: string[]): boolean => {
+    const normalizedPath = normalizePath(requestPath);
+
+    return skipPaths.some(skipPath => {
+        const normalizedSkipPath = normalizePath(skipPath);
+
+        // Exact match
+        if (normalizedPath === normalizedSkipPath) {
+            return true;
+        }
+
+        // Prefix match only if skip path ends with wildcard
+        // This prevents /healthz matching /healthz/../../auth
+        if (normalizedSkipPath.endsWith('/*')) {
+            const prefix = normalizedSkipPath.slice(0, -2);
+            return normalizedPath === prefix || normalizedPath.startsWith(prefix + '/');
+        }
+
+        return false;
+    });
 };
 
 /**
@@ -238,21 +422,30 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
     const {
         redis,
         skipPaths = ['/healthz', '/readyz', '/livez', '/metrics'],
-        keyGenerator = defaultKeyGenerator,
+        keyGenerator,
         endpointTypeDetector = defaultEndpointTypeDetector,
-        onLimitReached
+        onLimitReached,
+        trustedProxies = [],
+        failClosedForAuth = true
     } = options;
 
-    // Initialize Redis rate limiter
+    // Use trusted proxy key generator if trustedProxies is provided, otherwise use default
+    const finalKeyGenerator = keyGenerator ||
+        (trustedProxies.length > 0
+            ? createKeyGeneratorWithProxySupport(trustedProxies)
+            : defaultKeyGenerator);
+
+    // Initialize Redis rate limiter with fail-closed option
     const limiter = new RedisRateLimiter(
         redis?.url || process.env.REDIS_URL,
-        redis?.keyPrefix
+        redis?.keyPrefix,
+        failClosedForAuth
     );
 
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
             // Skip certain paths
-            if (skipPaths.some(path => req.path.startsWith(path))) {
+            if (shouldSkipPath(req.path, skipPaths)) {
                 return next();
             }
 
@@ -261,13 +454,14 @@ export function createRateLimiter(options: RateLimitOptions = {}) {
             const config = DEFAULT_RATE_LIMITS[endpointType];
 
             // Generate unique key for this client/endpoint
-            const clientKey = keyGenerator(req);
+            const clientKey = finalKeyGenerator(req);
             const rateLimitKey = `${endpointType}:${clientKey}`;
 
-            // Check rate limit
+            // Check rate limit (pass endpointType for fail-closed behavior)
             const { allowed, remaining, resetTime } = await limiter.checkLimit(
                 rateLimitKey,
-                config
+                config,
+                endpointType
             );
 
             // Add rate limit headers
@@ -322,31 +516,41 @@ export function createCustomRateLimiter(
     const {
         redis,
         skipPaths = ['/healthz', '/readyz', '/livez', '/metrics'],
-        keyGenerator = defaultKeyGenerator,
+        keyGenerator,
         endpointTypeDetector = defaultEndpointTypeDetector,
-        onLimitReached
+        onLimitReached,
+        trustedProxies = [],
+        failClosedForAuth = true
     } = options;
+
+    // Use trusted proxy key generator if trustedProxies is provided, otherwise use default
+    const finalKeyGenerator = keyGenerator ||
+        (trustedProxies.length > 0
+            ? createKeyGeneratorWithProxySupport(trustedProxies)
+            : defaultKeyGenerator);
 
     const limiter = new RedisRateLimiter(
         redis?.url || process.env.REDIS_URL,
-        redis?.keyPrefix
+        redis?.keyPrefix,
+        failClosedForAuth
     );
 
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            if (skipPaths.some(path => req.path.startsWith(path))) {
+            if (shouldSkipPath(req.path, skipPaths)) {
                 return next();
             }
 
             const endpointType = endpointTypeDetector(req);
             const config = mergedLimits[endpointType];
 
-            const clientKey = keyGenerator(req);
+            const clientKey = finalKeyGenerator(req);
             const rateLimitKey = `${endpointType}:${clientKey}`;
 
             const { allowed, remaining, resetTime } = await limiter.checkLimit(
                 rateLimitKey,
-                config
+                config,
+                endpointType
             );
 
             res.setHeader('X-RateLimit-Limit', config.requestsPerMinute.toString());

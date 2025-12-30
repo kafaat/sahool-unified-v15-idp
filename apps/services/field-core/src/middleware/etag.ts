@@ -4,10 +4,13 @@ import crypto from "crypto";
 /**
  * ETag Middleware for SAHOOL Field Core API
  *
- * Implements optimistic locking using HTTP ETag headers:
- * - ETag: Generated from entity ID + version
- * - If-Match: Client sends expected ETag for updates
+ * Implements optimistic locking and caching using HTTP ETag headers:
+ * - ETag: Generated from entity ID + version using SHA-256
+ * - If-Match: Client sends expected ETag for updates (write operations)
+ * - If-None-Match: Client sends ETag for conditional GET (read operations)
  * - 409 Conflict: Returned when ETag doesn't match (concurrent modification)
+ * - 304 Not Modified: Returned when client has current version (caching)
+ * - Cache-Control: Optional header for cache directives
  */
 
 /**
@@ -16,7 +19,7 @@ import crypto from "crypto";
  */
 export function generateETag(id: string, version: number): string {
     const data = `field:${id}:v${version}`;
-    const hash = crypto.createHash("md5").update(data).digest("hex").substring(0, 16);
+    const hash = crypto.createHash("sha256").update(data).digest("hex").substring(0, 16);
     return `"${hash}"`;
 }
 
@@ -47,6 +50,28 @@ export function validateIfMatch(
     const clientETag = parseETag(ifMatchHeader);
     const serverETag = parseETag(generateETag(currentId, currentVersion));
 
+    return clientETag === serverETag;
+}
+
+/**
+ * Handle If-None-Match header for GET requests (304 Not Modified support)
+ * Returns true if client ETag matches server ETag (304 can be returned)
+ * Returns false if ETags don't match (200 with content should be returned)
+ */
+export function handleIfNoneMatch(
+    ifNoneMatchHeader: string | undefined,
+    currentId: string,
+    currentVersion: number
+): boolean {
+    if (!ifNoneMatchHeader) {
+        // No If-None-Match header = return full content
+        return false;
+    }
+
+    const clientETag = parseETag(ifNoneMatchHeader);
+    const serverETag = parseETag(generateETag(currentId, currentVersion));
+
+    // Return true if ETags match (client has current version, return 304)
     return clientETag === serverETag;
 }
 
@@ -96,6 +121,7 @@ export function createConflictResponse(
 /**
  * Middleware to set ETag header on responses
  * Use with res.locals.etag to set the ETag value
+ * Also supports Cache-Control header via res.locals.cacheControl
  */
 export function setETagHeader(
     _req: Request,
@@ -109,6 +135,12 @@ export function setETagHeader(
         if (res.locals.etag) {
             res.setHeader("ETag", res.locals.etag);
         }
+
+        // If cacheControl is set in locals, add it to headers
+        if (res.locals.cacheControl) {
+            res.setHeader("Cache-Control", res.locals.cacheControl);
+        }
+
         return originalJson(body);
     };
 
@@ -120,4 +152,11 @@ export function setETagHeader(
  */
 export function getIfMatchHeader(req: Request): string | undefined {
     return req.headers["if-match"] as string | undefined;
+}
+
+/**
+ * Extract If-None-Match header from request
+ */
+export function getIfNoneMatchHeader(req: Request): string | undefined {
+    return req.headers["if-none-match"] as string | undefined;
 }

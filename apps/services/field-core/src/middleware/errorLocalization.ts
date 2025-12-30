@@ -7,6 +7,7 @@
  */
 
 import { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import { randomBytes } from "crypto";
 import {
     parseAcceptLanguage,
     getBilingualTranslation,
@@ -76,6 +77,63 @@ export function languageParser() {
 }
 
 /**
+ * List of sensitive keys that should be filtered from error details
+ */
+const SENSITIVE_KEYS = [
+    "password",
+    "secret",
+    "token",
+    "api_key",
+    "apikey",
+    "accesstoken",
+    "refreshtoken",
+    "privatekey",
+    "sessionid",
+    "cookie",
+    "credentials",
+    "authorization",
+    "auth",
+];
+
+/**
+ * Recursively filter sensitive data from objects
+ * Removes any keys that match sensitive patterns (case-insensitive)
+ */
+function filterSensitiveData(data: any): any {
+    if (data === null || data === undefined) {
+        return data;
+    }
+
+    // Handle arrays
+    if (Array.isArray(data)) {
+        return data.map((item) => filterSensitiveData(item));
+    }
+
+    // Handle objects
+    if (typeof data === "object") {
+        const filtered: any = {};
+
+        for (const [key, value] of Object.entries(data)) {
+            // Check if key matches any sensitive pattern (case-insensitive)
+            const keyLower = key.toLowerCase();
+            const isSensitive = SENSITIVE_KEYS.some((sensitiveKey) =>
+                keyLower.includes(sensitiveKey)
+            );
+
+            if (!isSensitive) {
+                // Recursively filter nested objects/arrays
+                filtered[key] = filterSensitiveData(value);
+            }
+        }
+
+        return filtered;
+    }
+
+    // Return primitive values as-is
+    return data;
+}
+
+/**
  * Create a standardized error response
  */
 export function createErrorResponse(
@@ -110,14 +168,7 @@ export function createErrorResponse(
 
     // Add details if provided (filter sensitive data)
     if (details) {
-        const sensitiveKeys = ["password", "secret", "token", "api_key", "authorization"];
-        const safeDetails: any = {};
-
-        for (const [key, value] of Object.entries(details)) {
-            if (!sensitiveKeys.includes(key.toLowerCase())) {
-                safeDetails[key] = value;
-            }
-        }
+        const safeDetails = filterSensitiveData(details);
 
         if (Object.keys(safeDetails).length > 0) {
             response.error.details = safeDetails;
@@ -128,10 +179,10 @@ export function createErrorResponse(
 }
 
 /**
- * Generate a short error ID for tracking
+ * Generate a short error ID for tracking using cryptographically secure random bytes
  */
 function generateErrorId(): string {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
+    return randomBytes(4).toString('hex').toUpperCase();
 }
 
 /**
@@ -243,8 +294,8 @@ export function notFoundHandler(req: LocalizedRequest, res: Response) {
     res.status(404).json(
         createErrorResponse(
             "NOT_FOUND",
-            `Cannot ${req.method} ${req.path}`,
-            `لا يمكن ${req.method} ${req.path}`,
+            "The requested resource was not found",
+            "المورد المطلوب غير موجود",
             preferredLanguage,
             errorId
         )

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'deep_link_handler.dart';
 
 // Features
 import '../../features/splash/ui/splash_screen.dart';
@@ -29,6 +30,9 @@ class AppRouter {
       GlobalKey<NavigatorState>(debugLabel: 'root');
   static final GlobalKey<NavigatorState> _shellNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'shell');
+
+  // Deep Link Handler instance
+  static DeepLinkHandler? _deepLinkHandler;
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -230,4 +234,25 @@ class AppRouter {
       ),
     ),
   );
+
+  /// Initialize deep link handling
+  ///
+  /// Call this method in your app's initialization to enable deep link support.
+  /// Example:
+  /// ```dart
+  /// await AppRouter.initializeDeepLinks();
+  /// ```
+  static Future<void> initializeDeepLinks() async {
+    _deepLinkHandler = DeepLinkHandler(router: router);
+    await _deepLinkHandler!.initialize();
+  }
+
+  /// Get the deep link handler instance
+  static DeepLinkHandler? get deepLinkHandler => _deepLinkHandler;
+
+  /// Dispose deep link handler
+  static void disposeDeepLinks() {
+    _deepLinkHandler?.dispose();
+    _deepLinkHandler = null;
+  }
 }

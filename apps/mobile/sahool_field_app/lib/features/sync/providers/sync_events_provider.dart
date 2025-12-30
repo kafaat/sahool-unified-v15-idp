@@ -269,3 +269,34 @@ final syncHealthProvider = Provider<QueueHealthStatus>((ref) {
   final queueManager = ref.watch(queueManagerProvider);
   return queueManager.getHealthStatus();
 });
+
+// ============================================================
+// Enhanced Sync Status Providers
+// ============================================================
+
+/// Last sync time provider
+final lastSyncTimeProvider = Provider<DateTime?>((ref) {
+  final queueManager = ref.watch(queueManagerProvider);
+  return queueManager.currentStats.lastSyncTime;
+});
+
+/// Is fully synced provider
+final isFullySyncedProvider = Provider<bool>((ref) {
+  return ref.watch(syncStatusProvider).isFullySynced;
+});
+
+/// Sync error message provider
+final syncErrorProvider = Provider<String?>((ref) {
+  return ref.watch(syncStatusProvider).lastError;
+});
+
+/// Network status provider
+final networkStatusProvider = StateProvider<bool>((ref) => false);
+
+/// Manual sync trigger provider
+final manualSyncTriggerProvider = Provider<Future<SyncResult> Function()>((ref) {
+  return () async {
+    final syncStatus = ref.read(syncStatusProvider.notifier);
+    return await syncStatus.syncNow();
+  };
+});

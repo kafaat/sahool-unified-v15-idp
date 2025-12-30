@@ -26,10 +26,16 @@ export 'network/api_result.dart';
 export 'sync/sync_engine.dart';
 export 'sync/network_status.dart';
 
+// Enhanced Connectivity
+export 'connectivity/connectivity.dart';
+
 // Auth
 export 'auth/auth_service.dart';
 export 'auth/secure_storage_service.dart';
 export 'auth/biometric_service.dart';
+
+// Runtime Permissions (Android 6.0+, iOS)
+export 'permissions/permissions.dart';
 
 // Domain Models
 export 'domain/models/credit_tier.dart';
@@ -48,3 +54,6 @@ export 'offline/offline.dart';
 
 // Voice Commands
 export 'voice/voice.dart';
+
+// Monitoring & Error Tracking
+export 'monitoring/sentry_service.dart';

@@ -45,6 +45,9 @@ RUN mkdir -p /root/.pip && \
 COPY requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
+# Copy shared config (needed for CORS configuration)
+COPY ../shared/config/ ./shared/config/
+
 # Copy source
 COPY src/ ./src/
 
@@ -53,9 +56,10 @@ RUN chown -R sahool:sahool /app
 
 USER sahool
 
+ENV PORT=8113
 EXPOSE 8113
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8113/healthz')" || exit 1
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8113"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]

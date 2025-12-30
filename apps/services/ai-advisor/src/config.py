@@ -44,10 +44,12 @@ class Settings(BaseSettings):
     # External Services | الخدمات الخارجية
     # Updated to use consolidated services (v16.0.0+)
     # crop-intelligence-service=8095, weather-service=8092, vegetation-analysis-service=8090, advisory-service=8093
-    crop_health_ai_url: str = "http://crop-intelligence-service:8095"
-    weather_core_url: str = "http://weather-service:8092"
-    satellite_service_url: str = "http://vegetation-analysis-service:8090"
+    # Environment variable names match docker-compose.yml
+    crop_health_url: str = "http://crop-intelligence-service:8095"
+    weather_url: str = "http://weather-service:8092"
+    satellite_url: str = "http://vegetation-analysis-service:8090"
     agro_advisor_url: str = "http://advisory-service:8093"
+    ndvi_url: str = "http://vegetation-analysis-service:8090"
 
     # Qdrant Vector Database | قاعدة بيانات المتجهات Qdrant
     qdrant_host: str = "qdrant"
@@ -68,7 +70,8 @@ class Settings(BaseSettings):
     agent_registry_ttl: int = 3600  # seconds
 
     # Embeddings Model | نموذج التضمينات
-    embeddings_model: str = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+    # Environment variable name matches docker-compose.yml (EMBEDDING_MODEL)
+    embedding_model: str = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
     embeddings_device: str = "cpu"  # or "cuda" for GPU
 
     # Agent Configuration | إعدادات الوكلاء

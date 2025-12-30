@@ -14,7 +14,7 @@ export interface SliderMark {
 }
 
 export interface ModernSliderProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type'> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'type' | 'onChange'> {
   label?: string;
   error?: string;
   min?: number;

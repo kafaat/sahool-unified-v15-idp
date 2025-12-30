@@ -105,14 +105,14 @@ export function StaggeredList({
   testId,
 }: StaggeredListProps) {
   const [shouldAnimate, setShouldAnimate] = useState(animateOnMount && !animateOnScroll);
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLElement | null>(null);
   const { isVisible, elementRef: scrollRef } = animateOnScroll
     ? useScrollAnimation(scrollConfig)
     : { isVisible: false, elementRef: { current: null } };
 
   // Merge refs if using scroll animation
   const mergedRef = (node: HTMLElement | null) => {
-    containerRef.current = node;
+    (containerRef as React.MutableRefObject<HTMLElement | null>).current = node;
     if (animateOnScroll && scrollRef) {
       (scrollRef as React.MutableRefObject<HTMLElement | null>).current = node;
     }
@@ -140,55 +140,57 @@ export function StaggeredList({
   const durationClass = getDurationClass(duration);
   const easingClass = getEasingClass(easing);
 
-  return (
-    <Component
-      ref={mergedRef as any}
-      className={className}
-      style={style}
-      data-testid={testId}
-    >
-      {childArray.map((child, index) => {
-        // Calculate stagger index (reverse if needed)
-        const staggerIndex = reverse ? itemCount - 1 - index : index;
+  const mappedChildren = childArray.map((child, index) => {
+    // Calculate stagger index (reverse if needed)
+    const staggerIndex = reverse ? itemCount - 1 - index : index;
 
-        // Get stagger style for this item
-        const staggerStyle = shouldAnimate
-          ? getStaggerStyle(staggerIndex, staggerConfig)
-          : {};
+    // Get stagger style for this item
+    const staggerStyle = shouldAnimate
+      ? getStaggerStyle(staggerIndex, staggerConfig)
+      : {};
 
-        // Combine animation classes
-        const animationClasses = shouldAnimate
-          ? `${baseAnimationClass} ${durationClass} ${easingClass}`
-          : '';
+    // Combine animation classes
+    const animationClasses = shouldAnimate
+      ? `${baseAnimationClass} ${durationClass} ${easingClass}`
+      : '';
 
-        // If child is a valid React element, clone it with animation props
-        if (isValidElement(child)) {
-          const childClassName = child.props.className || '';
-          const childStyle = child.props.style || {};
+    // If child is a valid React element, clone it with animation props
+    if (isValidElement(child)) {
+      const childClassName = child.props.className || '';
+      const childStyle = child.props.style || {};
 
-          return cloneElement(child, {
-            ...child.props,
-            key: child.key || index,
-            className: `${childClassName} ${animationClasses} ${itemClassName}`.trim(),
-            style: {
-              ...childStyle,
-              ...staggerStyle,
-            },
-          } as any);
-        }
+      return cloneElement(child, {
+        ...child.props,
+        key: child.key || index,
+        className: `${childClassName} ${animationClasses} ${itemClassName}`.trim(),
+        style: {
+          ...childStyle,
+          ...staggerStyle,
+        },
+      } as any);
+    }
 
-        // If child is not a valid element, wrap it
-        return (
-          <div
-            key={index}
-            className={`${animationClasses} ${itemClassName}`.trim()}
-            style={staggerStyle}
-          >
-            {child}
-          </div>
-        );
-      })}
-    </Component>
+    // If child is not a valid element, wrap it
+    return (
+      <div
+        key={index}
+        className={`${animationClasses} ${itemClassName}`.trim()}
+        style={staggerStyle}
+      >
+        {child}
+      </div>
+    );
+  });
+
+  return React.createElement(
+    Component,
+    {
+      ref: mergedRef,
+      className,
+      style,
+      'data-testid': testId,
+    },
+    mappedChildren
   );
 }
 

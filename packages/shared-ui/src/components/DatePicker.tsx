@@ -134,7 +134,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const formatDate = (date: Date | null): string => {
+    const formatDate = (date: Date | null | undefined): string => {
       if (!date) return '';
 
       const day = date.getDate().toString().padStart(2, '0');
@@ -218,7 +218,7 @@ export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       return days;
     };
 
-    const isSameDay = (date1: Date | null, date2: Date): boolean => {
+    const isSameDay = (date1: Date | null | undefined, date2: Date): boolean => {
       if (!date1) return false;
       return (
         date1.getDate() === date2.getDate() &&

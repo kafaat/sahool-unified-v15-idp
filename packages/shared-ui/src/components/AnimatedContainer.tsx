@@ -78,14 +78,14 @@ export function AnimatedContainer({
   testId,
 }: AnimatedContainerProps) {
   const [shouldAnimate, setShouldAnimate] = useState(animateOnMount && !animateOnScroll);
-  const elementRef = useRef<HTMLElement>(null);
+  const elementRef = useRef<HTMLElement | null>(null);
   const { isVisible, elementRef: scrollRef } = animateOnScroll
     ? useScrollAnimation(scrollConfig)
     : { isVisible: false, elementRef: { current: null } };
 
   // Merge refs if using scroll animation
   const mergedRef = (node: HTMLElement | null) => {
-    elementRef.current = node;
+    (elementRef as React.MutableRefObject<HTMLElement | null>).current = node;
     if (animateOnScroll && scrollRef) {
       (scrollRef as React.MutableRefObject<HTMLElement | null>).current = node;
     }
@@ -120,15 +120,15 @@ export function AnimatedContainer({
   const combinedClassName = `${animationClasses} ${className}`.trim();
   const combinedStyle = { ...animationStyles, ...style };
 
-  return (
-    <Component
-      ref={mergedRef as any}
-      className={combinedClassName}
-      style={combinedStyle}
-      data-testid={testId}
-    >
-      {children}
-    </Component>
+  return React.createElement(
+    Component,
+    {
+      ref: mergedRef,
+      className: combinedClassName,
+      style: combinedStyle,
+      'data-testid': testId,
+    },
+    children
   );
 }
 

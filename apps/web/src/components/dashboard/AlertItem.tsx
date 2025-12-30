@@ -58,12 +58,15 @@ function formatTimeAgo(dateString: string): string {
   return `منذ ${diffDays} يوم`;
 }
 
+// Default config fallback
+const defaultConfig = severityConfig.info;
+
 export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
   alert,
   onDismiss,
   onAction,
 }) {
-  const config = severityConfig[alert.severity] || severityConfig.info;
+  const config = severityConfig[alert.severity] ?? defaultConfig;
   const timeAgo = formatTimeAgo(alert.createdAt);
 
   return (

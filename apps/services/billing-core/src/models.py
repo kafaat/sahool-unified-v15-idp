@@ -205,8 +205,9 @@ class Subscription(Base):
         comment="معرف الاشتراك في Stripe"
     )
 
-    # Metadata
-    metadata: Mapped[Optional[dict]] = mapped_column(
+    # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
+    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+        "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
         default={},
@@ -415,8 +416,9 @@ class Invoice(Base):
         comment="معرف الفاتورة في Stripe"
     )
 
-    # Metadata
-    metadata: Mapped[Optional[dict]] = mapped_column(
+    # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
+    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+        "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
         default={},
@@ -561,8 +563,9 @@ class Payment(Base):
         comment="رابط الإيصال"
     )
 
-    # Metadata
-    metadata: Mapped[Optional[dict]] = mapped_column(
+    # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
+    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+        "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
         default={},
@@ -654,8 +657,9 @@ class UsageRecord(Base):
         comment="تاريخ التسجيل"
     )
 
-    # Metadata
-    metadata: Mapped[Optional[dict]] = mapped_column(
+    # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
+    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+        "metadata",  # Database column name stays as 'metadata'
         JSONB,
         nullable=True,
         default={},

@@ -11,10 +11,9 @@
  * - Support for text, images, and price offers
  */
 
-import { NestFactory, Reflector } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -28,10 +27,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-
-  // Global rate limiting guard
-  const reflector = app.get(Reflector);
-  app.useGlobalGuards(new ThrottlerGuard({ reflector }));
 
   // CORS - Secure configuration using environment variable
   const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [

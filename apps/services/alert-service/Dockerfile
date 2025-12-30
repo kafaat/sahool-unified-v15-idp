@@ -42,11 +42,14 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies
-COPY requirements.txt .
+COPY alert-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
 
+# Copy shared libraries
+COPY shared/ ./shared/
+
 # Copy source
-COPY src/ ./src/
+COPY alert-service/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

@@ -4,7 +4,8 @@
  */
 
 import { Module } from '@nestjs/common';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { PrismaService } from './prisma/prisma.service';
 import { ChatGateway } from './chat/chat.gateway';
 import { ChatService } from './chat/chat.service';
@@ -33,6 +34,15 @@ import { HealthController } from './health/health.controller';
     ]),
   ],
   controllers: [ChatController, HealthController],
-  providers: [PrismaService, ChatService, ChatGateway],
+  providers: [
+    PrismaService,
+    ChatService,
+    ChatGateway,
+    // Global rate limiting guard
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

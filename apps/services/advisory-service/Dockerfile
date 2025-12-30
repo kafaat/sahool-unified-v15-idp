@@ -29,13 +29,14 @@ RUN groupadd --system sahool && \
 RUN pip install --no-cache-dir --upgrade pip || true
 
 # Install dependencies (using shared requirements)
-COPY requirements.txt .
+COPY advisory-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy shared libraries
+COPY shared/ ./shared/
 
 # Copy source
-COPY src/ ./src/
+COPY advisory-service/src/ ./src/
 
 # Set ownership
 RUN chown -R sahool:sahool /app

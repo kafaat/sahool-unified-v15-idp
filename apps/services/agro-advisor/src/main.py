@@ -14,7 +14,11 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 # Add shared modules to path
-SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
+# In Docker, shared is at /app/shared
+SHARED_PATH = Path("/app/shared")
+if not SHARED_PATH.exists():
+    # Fallback for local development
+    SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
 

@@ -1,7 +1,7 @@
 """
 SAHOOL Alert Service - Main API
 خدمة التنبيهات الزراعية
-Port: 8107
+Port: 8113
 Version: 16.0.0
 """
 
@@ -17,7 +17,7 @@ from fastapi import FastAPI, HTTPException, Query, Path, Depends, Header
 from pydantic import BaseModel
 
 # Add path to shared config
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../shared/config"))
 from cors_config import setup_cors_middleware
 
 from .models import (
@@ -100,7 +100,7 @@ async def lifespan(app: FastAPI):
         logger.warning(f"NATS subscriber connection failed: {e}")
         app.state.subscriber = None
 
-    logger.info("Alert Service ready on port 8107")
+    logger.info("Alert Service ready on port 8113")
     yield
 
     # Cleanup
@@ -705,5 +705,5 @@ async def get_stats(
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8107))
+    port = int(os.getenv("PORT", 8113))
     uvicorn.run(app, host="0.0.0.0", port=port)

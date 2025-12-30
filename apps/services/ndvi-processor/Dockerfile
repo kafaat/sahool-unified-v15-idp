@@ -1,32 +1,16 @@
 # ============================================
 # SAHOOL NDVI Processor Dockerfile
 # خدمة معالجة صور الأقمار الصناعية
-# Port: 8101
+# Port: 8118
+# Multi-stage build for optimized production image
 # ============================================
 
-FROM python:3.11-slim
+# Builder stage
+FROM python:3.11-slim AS builder
 
-# Labels
-LABEL maintainer="KAFAAT <dev@kafaat.sa>"
-LABEL service="ndvi-processor"
-LABEL version="16.0.0"
-
-# Environment
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/app \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DEFAULT_TIMEOUT=300 \
-    PIP_RETRIES=10 \
-    PORT=8118
-
-# Create non-root user
-RUN groupadd -r sahool && useradd -r -g sahool sahool
-
-# Working directory
 WORKDIR /app
 
-# Install system dependencies for geo-spatial processing
+# Install build dependencies for geo-spatial processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libgdal-dev \
     gdal-bin \
@@ -34,7 +18,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --upgrade "setuptools>=68.0" wheel build
 
@@ -47,11 +30,42 @@ RUN mkdir -p /root/.pip && \
     echo "[install]" >> /root/.pip/pip.conf && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
-# Copy requirements first for caching
+# Copy requirements and install
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt
+
+# Production stage
+FROM python:3.11-slim
+
+# Labels
+LABEL org.opencontainers.image.title="SAHOOL ndvi-processor"
+LABEL org.opencontainers.image.version="16.0.0"
+LABEL org.opencontainers.image.vendor="KAFAAT"
+
+# Environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DEFAULT_TIMEOUT=300 \
+    PIP_RETRIES=10 \
+    PORT=8118
+
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+WORKDIR /app
+
+# Install only runtime GDAL libraries (no build tools)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgdal32 \
+    gdal-bin \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy source code
 COPY src/ ./src/

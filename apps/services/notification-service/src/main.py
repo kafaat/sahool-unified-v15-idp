@@ -492,6 +492,19 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting Notification Service...")
 
+    # Wait for database to be ready (important for Docker startup)
+    try:
+        from .database import wait_for_db
+        logger.info("⏳ Waiting for database to be ready...")
+        db_ready = await wait_for_db(max_retries=10, retry_delay=3)
+        if not db_ready:
+            logger.error("❌ Database not available after multiple retries")
+            raise Exception("Database connection timeout")
+        logger.info("✅ Database is ready")
+    except Exception as e:
+        logger.error(f"❌ Failed to connect to database: {e}")
+        raise
+
     # Initialize database
     try:
         # In production, set create_db=False and use migrations
@@ -555,18 +568,28 @@ app = FastAPI(
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint with database status"""
-    db_health = await check_db_health()
-    db_stats = await get_db_stats() if db_health.get("connected") else {}
+    try:
+        db_health = await check_db_health()
+        db_stats = await get_db_stats() if db_health.get("connected") else {}
 
-    return {
-        "status": "ok" if db_health.get("connected") else "degraded",
-        "service": "notification-service",
-        "version": "15.4.0",
-        "nats_connected": _nats_available and _nats_subscriber is not None,
-        "database": db_health,
-        "stats": db_stats,
-        "registered_farmers": len(FARMER_PROFILES),  # In-memory cache
-    }
+        return {
+            "status": "ok" if db_health.get("connected") else "degraded",
+            "service": "notification-service",
+            "version": "15.4.0",
+            "nats_connected": _nats_available and _nats_subscriber is not None,
+            "database": db_health,
+            "stats": db_stats,
+            "registered_farmers": len(FARMER_PROFILES),  # In-memory cache
+        }
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy",
+            "service": "notification-service",
+            "version": "15.4.0",
+            "error": str(e),
+            "nats_connected": _nats_available and _nats_subscriber is not None,
+        }
 
 
 @app.post("/v1/notifications")

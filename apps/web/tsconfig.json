@@ -26,12 +26,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@sahool/ui": ["../../packages/shared-ui/src"],
-      "@sahool/hooks": ["../../packages/shared-hooks/src"],
-      "@sahool/utils": ["../../packages/shared-utils/src"],
-      "@sahool/api": ["../../packages/api-client/src"],
-      "@sahool/api-client": ["../../packages/api-client/src"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

@@ -32,7 +32,7 @@ test.describe('Community Page', () => {
 
     test('should display create post button', async ({ page }) => {
       // Create post button should be visible
-      const createPostButton = page.locator('button:has-text("انشر سؤالاً أو تجربة")');
+      const createPostButton = page.getByTestId('create-post-button');
       await expect(createPostButton).toBeVisible({ timeout: timeouts.long });
 
       // Button should be a dashed border style
@@ -44,34 +44,26 @@ test.describe('Community Page', () => {
       await page.waitForTimeout(1000);
 
       // Filters container should be visible
-      const filtersContainer = page.locator('.bg-white').filter({
-        has: page.locator('input[placeholder*="ابحث"]'),
-      });
+      const filtersContainer = page.getByTestId('filters-container');
       await expect(filtersContainer).toBeVisible();
     });
 
     test('should display search input', async ({ page }) => {
-      const searchInput = page.locator('input[placeholder*="ابحث في المجتمع"]');
+      const searchInput = page.getByTestId('search-input');
       await expect(searchInput).toBeVisible({ timeout: timeouts.long });
 
-      // Search icon should be present
-      const searchIcon = page.locator('svg').filter({
-        has: page.locator('..'),
-      }).first();
-      await expect(searchIcon).toBeVisible();
+      // Search input should have correct placeholder
+      const placeholder = await searchInput.getAttribute('placeholder');
+      expect(placeholder).toContain('ابحث');
     });
 
     test('should display type filter dropdown', async ({ page }) => {
-      const typeFilter = page.locator('select').filter({
-        has: page.locator('option:has-text("الكل")'),
-      });
+      const typeFilter = page.getByTestId('type-filter');
       await expect(typeFilter).toBeVisible({ timeout: timeouts.long });
     });
 
     test('should display sort dropdown', async ({ page }) => {
-      const sortDropdown = page.locator('select').filter({
-        has: page.locator('option:has-text("الأحدث")'),
-      });
+      const sortDropdown = page.getByTestId('sort-dropdown');
       await expect(sortDropdown).toBeVisible({ timeout: timeouts.long });
     });
   });
@@ -80,17 +72,15 @@ test.describe('Community Page', () => {
     test('should display posts in feed', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Look for post cards
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      // Look for post cards using data-testid
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
       console.log(`Found ${count} post cards`);
 
       // Should have posts or show empty state
       if (count === 0) {
-        const emptyState = page.locator('text=/لا توجد منشورات|No posts found/i');
+        const emptyState = page.getByTestId('empty-state');
         await expect(emptyState).toBeVisible();
       } else {
         expect(count).toBeGreaterThan(0);
@@ -100,57 +90,50 @@ test.describe('Community Page', () => {
     test('should display post author information', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
 
-        // Should have user avatar (circular div with initials)
-        const avatar = firstPost.locator('.w-12.h-12.rounded-full');
+        // Should have user avatar
+        const avatar = firstPost.getByTestId('post-avatar');
         await expect(avatar).toBeVisible();
 
         // Should have username
-        const userName = firstPost.locator('.font-semibold.text-gray-900');
-        await expect(userName.first()).toBeVisible();
+        const userName = firstPost.getByTestId('post-author');
+        await expect(userName).toBeVisible();
 
         // Should have timestamp
-        const timestamp = firstPost.locator('text=/منذ/i');
-        await expect(timestamp.first()).toBeVisible();
+        const timestamp = firstPost.getByTestId('post-timestamp');
+        await expect(timestamp).toBeVisible();
       }
     });
 
     test('should display post type badges', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
 
-        // Should have type badge (سؤال, نصيحة, تجربة, نقاش)
-        const typeBadge = firstPost.locator('span.rounded-full.text-xs').filter({
-          hasText: /سؤال|نصيحة|تجربة|نقاش|تحديث/i,
-        });
+        // Should have type badge
+        const typeBadge = firstPost.getByTestId('post-type-badge');
 
         const hasBadge = await typeBadge.isVisible({ timeout: 2000 }).catch(() => false);
         console.log(`Post type badge visible: ${hasBadge}`);
+        expect(hasBadge).toBe(true);
       }
     });
 
     test('should display post content', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
@@ -158,28 +141,23 @@ test.describe('Community Page', () => {
         const firstPost = postCards.first();
 
         // Should have title
-        const title = firstPost.locator('h3.text-xl.font-semibold');
-        const hasTitle = await title.isVisible({ timeout: 2000 }).catch(() => false);
-
-        if (hasTitle) {
-          await expect(title).toBeVisible();
-          const titleText = await title.textContent();
-          expect(titleText?.length).toBeGreaterThan(0);
-        }
+        const title = firstPost.getByTestId('post-title');
+        await expect(title).toBeVisible();
+        const titleText = await title.textContent();
+        expect(titleText?.length).toBeGreaterThan(0);
 
         // Should have content text
-        const content = firstPost.locator('p.text-gray-700');
-        const hasContent = await content.first().isVisible().catch(() => false);
-        console.log(`Post content visible: ${hasContent}`);
+        const content = firstPost.getByTestId('post-content');
+        await expect(content).toBeVisible();
+        const contentText = await content.textContent();
+        expect(contentText?.length).toBeGreaterThan(0);
       }
     });
 
     test('should display post statistics', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
@@ -187,40 +165,38 @@ test.describe('Community Page', () => {
         const firstPost = postCards.first();
 
         // Should display likes count
-        const likesCount = firstPost.locator('text=/\\d+.*إعجاب/i');
-        await expect(likesCount.first()).toBeVisible();
+        const likesCount = firstPost.getByTestId('post-likes-count');
+        await expect(likesCount).toBeVisible();
 
         // Should display comments count
-        const commentsCount = firstPost.locator('text=/\\d+.*تعليق/i');
-        await expect(commentsCount.first()).toBeVisible();
+        const commentsCount = firstPost.getByTestId('post-comments-count');
+        await expect(commentsCount).toBeVisible();
 
         // Should display views count
-        const viewsCount = firstPost.locator('text=/\\d+.*مشاهدة/i');
-        await expect(viewsCount.first()).toBeVisible();
+        const viewsCount = firstPost.getByTestId('post-views-count');
+        await expect(viewsCount).toBeVisible();
       }
     });
 
     test('should display post images if present', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
 
-        // Check for images in grid layout
-        const images = firstPost.locator('img[src]');
-        const imageCount = await images.count();
+        // Check for images container
+        const imagesContainer = firstPost.getByTestId('post-images');
+        const hasImages = await imagesContainer.isVisible().catch(() => false);
 
-        console.log(`Found ${imageCount} images in first post`);
+        console.log(`Post has images: ${hasImages}`);
 
-        if (imageCount > 0) {
+        if (hasImages) {
           // Images should be visible
-          await expect(images.first()).toBeVisible();
+          await expect(imagesContainer).toBeVisible();
         }
       }
     });
@@ -228,28 +204,25 @@ test.describe('Community Page', () => {
     test('should display post tags if present', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
 
-        // Check for tags (starting with #)
-        const tags = firstPost.locator('span.text-green-600').filter({
-          hasText: /#/,
-        });
+        // Check for tags container
+        const tagsContainer = firstPost.getByTestId('post-tags');
+        const hasTags = await tagsContainer.isVisible().catch(() => false);
 
-        const tagCount = await tags.count();
-        console.log(`Found ${tagCount} tags in first post`);
+        console.log(`Post has tags: ${hasTags}`);
 
-        if (tagCount > 0) {
+        if (hasTags) {
           // Tags should be visible and clickable
-          await expect(tags.first()).toBeVisible();
-          const tagClass = await tags.first().getAttribute('class');
-          expect(tagClass).toContain('cursor-pointer');
+          const tags = firstPost.getByTestId('post-tag');
+          const tagCount = await tags.count();
+          console.log(`Found ${tagCount} tags in first post`);
+          expect(tagCount).toBeGreaterThan(0);
         }
       }
     });
@@ -257,9 +230,7 @@ test.describe('Community Page', () => {
     test('should display user badges if present', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -277,9 +248,7 @@ test.describe('Community Page', () => {
     test('should display like button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
@@ -287,7 +256,7 @@ test.describe('Community Page', () => {
         const firstPost = postCards.first();
 
         // Like button should be visible
-        const likeButton = firstPost.locator('button:has-text("إعجاب")');
+        const likeButton = firstPost.getByTestId('post-like-button');
         await expect(likeButton).toBeVisible();
 
         // Should have thumbs up icon
@@ -299,15 +268,13 @@ test.describe('Community Page', () => {
     test('should toggle like on post when clicked', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
-        const likeButton = firstPost.locator('button:has-text("إعجاب")');
+        const likeButton = firstPost.getByTestId('post-like-button');
 
         // Get initial state
         const initialClass = await likeButton.getAttribute('class');
@@ -325,15 +292,13 @@ test.describe('Community Page', () => {
     test('should show liked state with different styling', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
-        const likeButton = firstPost.locator('button:has-text("إعجاب")');
+        const likeButton = firstPost.getByTestId('post-like-button');
 
         // Click to like
         await likeButton.click();
@@ -350,15 +315,13 @@ test.describe('Community Page', () => {
     test('should disable like button while request is pending', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
-        const likeButton = firstPost.locator('button:has-text("إعجاب")');
+        const likeButton = firstPost.getByTestId('post-like-button');
 
         // Check if button can be disabled
         const isDisabled = await likeButton.isDisabled().catch(() => false);
@@ -371,9 +334,7 @@ test.describe('Community Page', () => {
     test('should display comment button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
@@ -381,7 +342,7 @@ test.describe('Community Page', () => {
         const firstPost = postCards.first();
 
         // Comment button should be visible
-        const commentButton = firstPost.locator('button:has-text("تعليق")');
+        const commentButton = firstPost.getByTestId('post-comment-button');
         await expect(commentButton).toBeVisible();
 
         // Should have message icon
@@ -393,24 +354,20 @@ test.describe('Community Page', () => {
     test('should toggle comments section when comment button clicked', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
-        const commentButton = firstPost.locator('button:has-text("تعليق")');
+        const commentButton = firstPost.getByTestId('post-comment-button');
 
         // Click comment button
         await commentButton.click();
         await page.waitForTimeout(1000);
 
         // Comments section might appear
-        const commentsSection = firstPost.locator('.bg-gray-50').filter({
-          hasText: /تعليق/i,
-        });
+        const commentsSection = firstPost.getByTestId('comments-section');
 
         const hasComments = await commentsSection.isVisible({ timeout: 2000 }).catch(() => false);
         console.log(`Comments section toggled: ${hasComments}`);
@@ -426,9 +383,7 @@ test.describe('Community Page', () => {
     test('should display comments count', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -451,9 +406,7 @@ test.describe('Community Page', () => {
     test('should display individual comments', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -487,9 +440,7 @@ test.describe('Community Page', () => {
     test('should display share button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
@@ -497,7 +448,7 @@ test.describe('Community Page', () => {
         const firstPost = postCards.first();
 
         // Share button should be visible
-        const shareButton = firstPost.locator('button:has-text("مشاركة")');
+        const shareButton = firstPost.getByTestId('post-share-button');
         await expect(shareButton).toBeVisible();
       }
     });
@@ -505,39 +456,32 @@ test.describe('Community Page', () => {
     test('should display save/bookmark button on each post', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
 
-        // Save/bookmark button should be visible (icon only button)
-        const saveButton = firstPost.locator('button').filter({
-          has: page.locator('svg'),
-        }).filter({
-          hasNotText: /إعجاب|تعليق|مشاركة/,
-        });
+        // Save/bookmark button should be visible
+        const saveButton = firstPost.getByTestId('post-save-button');
 
-        const hasSaveButton = await saveButton.first().isVisible().catch(() => false);
+        const hasSaveButton = await saveButton.isVisible().catch(() => false);
         console.log(`Save button visible: ${hasSaveButton}`);
+        expect(hasSaveButton).toBe(true);
       }
     });
 
     test('should handle share button click', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
-        const shareButton = firstPost.locator('button:has-text("مشاركة")');
+        const shareButton = firstPost.getByTestId('post-share-button');
 
         // Click share button
         await shareButton.click();
@@ -554,20 +498,15 @@ test.describe('Community Page', () => {
     test('should toggle save state when bookmark clicked', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.getByTestId('post-card');
 
       const count = await postCards.count();
 
       if (count > 0) {
         const firstPost = postCards.first();
 
-        // Find bookmark/save button (last icon-only button in actions)
-        const actionButtons = firstPost.locator('.border-t button').filter({
-          has: page.locator('svg'),
-        });
-        const saveButton = actionButtons.last();
+        // Find bookmark/save button using data-testid
+        const saveButton = firstPost.getByTestId('post-save-button');
 
         const hasButton = await saveButton.isVisible().catch(() => false);
 
@@ -589,7 +528,7 @@ test.describe('Community Page', () => {
 
   test.describe('Search and Filtering', () => {
     test('should allow typing in search field', async ({ page }) => {
-      const searchInput = page.locator('input[placeholder*="ابحث في المجتمع"]');
+      const searchInput = page.getByTestId('search-input');
       await searchInput.fill('زراعة');
 
       const value = await searchInput.inputValue();
@@ -599,7 +538,7 @@ test.describe('Community Page', () => {
     test('should search for posts in Arabic', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const searchInput = page.locator('input[placeholder*="ابحث في المجتمع"]');
+      const searchInput = page.getByTestId('search-input');
       await searchInput.fill('نصيحة');
 
       // Wait for search to take effect
@@ -613,7 +552,7 @@ test.describe('Community Page', () => {
     test('should search for posts in English', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const searchInput = page.locator('input[placeholder*="ابحث في المجتمع"]');
+      const searchInput = page.getByTestId('search-input');
       await searchInput.fill('farming');
 
       // Wait for search to take effect
@@ -626,7 +565,7 @@ test.describe('Community Page', () => {
     test('should clear search results', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const searchInput = page.locator('input[placeholder*="ابحث في المجتمع"]');
+      const searchInput = page.getByTestId('search-input');
 
       // Search for something
       await searchInput.fill('test');
@@ -644,14 +583,14 @@ test.describe('Community Page', () => {
     test('should show empty state when no results found', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const searchInput = page.locator('input[placeholder*="ابحث في المجتمع"]');
+      const searchInput = page.getByTestId('search-input');
 
       // Search for something unlikely to exist
       await searchInput.fill('xyz123nonexistent999');
       await page.waitForTimeout(1500);
 
       // Should show empty state
-      const emptyState = page.locator('text=/لا توجد منشورات|No posts found/i');
+      const emptyState = page.getByTestId('empty-state');
       const hasEmptyState = await emptyState.isVisible({ timeout: 3000 }).catch(() => false);
 
       console.log(`Empty state shown for no results: ${hasEmptyState}`);
@@ -660,9 +599,7 @@ test.describe('Community Page', () => {
 
   test.describe('Type Filtering', () => {
     test('should display all post type options', async ({ page }) => {
-      const typeFilter = page.locator('select').filter({
-        has: page.locator('option:has-text("الكل")'),
-      });
+      const typeFilter = page.getByTestId('type-filter');
 
       // Check for all type options
       const options = ['الكل', 'أسئلة', 'نصائح', 'تجارب', 'نقاشات'];
@@ -679,9 +616,7 @@ test.describe('Community Page', () => {
     test('should filter by questions type', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const typeFilter = page.locator('select').filter({
-        has: page.locator('option:has-text("الكل")'),
-      });
+      const typeFilter = page.getByTestId('type-filter');
 
       // Select questions
       await typeFilter.selectOption({ label: 'أسئلة' });
@@ -880,36 +815,31 @@ test.describe('Community Page', () => {
 
   test.describe('Create Post Functionality', () => {
     test('should open create post modal when button clicked', async ({ page }) => {
-      const createPostButton = page.locator('button:has-text("انشر سؤالاً أو تجربة")');
+      const createPostButton = page.getByTestId('create-post-button');
       await createPostButton.click();
       await page.waitForTimeout(1000);
 
-      // Modal might appear
-      const modal = page.locator('[role="dialog"], .fixed').filter({
-        hasText: /منشور|Post/i,
-      });
+      // Modal should appear
+      const modal = page.getByTestId('create-post-modal');
 
       const hasModal = await modal.isVisible({ timeout: 2000 }).catch(() => false);
       console.log(`Create post modal opened: ${hasModal}`);
 
       if (hasModal) {
-        // Close modal by pressing Escape
-        await page.keyboard.press('Escape');
+        // Close modal by pressing Escape or clicking close button
+        const closeButton = page.getByTestId('close-modal-button');
+        await closeButton.click();
         await page.waitForTimeout(500);
       }
     });
 
     test('should close create post modal', async ({ page }) => {
-      const createPostButton = page.locator('button:has-text("انشر سؤالاً أو تجربة")');
+      const createPostButton = page.getByTestId('create-post-button');
       await createPostButton.click();
       await page.waitForTimeout(1000);
 
-      // Try to close with Escape
-      await page.keyboard.press('Escape');
-      await page.waitForTimeout(500);
-
-      // Or look for close button
-      const closeButton = page.locator('button[aria-label="close"], button:has-text("✕")');
+      // Look for close button
+      const closeButton = page.getByTestId('close-modal-button');
       const hasCloseButton = await closeButton.isVisible({ timeout: 1000 }).catch(() => false);
 
       if (hasCloseButton) {
@@ -923,18 +853,10 @@ test.describe('Community Page', () => {
     });
   });
 
-  test.describe('Loading States', () => {
-    test('should display loading spinner on initial load', async ({ page }) => {
-      // Navigate without waiting
+  test.describe('Content Rendering', () => {
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto('/community');
-
-      // Look for loading spinner
-      const loadingSpinner = page.locator('.animate-spin');
-      const hasLoading = await loadingSpinner.isVisible({ timeout: 1000 }).catch(() => false);
-
-      console.log(`Loading spinner shown: ${hasLoading}`);
-
-      // Wait for content to load
       await waitForPageLoad(page);
       await page.waitForTimeout(2000);
 
@@ -943,7 +865,7 @@ test.describe('Community Page', () => {
       await expect(heading).toBeVisible();
     });
 
-    test('should show loading state during filtering', async ({ page }) => {
+    test('should display content after filtering', async ({ page }) => {
       await page.waitForTimeout(1000);
 
       const typeFilter = page.locator('select').filter({
@@ -953,11 +875,8 @@ test.describe('Community Page', () => {
       // Change filter
       await typeFilter.selectOption({ label: 'نصائح' });
 
-      // There might be a brief loading state
-      await page.waitForTimeout(500);
-
-      // Results should eventually load
-      await page.waitForTimeout(1500);
+      // Wait for results to load
+      await page.waitForTimeout(2000);
 
       const heading = page.locator('h1:has-text("مجتمع المزارعين")');
       await expect(heading).toBeVisible();
@@ -1107,9 +1026,7 @@ test.describe('Community Page', () => {
     test('should display Arabic action button labels', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1161,9 +1078,7 @@ test.describe('Community Page', () => {
     test('should display Arabic post statistics labels', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1185,9 +1100,7 @@ test.describe('Community Page', () => {
     test('should display Arabic post type badges', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1207,9 +1120,7 @@ test.describe('Community Page', () => {
     test('should display Arabic timestamp labels', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 
@@ -1303,9 +1214,7 @@ test.describe('Community Page', () => {
     test('should handle multiple simultaneous interactions', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      const postCards = page.locator('.bg-white.rounded-xl.shadow-sm').filter({
-        has: page.locator('text=/إعجاب|تعليق/i'),
-      });
+      const postCards = page.locator('[data-testid="post-card"]');
 
       const count = await postCards.count();
 

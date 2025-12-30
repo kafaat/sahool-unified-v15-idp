@@ -60,7 +60,9 @@ class Settings(BaseSettings):
     # Security | الأمان
     api_key_header: str = "X-API-Key"
     enable_cors: bool = True
-    cors_origins: list[str] = ["*"]
+    # CORS origins - use specific domains, never "*" in production
+    # Configure via CORS_ORIGINS environment variable as comma-separated list
+    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
 
     class Config:
         env_file = ".env"

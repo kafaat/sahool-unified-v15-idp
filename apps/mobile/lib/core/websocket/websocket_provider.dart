@@ -1,24 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
 import '../auth/auth_service.dart';
+import '../auth/secure_storage_service.dart';
 import '../config/env_config.dart';
 
 /// WebSocket Service Provider
 /// مزود خدمة WebSocket
 final webSocketServiceProvider = Provider<WebSocketService>((ref) {
-  final authService = ref.watch(authServiceProvider);
+  final secureStorage = ref.watch(secureStorageProvider);
 
   return WebSocketService(
     baseUrl: EnvConfig.wsGatewayUrl,
-    getToken: () {
-      // Get token from auth service - implementation depends on your AuthService
-      // This is a placeholder that should be updated based on your actual implementation
-      return ''; // TODO: Implement token retrieval
+    getToken: () async {
+      final token = await secureStorage.getAccessToken();
+      return token ?? '';
     },
-    getTenantId: () {
-      // Get tenant ID from auth service
-      // This is a placeholder that should be updated based on your actual implementation
-      return ''; // TODO: Implement tenant ID retrieval
+    getTenantId: () async {
+      final tenantId = await secureStorage.getTenantId();
+      return tenantId ?? '';
     },
   );
 });

@@ -41,7 +41,8 @@ const AllProviders = ({ children }: WrapperProps) => {
 const customRender = (
   ui: ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>
-): RenderResult => render(ui, { wrapper: AllProviders, ...options });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): RenderResult => render(ui as any, { wrapper: AllProviders as any, ...options });
 
 // Re-export everything from testing-library
 export * from '@testing-library/react';

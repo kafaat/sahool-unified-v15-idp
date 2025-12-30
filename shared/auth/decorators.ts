@@ -6,6 +6,20 @@
 import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common';
 
 /**
+ * Authenticated user interface
+ * Represents the user object attached to the request after authentication
+ */
+export interface AuthenticatedUser {
+  id: string;
+  email?: string;
+  username?: string;
+  roles?: string[];
+  permissions?: string[];
+  tenantId?: string;
+  [key: string]: unknown;
+}
+
+/**
  * Public route decorator
  *
  * Mark routes that don't require authentication
@@ -283,7 +297,7 @@ export const RequestLanguage = createParamDecorator(
  * }
  * ```
  */
-export const hasRole = (user: any, role: string): boolean => {
+export const hasRole = (user: AuthenticatedUser | null | undefined, role: string): boolean => {
   return user?.roles?.includes(role) || false;
 };
 
@@ -301,7 +315,7 @@ export const hasRole = (user: any, role: string): boolean => {
  * }
  * ```
  */
-export const hasAnyRole = (user: any, roles: string[]): boolean => {
+export const hasAnyRole = (user: AuthenticatedUser | null | undefined, roles: string[]): boolean => {
   return roles.some((role) => user?.roles?.includes(role)) || false;
 };
 
@@ -319,7 +333,7 @@ export const hasAnyRole = (user: any, roles: string[]): boolean => {
  * }
  * ```
  */
-export const hasPermission = (user: any, permission: string): boolean => {
+export const hasPermission = (user: AuthenticatedUser | null | undefined, permission: string): boolean => {
   return user?.permissions?.includes(permission) || false;
 };
 
@@ -337,6 +351,6 @@ export const hasPermission = (user: any, permission: string): boolean => {
  * }
  * ```
  */
-export const hasAnyPermission = (user: any, permissions: string[]): boolean => {
+export const hasAnyPermission = (user: AuthenticatedUser | null | undefined, permissions: string[]): boolean => {
   return permissions.some((perm) => user?.permissions?.includes(perm)) || false;
 };

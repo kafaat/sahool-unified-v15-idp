@@ -1,0 +1,9 @@
+# Ignore generated environment files
+.cors.env
+*.env.local
+*.env.backup
+
+# Ignore temporary files
+*.tmp
+*.bak
+*~

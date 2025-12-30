@@ -3,7 +3,7 @@
 // REST API for intelligent satellite data source selection
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, HttpException, HttpStatus, NotFoundException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody, ApiParam } from '@nestjs/swagger';
 import { SatelliteDataService } from './satellite-data.service';
 
@@ -143,14 +143,17 @@ export class SatelliteDataController {
   })
   @ApiParam({ name: 'id', example: 'SENTINEL_2' })
   @ApiResponse({ status: 200, description: 'Satellite details' })
+  @ApiResponse({ status: 404, description: 'Satellite not found' })
   getSatelliteById(@Param('id') id: string) {
     const satellite = this.satelliteDataService.getSatelliteById(id.toUpperCase());
 
     if (!satellite) {
-      return {
-        error: `Satellite ${id} not found`,
-        availableSatellites: this.satelliteDataService.getAllSatellites().map(s => s.id),
-      };
+      const availableSatellites = this.satelliteDataService.getAllSatellites().map(s => s.id);
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `Satellite ${id} not found`,
+        availableSatellites,
+      });
     }
 
     return { satellite };
@@ -241,14 +244,17 @@ export class SatelliteDataController {
   })
   @ApiParam({ name: 'name', example: 'NDVI' })
   @ApiResponse({ status: 200, description: 'Index details' })
+  @ApiResponse({ status: 404, description: 'Index not found' })
   getIndexByName(@Param('name') name: string) {
     const index = this.satelliteDataService.getBandCombinationByIndex(name);
 
     if (!index) {
-      return {
-        error: `Index ${name} not found`,
-        availableIndices: this.satelliteDataService.getBandCombinations().map(i => i.name),
-      };
+      const availableIndices = this.satelliteDataService.getBandCombinations().map(i => i.name);
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: `Index ${name} not found`,
+        availableIndices,
+      });
     }
 
     return { index };
@@ -270,14 +276,19 @@ export class SatelliteDataController {
     enum: ['phenology', 'photosynthesis', 'biomass', 'roots', 'water'],
   })
   @ApiResponse({ status: 200, description: 'Module recommendations' })
+  @ApiResponse({ status: 400, description: 'Invalid module' })
   getModuleRecommendations(@Param('module') module: string) {
     const validModules = ['phenology', 'photosynthesis', 'biomass', 'roots', 'water'];
 
     if (!validModules.includes(module)) {
-      return {
-        error: `Invalid module: ${module}`,
-        validModules,
-      };
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Invalid module: ${module}`,
+          validModules,
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const recommendations = this.satelliteDataService.getRecommendationForModule(
@@ -307,6 +318,7 @@ export class SatelliteDataController {
     example: 'crop-monitoring',
   })
   @ApiResponse({ status: 200, description: 'Quick recommendations' })
+  @ApiResponse({ status: 400, description: 'Unknown use case' })
   getQuickRecommendations(@Query('useCase') useCase: string) {
     const recommendations: { [key: string]: any } = {
       'crop-monitoring': {
@@ -354,10 +366,14 @@ export class SatelliteDataController {
     const rec = recommendations[useCase];
 
     if (!rec) {
-      return {
-        error: `Unknown use case: ${useCase}`,
-        availableUseCases: Object.keys(recommendations),
-      };
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Unknown use case: ${useCase}`,
+          availableUseCases: Object.keys(recommendations),
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     // Get full satellite details

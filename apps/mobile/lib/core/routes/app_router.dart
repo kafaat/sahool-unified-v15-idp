@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Core
 import '../constants/navigation_constants.dart';
+import '../auth/auth_service.dart';
 
 // Features - Auth & Onboarding
 import '../../features/splash/ui/splash_screen.dart';
@@ -64,18 +66,65 @@ import '../../features/crop_health/presentation/screens/crop_health_dashboard.da
 import '../../features/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/marketplace/marketplace_screen.dart';
 
-/// SAHOOL App Router Configuration
-/// تكوين مسارات التطبيق باستخدام go_router
-class AppRouter {
-  static final GlobalKey<NavigatorState> _rootNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'root');
-  static final GlobalKey<NavigatorState> _shellNavigatorKey =
-      GlobalKey<NavigatorState>(debugLabel: 'shell');
+/// Auth Change Notifier for GoRouter
+/// Notifies GoRouter when auth state changes
+class GoRouterAuthNotifier extends ChangeNotifier {
+  final Ref _ref;
 
-  static final GoRouter router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
-    initialLocation: '/home',
+  GoRouterAuthNotifier(this._ref) {
+    _ref.listen<AuthState>(
+      authStateProvider,
+      (_, __) => notifyListeners(),
+    );
+  }
+}
+
+/// GoRouter Provider
+final goRouterProvider = Provider<GoRouter>((ref) {
+  final authNotifier = GoRouterAuthNotifier(ref);
+
+  return GoRouter(
+    navigatorKey: AppRouter._rootNavigatorKey,
+    initialLocation: '/splash',
     debugLogDiagnostics: true,
+    refreshListenable: authNotifier,
+
+    // Authentication Redirect Guard
+    redirect: (context, state) {
+      final authState = ref.read(authStateProvider);
+      final isAuthenticated = authState.isAuthenticated;
+      final isLoading = authState.status == AuthStatus.initial ||
+                        authState.status == AuthStatus.loading;
+
+      final currentLocation = state.matchedLocation;
+
+      // Define public routes that don't require authentication
+      final publicRoutes = ['/splash', '/login', '/role-selection'];
+      final isPublicRoute = publicRoutes.contains(currentLocation);
+
+      // If still loading auth state, show splash
+      if (isLoading && currentLocation != '/splash') {
+        return '/splash';
+      }
+
+      // If not authenticated and trying to access protected route, redirect to login
+      if (!isAuthenticated && !isPublicRoute && !isLoading) {
+        return '/login';
+      }
+
+      // If authenticated and trying to access login/role-selection, redirect to home
+      if (isAuthenticated && (currentLocation == '/login' || currentLocation == '/role-selection')) {
+        return '/home';
+      }
+
+      // If authenticated and on splash, go to home
+      if (isAuthenticated && currentLocation == '/splash') {
+        return '/home';
+      }
+
+      // No redirect needed
+      return null;
+    },
 
     routes: [
       // ═══════════════════════════════════════════════════════════════════════
@@ -105,7 +154,7 @@ class AppRouter {
       // ═══════════════════════════════════════════════════════════════════════
 
       ShellRoute(
-        navigatorKey: _shellNavigatorKey,
+        navigatorKey: AppRouter._shellNavigatorKey,
         builder: (context, state, child) => MainLayout(child: child),
         routes: [
           // Home Dashboard
@@ -478,5 +527,21 @@ class AppRouter {
         ),
       ),
     ),
+  );
+});
+
+/// SAHOOL App Router Configuration
+/// تكوين مسارات التطبيق باستخدام go_router
+class AppRouter {
+  static final GlobalKey<NavigatorState> _rootNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'root');
+  static final GlobalKey<NavigatorState> _shellNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'shell');
+
+  // Legacy static router getter for backward compatibility
+  // Use goRouterProvider instead for proper auth integration
+  @Deprecated('Use goRouterProvider instead')
+  static GoRouter get router => throw UnsupportedError(
+    'Use goRouterProvider with ProviderScope instead of AppRouter.router',
   );
 }

@@ -66,6 +66,13 @@ services:
       - name: request-size-limiting
         config:
           allowed_payload_size: 10
+<<<<<<< HEAD
+=======
+      - name: response-ratelimiting
+        config:
+          limits:
+            minute: 100
+>>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
 
   # ============================================================================
   # خدمة الطقس - Weather Service
@@ -639,6 +646,11 @@ services:
         protocols:
           - http
           - https
+<<<<<<< HEAD
+=======
+          - ws
+          - wss
+>>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
     plugins:
       - name: jwt
       - name: rate-limiting
@@ -1033,6 +1045,11 @@ consumers:
     custom_id: starter-001
     tags:
       - starter
+<<<<<<< HEAD
+=======
+    groups:
+      - name: starter-users
+>>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
     jwt_secrets:
       - key: starter-jwt-key
         algorithm: HS256
@@ -1043,6 +1060,11 @@ consumers:
     custom_id: professional-001
     tags:
       - professional
+<<<<<<< HEAD
+=======
+    groups:
+      - name: professional-users
+>>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
     jwt_secrets:
       - key: professional-jwt-key
         algorithm: HS256
@@ -1053,6 +1075,11 @@ consumers:
     custom_id: enterprise-001
     tags:
       - enterprise
+<<<<<<< HEAD
+=======
+    groups:
+      - name: enterprise-users
+>>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
     jwt_secrets:
       - key: enterprise-jwt-key
         algorithm: HS256
@@ -1063,6 +1090,11 @@ consumers:
     custom_id: research-001
     tags:
       - research
+<<<<<<< HEAD
+=======
+    groups:
+      - name: research-users
+>>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
     jwt_secrets:
       - key: research-jwt-key
         algorithm: HS256
@@ -1073,6 +1105,11 @@ consumers:
     custom_id: admin-001
     tags:
       - admin
+<<<<<<< HEAD
+=======
+    groups:
+      - name: admin-users
+>>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
     jwt_secrets:
       - key: admin-jwt-key
         algorithm: HS256

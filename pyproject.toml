@@ -56,11 +56,13 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-select = ["E","F","I","UP","B","SIM","N"]
-ignore = []
 
 [tool.ruff.lint]
-extend-select = ["W", "C4"]
+# Error detection (E), Pyflakes (F), Import sorting (I), 
+# Upgrade syntax (UP), Bugbear (B), Simplify (SIM), Naming (N),
+# Warnings (W), Flake8-comprehensions (C4)
+select = ["E", "F", "I", "UP", "B", "SIM", "N", "W", "C4"]
+ignore = []
 fixable = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]

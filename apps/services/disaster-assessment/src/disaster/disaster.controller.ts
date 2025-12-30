@@ -11,6 +11,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { DisasterService } from './disaster.service';
@@ -43,7 +44,14 @@ export class DisasterController {
     @Query('governorate') governorate?: string,
     @Query('severity') severity?: string,
   ) {
-    return this.disasterService.getActiveDisasters({ type, governorate, severity });
+    try {
+      return await this.disasterService.getActiveDisasters({ type, governorate, severity });
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to get active disasters',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -57,7 +65,14 @@ export class DisasterController {
   })
   @ApiResponse({ status: 200, description: 'Disaster details' })
   async getDisasterById(@Param('id') id: string) {
-    return this.disasterService.getDisasterById(id);
+    try {
+      return await this.disasterService.getDisasterById(id);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to get disaster details',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -89,7 +104,14 @@ export class DisasterController {
     @Param('fieldId') fieldId: string,
     @Body() dto: DisasterAssessmentDto,
   ) {
-    return this.disasterService.assessFieldDamage(fieldId, dto);
+    try {
+      return await this.disasterService.assessFieldDamage(fieldId, dto);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to assess field damage',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -103,7 +125,14 @@ export class DisasterController {
   })
   @ApiQuery({ name: 'governorate', required: true })
   async getFloodRiskMap(@Query('governorate') governorate: string) {
-    return this.disasterService.getFloodRiskMap(governorate);
+    try {
+      return await this.disasterService.getFloodRiskMap(governorate);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to get flood risk map',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -117,7 +146,14 @@ export class DisasterController {
   })
   @ApiQuery({ name: 'governorate', required: true })
   async getDroughtIndex(@Query('governorate') governorate: string) {
-    return this.disasterService.getDroughtIndex(governorate);
+    try {
+      return await this.disasterService.getDroughtIndex(governorate);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to get drought index',
+        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

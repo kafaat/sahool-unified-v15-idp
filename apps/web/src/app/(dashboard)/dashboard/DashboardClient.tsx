@@ -18,9 +18,10 @@ import {
 
 // Fallback components for error states
 const StatsFallback = () => (
-  <div className="bg-red-50 rounded-xl p-6 text-center border-2 border-red-200">
+  <div className="bg-red-50 rounded-xl p-6 text-center border-2 border-red-200" data-testid="stats-fallback">
     <span className="text-4xl">📊</span>
     <p className="text-red-600 mt-2">فشل تحميل الإحصائيات</p>
+    <p className="text-red-500 text-sm">Failed to load statistics</p>
     <button
       onClick={() => window.location.reload()}
       className="mt-3 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm hover:bg-red-200"
@@ -31,21 +32,23 @@ const StatsFallback = () => (
 );
 
 const ActivityFallback = () => (
-  <div className="bg-yellow-50 rounded-xl p-4 text-center">
+  <div className="bg-yellow-50 rounded-xl p-4 text-center" data-testid="activity-fallback">
     <span className="text-2xl">📋</span>
     <p className="text-yellow-700 text-sm mt-1">فشل تحميل النشاطات</p>
+    <p className="text-yellow-600 text-xs">Failed to load activities</p>
   </div>
 );
 
 const WeatherFallback = () => (
-  <div className="bg-blue-50 rounded-xl p-4 text-center">
+  <div className="bg-blue-50 rounded-xl p-4 text-center" data-testid="weather-fallback">
     <span className="text-2xl">🌤️</span>
     <p className="text-blue-700 text-sm mt-1">فشل تحميل الطقس</p>
+    <p className="text-blue-600 text-xs">Failed to load weather</p>
   </div>
 );
 
 const LoadingSkeleton = () => (
-  <div className="animate-pulse space-y-4">
+  <div className="animate-pulse space-y-4" data-testid="loading-state">
     <div className="h-20 bg-gray-200 rounded-xl" />
     <div className="h-20 bg-gray-200 rounded-xl" />
   </div>
@@ -58,7 +61,7 @@ export default function DashboardClient() {
     <div className="space-y-6" role="main" aria-label="لوحة التحكم الرئيسية">
       {/* Welcome Section */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-gray-900" data-testid="dashboard-heading">
           مرحباً، {user?.name_ar || user?.name || 'المستخدم'}
         </h1>
         <p className="text-gray-600 mt-1">
@@ -90,7 +93,12 @@ export default function DashboardClient() {
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">إجراءات سريعة</h2>
             <p className="text-sm text-gray-600 mb-4">Quick Actions</p>
-            <ErrorBoundary fallback={<div className="text-gray-500 text-center py-4">فشل تحميل الإجراءات</div>}>
+            <ErrorBoundary fallback={
+              <div className="text-gray-500 text-center py-4" data-testid="quick-actions-fallback">
+                <p>فشل تحميل الإجراءات</p>
+                <p className="text-sm">Failed to load actions</p>
+              </div>
+            }>
               <QuickActions />
             </ErrorBoundary>
           </div>
@@ -111,7 +119,12 @@ export default function DashboardClient() {
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">المهام القادمة</h2>
             <p className="text-sm text-gray-600 mb-4">Upcoming Tasks</p>
-            <ErrorBoundary fallback={<div className="text-gray-500 text-center py-4">فشل تحميل المهام</div>}>
+            <ErrorBoundary fallback={
+              <div className="text-gray-500 text-center py-4" data-testid="tasks-fallback">
+                <p>فشل تحميل المهام</p>
+                <p className="text-sm">Failed to load tasks</p>
+              </div>
+            }>
               <TasksSummary />
             </ErrorBoundary>
           </div>

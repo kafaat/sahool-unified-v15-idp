@@ -5,7 +5,7 @@
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
-  # Infrastructure Services (6)
+  # Infrastructure Services (7)
   # ─────────────────────────────────────────────────────────────────────────────
 
   # قاعدة البيانات المكانية (PostGIS)
@@ -19,7 +19,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-sahool}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
     # Use tmpfs for temporary data (security hardening)
     tmpfs:
       - /tmp
@@ -44,6 +44,62 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+    networks:
+      - sahool-network
+
+  # PgBouncer - Connection Pooler for PostgreSQL
+  # Prevents connection exhaustion with 39+ services
+  # تجميع اتصالات قاعدة البيانات
+  pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: sahool-pgbouncer
+    environment:
+      # Database connection
+      DATABASE_URL: postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      # Pool settings
+      POOL_MODE: transaction
+      MAX_DB_CONNECTIONS: 100
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      MAX_CLIENT_CONN: 500
+      # Timeouts
+      QUERY_TIMEOUT: 120
+      QUERY_WAIT_TIMEOUT: 30
+      # Auth
+      AUTH_TYPE: md5
+      # Admin
+      ADMIN_USERS: pgbouncer_admin
+      STATS_USERS: pgbouncer_stats
+    volumes:
+      - ./infrastructure/core/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./infrastructure/core/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    ports:
+      - "127.0.0.1:6432:6432"  # SECURITY: localhost only
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432 -U ${POSTGRES_USER:-sahool}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     networks:
       - sahool-network
 
@@ -72,6 +128,13 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -100,6 +163,13 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -116,8 +186,8 @@ services:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
     volumes:
-      - ./infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infra/mqtt/passwd:/mosquitto/config/passwd:ro
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infrastructure/core/mqtt/passwd:/mosquitto/config/passwd:ro
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
     ports:
@@ -130,6 +200,13 @@ services:
       retries: 5
       start_period: 15s
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "3"
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -161,6 +238,8 @@ services:
       retries: 3
       start_period: 20s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -185,10 +264,10 @@ services:
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 127.0.0.1:8001
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
       - "127.0.0.1:8001:8001"
     volumes:
-      - ./infra/kong/kong.yml:/kong/declarative/kong.yml:ro
+      - ./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 30s
@@ -196,6 +275,8 @@ services:
       retries: 3
       start_period: 30s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -231,7 +312,7 @@ services:
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -246,6 +327,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -272,7 +355,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
     ports:
-      - "3010:3010"
+      - "127.0.0.1:3010:3010"
     depends_on:
       postgres:
         condition: service_healthy
@@ -287,6 +370,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -316,7 +401,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3015:3015"
+      - "127.0.0.1:3015:3015"
     depends_on:
       postgres:
         condition: service_healthy
@@ -331,6 +416,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -359,7 +446,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3020:3020"
+      - "127.0.0.1:3020:3020"
     depends_on:
       postgres:
         condition: service_healthy
@@ -374,6 +461,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -404,7 +493,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3021:3021"
+      - "127.0.0.1:3021:3021"
     depends_on:
       postgres:
         condition: service_healthy
@@ -419,6 +508,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -449,7 +540,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3022:3022"
+      - "127.0.0.1:3022:3022"
     depends_on:
       postgres:
         condition: service_healthy
@@ -464,6 +555,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -494,7 +587,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3023:3023"
+      - "127.0.0.1:3023:3023"
     depends_on:
       postgres:
         condition: service_healthy
@@ -509,6 +602,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -535,7 +630,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8114:8114"
+      - "127.0.0.1:8114:8114"
     depends_on:
       postgres:
         condition: service_healthy
@@ -550,6 +645,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -580,7 +677,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8117:8117"
+      - "127.0.0.1:8117:8117"
     depends_on:
       postgres:
         condition: service_healthy
@@ -597,6 +694,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -624,7 +723,7 @@ services:
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
-      - "8097:8097"
+      - "127.0.0.1:8097:8097"
     depends_on:
       postgres:
         condition: service_healthy
@@ -639,6 +738,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -672,7 +773,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -687,6 +788,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -714,7 +817,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     depends_on:
       nats:
         condition: service_healthy
@@ -727,6 +830,8 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -758,7 +863,7 @@ services:
       - THARWATT_MERCHANT_ID=${THARWATT_MERCHANT_ID:-}
       - THARWATT_WEBHOOK_SECRET=${THARWATT_WEBHOOK_SECRET:-}
     ports:
-      - "8089:8089"
+      - "127.0.0.1:8089:8089"
     depends_on:
       postgres:
         condition: service_healthy
@@ -773,6 +878,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -806,7 +913,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8090:8090"
+      - "127.0.0.1:8090:8090"
     depends_on:
       postgres:
         condition: service_healthy
@@ -821,6 +928,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -845,7 +954,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8091:8091"
+      - "127.0.0.1:8091:8091"
     depends_on:
       postgres:
         condition: service_healthy
@@ -858,6 +967,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -885,7 +996,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8092:8092"
+      - "127.0.0.1:8092:8092"
     depends_on:
       postgres:
         condition: service_healthy
@@ -898,6 +1009,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -923,7 +1036,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8093:8093"
+      - "127.0.0.1:8093:8093"
     depends_on:
       postgres:
         condition: service_healthy
@@ -936,6 +1049,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -961,7 +1076,7 @@ services:
       - NATS_URL=nats://nats:4222
       - IOT_GATEWAY_URL=http://iot_gateway:8106
     ports:
-      - "8094:8094"
+      - "127.0.0.1:8094:8094"
     depends_on:
       postgres:
         condition: service_healthy
@@ -974,6 +1089,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1000,7 +1117,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8095:8095"
+      - "127.0.0.1:8095:8095"
     volumes:
       - ./models:/app/models:ro
     depends_on:
@@ -1015,6 +1132,8 @@ services:
       retries: 3
       start_period: 20s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1039,7 +1158,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8096:8096"
+      - "127.0.0.1:8096:8096"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1052,6 +1171,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1077,7 +1198,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8098:8098"
+      - "127.0.0.1:8098:8098"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1090,6 +1211,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1117,7 +1240,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8099:8099"
+      - "127.0.0.1:8099:8099"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1132,6 +1255,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1155,7 +1280,7 @@ services:
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8101:8101"
+      - "127.0.0.1:8101:8101"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1168,6 +1293,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1191,7 +1318,7 @@ services:
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8103:8103"
+      - "127.0.0.1:8103:8103"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1204,6 +1331,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1225,7 +1354,7 @@ services:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8104:8104"
+      - "127.0.0.1:8104:8104"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/health')"]
       interval: 30s
@@ -1233,6 +1362,8 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1261,7 +1392,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8105:8105"
+      - "127.0.0.1:8105:8105"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1274,6 +1405,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1305,7 +1438,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8106:8106"
+      - "127.0.0.1:8106:8106"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1320,6 +1453,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1348,7 +1483,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8107:8107"
+      - "127.0.0.1:8107:8107"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1361,6 +1496,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1393,7 +1530,7 @@ services:
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
-      - "8108:8108"
+      - "127.0.0.1:8108:8108"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1406,6 +1543,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1430,6 +1569,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
+      - CREATE_DB_SCHEMA=true
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
@@ -1437,7 +1577,7 @@ services:
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
       - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
     ports:
-      - "8110:8110"
+      - "127.0.0.1:8110:8110"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1449,9 +1589,11 @@ services:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8110/healthz')"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1475,7 +1617,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
     ports:
-      - "8111:8111"
+      - "127.0.0.1:8111:8111"
     depends_on:
       weather-service:
         condition: service_healthy
@@ -1486,6 +1628,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1528,7 +1672,7 @@ services:
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://nats:4222
     ports:
-      - "8112:8112"
+      - "127.0.0.1:8112:8112"
     depends_on:
       qdrant:
         condition: service_healthy
@@ -1549,6 +1693,8 @@ services:
       retries: 3
       start_period: 40s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1574,7 +1720,7 @@ services:
       - NATS_URL=nats://nats:4222
       - NOTIFICATION_SERVICE_URL=http://notification_service:8110
     ports:
-      - "8113:8113"
+      - "127.0.0.1:8113:8113"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1589,6 +1735,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1616,7 +1764,7 @@ services:
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8115:8115"
+      - "127.0.0.1:8115:8115"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1631,6 +1779,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1655,7 +1805,7 @@ services:
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "8116:8116"
+      - "127.0.0.1:8116:8116"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1668,6 +1818,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1695,7 +1847,7 @@ services:
       - NATS_URL=nats://nats:4222
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
-      - "8118:8118"
+      - "127.0.0.1:8118:8118"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1710,6 +1862,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1735,7 +1889,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CDN_BASE_URL=${CDN_BASE_URL:-https://cdn.sahool.io}
     ports:
-      - "8100:8100"
+      - "127.0.0.1:8100:8100"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')"]
       interval: 30s
@@ -1743,6 +1897,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1777,6 +1933,8 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1802,7 +1960,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8200:8200"
+      - "127.0.0.1:8200:8200"
     depends_on:
       kong:
         condition: service_healthy
@@ -1811,12 +1969,14 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 15s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     deploy:
       resources:
         limits:

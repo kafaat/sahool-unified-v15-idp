@@ -118,31 +118,48 @@ class ChatNotifier extends StateNotifier<ChatState> {
   /// Setup real-time listeners
   void _setupListeners() {
     // Listen for new messages
-    _messageSubscription = _repository.messageStream.listen((message) {
-      _handleNewMessage(message);
-    });
+    _messageSubscription = _repository.messageStream.listen(
+      (message) {
+        _handleNewMessage(message);
+      },
+      onError: (error) {
+        state = state.copyWith(
+          error: 'خطأ في استقبال الرسائل: ${error.toString()}',
+        );
+      },
+    );
 
     // Listen for typing indicators
-    _typingSubscription = _repository.typingStream.listen((data) {
-      final conversationId = data['conversationId'] as String?;
-      final isTyping = data['isTyping'] as bool? ?? true;
+    _typingSubscription = _repository.typingStream.listen(
+      (data) {
+        final conversationId = data['conversationId'] as String?;
+        final isTyping = data['isTyping'] as bool? ?? true;
 
-      if (conversationId != null) {
-        _updateTypingStatus(conversationId, isTyping);
-      }
-    });
+        if (conversationId != null) {
+          _updateTypingStatus(conversationId, isTyping);
+        }
+      },
+      onError: (error) {
+        // Silent fail for typing indicators
+      },
+    );
 
     // Listen for online status updates
-    _onlineStatusSubscription = _repository.onlineStatusStream.listen((data) {
-      final userId = data['userId'] as String?;
-      final isOnline = data['isOnline'] as bool? ?? false;
+    _onlineStatusSubscription = _repository.onlineStatusStream.listen(
+      (data) {
+        final userId = data['userId'] as String?;
+        final isOnline = data['isOnline'] as bool? ?? false;
 
-      if (userId != null) {
-        _repository.updateOnlineStatus(userId, isOnline);
-        // Trigger state update to refresh UI
-        state = state.copyWith(conversations: [...state.conversations]);
-      }
-    });
+        if (userId != null) {
+          _repository.updateOnlineStatus(userId, isOnline);
+          // Trigger state update to refresh UI
+          state = state.copyWith(conversations: [...state.conversations]);
+        }
+      },
+      onError: (error) {
+        // Silent fail for online status updates
+      },
+    );
   }
 
   // ───────────────────────────────────────────────────────────────────────────

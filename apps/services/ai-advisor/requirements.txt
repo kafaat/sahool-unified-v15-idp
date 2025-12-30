@@ -4,7 +4,7 @@
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
 httpx==0.28.1
-pydantic>=2.10.0,<3.0.0
+pydantic==2.9.2
 pydantic-settings==2.7.1
 
 # LangChain and AI Framework
@@ -38,6 +38,10 @@ qdrant-client==1.11.1
 # NATS Messaging
 # نظام الرسائل NATS
 nats-py==2.9.0
+
+# Redis - Agent Registry
+# Redis - سجل الوكلاء
+redis==5.2.1
 
 # Utilities
 # أدوات مساعدة

@@ -4,7 +4,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import type { WeatherData, WeatherForecast, WeatherAlert, ForecastDataPoint } from '../types';
+import type { WeatherData, WeatherAlert, ForecastDataPoint } from '../types';
 
 // API Configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -158,9 +158,9 @@ async function fetchWeatherAlerts(lat?: number, lon?: number): Promise<WeatherAl
 // ─────────────────────────────────────────────────────────────────────────────
 
 function getWindDirection(degrees: number): string {
-  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'] as const;
   const index = Math.round(degrees / 45) % 8;
-  return directions[index];
+  return directions[index] ?? 'N';
 }
 
 function getWeatherCondition(cloudCover: number): string {

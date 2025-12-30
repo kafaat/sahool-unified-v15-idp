@@ -3,6 +3,9 @@
  * خدمة الأحداث المباشرة - متوافق مع الـ kernel المسترجع
  */
 
+import { z } from 'zod';
+import { safeJsonParse } from '@/lib/utils/safeJson';
+
 // Determine WebSocket protocol based on current page protocol (for security)
 // Use wss:// in production (HTTPS) and ws:// only in local development
 const getDefaultWsUrl = (): string => {
@@ -34,6 +37,22 @@ export interface WSMessage {
   data?: TimelineEvent;
   message?: string;
 }
+
+// Zod schema for WebSocket message validation
+const TimelineEventSchema: z.ZodType<TimelineEvent> = z.object({
+  event_id: z.string(),
+  event_type: z.string(),
+  aggregate_id: z.string(),
+  tenant_id: z.string(),
+  timestamp: z.string(),
+  payload: z.record(z.string(), z.unknown()),
+}) as z.ZodType<TimelineEvent>;
+
+const WSMessageSchema = z.object({
+  type: z.enum(['event', 'ping', 'subscribed', 'error']),
+  data: TimelineEventSchema.optional(),
+  message: z.string().optional(),
+});
 
 type EventHandler = (event: TimelineEvent) => void;
 type ConnectionHandler = (connected: boolean) => void;
@@ -75,7 +94,12 @@ class WebSocketClient {
 
       this.ws.onmessage = (event) => {
         try {
-          const message: WSMessage = JSON.parse(event.data);
+          const message = safeJsonParse<WSMessage>(event.data, WSMessageSchema);
+
+          if (!message) {
+            console.error('Invalid WebSocket message format');
+            return;
+          }
 
           if (message.type === 'event' && message.data) {
             this.notifyEventHandlers(message.data);

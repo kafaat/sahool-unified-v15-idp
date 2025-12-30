@@ -1,9 +1,66 @@
-import React from 'react';
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { wsClient, TimelineEvent, getEventIcon, getEventColor, formatEventType } from '@/lib/ws';
 import { SkeletonEventItem } from './ui/Skeleton';
+
+/**
+ * Discriminated union for event payload types
+ */
+type TaskCreatedPayload = {
+  title: string;
+  field_id: string;
+};
+
+type TaskCompletedPayload = {
+  title: string;
+  field_id?: string;
+};
+
+type WeatherAlertPayload = {
+  type: string;
+  severity: string;
+  location: string;
+};
+
+type ImageDiagnosedPayload = {
+  disease_detected: boolean;
+  confidence: number;
+  disease?: string;
+};
+
+type NDVIProcessedPayload = {
+  field_id: string;
+  ndvi: number | string;
+  status: 'healthy' | 'warning' | 'critical' | string;
+};
+
+type EventPayload =
+  | TaskCreatedPayload
+  | TaskCompletedPayload
+  | WeatherAlertPayload
+  | ImageDiagnosedPayload
+  | NDVIProcessedPayload
+  | Record<string, unknown>;
+
+/**
+ * Type guard functions for event payloads
+ */
+function isTaskPayload(payload: EventPayload): payload is TaskCreatedPayload | TaskCompletedPayload {
+  return 'title' in payload && typeof payload.title === 'string';
+}
+
+function isWeatherAlertPayload(payload: EventPayload): payload is WeatherAlertPayload {
+  return 'type' in payload && 'severity' in payload && 'location' in payload;
+}
+
+function isImageDiagnosedPayload(payload: EventPayload): payload is ImageDiagnosedPayload {
+  return 'disease_detected' in payload && 'confidence' in payload;
+}
+
+function isNDVIPayload(payload: EventPayload): payload is NDVIProcessedPayload {
+  return 'ndvi' in payload && 'status' in payload;
+}
 
 // Sample events for demo mode
 const SAMPLE_EVENTS: TimelineEvent[] = [
@@ -84,35 +141,35 @@ const EventCard = React.memo<{ event: TimelineEvent }>(function EventCard({ even
 
           {/* Payload details */}
           <div className="mt-1 text-xs text-gray-500">
-            {event.event_type === 'task_created' && (
-              <span>📋 {(event.payload as any).title}</span>
+            {event.event_type === 'task_created' && isTaskPayload(event.payload) && (
+              <span>📋 {event.payload.title}</span>
             )}
-            {event.event_type === 'task_completed' && (
-              <span>✅ {(event.payload as any).title}</span>
+            {event.event_type === 'task_completed' && isTaskPayload(event.payload) && (
+              <span>✅ {event.payload.title}</span>
             )}
-            {event.event_type === 'weather_alert_issued' && (
-              <span>⚠️ {(event.payload as any).type} - {(event.payload as any).location}</span>
+            {event.event_type === 'weather_alert_issued' && isWeatherAlertPayload(event.payload) && (
+              <span>⚠️ {event.payload.type} - {event.payload.location}</span>
             )}
-            {event.event_type === 'image_diagnosed' && (
+            {event.event_type === 'image_diagnosed' && isImageDiagnosedPayload(event.payload) && (
               <span>
-                {(event.payload as any).disease_detected ? '🔴' : '🟢'}
+                {event.payload.disease_detected ? '🔴' : '🟢'}
                 {' '}
-                {(event.payload as any).disease || 'لا يوجد مرض'}
+                {event.payload.disease || 'لا يوجد مرض'}
                 {' '}
-                ({Math.round((event.payload as any).confidence * 100)}%)
+                ({Math.round(event.payload.confidence * 100)}%)
               </span>
             )}
-            {event.event_type === 'ndvi_processed' && (
+            {event.event_type === 'ndvi_processed' && isNDVIPayload(event.payload) && (
               <span>
-                🛰️ NDVI: {(event.payload as any).ndvi}
+                🛰️ NDVI: {event.payload.ndvi}
                 {' '}
                 <span className={`px-1 rounded ${
-                  (event.payload as any).status === 'healthy' ? 'bg-green-100 text-green-700' :
-                  (event.payload as any).status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                  event.payload.status === 'healthy' ? 'bg-green-100 text-green-700' :
+                  event.payload.status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
                   'bg-red-100 text-red-700'
                 }`}>
-                  {(event.payload as any).status === 'healthy' ? 'صحي' :
-                   (event.payload as any).status === 'warning' ? 'تحذير' : 'حرج'}
+                  {event.payload.status === 'healthy' ? 'صحي' :
+                   event.payload.status === 'warning' ? 'تحذير' : 'حرج'}
                 </span>
               </span>
             )}
@@ -159,8 +216,8 @@ export const EventTimeline = React.memo<EventTimelineProps>(function EventTimeli
     // Simulate new events for demo mode
     const interval = setInterval(() => {
       if (!wsClient.isConnected) {
-        const eventTypes = ['task_created', 'task_completed', 'weather_alert_issued', 'ndvi_processed', 'image_diagnosed'];
-        const randomType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+        const eventTypes = ['task_created', 'task_completed', 'weather_alert_issued', 'ndvi_processed', 'image_diagnosed'] as const;
+        const randomType = eventTypes[Math.floor(Math.random() * eventTypes.length)] ?? 'task_created';
 
         const newEvent: TimelineEvent = {
           event_id: `evt_${Date.now()}`,
@@ -191,7 +248,7 @@ export const EventTimeline = React.memo<EventTimelineProps>(function EventTimeli
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <SkeletonEventItem key={i} />
+          <SkeletonEventItem key={`skeleton-event-${i}`} />
         ))}
       </div>
     );

@@ -38,16 +38,17 @@ export default function EquipmentClient() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="equipment-page">
       {/* Page Header */}
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+      <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="equipment-header">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">إدارة المعدات</h1>
-            <p className="text-gray-600 mt-1">Equipment Management</p>
+            <h1 className="text-3xl font-bold text-gray-900" data-testid="equipment-page-title">إدارة المعدات</h1>
+            <p className="text-gray-600 mt-1" data-testid="equipment-page-subtitle">Equipment Management</p>
           </div>
           <button
             onClick={handleCreateClick}
+            data-testid="add-equipment-button"
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
           >
             <Plus className="w-5 h-5" />
@@ -58,20 +59,20 @@ export default function EquipmentClient() {
 
       {/* Equipment Statistics */}
       {!statsLoading && stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6" data-testid="equipment-statistics">
+          <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="stat-total-equipment">
             <p className="text-sm text-gray-600 mb-1">إجمالي المعدات</p>
             <p className="text-3xl font-bold text-gray-900">{stats.total || 0}</p>
           </div>
-          <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+          <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="stat-active-equipment">
             <p className="text-sm text-gray-600 mb-1">قيد التشغيل</p>
             <p className="text-3xl font-bold text-green-600">{stats.byStatus?.['active'] || 0}</p>
           </div>
-          <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+          <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="stat-maintenance-equipment">
             <p className="text-sm text-gray-600 mb-1">قيد الصيانة</p>
             <p className="text-3xl font-bold text-orange-600">{stats.byStatus?.['maintenance'] || 0}</p>
           </div>
-          <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+          <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="stat-maintenance-due">
             <p className="text-sm text-gray-600 mb-1">بحاجة لصيانة</p>
             <p className="text-3xl font-bold text-red-600">{stats.maintenanceDue || 0}</p>
           </div>
@@ -83,8 +84,8 @@ export default function EquipmentClient() {
         {/* Equipment List - 2/3 width */}
         <div className="lg:col-span-2">
           {showForm ? (
-            <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="equipment-form-container">
+              <h2 className="text-xl font-bold text-gray-900 mb-6" data-testid="equipment-form-title">
                 {selectedEquipmentId ? 'تعديل معدة' : 'إضافة معدة جديدة'}
               </h2>
               <EquipmentForm
@@ -94,10 +95,11 @@ export default function EquipmentClient() {
               />
             </div>
           ) : selectedEquipmentId ? (
-            <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+            <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="equipment-details-container">
               <div className="mb-4">
                 <button
                   onClick={() => setSelectedEquipmentId(null)}
+                  data-testid="back-to-list-button"
                   className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
                   ← العودة للقائمة
@@ -113,8 +115,8 @@ export default function EquipmentClient() {
         </div>
 
         {/* Maintenance Schedule - 1/3 width */}
-        <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">جدول الصيانة</h2>
+        <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="maintenance-schedule-container">
+          <h2 className="text-xl font-bold text-gray-900 mb-4" data-testid="maintenance-schedule-title">جدول الصيانة</h2>
           <p className="text-sm text-gray-600 mb-6">Maintenance Schedule</p>
           <MaintenanceSchedule />
         </div>

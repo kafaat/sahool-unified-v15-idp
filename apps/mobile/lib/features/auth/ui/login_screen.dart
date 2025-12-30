@@ -44,6 +44,8 @@ class _LoginScreenState extends State<LoginScreen> {
     // Simulate API call
     await Future.delayed(const Duration(seconds: 1));
 
+    if (!mounted) return;
+
     setState(() {
       _isLoading = false;
       _isOtpSent = true;
@@ -71,6 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
     if (otp.length != 4) return;
+
+    if (!mounted) return;
 
     setState(() => _isLoading = true);
 

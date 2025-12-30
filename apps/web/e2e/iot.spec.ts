@@ -1,6 +1,7 @@
 import { test, expect } from './fixtures/test-fixtures';
 import { navigateAndWait, waitForPageLoad } from './helpers/page.helpers';
 import { pages, timeouts } from './helpers/test-data';
+import { setupIoTMocks, clearIoTMocks } from './helpers/mock-api.helpers';
 
 /**
  * IoT & Sensors Page E2E Tests
@@ -9,8 +10,16 @@ import { pages, timeouts } from './helpers/test-data';
 
 test.describe('IoT & Sensors Page', () => {
   test.beforeEach(async ({ page }) => {
+    // Setup mock API responses
+    await setupIoTMocks(page);
+
     // authenticatedPage fixture handles login
     await navigateAndWait(page, pages.iot);
+  });
+
+  test.afterEach(async ({ page }) => {
+    // Clear mock API routes
+    await clearIoTMocks(page);
   });
 
   /**
@@ -22,43 +31,41 @@ test.describe('IoT & Sensors Page', () => {
       // Check page title - uses default SAHOOL title
       await expect(page).toHaveTitle(/SAHOOL|سهول/i);
 
+      // Check for main page container
+      const iotPage = page.getByTestId('iot-page');
+      await expect(iotPage).toBeVisible();
+
       // Check for main heading in Arabic
-      const heading = page.locator('h1:has-text("إنترنت الأشياء والمستشعرات")');
+      const heading = page.getByTestId('page-title');
       await expect(heading).toBeVisible();
+      await expect(heading).toHaveText('إنترنت الأشياء والمستشعرات');
 
       // Check for English subtitle
-      const subtitle = page.locator('text=/IoT & Sensors Management/i');
+      const subtitle = page.getByTestId('page-subtitle');
       await expect(subtitle).toBeVisible();
+      await expect(subtitle).toHaveText('IoT & Sensors Management');
     });
 
     test('should display page header with title', async ({ page }) => {
       await page.waitForTimeout(2000);
 
       // Check for header section
-      const header = page.locator('.bg-white.rounded-xl').first();
+      const header = page.getByTestId('page-header');
       await expect(header).toBeVisible();
 
       // Check for main title
-      const title = page.locator('h1');
+      const title = page.getByTestId('page-title');
       await expect(title).toBeVisible();
       await expect(title).toHaveText('إنترنت الأشياء والمستشعرات');
     });
 
-    test('should show loading state initially', async ({ page }) => {
-      // Navigate to page and check for loading state
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto(pages.iot);
-
-      // Look for loading indicators
-      const loadingIndicator = page.locator('.animate-pulse, [aria-busy="true"]');
-      const hasLoading = await loadingIndicator.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Loading state shown: ${hasLoading}`);
-
-      // Wait for content to load
       await page.waitForTimeout(3000);
 
       // Content should be visible after loading
-      const heading = page.locator('h1').first();
+      const heading = page.getByTestId('page-title');
       await expect(heading).toBeVisible();
     });
   });
@@ -71,78 +78,86 @@ test.describe('IoT & Sensors Page', () => {
     test('should display three statistics cards', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Check for statistics cards
-      const statCards = page.locator('.grid.grid-cols-1.md\\:grid-cols-3 > div.bg-white');
-      const count = await statCards.count();
+      // Check for statistics grid
+      const statsGrid = page.getByTestId('statistics-grid');
+      await expect(statsGrid).toBeVisible();
 
-      console.log(`Found ${count} statistics cards`);
-      expect(count).toBe(3);
+      // Check individual stat cards
+      await expect(page.getByTestId('stat-card-sensors')).toBeVisible();
+      await expect(page.getByTestId('stat-card-actuators')).toBeVisible();
+      await expect(page.getByTestId('stat-card-alerts')).toBeVisible();
     });
 
-    test('should display active sensors card', async ({ page }) => {
+    test('should display active sensors card with mock data', async ({ page }) => {
       await page.waitForTimeout(2000);
 
       // Look for active sensors card
-      const sensorsCard = page.locator('text=/مستشعرات نشطة|Active Sensors/i');
+      const sensorsCard = page.getByTestId('stat-card-sensors');
       await expect(sensorsCard).toBeVisible();
 
       // Check for icon
-      const activityIcon = page.locator('.bg-blue-100').first();
-      await expect(activityIcon).toBeVisible();
+      const sensorIcon = page.getByTestId('sensor-icon');
+      await expect(sensorIcon).toBeVisible();
 
-      // Check for numeric value
-      const sensorCount = page.locator('text=/مستشعرات نشطة|Active Sensors/i').locator('..').locator('h3').first();
-      const isVisible = await sensorCount.isVisible({ timeout: 3000 }).catch(() => false);
+      // Check for numeric value - should be 3 based on mock data
+      const sensorCount = page.getByTestId('active-sensors-count');
+      await expect(sensorCount).toBeVisible();
+      const value = await sensorCount.textContent();
+      console.log(`Active sensors count: ${value}`);
+      expect(value).toBe('3'); // 3 active sensors in mock data
 
-      if (isVisible) {
-        const value = await sensorCount.textContent();
-        console.log(`Active sensors count: ${value}`);
-        expect(value).toMatch(/\d+/);
-      }
+      // Check for label
+      const label = page.getByTestId('sensor-label');
+      await expect(label).toContainText('مستشعرات نشطة');
+      await expect(label).toContainText('Active Sensors');
     });
 
-    test('should display active actuators card', async ({ page }) => {
+    test('should display active actuators card with mock data', async ({ page }) => {
       await page.waitForTimeout(2000);
 
       // Look for active actuators card
-      const actuatorsCard = page.locator('text=/مشغلات نشطة|Active Actuators/i');
+      const actuatorsCard = page.getByTestId('stat-card-actuators');
       await expect(actuatorsCard).toBeVisible();
 
       // Check for icon
-      const zapIcon = page.locator('.bg-green-100').first();
-      await expect(zapIcon).toBeVisible();
+      const actuatorIcon = page.getByTestId('actuator-icon');
+      await expect(actuatorIcon).toBeVisible();
 
-      // Check for numeric value
-      const actuatorCount = page.locator('text=/مشغلات نشطة|Active Actuators/i').locator('..').locator('h3').first();
-      const isVisible = await actuatorCount.isVisible({ timeout: 3000 }).catch(() => false);
+      // Check for numeric value - should be 2 based on mock data (2 actuators are 'on')
+      const actuatorCount = page.getByTestId('active-actuators-count');
+      await expect(actuatorCount).toBeVisible();
+      const value = await actuatorCount.textContent();
+      console.log(`Active actuators count: ${value}`);
+      expect(value).toBe('2'); // 2 actuators with status 'on' in mock data
 
-      if (isVisible) {
-        const value = await actuatorCount.textContent();
-        console.log(`Active actuators count: ${value}`);
-        expect(value).toMatch(/\d+/);
-      }
+      // Check for label
+      const label = page.getByTestId('actuator-label');
+      await expect(label).toContainText('مشغلات نشطة');
+      await expect(label).toContainText('Active Actuators');
     });
 
-    test('should display alert rules card', async ({ page }) => {
+    test('should display alert rules card with mock data', async ({ page }) => {
       await page.waitForTimeout(2000);
 
       // Look for alert rules card
-      const alertCard = page.locator('text=/قواعد التنبيه|Alert Rules/i');
+      const alertCard = page.getByTestId('stat-card-alerts');
       await expect(alertCard).toBeVisible();
 
       // Check for icon
-      const alertIcon = page.locator('.bg-orange-100').first();
+      const alertIcon = page.getByTestId('alert-icon');
       await expect(alertIcon).toBeVisible();
 
-      // Check for numeric value
-      const alertCount = page.locator('text=/قواعد التنبيه|Alert Rules/i').locator('..').locator('h3').first();
-      const isVisible = await alertCount.isVisible({ timeout: 3000 }).catch(() => false);
+      // Check for numeric value - should be 2 based on mock data (2 enabled rules)
+      const alertCount = page.getByTestId('active-alerts-count');
+      await expect(alertCount).toBeVisible();
+      const value = await alertCount.textContent();
+      console.log(`Alert rules count: ${value}`);
+      expect(value).toBe('2'); // 2 enabled alert rules in mock data
 
-      if (isVisible) {
-        const value = await alertCount.textContent();
-        console.log(`Alert rules count: ${value}`);
-        expect(value).toMatch(/\d+/);
-      }
+      // Check for label
+      const label = page.getByTestId('alert-label');
+      await expect(label).toContainText('قواعد التنبيه');
+      await expect(label).toContainText('Alert Rules');
     });
 
     test('should display status labels on cards', async ({ page }) => {
@@ -179,38 +194,37 @@ test.describe('IoT & Sensors Page', () => {
     test('should display sensors dashboard section', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Check for sensors dashboard heading
-      const heading = page.locator('h2:has-text("لوحة المستشعرات")');
-      await expect(heading).toBeVisible({ timeout: timeouts.long });
+      // Check for sensors dashboard section
+      const dashboardSection = page.getByTestId('sensors-dashboard-section');
+      await expect(dashboardSection).toBeVisible({ timeout: timeouts.long });
+
+      // Check for heading
+      const heading = page.getByTestId('sensors-dashboard-title');
+      await expect(heading).toBeVisible();
+      await expect(heading).toHaveText('لوحة المستشعرات');
 
       // Check for English subtitle
-      const subtitle = page.locator('text=/Sensors Dashboard/i');
+      const subtitle = page.getByTestId('sensors-dashboard-subtitle');
       await expect(subtitle).toBeVisible();
+      await expect(subtitle).toHaveText('Sensors Dashboard');
     });
 
-    test('should display sensor list', async ({ page }) => {
+    test('should display sensor list with mock data', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for sensors dashboard section
-      const dashboardSection = page.locator('h2:has-text("لوحة المستشعرات")').locator('..');
+      // Look for sensors grid - should show sensors from mock data
+      const sensorsGrid = page.getByTestId('sensors-grid');
+      await expect(sensorsGrid).toBeVisible({ timeout: 5000 });
 
-      if (await dashboardSection.isVisible({ timeout: 5000 })) {
-        // Look for sensor items/cards
-        const sensorItems = dashboardSection.locator('[class*="sensor"], [data-testid*="sensor"]');
-        const count = await sensorItems.count();
+      // Check for sensor cards - should have 4 sensors in mock data
+      const sensorCards = page.locator('[data-testid^="sensor-card-"]');
+      const count = await sensorCards.count();
+      console.log(`Found ${count} sensor items in dashboard`);
+      expect(count).toBe(4); // 4 sensors in mock data
 
-        console.log(`Found ${count} sensor items in dashboard`);
-
-        if (count === 0) {
-          // Check for "no sensors" message
-          const noSensorsMsg = page.locator('text=/لا توجد مستشعرات|No sensors/i');
-          const hasNoSensorsMsg = await noSensorsMsg.isVisible({ timeout: 2000 }).catch(() => false);
-
-          if (hasNoSensorsMsg) {
-            console.log('No sensors available - showing empty state');
-          }
-        }
-      }
+      // Verify first sensor card details
+      const firstSensor = page.getByTestId('sensor-card-sensor-1');
+      await expect(firstSensor).toBeVisible();
     });
 
     test('should display sensor names and types', async ({ page }) => {
@@ -323,13 +337,13 @@ test.describe('IoT & Sensors Page', () => {
         await sensorCard.click();
         await page.waitForTimeout(2000);
 
-        // Look for chart (SVG or canvas)
-        const chart = page.locator('svg, canvas').filter({
+        // Look for SVG chart (Recharts uses SVG)
+        const chart = page.locator('svg').filter({
           has: page.locator('path, rect')
         });
         const hasChart = await chart.isVisible({ timeout: 3000 }).catch(() => false);
 
-        console.log(`Sensor chart visible: ${hasChart}`);
+        console.log(`Sensor SVG chart visible: ${hasChart}`);
 
         if (hasChart) {
           await expect(chart.first()).toBeVisible();
@@ -558,17 +572,11 @@ test.describe('IoT & Sensors Page', () => {
       console.log(`API calls made: ${apiCalls.length}`);
     });
 
-    test('should show loading state during data refresh', async ({ page }) => {
+    test('should display content after page refresh', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Reload to trigger loading
+      // Reload page
       await page.reload();
-
-      // Look for loading indicators
-      const loadingSpinner = page.locator('[class*="animate-pulse"], [class*="animate-spin"]');
-      const hasLoading = await loadingSpinner.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Loading state during refresh: ${hasLoading}`);
 
       // Wait for content to load
       await page.waitForTimeout(3000);
@@ -874,20 +882,13 @@ test.describe('IoT & Sensors Page', () => {
   });
 
   /**
-   * Loading States Tests
-   * اختبارات حالات التحميل
+   * Content Rendering Tests
+   * اختبارات عرض المحتوى
    */
-  test.describe('Loading States', () => {
-    test('should show loading state for sensors dashboard', async ({ page }) => {
+  test.describe('Content Rendering', () => {
+    test('should display sensors dashboard after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto(pages.iot);
-
-      // Look for loading indicator in sensors section
-      const loadingIndicator = page.locator('.animate-pulse, [class*="skeleton"]');
-      const hasLoading = await loadingIndicator.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Sensors loading state shown: ${hasLoading}`);
-
-      // Wait for content to load
       await page.waitForTimeout(3000);
 
       // Content should be visible
@@ -895,34 +896,29 @@ test.describe('IoT & Sensors Page', () => {
       await expect(heading).toBeVisible({ timeout: timeouts.long });
     });
 
-    test('should show loading state for actuators', async ({ page }) => {
+    test('should display actuators section', async ({ page }) => {
+      // Navigate and wait for page to load
       await page.goto(pages.iot);
+      await page.waitForTimeout(3000);
 
-      // Look for loading in actuators section
-      const actuatorsSection = page.locator('text=/التحكم بالمشغلات/i');
-      const loadingPulse = actuatorsSection.locator('..').locator('.animate-pulse');
-
-      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Actuators loading state shown: ${hasLoading}`);
+      // Actuators section should be visible
+      const actuatorsHeading = page.locator('h2:has-text("التحكم بالمشغلات")');
+      await expect(actuatorsHeading).toBeVisible({ timeout: timeouts.long });
     });
 
-    test('should show loading state for alert rules', async ({ page }) => {
+    test('should display alert rules section', async ({ page }) => {
+      // Navigate and wait for page to load
       await page.goto(pages.iot);
+      await page.waitForTimeout(3000);
 
-      // Look for loading in alert rules section
-      const alertSection = page.locator('text=/قواعد التنبيه/i');
-      const loadingPulse = alertSection.locator('..').locator('.animate-pulse');
-
-      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Alert rules loading state shown: ${hasLoading}`);
+      // Alert rules section should be visible
+      const alertsHeading = page.locator('h2:has-text("قواعد التنبيه")');
+      await expect(alertsHeading).toBeVisible({ timeout: timeouts.long });
     });
 
-    test('should transition from loading to content', async ({ page }) => {
+    test('should display all main sections', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto(pages.iot);
-
-      // Wait for loading to disappear and content to appear
       await page.waitForTimeout(5000);
 
       // All main sections should be visible
@@ -935,17 +931,7 @@ test.describe('IoT & Sensors Page', () => {
       await expect(alertsHeading).toBeVisible({ timeout: timeouts.long });
     });
 
-    test('should show skeleton loaders with correct structure', async ({ page }) => {
-      await page.goto(pages.iot);
-
-      // Check for skeleton loaders
-      const skeletons = page.locator('.animate-pulse');
-      const count = await skeletons.count();
-
-      console.log(`Found ${count} skeleton loaders`);
-    });
-
-    test('should show loading when fetching sensor readings', async ({ page }) => {
+    test('should handle sensor interaction', async ({ page }) => {
       await page.waitForTimeout(3000);
 
       // Click a sensor
@@ -953,13 +939,11 @@ test.describe('IoT & Sensors Page', () => {
       const hasClickable = await sensorCard.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (hasClickable) {
-        // Click and look for loading
+        // Click sensor
         await sensorCard.click();
 
-        const loadingSpinner = page.locator('[class*="animate-spin"]');
-        const hasLoading = await loadingSpinner.isVisible({ timeout: 1000 }).catch(() => false);
-
-        console.log(`Sensor readings loading state: ${hasLoading}`);
+        // Wait for interaction to process
+        await page.waitForTimeout(1000);
       }
     });
   });

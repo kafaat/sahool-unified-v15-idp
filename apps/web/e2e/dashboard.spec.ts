@@ -251,17 +251,9 @@ test.describe('Dashboard Page', () => {
   });
 
   test.describe('Dashboard Interactions', () => {
-    test('should handle loading states', async ({ page }) => {
-      // Navigate to dashboard
+    test('should display content after page load', async ({ page }) => {
+      // Navigate and wait for content to load
       await page.goto('/dashboard');
-
-      // Look for loading indicators initially
-      const loadingIndicator = page.locator('[class*="loading"], [class*="skeleton"], [aria-busy="true"]');
-      const hasLoader = await loadingIndicator.isVisible({ timeout: 1000 }).catch(() => false);
-
-      console.log(`Loading state shown: ${hasLoader}`);
-
-      // Wait for content to load
       await page.waitForTimeout(3000);
 
       // Content should be visible
@@ -309,11 +301,11 @@ test.describe('Dashboard Page', () => {
     test('should display charts', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Look for chart elements (SVG, canvas)
-      const charts = page.locator('svg, canvas');
+      // Look for SVG chart elements (Recharts uses SVG)
+      const charts = page.locator('svg');
       const count = await charts.count();
 
-      console.log(`Found ${count} chart elements`);
+      console.log(`Found ${count} SVG chart elements (Recharts)`);
 
       if (count > 0) {
         // At least one chart should be visible
@@ -334,8 +326,8 @@ test.describe('Dashboard Page', () => {
     test('should handle chart interactions', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Look for interactive chart elements
-      const chartElements = page.locator('svg path, canvas');
+      // Look for interactive SVG chart elements (Recharts uses SVG)
+      const chartElements = page.locator('svg path');
 
       if (await chartElements.count() > 0) {
         // Hover over chart element
@@ -362,8 +354,12 @@ test.describe('Dashboard Page', () => {
       console.log(`Found ${count} error fallback messages`);
 
       // Even with errors, page should not crash
-      const heading = page.locator('h1').first();
-      await expect(heading).toBeVisible();
+      // Use data-testid for more reliable selection
+      const heading = page.locator('[data-testid="dashboard-heading"]');
+      await expect(heading).toBeVisible({ timeout: 10000 });
+
+      // Verify the heading contains the welcome message
+      await expect(heading).toContainText('مرحباً');
     });
   });
 });

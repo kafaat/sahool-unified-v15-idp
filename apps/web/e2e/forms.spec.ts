@@ -18,38 +18,38 @@ test.describe('Form Interactions', () => {
     });
 
     test('should display add field button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة حقل جديد")');
+      const addButton = page.getByTestId('add-field-button');
 
       // Button should be visible
       await expect(addButton).toBeVisible({ timeout: 5000 });
     });
 
     test('should open add field form', async ({ page }) => {
-      // Look for add button with exact text
-      const addButton = page.locator('button:has-text("إضافة حقل جديد")');
+      // Look for add button with test ID
+      const addButton = page.getByTestId('add-field-button');
       await addButton.click();
 
       // Wait for modal or form to appear
       await page.waitForTimeout(1000);
 
       // Check if modal is visible
-      const modal = page.locator('[role="dialog"]');
+      const modal = page.getByTestId('modal-dialog');
       await expect(modal).toBeVisible();
 
-      // Check for modal title
-      const modalTitle = page.locator('text=/إضافة حقل جديد|Create New Field/i');
-      await expect(modalTitle).toBeVisible();
+      // Check for form title
+      const formTitle = page.getByTestId('field-form-title');
+      await expect(formTitle).toBeVisible();
     });
 
     test('should validate required fields in add field form', async ({ page }) => {
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة")').first();
+      const addButton = page.getByTestId('add-field-button');
 
       if (await addButton.isVisible({ timeout: 5000 })) {
         await addButton.click();
         await page.waitForTimeout(1000);
 
         // Try to submit without filling fields
-        const submitButton = page.locator('button[type="submit"], button:has-text("Save"), button:has-text("حفظ")').first();
+        const submitButton = page.getByTestId('field-form-submit-button');
 
         if (await submitButton.isVisible()) {
           await submitButton.click();
@@ -57,9 +57,10 @@ test.describe('Form Interactions', () => {
           // Should show validation errors or prevent submission
           await page.waitForTimeout(1000);
 
-          // Check for validation messages
-          const hasValidation = await page.locator('[class*="error"], [role="alert"], .invalid-feedback').isVisible().catch(() => false);
-          console.log(`Form validation shown: ${hasValidation}`);
+          // Check for validation messages (HTML5 validation)
+          const nameInput = page.getByTestId('field-name-input');
+          const validationMessage = await nameInput.evaluate((el: HTMLInputElement) => el.validationMessage);
+          console.log(`Form validation message: ${validationMessage}`);
         }
       } else {
         test.skip();
@@ -68,16 +69,17 @@ test.describe('Form Interactions', () => {
 
     test.skip('should successfully create a new field', async ({ page }) => {
       // This test requires actual form implementation
-      const addButton = page.locator('button:has-text("Add")').first();
+      const addButton = page.getByTestId('add-field-button');
       await addButton.click();
       await page.waitForTimeout(1000);
 
       // Fill in field information
-      await page.fill('input[name="name"], input[placeholder*="Name"]', 'Test Field');
-      await page.fill('input[name="area"], input[placeholder*="Area"]', '100');
+      await page.getByTestId('field-name-input').fill('Test Field');
+      await page.getByTestId('field-name-ar-input').fill('حقل تجريبي');
+      await page.getByTestId('field-area-input').fill('100');
 
       // Submit form
-      const submitButton = page.locator('button[type="submit"]').first();
+      const submitButton = page.getByTestId('field-form-submit-button');
       await submitButton.click();
 
       // Wait for success message
@@ -85,7 +87,7 @@ test.describe('Form Interactions', () => {
       expect(hasToast).toBe(true);
 
       // Form should close
-      await expect(page.locator('[role="dialog"]')).not.toBeVisible();
+      await expect(page.getByTestId('modal-dialog')).not.toBeVisible();
     });
   });
 
@@ -95,35 +97,37 @@ test.describe('Form Interactions', () => {
     });
 
     test('should display add task button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة مهمة جديدة")');
+      const addButton = page.getByTestId('add-task-button');
       await expect(addButton).toBeVisible({ timeout: 5000 });
     });
 
     test('should open add task form', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة مهمة جديدة")');
+      const addButton = page.getByTestId('add-task-button');
       await addButton.click();
       await page.waitForTimeout(1000);
 
       // Check if modal is visible
-      const modal = page.locator('[role="dialog"]');
+      const modal = page.getByTestId('modal-dialog');
       await expect(modal).toBeVisible();
 
-      // Check for modal title
-      const modalTitle = page.locator('text=/إضافة مهمة جديدة|Create New Task/i');
-      await expect(modalTitle).toBeVisible();
+      // Check for form title
+      const formTitle = page.getByTestId('task-form-title');
+      await expect(formTitle).toBeVisible();
     });
 
     test.skip('should successfully create a new task', async ({ page }) => {
-      const addButton = page.locator('button:has-text("Add")').first();
+      const addButton = page.getByTestId('add-task-button');
       await addButton.click();
       await page.waitForTimeout(1000);
 
       // Fill task details
-      await page.fill('input[name="title"], input[placeholder*="Title"]', 'Test Task');
-      await page.fill('textarea[name="description"]', 'Test task description');
+      await page.getByTestId('task-title-input').fill('Test Task');
+      await page.getByTestId('task-title-ar-input').fill('مهمة تجريبية');
+      await page.getByTestId('task-due-date-input').fill('2025-12-31');
+      await page.getByTestId('task-description-input').fill('Test task description');
 
       // Submit
-      const submitButton = page.locator('button[type="submit"]').first();
+      const submitButton = page.getByTestId('task-form-submit-button');
       await submitButton.click();
 
       // Verify success
@@ -138,20 +142,22 @@ test.describe('Form Interactions', () => {
     });
 
     test('should display add equipment button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة")').first();
+      const addButton = page.getByTestId('add-equipment-button');
 
       const isVisible = await addButton.isVisible({ timeout: 5000 }).catch(() => false);
+      expect(isVisible).toBe(true);
       console.log(`Add equipment button visible: ${isVisible}`);
     });
 
     test('should open add equipment form', async ({ page }) => {
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة")').first();
+      const addButton = page.getByTestId('add-equipment-button');
 
       if (await addButton.isVisible({ timeout: 5000 })) {
         await addButton.click();
         await page.waitForTimeout(1000);
 
-        const formVisible = await page.locator('form, [role="dialog"]').isVisible().catch(() => false);
+        const form = page.getByTestId('equipment-form');
+        const formVisible = await form.isVisible().catch(() => false);
         expect(formVisible).toBe(true);
       } else {
         test.skip();
@@ -242,14 +248,14 @@ test.describe('Form Interactions', () => {
       await navigateAndWait(page, '/fields');
 
       // Try to open add field form
-      const addButton = page.locator('button:has-text("Add"), button:has-text("إضافة")').first();
+      const addButton = page.getByTestId('add-field-button');
 
       if (await addButton.isVisible({ timeout: 3000 })) {
         await addButton.click();
         await page.waitForTimeout(1000);
 
-        // Look for number input
-        const numberInput = page.locator('input[type="number"]').first();
+        // Look for area number input
+        const numberInput = page.getByTestId('field-area-input');
 
         if (await numberInput.isVisible()) {
           // Try to enter non-numeric value
@@ -265,26 +271,27 @@ test.describe('Form Interactions', () => {
       // This is a generic test for error handling
       await navigateAndWait(page, '/tasks');
 
-      const addButton = page.locator('button:has-text("Add")').first();
+      const addButton = page.getByTestId('add-task-button');
 
       if (await addButton.isVisible({ timeout: 3000 })) {
         await addButton.click();
         await page.waitForTimeout(1000);
 
         // Fill minimal data that might cause server error
-        const titleInput = page.locator('input[name="title"], input').first();
+        const titleInput = page.getByTestId('task-title-input');
 
         if (await titleInput.isVisible()) {
           await titleInput.fill('X'); // Very short input
 
-          const submitButton = page.locator('button[type="submit"]').first();
+          const submitButton = page.getByTestId('task-form-submit-button');
           await submitButton.click();
 
           // Wait to see if error is handled
           await page.waitForTimeout(2000);
 
           // Form should either show error or still be visible (not crash)
-          const formStillVisible = await page.locator('form, [role="dialog"]').isVisible().catch(() => false);
+          const modal = page.getByTestId('modal-dialog');
+          const formStillVisible = await modal.isVisible().catch(() => false);
           console.log(`Form still visible after potential error: ${formStillVisible}`);
         }
       }
@@ -334,24 +341,52 @@ test.describe('Form Interactions', () => {
     test('should display dropdown options', async ({ page }) => {
       await navigateAndWait(page, '/tasks');
 
-      const addButton = page.locator('button:has-text("Add")').first();
+      const addButton = page.getByTestId('add-task-button');
 
       if (await addButton.isVisible({ timeout: 3000 })) {
         await addButton.click();
         await page.waitForTimeout(1000);
 
-        // Look for dropdown/select
-        const dropdown = page.locator('select, [role="combobox"]').first();
+        // Look for priority dropdown
+        const dropdown = page.getByTestId('task-priority-select');
 
         if (await dropdown.isVisible()) {
           await dropdown.click();
           await page.waitForTimeout(500);
 
           // Options should appear
-          const options = page.locator('option, [role="option"]');
+          const options = dropdown.locator('option');
           const count = await options.count();
 
           expect(count).toBeGreaterThan(0);
+          console.log(`Priority dropdown has ${count} options`);
+        }
+      }
+    });
+
+    test('should select dropdown options', async ({ page }) => {
+      await navigateAndWait(page, '/tasks');
+
+      const addButton = page.getByTestId('add-task-button');
+
+      if (await addButton.isVisible({ timeout: 3000 })) {
+        await addButton.click();
+        await page.waitForTimeout(1000);
+
+        // Select priority
+        const prioritySelect = page.getByTestId('task-priority-select');
+        if (await prioritySelect.isVisible()) {
+          await prioritySelect.selectOption('high');
+          const value = await prioritySelect.inputValue();
+          expect(value).toBe('high');
+        }
+
+        // Select status
+        const statusSelect = page.getByTestId('task-status-select');
+        if (await statusSelect.isVisible()) {
+          await statusSelect.selectOption('in_progress');
+          const value = await statusSelect.inputValue();
+          expect(value).toBe('in_progress');
         }
       }
     });

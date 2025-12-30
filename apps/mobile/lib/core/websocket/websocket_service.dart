@@ -57,8 +57,8 @@ class WebSocketEvent {
 /// خدمة WebSocket للاتصال في الوقت الفعلي
 class WebSocketService {
   final String baseUrl;
-  final String Function() getToken;
-  final String Function() getTenantId;
+  final Future<String> Function() getToken;
+  final Future<String> Function() getTenantId;
 
   WebSocketChannel? _channel;
   final StreamController<WebSocketEvent> _eventController =
@@ -106,8 +106,8 @@ class WebSocketService {
     _updateState(ConnectionState.connecting);
 
     try {
-      final token = getToken();
-      final tenantId = getTenantId();
+      final token = await getToken();
+      final tenantId = await getTenantId();
 
       if (token.isEmpty || tenantId.isEmpty) {
         throw Exception('Token or tenant ID not available');

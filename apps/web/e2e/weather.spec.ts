@@ -5,6 +5,9 @@ import { pages } from './helpers/test-data';
 /**
  * Weather Page E2E Tests
  * اختبارات E2E لصفحة الطقس
+ *
+ * Updated to use data-testid attributes for reliable element selection
+ * Tests verify mock data fallback functionality
  */
 
 test.describe('Weather Page', () => {
@@ -14,49 +17,41 @@ test.describe('Weather Page', () => {
   });
 
   /**
-   * Basic Page Loading Tests
-   * اختبارات تحميل الصفحة الأساسية
+   * Basic Page Structure Tests
+   * اختبارات بنية الصفحة الأساسية
    */
-  test.describe('Page Loading', () => {
-    test('should display weather page correctly', async ({ page }) => {
-      // Check page title - uses default SAHOOL title
+  test.describe('Page Structure', () => {
+    test('should display weather page with proper structure', async ({ page }) => {
+      // Check page title
       await expect(page).toHaveTitle(/SAHOOL|سهول/i);
 
-      // Check for main heading in Arabic
-      const heading = page.locator('h1:has-text("الطقس")');
-      await expect(heading).toBeVisible();
+      // Check main page container
+      await expect(page.getByTestId('weather-page')).toBeVisible();
 
-      // Check for English subtitle
-      const subtitle = page.locator('p:has-text("Weather Dashboard")');
-      await expect(subtitle).toBeVisible();
+      // Check page header
+      await expect(page.getByTestId('weather-header')).toBeVisible();
+      await expect(page.getByTestId('weather-title')).toHaveText('الطقس');
+      await expect(page.getByTestId('weather-subtitle')).toHaveText('Weather Dashboard');
     });
 
-    test('should display page header with location selector', async ({ page }) => {
-      // Check for header section
-      const header = page.locator('.bg-white.rounded-xl').first();
-      await expect(header).toBeVisible();
+    test('should display location selector', async ({ page }) => {
+      // Check location selector container
+      await expect(page.getByTestId('location-selector-container')).toBeVisible();
 
-      // Check for location icon
-      const locationIcon = page.locator('svg').first();
-      await expect(locationIcon).toBeVisible();
+      // Check location icon
+      await expect(page.getByTestId('location-icon')).toBeVisible();
 
-      // Check for location selector dropdown
-      const locationSelector = page.locator('select');
+      // Check location selector dropdown
+      const locationSelector = page.getByTestId('location-selector');
       await expect(locationSelector).toBeVisible();
+
+      // Verify it has options
+      const options = await locationSelector.locator('option').count();
+      expect(options).toBeGreaterThan(0);
     });
 
-    test('should show loading state initially', async ({ page }) => {
-      // Navigate to page and check for loading state
-      await page.goto(pages.weather);
-
-      // Look for loading indicators
-      const loadingText = page.locator('text=/جاري تحميل/i');
-      const loadingIndicator = page.locator('.animate-pulse');
-
-      // At least one loading indicator should appear briefly
-      const hasLoading = await loadingText.or(loadingIndicator).isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Loading state shown: ${hasLoading}`);
+    test('should display weather dashboard', async ({ page }) => {
+      await expect(page.getByTestId('weather-dashboard')).toBeVisible();
     });
   });
 
@@ -66,71 +61,51 @@ test.describe('Weather Page', () => {
    */
   test.describe('Location Selector', () => {
     test('should have Yemen cities in location dropdown', async ({ page }) => {
-      await page.waitForTimeout(1000);
-
-      const locationSelector = page.locator('select');
-      await expect(locationSelector).toBeVisible();
+      const locationSelector = page.getByTestId('location-selector');
 
       // Get all options
       const options = await locationSelector.locator('option').allTextContents();
 
-      console.log(`Location options: ${options.join(', ')}`);
-
       // Should have multiple Yemen cities
       expect(options.length).toBeGreaterThan(1);
-      expect(options.some(opt => opt.includes('صنعاء'))).toBe(true);
-    });
-
-    test('should change location when selector is changed', async ({ page }) => {
-      await page.waitForTimeout(2000);
-
-      const locationSelector = page.locator('select');
-
-      // Get initial value
-      const initialValue = await locationSelector.inputValue();
-      console.log(`Initial location: ${initialValue}`);
-
-      // Select different location (Aden)
-      await locationSelector.selectOption({ index: 1 });
-      await page.waitForTimeout(1000);
-
-      // Value should change
-      const newValue = await locationSelector.inputValue();
-      console.log(`New location: ${newValue}`);
-
-      expect(newValue).not.toBe(initialValue);
-    });
-
-    test('should reload weather data when location changes', async ({ page }) => {
-      await page.waitForTimeout(2000);
-
-      // Wait for API call when changing location
-      // const responsePromise = page.waitForResponse(
-      //   response => response.url().includes('/api/weather') || response.url().includes('weather'),
-      //   { timeout: 10000 }
-      // ).catch(() => null);
-
-      // Change location
-      const locationSelector = page.locator('select');
-      await locationSelector.selectOption({ index: 1 });
-
-      // Should trigger API call
-      await page.waitForTimeout(2000);
-
-      console.log('Location changed, checking for data update');
-    });
-
-    test('should display all Yemen cities', async ({ page }) => {
-      const locationSelector = page.locator('select');
-      const options = await locationSelector.locator('option').allTextContents();
 
       // Check for expected cities
       const expectedCities = ['صنعاء', 'عدن', 'تعز', 'الحديدة', 'إب'];
-
       for (const city of expectedCities) {
         const hasCity = options.some(opt => opt.includes(city));
-        console.log(`City ${city} found: ${hasCity}`);
+        expect(hasCity).toBe(true);
       }
+    });
+
+    test('should change location when selector is changed', async ({ page }) => {
+      const locationSelector = page.getByTestId('location-selector');
+
+      // Get initial value
+      const initialValue = await locationSelector.inputValue();
+
+      // Select different location
+      await locationSelector.selectOption({ index: 1 });
+      await page.waitForTimeout(500);
+
+      // Value should change
+      const newValue = await locationSelector.inputValue();
+      expect(newValue).not.toBe(initialValue);
+    });
+
+    test('should trigger weather data reload when location changes', async ({ page }) => {
+      const locationSelector = page.getByTestId('location-selector');
+
+      // Wait for initial load
+      await page.waitForTimeout(2000);
+
+      // Change location
+      await locationSelector.selectOption({ index: 2 });
+
+      // Wait for data to reload
+      await page.waitForTimeout(1000);
+
+      // Weather components should still be visible
+      await expect(page.getByTestId('current-weather')).toBeVisible({ timeout: 10000 });
     });
   });
 
@@ -139,166 +114,123 @@ test.describe('Weather Page', () => {
    * اختبارات عرض الطقس الحالي
    */
   test.describe('Current Weather Display', () => {
-    test('should display current weather section', async ({ page }) => {
+    test('should display current weather section with all elements', async ({ page }) => {
+      // Wait for weather to load
       await page.waitForTimeout(3000);
 
-      // Check for current weather heading
-      const heading = page.locator('h2:has-text("الطقس الحالي")');
-      const isVisible = await heading.isVisible({ timeout: 5000 }).catch(() => false);
+      const currentWeather = page.getByTestId('current-weather');
+      await expect(currentWeather).toBeVisible({ timeout: 10000 });
+
+      // Check title and subtitle
+      await expect(currentWeather.getByTestId('current-weather-title')).toHaveText('الطقس الحالي');
+      await expect(currentWeather.getByTestId('current-weather-subtitle')).toHaveText('Current Weather');
+    });
+
+    test('should display temperature value', async ({ page }) => {
+      await page.waitForTimeout(3000);
+
+      const temperature = page.getByTestId('temperature');
+      await expect(temperature).toBeVisible({ timeout: 10000 });
+
+      // Check temperature format (number + °C)
+      const tempText = await temperature.textContent();
+      expect(tempText).toMatch(/\d+°C/);
+    });
+
+    test('should display weather condition', async ({ page }) => {
+      await page.waitForTimeout(3000);
+
+      await expect(page.getByTestId('weather-condition')).toBeVisible({ timeout: 10000 });
+
+      // Condition should have text (Arabic or English)
+      const conditionText = await page.getByTestId('weather-condition').textContent();
+      expect(conditionText).toBeTruthy();
+    });
+
+    test('should display weather icon', async ({ page }) => {
+      await page.waitForTimeout(3000);
+
+      await expect(page.getByTestId('weather-icon')).toBeVisible({ timeout: 10000 });
+    });
+
+    test('should display weather location', async ({ page }) => {
+      await page.waitForTimeout(3000);
+
+      const location = page.getByTestId('weather-location');
+      const isVisible = await location.isVisible({ timeout: 10000 }).catch(() => false);
 
       if (isVisible) {
-        await expect(heading).toBeVisible();
-      } else {
-        console.log('Current weather section not loaded yet');
+        const locationText = await location.textContent();
+        expect(locationText).toContain('اليمن');
       }
     });
 
-    test('should display temperature', async ({ page }) => {
+    test('should display weather details grid', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for temperature display (large number with °C)
-      const temperature = page.locator('text=/\\d+°C/').first();
-      const isVisible = await temperature.isVisible({ timeout: 5000 }).catch(() => false);
+      const detailsGrid = page.getByTestId('weather-details-grid');
+      await expect(detailsGrid).toBeVisible({ timeout: 10000 });
 
-      if (isVisible) {
-        const tempText = await temperature.textContent();
-        console.log(`Current temperature: ${tempText}`);
+      // Check for humidity metric
+      await expect(page.getByTestId('metric-الرطوبة')).toBeVisible();
 
-        await expect(temperature).toBeVisible();
-        expect(tempText).toMatch(/\d+°C/);
-      } else {
-        console.log('Temperature not available');
-      }
+      // Check for wind metric
+      await expect(page.getByTestId('metric-الرياح')).toBeVisible();
     });
 
-    test('should display weather condition with icon', async ({ page }) => {
+    test('should display humidity value', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for weather icon (SVG)
-      const weatherIcon = page.locator('.text-6xl').locator('..').locator('svg').first();
-      const hasIcon = await weatherIcon.isVisible({ timeout: 5000 }).catch(() => false);
+      const humidityMetric = page.getByTestId('metric-الرطوبة');
+      await expect(humidityMetric).toBeVisible({ timeout: 10000 });
 
-      if (hasIcon) {
-        console.log('Weather icon displayed');
-        await expect(weatherIcon).toBeVisible();
-      }
+      const humidityValue = await humidityMetric.getByTestId('metric-الرطوبة-value').textContent();
+      expect(humidityValue).toMatch(/\d+%/);
     });
 
-    test('should display humidity', async ({ page }) => {
+    test('should display wind speed value', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for humidity label
-      const humidityLabel = page.locator('text=/الرطوبة|Humidity/i');
-      const isVisible = await humidityLabel.isVisible({ timeout: 5000 }).catch(() => false);
+      const windMetric = page.getByTestId('metric-الرياح');
+      await expect(windMetric).toBeVisible({ timeout: 10000 });
 
-      if (isVisible) {
-        await expect(humidityLabel).toBeVisible();
-
-        // Look for humidity percentage value
-        const humidityValue = page.locator('text=/\\d+%/').first();
-        const hasValue = await humidityValue.isVisible({ timeout: 2000 }).catch(() => false);
-
-        if (hasValue) {
-          const value = await humidityValue.textContent();
-          console.log(`Humidity: ${value}`);
-        }
-      }
-    });
-
-    test('should display wind speed', async ({ page }) => {
-      await page.waitForTimeout(3000);
-
-      // Look for wind label
-      const windLabel = page.locator('text=/الرياح|Wind/i');
-      const isVisible = await windLabel.isVisible({ timeout: 5000 }).catch(() => false);
-
-      if (isVisible) {
-        await expect(windLabel).toBeVisible();
-
-        // Look for wind speed value (km/h)
-        const windSpeed = page.locator('text=/\\d+\\s*km\\/h/i').first();
-        const hasValue = await windSpeed.isVisible({ timeout: 2000 }).catch(() => false);
-
-        if (hasValue) {
-          const value = await windSpeed.textContent();
-          console.log(`Wind speed: ${value}`);
-        }
-      }
+      const windValue = await windMetric.getByTestId('metric-الرياح-value').textContent();
+      expect(windValue).toMatch(/\d+.*km\/h/i);
     });
 
     test('should display pressure if available', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for pressure label
-      const pressureLabel = page.locator('text=/الضغط|Pressure/i');
-      const isVisible = await pressureLabel.isVisible({ timeout: 3000 }).catch(() => false);
+      const pressureMetric = page.getByTestId('metric-الضغط');
+      const isVisible = await pressureMetric.isVisible({ timeout: 5000 }).catch(() => false);
 
       if (isVisible) {
-        console.log('Pressure data available');
-        await expect(pressureLabel).toBeVisible();
-
-        // Check for hPa unit
-        const unit = page.locator('text=/hPa/i');
-        await expect(unit).toBeVisible();
-      } else {
-        console.log('Pressure data not available');
+        const pressureValue = await pressureMetric.getByTestId('metric-الضغط-value').textContent();
+        expect(pressureValue).toMatch(/\d+.*hPa/i);
       }
     });
 
     test('should display visibility if available', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for visibility label
-      const visibilityLabel = page.locator('text=/الرؤية|Visibility/i');
-      const isVisible = await visibilityLabel.isVisible({ timeout: 3000 }).catch(() => false);
+      const visibilityMetric = page.getByTestId('metric-الرؤية');
+      const isVisible = await visibilityMetric.isVisible({ timeout: 5000 }).catch(() => false);
 
       if (isVisible) {
-        console.log('Visibility data available');
-        await expect(visibilityLabel).toBeVisible();
-      } else {
-        console.log('Visibility data not available');
-      }
-    });
-
-    test('should display UV index if available', async ({ page }) => {
-      await page.waitForTimeout(3000);
-
-      // Look for UV index label
-      const uvLabel = page.locator('text=/UV|مؤشر UV/i');
-      const isVisible = await uvLabel.isVisible({ timeout: 3000 }).catch(() => false);
-
-      if (isVisible) {
-        console.log('UV index data available');
-        await expect(uvLabel).toBeVisible();
-      } else {
-        console.log('UV index data not available');
+        const visibilityValue = await visibilityMetric.getByTestId('metric-الرؤية-value').textContent();
+        expect(visibilityValue).toMatch(/\d+.*km/i);
       }
     });
 
     test('should display timestamp', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Look for timestamp (آخر تحديث)
-      const timestamp = page.locator('text=/آخر تحديث/i');
-      const isVisible = await timestamp.isVisible({ timeout: 5000 }).catch(() => false);
+      const timestamp = page.getByTestId('weather-timestamp');
+      const isVisible = await timestamp.isVisible({ timeout: 10000 }).catch(() => false);
 
       if (isVisible) {
         const timestampText = await timestamp.textContent();
-        console.log(`Last update: ${timestampText}`);
-      }
-    });
-
-    test('should show weather details in grid layout', async ({ page }) => {
-      await page.waitForTimeout(3000);
-
-      // Weather details should be in a grid
-      const detailCards = page.locator('.bg-white\\/50.backdrop-blur-sm.rounded-lg');
-      const count = await detailCards.count();
-
-      console.log(`Found ${count} weather detail cards`);
-
-      if (count > 0) {
-        expect(count).toBeGreaterThanOrEqual(2); // At least humidity and wind
+        expect(timestampText).toContain('آخر تحديث');
       }
     });
   });
@@ -311,103 +243,94 @@ test.describe('Weather Page', () => {
     test('should display forecast section', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Check for forecast heading
-      const heading = page.locator('h2:has-text("توقعات 7 أيام")');
-      const isVisible = await heading.isVisible({ timeout: 5000 }).catch(() => false);
+      const forecastChart = page.getByTestId('forecast-chart');
+      await expect(forecastChart).toBeVisible({ timeout: 10000 });
 
-      if (isVisible) {
-        await expect(heading).toBeVisible();
-
-        // Check for English subtitle
-        const subtitle = page.locator('text=/7-Day Forecast/i');
-        await expect(subtitle).toBeVisible();
-      } else {
-        console.log('7-day forecast section not loaded');
-      }
+      // Check title and subtitle
+      await expect(forecastChart.getByTestId('forecast-title')).toHaveText('توقعات 7 أيام');
+      await expect(forecastChart.getByTestId('forecast-subtitle')).toHaveText('7-Day Forecast');
     });
 
-    test('should display multiple forecast days', async ({ page }) => {
+    test('should display forecast list with multiple days', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for forecast items (should have date, condition, temp)
-      const forecastItems = page.locator('.space-y-4 > div').filter({ has: page.locator('text=/\\d+°C/') });
-      const count = await forecastItems.count();
+      const forecastList = page.getByTestId('forecast-list');
+      await expect(forecastList).toBeVisible({ timeout: 10000 });
 
-      console.log(`Found ${count} forecast days`);
-
-      if (count > 0) {
-        // Should show up to 7 days
-        expect(count).toBeGreaterThan(0);
-        expect(count).toBeLessThanOrEqual(7);
-      }
+      // Check for forecast days
+      const day0 = page.getByTestId('forecast-day-0');
+      await expect(day0).toBeVisible();
     });
 
     test('should display date for each forecast day', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for dates in the forecast
-      const dates = page.locator('.w-24 .font-medium');
-      const count = await dates.count();
+      const firstDayDate = page.getByTestId('forecast-day-0-date');
+      await expect(firstDayDate).toBeVisible({ timeout: 10000 });
 
-      console.log(`Found ${count} forecast dates`);
-
-      if (count > 0) {
-        // Check first date
-        const firstDate = await dates.first().textContent();
-        console.log(`First forecast date: ${firstDate}`);
-      }
+      // Date should have text content
+      const dateText = await firstDayDate.textContent();
+      expect(dateText).toBeTruthy();
     });
 
-    test('should display temperature bars for forecast', async ({ page }) => {
+    test('should display condition for each forecast day', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for temperature bars
-      const tempBars = page.locator('.bg-gradient-to-r.from-blue-400.to-red-400');
-      const count = await tempBars.count();
+      const firstDayCondition = page.getByTestId('forecast-day-0-condition');
+      await expect(firstDayCondition).toBeVisible({ timeout: 10000 });
 
-      console.log(`Found ${count} temperature bars`);
+      // Condition should have text
+      const conditionText = await firstDayCondition.textContent();
+      expect(conditionText).toBeTruthy();
+    });
 
-      if (count > 0) {
-        expect(count).toBeGreaterThan(0);
-      }
+    test('should display temperature for each forecast day', async ({ page }) => {
+      await page.waitForTimeout(4000);
+
+      const firstDayTemp = page.getByTestId('forecast-day-0-temp');
+      await expect(firstDayTemp).toBeVisible({ timeout: 10000 });
+
+      // Temperature should match pattern
+      const tempText = await firstDayTemp.textContent();
+      expect(tempText).toMatch(/\d+°C/);
     });
 
     test('should display humidity for each forecast day', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for humidity indicators (💧 emoji)
-      const humidityIndicators = page.locator('text=/💧\\s*\\d+%/');
-      const count = await humidityIndicators.count();
+      const firstDayHumidity = page.getByTestId('forecast-day-0-humidity');
+      await expect(firstDayHumidity).toBeVisible({ timeout: 10000 });
 
-      console.log(`Found ${count} humidity indicators in forecast`);
+      // Humidity should match pattern
+      const humidityText = await firstDayHumidity.textContent();
+      expect(humidityText).toMatch(/\d+%/);
     });
 
-    test('should show weather conditions for each day', async ({ page }) => {
+    test('should display temperature bars', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for condition text in forecast
-      const conditions = page.locator('.w-32.text-sm.text-gray-600');
-      const count = await conditions.count();
-
-      console.log(`Found ${count} weather conditions in forecast`);
-
-      if (count > 0) {
-        const firstCondition = await conditions.first().textContent();
-        console.log(`First forecast condition: ${firstCondition}`);
-      }
+      const firstDayTempBar = page.getByTestId('forecast-day-0-temp-bar');
+      await expect(firstDayTempBar).toBeVisible({ timeout: 10000 });
     });
 
     test('should display forecast legend', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for legend at bottom of forecast
-      const legend = page.locator('text=/درجة الحرارة/i');
-      const isVisible = await legend.isVisible({ timeout: 3000 }).catch(() => false);
+      const legend = page.getByTestId('forecast-legend');
+      await expect(legend).toBeVisible({ timeout: 10000 });
+    });
 
-      if (isVisible) {
-        console.log('Forecast legend displayed');
-        await expect(legend).toBeVisible();
-      }
+    test('should display multiple forecast days (up to 7)', async ({ page }) => {
+      await page.waitForTimeout(4000);
+
+      // Count visible forecast days
+      const forecastList = page.getByTestId('forecast-list');
+      const days = forecastList.locator('[data-testid^="forecast-day-"]');
+      const count = await days.count();
+
+      // Should have at least 1 day and at most 7 days
+      expect(count).toBeGreaterThan(0);
+      expect(count).toBeLessThanOrEqual(7);
     });
   });
 
@@ -419,103 +342,124 @@ test.describe('Weather Page', () => {
     test('should display weather alerts section', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Check for alerts heading
-      const heading = page.locator('h2:has-text("تنبيهات الطقس")');
-      const isVisible = await heading.isVisible({ timeout: 5000 }).catch(() => false);
+      // Alerts section should be visible (either with alerts or no-data state)
+      const hasAlerts = await page.getByTestId('weather-alerts').isVisible({ timeout: 5000 }).catch(() => false);
+      const noAlerts = await page.getByTestId('alerts-no-data').isVisible({ timeout: 5000 }).catch(() => false);
 
-      if (isVisible) {
-        await expect(heading).toBeVisible();
-
-        // Check for English subtitle
-        const subtitle = page.locator('text=/Weather Alerts/i');
-        await expect(subtitle).toBeVisible();
-      } else {
-        console.log('Weather alerts section not loaded');
-      }
+      // One of them should be visible
+      expect(hasAlerts || noAlerts).toBe(true);
     });
 
     test('should show no alerts message when no alerts exist', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for "no alerts" message
-      const noAlertsMessage = page.locator('text=/لا توجد تنبيهات/i');
-      const normalConditions = page.locator('text=/الأحوال الجوية طبيعية/i');
+      const noAlertsSection = page.getByTestId('alerts-no-data');
+      const isVisible = await noAlertsSection.isVisible({ timeout: 5000 }).catch(() => false);
 
-      const hasNoAlerts = await noAlertsMessage.isVisible({ timeout: 3000 }).catch(() => false);
-      const hasNormalMsg = await normalConditions.isVisible({ timeout: 3000 }).catch(() => false);
-
-      if (hasNoAlerts || hasNormalMsg) {
-        console.log('No weather alerts - conditions are normal');
-      } else {
-        console.log('Weather alerts may be present or still loading');
+      if (isVisible) {
+        await expect(page.getByTestId('no-alerts-message')).toHaveText('لا توجد تنبيهات طقس حالية');
+        await expect(page.getByTestId('normal-conditions-message')).toHaveText('الأحوال الجوية طبيعية');
       }
     });
 
     test('should display alert cards if alerts exist', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for alert cards
-      const alertCards = page.locator('.rounded-xl.border-2.p-5').filter({
-        has: page.locator('text=/حرج|عالي|متوسط|تحذير|منخفض|معلومات/')
-      });
+      const alertsSection = page.getByTestId('weather-alerts');
+      const isVisible = await alertsSection.isVisible({ timeout: 5000 }).catch(() => false);
+
+      if (isVisible) {
+        // Check for alerts list
+        await expect(page.getByTestId('alerts-list')).toBeVisible();
+
+        // Check if alert cards are present
+        const alertCards = page.locator('[data-testid^="alert-card-"]');
+        const count = await alertCards.count();
+
+        if (count > 0) {
+          // At least one alert exists
+          expect(count).toBeGreaterThan(0);
+        }
+      }
+    });
+
+    test('should display alert details when alerts exist', async ({ page }) => {
+      await page.waitForTimeout(4000);
+
+      const alertCards = page.locator('[data-testid^="alert-card-"]');
       const count = await alertCards.count();
 
-      console.log(`Found ${count} weather alert cards`);
-
       if (count > 0) {
-        // Alerts are present
-        console.log('Weather alerts are active');
+        // Get first alert ID
+        const firstCard = alertCards.first();
+        const testId = await firstCard.getAttribute('data-testid');
+        const alertId = testId?.replace('alert-card-', '') || '1';
+
+        // Check alert components
+        await expect(page.getByTestId(`alert-${alertId}-icon`)).toBeVisible();
+        await expect(page.getByTestId(`alert-${alertId}-title`)).toBeVisible();
+        await expect(page.getByTestId(`alert-${alertId}-severity`)).toBeVisible();
+        await expect(page.getByTestId(`alert-${alertId}-description`)).toBeVisible();
       }
     });
+  });
 
-    test('should show alert severity levels', async ({ page }) => {
-      await page.waitForTimeout(4000);
+  /**
+   * Mock Data Fallback Tests
+   * اختبارات البيانات الاحتياطية
+   */
+  test.describe('Mock Data Fallback', () => {
+    test('should display weather data with mock fallback', async ({ page }) => {
+      await page.waitForTimeout(3000);
 
-      // Look for severity indicators
-      const severityLabels = page.locator('text=/critical|high|medium|warning|low|info/i');
-      const severityArabic = page.locator('text=/حرج|عالي|متوسط|تحذير|منخفض|معلومات/');
+      // Current weather should be visible (either real data or mock data)
+      const currentWeather = page.getByTestId('current-weather');
+      await expect(currentWeather).toBeVisible({ timeout: 10000 });
 
-      const hasSeverity = await severityLabels.or(severityArabic).isVisible({ timeout: 2000 }).catch(() => false);
+      // Temperature should be displayed
+      const temperature = page.getByTestId('temperature');
+      await expect(temperature).toBeVisible();
+      const tempText = await temperature.textContent();
+      expect(tempText).toMatch(/\d+°C/);
 
-      if (hasSeverity) {
-        console.log('Alert severity levels displayed');
-      }
+      // This confirms mock data fallback is working if API is down
     });
 
-    test('should display alert icons', async ({ page }) => {
+    test('should display forecast with mock fallback', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for alert icons in alert cards
-      const alertIcons = page.locator('.rounded-xl.border-2 svg').filter({
-        hasNot: page.locator('.w-4.h-4')
-      });
-      const count = await alertIcons.count();
+      // Forecast should be visible (either real data or mock data)
+      const forecastChart = page.getByTestId('forecast-chart');
+      await expect(forecastChart).toBeVisible({ timeout: 10000 });
 
-      console.log(`Found ${count} alert icons`);
+      // At least one forecast day should be displayed
+      await expect(page.getByTestId('forecast-day-0')).toBeVisible();
     });
 
-    test('should show alert time periods', async ({ page }) => {
+    test('should display alerts or no-alerts state with mock fallback', async ({ page }) => {
       await page.waitForTimeout(4000);
 
-      // Look for time indicators in alerts
-      const timeLabels = page.locator('text=/من:|إلى:/');
-      const count = await timeLabels.count();
+      // Either alerts or no-alerts should be visible
+      const hasAlerts = await page.getByTestId('weather-alerts').isVisible({ timeout: 5000 }).catch(() => false);
+      const noAlerts = await page.getByTestId('alerts-no-data').isVisible({ timeout: 5000 }).catch(() => false);
 
-      if (count > 0) {
-        console.log(`Found ${count} alert time indicators`);
-      }
+      // One state should be visible (confirms fallback is working)
+      expect(hasAlerts || noAlerts).toBe(true);
     });
 
-    test('should display affected areas if present', async ({ page }) => {
-      await page.waitForTimeout(4000);
+    test('should not crash when API is unavailable', async ({ page }) => {
+      await page.waitForTimeout(5000);
 
-      // Look for affected areas section
-      const affectedAreas = page.locator('text=/المناطق المتأثرة/i');
-      const hasAreas = await affectedAreas.isVisible({ timeout: 2000 }).catch(() => false);
+      // Page should remain functional
+      await expect(page.getByTestId('weather-page')).toBeVisible();
+      await expect(page.getByTestId('weather-title')).toBeVisible();
 
-      if (hasAreas) {
-        console.log('Affected areas displayed in alerts');
-      }
+      // All main sections should be present
+      const currentWeather = page.getByTestId('current-weather');
+      const forecast = page.getByTestId('forecast-chart');
+
+      await expect(currentWeather).toBeVisible({ timeout: 10000 });
+      await expect(forecast).toBeVisible({ timeout: 10000 });
     });
   });
 
@@ -525,276 +469,34 @@ test.describe('Weather Page', () => {
    */
   test.describe('Responsive Design', () => {
     test('should display correctly on mobile viewport', async ({ page }) => {
-      // Set mobile viewport
       await page.setViewportSize({ width: 375, height: 667 });
       await page.reload();
       await waitForPageLoad(page);
       await page.waitForTimeout(2000);
 
-      // Page title should be visible
-      const heading = page.locator('h1:has-text("الطقس")');
-      await expect(heading).toBeVisible();
-
-      // Location selector should be visible
-      const locationSelector = page.locator('select');
-      await expect(locationSelector).toBeVisible();
-
-      // Weather sections should stack vertically
-      console.log('Weather page responsive on mobile');
+      await expect(page.getByTestId('weather-page')).toBeVisible();
+      await expect(page.getByTestId('weather-title')).toBeVisible();
+      await expect(page.getByTestId('location-selector')).toBeVisible();
     });
 
     test('should display correctly on tablet viewport', async ({ page }) => {
-      // Set tablet viewport
       await page.setViewportSize({ width: 768, height: 1024 });
       await page.reload();
       await waitForPageLoad(page);
       await page.waitForTimeout(2000);
 
-      const heading = page.locator('h1:has-text("الطقس")');
-      await expect(heading).toBeVisible();
-
-      console.log('Weather page responsive on tablet');
+      await expect(page.getByTestId('weather-page')).toBeVisible();
+      await expect(page.getByTestId('weather-title')).toBeVisible();
     });
 
     test('should display correctly on desktop viewport', async ({ page }) => {
-      // Set desktop viewport
       await page.setViewportSize({ width: 1920, height: 1080 });
       await page.reload();
       await waitForPageLoad(page);
       await page.waitForTimeout(2000);
 
-      const heading = page.locator('h1:has-text("الطقس")');
-      await expect(heading).toBeVisible();
-
-      console.log('Weather page responsive on desktop');
-    });
-
-    test('should adapt weather details grid on mobile', async ({ page }) => {
-      await page.setViewportSize({ width: 375, height: 667 });
-      await page.reload();
-      await waitForPageLoad(page);
-      await page.waitForTimeout(3000);
-
-      // Weather details should be in grid
-      const detailCards = page.locator('.bg-white\\/50.backdrop-blur-sm.rounded-lg');
-      const count = await detailCards.count();
-
-      console.log(`Weather detail cards on mobile: ${count}`);
-    });
-
-    test('should maintain location selector usability on small screens', async ({ page }) => {
-      await page.setViewportSize({ width: 375, height: 667 });
-      await page.reload();
-      await waitForPageLoad(page);
-      await page.waitForTimeout(2000);
-
-      const locationSelector = page.locator('select');
-      await expect(locationSelector).toBeVisible();
-
-      // Should be clickable
-      await locationSelector.click();
-      await page.waitForTimeout(300);
-
-      console.log('Location selector usable on mobile');
-    });
-  });
-
-  /**
-   * Loading States Tests
-   * اختبارات حالات التحميل
-   */
-  test.describe('Loading States', () => {
-    test('should show loading state for current weather', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Look for loading indicator
-      const loadingText = page.locator('text=/جاري تحميل بيانات الطقس/i');
-      const loadingPulse = page.locator('.animate-pulse');
-
-      const hasLoading = await loadingText.or(loadingPulse).isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Current weather loading state shown: ${hasLoading}`);
-    });
-
-    test('should show loading state for forecast', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Look for forecast loading state
-      const forecastSection = page.locator('text=/توقعات 7 أيام/i');
-      const loadingPulse = forecastSection.locator('..').locator('.animate-pulse');
-
-      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Forecast loading state shown: ${hasLoading}`);
-    });
-
-    test('should show loading state for alerts', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Look for alerts loading state
-      const alertsSection = page.locator('text=/تنبيهات الطقس/i');
-      const loadingPulse = alertsSection.locator('..').locator('.animate-pulse');
-
-      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
-
-      console.log(`Alerts loading state shown: ${hasLoading}`);
-    });
-
-    test('should transition from loading to content', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Wait for loading to disappear and content to appear
-      await page.waitForTimeout(5000);
-
-      // Content should be visible
-      const temperature = page.locator('text=/\\d+°C/').first();
-      const hasContent = await temperature.isVisible({ timeout: 5000 }).catch(() => false);
-
-      console.log(`Content loaded successfully: ${hasContent}`);
-    });
-
-    test('should show skeleton loaders with correct structure', async ({ page }) => {
-      await page.goto(pages.weather);
-
-      // Check for skeleton loaders
-      const skeletons = page.locator('.animate-pulse');
-      const count = await skeletons.count();
-
-      console.log(`Found ${count} skeleton loaders`);
-    });
-  });
-
-  /**
-   * Arabic/English Labels Tests
-   * اختبارات الملصقات العربية/الإنجليزية
-   */
-  test.describe('Bilingual Labels', () => {
-    test('should display Arabic primary labels', async ({ page }) => {
-      await page.waitForTimeout(3000);
-
-      // Check for Arabic headings
-      const arabicHeadings = [
-        'الطقس',
-        'الطقس الحالي',
-        'توقعات 7 أيام',
-        'تنبيهات الطقس'
-      ];
-
-      for (const heading of arabicHeadings) {
-        const element = page.locator(`text=${heading}`);
-        const isVisible = await element.isVisible({ timeout: 3000 }).catch(() => false);
-        console.log(`Arabic heading "${heading}" visible: ${isVisible}`);
-      }
-    });
-
-    test('should display English secondary labels', async ({ page }) => {
-      await page.waitForTimeout(3000);
-
-      // Check for English subtitles
-      const englishLabels = [
-        'Weather Dashboard',
-        'Current Weather',
-        '7-Day Forecast',
-        'Weather Alerts'
-      ];
-
-      for (const label of englishLabels) {
-        const element = page.locator(`text=${label}`);
-        const isVisible = await element.isVisible({ timeout: 3000 }).catch(() => false);
-        console.log(`English label "${label}" visible: ${isVisible}`);
-      }
-    });
-
-    test('should display Arabic weather detail labels', async ({ page }) => {
-      await page.waitForTimeout(3000);
-
-      // Check for Arabic detail labels
-      const arabicLabels = ['الرطوبة', 'الرياح', 'الضغط', 'الرؤية'];
-
-      for (const label of arabicLabels) {
-        const element = page.locator(`text=${label}`);
-        const isVisible = await element.isVisible({ timeout: 3000 }).catch(() => false);
-        if (isVisible) {
-          console.log(`Arabic detail label "${label}" found`);
-        }
-      }
-    });
-
-    test('should display bilingual location names', async ({ page }) => {
-      const locationSelector = page.locator('select');
-      const options = await locationSelector.locator('option').allTextContents();
-
-      // Options should contain Arabic text
-      const hasArabic = options.some(opt => /[\u0600-\u06FF]/.test(opt));
-      console.log(`Location options have Arabic text: ${hasArabic}`);
-
-      expect(hasArabic).toBe(true);
-    });
-
-    test('should display Arabic weather conditions', async ({ page }) => {
-      await page.waitForTimeout(4000);
-
-      // Look for weather condition text in Arabic
-      const conditionText = page.locator('.text-xl.text-gray-600').first();
-      const isVisible = await conditionText.isVisible({ timeout: 3000 }).catch(() => false);
-
-      if (isVisible) {
-        const text = await conditionText.textContent();
-        const hasArabic = /[\u0600-\u06FF]/.test(text || '');
-        console.log(`Weather condition has Arabic: ${hasArabic}, text: ${text}`);
-      }
-    });
-
-    test('should display Arabic date formats', async ({ page }) => {
-      await page.waitForTimeout(4000);
-
-      // Look for Arabic formatted dates in forecast
-      const dates = page.locator('.w-24 .font-medium');
-      const count = await dates.count();
-
-      if (count > 0) {
-        const firstDate = await dates.first().textContent();
-        console.log(`Date format: ${firstDate}`);
-      }
-    });
-  });
-
-  /**
-   * Error Handling Tests
-   * اختبارات معالجة الأخطاء
-   */
-  test.describe('Error Handling', () => {
-    test('should handle no data gracefully', async ({ page }) => {
-      await page.waitForTimeout(5000);
-
-      // Look for "no data" messages
-      const noDataMessages = page.locator('text=/غير متوفرة|غير متاحة|not available/i');
-      const hasNoData = await noDataMessages.isVisible({ timeout: 2000 }).catch(() => false);
-
-      if (hasNoData) {
-        console.log('No data message displayed gracefully');
-      }
-    });
-
-    test('should not crash on missing weather data', async ({ page }) => {
-      await page.waitForTimeout(5000);
-
-      // Page should still be functional
-      const heading = page.locator('h1:has-text("الطقس")');
-      await expect(heading).toBeVisible();
-
-      console.log('Page remains stable with missing data');
-    });
-
-    test('should display fallback UI for failed components', async ({ page }) => {
-      await page.waitForTimeout(5000);
-
-      // Check if page has basic structure even if data fails
-      const sections = page.locator('h2');
-      const count = await sections.count();
-
-      console.log(`Found ${count} section headings`);
-      expect(count).toBeGreaterThan(0);
+      await expect(page.getByTestId('weather-page')).toBeVisible();
+      await expect(page.getByTestId('weather-title')).toBeVisible();
     });
   });
 
@@ -803,61 +505,29 @@ test.describe('Weather Page', () => {
    * اختبارات التكامل
    */
   test.describe('Integration', () => {
-    test('should maintain state when navigating away and back', async ({ page }) => {
-      await page.waitForTimeout(3000);
-
-      // Select a location
-      const locationSelector = page.locator('select');
-      await locationSelector.selectOption({ index: 2 });
-      // const selectedValue = await locationSelector.inputValue();
-
-      // Navigate away
-      await page.goto(pages.dashboard);
-      await waitForPageLoad(page);
-
-      // Navigate back
-      await page.goto(pages.weather);
-      await waitForPageLoad(page);
-      await page.waitForTimeout(2000);
-
-      // Location should reset to default (state not persisted)
-      console.log('Navigated away and back to weather page');
-    });
-
     test('should work with browser refresh', async ({ page }) => {
       await page.waitForTimeout(3000);
 
-      // Reload page
       await page.reload();
       await waitForPageLoad(page);
       await page.waitForTimeout(3000);
 
-      // Page should load correctly
-      const heading = page.locator('h1:has-text("الطقس")');
-      await expect(heading).toBeVisible();
-
-      console.log('Page works after browser refresh');
+      await expect(page.getByTestId('weather-page')).toBeVisible();
+      await expect(page.getByTestId('current-weather')).toBeVisible({ timeout: 10000 });
     });
 
     test('should display all sections together', async ({ page }) => {
       await page.waitForTimeout(5000);
 
-      // Check that all main sections are present
-      const sections = [
-        'الطقس الحالي',
-        'توقعات 7 أيام',
-        'تنبيهات الطقس'
-      ];
+      // All main sections should be present
+      await expect(page.getByTestId('weather-dashboard')).toBeVisible();
+      await expect(page.getByTestId('current-weather')).toBeVisible({ timeout: 10000 });
+      await expect(page.getByTestId('forecast-chart')).toBeVisible({ timeout: 10000 });
 
-      let visibleSections = 0;
-      for (const section of sections) {
-        const element = page.locator(`text=${section}`);
-        const isVisible = await element.isVisible({ timeout: 2000 }).catch(() => false);
-        if (isVisible) visibleSections++;
-      }
-
-      console.log(`${visibleSections} out of ${sections.length} sections visible`);
-      expect(visibleSections).toBeGreaterThan(0);
+      // Alerts section (one of the two states)
+      const hasAlerts = await page.getByTestId('weather-alerts').isVisible({ timeout: 5000 }).catch(() => false);
+      const noAlerts = await page.getByTestId('alerts-no-data').isVisible({ timeout: 5000 }).catch(() => false);
+      expect(hasAlerts || noAlerts).toBe(true);
     });
   });
 });

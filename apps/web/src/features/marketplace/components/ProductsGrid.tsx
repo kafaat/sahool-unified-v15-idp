@@ -34,14 +34,14 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="loading-state">
         <div className="flex items-center justify-between">
           <div className="h-10 w-64 bg-gray-200 rounded-lg animate-pulse" />
           <div className="h-10 w-32 bg-gray-200 rounded-lg animate-pulse" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-96 bg-gray-200 rounded-xl animate-pulse" />
+            <div key={`skeleton-product-${i}`} className="h-96 bg-gray-200 rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -49,9 +49,9 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="products-grid">
       {/* Header & Filters */}
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="products-filters-section">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Search */}
           <div className="flex-1 w-full sm:w-auto">
@@ -60,6 +60,7 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
               <input
                 type="text"
                 placeholder="ابحث عن منتجات... | Search products..."
+                data-testid="search-input"
                 className="w-full pr-10 pl-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
                 onChange={(e) => handleSearch(e.target.value)}
               />
@@ -72,6 +73,7 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             <select
               value={filters.sortBy || ''}
               onChange={(e) => handleSortChange(e.target.value as ProductFilters['sortBy'])}
+              data-testid="sort-dropdown"
               className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             >
               <option value="">ترتيب حسب</option>
@@ -84,7 +86,10 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             {/* Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50"
+              data-testid="filter-toggle-button"
+              aria-label={showFilters ? 'إخفاء الفلاتر' : 'عرض الفلاتر'}
+              aria-expanded={showFilters}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               <Filter className="w-5 h-5" />
               <span>فلتر</span>
@@ -94,10 +99,13 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
 
         {/* Category Filters */}
         {showFilters && (
-          <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg">
+          <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg" data-testid="category-filters">
             <button
               onClick={() => handleCategoryFilter(undefined)}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              data-testid="category-filter-all"
+              aria-label="عرض جميع الفئات"
+              aria-pressed={!filters.category}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 !filters.category
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -107,7 +115,10 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('seeds')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              data-testid="category-filter-seeds"
+              aria-label="تصفية حسب البذور"
+              aria-pressed={filters.category === 'seeds'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'seeds'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -117,7 +128,10 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('fertilizers')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              data-testid="category-filter-fertilizers"
+              aria-label="تصفية حسب الأسمدة"
+              aria-pressed={filters.category === 'fertilizers'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'fertilizers'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -127,7 +141,10 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('pesticides')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              data-testid="category-filter-pesticides"
+              aria-label="تصفية حسب المبيدات"
+              aria-pressed={filters.category === 'pesticides'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'pesticides'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -137,7 +154,10 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('equipment')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              data-testid="category-filter-equipment"
+              aria-label="تصفية حسب المعدات"
+              aria-pressed={filters.category === 'equipment'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'equipment'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -147,7 +167,10 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
             </button>
             <button
               onClick={() => handleCategoryFilter('tools')}
-              className={`px-4 py-2 rounded-lg transition-colors ${
+              data-testid="category-filter-tools"
+              aria-label="تصفية حسب الأدوات"
+              aria-pressed={filters.category === 'tools'}
+              className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 filters.category === 'tools'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border-2 border-gray-200 hover:border-blue-400'
@@ -161,14 +184,14 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
 
       {/* Products Grid */}
       {!products || products.length === 0 ? (
-        <div className="text-center py-16">
-          <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد منتجات</h3>
-          <p className="text-gray-500">جرب البحث بكلمات مختلفة أو تغيير الفلاتر</p>
+        <div className="text-center py-16" data-testid="empty-state">
+          <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-gray-300" data-testid="empty-state-icon" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2" data-testid="empty-state-title">لا توجد منتجات</h3>
+          <p className="text-gray-500" data-testid="empty-state-message">جرب البحث بكلمات مختلفة أو تغيير الفلاتر</p>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" data-testid="products-list">
             {products.map((product) => (
               <ProductCard
                 key={product.id}
@@ -179,7 +202,7 @@ export const ProductsGrid: React.FC<ProductsGridProps> = ({ onProductClick }) =>
           </div>
 
           {/* Results Count */}
-          <div className="text-center text-sm text-gray-500">
+          <div className="text-center text-sm text-gray-500" data-testid="results-count">
             عرض {products.length} منتج | Showing {products.length} products
           </div>
         </>

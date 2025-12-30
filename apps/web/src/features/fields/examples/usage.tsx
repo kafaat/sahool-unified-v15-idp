@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useFields, useField, useUpdateField, useDeleteField, useFieldStats } from '../hooks/useFields';
+import { useFields, useField, useCreateField, useUpdateField, useDeleteField, useFieldStats } from '../hooks/useFields';
 import { useAuth } from '@/stores/auth.store';
 import type { FieldFormData } from '../types';
 
@@ -231,7 +231,6 @@ export function FieldStatsExample() {
 export function FieldsCRUDExample() {
   const { user } = useAuth();
   const { data: fields, isLoading, error } = useFields();
-  const createField = useCreateField();
   const updateField = useUpdateField();
   const deleteField = useDeleteField();
 

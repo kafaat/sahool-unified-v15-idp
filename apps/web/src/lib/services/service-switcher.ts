@@ -8,6 +8,9 @@
  * - اختبار الخدمات قبل الترقية
  */
 
+import { z } from 'zod';
+import { safeJsonParse, safeJsonStringify } from '@/lib/utils/safeJson';
+
 export type ServiceType =
   | 'satellite'
   | 'weather'
@@ -227,6 +230,23 @@ const DEFAULT_SERVICE_VERSIONS: Record<ServiceType, ServiceVersion> = {
 // مفتاح التخزين المحلي
 const STORAGE_KEY = 'sahool_service_versions';
 
+// Zod schema for validation
+const ServiceVersionsSchema = z.record(
+  z.enum([
+    'satellite',
+    'weather',
+    'ndvi',
+    'fertilizer',
+    'irrigation',
+    'crop-health',
+    'community',
+    'notifications',
+    'tasks',
+    'equipment',
+  ]),
+  z.enum(['legacy', 'modern', 'mock'])
+);
+
 /**
  * الحصول على إعدادات الخدمات المحفوظة
  */
@@ -238,7 +258,10 @@ export function getServiceVersions(): Record<ServiceType, ServiceVersion> {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return { ...DEFAULT_SERVICE_VERSIONS, ...JSON.parse(stored) };
+      const parsed = safeJsonParse(stored, ServiceVersionsSchema);
+      if (parsed) {
+        return { ...DEFAULT_SERVICE_VERSIONS, ...parsed };
+      }
     }
   } catch (e) {
     console.error('Failed to load service versions:', e);
@@ -256,10 +279,13 @@ export function setServiceVersions(versions: Partial<Record<ServiceType, Service
   try {
     const current = getServiceVersions();
     const updated = { ...current, ...versions };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    const jsonString = safeJsonStringify(updated);
 
-    // إرسال حدث للتحديث
-    window.dispatchEvent(new CustomEvent('service-versions-changed', { detail: updated }));
+    if (jsonString) {
+      localStorage.setItem(STORAGE_KEY, jsonString);
+      // إرسال حدث للتحديث
+      window.dispatchEvent(new CustomEvent('service-versions-changed', { detail: updated }));
+    }
   } catch (e) {
     console.error('Failed to save service versions:', e);
   }

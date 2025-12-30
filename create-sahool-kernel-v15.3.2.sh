@@ -235,9 +235,16 @@ class DiagnosisProjection(Model):
 EOF
 
 cat > shared/postgresql/init.py <<'EOF'
+import os
+
+# Database URL must be set via environment variable
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise EnvironmentError("DATABASE_URL environment variable is required")
+
 TORTOISE_ORM = {
     "connections": {
-        "default": "postgres://sahool:dev_password@postgres:5432/sahool_events"
+        "default": DATABASE_URL
     },
     "apps": {
         "models": {

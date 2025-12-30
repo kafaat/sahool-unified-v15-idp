@@ -31,7 +31,7 @@ field-service/
 
 تأكد من تعيين `DATABASE_URL`:
 ```bash
-export DATABASE_URL="postgres://sahool:sahool@postgres:5432/sahool"
+export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/sahool"
 ```
 
 #### 2. تهيئة Aerich (مرة واحدة فقط)

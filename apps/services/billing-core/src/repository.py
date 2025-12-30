@@ -70,7 +70,7 @@ class SubscriptionRepository:
             trial_end_date=trial_end_date,
             next_billing_date=trial_end_date or end_date,
             payment_method=payment_method,
-            metadata=metadata or {},
+            extra_metadata=metadata or {},
         )
 
         self.db.add(subscription)
@@ -258,7 +258,7 @@ class InvoiceRepository:
             line_items=line_items,
             notes=notes,
             notes_ar=notes_ar,
-            metadata=metadata or {},
+            extra_metadata=metadata or {},
         )
 
         self.db.add(invoice)
@@ -444,7 +444,7 @@ class PaymentRepository:
             currency=currency,
             method=method,
             status=status,
-            metadata=metadata or {},
+            extra_metadata=metadata or {},
         )
 
         self.db.add(payment)
@@ -602,7 +602,7 @@ class UsageRecordRepository:
             tenant_id=tenant_id,
             metric_type=metric_type,
             quantity=quantity,
-            metadata=metadata or {},
+            extra_metadata=metadata or {},
         )
 
         self.db.add(record)

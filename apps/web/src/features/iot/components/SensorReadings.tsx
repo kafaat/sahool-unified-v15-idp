@@ -162,19 +162,19 @@ export function SensorReadings({ sensorId, sensorName, unit, limit }: SensorRead
               <p className="text-sm text-gray-600">المتوسط</p>
               <p className="text-2xl font-bold text-gray-900">
                 {(readings.reduce((sum, r) => sum + r.value, 0) / readings.length).toFixed(2)}{' '}
-                <span data-testid="unit-indicator">{unit || ''}</span>
+                {unit || ''}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">الحد الأدنى</p>
               <p className="text-2xl font-bold text-blue-600">
-                {Math.min(...readings.map((r) => r.value)).toFixed(2)} <span data-testid="unit-indicator">{unit || ''}</span>
+                {Math.min(...readings.map((r) => r.value)).toFixed(2)} {unit || ''}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">الحد الأقصى</p>
               <p className="text-2xl font-bold text-red-600">
-                {Math.max(...readings.map((r) => r.value)).toFixed(2)} <span data-testid="unit-indicator">{unit || ''}</span>
+                {Math.max(...readings.map((r) => r.value)).toFixed(2)} {unit || ''}
               </p>
             </div>
           </div>

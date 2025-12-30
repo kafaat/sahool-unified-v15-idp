@@ -67,12 +67,7 @@ class CropSeason(Model):
     """
 
     id = fields.UUIDField(pk=True)
-    field = fields.ForeignKeyField(
-        "models.Field",
-        related_name="crop_seasons",
-        on_delete=fields.CASCADE,
-        db_column="field_id"
-    )
+    field_id = fields.UUIDField(index=True)
     tenant_id = fields.CharField(max_length=64, index=True)
 
     # Crop Info
@@ -121,12 +116,7 @@ class Zone(Model):
     """
 
     id = fields.UUIDField(pk=True)
-    field = fields.ForeignKeyField(
-        "models.Field",
-        related_name="zones",
-        on_delete=fields.CASCADE,
-        db_column="field_id"
-    )
+    field_id = fields.UUIDField(index=True)
     tenant_id = fields.CharField(max_length=64, index=True)
 
     # Zone Info
@@ -165,12 +155,7 @@ class NDVIRecord(Model):
     """
 
     id = fields.UUIDField(pk=True)
-    field = fields.ForeignKeyField(
-        "models.Field",
-        related_name="ndvi_records",
-        on_delete=fields.CASCADE,
-        db_column="field_id"
-    )
+    field_id = fields.UUIDField(index=True)
     tenant_id = fields.CharField(max_length=64, index=True)
 
     # Date of observation

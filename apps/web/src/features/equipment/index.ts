@@ -22,14 +22,6 @@ export type {
   MaintenanceFormData,
 } from './types';
 
-export type {
-  EquipmentUsage,
-  FuelMetrics,
-  UtilizationData,
-  DowntimeData,
-  EquipmentComparisonData,
-} from './components/EquipmentUsageAnalytics';
-
 // Hooks
 export {
   useEquipment,
@@ -54,4 +46,3 @@ export { EquipmentDetails } from './components/EquipmentDetails';
 export { EquipmentForm } from './components/EquipmentForm';
 export { MaintenanceSchedule } from './components/MaintenanceSchedule';
 export { EquipmentMap } from './components/EquipmentMap';
-export { EquipmentUsageAnalytics } from './components/EquipmentUsageAnalytics';

@@ -21,9 +21,6 @@ env:
   NODE_VERSION: "20"
   PYTHON_VERSION: "3.11"
 
-permissions:
-  contents: read
-
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Detect Changes

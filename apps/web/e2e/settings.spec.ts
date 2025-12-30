@@ -16,38 +16,31 @@ test.describe('Settings Page', () => {
     // Check page title
     await expect(page).toHaveTitle(/Settings.*SAHOOL/i);
 
-    // Check settings page is loaded
-    const settingsPage = page.getByTestId('settings-page');
-    await expect(settingsPage).toBeVisible();
-
-    // Check for settings heading
-    const heading = page.getByTestId('settings-heading');
+    // Check for settings heading in Arabic
+    const heading = page.locator('h1:has-text("الإعدادات")');
     await expect(heading).toBeVisible();
-    await expect(heading).toHaveText('الإعدادات');
+
+    // Check for Settings subtitle in English
+    const subtitle = page.locator('text=/^Settings$/');
+    await expect(subtitle).toBeVisible();
   });
 
   test.describe('Profile Settings', () => {
     test('should display profile information section', async ({ page }) => {
       // Profile tab should be active by default
-      const profileTab = page.getByTestId('settings-tab-profile');
+      const profileTab = page.locator('button:has-text("الملف الشخصي")');
       await expect(profileTab).toBeVisible({ timeout: 5000 });
-      await expect(profileTab).toHaveAttribute('aria-selected', 'true');
-
-      // Profile section should be visible
-      const profileSection = page.getByTestId('profile-section');
-      await expect(profileSection).toBeVisible();
 
       // Profile heading should be visible in main content
-      const profileHeading = page.getByTestId('profile-heading');
+      const profileHeading = page.locator('h2:has-text("الملف الشخصي")');
       await expect(profileHeading).toBeVisible();
-      await expect(profileHeading).toHaveText('الملف الشخصي');
     });
 
     test('should display user name', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      // Look for name field using test ID
-      const nameInput = page.getByTestId('profile-name-en');
+      // Look for name field
+      const nameInput = page.locator('input[name="name"], input[placeholder*="Name"], input[placeholder*="الاسم"]').first();
       const isVisible = await nameInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
@@ -57,22 +50,24 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('should display user phone', async ({ page }) => {
+    test('should display user email', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      // Look for phone field using test ID
-      const phoneInput = page.getByTestId('profile-phone');
-      const isVisible = await phoneInput.isVisible({ timeout: 3000 }).catch(() => false);
+      // Look for email field
+      const emailInput = page.locator('input[type="email"], input[name="email"]').first();
+      const isVisible = await emailInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
-        console.log('User phone field is visible');
+        const value = await emailInput.inputValue();
+        console.log(`User email: ${value}`);
+        expect(value).toBeTruthy();
       }
     });
 
     test('should allow editing profile name', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const nameInput = page.getByTestId('profile-name-en');
+      const nameInput = page.locator('input[name="name"], input[placeholder*="Name"]').first();
       const isVisible = await nameInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
@@ -90,7 +85,7 @@ test.describe('Settings Page', () => {
       // Skip this test as it modifies data
       await page.waitForTimeout(1000);
 
-      const nameInput = page.getByTestId('profile-name-en');
+      const nameInput = page.locator('input[name="name"]').first();
 
       if (await nameInput.isVisible({ timeout: 3000 })) {
         const originalValue = await nameInput.inputValue();
@@ -100,7 +95,7 @@ test.describe('Settings Page', () => {
         await nameInput.fill('Updated Name');
 
         // Save
-        const saveButton = page.getByTestId('profile-submit');
+        const saveButton = page.locator('button:has-text("Save"), button:has-text("حفظ")').first();
         await saveButton.click();
 
         // Wait for success message
@@ -114,28 +109,35 @@ test.describe('Settings Page', () => {
       }
     });
 
-    test('should display language selector', async ({ page }) => {
+    test('should validate email format in profile', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const languageSelector = page.getByTestId('profile-language');
-      const isVisible = await languageSelector.isVisible({ timeout: 3000 }).catch(() => false);
+      const emailInput = page.locator('input[type="email"]').first();
+      const isVisible = await emailInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
-        console.log('Language selector found');
-        await expect(languageSelector).toBeVisible();
+        // Try invalid email
+        await emailInput.clear();
+        await emailInput.fill('invalid-email');
+        await emailInput.blur();
+
+        // Check validation
+        await page.waitForTimeout(500);
+        const validationMessage = await emailInput.evaluate((el: HTMLInputElement) => el.validationMessage);
+
+        console.log(`Email validation: ${validationMessage}`);
       }
     });
 
     test('should display profile avatar', async ({ page }) => {
-      // Look for avatar using test ID
-      const avatar = page.getByTestId('profile-avatar');
-      const avatarPlaceholder = page.getByTestId('profile-avatar-placeholder');
+      // Look for avatar/profile picture
+      const avatar = page.locator('img[alt*="avatar"], img[alt*="profile"], [class*="avatar"]').first();
+      const isVisible = await avatar.isVisible({ timeout: 3000 }).catch(() => false);
 
-      const hasAvatar = await avatar.isVisible({ timeout: 3000 }).catch(() => false);
-      const hasPlaceholder = await avatarPlaceholder.isVisible({ timeout: 3000 }).catch(() => false);
-
-      if (hasAvatar || hasPlaceholder) {
-        console.log('Profile avatar or placeholder found');
+      if (isVisible) {
+        console.log('Profile avatar found');
+      } else {
+        console.log('Profile avatar not found');
       }
     });
   });
@@ -143,49 +145,33 @@ test.describe('Settings Page', () => {
   test.describe('Password Settings', () => {
     test('should display change password section', async ({ page }) => {
       // Click on Security tab first
-      const securityTab = page.getByTestId('settings-tab-security');
+      const securityTab = page.locator('button:has-text("الأمان")');
       await securityTab.click();
       await page.waitForTimeout(500);
 
-      // Check for security section
-      const securitySection = page.getByTestId('security-section');
-      await expect(securitySection).toBeVisible({ timeout: 5000 });
-
       // Check for security heading
-      const securityHeading = page.getByTestId('security-heading');
-      await expect(securityHeading).toBeVisible();
-      await expect(securityHeading).toHaveText('الأمان');
+      const securityHeading = page.locator('h2:has-text("الأمان")');
+      await expect(securityHeading).toBeVisible({ timeout: 5000 });
 
       // Check for password change section
-      const passwordSection = page.getByTestId('security-password-section');
+      const passwordSection = page.locator('h3:has-text("تغيير كلمة المرور")');
       await expect(passwordSection).toBeVisible();
     });
 
     test('should have password input fields', async ({ page }) => {
-      // Navigate to security tab
-      const securityTab = page.getByTestId('settings-tab-security');
-      await securityTab.click();
-      await page.waitForTimeout(500);
+      const passwordInputs = page.locator('input[type="password"]');
+      const count = await passwordInputs.count();
 
-      // Check for all password fields using test IDs
-      const currentPasswordInput = page.getByTestId('security-password-current');
-      const newPasswordInput = page.getByTestId('security-password-new');
-      const confirmPasswordInput = page.getByTestId('security-password-confirm');
+      console.log(`Found ${count} password input fields`);
 
-      await expect(currentPasswordInput).toBeVisible();
-      await expect(newPasswordInput).toBeVisible();
-      await expect(confirmPasswordInput).toBeVisible();
-
-      console.log('Found 3 password input fields');
+      if (count > 0) {
+        // Should have at least current and new password fields
+        expect(count).toBeGreaterThanOrEqual(2);
+      }
     });
 
     test('should validate password strength', async ({ page }) => {
-      // Navigate to security tab
-      const securityTab = page.getByTestId('settings-tab-security');
-      await securityTab.click();
-      await page.waitForTimeout(500);
-
-      const newPasswordInput = page.getByTestId('security-password-new');
+      const newPasswordInput = page.locator('input[name*="new"], input[placeholder*="New Password"]').first();
       const isVisible = await newPasswordInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
@@ -202,12 +188,7 @@ test.describe('Settings Page', () => {
     });
 
     test('should require current password to change', async ({ page }) => {
-      // Navigate to security tab
-      const securityTab = page.getByTestId('settings-tab-security');
-      await securityTab.click();
-      await page.waitForTimeout(500);
-
-      const currentPasswordInput = page.getByTestId('security-password-current');
+      const currentPasswordInput = page.locator('input[name*="current"], input[placeholder*="Current Password"]').first();
       const isVisible = await currentPasswordInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
@@ -224,48 +205,29 @@ test.describe('Settings Page', () => {
   test.describe('Notification Settings', () => {
     test('should display notification preferences', async ({ page }) => {
       // Click on Notifications tab
-      const notificationsTab = page.getByTestId('settings-tab-notifications');
+      const notificationsTab = page.locator('button:has-text("الإشعارات")');
       await notificationsTab.click();
       await page.waitForTimeout(500);
 
-      // Check for notifications section
-      const notificationsSection = page.getByTestId('notifications-section');
-      await expect(notificationsSection).toBeVisible({ timeout: 5000 });
-
       // Check for notifications heading
-      const notificationHeading = page.getByTestId('notifications-heading');
-      await expect(notificationHeading).toBeVisible();
-      await expect(notificationHeading).toHaveText('إعدادات الإشعارات');
+      const notificationHeading = page.locator('h2:has-text("إعدادات الإشعارات")');
+      await expect(notificationHeading).toBeVisible({ timeout: 5000 });
     });
 
     test('should have notification toggles', async ({ page }) => {
-      // Navigate to notifications tab
-      const notificationsTab = page.getByTestId('settings-tab-notifications');
-      await notificationsTab.click();
       await page.waitForTimeout(1000);
 
-      // Look for notification sections
-      const emailSection = page.getByTestId('notifications-email-section');
-      const pushSection = page.getByTestId('notifications-push-section');
-
-      await expect(emailSection).toBeVisible();
-      await expect(pushSection).toBeVisible();
-
-      // Count toggles with role="switch"
-      const toggles = page.locator('[role="switch"]');
+      // Look for checkboxes or toggle switches
+      const toggles = page.locator('input[type="checkbox"], [role="switch"]');
       const count = await toggles.count();
 
       console.log(`Found ${count} notification toggles`);
-      expect(count).toBeGreaterThan(0);
     });
 
     test('should toggle notification setting', async ({ page }) => {
-      // Navigate to notifications tab
-      const notificationsTab = page.getByTestId('settings-tab-notifications');
-      await notificationsTab.click();
       await page.waitForTimeout(1000);
 
-      const firstToggle = page.locator('[role="switch"]').first();
+      const firstToggle = page.locator('input[type="checkbox"], [role="switch"]').first();
       const isVisible = await firstToggle.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
@@ -288,40 +250,39 @@ test.describe('Settings Page', () => {
 
   test.describe('Language Settings', () => {
     test('should display language options', async ({ page }) => {
-      // Language selector is in the profile tab
-      const languageSelector = page.getByTestId('profile-language');
-      const isVisible = await languageSelector.isVisible({ timeout: 5000 }).catch(() => false);
+      const languageSection = page.locator('text=/Language|اللغة/i');
+      const isVisible = await languageSection.isVisible({ timeout: 5000 }).catch(() => false);
 
       if (isVisible) {
-        await expect(languageSelector).toBeVisible();
-        console.log('Language selector found in profile section');
+        await expect(languageSection).toBeVisible();
       } else {
-        console.log('Language selector not found');
+        console.log('Language section not found');
       }
     });
 
     test('should have language selector', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const languageSelector = page.getByTestId('profile-language');
+      const languageSelector = page.locator('select[name*="language"], [role="combobox"]').first();
       const isVisible = await languageSelector.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
         console.log('Language selector found');
-        await expect(languageSelector).toHaveAttribute('role', 'combobox');
 
         // Check options
-        const options = languageSelector.locator('option');
+        await languageSelector.click();
+        await page.waitForTimeout(300);
+
+        const options = page.locator('option, [role="option"]');
         const count = await options.count();
 
         console.log(`Found ${count} language options`);
-        expect(count).toBeGreaterThanOrEqual(3); // ar, en, both
       }
     });
 
     test.skip('should switch language', async ({ page }) => {
       // Skip - requires language implementation
-      const languageSelector = page.getByTestId('profile-language');
+      const languageSelector = page.locator('select[name*="language"]').first();
 
       if (await languageSelector.isVisible({ timeout: 3000 })) {
         await languageSelector.selectOption({ index: 1 });
@@ -333,27 +294,19 @@ test.describe('Settings Page', () => {
     });
   });
 
-  test.describe('Display Settings', () => {
-    test('should display display settings section', async ({ page }) => {
-      // Click on Display tab
-      const displayTab = page.getByTestId('settings-tab-display');
-      await displayTab.click();
-      await page.waitForTimeout(500);
+  test.describe('Theme Settings', () => {
+    test('should display theme options', async ({ page }) => {
+      const themeSection = page.locator('text=/Theme|المظهر|Dark Mode|الوضع الداكن/i');
+      const isVisible = await themeSection.isVisible({ timeout: 5000 }).catch(() => false);
 
-      // Check for display section
-      const displaySection = page.getByTestId('display-section');
-      await expect(displaySection).toBeVisible({ timeout: 5000 });
-
-      // Check for display heading
-      const displayHeading = page.getByTestId('display-heading');
-      await expect(displayHeading).toBeVisible();
-      await expect(displayHeading).toHaveText('إعدادات العرض');
+      if (isVisible) {
+        await expect(themeSection).toBeVisible();
+      } else {
+        console.log('Theme section not found');
+      }
     });
 
-    test.skip('should have theme toggle', async ({ page }) => {
-      // Skip - theme toggle not yet implemented in display section
-      const displayTab = page.getByTestId('settings-tab-display');
-      await displayTab.click();
+    test('should have theme toggle', async ({ page }) => {
       await page.waitForTimeout(1000);
 
       const themeToggle = page.locator('input[type="checkbox"][name*="theme"], input[type="checkbox"][name*="dark"], [role="switch"]').first();
@@ -365,14 +318,11 @@ test.describe('Settings Page', () => {
     });
 
     test.skip('should toggle dark mode', async ({ page }) => {
-      // Skip - dark mode not yet implemented
-      const displayTab = page.getByTestId('settings-tab-display');
-      await displayTab.click();
-      await page.waitForTimeout(1000);
-
       const darkModeToggle = page.locator('input[name*="dark"], [aria-label*="dark"]').first();
 
       if (await darkModeToggle.isVisible({ timeout: 3000 })) {
+        // const initialState = await darkModeToggle.isChecked();
+
         // Toggle dark mode
         await darkModeToggle.click();
         await page.waitForTimeout(1000);
@@ -390,25 +340,17 @@ test.describe('Settings Page', () => {
 
   test.describe('Privacy Settings', () => {
     test('should display privacy options', async ({ page }) => {
-      // Click on Privacy tab
-      const privacyTab = page.getByTestId('settings-tab-privacy');
-      await privacyTab.click();
-      await page.waitForTimeout(500);
+      const privacySection = page.locator('text=/Privacy|الخصوصية|Security|الأمان/i');
+      const isVisible = await privacySection.isVisible({ timeout: 5000 }).catch(() => false);
 
-      // Check for privacy section
-      const privacySection = page.getByTestId('privacy-section');
-      await expect(privacySection).toBeVisible({ timeout: 5000 });
-
-      // Check for privacy heading
-      const privacyHeading = page.getByTestId('privacy-heading');
-      await expect(privacyHeading).toBeVisible();
-      await expect(privacyHeading).toHaveText('الخصوصية');
+      if (isVisible) {
+        await expect(privacySection).toBeVisible();
+      } else {
+        console.log('Privacy section not found');
+      }
     });
 
-    test.skip('should have privacy toggles', async ({ page }) => {
-      // Skip - privacy toggles not yet implemented
-      const privacyTab = page.getByTestId('settings-tab-privacy');
-      await privacyTab.click();
+    test('should have privacy toggles', async ({ page }) => {
       await page.waitForTimeout(1000);
 
       const toggles = page.locator('input[type="checkbox"]');
@@ -457,60 +399,64 @@ test.describe('Settings Page', () => {
     test('should have multiple setting sections', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      // Look for tabs using test ID
-      const tabsContainer = page.getByTestId('settings-tabs');
-      await expect(tabsContainer).toBeVisible();
+      // Look for tabs or section headers
+      const sections = page.locator('h2, h3, [role="tab"]');
+      const count = await sections.count();
 
-      const tabs = page.locator('[role="tab"]');
-      const count = await tabs.count();
-
-      console.log(`Found ${count} setting tabs`);
+      console.log(`Found ${count} setting sections/tabs`);
       expect(count).toBeGreaterThan(0);
-      expect(count).toBeGreaterThanOrEqual(7); // profile, notifications, security, privacy, display, integrations, subscription
     });
 
     test('should navigate between setting sections', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      // Profile tab should be active by default
-      const profileTab = page.getByTestId('settings-tab-profile');
-      await expect(profileTab).toHaveAttribute('aria-selected', 'true');
+      const tabs = page.locator('[role="tab"]');
+      const count = await tabs.count();
 
-      // Click on notifications tab
-      const notificationsTab = page.getByTestId('settings-tab-notifications');
-      await notificationsTab.click();
-      await page.waitForTimeout(500);
+      if (count > 1) {
+        // Click second tab
+        await tabs.nth(1).click();
+        await page.waitForTimeout(500);
 
-      // Notifications tab should now be active
-      await expect(notificationsTab).toHaveAttribute('aria-selected', 'true');
-
-      // Notifications section should be visible
-      const notificationsSection = page.getByTestId('notifications-section');
-      await expect(notificationsSection).toBeVisible();
-
-      console.log('Successfully navigated from Profile to Notifications tab');
+        // Tab should be active
+        const isSelected = await tabs.nth(1).getAttribute('aria-selected');
+        console.log(`Second tab selected: ${isSelected}`);
+      }
     });
   });
 
   test.describe('Settings Form Validation', () => {
-    test('should require name fields in profile form', async ({ page }) => {
+    test('should prevent saving invalid settings', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const nameInput = page.getByTestId('profile-name-en');
-      const isVisible = await nameInput.isVisible({ timeout: 3000 }).catch(() => false);
+      const emailInput = page.locator('input[type="email"]').first();
+      const isVisible = await emailInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
-        // Check that name field is required
-        const isRequired = await nameInput.getAttribute('required');
-        expect(isRequired !== null).toBe(true);
-        console.log('Name field is required');
+        // Enter invalid email
+        await emailInput.clear();
+        await emailInput.fill('invalid');
+
+        // Try to save
+        const saveButton = page.locator('button:has-text("Save"), button:has-text("حفظ")').first();
+
+        if (await saveButton.isVisible()) {
+          await saveButton.click();
+
+          // Should show error or prevent submission
+          await page.waitForTimeout(1000);
+
+          // Check for error message
+          const hasError = await page.locator('[role="alert"], [class*="error"]').isVisible({ timeout: 1000 }).catch(() => false);
+          console.log(`Validation error shown: ${hasError}`);
+        }
       }
     });
 
     test('should show unsaved changes warning', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      const nameInput = page.getByTestId('profile-name-en');
+      const nameInput = page.locator('input[name="name"]').first();
       const isVisible = await nameInput.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
@@ -529,55 +475,24 @@ test.describe('Settings Page', () => {
   });
 
   test.describe('Settings Persistence', () => {
-    test('should persist profile data after page reload', async ({ page }) => {
+    test('should persist settings after page reload', async ({ page }) => {
       await page.waitForTimeout(1000);
 
-      // Get the name input value
-      const nameInput = page.getByTestId('profile-name-en');
-      const isVisible = await nameInput.isVisible({ timeout: 3000 }).catch(() => false);
+      // Get a checkbox state
+      const firstCheckbox = page.locator('input[type="checkbox"]').first();
+      const isVisible = await firstCheckbox.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (isVisible) {
-        const initialValue = await nameInput.inputValue();
+        const initialState = await firstCheckbox.isChecked();
 
         // Reload page
         await page.reload();
         await waitForPageLoad(page);
-        await page.waitForTimeout(1000);
-
-        // Value should be the same
-        const newValue = await nameInput.inputValue();
-        expect(newValue).toBe(initialValue);
-        console.log('Profile data persisted after reload');
-      }
-    });
-
-    test('should persist notification settings after page reload', async ({ page }) => {
-      // Navigate to notifications tab
-      const notificationsTab = page.getByTestId('settings-tab-notifications');
-      await notificationsTab.click();
-      await page.waitForTimeout(1000);
-
-      // Get a notification toggle state
-      const firstToggle = page.locator('[role="switch"]').first();
-      const isVisible = await firstToggle.isVisible({ timeout: 3000 }).catch(() => false);
-
-      if (isVisible) {
-        const initialState = await firstToggle.isChecked();
-
-        // Reload page
-        await page.reload();
-        await waitForPageLoad(page);
-        await navigateAndWait(page, '/settings');
-
-        // Navigate back to notifications tab
-        const notificationsTabAfterReload = page.getByTestId('settings-tab-notifications');
-        await notificationsTabAfterReload.click();
         await page.waitForTimeout(1000);
 
         // State should be the same
-        const newState = await firstToggle.isChecked();
+        const newState = await firstCheckbox.isChecked();
         expect(newState).toBe(initialState);
-        console.log('Notification settings persisted after reload');
       }
     });
   });

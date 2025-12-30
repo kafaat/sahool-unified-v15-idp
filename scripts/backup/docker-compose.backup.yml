@@ -127,11 +127,6 @@ services:
       - BACKUP_DIR=/backups
       - BACKUP_RETENTION_DAYS=30
 
-      # Backup encryption - تشفير النسخ الاحتياطي
-      - BACKUP_ENCRYPTION_ENABLED=true
-      - BACKUP_ENCRYPTION_KEY=${BACKUP_ENCRYPTION_KEY:-change_this_encryption_key_at_least_32_characters_long}
-      - BACKUP_COMPRESSION=gzip
-
       # S3/MinIO configuration - تكوين S3/MinIO
       - S3_BACKUP_ENABLED=true
       - S3_ENDPOINT=http://minio:9000

@@ -492,15 +492,15 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting Notification Service...")
 
-    # Initialize database (non-blocking - service can still start)
+    # Initialize database
     try:
         # In production, set create_db=False and use migrations
         create_db = os.getenv("CREATE_DB_SCHEMA", "false").lower() == "true"
         await init_db(create_db=create_db)
         logger.info("✅ Database initialized")
     except Exception as e:
-        logger.warning(f"⚠️ Database initialization failed (service will continue): {e}")
-        # Don't raise - allow service to start in degraded mode
+        logger.error(f"❌ Failed to initialize database: {e}")
+        raise
 
     # Start NATS subscriber (optional)
     if _nats_available:
@@ -555,20 +555,13 @@ app = FastAPI(
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint with database status"""
-    try:
-        db_health = await check_db_health()
-        db_stats = await get_db_stats() if db_health.get("connected") else {}
-    except Exception as e:
-        logger.warning(f"Health check - database error: {e}")
-        db_health = {"status": "unavailable", "connected": False, "error": str(e)}
-        db_stats = {}
+    db_health = await check_db_health()
+    db_stats = await get_db_stats() if db_health.get("connected") else {}
 
-    # Always return "ok" for container health - report degraded status in response body
     return {
-        "status": "ok",  # Container is healthy even if DB is down
+        "status": "ok" if db_health.get("connected") else "degraded",
         "service": "notification-service",
         "version": "15.4.0",
-        "mode": "normal" if db_health.get("connected") else "degraded",
         "nats_connected": _nats_available and _nats_subscriber is not None,
         "database": db_health,
         "stats": db_stats,

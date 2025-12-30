@@ -41,16 +41,15 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
   }
 
   return (
-    <div className="space-y-6" data-testid="transaction-history">
+    <div className="space-y-6">
       {/* Header & Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h2 className="text-2xl font-bold" data-testid="transaction-history-heading">سجل المعاملات | Transaction History</h2>
+        <h2 className="text-2xl font-bold">سجل المعاملات | Transaction History</h2>
 
         <div className="flex items-center gap-2">
           {/* Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            data-testid="transaction-filter-button"
             className="flex items-center gap-2 px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50"
           >
             <Filter className="w-5 h-5" />
@@ -61,10 +60,9 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
 
       {/* Type Filters */}
       {showFilters && (
-        <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg" data-testid="transaction-filter-panel">
+        <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg">
           <button
             onClick={() => handleTypeFilter(undefined)}
-            data-testid="transaction-filter-all"
             className={`px-4 py-2 rounded-lg transition-colors ${
               !filters.type
                 ? 'bg-blue-600 text-white'
@@ -75,7 +73,6 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
           </button>
           <button
             onClick={() => handleTypeFilter('deposit')}
-            data-testid="transaction-filter-deposit"
             className={`px-4 py-2 rounded-lg transition-colors ${
               filters.type === 'deposit'
                 ? 'bg-blue-600 text-white'
@@ -86,7 +83,6 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
           </button>
           <button
             onClick={() => handleTypeFilter('withdrawal')}
-            data-testid="transaction-filter-withdrawal"
             className={`px-4 py-2 rounded-lg transition-colors ${
               filters.type === 'withdrawal'
                 ? 'bg-blue-600 text-white'
@@ -97,7 +93,6 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
           </button>
           <button
             onClick={() => handleTypeFilter('payment')}
-            data-testid="transaction-filter-payment"
             className={`px-4 py-2 rounded-lg transition-colors ${
               filters.type === 'payment'
                 ? 'bg-blue-600 text-white'
@@ -108,7 +103,6 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
           </button>
           <button
             onClick={() => handleTypeFilter('transfer_out')}
-            data-testid="transaction-filter-transfer"
             className={`px-4 py-2 rounded-lg transition-colors ${
               filters.type === 'transfer_out'
                 ? 'bg-blue-600 text-white'
@@ -122,13 +116,13 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
 
       {/* Transactions List */}
       {!transactions || transactions.length === 0 ? (
-        <div className="text-center py-16" data-testid="transaction-empty-state">
+        <div className="text-center py-16">
           <CreditCard className="w-16 h-16 mx-auto mb-4 text-gray-300" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد معاملات</h3>
           <p className="text-gray-500">لم يتم العثور على معاملات بالفلاتر المحددة</p>
         </div>
       ) : (
-        <div className="space-y-3" data-testid="transaction-list">
+        <div className="space-y-3">
           {transactions.map((transaction) => (
             <TransactionItem
               key={transaction.id}
@@ -138,7 +132,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ onTransa
           ))}
 
           {/* Results Count */}
-          <div className="text-center text-sm text-gray-500 pt-4" data-testid="transaction-count">
+          <div className="text-center text-sm text-gray-500 pt-4">
             عرض {transactions.length} معاملة | Showing {transactions.length} transactions
           </div>
         </div>
@@ -162,7 +156,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
   return (
     <div
       onClick={onClick}
-      data-testid={`transaction-item-${transaction.id}`}
       className="bg-white rounded-xl border-2 border-gray-200 hover:border-blue-400 p-4 cursor-pointer transition-all"
     >
       <div className="flex items-center justify-between gap-4">
@@ -170,7 +163,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
         <div className="flex items-center gap-4 flex-1 min-w-0">
           {/* Icon */}
           <div
-            data-testid="transaction-item-icon"
             className={`p-3 rounded-lg ${
               isIncoming
                 ? 'bg-green-100 text-green-600'
@@ -190,11 +182,10 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
 
           {/* Details */}
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-900 line-clamp-1" data-testid="transaction-item-description-ar">{transaction.descriptionAr}</h4>
-            <p className="text-sm text-gray-600 line-clamp-1" data-testid="transaction-item-description">{transaction.description}</p>
+            <h4 className="font-semibold text-gray-900 line-clamp-1">{transaction.descriptionAr}</h4>
+            <p className="text-sm text-gray-600 line-clamp-1">{transaction.description}</p>
             <div className="flex items-center gap-2 mt-1">
               <span
-                data-testid="transaction-item-status"
                 className={`text-xs px-2 py-1 rounded-full ${
                   transaction.status === 'completed'
                     ? 'bg-green-100 text-green-700'
@@ -207,7 +198,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
               >
                 {getStatusLabel(transaction.status)}
               </span>
-              <span className="text-xs text-gray-500" data-testid="transaction-item-date">
+              <span className="text-xs text-gray-500">
                 {new Date(transaction.createdAt).toLocaleDateString('ar-SA')}
               </span>
             </div>
@@ -217,7 +208,6 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
         {/* Amount */}
         <div className="text-right">
           <div
-            data-testid="transaction-item-amount"
             className={`text-lg font-bold ${
               isIncoming ? 'text-green-600' : isOutgoing ? 'text-red-600' : 'text-gray-900'
             }`}
@@ -226,7 +216,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onClick 
             {transaction.amount.toFixed(2)} {transaction.currency}
           </div>
           {transaction.fee && transaction.fee > 0 && (
-            <div className="text-xs text-gray-500" data-testid="transaction-item-fee">رسوم: {transaction.fee.toFixed(2)}</div>
+            <div className="text-xs text-gray-500">رسوم: {transaction.fee.toFixed(2)}</div>
           )}
         </div>
       </div>

@@ -11,7 +11,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import '../../core/config/api_config.dart';
 
 // =============================================================================
 // Models
@@ -337,9 +336,11 @@ final farmerIdProvider = StateProvider<String>((ref) => '');
 
 /// مزود رابط API
 final apiBaseUrlProvider = Provider<String>((ref) {
-  // Use ApiConfig which handles production/development/emulator detection
-  // Service runs on port 8110
-  return ApiConfig.notificationsServiceUrl;
+  // يمكن تغييره حسب البيئة
+  const isProduction = bool.fromEnvironment('dart.vm.product');
+  return isProduction
+      ? 'https://api.sahool.io'
+      : 'http://localhost:8109';
 });
 
 /// مزود الإشعارات الرئيسي

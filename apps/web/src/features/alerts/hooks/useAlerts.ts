@@ -7,7 +7,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useCallback, useState, useRef } from 'react';
-import { alertsApi, type Alert, type AlertFilters } from '../api';
+import { alertsApi, type Alert, type AlertFilters, type AlertSeverity } from '../api';
 
 // Query Keys
 export const alertKeys = {
@@ -185,4 +185,3 @@ export function useAlertStream(onAlert: (alert: Alert) => void) {
 
   return { isConnected, error };
 }
-

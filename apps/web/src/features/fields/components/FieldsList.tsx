@@ -34,7 +34,7 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={`skeleton-field-${i}`} className="h-48 bg-gray-200 rounded-xl animate-pulse" />
+            <div key={i} className="h-48 bg-gray-200 rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -59,28 +59,22 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
 
         <div className="flex items-center gap-2">
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg" role="group" aria-label="تبديل طريقة العرض">
+          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
             <button
               onClick={() => setViewMode('grid')}
-              aria-label="عرض شبكي"
-              aria-pressed={viewMode === 'grid'}
-              className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              className={`p-2 rounded ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
             >
               <Grid3x3 className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              aria-label="عرض قائمة"
-              aria-pressed={viewMode === 'list'}
-              className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              className={`p-2 rounded ${viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
             >
               <List className="w-5 h-5" />
             </button>
             <button
               onClick={() => setViewMode('map')}
-              aria-label="عرض خريطة"
-              aria-pressed={viewMode === 'map'}
-              className={`p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${viewMode === 'map' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+              className={`p-2 rounded ${viewMode === 'map' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
             >
               <MapIcon className="w-5 h-5" />
             </button>
@@ -90,8 +84,7 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
           {onCreateClick && (
             <button
               onClick={onCreateClick}
-              aria-label="إضافة حقل جديد"
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Plus className="w-5 h-5" />
               <span>إضافة حقل</span>
@@ -109,8 +102,7 @@ export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateCl
           {onCreateClick && (
             <button
               onClick={onCreateClick}
-              aria-label="إضافة حقل جديد"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               إضافة حقل جديد
             </button>

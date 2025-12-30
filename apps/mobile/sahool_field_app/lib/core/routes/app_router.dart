@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'deep_link_handler.dart';
 
 // Features
 import '../../features/splash/ui/splash_screen.dart';
@@ -17,11 +16,6 @@ import '../../features/advisor/ui/advisor_screen.dart';
 import '../../features/scanner/ui/scanner_screen.dart';
 import '../../features/scouting/ui/scouting_screen.dart';
 import '../../features/sync/ui/sync_screen.dart';
-import '../../features/ecological_records/presentation/screens/ecological_dashboard_screen.dart';
-import '../../features/ecological_records/presentation/screens/biodiversity_record_screen.dart';
-import '../../features/ecological_records/presentation/screens/soil_health_record_screen.dart';
-import '../../features/ecological_records/presentation/screens/water_record_screen.dart';
-import '../../features/ecological_records/presentation/screens/practice_record_screen.dart';
 
 /// SAHOOL App Router Configuration
 /// تكوين مسارات التطبيق باستخدام go_router
@@ -30,9 +24,6 @@ class AppRouter {
       GlobalKey<NavigatorState>(debugLabel: 'root');
   static final GlobalKey<NavigatorState> _shellNavigatorKey =
       GlobalKey<NavigatorState>(debugLabel: 'shell');
-
-  // Deep Link Handler instance
-  static DeepLinkHandler? _deepLinkHandler;
 
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -160,51 +151,6 @@ class AppRouter {
         name: 'sync',
         builder: (context, state) => const SyncScreen(),
       ),
-
-      // ═══════════════════════════════════════════════════════════════════════
-      // Ecological Records Routes
-      // مسارات السجلات البيئية
-      // ═══════════════════════════════════════════════════════════════════════
-
-      GoRoute(
-        path: '/ecological',
-        name: 'ecological-dashboard',
-        builder: (context, state) => const EcologicalDashboardScreen(),
-      ),
-
-      GoRoute(
-        path: '/ecological/biodiversity',
-        name: 'biodiversity-record',
-        builder: (context, state) => const BiodiversityRecordScreen(),
-      ),
-
-      GoRoute(
-        path: '/ecological/soil-health',
-        name: 'soil-health-record',
-        builder: (context, state) => const SoilHealthRecordScreen(),
-      ),
-
-      GoRoute(
-        path: '/ecological/water',
-        name: 'water-record',
-        builder: (context, state) => const WaterRecordScreen(),
-      ),
-
-      GoRoute(
-        path: '/ecological/practice',
-        name: 'practice-record',
-        builder: (context, state) => const PracticeRecordScreen(),
-      ),
-
-      // Field-specific ecological dashboard
-      GoRoute(
-        path: '/field/:id/ecological',
-        name: 'field-ecological',
-        builder: (context, state) {
-          final fieldId = state.pathParameters['id']!;
-          return EcologicalDashboardScreen(fieldId: fieldId);
-        },
-      ),
     ],
 
     // Error handling
@@ -234,25 +180,4 @@ class AppRouter {
       ),
     ),
   );
-
-  /// Initialize deep link handling
-  ///
-  /// Call this method in your app's initialization to enable deep link support.
-  /// Example:
-  /// ```dart
-  /// await AppRouter.initializeDeepLinks();
-  /// ```
-  static Future<void> initializeDeepLinks() async {
-    _deepLinkHandler = DeepLinkHandler(router: router);
-    await _deepLinkHandler!.initialize();
-  }
-
-  /// Get the deep link handler instance
-  static DeepLinkHandler? get deepLinkHandler => _deepLinkHandler;
-
-  /// Dispose deep link handler
-  static void disposeDeepLinks() {
-    _deepLinkHandler?.dispose();
-    _deepLinkHandler = null;
-  }
 }

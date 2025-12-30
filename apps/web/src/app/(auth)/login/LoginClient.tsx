@@ -8,16 +8,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { useAuth } from '@/stores/auth.store';
 import { useToast } from '@/components/ui/toast';
 
-/**
- * Login Client Component
- *
- * This component includes data-testid attributes for E2E testing:
- * - login-form: The login form element
- * - login-email-input: Email input field
- * - login-password-input: Password input field
- * - login-submit-button: Login submit button
- * - forgot-password-link: Forgot password link
- */
 export default function LoginClient() {
   const router = useRouter();
   const { login } = useAuth();
@@ -66,7 +56,7 @@ export default function LoginClient() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4" data-testid="login-form">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               type="email"
               label="Email"
@@ -77,7 +67,6 @@ export default function LoginClient() {
               leftIcon={<Mail className="w-4 h-4" />}
               required
               autoComplete="email"
-              data-testid="login-email-input"
             />
             <Input
               type="password"
@@ -89,9 +78,8 @@ export default function LoginClient() {
               leftIcon={<Lock className="w-4 h-4" />}
               required
               autoComplete="current-password"
-              data-testid="login-password-input"
             />
-            <Button type="submit" fullWidth isLoading={isLoading} size="lg" data-testid="login-submit-button">
+            <Button type="submit" fullWidth isLoading={isLoading} size="lg">
               <span className="font-semibold">تسجيل الدخول</span>
               <span className="mx-2">•</span>
               <span className="text-sm">Login</span>
@@ -101,7 +89,6 @@ export default function LoginClient() {
             <a
               href="#"
               className="text-sm text-sahool-green-600 hover:text-sahool-green-700 font-medium"
-              data-testid="forgot-password-link"
             >
               نسيت كلمة المرور؟ • Forgot Password?
             </a>

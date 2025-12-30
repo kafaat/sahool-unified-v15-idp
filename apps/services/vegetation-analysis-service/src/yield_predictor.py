@@ -20,9 +20,23 @@ import math
 
 # Import shared crop catalog
 import sys
-sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+from pathlib import Path
+from dataclasses import dataclass
+from typing import Optional
+
+# Define CropInfo first as fallback
+@dataclass
+class CropInfo:
+    code: str = ""
+    name_en: str = ""
+    name_ar: str = ""
+    base_yield_ton_ha: float = 0.0
+
+SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
+if str(SHARED_PATH) not in sys.path:
+    sys.path.insert(0, str(SHARED_PATH))
 try:
-    from apps.services.shared.crops import ALL_CROPS, CropInfo, get_crop
+    from crops import ALL_CROPS, CropInfo, get_crop
 except ImportError:
     # Fallback for standalone testing
     ALL_CROPS = {}

@@ -152,9 +152,6 @@ services:
       # Logging
       KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
 
-      # CORS Configuration (environment-based)
-      CORS_ENVIRONMENT: ${CORS_ENVIRONMENT:-development}
-
       # Declarative Config (optional)
       # KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
 
@@ -162,7 +159,6 @@ services:
       - ./kong.yml:/etc/kong/kong.yml:ro
       - ./kong-packages.yml:/etc/kong/kong-packages.yml:ro
       - ./consumers.yml:/etc/kong/consumers.yml:ro
-      - ./cors-config:/etc/kong/cors-config:ro
       - kong-logs:/var/log/kong
     ports:
       - "8000:8000"  # Proxy HTTP

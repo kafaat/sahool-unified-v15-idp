@@ -8,7 +8,7 @@ uvicorn[standard]==0.32.1
 python-multipart==0.0.18
 
 # Data Validation
-pydantic==2.9.2
+pydantic>=2.10.0,<3.0.0
 pydantic-settings==2.6.1
 
 # HTTP Client (for weather integration)

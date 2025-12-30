@@ -5,25 +5,22 @@ import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
 import {
   LayoutDashboard,
-  Grid3x3,
+  Users,
+  Sprout,
+  FileText,
   TrendingUp,
   Settings,
-  Cloud,
-  Signal,
-  Sprout,
-  Wrench,
-  Users,
-  ListTodo,
-  Wallet,
-  DollarSign,
+  Building2,
+  Package,
+  Calendar,
+  FileBarChart,
 } from 'lucide-react';
 
 interface NavItem {
   nameAr: string;
   name: string;
   href: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 const navItems: NavItem[] = [
@@ -34,69 +31,57 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    nameAr: 'الحقول',
-    name: 'Fields',
-    href: '/fields',
-    icon: Grid3x3,
+    nameAr: 'المستخدمين',
+    name: 'Users',
+    href: '/dashboard/users',
+    icon: Users,
+  },
+  {
+    nameAr: 'المزارع',
+    name: 'Farms',
+    href: '/dashboard/farms',
+    icon: Building2,
+  },
+  {
+    nameAr: 'المحاصيل',
+    name: 'Crops',
+    href: '/dashboard/crops',
+    icon: Sprout,
+  },
+  {
+    nameAr: 'المخزون',
+    name: 'Inventory',
+    href: '/dashboard/inventory',
+    icon: Package,
+  },
+  {
+    nameAr: 'المواسم',
+    name: 'Seasons',
+    href: '/dashboard/seasons',
+    icon: Calendar,
+  },
+  {
+    nameAr: 'التقارير',
+    name: 'Reports',
+    href: '/dashboard/reports',
+    icon: FileBarChart,
+  },
+  {
+    nameAr: 'المستندات',
+    name: 'Documents',
+    href: '/dashboard/documents',
+    icon: FileText,
   },
   {
     nameAr: 'التحليلات',
     name: 'Analytics',
-    href: '/analytics',
+    href: '/dashboard/analytics',
     icon: TrendingUp,
-  },
-  {
-    nameAr: 'السوق',
-    name: 'Marketplace',
-    href: '/marketplace',
-    icon: DollarSign,
-  },
-  {
-    nameAr: 'المهام',
-    name: 'Tasks',
-    href: '/tasks',
-    icon: ListTodo,
-  },
-  {
-    nameAr: 'الطقس',
-    name: 'Weather',
-    href: '/weather',
-    icon: Cloud,
-  },
-  {
-    nameAr: 'إنترنت الأشياء',
-    name: 'IoT',
-    href: '/iot',
-    icon: Signal,
-  },
-  {
-    nameAr: 'صحة المحاصيل',
-    name: 'Crop Health',
-    href: '/crop-health',
-    icon: Sprout,
-  },
-  {
-    nameAr: 'المعدات',
-    name: 'Equipment',
-    href: '/equipment',
-    icon: Wrench,
-  },
-  {
-    nameAr: 'المجتمع',
-    name: 'Community',
-    href: '/community',
-    icon: Users,
-  },
-  {
-    nameAr: 'المحفظة',
-    name: 'Wallet',
-    href: '/wallet',
-    icon: Wallet,
   },
   {
     nameAr: 'الإعدادات',
     name: 'Settings',
-    href: '/settings',
+    href: '/dashboard/settings',
     icon: Settings,
   },
 ];
@@ -105,10 +90,10 @@ export const Sidebar = React.memo(function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full" role="navigation" aria-label="القائمة الجانبية الرئيسية" data-testid="sidebar">
+    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full" role="navigation" aria-label="القائمة الجانبية الرئيسية">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
-        <Link href="/dashboard" className="flex items-center gap-3" data-testid="sidebar-logo">
+        <Link href="/dashboard" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-sahool-green-600 rounded-lg flex items-center justify-center">
             <div className="w-6 h-6 bg-white rounded-full" />
           </div>
@@ -125,8 +110,6 @@ export const Sidebar = React.memo(function Sidebar() {
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             const Icon = item.icon;
-            // Generate test ID from href (e.g., "/dashboard" -> "nav-link-dashboard")
-            const testId = `nav-link-${item.href.split('/').filter(Boolean).join('-')}`;
 
             return (
               <li key={item.href}>
@@ -141,7 +124,6 @@ export const Sidebar = React.memo(function Sidebar() {
                   )}
                   aria-current={isActive ? 'page' : undefined}
                   aria-label={`${item.nameAr} - ${item.name}`}
-                  data-testid={testId}
                 >
                   <Icon
                     className={clsx(

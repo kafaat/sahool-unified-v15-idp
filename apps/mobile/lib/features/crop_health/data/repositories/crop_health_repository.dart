@@ -19,7 +19,7 @@ class CropHealthRepository {
 
   /// Base URL for crop health service (port 8095)
   static String get _baseUrl => ApiConfig.useDirectServices
-      ? ApiConfig.cropHealthServiceUrl
+      ? 'http://${ApiConfig.useDirectServices ? "localhost" : "10.0.2.2"}:8095'
       : ApiConfig.effectiveBaseUrl;
 
   CropHealthRepository({

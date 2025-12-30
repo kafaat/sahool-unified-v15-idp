@@ -5,14 +5,12 @@ import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../config/config.dart';
 import 'network_status.dart';
-import '../../features/ecological_records/data/sync/ecological_sync_handler.dart';
 
 /// Sync Engine - Handles offline-first synchronization with ETag support
 class SyncEngine {
   final AppDatabase database;
   final NetworkStatus _networkStatus = NetworkStatus();
   late final ApiClient _apiClient;
-  late final EcologicalSyncHandler _ecologicalHandler;
 
   Timer? _syncTimer;
   bool _isSyncing = false;
@@ -22,10 +20,6 @@ class SyncEngine {
 
   SyncEngine({required this.database}) {
     _apiClient = ApiClient();
-    _ecologicalHandler = EcologicalSyncHandler(
-      db: database,
-      apiClient: _apiClient,
-    );
   }
 
   /// Get current tenant ID from API client
@@ -149,14 +143,6 @@ class SyncEngine {
 
   /// Process single outbox item with ETag support
   Future<_ItemResult> _processOutboxItem(OutboxData item) async {
-    // Delegate ecological records to specialized handler
-    if (_ecologicalHandler.handlers.containsKey(item.entityType)) {
-      final handler = _ecologicalHandler.handlers[item.entityType]!;
-      final success = await handler(item);
-      return success ? _ItemResult.success : _ItemResult.failed;
-    }
-
-    // Process other entity types (fields, tasks, etc.)
     final payload = jsonDecode(item.payload) as Map<String, dynamic>;
 
     // Build headers with If-Match for optimistic locking
@@ -216,14 +202,6 @@ class SyncEngine {
         return 'الحقل';
       case 'task':
         return 'المهمة';
-      case 'biodiversity_record':
-        return 'سجل التنوع البيولوجي';
-      case 'soil_health_record':
-        return 'سجل صحة التربة';
-      case 'water_conservation_record':
-        return 'سجل الحفاظ على المياه';
-      case 'farm_practice_record':
-        return 'سجل الممارسات الزراعية';
       default:
         return 'البيانات';
     }
@@ -248,14 +226,6 @@ class SyncEngine {
       }
     } catch (e) {
       print('⚠️ Failed to pull tasks: $e');
-    }
-
-    // Pull ecological records using specialized handler
-    try {
-      await _ecologicalHandler.pullFromServer(_tenantId);
-      print('✅ Successfully pulled ecological records');
-    } catch (e) {
-      print('⚠️ Failed to pull ecological records: $e');
     }
 
     return PullResult(count: count);

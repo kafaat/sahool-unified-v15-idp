@@ -80,41 +80,35 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   };
 
   return (
-    <div
-      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-      data-testid="post-card"
-    >
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
             {/* Avatar */}
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-lg" data-testid="post-avatar">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-bold text-lg">
               {post.userName[0]}
             </div>
 
             {/* User Info */}
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-gray-900" data-testid="post-author">{post.userNameAr}</span>
-                {post.userBadge && <span data-testid="user-badge">{badgeIcons[post.userBadge]}</span>}
+                <span className="font-semibold text-gray-900">{post.userNameAr}</span>
+                {post.userBadge && badgeIcons[post.userBadge]}
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-gray-600" data-testid="post-timestamp">{formatDate(post.createdAt)}</span>
+                <span className="text-sm text-gray-600">{formatDate(post.createdAt)}</span>
                 {post.location && (
                   <>
                     <span className="text-gray-400">•</span>
-                    <span className="text-sm text-gray-600" data-testid="post-location">{post.location.cityAr}</span>
+                    <span className="text-sm text-gray-600">{post.location.cityAr}</span>
                   </>
                 )}
               </div>
             </div>
           </div>
 
-          <button
-            className="text-gray-400 hover:text-gray-600"
-            aria-label="خيارات المنشور"
-          >
+          <button className="text-gray-400 hover:text-gray-600">
             <MoreVertical className="w-5 h-5" />
           </button>
         </div>
@@ -125,7 +119,6 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
               postTypeColors[post.type]
             }`}
-            data-testid="post-type-badge"
           >
             {postTypeLabels[post.type]}
           </span>
@@ -134,19 +127,18 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-xl font-semibold text-gray-900 mb-2" data-testid="post-title">{post.titleAr}</h3>
-        <p className="text-gray-700 whitespace-pre-line" data-testid="post-content">{post.contentAr}</p>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">{post.titleAr}</h3>
+        <p className="text-gray-700 whitespace-pre-line">{post.contentAr}</p>
 
         {/* Images */}
         {post.images && post.images.length > 0 && (
-          <div className="mt-4 grid grid-cols-2 gap-2" data-testid="post-images">
+          <div className="mt-4 grid grid-cols-2 gap-2">
             {post.images.slice(0, 4).map((image, index) => (
               <img
                 key={index}
                 src={image}
-                alt={`Post image ${index + 1}`}
+                alt=""
                 className="w-full h-48 object-cover rounded-lg"
-                data-testid={`post-image-${index}`}
               />
             ))}
           </div>
@@ -154,12 +146,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
         {/* Tags */}
         {post.tagsAr && post.tagsAr.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2" data-testid="post-tags">
-            {post.tagsAr.map((tag) => (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {post.tagsAr.map((tag, index) => (
               <span
-                key={`tag-${post.id}-${tag}`}
+                key={index}
                 className="text-sm text-green-600 hover:text-green-700 cursor-pointer"
-                data-testid="post-tag"
               >
                 #{tag}
               </span>
@@ -171,24 +162,22 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
       {/* Footer */}
       <div className="px-4 py-3 border-t border-gray-100">
         {/* Stats */}
-        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3" data-testid="post-stats">
-          <span data-testid="post-likes-count">{post.likes.toLocaleString('ar-SA')} إعجاب</span>
-          <span data-testid="post-comments-count">{post.comments.toLocaleString('ar-SA')} تعليق</span>
-          <span data-testid="post-views-count">{post.views.toLocaleString('ar-SA')} مشاهدة</span>
+        <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
+          <span>{post.likes.toLocaleString('ar-SA')} إعجاب</span>
+          <span>{post.comments.toLocaleString('ar-SA')} تعليق</span>
+          <span>{post.views.toLocaleString('ar-SA')} مشاهدة</span>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2" data-testid="post-actions">
+        <div className="flex items-center gap-2">
           <button
             onClick={handleLike}
             disabled={likeMutation.isPending}
-            aria-label={post.isLiked ? 'إلغاء الإعجاب' : 'إعجاب بالمنشور'}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               post.isLiked
                 ? 'bg-green-50 text-green-600'
                 : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
             }`}
-            data-testid="post-like-button"
           >
             <ThumbsUp className={`w-5 h-5 ${post.isLiked ? 'fill-current' : ''}`} />
             <span>إعجاب</span>
@@ -196,10 +185,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
           <button
             onClick={() => setShowComments(!showComments)}
-            aria-label={showComments ? 'إخفاء التعليقات' : 'عرض التعليقات'}
-            aria-expanded={showComments}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-            data-testid="post-comment-button"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
             <span>تعليق</span>
@@ -208,9 +194,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <button
             onClick={handleShare}
             disabled={shareMutation.isPending}
-            aria-label="مشاركة المنشور"
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-            data-testid="post-share-button"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition-colors"
           >
             <Share2 className="w-5 h-5" />
             <span>مشاركة</span>
@@ -219,13 +203,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
           <button
             onClick={handleSave}
             disabled={saveMutation.isPending}
-            aria-label={post.isSaved ? 'إلغاء الحفظ' : 'حفظ المنشور'}
             className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
               post.isSaved
                 ? 'bg-green-50 text-green-600'
                 : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
             }`}
-            data-testid="post-save-button"
           >
             <Bookmark className={`w-5 h-5 ${post.isSaved ? 'fill-current' : ''}`} />
           </button>
@@ -234,18 +216,18 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
       {/* Comments Section */}
       {showComments && comments && (
-        <div className="p-4 bg-gray-50 border-t border-gray-200" data-testid="comments-section">
-          <p className="text-sm text-gray-600 mb-3" data-testid="comments-count">{comments.length} تعليق</p>
+        <div className="p-4 bg-gray-50 border-t border-gray-200">
+          <p className="text-sm text-gray-600 mb-3">{comments.length} تعليق</p>
           <div className="space-y-3">
             {comments.slice(0, 3).map((comment) => (
-              <div key={comment.id} className="bg-white p-3 rounded-lg" data-testid="comment-card">
+              <div key={comment.id} className="bg-white p-3 rounded-lg">
                 <div className="flex items-start gap-2">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold" data-testid="comment-avatar">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
                     {comment.userName[0]}
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-sm text-gray-900" data-testid="comment-author">{comment.userNameAr}</p>
-                    <p className="text-sm text-gray-700 mt-1" data-testid="comment-content">{comment.contentAr}</p>
+                    <p className="font-medium text-sm text-gray-900">{comment.userNameAr}</p>
+                    <p className="text-sm text-gray-700 mt-1">{comment.contentAr}</p>
                   </div>
                 </div>
               </div>

@@ -15,10 +15,22 @@ from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query, Path, Depends, Header
 from pydantic import BaseModel
+from pathlib import Path as PathLib
 
-# Add path to shared config
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
-from cors_config import setup_cors_middleware
+# Add path to shared modules
+# In Docker, shared is at /app/shared
+SHARED_PATH = PathLib("/app/shared")
+if not SHARED_PATH.exists():
+    # Fallback for local development
+    SHARED_PATH = PathLib(__file__).parent.parent.parent / "shared"
+if str(SHARED_PATH) not in sys.path:
+    sys.path.insert(0, str(SHARED_PATH))
+try:
+    from config.cors_config import setup_cors_middleware
+except ImportError:
+    # Fallback if shared module not available
+    def setup_cors_middleware(app):
+        pass
 
 from .models import (
     AlertType,

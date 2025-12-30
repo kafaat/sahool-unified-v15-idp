@@ -164,9 +164,8 @@ export function getTracer(name?: string) {
 
 /**
  * Instrument NestJS application
- * Accepts any NestJS application instance (INestApplication or INestMicroservice)
  */
-export function instrumentNestApp(app: { close?: () => Promise<void> }): void {
+export function instrumentNestApp(app: any): void {
   // NestJS instrumentation is handled automatically by NestInstrumentation
   console.log('NestJS instrumentation enabled');
 }
@@ -174,18 +173,12 @@ export function instrumentNestApp(app: { close?: () => Promise<void> }): void {
 /**
  * Decorator to trace a method
  */
-export function Trace(spanName?: string, attributes?: Record<string, string | number | boolean>) {
-  return function <T extends (...args: unknown[]) => Promise<unknown>>(
-    target: object,
-    propertyKey: string,
-    descriptor: TypedPropertyDescriptor<T>
-  ) {
+export function Trace(spanName?: string, attributes?: Record<string, any>) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
-    if (!originalMethod) return descriptor;
-
     const traceName = spanName || `${target.constructor.name}.${propertyKey}`;
 
-    descriptor.value = async function (this: unknown, ...args: unknown[]) {
+    descriptor.value = async function (...args: any[]) {
       const tracer = getTracer();
       return tracer.startActiveSpan(traceName, async (span: Span) => {
         try {
@@ -201,7 +194,7 @@ export function Trace(spanName?: string, attributes?: Record<string, string | nu
           span.setAttribute('code.namespace', target.constructor.name);
 
           // Execute method
-          const result = await originalMethod.apply(this, args as Parameters<T>);
+          const result = await originalMethod.apply(this, args);
 
           span.setStatus({ code: SpanStatusCode.OK });
           return result;
@@ -216,7 +209,7 @@ export function Trace(spanName?: string, attributes?: Record<string, string | nu
           span.end();
         }
       });
-    } as T;
+    };
 
     return descriptor;
   };

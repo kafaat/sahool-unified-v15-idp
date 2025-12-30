@@ -14,11 +14,6 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'src/__tests__/setup.ts'],
     },
-    server: {
-      deps: {
-        inline: ['jose'],
-      },
-    },
   },
   resolve: {
     alias: {

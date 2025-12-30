@@ -26,13 +26,7 @@
     "typescript": "^5.7.2"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "@sentry/nextjs": ">=8.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@sentry/nextjs": {
-      "optional": true
-    }
+    "react": ">=18.0.0"
   },
   "engines": {
     "node": ">=20.0.0"

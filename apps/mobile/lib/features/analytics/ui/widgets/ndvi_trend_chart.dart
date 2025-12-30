@@ -64,13 +64,13 @@ class NdviTrendChart extends StatelessWidget {
             child: LineChart(
               LineChartData(
                 gridData: _buildGridData(),
-                titlesData: _buildTitlesData(context),
+                titlesData: _buildTitlesData(),
                 borderData: FlBorderData(show: false),
                 minX: 0,
                 maxX: (history.length - 1).toDouble(),
                 minY: 0,
                 maxY: 1.0,
-                lineTouchData: _buildTouchData(context),
+                lineTouchData: _buildTouchData(),
                 lineBarsData: [
                   _buildLineData(points, isImproving),
                 ],
@@ -99,8 +99,7 @@ class NdviTrendChart extends StatelessWidget {
   }
 
   /// عناوين المحاور
-  FlTitlesData _buildTitlesData(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
+  FlTitlesData _buildTitlesData() {
     return FlTitlesData(
       show: true,
       rightTitles: const AxisTitles(
@@ -122,7 +121,7 @@ class NdviTrendChart extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Text(
-                  DateFormat('MM/dd', locale).format(history[index].date),
+                  DateFormat('MM/dd').format(history[index].date),
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontSize: 10,
@@ -156,8 +155,7 @@ class NdviTrendChart extends StatelessWidget {
   }
 
   /// بيانات التفاعل باللمس
-  LineTouchData _buildTouchData(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
+  LineTouchData _buildTouchData() {
     return LineTouchData(
       enabled: true,
       touchTooltipData: LineTouchTooltipData(
@@ -168,7 +166,7 @@ class NdviTrendChart extends StatelessWidget {
             final index = spot.x.toInt();
             final record = history[index];
             return LineTooltipItem(
-              '${DateFormat('yyyy/MM/dd', locale).format(record.date)}\n',
+              '${DateFormat('yyyy/MM/dd').format(record.date)}\n',
               const TextStyle(
                 color: Colors.white70,
                 fontSize: 10,

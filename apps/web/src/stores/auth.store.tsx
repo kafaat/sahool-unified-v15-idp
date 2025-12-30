@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const response = await apiClient.login(email, password);
     if (response.success && response.data) {
-      const { access_token, user: userData } = response.data;
+      const { access_token, user } = response.data;
       // Set cookie with security flags
       // Note: httpOnly cannot be set from client-side JS - server should set this
       Cookies.set('access_token', access_token, {
@@ -39,15 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sameSite: 'strict' // CSRF protection
       });
       apiClient.setToken(access_token);
-      // Transform API user data to match User interface
-      setUser({
-        id: userData.id,
-        email: userData.email,
-        name: userData.name,
-        name_ar: (userData as { name_ar?: string }).name_ar || userData.name,
-        role: userData.role,
-        tenant_id: userData.tenantId,
-      });
+      setUser(user as any);
     } else {
       throw new Error(response.error || 'Login failed');
     }
@@ -69,15 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       apiClient.setToken(token);
       const response = await apiClient.getCurrentUser();
       if (response.success && response.data) {
-        const userData = response.data;
-        setUser({
-          id: userData.id,
-          email: userData.email,
-          name: userData.name,
-          name_ar: userData.name, // Use name as fallback
-          role: userData.role,
-          tenant_id: userData.tenantId,
-        });
+        setUser(response.data);
       } else {
         setUser(null);
         Cookies.remove('access_token');

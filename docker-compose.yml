@@ -5,7 +5,7 @@
 
 services:
   # ─────────────────────────────────────────────────────────────────────────────
-  # Infrastructure Services (7)
+  # Infrastructure Services (6)
   # ─────────────────────────────────────────────────────────────────────────────
 
   # قاعدة البيانات المكانية (PostGIS)
@@ -19,7 +19,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-sahool}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
     # Use tmpfs for temporary data (security hardening)
     tmpfs:
       - /tmp
@@ -128,13 +128,6 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -163,13 +156,6 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -186,8 +172,8 @@ services:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
     volumes:
-      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infrastructure/core/mqtt/passwd:/mosquitto/config/passwd:ro
+      - ./infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infra/mqtt/passwd:/mosquitto/config/passwd:ro
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
     ports:
@@ -200,13 +186,6 @@ services:
       retries: 5
       start_period: 15s
     restart: unless-stopped
-    logging:
-      driver: json-file
-      options:
-        max-size: "50m"
-        max-file: "3"
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -238,8 +217,6 @@ services:
       retries: 3
       start_period: 20s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -264,10 +241,10 @@ services:
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 127.0.0.1:8001
     ports:
-      - "127.0.0.1:8000:8000"
+      - "8000:8000"
       - "127.0.0.1:8001:8001"
     volumes:
-      - ./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro
+      - ./infra/kong/kong.yml:/kong/declarative/kong.yml:ro
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 30s
@@ -275,8 +252,6 @@ services:
       retries: 3
       start_period: 30s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -302,7 +277,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=${POSTGRES_USER:-sahool}
@@ -312,7 +287,7 @@ services:
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -327,8 +302,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -349,13 +322,13 @@ services:
     environment:
       - PORT=3010
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
     ports:
-      - "127.0.0.1:3010:3010"
+      - "3010:3010"
     depends_on:
       postgres:
         condition: service_healthy
@@ -370,8 +343,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -392,7 +363,7 @@ services:
     environment:
       - PORT=3015
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -401,7 +372,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:3015:3015"
+      - "3015:3015"
     depends_on:
       postgres:
         condition: service_healthy
@@ -416,8 +387,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -438,7 +407,7 @@ services:
     environment:
       - PORT=3020
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -446,7 +415,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:3020:3020"
+      - "3020:3020"
     depends_on:
       postgres:
         condition: service_healthy
@@ -461,8 +430,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -485,7 +452,7 @@ services:
     environment:
       - PORT=3021
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -493,7 +460,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:3021:3021"
+      - "3021:3021"
     depends_on:
       postgres:
         condition: service_healthy
@@ -508,8 +475,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -532,7 +497,7 @@ services:
     environment:
       - PORT=3022
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -540,7 +505,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:3022:3022"
+      - "3022:3022"
     depends_on:
       postgres:
         condition: service_healthy
@@ -555,8 +520,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -579,7 +542,7 @@ services:
     environment:
       - PORT=3023
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -587,7 +550,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:3023:3023"
+      - "3023:3023"
     depends_on:
       postgres:
         condition: service_healthy
@@ -622,13 +585,13 @@ services:
     environment:
       - PORT=8114
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "127.0.0.1:8114:8114"
+      - "8114:8114"
     depends_on:
       postgres:
         condition: service_healthy
@@ -643,8 +606,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -665,7 +626,7 @@ services:
     environment:
       - PORT=8117
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - MQTT_BROKER=mqtt
@@ -675,7 +636,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "127.0.0.1:8117:8117"
+      - "8117:8117"
     depends_on:
       postgres:
         condition: service_healthy
@@ -692,8 +653,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -716,12 +675,12 @@ services:
     environment:
       - PORT=8097
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
     ports:
-      - "127.0.0.1:8097:8097"
+      - "8097:8097"
     depends_on:
       postgres:
         condition: service_healthy
@@ -736,8 +695,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -763,7 +720,7 @@ services:
     container_name: sahool-field-ops
     environment:
       - PORT=8080
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -771,7 +728,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -786,8 +743,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -815,7 +770,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
     ports:
-      - "127.0.0.1:8081:8081"
+      - "8081:8081"
     depends_on:
       nats:
         condition: service_healthy
@@ -828,8 +783,6 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -851,7 +804,7 @@ services:
       - PORT=8089
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
@@ -861,7 +814,7 @@ services:
       - THARWATT_MERCHANT_ID=${THARWATT_MERCHANT_ID:-}
       - THARWATT_WEBHOOK_SECRET=${THARWATT_WEBHOOK_SECRET:-}
     ports:
-      - "127.0.0.1:8089:8089"
+      - "8089:8089"
     depends_on:
       postgres:
         condition: service_healthy
@@ -876,8 +829,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -893,8 +844,8 @@ services:
   # Consolidates: satellite-service, ndvi-processor, ndvi-engine, lai-estimation
   vegetation-analysis-service:
     build:
-      context: ./apps/services/vegetation-analysis-service
-      dockerfile: Dockerfile
+      context: ./apps/services
+      dockerfile: vegetation-analysis-service/Dockerfile
     container_name: sahool-vegetation-analysis-service
     environment:
       - PORT=8090
@@ -908,10 +859,10 @@ services:
       - PLANET_API_KEY=${PLANET_API_KEY:-}
       - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8090:8090"
+      - "8090:8090"
     depends_on:
       postgres:
         condition: service_healthy
@@ -926,8 +877,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -949,10 +898,10 @@ services:
       - PORT=8091
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8091:8091"
+      - "8091:8091"
     depends_on:
       postgres:
         condition: service_healthy
@@ -965,8 +914,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -991,10 +938,10 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8092:8092"
+      - "8092:8092"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1007,8 +954,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1024,17 +969,17 @@ services:
   # Consolidates: agro-advisor, fertilizer-advisor
   advisory-service:
     build:
-      context: ./apps/services/advisory-service
-      dockerfile: Dockerfile
+      context: ./apps/services
+      dockerfile: advisory-service/Dockerfile
     container_name: sahool-advisory-service
     environment:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8093:8093"
+      - "8093:8093"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1047,8 +992,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1070,11 +1013,11 @@ services:
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - IOT_GATEWAY_URL=http://iot_gateway:8106
     ports:
-      - "127.0.0.1:8094:8094"
+      - "8094:8094"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1087,8 +1030,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1112,10 +1053,10 @@ services:
       - MODEL_PATH=/app/models/plant_disease.tflite
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8095:8095"
+      - "8095:8095"
     volumes:
       - ./models:/app/models:ro
     depends_on:
@@ -1130,8 +1071,6 @@ services:
       retries: 3
       start_period: 20s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1153,10 +1092,10 @@ services:
       - PORT=8096
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8096:8096"
+      - "8096:8096"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1169,8 +1108,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1193,10 +1130,10 @@ services:
       - PORT=8098
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8098:8098"
+      - "8098:8098"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1209,8 +1146,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1230,7 +1165,7 @@ services:
     container_name: sahool-field-chat
     environment:
       - PORT=8099
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -1238,7 +1173,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:8099:8099"
+      - "8099:8099"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1253,8 +1188,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1274,11 +1207,11 @@ services:
     container_name: sahool-equipment-service
     environment:
       - PORT=8101
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "127.0.0.1:8101:8101"
+      - "8101:8101"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1291,8 +1224,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1312,11 +1243,11 @@ services:
     container_name: sahool-task-service
     environment:
       - PORT=8103
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "127.0.0.1:8103:8103"
+      - "8103:8103"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1329,8 +1260,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1352,7 +1281,7 @@ services:
       - PORT=8104
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "127.0.0.1:8104:8104"
+      - "8104:8104"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8104/health')"]
       interval: 30s
@@ -1360,8 +1289,6 @@ services:
       retries: 3
       start_period: 10s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1378,19 +1305,19 @@ services:
   # Kept temporarily for backwards compatibility
   agro_advisor:
     build:
-      context: ./apps/services/agro-advisor
-      dockerfile: Dockerfile
+      context: ./apps/services
+      dockerfile: agro-advisor/Dockerfile
     container_name: sahool-agro-advisor
     environment:
       - PORT=8105
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:8105:8105"
+      - "8105:8105"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1403,8 +1330,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1424,7 +1349,7 @@ services:
     container_name: sahool-iot-gateway
     environment:
       - PORT=8106
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
@@ -1436,7 +1361,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:8106:8106"
+      - "8106:8106"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1451,8 +1376,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1474,14 +1397,14 @@ services:
     container_name: sahool-ndvi-engine
     environment:
       - PORT=8107
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:8107:8107"
+      - "8107:8107"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1494,8 +1417,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1517,7 +1438,7 @@ services:
     container_name: sahool-weather-core
     environment:
       - PORT=8108
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -1528,7 +1449,7 @@ services:
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
-      - "127.0.0.1:8108:8108"
+      - "8108:8108"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1541,8 +1462,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1564,7 +1483,7 @@ services:
       - PORT=8110
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
@@ -1574,7 +1493,7 @@ services:
       - SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL:-noreply@sahool.com}
       - FCM_SERVER_KEY=${FCM_SERVER_KEY:-}
     ports:
-      - "127.0.0.1:8110:8110"
+      - "8110:8110"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1589,8 +1508,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1614,7 +1531,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
     ports:
-      - "127.0.0.1:8111:8111"
+      - "8111:8111"
     depends_on:
       weather-service:
         condition: service_healthy
@@ -1625,8 +1542,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1669,7 +1584,7 @@ services:
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8112:8112"
+      - "8112:8112"
     depends_on:
       qdrant:
         condition: service_healthy
@@ -1690,8 +1605,6 @@ services:
       retries: 3
       start_period: 40s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1706,18 +1619,18 @@ services:
   # Alert Service
   alert_service:
     build:
-      context: ./apps/services/alert-service
-      dockerfile: Dockerfile
+      context: ./apps/services
+      dockerfile: alert-service/Dockerfile
     container_name: sahool-alert-service
     environment:
       - PORT=8113
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - NOTIFICATION_SERVICE_URL=http://notification_service:8110
     ports:
-      - "127.0.0.1:8113:8113"
+      - "8113:8113"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1732,8 +1645,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1757,11 +1668,11 @@ services:
       - PORT=8115
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "127.0.0.1:8115:8115"
+      - "8115:8115"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1776,8 +1687,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1799,10 +1708,10 @@ services:
       - PORT=8116
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
-      - "127.0.0.1:8116:8116"
+      - "8116:8116"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1815,8 +1724,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1840,11 +1747,11 @@ services:
       - PORT=8118
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
-      - "127.0.0.1:8118:8118"
+      - "8118:8118"
     depends_on:
       postgres:
         condition: service_healthy
@@ -1859,8 +1766,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1886,7 +1791,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CDN_BASE_URL=${CDN_BASE_URL:-https://cdn.sahool.io}
     ports:
-      - "127.0.0.1:8100:8100"
+      - "8100:8100"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/healthz')"]
       interval: 30s
@@ -1894,8 +1799,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1930,8 +1833,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -1953,11 +1854,11 @@ services:
     environment:
       - SAHOOL_API_URL=http://kong:8000
       - MCP_SERVER_PORT=8200
-      - MCP_SERVER_HOST=127.0.0.1
+      - MCP_SERVER_HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "127.0.0.1:8200:8200"
+      - "8200:8200"
     depends_on:
       kong:
         condition: service_healthy
@@ -1972,8 +1873,6 @@ services:
       retries: 3
       start_period: 15s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:

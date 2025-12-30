@@ -3,7 +3,7 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { YieldService, ActionTemplate, PreHarvestAlertResponse } from './yield.service';
 
@@ -23,14 +23,7 @@ export class YieldController {
   })
   @ApiResponse({ status: 200, description: 'Yield prediction result' })
   async predictFieldYield(@Param('fieldId') fieldId: string) {
-    try {
-      return await this.yieldService.predictFieldYield(fieldId);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to predict field yield',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.predictFieldYield(fieldId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -43,14 +36,7 @@ export class YieldController {
     description: 'الحصول على مرحلة نمو المحصول الحالية',
   })
   async getGrowthStage(@Param('fieldId') fieldId: string) {
-    try {
-      return await this.yieldService.getGrowthStage(fieldId);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to get growth stage',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.getGrowthStage(fieldId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -63,14 +49,7 @@ export class YieldController {
     description: 'التنبؤ بموعد الحصاد الأمثل',
   })
   async predictHarvestDate(@Param('fieldId') fieldId: string) {
-    try {
-      return await this.yieldService.predictHarvestDate(fieldId);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to predict harvest date',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.predictHarvestDate(fieldId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -89,14 +68,7 @@ export class YieldController {
     @Query('cropType') cropType?: string,
     @Query('year') year?: number,
   ) {
-    try {
-      return await this.yieldService.getRegionalStats({ governorate, cropType, year });
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to get regional statistics',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.getRegionalStats({ governorate, cropType, year });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -113,14 +85,7 @@ export class YieldController {
     @Param('fieldId') fieldId: string,
     @Query('years') years?: number,
   ) {
-    try {
-      return await this.yieldService.getHistoricalYields(fieldId, years || 5);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to get historical yields',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.getHistoricalYields(fieldId, years || 5);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -133,14 +98,7 @@ export class YieldController {
     description: 'مراقبة نضج المحصول',
   })
   async getMaturityMonitoring(@Param('fieldId') fieldId: string) {
-    try {
-      return await this.yieldService.getMaturityMonitoring(fieldId);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to get maturity monitoring data',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.getMaturityMonitoring(fieldId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -159,14 +117,7 @@ export class YieldController {
     @Query('farmerId') farmerId?: string,
     @Query('tenantId') tenantId?: string,
   ): Promise<PreHarvestAlertResponse> {
-    try {
-      return await this.yieldService.predictWithAction(fieldId, farmerId, tenantId);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to predict with action template',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.predictWithAction(fieldId, farmerId, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -183,14 +134,7 @@ export class YieldController {
     @Param('fieldId') fieldId: string,
     @Query('farmerId') farmerId?: string,
   ) {
-    try {
-      return await this.yieldService.getHarvestReadiness(fieldId, farmerId);
-    } catch (error) {
-      throw new HttpException(
-        error.message || 'Failed to get harvest readiness',
-        error.status || HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return this.yieldService.getHarvestReadiness(fieldId, farmerId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

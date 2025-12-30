@@ -18,78 +18,50 @@ import {
     calculatePolygonArea,
     GeoValidationResult
 } from "./middleware/validation";
-import {
-    authenticateToken,
-    enforceTenantIsolation,
-    requireAuth
-} from "./middleware/authMiddleware";
-import { createRateLimiter } from "../../shared/middleware/rateLimiter";
-import {
-    securityHeaders,
-    removeSensitiveHeaders,
-    createSecureCorsOptions
-} from "../../shared/middleware-ts";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000");
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Security Middleware
+// CORS Configuration - Restrict to allowed origins
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Remove sensitive headers that expose server information
-app.use(removeSensitiveHeaders);
+const allowedOrigins = [
+    'https://sahool.app',
+    'https://admin.sahool.app',
+    'https://api.sahool.app',
+    'https://api.sahool.io',
+    // Development origins - remove in production
+    ...(process.env.NODE_ENV !== 'production' ? [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:8080'
+    ] : [])
+];
+
+const corsOptions: cors.CorsOptions = {
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, curl, etc)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            console.warn(`⚠️ CORS blocked request from: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'If-Match', 'X-Request-ID', 'X-Tenant-ID']
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CORS Configuration - Strict origin validation with production security
+// Middleware
 // ─────────────────────────────────────────────────────────────────────────────
-
-// Use secure CORS configuration from shared middleware
-// In production: Rejects requests without Origin header
-// In development: Allows localhost and testing tools
-// Environment variable ALLOWED_ORIGINS can override default origins
-const corsOptions = createSecureCorsOptions({
-    // Reject requests without Origin header in production for enhanced security
-    // Set to true only if you need to support server-to-server API calls
-    allowNoOrigin: false,
-
-    // Additional custom origins beyond the defaults (if needed)
-    additionalOrigins: [],
-
-    // Allowed HTTP methods
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-
-    // Custom headers specific to this service
-    allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'If-Match',
-        'If-None-Match',
-        'X-Request-ID',
-        'X-Tenant-ID',
-        'X-User-ID',
-        'X-Device-ID'
-    ]
-});
 
 app.use(cors(corsOptions));
-
-// Add comprehensive security headers (CSP, HSTS, X-Frame-Options, etc.)
-app.use(securityHeaders);
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Standard Middleware
-// ─────────────────────────────────────────────────────────────────────────────
-
 app.use(express.json());
-
-// Rate limiting middleware (Redis-backed distributed rate limiting)
-app.use(createRateLimiter({
-    redis: {
-        url: process.env.REDIS_URL || 'redis://localhost:6379'
-    },
-    skipPaths: ['/healthz', '/readyz']
-}));
 
 // ETag header middleware
 app.use(setETagHeader);
@@ -138,22 +110,16 @@ app.get("/readyz", async (_req: Request, res: Response) => {
 /**
  * GET /api/v1/fields
  * List all fields with optional filtering
- * 🔒 Protected: Requires valid JWT token
  */
-app.get("/api/v1/fields", authenticateToken, enforceTenantIsolation, async (req: Request, res: Response) => {
+app.get("/api/v1/fields", async (req: Request, res: Response) => {
     try {
         const fieldRepo = AppDataSource.getRepository(Field);
-        const { status, cropType, limit = 100, offset = 0 } = req.query;
-
-        // Validate and sanitize limit and offset parameters
-        const validatedLimit = Math.min(Math.max(parseInt(req.query.limit as string) || 50, 1), 500);
-        const validatedOffset = Math.max(parseInt(req.query.offset as string) || 0, 0);
+        const { tenantId, status, cropType, limit = 100, offset = 0 } = req.query;
 
         const queryBuilder = fieldRepo.createQueryBuilder("field");
 
-        // Always filter by authenticated user's tenantId for security
-        if (req.user?.tenantId) {
-            queryBuilder.andWhere("field.tenantId = :tenantId", { tenantId: req.user.tenantId });
+        if (tenantId) {
+            queryBuilder.andWhere("field.tenantId = :tenantId", { tenantId });
         }
         if (status) {
             queryBuilder.andWhere("field.status = :status", { status });
@@ -164,8 +130,8 @@ app.get("/api/v1/fields", authenticateToken, enforceTenantIsolation, async (req:
 
         const [fields, total] = await queryBuilder
             .orderBy("field.createdAt", "DESC")
-            .skip(validatedOffset)
-            .take(validatedLimit)
+            .skip(Number(offset))
+            .take(Number(limit))
             .getManyAndCount();
 
         res.json({
@@ -173,8 +139,8 @@ app.get("/api/v1/fields", authenticateToken, enforceTenantIsolation, async (req:
             data: fields,
             pagination: {
                 total,
-                limit: validatedLimit,
-                offset: validatedOffset
+                limit: Number(limit),
+                offset: Number(offset)
             }
         });
     } catch (error) {
@@ -190,9 +156,8 @@ app.get("/api/v1/fields", authenticateToken, enforceTenantIsolation, async (req:
  * GET /api/v1/fields/:id
  * Get a single field by ID
  * Returns ETag header for optimistic locking
- * 🔒 Protected: Requires valid JWT token
  */
-app.get("/api/v1/fields/:id", authenticateToken, async (req: Request, res: Response) => {
+app.get("/api/v1/fields/:id", async (req: Request, res: Response) => {
     try {
         const fieldRepo = AppDataSource.getRepository(Field);
         const field = await fieldRepo.findOne({
@@ -203,16 +168,6 @@ app.get("/api/v1/fields/:id", authenticateToken, async (req: Request, res: Respo
             return res.status(404).json({
                 success: false,
                 error: "Field not found"
-            });
-        }
-
-        // Enforce tenant isolation - verify field belongs to authenticated user's tenant
-        if (field.tenantId !== req.user?.tenantId) {
-            return res.status(403).json({
-                success: false,
-                error: "tenant_mismatch",
-                message: "Access denied: field belongs to different tenant",
-                message_ar: "رفض الوصول: الحقل ينتمي إلى مستأجر مختلف"
             });
         }
 
@@ -477,9 +432,8 @@ app.delete("/api/v1/fields/:id", async (req: Request, res: Response) => {
 /**
  * GET /api/v1/fields/nearby
  * Find fields within a radius of a point (geospatial query)
- * 🔒 Protected: Requires valid JWT token
  */
-app.get("/api/v1/fields/nearby", authenticateToken, async (req: Request, res: Response) => {
+app.get("/api/v1/fields/nearby", async (req: Request, res: Response) => {
     try {
         const { lat, lng, radius = 5000 } = req.query; // radius in meters
 
@@ -487,33 +441,6 @@ app.get("/api/v1/fields/nearby", authenticateToken, async (req: Request, res: Re
             return res.status(400).json({
                 success: false,
                 error: "Missing required parameters: lat, lng"
-            });
-        }
-
-        // Validate and sanitize numeric parameters
-        const validatedLat = parseFloat(lat as string);
-        const validatedLng = parseFloat(lng as string);
-        const validatedRadius = Math.min(Math.max(parseInt(radius as string) || 5000, 1), 100000); // Max 100km
-
-        if (isNaN(validatedLat) || isNaN(validatedLng)) {
-            return res.status(400).json({
-                success: false,
-                error: "Invalid latitude or longitude values"
-            });
-        }
-
-        // Validate latitude and longitude ranges
-        if (validatedLat < -90 || validatedLat > 90) {
-            return res.status(400).json({
-                success: false,
-                error: "Latitude must be between -90 and 90"
-            });
-        }
-
-        if (validatedLng < -180 || validatedLng > 180) {
-            return res.status(400).json({
-                success: false,
-                error: "Longitude must be between -180 and 180"
             });
         }
 
@@ -532,9 +459,8 @@ app.get("/api/v1/fields/nearby", authenticateToken, async (req: Request, res: Re
                 ST_SetSRID(ST_MakePoint($1, $2), 4326)::geography,
                 $3
             )
-            AND tenant_id = $4
             ORDER BY distance_meters ASC
-        `, [validatedLng, validatedLat, validatedRadius, req.user?.tenantId]);
+        `, [parseFloat(lng as string), parseFloat(lat as string), parseInt(radius as string)]);
 
         res.json({
             success: true,
@@ -543,7 +469,7 @@ app.get("/api/v1/fields/nearby", authenticateToken, async (req: Request, res: Re
                 boundary: f.boundary ? JSON.parse(f.boundary) : null,
                 centroid: f.centroid ? JSON.parse(f.centroid) : null
             })),
-            query: { lat: validatedLat, lng: validatedLng, radius: validatedRadius }
+            query: { lat, lng, radius }
         });
     } catch (error) {
         console.error("Error finding nearby fields:", error);
@@ -685,18 +611,15 @@ app.put("/api/v1/fields/:id/ndvi", async (req: Request, res: Response) => {
 /**
  * GET /api/v1/ndvi/summary
  * Get NDVI summary for all fields (tenant-wide analytics)
- * 🔒 Protected: Requires valid JWT token
  */
-app.get("/api/v1/ndvi/summary", authenticateToken, async (req: Request, res: Response) => {
+app.get("/api/v1/ndvi/summary", async (req: Request, res: Response) => {
     try {
-        // Use authenticated user's tenantId for security
-        const tenantId = req.user?.tenantId;
+        const { tenantId } = req.query;
 
         if (!tenantId) {
-            return res.status(403).json({
+            return res.status(400).json({
                 success: false,
-                error: "missing_tenant_id",
-                message: "Tenant ID not found in authentication token"
+                error: "Missing required parameter: tenantId"
             });
         }
 
@@ -813,9 +736,6 @@ app.get("/api/v1/fields/sync", async (req: Request, res: Response) => {
             });
         }
 
-        // Validate and sanitize limit parameter
-        const validatedLimit = Math.min(Math.max(parseInt(limit as string) || 100, 1), 1000);
-
         const fieldRepo = AppDataSource.getRepository(Field);
         const queryBuilder = fieldRepo.createQueryBuilder("field");
 
@@ -840,11 +760,11 @@ app.get("/api/v1/fields/sync", async (req: Request, res: Response) => {
 
         const fields = await queryBuilder
             .orderBy("field.updatedAt", "ASC")
-            .take(validatedLimit)
+            .take(Number(limit))
             .getMany();
 
         // Calculate sync metadata
-        const hasMore = fields.length === validatedLimit;
+        const hasMore = fields.length === Number(limit);
         const lastUpdated = fields.length > 0
             ? fields[fields.length - 1].updatedAt
             : null;
@@ -1193,14 +1113,11 @@ app.get("/api/v1/fields/:id/boundary-history", async (req: Request, res: Respons
         const { id } = req.params;
         const { limit = 20 } = req.query;
 
-        // Validate and sanitize limit parameter
-        const validatedLimit = Math.min(Math.max(parseInt(limit as string) || 20, 1), 100);
-
         const historyRepo = AppDataSource.getRepository(FieldBoundaryHistory);
         const history = await historyRepo.find({
             where: { fieldId: id },
             order: { createdAt: "DESC" },
-            take: validatedLimit
+            take: Number(limit)
         });
 
         // Convert geometries to GeoJSON for response

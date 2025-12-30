@@ -16,12 +16,6 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .error_translations import (
-    get_translation,
-    get_bilingual_translation,
-    parse_accept_language,
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -170,37 +164,19 @@ def create_error_response(
     status_code: int,
     error_id: Optional[str] = None,
     details: Optional[Dict] = None,
-    preferred_language: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Create a consistent error response format with bilingual support.
-    إنشاء تنسيق استجابة خطأ متسق مع دعم اللغتين.
-
-    Args:
-        error_code: Error code
-        message: English error message
-        message_ar: Arabic error message
-        status_code: HTTP status code
-        error_id: Unique error ID for tracking
-        details: Additional error details
-        preferred_language: Preferred language from Accept-Language header (optional)
+    Create a consistent error response format.
+    إنشاء تنسيق استجابة خطأ متسق.
     """
-    # Try to get translations from the centralized mapping
-    translations = get_bilingual_translation(error_code, message, message_ar)
-
     response = {
         "success": False,
         "error": {
             "code": error_code,
-            "message": translations["en"],
-            "message_ar": translations["ar"],
+            "message": message,
+            "message_ar": message_ar,
         },
     }
-
-    # If preferred language is specified, also include it as the main "error" field
-    # for backwards compatibility with clients expecting a simple error string
-    if preferred_language:
-        response["error"]["error"] = translations.get(preferred_language, translations["en"])
 
     if error_id:
         response["error"]["error_id"] = error_id
@@ -232,10 +208,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
         """Handle custom application errors"""
         error_id = str(uuid.uuid4())[:8]
 
-        # Parse Accept-Language header
-        accept_language = request.headers.get("Accept-Language", "en")
-        preferred_language = parse_accept_language(accept_language)
-
         logger.warning(
             f"AppError [{error_id}]: {exc.error_code} - {exc.message}",
             extra={
@@ -243,7 +215,6 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 "error_code": exc.error_code,
                 "path": str(request.url.path),
                 "method": request.method,
-                "preferred_language": preferred_language,
             },
         )
 
@@ -256,18 +227,13 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 status_code=exc.status_code,
                 error_id=error_id,
                 details=exc.details,
-                preferred_language=preferred_language,
             ),
         )
 
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
-        """Handle HTTP exceptions with localization"""
+        """Handle HTTP exceptions"""
         error_id = str(uuid.uuid4())[:8]
-
-        # Parse Accept-Language header
-        accept_language = request.headers.get("Accept-Language", "en")
-        preferred_language = parse_accept_language(accept_language)
 
         # Map common HTTP status codes to error codes
         error_code_map = {
@@ -285,20 +251,14 @@ def setup_exception_handlers(app: FastAPI) -> None:
         }
 
         error_code = error_code_map.get(exc.status_code, "HTTP_ERROR")
-
-        # Use sanitized detail message or get from translation
-        detail_message = sanitize_error_message(str(exc.detail))
-
-        # Get translations from mapping, fallback to detail message
-        translations = get_bilingual_translation(error_code, detail_message, detail_message)
+        message = sanitize_error_message(str(exc.detail))
 
         logger.warning(
-            f"HTTPException [{error_id}]: {exc.status_code} - {detail_message}",
+            f"HTTPException [{error_id}]: {exc.status_code} - {message}",
             extra={
                 "error_id": error_id,
                 "status_code": exc.status_code,
                 "path": str(request.url.path),
-                "preferred_language": preferred_language,
             },
         )
 
@@ -306,22 +266,17 @@ def setup_exception_handlers(app: FastAPI) -> None:
             status_code=exc.status_code,
             content=create_error_response(
                 error_code=error_code,
-                message=translations["en"],
-                message_ar=translations["ar"],
+                message=message,
+                message_ar=message,  # Could be translated
                 status_code=exc.status_code,
                 error_id=error_id,
-                preferred_language=preferred_language,
             ),
         )
 
     @app.exception_handler(RequestValidationError)
     async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-        """Handle request validation errors with localization"""
+        """Handle request validation errors"""
         error_id = str(uuid.uuid4())[:8]
-
-        # Parse Accept-Language header
-        accept_language = request.headers.get("Accept-Language", "en")
-        preferred_language = parse_accept_language(accept_language)
 
         # Extract validation errors
         errors = []
@@ -338,40 +293,31 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 "error_id": error_id,
                 "path": str(request.url.path),
                 "errors": exc.errors(),
-                "preferred_language": preferred_language,
             },
         )
-
-        # Get localized validation error message
-        translations = get_bilingual_translation("VALIDATION_ERROR", error_message, None)
 
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content=create_error_response(
                 error_code="VALIDATION_ERROR",
-                message=translations["en"] if not errors else error_message,
-                message_ar=translations["ar"],
+                message=error_message,
+                message_ar="خطأ في التحقق من البيانات",
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 error_id=error_id,
                 details={"validation_errors": [
                     {"field": " -> ".join(str(l) for l in e.get("loc", [])), "message": e.get("msg")}
                     for e in exc.errors()
                 ]},
-                preferred_language=preferred_language,
             ),
         )
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         """
-        Handle all unhandled exceptions with localization.
+        Handle all unhandled exceptions.
         This is the last line of defense - never expose internal details.
         """
         error_id = str(uuid.uuid4())[:8]
-
-        # Parse Accept-Language header
-        accept_language = request.headers.get("Accept-Language", "en")
-        preferred_language = parse_accept_language(accept_language)
 
         # Log the full exception for debugging
         logger.error(
@@ -381,24 +327,19 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 "exception_type": type(exc).__name__,
                 "path": str(request.url.path),
                 "method": request.method,
-                "preferred_language": preferred_language,
             },
             exc_info=True,  # Include stack trace in logs only
         )
-
-        # Get localized error message
-        translations = get_bilingual_translation("INTERNAL_ERROR")
 
         # Return a generic error response - never expose internal details
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=create_error_response(
                 error_code="INTERNAL_ERROR",
-                message=translations["en"],
-                message_ar=translations["ar"],
+                message="An unexpected error occurred. Please contact support if this persists.",
+                message_ar="حدث خطأ غير متوقع. يرجى التواصل مع الدعم إذا استمرت المشكلة.",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 error_id=error_id,
-                preferred_language=preferred_language,
             ),
         )
 

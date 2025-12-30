@@ -79,7 +79,6 @@ export default function TasksClient() {
                   ? 'border-blue-600 bg-blue-50 text-blue-600'
                   : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
               }`}
-              data-testid="toggle-filters-button"
             >
               <Filter className="w-5 h-5" />
               <span className="font-medium">فلتر</span>
@@ -87,7 +86,6 @@ export default function TasksClient() {
             <button
               onClick={handleCreateClick}
               className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
-              data-testid="add-task-button"
             >
               <Plus className="w-5 h-5" />
               <span className="font-medium">إضافة مهمة جديدة</span>

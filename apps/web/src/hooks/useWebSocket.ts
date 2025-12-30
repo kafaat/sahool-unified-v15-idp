@@ -4,24 +4,7 @@
  */
 
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { z } from 'zod';
-import { safeJsonParse } from '@/lib/utils/safeJson';
 import { WSMessage } from '../types';
-
-// Zod schema for WebSocket message validation
-const WSMessageSchema = z.object({
-  type: z.enum([
-    'kpi_update',
-    'alert_new',
-    'alert_dismiss',
-    'field_update',
-    'ndvi_update',
-    'weather_update',
-    'sensor_reading',
-  ]),
-  payload: z.unknown(),
-  timestamp: z.string(),
-});
 
 interface UseWebSocketOptions {
   url: string;
@@ -74,12 +57,8 @@ export function useWebSocket({
       wsRef.current.onmessage = (event) => {
         if (!isMountedRef.current) return;
         try {
-          const message = safeJsonParse<WSMessage>(event.data, WSMessageSchema);
-          if (message) {
-            onMessageRef.current?.(message);
-          } else {
-            console.error('Invalid WebSocket message format');
-          }
+          const message: WSMessage = JSON.parse(event.data);
+          onMessageRef.current?.(message);
         } catch (err) {
           console.error('Failed to parse WebSocket message:', err);
         }

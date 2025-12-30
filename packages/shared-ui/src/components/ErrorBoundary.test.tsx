@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary, withErrorBoundary } from './ErrorBoundary';
 
@@ -92,15 +92,15 @@ describe('ErrorBoundary', () => {
     // Error state
     expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
 
-    // First, re-render with no error to update props
+    // Click retry button
+    fireEvent.click(screen.getByText('إعادة المحاولة'));
+
+    // Re-render with no error
     rerender(
       <ErrorBoundary>
         <ThrowError shouldThrow={false} />
       </ErrorBoundary>
     );
-
-    // Then click retry button to reset error state
-    fireEvent.click(screen.getByText('إعادة المحاولة'));
 
     expect(screen.getByText('Normal content')).toBeInTheDocument();
   });

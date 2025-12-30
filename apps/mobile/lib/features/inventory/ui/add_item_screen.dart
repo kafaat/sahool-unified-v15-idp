@@ -4,11 +4,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../data/inventory_models.dart';
 import '../providers/inventory_providers.dart';
-import '../../../core/performance/image_cache_manager.dart';
 
 /// شاشة إضافة عنصر مخزون جديد
 class AddItemScreen extends ConsumerStatefulWidget {
@@ -77,22 +75,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                     backgroundColor: Colors.grey.shade200,
                     child: _imageUrl != null
                         ? ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl: _imageUrl!,
-                              cacheManager: SahoolImageCacheManager.instance.cacheManager,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Icon(
-                                Icons.inventory_2,
-                                size: 60,
-                                color: Colors.grey.shade400,
-                              ),
-                            ),
+                            child: Image.network(_imageUrl!, fit: BoxFit.cover),
                           )
                         : Icon(Icons.inventory_2, size: 60, color: Colors.grey.shade400),
                   ),

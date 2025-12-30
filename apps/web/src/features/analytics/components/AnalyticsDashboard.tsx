@@ -20,62 +20,8 @@ export const AnalyticsDashboard: React.FC = () => {
   });
   const [activeTab, setActiveTab] = useState<'overview' | 'yield' | 'cost' | 'reports'>('overview');
 
-const { data: summary } = useAnalyticsSummary(filters);
+  const { data: summary, isLoading: summaryLoading } = useAnalyticsSummary(filters);
   const { data: kpis } = useKPIMetrics(filters);
-
-  // Provide mock data for testing/development when API is not available
-  // This ensures E2E tests can find unit indicators immediately
-  const mockSummary = {
-    totalArea: 150,
-    totalYield: 45000,
-    totalProfit: 125000,
-    averageYieldPerHectare: 300,
-  };
-
-  const mockKPIs = [
-    {
-      id: '1',
-      name: 'Water Efficiency',
-      nameAr: 'كفاءة المياه',
-      value: 85,
-      unit: '%',
-      unitAr: '%',
-      trend: 'up' as const,
-      change: 5,
-      status: 'good' as const,
-      icon: 'droplet',
-    },
-    {
-      id: '2',
-      name: 'Crop Health',
-      nameAr: 'صحة المحاصيل',
-      value: 92,
-      unit: '%',
-      unitAr: '%',
-      trend: 'up' as const,
-      change: 3,
-      status: 'good' as const,
-      icon: 'plant',
-    },
-    {
-      id: '3',
-      name: 'Soil Quality',
-      nameAr: 'جودة التربة',
-      value: 88,
-      unit: '%',
-      unitAr: '%',
-      trend: 'up' as const,
-      change: 2,
-      status: 'good' as const,
-      icon: 'chart',
-    },
-  ];
-
-  // Use real data if available, otherwise use mock data (for E2E tests)
-  // Always provide fallback data when summary is not available to ensure UI is testable
-  // Also use mock data if there's an API error to ensure tests can proceed
-  const displaySummary = summary || mockSummary;
-  const displayKPIs = kpis || mockKPIs;
 
   const tabs = [
     { id: 'overview', label: 'Overview', labelAr: 'نظرة عامة', icon: BarChart3 },
@@ -126,17 +72,13 @@ const { data: summary } = useAnalyticsSummary(filters);
           </div>
 
           {/* Tabs */}
-          <div className="mt-6 flex gap-4 overflow-x-auto" data-testid="analytics-tabs-container" role="tablist">
+          <div className="mt-6 flex gap-4 overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  data-testid={`tab-${tab.id}`}
-                  role="tab"
-                  aria-selected={activeTab === tab.id}
-                  aria-label={`${tab.label} - ${tab.labelAr}`}
                   className={`
                     flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap
                     ${
@@ -157,48 +99,56 @@ const { data: summary } = useAnalyticsSummary(filters);
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Summary Stats - Always rendered with mock data fallback for E2E tests */}
-        {displaySummary && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-testid="summary-stats-grid">
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-area">
+        {summaryLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+          </div>
+        ) : (
+          <>
+            {/* Summary Stats */}
+            {summary && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">إجمالي المساحة</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {displaySummary.totalArea.toLocaleString('ar-SA')}
+                    {summary.totalArea.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1">هكتار</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-yield">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">إجمالي المحصول</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {displaySummary.totalYield.toLocaleString('ar-SA')}
+                    {summary.totalYield.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">كجم</p>
+                  <p className="text-sm text-gray-500 mt-1">كجم</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-total-profit">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">صافي الربح</p>
                   <p className="text-3xl font-bold text-green-600 mt-2">
-                    {displaySummary.totalProfit.toLocaleString('ar-SA')}
+                    {summary.totalProfit.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">ريال</p>
+                  <p className="text-sm text-gray-500 mt-1">ريال</p>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200" data-testid="stat-card-avg-productivity">
+                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                   <p className="text-sm text-gray-600">متوسط الإنتاجية</p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {displaySummary.averageYieldPerHectare.toLocaleString('ar-SA')}
+                    {summary.averageYieldPerHectare.toLocaleString('ar-SA')}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1" data-testid="unit-indicator">كجم/هكتار</p>
+                  <p className="text-sm text-gray-500 mt-1">كجم/هكتار</p>
                 </div>
               </div>
             )}
 
-        {/* Tab Content */}
-        {activeTab === 'overview' && displayKPIs && <KPICards kpis={displayKPIs} />}
-        {activeTab === 'yield' && <YieldAnalysis filters={filters} />}
-        {activeTab === 'cost' && <CostAnalysis filters={filters} />}
-        {activeTab === 'reports' && <ReportGenerator filters={filters} />}
+            {/* Tab Content */}
+            {activeTab === 'overview' && kpis && <KPICards kpis={kpis} />}
+            {activeTab === 'yield' && <YieldAnalysis filters={filters} />}
+            {activeTab === 'cost' && <CostAnalysis filters={filters} />}
+            {activeTab === 'reports' && <ReportGenerator filters={filters} />}
+          </>
+        )}
       </div>
     </div>
   );

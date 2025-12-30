@@ -66,10 +66,6 @@ services:
       - name: request-size-limiting
         config:
           allowed_payload_size: 10
-      - name: response-ratelimiting
-        config:
-          limits:
-            minute: 100
 
   # ============================================================================
   # خدمة الطقس - Weather Service
@@ -643,8 +639,6 @@ services:
         protocols:
           - http
           - https
-          - ws
-          - wss
     plugins:
       - name: jwt
       - name: rate-limiting
@@ -1039,8 +1033,6 @@ consumers:
     custom_id: starter-001
     tags:
       - starter
-    groups:
-      - name: starter-users
     jwt_secrets:
       - key: starter-jwt-key
         algorithm: HS256
@@ -1051,8 +1043,6 @@ consumers:
     custom_id: professional-001
     tags:
       - professional
-    groups:
-      - name: professional-users
     jwt_secrets:
       - key: professional-jwt-key
         algorithm: HS256
@@ -1063,8 +1053,6 @@ consumers:
     custom_id: enterprise-001
     tags:
       - enterprise
-    groups:
-      - name: enterprise-users
     jwt_secrets:
       - key: enterprise-jwt-key
         algorithm: HS256
@@ -1075,8 +1063,6 @@ consumers:
     custom_id: research-001
     tags:
       - research
-    groups:
-      - name: research-users
     jwt_secrets:
       - key: research-jwt-key
         algorithm: HS256
@@ -1087,8 +1073,6 @@ consumers:
     custom_id: admin-001
     tags:
       - admin
-    groups:
-      - name: admin-users
     jwt_secrets:
       - key: admin-jwt-key
         algorithm: HS256

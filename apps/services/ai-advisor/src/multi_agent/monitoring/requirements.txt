@@ -1,0 +1,14 @@
+# SAHOOL Multi-Agent Performance Monitoring Requirements
+# متطلبات نظام مراقبة الأداء للوكلاء المتعدد لسهول
+
+# Core dependencies / المكتبات الأساسية
+structlog>=23.1.0  # Structured logging / التسجيل المنظم
+
+# Optional dependencies / المكتبات الاختيارية
+prometheus-client>=0.19.0  # Prometheus metrics export / تصدير مقاييس Prometheus
+
+# Note: Install with:
+# pip install -r requirements.txt
+#
+# ملاحظة: التثبيت باستخدام:
+# pip install -r requirements.txt

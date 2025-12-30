@@ -55,7 +55,7 @@ services:
     container_name: sahool-pgbouncer
     environment:
       # Database connection
-      DATABASE_URL: postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      DATABASE_URL: postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}
       # Pool settings
       POOL_MODE: transaction
       MAX_DB_CONNECTIONS: 100

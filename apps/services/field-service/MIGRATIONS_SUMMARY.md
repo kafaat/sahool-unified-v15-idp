@@ -152,7 +152,7 @@ description = "SAHOOL Field Service - خدمة الحقول الزراعية"
 
 ```bash
 cd apps/services/field-service
-export DATABASE_URL="postgres://sahool:sahool@postgres:5432/sahool"
+export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/sahool"
 aerich init-db
 ```
 

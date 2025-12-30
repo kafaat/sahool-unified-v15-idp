@@ -274,7 +274,7 @@ services:
       context: ./backend
     environment:
       PORT: 8080
-      DATABASE_URL: postgres://sahool:sahool@sahool_postgis:5432/sahool
+      DATABASE_URL: postgres://\${POSTGRES_USER:-sahool}:\${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@sahool_postgis:5432/\${POSTGRES_DB:-sahool}
     ports:
       - "8080:8080"
     depends_on:

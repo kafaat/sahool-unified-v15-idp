@@ -17,12 +17,15 @@ import '../services/weather_provider_service.dart';
 final providersConfigProvider = StateProvider<ProvidersConfig>((ref) {
   // Default config (free providers only)
   // In production, load API keys from secure storage
+  // API Keys should be loaded from environment variables or secure storage
+  // See: https://docs.flutter.dev/deployment/obfuscate#dart-defines
+  // Example: flutter run --dart-define=GOOGLE_MAPS_API_KEY=xxx
   return const ProvidersConfig(
-    // API Keys - uncomment and add your keys
-    // googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
-    // mapboxApiKey: 'YOUR_MAPBOX_ACCESS_TOKEN',
-    // openWeatherMapApiKey: 'YOUR_OPENWEATHERMAP_API_KEY',
-    // sentinelHubApiKey: 'YOUR_SENTINEL_HUB_API_KEY',
+    // API Keys - configure via environment variables (--dart-define)
+    // googleMapsApiKey: String.fromEnvironment('GOOGLE_MAPS_API_KEY'),
+    // mapboxApiKey: String.fromEnvironment('MAPBOX_ACCESS_TOKEN'),
+    // openWeatherMapApiKey: String.fromEnvironment('OPENWEATHERMAP_API_KEY'),
+    // sentinelHubApiKey: String.fromEnvironment('SENTINEL_HUB_API_KEY'),
 
     // Provider priority (most preferred first)
     mapProviderPriority: [

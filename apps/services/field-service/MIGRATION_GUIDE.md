@@ -31,7 +31,7 @@ docker-compose exec field-service sh
 docker run -it --network sahool-unified-v15-idp_default \
   -v $(pwd)/apps/services/field-service:/app \
   -w /app \
-  -e DATABASE_URL="postgres://sahool:sahool@postgres:5432/sahool" \
+  -e DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/sahool" \
   python:3.11-slim sh
 ```
 

@@ -24,10 +24,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Database configuration
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgres://sahool:sahool@postgres:5432/sahool"
-)
+# Database configuration - MUST be set via environment variable in production
+# Format: postgres://user:password@host:port/database
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    # Fallback to in-memory SQLite for testing only
+    DATABASE_URL = "sqlite://:memory:"
+    logging.warning("DATABASE_URL not set - using in-memory SQLite for testing")
 
 TORTOISE_ORM = {
     "connections": {

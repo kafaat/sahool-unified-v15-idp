@@ -160,7 +160,7 @@ kubectl get services -n sahool
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | postgres://sahool:sahool@postgres:5432/sahool |
+| `DATABASE_URL` | PostgreSQL connection string | **Required** - Set via environment |
 | `NATS_URL` | NATS server URL | nats://nats:4222 |
 | `REDIS_URL` | Redis connection URL | redis://redis:6379/0 |
 | `JWT_SECRET_KEY` | JWT signing key | (generated) |

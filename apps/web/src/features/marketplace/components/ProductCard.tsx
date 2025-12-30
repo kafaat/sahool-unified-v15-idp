@@ -32,81 +32,84 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
   return (
     <div
       onClick={onClick}
+      data-testid="product-card"
+      data-product-id={product.id}
       className="bg-white rounded-xl border-2 border-gray-200 hover:border-blue-400 transition-all cursor-pointer overflow-hidden group"
     >
       {/* Image */}
-      <div className="relative h-48 overflow-hidden bg-gray-100">
+      <div className="relative h-48 overflow-hidden bg-gray-100" data-testid="product-image-container">
         {product.imageUrl ? (
           <img
             src={product.imageUrl}
             alt={product.name}
+            data-testid="product-image"
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center" data-testid="product-image-placeholder">
             <Tag className="w-16 h-16 text-gray-300" />
           </div>
         )}
 
         {/* Discount Badge */}
         {product.discount && (
-          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-lg text-sm font-semibold">
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-lg text-sm font-semibold" data-testid="discount-badge">
             -{product.discount.percentage}%
           </div>
         )}
 
         {/* Status Badge */}
         {isOutOfStock && (
-          <div className="absolute top-2 right-2 bg-gray-800 text-white px-2 py-1 rounded-lg text-sm font-semibold">
+          <div className="absolute top-2 right-2 bg-gray-800 text-white px-2 py-1 rounded-lg text-sm font-semibold" data-testid="out-of-stock-badge">
             نفذت الكمية
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
+      <div className="p-4 space-y-3" data-testid="product-content">
         {/* Category */}
-        <div className="text-xs text-blue-600 font-semibold uppercase">
+        <div className="text-xs text-blue-600 font-semibold uppercase" data-testid="product-category">
           {getCategoryLabel(product.category)}
         </div>
 
         {/* Name */}
         <div>
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{product.nameAr}</h3>
-          <p className="text-sm text-gray-600 line-clamp-1">{product.name}</p>
+          <h3 className="text-lg font-bold text-gray-900 line-clamp-1" data-testid="product-name-ar">{product.nameAr}</h3>
+          <p className="text-sm text-gray-600 line-clamp-1" data-testid="product-name-en">{product.name}</p>
         </div>
 
         {/* Seller & Location */}
-        <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="flex items-center gap-2 text-sm text-gray-600" data-testid="product-seller">
           <MapPin className="w-4 h-4" />
           <span className="line-clamp-1">{product.sellerName}</span>
         </div>
 
         {product.sellerRating && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" data-testid="product-rating">
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             <span className="text-sm font-semibold">{product.sellerRating}</span>
           </div>
         )}
 
         {/* Price */}
-        <div className="flex items-end justify-between pt-2 border-t border-gray-200">
+        <div className="flex items-end justify-between pt-2 border-t border-gray-200" data-testid="product-price-section">
           <div>
             {discountedPrice ? (
               <>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-green-600" data-testid="product-discounted-price">
                   {discountedPrice.toFixed(2)} {product.currency}
                 </div>
-                <div className="text-sm text-gray-500 line-through">
+                <div className="text-sm text-gray-500 line-through" data-testid="product-original-price">
                   {product.price.toFixed(2)} {product.currency}
                 </div>
               </>
             ) : (
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900" data-testid="product-price">
                 {product.price.toFixed(2)} {product.currency}
               </div>
             )}
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-gray-500" data-testid="product-unit">
               {product.unitAr} | {product.unit}
             </div>
           </div>
@@ -115,6 +118,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
           <button
             onClick={handleAddToCart}
             disabled={isOutOfStock}
+            data-testid="add-to-cart-button"
             className={`p-3 rounded-lg transition-all ${
               isOutOfStock
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
@@ -127,7 +131,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
 
         {/* Stock Indicator */}
         {!isOutOfStock && product.stock < 10 && (
-          <div className="text-xs text-orange-600 font-semibold">
+          <div className="text-xs text-orange-600 font-semibold" data-testid="low-stock-warning">
             الكمية المتبقية: {product.stock}
           </div>
         )}

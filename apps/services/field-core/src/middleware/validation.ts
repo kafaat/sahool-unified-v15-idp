@@ -1,9 +1,162 @@
 /**
  * SAHOOL Input Validation Middleware
  * Uses Zod-like validation patterns for request validation
+ *
+ * Security Features:
+ * 1. XSS Protection - sanitize() method escapes HTML characters in strings
+ * 2. NoSQL Injection Prevention - noSqlSafe() removes MongoDB operators ($where, $ne, etc.)
+ * 3. Prototype Pollution Protection - automatically blocks __proto__, constructor, prototype keys
+ * 4. Depth Limit Protection - maxDepth() prevents deeply nested objects (stack overflow attacks)
+ *
+ * Usage:
+ * - Schema.string().sanitize() - Escapes HTML to prevent XSS
+ * - Schema.object({...}).noSqlSafe() - Removes MongoDB operators
+ * - Schema.object({...}).maxDepth(5) - Limits object nesting to 5 levels
+ *
+ * All schemas automatically check for prototype pollution and remove dangerous keys.
  */
 
 import { Request, Response, NextFunction } from "express";
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SECURITY SANITIZATION HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Escapes HTML characters to prevent XSS attacks
+ */
+function escapeHtml(str: string): string {
+    const htmlEscapeMap: Record<string, string> = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        '/': '&#x2F;'
+    };
+    return str.replace(/[&<>"'\/]/g, (char) => htmlEscapeMap[char] || char);
+}
+
+/**
+ * Removes MongoDB operators from values to prevent NoSQL injection
+ * Removes keys that start with $ (MongoDB operators like $where, $ne, $gt, etc.)
+ */
+function removeNoSqlOperators(value: any): any {
+    if (value === null || value === undefined) {
+        return value;
+    }
+
+    if (Array.isArray(value)) {
+        return value.map(removeNoSqlOperators);
+    }
+
+    if (typeof value === 'object' && !(value instanceof Date)) {
+        const cleaned: Record<string, any> = {};
+        for (const [key, val] of Object.entries(value)) {
+            // Remove keys that start with $ (MongoDB operators)
+            if (!key.startsWith('$')) {
+                cleaned[key] = removeNoSqlOperators(val);
+            }
+        }
+        return cleaned;
+    }
+
+    return value;
+}
+
+/**
+ * Validates object keys to prevent prototype pollution
+ * Checks for dangerous keys: __proto__, constructor, prototype
+ */
+function hasPrototypePollution(obj: any, depth: number = 0, maxDepth: number = 10): boolean {
+    if (depth > maxDepth) {
+        return true; // Exceeds max depth, potential attack
+    }
+
+    if (obj === null || typeof obj !== 'object' || obj instanceof Date) {
+        return false;
+    }
+
+    if (Array.isArray(obj)) {
+        for (const item of obj) {
+            if (hasPrototypePollution(item, depth + 1, maxDepth)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    const dangerousKeys = ['__proto__', 'constructor', 'prototype'];
+
+    for (const key of Object.keys(obj)) {
+        // Check for dangerous keys
+        if (dangerousKeys.includes(key.toLowerCase())) {
+            return true;
+        }
+
+        // Recursively check nested objects
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            if (hasPrototypePollution(obj[key], depth + 1, maxDepth)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Validates object depth to prevent stack overflow attacks
+ */
+function getObjectDepth(obj: any, currentDepth: number = 0): number {
+    if (obj === null || typeof obj !== 'object' || obj instanceof Date) {
+        return currentDepth;
+    }
+
+    if (Array.isArray(obj)) {
+        let maxDepth = currentDepth;
+        for (const item of obj) {
+            const itemDepth = getObjectDepth(item, currentDepth + 1);
+            maxDepth = Math.max(maxDepth, itemDepth);
+        }
+        return maxDepth;
+    }
+
+    let maxDepth = currentDepth;
+    for (const value of Object.values(obj)) {
+        if (typeof value === 'object' && value !== null) {
+            const valueDepth = getObjectDepth(value, currentDepth + 1);
+            maxDepth = Math.max(maxDepth, valueDepth);
+        }
+    }
+
+    return maxDepth;
+}
+
+/**
+ * Removes dangerous keys from objects (prototype pollution prevention)
+ */
+function removeDangerousKeys(obj: any): any {
+    if (obj === null || typeof obj !== 'object' || obj instanceof Date) {
+        return obj;
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.map(removeDangerousKeys);
+    }
+
+    const dangerousKeys = ['__proto__', 'constructor', 'prototype'];
+    const cleaned: Record<string, any> = {};
+
+    for (const [key, value] of Object.entries(obj)) {
+        // Skip dangerous keys
+        if (!dangerousKeys.includes(key.toLowerCase())) {
+            cleaned[key] = removeDangerousKeys(value);
+        }
+    }
+
+    return cleaned;
+}
 
 // Validation error class
 export class ValidationError extends Error {
@@ -39,6 +192,11 @@ interface SchemaDefinition {
     items?: SchemaDefinition;
     properties?: Record<string, SchemaDefinition>;
     custom?: (value: any) => boolean | string;
+    // Security options
+    sanitize?: boolean;  // For strings - escapes HTML to prevent XSS
+    noSqlSafe?: boolean;  // Remove MongoDB operators to prevent NoSQL injection
+    maxDepth?: number;  // Max depth for objects to prevent stack overflow
+    prototypePollutionProtection?: boolean;  // Reject dangerous keys like __proto__, constructor, prototype
 }
 
 // Schema builder class (Zod-like API)
@@ -75,6 +233,7 @@ export class Schema {
         for (const [key, value] of Object.entries(properties)) {
             schema.definition.properties[key] = value.definition;
         }
+        schema.definition.prototypePollutionProtection = true;  // Enable by default for objects
         return schema;
     }
 
@@ -128,6 +287,58 @@ export class Schema {
         return this.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
     }
 
+    // Date validation helper (ISO 8601 format)
+    date() {
+        return this.pattern(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SECURITY METHODS
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Enable HTML sanitization for strings to prevent XSS attacks
+     * Escapes HTML characters: <, >, &, ", ', /
+     */
+    sanitize() {
+        if (this.definition.type !== "string") {
+            throw new Error("sanitize() can only be used on string schemas");
+        }
+        this.definition.sanitize = true;
+        return this;
+    }
+
+    /**
+     * Enable NoSQL injection protection
+     * Removes MongoDB operators (keys starting with $) from objects
+     */
+    noSqlSafe() {
+        this.definition.noSqlSafe = true;
+        return this;
+    }
+
+    /**
+     * Set maximum depth for nested objects to prevent stack overflow
+     * @param value Maximum nesting depth (default: 10)
+     */
+    maxDepth(value: number) {
+        if (this.definition.type !== "object" && this.definition.type !== "array") {
+            throw new Error("maxDepth() can only be used on object or array schemas");
+        }
+        this.definition.maxDepth = value;
+        return this;
+    }
+
+    /**
+     * Enable prototype pollution protection
+     * Rejects objects containing dangerous keys: __proto__, constructor, prototype
+     * Recursively validates nested objects and arrays
+     */
+    noPrototypePollution() {
+        this.definition.prototypePollutionProtection = true;
+        return this;
+    }
+
     // Validate a value against this schema
     validate(value: any, path: string[] = []): ValidationIssue[] {
         const errors: ValidationIssue[] = [];
@@ -145,6 +356,40 @@ export class Schema {
                 });
             }
             return errors;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════
+        // SECURITY CHECKS
+        // ═══════════════════════════════════════════════════════════════════════════
+
+        // Check for prototype pollution
+        if (def.prototypePollutionProtection !== false && typeof value === 'object' && value !== null) {
+            if (hasPrototypePollution(value)) {
+                errors.push({
+                    path,
+                    message: "Object contains dangerous keys (__proto__, constructor, prototype)",
+                    code: "prototype_pollution",
+                    expected: "safe object",
+                    received: "object with dangerous keys"
+                });
+                return errors;
+            }
+        }
+
+        // Check object depth limit
+        if ((def.type === "object" || def.type === "array") && typeof value === 'object' && value !== null) {
+            const maxDepthLimit = def.maxDepth !== undefined ? def.maxDepth : 10;
+            const actualDepth = getObjectDepth(value);
+            if (actualDepth > maxDepthLimit) {
+                errors.push({
+                    path,
+                    message: `Object exceeds maximum depth of ${maxDepthLimit} (actual: ${actualDepth})`,
+                    code: "max_depth_exceeded",
+                    expected: `depth <= ${maxDepthLimit}`,
+                    received: `depth = ${actualDepth}`
+                });
+                return errors;
+            }
         }
 
         // Type checking
@@ -276,12 +521,59 @@ export class Schema {
         return errors;
     }
 
+    /**
+     * Apply security transformations to the value
+     * This sanitizes the data based on schema settings
+     */
+    private applySecurityTransforms(value: any, def: SchemaDefinition = this.definition): any {
+        if (value === null || value === undefined) {
+            return value;
+        }
+
+        // Apply string sanitization (XSS protection)
+        if (def.type === "string" && typeof value === "string" && def.sanitize) {
+            value = escapeHtml(value);
+        }
+
+        // Apply NoSQL injection protection
+        if (def.noSqlSafe && typeof value === 'object' && value !== null) {
+            value = removeNoSqlOperators(value);
+        }
+
+        // Remove dangerous keys (prototype pollution protection)
+        if (typeof value === 'object' && value !== null) {
+            value = removeDangerousKeys(value);
+        }
+
+        // Recursively apply to array items
+        if (def.type === "array" && Array.isArray(value) && def.items) {
+            value = value.map(item => this.applySecurityTransforms(item, def.items!));
+        }
+
+        // Recursively apply to object properties
+        if (def.type === "object" && typeof value === 'object' && value !== null && def.properties) {
+            const sanitized: Record<string, any> = {};
+            for (const [key, propValue] of Object.entries(value)) {
+                if (def.properties[key]) {
+                    sanitized[key] = this.applySecurityTransforms(propValue, def.properties[key]);
+                } else {
+                    // Property not in schema, but still sanitize it
+                    sanitized[key] = removeDangerousKeys(propValue);
+                }
+            }
+            value = sanitized;
+        }
+
+        return value;
+    }
+
     parse(value: any): any {
         const errors = this.validate(value);
         if (errors.length > 0) {
             throw new ValidationError(errors);
         }
-        return value;
+        // Apply security transformations after validation
+        return this.applySecurityTransforms(value);
     }
 
     safeParse(value: any): { success: true; data: any } | { success: false; errors: ValidationIssue[] } {
@@ -289,42 +581,44 @@ export class Schema {
         if (errors.length > 0) {
             return { success: false, errors };
         }
-        return { success: true, data: value };
+        // Apply security transformations after validation
+        const sanitizedData = this.applySecurityTransforms(value);
+        return { success: true, data: sanitizedData };
     }
 }
 
 // Pre-defined schemas for SAHOOL entities
 
 export const FieldCreateSchema = Schema.object({
-    name: Schema.string().minLength(1).maxLength(100),
+    name: Schema.string().minLength(1).maxLength(100).sanitize(),
     tenantId: Schema.string().uuid(),
-    cropType: Schema.string().minLength(1).maxLength(50),
+    cropType: Schema.string().minLength(1).maxLength(50).sanitize(),
     coordinates: Schema.array(
         Schema.array(Schema.number())
     ).min(3).optional(),
     ownerId: Schema.string().uuid().optional(),
     irrigationType: Schema.string().enum(["drip", "sprinkler", "flood", "none"]).optional(),
-    soilType: Schema.string().maxLength(50).optional(),
-    plantingDate: Schema.string().optional(),
-    expectedHarvest: Schema.string().optional(),
-    metadata: Schema.object({}).optional()
-});
+    soilType: Schema.string().maxLength(50).sanitize().optional(),
+    plantingDate: Schema.string().date().optional(),
+    expectedHarvest: Schema.string().date().optional(),
+    metadata: Schema.object({}).noSqlSafe().maxDepth(5).optional()
+}).noSqlSafe().maxDepth(10);
 
 export const FieldUpdateSchema = Schema.object({
-    name: Schema.string().minLength(1).maxLength(100).optional(),
-    cropType: Schema.string().minLength(1).maxLength(50).optional(),
+    name: Schema.string().minLength(1).maxLength(100).sanitize().optional(),
+    cropType: Schema.string().minLength(1).maxLength(50).sanitize().optional(),
     status: Schema.string().enum(["active", "fallow", "preparing", "harvested"]).optional(),
     irrigationType: Schema.string().enum(["drip", "sprinkler", "flood", "none"]).optional(),
-    soilType: Schema.string().maxLength(50).optional(),
-    plantingDate: Schema.string().optional(),
-    expectedHarvest: Schema.string().optional(),
-    metadata: Schema.object({}).optional()
-});
+    soilType: Schema.string().maxLength(50).sanitize().optional(),
+    plantingDate: Schema.string().date().optional(),
+    expectedHarvest: Schema.string().date().optional(),
+    metadata: Schema.object({}).noSqlSafe().maxDepth(5).optional()
+}).noSqlSafe().maxDepth(10);
 
 export const NdviUpdateSchema = Schema.object({
     value: Schema.number().min(-1).max(1),
-    source: Schema.string().maxLength(50).optional()
-});
+    source: Schema.string().maxLength(50).sanitize().optional()
+}).noSqlSafe();
 
 export const PaginationSchema = Schema.object({
     limit: Schema.number().min(1).max(100).optional(),
@@ -336,7 +630,7 @@ export function validateBody(schema: Schema) {
     return (req: Request, res: Response, next: NextFunction) => {
         const result = schema.safeParse(req.body);
 
-        if (!result.success) {
+        if (result.success === false) {
             return res.status(400).json({
                 success: false,
                 error: "Validation failed",
@@ -358,7 +652,7 @@ export function validateQuery(schema: Schema) {
     return (req: Request, res: Response, next: NextFunction) => {
         const result = schema.safeParse(req.query);
 
-        if (!result.success) {
+        if (result.success === false) {
             return res.status(400).json({
                 success: false,
                 error: "Invalid query parameters",
@@ -379,7 +673,7 @@ export function validateParams(schema: Schema) {
     return (req: Request, res: Response, next: NextFunction) => {
         const result = schema.safeParse(req.params);
 
-        if (!result.success) {
+        if (result.success === false) {
             return res.status(400).json({
                 success: false,
                 error: "Invalid path parameters",
@@ -734,18 +1028,18 @@ export function validateBoundary() {
  * Enhanced Field Create Schema with geospatial validation
  */
 export const FieldCreateSchemaWithGeo = Schema.object({
-    name: Schema.string().minLength(1).maxLength(255),
+    name: Schema.string().minLength(1).maxLength(255).sanitize(),
     tenantId: Schema.string().minLength(1).maxLength(100),
-    cropType: Schema.string().minLength(1).maxLength(100),
+    cropType: Schema.string().minLength(1).maxLength(100).sanitize(),
     ownerId: Schema.string().uuid().optional(),
     coordinates: Schema.array(Schema.array(Schema.number())).min(3).optional(),
-    boundary: Schema.object({}).optional(), // Will be validated by validateBoundary middleware
+    boundary: Schema.object({}).noSqlSafe().maxDepth(5).optional(), // Will be validated by validateBoundary middleware
     irrigationType: Schema.string().enum(["drip", "sprinkler", "flood", "pivot", "furrow", "none"]).optional(),
-    soilType: Schema.string().maxLength(100).optional(),
-    plantingDate: Schema.string().optional(),
-    expectedHarvest: Schema.string().optional(),
-    metadata: Schema.object({}).optional()
-}).custom((value) => {
+    soilType: Schema.string().maxLength(100).sanitize().optional(),
+    plantingDate: Schema.string().date().optional(),
+    expectedHarvest: Schema.string().date().optional(),
+    metadata: Schema.object({}).noSqlSafe().maxDepth(5).optional()
+}).noSqlSafe().maxDepth(10).custom((value) => {
     // Require either coordinates or boundary
     if (!value.coordinates && !value.boundary) {
         return "Either 'coordinates' or 'boundary' is required";

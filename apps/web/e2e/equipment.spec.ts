@@ -21,35 +21,35 @@ test.describe('Equipment Page', () => {
       // Check page title
       await expect(page).toHaveTitle(/Equipment Management.*SAHOOL/i);
 
-      // Check for main heading in Arabic
-      const headingAr = page.locator('text=/إدارة المعدات/i');
+      // Check for main heading in Arabic using data-testid
+      const headingAr = page.locator('[data-testid="equipment-page-title"]');
       await expect(headingAr).toBeVisible();
+      await expect(headingAr).toHaveText('إدارة المعدات');
 
-      // Check for heading in English
-      const headingEn = page.locator('text=/Equipment Management/i');
+      // Check for heading in English using data-testid
+      const headingEn = page.locator('[data-testid="equipment-page-subtitle"]');
       await expect(headingEn).toBeVisible();
+      await expect(headingEn).toHaveText('Equipment Management');
     });
 
     test('should display add equipment button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة"), button:has-text("Add Equipment")');
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await expect(addButton).toBeVisible();
     });
 
     test('should display equipment statistics', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      // Look for statistics cards
-      const statsCards = page.locator('text=/إجمالي المعدات|Total Equipment/i');
-      const isVisible = await statsCards.isVisible({ timeout: timeouts.long }).catch(() => false);
+      // Look for statistics cards using data-testid
+      const statsContainer = page.locator('[data-testid="equipment-statistics"]');
+      const isVisible = await statsContainer.isVisible({ timeout: timeouts.long }).catch(() => false);
 
       if (isVisible) {
-        // Check for active equipment stat
-        const activeStats = page.locator('text=/قيد التشغيل|Active/i');
-        await expect(activeStats).toBeVisible();
-
-        // Check for maintenance stat
-        const maintenanceStats = page.locator('text=/قيد الصيانة|Maintenance/i');
-        await expect(maintenanceStats).toBeVisible();
+        // Check for all stat cards
+        await expect(page.locator('[data-testid="stat-total-equipment"]')).toBeVisible();
+        await expect(page.locator('[data-testid="stat-active-equipment"]')).toBeVisible();
+        await expect(page.locator('[data-testid="stat-maintenance-equipment"]')).toBeVisible();
+        await expect(page.locator('[data-testid="stat-maintenance-due"]')).toBeVisible();
       } else {
         console.log('Statistics cards not visible yet');
       }
@@ -58,11 +58,12 @@ test.describe('Equipment Page', () => {
     test('should display maintenance schedule section', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      const maintenanceSchedule = page.locator('text=/جدول الصيانة|Maintenance Schedule/i');
+      const maintenanceSchedule = page.locator('[data-testid="maintenance-schedule-title"]');
       const isVisible = await maintenanceSchedule.isVisible({ timeout: timeouts.long }).catch(() => false);
 
       if (isVisible) {
         await expect(maintenanceSchedule).toBeVisible();
+        await expect(maintenanceSchedule).toHaveText('جدول الصيانة');
       } else {
         console.log('Maintenance schedule section not visible');
       }
@@ -73,94 +74,87 @@ test.describe('Equipment Page', () => {
     test('should display equipment list', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      // Look for equipment cards or list items
-      const equipmentCards = page.locator('[class*="equipment"], .equipment-card, .bg-white.rounded');
-      const count = await equipmentCards.count();
+      // Look for equipment grid using data-testid
+      const equipmentGrid = page.locator('[data-testid="equipment-grid"]');
+      const isEmpty = await page.locator('[data-testid="equipment-empty-state"]').isVisible().catch(() => false);
 
-      console.log(`Found ${count} equipment items`);
-      expect(count).toBeGreaterThanOrEqual(0);
+      if (isEmpty) {
+        console.log('Equipment list is empty');
+      } else {
+        const isVisible = await equipmentGrid.isVisible({ timeout: timeouts.long }).catch(() => false);
+        if (isVisible) {
+          const equipmentCards = page.locator('[data-testid="equipment-card"]');
+          const count = await equipmentCards.count();
+          console.log(`Found ${count} equipment items`);
+          expect(count).toBeGreaterThan(0);
+        }
+      }
     });
 
     test('should display search functionality', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      // Look for search input
-      const searchInput = page.locator(
-        'input[type="search"], input[type="text"]:has-text("بحث"), input[placeholder*="بحث"], input[placeholder*="Search"]'
-      ).first();
-
-      const isVisible = await searchInput.isVisible({ timeout: timeouts.long }).catch(() => false);
-
-      if (isVisible) {
-        await expect(searchInput).toBeVisible();
-      } else {
-        console.log('Search input not found');
-      }
+      // Look for search input using data-testid
+      const searchInput = page.locator('[data-testid="equipment-search-input"]');
+      await expect(searchInput).toBeVisible({ timeout: timeouts.long });
     });
 
     test('should display filter options', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      // Look for filter buttons or selects
-      const filterSection = page.locator('text=/النوع|Type|الحالة|Status/i');
-      const isVisible = await filterSection.isVisible({ timeout: timeouts.long }).catch(() => false);
+      // Look for filter sections using data-testid
+      const typeFilters = page.locator('[data-testid="equipment-type-filters"]');
+      const statusFilters = page.locator('[data-testid="equipment-status-filters"]');
 
-      if (isVisible) {
-        console.log('Filter section found');
-      } else {
-        console.log('Filter section not visible');
-      }
+      await expect(typeFilters).toBeVisible({ timeout: timeouts.long });
+      await expect(statusFilters).toBeVisible({ timeout: timeouts.long });
     });
 
     test('should filter equipment by type', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      // Look for tractor filter button
-      const tractorFilter = page.locator('button:has-text("جرار"), button:has-text("Tractor")').first();
-      const isVisible = await tractorFilter.isVisible({ timeout: timeouts.long }).catch(() => false);
+      // Use data-testid for tractor filter button
+      const tractorFilter = page.locator('[data-testid="filter-type-tractor"]');
+      await expect(tractorFilter).toBeVisible({ timeout: timeouts.long });
 
-      if (isVisible) {
-        await tractorFilter.click();
-        await page.waitForTimeout(timeouts.short);
+      await tractorFilter.click();
+      await page.waitForTimeout(timeouts.short);
 
-        // Check if button is active
-        const buttonClass = await tractorFilter.getAttribute('class');
-        console.log(`Tractor filter clicked, class: ${buttonClass}`);
-      }
+      // Verify button is active (has green background)
+      const buttonClass = await tractorFilter.getAttribute('class');
+      expect(buttonClass).toContain('bg-green-600');
+      console.log('Tractor filter clicked and activated');
     });
 
     test('should filter equipment by status', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      // Look for active status filter
-      const activeFilter = page.locator('button:has-text("نشط"), button:has-text("Active")').first();
-      const isVisible = await activeFilter.isVisible({ timeout: timeouts.long }).catch(() => false);
+      // Use data-testid for active status filter
+      const activeFilter = page.locator('[data-testid="filter-status-active"]');
+      await expect(activeFilter).toBeVisible({ timeout: timeouts.long });
 
-      if (isVisible) {
-        await activeFilter.click();
-        await page.waitForTimeout(timeouts.short);
+      await activeFilter.click();
+      await page.waitForTimeout(timeouts.short);
 
-        console.log('Active status filter clicked');
-      }
+      // Verify button is active
+      const buttonClass = await activeFilter.getAttribute('class');
+      expect(buttonClass).toContain('bg-green-600');
+      console.log('Active status filter clicked and activated');
     });
 
     test('should search for equipment', async ({ page }) => {
       await page.waitForTimeout(timeouts.medium);
 
-      const searchInput = page.locator('input[placeholder*="بحث"], input[placeholder*="Search"]').first();
-      const isVisible = await searchInput.isVisible({ timeout: timeouts.long }).catch(() => false);
+      const searchInput = page.locator('[data-testid="equipment-search-input"]');
+      await expect(searchInput).toBeVisible({ timeout: timeouts.long });
 
-      if (isVisible) {
-        await searchInput.fill('test');
+      await searchInput.fill('جرار');
 
-        // Look for search button
-        const searchButton = page.locator('button:has-text("بحث"), button:has-text("Search")').first();
-        if (await searchButton.isVisible({ timeout: timeouts.short }).catch(() => false)) {
-          await searchButton.click();
-          await page.waitForTimeout(timeouts.medium);
-          console.log('Search performed');
-        }
-      }
+      // Click search button
+      const searchButton = page.locator('[data-testid="equipment-search-button"]');
+      await searchButton.click();
+      await page.waitForTimeout(timeouts.medium);
+      console.log('Search performed for: جرار');
     });
   });
 
@@ -285,48 +279,32 @@ test.describe('Equipment Page', () => {
 
   test.describe('Add Equipment Form', () => {
     test('should open add equipment form', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة"), button:has-text("Add Equipment")');
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await addButton.click();
 
       await page.waitForTimeout(timeouts.medium);
 
+      // Check for form container using data-testid
+      const formContainer = page.locator('[data-testid="equipment-form-container"]');
+      await expect(formContainer).toBeVisible();
+
       // Check for form heading
-      const formHeading = page.locator('text=/إضافة معدة جديدة|Add New Equipment/i');
+      const formHeading = page.locator('[data-testid="equipment-form-title"]');
       await expect(formHeading).toBeVisible();
+      await expect(formHeading).toHaveText('إضافة معدة جديدة');
     });
 
     test('should display all required form fields', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة")').first();
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await addButton.click();
       await page.waitForTimeout(timeouts.medium);
 
-      // Check for Arabic name field
-      // const nameArInput = page.locator('input[value=""], input').filter({ hasText: '' }).first();
-      const nameArLabel = page.locator('text=/الاسم بالعربية|Arabic Name/i');
-
-      if (await nameArLabel.isVisible({ timeout: timeouts.medium }).catch(() => false)) {
-        await expect(nameArLabel).toBeVisible();
-      }
-
-      // Check for English name field
-      const nameEnLabel = page.locator('text=/Name \\(English\\)|English Name/i');
-      if (await nameEnLabel.isVisible({ timeout: timeouts.short }).catch(() => false)) {
-        await expect(nameEnLabel).toBeVisible();
-      }
-
-      // Check for type select
-      const typeLabel = page.locator('text=/النوع/i').first();
-      await expect(typeLabel).toBeVisible();
-
-      // Check for status select
-      const statusLabel = page.locator('text=/الحالة/i').first();
-      await expect(statusLabel).toBeVisible();
-
-      // Check for serial number
-      const serialLabel = page.locator('text=/الرقم التسلسلي|Serial Number/i');
-      if (await serialLabel.isVisible({ timeout: timeouts.short }).catch(() => false)) {
-        await expect(serialLabel).toBeVisible();
-      }
+      // Check for form fields using data-testid
+      await expect(page.locator('[data-testid="equipment-name-ar-input"]')).toBeVisible();
+      await expect(page.locator('[data-testid="equipment-name-input"]')).toBeVisible();
+      await expect(page.locator('[data-testid="equipment-type-select"]')).toBeVisible();
+      await expect(page.locator('[data-testid="equipment-status-select"]')).toBeVisible();
+      await expect(page.locator('[data-testid="equipment-serial-number-input"]')).toBeVisible();
     });
 
     test('should display bilingual labels (Arabic/English)', async ({ page }) => {
@@ -346,84 +324,73 @@ test.describe('Equipment Page', () => {
     });
 
     test('should have type dropdown with options', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة")').first();
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await addButton.click();
       await page.waitForTimeout(timeouts.medium);
 
-      // Find type select
-      const typeSelect = page.locator('select').first();
-      const isVisible = await typeSelect.isVisible({ timeout: timeouts.long }).catch(() => false);
+      // Find type select using data-testid
+      const typeSelect = page.locator('[data-testid="equipment-type-select"]');
+      await expect(typeSelect).toBeVisible();
 
-      if (isVisible) {
-        // Click to open dropdown
-        await typeSelect.click();
+      // Check for options
+      const options = typeSelect.locator('option');
+      const count = await options.count();
+      expect(count).toBeGreaterThanOrEqual(6); // tractor, harvester, irrigation_system, sprayer, planter, other
 
-        // Check for options
-        const options = page.locator('option');
-        const count = await options.count();
-        expect(count).toBeGreaterThan(0);
-
-        // Check for specific types
-        const tractorOption = page.locator('option:has-text("جرار"), option:has-text("Tractor")');
-        const harvesterOption = page.locator('option:has-text("حصادة"), option:has-text("Harvester")');
-
-        expect(await tractorOption.count()).toBeGreaterThan(0);
-        expect(await harvesterOption.count()).toBeGreaterThan(0);
-      }
+      // Verify specific options exist
+      await expect(typeSelect.locator('option[value="tractor"]')).toBeVisible();
+      await expect(typeSelect.locator('option[value="harvester"]')).toBeVisible();
     });
 
     test('should have status dropdown with options', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة")').first();
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await addButton.click();
       await page.waitForTimeout(timeouts.medium);
 
-      // Find status select (second select)
-      const selects = page.locator('select');
-      const count = await selects.count();
+      // Find status select using data-testid
+      const statusSelect = page.locator('[data-testid="equipment-status-select"]');
+      await expect(statusSelect).toBeVisible();
 
-      if (count >= 2) {
-        const statusSelect = selects.nth(1);
-        await statusSelect.click();
+      // Check for status options
+      const options = statusSelect.locator('option');
+      const count = await options.count();
+      expect(count).toBeGreaterThanOrEqual(5); // active, maintenance, repair, idle, retired
 
-        // Check for status options
-        const activeOption = page.locator('option:has-text("نشط"), option:has-text("Active")');
-        const maintenanceOption = page.locator('option:has-text("صيانة"), option:has-text("Maintenance")');
-
-        expect(await activeOption.count()).toBeGreaterThan(0);
-        expect(await maintenanceOption.count()).toBeGreaterThan(0);
-      }
+      // Verify specific options exist
+      await expect(statusSelect.locator('option[value="active"]')).toBeVisible();
+      await expect(statusSelect.locator('option[value="maintenance"]')).toBeVisible();
     });
 
     test('should have cancel button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة")').first();
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await addButton.click();
       await page.waitForTimeout(timeouts.medium);
 
-      const cancelButton = page.locator('button:has-text("إلغاء"), button:has-text("Cancel")');
+      const cancelButton = page.locator('[data-testid="equipment-form-cancel-button"]');
       await expect(cancelButton).toBeVisible();
     });
 
     test('should have save button', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة")').first();
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await addButton.click();
       await page.waitForTimeout(timeouts.medium);
 
-      const saveButton = page.locator('button:has-text("حفظ"), button:has-text("Save")');
+      const saveButton = page.locator('[data-testid="equipment-form-submit-button"]');
       await expect(saveButton).toBeVisible();
     });
 
     test('should close form on cancel', async ({ page }) => {
-      const addButton = page.locator('button:has-text("إضافة معدة")').first();
+      const addButton = page.locator('[data-testid="add-equipment-button"]');
       await addButton.click();
       await page.waitForTimeout(timeouts.medium);
 
-      const cancelButton = page.locator('button:has-text("إلغاء")').first();
+      const cancelButton = page.locator('[data-testid="equipment-form-cancel-button"]');
       await cancelButton.click();
       await page.waitForTimeout(timeouts.short);
 
-      // Form heading should not be visible
-      const formHeading = page.locator('text=/إضافة معدة جديدة/i');
-      const isVisible = await formHeading.isVisible({ timeout: timeouts.short }).catch(() => false);
+      // Form container should not be visible
+      const formContainer = page.locator('[data-testid="equipment-form-container"]');
+      const isVisible = await formContainer.isVisible({ timeout: timeouts.short }).catch(() => false);
       expect(isVisible).toBe(false);
     });
 

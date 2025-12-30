@@ -58,12 +58,32 @@ function formatTimeAgo(dateString: string): string {
   return `منذ ${diffDays} يوم`;
 }
 
+// Config type definition
+interface SeverityConfigItem {
+  icon: string;
+  bgColor: string;
+  borderColor: string;
+  iconColor: string;
+}
+
+// Default config fallback
+const defaultConfig: SeverityConfigItem = {
+  icon: 'ℹ️',
+  bgColor: 'bg-blue-50',
+  borderColor: 'border-blue-200',
+  iconColor: 'text-blue-500',
+};
+
+function getConfig(severity: AlertSeverity): SeverityConfigItem {
+  return severityConfig[severity] ?? defaultConfig;
+}
+
 export const AlertItem = React.memo<AlertItemProps>(function AlertItem({
   alert,
   onDismiss,
   onAction,
 }) {
-  const config = severityConfig[alert.severity] || severityConfig.info;
+  const config = getConfig(alert.severity);
   const timeAgo = formatTimeAgo(alert.createdAt);
 
   return (

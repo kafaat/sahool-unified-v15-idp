@@ -92,9 +92,9 @@ export function ActuatorControls() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="actuator-controls">
       {actuators && actuators.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="actuators-grid">
           {actuators.map((actuator) => (
             <ActuatorControlCard
               key={actuator.id}
@@ -106,7 +106,7 @@ export function ActuatorControls() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
+        <div className="text-center py-12" data-testid="no-actuators-message">
           <p className="text-gray-500">لا توجد مُشغلات</p>
         </div>
       )}
@@ -128,19 +128,20 @@ function ActuatorControlCard({
   isLoading,
 }: ActuatorControlCardProps) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-4">
+    <div className="bg-white rounded-lg shadow p-6 space-y-4" data-testid={`actuator-card-${actuator.id}`}>
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between" data-testid="actuator-card-header">
         <div className="flex items-start gap-3 flex-1">
-          <div className="text-3xl">{typeIcons[actuator.type]}</div>
+          <div className="text-3xl" data-testid="actuator-type-icon">{typeIcons[actuator.type]}</div>
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900">{actuator.nameAr}</h3>
-            <p className="text-sm text-gray-500">{actuator.name}</p>
-            <p className="text-xs text-gray-400 mt-1">{typeLabels[actuator.type]}</p>
+            <h3 className="text-lg font-semibold text-gray-900" data-testid="actuator-name-ar">{actuator.nameAr}</h3>
+            <p className="text-sm text-gray-500" data-testid="actuator-name-en">{actuator.name}</p>
+            <p className="text-xs text-gray-400 mt-1" data-testid="actuator-type-label">{typeLabels[actuator.type]}</p>
           </div>
         </div>
         <span
           className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[actuator.status]}`}
+          data-testid="actuator-status-badge"
         >
           {statusLabels[actuator.status]}
         </span>
@@ -155,6 +156,7 @@ function ActuatorControlCard({
             ? 'bg-green-600 text-white hover:bg-green-700'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
         }`}
+        data-testid="actuator-toggle-button"
       >
         {isLoading ? (
           <Loader2 className="w-5 h-5 animate-spin" />
@@ -167,7 +169,7 @@ function ActuatorControlCard({
       </button>
 
       {/* Mode Selector */}
-      <div className="space-y-2">
+      <div className="space-y-2" data-testid="actuator-mode-selector">
         <label className="text-sm font-medium text-gray-700 flex items-center">
           <Settings className="w-4 h-4 ml-1" />
           وضع التحكم
@@ -179,6 +181,7 @@ function ActuatorControlCard({
           }
           disabled={isLoading}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm disabled:opacity-50"
+          data-testid="actuator-mode-select"
         >
           <option value="manual">يدوي</option>
           <option value="automatic">تلقائي</option>
@@ -187,14 +190,14 @@ function ActuatorControlCard({
       </div>
 
       {/* Additional Info */}
-      <div className="pt-3 border-t border-gray-100 space-y-1 text-sm text-gray-600">
+      <div className="pt-3 border-t border-gray-100 space-y-1 text-sm text-gray-600" data-testid="actuator-info">
         {actuator.location && (
-          <p className="text-xs">{actuator.location.fieldName || 'موقع المُشغل'}</p>
+          <p className="text-xs" data-testid="actuator-location">{actuator.location.fieldName || 'موقع المُشغل'}</p>
         )}
         {actuator.linkedSensorName && (
-          <p className="text-xs">مرتبط بـ: {actuator.linkedSensorName}</p>
+          <p className="text-xs" data-testid="actuator-linked-sensor">مرتبط بـ: {actuator.linkedSensorName}</p>
         )}
-        <p className="text-xs text-gray-400">معرف الجهاز: {actuator.deviceId}</p>
+        <p className="text-xs text-gray-400" data-testid="actuator-device-id">معرف الجهاز: {actuator.deviceId}</p>
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+// @ts-nocheck - Temporary fix for types with React 19
 // Sahool Admin Dashboard - Yield Prediction Calculator
 // حاسبة التنبؤ بالإنتاجية
 

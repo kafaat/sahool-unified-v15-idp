@@ -61,6 +61,14 @@ class Settings(BaseSettings):
     nats_url: str = "nats://nats:4222"
     nats_subject_prefix: str = "sahool.ai-advisor"
 
+    # Redis - Agent Registry | Redis - سجل الوكلاء
+    redis_host: str = "redis"
+    redis_port: int = 6379
+    redis_db: int = 0
+    redis_password: Optional[str] = None
+    redis_key_prefix: str = "sahool:agents:"
+    agent_registry_ttl: int = 3600  # seconds
+
     # Embeddings Model | نموذج التضمينات
     # Environment variable name matches docker-compose.yml (EMBEDDING_MODEL)
     embedding_model: str = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"

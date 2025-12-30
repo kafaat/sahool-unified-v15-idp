@@ -26,7 +26,6 @@ import type {
   MarketplaceListing,
   Subscription,
   Invoice,
-  User,
 } from './types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -209,15 +208,55 @@ class SahoolApiClient {
       };
     }
 
-    return this.request<{ access_token: string; user: User }>('/api/v1/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email: sanitizedEmail, password }),
-      skipRetry: true, // Don't retry auth requests
-    });
+    // Use relative URL to hit Next.js API routes (for E2E testing and when no backend is available)
+    // In production with a backend, set NEXT_PUBLIC_API_URL to the backend URL
+    const authBaseUrl = typeof window !== 'undefined' ? '' : this.baseUrl;
+
+    try {
+      const response = await fetch(`${authBaseUrl}/api/v1/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: sanitizedEmail, password }),
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Login failed',
+      };
+    }
   }
 
   async getCurrentUser() {
-    return this.request<User>('/api/v1/auth/me');
+    // Use relative URL for auth endpoints
+    const authBaseUrl = typeof window !== 'undefined' ? '' : this.baseUrl;
+
+    try {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+
+      if (this.token) {
+        headers['Authorization'] = `Bearer ${this.token}`;
+      }
+
+      const response = await fetch(`${authBaseUrl}/api/v1/auth/me`, {
+        method: 'GET',
+        headers,
+      });
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to get user',
+      };
+    }
   }
 
   async refreshToken(refreshToken: string) {

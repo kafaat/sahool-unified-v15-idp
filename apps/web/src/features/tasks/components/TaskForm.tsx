@@ -43,8 +43,8 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="task-form">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="task-form-title">
         {task ? 'تعديل المهمة' : 'إضافة مهمة جديدة'}
       </h2>
 
@@ -61,6 +61,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             onChange={(e) => handleChange('title_ar', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="أدخل عنوان المهمة"
+            data-testid="task-title-ar-input"
           />
         </div>
 
@@ -77,6 +78,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Enter task title"
             dir="ltr"
+            data-testid="task-title-input"
           />
         </div>
 
@@ -93,6 +95,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               value={formData.due_date}
               onChange={(e) => handleChange('due_date', e.target.value)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+              data-testid="task-due-date-input"
             />
           </div>
 
@@ -106,6 +109,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               value={formData.priority}
               onChange={(e) => handleChange('priority', e.target.value as Priority)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+              data-testid="task-priority-select"
             >
               <option value="low">منخفضة - Low</option>
               <option value="medium">متوسطة - Medium</option>
@@ -125,6 +129,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               value={formData.status}
               onChange={(e) => handleChange('status', e.target.value as TaskStatus)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+              data-testid="task-status-select"
             >
               <option value="open">جديدة - Open</option>
               <option value="in_progress">قيد التنفيذ - In Progress</option>
@@ -144,6 +149,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
               onChange={(e) => handleChange('field_id', e.target.value)}
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
               placeholder="معرّف الحقل"
+              data-testid="task-field-id-input"
             />
           </div>
         </div>
@@ -159,6 +165,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             rows={4}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="وصف المهمة"
+            data-testid="task-description-ar-input"
           />
         </div>
 
@@ -174,6 +181,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Task description"
             dir="ltr"
+            data-testid="task-description-input"
           />
         </div>
       </div>
@@ -186,6 +194,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
             onClick={onCancel}
             className="flex items-center gap-2 px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             disabled={isSubmitting}
+            data-testid="task-form-cancel-button"
           >
             <X className="w-4 h-4" />
             <span>إلغاء</span>
@@ -195,6 +204,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
           type="submit"
           disabled={isSubmitting}
           className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          data-testid="task-form-submit-button"
         >
           <Save className="w-4 h-4" />
           <span>{isSubmitting ? 'جاري الحفظ...' : 'حفظ'}</span>

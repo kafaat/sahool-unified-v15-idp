@@ -51,9 +51,9 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
   const isLoading = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" data-testid="equipment-form">
       <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">
+        <h2 className="text-xl font-semibold text-gray-900" data-testid="equipment-form-title">
           {equipment ? 'تعديل المعدة' : 'إضافة معدة جديدة'}
         </h2>
 
@@ -69,6 +69,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.nameAr}
               onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-name-ar-input"
             />
           </div>
 
@@ -82,6 +83,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-name-input"
             />
           </div>
         </div>
@@ -95,6 +97,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.type}
               onChange={(e) => setFormData({ ...formData, type: e.target.value as EquipmentType })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-type-select"
             >
               <option value="tractor">جرار</option>
               <option value="harvester">حصادة</option>
@@ -114,6 +117,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
                 setFormData({ ...formData, status: e.target.value as EquipmentStatus })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-status-select"
             >
               <option value="active">نشط</option>
               <option value="maintenance">صيانة</option>
@@ -136,6 +140,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.serialNumber}
               onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-serial-number-input"
             />
           </div>
 
@@ -146,6 +151,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.manufacturer}
               onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-manufacturer-input"
             />
           </div>
         </div>
@@ -159,6 +165,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.model}
               onChange={(e) => setFormData({ ...formData, model: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-model-input"
             />
           </div>
 
@@ -169,6 +176,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.fuelType}
               onChange={(e) => setFormData({ ...formData, fuelType: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-fuel-type-input"
             />
           </div>
         </div>
@@ -183,6 +191,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
               value={formData.purchaseDate}
               onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-purchase-date-input"
             />
           </div>
 
@@ -202,6 +211,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
                 })
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              data-testid="equipment-purchase-price-input"
             />
           </div>
         </div>
@@ -215,6 +225,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
             onClick={onCancel}
             disabled={isLoading}
             className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            data-testid="equipment-form-cancel-button"
           >
             إلغاء
           </button>
@@ -223,6 +234,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
           type="submit"
           disabled={isLoading}
           className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center"
+          data-testid="equipment-form-submit-button"
         >
           {isLoading ? (
             <>

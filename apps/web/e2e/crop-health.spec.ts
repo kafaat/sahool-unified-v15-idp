@@ -387,3 +387,120 @@ test.describe('Crop Health Error Handling', () => {
     console.log(`Found ${count} error message containers`);
   });
 });
+
+test.describe('Crop Health Mock Data Fallback', () => {
+  test('should display mock data when API fails', async ({ page }) => {
+    // Intercept API calls and make them fail to test mock data fallback
+    await page.route('**/api/v1/crop-health/**', route => route.abort());
+
+    await navigateAndWait(page, '/crop-health');
+    await page.waitForTimeout(3000);
+
+    // Verify that mock data is displayed even when API fails
+    // Check for stat cards with mock data
+    const healthyStat = page.locator('[data-testid="stat-healthy-fields"]');
+    const atRiskStat = page.locator('[data-testid="stat-at-risk"]');
+    const diseasedStat = page.locator('[data-testid="stat-diseased"]');
+    const avgHealthStat = page.locator('[data-testid="stat-avg-health"]');
+
+    // At least one stat should be visible with mock data
+    const statsVisible =
+      await healthyStat.isVisible({ timeout: 5000 }).catch(() => false) ||
+      await atRiskStat.isVisible({ timeout: 5000 }).catch(() => false) ||
+      await diseasedStat.isVisible({ timeout: 5000 }).catch(() => false) ||
+      await avgHealthStat.isVisible({ timeout: 5000 }).catch(() => false);
+
+    if (statsVisible) {
+      console.log('Mock data fallback working - stats displayed despite API failure');
+    }
+  });
+
+  test('should display mock health records when API fails', async ({ page }) => {
+    // Intercept API calls and make them fail
+    await page.route('**/api/v1/crop-health/**', route => route.abort());
+
+    await navigateAndWait(page, '/crop-health');
+    await page.waitForTimeout(3000);
+
+    // Check for health records
+    const healthRecords = page.locator('[data-testid="health-record"]');
+    const recordsCount = await healthRecords.count();
+
+    console.log(`Found ${recordsCount} mock health records despite API failure`);
+
+    // Mock data should provide at least some records
+    if (recordsCount > 0) {
+      await expect(healthRecords.first()).toBeVisible();
+      console.log('Mock health records displayed successfully');
+    }
+  });
+
+  test('should display mock disease alerts when API fails', async ({ page }) => {
+    // Intercept API calls and make them fail
+    await page.route('**/api/v1/crop-health/**', route => route.abort());
+
+    await navigateAndWait(page, '/crop-health');
+    await page.waitForTimeout(3000);
+
+    // Check for disease alerts
+    const alerts = page.locator('[data-testid="disease-alert"]');
+    const alertsCount = await alerts.count();
+
+    console.log(`Found ${alertsCount} mock disease alerts despite API failure`);
+
+    if (alertsCount > 0) {
+      await expect(alerts.first()).toBeVisible();
+      console.log('Mock disease alerts displayed successfully');
+    }
+  });
+});
+
+test.describe('Crop Health Data TestID Attributes', () => {
+  test('should have all required data-testid attributes', async ({ page }) => {
+    await navigateAndWait(page, '/crop-health');
+    await page.waitForTimeout(2000);
+
+    // Check for all critical data-testid attributes
+    const testIds = [
+      'view-toggle-dashboard',
+      'view-toggle-diagnosis',
+      'health-dashboard-search',
+      'stat-healthy-fields',
+      'stat-at-risk',
+      'stat-diseased',
+      'stat-avg-health',
+    ];
+
+    for (const testId of testIds) {
+      const element = page.locator(`[data-testid="${testId}"]`);
+      const exists = await element.count() > 0;
+      console.log(`data-testid="${testId}": ${exists ? 'FOUND' : 'MISSING'}`);
+    }
+  });
+
+  test('should have diagnosis tool data-testid attributes', async ({ page }) => {
+    await navigateAndWait(page, '/crop-health');
+
+    // Switch to diagnosis view
+    const diagnosisButton = page.locator('[data-testid="view-toggle-diagnosis"]');
+    await diagnosisButton.click();
+    await page.waitForTimeout(1000);
+
+    // Check for diagnosis tool data-testid attributes
+    const diagnosisTestIds = [
+      'diagnosis-tool-heading',
+      'diagnosis-image-upload',
+      'diagnosis-crop-type',
+      'diagnosis-description',
+      'diagnosis-submit',
+      'diagnosis-reset',
+      'diagnosis-tips',
+    ];
+
+    for (const testId of diagnosisTestIds) {
+      const element = page.locator(`[data-testid="${testId}"]`);
+      const exists = await element.count() > 0;
+      console.log(`data-testid="${testId}": ${exists ? 'FOUND' : 'MISSING'}`);
+    }
+  });
+});

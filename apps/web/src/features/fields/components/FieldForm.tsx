@@ -43,8 +43,8 @@ export const FieldForm: React.FC<FieldFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
+    <form onSubmit={handleSubmit} className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="field-form">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="field-form-title">
         {field ? 'تعديل الحقل' : 'إضافة حقل جديد'}
       </h2>
 
@@ -61,6 +61,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             onChange={(e) => handleChange('nameAr', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="أدخل اسم الحقل"
+            data-testid="field-name-ar-input"
           />
         </div>
 
@@ -77,6 +78,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Enter field name"
             dir="ltr"
+            data-testid="field-name-input"
           />
         </div>
 
@@ -94,6 +96,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             onChange={(e) => handleChange('area', parseFloat(e.target.value))}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="0.0"
+            data-testid="field-area-input"
           />
         </div>
 
@@ -108,6 +111,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             onChange={(e) => handleChange('cropAr', e.target.value)}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="نوع المحصول"
+            data-testid="field-crop-ar-input"
           />
         </div>
 
@@ -123,6 +127,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Crop type"
             dir="ltr"
+            data-testid="field-crop-input"
           />
         </div>
 
@@ -137,6 +142,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             rows={3}
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="وصف الحقل"
+            data-testid="field-description-ar-input"
           />
         </div>
 
@@ -152,6 +158,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
             placeholder="Field description"
             dir="ltr"
+            data-testid="field-description-input"
           />
         </div>
       </div>
@@ -164,6 +171,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             onClick={onCancel}
             className="flex items-center gap-2 px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             disabled={isSubmitting}
+            data-testid="field-form-cancel-button"
           >
             <X className="w-4 h-4" />
             <span>إلغاء</span>
@@ -173,6 +181,7 @@ export const FieldForm: React.FC<FieldFormProps> = ({
           type="submit"
           disabled={isSubmitting}
           className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          data-testid="field-form-submit-button"
         >
           <Save className="w-4 h-4" />
           <span>{isSubmitting ? 'جاري الحفظ...' : 'حفظ'}</span>

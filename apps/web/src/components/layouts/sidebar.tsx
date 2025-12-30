@@ -5,15 +5,17 @@ import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
 import {
   LayoutDashboard,
-  Users,
-  Sprout,
-  FileText,
+  Grid3x3,
   TrendingUp,
   Settings,
-  Building2,
-  Package,
-  Calendar,
-  FileBarChart,
+  Cloud,
+  Signal,
+  Sprout,
+  Wrench,
+  Users,
+  ListTodo,
+  Wallet,
+  DollarSign,
 } from 'lucide-react';
 
 interface NavItem {
@@ -32,57 +34,69 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
   },
   {
-    nameAr: 'المستخدمين',
-    name: 'Users',
-    href: '/dashboard/users',
-    icon: Users,
-  },
-  {
-    nameAr: 'المزارع',
-    name: 'Farms',
-    href: '/dashboard/farms',
-    icon: Building2,
-  },
-  {
-    nameAr: 'المحاصيل',
-    name: 'Crops',
-    href: '/dashboard/crops',
-    icon: Sprout,
-  },
-  {
-    nameAr: 'المخزون',
-    name: 'Inventory',
-    href: '/dashboard/inventory',
-    icon: Package,
-  },
-  {
-    nameAr: 'المواسم',
-    name: 'Seasons',
-    href: '/dashboard/seasons',
-    icon: Calendar,
-  },
-  {
-    nameAr: 'التقارير',
-    name: 'Reports',
-    href: '/dashboard/reports',
-    icon: FileBarChart,
-  },
-  {
-    nameAr: 'المستندات',
-    name: 'Documents',
-    href: '/dashboard/documents',
-    icon: FileText,
+    nameAr: 'الحقول',
+    name: 'Fields',
+    href: '/fields',
+    icon: Grid3x3,
   },
   {
     nameAr: 'التحليلات',
     name: 'Analytics',
-    href: '/dashboard/analytics',
+    href: '/analytics',
     icon: TrendingUp,
+  },
+  {
+    nameAr: 'السوق',
+    name: 'Marketplace',
+    href: '/marketplace',
+    icon: DollarSign,
+  },
+  {
+    nameAr: 'المهام',
+    name: 'Tasks',
+    href: '/tasks',
+    icon: ListTodo,
+  },
+  {
+    nameAr: 'الطقس',
+    name: 'Weather',
+    href: '/weather',
+    icon: Cloud,
+  },
+  {
+    nameAr: 'إنترنت الأشياء',
+    name: 'IoT',
+    href: '/iot',
+    icon: Signal,
+  },
+  {
+    nameAr: 'صحة المحاصيل',
+    name: 'Crop Health',
+    href: '/crop-health',
+    icon: Sprout,
+  },
+  {
+    nameAr: 'المعدات',
+    name: 'Equipment',
+    href: '/equipment',
+    icon: Wrench,
+  },
+  {
+    nameAr: 'المجتمع',
+    name: 'Community',
+    href: '/community',
+    icon: Users,
+  },
+  {
+    nameAr: 'المحفظة',
+    name: 'Wallet',
+    href: '/wallet',
+    icon: Wallet,
   },
   {
     nameAr: 'الإعدادات',
     name: 'Settings',
-    href: '/dashboard/settings',
+    href: '/settings',
     icon: Settings,
   },
 ];
@@ -91,10 +105,10 @@ export const Sidebar = React.memo(function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full" role="navigation" aria-label="القائمة الجانبية الرئيسية">
+    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full" role="navigation" aria-label="القائمة الجانبية الرئيسية" data-testid="sidebar">
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
-        <Link href="/dashboard" className="flex items-center gap-3">
+        <Link href="/dashboard" className="flex items-center gap-3" data-testid="sidebar-logo">
           <div className="w-10 h-10 bg-sahool-green-600 rounded-lg flex items-center justify-center">
             <div className="w-6 h-6 bg-white rounded-full" />
           </div>
@@ -111,6 +125,8 @@ export const Sidebar = React.memo(function Sidebar() {
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             const Icon = item.icon;
+            // Generate test ID from href (e.g., "/dashboard" -> "nav-link-dashboard")
+            const testId = `nav-link-${item.href.split('/').filter(Boolean).join('-')}`;
 
             return (
               <li key={item.href}>
@@ -125,6 +141,7 @@ export const Sidebar = React.memo(function Sidebar() {
                   )}
                   aria-current={isActive ? 'page' : undefined}
                   aria-label={`${item.nameAr} - ${item.name}`}
+                  data-testid={testId}
                 >
                   <Icon
                     className={clsx(

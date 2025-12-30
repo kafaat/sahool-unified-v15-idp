@@ -1,0 +1,10 @@
+# Compiled JavaScript output
+**/*.js
+**/*.js.map
+
+# TypeScript declaration files (compiled output)
+**/*.d.ts
+**/*.d.ts.map
+
+# Ignore node_modules
+node_modules/

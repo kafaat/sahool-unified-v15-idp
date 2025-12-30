@@ -193,96 +193,49 @@ export function authenticateToken(
 }
 
 /**
- * Options for tenant isolation enforcement
- */
-export interface TenantIsolationOptions {
-    /**
-     * If true, allows requests without tenant ID (bypasses tenant validation)
-     * Default: false (tenant ID is required)
-     *
-     * SECURITY WARNING: Only set to true for routes that don't access tenant-specific data
-     * (e.g., system-level endpoints, health checks, public APIs)
-     */
-    allowMissingTenantId?: boolean;
-}
-
-/**
- * Tenant Isolation Middleware Factory
+ * Tenant Isolation Middleware
  *
  * Ensures that the tenant_id from the JWT token matches the tenant_id in the request
  * This middleware should be used after authenticateToken middleware
- *
- * SECURITY: By default, this middleware REQUIRES tenant_id to be present in the request.
- * This prevents cross-tenant access vulnerabilities.
  *
  * Supports tenant_id from:
  * - Query parameters (req.query.tenantId)
  * - Request body (req.body.tenantId)
  * - Route parameters (req.params.tenantId)
  *
- * @param options - Configuration options for tenant isolation
- * @returns Express middleware function
- *
- * @example
- * // Default usage - tenant ID is required
- * app.get('/api/data', authenticateToken, enforceTenantIsolation(), handler);
- *
- * @example
- * // Optional tenant ID for system endpoints
- * app.get('/api/system/health', authenticateToken,
- *   enforceTenantIsolation({ allowMissingTenantId: true }), handler);
+ * @param req - Express request object with user attached
+ * @param res - Express response object
+ * @param next - Express next function
+ * @returns void or error response
  */
 export function enforceTenantIsolation(
-    options: TenantIsolationOptions = {}
-) {
-    return (req: Request, res: Response, next: NextFunction): void => {
-        // User should be attached by authenticateToken middleware
-        if (!req.user) {
-            res.status(401).json({
-                success: false,
-                error: "authentication_required",
-                message: "Authentication required. Use authenticateToken middleware first.",
-                message_ar: "المصادقة مطلوبة",
-            });
-            return;
-        }
+    req: Request,
+    res: Response,
+    next: NextFunction
+): void {
+    // User should be attached by authenticateToken middleware
+    if (!req.user) {
+        res.status(401).json({
+            success: false,
+            error: "authentication_required",
+            message: "Authentication required. Use authenticateToken middleware first.",
+            message_ar: "المصادقة مطلوبة",
+        });
+        return;
+    }
 
-        // Extract tenant_id from request (query, body, or params)
-        const requestTenantId =
-            req.query.tenantId ||
-            req.body.tenantId ||
-            req.params.tenantId;
+    // Extract tenant_id from request (query, body, or params)
+    const requestTenantId =
+        req.query.tenantId ||
+        req.body.tenantId ||
+        req.params.tenantId;
 
-        // SECURITY: Require tenant ID by default to prevent cross-tenant access
-        if (!requestTenantId) {
-            // Allow bypass only if explicitly configured
-            if (options.allowMissingTenantId === true) {
-                console.debug(
-                    `ℹ️ Tenant validation bypassed for user ${req.user.id} (tenant: ${req.user.tenantId}) - allowMissingTenantId enabled`
-                );
-                next();
-                return;
-            }
-
-            // Tenant ID is required but missing - reject request
-            console.warn(
-                `⚠️ Tenant isolation violation: Request missing tenant ID for user ${req.user.id} (tenant: ${req.user.tenantId}) on ${req.method} ${req.path}`
-            );
-
-            res.status(400).json({
-                success: false,
-                error: AuthErrors.MISSING_TENANT_ID.code,
-                message: AuthErrors.MISSING_TENANT_ID.en,
-                message_ar: AuthErrors.MISSING_TENANT_ID.ar,
-            });
-            return;
-        }
-
-        // Verify tenant_id matches the token
+    // If tenant_id is in the request, verify it matches the token
+    if (requestTenantId) {
         if (requestTenantId !== req.user.tenantId) {
             console.warn(
                 `⚠️ Tenant isolation violation: User ${req.user.id} (tenant: ${req.user.tenantId}) ` +
-                `attempted to access tenant: ${requestTenantId} on ${req.method} ${req.path}`
+                `attempted to access tenant: ${requestTenantId}`
             );
 
             res.status(403).json({
@@ -293,25 +246,20 @@ export function enforceTenantIsolation(
             });
             return;
         }
+    }
 
-        // Tenant validation passed
-        next();
-    };
+    // Continue to next middleware/handler
+    next();
 }
 
 /**
  * Combined Authentication and Tenant Isolation Middleware
  *
  * Convenience middleware that combines authenticateToken and enforceTenantIsolation
- * with mandatory tenant ID validation (default behavior)
  *
  * @param req - Express request object
  * @param res - Express response object
  * @param next - Express next function
- *
- * @example
- * // Use for routes that require authentication and tenant isolation
- * app.get('/api/users', requireAuth, handler);
  */
 export function requireAuth(
     req: Request,
@@ -323,7 +271,6 @@ export function requireAuth(
             next(error);
             return;
         }
-        // Call the factory function and immediately invoke the returned middleware
-        enforceTenantIsolation()(req, res, next);
+        enforceTenantIsolation(req, res, next);
     });
 }

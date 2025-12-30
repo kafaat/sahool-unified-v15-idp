@@ -7,6 +7,59 @@ import { expect, afterEach, vi } from 'vitest';
 import { cleanup } from '@testing-library/react';
 import * as matchers from '@testing-library/jest-dom/matchers';
 
+// Mock error-tracking module globally to prevent import resolution issues
+vi.mock('@/lib/monitoring/error-tracking', () => ({
+  ErrorTracking: {
+    initialize: vi.fn(),
+    cleanup: vi.fn(),
+    captureError: vi.fn(),
+    captureMessage: vi.fn(),
+    addBreadcrumb: vi.fn(),
+    getBreadcrumbs: vi.fn(() => []),
+    clearBreadcrumbs: vi.fn(),
+    setUser: vi.fn(),
+    clearUser: vi.fn(),
+    reportWebVitals: vi.fn(),
+    getContext: vi.fn(() => ({
+      sessionId: 'test-session-id',
+      userId: null,
+      breadcrumbs: [],
+    })),
+  },
+  default: {
+    initialize: vi.fn(),
+    cleanup: vi.fn(),
+    captureError: vi.fn(),
+    captureMessage: vi.fn(),
+    addBreadcrumb: vi.fn(),
+    getBreadcrumbs: vi.fn(() => []),
+    clearBreadcrumbs: vi.fn(),
+    setUser: vi.fn(),
+    clearUser: vi.fn(),
+    reportWebVitals: vi.fn(),
+    getContext: vi.fn(() => ({
+      sessionId: 'test-session-id',
+      userId: null,
+      breadcrumbs: [],
+    })),
+  },
+  captureError: vi.fn(),
+  captureMessage: vi.fn(),
+  addBreadcrumb: vi.fn(),
+  getBreadcrumbs: vi.fn(() => []),
+  clearBreadcrumbs: vi.fn(),
+  initializeErrorTracking: vi.fn(),
+  cleanupErrorTracking: vi.fn(),
+  setUser: vi.fn(),
+  clearUser: vi.fn(),
+  reportWebVitals: vi.fn(),
+  getMonitoringContext: vi.fn(() => ({
+    sessionId: 'test-session-id',
+    userId: null,
+    breadcrumbs: [],
+  })),
+}));
+
 // Extend Vitest's expect with Testing Library matchers
 expect.extend(matchers);
 
@@ -96,3 +149,26 @@ Object.defineProperty(window, 'performance', {
 // Console spy for tests
 vi.spyOn(console, 'error').mockImplementation(() => {});
 vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+// Mock TextEncoder and TextDecoder for jose library (jsdom doesn't have these)
+if (typeof window !== 'undefined' && !window.TextEncoder) {
+  const { TextEncoder, TextDecoder } = require('util');
+  // Make TextEncoder/TextDecoder globally available
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder;
+
+  Object.defineProperty(window, 'TextEncoder', {
+    writable: true,
+    value: TextEncoder,
+  });
+  Object.defineProperty(window, 'TextDecoder', {
+    writable: true,
+    value: TextDecoder,
+  });
+
+  // Ensure Uint8Array is the same across contexts
+  Object.defineProperty(window, 'Uint8Array', {
+    writable: true,
+    value: Uint8Array,
+  });
+}

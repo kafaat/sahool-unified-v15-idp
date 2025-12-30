@@ -14,6 +14,151 @@ _transform: true
 # ============================================================================
 
 # ============================================================================
+# الخوادم النهائية - Upstreams
+# ============================================================================
+
+upstreams:
+  - name: field-management-upstream
+    algorithm: round-robin
+    targets:
+      - target: field-management-service:3000
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: weather-service-upstream
+    algorithm: round-robin
+    targets:
+      - target: weather-service:8108
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: vegetation-analysis-upstream
+    algorithm: round-robin
+    targets:
+      - target: vegetation-analysis-service:8090
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: ai-advisor-upstream
+    algorithm: round-robin
+    targets:
+      - target: ai-advisor:8112
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: crop-intelligence-upstream
+    algorithm: round-robin
+    targets:
+      - target: crop-intelligence-service:8095
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: advisory-service-upstream
+    algorithm: round-robin
+    targets:
+      - target: advisory-service:8093
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: iot-gateway-upstream
+    algorithm: round-robin
+    targets:
+      - target: iot-gateway:8106
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: iot-service-upstream
+    algorithm: round-robin
+    targets:
+      - target: iot-service:8117
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: virtual-sensors-upstream
+    algorithm: round-robin
+    targets:
+      - target: virtual-sensors:8096
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: marketplace-service-upstream
+    algorithm: round-robin
+    targets:
+      - target: marketplace-service:3010
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: billing-core-upstream
+    algorithm: round-robin
+    targets:
+      - target: billing-core:8089
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: notification-service-upstream
+    algorithm: round-robin
+    targets:
+      - target: notification-service:8110
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: research-core-upstream
+    algorithm: round-robin
+    targets:
+      - target: research-core:3015
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+  - name: disaster-assessment-upstream
+    algorithm: round-robin
+    targets:
+      - target: disaster-assessment:3020
+        weight: 100
+    healthchecks:
+      active:
+        type: http
+        http_path: /healthz
+
+# ============================================================================
 # الخدمات الأساسية - Starter Package Services
 # للمزارعين الصغار وملاك الأراضي الجدد
 # ============================================================================
@@ -23,7 +168,7 @@ services:
   # إدارة الحقول - Field Management
   # ============================================================================
   - name: field-core
-    url: http://field-management-service:3000
+    host: field-management-upstream
     tags:
       - starter
       - core
@@ -57,7 +202,13 @@ services:
         config:
           minute: 100
           hour: 5000
-          policy: local
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
           fault_tolerant: true
       - name: correlation-id
         config:
@@ -71,7 +222,7 @@ services:
   # خدمة الطقس - Weather Service
   # ============================================================================
   - name: weather-core
-    url: http://weather-service:8108
+    host: weather-service-upstream
     tags:
       - starter
       - weather
@@ -95,7 +246,14 @@ services:
       - name: rate-limiting
         config:
           minute: 100
-          policy: local
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
       - name: response-transformer
         config:
           add:
@@ -126,12 +284,20 @@ services:
       - name: rate-limiting
         config:
           minute: 100
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # المستشار الزراعي - Agro Advisor
   # ============================================================================
   - name: agro-advisor
-    url: http://agro-advisor:8095
+    url: http://advisory-service:8093
     tags:
       - starter
       - advisory
@@ -151,6 +317,14 @@ services:
       - name: rate-limiting
         config:
           minute: 100
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة الإشعارات - Notification Service
@@ -176,6 +350,14 @@ services:
       - name: rate-limiting
         config:
           minute: 100
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # الخدمات المتوسطة - Professional Package Services
@@ -186,7 +368,7 @@ services:
   # خدمة الأقمار الصناعية - Satellite Service
   # ============================================================================
   - name: satellite-service
-    url: http://vegetation-analysis-service:8090
+    host: vegetation-analysis-upstream
     tags:
       - professional
       - satellite
@@ -210,6 +392,14 @@ services:
         config:
           minute: 1000
           hour: 50000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
       - name: request-size-limiting
         config:
           allowed_payload_size: 50
@@ -218,7 +408,7 @@ services:
   # محرك NDVI - NDVI Engine
   # ============================================================================
   - name: ndvi-engine
-    url: http://ndvi-engine:8097
+    url: http://ndvi-processor:8118
     tags:
       - professional
       - analytics
@@ -237,12 +427,20 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # الذكاء الاصطناعي لصحة المحاصيل - Crop Health AI
   # ============================================================================
   - name: crop-health-ai
-    url: http://crop-intelligence-service:8095
+    host: crop-intelligence-upstream
     tags:
       - professional
       - ai
@@ -264,6 +462,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
       - name: request-size-limiting
         config:
           allowed_payload_size: 25
@@ -291,12 +497,20 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # المستشعرات الافتراضية - Virtual Sensors (ET0)
   # ============================================================================
   - name: virtual-sensors
-    url: http://virtual-sensors:8096
+    host: virtual-sensors-upstream
     tags:
       - professional
       - sensors
@@ -315,6 +529,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # محرك توقع الإنتاجية - Yield Engine
@@ -339,12 +561,20 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # مستشار التسميد - Fertilizer Advisor
   # ============================================================================
   - name: fertilizer-advisor
-    url: http://advisory-service:8093
+    host: advisory-service-upstream
     tags:
       - professional
       - advisory
@@ -363,6 +593,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة المخزون - Inventory Service
@@ -387,6 +625,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # الخدمات المتقدمة - Enterprise Package Services
@@ -397,7 +643,7 @@ services:
   # المستشار الذكي متعدد الوكلاء - AI Advisor
   # ============================================================================
   - name: ai-advisor
-    url: http://ai-advisor:8112
+    host: ai-advisor-upstream
     tags:
       - enterprise
       - ai
@@ -420,6 +666,14 @@ services:
         config:
           minute: 10000
           hour: 500000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
       - name: request-size-limiting
         config:
           allowed_payload_size: 50
@@ -428,7 +682,7 @@ services:
   # بوابة إنترنت الأشياء - IoT Gateway
   # ============================================================================
   - name: iot-gateway
-    url: http://iot-gateway:8096
+    host: iot-gateway-upstream
     tags:
       - enterprise
       - iot
@@ -446,6 +700,20 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
 
   # ============================================================================
   # إدارة الأبحاث - Research Core
@@ -470,6 +738,20 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
 
   # ============================================================================
   # السوق الزراعي - Marketplace Service
@@ -493,6 +775,20 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
 
   # ============================================================================
   # الفوترة والمدفوعات - Billing Core
@@ -518,6 +814,20 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
 
   # ============================================================================
   # تقييم الكوارث - Disaster Assessment
@@ -542,6 +852,20 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
 
   # ============================================================================
   # نماذج نمو المحاصيل - Crop Growth Model (WOFOST)
@@ -569,6 +893,14 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # تقدير مؤشر مساحة الورق - LAI Estimation
@@ -593,6 +925,14 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمات إضافية - Additional Services
@@ -622,6 +962,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # بوابة WebSocket - WebSocket Gateway
@@ -644,6 +992,14 @@ services:
       - name: rate-limiting
         config:
           minute: 5000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة المؤشرات - Indicators Service
@@ -669,6 +1025,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # الطقس المتقدم - Advanced Weather
@@ -693,6 +1057,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # محادثة المجتمع - Community Chat
@@ -712,6 +1084,14 @@ services:
       - name: rate-limiting
         config:
           minute: 2000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # محادثة الحقل - Field Chat
@@ -731,6 +1111,14 @@ services:
       - name: rate-limiting
         config:
           minute: 2000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة المعدات - Equipment Service
@@ -755,6 +1143,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة المهام - Task Service
@@ -774,6 +1170,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # تكوين المزودين - Provider Config
@@ -798,6 +1202,14 @@ services:
       - name: rate-limiting
         config:
           minute: 500
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # لوحة التحكم - Admin Dashboard
@@ -821,6 +1233,14 @@ services:
       - name: rate-limiting
         config:
           minute: 5000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
       - name: ip-restriction
         config:
           allow:
@@ -851,12 +1271,20 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة التنبيهات - Alert Service
   # ============================================================================
   - name: alert-service
-    url: http://alert-service:8107
+    url: http://alert-service:8113
     tags:
       - shared
       - alerts
@@ -870,6 +1298,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة المحادثة - Chat Service
@@ -889,6 +1325,14 @@ services:
       - name: rate-limiting
         config:
           minute: 2000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة الحقول - Field Service
@@ -908,12 +1352,20 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # خدمة IoT - IoT Service
   # ============================================================================
   - name: iot-service
-    url: http://iot-service:8117
+    host: iot-service-upstream
     tags:
       - enterprise
       - iot
@@ -931,12 +1383,20 @@ services:
       - name: rate-limiting
         config:
           minute: 10000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # معالج NDVI - NDVI Processor
   # ============================================================================
   - name: ndvi-processor
-    url: http://ndvi-processor:8101
+    url: http://ndvi-processor:8118
     tags:
       - professional
       - analytics
@@ -955,6 +1415,14 @@ services:
       - name: rate-limiting
         config:
           minute: 1000
+          policy: redis
+          redis:
+            host: redis
+            port: 6379
+            password: ${REDIS_PASSWORD}
+            database: 1
+            timeout: 2000
+          fault_tolerant: true
 
   # ============================================================================
   # نقاط فحص الصحة - Health Check Endpoints
@@ -984,7 +1452,14 @@ plugins:
   - name: cors
     config:
       origins:
-        - "*"
+        - "https://sahool.app"
+        - "https://www.sahool.app"
+        - "https://admin.sahool.app"
+        - "https://api.sahool.app"
+        - "https://staging.sahool.app"
+        - "http://localhost:3000"
+        - "http://localhost:5173"
+        - "http://localhost:8080"
       methods:
         - GET
         - POST
@@ -1002,7 +1477,6 @@ plugins:
         - Authorization
         - X-Auth-Token
       exposed_headers:
-        - X-Auth-Token
         - X-Request-ID
       credentials: true
       max_age: 3600
@@ -1010,11 +1484,24 @@ plugins:
   # تسجيل الطلبات
   - name: file-log
     config:
-      path: /tmp/kong-access.log
+      path: /var/log/kong/access.log
       reopen: true
 
   # Prometheus للمراقبة
   - name: prometheus
+
+  # Security Headers
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Content-Type-Options: nosniff"
+          - "X-Frame-Options: DENY"
+          - "X-XSS-Protection: 1; mode=block"
+          - "Referrer-Policy: strict-origin-when-cross-origin"
+          - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
+          - "Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.sahool.app wss://api.sahool.app"
+          - "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"
 
   # معرف الطلب
   - name: correlation-id
@@ -1034,9 +1521,12 @@ consumers:
     tags:
       - starter
     jwt_secrets:
-      - key: starter-jwt-key
+      - key: starter-jwt-key-hs256
         algorithm: HS256
         secret: ${STARTER_JWT_SECRET}
+      - key: starter-jwt-key-rs256
+        algorithm: RS256
+        rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون المحترفون - Professional Users
   - username: professional-user-sample
@@ -1044,9 +1534,12 @@ consumers:
     tags:
       - professional
     jwt_secrets:
-      - key: professional-jwt-key
+      - key: professional-jwt-key-hs256
         algorithm: HS256
         secret: ${PROFESSIONAL_JWT_SECRET}
+      - key: professional-jwt-key-rs256
+        algorithm: RS256
+        rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون المؤسسيون - Enterprise Users
   - username: enterprise-user-sample
@@ -1054,9 +1547,12 @@ consumers:
     tags:
       - enterprise
     jwt_secrets:
-      - key: enterprise-jwt-key
+      - key: enterprise-jwt-key-hs256
         algorithm: HS256
         secret: ${ENTERPRISE_JWT_SECRET}
+      - key: enterprise-jwt-key-rs256
+        algorithm: RS256
+        rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون البحثيون - Research Users
   - username: research-user-sample
@@ -1064,9 +1560,12 @@ consumers:
     tags:
       - research
     jwt_secrets:
-      - key: research-jwt-key
+      - key: research-jwt-key-hs256
         algorithm: HS256
         secret: ${RESEARCH_JWT_SECRET}
+      - key: research-jwt-key-rs256
+        algorithm: RS256
+        rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون المسؤولون - Admin Users
   - username: admin-user-sample
@@ -1074,9 +1573,12 @@ consumers:
     tags:
       - admin
     jwt_secrets:
-      - key: admin-jwt-key
+      - key: admin-jwt-key-hs256
         algorithm: HS256
         secret: ${ADMIN_JWT_SECRET}
+      - key: admin-jwt-key-rs256
+        algorithm: RS256
+        rsa_public_key: ${JWT_PUBLIC_KEY}
 
 # ============================================================================
 # مجموعات التحكم في الوصول - ACL Groups

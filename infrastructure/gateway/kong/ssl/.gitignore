@@ -1,0 +1,7 @@
+*.key
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+!README.md

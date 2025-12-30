@@ -33,7 +33,8 @@ export function ThemeToggle() {
     ];
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+    const nextTheme = themes[nextIndex] ?? 'light';
+    setTheme(nextTheme);
   };
 
   const getIcon = () => {

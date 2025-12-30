@@ -35,6 +35,8 @@ const MOCK_EQUIPMENT: Equipment[] = [
     fuelType: 'diesel',
     totalOperatingHours: 1250,
     nextMaintenanceDate: '2025-02-15',
+    specifications: {},
+    metadata: {},
     createdAt: '2024-01-15T10:00:00Z',
     updatedAt: '2024-12-01T10:00:00Z',
   },
@@ -51,6 +53,8 @@ const MOCK_EQUIPMENT: Equipment[] = [
     purchasePrice: 85000,
     totalOperatingHours: 800,
     nextMaintenanceDate: '2025-03-20',
+    specifications: {},
+    metadata: {},
     createdAt: '2024-03-20T10:00:00Z',
     updatedAt: '2024-12-01T10:00:00Z',
   },
@@ -68,6 +72,8 @@ const MOCK_EQUIPMENT: Equipment[] = [
     fuelType: 'diesel',
     totalOperatingHours: 2100,
     nextMaintenanceDate: '2024-12-15',
+    specifications: {},
+    metadata: {},
     createdAt: '2023-06-10T10:00:00Z',
     updatedAt: '2024-12-01T10:00:00Z',
   },
@@ -116,11 +122,6 @@ const MOCK_MAINTENANCE: MaintenanceRecord[] = [
     updatedAt: '2024-11-01T10:00:00Z',
   },
 ];
-
-// Check if we should use mock data (for E2E tests or when API is unavailable)
-const useMockData = typeof window !== 'undefined' &&
-  (window.location.hostname === 'localhost' ||
-   process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true');
 
 // API Functions
 export const equipmentApi = {

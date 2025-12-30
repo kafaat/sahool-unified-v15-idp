@@ -20,7 +20,7 @@ export const AnalyticsDashboard: React.FC = () => {
   });
   const [activeTab, setActiveTab] = useState<'overview' | 'yield' | 'cost' | 'reports'>('overview');
 
-  const { data: summary } = useAnalyticsSummary(filters);
+const { data: summary } = useAnalyticsSummary(filters);
   const { data: kpis } = useKPIMetrics(filters);
 
   // Provide mock data for testing/development when API is not available

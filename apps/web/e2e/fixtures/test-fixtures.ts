@@ -157,7 +157,7 @@ export const test = base.extend<CustomFixtures>({
    * إعداد صفحة مصادقة وهمية
    * إعداد حالة المصادقة بدون المرور بعملية تسجيل الدخول
    */
-  mockAuthPage: async ({ page, context, authStatePath }, use, testInfo) => {
+  mockAuthPage: async ({ page, context }, use, testInfo) => {
     console.log(`[${testInfo.title}] Setting up mock authentication...`);
 
     try {

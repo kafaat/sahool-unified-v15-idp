@@ -12,12 +12,12 @@ from tortoise.exceptions import DBConnectionError
 logger = logging.getLogger("sahool-notifications.database")
 
 # Database configuration - MUST be set via environment variable in production
-# Format: postgres://user:password@host:port/database
+# Example: DATABASE_URL=postgres://$USER:$PASSWORD@$HOST:$PORT/$DB
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise EnvironmentError(
         "DATABASE_URL environment variable is required. "
-        "Format: postgres://user:password@host:port/database"
+        "See .env.example for format"
     )
 
 # Tortoise ORM configuration

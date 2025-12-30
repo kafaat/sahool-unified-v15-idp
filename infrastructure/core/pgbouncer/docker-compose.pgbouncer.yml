@@ -17,7 +17,7 @@ services:
     container_name: sahool-pgbouncer
     environment:
       # Database connection
-      DATABASE_URL: postgres://sahool_app:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/sahool
+      DATABASE_URL: postgres://${POSTGRES_USER:-sahool_app}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}
 
       # Pool settings (can override pgbouncer.ini)
       POOL_MODE: transaction

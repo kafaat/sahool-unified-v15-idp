@@ -292,7 +292,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3000
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=${POSTGRES_USER:-sahool}
@@ -337,7 +337,7 @@ services:
     environment:
       - PORT=3010
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -378,7 +378,7 @@ services:
     environment:
       - PORT=3015
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -422,7 +422,7 @@ services:
     environment:
       - PORT=3020
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -467,7 +467,7 @@ services:
     environment:
       - PORT=3021
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -512,7 +512,7 @@ services:
     environment:
       - PORT=3022
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -557,7 +557,7 @@ services:
     environment:
       - PORT=3023
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -600,7 +600,7 @@ services:
     environment:
       - PORT=8114
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -641,7 +641,7 @@ services:
     environment:
       - PORT=8117
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - MQTT_BROKER=mqtt
@@ -690,7 +690,7 @@ services:
     environment:
       - PORT=8097
       - NODE_ENV=production
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -735,7 +735,7 @@ services:
     container_name: sahool-field-ops
     environment:
       - PORT=8080
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -819,7 +819,7 @@ services:
       - PORT=8089
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
@@ -874,7 +874,7 @@ services:
       - PLANET_API_KEY=${PLANET_API_KEY:-}
       - PLANET_CLIENT_ID=${PLANET_CLIENT_ID:-}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8090:8090"
@@ -913,7 +913,7 @@ services:
       - PORT=8091
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8091:8091"
@@ -953,7 +953,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8092:8092"
@@ -991,7 +991,7 @@ services:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8093:8093"
@@ -1028,7 +1028,7 @@ services:
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - IOT_GATEWAY_URL=http://iot_gateway:8106
     ports:
@@ -1068,7 +1068,7 @@ services:
       - MODEL_PATH=/app/models/plant_disease.tflite
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8095:8095"
@@ -1107,7 +1107,7 @@ services:
       - PORT=8096
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8096:8096"
@@ -1145,7 +1145,7 @@ services:
       - PORT=8098
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8098:8098"
@@ -1180,7 +1180,7 @@ services:
     container_name: sahool-field-chat
     environment:
       - PORT=8099
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -1222,7 +1222,7 @@ services:
     container_name: sahool-equipment-service
     environment:
       - PORT=8101
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
@@ -1258,7 +1258,7 @@ services:
     container_name: sahool-task-service
     environment:
       - PORT=8103
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
@@ -1325,7 +1325,7 @@ services:
     container_name: sahool-agro-advisor
     environment:
       - PORT=8105
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -1364,7 +1364,7 @@ services:
     container_name: sahool-iot-gateway
     environment:
       - PORT=8106
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - MQTT_BROKER=mqtt
       - MQTT_PORT=1883
@@ -1412,7 +1412,7 @@ services:
     container_name: sahool-ndvi-engine
     environment:
       - PORT=8107
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -1453,7 +1453,7 @@ services:
     container_name: sahool-weather-core
     environment:
       - PORT=8108
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-RS256}
@@ -1498,7 +1498,7 @@ services:
       - PORT=8110
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://nats:4222
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
@@ -1641,7 +1641,7 @@ services:
       - PORT=8113
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - NOTIFICATION_SERVICE_URL=http://notification_service:8110
     ports:
@@ -1683,7 +1683,7 @@ services:
       - PORT=8115
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
@@ -1723,7 +1723,7 @@ services:
       - PORT=8116
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
     ports:
       - "8116:8116"
@@ -1762,7 +1762,7 @@ services:
       - PORT=8118
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sahool}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:

@@ -19,7 +19,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-sahool}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
     # Use tmpfs for temporary data (security hardening)
     tmpfs:
       - /tmp
@@ -186,8 +186,8 @@ services:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
     volumes:
-      - ./infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infra/mqtt/passwd:/mosquitto/config/passwd:ro
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infrastructure/core/mqtt/passwd:/mosquitto/config/passwd:ro
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
     ports:

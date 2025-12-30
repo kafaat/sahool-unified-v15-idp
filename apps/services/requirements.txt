@@ -23,7 +23,7 @@ nats-py==2.9.0
 redis==5.2.1
 
 # Validation
-pydantic>=2.10.0,<3.0.0
+pydantic==2.9.2
 jsonschema==4.23.0
 
 # Environment

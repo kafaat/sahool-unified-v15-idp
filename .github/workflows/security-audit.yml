@@ -1,0 +1,1057 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Comprehensive Security Audit Workflow
+# Version: 1.0.0
+# Automated security scanning across all technology stacks
+# Runs weekly and on critical branches for comprehensive security coverage
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Security Audit
+
+on:
+  schedule:
+    # Weekly security audit on Monday at 6 AM UTC
+    - cron: '0 6 * * 1'
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      full_scan:
+        description: 'Run full comprehensive scan (including all services)'
+        required: false
+        default: 'false'
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+  FLUTTER_VERSION: "3.16.0"
+  DART_VERSION: "3.2.0"
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  issues: write
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # DEPENDENCY SCANNING
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  dependency-scan-nodejs:
+    name: Node.js Dependency Audit
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          if [ -f "package.json" ]; then
+            npm ci --ignore-scripts
+          fi
+
+      - name: Run npm audit
+        id: npm-audit
+        continue-on-error: true
+        run: |
+          echo "🔍 Running npm audit on all package.json files..."
+
+          # Audit root package.json
+          if [ -f "package.json" ]; then
+            echo "Auditing root package.json..."
+            npm audit --json > npm-audit-root.json 2>&1 || true
+            npm audit --audit-level=moderate || true
+          fi
+
+          # Audit workspace packages
+          PACKAGE_DIRS=$(find . -name "package.json" -not -path "*/node_modules/*" -not -path "*/.git/*" | head -20)
+          VULNERABLE_COUNT=0
+
+          for pkg_file in $PACKAGE_DIRS; do
+            dir=$(dirname "$pkg_file")
+            echo "Scanning: $dir"
+
+            if [ -f "$dir/package-lock.json" ] || [ -f "$dir/yarn.lock" ]; then
+              (cd "$dir" && npm audit --json > "$(pwd)/npm-audit-$(echo $dir | md5sum | cut -d' ' -f1).json" 2>&1) || VULNERABLE_COUNT=$((VULNERABLE_COUNT + 1))
+            fi
+          done
+
+          echo "vulnerable_packages=$VULNERABLE_COUNT" >> $GITHUB_OUTPUT
+
+          if [ $VULNERABLE_COUNT -gt 0 ]; then
+            echo "::warning::Found vulnerabilities in $VULNERABLE_COUNT packages"
+          fi
+
+      - name: Check for outdated packages
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for outdated packages..."
+          npm outdated || true
+
+      - name: Upload npm audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nodejs-dependency-audit
+          path: npm-audit-*.json
+          retention-days: 30
+
+  dependency-scan-python:
+    name: Python Dependency Audit
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install security tools
+        run: |
+          pip install --upgrade pip
+          pip install safety pip-audit
+
+      - name: Run pip-audit
+        id: pip-audit
+        continue-on-error: true
+        run: |
+          echo "🔍 Running pip-audit on all requirements files..."
+
+          REQUIREMENTS_FILES=$(find . -name "requirements.txt" -type f -not -path "./archive/*" -not -path "./.git/*")
+          VULNERABLE_COUNT=0
+
+          for req_file in $REQUIREMENTS_FILES; do
+            echo "Auditing: $req_file"
+            HASH=$(echo $req_file | md5sum | cut -d' ' -f1)
+
+            # Run pip-audit and save results
+            if ! pip-audit -r "$req_file" --format json > "pip-audit-$HASH.json" 2>&1; then
+              VULNERABLE_COUNT=$((VULNERABLE_COUNT + 1))
+              pip-audit -r "$req_file" || true
+            fi
+          done
+
+          echo "vulnerable_files=$VULNERABLE_COUNT" >> $GITHUB_OUTPUT
+
+          if [ $VULNERABLE_COUNT -gt 0 ]; then
+            echo "::warning::Found vulnerabilities in $VULNERABLE_COUNT requirements files"
+          fi
+
+      - name: Run Safety check
+        continue-on-error: true
+        run: |
+          echo "🔍 Running Safety security check..."
+
+          for req_file in $(find . -name "requirements.txt" -type f -not -path "./archive/*" | head -15); do
+            echo "Safety check: $req_file"
+            HASH=$(echo $req_file | md5sum | cut -d' ' -f1)
+            safety check -r "$req_file" --json > "safety-$HASH.json" 2>&1 || true
+            safety check -r "$req_file" --full-report || true
+          done
+
+      - name: Upload Python audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: python-dependency-audit
+          path: |
+            pip-audit-*.json
+            safety-*.json
+          retention-days: 30
+
+  dependency-scan-flutter:
+    name: Flutter/Dart Dependency Audit
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Check Flutter version
+        run: flutter --version
+
+      - name: Run Flutter pub outdated
+        id: flutter-outdated
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking for outdated Flutter/Dart packages..."
+
+          PUBSPEC_FILES=$(find . -name "pubspec.yaml" -type f -not -path "./.git/*")
+          OUTDATED_COUNT=0
+
+          for pubspec in $PUBSPEC_FILES; do
+            dir=$(dirname "$pubspec")
+            echo "Checking: $dir"
+
+            (cd "$dir" && flutter pub get) || true
+
+            # Check for outdated packages
+            if (cd "$dir" && flutter pub outdated --json > "pub-outdated.json" 2>&1); then
+              cat "$dir/pub-outdated.json"
+
+              # Check if there are outdated packages
+              OUTDATED=$(cat "$dir/pub-outdated.json" | grep -c "upgradable" || echo "0")
+              if [ "$OUTDATED" != "0" ]; then
+                OUTDATED_COUNT=$((OUTDATED_COUNT + 1))
+                echo "::warning::Found outdated packages in $dir"
+              fi
+            fi
+
+            # Run pub upgrade dry-run
+            (cd "$dir" && flutter pub upgrade --dry-run) || true
+          done
+
+          echo "outdated_count=$OUTDATED_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Upload Flutter audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flutter-dependency-audit
+          path: "**/pub-outdated.json"
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # SECRET SCANNING
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  secrets-scan-gitleaks:
+    name: Secrets Scan - Gitleaks
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  secrets-scan-trufflehog:
+    name: Secrets Scan - TruffleHog
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@v3.88.0
+        continue-on-error: true
+        with:
+          path: ./
+          base: ""
+          head: HEAD
+          extra_args: --only-verified --no-update
+
+  secrets-scan-hardcoded:
+    name: Hardcoded Credentials Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for hardcoded secrets
+        run: |
+          echo "🔍 Scanning for hardcoded secrets and credentials..."
+
+          FINDINGS=0
+
+          # Check for private keys
+          echo "Checking for private keys..."
+          if grep -rn "-----BEGIN.*PRIVATE KEY-----" \
+            --include="*.py" --include="*.js" --include="*.ts" \
+            --include="*.yml" --include="*.yaml" --include="*.dart" \
+            --exclude-dir=".git" --exclude-dir="node_modules" \
+            --exclude-dir="archive" . 2>/dev/null; then
+            echo "❌ Found embedded private keys"
+            FINDINGS=$((FINDINGS + 1))
+          fi
+
+          # Check for AWS credentials
+          echo "Checking for AWS credentials..."
+          if grep -rniE "AKIA[0-9A-Z]{16}" \
+            --include="*.py" --include="*.js" --include="*.ts" --include="*.dart" \
+            --exclude-dir=".git" --exclude-dir="node_modules" \
+            --exclude-dir="archive" . 2>/dev/null; then
+            echo "❌ Found AWS Access Keys"
+            FINDINGS=$((FINDINGS + 1))
+          fi
+
+          # Check for API keys (excluding env var references)
+          echo "Checking for hardcoded API keys..."
+          if grep -rniE "(api[_-]?key|apikey)\s*[:=]\s*['\"][a-zA-Z0-9_-]{20,}['\"]" \
+            --include="*.py" --include="*.js" --include="*.ts" --include="*.dart" \
+            --exclude-dir=".git" --exclude-dir="node_modules" \
+            --exclude-dir="archive" --exclude="*test*" --exclude="*mock*" . 2>/dev/null | \
+            grep -v "getenv" | grep -v "environ" | grep -v "process.env"; then
+            echo "❌ Found hardcoded API keys"
+            FINDINGS=$((FINDINGS + 1))
+          fi
+
+          # Check for database connection strings
+          echo "Checking for database credentials..."
+          if grep -rniE "(postgres|mysql|mongodb)://[^:]+:[^@]+@" \
+            --include="*.py" --include="*.js" --include="*.ts" --include="*.yml" \
+            --exclude-dir=".git" --exclude-dir="node_modules" \
+            --exclude="*example*" --exclude="*test*" . 2>/dev/null; then
+            echo "❌ Found hardcoded database credentials"
+            FINDINGS=$((FINDINGS + 1))
+          fi
+
+          # Check for JWT secrets
+          echo "Checking for JWT secrets..."
+          if grep -rniE "(jwt[_-]?secret|secret[_-]?key)\s*[:=]\s*['\"][^'\"]{20,}['\"]" \
+            --include="*.py" --include="*.js" --include="*.ts" \
+            --exclude-dir=".git" --exclude-dir="node_modules" \
+            --exclude="*test*" . 2>/dev/null | \
+            grep -v "getenv" | grep -v "environ"; then
+            echo "⚠️  Potential JWT secrets found"
+          fi
+
+          if [ $FINDINGS -gt 0 ]; then
+            echo "::error::Found $FINDINGS types of hardcoded secrets!"
+            exit 1
+          fi
+
+          echo "✅ No hardcoded secrets detected"
+
+      - name: Check for sensitive files
+        run: |
+          echo "🔍 Checking for sensitive files..."
+
+          SENSITIVE_PATTERNS=(
+            "*.pem"
+            "*.key"
+            "*.p12"
+            "*.pfx"
+            "*.keystore"
+            "*.jks"
+            ".env"
+            ".env.local"
+            ".env.production"
+            "*.credentials"
+            "credentials.json"
+            "serviceAccount*.json"
+            "*.kdbx"
+          )
+
+          FOUND=0
+          for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+            MATCHES=$(find . -name "$pattern" \
+              -not -path "./.git/*" \
+              -not -path "./node_modules/*" \
+              -not -path "./archive/*" \
+              -not -name "*.example" \
+              -not -name "*.sample" 2>/dev/null || true)
+
+            if [ -n "$MATCHES" ]; then
+              echo "⚠️  Found sensitive file pattern: $pattern"
+              echo "$MATCHES"
+              FOUND=$((FOUND + 1))
+            fi
+          done
+
+          if [ $FOUND -gt 0 ]; then
+            echo "::warning::Sensitive files detected (review recommended)"
+          else
+            echo "✅ No sensitive files found"
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # SAST - STATIC APPLICATION SECURITY TESTING
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  sast-python-bandit:
+    name: SAST - Python (Bandit)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Bandit
+        run: pip install bandit[toml]
+
+      - name: Run Bandit SAST
+        run: |
+          echo "🔍 Running Bandit static security analysis..."
+
+          # Create default SARIF
+          echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
+
+          # Scan Python code
+          if [ -d "apps/services" ] || [ -d "shared" ]; then
+            bandit -r apps/services/ shared/ \
+              -ll -ii \
+              --format sarif \
+              -o bandit-results.sarif 2>/dev/null || true
+
+            # Human-readable output
+            bandit -r apps/services/ shared/ \
+              -ll -ii \
+              --format txt || true
+          fi
+
+      - name: Upload Bandit SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: bandit-results.sarif
+          category: bandit-python-sast
+
+  sast-semgrep:
+    name: SAST - Multi-language (Semgrep)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        continue-on-error: true
+        with:
+          config: >-
+            p/security-audit
+            p/python
+            p/javascript
+            p/typescript
+            p/secrets
+            p/owasp-top-ten
+            p/docker
+          generateSarif: true
+
+      - name: Upload Semgrep SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep-multilanguage-sast
+
+  sast-codeql:
+    name: SAST - CodeQL
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['python', 'javascript']
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+        continue-on-error: true
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        continue-on-error: true
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  sast-dart-analyzer:
+    name: SAST - Dart Analyzer
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      - name: Run Dart Analyzer
+        run: |
+          echo "🔍 Running Dart static analysis..."
+
+          PUBSPEC_FILES=$(find . -name "pubspec.yaml" -type f -not -path "./.git/*")
+          ISSUES_FOUND=0
+
+          for pubspec in $PUBSPEC_FILES; do
+            dir=$(dirname "$pubspec")
+            echo "Analyzing: $dir"
+
+            # Get dependencies
+            (cd "$dir" && flutter pub get) || true
+
+            # Run analyzer
+            if ! (cd "$dir" && flutter analyze --no-pub); then
+              ISSUES_FOUND=$((ISSUES_FOUND + 1))
+              echo "::warning::Static analysis issues found in $dir"
+            fi
+          done
+
+          if [ $ISSUES_FOUND -gt 0 ]; then
+            echo "::warning::Found issues in $ISSUES_FOUND Dart/Flutter projects"
+          else
+            echo "✅ No Dart analysis issues found"
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # CONTAINER SCANNING
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  container-scan-trivy:
+    name: Container Scan - Trivy
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    if: github.event_name == 'schedule' || github.event.inputs.full_scan == 'true' || github.ref == 'refs/heads/main'
+    permissions:
+      security-events: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - crop-health
+          - weather-core
+          - satellite-service
+          - field-ops
+          - billing-core
+          - iot-gateway
+          - ndvi-engine
+          - crop-health-ai
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          echo "🔨 Building image for ${{ matrix.service }}..."
+          docker build -t ${{ matrix.service }}:scan \
+            apps/services/${{ matrix.service }} || exit 0
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          image-ref: ${{ matrix.service }}:scan
+          format: 'sarif'
+          output: 'trivy-${{ matrix.service }}.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0'
+          vuln-type: 'os,library'
+          scanners: 'vuln,config,secret'
+
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: trivy-${{ matrix.service }}.sarif
+          category: trivy-${{ matrix.service }}
+
+      - name: Run Trivy with table output
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          image-ref: ${{ matrix.service }}:scan
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+
+  container-base-image-scan:
+    name: Base Image Security Check
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan base images
+        run: |
+          echo "🔍 Checking Docker base images for vulnerabilities..."
+
+          # Extract unique base images
+          BASE_IMAGES=$(grep -rh "^FROM " --include="Dockerfile" . | \
+            awk '{print $2}' | sort -u | grep -v "^scratch$" || true)
+
+          echo "Found base images:"
+          echo "$BASE_IMAGES"
+
+          # Check for outdated or vulnerable base images
+          echo ""
+          echo "Checking for best practices:"
+          for image in $BASE_IMAGES; do
+            echo "Image: $image"
+
+            # Check for latest tag
+            if echo "$image" | grep -q ":latest"; then
+              echo "  ⚠️  WARNING: Using :latest tag (not recommended)"
+            fi
+
+            # Check for alpine
+            if echo "$image" | grep -q "alpine"; then
+              echo "  ✅ Using Alpine (lightweight)"
+            fi
+
+            # Check for specific version
+            if echo "$image" | grep -qE ":[0-9]"; then
+              echo "  ✅ Using pinned version"
+            else
+              echo "  ⚠️  WARNING: Version not pinned"
+            fi
+          done
+
+  dockerfile-security-scan:
+    name: Dockerfile Security - Hadolint
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        continue-on-error: true
+        with:
+          dockerfile: "**/Dockerfile"
+          recursive: true
+          failure-threshold: warning
+
+      - name: Dockerfile best practices check
+        run: |
+          echo "🔍 Checking Dockerfile security best practices..."
+
+          DOCKERFILES=$(find . -name "Dockerfile" -type f -not -path "./archive/*")
+          ISSUES=0
+
+          for dockerfile in $DOCKERFILES; do
+            echo "Checking: $dockerfile"
+
+            # Check for root user
+            if ! grep -q "USER [^r]" "$dockerfile" && ! grep -q "USER [0-9]" "$dockerfile"; then
+              echo "  ⚠️  No non-root USER directive"
+              ISSUES=$((ISSUES + 1))
+            fi
+
+            # Check for latest tag
+            if grep -qE "FROM .+:latest" "$dockerfile"; then
+              echo "  ⚠️  Using :latest tag"
+              ISSUES=$((ISSUES + 1))
+            fi
+
+            # Check for COPY without --chown
+            if grep -q "^COPY " "$dockerfile" && ! grep -q "COPY --chown" "$dockerfile"; then
+              echo "  ℹ️  Consider using COPY --chown"
+            fi
+
+            # Check for hardcoded secrets
+            if grep -qE "(PASSWORD|SECRET|KEY|TOKEN)=" "$dockerfile"; then
+              echo "  ❌ Potential hardcoded secrets"
+              ISSUES=$((ISSUES + 1))
+            fi
+
+            # Check for apt-get without cleanup
+            if grep -q "apt-get install" "$dockerfile" && ! grep -q "rm -rf /var/lib/apt/lists" "$dockerfile"; then
+              echo "  ⚠️  apt-get cleanup missing (increases image size)"
+            fi
+
+            # Check for HEALTHCHECK
+            if ! grep -q "HEALTHCHECK" "$dockerfile"; then
+              echo "  ℹ️  No HEALTHCHECK defined"
+            fi
+          done
+
+          if [ $ISSUES -gt 0 ]; then
+            echo "::warning::Found $ISSUES Dockerfile security issues"
+          fi
+
+          echo "✅ Dockerfile security check complete"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # INFRASTRUCTURE SCANNING
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  iac-scan-checkov:
+    name: IaC Scan - Checkov
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        continue-on-error: true
+        with:
+          directory: .
+          framework: kubernetes,dockerfile,secrets,helm
+          soft_fail: true
+          output_format: sarif
+          output_file_path: checkov-results.sarif
+          download_external_modules: true
+
+      - name: Upload Checkov SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: checkov-results.sarif
+          category: checkov-iac
+
+  iac-scan-kube-linter:
+    name: IaC Scan - Kube-linter
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install kube-linter
+        run: |
+          echo "📥 Installing kube-linter..."
+          wget https://github.com/stackrox/kube-linter/releases/download/v0.6.8/kube-linter-linux.tar.gz
+          tar xzf kube-linter-linux.tar.gz
+          sudo mv kube-linter /usr/local/bin/
+          kube-linter version
+
+      - name: Scan Helm charts
+        run: |
+          echo "🔍 Scanning Helm charts with kube-linter..."
+
+          if [ -d "helm" ]; then
+            # Find all Helm chart directories
+            HELM_CHARTS=$(find helm -name "Chart.yaml" -type f | xargs -n1 dirname | sort -u)
+
+            for chart in $HELM_CHARTS; do
+              echo "Scanning chart: $chart"
+
+              # Template the Helm chart
+              if helm template "$chart" > /tmp/helm-manifest.yaml 2>/dev/null; then
+                # Scan the templated manifest
+                kube-linter lint /tmp/helm-manifest.yaml \
+                  --config .kube-linter.yaml \
+                  2>&1 || echo "::warning::Security issues found in $chart"
+              fi
+            done
+          fi
+
+          echo "✅ Helm chart scanning complete"
+
+      - name: Scan Kubernetes manifests
+        run: |
+          echo "🔍 Scanning raw Kubernetes manifests..."
+
+          K8S_FILES=$(find . -name "*.yaml" -o -name "*.yml" | \
+            grep -E "(k8s|kubernetes|manifests)" | \
+            grep -v ".git" | grep -v "node_modules" || true)
+
+          if [ -n "$K8S_FILES" ]; then
+            for file in $K8S_FILES; do
+              if grep -q "kind:" "$file"; then
+                echo "Scanning: $file"
+                kube-linter lint "$file" 2>&1 || true
+              fi
+            done
+          fi
+
+      - name: Security context validation
+        run: |
+          echo "🔍 Validating security contexts in Kubernetes resources..."
+
+          MANIFEST_FILES=$(find . \( -name "*.yaml" -o -name "*.yml" \) \
+            -path "*/helm/*" -o -path "*/k8s/*" -o -path "*/kubernetes/*" 2>/dev/null || true)
+
+          MISSING_SECURITY_CONTEXT=0
+
+          for file in $MANIFEST_FILES; do
+            if grep -q "kind: \(Pod\|Deployment\|StatefulSet\|DaemonSet\)" "$file"; then
+              if ! grep -q "securityContext:" "$file"; then
+                echo "⚠️  Missing securityContext in: $file"
+                MISSING_SECURITY_CONTEXT=$((MISSING_SECURITY_CONTEXT + 1))
+              fi
+
+              # Check for runAsNonRoot
+              if ! grep -q "runAsNonRoot: true" "$file"; then
+                echo "ℹ️  Consider setting runAsNonRoot in: $file"
+              fi
+
+              # Check for readOnlyRootFilesystem
+              if ! grep -q "readOnlyRootFilesystem: true" "$file"; then
+                echo "ℹ️  Consider readOnlyRootFilesystem in: $file"
+              fi
+            fi
+          done
+
+          if [ $MISSING_SECURITY_CONTEXT -gt 0 ]; then
+            echo "::warning::$MISSING_SECURITY_CONTEXT manifests missing security contexts"
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # COMPLIANCE & CONFIGURATION CHECKS
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  security-configuration:
+    name: Security Configuration Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check branch protection
+        run: |
+          echo "🔍 Checking repository security settings..."
+          echo "Note: This requires proper GitHub API access"
+          echo "✅ Manual verification recommended for:"
+          echo "  - Branch protection rules on main/develop"
+          echo "  - Required status checks"
+          echo "  - Required reviews"
+          echo "  - Signed commits"
+
+      - name: Check for security policy
+        run: |
+          echo "🔍 Checking for SECURITY.md..."
+
+          if [ -f "SECURITY.md" ] || [ -f ".github/SECURITY.md" ]; then
+            echo "✅ Security policy exists"
+          else
+            echo "⚠️  No SECURITY.md found - consider adding one"
+            echo "::warning::No SECURITY.md file found"
+          fi
+
+      - name: Check Dependabot configuration
+        run: |
+          echo "🔍 Checking Dependabot configuration..."
+
+          if [ -f ".github/dependabot.yml" ]; then
+            echo "✅ Dependabot configuration exists"
+            cat .github/dependabot.yml
+
+            # Validate ecosystems
+            for ecosystem in "pip" "npm" "github-actions" "docker"; do
+              if grep -q "package-ecosystem: \"$ecosystem\"" .github/dependabot.yml; then
+                echo "  ✅ $ecosystem configured"
+              else
+                echo "  ⚠️  $ecosystem not configured"
+              fi
+            done
+          else
+            echo "⚠️  No Dependabot configuration found"
+            echo "::warning::Consider enabling Dependabot for automatic dependency updates"
+          fi
+
+      - name: Check for code owners
+        run: |
+          echo "🔍 Checking for CODEOWNERS..."
+
+          if [ -f ".github/CODEOWNERS" ] || [ -f "CODEOWNERS" ]; then
+            echo "✅ CODEOWNERS file exists"
+          else
+            echo "ℹ️  No CODEOWNERS file (optional but recommended)"
+          fi
+
+      - name: Check GitHub Actions permissions
+        run: |
+          echo "🔍 Auditing workflow permissions..."
+
+          WORKFLOWS=$(find .github/workflows -name "*.yml" -o -name "*.yaml")
+          ISSUES=0
+
+          for workflow in $WORKFLOWS; do
+            # Check if permissions are explicitly set
+            if ! grep -q "^permissions:" "$workflow"; then
+              echo "⚠️  No explicit permissions in: $(basename $workflow)"
+              ISSUES=$((ISSUES + 1))
+            fi
+
+            # Check for write-all
+            if grep -q "permissions: write-all" "$workflow"; then
+              echo "❌ Excessive permissions in: $(basename $workflow)"
+              ISSUES=$((ISSUES + 1))
+            fi
+          done
+
+          if [ $ISSUES -gt 0 ]; then
+            echo "::warning::Found $ISSUES workflow permission issues"
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # SECURITY SUMMARY & REPORTING
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  security-summary:
+    name: Security Audit Summary
+    runs-on: ubuntu-latest
+    needs:
+      - dependency-scan-nodejs
+      - dependency-scan-python
+      - dependency-scan-flutter
+      - secrets-scan-gitleaks
+      - secrets-scan-trufflehog
+      - secrets-scan-hardcoded
+      - sast-python-bandit
+      - sast-semgrep
+      - sast-codeql
+      - sast-dart-analyzer
+      - dockerfile-security-scan
+      - iac-scan-checkov
+      - iac-scan-kube-linter
+      - security-configuration
+    if: always()
+    steps:
+      - name: Generate comprehensive summary
+        run: |
+          echo "# 🔒 Security Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Audit Date:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## 📊 Scan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Category | Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Dependencies** | Node.js npm audit | ${{ needs.dependency-scan-nodejs.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Dependencies** | Python pip-audit | ${{ needs.dependency-scan-python.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Dependencies** | Flutter pub outdated | ${{ needs.dependency-scan-flutter.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Secrets** | Gitleaks | ${{ needs.secrets-scan-gitleaks.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Secrets** | TruffleHog | ${{ needs.secrets-scan-trufflehog.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Secrets** | Hardcoded Credentials | ${{ needs.secrets-scan-hardcoded.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SAST** | Bandit (Python) | ${{ needs.sast-python-bandit.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SAST** | Semgrep (Multi-lang) | ${{ needs.sast-semgrep.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SAST** | CodeQL | ${{ needs.sast-codeql.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SAST** | Dart Analyzer | ${{ needs.sast-dart-analyzer.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Container** | Dockerfile Hadolint | ${{ needs.dockerfile-security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **IaC** | Checkov | ${{ needs.iac-scan-checkov.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **IaC** | kube-linter | ${{ needs.iac-scan-kube-linter.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Config** | Security Settings | ${{ needs.security-configuration.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## 🎯 Priority Actions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Review Critical/High Findings:** Check the Security tab for detailed results" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Update Dependencies:** Address vulnerable dependencies identified in scans" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Fix SAST Issues:** Review and remediate code security issues" >> $GITHUB_STEP_SUMMARY
+          echo "4. **Container Security:** Update base images and fix Dockerfile issues" >> $GITHUB_STEP_SUMMARY
+          echo "5. **Infrastructure:** Ensure Kubernetes/Helm security contexts are properly configured" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## 📋 Security Checklist" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] All HIGH and CRITICAL vulnerabilities addressed" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] No hardcoded secrets in codebase" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Dependencies updated to secure versions" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Docker images using non-root users" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Security contexts configured in K8s manifests" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Branch protection enabled on main branches" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Dependabot enabled and configured" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*For detailed findings, check the [Security tab](https://github.com/${{ github.repository }}/security)*" >> $GITHUB_STEP_SUMMARY
+
+      - name: Check for critical failures
+        run: |
+          CRITICAL_FAILURES=0
+
+          if [ "${{ needs.secrets-scan-hardcoded.result }}" = "failure" ]; then
+            echo "::error::Critical: Hardcoded secrets detected!"
+            CRITICAL_FAILURES=$((CRITICAL_FAILURES + 1))
+          fi
+
+          if [ $CRITICAL_FAILURES -gt 0 ]; then
+            echo "::error::$CRITICAL_FAILURES critical security issues found!"
+            echo "Please review and address immediately."
+          fi
+
+      - name: Create security issue (on schedule)
+        if: github.event_name == 'schedule' && (needs.dependency-scan-nodejs.result == 'failure' || needs.dependency-scan-python.result == 'failure')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🔒 Weekly Security Audit - Action Required';
+            const body = `
+            ## Weekly Security Audit Results
+
+            **Date:** ${new Date().toISOString()}
+            **Branch:** ${{ github.ref_name }}
+            **Run:** https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            ### Issues Detected
+
+            Our automated security audit has detected issues requiring attention:
+
+            - Node.js Dependencies: ${{ needs.dependency-scan-nodejs.result }}
+            - Python Dependencies: ${{ needs.dependency-scan-python.result }}
+            - Flutter Dependencies: ${{ needs.dependency-scan-flutter.result }}
+
+            ### Next Steps
+
+            1. Review the workflow run for detailed findings
+            2. Update vulnerable dependencies
+            3. Address any security warnings
+            4. Close this issue when resolved
+
+            /cc @security-team
+            `;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['security', 'automated']
+            });

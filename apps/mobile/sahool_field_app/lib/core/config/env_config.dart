@@ -119,6 +119,8 @@ class EnvConfig {
         return const String.fromEnvironment('DEFAULT_TENANT_ID');
       case 'AI_SERVICE_URL':
         return const String.fromEnvironment('AI_SERVICE_URL');
+      case 'SENTRY_DSN':
+        return const String.fromEnvironment('SENTRY_DSN');
       default:
         return '';
     }
@@ -320,6 +322,15 @@ class EnvConfig {
         return 'http://10.0.2.2:8085';
     }
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Monitoring Configuration
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  static String get sentryDsn => _getString('SENTRY_DSN', '');
+
+  static bool get isSentryEnabled =>
+      enableCrashReporting && sentryDsn.isNotEmpty;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Debug Helpers

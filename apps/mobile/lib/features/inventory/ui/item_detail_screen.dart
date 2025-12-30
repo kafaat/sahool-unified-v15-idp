@@ -4,13 +4,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../data/inventory_models.dart';
 import '../providers/inventory_providers.dart';
 import '../widgets/movement_tile.dart';
 import '../widgets/stock_level_indicator.dart';
-import '../../../core/performance/image_cache_manager.dart';
 
 /// شاشة تفاصيل عنصر المخزون
 class ItemDetailScreen extends ConsumerWidget {
@@ -80,22 +78,12 @@ class ItemDetailScreen extends ConsumerWidget {
         children: [
           // صورة العنصر
           if (item.imageUrl != null)
-            CachedNetworkImage(
-              imageUrl: item.imageUrl!,
-              cacheManager: SahoolImageCacheManager.instance.cacheManager,
+            Image.network(
+              item.imageUrl!,
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                height: 200,
-                color: Colors.grey.shade100,
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-              errorWidget: (context, url, error) => _buildImagePlaceholder(context, item),
+              errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder(context, item),
             )
           else
             _buildImagePlaceholder(context, item),

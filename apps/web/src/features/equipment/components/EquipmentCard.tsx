@@ -45,18 +45,17 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
 
   return (
     <Link href={`/equipment/${equipment.id}`}>
-      <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer" data-testid="equipment-card">
+      <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900" data-testid="equipment-card-name-ar">{equipment.nameAr}</h3>
-            <p className="text-sm text-gray-500" data-testid="equipment-card-name-en">{equipment.name}</p>
+            <h3 className="text-lg font-semibold text-gray-900">{equipment.nameAr}</h3>
+            <p className="text-sm text-gray-500">{equipment.name}</p>
           </div>
           <span
             className={`px-3 py-1 rounded-full text-xs font-medium ${
               statusColors[equipment.status]
             }`}
-            data-testid="equipment-card-status"
           >
             {statusLabels[equipment.status]}
           </span>
@@ -76,14 +75,14 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
         )}
 
         {/* Details */}
-        <div className="space-y-2" data-testid="equipment-card-details">
-          <div className="flex items-center text-sm text-gray-600" data-testid="equipment-card-type">
+        <div className="space-y-2">
+          <div className="flex items-center text-sm text-gray-600">
             <TrendingUp className="w-4 h-4 ml-2" />
             <span>{typeLabels[equipment.type]}</span>
           </div>
 
           {equipment.location && (
-            <div className="flex items-center text-sm text-gray-600" data-testid="equipment-card-location">
+            <div className="flex items-center text-sm text-gray-600">
               <MapPin className="w-4 h-4 ml-2" />
               <span>{equipment.location.fieldName || 'موقع المعدة'}</span>
             </div>
@@ -94,7 +93,6 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
               className={`flex items-center text-sm ${
                 maintenanceDue ? 'text-red-600' : 'text-gray-600'
               }`}
-              data-testid="equipment-card-maintenance-date"
             >
               <Calendar className="w-4 h-4 ml-2" />
               <span>
@@ -105,7 +103,7 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
           )}
 
           {equipment.totalOperatingHours && (
-            <div className="text-sm text-gray-600" data-testid="equipment-card-operating-hours">
+            <div className="text-sm text-gray-600">
               ساعات التشغيل: {equipment.totalOperatingHours.toLocaleString('ar-YE')} ساعة
             </div>
           )}
@@ -113,7 +111,7 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
 
         {/* Footer */}
         {equipment.assignedTo && (
-          <div className="pt-3 border-t border-gray-100" data-testid="equipment-card-assigned-to">
+          <div className="pt-3 border-t border-gray-100">
             <p className="text-xs text-gray-500">
               مُسند إلى: <span className="text-gray-700">{equipment.assignedTo.userName}</span>
             </p>
@@ -121,7 +119,7 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
         )}
 
         {maintenanceDue && (
-          <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-800" data-testid="equipment-card-maintenance-overdue">
+          <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-800">
             تنبيه: الصيانة متأخرة!
           </div>
         )}

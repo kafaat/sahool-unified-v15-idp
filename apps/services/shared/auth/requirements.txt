@@ -14,4 +14,4 @@ bcrypt==4.2.1
 fastapi==0.115.5
 
 # Pydantic (pinned for consistency)
-pydantic==2.9.2
+pydantic>=2.10.0,<3.0.0

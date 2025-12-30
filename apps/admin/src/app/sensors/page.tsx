@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary fix for types with React 19
 'use client';
 
 // Virtual Sensors Dashboard - المستشعرات الافتراضية

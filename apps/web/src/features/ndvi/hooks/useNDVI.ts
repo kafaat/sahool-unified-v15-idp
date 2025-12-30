@@ -6,7 +6,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ndviApi, type NDVIFilters } from '../api';
+import { ndviApi, type NDVIData, type NDVIFilters } from '../api';
 
 // Query Keys
 export const ndviKeys = {

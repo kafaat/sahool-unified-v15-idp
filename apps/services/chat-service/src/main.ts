@@ -1,7 +1,6 @@
 /**
  * SAHOOL Chat Service v16.0.0
  * خدمة المحادثات للسوق الزراعي
- * Build: 2024-12-29
  *
  * Features:
  * - Real-time buyer-seller messaging using Socket.IO

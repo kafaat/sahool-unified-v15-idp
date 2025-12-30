@@ -26,7 +26,10 @@ RUN groupadd -r sahool && useradd -r -g sahool sahool
 # Working directory
 WORKDIR /app
 
-# Note: Build dependencies removed - using binary wheels only
+# Install build dependencies if needed
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/* || true
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies

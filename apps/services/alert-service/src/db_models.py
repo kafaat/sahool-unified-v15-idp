@@ -10,9 +10,9 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Float, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, Index, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB, ARRAY
-from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
+from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
 
 Base = declarative_base()
@@ -38,18 +38,14 @@ class Alert(Base):
     # Multi-tenancy
     tenant_id: Mapped[UUID | None] = mapped_column(
         PGUUID(as_uuid=True),
-        ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=True,
-        index=True,
         comment="Tenant that owns this alert",
     )
 
     # Field reference
     field_id: Mapped[str] = mapped_column(
         String(100),
-        ForeignKey("fields.id", ondelete="CASCADE"),
         nullable=False,
-        index=True,
         comment="Field this alert belongs to",
     )
 
@@ -250,18 +246,14 @@ class AlertRule(Base):
     # Multi-tenancy
     tenant_id: Mapped[UUID | None] = mapped_column(
         PGUUID(as_uuid=True),
-        ForeignKey("tenants.id", ondelete="CASCADE"),
         nullable=True,
-        index=True,
         comment="Tenant that owns this rule",
     )
 
     # Field reference
     field_id: Mapped[str] = mapped_column(
         String(100),
-        ForeignKey("fields.id", ondelete="CASCADE"),
         nullable=False,
-        index=True,
         comment="Field this rule applies to",
     )
 
@@ -338,8 +330,6 @@ class AlertRule(Base):
         Index("ix_alert_rules_tenant", "tenant_id", "enabled"),
         # Active rules query
         Index("ix_alert_rules_enabled", "enabled", "last_triggered_at"),
-        # CHECK constraints
-        CheckConstraint("cooldown_hours > 0", name="ck_alert_rules_cooldown_positive"),
     )
 
     def __repr__(self) -> str:

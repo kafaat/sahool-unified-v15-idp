@@ -3,7 +3,7 @@
  * واجهة برمجية لميزة السوق الزراعي
  */
 
-import type { Product, ProductFilters, Order, OrderFilters } from './types';
+import type { Product, ProductFilters, Order, OrderFilters, CartItem } from './types';
 
 // const API_BASE = '/api/marketplace';
 
@@ -60,176 +60,6 @@ const mockProducts: Product[] = [
       regionAr: 'الغربية',
     },
     tags: ['fertilizer', 'NPK', 'nutrients'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Corn Seeds Premium',
-    nameAr: 'بذور ذرة ممتازة',
-    description: 'Premium quality hybrid corn seeds with high yield',
-    descriptionAr: 'بذور ذرة هجينة عالية الجودة مع إنتاجية عالية',
-    category: 'seeds',
-    price: 180,
-    currency: 'SAR',
-    unit: 'kg',
-    unitAr: 'كجم',
-    status: 'available',
-    stock: 8,
-    imageUrl: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=400',
-    sellerId: 'seller1',
-    sellerName: 'مؤسسة البذور الزراعية',
-    sellerRating: 4.5,
-    location: {
-      city: 'Riyadh',
-      cityAr: 'الرياض',
-      region: 'Central',
-      regionAr: 'الوسطى',
-    },
-    tags: ['corn', 'hybrid', 'seeds'],
-    discount: {
-      percentage: 15,
-      validUntil: '2025-12-31',
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '4',
-    name: 'Organic Pesticide Spray',
-    nameAr: 'مبيد حشري عضوي',
-    description: 'Eco-friendly organic pesticide for all crops',
-    descriptionAr: 'مبيد حشري عضوي صديق للبيئة لجميع المحاصيل',
-    category: 'pesticides',
-    price: 95,
-    currency: 'SAR',
-    unit: 'liter',
-    unitAr: 'لتر',
-    status: 'available',
-    stock: 150,
-    imageUrl: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400',
-    sellerId: 'seller3',
-    sellerName: 'شركة الحماية الزراعية',
-    sellerRating: 4.2,
-    location: {
-      city: 'Dammam',
-      cityAr: 'الدمام',
-      region: 'Eastern',
-      regionAr: 'الشرقية',
-    },
-    tags: ['organic', 'pesticide', 'eco-friendly'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '5',
-    name: 'Drip Irrigation Kit',
-    nameAr: 'طقم ري بالتنقيط',
-    description: 'Complete drip irrigation system for small farms',
-    descriptionAr: 'نظام ري بالتنقيط كامل للمزارع الصغيرة',
-    category: 'equipment',
-    price: 450,
-    currency: 'SAR',
-    unit: 'set',
-    unitAr: 'طقم',
-    status: 'available',
-    stock: 45,
-    imageUrl: 'https://images.unsplash.com/photo-1560493676-04071c5f467b?w=400',
-    sellerId: 'seller4',
-    sellerName: 'معدات الري الحديثة',
-    sellerRating: 4.9,
-    location: {
-      city: 'Riyadh',
-      cityAr: 'الرياض',
-      region: 'Central',
-      regionAr: 'الوسطى',
-    },
-    tags: ['irrigation', 'equipment', 'drip'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '6',
-    name: 'Garden Hand Tools Set',
-    nameAr: 'طقم أدوات يدوية للحديقة',
-    description: 'Complete set of essential garden hand tools',
-    descriptionAr: 'طقم كامل من الأدوات اليدوية الأساسية للحديقة',
-    category: 'tools',
-    price: 120,
-    currency: 'SAR',
-    unit: 'set',
-    unitAr: 'طقم',
-    status: 'available',
-    stock: 75,
-    imageUrl: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400',
-    sellerId: 'seller5',
-    sellerName: 'أدوات الزراعة المتقدمة',
-    sellerRating: 4.6,
-    location: {
-      city: 'Jeddah',
-      cityAr: 'جدة',
-      region: 'Western',
-      regionAr: 'الغربية',
-    },
-    tags: ['tools', 'gardening', 'hand-tools'],
-    discount: {
-      percentage: 20,
-      validUntil: '2025-12-31',
-    },
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '7',
-    name: 'Tomato Seeds Hybrid',
-    nameAr: 'بذور طماطم هجينة',
-    description: 'Disease-resistant hybrid tomato seeds',
-    descriptionAr: 'بذور طماطم هجينة مقاومة للأمراض',
-    category: 'seeds',
-    price: 65,
-    currency: 'SAR',
-    unit: 'packet (100g)',
-    unitAr: 'عبوة (100 جم)',
-    status: 'available',
-    stock: 300,
-    imageUrl: 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?w=400',
-    sellerId: 'seller1',
-    sellerName: 'مؤسسة البذور الزراعية',
-    sellerRating: 4.5,
-    location: {
-      city: 'Riyadh',
-      cityAr: 'الرياض',
-      region: 'Central',
-      regionAr: 'الوسطى',
-    },
-    tags: ['tomato', 'hybrid', 'seeds'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  },
-  {
-    id: '8',
-    name: 'Compost Fertilizer',
-    nameAr: 'سماد عضوي كومبوست',
-    description: 'Premium organic compost fertilizer',
-    descriptionAr: 'سماد عضوي كومبوست عالي الجودة',
-    category: 'fertilizers',
-    price: 55,
-    currency: 'SAR',
-    unit: 'bag (20kg)',
-    unitAr: 'كيس (20 كجم)',
-    status: 'available',
-    stock: 180,
-    imageUrl: 'https://images.unsplash.com/photo-1615671524827-c1fe3973b648?w=400',
-    sellerId: 'seller2',
-    sellerName: 'الأسمدة الحديثة',
-    sellerRating: 4.8,
-    location: {
-      city: 'Jeddah',
-      cityAr: 'جدة',
-      region: 'Western',
-      regionAr: 'الغربية',
-    },
-    tags: ['organic', 'compost', 'fertilizer'],
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -308,7 +138,7 @@ export const marketplaceApi = {
   /**
    * Get orders list
    */
-  async getOrders(_filters?: OrderFilters): Promise<Order[]> {
+  async getOrders(filters?: OrderFilters): Promise<Order[]> {
     // Mock orders data
     const orders: Order[] = [];
     return new Promise((resolve) => setTimeout(() => resolve(orders), 500));
@@ -317,7 +147,7 @@ export const marketplaceApi = {
   /**
    * Get order by ID
    */
-  async getOrderById(_id: string): Promise<Order> {
+  async getOrderById(id: string): Promise<Order> {
     throw new Error('Order not found');
   },
 
@@ -353,7 +183,7 @@ export const marketplaceApi = {
   /**
    * Cancel order
    */
-  async cancelOrder(_id: string): Promise<Order> {
+  async cancelOrder(id: string): Promise<Order> {
     throw new Error('Not implemented');
   },
 };

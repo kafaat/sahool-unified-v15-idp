@@ -157,50 +157,6 @@ export const logger = new Logger(
     process.env.SERVICE_VERSION || "15.3.0"
 );
 
-// Sanitize URL by removing sensitive query parameters
-function sanitizeUrl(url: string): string {
-    try {
-        const urlObj = new URL(url, 'http://dummy.com');
-        const sensitiveParams = ['token', 'password', 'api_key', 'apikey', 'auth', 'secret', 'key', 'access_token', 'refresh_token', 'jwt'];
-
-        sensitiveParams.forEach(param => {
-            if (urlObj.searchParams.has(param)) {
-                urlObj.searchParams.set(param, '[REDACTED]');
-            }
-        });
-
-        // Return path + sanitized query string
-        return urlObj.pathname + urlObj.search + urlObj.hash;
-    } catch (error) {
-        // If URL parsing fails, just return the original path without query params
-        return url.split('?')[0];
-    }
-}
-
-// Sanitize IP address for GDPR compliance
-function sanitizeIp(ip: string | undefined): string {
-    if (!ip) return '[unknown]';
-
-    // For IPv4: mask last octet (e.g., 192.168.1.xxx)
-    if (ip.includes('.')) {
-        const parts = ip.split('.');
-        if (parts.length === 4) {
-            return `${parts[0]}.${parts[1]}.${parts[2]}.xxx`;
-        }
-    }
-
-    // For IPv6: mask last 64 bits
-    if (ip.includes(':')) {
-        const parts = ip.split(':');
-        if (parts.length >= 4) {
-            return `${parts.slice(0, 4).join(':')}:xxxx:xxxx:xxxx:xxxx`;
-        }
-    }
-
-    // Fallback: return masked value
-    return '[masked]';
-}
-
 // Generate unique request ID
 function generateRequestId(): string {
     return `req_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 9)}`;
@@ -226,9 +182,9 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
     logger.debug("Request started", { requestId, tenantId }, {
         http: {
             method: req.method,
-            url: sanitizeUrl(req.originalUrl),
+            url: req.originalUrl,
             userAgent: req.headers["user-agent"],
-            ip: sanitizeIp(req.ip || req.socket.remoteAddress)
+            ip: req.ip || req.socket.remoteAddress
         }
     });
 
@@ -238,18 +194,18 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
 
         logger.http(
             req.method,
-            sanitizeUrl(req.originalUrl),
+            req.originalUrl,
             res.statusCode,
             duration,
             { requestId, tenantId },
             {
                 http: {
                     method: req.method,
-                    url: sanitizeUrl(req.originalUrl),
+                    url: req.originalUrl,
                     statusCode: res.statusCode,
                     duration,
                     userAgent: req.headers["user-agent"],
-                    ip: sanitizeIp(req.ip || req.socket.remoteAddress)
+                    ip: req.ip || req.socket.remoteAddress
                 }
             }
         );
@@ -270,7 +226,7 @@ export function errorLogger(err: Error, req: Request, res: Response, next: NextF
         {
             http: {
                 method: req.method,
-                url: sanitizeUrl(req.originalUrl)
+                url: req.originalUrl
             }
         }
     );

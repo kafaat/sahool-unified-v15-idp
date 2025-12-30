@@ -31,15 +31,23 @@ class ApiResult<T> {
 class SprayService {
   final Dio _dio;
 
+  // Note: Add spray service port to ApiConfig when backend is ready
+  static const int sprayServicePort = 8098;
+
   SprayService({Dio? dio})
       : _dio = dio ??
             Dio(BaseOptions(
-              baseUrl: ApiConfig.sprayServiceUrl,
+              baseUrl: 'http://${_getHost()}:$sprayServicePort',
               connectTimeout: ApiConfig.connectTimeout,
               sendTimeout: ApiConfig.sendTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,
               headers: ApiConfig.defaultHeaders,
             ));
+
+  static String _getHost() {
+    // Use same logic as ApiConfig
+    return ApiConfig.baseUrl.contains('10.0.2.2') ? '10.0.2.2' : 'localhost';
+  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Spray Recommendations

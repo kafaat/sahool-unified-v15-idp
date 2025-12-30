@@ -51,7 +51,7 @@ export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleP
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12" data-testid="maintenance-schedule-loading">
+      <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />
         <span className="mr-3 text-gray-600">جاري التحميل...</span>
       </div>
@@ -60,7 +60,7 @@ export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleP
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800" data-testid="maintenance-schedule-error">
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
         حدث خطأ أثناء تحميل جدول الصيانة
       </div>
     );
@@ -75,13 +75,12 @@ export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleP
   const completedRecords = records?.filter((r) => r.status === 'completed').slice(0, limit || 5);
 
   return (
-    <div className="space-y-6" data-testid="maintenance-schedule">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-gray-900">جدول الصيانة</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          data-testid="schedule-maintenance-button"
           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
         >
           <Plus className="w-4 h-4 ml-2" />
@@ -91,7 +90,7 @@ export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleP
 
       {/* Overdue Alerts */}
       {overdueRecords && overdueRecords.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4" data-testid="maintenance-overdue-alert">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-center mb-2">
             <AlertCircle className="w-5 h-5 text-red-600 ml-2" />
             <h3 className="font-semibold text-red-800">صيانة متأخرة</h3>
@@ -165,7 +164,7 @@ export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleP
       )}
 
       {records && records.length === 0 && (
-        <div className="text-center py-12 bg-white rounded-lg shadow" data-testid="maintenance-empty-state">
+        <div className="text-center py-12 bg-white rounded-lg shadow">
           <p className="text-gray-500">لا توجد سجلات صيانة</p>
         </div>
       )}
@@ -189,20 +188,19 @@ function MaintenanceRecordItem({
   const canComplete = record.status !== 'completed' && onComplete;
 
   return (
-    <div className={`p-4 ${isOverdue ? 'bg-red-50' : ''}`} data-testid="maintenance-record">
+    <div className={`p-4 ${isOverdue ? 'bg-red-50' : ''}`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <h4 className="font-medium text-gray-900" data-testid="maintenance-record-description">{record.descriptionAr}</h4>
+            <h4 className="font-medium text-gray-900">{record.descriptionAr}</h4>
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${
                 statusColors[record.status]
               }`}
-              data-testid="maintenance-record-status"
             >
               {statusLabels[record.status]}
             </span>
-            <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs" data-testid="maintenance-record-type">
+            <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
               {typeLabels[record.type]}
             </span>
           </div>

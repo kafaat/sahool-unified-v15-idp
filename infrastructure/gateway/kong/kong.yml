@@ -1,1488 +1,1116 @@
-_format_version: '3.0'
+_format_version: "3.0"
 _transform: true
+
+# ============================================================================
+# تكوين Kong API Gateway لمنصة سهول الزراعية
+# SAHOOL Platform Kong API Gateway Configuration
+# ============================================================================
+# يوفر هذا التكوين:
+# - إدارة جميع الخدمات الـ 39 المصغرة
+# - تحديد المعدل حسب باقة الاشتراك
+# - مصادقة JWT
+# - التحكم في الوصول ACL
+# - فحوصات الصحة
+# ============================================================================
+
+# ============================================================================
+# الخدمات الأساسية - Starter Package Services
+# للمزارعين الصغار وملاك الأراضي الجدد
+# ============================================================================
+
 services:
-- name: field-core
-  url: http://field-management-service:3000
-  tags:
-  - starter
-  - core
-  retries: 3
-  connect_timeout: 5000
-  write_timeout: 60000
-  read_timeout: 60000
-  routes:
-  - name: field-core-route
-    paths:
-    - /api/v1/fields
-    strip_path: false
-    methods:
-    - GET
-    - POST
-    - PUT
-    - PATCH
-    - DELETE
-  plugins:
-  - name: jwt
+  # ============================================================================
+  # إدارة الحقول - Field Management
+  # ============================================================================
+  - name: field-core
+    url: http://field-management-service:3000
+    tags:
+      - starter
+      - core
+    retries: 3
+    connect_timeout: 5000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: field-core-route
+        paths:
+          - /api/v1/fields
+        strip_path: false
+        methods:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+          policy: local
+          fault_tolerant: true
+      - name: correlation-id
+        config:
+          header_name: X-Request-ID
+          generator: uuid
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 10
+      - name: response-ratelimiting
+        config:
+          limits:
+            minute: 100
+
+  # ============================================================================
+  # خدمة الطقس - Weather Service
+  # ============================================================================
+  - name: weather-core
+    url: http://weather-service:8108
+    tags:
+      - starter
+      - weather
+    retries: 3
+    routes:
+      - name: weather-core-route
+        paths:
+          - /api/v1/weather
+        strip_path: false
+        methods:
+          - GET
+          - POST
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: local
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Service: weather-core"
+
+  # ============================================================================
+  # التقويم الفلكي اليمني - Astronomical Calendar
+  # ============================================================================
+  - name: astronomical-calendar
+    url: http://astronomical-calendar:8111
+    tags:
+      - starter
+      - calendar
+    routes:
+      - name: astronomical-calendar-route
+        paths:
+          - /api/v1/calendar
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+
+  # ============================================================================
+  # المستشار الزراعي - Agro Advisor
+  # ============================================================================
+  - name: agro-advisor
+    url: http://agro-advisor:8095
+    tags:
+      - starter
+      - advisory
+    routes:
+      - name: agro-advisor-route
+        paths:
+          - /api/v1/advice
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+
+  # ============================================================================
+  # خدمة الإشعارات - Notification Service
+  # ============================================================================
+  - name: notification-service
+    url: http://notification-service:8110
+    tags:
+      - starter
+      - notifications
+    routes:
+      - name: notification-route
+        paths:
+          - /api/v1/notifications
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 100
+
+  # ============================================================================
+  # الخدمات المتوسطة - Professional Package Services
+  # للمزارعين المحترفين والتعاونيات
+  # ============================================================================
+
+  # ============================================================================
+  # خدمة الأقمار الصناعية - Satellite Service
+  # ============================================================================
+  - name: satellite-service
+    url: http://vegetation-analysis-service:8090
+    tags:
+      - professional
+      - satellite
+    retries: 3
+    connect_timeout: 10000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: satellite-route
+        paths:
+          - /api/v1/satellite
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+          hour: 50000
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 50
+
+  # ============================================================================
+  # محرك NDVI - NDVI Engine
+  # ============================================================================
+  - name: ndvi-engine
+    url: http://ndvi-engine:8097
+    tags:
+      - professional
+      - analytics
+    routes:
+      - name: ndvi-route
+        paths:
+          - /api/v1/ndvi
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # الذكاء الاصطناعي لصحة المحاصيل - Crop Health AI
+  # ============================================================================
+  - name: crop-health-ai
+    url: http://crop-intelligence-service:8095
+    tags:
+      - professional
+      - ai
+    connect_timeout: 10000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: crop-health-route
+        paths:
+          - /api/v1/crop-health
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+
+  # ============================================================================
+  # الري الذكي - Smart Irrigation
+  # ============================================================================
+  - name: irrigation-smart
+    url: http://irrigation-smart:8094
+    tags:
+      - professional
+      - irrigation
+    routes:
+      - name: irrigation-route
+        paths:
+          - /api/v1/irrigation
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # المستشعرات الافتراضية - Virtual Sensors (ET0)
+  # ============================================================================
+  - name: virtual-sensors
+    url: http://virtual-sensors:8096
+    tags:
+      - professional
+      - sensors
+    routes:
+      - name: virtual-sensors-route
+        paths:
+          - /api/v1/sensors/virtual
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # محرك توقع الإنتاجية - Yield Engine
+  # ============================================================================
+  - name: yield-engine
+    url: http://yield-prediction-service:3021
+    tags:
+      - professional
+      - analytics
+    routes:
+      - name: yield-engine-route
+        paths:
+          - /api/v1/yield
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # مستشار التسميد - Fertilizer Advisor
+  # ============================================================================
+  - name: fertilizer-advisor
+    url: http://advisory-service:8093
+    tags:
+      - professional
+      - advisory
+    routes:
+      - name: fertilizer-route
+        paths:
+          - /api/v1/fertilizer
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # خدمة المخزون - Inventory Service
+  # ============================================================================
+  - name: inventory-service
+    url: http://inventory-service:8115
+    tags:
+      - professional
+      - inventory
+    routes:
+      - name: inventory-route
+        paths:
+          - /api/v1/inventory
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # الخدمات المتقدمة - Enterprise Package Services
+  # للشركات الزراعية ومراكز البحث
+  # ============================================================================
+
+  # ============================================================================
+  # المستشار الذكي متعدد الوكلاء - AI Advisor
+  # ============================================================================
+  - name: ai-advisor
+    url: http://ai-advisor:8112
+    tags:
+      - enterprise
+      - ai
+    connect_timeout: 15000
+    write_timeout: 180000
+    read_timeout: 180000
+    routes:
+      - name: ai-advisor-route
+        paths:
+          - /api/v1/ai-advisor
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+          hour: 500000
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 50
+
+  # ============================================================================
+  # بوابة إنترنت الأشياء - IoT Gateway
+  # ============================================================================
+  - name: iot-gateway
+    url: http://iot-gateway:8096
+    tags:
+      - enterprise
+      - iot
+    routes:
+      - name: iot-gateway-route
+        paths:
+          - /api/v1/iot
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # إدارة الأبحاث - Research Core
+  # ============================================================================
+  - name: research-core
+    url: http://research-core:3015
+    tags:
+      - enterprise
+      - research
+    routes:
+      - name: research-route
+        paths:
+          - /api/v1/research
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # السوق الزراعي - Marketplace Service
+  # ============================================================================
+  - name: marketplace-service
+    url: http://marketplace-service:3010
+    tags:
+      - enterprise
+      - marketplace
+    routes:
+      - name: marketplace-route
+        paths:
+          - /api/v1/marketplace
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # الفوترة والمدفوعات - Billing Core
+  # ============================================================================
+  - name: billing-core
+    url: http://billing-core:8089
+    tags:
+      - enterprise
+      - billing
+    routes:
+      - name: billing-route
+        paths:
+          - /api/v1/billing
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # تقييم الكوارث - Disaster Assessment
+  # ============================================================================
+  - name: disaster-assessment
+    url: http://disaster-assessment:3020
+    tags:
+      - enterprise
+      - disaster
+    routes:
+      - name: disaster-route
+        paths:
+          - /api/v1/disaster
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # نماذج نمو المحاصيل - Crop Growth Model (WOFOST)
+  # ============================================================================
+  - name: crop-growth-model
+    url: http://crop-growth-model:3023
+    tags:
+      - enterprise
+      - modeling
+    connect_timeout: 15000
+    write_timeout: 180000
+    read_timeout: 180000
+    routes:
+      - name: crop-model-route
+        paths:
+          - /api/v1/crop-model
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # تقدير مؤشر مساحة الورق - LAI Estimation
+  # ============================================================================
+  - name: lai-estimation
+    url: http://lai-estimation:3022
+    tags:
+      - enterprise
+      - analytics
+    routes:
+      - name: lai-route
+        paths:
+          - /api/v1/lai
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # خدمات إضافية - Additional Services
+  # ============================================================================
+
+  # ============================================================================
+  # عمليات الحقول - Field Operations
+  # ============================================================================
+  - name: field-ops
+    url: http://field-management-service:3000
+    tags:
+      - shared
+      - operations
+    routes:
+      - name: field-ops-route
+        paths:
+          - /api/v1/field-ops
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - starter-users
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # بوابة WebSocket - WebSocket Gateway
+  # ============================================================================
+  - name: ws-gateway
+    url: http://ws-gateway:8081
+    tags:
+      - shared
+      - websocket
+    routes:
+      - name: ws-gateway-route
+        paths:
+          - /api/v1/ws
+        strip_path: false
+        protocols:
+          - http
+          - https
+          - ws
+          - wss
+    plugins:
+      - name: jwt
+      - name: rate-limiting
+        config:
+          minute: 5000
+
+  # ============================================================================
+  # خدمة المؤشرات - Indicators Service
+  # ============================================================================
+  - name: indicators-service
+    url: http://indicators-service:8091
+    tags:
+      - shared
+      - analytics
+    routes:
+      - name: indicators-route
+        paths:
+          - /api/v1/indicators
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # الطقس المتقدم - Advanced Weather
+  # ============================================================================
+  - name: weather-advanced
+    url: http://weather-service:8108
+    tags:
+      - professional
+      - weather
+    routes:
+      - name: weather-advanced-route
+        paths:
+          - /api/v1/weather/advanced
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # محادثة المجتمع - Community Chat
+  # ============================================================================
+  - name: community-chat
+    url: http://community-chat:8097
+    tags:
+      - shared
+      - social
+    routes:
+      - name: community-chat-route
+        paths:
+          - /api/v1/community/chat
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: rate-limiting
+        config:
+          minute: 2000
+
+  # ============================================================================
+  # محادثة الحقل - Field Chat
+  # ============================================================================
+  - name: field-chat
+    url: http://field-chat:8099
+    tags:
+      - shared
+      - social
+    routes:
+      - name: field-chat-route
+        paths:
+          - /api/v1/field/chat
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: rate-limiting
+        config:
+          minute: 2000
+
+  # ============================================================================
+  # خدمة المعدات - Equipment Service
+  # ============================================================================
+  - name: equipment-service
+    url: http://equipment-service:8101
+    tags:
+      - professional
+      - equipment
+    routes:
+      - name: equipment-route
+        paths:
+          - /api/v1/equipment
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # خدمة المهام - Task Service
+  # ============================================================================
+  - name: task-service
+    url: http://task-service:8103
+    tags:
+      - shared
+      - tasks
+    routes:
+      - name: task-route
+        paths:
+          - /api/v1/tasks
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # تكوين المزودين - Provider Config
+  # ============================================================================
+  - name: provider-config
+    url: http://provider-config:8104
+    tags:
+      - shared
+      - config
+    routes:
+      - name: provider-config-route
+        paths:
+          - /api/v1/providers
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 500
+
+  # ============================================================================
+  # لوحة التحكم - Admin Dashboard
+  # ============================================================================
+  - name: admin-dashboard
+    url: http://admin-dashboard:3001
+    tags:
+      - admin
+      - dashboard
+    routes:
+      - name: admin-route
+        paths:
+          - /api/v1/admin
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - admin-users
+      - name: rate-limiting
+        config:
+          minute: 5000
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+
+  # ============================================================================
+  # توقع الإنتاجية - Yield Prediction
+  # ============================================================================
+  - name: yield-prediction
+    url: http://yield-prediction:3021
+    tags:
+      - enterprise
+      - analytics
+    routes:
+      - name: yield-prediction-route
+        paths:
+          - /api/v1/yield-prediction
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # خدمة التنبيهات - Alert Service
+  # ============================================================================
+  - name: alert-service
+    url: http://alert-service:8107
+    tags:
+      - shared
+      - alerts
+    routes:
+      - name: alert-route
+        paths:
+          - /api/v1/alerts
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # خدمة المحادثة - Chat Service
+  # ============================================================================
+  - name: chat-service
+    url: http://chat-service:8114
+    tags:
+      - shared
+      - chat
+    routes:
+      - name: chat-service-route
+        paths:
+          - /api/v1/chat
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: rate-limiting
+        config:
+          minute: 2000
+
+  # ============================================================================
+  # خدمة الحقول - Field Service
+  # ============================================================================
+  - name: field-service
+    url: http://field-management-service:3000
+    tags:
+      - shared
+      - fields
+    routes:
+      - name: field-service-route
+        paths:
+          - /api/v1/field-service
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # خدمة IoT - IoT Service
+  # ============================================================================
+  - name: iot-service
+    url: http://iot-service:8117
+    tags:
+      - enterprise
+      - iot
+    routes:
+      - name: iot-service-route
+        paths:
+          - /api/v1/iot-service
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 10000
+
+  # ============================================================================
+  # معالج NDVI - NDVI Processor
+  # ============================================================================
+  - name: ndvi-processor
+    url: http://ndvi-processor:8101
+    tags:
+      - professional
+      - analytics
+    routes:
+      - name: ndvi-processor-route
+        paths:
+          - /api/v1/ndvi-processor
+        strip_path: false
+    plugins:
+      - name: jwt
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 1000
+
+  # ============================================================================
+  # نقاط فحص الصحة - Health Check Endpoints
+  # ============================================================================
+  - name: health-check
+    url: http://kong:8000
+    routes:
+      - name: health-route
+        paths:
+          - /health
+          - /ping
+        strip_path: false
+        methods:
+          - GET
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          message: "SAHOOL Platform is healthy"
+
+# ============================================================================
+# الإضافات العامة - Global Plugins
+# ============================================================================
+
+plugins:
+  # CORS للسماح بالطلبات من المتصفحات
+  - name: cors
     config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - Authorization
+        - X-Auth-Token
+      exposed_headers:
+        - X-Auth-Token
+        - X-Request-ID
+      credentials: true
+      max_age: 3600
+
+  # تسجيل الطلبات
+  - name: file-log
     config:
-      allow:
-      - starter-users
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 100
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-      hour: 5000
+      path: /tmp/kong-access.log
+      reopen: true
+
+  # Prometheus للمراقبة
+  - name: prometheus
+
+  # معرف الطلب
   - name: correlation-id
     config:
       header_name: X-Request-ID
       generator: uuid
-  - name: request-size-limiting
-    config:
-      allowed_payload_size: 10
-  - name: response-ratelimiting
-    config:
-      limits:
-        minute: 100
-- name: weather-core
-  url: http://weather-service:8108
-  tags:
-  - starter
-  - weather
-  retries: 3
-  routes:
-  - name: weather-core-route
-    paths:
-    - /api/v1/weather
-    strip_path: false
-    methods:
-    - GET
-    - POST
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - starter-users
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 100
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-  - name: response-transformer
-    config:
-      add:
-        headers:
-        - 'X-Service: weather-core'
-- name: astronomical-calendar
-  url: http://astronomical-calendar:8111
-  tags:
-  - starter
-  - calendar
-  routes:
-  - name: astronomical-calendar-route
-    paths:
-    - /api/v1/calendar
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - starter-users
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 100
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: agro-advisor
-  url: http://agro-advisor:8095
-  tags:
-  - starter
-  - advisory
-  routes:
-  - name: agro-advisor-route
-    paths:
-    - /api/v1/advice
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - starter-users
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 100
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: notification-service
-  url: http://notification-service:8110
-  tags:
-  - starter
-  - notifications
-  routes:
-  - name: notification-route
-    paths:
-    - /api/v1/notifications
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - starter-users
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 100
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: satellite-service
-  url: http://vegetation-analysis-service:8090
-  tags:
-  - professional
-  - satellite
-  retries: 3
-  connect_timeout: 10000
-  write_timeout: 120000
-  read_timeout: 120000
-  routes:
-  - name: satellite-route
-    paths:
-    - /api/v1/satellite
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      hour: 50000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-  - name: request-size-limiting
-    config:
-      allowed_payload_size: 50
-- name: ndvi-engine
-  url: http://ndvi-engine:8097
-  tags:
-  - professional
-  - analytics
-  routes:
-  - name: ndvi-route
-    paths:
-    - /api/v1/ndvi
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: crop-health-ai
-  url: http://crop-intelligence-service:8095
-  tags:
-  - professional
-  - ai
-  connect_timeout: 10000
-  write_timeout: 120000
-  read_timeout: 120000
-  routes:
-  - name: crop-health-route
-    paths:
-    - /api/v1/crop-health
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-  - name: request-size-limiting
-    config:
-      allowed_payload_size: 25
-- name: irrigation-smart
-  url: http://irrigation-smart:8094
-  tags:
-  - professional
-  - irrigation
-  routes:
-  - name: irrigation-route
-    paths:
-    - /api/v1/irrigation
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: virtual-sensors
-  url: http://virtual-sensors:8096
-  tags:
-  - professional
-  - sensors
-  routes:
-  - name: virtual-sensors-route
-    paths:
-    - /api/v1/sensors/virtual
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: yield-engine
-  url: http://yield-prediction-service:3021
-  tags:
-  - professional
-  - analytics
-  routes:
-  - name: yield-engine-route
-    paths:
-    - /api/v1/yield
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: fertilizer-advisor
-  url: http://advisory-service:8093
-  tags:
-  - professional
-  - advisory
-  routes:
-  - name: fertilizer-route
-    paths:
-    - /api/v1/fertilizer
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: inventory-service
-  url: http://inventory-service:8115
-  tags:
-  - professional
-  - inventory
-  routes:
-  - name: inventory-route
-    paths:
-    - /api/v1/inventory
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: ai-advisor
-  url: http://ai-advisor:8112
-  tags:
-  - enterprise
-  - ai
-  connect_timeout: 15000
-  write_timeout: 180000
-  read_timeout: 180000
-  routes:
-  - name: ai-advisor-route
-    paths:
-    - /api/v1/ai-advisor
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-      - research-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-      hour: 500000
-  - name: request-size-limiting
-    config:
-      allowed_payload_size: 50
-- name: iot-gateway
-  url: http://iot-gateway:8096
-  tags:
-  - enterprise
-  - iot
-  routes:
-  - name: iot-gateway-route
-    paths:
-    - /api/v1/iot
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: research-core
-  url: http://research-core:3015
-  tags:
-  - enterprise
-  - research
-  routes:
-  - name: research-route
-    paths:
-    - /api/v1/research
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-      - research-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: marketplace-service
-  url: http://marketplace-service:3010
-  tags:
-  - enterprise
-  - marketplace
-  routes:
-  - name: marketplace-route
-    paths:
-    - /api/v1/marketplace
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: billing-core
-  url: http://billing-core:8089
-  tags:
-  - enterprise
-  - billing
-  routes:
-  - name: billing-route
-    paths:
-    - /api/v1/billing
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - starter-users
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: disaster-assessment
-  url: http://disaster-assessment:3020
-  tags:
-  - enterprise
-  - disaster
-  routes:
-  - name: disaster-route
-    paths:
-    - /api/v1/disaster
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-      - research-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: crop-growth-model
-  url: http://crop-growth-model:3023
-  tags:
-  - enterprise
-  - modeling
-  connect_timeout: 15000
-  write_timeout: 180000
-  read_timeout: 180000
-  routes:
-  - name: crop-model-route
-    paths:
-    - /api/v1/crop-model
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-      - research-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: lai-estimation
-  url: http://lai-estimation:3022
-  tags:
-  - enterprise
-  - analytics
-  routes:
-  - name: lai-route
-    paths:
-    - /api/v1/lai
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-      - research-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: field-ops
-  url: http://field-management-service:3000
-  tags:
-  - shared
-  - operations
-  routes:
-  - name: field-ops-route
-    paths:
-    - /api/v1/field-ops
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - starter-users
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: ws-gateway
-  url: http://ws-gateway:8081
-  tags:
-  - shared
-  - websocket
-  routes:
-  - name: ws-gateway-route
-    paths:
-    - /api/v1/ws
-    strip_path: false
-    protocols:
-    - http
-    - https
-    - ws
-    - wss
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: indicators-service
-  url: http://indicators-service:8091
-  tags:
-  - shared
-  - analytics
-  routes:
-  - name: indicators-route
-    paths:
-    - /api/v1/indicators
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-      - research-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: weather-advanced
-  url: http://weather-service:8108
-  tags:
-  - professional
-  - weather
-  routes:
-  - name: weather-advanced-route
-    paths:
-    - /api/v1/weather/advanced
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: community-chat
-  url: http://community-chat:8097
-  tags:
-  - shared
-  - social
-  routes:
-  - name: community-chat-route
-    paths:
-    - /api/v1/community/chat
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: field-chat
-  url: http://field-chat:8099
-  tags:
-  - shared
-  - social
-  routes:
-  - name: field-chat-route
-    paths:
-    - /api/v1/field/chat
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: equipment-service
-  url: http://equipment-service:8101
-  tags:
-  - professional
-  - equipment
-  routes:
-  - name: equipment-route
-    paths:
-    - /api/v1/equipment
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: task-service
-  url: http://task-service:8103
-  tags:
-  - shared
-  - tasks
-  routes:
-  - name: task-route
-    paths:
-    - /api/v1/tasks
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: provider-config
-  url: http://provider-config:8104
-  tags:
-  - shared
-  - config
-  routes:
-  - name: provider-config-route
-    paths:
-    - /api/v1/providers
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: admin-dashboard
-  url: http://admin-dashboard:3001
-  tags:
-  - admin
-  - dashboard
-  routes:
-  - name: admin-route
-    paths:
-    - /api/v1/admin
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - admin-users
-  - name: rate-limiting
-    config:
-      minute: 500
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-  - name: ip-restriction
-    config:
-      allow:
-      - 10.0.0.0/8
-      - 172.16.0.0/12
-      - 192.168.0.0/16
-- name: yield-prediction
-  url: http://yield-prediction:3021
-  tags:
-  - enterprise
-  - analytics
-  routes:
-  - name: yield-prediction-route
-    paths:
-    - /api/v1/yield-prediction
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-      - research-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: alert-service
-  url: http://alert-service:8107
-  tags:
-  - shared
-  - alerts
-  routes:
-  - name: alert-route
-    paths:
-    - /api/v1/alerts
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: chat-service
-  url: http://chat-service:8114
-  tags:
-  - shared
-  - chat
-  routes:
-  - name: chat-service-route
-    paths:
-    - /api/v1/chat
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: field-service
-  url: http://field-management-service:3000
-  tags:
-  - shared
-  - fields
-  routes:
-  - name: field-service-route
-    paths:
-    - /api/v1/field-service
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: iot-service
-  url: http://iot-service:8117
-  tags:
-  - enterprise
-  - iot
-  routes:
-  - name: iot-service-route
-    paths:
-    - /api/v1/iot-service
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 10000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: ndvi-processor
-  url: http://ndvi-processor:8101
-  tags:
-  - professional
-  - analytics
-  routes:
-  - name: ndvi-processor-route
-    paths:
-    - /api/v1/ndvi-processor
-    strip_path: false
-  plugins:
-  - name: jwt
-    config:
-      key_claim_name: kid
-      claims_to_verify:
-      - exp
-      - nbf
-      algorithms:
-      - RS256
-      - HS256
-  - name: acl
-    config:
-      allow:
-      - professional-users
-      - enterprise-users
-  - name: rate-limiting
-    config:
-      minute: 1000
-      policy: redis
-      redis_host: kong-redis
-      redis_port: 6379
-      redis_database: 0
-      redis_timeout: 2000
-      fault_tolerant: true
-      hide_client_headers: false
-      limit_by: consumer
-- name: health-check
-  url: http://kong:8000
-  routes:
-  - name: health-route
-    paths:
-    - /health
-    - /ping
-    strip_path: false
-    methods:
-    - GET
-  plugins:
-  - name: request-termination
-    config:
-      status_code: 200
-      message: SAHOOL Platform is healthy
-plugins:
-- name: cors
-  config:
-    origins:
-    - https://sahool.app
-    - https://api.sahool.app
-    - https://admin.sahool.app
-    - https://staging.sahool.app
-    - http://localhost:3000
-    - http://localhost:8080
-    methods:
-    - GET
-    - POST
-    - PUT
-    - PATCH
-    - DELETE
-    - OPTIONS
-    headers:
-    - Accept
-    - Accept-Version
-    - Content-Length
-    - Content-MD5
-    - Content-Type
-    - Date
-    - Authorization
-    - X-Auth-Token
-    exposed_headers:
-    - X-Auth-Token
-    - X-Request-ID
-    credentials: true
-    max_age: 3600
-- name: file-log
-  config:
-    path: /tmp/kong-access.log
-    reopen: true
-- name: prometheus
-- name: correlation-id
-  config:
-    header_name: X-Request-ID
-    generator: uuid
-    echo_downstream: true
+      echo_downstream: true
+
+# ============================================================================
+# مستهلكو الخدمة - Service Consumers
+# ============================================================================
+
 consumers:
-- username: starter-user-sample
-  custom_id: starter-001
-  tags:
-  - starter
-  groups:
-  - name: starter-users
-  jwt_secrets:
-  - key: starter-jwt-key
-    algorithm: HS256
-    secret: ${STARTER_JWT_SECRET}
-- username: professional-user-sample
-  custom_id: professional-001
-  tags:
-  - professional
-  groups:
-  - name: professional-users
-  jwt_secrets:
-  - key: professional-jwt-key
-    algorithm: HS256
-    secret: ${PROFESSIONAL_JWT_SECRET}
-- username: enterprise-user-sample
-  custom_id: enterprise-001
-  tags:
-  - enterprise
-  groups:
-  - name: enterprise-users
-  jwt_secrets:
-  - key: enterprise-jwt-key
-    algorithm: HS256
-    secret: ${ENTERPRISE_JWT_SECRET}
-- username: research-user-sample
-  custom_id: research-001
-  tags:
-  - research
-  groups:
-  - name: research-users
-  jwt_secrets:
-  - key: research-jwt-key
-    algorithm: HS256
-    secret: ${RESEARCH_JWT_SECRET}
-- username: admin-user-sample
-  custom_id: admin-001
-  tags:
-  - admin
-  groups:
-  - name: admin-users
-  jwt_secrets:
-  - key: admin-jwt-key
-    algorithm: HS256
-    secret: ${ADMIN_JWT_SECRET}
+  # المستخدمون الأساسيون - Starter Users
+  - username: starter-user-sample
+    custom_id: starter-001
+    tags:
+      - starter
+    groups:
+      - name: starter-users
+    jwt_secrets:
+      - key: starter-jwt-key
+        algorithm: HS256
+        secret: ${STARTER_JWT_SECRET}
+
+  # المستخدمون المحترفون - Professional Users
+  - username: professional-user-sample
+    custom_id: professional-001
+    tags:
+      - professional
+    groups:
+      - name: professional-users
+    jwt_secrets:
+      - key: professional-jwt-key
+        algorithm: HS256
+        secret: ${PROFESSIONAL_JWT_SECRET}
+
+  # المستخدمون المؤسسيون - Enterprise Users
+  - username: enterprise-user-sample
+    custom_id: enterprise-001
+    tags:
+      - enterprise
+    groups:
+      - name: enterprise-users
+    jwt_secrets:
+      - key: enterprise-jwt-key
+        algorithm: HS256
+        secret: ${ENTERPRISE_JWT_SECRET}
+
+  # المستخدمون البحثيون - Research Users
+  - username: research-user-sample
+    custom_id: research-001
+    tags:
+      - research
+    groups:
+      - name: research-users
+    jwt_secrets:
+      - key: research-jwt-key
+        algorithm: HS256
+        secret: ${RESEARCH_JWT_SECRET}
+
+  # المستخدمون المسؤولون - Admin Users
+  - username: admin-user-sample
+    custom_id: admin-001
+    tags:
+      - admin
+    groups:
+      - name: admin-users
+    jwt_secrets:
+      - key: admin-jwt-key
+        algorithm: HS256
+        secret: ${ADMIN_JWT_SECRET}
+
+# ============================================================================
+# مجموعات التحكم في الوصول - ACL Groups
+# ============================================================================
+
 acls:
-- consumer: starter-user-sample
-  group: starter-users
-- consumer: professional-user-sample
-  group: professional-users
-- consumer: enterprise-user-sample
-  group: enterprise-users
-- consumer: research-user-sample
-  group: research-users
-- consumer: admin-user-sample
-  group: admin-users
+  - consumer: starter-user-sample
+    group: starter-users
+  - consumer: professional-user-sample
+    group: professional-users
+  - consumer: enterprise-user-sample
+    group: enterprise-users
+  - consumer: research-user-sample
+    group: research-users
+  - consumer: admin-user-sample
+    group: admin-users
+
+# ============================================================================
+# نهاية التكوين
+# End of Configuration
+# ============================================================================

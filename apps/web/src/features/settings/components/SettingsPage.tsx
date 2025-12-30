@@ -51,14 +51,14 @@ export const SettingsPage: React.FC = () => {
   ] as const;
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl" data-testid="settings-page">
+    <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center gap-3">
             <SettingsIcon className="w-8 h-8 text-gray-600" />
             <div>
-              <h1 className="text-3xl font-bold text-gray-900" data-testid="settings-heading">الإعدادات</h1>
+              <h1 className="text-3xl font-bold text-gray-900">الإعدادات</h1>
               <p className="text-sm text-gray-600 mt-1">Settings</p>
             </div>
           </div>
@@ -71,16 +71,13 @@ export const SettingsPage: React.FC = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sticky top-4">
-              <nav className="space-y-1" data-testid="settings-tabs">
+              <nav className="space-y-1">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id as TabType)}
-                      role="tab"
-                      aria-selected={activeTab === tab.id}
-                      data-testid={`settings-tab-${tab.id}`}
                       className={`
                         w-full flex items-center gap-3 px-4 py-3 rounded-lg text-right transition-colors
                         ${
@@ -104,10 +101,10 @@ export const SettingsPage: React.FC = () => {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6" data-testid="settings-content">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               {activeTab === 'profile' && (
-                <div data-testid="profile-section">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="profile-heading">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
                     الملف الشخصي
                   </h2>
                   <ProfileForm />
@@ -166,11 +163,11 @@ const NotificationsTab: React.FC = () => {
   };
 
   return (
-    <div data-testid="notifications-section">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="notifications-heading">إعدادات الإشعارات</h2>
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">إعدادات الإشعارات</h2>
       <div className="space-y-6">
         {/* Email Notifications */}
-        <div data-testid="notifications-email-section">
+        <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             إشعارات البريد الإلكتروني
           </h3>
@@ -183,9 +180,6 @@ const NotificationsTab: React.FC = () => {
                   checked={value}
                   onChange={(e) => handleUpdate('email', key, e.target.checked)}
                   className="w-4 h-4 text-green-600"
-                  data-testid={`notification-email-${key}`}
-                  role="switch"
-                  aria-checked={value}
                 />
               </label>
             ))}
@@ -193,7 +187,7 @@ const NotificationsTab: React.FC = () => {
         </div>
 
         {/* Push Notifications */}
-        <div data-testid="notifications-push-section">
+        <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             إشعارات الدفع
           </h3>
@@ -206,9 +200,6 @@ const NotificationsTab: React.FC = () => {
                   checked={value}
                   onChange={(e) => handleUpdate('push', key, e.target.checked)}
                   className="w-4 h-4 text-green-600"
-                  data-testid={`notification-push-${key}`}
-                  role="switch"
-                  aria-checked={value}
                 />
               </label>
             ))}
@@ -247,17 +238,17 @@ const SecurityTab: React.FC = () => {
       });
       alert('تم تحديث كلمة المرور بنجاح');
       setPasswords({ current: '', new: '', confirm: '' });
-    } catch (_err) {
+    } catch (err) {
       alert('حدث خطأ أثناء تحديث كلمة المرور');
     }
   };
 
   return (
-    <div data-testid="security-section">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="security-heading">الأمان</h2>
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">الأمان</h2>
       <div className="space-y-6">
         {/* Change Password */}
-        <div data-testid="security-password-section">
+        <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             تغيير كلمة المرور
           </h3>
@@ -268,12 +259,9 @@ const SecurityTab: React.FC = () => {
               </label>
               <input
                 type="password"
-                name="current-password"
                 value={passwords.current}
                 onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                data-testid="security-password-current"
-                placeholder="Current Password"
                 required
               />
             </div>
@@ -283,12 +271,9 @@ const SecurityTab: React.FC = () => {
               </label>
               <input
                 type="password"
-                name="new-password"
                 value={passwords.new}
                 onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                data-testid="security-password-new"
-                placeholder="New Password"
                 required
               />
             </div>
@@ -298,19 +283,15 @@ const SecurityTab: React.FC = () => {
               </label>
               <input
                 type="password"
-                name="confirm-password"
                 value={passwords.confirm}
                 onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-                data-testid="security-password-confirm"
-                placeholder="Confirm New Password"
                 required
               />
             </div>
             <button
               type="submit"
               className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-              data-testid="security-password-submit"
             >
               تحديث كلمة المرور
             </button>
@@ -318,16 +299,15 @@ const SecurityTab: React.FC = () => {
         </div>
 
         {/* Active Sessions */}
-        <div data-testid="security-sessions-section">
+        <div>
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             الجلسات النشطة
           </h3>
-          <div className="space-y-3" data-testid="security-sessions-list">
-            {security.sessions.map((session, index) => (
+          <div className="space-y-3">
+            {security.sessions.map((session) => (
               <div
                 key={session.id}
                 className="p-4 border border-gray-200 rounded-lg"
-                data-testid={`security-session-${index}`}
               >
                 <div className="flex items-center justify-between">
                   <div>
@@ -342,10 +322,7 @@ const SecurityTab: React.FC = () => {
                       Current
                     </span>
                   ) : (
-                    <button
-                      className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium"
-                      data-testid={`security-session-terminate-${index}`}
-                    >
+                    <button className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs font-medium">
                       Terminate
                     </button>
                   )}
@@ -369,8 +346,8 @@ const PrivacyTab: React.FC = () => {
   }
 
   return (
-    <div data-testid="privacy-section">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="privacy-heading">الخصوصية</h2>
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">الخصوصية</h2>
       <p className="text-gray-600">Privacy settings content...</p>
     </div>
   );
@@ -386,8 +363,8 @@ const DisplayTab: React.FC = () => {
   }
 
   return (
-    <div data-testid="display-section">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="display-heading">إعدادات العرض</h2>
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">إعدادات العرض</h2>
       <p className="text-gray-600">Display settings content...</p>
     </div>
   );
@@ -396,8 +373,8 @@ const DisplayTab: React.FC = () => {
 // Integrations Tab
 const IntegrationsTab: React.FC = () => {
   return (
-    <div data-testid="integrations-section">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="integrations-heading">التكاملات</h2>
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">التكاملات</h2>
       <p className="text-gray-600">Integrations content...</p>
     </div>
   );
@@ -412,14 +389,14 @@ const SubscriptionTab: React.FC = () => {
   }
 
   return (
-    <div data-testid="subscription-section">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6" data-testid="subscription-heading">الاشتراك</h2>
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-gray-200" data-testid="subscription-plan-card">
+    <div>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">الاشتراك</h2>
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-gray-200">
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="text-xl font-bold text-gray-900" data-testid="subscription-plan-name">{subscription.planAr}</h3>
+            <h3 className="text-xl font-bold text-gray-900">{subscription.planAr}</h3>
             <p className="text-sm text-gray-600 mt-1">{subscription.plan.toUpperCase()} Plan</p>
-            <div className="mt-4 space-y-2" data-testid="subscription-usage">
+            <div className="mt-4 space-y-2">
               <p className="text-sm text-gray-700">
                 الحقول: {subscription.usage.fields} / {subscription.features.maxFields}
               </p>
@@ -439,7 +416,6 @@ const SubscriptionTab: React.FC = () => {
                 ? 'bg-blue-100 text-blue-700'
                 : 'bg-red-100 text-red-700'
             }`}
-            data-testid="subscription-status"
           >
             {subscription.status}
           </span>

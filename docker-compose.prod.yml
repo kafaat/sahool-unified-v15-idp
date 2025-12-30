@@ -108,7 +108,7 @@ services:
   # Application Services - Resource Limits
   # ─────────────────────────────────────────────────────────────────────────────
 
-  field-management-service:
+  field_core:
     deploy:
       resources:
         limits:

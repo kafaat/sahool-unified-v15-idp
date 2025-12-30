@@ -109,7 +109,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
 
     try {
       await apiClient.updateTask(taskId, { status: 'completed' });
-    } catch (_error) {
+    } catch (error) {
       // Revert on failure - log to error tracking instead of console
       setTasks((prev) =>
         prev.map((t) =>
@@ -138,7 +138,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <SkeletonTaskItem key={`skeleton-task-${i}`} />
+          <SkeletonTaskItem key={i} />
         ))}
       </div>
     );

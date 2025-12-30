@@ -22,7 +22,7 @@ class SatelliteTool:
     """
 
     def __init__(self):
-        self.base_url = settings.satellite_url
+        self.base_url = settings.satellite_service_url
         self.timeout = 60.0  # Satellite processing can take longer
 
     async def get_ndvi(

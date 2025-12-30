@@ -45,39 +45,5 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<!-- Location Permissions -->
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Sahool Field App needs access to your location to track field visits and record crop locations for accurate farm management.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Sahool Field App needs continuous location access to sync field data in the background and provide accurate location tracking even when the app is not active.</string>
-	<!-- Camera and Photo Library Permissions -->
-	<key>NSCameraUsageDescription</key>
-	<string>Sahool Field App needs access to your camera to capture photos of crops, field conditions, and agricultural activities for documentation and analysis.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Sahool Field App needs access to your photo library to view and manage crop images and field documentation.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Sahool Field App needs permission to save captured crop photos and field images to your photo library for future reference.</string>
-	<!-- Microphone Permission -->
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Sahool Field App needs access to your microphone to record voice notes about field conditions, observations, and farming activities.</string>
-	<!-- Bluetooth Permissions -->
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Sahool Field App needs Bluetooth access to connect with IoT sensors, weather stations, and smart agricultural devices for real-time farm monitoring.</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>Sahool Field App needs Bluetooth access to communicate with BLE-enabled farm equipment, sensors, and agricultural monitoring devices.</string>
-	<!-- URL Schemes for Deep Linking -->
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>app.sahool.field</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>sahool</string>
-			</array>
-		</dict>
-	</array>
 </dict>
 </plist>

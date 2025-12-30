@@ -4,7 +4,6 @@ import 'package:drift/drift.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../config/config.dart';
-import '../utils/app_logger.dart';
 import 'network_status.dart';
 
 /// Sync Engine - Handles offline-first synchronization with ETag support
@@ -37,7 +36,7 @@ class SyncEngine {
     // Also sync when network comes back online
     _networkStatus.onlineStream.listen((online) {
       if (online) {
-        AppLogger.i('Network restored - triggering sync', tag: 'SYNC');
+        print('📶 Network restored - triggering sync');
         runOnce();
       }
     });
@@ -123,12 +122,7 @@ class SyncEngine {
         await database.markOutboxDone(item.id);
         processed++;
       } catch (e) {
-        AppLogger.e(
-          'Outbox item failed',
-          tag: 'SYNC',
-          error: e,
-          data: {'itemId': item.id},
-        );
+        print('❌ Outbox item failed: ${item.id} - $e');
         await database.bumpOutboxRetry(item.id);
         failed++;
 
@@ -231,7 +225,7 @@ class SyncEngine {
         count += tasksResponse.length;
       }
     } catch (e) {
-      AppLogger.w('Failed to pull tasks', tag: 'SYNC', error: e);
+      print('⚠️ Failed to pull tasks: $e');
     }
 
     return PullResult(count: count);

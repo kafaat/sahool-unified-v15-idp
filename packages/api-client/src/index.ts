@@ -598,14 +598,14 @@ export class SahoolApiClient {
       name: `Farm ${i + 1}`,
       nameAr: `مزرعة ${i + 1}`,
       ownerId: `user-${Math.floor(Math.random() * 10) + 1}`,
-      governorate: governorates[Math.floor(Math.random() * governorates.length)] ?? 'sanaa',
+      governorate: governorates[Math.floor(Math.random() * governorates.length)],
       district: 'District',
       area: Math.random() * 50 + 5,
       coordinates: {
         lat: 13.5 + Math.random() * 3,
         lng: 43.5 + Math.random() * 5,
       },
-      crops: [crops[Math.floor(Math.random() * crops.length)] ?? 'wheat'],
+      crops: [crops[Math.floor(Math.random() * crops.length)]],
       status: 'active' as const,
       healthScore: Math.floor(Math.random() * 40) + 60,
       lastUpdated: new Date().toISOString(),
@@ -624,7 +624,7 @@ export class SahoolApiClient {
     const statuses: DiagnosisStatus[] = ['pending', 'confirmed', 'rejected', 'treated'];
 
     return Array.from({ length: 20 }, (_, i) => {
-      const disease = diseases[Math.floor(Math.random() * diseases.length)] ?? diseases[0];
+      const disease = diseases[Math.floor(Math.random() * diseases.length)];
       return {
         id: `diag-${i + 1}`,
         farmId: `farm-${Math.floor(Math.random() * 25) + 1}`,
@@ -632,12 +632,12 @@ export class SahoolApiClient {
         imageUrl: `/api/placeholder/400/300`,
         thumbnailUrl: `/api/placeholder/100/100`,
         cropType: 'tomato',
-        diseaseId: disease?.id ?? 'unknown',
-        diseaseName: disease?.name ?? 'Unknown',
-        diseaseNameAr: disease?.nameAr ?? 'غير معروف',
+        diseaseId: disease.id,
+        diseaseName: disease.name,
+        diseaseNameAr: disease.nameAr,
         confidence: Math.random() * 30 + 70,
-        severity: severities[Math.floor(Math.random() * severities.length)] ?? 'low',
-        status: statuses[Math.floor(Math.random() * statuses.length)] ?? 'pending',
+        severity: severities[Math.floor(Math.random() * severities.length)],
+        status: statuses[Math.floor(Math.random() * statuses.length)],
         location: {
           lat: 13.5 + Math.random() * 3,
           lng: 43.5 + Math.random() * 5,

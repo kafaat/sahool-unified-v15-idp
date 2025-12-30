@@ -42,10 +42,7 @@ export const Groups: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900">المجموعات</h1>
               <p className="text-sm text-gray-600 mt-1">Community Groups</p>
             </div>
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-              aria-label="إنشاء مجموعة جديدة"
-            >
+            <button className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors">
               <Plus className="w-5 h-5" />
               <span>إنشاء مجموعة</span>
             </button>
@@ -117,7 +114,7 @@ export const Groups: React.FC = () => {
                   {group.coverImage && (
                     <img
                       src={group.coverImage}
-                      alt={group.name}
+                      alt=""
                       className="w-full h-full object-cover"
                     />
                   )}
@@ -156,17 +153,11 @@ export const Groups: React.FC = () => {
 
                   {group.isJoined ? (
                     <div className="flex gap-2">
-                      <button
-                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                        aria-label={`عرض مجموعة ${group.nameAr}`}
-                      >
+                      <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
                         عرض المجموعة
                       </button>
                       {group.isModerator && (
-                        <button
-                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-                          aria-label={`إدارة مجموعة ${group.nameAr}`}
-                        >
+                        <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
                           إدارة
                         </button>
                       )}
@@ -175,8 +166,7 @@ export const Groups: React.FC = () => {
                     <button
                       onClick={() => handleJoinGroup(group.id)}
                       disabled={joinMutation.isPending}
-                      aria-label={`الانضمام إلى مجموعة ${group.nameAr}`}
-                      className="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:bg-gray-300 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                      className="w-full px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:bg-gray-300 transition-colors"
                     >
                       انضمام
                     </button>

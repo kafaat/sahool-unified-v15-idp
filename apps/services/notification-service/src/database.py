@@ -24,7 +24,7 @@ TORTOISE_ORM = {
     },
     "apps": {
         "models": {
-            "models": ["src.models", "aerich.models"],
+            "models": ["apps.services.notification-service.src.models", "aerich.models"],
             "default_connection": "default",
         },
     },
@@ -57,7 +57,6 @@ async def init_db(create_db: bool = False) -> None:
         create_db: If True, creates tables (use only in development)
     """
     try:
-<<<<<<< HEAD
         # Determine which config to use based on module path
         # In Docker, we're at /app and models are at /app/src/models.py
         # So we use src.models for the models path
@@ -76,12 +75,6 @@ async def init_db(create_db: bool = False) -> None:
                 # Last resort: use local config anyway
                 config = TORTOISE_ORM_LOCAL
                 logger.warning("Could not import models, using local config anyway")
-=======
-        # Use local relative import (since we're running from /app in Docker)
-        from .models import Notification
-        config = TORTOISE_ORM
-        logger.info("Using Tortoise ORM configuration")
->>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
 
         # Initialize Tortoise ORM
         await Tortoise.init(config=config)
@@ -262,7 +255,7 @@ async def wait_for_db(max_retries: int = 5, retry_delay: int = 2) -> bool:
         try:
             logger.info(f"Database connection attempt {attempt}/{max_retries}...")
 
-            await Tortoise.init(config=TORTOISE_ORM)
+            await Tortoise.init(config=TORTOISE_ORM_LOCAL)
             conn = connections.get("default")
             await conn.execute_query("SELECT 1")
             await connections.close_all()

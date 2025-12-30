@@ -31,7 +31,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ requestId }) =
 
   if (isLoading || !result) {
     return (
-      <div data-testid="diagnosis-result-loading" className="bg-white rounded-xl shadow-sm border border-gray-200 p-8" dir="rtl">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8" dir="rtl">
         <div className="flex flex-col items-center justify-center">
           <Loader2 className="w-12 h-12 text-green-500 animate-spin mb-4" />
           <p className="text-gray-600 font-medium">جاري تحليل الصور...</p>
@@ -85,7 +85,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ requestId }) =
   return (
     <div className="space-y-6" dir="rtl">
       {/* Header */}
-      <div data-testid="diagnosis-result-header" className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">نتيجة التشخيص</h2>
@@ -121,7 +121,6 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ requestId }) =
         return (
           <div
             key={diagnosed.disease.id}
-            data-testid="diagnosis-disease"
             className={`bg-white rounded-xl shadow-sm border-2 ${urgency.border} overflow-hidden`}
           >
             {/* Disease Header */}
@@ -400,7 +399,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ requestId }) =
       })}
 
       {/* Expert Consultation CTA */}
-      <div data-testid="diagnosis-consultation-cta" className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-lg font-bold text-gray-900">
@@ -411,7 +410,6 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ requestId }) =
             </p>
           </div>
           <button
-            data-testid="diagnosis-request-consultation"
             onClick={handleRequestConsultation}
             disabled={requestConsultation.isPending}
             className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center gap-2"

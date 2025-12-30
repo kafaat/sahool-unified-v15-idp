@@ -5,8 +5,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:latlong2/latlong.dart';
 import 'converters/geo_converter.dart';
-import '../../features/ecological_records/data/database/ecological_tables.dart';
-import '../../features/ecological_records/data/database/ecological_dao.dart';
 
 part 'database.g.dart';
 
@@ -137,27 +135,12 @@ class SyncEvents extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(
-  tables: [
-    Tasks,
-    Outbox,
-    Fields,
-    SyncLogs,
-    SyncEvents,
-    BiodiversityRecords,
-    SoilHealthRecords,
-    WaterConservationRecords,
-    FarmPracticeRecords,
-  ],
-  daos: [
-    EcologicalDao,
-  ],
-)
+@DriftDatabase(tables: [Tasks, Outbox, Fields, SyncLogs, SyncEvents])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 6; // v6: Added ecological records tables
+  int get schemaVersion => 5; // v5: Added performance indexes
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -212,13 +195,6 @@ class AppDatabase extends _$AppDatabase {
             await customStatement('CREATE INDEX IF NOT EXISTS sync_events_tenant_read_idx ON sync_events (tenant_id, is_read)');
             await customStatement('CREATE INDEX IF NOT EXISTS sync_events_created_idx ON sync_events (created_at)');
             await customStatement('CREATE INDEX IF NOT EXISTS sync_events_entity_idx ON sync_events (entity_type, entity_id)');
-          }
-          if (from < 6) {
-            // Migration to v6: Add ecological records tables
-            await m.createTable(biodiversityRecords);
-            await m.createTable(soilHealthRecords);
-            await m.createTable(waterConservationRecords);
-            await m.createTable(farmPracticeRecords);
           }
         },
       );
@@ -660,270 +636,6 @@ class AppDatabase extends _$AppDatabase {
       ),
     );
   }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Ecological Records Methods | طرق السجلات الإيكولوجية
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  // Biodiversity Records | سجلات التنوع البيولوجي
-  Future<List<BiodiversityRecord>> getAllBiodiversityRecords(String tenantId) {
-    return (select(biodiversityRecords)
-      ..where((r) => r.tenantId.equals(tenantId))
-      ..orderBy([(r) => OrderingTerm.desc(r.surveyDate)]))
-      .get();
-  }
-
-  Stream<List<BiodiversityRecord>> watchBiodiversityRecords(String tenantId, String fieldId) {
-    return (select(biodiversityRecords)
-      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
-      ..orderBy([(r) => OrderingTerm.desc(r.surveyDate)]))
-      .watch();
-  }
-
-  Future<void> upsertBiodiversityRecord(BiodiversityRecordsCompanion record) {
-    return into(biodiversityRecords).insertOnConflictUpdate(record);
-  }
-
-  /// Mark biodiversity record as synced
-  Future<void> markBiodiversitySynced(String recordId) async {
-    await (update(biodiversityRecords)..where((r) => r.id.equals(recordId)))
-        .write(const BiodiversityRecordsCompanion(synced: Value(true)));
-  }
-
-  // Soil Health Records | سجلات صحة التربة
-  Future<List<SoilHealthRecord>> getAllSoilHealthRecords(String tenantId) {
-    return (select(soilHealthRecords)
-      ..where((r) => r.tenantId.equals(tenantId))
-      ..orderBy([(r) => OrderingTerm.desc(r.sampleDate)]))
-      .get();
-  }
-
-  Stream<List<SoilHealthRecord>> watchSoilHealthRecords(String tenantId, String fieldId) {
-    return (select(soilHealthRecords)
-      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
-      ..orderBy([(r) => OrderingTerm.desc(r.sampleDate)]))
-      .watch();
-  }
-
-  Future<void> upsertSoilHealthRecord(SoilHealthRecordsCompanion record) {
-    return into(soilHealthRecords).insertOnConflictUpdate(record);
-  }
-
-  /// Mark soil health record as synced
-  Future<void> markSoilHealthSynced(String recordId) async {
-    await (update(soilHealthRecords)..where((r) => r.id.equals(recordId)))
-        .write(const SoilHealthRecordsCompanion(synced: Value(true)));
-  }
-
-  // Water Conservation Records | سجلات الحفاظ على المياه
-  Future<List<WaterConservationRecord>> getAllWaterRecords(String tenantId) {
-    return (select(waterConservationRecords)
-      ..where((r) => r.tenantId.equals(tenantId))
-      ..orderBy([(r) => OrderingTerm.desc(r.recordDate)]))
-      .get();
-  }
-
-  Stream<List<WaterConservationRecord>> watchWaterRecords(String tenantId, String fieldId) {
-    return (select(waterConservationRecords)
-      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
-      ..orderBy([(r) => OrderingTerm.desc(r.recordDate)]))
-      .watch();
-  }
-
-  Future<void> upsertWaterRecord(WaterConservationRecordsCompanion record) {
-    return into(waterConservationRecords).insertOnConflictUpdate(record);
-  }
-
-  /// Mark water conservation record as synced
-  Future<void> markWaterConservationSynced(String recordId) async {
-    await (update(waterConservationRecords)..where((r) => r.id.equals(recordId)))
-        .write(const WaterConservationRecordsCompanion(synced: Value(true)));
-  }
-
-  // Farm Practice Records | سجلات الممارسات الزراعية
-  Future<List<FarmPracticeRecord>> getAllPracticeRecords(String tenantId) {
-    return (select(farmPracticeRecords)
-      ..where((r) => r.tenantId.equals(tenantId))
-      ..orderBy([(r) => OrderingTerm.desc(r.startDate)]))
-      .get();
-  }
-
-  Stream<List<FarmPracticeRecord>> watchPracticeRecords(String tenantId, String fieldId) {
-    return (select(farmPracticeRecords)
-      ..where((r) => r.tenantId.equals(tenantId) & r.fieldId.equals(fieldId))
-      ..orderBy([(r) => OrderingTerm.desc(r.startDate)]))
-      .watch();
-  }
-
-  Future<void> upsertPracticeRecord(FarmPracticeRecordsCompanion record) {
-    return into(farmPracticeRecords).insertOnConflictUpdate(record);
-  }
-
-  /// Mark farm practice record as synced
-  Future<void> markPracticeRecordSynced(String recordId) async {
-    await (update(farmPracticeRecords)..where((r) => r.id.equals(recordId)))
-        .write(const FarmPracticeRecordsCompanion(synced: Value(true)));
-  }
-
-  // ============================================================
-  // Ecological Records Sync Operations
-  // ============================================================
-
-  /// Upsert biodiversity records from server
-  Future<void> upsertBiodiversityRecordsFromServer(
-      List<Map<String, dynamic>> items) async {
-    await batch((batch) {
-      for (final item in items) {
-        batch.insert(
-          biodiversityRecords,
-          BiodiversityRecordsCompanion.insert(
-            id: item['id'],
-            tenantId: item['tenant_id'],
-            fieldId: item['field_id'],
-            surveyDate: DateTime.parse(item['survey_date']),
-            surveyType: item['survey_type'],
-            speciesCount: Value(item['species_count']),
-            insectDiversity: Value(item['insect_diversity']),
-            pollinatorCount: Value(item['pollinator_count']),
-            habitatFeatures: item['habitat_features'] ?? '[]',
-            notes: Value(item['notes']),
-            photos: item['photos'] ?? '[]',
-            createdAt: DateTime.parse(item['created_at']),
-            synced: const Value(true),
-          ),
-          onConflict: DoUpdate((old) => BiodiversityRecordsCompanion(
-                surveyType: Value(item['survey_type']),
-                speciesCount: Value(item['species_count']),
-                insectDiversity: Value(item['insect_diversity']),
-                pollinatorCount: Value(item['pollinator_count']),
-                habitatFeatures: Value(item['habitat_features'] ?? '[]'),
-                notes: Value(item['notes']),
-                photos: Value(item['photos'] ?? '[]'),
-                synced: const Value(true),
-              )),
-        );
-      }
-    });
-  }
-
-  /// Upsert soil health records from server
-  Future<void> upsertSoilHealthRecordsFromServer(
-      List<Map<String, dynamic>> items) async {
-    await batch((batch) {
-      for (final item in items) {
-        batch.insert(
-          soilHealthRecords,
-          SoilHealthRecordsCompanion.insert(
-            id: item['id'],
-            tenantId: item['tenant_id'],
-            fieldId: item['field_id'],
-            sampleDate: DateTime.parse(item['sample_date']),
-            sampleDepth: item['sample_depth'],
-            organicMatter: Value(item['organic_matter']),
-            ph: Value(item['ph']),
-            nitrogen: Value(item['nitrogen']),
-            phosphorus: Value(item['phosphorus']),
-            potassium: Value(item['potassium']),
-            texture: Value(item['texture']),
-            healthScore: Value(item['health_score']),
-            notes: Value(item['notes']),
-            createdAt: DateTime.parse(item['created_at']),
-            synced: const Value(true),
-          ),
-          onConflict: DoUpdate((old) => SoilHealthRecordsCompanion(
-                organicMatter: Value(item['organic_matter']),
-                ph: Value(item['ph']),
-                nitrogen: Value(item['nitrogen']),
-                phosphorus: Value(item['phosphorus']),
-                potassium: Value(item['potassium']),
-                texture: Value(item['texture']),
-                healthScore: Value(item['health_score']),
-                notes: Value(item['notes']),
-                synced: const Value(true),
-              )),
-        );
-      }
-    });
-  }
-
-  /// Upsert water conservation records from server
-  Future<void> upsertWaterConservationRecordsFromServer(
-      List<Map<String, dynamic>> items) async {
-    await batch((batch) {
-      for (final item in items) {
-        batch.insert(
-          waterConservationRecords,
-          WaterConservationRecordsCompanion.insert(
-            id: item['id'],
-            tenantId: item['tenant_id'],
-            fieldId: item['field_id'],
-            recordDate: DateTime.parse(item['record_date']),
-            waterUsageCubicMeters: item['water_usage_cubic_meters'],
-            waterSource: item['water_source'],
-            irrigationMethod: item['irrigation_method'],
-            efficiencyPercent: Value(item['efficiency_percent']),
-            conservationPractices: item['conservation_practices'] ?? '[]',
-            notes: Value(item['notes']),
-            createdAt: DateTime.parse(item['created_at']),
-            synced: const Value(true),
-          ),
-          onConflict: DoUpdate((old) => WaterConservationRecordsCompanion(
-                waterUsageCubicMeters: Value(item['water_usage_cubic_meters']),
-                waterSource: Value(item['water_source']),
-                irrigationMethod: Value(item['irrigation_method']),
-                efficiencyPercent: Value(item['efficiency_percent']),
-                conservationPractices: Value(item['conservation_practices'] ?? '[]'),
-                notes: Value(item['notes']),
-                synced: const Value(true),
-              )),
-        );
-      }
-    });
-  }
-
-  /// Upsert farm practice records from server
-  Future<void> upsertPracticeRecordsFromServer(
-      List<Map<String, dynamic>> items) async {
-    await batch((batch) {
-      for (final item in items) {
-        batch.insert(
-          farmPracticeRecords,
-          FarmPracticeRecordsCompanion.insert(
-            id: item['id'],
-            tenantId: item['tenant_id'],
-            fieldId: item['field_id'],
-            practiceType: item['practice_type'],
-            startDate: DateTime.parse(item['start_date']),
-            status: item['status'],
-            areaAppliedDunums: Value(item['area_applied_dunums']),
-            effectivenessRating: Value(item['effectiveness_rating']),
-            benefits: item['benefits'] ?? '[]',
-            challenges: item['challenges'] ?? '[]',
-            notes: Value(item['notes']),
-            createdAt: DateTime.parse(item['created_at']),
-            synced: const Value(true),
-          ),
-          onConflict: DoUpdate((old) => FarmPracticeRecordsCompanion(
-                practiceType: Value(item['practice_type']),
-                status: Value(item['status']),
-                areaAppliedDunums: Value(item['area_applied_dunums']),
-                effectivenessRating: Value(item['effectiveness_rating']),
-                benefits: Value(item['benefits'] ?? '[]'),
-                challenges: Value(item['challenges'] ?? '[]'),
-                notes: Value(item['notes']),
-                synced: const Value(true),
-              )),
-        );
-      }
-    });
-  }
-
-  // ============================================================
-  // Ecological DAO Access
-  // ============================================================
-
-  /// Access to ecological records DAO
-  EcologicalDao get ecologicalDao => EcologicalDao(this);
 }
 
 /// Open database connection

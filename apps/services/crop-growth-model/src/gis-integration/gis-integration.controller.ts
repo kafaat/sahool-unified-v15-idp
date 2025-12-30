@@ -1,20 +1,90 @@
-import { Controller, Get, Post, Body, Param, Query, HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, HttpException, HttpStatus } from '@nestjs/common';
 import { GISIntegrationService, GeoJSONFeatureCollection, GeoJSONGeometry, BoundingBox, SpatialQuery, RouteRequest } from './gis-integration.service';
-import {
-  GetMapDto,
-  GetFeatureInfoDto,
-  GetFeaturesDto,
-  SpatialQueryDto,
-  BufferDto,
-  CreateFieldDto,
-  CalculateAreaDto,
-  CalculateCentroidDto,
-  ZonalStatsDto,
-  RouteRequestDto,
-  CreateProjectDto,
-  TransformDto,
-  ValidateGeoJSONDto,
-} from './gis-integration.dto';
+
+// Request DTOs
+interface GetMapDto {
+  layers: string[];
+  bbox: { minX: number; minY: number; maxX: number; maxY: number };
+  width: number;
+  height: number;
+  format?: string;
+  srs?: string;
+  transparent?: boolean;
+}
+
+interface GetFeatureInfoDto {
+  layers: string[];
+  point: { x: number; y: number };
+  bbox: { minX: number; minY: number; maxX: number; maxY: number };
+  width: number;
+  height: number;
+  srs?: string;
+}
+
+interface GetFeaturesDto {
+  typeName: string;
+  bbox?: { minX: number; minY: number; maxX: number; maxY: number };
+  filter?: string;
+  maxFeatures?: number;
+  startIndex?: number;
+  propertyName?: string[];
+  sortBy?: string;
+  outputFormat?: string;
+}
+
+interface SpatialQueryDto {
+  operation: 'intersects' | 'contains' | 'within' | 'overlaps' | 'touches' | 'buffer' | 'union';
+  geometry?: GeoJSONGeometry;
+  distance?: number;
+  unit?: 'meters' | 'kilometers' | 'miles';
+  targetLayer?: string;
+  properties?: string[];
+}
+
+interface CreateFieldDto {
+  farmId: string;
+  name: string;
+  nameAr: string;
+  geometry: GeoJSONGeometry;
+  soilType?: string;
+  irrigationType?: string;
+  currentCrop?: string;
+}
+
+interface ZonalStatsDto {
+  zones: GeoJSONFeatureCollection;
+  rasterLayer: string;
+  statistics: ('count' | 'sum' | 'mean' | 'min' | 'max' | 'std')[];
+}
+
+interface RouteRequestDto {
+  origin: { lat: number; lng: number };
+  destination: { lat: number; lng: number };
+  waypoints?: { lat: number; lng: number }[];
+  avoid?: string[];
+  optimize?: boolean;
+}
+
+interface CreateProjectDto {
+  name: string;
+  nameAr: string;
+  description: string;
+  layers: string[];
+  basemap?: string;
+  center?: { lat: number; lng: number };
+  zoom?: number;
+  owner: string;
+}
+
+interface TransformDto {
+  coordinates: number[];
+  fromSRS: string;
+  toSRS: string;
+}
+
+interface ValidateGeoJSONDto {
+  geojson: any;
+}
 
 @Controller('gis')
 export class GISIntegrationController {
@@ -155,7 +225,13 @@ export class GISIntegrationController {
    * Generate WMS GetMap URL
    */
   @Post('wms/map')
-  getMapUrl(@Body(ValidationPipe) dto: GetMapDto) {
+  getMapUrl(@Body() dto: GetMapDto) {
+    if (!dto.layers || !dto.bbox || !dto.width || !dto.height) {
+      throw new HttpException(
+        'Required: layers, bbox, width, height',
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
     const bbox: BoundingBox = {
       ...dto.bbox,
@@ -189,7 +265,13 @@ export class GISIntegrationController {
    * WMS GetFeatureInfo
    */
   @Post('wms/feature-info')
-  getFeatureInfo(@Body(ValidationPipe) dto: GetFeatureInfoDto) {
+  getFeatureInfo(@Body() dto: GetFeatureInfoDto) {
+    if (!dto.layers || !dto.point || !dto.bbox || !dto.width || !dto.height) {
+      throw new HttpException(
+        'Required: layers, point, bbox, width, height',
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
     const bbox: BoundingBox = {
       ...dto.bbox,
@@ -234,7 +316,10 @@ export class GISIntegrationController {
    * WFS GetFeature
    */
   @Post('wfs/features')
-  getFeatures(@Body(ValidationPipe) dto: GetFeaturesDto) {
+  getFeatures(@Body() dto: GetFeaturesDto) {
+    if (!dto.typeName) {
+      throw new HttpException('Required: typeName', HttpStatus.BAD_REQUEST);
+    }
 
     const bbox = dto.bbox ? {
       ...dto.bbox,
@@ -267,7 +352,10 @@ export class GISIntegrationController {
    * Execute spatial query
    */
   @Post('spatial/query')
-  executeSpatialQuery(@Body(ValidationPipe) dto: SpatialQueryDto) {
+  executeSpatialQuery(@Body() dto: SpatialQueryDto) {
+    if (!dto.operation) {
+      throw new HttpException('Required: operation', HttpStatus.BAD_REQUEST);
+    }
 
     const query: SpatialQuery = {
       operation: dto.operation,
@@ -292,7 +380,10 @@ export class GISIntegrationController {
    * Create buffer around geometry
    */
   @Post('spatial/buffer')
-  createBuffer(@Body(ValidationPipe) dto: BufferDto) {
+  createBuffer(@Body() dto: { geometry: GeoJSONGeometry; distance: number; unit?: string }) {
+    if (!dto.geometry || !dto.distance) {
+      throw new HttpException('Required: geometry, distance', HttpStatus.BAD_REQUEST);
+    }
 
     const result = this.gisService.executeSpatialQuery({
       operation: 'buffer',
@@ -319,7 +410,13 @@ export class GISIntegrationController {
    * Create field boundary
    */
   @Post('fields')
-  createField(@Body(ValidationPipe) dto: CreateFieldDto) {
+  createField(@Body() dto: CreateFieldDto) {
+    if (!dto.farmId || !dto.name || !dto.geometry) {
+      throw new HttpException(
+        'Required: farmId, name, geometry',
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
     const field = this.gisService.createFieldBoundary(dto);
 
@@ -336,7 +433,10 @@ export class GISIntegrationController {
    * Calculate area of geometry
    */
   @Post('fields/area')
-  calculateArea(@Body(ValidationPipe) dto: CalculateAreaDto) {
+  calculateArea(@Body() dto: { geometry: GeoJSONGeometry }) {
+    if (!dto.geometry) {
+      throw new HttpException('Required: geometry', HttpStatus.BAD_REQUEST);
+    }
 
     const areaHectares = this.gisService.calculateArea(dto.geometry);
 
@@ -356,7 +456,10 @@ export class GISIntegrationController {
    * Calculate centroid of geometry
    */
   @Post('fields/centroid')
-  calculateCentroid(@Body(ValidationPipe) dto: CalculateCentroidDto) {
+  calculateCentroid(@Body() dto: { geometry: GeoJSONGeometry }) {
+    if (!dto.geometry) {
+      throw new HttpException('Required: geometry', HttpStatus.BAD_REQUEST);
+    }
 
     const centroid = this.gisService.calculateCentroid(dto.geometry);
 
@@ -375,7 +478,13 @@ export class GISIntegrationController {
    * Calculate zonal statistics
    */
   @Post('analysis/zonal-stats')
-  calculateZonalStats(@Body(ValidationPipe) dto: ZonalStatsDto) {
+  calculateZonalStats(@Body() dto: ZonalStatsDto) {
+    if (!dto.zones || !dto.rasterLayer || !dto.statistics) {
+      throw new HttpException(
+        'Required: zones, rasterLayer, statistics',
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
     const results = this.gisService.calculateZonalStatistics(dto);
 
@@ -397,7 +506,10 @@ export class GISIntegrationController {
    * Calculate route
    */
   @Post('routing/route')
-  calculateRoute(@Body(ValidationPipe) dto: RouteRequestDto) {
+  calculateRoute(@Body() dto: RouteRequestDto) {
+    if (!dto.origin || !dto.destination) {
+      throw new HttpException('Required: origin, destination', HttpStatus.BAD_REQUEST);
+    }
 
     const result = this.gisService.calculateRoute(dto);
 
@@ -420,7 +532,10 @@ export class GISIntegrationController {
    * Create map project
    */
   @Post('projects')
-  createProject(@Body(ValidationPipe) dto: CreateProjectDto) {
+  createProject(@Body() dto: CreateProjectDto) {
+    if (!dto.name || !dto.layers || !dto.owner) {
+      throw new HttpException('Required: name, layers, owner', HttpStatus.BAD_REQUEST);
+    }
 
     const project = this.gisService.createMapProject(dto);
 
@@ -468,7 +583,13 @@ export class GISIntegrationController {
    * Transform coordinates between SRS
    */
   @Post('utils/transform')
-  transformCoordinates(@Body(ValidationPipe) dto: TransformDto) {
+  transformCoordinates(@Body() dto: TransformDto) {
+    if (!dto.coordinates || !dto.fromSRS || !dto.toSRS) {
+      throw new HttpException(
+        'Required: coordinates, fromSRS, toSRS',
+        HttpStatus.BAD_REQUEST
+      );
+    }
 
     const transformed = this.gisService.transformCoordinates(
       dto.coordinates,
@@ -495,20 +616,10 @@ export class GISIntegrationController {
    */
   @Get('demo/fields')
   getDemoFields(@Query('count') count?: string) {
-    // Validate and sanitize count parameter
-    let validatedCount = 10;
-    if (count) {
-      const parsedCount = parseInt(count, 10);
-      if (isNaN(parsedCount) || parsedCount < 1) {
-        throw new HttpException(
-          'Invalid count: must be a positive number',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-      validatedCount = Math.min(Math.max(1, parsedCount), 50); // Max 50 fields
-    }
-
-    const fields = this.gisService.generateDemoFields(validatedCount);
+    const fieldCount = count ? parseInt(count, 10) : 10;
+    const fields = this.gisService.generateDemoFields(
+      Math.min(Math.max(1, fieldCount), 50)
+    );
 
     return {
       success: true,

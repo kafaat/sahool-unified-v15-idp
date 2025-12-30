@@ -38,10 +38,7 @@ import { HealthController } from './health/health.controller';
     PrismaService,
     ChatService,
     ChatGateway,
-<<<<<<< HEAD
     // Global rate limiting guard
-=======
->>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

@@ -1,7 +1,7 @@
 """
 SAHOOL Alert Service - Main API
 خدمة التنبيهات الزراعية
-Port: 8113
+Port: 8107
 Version: 16.0.0
 """
 
@@ -17,7 +17,6 @@ from fastapi import FastAPI, HTTPException, Query, Path, Depends, Header
 from pydantic import BaseModel
 from pathlib import Path as PathLib
 
-<<<<<<< HEAD
 # Add path to shared modules
 # In Docker, shared is at /app/shared
 SHARED_PATH = PathLib("/app/shared")
@@ -32,11 +31,6 @@ except ImportError:
     # Fallback if shared module not available
     def setup_cors_middleware(app):
         pass
-=======
-# Add path to shared config
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../shared/config"))
-from cors_config import setup_cors_middleware
->>>>>>> f531c968f914f7910e421910ac9e4be3e6bbcdfc
 
 from .models import (
     AlertType,
@@ -118,7 +112,7 @@ async def lifespan(app: FastAPI):
         logger.warning(f"NATS subscriber connection failed: {e}")
         app.state.subscriber = None
 
-    logger.info("Alert Service ready on port 8113")
+    logger.info("Alert Service ready on port 8107")
     yield
 
     # Cleanup
@@ -723,5 +717,5 @@ async def get_stats(
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8113))
+    port = int(os.getenv("PORT", 8107))
     uvicorn.run(app, host="0.0.0.0", port=port)

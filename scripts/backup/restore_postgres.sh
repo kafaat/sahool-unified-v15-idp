@@ -228,49 +228,6 @@ find_latest_backup() {
     echo "$latest_backup"
 }
 
-# Decrypt backup if needed - فك تشفير النسخة الاحتياطية إذا لزم الأمر
-decrypt_backup() {
-    local file=$1
-
-    # Check if file is encrypted
-    if [[ "$file" != *.enc ]]; then
-        echo "$file"
-        return
-    fi
-
-    info_message "Encrypted backup detected, decrypting..."
-
-    # Get encryption key from environment or prompt
-    local encryption_key="${BACKUP_ENCRYPTION_KEY:-}"
-
-    if [ -z "$encryption_key" ]; then
-        if [ "$FORCE_RESTORE" = "true" ]; then
-            error_exit "Encrypted backup detected but BACKUP_ENCRYPTION_KEY not set"
-        fi
-
-        question_message "Enter encryption key:"
-        read -s encryption_key
-        echo
-    fi
-
-    if [ -z "$encryption_key" ]; then
-        error_exit "Encryption key is required to decrypt backup"
-    fi
-
-    local decrypted="${file%.enc}"
-
-    if openssl enc -aes-256-cbc -d -salt -pbkdf2 \
-        -in "${file}" \
-        -out "${decrypted}" \
-        -k "${encryption_key}"; then
-
-        success_message "Decryption completed"
-        echo "$decrypted"
-    else
-        error_exit "Failed to decrypt backup file - wrong key or corrupted file"
-    fi
-}
-
 # Decompress backup if needed - فك ضغط النسخة الاحتياطية إذا لزم الأمر
 decompress_backup() {
     local file=$1
@@ -296,6 +253,8 @@ decompress_backup() {
         else
             error_exit "Failed to decompress backup file"
         fi
+    elif [[ "$file" == *.enc ]]; then
+        error_exit "Encrypted backup detected. Please decrypt manually first."
     else
         echo "$file"
     fi
@@ -614,9 +573,6 @@ main() {
 
     # Validate backup file
     validate_backup "$BACKUP_FILE"
-
-    # Decrypt if needed
-    BACKUP_FILE=$(decrypt_backup "$BACKUP_FILE")
 
     # Decompress if needed
     BACKUP_FILE=$(decompress_backup "$BACKUP_FILE")

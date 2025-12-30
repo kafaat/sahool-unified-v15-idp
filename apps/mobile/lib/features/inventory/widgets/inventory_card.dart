@@ -3,11 +3,9 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 import '../data/inventory_models.dart';
 import 'stock_level_indicator.dart';
-import '../../../core/performance/image_cache_manager.dart';
 
 /// بطاقة عرض عنصر المخزون
 class InventoryCard extends StatelessWidget {
@@ -222,21 +220,10 @@ class InventoryCard extends StatelessWidget {
 
   Widget _buildImageSection(BuildContext context) {
     if (item.imageUrl != null && item.imageUrl!.isNotEmpty) {
-      return CachedNetworkImage(
-        imageUrl: item.imageUrl!,
-        cacheManager: SahoolImageCacheManager.instance.cacheManager,
+      return Image.network(
+        item.imageUrl!,
         fit: BoxFit.cover,
-        placeholder: (context, url) => Center(
-          child: SizedBox(
-            width: 24,
-            height: 24,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: Theme.of(context).primaryColor.withOpacity(0.5),
-            ),
-          ),
-        ),
-        errorWidget: (context, url, error) => _buildIconPlaceholder(context),
+        errorBuilder: (context, error, stackTrace) => _buildIconPlaceholder(context),
       );
     }
     return _buildIconPlaceholder(context);

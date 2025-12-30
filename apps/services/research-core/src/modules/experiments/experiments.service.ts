@@ -14,30 +14,12 @@ export class ExperimentsService {
 
     const { metadata, ...restDto } = dto;
 
-    // Validate date strings
-    const startDate = new Date(dto.startDate);
-    if (isNaN(startDate.getTime())) {
-      throw new Error('Invalid startDate format');
-    }
-
-    let endDate: Date | null = null;
-    if (dto.endDate) {
-      endDate = new Date(dto.endDate);
-      if (isNaN(endDate.getTime())) {
-        throw new Error('Invalid endDate format');
-      }
-      // Ensure endDate is after startDate
-      if (endDate <= startDate) {
-        throw new Error('endDate must be after startDate');
-      }
-    }
-
     return this.prisma.experiment.create({
       data: {
         ...restDto,
         principalResearcherId: userId,
-        startDate,
-        endDate,
+        startDate: new Date(dto.startDate),
+        endDate: dto.endDate ? new Date(dto.endDate) : null,
         metadata: metadata as Prisma.InputJsonValue | undefined,
       },
     });
@@ -127,35 +109,12 @@ export class ExperimentsService {
 
     const { metadata, ...restDto } = dto;
 
-    // Validate date strings if provided
-    let validatedStartDate: Date | undefined;
-    let validatedEndDate: Date | undefined;
-
-    if (dto.startDate) {
-      validatedStartDate = new Date(dto.startDate);
-      if (isNaN(validatedStartDate.getTime())) {
-        throw new Error('Invalid startDate format');
-      }
-    }
-
-    if (dto.endDate) {
-      validatedEndDate = new Date(dto.endDate);
-      if (isNaN(validatedEndDate.getTime())) {
-        throw new Error('Invalid endDate format');
-      }
-    }
-
-    // If both dates are provided, ensure endDate is after startDate
-    if (validatedStartDate && validatedEndDate && validatedEndDate <= validatedStartDate) {
-      throw new Error('endDate must be after startDate');
-    }
-
     return this.prisma.experiment.update({
       where: { id },
       data: {
         ...restDto,
-        startDate: validatedStartDate,
-        endDate: validatedEndDate,
+        startDate: dto.startDate ? new Date(dto.startDate) : undefined,
+        endDate: dto.endDate ? new Date(dto.endDate) : undefined,
         version: { increment: 1 },
         metadata: metadata !== undefined ? (metadata as Prisma.InputJsonValue) : undefined,
       },
@@ -184,39 +143,27 @@ export class ExperimentsService {
   }
 
   async getSummary(id: string) {
-    // Use single query with _count aggregation and include last log
-    const experiment = await this.prisma.experiment.findUnique({
-      where: { id },
-      include: {
-        protocols: true,
-        plots: true,
-        treatments: true,
-        collaborators: true,
-        _count: {
-          select: {
-            logs: true,
-            samples: true,
-          },
-        },
-        logs: {
-          orderBy: { logDate: 'desc' },
-          take: 1,
-          select: { logDate: true, title: true },
-        },
-      },
-    });
+    const experiment = await this.findOne(id);
 
-    if (!experiment) {
-      throw new NotFoundException(`Experiment ${id} not found`);
-    }
-
-    const lastLog = experiment.logs[0];
+    const [logsCount, samplesCount, lastLog] = await Promise.all([
+      this.prisma.researchDailyLog.count({
+        where: { experimentId: id },
+      }),
+      this.prisma.labSample.count({
+        where: { experimentId: id },
+      }),
+      this.prisma.researchDailyLog.findFirst({
+        where: { experimentId: id },
+        orderBy: { logDate: 'desc' },
+        select: { logDate: true, title: true },
+      }),
+    ]);
 
     return {
       ...experiment,
       statistics: {
-        logsCount: experiment._count.logs,
-        samplesCount: experiment._count.samples,
+        logsCount,
+        samplesCount,
         lastLogDate: lastLog?.logDate,
         lastLogTitle: lastLog?.title,
       },

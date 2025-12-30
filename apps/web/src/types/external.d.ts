@@ -45,7 +45,7 @@ declare module 'maplibre-gl' {
     constructor(options: MapOptions);
     on(event: string, callback: (e: MapMouseEvent) => void): this;
     on(event: string, layer: string, callback: (e: MapMouseEvent) => void): this;
-    off(event: string, callback?: (e: MapMouseEvent) => void): this;
+    off(event: string, callback?: Function): this;
     remove(): void;
     addControl(control: NavigationControl | GeolocateControl, position?: string): this;
     addSource(id: string, source: any): this;

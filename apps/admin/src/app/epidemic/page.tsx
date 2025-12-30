@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary fix for types with React 19
 'use client';
 
 // Epidemic Monitoring Center - مركز رصد الأوبئة

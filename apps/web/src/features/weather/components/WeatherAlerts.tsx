@@ -45,31 +45,31 @@ const severityLabels: Record<string, string> = {
 
 const AlertCard: React.FC<{ alert: WeatherAlert }> = ({ alert }) => {
   return (
-    <div className={`rounded-xl border-2 p-5 ${severityColors[alert.severity]}`} data-testid={`alert-card-${alert.id}`}>
+    <div className={`rounded-xl border-2 p-5 ${severityColors[alert.severity]}`}>
       <div className="flex items-start gap-4">
-        <div className="flex-shrink-0 mt-1" data-testid={`alert-${alert.id}-icon`}>
+        <div className="flex-shrink-0 mt-1">
           {severityIcons[alert.severity]}
         </div>
         <div className="flex-1 min-w-0">
           {/* Header */}
           <div className="flex items-start justify-between mb-3">
             <div>
-              <h3 className="text-lg font-bold text-gray-900" data-testid={`alert-${alert.id}-title`}>
+              <h3 className="text-lg font-bold text-gray-900">
                 {alert.titleAr || alert.title}
               </h3>
-              <p className="text-sm text-gray-600 mt-1" data-testid={`alert-${alert.id}-severity`}>
+              <p className="text-sm text-gray-600 mt-1">
                 {severityLabels[alert.severity]} - {alert.severity}
               </p>
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-gray-700 mb-4" data-testid={`alert-${alert.id}-description`}>
+          <p className="text-gray-700 mb-4">
             {alert.descriptionAr || alert.description}
           </p>
 
           {/* Time Period */}
-          <div className="flex items-center gap-4 text-sm text-gray-600 mb-4" data-testid={`alert-${alert.id}-time`}>
+          <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
             <div>
               <span className="font-medium">من: </span>
               {new Date(alert.startTime).toLocaleString('ar-EG')}
@@ -84,14 +84,13 @@ const AlertCard: React.FC<{ alert: WeatherAlert }> = ({ alert }) => {
 
           {/* Affected Areas */}
           {alert.affectedAreasAr && alert.affectedAreasAr.length > 0 && (
-            <div className="mb-4" data-testid={`alert-${alert.id}-areas`}>
+            <div className="mb-4">
               <p className="text-sm font-medium text-gray-700 mb-2">المناطق المتأثرة:</p>
               <div className="flex flex-wrap gap-2">
                 {alert.affectedAreasAr.map((area, idx) => (
                   <span
                     key={idx}
                     className="px-3 py-1 bg-white rounded-full text-sm text-gray-700"
-                    data-testid={`alert-${alert.id}-area-${idx}`}
                   >
                     {area}
                   </span>
@@ -110,8 +109,8 @@ export const WeatherAlerts: React.FC<WeatherAlertsProps> = ({ lat, lon, enabled 
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="alerts-loading">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4" data-testid="alerts-title">تنبيهات الطقس</h2>
+      <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">تنبيهات الطقس</h2>
         <div className="space-y-4">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="h-32 bg-gray-100 rounded-xl animate-pulse" />
@@ -123,25 +122,25 @@ export const WeatherAlerts: React.FC<WeatherAlertsProps> = ({ lat, lon, enabled 
 
   if (!alerts || alerts.length === 0) {
     return (
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="alerts-no-data">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4" data-testid="alerts-title">تنبيهات الطقس</h2>
+      <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">تنبيهات الطقس</h2>
         <div className="text-center py-8 bg-green-50 rounded-lg">
           <Info className="w-12 h-12 mx-auto mb-3 text-green-600" />
-          <p className="text-green-700 font-medium" data-testid="no-alerts-message">لا توجد تنبيهات طقس حالية</p>
-          <p className="text-sm text-green-600 mt-1" data-testid="normal-conditions-message">الأحوال الجوية طبيعية</p>
+          <p className="text-green-700 font-medium">لا توجد تنبيهات طقس حالية</p>
+          <p className="text-sm text-green-600 mt-1">الأحوال الجوية طبيعية</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="weather-alerts">
+    <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900" data-testid="alerts-title">تنبيهات الطقس</h2>
-        <span className="text-sm text-gray-600" data-testid="alerts-subtitle">Weather Alerts</span>
+        <h2 className="text-2xl font-bold text-gray-900">تنبيهات الطقس</h2>
+        <span className="text-sm text-gray-600">Weather Alerts</span>
       </div>
 
-      <div className="space-y-4" data-testid="alerts-list">
+      <div className="space-y-4">
         {alerts.map((alert) => (
           <AlertCard key={alert.id} alert={alert} />
         ))}

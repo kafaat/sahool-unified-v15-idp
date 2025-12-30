@@ -14,7 +14,6 @@
 export { HealthDashboard } from './components/HealthDashboard';
 export { DiagnosisTool } from './components/DiagnosisTool';
 export { DiagnosisResult as DiagnosisResultView } from './components/DiagnosisResult';
-export { DiseaseRiskForecast } from './components/DiseaseRiskForecast';
 
 // Hook exports
 export {
@@ -53,15 +52,5 @@ export type {
   DiseaseAlert,
   ExpertConsultation,
 } from './types';
-
-// Disease Risk Forecast Types
-export type {
-  WeatherFactors,
-  CropStage,
-  RiskLevel,
-  DiseaseRisk,
-  RiskForecast,
-  DiseaseRiskForecastProps,
-} from './components/DiseaseRiskForecast';
 
 export const CROP_HEALTH_FEATURE = 'crop-health' as const;

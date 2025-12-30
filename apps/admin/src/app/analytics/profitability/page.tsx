@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary fix for types with React 19
 'use client';
 
 // Profitability Analytics
@@ -270,7 +269,7 @@ export default function ProfitabilityPage() {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={({ categoryAr, percentage }: { categoryAr: string; percentage: number }) => `${categoryAr} ${percentage.toFixed(0)}%`}
+                  label={({ categoryAr, percentage }) => `${categoryAr} ${percentage.toFixed(0)}%`}
                   labelLine={true}
                 >
                   {data.costBreakdown.map((entry, index) => (

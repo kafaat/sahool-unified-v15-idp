@@ -38,7 +38,7 @@ class EmbeddingsManager:
             model_name: Name of the embedding model | اسم نموذج التضمين
             device: Device to use (cpu/cuda) | الجهاز المستخدم
         """
-        self.model_name = model_name or settings.embedding_model
+        self.model_name = model_name or settings.embeddings_model
         self.device = device or settings.embeddings_device
 
         logger.info(

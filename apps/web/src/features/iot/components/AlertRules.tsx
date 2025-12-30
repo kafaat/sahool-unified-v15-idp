@@ -8,7 +8,7 @@
 import { useState } from 'react';
 import { useAlertRules, useToggleAlertRule, useDeleteAlertRule } from '../hooks/useActuators';
 import type { AlertRule } from '../types';
-import { AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
+import { Bell, AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
 
 const severityColors = {
   info: 'bg-blue-100 text-blue-800',
@@ -31,7 +31,7 @@ const conditionLabels = {
 
 export function AlertRules() {
   const [showForm, setShowForm] = useState(false);
-  const { data: rules, isLoading, error } = useAlertRules();
+  const { data: rules, isLoading } = useAlertRules();
   const toggleMutation = useToggleAlertRule();
   const deleteMutation = useDeleteAlertRule();
 
@@ -62,23 +62,17 @@ export function AlertRules() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">فشل تحميل قواعد التنبيهات</p>
-        <p className="text-sm text-gray-400 mt-2">Failed to load alert rules</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6" data-testid="alert-rules">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4" data-testid="alert-rules-header">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+          <Bell className="w-6 h-6 ml-2 text-green-600" />
+          قواعد التنبيهات
+        </h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center text-sm"
-          data-testid="add-alert-rule-button"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
         >
           <Plus className="w-4 h-4 ml-2" />
           إضافة قاعدة
@@ -87,7 +81,7 @@ export function AlertRules() {
 
       {/* Rules List */}
       {rules && rules.length > 0 ? (
-        <div className="space-y-4" data-testid="alert-rules-list">
+        <div className="space-y-4">
           {rules.map((rule) => (
             <AlertRuleCard
               key={rule.id}
@@ -99,13 +93,12 @@ export function AlertRules() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12" data-testid="no-alert-rules-message">
+        <div className="text-center py-12 bg-white rounded-lg shadow">
           <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
           <p className="text-gray-500">لا توجد قواعد تنبيهات</p>
           <button
             onClick={() => setShowForm(true)}
             className="mt-4 text-green-600 hover:text-green-700 font-medium"
-            data-testid="create-first-rule-button"
           >
             إنشاء قاعدة جديدة
           </button>
@@ -141,42 +134,40 @@ function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardPro
   return (
     <div
       className={`bg-white rounded-lg shadow p-6 ${!rule.enabled ? 'opacity-60' : ''}`}
-      data-testid={`alert-rule-card-${rule.id}`}
     >
       <div className="flex items-start justify-between">
-        <div className="flex-1" data-testid="alert-rule-content">
-          <div className="flex items-center gap-2 mb-2" data-testid="alert-rule-header">
-            <h3 className="text-lg font-semibold text-gray-900" data-testid="alert-rule-name-ar">{rule.nameAr}</h3>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900">{rule.nameAr}</h3>
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${
                 severityColors[rule.severity]
               }`}
-              data-testid="alert-rule-severity"
             >
               {severityLabels[rule.severity]}
             </span>
             {!rule.enabled && (
-              <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs" data-testid="alert-rule-disabled-badge">
+              <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
                 معطلة
               </span>
             )}
           </div>
 
-          <p className="text-sm text-gray-600 mb-3" data-testid="alert-rule-name-en">{rule.name}</p>
+          <p className="text-sm text-gray-600 mb-3">{rule.name}</p>
 
-          <div className="space-y-2 text-sm" data-testid="alert-rule-details">
-            <div className="flex items-center text-gray-700" data-testid="alert-rule-sensor">
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center text-gray-700">
               <span className="font-medium ml-2">المستشعر:</span>
               <span>{rule.sensorName}</span>
             </div>
 
-            <div className="flex items-center text-gray-700" data-testid="alert-rule-condition">
+            <div className="flex items-center text-gray-700">
               <span className="font-medium ml-2">الشرط:</span>
               <span>{getConditionText()}</span>
             </div>
 
             {rule.actionType && (
-              <div className="flex items-center text-gray-700" data-testid="alert-rule-action">
+              <div className="flex items-center text-gray-700">
                 <span className="font-medium ml-2">الإجراء:</span>
                 <span>
                   {rule.actionType === 'notification' && 'إرسال إشعار'}
@@ -187,7 +178,7 @@ function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardPro
             )}
 
             {rule.actuatorId && rule.actuatorAction && (
-              <div className="text-xs text-gray-500" data-testid="alert-rule-actuator-action">
+              <div className="text-xs text-gray-500">
                 إجراء المُشغل:{' '}
                 {rule.actuatorAction === 'turn_on' ? 'تشغيل' : 'إيقاف'}
               </div>
@@ -196,7 +187,7 @@ function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardPro
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2" data-testid="alert-rule-actions">
+        <div className="flex gap-2">
           <button
             onClick={() => onToggle(rule.id, rule.enabled)}
             disabled={isLoading}
@@ -206,7 +197,6 @@ function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardPro
                 : 'text-gray-400 hover:bg-gray-50'
             }`}
             title={rule.enabled ? 'تعطيل' : 'تفعيل'}
-            data-testid="alert-rule-toggle-button"
           >
             <Power className="w-5 h-5" />
           </button>
@@ -216,7 +206,6 @@ function AlertRuleCard({ rule, onToggle, onDelete, isLoading }: AlertRuleCardPro
             disabled={isLoading}
             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
             title="حذف"
-            data-testid="alert-rule-delete-button"
           >
             <Trash2 className="w-5 h-5" />
           </button>

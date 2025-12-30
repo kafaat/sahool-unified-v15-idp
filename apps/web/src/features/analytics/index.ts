@@ -19,7 +19,6 @@ export { CostAnalysis } from './components/CostAnalysis';
 export { ComparisonChart } from './components/ComparisonChart';
 export { ReportGenerator } from './components/ReportGenerator';
 export { KPICards } from './components/KPICards';
-export { HarvestPlanningDashboard } from './components/HarvestPlanningDashboard';
 
 // Hook exports
 export {
@@ -54,14 +53,6 @@ export type {
   AnalyticsFilters,
   AnalyticsSummary,
   ResourceUsage,
-  ReadinessStatus,
-  QualityGrade,
-  EquipmentStatus,
-  WeatherForecast,
-  HarvestWindow,
-  FieldReadiness,
-  Equipment,
-  HarvestPlan,
 } from './types';
 
 export const ANALYTICS_FEATURE = 'analytics' as const;

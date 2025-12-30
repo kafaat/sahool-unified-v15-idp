@@ -22,7 +22,7 @@ class CropHealthTool:
     """
 
     def __init__(self):
-        self.base_url = settings.crop_health_url
+        self.base_url = settings.crop_health_ai_url
         self.timeout = 30.0
 
     async def analyze_image(

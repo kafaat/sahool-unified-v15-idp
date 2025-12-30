@@ -2,25 +2,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../config/config.dart';
-import '../utils/app_logger.dart';
-import 'api_error_handler.dart';
-import 'api_result.dart';
-import 'certificate_pinning.dart';
-import 'retry_interceptor.dart';
 
-/// SAHOOL API Client with improved error handling, retry logic, and SSL certificate pinning
+/// SAHOOL API Client with offline handling
 class ApiClient {
   late final Dio _dio;
-  late final CircuitBreaker _circuitBreaker;
   String? _authToken;
   String _tenantId = AppConfig.defaultTenantId;
 
-  ApiClient({
-    String? baseUrl,
-    int maxRetries = 3,
-    Duration baseRetryDelay = const Duration(milliseconds: 500),
-    bool enableCircuitBreaker = true,
-  }) {
+  ApiClient({String? baseUrl}) {
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl ?? AppConfig.apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
@@ -31,44 +20,9 @@ class ApiClient {
       },
     ));
 
-    // Initialize circuit breaker
-    _circuitBreaker = CircuitBreaker(
-      failureThreshold: 5,
-      resetTimeout: const Duration(seconds: 60),
-      halfOpenTimeout: const Duration(seconds: 30),
-    );
-
-    // Configure SSL certificate pinning
-    CertificatePinning.configureDio(_dio);
-
-    // Verify certificate pinning configuration
-    CertificatePinning.verifyConfiguration();
-
-    // Add interceptors (order matters!)
-    // 1. Retry interceptor (should be first to catch and retry errors)
-    _dio.interceptors.add(
-      RetryInterceptor(
-        maxRetries: maxRetries,
-        baseDelay: baseRetryDelay,
-        circuitBreaker: enableCircuitBreaker ? _circuitBreaker : null,
-      ),
-    );
-
-    // 2. Auth interceptor (adds authentication headers)
+    // Add interceptors
     _dio.interceptors.add(_AuthInterceptor(this));
-
-    // 3. Logging interceptor (should be last to log final requests)
     _dio.interceptors.add(_LoggingInterceptor());
-
-    AppLogger.i(
-      'ApiClient initialized',
-      tag: 'API_CLIENT',
-      data: {
-        'baseUrl': _dio.options.baseUrl,
-        'maxRetries': maxRetries,
-        'circuitBreakerEnabled': enableCircuitBreaker,
-      },
-    );
   }
 
   void setAuthToken(String token) {
@@ -81,149 +35,6 @@ class ApiClient {
 
   String? get authToken => _authToken;
   String get tenantId => _tenantId;
-
-  /// Get circuit breaker status
-  Map<String, dynamic> getCircuitBreakerStatus() => _circuitBreaker.getStatus();
-
-  /// Reset circuit breaker
-  void resetCircuitBreaker() => _circuitBreaker.reset();
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Type-safe ApiResult methods (recommended for new code)
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  /// GET request with ApiResult
-  Future<ApiResult<T>> getSafe<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-  }) async {
-    try {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-      );
-      return ApiResult.success(response.data as T);
-    } on DioException catch (e, stackTrace) {
-      return ApiResult.failure(ApiErrorHandler.handleError(e, stackTrace: stackTrace));
-    } catch (e, stackTrace) {
-      return ApiResult.failure(
-        ApiErrorHandler.handleGenericError(
-          e as Exception,
-          stackTrace: stackTrace,
-        ),
-      );
-    }
-  }
-
-  /// POST request with ApiResult
-  Future<ApiResult<T>> postSafe<T>(
-    String path,
-    dynamic data, {
-    Map<String, dynamic>? queryParameters,
-    Map<String, String>? headers,
-  }) async {
-    try {
-      final response = await _dio.post(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: headers != null ? Options(headers: headers) : null,
-      );
-      return ApiResult.success(response.data as T);
-    } on DioException catch (e, stackTrace) {
-      return ApiResult.failure(ApiErrorHandler.handleError(e, stackTrace: stackTrace));
-    } catch (e, stackTrace) {
-      return ApiResult.failure(
-        ApiErrorHandler.handleGenericError(
-          e as Exception,
-          stackTrace: stackTrace,
-        ),
-      );
-    }
-  }
-
-  /// PUT request with ApiResult
-  Future<ApiResult<T>> putSafe<T>(
-    String path,
-    dynamic data, {
-    Map<String, dynamic>? queryParameters,
-    Map<String, String>? headers,
-  }) async {
-    try {
-      final response = await _dio.put(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: headers != null ? Options(headers: headers) : null,
-      );
-      return ApiResult.success(response.data as T);
-    } on DioException catch (e, stackTrace) {
-      return ApiResult.failure(ApiErrorHandler.handleError(e, stackTrace: stackTrace));
-    } catch (e, stackTrace) {
-      return ApiResult.failure(
-        ApiErrorHandler.handleGenericError(
-          e as Exception,
-          stackTrace: stackTrace,
-        ),
-      );
-    }
-  }
-
-  /// DELETE request with ApiResult
-  Future<ApiResult<T>> deleteSafe<T>(
-    String path, {
-    Map<String, dynamic>? queryParameters,
-    Map<String, String>? headers,
-  }) async {
-    try {
-      final response = await _dio.delete(
-        path,
-        queryParameters: queryParameters,
-        options: headers != null ? Options(headers: headers) : null,
-      );
-      return ApiResult.success(response.data as T);
-    } on DioException catch (e, stackTrace) {
-      return ApiResult.failure(ApiErrorHandler.handleError(e, stackTrace: stackTrace));
-    } catch (e, stackTrace) {
-      return ApiResult.failure(
-        ApiErrorHandler.handleGenericError(
-          e as Exception,
-          stackTrace: stackTrace,
-        ),
-      );
-    }
-  }
-
-  /// Upload file with ApiResult
-  Future<ApiResult<T>> uploadFileSafe<T>(
-    String path,
-    String filePath, {
-    String fieldName = 'file',
-    Map<String, dynamic>? extraData,
-  }) async {
-    try {
-      final formData = FormData.fromMap({
-        fieldName: await MultipartFile.fromFile(filePath),
-        ...?extraData,
-      });
-
-      final response = await _dio.post(path, data: formData);
-      return ApiResult.success(response.data as T);
-    } on DioException catch (e, stackTrace) {
-      return ApiResult.failure(ApiErrorHandler.handleError(e, stackTrace: stackTrace));
-    } catch (e, stackTrace) {
-      return ApiResult.failure(
-        ApiErrorHandler.handleGenericError(
-          e as Exception,
-          stackTrace: stackTrace,
-        ),
-      );
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Legacy exception-based methods (for backward compatibility)
-  // ═══════════════════════════════════════════════════════════════════════════
 
   /// GET request
   Future<dynamic> get(
@@ -319,20 +130,45 @@ class ApiClient {
     }
   }
 
-  /// Convert ApiError to legacy ApiException for backward compatibility
-  ApiException _convertToLegacyException(ApiError error) {
-    return ApiException(
-      code: error.code ?? error.type.name.toUpperCase(),
-      message: error.message,
-      statusCode: error.statusCode,
-      isNetworkError: error.isNetworkError,
-    );
-  }
-
-  /// Handle error and convert to legacy ApiException
   ApiException _handleError(DioException e) {
-    final apiError = ApiErrorHandler.handleError(e);
-    return _convertToLegacyException(apiError);
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        return ApiException(
+          code: 'TIMEOUT',
+          message: 'انتهت مهلة الاتصال',
+          isNetworkError: true,
+        );
+
+      case DioExceptionType.connectionError:
+        return ApiException(
+          code: 'NO_CONNECTION',
+          message: 'لا يوجد اتصال بالإنترنت',
+          isNetworkError: true,
+        );
+
+      case DioExceptionType.badResponse:
+        final statusCode = e.response?.statusCode ?? 0;
+        final data = e.response?.data;
+        String message = 'حدث خطأ غير متوقع';
+
+        if (data is Map) {
+          message = data['message'] ?? data['error'] ?? message;
+        }
+
+        return ApiException(
+          code: 'HTTP_$statusCode',
+          message: message,
+          statusCode: statusCode,
+        );
+
+      default:
+        return ApiException(
+          code: 'UNKNOWN',
+          message: 'حدث خطأ غير متوقع',
+        );
+    }
   }
 }
 
@@ -359,57 +195,29 @@ class _AuthInterceptor extends Interceptor {
 /// Logging Interceptor
 /// Only logs in debug mode to prevent sensitive data exposure in production
 class _LoggingInterceptor extends Interceptor {
-  final _stopwatches = <int, Stopwatch>{};
-
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // Start timing the request
-    final stopwatch = Stopwatch()..start();
-    _stopwatches[options.hashCode] = stopwatch;
-
-    AppLogger.network(
-      options.method,
-      options.path,
-      data: {
-        'queryParams': options.queryParameters.isNotEmpty
-            ? options.queryParameters
-            : null,
-      },
-    );
+    if (kDebugMode) {
+      print('📤 ${options.method} ${options.path}');
+      // Note: Authorization headers and request body are intentionally not logged
+    }
     handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    // Stop timing
-    final stopwatch = _stopwatches.remove(response.requestOptions.hashCode);
-    stopwatch?.stop();
-
-    AppLogger.network(
-      response.requestOptions.method,
-      response.requestOptions.path,
-      statusCode: response.statusCode,
-      duration: stopwatch?.elapsed,
-    );
+    if (kDebugMode) {
+      print('📥 ${response.statusCode} ${response.requestOptions.path}');
+      // Note: Response body is intentionally not logged to prevent data leakage
+    }
     handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Stop timing
-    final stopwatch = _stopwatches.remove(err.requestOptions.hashCode);
-    stopwatch?.stop();
-
-    AppLogger.network(
-      err.requestOptions.method,
-      err.requestOptions.path,
-      statusCode: err.response?.statusCode,
-      duration: stopwatch?.elapsed,
-      data: {
-        'error': err.type.name,
-        'message': err.message,
-      },
-    );
+    if (kDebugMode) {
+      print('❌ ${err.type} ${err.requestOptions.path}');
+    }
     handler.next(err);
   }
 }

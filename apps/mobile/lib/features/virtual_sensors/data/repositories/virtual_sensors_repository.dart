@@ -28,7 +28,7 @@ class VirtualSensorsRepository {
 
   /// Base URL for virtual sensors service (port 8096)
   static String get _baseUrl => ApiConfig.useDirectServices
-      ? ApiConfig.virtualSensorsServiceUrl
+      ? 'http://${ApiConfig.useDirectServices ? "localhost" : "10.0.2.2"}:8096'
       : ApiConfig.effectiveBaseUrl;
 
   VirtualSensorsRepository({

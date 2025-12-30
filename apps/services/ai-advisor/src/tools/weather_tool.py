@@ -23,7 +23,7 @@ class WeatherTool:
     """
 
     def __init__(self):
-        self.base_url = settings.weather_url
+        self.base_url = settings.weather_core_url
         self.timeout = 30.0
 
     async def get_current_weather(

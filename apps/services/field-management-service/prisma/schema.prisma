@@ -73,9 +73,6 @@ model Field {
   @@index([serverUpdatedAt], name: "idx_field_sync")
   @@index([status], name: "idx_field_status")
   @@index([cropType], name: "idx_field_crop")
-  @@index([tenantId, status], name: "idx_field_tenant_status")
-  @@index([tenantId, createdAt], name: "idx_field_tenant_created")
-  @@index([updatedAt], name: "idx_field_updated_at")
   @@map("fields")
 }
 
@@ -112,7 +109,7 @@ model FieldBoundaryHistory {
 
   // Indexes
   @@index([fieldId], name: "idx_history_field")
-  @@index([createdAt], name: "idx_history_created_at")
+  @@index([createdAt], name: "idx_history_date")
   @@map("field_boundary_history")
 }
 
@@ -152,10 +149,6 @@ model SyncStatus {
   // Indexes
   @@unique([deviceId, userId], name: "idx_sync_device_user")
   @@index([tenantId], name: "idx_sync_tenant")
-  @@index([userId, tenantId], name: "idx_sync_user_tenant")
-  @@index([deviceId, tenantId], name: "idx_sync_device_tenant")
-  @@index([tenantId, updatedAt], name: "idx_sync_tenant_updated")
-  @@index([updatedAt], name: "idx_sync_updated_at")
   @@map("sync_status")
 }
 
@@ -207,8 +200,6 @@ model Task {
   @@index([fieldId], name: "idx_task_field")
   @@index([status], name: "idx_task_status")
   @@index([dueDate], name: "idx_task_due")
-  @@index([createdAt], name: "idx_task_created_at")
-  @@index([updatedAt], name: "idx_task_updated_at")
   @@map("tasks")
 }
 
@@ -240,7 +231,6 @@ model NdviReading {
 
   // Indexes
   @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
-  @@index([createdAt], name: "idx_ndvi_created_at")
   @@map("ndvi_readings")
 }
 

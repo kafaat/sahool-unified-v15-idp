@@ -16,7 +16,6 @@ export default function CropHealthClient() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex gap-4" dir="rtl">
               <button
-                data-testid="view-toggle-dashboard"
                 onClick={() => setActiveView('dashboard')}
                 className={`
                   flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-colors
@@ -31,7 +30,6 @@ export default function CropHealthClient() {
                 <span>لوحة المعلومات</span>
               </button>
               <button
-                data-testid="view-toggle-diagnosis"
                 onClick={() => setActiveView('diagnosis')}
                 className={`
                   flex items-center gap-2 px-6 py-2 rounded-lg font-medium transition-colors

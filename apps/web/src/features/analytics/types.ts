@@ -196,3 +196,92 @@ export interface ResourceUsage {
     energyPerKg: number;
   };
 }
+
+// Harvest Planning Types
+export type ReadinessStatus = 'ready' | 'almost_ready' | 'not_ready';
+export type QualityGrade = 'premium' | 'grade_a' | 'grade_b' | 'grade_c';
+export type EquipmentStatus = 'available' | 'in_use' | 'maintenance' | 'unavailable';
+
+export interface WeatherForecast {
+  date: string;
+  dateAr: string;
+  tempHigh: number;
+  tempLow: number;
+  precipitation: number;
+  humidity: number;
+  windSpeed: number;
+  condition: 'sunny' | 'cloudy' | 'rainy' | 'stormy';
+  conditionAr: string;
+  harvestSuitability: 'excellent' | 'good' | 'fair' | 'poor';
+  harvestSuitabilityAr: string;
+}
+
+export interface HarvestWindow {
+  fieldId: string;
+  fieldName: string;
+  fieldNameAr: string;
+  startDate: string;
+  endDate: string;
+  optimalDate: string;
+  confidence: number;
+  reason: string;
+  reasonAr: string;
+}
+
+export interface FieldReadiness {
+  fieldId: string;
+  fieldName: string;
+  fieldNameAr: string;
+  cropType: string;
+  cropTypeAr: string;
+  area: number;
+  location: {
+    lat: number;
+    lng: number;
+    region: string;
+    regionAr: string;
+  };
+  status: ReadinessStatus;
+  statusAr: string;
+  maturityLevel: number;
+  moistureContent: number;
+  optimalMoisture: number;
+  daysToOptimal: number;
+  predictedYield: number;
+  yieldPerHectare: number;
+  qualityGrade: QualityGrade;
+  qualityGradeAr: string;
+  qualityScore: number;
+  priority: number;
+  lastUpdated: string;
+}
+
+export interface Equipment {
+  id: string;
+  name: string;
+  nameAr: string;
+  type: string;
+  typeAr: string;
+  status: EquipmentStatus;
+  statusAr: string;
+  capacity: number;
+  availableDate?: string;
+  assignedField?: string;
+  maintenanceDue?: string;
+  efficiency: number;
+}
+
+export interface HarvestPlan {
+  id: string;
+  farmId: string;
+  season: string;
+  fields: FieldReadiness[];
+  harvestWindows: HarvestWindow[];
+  equipment: Equipment[];
+  weatherForecast: WeatherForecast[];
+  totalArea: number;
+  totalPredictedYield: number;
+  estimatedDuration: number;
+  createdAt: string;
+  updatedAt: string;
+}

@@ -85,9 +85,9 @@ export const ProfileForm: React.FC = () => {
   const isSaving = updateProfile.isPending || uploadAvatar.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8" dir="rtl">
+    <form onSubmit={handleSubmit} className="space-y-8" dir="rtl" data-testid="profile-form">
       {/* Avatar Upload */}
-      <div>
+      <div data-testid="profile-avatar-section">
         <label className="block text-sm font-medium text-gray-700 mb-4">
           الصورة الشخصية
         </label>
@@ -98,9 +98,10 @@ export const ProfileForm: React.FC = () => {
                 src={avatarPreview}
                 alt="Profile"
                 className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+                data-testid="profile-avatar"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+              <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center" data-testid="profile-avatar-placeholder">
                 <User className="w-12 h-12 text-gray-400" />
               </div>
             )}
@@ -112,6 +113,7 @@ export const ProfileForm: React.FC = () => {
                 onChange={handleAvatarChange}
                 className="hidden"
                 disabled={isSaving}
+                data-testid="profile-avatar-upload"
               />
             </label>
           </div>
@@ -134,11 +136,14 @@ export const ProfileForm: React.FC = () => {
           </label>
           <input
             type="text"
+            name="nameAr"
             value={formData.nameAr || ''}
             onChange={(e) => setFormData({ ...formData, nameAr: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
             disabled={isSaving}
+            data-testid="profile-name-ar"
+            placeholder="الاسم"
           />
         </div>
 
@@ -148,12 +153,15 @@ export const ProfileForm: React.FC = () => {
           </label>
           <input
             type="text"
+            name="name"
             value={formData.name || ''}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             required
             disabled={isSaving}
             dir="ltr"
+            data-testid="profile-name-en"
+            placeholder="Name"
           />
         </div>
 
@@ -163,11 +171,14 @@ export const ProfileForm: React.FC = () => {
           </label>
           <input
             type="tel"
+            name="phone"
             value={formData.phone || ''}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
             dir="ltr"
+            data-testid="profile-phone"
+            placeholder="Phone"
           />
         </div>
 
@@ -176,12 +187,15 @@ export const ProfileForm: React.FC = () => {
             اللغة المفضلة
           </label>
           <select
+            name="language"
             value={formData.language || 'ar'}
             onChange={(e) =>
               setFormData({ ...formData, language: e.target.value as 'ar' | 'en' | 'both' })
             }
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             disabled={isSaving}
+            data-testid="profile-language"
+            role="combobox"
           >
             <option value="ar">العربية</option>
             <option value="en">English</option>
@@ -196,17 +210,19 @@ export const ProfileForm: React.FC = () => {
           نبذة عنك
         </label>
         <textarea
+          name="bio"
           value={formData.bioAr || ''}
           onChange={(e) => setFormData({ ...formData, bioAr: e.target.value })}
           rows={4}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
           placeholder="اكتب نبذة مختصرة عنك وعن خبرتك في الزراعة..."
           disabled={isSaving}
+          data-testid="profile-bio"
         />
       </div>
 
       {/* Location */}
-      <div>
+      <div data-testid="profile-location-section">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <MapPin className="w-5 h-5 text-gray-600" />
           الموقع
@@ -218,6 +234,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
+              name="city"
               value={formData.location?.cityAr || ''}
               onChange={(e) =>
                 setFormData({
@@ -227,6 +244,8 @@ export const ProfileForm: React.FC = () => {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
+              data-testid="profile-location-city"
+              placeholder="City"
             />
           </div>
 
@@ -236,6 +255,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
+              name="region"
               value={formData.location?.regionAr || ''}
               onChange={(e) =>
                 setFormData({
@@ -245,6 +265,8 @@ export const ProfileForm: React.FC = () => {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
+              data-testid="profile-location-region"
+              placeholder="Region"
             />
           </div>
 
@@ -254,6 +276,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
+              name="country"
               value={formData.location?.countryAr || ''}
               onChange={(e) =>
                 setFormData({
@@ -263,13 +286,15 @@ export const ProfileForm: React.FC = () => {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
+              data-testid="profile-location-country"
+              placeholder="Country"
             />
           </div>
         </div>
       </div>
 
       {/* Farm Details */}
-      <div>
+      <div data-testid="profile-farm-section">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Building2 className="w-5 h-5 text-gray-600" />
           تفاصيل المزرعة
@@ -281,6 +306,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="text"
+              name="farmName"
               value={formData.farmDetails?.nameAr || ''}
               onChange={(e) =>
                 setFormData({
@@ -290,6 +316,8 @@ export const ProfileForm: React.FC = () => {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
+              data-testid="profile-farm-name"
+              placeholder="Farm Name"
             />
           </div>
 
@@ -299,6 +327,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="number"
+              name="farmArea"
               value={formData.farmDetails?.totalArea || ''}
               onChange={(e) =>
                 setFormData({
@@ -313,6 +342,8 @@ export const ProfileForm: React.FC = () => {
               disabled={isSaving}
               step="0.1"
               min="0"
+              data-testid="profile-farm-area"
+              placeholder="Total Area"
             />
           </div>
 
@@ -321,6 +352,7 @@ export const ProfileForm: React.FC = () => {
               نوع المزرعة
             </label>
             <select
+              name="farmType"
               value={formData.farmDetails?.farmType || 'individual'}
               onChange={(e) =>
                 setFormData({
@@ -333,6 +365,7 @@ export const ProfileForm: React.FC = () => {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               disabled={isSaving}
+              data-testid="profile-farm-type"
             >
               <option value="individual">فردية</option>
               <option value="family">عائلية</option>
@@ -347,6 +380,7 @@ export const ProfileForm: React.FC = () => {
             </label>
             <input
               type="number"
+              name="farmYear"
               value={formData.farmDetails?.establishedYear || ''}
               onChange={(e) =>
                 setFormData({
@@ -361,6 +395,8 @@ export const ProfileForm: React.FC = () => {
               disabled={isSaving}
               min="1900"
               max={new Date().getFullYear()}
+              data-testid="profile-farm-year"
+              placeholder="Established Year"
             />
           </div>
         </div>
@@ -387,6 +423,7 @@ export const ProfileForm: React.FC = () => {
           }}
           className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
           disabled={isSaving}
+          data-testid="profile-cancel"
         >
           إلغاء
         </button>
@@ -394,6 +431,7 @@ export const ProfileForm: React.FC = () => {
           type="submit"
           disabled={isSaving}
           className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          data-testid="profile-submit"
         >
           {isSaving ? (
             <>

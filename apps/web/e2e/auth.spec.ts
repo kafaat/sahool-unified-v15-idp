@@ -5,6 +5,25 @@ import { waitForToast } from './helpers/page.helpers';
 /**
  * Authentication E2E Tests
  * اختبارات E2E للمصادقة
+ *
+ * These tests require a running backend API server for authentication.
+ * The tests use the credentials defined in TEST_USER (can be overridden with environment variables).
+ *
+ * Environment Variables:
+ * - TEST_USER_EMAIL: Email for test user (default: test@sahool.com)
+ * - TEST_USER_PASSWORD: Password for test user (default: Test@123456)
+ *
+ * Prerequisites:
+ * 1. Backend API server must be running and accessible
+ * 2. Test user must exist in the database with the credentials above
+ * 3. API endpoint: POST /api/v1/auth/login should be available
+ *
+ * All form elements use data-testid attributes for reliable test selection:
+ * - login-form: The login form element
+ * - login-email-input: Email input field
+ * - login-password-input: Password input field
+ * - login-submit-button: Submit button
+ * - forgot-password-link: Forgot password link
  */
 
 test.describe('Authentication Flow', () => {
@@ -24,28 +43,28 @@ test.describe('Authentication Flow', () => {
     // Check for SAHOOL branding
     await expect(page.locator('text=/SAHOOL|سهول/i')).toBeVisible();
 
-    // Check for email input
-    await expect(page.locator('input[type="email"]')).toBeVisible();
+    // Check for email input using data-testid
+    await expect(page.locator('[data-testid="login-email-input"]')).toBeVisible();
 
-    // Check for password input
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    // Check for password input using data-testid
+    await expect(page.locator('[data-testid="login-password-input"]')).toBeVisible();
 
-    // Check for submit button
-    await expect(page.locator('button[type="submit"]')).toBeVisible();
+    // Check for submit button using data-testid
+    await expect(page.locator('[data-testid="login-submit-button"]')).toBeVisible();
 
-    // Check for forgot password link
-    await expect(page.locator('text=/نسيت كلمة المرور.*Forgot Password/i')).toBeVisible();
+    // Check for forgot password link using data-testid
+    await expect(page.locator('[data-testid="forgot-password-link"]')).toBeVisible();
   });
 
   test('should show error for invalid credentials', async ({ page }) => {
     await page.goto('/login');
 
-    // Fill in invalid credentials
-    await page.fill('input[type="email"]', 'invalid@sahool.com');
-    await page.fill('input[type="password"]', 'wrongpassword');
+    // Fill in invalid credentials using data-testid
+    await page.fill('[data-testid="login-email-input"]', 'invalid@sahool.com');
+    await page.fill('[data-testid="login-password-input"]', 'wrongpassword');
 
-    // Submit form
-    await page.click('button[type="submit"]');
+    // Submit form using data-testid
+    await page.click('[data-testid="login-submit-button"]');
 
     // Wait for error message
     const hasError = await waitForToast(page, undefined, 5000);
@@ -69,12 +88,12 @@ test.describe('Authentication Flow', () => {
   test('should validate email format', async ({ page }) => {
     await page.goto('/login');
 
-    // Try to submit with invalid email format
-    await page.fill('input[type="email"]', 'notanemail');
-    await page.fill('input[type="password"]', 'password123');
+    // Try to submit with invalid email format using data-testid
+    await page.fill('[data-testid="login-email-input"]', 'notanemail');
+    await page.fill('[data-testid="login-password-input"]', 'password123');
 
     // The HTML5 validation should prevent submission
-    const emailInput = page.locator('input[type="email"]');
+    const emailInput = page.locator('[data-testid="login-email-input"]');
     const validationMessage = await emailInput.evaluate((input: HTMLInputElement) => input.validationMessage);
 
     expect(validationMessage).toBeTruthy();
@@ -83,15 +102,15 @@ test.describe('Authentication Flow', () => {
   test('should require both email and password', async ({ page }) => {
     await page.goto('/login');
 
-    // Try to submit without filling any fields
-    const submitButton = page.locator('button[type="submit"]');
+    // Try to submit without filling any fields using data-testid
+    const submitButton = page.locator('[data-testid="login-submit-button"]');
     await submitButton.click();
 
     // Check that we're still on login page
     await expect(page).toHaveURL(/\/login/);
 
-    // Try with only email
-    await page.fill('input[type="email"]', TEST_USER.email);
+    // Try with only email using data-testid
+    await page.fill('[data-testid="login-email-input"]', TEST_USER.email);
     await submitButton.click();
 
     // Should still be on login page
@@ -101,14 +120,14 @@ test.describe('Authentication Flow', () => {
   test('should show loading state during login', async ({ page }) => {
     await page.goto('/login');
 
-    await page.fill('input[type="email"]', TEST_USER.email);
-    await page.fill('input[type="password"]', TEST_USER.password);
+    await page.fill('[data-testid="login-email-input"]', TEST_USER.email);
+    await page.fill('[data-testid="login-password-input"]', TEST_USER.password);
 
-    // Click submit and immediately check for loading state
-    await page.click('button[type="submit"]');
+    // Click submit and immediately check for loading state using data-testid
+    await page.click('[data-testid="login-submit-button"]');
 
     // Button should show loading state (disabled or with loading indicator)
-    const submitButton = page.locator('button[type="submit"]');
+    const submitButton = page.locator('[data-testid="login-submit-button"]');
     const isDisabled = await submitButton.isDisabled();
 
     // Either the button is disabled or contains loading text/spinner

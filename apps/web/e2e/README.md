@@ -187,9 +187,30 @@ test('should access protected page', async ({ page, authenticatedPage }) => {
 });
 ```
 
+## Data Test IDs | معرفات اختبار البيانات
+
+### Login Page Test IDs
+
+The login page uses the following `data-testid` attributes for reliable test selection:
+
+| Element | Test ID | Description |
+|---------|---------|-------------|
+| Form | `login-form` | The login form element |
+| Email Input | `login-email-input` | Email input field |
+| Password Input | `login-password-input` | Password input field |
+| Submit Button | `login-submit-button` | Login submit button |
+| Forgot Password Link | `forgot-password-link` | Forgot password link |
+
+Example usage:
+```typescript
+await page.fill('[data-testid="login-email-input"]', 'test@sahool.com');
+await page.fill('[data-testid="login-password-input"]', 'password');
+await page.click('[data-testid="login-submit-button"]');
+```
+
 ## Best Practices | أفضل الممارسات
 
-1. **Use data-testid attributes**: Add `data-testid` to elements for reliable selection
+1. **Use data-testid attributes**: Always use `data-testid` selectors for reliable element selection
 2. **Wait for elements**: Use proper waiting strategies instead of fixed timeouts
 3. **Clean up after tests**: Use `beforeEach` and `afterEach` hooks
 4. **Independent tests**: Each test should be independent and not rely on others

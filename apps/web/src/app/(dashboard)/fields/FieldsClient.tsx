@@ -68,6 +68,7 @@ export default function FieldsClient() {
           <button
             onClick={handleCreateClick}
             className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            data-testid="add-field-button"
           >
             <Plus className="w-5 h-5" />
             <span className="font-medium">إضافة حقل جديد</span>

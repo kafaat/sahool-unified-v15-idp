@@ -35,17 +35,18 @@ export default function WalletClient() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="wallet-page">
       {/* Page Header */}
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
+      <div className="bg-white rounded-xl border-2 border-gray-200 p-6" data-testid="wallet-page-header">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">المحفظة</h1>
-            <p className="text-gray-600 mt-1">Wallet & Payments</p>
+            <h1 className="text-3xl font-bold text-gray-900" data-testid="wallet-page-title">المحفظة</h1>
+            <p className="text-gray-600 mt-1" data-testid="wallet-page-subtitle">Wallet & Payments</p>
           </div>
           {viewMode !== 'dashboard' && (
             <button
               onClick={() => setViewMode('dashboard')}
+              data-testid="wallet-back-button"
               className="px-6 py-3 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
             >
               رجوع إلى المحفظة

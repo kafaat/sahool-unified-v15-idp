@@ -36,7 +36,7 @@ export const Header = React.memo(function Header() {
   };
 
   return (
-    <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between">
+    <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between" data-testid="header">
       {/* Left section */}
       <div className="flex items-center gap-4">
         <h2 className="text-lg font-semibold text-gray-900">
@@ -56,6 +56,7 @@ export const Header = React.memo(function Header() {
         <button
           className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label="التنبيهات - لديك إشعارات جديدة"
+          data-testid="notifications-button"
         >
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full" aria-label="إشعارات جديدة" />
@@ -69,6 +70,7 @@ export const Header = React.memo(function Header() {
             aria-label="قائمة المستخدم"
             aria-expanded={showUserMenu}
             aria-haspopup="true"
+            data-testid="user-menu-button"
           >
             <div className="w-8 h-8 bg-sahool-green-600 rounded-full flex items-center justify-center text-white font-semibold">
               {user?.name_ar?.[0] || user?.name?.[0] || 'U'}
@@ -98,7 +100,7 @@ export const Header = React.memo(function Header() {
               />
 
               {/* Menu */}
-              <div className="absolute end-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20" role="menu" aria-label="قائمة خيارات المستخدم">
+              <div className="absolute end-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20" role="menu" aria-label="قائمة خيارات المستخدم" data-testid="user-menu">
                 <div className="px-4 py-3 border-b border-gray-200">
                   <div className="font-medium text-gray-900">
                     {user?.name_ar || user?.name}
@@ -115,6 +117,7 @@ export const Header = React.memo(function Header() {
                     className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:bg-gray-100"
                     role="menuitem"
                     aria-label="الانتقال إلى الملف الشخصي"
+                    data-testid="user-menu-profile"
                   >
                     <User className="w-4 h-4" />
                     <div className="text-start">
@@ -131,6 +134,7 @@ export const Header = React.memo(function Header() {
                     className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus:bg-gray-100"
                     role="menuitem"
                     aria-label="الانتقال إلى الإعدادات"
+                    data-testid="user-menu-settings"
                   >
                     <Settings className="w-4 h-4" />
                     <div className="text-start">
@@ -146,6 +150,7 @@ export const Header = React.memo(function Header() {
                     className="w-full flex items-center gap-3 px-4 py-2 text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus:bg-red-50"
                     role="menuitem"
                     aria-label="تسجيل الخروج من الحساب"
+                    data-testid="user-menu-logout"
                   >
                     <LogOut className="w-4 h-4" />
                     <div className="text-start">

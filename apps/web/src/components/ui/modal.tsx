@@ -65,6 +65,7 @@ export function Modal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={handleOverlayClick}
+      data-testid="modal-overlay"
     >
       <div
         ref={modalRef}
@@ -74,6 +75,9 @@ export function Modal({
           'max-h-[90vh] flex flex-col',
           className
         )}
+        role="dialog"
+        aria-modal="true"
+        data-testid="modal-dialog"
         {...props}
       >
         {/* Header */}
@@ -91,6 +95,7 @@ export function Modal({
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
                 aria-label="Close"
+                data-testid="modal-close-button"
               >
                 <X className="w-5 h-5" />
               </button>

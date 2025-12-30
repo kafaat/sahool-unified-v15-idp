@@ -2,6 +2,84 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================
+   MODERN SAHOOL ADMIN - CSS VARIABLES & THEME
+   ============================================ */
+
+:root {
+  /* Light Mode Colors */
+  --bg-primary: #fafbfc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f3f4f6;
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --bg-glass-strong: rgba(255, 255, 255, 0.9);
+
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+
+  /* Border Colors */
+  --border-light: rgba(229, 231, 235, 0.5);
+  --border-medium: rgba(209, 213, 219, 0.6);
+  --border-strong: rgba(156, 163, 175, 0.4);
+
+  /* Sahool Brand Colors */
+  --sahool-primary: #16a34a;
+  --sahool-secondary: #15803d;
+  --sahool-light: #86efac;
+  --sahool-glow: rgba(22, 163, 74, 0.3);
+
+  /* Glass Effect */
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: rgba(0, 0, 0, 0.05);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(22, 163, 74, 0.3);
+}
+
+[data-theme="dark"] {
+  /* Dark Mode Colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-glass: rgba(30, 41, 59, 0.7);
+  --bg-glass-strong: rgba(30, 41, 59, 0.9);
+
+  /* Text Colors */
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+
+  /* Border Colors */
+  --border-light: rgba(71, 85, 105, 0.3);
+  --border-medium: rgba(100, 116, 139, 0.4);
+  --border-strong: rgba(148, 163, 184, 0.3);
+
+  /* Glass Effect */
+  --glass-border: rgba(148, 163, 184, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 30px rgba(22, 163, 74, 0.4);
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
 /* Leaflet CSS fix for Next.js */
 .leaflet-container {
   height: 100%;
@@ -18,34 +96,132 @@
   text-align: right;
 }
 
-/* Custom scrollbar */
+/* ============================================
+   MODERN SCROLLBAR
+   ============================================ */
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--bg-tertiary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: linear-gradient(180deg, var(--sahool-primary), var(--sahool-secondary));
   border-radius: 4px;
+  transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: linear-gradient(180deg, var(--sahool-secondary), var(--sahool-primary));
 }
 
-/* Animation utilities */
+/* ============================================
+   GLASSMORPHISM UTILITIES
+   ============================================ */
+
+@layer utilities {
+  .glass {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-strong {
+    background: var(--bg-glass-strong);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+  }
+
+  .glass-sidebar {
+    background: var(--bg-glass-strong);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border-left: 1px solid var(--glass-border);
+  }
+
+  .glass-header {
+    background: var(--bg-glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--glass-border);
+  }
+}
+
+/* ============================================
+   GRADIENT UTILITIES
+   ============================================ */
+
+@layer utilities {
+  .gradient-sahool {
+    background: linear-gradient(135deg, var(--sahool-primary) 0%, var(--sahool-secondary) 100%);
+  }
+
+  .gradient-sahool-radial {
+    background: radial-gradient(circle at top right, var(--sahool-primary), var(--sahool-secondary));
+  }
+
+  .gradient-mesh {
+    background:
+      radial-gradient(at 0% 0%, rgba(22, 163, 74, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(21, 128, 61, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(22, 163, 74, 0.1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(21, 128, 61, 0.1) 0px, transparent 50%);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--sahool-primary), var(--sahool-secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ============================================
+   ANIMATION UTILITIES
+   ============================================ */
+
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+    animation: fadeIn 0.4s ease-out;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
   }
 }
 
@@ -61,7 +237,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -69,17 +245,175 @@
   }
 }
 
-/* Card hover effect */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px var(--sahool-glow), 0 0 20px var(--sahool-glow);
+  }
+  to {
+    box-shadow: 0 0 20px var(--sahool-glow), 0 0 40px var(--sahool-glow);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ============================================
+   MODERN CARD EFFECTS
+   ============================================ */
+
+.card-modern {
+  @apply glass-card rounded-2xl transition-all duration-300;
+}
+
+.card-modern:hover {
+  @apply -translate-y-1;
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.card-gradient {
+  @apply relative overflow-hidden;
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.05), rgba(21, 128, 61, 0.1));
+}
+
+.card-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-gradient:hover::before {
+  left: 100%;
+}
+
+/* ============================================
+   BUTTON EFFECTS
+   ============================================ */
+
+.btn-modern {
+  @apply relative overflow-hidden rounded-xl px-6 py-3 font-medium transition-all duration-300;
+  @apply transform hover:scale-105 active:scale-95;
+}
+
+.btn-primary {
+  @apply btn-modern gradient-sahool text-white shadow-lg;
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-glass {
+  @apply btn-modern glass-strong;
+  color: var(--text-primary);
+}
+
+/* ============================================
+   HOVER GLOW EFFECTS
+   ============================================ */
+
+.hover-glow {
+  @apply transition-all duration-300;
+  position: relative;
+}
+
+.hover-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 0 20px var(--sahool-glow);
+}
+
+.hover-glow:hover::after {
+  opacity: 1;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.skeleton {
+  @apply animate-shimmer bg-gradient-to-r;
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-tertiary) 0px,
+    var(--bg-secondary) 40px,
+    var(--bg-tertiary) 80px
+  );
+  background-size: 1000px 100%;
+}
+
+.loading-spinner {
+  @apply inline-block w-8 h-8 border-4 border-solid rounded-full;
+  border-color: var(--sahool-primary) transparent var(--sahool-primary) transparent;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   LEGACY SUPPORT (Keep existing classes)
+   ============================================ */
+
 .card-hover {
   @apply transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5;
 }
 
-/* Sahool brand gradient */
 .sahool-gradient {
   background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 }
 
-/* Status indicator pulse */
 .status-pulse {
   @apply relative;
 }

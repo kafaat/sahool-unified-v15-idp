@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'modern_theme.dart';
 
 /// SAHOOL Design System - Agri-Industrial Design Language
 /// مصمم للاستخدام الميداني تحت أشعة الشمس وبالقفازات
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 /// - High Contrast: للرؤية تحت ضوء الشمس الساطع
 /// - Big Touch Targets: للاستخدام بالقفازات
 /// - Glanceability: فهم الحالة في أجزاء من الثانية
+/// - Modern Design: تصميم حديث مع تأثيرات زجاجية وتدرجات ناعمة
 
 class SahoolColors {
   // ─────────────────────────────────────────────────────────────────────────
@@ -120,6 +122,35 @@ class SahoolColors {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  // Modern gradient presets
+  static const LinearGradient organicGradient = LinearGradient(
+    colors: [forestGreen, sageGreen, paleOlive],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient sunriseGradient = LinearGradient(
+    colors: [harvestGold, Color(0xFFFFE082)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const LinearGradient earthGradient = LinearGradient(
+    colors: [earthBrown, harvestGold],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // Soft overlay gradients for glassmorphism
+  static LinearGradient glassOverlay = LinearGradient(
+    colors: [
+      Colors.white.withOpacity(0.2),
+      Colors.white.withOpacity(0.1),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }
 
 /// SAHOOL Theme Configuration
@@ -145,33 +176,45 @@ class SahoolTheme {
 
       // الخط العربي: IBM Plex Sans Arabic (محلي - أسرع تحميل)
       fontFamily: 'IBMPlexSansArabic',
-      textTheme: const TextTheme().apply(
-        fontFamily: 'IBMPlexSansArabic',
-        bodyColor: SahoolColors.textDark,
-        displayColor: SahoolColors.textDark,
+      textTheme: TextTheme(
+        displayLarge: ModernTypography.displayLarge.copyWith(color: SahoolColors.textDark),
+        displayMedium: ModernTypography.displayMedium.copyWith(color: SahoolColors.textDark),
+        displaySmall: ModernTypography.displaySmall.copyWith(color: SahoolColors.textDark),
+        headlineLarge: ModernTypography.headlineLarge.copyWith(color: SahoolColors.textDark),
+        headlineMedium: ModernTypography.headlineMedium.copyWith(color: SahoolColors.textDark),
+        headlineSmall: ModernTypography.headlineSmall.copyWith(color: SahoolColors.textDark),
+        titleLarge: ModernTypography.titleLarge.copyWith(color: SahoolColors.textDark),
+        titleMedium: ModernTypography.titleMedium.copyWith(color: SahoolColors.textDark),
+        titleSmall: ModernTypography.titleSmall.copyWith(color: SahoolColors.textDark),
+        bodyLarge: ModernTypography.bodyLarge.copyWith(color: SahoolColors.textDark),
+        bodyMedium: ModernTypography.bodyMedium.copyWith(color: SahoolColors.textDark),
+        bodySmall: ModernTypography.bodySmall.copyWith(color: SahoolColors.textDark),
+        labelLarge: ModernTypography.labelLarge.copyWith(color: SahoolColors.textDark),
+        labelMedium: ModernTypography.labelMedium.copyWith(color: SahoolColors.textDark),
+        labelSmall: ModernTypography.labelSmall.copyWith(color: SahoolColors.textDark),
       ),
 
-      // تحسين الكروت لتكون بارزة
+      // تحسين الكروت لتكون بارزة مع ظلال حديثة
       cardTheme: CardThemeData(
-        elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: Colors.white,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
 
-      // تحسين الأزرار لتكون ضخمة وواضحة (للقفازات)
+      // تحسين الأزرار لتكون ضخمة وواضحة (للقفازات) مع ظلال ملونة
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: SahoolColors.primary,
           foregroundColor: Colors.white,
-          elevation: 6,
-          shadowColor: SahoolColors.primary.withOpacity(0.4),
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
           minimumSize: const Size(120, 56), // حجم أدنى كبير
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: const TextStyle(
-            fontSize: 18,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          textStyle: ModernTypography.labelLarge.copyWith(
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -182,9 +225,12 @@ class SahoolTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: SahoolColors.primary,
           side: const BorderSide(color: SahoolColors.primary, width: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
           minimumSize: const Size(120, 56),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          textStyle: ModernTypography.labelLarge.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
 
@@ -193,20 +239,20 @@ class SahoolTheme {
         style: TextButton.styleFrom(
           foregroundColor: SahoolColors.primary,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+          textStyle: ModernTypography.labelLarge.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
 
       // تحسين شريط التطبيق
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        iconTheme: IconThemeData(color: SahoolColors.primary, size: 28),
-        titleTextStyle: TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+        iconTheme: const IconThemeData(color: SahoolColors.primary, size: 28),
+        titleTextStyle: ModernTypography.titleLarge.copyWith(
           color: SahoolColors.textDark,
-          fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -229,38 +275,47 @@ class SahoolTheme {
         extendedPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
 
-      // حقول الإدخال
+      // حقول الإدخال مع تصميم حديث
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.grey[100],
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        fillColor: Colors.grey[50],
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[300]!, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: SahoolColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: SahoolColors.danger, width: 1.5),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: SahoolColors.danger, width: 2),
         ),
-        labelStyle: const TextStyle(color: SahoolColors.textSecondary),
-        hintStyle: TextStyle(color: Colors.grey[400]),
+        labelStyle: ModernTypography.bodyMedium.copyWith(
+          color: SahoolColors.textSecondary,
+        ),
+        hintStyle: ModernTypography.bodyMedium.copyWith(
+          color: Colors.grey[400],
+        ),
       ),
 
-      // Chips
+      // Chips مع تصميم حديث
       chipTheme: ChipThemeData(
-        backgroundColor: Colors.grey[200],
-        selectedColor: SahoolColors.primary.withOpacity(0.2),
-        labelStyle: const TextStyle(fontSize: 14),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: Colors.grey[100],
+        selectedColor: SahoolColors.primary.withOpacity(0.15),
+        labelStyle: ModernTypography.labelMedium,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        side: BorderSide(color: Colors.grey[300]!, width: 1),
       ),
 
       // Divider
@@ -270,21 +325,25 @@ class SahoolTheme {
         space: 24,
       ),
 
-      // SnackBar
+      // SnackBar مع تصميم حديث
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: SahoolColors.textDark,
+        contentTextStyle: ModernTypography.bodyMedium.copyWith(
+          color: Colors.white,
+        ),
       ),
 
-      // Dialog
+      // Dialog مع تصميم حديث
       dialogTheme: DialogThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        titleTextStyle: const TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: ModernTypography.headlineSmall.copyWith(
           color: SahoolColors.textDark,
+          fontWeight: FontWeight.bold,
+        ),
+        contentTextStyle: ModernTypography.bodyMedium.copyWith(
+          color: SahoolColors.textSecondary,
         ),
       ),
     );
@@ -306,24 +365,37 @@ class SahoolTheme {
       ),
 
       fontFamily: 'IBMPlexSansArabic',
-      textTheme: ThemeData.dark().textTheme.apply(
-        fontFamily: 'IBMPlexSansArabic',
+      textTheme: TextTheme(
+        displayLarge: ModernTypography.displayLarge.copyWith(color: Colors.white),
+        displayMedium: ModernTypography.displayMedium.copyWith(color: Colors.white),
+        displaySmall: ModernTypography.displaySmall.copyWith(color: Colors.white),
+        headlineLarge: ModernTypography.headlineLarge.copyWith(color: Colors.white),
+        headlineMedium: ModernTypography.headlineMedium.copyWith(color: Colors.white),
+        headlineSmall: ModernTypography.headlineSmall.copyWith(color: Colors.white),
+        titleLarge: ModernTypography.titleLarge.copyWith(color: Colors.white),
+        titleMedium: ModernTypography.titleMedium.copyWith(color: Colors.white),
+        titleSmall: ModernTypography.titleSmall.copyWith(color: Colors.white),
+        bodyLarge: ModernTypography.bodyLarge.copyWith(color: Colors.white70),
+        bodyMedium: ModernTypography.bodyMedium.copyWith(color: Colors.white70),
+        bodySmall: ModernTypography.bodySmall.copyWith(color: Colors.white70),
+        labelLarge: ModernTypography.labelLarge.copyWith(color: Colors.white),
+        labelMedium: ModernTypography.labelMedium.copyWith(color: Colors.white),
+        labelSmall: ModernTypography.labelSmall.copyWith(color: Colors.white),
       ),
 
       cardTheme: CardThemeData(
-        elevation: 4,
+        elevation: 0,
         color: SahoolColors.surfaceDark,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shadowColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
 
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: SahoolColors.surfaceDark,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: TextStyle(
-          fontFamily: 'IBMPlexSansArabic',
+        titleTextStyle: ModernTypography.titleLarge.copyWith(
           color: Colors.white,
-          fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -331,53 +403,62 @@ class SahoolTheme {
   }
 }
 
-/// Shadow Presets - ظلال جاهزة
+/// Shadow Presets - ظلال جاهزة (Modern Shadow System)
 class SahoolShadows {
-  static List<BoxShadow> get small => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.08),
-      blurRadius: 8,
-      offset: const Offset(0, 2),
-    ),
-  ];
+  // Soft shadows
+  static List<BoxShadow> get small => ModernShadows.soft1;
+  static List<BoxShadow> get medium => ModernShadows.soft3;
+  static List<BoxShadow> get large => ModernShadows.soft4;
 
-  static List<BoxShadow> get medium => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.12),
-      blurRadius: 16,
-      offset: const Offset(0, 4),
-    ),
-  ];
+  // Layered shadows for depth
+  static List<BoxShadow> get soft => ModernShadows.soft2;
+  static List<BoxShadow> get layered => ModernShadows.layered2;
+  static List<BoxShadow> get elevated => ModernShadows.layered3;
 
-  static List<BoxShadow> get large => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.16),
-      blurRadius: 24,
-      offset: const Offset(0, 8),
-    ),
-  ];
+  // Colored shadows
+  static List<BoxShadow> colored(Color color, {double intensity = 0.3}) =>
+      ModernShadows.coloredShadow(color, intensity: intensity);
 
-  static List<BoxShadow> colored(Color color) => [
-    BoxShadow(
-      color: color.withOpacity(0.3),
-      blurRadius: 12,
-      offset: const Offset(0, 6),
-    ),
-  ];
+  // Special glow effects
+  static List<BoxShadow> get greenGlow => ModernShadows.greenGlow;
+  static List<BoxShadow> get blueGlow => ModernShadows.blueGlow;
+
+  // Primary colored shadow
+  static List<BoxShadow> get primaryShadow => colored(SahoolColors.primary, intensity: 0.25);
+  static List<BoxShadow> get secondaryShadow => colored(SahoolColors.secondary, intensity: 0.25);
+  static List<BoxShadow> get successShadow => colored(SahoolColors.success, intensity: 0.25);
+  static List<BoxShadow> get warningShadow => colored(SahoolColors.warning, intensity: 0.25);
+  static List<BoxShadow> get dangerShadow => colored(SahoolColors.danger, intensity: 0.25);
 }
 
-/// Border Radius Presets - زوايا جاهزة
+/// Border Radius Presets - زوايا جاهزة (Modern Radius System)
 class SahoolRadius {
+  static const double xs = 4.0;
   static const double small = 8.0;
   static const double medium = 12.0;
   static const double large = 16.0;
   static const double xlarge = 20.0;
+  static const double xxlarge = 24.0;
   static const double circular = 100.0;
 
+  static BorderRadius get xsRadius => BorderRadius.circular(xs);
   static BorderRadius get smallRadius => BorderRadius.circular(small);
   static BorderRadius get mediumRadius => BorderRadius.circular(medium);
   static BorderRadius get largeRadius => BorderRadius.circular(large);
   static BorderRadius get xlargeRadius => BorderRadius.circular(xlarge);
+  static BorderRadius get xxlargeRadius => BorderRadius.circular(xxlarge);
+  static BorderRadius get circularRadius => BorderRadius.circular(circular);
+
+  // Asymmetric radius for modern cards
+  static BorderRadius get modernCard => const BorderRadius.only(
+    topLeft: Radius.circular(24),
+    topRight: Radius.circular(24),
+    bottomLeft: Radius.circular(12),
+    bottomRight: Radius.circular(12),
+  );
+
+  // Soft modern radius
+  static BorderRadius get softCard => BorderRadius.circular(20);
 }
 
 /// Spacing Presets - مسافات جاهزة

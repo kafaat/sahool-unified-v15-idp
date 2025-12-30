@@ -4,6 +4,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+// Unmock to test the actual implementation
+vi.unmock('@/lib/monitoring/error-tracking');
+
 import {
   captureError,
   addBreadcrumb,

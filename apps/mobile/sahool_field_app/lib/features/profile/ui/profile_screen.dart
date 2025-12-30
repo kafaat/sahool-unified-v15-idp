@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/security/screen_security_service.dart';
+import '../../../core/security/security_config.dart';
 
 /// Profile Screen - الملف الشخصي والإعدادات
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SecureScreen(
+      screenType: SecuredScreenType.personalData,
+      showWarning: ref.watch(securityConfigProvider).showScreenSecurityWarning,
+      warningMessageAr: 'لا يمكن أخذ لقطات شاشة في الملف الشخصي لحماية بياناتك',
+      warningMessageEn: 'Screenshots are disabled in Profile to protect your personal data',
+      child: Scaffold(
       backgroundColor: SahoolColors.background,
       body: CustomScrollView(
         slivers: [
@@ -227,6 +235,7 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
+    ),
     );
   }
 

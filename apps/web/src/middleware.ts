@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { generateNonce, getCSPHeader, getCSPHeaderName, getCSPConfig } from '@/lib/security/csp-config';
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -75,25 +76,24 @@ export function middleware(request: NextRequest) {
   // Token exists - add security headers
   const response = NextResponse.next();
 
+  // Generate nonce for CSP
+  const nonce = generateNonce();
+
+  // Store nonce in response headers for use in HTML
+  response.headers.set('X-Nonce', nonce);
+
   // Add security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('X-XSS-Protection', '1; mode=block');
 
-  // Content Security Policy
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " + // Note: unsafe-eval needed for Next.js dev
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https: blob:; " +
-    "connect-src 'self' http://localhost:* ws://localhost:* https://tile.openstreetmap.org https://sentinel-hub.com; " +
-    "frame-ancestors 'none'; " +
-    "base-uri 'self'; " +
-    "form-action 'self';"
-  );
+  // Content Security Policy with improved security
+  const cspConfig = getCSPConfig(nonce);
+  const cspHeader = getCSPHeader(nonce);
+  const cspHeaderName = getCSPHeaderName(cspConfig.reportOnly);
+
+  response.headers.set(cspHeaderName, cspHeader);
 
   return response;
 }

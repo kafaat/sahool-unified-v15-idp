@@ -1,6 +1,6 @@
-import React from 'react';
 'use client';
 
+import React from 'react';
 import { useEffect, useState } from 'react';
 import { wsClient, TimelineEvent, getEventIcon, getEventColor, formatEventType } from '@/lib/ws';
 import { SkeletonEventItem } from './ui/Skeleton';

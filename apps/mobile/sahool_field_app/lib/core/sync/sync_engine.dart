@@ -5,10 +5,12 @@ import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../config/config.dart';
 import 'network_status.dart';
+import 'sync_metrics_service.dart';
 
 /// Sync Engine - Handles offline-first synchronization with ETag support
 class SyncEngine {
   final AppDatabase database;
+  final SyncMetricsService? metricsService;
   final NetworkStatus _networkStatus = NetworkStatus();
   late final ApiClient _apiClient;
 
@@ -18,7 +20,10 @@ class SyncEngine {
   final _syncStatusController = StreamController<SyncStatus>.broadcast();
   Stream<SyncStatus> get syncStatus => _syncStatusController.stream;
 
-  SyncEngine({required this.database}) {
+  SyncEngine({
+    required this.database,
+    this.metricsService,
+  }) {
     _apiClient = ApiClient();
   }
 
@@ -63,6 +68,8 @@ class SyncEngine {
 
     _isSyncing = true;
     _syncStatusController.add(SyncStatus.syncing);
+
+    final syncStartTime = DateTime.now();
 
     try {
       // 1. Process outbox (upload local changes)
@@ -144,6 +151,14 @@ class SyncEngine {
   /// Process single outbox item with ETag support
   Future<_ItemResult> _processOutboxItem(OutboxData item) async {
     final payload = jsonDecode(item.payload) as Map<String, dynamic>;
+    final payloadSize = item.payload.length;
+
+    // Start metrics tracking
+    final operationId = metricsService?.startSyncOperation(
+      type: SyncOperationType.upload,
+      entityType: item.entityType,
+      estimatedPayloadSize: payloadSize,
+    );
 
     // Build headers with If-Match for optimistic locking
     Map<String, String>? headers;
@@ -166,13 +181,45 @@ class SyncEngine {
         default:
           await _apiClient.post(item.apiEndpoint, payload, headers: headers);
       }
+
+      // Record success
+      if (operationId != null) {
+        await metricsService?.completeSyncOperation(
+          operationId: operationId,
+          success: true,
+          actualPayloadSize: payloadSize,
+        );
+      }
+
       return _ItemResult.success;
     } catch (e) {
       // Check for 409 Conflict
       if (e.toString().contains('409') || e.toString().contains('Conflict')) {
         await _handleConflict(item);
+
+        // Record conflict
+        if (operationId != null) {
+          await metricsService?.completeSyncOperation(
+            operationId: operationId,
+            success: true,
+            actualPayloadSize: payloadSize,
+            wasConflict: true,
+            conflictResolution: ConflictResolution.serverWins,
+          );
+        }
+
         return _ItemResult.conflict;
       }
+
+      // Record failure
+      if (operationId != null) {
+        await metricsService?.completeSyncOperation(
+          operationId: operationId,
+          success: false,
+          errorMessage: e.toString(),
+        );
+      }
+
       rethrow;
     }
   }
@@ -211,6 +258,12 @@ class SyncEngine {
   Future<PullResult> _pullFromServer() async {
     int count = 0;
 
+    // Start metrics tracking
+    final operationId = metricsService?.startSyncOperation(
+      type: SyncOperationType.download,
+      entityType: 'tasks',
+    );
+
     try {
       // Pull tasks
       final tasksResponse = await _apiClient.get(
@@ -223,9 +276,30 @@ class SyncEngine {
           tasksResponse.cast<Map<String, dynamic>>(),
         );
         count += tasksResponse.length;
+
+        // Estimate payload size
+        final payloadSize = jsonEncode(tasksResponse).length;
+
+        // Record success
+        if (operationId != null) {
+          await metricsService?.completeSyncOperation(
+            operationId: operationId,
+            success: true,
+            actualPayloadSize: payloadSize,
+          );
+        }
       }
     } catch (e) {
       print('⚠️ Failed to pull tasks: $e');
+
+      // Record failure
+      if (operationId != null) {
+        await metricsService?.completeSyncOperation(
+          operationId: operationId,
+          success: false,
+          errorMessage: e.toString(),
+        );
+      }
     }
 
     return PullResult(count: count);

@@ -131,7 +131,7 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl
-      KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl
+      KONG_ADMIN_LISTEN: 127.0.0.1:8001, 127.0.0.1:8444 ssl
 
       # DNS Configuration
       KONG_DNS_RESOLVER: 8.8.8.8:53
@@ -148,6 +148,8 @@ services:
       # Security
       KONG_HEADERS: server_tokens=off
       KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
+      KONG_ENFORCE_RBAC: "on"
+      KONG_ADMIN_GUI_AUTH: "basic-auth"
 
       # Logging
       KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
@@ -156,15 +158,15 @@ services:
       # KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
 
     volumes:
-      - ./kong.yml:/etc/kong/kong.yml:ro
+      - ../../../infra/kong/kong.yml:/etc/kong/kong.yml:ro
       - ./kong-packages.yml:/etc/kong/kong-packages.yml:ro
       - ./consumers.yml:/etc/kong/consumers.yml:ro
       - kong-logs:/var/log/kong
     ports:
       - "8000:8000"  # Proxy HTTP
       - "8443:8443"  # Proxy HTTPS
-      - "8001:8001"  # Admin API HTTP
-      - "8444:8444"  # Admin API HTTPS
+      - "127.0.0.1:8001:8001"  # Admin API HTTP
+      - "127.0.0.1:8444:8444"  # Admin API HTTPS
     depends_on:
       kong-database:
         condition: service_healthy

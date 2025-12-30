@@ -1,8 +1,8 @@
 # SAHOOL API Gateway Documentation
 <!-- وثائق بوابة واجهة برمجة التطبيقات - SAHOOL API Gateway -->
 
-**Version**: 16.0.1
-**Last Updated**: December 24, 2024
+**Version**: 16.1.0
+**Last Updated**: December 30, 2025
 **Gateway Technology**: Kong API Gateway (DB-less mode)
 
 ---
@@ -294,6 +294,53 @@ weather-core:
   minute: 60
   hour: 1,500
 ```
+
+---
+
+## Security Improvements (v16.1.0)
+
+### 1. CORS Security Hardening
+- **Removed**: Wildcard CORS (`origins: "*"`) - security risk
+- **Added**: Explicit origin whitelist for production domains
+- **Configuration**:
+  - Production: `https://sahool.app`, `https://admin.sahool.app`, `https://api.sahool.app`
+  - Development: `http://localhost:3000`, `http://localhost:5173`
+
+### 2. TLS/HTTPS Support
+- **Added**: HTTPS listener on port 8443
+- **Configuration**: SSL certificates mounted at `/etc/kong/ssl/`
+- **Recommendation**: Use Let's Encrypt for production certificates
+
+### 3. Distributed Rate Limiting
+- **Changed**: Rate limiting policy from `local` to `redis`
+- **Benefit**: Consistent rate limiting across multiple Kong nodes
+- **Configuration**: Redis connection via environment variables
+
+### 4. Upstream Health Checks
+- **Added**: Health checks for 14 critical services
+- **Configuration**: Active checks every 10s, passive failure detection
+
+### 5. JWT RS256 Support
+- **Added**: RS256 asymmetric encryption alongside HS256
+- **Benefit**: More secure for distributed systems
+- **Configuration**: RSA public/private keys via environment variables
+
+### 6. Security Headers
+- **Added**: Global security headers via response-transformer plugin:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `X-XSS-Protection: 1; mode=block`
+  - `Strict-Transport-Security: max-age=31536000`
+  - `Content-Security-Policy`
+  - `Referrer-Policy`
+
+### 7. IP Restrictions
+- **Added**: IP restrictions for sensitive services:
+  - billing-core, iot-gateway, marketplace-service, disaster-assessment, research-core
+- **Allowed Subnets**: RFC 1918 private networks only
+
+### 8. Admin API Security
+- **Secured**: Admin API bound to localhost only (127.0.0.1:8001)
 
 ---
 

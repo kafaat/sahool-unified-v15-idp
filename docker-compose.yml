@@ -244,11 +244,22 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
+      KONG_SSL_CERT: /etc/kong/ssl/server.crt
+      KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
+      KONG_PLUGINS: "bundled,prometheus"
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     ports:
       - "8000:8000"
+      - "8443:8443"
       - "127.0.0.1:8001:8001"
     volumes:
       - ./infra/kong/kong.yml:/kong/declarative/kong.yml:ro
+      - ./infrastructure/gateway/kong/ssl:/etc/kong/ssl:ro
+      - kong_logs:/var/log/kong
+    depends_on:
+      redis:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 30s
@@ -259,8 +270,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '2'
+          memory: 1G
         reservations:
           cpus: '0.25'
           memory: 128M
@@ -1914,3 +1925,5 @@ volumes:
     name: sahool-mqtt-data
   mqtt_logs:
     name: sahool-mqtt-logs
+  kong_logs:
+    driver: local

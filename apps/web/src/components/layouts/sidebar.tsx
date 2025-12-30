@@ -5,17 +5,17 @@ import { usePathname } from 'next/navigation';
 import { clsx } from 'clsx';
 import {
   LayoutDashboard,
-  Wheat,
+  Grid3x3,
   TrendingUp,
   Settings,
   Cloud,
-  Cpu,
+  Signal,
   Sprout,
-  Tractor,
+  Wrench,
   Users,
   ListTodo,
   Wallet,
-  Store,
+  DollarSign,
 } from 'lucide-react';
 
 interface NavItem {
@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
     nameAr: 'الحقول',
     name: 'Fields',
     href: '/fields',
-    icon: Wheat,
+    icon: Grid3x3,
   },
   {
     nameAr: 'التحليلات',
@@ -49,7 +49,7 @@ const navItems: NavItem[] = [
     nameAr: 'السوق',
     name: 'Marketplace',
     href: '/marketplace',
-    icon: Store,
+    icon: DollarSign,
   },
   {
     nameAr: 'المهام',
@@ -67,7 +67,7 @@ const navItems: NavItem[] = [
     nameAr: 'إنترنت الأشياء',
     name: 'IoT',
     href: '/iot',
-    icon: Cpu,
+    icon: Signal,
   },
   {
     nameAr: 'صحة المحاصيل',
@@ -79,7 +79,7 @@ const navItems: NavItem[] = [
     nameAr: 'المعدات',
     name: 'Equipment',
     href: '/equipment',
-    icon: Tractor,
+    icon: Wrench,
   },
   {
     nameAr: 'المجتمع',

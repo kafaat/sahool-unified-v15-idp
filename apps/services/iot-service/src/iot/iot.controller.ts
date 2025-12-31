@@ -12,9 +12,11 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { IotService, SensorType, SensorReading } from './iot.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 // =============================================================================
 // DTOs
@@ -64,6 +66,7 @@ export class IotController {
   // ==========================================================================
 
   @Get('field/:fieldId/sensors')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get all sensor readings for a field' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiResponse({ status: 200, description: 'Sensor readings retrieved' })
@@ -72,6 +75,7 @@ export class IotController {
   }
 
   @Get('field/:fieldId/sensor/:sensorType')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get specific sensor reading' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiParam({ name: 'sensorType', description: 'Type of sensor', enum: SensorType })
@@ -88,6 +92,7 @@ export class IotController {
   // ==========================================================================
 
   @Post('field/:fieldId/pump')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle pump on/off' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
@@ -103,6 +108,7 @@ export class IotController {
   }
 
   @Post('field/:fieldId/valve/:valveId')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Toggle valve on/off' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
@@ -118,6 +124,7 @@ export class IotController {
   }
 
   @Post('field/:fieldId/irrigation/schedule')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Set irrigation schedule' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
@@ -135,6 +142,7 @@ export class IotController {
   // ==========================================================================
 
   @Get('field/:fieldId/actuators')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get actuator states for a field' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiResponse({ status: 200, description: 'Actuator states retrieved' })
@@ -149,6 +157,7 @@ export class IotController {
   // ==========================================================================
 
   @Get('devices')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get all connected devices' })
   @ApiResponse({ status: 200, description: 'Device list retrieved' })
   getDevices() {
@@ -163,6 +172,7 @@ export class IotController {
   // ==========================================================================
 
   @Get('dashboard/:fieldId')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get IoT dashboard data for a field' })
   @ApiParam({ name: 'fieldId', description: 'Field identifier' })
   @ApiResponse({ status: 200, description: 'Dashboard data retrieved' })

@@ -31,8 +31,8 @@ export function SensorMap() {
 
     // Initialize map
     const initMap = async () => {
-      // @ts-ignore - Leaflet is loaded via CDN
-      const L = window.L;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const L = (window as any).L;
       if (!L) return;
 
       // Create map if it doesn't exist

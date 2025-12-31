@@ -80,6 +80,16 @@ app = FastAPI(title="SAHOOL Inventory Service", description="Agricultural invent
 CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"], allow_headers=["Content-Type", "Authorization", "X-Tenant-Id"])
 
+# Setup rate limiting middleware
+try:
+    from middleware.rate_limiter import setup_rate_limiting
+    setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
+    logger.info("Rate limiting enabled")
+except ImportError as e:
+    logger.warning(f"Rate limiting not available: {e}")
+except Exception as e:
+    logger.warning(f"Failed to setup rate limiting: {e}")
+
 @app.get("/health")
 async def health(db: AsyncSession = Depends(get_db)):
     """Health check with dependency verification"""

@@ -17,7 +17,14 @@
     "next": "Next",
     "submit": "Submit",
     "noData": "No data available",
-    "all": "All"
+    "all": "All",
+    "welcomeMessage": "Welcome",
+    "welcomeBack": "Welcome back",
+    "notifications": "Notifications",
+    "newNotifications": "New notifications",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Logout"
   },
   "auth": {
     "login": "Login",
@@ -36,7 +43,15 @@
     "diagnosis": "Diagnosis",
     "reports": "Reports",
     "settings": "Settings",
-    "profile": "Profile"
+    "profile": "Profile",
+    "users": "Users",
+    "crops": "Crops",
+    "inventory": "Inventory",
+    "seasons": "Seasons",
+    "documents": "Documents",
+    "analytics": "Analytics",
+    "mainNav": "Main Navigation",
+    "version": "Version"
   },
   "dashboard": {
     "title": "Dashboard",

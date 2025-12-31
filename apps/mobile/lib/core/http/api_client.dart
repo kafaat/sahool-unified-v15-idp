@@ -2,23 +2,63 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../config/config.dart';
+import '../config/env_config.dart';
+import '../security/security_config.dart';
+import '../security/certificate_pinning_service.dart';
+import '../security/certificate_config.dart';
 
-/// SAHOOL API Client with offline handling
+/// SAHOOL API Client with offline handling and certificate pinning
 class ApiClient {
   late final Dio _dio;
   String? _authToken;
   String _tenantId = AppConfig.defaultTenantId;
+  CertificatePinningService? _certificatePinningService;
 
-  ApiClient({String? baseUrl}) {
+  ApiClient({
+    String? baseUrl,
+    SecurityConfig? securityConfig,
+    CertificatePinningService? certificatePinningService,
+  }) {
+    // Use security config based on environment or build mode
+    final config = securityConfig ?? SecurityConfig.fromBuildMode();
+
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl ?? AppConfig.apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 30),
+      receiveTimeout: config.requestTimeout,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
     ));
+
+    // Configure certificate pinning if enabled
+    if (config.enableCertificatePinning) {
+      // Determine environment for pin configuration
+      final environment = EnvConfig.isProduction ? 'production'
+          : EnvConfig.isStaging ? 'staging'
+          : 'development';
+
+      final pins = CertificateConfig.getPinsForEnvironment(environment);
+
+      _certificatePinningService = certificatePinningService ??
+          CertificatePinningService(
+            certificatePins: pins,
+            allowDebugBypass: config.allowPinningDebugBypass,
+            enforceStrict: config.strictCertificatePinning,
+          );
+      _certificatePinningService!.configureDio(_dio);
+
+      if (kDebugMode) {
+        print('🔒 SSL Certificate Pinning enabled');
+        print('   Environment: $environment');
+        print('   Strict mode: ${config.strictCertificatePinning}');
+        print('   Debug bypass: ${config.allowPinningDebugBypass}');
+        print('   Configured domains: ${_certificatePinningService!.getConfiguredDomains()}');
+      }
+    } else if (kDebugMode) {
+      print('⚠️ Certificate pinning is disabled');
+    }
 
     // Add interceptors
     _dio.interceptors.add(_AuthInterceptor(this));
@@ -35,6 +75,21 @@ class ApiClient {
 
   String? get authToken => _authToken;
   String get tenantId => _tenantId;
+  CertificatePinningService? get certificatePinningService => _certificatePinningService;
+
+  /// Check if certificate pinning is enabled
+  bool get isCertificatePinningEnabled => _certificatePinningService != null;
+
+  /// Check for expiring certificate pins
+  List<ExpiringPin> getExpiringPins({int daysThreshold = 30}) {
+    if (_certificatePinningService == null) return [];
+    return _certificatePinningService!.getExpiringPins(daysThreshold: daysThreshold);
+  }
+
+  /// Update certificate pins for a domain
+  void updateCertificatePins(String domain, List<CertificatePin> pins) {
+    _certificatePinningService?.addPins(domain, pins);
+  }
 
   /// GET request
   Future<dynamic> get(

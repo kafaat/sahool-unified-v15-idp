@@ -17,7 +17,14 @@
     "next": "التالي",
     "submit": "إرسال",
     "noData": "لا توجد بيانات",
-    "all": "الكل"
+    "all": "الكل",
+    "welcomeMessage": "مرحباً",
+    "welcomeBack": "أهلاً بعودتك",
+    "notifications": "التنبيهات",
+    "newNotifications": "إشعارات جديدة",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج"
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -36,7 +43,15 @@
     "diagnosis": "التشخيص",
     "reports": "التقارير",
     "settings": "الإعدادات",
-    "profile": "الملف الشخصي"
+    "profile": "الملف الشخصي",
+    "users": "المستخدمين",
+    "crops": "المحاصيل",
+    "inventory": "المخزون",
+    "seasons": "المواسم",
+    "documents": "المستندات",
+    "analytics": "التحليلات",
+    "mainNav": "القائمة الجانبية الرئيسية",
+    "version": "الإصدار"
   },
   "dashboard": {
     "title": "لوحة التحكم",

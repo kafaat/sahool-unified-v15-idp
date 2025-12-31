@@ -11,6 +11,7 @@
     "packages/tailwind-config",
     "packages/typescript-config",
     "packages/design-system",
+    "packages/i18n",
     "apps/web",
     "apps/admin"
   ],

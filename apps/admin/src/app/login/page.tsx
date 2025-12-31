@@ -7,13 +7,14 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { login } from '@/lib/auth';
+import { useAuth } from '@/stores/auth.store';
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get('returnTo') || '/dashboard';
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,7 +28,7 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      await login({ email, password });
+      await login(email, password);
       router.push(returnTo);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'فشل تسجيل الدخول');

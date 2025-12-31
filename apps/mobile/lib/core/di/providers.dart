@@ -9,8 +9,13 @@ import '../http/api_client.dart';
 // Note: databaseProvider is defined in main.dart and overridden at runtime
 
 /// API Client Provider
+/// Automatically configures certificate pinning based on build mode:
+/// - Debug builds: Certificate pinning disabled (for local development)
+/// - Release builds: Certificate pinning enabled (for production security)
 final apiClientProvider = Provider<ApiClient>((ref) {
   return ApiClient();
+  // Note: ApiClient automatically uses SecurityConfig.fromBuildMode()
+  // which enables certificate pinning in release builds
 });
 
 /// Fields API Provider

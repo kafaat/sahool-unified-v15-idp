@@ -75,7 +75,47 @@ def get_tenant_id(x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
 # In-Memory Storage (Replace with Database in Production)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-
+# TODO: MIGRATE TO POSTGRESQL
+# Current: _alerts and _rules stored in-memory (lost on restart)
+# Issues:
+#   - Alert history lost on restart (critical for compliance/auditing)
+#   - Rules lost on restart (requires manual reconfiguration)
+#   - No multi-instance support
+#   - No complex time-series queries for analytics
+# Required:
+#   1. Create PostgreSQL tables:
+#      a) 'alerts' table:
+#         - alert_id (UUID, PK)
+#         - tenant_id (VARCHAR, indexed)
+#         - type (VARCHAR, indexed)
+#         - severity (VARCHAR, indexed)
+#         - status (VARCHAR, indexed)
+#         - title, title_ar (VARCHAR)
+#         - message, message_ar (TEXT)
+#         - source (VARCHAR)
+#         - field_ids (VARCHAR[])
+#         - governorate (VARCHAR, indexed)
+#         - location (GEOGRAPHY POINT)
+#         - created_at (TIMESTAMP, indexed)
+#         - acknowledged_at (TIMESTAMP)
+#         - acknowledged_by (VARCHAR)
+#         - resolved_at (TIMESTAMP)
+#         - expires_at (TIMESTAMP)
+#         - metadata (JSONB)
+#      b) 'alert_rules' table:
+#         - rule_id (UUID, PK)
+#         - tenant_id (VARCHAR, indexed)
+#         - name (VARCHAR)
+#         - alert_type (VARCHAR)
+#         - conditions (JSONB)
+#         - enabled (BOOLEAN, indexed)
+#         - created_at (TIMESTAMP)
+#         - updated_at (TIMESTAMP)
+#   2. Create Tortoise ORM models: Alert, AlertRule
+#   3. Create repositories: AlertRepository, AlertRuleRepository
+#   4. Add time-series indexes for analytics: (created_at DESC), (tenant_id, type, created_at)
+#   5. Add partitioning by created_at for long-term storage
+# Migration Priority: HIGH - Alert history critical for decision making
 _alerts: dict[str, dict] = {}
 _rules: dict[str, dict] = {}
 

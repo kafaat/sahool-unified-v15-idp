@@ -3,7 +3,8 @@
 
 import axios, { type AxiosResponse, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
-import { getToken } from './auth';
+import { apiClient as authApiClient } from './api-client';
+import Cookies from 'js-cookie';
 
 // Service ports
 const PORTS = {
@@ -52,6 +53,11 @@ export const API_URLS = {
   wsGateway: getServiceUrl(PORTS.wsGateway),
 };
 
+// Helper function to get token from cookies
+function getToken(): string | undefined {
+  return Cookies.get('sahool_admin_token');
+}
+
 // Axios instance with defaults
 export const apiClient = axios.create({
   timeout: 30000,
@@ -62,7 +68,7 @@ export const apiClient = axios.create({
   },
 });
 
-// Add auth token interceptor
+// Add auth token interceptor - uses centralized token management
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getToken();
   if (token) {
@@ -71,12 +77,14 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   return config;
 });
 
-// Add response interceptor for auth errors
+// Add response interceptor for auth errors - consistent with auth store
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Redirect to login on unauthorized
+      // Clear token and redirect to login on unauthorized
+      Cookies.remove('sahool_admin_token');
+      authApiClient.clearToken();
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }

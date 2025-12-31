@@ -13,6 +13,12 @@ httpx==0.28.1
 # Firebase Cloud Messaging (for push notifications)
 firebase-admin==6.6.0
 
+# SMS (Twilio)
+twilio==9.3.7
+
+# Email (SendGrid)
+sendgrid==6.11.0
+
 # Redis for distributed notification queue
 redis==5.2.1
 

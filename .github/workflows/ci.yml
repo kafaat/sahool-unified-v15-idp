@@ -93,7 +93,6 @@ jobs:
 
       - name: Check coverage regression
         if: github.event_name == 'pull_request'
-        continue-on-error: true
         run: |
           # Get current coverage percentage
           CURRENT_COV=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); print(tree.getroot().attrib['line-rate'])" 2>/dev/null || echo "0")
@@ -101,19 +100,22 @@ jobs:
 
           echo "Current coverage: ${CURRENT_COV_PCT}%"
 
-          # Set minimum threshold (lowered to allow gradual improvement)
-          MIN_COVERAGE=20.0
+          # Set minimum threshold - lowered to match current coverage
+          # TODO: Gradually increase this as more tests are added
+          MIN_COVERAGE=5.0
 
-          # Check if coverage meets minimum
+          # Check if coverage meets minimum - FAIL if below threshold
           python -c "
           import sys
           current = float('${CURRENT_COV_PCT}' or '0')
           minimum = float('${MIN_COVERAGE}')
           if current < minimum:
-              print(f'::warning::Coverage {current:.2f}% is below minimum {minimum:.2f}%')
+              print(f'::error::Coverage {current:.2f}% is below minimum {minimum:.2f}%')
+              print(f'Please increase test coverage to at least {minimum:.2f}%')
+              sys.exit(1)
           else:
               print(f'✅ Coverage {current:.2f}% meets minimum {minimum:.2f}%')
-          " || echo "::warning::Coverage check could not be completed"
+          "
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v4

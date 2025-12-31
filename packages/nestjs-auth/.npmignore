@@ -1,0 +1,9 @@
+src/
+*.spec.ts
+*.test.ts
+tsconfig.json
+*.md
+!README.md
+.github/
+.vscode/
+node_modules/

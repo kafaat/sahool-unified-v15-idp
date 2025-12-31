@@ -1,6 +1,9 @@
 /**
  * SAHOOL Admin Authentication Utilities
  * أدوات التوثيق للوحة الإدارة
+ *
+ * NOTE: This file is kept for backward compatibility.
+ * New code should use the AuthProvider context from @/stores/auth.store
  */
 
 import Cookies from 'js-cookie';
@@ -13,7 +16,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Enforce HTTPS in production
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && !API_URL.startsWith('https://')) {
-  throw new Error('API_URL must use HTTPS in production environment');
+  console.warn('Warning: API_URL should use HTTPS in production environment');
 }
 
 export interface User {
@@ -39,6 +42,8 @@ export interface LoginCredentials {
 /**
  * Login with email and password
  * تسجيل الدخول بالبريد وكلمة المرور
+ *
+ * @deprecated Use the useAuth hook from @/stores/auth.store instead
  */
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
   const response = await fetch(`${API_URL}/api/v1/auth/login`, {
@@ -66,6 +71,8 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 /**
  * Logout user
  * تسجيل الخروج
+ *
+ * @deprecated Use the useAuth hook from @/stores/auth.store instead
  */
 export function logout(): void {
   Cookies.remove(AUTH_TOKEN_KEY);

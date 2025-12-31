@@ -193,6 +193,56 @@ class Equipment(BaseModel):
 # In-Memory Storage (Replace with PostgreSQL in production)
 # ═══════════════════════════════════════════════════════════════════════════
 
+# TODO: MIGRATE TO POSTGRESQL
+# Current: equipment_db, maintenance_db, alerts_db stored in-memory
+# Issues:
+#   - Equipment inventory lost on restart
+#   - Maintenance history lost (no audit trail for compliance)
+#   - Cannot track equipment lifecycle across deployments
+#   - No geospatial queries for equipment location
+# Required:
+#   1. Create PostgreSQL tables:
+#      a) 'equipment' table:
+#         - equipment_id (UUID, PK)
+#         - tenant_id (VARCHAR, indexed)
+#         - name, name_ar (VARCHAR)
+#         - equipment_type (VARCHAR, indexed)
+#         - status (VARCHAR, indexed)
+#         - brand, model, serial_number
+#         - year, purchase_date
+#         - horsepower, fuel_capacity_liters, current_fuel_percent
+#         - current_hours (DECIMAL)
+#         - field_id (VARCHAR, indexed)
+#         - location_name (VARCHAR)
+#         - current_location (GEOGRAPHY POINT)
+#         - last_maintenance_at, next_maintenance_at (TIMESTAMP)
+#         - created_at, updated_at (TIMESTAMP)
+#         - metadata (JSONB)
+#         - qr_code (VARCHAR, unique)
+#      b) 'equipment_maintenance' table:
+#         - record_id (UUID, PK)
+#         - equipment_id (UUID, FK, indexed)
+#         - maintenance_type (VARCHAR)
+#         - description (TEXT)
+#         - performed_by (VARCHAR)
+#         - performed_at (TIMESTAMP, indexed)
+#         - cost (DECIMAL)
+#         - parts_replaced (JSONB)
+#         - next_due_at (TIMESTAMP)
+#         - photos (VARCHAR[])
+#      c) 'equipment_alerts' table:
+#         - alert_id (UUID, PK)
+#         - equipment_id (UUID, FK, indexed)
+#         - maintenance_type (VARCHAR)
+#         - priority (VARCHAR)
+#         - due_at (TIMESTAMP, indexed)
+#         - is_overdue (BOOLEAN, indexed)
+#         - acknowledged_at (TIMESTAMP)
+#   2. Create Tortoise ORM models: Equipment, MaintenanceRecord, MaintenanceAlert
+#   3. Create repository: EquipmentRepository
+#   4. Add indexes: (tenant_id, status), (equipment_type), (field_id)
+#   5. Add geospatial index for equipment location tracking
+# Migration Priority: HIGH - Equipment tracking is critical for asset management
 equipment_db: dict[str, Equipment] = {}
 maintenance_db: dict[str, MaintenanceRecord] = {}
 alerts_db: dict[str, MaintenanceAlert] = {}

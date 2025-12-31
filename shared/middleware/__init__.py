@@ -7,6 +7,7 @@ Available middlewares:
 - Rate Limiting: Tiered API rate limiting
 - Request Size: Payload size validation
 - Tenant Context: Multi-tenancy isolation
+- Request Logging: Structured JSON logging with correlation ID tracking
 """
 
 from .cors import setup_cors, get_cors_origins, get_cors_config
@@ -27,6 +28,11 @@ from .request_size import (
     RequestSizeLimiter,
 )
 from .tenant_context import TenantContextMiddleware
+from .request_logging import (
+    RequestLoggingMiddleware,
+    get_correlation_id,
+    get_request_context,
+)
 
 __all__ = [
     # CORS
@@ -49,4 +55,8 @@ __all__ = [
     "RequestSizeLimiter",
     # Tenant
     "TenantContextMiddleware",
+    # Request Logging
+    "RequestLoggingMiddleware",
+    "get_correlation_id",
+    "get_request_context",
 ]

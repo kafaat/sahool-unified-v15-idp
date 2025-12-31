@@ -25,6 +25,11 @@ from uuid import UUID, uuid4
 import asyncio
 import logging
 import os
+import sys
+
+# Add shared middleware to path
+shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+sys.path.insert(0, shared_path)
 
 # Database imports
 from .database import init_db, close_db, check_db_health, get_db_stats
@@ -32,7 +37,12 @@ from .repository import (
     NotificationRepository,
     NotificationTemplateRepository,
     NotificationPreferenceRepository,
+    NotificationLogRepository,
 )
+
+# Notification clients
+from .sms_client import get_sms_client
+from .email_client import get_email_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -63,6 +73,7 @@ class NotificationPriority(str, Enum):
 class NotificationChannel(str, Enum):
     PUSH = "push"
     SMS = "sms"
+    EMAIL = "email"
     IN_APP = "in_app"
 
 
@@ -156,6 +167,7 @@ class FarmerProfile(BaseModel):
     crops: List[CropType]
     field_ids: List[str] = []
     phone: Optional[str] = None
+    email: Optional[str] = None
     fcm_token: Optional[str] = None  # Firebase Cloud Messaging
     notification_channels: List[NotificationChannel] = [NotificationChannel.IN_APP]
     language: str = "ar"
@@ -246,6 +258,23 @@ class IrrigationReminderRequest(BaseModel):
 # In-Memory Storage (Replace with Database in Production)
 # =============================================================================
 
+# TODO: MIGRATE TO POSTGRESQL
+# Current: FARMER_PROFILES stored in-memory (lost on restart)
+# Required:
+#   1. Create 'farmer_profiles' table in PostgreSQL schema
+#      Columns: farmer_id (PK), name, name_ar, governorate, district, phone, fcm_token, language
+#   2. Create 'farmer_crops' junction table
+#      Columns: farmer_id (FK), crop_type
+#   3. Create 'farmer_fields' junction table
+#      Columns: farmer_id (FK), field_id
+#   4. Create 'farmer_channels' junction table
+#      Columns: farmer_id (FK), channel
+#   5. Create Tortoise ORM model in models.py: FarmerProfile, FarmerCrop, FarmerField, FarmerChannel
+#   6. Create repository in repository.py: FarmerProfileRepository
+#   7. Update /v1/farmers/register endpoint to use FarmerProfileRepository.create()
+#   8. Update determine_recipients_by_criteria() to query database
+#   9. Update /healthz stats to query database count
+# Migration Priority: HIGH - Farmer data is critical and should persist
 
 # Simulated farmer profiles
 FARMER_PROFILES: Dict[str, FarmerProfile] = {
@@ -257,6 +286,7 @@ FARMER_PROFILES: Dict[str, FarmerProfile] = {
         crops=[CropType.TOMATO, CropType.COFFEE],
         field_ids=["field-1", "field-2"],
         phone="+967771234567",
+        email="ahmed.ali@example.com",
     ),
     "farmer-2": FarmerProfile(
         farmer_id="farmer-2",
@@ -266,9 +296,15 @@ FARMER_PROFILES: Dict[str, FarmerProfile] = {
         crops=[CropType.BANANA, CropType.MANGO],
         field_ids=["field-3"],
         phone="+967772345678",
+        email="mohammed.hassan@example.com",
     ),
 }
 
+# TODO: MIGRATE TO POSTGRESQL
+# Current: NOTIFICATIONS dict is redundant (already using database via NotificationRepository)
+# Action: Remove NOTIFICATIONS and FARMER_NOTIFICATIONS dicts entirely
+# Note: These are legacy from pre-database implementation and no longer used
+# Migration Priority: LOW - Already migrated to database, just remove unused code
 NOTIFICATIONS: Dict[str, Notification] = {}
 FARMER_NOTIFICATIONS: Dict[str, List[str]] = {}  # farmer_id -> [notification_ids]
 
@@ -334,8 +370,253 @@ async def create_notification(
         f"📬 Created {len(notifications)} notification(s) for {len(recipients)} farmer(s)"
     )
 
+    # Send notifications via appropriate channels (async background task)
+    for notification in notifications:
+        for channel in channels:
+            asyncio.create_task(
+                send_notification_via_channel(
+                    notification=notification,
+                    channel=channel,
+                    farmer_id=notification.user_id,
+                )
+            )
+
     # Return first notification for API response compatibility
     return notifications[0] if notifications else None
+
+
+async def send_notification_via_channel(
+    notification,
+    channel: NotificationChannel,
+    farmer_id: str,
+):
+    """
+    إرسال إشعار عبر قناة معينة
+    Send notification via specific channel (SMS, Email, or Push)
+    """
+    try:
+        if channel == NotificationChannel.SMS:
+            await send_sms_notification(notification, farmer_id)
+        elif channel == NotificationChannel.EMAIL:
+            await send_email_notification(notification, farmer_id)
+        elif channel == NotificationChannel.PUSH:
+            await send_push_notification(notification, farmer_id)
+        # IN_APP notifications are already stored in database, no action needed
+
+    except Exception as e:
+        logger.error(f"Failed to send notification via {channel.value}: {e}")
+        # Log the failure
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel=channel.value,
+            status="failed",
+            error_message=str(e),
+        )
+
+
+async def send_sms_notification(notification, farmer_id: str):
+    """إرسال إشعار عبر SMS"""
+    try:
+        # Get farmer profile to get phone number
+        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        if not farmer_profile or not farmer_profile.phone:
+            logger.warning(f"No phone number for farmer {farmer_id}")
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="sms",
+                status="failed",
+                error_message="No phone number available",
+            )
+            return
+
+        # Get SMS client
+        sms_client = get_sms_client()
+        if not sms_client._initialized:
+            logger.warning("SMS client not initialized, skipping SMS notification")
+            return
+
+        # Send SMS
+        language = farmer_profile.language if hasattr(farmer_profile, 'language') else "ar"
+        message_sid = await sms_client.send_sms(
+            to=farmer_profile.phone,
+            body=notification.title + "\n" + notification.body,
+            body_ar=notification.title_ar + "\n" + notification.body_ar,
+            language=language,
+        )
+
+        if message_sid:
+            # Update notification status
+            await NotificationRepository.update_status(
+                notification.id,
+                status="sent",
+                sent_at=datetime.utcnow(),
+            )
+            # Log success
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="sms",
+                status="sent",
+                provider_message_id=message_sid,
+            )
+            logger.info(f"✅ SMS sent to {farmer_profile.phone}: {message_sid}")
+        else:
+            raise Exception("Failed to send SMS (no message_sid returned)")
+
+    except Exception as e:
+        logger.error(f"Error sending SMS notification: {e}")
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel="sms",
+            status="failed",
+            error_message=str(e),
+        )
+
+
+async def send_email_notification(notification, farmer_id: str):
+    """إرسال إشعار عبر البريد الإلكتروني"""
+    try:
+        # Get farmer profile to get email address
+        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        if not farmer_profile or not farmer_profile.email:
+            logger.warning(f"No email address for farmer {farmer_id}")
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="email",
+                status="failed",
+                error_message="No email address available",
+            )
+            return
+
+        # Get Email client
+        email_client = get_email_client()
+        if not email_client._initialized:
+            logger.warning("Email client not initialized, skipping email notification")
+            return
+
+        # Send Email
+        language = farmer_profile.language if hasattr(farmer_profile, 'language') else "ar"
+
+        # Create HTML email body
+        html_body = f"""
+        <html>
+            <body dir="{'rtl' if language == 'ar' else 'ltr'}">
+                <h2>{notification.title_ar if language == 'ar' else notification.title}</h2>
+                <p>{notification.body_ar if language == 'ar' else notification.body}</p>
+                <br>
+                <p style="color: #666; font-size: 12px;">
+                    {"هذه رسالة آلية من منصة SAHOOL الزراعية" if language == 'ar' else "This is an automated message from SAHOOL Agriculture Platform"}
+                </p>
+            </body>
+        </html>
+        """
+
+        message_id = await email_client.send_email(
+            to=farmer_profile.email,
+            subject=notification.title,
+            subject_ar=notification.title_ar,
+            body=html_body,
+            body_ar=html_body,
+            language=language,
+            is_html=True,
+        )
+
+        if message_id:
+            # Update notification status
+            await NotificationRepository.update_status(
+                notification.id,
+                status="sent",
+                sent_at=datetime.utcnow(),
+            )
+            # Log success
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="email",
+                status="sent",
+                provider_message_id=message_id,
+            )
+            logger.info(f"✅ Email sent to {farmer_profile.email}: {message_id}")
+        else:
+            raise Exception("Failed to send email (no message_id returned)")
+
+    except Exception as e:
+        logger.error(f"Error sending email notification: {e}")
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel="email",
+            status="failed",
+            error_message=str(e),
+        )
+
+
+async def send_push_notification(notification, farmer_id: str):
+    """إرسال إشعار عبر Firebase Push"""
+    try:
+        # Get farmer profile to get FCM token
+        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        if not farmer_profile or not farmer_profile.fcm_token:
+            logger.warning(f"No FCM token for farmer {farmer_id}")
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="push",
+                status="failed",
+                error_message="No FCM token available",
+            )
+            return
+
+        # Get Firebase client (assuming it's available from firebase_client.py)
+        from .firebase_client import get_firebase_client
+        firebase_client = get_firebase_client()
+        if not firebase_client._initialized:
+            logger.warning("Firebase client not initialized, skipping push notification")
+            return
+
+        # Determine priority
+        from .notification_types import NotificationPriority as NPriority
+        priority_map = {
+            "low": NPriority.LOW,
+            "medium": NPriority.MEDIUM,
+            "high": NPriority.HIGH,
+            "critical": NPriority.CRITICAL,
+        }
+        priority = priority_map.get(notification.priority, NPriority.MEDIUM)
+
+        # Send push notification
+        message_id = firebase_client.send_notification(
+            token=farmer_profile.fcm_token,
+            title=notification.title,
+            body=notification.body,
+            title_ar=notification.title_ar,
+            body_ar=notification.body_ar,
+            data=notification.data or {},
+            priority=priority,
+        )
+
+        if message_id:
+            # Update notification status
+            await NotificationRepository.update_status(
+                notification.id,
+                status="sent",
+                sent_at=datetime.utcnow(),
+            )
+            # Log success
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="push",
+                status="sent",
+                provider_message_id=message_id,
+            )
+            logger.info(f"✅ Push notification sent to {farmer_id}: {message_id}")
+        else:
+            raise Exception("Failed to send push notification")
+
+    except Exception as e:
+        logger.error(f"Error sending push notification: {e}")
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel="push",
+            status="failed",
+            error_message=str(e),
+        )
 
 
 def determine_recipients_by_criteria(
@@ -457,6 +738,7 @@ def create_notification_from_nats(notification_data: Dict[str, Any]):
         channel_mapping = {
             "push": NotificationChannel.PUSH,
             "sms": NotificationChannel.SMS,
+            "email": NotificationChannel.EMAIL,
             "in_app": NotificationChannel.IN_APP,
         }
 
@@ -510,6 +792,26 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning(f"⚠️  Failed to start NATS subscriber: {e}")
 
+    # Initialize SMS client (optional)
+    try:
+        sms_client = get_sms_client()
+        if sms_client._initialized:
+            logger.info("✅ SMS client initialized")
+        else:
+            logger.info("ℹ️  SMS client not configured (set TWILIO_* env vars to enable)")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to initialize SMS client: {e}")
+
+    # Initialize Email client (optional)
+    try:
+        email_client = get_email_client()
+        if email_client._initialized:
+            logger.info("✅ Email client initialized")
+        else:
+            logger.info("ℹ️  Email client not configured (set SENDGRID_* env vars to enable)")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to initialize Email client: {e}")
+
     logger.info("✅ Notification Service ready")
 
     yield
@@ -545,6 +847,16 @@ app = FastAPI(
     description="Personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration.",
     lifespan=lifespan,
 )
+
+# Setup rate limiting middleware
+try:
+    from middleware.rate_limiter import setup_rate_limiting
+    setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
+    logger.info("Rate limiting enabled")
+except ImportError as e:
+    logger.warning(f"Rate limiting not available: {e}")
+except Exception as e:
+    logger.warning(f"Failed to setup rate limiting: {e}")
 
 
 # =============================================================================

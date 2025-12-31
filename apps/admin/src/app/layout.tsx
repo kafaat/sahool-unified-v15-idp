@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'لوحة تحكم سهول | Sahool Admin Dashboard',
@@ -30,7 +31,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen">
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

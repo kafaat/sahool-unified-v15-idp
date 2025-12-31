@@ -2,6 +2,9 @@
 🌤️ SAHOOL Advanced Weather Service v15.4
 خدمة الطقس المتقدمة - 7-Day Forecasting & Agricultural Alerts
 Real Weather API Integration: Open-Meteo & OpenWeatherMap
+
+⚠️ DEPRECATED: This service is deprecated and will be removed in a future release.
+Please use 'weather-service' instead.
 """
 
 import os
@@ -10,7 +13,8 @@ import httpx
 import asyncio
 from functools import lru_cache
 
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Request
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict, Any
@@ -33,8 +37,34 @@ _weather_cache: Dict[str, Dict[str, Any]] = {}
 app = FastAPI(
     title="SAHOOL Advanced Weather Service | خدمة الطقس المتقدمة",
     version="15.4.0",
-    description="7-day forecasting with real weather APIs, agricultural weather alerts, and crop-specific recommendations",
+    description="⚠️ DEPRECATED - Use weather-service instead. 7-day forecasting with real weather APIs, agricultural weather alerts, and crop-specific recommendations",
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    """Log deprecation warning on startup"""
+    logger.warning("=" * 80)
+    logger.warning("⚠️  DEPRECATION WARNING")
+    logger.warning("=" * 80)
+    logger.warning("This service (weather-advanced) is DEPRECATED and will be removed in a future release.")
+    logger.warning("Please migrate to 'weather-service' instead.")
+    logger.warning("Replacement service: weather-service")
+    logger.warning("Deprecation date: 2025-01-01")
+    logger.warning("=" * 80)
+
+
+@app.middleware("http")
+async def add_deprecation_header(request: Request, call_next):
+    """Add deprecation headers to all responses"""
+    response = await call_next(request)
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Deprecation-Date"] = "2025-01-01"
+    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use weather-service instead."
+    response.headers["X-API-Sunset"] = "2025-06-01"
+    response.headers["Link"] = '<http://weather-service:8108>; rel="successor-version"'
+    response.headers["Deprecation"] = "true"
+    return response
 
 
 # =============================================================================

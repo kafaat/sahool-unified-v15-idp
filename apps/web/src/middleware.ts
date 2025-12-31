@@ -8,7 +8,9 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
 import { generateNonce, getCSPHeader, getCSPHeaderName, getCSPConfig } from '@/lib/security/csp-config';
+import { locales, defaultLocale } from '@sahool/i18n';
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -36,6 +38,13 @@ const protectedRoutes = [
   '/crop-health',
 ];
 
+// Create i18n middleware
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'as-needed', // Don't prefix default locale (ar)
+});
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -47,6 +56,15 @@ export function middleware(request: NextRequest) {
     pathname.includes('.') // files with extensions (images, etc.)
   ) {
     return NextResponse.next();
+  }
+
+  // Handle i18n routing
+  const intlResponse = intlMiddleware(request);
+  if (intlResponse) {
+    // If i18n middleware returns a redirect, use that
+    if (intlResponse.headers.get('location')) {
+      return intlResponse;
+    }
   }
 
   // Allow public routes

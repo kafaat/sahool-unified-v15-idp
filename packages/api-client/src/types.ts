@@ -512,6 +512,8 @@ export interface PaginatedResponse<T> {
 // Configuration Types
 // ─────────────────────────────────────────────────────────────────────────────
 
+export type LogLevel = 'none' | 'error' | 'warn' | 'info' | 'debug';
+
 export interface ApiClientConfig {
   baseUrl: string;
   timeout?: number;
@@ -520,6 +522,36 @@ export interface ApiClientConfig {
   getToken?: () => string | null;
   setToken?: (token: string) => void;
   enableMockData?: boolean;
+
+  /**
+   * Error handling behavior
+   * - 'throw': Throw custom errors for callers to handle (recommended)
+   * - 'silent': Return empty arrays/null on errors (legacy behavior)
+   * @default 'throw'
+   */
+  errorHandling?: 'throw' | 'silent';
+
+  /**
+   * Error logging configuration
+   * - 'none': No logging
+   * - 'error': Log errors only
+   * - 'warn': Log warnings and errors
+   * - 'info': Log info, warnings, and errors
+   * - 'debug': Log everything including debug info
+   * @default 'error'
+   */
+  logLevel?: LogLevel;
+
+  /**
+   * Custom logger function
+   * If not provided, console methods will be used
+   */
+  logger?: {
+    error: (message: string, context?: Record<string, unknown>) => void;
+    warn: (message: string, context?: Record<string, unknown>) => void;
+    info: (message: string, context?: Record<string, unknown>) => void;
+    debug: (message: string, context?: Record<string, unknown>) => void;
+  };
 }
 
 export interface ServicePorts {

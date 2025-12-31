@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { clsx } from 'clsx';
 import {
   LayoutDashboard,
@@ -17,70 +18,59 @@ import {
 } from 'lucide-react';
 
 interface NavItem {
-  nameAr: string;
-  name: string;
+  labelKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 const navItems: NavItem[] = [
   {
-    nameAr: 'لوحة التحكم',
-    name: 'Dashboard',
+    labelKey: 'dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
   },
   {
-    nameAr: 'المستخدمين',
-    name: 'Users',
+    labelKey: 'users',
     href: '/dashboard/users',
     icon: Users,
   },
   {
-    nameAr: 'المزارع',
-    name: 'Farms',
+    labelKey: 'farms',
     href: '/dashboard/farms',
     icon: Building2,
   },
   {
-    nameAr: 'المحاصيل',
-    name: 'Crops',
+    labelKey: 'crops',
     href: '/dashboard/crops',
     icon: Sprout,
   },
   {
-    nameAr: 'المخزون',
-    name: 'Inventory',
+    labelKey: 'inventory',
     href: '/dashboard/inventory',
     icon: Package,
   },
   {
-    nameAr: 'المواسم',
-    name: 'Seasons',
+    labelKey: 'seasons',
     href: '/dashboard/seasons',
     icon: Calendar,
   },
   {
-    nameAr: 'التقارير',
-    name: 'Reports',
+    labelKey: 'reports',
     href: '/dashboard/reports',
     icon: FileBarChart,
   },
   {
-    nameAr: 'المستندات',
-    name: 'Documents',
+    labelKey: 'documents',
     href: '/dashboard/documents',
     icon: FileText,
   },
   {
-    nameAr: 'التحليلات',
-    name: 'Analytics',
+    labelKey: 'analytics',
     href: '/dashboard/analytics',
     icon: TrendingUp,
   },
   {
-    nameAr: 'الإعدادات',
-    name: 'Settings',
+    labelKey: 'settings',
     href: '/dashboard/settings',
     icon: Settings,
   },
@@ -88,9 +78,11 @@ const navItems: NavItem[] = [
 
 export const Sidebar = React.memo(function Sidebar() {
   const pathname = usePathname();
+  const t = useTranslations('nav');
+  const tCommon = useTranslations('common');
 
   return (
-    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full" role="navigation" aria-label="القائمة الجانبية الرئيسية">
+    <aside className="w-64 bg-white border-e border-gray-200 flex flex-col h-full" role="navigation" aria-label={t('mainNav')}>
       {/* Logo */}
       <div className="p-6 border-b border-gray-200">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -98,8 +90,8 @@ export const Sidebar = React.memo(function Sidebar() {
             <div className="w-6 h-6 bg-white rounded-full" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">سهول</h1>
-            <p className="text-xs text-gray-500">SAHOOL Platform</p>
+            <h1 className="text-xl font-bold text-gray-900">{tCommon('appName')}</h1>
+            <p className="text-xs text-gray-500">{tCommon('tagline')}</p>
           </div>
         </Link>
       </div>
@@ -123,7 +115,7 @@ export const Sidebar = React.memo(function Sidebar() {
                       : 'text-gray-700'
                   )}
                   aria-current={isActive ? 'page' : undefined}
-                  aria-label={`${item.nameAr} - ${item.name}`}
+                  aria-label={t(item.labelKey)}
                 >
                   <Icon
                     className={clsx(
@@ -133,8 +125,7 @@ export const Sidebar = React.memo(function Sidebar() {
                     aria-hidden="true"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">{item.nameAr}</div>
-                    <div className="text-xs opacity-70">{item.name}</div>
+                    <div className="text-sm font-medium">{t(item.labelKey)}</div>
                   </div>
                 </Link>
               </li>
@@ -146,8 +137,7 @@ export const Sidebar = React.memo(function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-gray-200">
         <div className="text-xs text-gray-500 text-center">
-          <div className="font-medium">الإصدار 17.0.0</div>
-          <div>Version 17.0.0</div>
+          <div className="font-medium">{t('version')} 17.0.0</div>
         </div>
       </div>
     </aside>

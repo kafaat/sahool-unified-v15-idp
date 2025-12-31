@@ -1,0 +1,31 @@
+{
+  "name": "@sahool/shared-errors",
+  "version": "1.0.0",
+  "description": "Shared error handling module for SAHOOL backend services with bilingual support",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"**/*.ts\""
+  },
+  "keywords": [
+    "error-handling",
+    "nestjs",
+    "typescript",
+    "bilingual",
+    "sahool",
+    "agriculture"
+  ],
+  "author": "SAHOOL Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "@nestjs/common": "^10.4.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

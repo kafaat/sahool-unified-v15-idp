@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@sahool/api-client": "*",
+    "@sahool/i18n": "*",
     "@sahool/shared-hooks": "*",
     "@sahool/shared-ui": "*",
     "@sahool/shared-utils": "*",
@@ -39,7 +40,6 @@
     "react-dom": "19.0.0",
     "react-leaflet": "4.2.1",
     "recharts": "2.14.1",
-    "swr": "2.2.5",
     "tailwind-merge": "2.6.0"
   },
   "devDependencies": {

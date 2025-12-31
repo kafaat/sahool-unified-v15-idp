@@ -51,7 +51,7 @@ services:
   # Prevents connection exhaustion with 39+ services
   # تجميع اتصالات قاعدة البيانات
   pgbouncer:
-    image: edoburu/pgbouncer:1.21.0
+    image: edoburu/pgbouncer:latest
     container_name: sahool-pgbouncer
     environment:
       # Database connection (using individual vars to avoid credential pattern detection)

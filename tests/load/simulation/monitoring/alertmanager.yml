@@ -1,0 +1,134 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - Alertmanager Configuration
+# تكوين مدير التنبيهات لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+
+global:
+  # Global settings
+  resolve_timeout: 5m
+
+  # SMTP settings (configure for email alerts)
+  # smtp_smarthost: 'smtp.example.com:587'
+  # smtp_from: 'alerts@sahool.io'
+  # smtp_auth_username: 'alertmanager'
+  # smtp_auth_password: 'password'
+
+  # Slack settings (configure for Slack alerts)
+  # slack_api_url: 'https://hooks.slack.com/services/xxx/xxx/xxx'
+
+# Route tree
+route:
+  # Default receiver
+  receiver: 'default-receiver'
+
+  # Group alerts by these labels
+  group_by: ['alertname', 'severity', 'team']
+
+  # Wait before sending first notification
+  group_wait: 30s
+
+  # Wait before sending updates
+  group_interval: 5m
+
+  # Repeat interval for unresolved alerts
+  repeat_interval: 4h
+
+  # Child routes for different severities
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: true
+
+    # Warning alerts
+    - match:
+        severity: warning
+      receiver: 'warning-receiver'
+      group_wait: 1m
+      repeat_interval: 4h
+
+    # Database team alerts
+    - match:
+        team: database
+      receiver: 'database-team'
+
+    # Infrastructure team alerts
+    - match:
+        team: infrastructure
+      receiver: 'infrastructure-team'
+
+    # Backend team alerts
+    - match:
+        team: backend
+      receiver: 'backend-team'
+
+# Inhibition rules
+inhibit_rules:
+  # If critical, suppress warning
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'instance']
+
+  # If service down, suppress all other alerts for that service
+  - source_match:
+      alertname: 'ServiceDown'
+    target_match_re:
+      alertname: '.+'
+    equal: ['instance']
+
+# Receivers
+receivers:
+  # Default receiver (webhook + log)
+  - name: 'default-receiver'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook'
+        send_resolved: true
+
+  # Critical alerts receiver
+  - name: 'critical-receiver'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook/critical'
+        send_resolved: true
+    # Uncomment for email alerts
+    # email_configs:
+    #   - to: 'oncall@sahool.io'
+    #     send_resolved: true
+
+  # Warning alerts receiver
+  - name: 'warning-receiver'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook/warning'
+        send_resolved: true
+
+  # Database team
+  - name: 'database-team'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook/database'
+        send_resolved: true
+    # email_configs:
+    #   - to: 'dba@sahool.io'
+
+  # Infrastructure team
+  - name: 'infrastructure-team'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook/infrastructure'
+        send_resolved: true
+    # email_configs:
+    #   - to: 'infra@sahool.io'
+
+  # Backend team
+  - name: 'backend-team'
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook/backend'
+        send_resolved: true
+    # email_configs:
+    #   - to: 'backend@sahool.io'
+
+# Templates (optional)
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

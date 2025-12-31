@@ -117,6 +117,46 @@
     }
   },
   {
+    "id": "irrigation-001-ar",
+    "category": "irrigation",
+    "language": "ar",
+    "input": {
+      "query": "متى يجب أن أسقي نباتات الطماطم؟",
+      "context": {
+        "crop_type": "tomato",
+        "growth_stage": "flowering",
+        "soil_moisture": 45,
+        "temperature": 28
+      }
+    },
+    "expected_output": {
+      "response": "نباتات الطماطم في مرحلة الإزهار تحتاج رطوبة ثابتة. قم بالري عندما تنخفض رطوبة التربة عن 50%.",
+      "agents": [
+        "irrigation_advisor"
+      ],
+      "key_points": [
+        "طماطم",
+        "إزهار",
+        "رطوبة التربة",
+        "جدول الري"
+      ],
+      "safety_constraints": [
+        "water_conservation",
+        "no_overwatering"
+      ]
+    },
+    "evaluation_criteria": {
+      "min_similarity": 0.75,
+      "required_keywords": [
+        "ري",
+        "طماطم",
+        "رطوبة"
+      ],
+      "forbidden_keywords": [],
+      "max_latency_ms": 5000
+    }
+  },
+  {
     "id": "field-001-en",
     "category": "field_analysis",
     "language": "en",
@@ -150,6 +190,45 @@
         "NDVI",
         "corn",
         "health"
+      ],
+      "forbidden_keywords": [],
+      "max_latency_ms": 5000
+    }
+  },
+  {
+    "id": "field-001-ar",
+    "category": "field_analysis",
+    "language": "ar",
+    "input": {
+      "query": "حلل صحة حقل الذرة بناءً على بيانات NDVI",
+      "context": {
+        "field_id": "field-123",
+        "crop_type": "corn",
+        "ndvi_average": 0.65,
+        "growth_stage": "vegetative"
+      }
+    },
+    "expected_output": {
+      "response": "مؤشر NDVI بقيمة 0.65 يشير إلى صحة نباتية متوسطة. الذرة في مرحلة النمو الخضري يجب أن تكون قيمها أعلى.",
+      "agents": [
+        "field_analyst"
+      ],
+      "key_points": [
+        "NDVI",
+        "ذرة",
+        "صحة الحقل",
+        "غطاء نباتي"
+      ],
+      "safety_constraints": [
+        "accurate_analysis"
+      ]
+    },
+    "evaluation_criteria": {
+      "min_similarity": 0.75,
+      "required_keywords": [
+        "NDVI",
+        "ذرة",
+        "صحة"
       ],
       "forbidden_keywords": [],
       "max_latency_ms": 5000
@@ -195,6 +274,45 @@
     }
   },
   {
+    "id": "yield-001-ar",
+    "category": "yield_prediction",
+    "language": "ar",
+    "input": {
+      "query": "ما هو الإنتاج المتوقع لحقل القمح الخاص بي؟",
+      "context": {
+        "crop_type": "wheat",
+        "field_size_hectares": 10,
+        "growth_stage": "grain filling",
+        "weather_conditions": "favorable"
+      }
+    },
+    "expected_output": {
+      "response": "بناءً على الظروف المواتية ومرحلة امتلاء الحبوب، نتوقع إنتاجية 4-5 طن للهكتار.",
+      "agents": [
+        "yield_predictor"
+      ],
+      "key_points": [
+        "إنتاجية",
+        "قمح",
+        "توقع",
+        "طن للهكتار"
+      ],
+      "safety_constraints": [
+        "realistic_expectations"
+      ]
+    },
+    "evaluation_criteria": {
+      "min_similarity": 0.75,
+      "required_keywords": [
+        "إنتاج",
+        "قمح",
+        "طن"
+      ],
+      "forbidden_keywords": [],
+      "max_latency_ms": 5000
+    }
+  },
+  {
     "id": "multi-001-en",
     "category": "multi_agent",
     "language": "en",
@@ -230,6 +348,47 @@
         "NDVI",
         "irrigation",
         "yield"
+      ],
+      "forbidden_keywords": [],
+      "max_latency_ms": 8000
+    }
+  },
+  {
+    "id": "multi-001-ar",
+    "category": "multi_agent",
+    "language": "ar",
+    "input": {
+      "query": "حقل القمح يظهر مؤشر NDVI منخفض. هل يجب أن أسقي وكيف سيؤثر ذلك على الإنتاج؟",
+      "context": {
+        "crop_type": "wheat",
+        "ndvi_average": 0.45,
+        "soil_moisture": 30,
+        "growth_stage": "heading"
+      }
+    },
+    "expected_output": {
+      "response": "انخفاض NDVI ورطوبة التربة يشير إلى إجهاد النبات. يُنصح بالري الفوري لمنع فقدان الإنتاج.",
+      "agents": [
+        "field_analyst",
+        "irrigation_advisor",
+        "yield_predictor"
+      ],
+      "key_points": [
+        "NDVI",
+        "ري",
+        "تأثير الإنتاج",
+        "تنسيق"
+      ],
+      "safety_constraints": [
+        "holistic_advice"
+      ]
+    },
+    "evaluation_criteria": {
+      "min_similarity": 0.7,
+      "required_keywords": [
+        "NDVI",
+        "ري",
+        "إنتاج"
       ],
       "forbidden_keywords": [],
       "max_latency_ms": 8000

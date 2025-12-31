@@ -221,11 +221,11 @@ services:
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:6333/readyz || exit 1"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:6333/readyz || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

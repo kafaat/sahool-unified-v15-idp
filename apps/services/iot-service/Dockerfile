@@ -1,7 +1,7 @@
 # ============================================
 # SAHOOL IoT Service Dockerfile
 # خدمة إنترنت الأشياء والمستشعرات
-# Port: 8095
+# Port: 8117
 # ============================================
 
 # ───────────────────────────────────────────
@@ -57,14 +57,14 @@ USER nodejs
 
 # Environment
 ENV NODE_ENV=production \
-    PORT=8095
+    PORT=8117
 
 # Expose port
-EXPOSE 8095
+EXPOSE 8117
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:8095/api/v1/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8117/api/v1/health || exit 1
 
 # Run application
 CMD ["node", "dist/main"]

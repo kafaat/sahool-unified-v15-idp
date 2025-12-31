@@ -25,6 +25,7 @@ const SERVICE_VERSION = '1.0.0';
 // المصادقة إلزامية دائماً - لا يمكن تشغيل الخدمة بدون JWT_SECRET_KEY
 // ═══════════════════════════════════════════════════════════════════════════════
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 
 if (!JWT_SECRET_KEY || JWT_SECRET_KEY.trim().length === 0) {
   console.error('❌ FATAL: JWT_SECRET_KEY environment variable is required');
@@ -74,7 +75,10 @@ const verifyToken = (token) => {
   // SECURITY: JWT_SECRET_KEY is guaranteed to exist (checked at startup)
   // Verify token signature and expiration
   try {
-    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+    // SECURITY: Explicitly specify allowed algorithms to prevent algorithm confusion attacks
+    const decoded = jwt.verify(token, JWT_SECRET_KEY, {
+      algorithms: [JWT_ALGORITHM],
+    });
 
     // SECURITY: Additional validation of decoded token
     if (!decoded.sub) {

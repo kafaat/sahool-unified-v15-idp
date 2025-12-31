@@ -75,7 +75,7 @@ services:
   # خدمة الطقس - Weather Service
   # ============================================================================
   - name: weather-core
-    url: http://weather-service:8108
+    url: http://weather-service:8092
     tags:
       - starter
       - weather
@@ -135,7 +135,7 @@ services:
   # المستشار الزراعي - Agro Advisor
   # ============================================================================
   - name: agro-advisor
-    url: http://agro-advisor:8095
+    url: http://agro_advisor:8105
     tags:
       - starter
       - advisory
@@ -222,7 +222,7 @@ services:
   # محرك NDVI - NDVI Engine
   # ============================================================================
   - name: ndvi-engine
-    url: http://ndvi-engine:8097
+    url: http://ndvi_engine:8107
     tags:
       - professional
       - analytics
@@ -324,7 +324,7 @@ services:
   # محرك توقع الإنتاجية - Yield Engine
   # ============================================================================
   - name: yield-engine
-    url: http://yield-prediction-service:3021
+    url: http://yield-prediction-service:8098
     tags:
       - professional
       - analytics
@@ -372,7 +372,7 @@ services:
   # خدمة المخزون - Inventory Service
   # ============================================================================
   - name: inventory-service
-    url: http://inventory-service:8115
+    url: http://inventory_service:8116
     tags:
       - professional
       - inventory
@@ -432,7 +432,7 @@ services:
   # بوابة إنترنت الأشياء - IoT Gateway
   # ============================================================================
   - name: iot-gateway
-    url: http://iot-gateway:8096
+    url: http://iot_gateway:8106
     tags:
       - enterprise
       - iot
@@ -680,7 +680,7 @@ services:
   # الطقس المتقدم - Advanced Weather
   # ============================================================================
   - name: weather-advanced
-    url: http://weather-service:8108
+    url: http://weather-service:8092
     tags:
       - professional
       - weather
@@ -862,7 +862,7 @@ services:
   # خدمة التنبيهات - Alert Service
   # ============================================================================
   - name: alert-service
-    url: http://alert-service:8107
+    url: http://alert_service:8113
     tags:
       - shared
       - alerts
@@ -942,7 +942,7 @@ services:
   # معالج NDVI - NDVI Processor
   # ============================================================================
   - name: ndvi-processor
-    url: http://ndvi-processor:8101
+    url: http://ndvi_processor:8118
     tags:
       - professional
       - analytics

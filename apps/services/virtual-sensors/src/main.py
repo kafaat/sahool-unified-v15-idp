@@ -15,6 +15,7 @@ Field-First Architecture:
 - Badge "تقدير افتراضي" لتمييز البيانات عن IoT
 """
 
+import os
 import math
 import uuid
 import logging

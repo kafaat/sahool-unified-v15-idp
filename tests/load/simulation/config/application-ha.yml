@@ -1,0 +1,239 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - High Availability Application Configuration
+# إعدادات التوفر العالي لتطبيق سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This configuration file provides optimal settings for running multiple
+# application instances behind a load balancer with:
+# - Distributed session management via Redis
+# - Optimized connection pooling
+# - Thread pool tuning for concurrent agents
+# - Health check endpoints
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Application Info
+app:
+  name: sahool-idp
+  version: ${APP_VERSION:1.0.0}
+  instance-id: ${INSTANCE_ID:default}
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  # Tomcat thread pool settings for handling concurrent agents
+  tomcat:
+    threads:
+      max: ${SERVER_MAX_THREADS:200}           # Maximum threads for request handling
+      min-spare: ${SERVER_MIN_SPARE_THREADS:10} # Minimum idle threads
+    max-connections: ${SERVER_MAX_CONNECTIONS:10000}
+    accept-count: 100                           # Queue for pending connections
+    connection-timeout: 30000                   # Connection timeout in ms
+  # Compression
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain
+    min-response-size: 2048
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# DATABASE CONFIGURATION - إعدادات قاعدة البيانات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/sahool}
+    username: ${DB_USER:sahool}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+    # HikariCP Connection Pool Configuration
+    # تهيئة تجمع اتصالات HikariCP
+    hikari:
+      # Pool sizing
+      # Formula: Pool Size = (Total DB Connections - Reserved) / Instance Count
+      maximum-pool-size: ${DB_POOL_MAX:20}      # Max connections per instance
+      minimum-idle: ${DB_POOL_MIN:5}            # Minimum idle connections
+
+      # Timeouts
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT:30000}  # 30 seconds
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT:600000}             # 10 minutes
+      max-lifetime: ${DB_POOL_MAX_LIFETIME:1800000}            # 30 minutes
+
+      # Validation
+      validation-timeout: 5000
+      leak-detection-threshold: 60000           # Detect connection leaks
+
+      # Pool name for monitoring
+      pool-name: sahool-hikari-pool-${INSTANCE_ID:default}
+
+      # Auto-commit setting
+      auto-commit: false
+
+      # Connection test query
+      connection-test-query: SELECT 1
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # REDIS SESSION CONFIGURATION - إعدادات جلسات Redis
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  # Distributed Session Store - mandatory for load-balanced instances
+  session:
+    store-type: redis
+    timeout: 30m                               # Session timeout
+    redis:
+      flush-mode: on_save                      # Write session on save
+      namespace: sahool:session                # Redis key prefix
+
+  # Redis Connection
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD}
+    timeout: 5000
+    database: 0
+
+    # Lettuce connection pool (for Spring Boot 2.x+)
+    lettuce:
+      pool:
+        max-active: 50                         # Max active connections
+        max-idle: 20                           # Max idle connections
+        min-idle: 5                            # Min idle connections
+        max-wait: 5000ms                       # Max wait for connection
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # JPA/HIBERNATE CONFIGURATION
+  # ═══════════════════════════════════════════════════════════════════════════════
+
+  jpa:
+    hibernate:
+      ddl-auto: validate                       # Don't modify schema
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50                       # Batch inserts/updates
+          fetch_size: 50                       # Fetch size for queries
+        order_inserts: true                    # Order inserts for batching
+        order_updates: true                    # Order updates for batching
+        default_batch_fetch_size: 16           # Lazy loading batch size
+        # Second-level cache (optional, for read-heavy workloads)
+        cache:
+          use_second_level_cache: true
+          region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECURITY CONFIGURATION - إعدادات الأمان
+# ═══════════════════════════════════════════════════════════════════════════════
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiry: ${JWT_EXPIRY:3600}                 # Token expiry in seconds
+    refresh-expiry: 604800                     # Refresh token: 7 days
+    issuer: sahool-idp
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LOGGING CONFIGURATION - إعدادات السجلات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+logging:
+  level:
+    root: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.hibernate.SQL: WARN
+    com.zaxxer.hikari: INFO                    # Connection pool logs
+    io.lettuce: WARN                           # Redis client logs
+    com.sahool: ${LOG_LEVEL:INFO}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [${INSTANCE_ID:default}] [%thread] %-5level %logger{36} - %msg%n"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# HEALTH CHECK CONFIGURATION - إعدادات فحص الصحة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  health:
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# RATE LIMITING - تحديد معدل الطلبات
+# ═══════════════════════════════════════════════════════════════════════════════
+
+ratelimit:
+  enabled: true
+  default:
+    limit: 100
+    duration: 60s
+  endpoints:
+    auth:
+      limit: 10
+      duration: 60s
+    api:
+      limit: 100
+      duration: 60s
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CACHING CONFIGURATION - إعدادات التخزين المؤقت
+# ═══════════════════════════════════════════════════════════════════════════════
+
+cache:
+  type: redis
+  redis:
+    time-to-live: 3600000                      # 1 hour TTL
+    cache-null-values: false
+  caffeine:
+    # Local cache for frequently accessed data
+    specs:
+      profiles: maximumSize=500,expireAfterWrite=300s
+      fields: maximumSize=1000,expireAfterWrite=600s
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CIRCUIT BREAKER - قاطع الدائرة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      database:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+      redis:
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10s
+  retry:
+    instances:
+      database:
+        maxAttempts: 3
+        waitDuration: 500ms
+      redis:
+        maxAttempts: 2
+        waitDuration: 200ms
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ASYNC CONFIGURATION - إعدادات التنفيذ غير المتزامن
+# ═══════════════════════════════════════════════════════════════════════════════
+
+async:
+  core-pool-size: 10
+  max-pool-size: 50
+  queue-capacity: 100
+  thread-name-prefix: sahool-async-

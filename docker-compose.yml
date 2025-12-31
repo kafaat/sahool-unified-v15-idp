@@ -36,8 +36,6 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -53,7 +51,7 @@ services:
   # Prevents connection exhaustion with 39+ services
   # تجميع اتصالات قاعدة البيانات
   pgbouncer:
-    image: edoburu/pgbouncer:1.21.0
+    image: edoburu/pgbouncer:latest
     container_name: sahool-pgbouncer
     environment:
       # Database connection (using individual vars to avoid credential pattern detection)
@@ -97,8 +95,6 @@ services:
       options:
         max-size: "50m"
         max-file: "3"
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -257,7 +253,8 @@ services:
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 127.0.0.1:8001
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
-      # SSL disabled for development - enable in production with proper certificates
+      # SSL disabled for development - enable in production with valid certificates
+      # KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
       # KONG_SSL_CERT: /etc/kong/ssl/server.crt
       # KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
       KONG_PLUGINS: "bundled,prometheus"

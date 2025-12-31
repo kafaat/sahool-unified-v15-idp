@@ -56,7 +56,7 @@ upstreams:
   - name: ai-advisor-upstream
     algorithm: round-robin
     targets:
-      - target: ai-advisor:8112
+      - target: ai_advisor:8112
         weight: 100
     healthchecks:
       active:
@@ -86,7 +86,7 @@ upstreams:
   - name: iot-gateway-upstream
     algorithm: round-robin
     targets:
-      - target: iot-gateway:8106
+      - target: iot_gateway:8106
         weight: 100
     healthchecks:
       active:
@@ -96,7 +96,7 @@ upstreams:
   - name: iot-service-upstream
     algorithm: round-robin
     targets:
-      - target: iot-service:8117
+      - target: iot_service:8117
         weight: 100
     healthchecks:
       active:
@@ -106,7 +106,7 @@ upstreams:
   - name: virtual-sensors-upstream
     algorithm: round-robin
     targets:
-      - target: virtual-sensors:8096
+      - target: virtual_sensors:8096
         weight: 100
     healthchecks:
       active:
@@ -116,7 +116,7 @@ upstreams:
   - name: marketplace-service-upstream
     algorithm: round-robin
     targets:
-      - target: marketplace-service:3010
+      - target: marketplace_service:3010
         weight: 100
     healthchecks:
       active:
@@ -126,7 +126,7 @@ upstreams:
   - name: billing-core-upstream
     algorithm: round-robin
     targets:
-      - target: billing-core:8089
+      - target: billing_core:8089
         weight: 100
     healthchecks:
       active:
@@ -136,7 +136,7 @@ upstreams:
   - name: notification-service-upstream
     algorithm: round-robin
     targets:
-      - target: notification-service:8110
+      - target: notification_service:8110
         weight: 100
     healthchecks:
       active:
@@ -146,7 +146,7 @@ upstreams:
   - name: research-core-upstream
     algorithm: round-robin
     targets:
-      - target: research-core:3015
+      - target: research_core:3015
         weight: 100
     healthchecks:
       active:
@@ -156,7 +156,7 @@ upstreams:
   - name: disaster-assessment-upstream
     algorithm: round-robin
     targets:
-      - target: disaster-assessment:3020
+      - target: disaster_assessment:3020
         weight: 100
     healthchecks:
       active:

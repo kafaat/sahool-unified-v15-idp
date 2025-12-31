@@ -1,0 +1,458 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - Load Testing Simulation Environment
+# بيئة محاكاة اختبار الحمل لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This file creates a complete simulation environment with:
+# - 3 scaled application instances (High Availability)
+# - Nginx Load Balancer with least_conn algorithm
+# - PostgreSQL with connection pooling (PgBouncer)
+# - Redis for distributed sessions
+# - k6 for load testing with 10 virtual agents
+# - InfluxDB + Grafana for metrics visualization
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+networks:
+  sahool-sim-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
+
+volumes:
+  sim_postgres_data:
+    driver: local
+  sim_redis_data:
+    driver: local
+  sim_influxdb_data:
+    driver: local
+  sim_grafana_data:
+    driver: local
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 1. DATABASE LAYER - قاعدة البيانات
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # PostgreSQL Database with increased connections for load testing
+  # قاعدة بيانات PostgreSQL مع زيادة عدد الاتصالات لاختبار الحمل
+  sahool-db:
+    image: postgis/postgis:16-3.4
+    container_name: sahool_db_sim
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sahool_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool_sim}
+      # Performance tuning for simulation
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    # Tuned PostgreSQL settings for handling 10+ concurrent agents
+    command: >
+      postgres
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=4MB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+      -c log_statement=none
+      -c log_min_duration_statement=1000
+    volumes:
+      - sim_postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5433:5432"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool_admin} -d ${POSTGRES_DB:-sahool_sim}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # PgBouncer - Connection Pooling for distributed load
+  # مجمع الاتصالات لتوزيع الحمل
+  sahool-pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: sahool_pgbouncer_sim
+    environment:
+      DB_HOST: sahool-db
+      DB_PORT: "5432"
+      DB_USER: ${POSTGRES_USER:-sahool_admin}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+      DB_NAME: ${POSTGRES_DB:-sahool_sim}
+      # Pool mode: transaction for better concurrency
+      POOL_MODE: transaction
+      # Increased for 10+ agents * 3 instances
+      MAX_DB_CONNECTIONS: 150
+      DEFAULT_POOL_SIZE: 30
+      MIN_POOL_SIZE: 10
+      MAX_CLIENT_CONN: 1000
+      # Timeouts
+      QUERY_TIMEOUT: 120
+      QUERY_WAIT_TIMEOUT: 60
+      # Auth
+      AUTH_TYPE: md5
+    ports:
+      - "127.0.0.1:6433:6432"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.11
+    depends_on:
+      sahool-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 6432"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 2. CACHE LAYER - طبقة التخزين المؤقت
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # Redis for distributed sessions and caching
+  # Redis للجلسات الموزعة والتخزين المؤقت
+  sahool-redis:
+    image: redis:7-alpine
+    container_name: sahool_redis_sim
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-sim_redis_pass_123}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --timeout 0
+      --tcp-backlog 511
+      --maxclients 10000
+    volumes:
+      - sim_redis_data:/data
+    ports:
+      - "127.0.0.1:6380:6379"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.12
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-sim_redis_pass_123}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 3. LOAD BALANCER - موازن الحمل
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # Nginx Load Balancer - distributes requests across 3 app instances
+  # موازن الحمل Nginx - يوزع الطلبات على 3 نسخ من التطبيق
+  sahool-nginx:
+    image: nginx:1.25-alpine
+    container_name: sahool_nginx_sim
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx-upstream.conf:/etc/nginx/conf.d/upstream.conf:ro
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.20
+    depends_on:
+      - sahool-app-1
+      - sahool-app-2
+      - sahool-app-3
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 4. APPLICATION INSTANCES - نسخ التطبيق (3 للتوفر العالي)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # Application Instance 1
+  sahool-app-1:
+    build:
+      context: ../../..
+      dockerfile: apps/services/field-ops/Dockerfile
+    container_name: sahool_app_1_sim
+    environment:
+      <<: *app-common-env
+      INSTANCE_ID: "1"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.100
+    depends_on:
+      sahool-db:
+        condition: service_healthy
+      sahool-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Application Instance 2
+  sahool-app-2:
+    build:
+      context: ../../..
+      dockerfile: apps/services/field-ops/Dockerfile
+    container_name: sahool_app_2_sim
+    environment:
+      <<: *app-common-env
+      INSTANCE_ID: "2"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.101
+    depends_on:
+      sahool-db:
+        condition: service_healthy
+      sahool-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # Application Instance 3
+  sahool-app-3:
+    build:
+      context: ../../..
+      dockerfile: apps/services/field-ops/Dockerfile
+    container_name: sahool_app_3_sim
+    environment:
+      <<: *app-common-env
+      INSTANCE_ID: "3"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.102
+    depends_on:
+      sahool-db:
+        condition: service_healthy
+      sahool-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 5. METRICS & MONITORING - المقاييس والمراقبة
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # InfluxDB for k6 metrics storage
+  sahool-influxdb:
+    image: influxdb:2.7-alpine
+    container_name: sahool_influxdb_sim
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: adminpassword123
+      DOCKER_INFLUXDB_INIT_ORG: sahool
+      DOCKER_INFLUXDB_INIT_BUCKET: k6
+      DOCKER_INFLUXDB_INIT_RETENTION: 7d
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: sahool-sim-k6-token
+    volumes:
+      - sim_influxdb_data:/var/lib/influxdb2
+    ports:
+      - "127.0.0.1:8087:8086"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.30
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Grafana for metrics visualization
+  sahool-grafana:
+    image: grafana/grafana:10.2.0
+    container_name: sahool_grafana_sim
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-clock-panel
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /etc/grafana/provisioning/dashboards/k6-dashboard.json
+    volumes:
+      - sim_grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3031:3000"
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.31
+    depends_on:
+      sahool-influxdb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # 6. K6 LOAD TESTING AGENT - وكيل اختبار الحمل
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # K6 Load Testing with 10 Virtual Agents
+  sahool-k6:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_sim
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_INSECURE: "false"
+      K6_INFLUXDB_TOKEN: sahool-sim-k6-token
+      # Simulation endpoints
+      BASE_URL: http://sahool-nginx:80
+      AUTH_URL: http://sahool-nginx:80
+      FIELD_SERVICE_URL: http://sahool-nginx:80
+      # Test configuration
+      ENVIRONMENT: simulation
+      TENANT_ID: tenant_simulation
+      # Agent configuration
+      AGENT_COUNT: "10"
+      SIMULATION_DURATION: "3m"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    working_dir: /scripts
+    networks:
+      sahool-sim-network:
+        ipv4_address: 172.30.0.40
+    depends_on:
+      sahool-nginx:
+        condition: service_started
+      sahool-influxdb:
+        condition: service_healthy
+    # Default command runs the agent simulation
+    command: ["run", "--quiet", "agent-simulation.js"]
+    profiles:
+      - testing
+
+# ═══════════════════════════════════════════════════════════════════════════
+# YAML ANCHORS - Common Environment Variables
+# ═══════════════════════════════════════════════════════════════════════════
+
+x-app-common-env: &app-common-env
+  # Application settings
+  NODE_ENV: production
+  LOG_LEVEL: info
+  # Database - through PgBouncer
+  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-simulation_password_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_sim}?pool_timeout=60
+  DB_HOST: sahool-pgbouncer
+  DB_PORT: "6432"
+  DB_USER: ${POSTGRES_USER:-sahool_admin}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+  DB_NAME: ${POSTGRES_DB:-sahool_sim}
+  # Redis session store
+  REDIS_URL: redis://:${REDIS_PASSWORD:-sim_redis_pass_123}@sahool-redis:6379
+  REDIS_HOST: sahool-redis
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-sim_redis_pass_123}
+  # Session configuration
+  SESSION_STORE_TYPE: redis
+  SESSION_SECRET: simulation_session_secret_key_123
+  # Connection pool settings (HikariCP equivalent for Node.js)
+  DB_POOL_MIN: "5"
+  DB_POOL_MAX: "20"
+  DB_POOL_ACQUIRE_TIMEOUT: "30000"
+  DB_POOL_IDLE_TIMEOUT: "600000"
+  DB_POOL_CONNECTION_TIMEOUT: "30000"
+  # Tomcat/Server thread pool settings
+  SERVER_MAX_THREADS: "200"
+  SERVER_MIN_SPARE_THREADS: "10"
+  SERVER_MAX_CONNECTIONS: "10000"
+  # JWT configuration
+  JWT_SECRET: simulation_jwt_secret_key_for_testing_only
+  JWT_EXPIRY: "3600"
+  # Tenant
+  DEFAULT_TENANT_ID: tenant_simulation
+
+# ═══════════════════════════════════════════════════════════════════════════
+# USAGE INSTRUCTIONS
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# 1. Start the simulation infrastructure (without k6):
+#    docker-compose -f docker-compose-sim.yml up -d
+#
+# 2. Start with scaled app instances:
+#    docker-compose -f docker-compose-sim.yml up -d --scale sahool-app=3
+#
+# 3. Run k6 agent simulation:
+#    docker-compose -f docker-compose-sim.yml --profile testing run --rm sahool-k6
+#
+# 4. View Grafana dashboards:
+#    Open http://localhost:3031 (admin/admin)
+#
+# 5. View InfluxDB:
+#    Open http://localhost:8087 (admin/adminpassword123)
+#
+# 6. Stop everything:
+#    docker-compose -f docker-compose-sim.yml down
+#
+# 7. Full cleanup (including volumes):
+#    docker-compose -f docker-compose-sim.yml down -v
+#
+# ═══════════════════════════════════════════════════════════════════════════

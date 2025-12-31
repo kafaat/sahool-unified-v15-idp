@@ -1,0 +1,21 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Grafana Datasource Configuration - InfluxDB for k6 metrics
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: 1
+
+datasources:
+  - name: InfluxDB-k6
+    type: influxdb
+    access: proxy
+    url: http://sahool-influxdb:8086
+    user: admin
+    secureJsonData:
+      token: sahool-sim-k6-token
+    jsonData:
+      version: Flux
+      organization: sahool
+      defaultBucket: k6
+      tlsSkipVerify: true
+    isDefault: true
+    editable: true

@@ -80,7 +80,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return null;
       }
 
-      const decoded = jwt.verify(token, jwtSecret) as { userId: string; sub?: string };
+      // SECURITY: Explicitly specify allowed algorithms to prevent algorithm confusion attacks
+      const algorithm = process.env.JWT_ALGORITHM || 'HS256';
+      const decoded = jwt.verify(token, jwtSecret, {
+        algorithms: [algorithm as jwt.Algorithm],
+      }) as { userId: string; sub?: string };
       const userId = decoded.userId || decoded.sub;
 
       if (!userId) {

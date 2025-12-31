@@ -1,7 +1,7 @@
 """
-SAHOOL Crop Health Service
-خدمة صحة المحاصيل - تشخيص ذكي للحقول الزراعية
-Port: 8100
+SAHOOL Crop Intelligence Service
+خدمة ذكاء المحاصيل - تشخيص ذكي للحقول الزراعية
+Port: 8095
 """
 
 from __future__ import annotations
@@ -174,14 +174,15 @@ ZONES: Dict[str, Dict[str, Dict[str, Any]]] = {}
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🌱 Starting Crop Health Service...")
+    print("🌱 Starting Crop Intelligence Service...")
 
     # Initialize sample data for demo
     _init_sample_data()
 
-    print("✅ Crop Health Service ready on port 8100")
+    port = os.getenv("PORT", "8095")
+    print(f"✅ Crop Intelligence Service ready on port {port}")
     yield
-    print("👋 Crop Health Service shutting down")
+    print("👋 Crop Intelligence Service shutting down")
 
 
 def _init_sample_data():
@@ -718,5 +719,5 @@ def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp"
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8100))
+    port = int(os.getenv("PORT", 8095))
     uvicorn.run(app, host="0.0.0.0", port=port)

@@ -31,6 +31,12 @@ env:
   MIN_EVALUATION_SCORE: ${{ github.event.inputs.min_score_threshold || '85' }}
   EVALUATION_DATASET: ${{ github.event.inputs.evaluation_set || 'golden' }}
 
+# Permissions required for PR comments and artifact uploads
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
 jobs:
   agent-evaluation:
     name: Run Agent Evaluation Tests

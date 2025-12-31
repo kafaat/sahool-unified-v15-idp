@@ -22,17 +22,17 @@
     "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
+    "@sentry/nextjs": "^8.0.0",
+    "@types/node": "^22.0.0",
     "tsup": "^8.0.1",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.0"
+  },
+  "optionalDependencies": {
+    "@sentry/nextjs": "^8.0.0"
   },
   "peerDependencies": {
-    "react": ">=18.0.0",
-    "@sentry/nextjs": ">=8.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@sentry/nextjs": {
-      "optional": true
-    }
+    "react": ">=18.0.0"
   },
   "engines": {
     "node": ">=20.0.0"

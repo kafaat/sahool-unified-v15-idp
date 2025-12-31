@@ -2,6 +2,9 @@
 Sahool Vision - Crop Health AI Service
 خدمة سهول فيجن - الذكاء الاصطناعي لصحة المحاصيل
 
+⚠️ DEPRECATED: This service is deprecated and will be removed in a future release.
+Please use 'crop-intelligence-service' instead.
+
 Architecture: Clean Service Layer Pattern
 - Routes (this file): HTTP endpoints only
 - Services: Business logic
@@ -22,7 +25,7 @@ from datetime import datetime
 from typing import Optional, List
 from pathlib import Path
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Query
+from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Request
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, "../../../../shared")
@@ -75,7 +78,7 @@ SERVICE_PORT = 8095
 
 app = FastAPI(
     title="سهول فيجن - Sahool Vision",
-    description="خدمة الذكاء الاصطناعي لتشخيص أمراض النباتات | AI-powered Plant Disease Diagnosis",
+    description="⚠️ DEPRECATED - Use crop-intelligence-service instead. خدمة الذكاء الاصطناعي لتشخيص أمراض النباتات | AI-powered Plant Disease Diagnosis",
     version=SERVICE_VERSION,
     docs_url="/docs",
     redoc_url="/redoc"
@@ -93,7 +96,28 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def startup_event():
     """Initialize services on startup"""
     logger.info(f"🚀 Starting {SERVICE_NAME} v{SERVICE_VERSION}")
+    logger.warning("=" * 80)
+    logger.warning("⚠️  DEPRECATION WARNING")
+    logger.warning("=" * 80)
+    logger.warning("This service (crop-health-ai) is DEPRECATED and will be removed in a future release.")
+    logger.warning("Please migrate to 'crop-intelligence-service' instead.")
+    logger.warning("Replacement service: crop-intelligence-service")
+    logger.warning("Deprecation date: 2025-01-01")
+    logger.warning("=" * 80)
     prediction_service.load_model()
+
+
+@app.middleware("http")
+async def add_deprecation_header(request: Request, call_next):
+    """Add deprecation headers to all responses"""
+    response = await call_next(request)
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Deprecation-Date"] = "2025-01-01"
+    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use crop-intelligence-service instead."
+    response.headers["X-API-Sunset"] = "2025-06-01"
+    response.headers["Link"] = '<http://crop-intelligence-service:8095>; rel="successor-version"'
+    response.headers["Deprecation"] = "true"
+    return response
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

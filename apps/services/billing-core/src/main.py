@@ -37,10 +37,6 @@ from .database import get_db, init_db, close_db, check_db_connection, db_health_
 from .repository import BillingRepository
 from . import models as db_models
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("sahool-billing")
-
 # Authentication imports
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
@@ -92,6 +88,9 @@ except ImportError:
             )
         return None
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("sahool-billing")
 
 # =============================================================================
 # NATS Configuration - تكوين الرسائل
@@ -509,6 +508,45 @@ class CreatePaymentRequest(BaseModel):
 # In-Memory Storage (Replace with PostgreSQL in production)
 # =============================================================================
 
+# TODO: MIGRATE TO POSTGRESQL
+# Current: PLANS, TENANTS, SUBSCRIPTIONS (partially), INVOICES, PAYMENTS, USAGE_RECORDS in-memory
+# Status: SUBSCRIPTIONS partially migrated to database, others still in-memory
+# Issues:
+#   - PLANS lost on restart (requires reconfiguration)
+#   - TENANTS lost on restart (critical - customer data)
+#   - INVOICES/PAYMENTS lost on restart (compliance issue - no audit trail)
+#   - USAGE_RECORDS lost on restart (billing accuracy issues)
+#   - Cannot scale horizontally (each pod has separate state)
+# Required:
+#   1. Complete database migration for:
+#      a) 'plans' table (already exists, populate from PLANS dict on startup)
+#      b) 'tenants' table:
+#         - tenant_id (UUID, PK)
+#         - name, name_ar (VARCHAR)
+#         - contact (JSONB)
+#         - settings (JSONB)
+#         - created_at, updated_at (TIMESTAMP)
+#      c) 'invoices' table (extend existing):
+#         - Add line_items (JSONB)
+#         - Add payment tracking
+#      d) 'payments' table:
+#         - payment_id (UUID, PK)
+#         - invoice_id (UUID, FK)
+#         - tenant_id (VARCHAR, indexed)
+#         - amount, currency
+#         - method, status
+#         - stripe_payment_id
+#         - processed_at (TIMESTAMP)
+#      e) 'usage_records' table:
+#         - id (UUID, PK)
+#         - tenant_id (VARCHAR, indexed)
+#         - metric (VARCHAR, indexed)
+#         - quantity (INTEGER)
+#         - timestamp (TIMESTAMP, indexed)
+#   2. Update BillingRepository to handle all entities
+#   3. Migrate initialization: Load PLANS from database on startup
+#   4. Add composite indexes: (tenant_id, timestamp) for usage analytics
+# Migration Priority: CRITICAL - Billing data must be persistent for compliance
 PLANS: Dict[str, Plan] = {}
 TENANTS: Dict[str, Tenant] = {}
 SUBSCRIPTIONS: Dict[str, Subscription] = {}
@@ -1578,9 +1616,18 @@ def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
     Verify Tharwatt webhook signature using HMAC-SHA256
     التحقق من توقيع ويب هوك ثروات
     """
+    # SECURITY: Webhook secret is mandatory - reject if not configured
     if not THARWATT_WEBHOOK_SECRET:
-        logger.warning("THARWATT_WEBHOOK_SECRET not configured - skipping signature verification")
-        return True  # Skip verification in dev only
+        logger.error(
+            "THARWATT_WEBHOOK_SECRET not configured - webhook signature verification failed. "
+            "Set THARWATT_WEBHOOK_SECRET environment variable to enable webhook processing."
+        )
+        return False
+
+    # Validate signature is present
+    if not signature:
+        logger.error("Tharwatt webhook signature missing in X-Tharwatt-Signature header")
+        return False
 
     try:
         expected_signature = hmac.new(
@@ -1590,9 +1637,18 @@ def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
         ).hexdigest()
 
         # Use constant-time comparison to prevent timing attacks
-        return hmac.compare_digest(signature.lower(), expected_signature.lower())
+        is_valid = hmac.compare_digest(signature.lower(), expected_signature.lower())
+
+        if not is_valid:
+            logger.error(
+                f"Tharwatt webhook signature verification failed. "
+                f"Received signature: {signature[:16]}... (truncated), "
+                f"Expected signature: {expected_signature[:16]}... (truncated)"
+            )
+
+        return is_valid
     except Exception as e:
-        logger.error(f"Tharwatt signature verification error: {e}")
+        logger.error(f"Tharwatt signature verification error: {e}", exc_info=True)
         return False
 
 
@@ -1705,15 +1761,31 @@ class StripeWebhookPayload(BaseModel):
 
 def verify_stripe_signature(payload: bytes, signature: str) -> bool:
     """Verify Stripe webhook signature"""
+    # SECURITY: Webhook secret is mandatory - reject if not configured
     if not STRIPE_WEBHOOK_SECRET:
-        return True  # Skip verification in dev
+        logger.error(
+            "STRIPE_WEBHOOK_SECRET not configured - webhook signature verification failed. "
+            "Set STRIPE_WEBHOOK_SECRET environment variable to enable webhook processing."
+        )
+        return False
+
+    # Validate signature is present
+    if not signature:
+        logger.error("Stripe webhook signature missing in stripe-signature header")
+        return False
 
     try:
         import stripe
         stripe.Webhook.construct_event(payload, signature, STRIPE_WEBHOOK_SECRET)
         return True
+    except stripe.error.SignatureVerificationError as e:
+        logger.error(
+            f"Stripe webhook signature verification failed: {e}. "
+            f"This may indicate an invalid webhook secret or a spoofed request."
+        )
+        return False
     except Exception as e:
-        logger.warning(f"Stripe signature verification failed: {e}")
+        logger.error(f"Stripe signature verification error: {e}", exc_info=True)
         return False
 
 

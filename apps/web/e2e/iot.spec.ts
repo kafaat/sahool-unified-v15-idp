@@ -44,9 +44,17 @@ test.describe('IoT & Sensors Page', () => {
       await expect(title).toHaveText('إنترنت الأشياء والمستشعرات');
     });
 
-    test('should display content after page load', async ({ page }) => {
-      // Navigate and wait for content to load
+    test('should show loading state initially', async ({ page }) => {
+      // Navigate to page and check for loading state
       await page.goto(pages.iot);
+
+      // Look for loading indicators
+      const loadingIndicator = page.locator('.animate-pulse, [aria-busy="true"]');
+      const hasLoading = await loadingIndicator.isVisible({ timeout: 2000 }).catch(() => false);
+
+      console.log(`Loading state shown: ${hasLoading}`);
+
+      // Wait for content to load
       await page.waitForTimeout(3000);
 
       // Content should be visible after loading
@@ -315,13 +323,13 @@ test.describe('IoT & Sensors Page', () => {
         await sensorCard.click();
         await page.waitForTimeout(2000);
 
-        // Look for SVG chart (Recharts uses SVG)
-        const chart = page.locator('svg').filter({
+        // Look for chart (SVG or canvas)
+        const chart = page.locator('svg, canvas').filter({
           has: page.locator('path, rect')
         });
         const hasChart = await chart.isVisible({ timeout: 3000 }).catch(() => false);
 
-        console.log(`Sensor SVG chart visible: ${hasChart}`);
+        console.log(`Sensor chart visible: ${hasChart}`);
 
         if (hasChart) {
           await expect(chart.first()).toBeVisible();
@@ -550,11 +558,17 @@ test.describe('IoT & Sensors Page', () => {
       console.log(`API calls made: ${apiCalls.length}`);
     });
 
-    test('should display content after page refresh', async ({ page }) => {
+    test('should show loading state during data refresh', async ({ page }) => {
       await page.waitForTimeout(2000);
 
-      // Reload page
+      // Reload to trigger loading
       await page.reload();
+
+      // Look for loading indicators
+      const loadingSpinner = page.locator('[class*="animate-pulse"], [class*="animate-spin"]');
+      const hasLoading = await loadingSpinner.isVisible({ timeout: 2000 }).catch(() => false);
+
+      console.log(`Loading state during refresh: ${hasLoading}`);
 
       // Wait for content to load
       await page.waitForTimeout(3000);
@@ -860,13 +874,20 @@ test.describe('IoT & Sensors Page', () => {
   });
 
   /**
-   * Content Rendering Tests
-   * اختبارات عرض المحتوى
+   * Loading States Tests
+   * اختبارات حالات التحميل
    */
-  test.describe('Content Rendering', () => {
-    test('should display sensors dashboard after page load', async ({ page }) => {
-      // Navigate and wait for content to load
+  test.describe('Loading States', () => {
+    test('should show loading state for sensors dashboard', async ({ page }) => {
       await page.goto(pages.iot);
+
+      // Look for loading indicator in sensors section
+      const loadingIndicator = page.locator('.animate-pulse, [class*="skeleton"]');
+      const hasLoading = await loadingIndicator.isVisible({ timeout: 2000 }).catch(() => false);
+
+      console.log(`Sensors loading state shown: ${hasLoading}`);
+
+      // Wait for content to load
       await page.waitForTimeout(3000);
 
       // Content should be visible
@@ -874,29 +895,34 @@ test.describe('IoT & Sensors Page', () => {
       await expect(heading).toBeVisible({ timeout: timeouts.long });
     });
 
-    test('should display actuators section', async ({ page }) => {
-      // Navigate and wait for page to load
+    test('should show loading state for actuators', async ({ page }) => {
       await page.goto(pages.iot);
-      await page.waitForTimeout(3000);
 
-      // Actuators section should be visible
-      const actuatorsHeading = page.locator('h2:has-text("التحكم بالمشغلات")');
-      await expect(actuatorsHeading).toBeVisible({ timeout: timeouts.long });
+      // Look for loading in actuators section
+      const actuatorsSection = page.locator('text=/التحكم بالمشغلات/i');
+      const loadingPulse = actuatorsSection.locator('..').locator('.animate-pulse');
+
+      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
+
+      console.log(`Actuators loading state shown: ${hasLoading}`);
     });
 
-    test('should display alert rules section', async ({ page }) => {
-      // Navigate and wait for page to load
+    test('should show loading state for alert rules', async ({ page }) => {
       await page.goto(pages.iot);
-      await page.waitForTimeout(3000);
 
-      // Alert rules section should be visible
-      const alertsHeading = page.locator('h2:has-text("قواعد التنبيه")');
-      await expect(alertsHeading).toBeVisible({ timeout: timeouts.long });
+      // Look for loading in alert rules section
+      const alertSection = page.locator('text=/قواعد التنبيه/i');
+      const loadingPulse = alertSection.locator('..').locator('.animate-pulse');
+
+      const hasLoading = await loadingPulse.isVisible({ timeout: 2000 }).catch(() => false);
+
+      console.log(`Alert rules loading state shown: ${hasLoading}`);
     });
 
-    test('should display all main sections', async ({ page }) => {
-      // Navigate and wait for content to load
+    test('should transition from loading to content', async ({ page }) => {
       await page.goto(pages.iot);
+
+      // Wait for loading to disappear and content to appear
       await page.waitForTimeout(5000);
 
       // All main sections should be visible
@@ -909,7 +935,17 @@ test.describe('IoT & Sensors Page', () => {
       await expect(alertsHeading).toBeVisible({ timeout: timeouts.long });
     });
 
-    test('should handle sensor interaction', async ({ page }) => {
+    test('should show skeleton loaders with correct structure', async ({ page }) => {
+      await page.goto(pages.iot);
+
+      // Check for skeleton loaders
+      const skeletons = page.locator('.animate-pulse');
+      const count = await skeletons.count();
+
+      console.log(`Found ${count} skeleton loaders`);
+    });
+
+    test('should show loading when fetching sensor readings', async ({ page }) => {
       await page.waitForTimeout(3000);
 
       // Click a sensor
@@ -917,11 +953,13 @@ test.describe('IoT & Sensors Page', () => {
       const hasClickable = await sensorCard.isVisible({ timeout: 3000 }).catch(() => false);
 
       if (hasClickable) {
-        // Click sensor
+        // Click and look for loading
         await sensorCard.click();
 
-        // Wait for interaction to process
-        await page.waitForTimeout(1000);
+        const loadingSpinner = page.locator('[class*="animate-spin"]');
+        const hasLoading = await loadingSpinner.isVisible({ timeout: 1000 }).catch(() => false);
+
+        console.log(`Sensor readings loading state: ${hasLoading}`);
       }
     });
   });

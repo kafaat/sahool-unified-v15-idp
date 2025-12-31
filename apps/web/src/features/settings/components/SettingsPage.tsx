@@ -238,7 +238,7 @@ const SecurityTab: React.FC = () => {
       });
       alert('تم تحديث كلمة المرور بنجاح');
       setPasswords({ current: '', new: '', confirm: '' });
-    } catch (_err) {
+    } catch (err) {
       alert('حدث خطأ أثناء تحديث كلمة المرور');
     }
   };

@@ -83,24 +83,29 @@ describe('ErrorBoundary', () => {
   });
 
   it('allows retry after error', () => {
-    const { rerender } = render(
+    // Use a controlled component that can change behavior
+    let shouldThrow = true;
+    const ControlledThrow = () => {
+      if (shouldThrow) {
+        throw new Error('Test error');
+      }
+      return <div>Normal content</div>;
+    };
+
+    render(
       <ErrorBoundary>
-        <ThrowError shouldThrow={true} />
+        <ControlledThrow />
       </ErrorBoundary>
     );
 
     // Error state
     expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
 
-    // Click retry button
-    fireEvent.click(screen.getByText('إعادة المحاولة'));
+    // Change the throwing behavior before retry
+    shouldThrow = false;
 
-    // Re-render with no error
-    rerender(
-      <ErrorBoundary>
-        <ThrowError shouldThrow={false} />
-      </ErrorBoundary>
-    );
+    // Click retry button - this will re-render children which now won't throw
+    fireEvent.click(screen.getByText('إعادة المحاولة'));
 
     expect(screen.getByText('Normal content')).toBeInTheDocument();
   });

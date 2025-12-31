@@ -14,9 +14,6 @@ import {
  * Used to determine what data needs to be synced on reconnection
  */
 @Entity("sync_status")
-@Index("idx_sync_user_tenant", ["userId", "tenantId"])
-@Index("idx_sync_device_tenant", ["deviceId", "tenantId"])
-@Index("idx_sync_tenant_updated", ["tenantId", "updatedAt"])
 export class SyncStatus {
 
     @PrimaryGeneratedColumn("uuid")
@@ -99,7 +96,6 @@ export class SyncStatus {
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;
 
-    @Index("idx_sync_updated_at")
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
 }

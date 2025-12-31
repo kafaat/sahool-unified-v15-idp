@@ -185,12 +185,10 @@ describe('SahoolApiClient', () => {
       );
     });
 
-    it('should return empty array on error', async () => {
+    it('should throw error by default', async () => {
       mockAxiosInstance.request.mockRejectedValue(new Error('Network error'));
 
-      const tasks = await client.getTasks();
-
-      expect(tasks).toEqual([]);
+      await expect(client.getTasks()).rejects.toThrow();
     });
 
     it('should get single task by ID', async () => {
@@ -282,22 +280,58 @@ describe('SahoolApiClient', () => {
   });
 
   describe('Error Handling', () => {
-    it('should handle network errors gracefully', async () => {
+    it('should handle network errors gracefully in silent mode', async () => {
+      const client = new SahoolApiClient({
+        baseUrl: 'http://localhost',
+        errorHandling: 'silent',
+      });
+
       mockAxiosInstance.request.mockRejectedValue(
         new Error('Network Error')
       );
 
-      // getTasks should return empty array on error
+      // getTasks should return empty array on error in silent mode
       const tasks = await client.getTasks();
       expect(tasks).toEqual([]);
     });
 
-    it('should handle timeout errors', async () => {
+    it('should throw errors in throw mode', async () => {
+      const client = new SahoolApiClient({
+        baseUrl: 'http://localhost',
+        errorHandling: 'throw',
+      });
+
+      mockAxiosInstance.request.mockRejectedValue(
+        new Error('Network Error')
+      );
+
+      // getTasks should throw error in throw mode
+      await expect(client.getTasks()).rejects.toThrow();
+    });
+
+    it('should handle timeout errors in silent mode', async () => {
+      const client = new SahoolApiClient({
+        baseUrl: 'http://localhost',
+        errorHandling: 'silent',
+      });
+
       const timeoutError = new Error('timeout of 30000ms exceeded');
       mockAxiosInstance.request.mockRejectedValue(timeoutError);
 
       const tasks = await client.getTasks();
       expect(tasks).toEqual([]);
+    });
+
+    it('should default to throw mode', async () => {
+      const client = new SahoolApiClient({
+        baseUrl: 'http://localhost',
+      });
+
+      mockAxiosInstance.request.mockRejectedValue(
+        new Error('Network Error')
+      );
+
+      await expect(client.getTasks()).rejects.toThrow();
     });
   });
 });
@@ -324,6 +358,40 @@ describe('API Client Configuration', () => {
     });
 
     // Client should be created successfully
+    expect(client).toBeDefined();
+  });
+
+  it('should support custom error handling mode', () => {
+    const client = new SahoolApiClient({
+      baseUrl: 'http://localhost',
+      errorHandling: 'silent',
+    });
+
+    expect(client).toBeDefined();
+  });
+
+  it('should support custom log level', () => {
+    const client = new SahoolApiClient({
+      baseUrl: 'http://localhost',
+      logLevel: 'debug',
+    });
+
+    expect(client).toBeDefined();
+  });
+
+  it('should support custom logger', () => {
+    const customLogger = {
+      error: vi.fn(),
+      warn: vi.fn(),
+      info: vi.fn(),
+      debug: vi.fn(),
+    };
+
+    const client = new SahoolApiClient({
+      baseUrl: 'http://localhost',
+      logger: customLogger,
+    });
+
     expect(client).toBeDefined();
   });
 });

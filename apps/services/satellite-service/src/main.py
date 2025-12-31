@@ -2,6 +2,9 @@
 SAHOOL Satellite Service v15.6
 خدمة الأقمار الصناعية - Sentinel-2, Landsat, MODIS Integration
 
+⚠️ DEPRECATED: This service is deprecated and will be removed in a future release.
+Please use 'vegetation-analysis-service' instead.
+
 Multi-Provider Support:
 - Sentinel Hub (ESA Copernicus) - Free tier available
 - Copernicus STAC - Free, no auth required for search
@@ -14,8 +17,9 @@ Field-First Architecture:
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from datetime import datetime, date, timedelta
@@ -28,6 +32,10 @@ import logging
 import io
 
 logger = logging.getLogger(__name__)
+
+# Add shared middleware to path
+shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+sys.path.insert(0, shared_path)
 
 # Multi-provider service
 USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
@@ -213,6 +221,16 @@ async def lifespan(app: FastAPI):
 
     print("🛰️ Starting Satellite Service...")
 
+    # Deprecation warning
+    print("=" * 80)
+    print("⚠️  DEPRECATION WARNING")
+    print("=" * 80)
+    print("This service (satellite-service) is DEPRECATED and will be removed in a future release.")
+    print("Please migrate to 'vegetation-analysis-service' instead.")
+    print("Replacement service: vegetation-analysis-service")
+    print("Deprecation date: 2025-01-01")
+    print("=" * 80)
+
     # Initialize multi-provider service
     if USE_MULTI_PROVIDER and MultiSatelliteService:
         _multi_provider = MultiSatelliteService()
@@ -278,9 +296,33 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Satellite Service | خدمة الأقمار الصناعية",
     version="15.8.0",
-    description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.",
+    description="⚠️ DEPRECATED - Use vegetation-analysis-service instead. Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.",
     lifespan=lifespan,
 )
+
+# Setup rate limiting middleware
+try:
+    from middleware.rate_limiter import setup_rate_limiting
+    setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
+    logger.info("Rate limiting enabled")
+except ImportError as e:
+    logger.warning(f"Rate limiting not available: {e}")
+except Exception as e:
+    logger.warning(f"Failed to setup rate limiting: {e}")
+
+
+@app.middleware("http")
+async def add_deprecation_header(request: Request, call_next):
+    """Add deprecation headers to all responses"""
+    response = await call_next(request)
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Deprecation-Date"] = "2025-01-01"
+    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use vegetation-analysis-service instead."
+    response.headers["X-API-Sunset"] = "2025-06-01"
+    response.headers["Link"] = '<http://vegetation-analysis-service:8090>; rel="successor-version"'
+    response.headers["Deprecation"] = "true"
+    return response
+
 
 # Register weather endpoints
 from .weather_endpoints import register_weather_endpoints

@@ -197,54 +197,10 @@ WS_URL=ws://10.0.2.2:8081
 ENABLE_OFFLINE_MODE=true
 ENABLE_BACKGROUND_SYNC=true
 
-# Security
-ENABLE_SSL_PINNING=true  # تفعيل تثبيت الشهادات (Production only)
-
 # Timeouts
 CONNECT_TIMEOUT_SECONDS=10
 RECEIVE_TIMEOUT_SECONDS=30
 ```
-
-### SSL Certificate Pinning (تثبيت الشهادات)
-
-SSL Certificate Pinning يحمي من هجمات Man-in-the-Middle (MITM) بالتأكد من صحة شهادة الخادم.
-
-#### التفعيل/التعطيل
-
-```bash
-# تفعيل في Production (افتراضياً في Release mode)
-flutter build apk --release --dart-define=ENABLE_SSL_PINNING=true
-
-# تعطيل في Development (افتراضياً في Debug mode)
-flutter run --dart-define=ENABLE_SSL_PINNING=false
-```
-
-#### الحصول على Certificate Hash
-
-```bash
-# طريقة 1: Certificate Hash
-openssl s_client -connect api.sahool.com:443 -servername api.sahool.com < /dev/null | \
-  openssl x509 -outform DER | openssl dgst -sha256 -binary | openssl enc -base64
-
-# طريقة 2: Public Key Hash (موصى بها)
-echo | openssl s_client -connect api.sahool.com:443 2>/dev/null | \
-  openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | \
-  openssl dgst -sha256 -binary | base64
-```
-
-#### تحديث الشهادات
-
-1. افتح ملف `/apps/mobile/lib/core/http/api_client.dart`
-2. حدّث قائمة `_pinnedCertificates` بالـ hashes الفعلية
-3. احتفظ دائماً بـ 2-3 backup hashes لتجنب انقطاع الخدمة
-4. اختبر التحديثات في Staging قبل Production
-
-#### ملاحظات أمنية
-
-- يتم تفعيل Certificate Pinning تلقائياً في Release mode
-- يتم تعطيله في Debug mode للتطوير
-- استخدم Public Key Hash بدلاً من Certificate Hash للمرونة في التجديد
-- حدّث Backup Hashes قبل 30 يوماً من انتهاء الشهادة
 
 ### معالجة الأخطاء | Error Handling
 

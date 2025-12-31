@@ -18,20 +18,10 @@ from .agents import (
     DiseaseExpertAgent,
     IrrigationAdvisorAgent,
     YieldPredictorAgent,
-    EcologicalExpertAgent,
 )
 from .tools import CropHealthTool, WeatherTool, SatelliteTool, AgroTool
 from .orchestration import Supervisor
 from .rag import EmbeddingsManager, KnowledgeRetriever
-from multi_agent.orchestration import MasterAdvisor, CouncilManager
-from multi_agent.orchestration.master_advisor import AgentRegistry, ContextStore
-from multi_agent.infrastructure import (
-    AgentNATSBridge,
-    SharedContextStore,
-    AgentRegistryClient
-)
-from multi_agent.monitoring import PerformanceMonitor
-from multi_agent.api import router as multi_agent_router, initialize_multi_agent_api
 
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import sys
@@ -42,6 +32,15 @@ try:
 except ImportError:
     # Fallback: define secure origins locally if shared module not available
     setup_cors_middleware = None
+
+# Import A2A Protocol Support | استيراد دعم بروتوكول A2A
+try:
+    from a2a.server import create_a2a_router
+    from .a2a_adapter import create_ai_advisor_a2a_agent
+    A2A_AVAILABLE = True
+except ImportError:
+    A2A_AVAILABLE = False
+    logger.warning("A2A protocol support not available")
 
 # Configure structured logging | تكوين السجلات المنظمة
 structlog.configure(
@@ -56,15 +55,6 @@ structlog.configure(
 )
 
 logger = structlog.get_logger()
-
-# Import A2A Protocol Support | استيراد دعم بروتوكول A2A
-try:
-    from a2a.server import create_a2a_router
-    from .a2a_adapter import create_ai_advisor_a2a_agent
-    A2A_AVAILABLE = True
-except ImportError:
-    A2A_AVAILABLE = False
-    logger.warning("A2A protocol support not available")
 
 
 # Pydantic models for requests/responses
@@ -109,79 +99,8 @@ class AgentResponse(BaseModel):
     error: Optional[str] = None
 
 
-class EcologicalAssessmentRequest(BaseModel):
-    """Ecological assessment request | طلب تقييم إيكولوجي"""
-    farm_id: str = Field(..., description="Farm identifier")
-    farm_data: Dict[str, Any] = Field(..., description="Farm location, size, crops")
-    current_practices: Dict[str, Any] = Field(..., description="Current farming practices")
-
-
-class EcologicalTransitionRequest(BaseModel):
-    """Ecological transition plan request | طلب خطة التحول الإيكولوجي"""
-    farm_id: str = Field(..., description="Farm identifier")
-    current_practices: Dict[str, Any] = Field(..., description="Current farming methods")
-    target_practices: List[str] = Field(..., description="Target ecological practices")
-    constraints: Optional[Dict[str, Any]] = Field(default=None, description="Budget, time, labor constraints")
-
-
-class EcologicalPracticesRequest(BaseModel):
-    """Ecological practices recommendation request | طلب توصية بالممارسات الإيكولوجية"""
-    crop_type: str = Field(..., description="Type of crop")
-    soil_type: str = Field(..., description="Soil characteristics")
-    climate: str = Field(..., description="Climate conditions")
-    goals: List[str] = Field(..., description="Farmer's goals (yield, quality, certification)")
-
-
-class PitfallDiagnosisRequest(BaseModel):
-    """Pitfall diagnosis request | طلب تشخيص المزالق"""
-    farm_id: str = Field(..., description="Farm identifier")
-    observed_issues: List[str] = Field(..., description="Observed problems")
-    current_practices: Dict[str, Any] = Field(..., description="Current farming practices")
-
-
-class CompanionPlantingRequest(BaseModel):
-    """Companion planting request | طلب الزراعة التصاحبية"""
-    main_crop: str = Field(..., description="Primary crop to grow")
-    field_size: float = Field(..., description="Field size in dunums")
-    existing_plants: Optional[List[str]] = Field(default=None, description="Already planted species")
-
-
 # Global instances | المثيلات العامة
 app_state = {}
-
-
-async def register_all_agents(registry: AgentRegistryClient):
-    """
-    Register all specialized agents with the registry
-    تسجيل جميع الوكلاء المتخصصين في السجل
-    """
-    from multi_agent.core.types import AgentCard, AgentCapability
-
-    # Get agents from app_state
-    agents = app_state.get("agents", {})
-
-    # Define agent capabilities mapping
-    agent_capabilities = {
-        "disease_expert": [AgentCapability.DIAGNOSIS, AgentCapability.PEST_MANAGEMENT],
-        "irrigation_advisor": [AgentCapability.IRRIGATION, AgentCapability.WATER_MANAGEMENT],
-        "field_analyst": [AgentCapability.FIELD_ANALYSIS, AgentCapability.SOIL_ANALYSIS],
-        "yield_predictor": [AgentCapability.YIELD_PREDICTION, AgentCapability.FORECASTING],
-        "ecological_expert": [AgentCapability.ECOLOGICAL_ASSESSMENT, AgentCapability.SUSTAINABILITY],
-    }
-
-    # Register each agent
-    for agent_id, capabilities in agent_capabilities.items():
-        if agent_id in agents:
-            agent_card = AgentCard(
-                agent_id=agent_id,
-                name=agent_id.replace("_", " ").title(),
-                description=f"Specialized agent for {agent_id.replace('_', ' ')}",
-                capabilities=capabilities,
-                status="active",
-                metadata={"service": "ai-advisor"}
-            )
-            await registry.register_agent(agent_card)
-            logger.info("agent_registered", agent_id=agent_id, capabilities=capabilities)
 
 
 @asynccontextmanager
@@ -225,18 +144,12 @@ async def lifespan(app: FastAPI):
             retriever=knowledge_retriever
         )
 
-        ecological_expert = EcologicalExpertAgent(
-            tools=[],
-            retriever=knowledge_retriever
-        )
-
         # Initialize supervisor | تهيئة المشرف
         agents = {
             "field_analyst": field_analyst,
             "disease_expert": disease_expert,
             "irrigation_advisor": irrigation_advisor,
             "yield_predictor": yield_predictor,
-            "ecological_expert": ecological_expert,
         }
 
         supervisor = Supervisor(agents=agents)
@@ -252,105 +165,6 @@ async def lifespan(app: FastAPI):
         }
         app_state["agents"] = agents
         app_state["supervisor"] = supervisor
-
-        # Initialize multi-agent infrastructure | تهيئة البنية التحتية متعددة الوكلاء
-        try:
-            logger.info("initializing_multi_agent_infrastructure")
-
-            # Initialize NATS bridge
-            nats_bridge = AgentNATSBridge(
-                agent_id="master-advisor",
-                nats_url=settings.nats_url
-            )
-            await nats_bridge.connect()
-            logger.info("nats_bridge_connected")
-
-            # Initialize shared context store (for infrastructure)
-            shared_context_store = SharedContextStore(
-                redis_url=settings.redis_url
-            )
-            logger.info("shared_context_store_initialized")
-
-            # Initialize context store (for master advisor)
-            context_store = ContextStore()
-            logger.info("context_store_initialized")
-
-            # Initialize agent registry client
-            registry_client = AgentRegistryClient(
-                redis_url=settings.redis_url
-            )
-            await registry_client.connect()
-            logger.info("registry_client_connected")
-
-            # Initialize Agent Registry for multi-agent API
-            agent_registry = AgentRegistry()
-            logger.info("agent_registry_initialized")
-
-            # Register agents with the agent registry
-            from multi_agent.orchestration.master_advisor import QueryType
-            for agent_id, agent in agents.items():
-                # Map agent IDs to their capabilities
-                capabilities_map = {
-                    "disease_expert": [QueryType.DIAGNOSIS, QueryType.TREATMENT, QueryType.PEST_MANAGEMENT],
-                    "irrigation_advisor": [QueryType.IRRIGATION, QueryType.FERTILIZATION],
-                    "field_analyst": [QueryType.FIELD_ANALYSIS, QueryType.GENERAL_ADVISORY],
-                    "yield_predictor": [QueryType.YIELD_PREDICTION, QueryType.HARVEST_PLANNING],
-                    "ecological_expert": [QueryType.ECOLOGICAL_TRANSITION, QueryType.GENERAL_ADVISORY],
-                }
-                agent_registry.register_agent(
-                    name=agent_id,
-                    agent=agent,
-                    capabilities=capabilities_map.get(agent_id, [QueryType.GENERAL_ADVISORY])
-                )
-            logger.info("agents_registered_with_agent_registry")
-
-            # Initialize Council Manager
-            council_manager = CouncilManager()
-            logger.info("council_manager_initialized")
-
-            # Initialize Master Advisor
-            master_advisor = MasterAdvisor(
-                agent_registry=agent_registry,
-                context_store=context_store,
-                nats_bridge=nats_bridge,
-                anthropic_api_key=settings.anthropic_api_key
-            )
-            logger.info("master_advisor_initialized")
-
-            # Initialize multi-agent API routes
-            initialize_multi_agent_api(
-                master_advisor=master_advisor,
-                agent_registry=agent_registry,
-                council_manager=council_manager,
-                context_store=context_store
-            )
-            logger.info("multi_agent_api_initialized")
-
-            # Register all agents with registry client
-            await register_all_agents(registry_client)
-            logger.info("all_agents_registered")
-
-            # Store in app state
-            app_state["master_advisor"] = master_advisor
-            app_state["agent_registry"] = agent_registry
-            app_state["council_manager"] = council_manager
-            app_state["nats_bridge"] = nats_bridge
-            app_state["context_store"] = context_store
-            app_state["shared_context_store"] = shared_context_store
-            app_state["registry_client"] = registry_client
-
-            logger.info("multi_agent_infrastructure_initialized_successfully")
-
-        except Exception as e:
-            logger.error("multi_agent_infrastructure_initialization_failed", error=str(e))
-            # Continue without multi-agent system if it fails
-            app_state["master_advisor"] = None
-            app_state["agent_registry"] = None
-            app_state["council_manager"] = None
-            app_state["nats_bridge"] = None
-            app_state["context_store"] = None
-            app_state["shared_context_store"] = None
-            app_state["registry_client"] = None
 
         # Initialize A2A agent if available | تهيئة وكيل A2A إذا كان متاحاً
         if A2A_AVAILABLE:
@@ -376,22 +190,6 @@ async def lifespan(app: FastAPI):
 
     # Shutdown | الإغلاق
     logger.info("ai_advisor_service_shutting_down")
-
-    # Cleanup multi-agent infrastructure | تنظيف البنية التحتية متعددة الوكلاء
-    try:
-        nats_bridge = app_state.get("nats_bridge")
-        if nats_bridge:
-            await nats_bridge.disconnect()
-            logger.info("nats_bridge_disconnected")
-
-        registry_client = app_state.get("registry_client")
-        if registry_client:
-            await registry_client.disconnect()
-            logger.info("registry_client_disconnected")
-
-    except Exception as e:
-        logger.error("multi_agent_cleanup_failed", error=str(e))
-
     app_state.clear()
 
 
@@ -424,10 +222,6 @@ else:
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Accept", "Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
     )
-
-# Include multi-agent router | تضمين موجه متعدد الوكلاء
-app.include_router(multi_agent_router, prefix="/api", tags=["Multi-Agent"])
-logger.info("multi_agent_router_included")
 
 # Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
 if A2A_AVAILABLE:
@@ -765,210 +559,6 @@ async def get_rag_info():
 
     except Exception as e:
         logger.error("get_rag_info_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Ecological Agriculture Endpoints
-# نقاط نهاية الزراعة الإيكولوجية
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-@app.post("/v1/advisor/ecological/assess", response_model=AgentResponse, tags=["Ecological"])
-async def ecological_assessment(request: EcologicalAssessmentRequest):
-    """
-    Assess farm ecological sustainability
-    تقييم الاستدامة الإيكولوجية للمزرعة
-
-    Uses ecological expert agent for comprehensive farm assessment.
-    يستخدم وكيل خبير الزراعة الإيكولوجية للتقييم الشامل للمزرعة.
-    """
-    try:
-        agents = app_state.get("agents")
-        if not agents:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
-            )
-
-        ecological_expert = agents["ecological_expert"]
-
-        result = await ecological_expert.assess_farm_ecology(
-            farm_data=request.farm_data,
-            current_practices=request.current_practices,
-        )
-
-        return AgentResponse(
-            status="success",
-            data={
-                "farm_id": request.farm_id,
-                "assessment": result,
-            }
-        )
-
-    except Exception as e:
-        logger.error("ecological_assessment_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-
-@app.post("/v1/advisor/ecological/transition", response_model=AgentResponse, tags=["Ecological"])
-async def plan_ecological_transition(request: EcologicalTransitionRequest):
-    """
-    Plan ecological transition for a farm
-    تخطيط التحول الإيكولوجي للمزرعة
-
-    Creates a phased transition plan from conventional to ecological farming.
-    ينشئ خطة تحول مرحلية من الزراعة التقليدية إلى الإيكولوجية.
-    """
-    try:
-        agents = app_state.get("agents")
-        if not agents:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
-            )
-
-        ecological_expert = agents["ecological_expert"]
-
-        result = await ecological_expert.plan_transition(
-            current_practices=request.current_practices,
-            target_practices=request.target_practices,
-            constraints=request.constraints,
-        )
-
-        return AgentResponse(
-            status="success",
-            data={
-                "farm_id": request.farm_id,
-                "transition_plan": result,
-            }
-        )
-
-    except Exception as e:
-        logger.error("plan_ecological_transition_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-
-@app.post("/v1/advisor/ecological/practices", response_model=AgentResponse, tags=["Ecological"])
-async def recommend_ecological_practices(request: EcologicalPracticesRequest):
-    """
-    Recommend ecological practices for specific conditions
-    التوصية بالممارسات الإيكولوجية لظروف محددة
-
-    Provides tailored recommendations based on crop, soil, climate, and goals.
-    يقدم توصيات مخصصة بناءً على المحصول والتربة والمناخ والأهداف.
-    """
-    try:
-        agents = app_state.get("agents")
-        if not agents:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
-            )
-
-        ecological_expert = agents["ecological_expert"]
-
-        result = await ecological_expert.recommend_practices(
-            crop_type=request.crop_type,
-            soil_type=request.soil_type,
-            climate=request.climate,
-            goals=request.goals,
-        )
-
-        return AgentResponse(
-            status="success",
-            data=result
-        )
-
-    except Exception as e:
-        logger.error("recommend_ecological_practices_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-
-@app.post("/v1/advisor/ecological/pitfalls", response_model=AgentResponse, tags=["Ecological"])
-async def diagnose_agricultural_pitfalls(request: PitfallDiagnosisRequest):
-    """
-    Diagnose agricultural pitfalls
-    تشخيص المزالق الزراعية
-
-    Identifies common farming mistakes and provides remediation strategies.
-    يحدد الأخطاء الزراعية الشائعة ويقدم استراتيجيات العلاج.
-    """
-    try:
-        agents = app_state.get("agents")
-        if not agents:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
-            )
-
-        ecological_expert = agents["ecological_expert"]
-
-        result = await ecological_expert.diagnose_pitfalls(
-            observed_issues=request.observed_issues,
-            current_practices=request.current_practices,
-        )
-
-        return AgentResponse(
-            status="success",
-            data={
-                "farm_id": request.farm_id,
-                "diagnosis": result,
-            }
-        )
-
-    except Exception as e:
-        logger.error("diagnose_agricultural_pitfalls_failed", error=str(e))
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
-
-
-@app.post("/v1/advisor/ecological/companion-planting", response_model=AgentResponse, tags=["Ecological"])
-async def design_companion_planting(request: CompanionPlantingRequest):
-    """
-    Design companion planting layout
-    تصميم تخطيط الزراعة التصاحبية
-
-    Creates an optimal companion planting design for pest control and yield improvement.
-    ينشئ تصميم زراعة تصاحبية مثالي لمكافحة الآفات وتحسين المحصول.
-    """
-    try:
-        agents = app_state.get("agents")
-        if not agents:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
-            )
-
-        ecological_expert = agents["ecological_expert"]
-
-        result = await ecological_expert.companion_planting_design(
-            main_crop=request.main_crop,
-            field_size=request.field_size,
-            existing_plants=request.existing_plants,
-        )
-
-        return AgentResponse(
-            status="success",
-            data=result
-        )
-
-    except Exception as e:
-        logger.error("design_companion_planting_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)

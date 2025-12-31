@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { PrismaService } from './config/prisma.service';
 import { SignatureService } from './core/services/signature.service';
 import { ScientificLockGuard } from './core/guards/scientific-lock.guard';
@@ -18,6 +20,24 @@ import { HealthController } from './health.controller';
       isGlobal: true,
       envFilePath: ['.env', '../.env'],
     }),
+    // Rate limiting configuration
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000, // 1 second
+        limit: 10, // 10 requests per second
+      },
+      {
+        name: 'medium',
+        ttl: 60000, // 1 minute
+        limit: 100, // 100 requests per minute
+      },
+      {
+        name: 'long',
+        ttl: 3600000, // 1 hour
+        limit: 1000, // 1000 requests per hour
+      },
+    ]),
     ExperimentsModule,
     ProtocolsModule,
     PlotsModule,
@@ -27,7 +47,16 @@ import { HealthController } from './health.controller';
     SignaturesModule,
   ],
   controllers: [HealthController],
-  providers: [PrismaService, SignatureService, ScientificLockGuard],
+  providers: [
+    PrismaService,
+    SignatureService,
+    ScientificLockGuard,
+    // Global rate limiting guard
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
   exports: [PrismaService, SignatureService, ScientificLockGuard],
 })
 export class AppModule {}

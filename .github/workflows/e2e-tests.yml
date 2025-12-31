@@ -38,9 +38,6 @@ jobs:
         run: npm ci --legacy-peer-deps
         continue-on-error: false
 
-      - name: Build packages
-        run: npm run build:packages
-
       - name: Install Playwright Browsers
         working-directory: apps/web
         run: npx playwright install --with-deps chromium

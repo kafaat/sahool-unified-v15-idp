@@ -1,0 +1,367 @@
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
+import 'package:crypto/crypto.dart';
+import 'dart:convert';
+
+/// SSL Certificate Pinning Service
+/// خدمة تثبيت شهادات SSL
+///
+/// Implements certificate pinning for enhanced security:
+/// - SHA256 fingerprint pinning
+/// - Public key pinning
+/// - Support for multiple pins (rotation)
+/// - Pin expiry tracking
+/// - Debug mode bypass
+/// - Fallback mechanism
+class CertificatePinningService {
+  /// Certificate pin configuration
+  final Map<String, List<CertificatePin>> _certificatePins;
+
+  /// Whether to allow bypass in debug mode
+  final bool allowDebugBypass;
+
+  /// Whether to enforce pinning (fail if no pins match)
+  final bool enforceStrict;
+
+  CertificatePinningService({
+    Map<String, List<CertificatePin>>? certificatePins,
+    this.allowDebugBypass = true,
+    this.enforceStrict = true,
+  }) : _certificatePins = certificatePins ?? _getDefaultPins();
+
+  /// Get default certificate pins for SAHOOL domains
+  static Map<String, List<CertificatePin>> _getDefaultPins() {
+    return {
+      // Production API domain
+      'api.sahool.app': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: 'REPLACE_WITH_ACTUAL_SHA256_FINGERPRINT_1',
+          expiryDate: DateTime(2026, 12, 31),
+        ),
+        // Backup pin for rotation
+        CertificatePin(
+          type: PinType.sha256,
+          value: 'REPLACE_WITH_ACTUAL_SHA256_FINGERPRINT_2',
+          expiryDate: DateTime(2027, 6, 30),
+        ),
+      ],
+      // Production domains wildcard
+      '*.sahool.io': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: 'REPLACE_WITH_ACTUAL_SHA256_FINGERPRINT_3',
+          expiryDate: DateTime(2026, 12, 31),
+        ),
+      ],
+      // Staging API domain
+      'api-staging.sahool.app': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: 'REPLACE_WITH_ACTUAL_STAGING_SHA256_FINGERPRINT',
+          expiryDate: DateTime(2026, 12, 31),
+        ),
+      ],
+    };
+  }
+
+  /// Configure Dio with certificate pinning
+  void configureDio(Dio dio) {
+    // In debug mode, optionally bypass pinning for development
+    if (kDebugMode && allowDebugBypass) {
+      if (kDebugMode) {
+        print('⚠️ Certificate pinning bypassed in debug mode');
+      }
+      return;
+    }
+
+    // Configure HttpClientAdapter with certificate validation
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final client = HttpClient();
+
+      // Set security context and certificate validation
+      client.badCertificateCallback = (cert, host, port) {
+        return _validateCertificate(cert, host);
+      };
+
+      return client;
+    };
+  }
+
+  /// Validate certificate against pins
+  bool _validateCertificate(X509Certificate cert, String host) {
+    try {
+      // Get pins for this host
+      final pins = _getPinsForHost(host);
+
+      if (pins.isEmpty) {
+        if (enforceStrict) {
+          if (kDebugMode) {
+            print('❌ No certificate pins configured for host: $host');
+          }
+          return false;
+        }
+        // If not enforcing strict mode, allow connection if no pins configured
+        return true;
+      }
+
+      // Check if any pin matches and is not expired
+      for (final pin in pins) {
+        if (pin.isExpired) {
+          if (kDebugMode) {
+            print('⚠️ Pin expired for host: $host');
+          }
+          continue;
+        }
+
+        if (_matchPin(cert, pin)) {
+          if (kDebugMode) {
+            print('✅ Certificate pin matched for host: $host');
+          }
+          return true;
+        }
+      }
+
+      if (kDebugMode) {
+        print('❌ Certificate validation failed for host: $host');
+        print('   Certificate fingerprint: ${_getCertificateFingerprint(cert)}');
+      }
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error validating certificate: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Get pins for a specific host (supports wildcards)
+  List<CertificatePin> _getPinsForHost(String host) {
+    final pins = <CertificatePin>[];
+
+    // Exact match
+    if (_certificatePins.containsKey(host)) {
+      pins.addAll(_certificatePins[host]!);
+    }
+
+    // Wildcard match (*.domain.com)
+    for (final entry in _certificatePins.entries) {
+      if (entry.key.startsWith('*.')) {
+        final domain = entry.key.substring(2); // Remove *.
+        if (host.endsWith(domain)) {
+          pins.addAll(entry.value);
+        }
+      }
+    }
+
+    return pins;
+  }
+
+  /// Match certificate against a pin
+  bool _matchPin(X509Certificate cert, CertificatePin pin) {
+    switch (pin.type) {
+      case PinType.sha256:
+        return _matchSha256(cert, pin.value);
+      case PinType.publicKey:
+        return _matchPublicKey(cert, pin.value);
+    }
+  }
+
+  /// Match SHA256 fingerprint
+  bool _matchSha256(X509Certificate cert, String expectedFingerprint) {
+    final actualFingerprint = _getCertificateFingerprint(cert);
+    return actualFingerprint.toLowerCase() == expectedFingerprint.toLowerCase();
+  }
+
+  /// Match public key
+  bool _matchPublicKey(X509Certificate cert, String expectedPublicKey) {
+    // Extract public key from certificate DER
+    final publicKeyBytes = cert.der;
+    final publicKeyHash = sha256.convert(publicKeyBytes);
+    final publicKeyFingerprint = publicKeyHash.toString();
+
+    return publicKeyFingerprint.toLowerCase() == expectedPublicKey.toLowerCase();
+  }
+
+  /// Get certificate SHA256 fingerprint
+  String _getCertificateFingerprint(X509Certificate cert) {
+    final certBytes = cert.der;
+    final digest = sha256.convert(certBytes);
+    return digest.toString();
+  }
+
+  /// Add or update pins for a domain
+  void addPins(String domain, List<CertificatePin> pins) {
+    _certificatePins[domain] = pins;
+  }
+
+  /// Remove pins for a domain
+  void removePins(String domain) {
+    _certificatePins.remove(domain);
+  }
+
+  /// Get all configured domains
+  List<String> getConfiguredDomains() {
+    return _certificatePins.keys.toList();
+  }
+
+  /// Check if pins are expired for a domain
+  bool hasPinsExpired(String domain) {
+    final pins = _getPinsForHost(domain);
+    if (pins.isEmpty) return false;
+
+    // Check if all pins are expired
+    return pins.every((pin) => pin.isExpired);
+  }
+
+  /// Get expiring pins (within 30 days)
+  List<ExpiringPin> getExpiringPins({int daysThreshold = 30}) {
+    final expiringPins = <ExpiringPin>[];
+    final threshold = DateTime.now().add(Duration(days: daysThreshold));
+
+    for (final entry in _certificatePins.entries) {
+      for (final pin in entry.value) {
+        if (pin.expiryDate != null &&
+            pin.expiryDate!.isBefore(threshold) &&
+            !pin.isExpired) {
+          expiringPins.add(ExpiringPin(
+            domain: entry.key,
+            pin: pin,
+            daysUntilExpiry: pin.expiryDate!.difference(DateTime.now()).inDays,
+          ));
+        }
+      }
+    }
+
+    return expiringPins;
+  }
+
+  /// Get certificate info for debugging
+  String getCertificateInfo(X509Certificate cert) {
+    return '''
+Certificate Info:
+  Subject: ${cert.subject}
+  Issuer: ${cert.issuer}
+  Valid from: ${cert.startValidity}
+  Valid until: ${cert.endValidity}
+  SHA256: ${_getCertificateFingerprint(cert)}
+''';
+  }
+}
+
+/// Certificate pin type
+enum PinType {
+  /// SHA256 fingerprint of the certificate
+  sha256,
+
+  /// Public key hash
+  publicKey,
+}
+
+/// Certificate pin configuration
+class CertificatePin {
+  /// Pin type (SHA256 or public key)
+  final PinType type;
+
+  /// Pin value (fingerprint or public key hash)
+  final String value;
+
+  /// Optional expiry date for this pin
+  final DateTime? expiryDate;
+
+  /// Optional description
+  final String? description;
+
+  const CertificatePin({
+    required this.type,
+    required this.value,
+    this.expiryDate,
+    this.description,
+  });
+
+  /// Check if pin is expired
+  bool get isExpired {
+    if (expiryDate == null) return false;
+    return DateTime.now().isAfter(expiryDate!);
+  }
+
+  /// Days until expiry
+  int? get daysUntilExpiry {
+    if (expiryDate == null) return null;
+    return expiryDate!.difference(DateTime.now()).inDays;
+  }
+
+  @override
+  String toString() {
+    return 'CertificatePin(type: $type, value: ${value.substring(0, 16)}..., expiryDate: $expiryDate)';
+  }
+}
+
+/// Expiring pin information
+class ExpiringPin {
+  final String domain;
+  final CertificatePin pin;
+  final int daysUntilExpiry;
+
+  const ExpiringPin({
+    required this.domain,
+    required this.pin,
+    required this.daysUntilExpiry,
+  });
+
+  @override
+  String toString() {
+    return 'ExpiringPin(domain: $domain, daysUntilExpiry: $daysUntilExpiry)';
+  }
+}
+
+/// Helper function to extract SHA256 fingerprint from a certificate file
+/// Use this during development to get actual fingerprints
+///
+/// Example usage:
+/// ```dart
+/// // For development - get fingerprint from certificate
+/// final fingerprint = await getCertificateFingerprintFromUrl('https://api.sahool.app');
+/// print('SHA256 Fingerprint: $fingerprint');
+/// ```
+Future<String?> getCertificateFingerprintFromUrl(String url) async {
+  try {
+    final uri = Uri.parse(url);
+    final socket = await SecureSocket.connect(
+      uri.host,
+      uri.port == 0 ? 443 : uri.port,
+      timeout: const Duration(seconds: 10),
+    );
+
+    final cert = socket.peerCertificate;
+    if (cert == null) {
+      socket.close();
+      return null;
+    }
+
+    final certBytes = cert.der;
+    final digest = sha256.convert(certBytes);
+    final fingerprint = digest.toString();
+
+    socket.close();
+    return fingerprint;
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error getting certificate fingerprint: $e');
+    }
+    return null;
+  }
+}
+
+/// Helper function to format certificate fingerprint
+String formatFingerprint(String fingerprint) {
+  // Convert to uppercase and add colons every 2 characters
+  final formatted = fingerprint
+      .toUpperCase()
+      .replaceAllMapped(RegExp(r'.{2}'), (match) => '${match.group(0)}:');
+
+  // Remove trailing colon
+  return formatted.substring(0, formatted.length - 1);
+}

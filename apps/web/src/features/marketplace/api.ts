@@ -139,7 +139,7 @@ export const marketplaceApi = {
    * Get orders list
    */
   async getOrders(_filters?: OrderFilters): Promise<Order[]> {
-    // Mock orders data
+    // Mock orders data - filters will be used when connecting to real API
     const orders: Order[] = [];
     return new Promise((resolve) => setTimeout(() => resolve(orders), 500));
   },
@@ -148,6 +148,7 @@ export const marketplaceApi = {
    * Get order by ID
    */
   async getOrderById(_id: string): Promise<Order> {
+    // TODO: Implement actual API call when backend is ready
     throw new Error('Order not found');
   },
 
@@ -184,6 +185,7 @@ export const marketplaceApi = {
    * Cancel order
    */
   async cancelOrder(_id: string): Promise<Order> {
+    // TODO: Implement actual API call when backend is ready
     throw new Error('Not implemented');
   },
 };

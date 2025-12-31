@@ -1,12 +1,11 @@
-// @ts-nocheck - Temporary fix for types with React 19
 'use client';
 
 // Admin Header
 // رأس الصفحة
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Bell, Search, LogOut, User } from 'lucide-react';
-import { getUser, logout, User as UserType } from '@/lib/auth';
+import { useAuth } from '@/stores/auth.store';
 
 interface HeaderProps {
   title: string;
@@ -14,12 +13,8 @@ interface HeaderProps {
 }
 
 export default function Header({ title, subtitle }: HeaderProps) {
-  const [user, setUser] = useState<UserType | null>(null);
+  const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
-
-  useEffect(() => {
-    setUser(getUser());
-  }, []);
 
   const handleLogout = () => {
     logout();

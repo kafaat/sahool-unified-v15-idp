@@ -8,6 +8,9 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import createMiddleware from 'next-intl/middleware';
+import { generateNonce, getCSPHeader, getCSPHeaderName, getCSPConfig } from '@/lib/security/csp-config';
+import { locales, defaultLocale } from '@sahool/i18n';
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -35,55 +38,12 @@ const protectedRoutes = [
   '/crop-health',
 ];
 
-/**
- * Generate a cryptographically secure nonce for CSP
- * Uses Web Crypto API which is available in Edge Runtime
- */
-function generateNonce(): string {
-  const array = new Uint8Array(16);
-  crypto.getRandomValues(array);
-  return btoa(String.fromCharCode(...array));
-}
-
-/**
- * Build Content Security Policy based on environment
- */
-function buildCSP(nonce: string, isDevelopment: boolean): string {
-  const scriptSrc = isDevelopment
-    ? `'self' 'nonce-${nonce}' 'unsafe-eval'` // unsafe-eval needed for Next.js hot reload in dev
-    : `'self' 'nonce-${nonce}'`; // Strict policy for production
-
-  const styleSrc = isDevelopment
-    ? `'self' 'nonce-${nonce}' 'unsafe-inline' https://fonts.googleapis.com` // unsafe-inline for dev convenience
-    : `'self' 'nonce-${nonce}' https://fonts.googleapis.com`; // Use nonces in production
-
-  const connectSrc = isDevelopment
-    ? `'self' http://localhost:* ws://localhost:* wss://localhost:* https://tile.openstreetmap.org https://sentinel-hub.com`
-    : `'self' wss: https: https://tile.openstreetmap.org https://sentinel-hub.com`;
-
-  // Build CSP directives
-  const directives = [
-    `default-src 'self'`,
-    `script-src ${scriptSrc}`,
-    `style-src ${styleSrc}`,
-    `img-src 'self' data: https: blob:`,
-    `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src ${connectSrc}`,
-    `frame-ancestors 'none'`,
-    `base-uri 'self'`,
-    `form-action 'self'`,
-    `object-src 'none'`,
-    `upgrade-insecure-requests`,
-  ];
-
-  // Add CSP reporting endpoint for production
-  if (!isDevelopment) {
-    directives.push(`report-uri /api/csp-report`);
-    directives.push(`report-to csp-endpoint`);
-  }
-
-  return directives.join('; ') + ';';
-}
+// Create i18n middleware
+const intlMiddleware = createMiddleware({
+  locales,
+  defaultLocale,
+  localePrefix: 'as-needed', // Don't prefix default locale (ar)
+});
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -96,6 +56,15 @@ export function middleware(request: NextRequest) {
     pathname.includes('.') // files with extensions (images, etc.)
   ) {
     return NextResponse.next();
+  }
+
+  // Handle i18n routing
+  const intlResponse = intlMiddleware(request);
+  if (intlResponse) {
+    // If i18n middleware returns a redirect, use that
+    if (intlResponse.headers.get('location')) {
+      return intlResponse;
+    }
   }
 
   // Allow public routes
@@ -125,36 +94,24 @@ export function middleware(request: NextRequest) {
   // Token exists - add security headers
   const response = NextResponse.next();
 
-  // Detect environment
-  const isDevelopment = process.env.NODE_ENV === 'development';
-
-  // Generate nonce for inline scripts and styles
+  // Generate nonce for CSP
   const nonce = generateNonce();
+
+  // Store nonce in response headers for use in HTML
+  response.headers.set('X-Nonce', nonce);
 
   // Add security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('X-XSS-Protection', '1; mode=block');
-  response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
 
-  // Add CSP nonce to response headers for use in components
-  response.headers.set('X-CSP-Nonce', nonce);
+  // Content Security Policy with improved security
+  const cspConfig = getCSPConfig(nonce);
+  const cspHeader = getCSPHeader(nonce);
+  const cspHeaderName = getCSPHeaderName(cspConfig.reportOnly);
 
-  // Content Security Policy - Environment-aware
-  response.headers.set('Content-Security-Policy', buildCSP(nonce, isDevelopment));
-
-  // Add Report-To header for CSP reporting (only in production)
-  if (!isDevelopment) {
-    response.headers.set(
-      'Report-To',
-      JSON.stringify({
-        group: 'csp-endpoint',
-        max_age: 10886400,
-        endpoints: [{ url: '/api/csp-report' }],
-      })
-    );
-  }
+  response.headers.set(cspHeaderName, cspHeader);
 
   return response;
 }

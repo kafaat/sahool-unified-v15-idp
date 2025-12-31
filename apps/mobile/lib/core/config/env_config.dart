@@ -326,55 +326,6 @@ class EnvConfig {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Validation
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  /// Validate that critical configuration values are set
-  /// يتحقق من أن القيم الحرجة في التكوين مضبوطة
-  static void validate() {
-    final errors = <String>[];
-
-    // Validate API URL
-    if (apiBaseUrl.isEmpty) {
-      errors.add('API_BASE_URL is not configured');
-    }
-
-    // Validate WebSocket URL
-    if (wsBaseUrl.isEmpty) {
-      errors.add('WS_BASE_URL is not configured');
-    }
-
-    // In production, ensure we're using HTTPS
-    if (isProduction) {
-      if (!apiBaseUrl.startsWith('https://')) {
-        errors.add('Production API must use HTTPS, got: $apiBaseUrl');
-      }
-      if (!wsBaseUrl.startsWith('wss://')) {
-        errors.add('Production WebSocket must use WSS, got: $wsBaseUrl');
-      }
-    }
-
-    if (errors.isNotEmpty) {
-      throw StateError(
-        'Configuration validation failed:\n${errors.map((e) => '  - $e').join('\n')}',
-      );
-    }
-
-    if (kDebugMode) {
-      print('✅ Configuration validation passed');
-    }
-  }
-
-  /// Validate a specific URL is not empty
-  /// يتحقق من أن URL معين غير فارغ
-  static String validateUrl(String url, String name) {
-    if (url.isEmpty) {
-      throw StateError('$name URL is not configured');
-    }
-    return url;
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
   // Debug Helpers
   // ═══════════════════════════════════════════════════════════════════════════
 

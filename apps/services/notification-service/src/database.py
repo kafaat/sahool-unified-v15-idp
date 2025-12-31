@@ -11,11 +11,14 @@ from tortoise.exceptions import DBConnectionError
 
 logger = logging.getLogger("sahool-notifications.database")
 
-# Database configuration
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgres://sahool:sahool123@localhost:5432/sahool_notifications"
-)
+# Database configuration - MUST be set via environment variable in production
+# Set DATABASE_URL in .env file (see .env.example for format)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise EnvironmentError(
+        "DATABASE_URL environment variable is required. "
+        "See .env.example for format"
+    )
 
 # Tortoise ORM configuration
 TORTOISE_ORM = {
@@ -39,7 +42,7 @@ TORTOISE_ORM_LOCAL = {
     },
     "apps": {
         "models": {
-            "models": ["models", "aerich.models"],
+            "models": ["src.models", "aerich.models"],
             "default_connection": "default",
         },
     },
@@ -58,16 +61,23 @@ async def init_db(create_db: bool = False) -> None:
     """
     try:
         # Determine which config to use based on module path
+        # In Docker, we're at /app and models are at /app/src/models.py
+        # So we use src.models for the models path
         try:
-            # Try importing from full path first
-            from apps.services.notification_service.src.models import Notification
-            config = TORTOISE_ORM
-            logger.info("Using full module path configuration")
-        except ImportError:
-            # Fall back to relative import
+            # Try relative import first (for Docker container)
             from .models import Notification
             config = TORTOISE_ORM_LOCAL
-            logger.info("Using local module path configuration")
+            logger.info("Using local module path configuration (src.models)")
+        except ImportError:
+            # Fall back to full path import (for local development)
+            try:
+                from apps.services.notification_service.src.models import Notification
+                config = TORTOISE_ORM
+                logger.info("Using full module path configuration")
+            except ImportError:
+                # Last resort: use local config anyway
+                config = TORTOISE_ORM_LOCAL
+                logger.warning("Could not import models, using local config anyway")
 
         # Initialize Tortoise ORM
         await Tortoise.init(config=config)

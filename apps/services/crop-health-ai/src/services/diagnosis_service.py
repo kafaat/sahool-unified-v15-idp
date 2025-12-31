@@ -38,6 +38,54 @@ class DiagnosisService:
     """
 
     def __init__(self):
+        # TODO: MIGRATE TO POSTGRESQL
+        # Current: self._history stored in-memory (lost on restart, limited to MAX_HISTORY_SIZE=1000)
+        # Issues:
+        #   - No persistence across service restarts
+        #   - Limited to 1000 records (older records dropped)
+        #   - No multi-instance support (each pod has separate history)
+        #   - No complex queries (filtering by date range, aggregations)
+        # Required:
+        #   1. Create PostgreSQL table 'crop_diagnoses' with schema:
+        #      - id (UUID, PK)
+        #      - image_url (TEXT)
+        #      - thumbnail_url (TEXT)
+        #      - disease_id (VARCHAR)
+        #      - disease_name (VARCHAR)
+        #      - disease_name_ar (VARCHAR)
+        #      - confidence (DECIMAL)
+        #      - severity (VARCHAR)
+        #      - crop_type (VARCHAR)
+        #      - field_id (VARCHAR, indexed)
+        #      - governorate (VARCHAR, indexed)
+        #      - location (GEOGRAPHY POINT) -- for spatial queries
+        #      - status (VARCHAR, indexed)
+        #      - farmer_id (VARCHAR, indexed)
+        #      - expert_notes (TEXT)
+        #      - created_at (TIMESTAMP, indexed)
+        #      - updated_at (TIMESTAMP)
+        #   2. Create Tortoise ORM model: CropDiagnosis
+        #   3. Create repository: DiagnosisRepository with methods:
+        #      - create(diagnosis_data) -> CropDiagnosis
+        #      - get_by_id(id) -> CropDiagnosis
+        #      - get_history(filters, limit, offset) -> List[CropDiagnosis]
+        #      - update_status(id, status, expert_notes) -> bool
+        #      - get_stats() -> Dict (aggregation queries)
+        #      - get_by_governorate(governorate) -> List (epidemic monitoring)
+        #      - get_recent_by_disease(disease_id, days) -> List (outbreak detection)
+        #   4. Update all methods to use repository:
+        #      - diagnose() -> call DiagnosisRepository.create()
+        #      - get_history() -> call DiagnosisRepository.get_history()
+        #      - get_diagnosis_by_id() -> call DiagnosisRepository.get_by_id()
+        #      - update_diagnosis_status() -> call DiagnosisRepository.update_status()
+        #      - get_stats() -> call DiagnosisRepository.get_stats()
+        #   5. Add database indexes for common queries:
+        #      - governorate (epidemic monitoring by region)
+        #      - created_at (time-series analysis)
+        #      - field_id (field history)
+        #      - farmer_id (farmer history)
+        #   6. Consider partitioning by created_at for large datasets
+        # Migration Priority: CRITICAL - Diagnosis history is essential for epidemic monitoring
         # In-memory diagnosis history (PostgreSQL in production)
         self._history: List[Dict[str, Any]] = []
 

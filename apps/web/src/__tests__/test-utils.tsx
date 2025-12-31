@@ -3,7 +3,7 @@
  * أدوات الاختبار لتطبيق سحول الويب
  */
 
-import React, { ReactElement, ReactNode } from 'react';
+import * as React from 'react';
 import { render, RenderOptions, RenderResult } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -23,7 +23,7 @@ const createTestQueryClient = () =>
   });
 
 interface WrapperProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 // All providers wrapper
@@ -39,10 +39,9 @@ const AllProviders = ({ children }: WrapperProps) => {
 
 // Custom render function with all providers
 const customRender = (
-  ui: ReactElement,
+  ui: React.ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): RenderResult => render(ui as any, { wrapper: AllProviders as any, ...options });
+): RenderResult => render(ui, { wrapper: AllProviders, ...options });
 
 // Re-export everything from testing-library
 export * from '@testing-library/react';

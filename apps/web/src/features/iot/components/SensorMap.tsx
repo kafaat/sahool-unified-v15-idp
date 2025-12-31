@@ -6,16 +6,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import DOMPurify from 'dompurify';
 import { useSensors } from '../hooks/useSensors';
 import { MapPin, Loader2 } from 'lucide-react';
-
-// Leaflet type definition for CDN-loaded library
-declare global {
-  interface Window {
-    L?: typeof import('leaflet');
-  }
-}
 
 const typeLabels = {
   soil_moisture: 'رطوبة التربة',
@@ -39,12 +31,9 @@ export function SensorMap() {
 
     // Initialize map
     const initMap = async () => {
-      // Check if Leaflet is loaded
-      if (typeof window === 'undefined' || !window.L) {
-        console.warn('Leaflet library not loaded');
-        return;
-      }
-      const L = window.L;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const L = (window as any).L;
+      if (!L) return;
 
       // Create map if it doesn't exist
       if (!mapInstanceRef.current && mapRef.current) {
@@ -100,61 +89,45 @@ export function SensorMap() {
             iconAnchor: [16, 16],
           });
 
-          // Sanitize popup content
-          const safeNameAr = DOMPurify.sanitize(String(sensor.nameAr), { ALLOWED_TAGS: [] });
-          const safeName = DOMPurify.sanitize(String(sensor.name), { ALLOWED_TAGS: [] });
-          const safeType = DOMPurify.sanitize(typeLabels[sensor.type], { ALLOWED_TAGS: [] });
-          const safeFieldName = sensor.location.fieldName ? DOMPurify.sanitize(String(sensor.location.fieldName), { ALLOWED_TAGS: [] }) : '';
-          const safeReadingValue = sensor.lastReading ? DOMPurify.sanitize(String(sensor.lastReading.value.toFixed(1)), { ALLOWED_TAGS: [] }) : '';
-          const safeReadingUnit = sensor.lastReading ? DOMPurify.sanitize(String(sensor.lastReading.unit), { ALLOWED_TAGS: [] }) : '';
-          const safeReadingTime = sensor.lastReading ? DOMPurify.sanitize(new Date(sensor.lastReading.timestamp).toLocaleString('ar-YE'), { ALLOWED_TAGS: [] }) : '';
-          const safeBattery = sensor.battery !== undefined ? DOMPurify.sanitize(String(sensor.battery), { ALLOWED_TAGS: [] }) : '';
-
-          const popupContent = DOMPurify.sanitize(
-            `
-            <div style="direction: rtl; text-align: right; min-width: 200px;">
-              <h3 style="font-weight: bold; margin-bottom: 8px;">${safeNameAr}</h3>
-              <p style="margin: 4px 0; font-size: 0.875rem;">${safeName}</p>
-              <p style="margin: 4px 0; font-size: 0.875rem; color: #666;">
-                النوع: ${safeType}
-              </p>
-              ${
-                safeFieldName
-                  ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${safeFieldName}</p>`
-                  : ''
-              }
-              ${
-                sensor.lastReading
-                  ? `
-                <div style="margin-top: 8px; padding: 8px; background: #f0fdf4; border-radius: 4px;">
-                  <p style="margin: 0; font-weight: 600; color: #16a34a;">
-                    ${safeReadingValue} ${safeReadingUnit}
-                  </p>
-                  <p style="margin: 4px 0 0 0; font-size: 0.75rem; color: #666;">
-                    ${safeReadingTime}
-                  </p>
-                </div>
-              `
-                  : ''
-              }
-              ${
-                safeBattery
-                  ? `<p style="margin: 4px 0; font-size: 0.75rem; color: #666;">البطارية: ${safeBattery}%</p>`
-                  : ''
-              }
-            </div>
-          `,
-            {
-              ALLOWED_TAGS: ['div', 'h3', 'p'],
-              ALLOWED_ATTR: ['style'],
-            }
-          );
-
           const marker = L.marker([sensor.location.latitude, sensor.location.longitude], {
             icon: customIcon,
           })
             .addTo(mapInstanceRef.current)
-            .bindPopup(popupContent);
+            .bindPopup(
+              `
+              <div style="direction: rtl; text-align: right; min-width: 200px;">
+                <h3 style="font-weight: bold; margin-bottom: 8px;">${sensor.nameAr}</h3>
+                <p style="margin: 4px 0; font-size: 0.875rem;">${sensor.name}</p>
+                <p style="margin: 4px 0; font-size: 0.875rem; color: #666;">
+                  النوع: ${typeLabels[sensor.type]}
+                </p>
+                ${
+                  sensor.location.fieldName
+                    ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${sensor.location.fieldName}</p>`
+                    : ''
+                }
+                ${
+                  sensor.lastReading
+                    ? `
+                  <div style="margin-top: 8px; padding: 8px; background: #f0fdf4; border-radius: 4px;">
+                    <p style="margin: 0; font-weight: 600; color: #16a34a;">
+                      ${sensor.lastReading.value.toFixed(1)} ${sensor.lastReading.unit}
+                    </p>
+                    <p style="margin: 4px 0 0 0; font-size: 0.75rem; color: #666;">
+                      ${new Date(sensor.lastReading.timestamp).toLocaleString('ar-YE')}
+                    </p>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  sensor.battery !== undefined
+                    ? `<p style="margin: 4px 0; font-size: 0.75rem; color: #666;">البطارية: ${sensor.battery}%</p>`
+                    : ''
+                }
+              </div>
+            `
+            );
 
           markersRef.current.push(marker);
         });

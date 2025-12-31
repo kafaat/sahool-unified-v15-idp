@@ -10,6 +10,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'wallet_provider.dart';
+import '../../core/security/screen_security_service.dart';
 
 /// شاشة المحفظة
 class WalletScreen extends ConsumerWidget {
@@ -19,15 +20,21 @@ class WalletScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final walletState = ref.watch(walletProvider);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF1A1A2E),
-      body: walletState.isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            )
-          : walletState.error != null
-              ? _buildErrorView(walletState.error!, ref)
-              : _buildWalletView(context, ref, walletState),
+    return SecureScreen(
+      screenType: SecuredScreenType.wallet,
+      showWarning: ref.watch(securityConfigProvider).showScreenSecurityWarning,
+      warningMessageAr: 'لا يمكن أخذ لقطات شاشة في المحفظة لحماية بياناتك المالية',
+      warningMessageEn: 'Screenshots are disabled in Wallet to protect your financial data',
+      child: Scaffold(
+        backgroundColor: const Color(0xFF1A1A2E),
+        body: walletState.isLoading
+            ? const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              )
+            : walletState.error != null
+                ? _buildErrorView(walletState.error!, ref)
+                : _buildWalletView(context, ref, walletState),
+      ),
     );
   }
 

@@ -89,7 +89,6 @@ export class FieldBoundaryHistory {
     @Column({ name: "device_id", nullable: true })
     deviceId?: string;
 
-    @Index("idx_history_created_at")
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;
 }

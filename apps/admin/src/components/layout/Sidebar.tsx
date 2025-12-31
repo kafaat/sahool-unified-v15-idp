@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary fix for lucide-react types with React 19
 'use client';
 
 // Admin Sidebar Navigation
@@ -29,6 +28,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/stores/auth.store';
 
 const navigation = [
   { name: 'لوحة التحكم', href: '/dashboard', icon: LayoutDashboard },
@@ -56,6 +56,7 @@ const analyticsNav = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [precisionExpanded, setPrecisionExpanded] = useState(
     pathname?.startsWith('/precision-agriculture')
   );
@@ -195,14 +196,21 @@ export default function Sidebar() {
       <div className="p-4 border-t border-gray-100">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-10 h-10 rounded-full bg-sahool-100 flex items-center justify-center">
-            <span className="text-sahool-700 font-bold">م</span>
+            <span className="text-sahool-700 font-bold">
+              {user?.name_ar?.charAt(0) || user?.name?.charAt(0) || 'م'}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">مدير النظام</p>
-            <p className="text-xs text-gray-500 truncate">admin@sahool.io</p>
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user?.name_ar || user?.name || 'مدير النظام'}
+            </p>
+            <p className="text-xs text-gray-500 truncate">{user?.email || 'admin@sahool.io'}</p>
           </div>
         </div>
-        <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+        >
           <LogOut className="w-4 h-4" />
           تسجيل الخروج
         </button>

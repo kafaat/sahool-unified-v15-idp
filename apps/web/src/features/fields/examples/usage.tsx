@@ -231,6 +231,7 @@ export function FieldStatsExample() {
 export function FieldsCRUDExample() {
   const { user } = useAuth();
   const { data: fields, isLoading, error } = useFields();
+  // Note: createField available via useCreateField() when needed
   const updateField = useUpdateField();
   const deleteField = useDeleteField();
 

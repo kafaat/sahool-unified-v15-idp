@@ -23,7 +23,7 @@ export const KPIGrid = React.memo<KPIGridProps>(function KPIGrid({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" aria-busy="true" aria-label="جاري تحميل المؤشرات">
         {[1, 2, 3, 4].map((i) => (
           <div
-            key={`skeleton-kpi-${i}`}
+            key={i}
             className="h-32 bg-gray-100 rounded-xl animate-pulse"
             aria-label="جاري التحميل"
           />

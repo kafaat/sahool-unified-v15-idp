@@ -10,7 +10,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/config/theme.dart';
 import '../data/models/message_model.dart';
 
@@ -67,7 +66,7 @@ class MessageBubble extends StatelessWidget {
                 const SizedBox(height: 2),
 
                 // Timestamp and status
-                _buildTimestampAndStatus(context),
+                _buildTimestampAndStatus(),
               ],
             ),
           ),
@@ -86,7 +85,7 @@ class MessageBubble extends StatelessWidget {
       radius: 16,
       backgroundColor: SahoolTheme.primary.withOpacity(0.1),
       backgroundImage:
-          message.senderAvatar != null ? CachedNetworkImageProvider(message.senderAvatar!) : null,
+          message.senderAvatar != null ? NetworkImage(message.senderAvatar!) : null,
       child: message.senderAvatar == null
           ? Icon(
               Icons.person,
@@ -157,21 +156,11 @@ class MessageBubble extends StatelessWidget {
         if (message.attachmentUrl != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: CachedNetworkImage(
-              imageUrl: message.attachmentUrl!,
+            child: Image.network(
+              message.attachmentUrl!,
               width: 200,
               fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                width: 200,
-                height: 150,
-                color: Colors.grey[200],
-                child: const Center(
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
-                ),
-              ),
-              errorWidget: (context, url, error) => Container(
+              errorBuilder: (context, error, stackTrace) => Container(
                 width: 200,
                 height: 150,
                 color: Colors.grey[300],
@@ -376,8 +365,7 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildTimestampAndStatus(BuildContext context) {
-    final locale = Localizations.localeOf(context).languageCode;
+  Widget _buildTimestampAndStatus() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
@@ -385,7 +373,7 @@ class MessageBubble extends StatelessWidget {
         children: [
           // Timestamp
           Text(
-            DateFormat('HH:mm', locale).format(message.createdAt),
+            DateFormat('HH:mm').format(message.createdAt),
             style: TextStyle(
               fontSize: 11,
               color: Colors.grey[600],

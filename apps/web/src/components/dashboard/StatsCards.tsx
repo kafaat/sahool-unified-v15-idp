@@ -207,7 +207,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({ tena
         dir="rtl"
       >
         {[...Array(6)].map((_, i) => (
-          <SkeletonCard key={`skeleton-card-${i}`} />
+          <SkeletonCard key={i} />
         ))}
       </section>
     );

@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary fix for types with React 19
 'use client';
 
 // Spray Management - Optimal Application Windows
@@ -297,7 +296,7 @@ export default function SprayPage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={productUsageData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                      <XAxis dataKey="type" tick={{ fontSize: 11 }} tickFormatter={(value: string) => productTypeLabels[value] || value} />
+                      <XAxis dataKey="type" tick={{ fontSize: 11 }} tickFormatter={(value) => productTypeLabels[value] || value} />
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip
                         contentStyle={{
@@ -326,7 +325,7 @@ export default function SprayPage() {
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
-                        label={({ type, percent }: { type: string; percent: number }) => `${productTypeLabels[type]} ${((percent || 0) * 100).toFixed(0)}%`}
+                        label={({ type, percent }) => `${productTypeLabels[type]} ${((percent || 0) * 100).toFixed(0)}%`}
                         labelLine={false}
                       >
                         {productUsageData.map((entry, index) => (

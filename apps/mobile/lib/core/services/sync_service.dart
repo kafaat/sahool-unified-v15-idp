@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import '../utils/app_logger.dart';
 
 /// خدمة المزامنة - Sync Service
 ///
@@ -51,7 +50,7 @@ class SyncService {
     _isSyncing = true;
 
     try {
-      AppLogger.i('جاري البحث عن مهام غير متزامنة', tag: 'SYNC');
+      print('🔄 جاري البحث عن مهام غير متزامنة...');
 
       // التحقق من الاتصال
       final online = await isOnline();
@@ -89,11 +88,7 @@ class SyncService {
         syncedCount += sampleResult;
       }
 
-      AppLogger.i(
-        'تم رفع $syncedCount عنصر للسيرفر',
-        tag: 'SYNC',
-        data: {'syncedCount': syncedCount},
-      );
+      print('✅ تم رفع $syncedCount عنصر للسيرفر');
 
       return SyncResult(
         success: true,
@@ -101,7 +96,7 @@ class SyncService {
         syncedCount: syncedCount,
       );
     } catch (e) {
-      AppLogger.e('خطأ في المزامنة', tag: 'SYNC', error: e);
+      print('❌ خطأ في المزامنة: $e');
       return SyncResult(
         success: false,
         message: 'خطأ في المزامنة: $e',

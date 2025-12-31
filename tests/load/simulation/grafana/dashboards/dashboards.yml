@@ -1,0 +1,16 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Grafana Dashboard Provisioning Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+
+apiVersion: 1
+
+providers:
+  - name: 'K6 Agent Simulation Dashboards'
+    orgId: 1
+    folder: 'SAHOOL Simulation'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards

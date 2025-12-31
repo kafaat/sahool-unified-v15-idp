@@ -66,9 +66,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Build packages
-        run: npm run build:packages
-
       - name: TypeScript check - Web App
         run: cd apps/web && npx tsc --noEmit
         continue-on-error: true

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/theme.dart';
-import 'core/routes/app_router.dart';
 import 'features/home/presentation/screens/home_dashboard.dart';
 import 'features/tasks/presentation/tasks_list_screen.dart';
 import 'features/crop_health/presentation/screens/crop_health_dashboard.dart';
@@ -39,10 +38,7 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
 
   @override
   Widget build(BuildContext context) {
-    // Get router from provider with auth integration
-    final router = ref.watch(goRouterProvider);
-
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'سهول',
       debugShowCheckedModeBanner: false,
 
@@ -63,8 +59,47 @@ class _SahoolFieldAppState extends ConsumerState<SahoolFieldApp> {
       darkTheme: SahoolTheme.dark,
       themeMode: ThemeMode.system,
 
-      // Router Configuration with Auth Guard
-      routerConfig: router,
+      // Routes
+      home: const MainAppShell(),
+      onGenerateRoute: _generateRoute,
+    );
+  }
+
+  Route<dynamic>? _generateRoute(RouteSettings settings) {
+    switch (settings.name) {
+      case '/':
+        return _buildRoute(const MainAppShell(), settings);
+      case '/tasks':
+        return _buildRoute(const TasksListScreen(), settings);
+      case '/crop-health':
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          CropHealthDashboard(fieldId: args?['fieldId'] ?? ''),
+          settings,
+        );
+      case '/weather':
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          WeatherScreen(fieldId: args?['fieldId'] ?? ''),
+          settings,
+        );
+      case '/map':
+        final args = settings.arguments as Map<String, dynamic>?;
+        return _buildRoute(
+          FieldMapScreen(fieldId: args?['fieldId'] ?? ''),
+          settings,
+        );
+      case '/notifications':
+        return _buildRoute(const NotificationsScreen(), settings);
+      default:
+        return _buildRoute(const MainAppShell(), settings);
+    }
+  }
+
+  MaterialPageRoute _buildRoute(Widget page, RouteSettings settings) {
+    return MaterialPageRoute(
+      builder: (_) => page,
+      settings: settings,
     );
   }
 }

@@ -17,8 +17,6 @@ import {
  * Supports optimistic locking via version column for ETag-based conflict resolution
  */
 @Entity("fields")
-@Index("idx_field_tenant_status", ["tenantId", "status"])
-@Index("idx_field_tenant_created", ["tenantId", "createdAt"])
 export class Field {
 
     @PrimaryGeneratedColumn("uuid")
@@ -34,7 +32,6 @@ export class Field {
     @Column({ length: 255 })
     name!: string;
 
-    @Index("idx_field_tenant")
     @Column({ name: "tenant_id" })
     tenantId!: string;
 
@@ -130,7 +127,6 @@ export class Field {
     @CreateDateColumn({ name: "created_at" })
     createdAt!: Date;
 
-    @Index("idx_field_updated_at")
     @UpdateDateColumn({ name: "updated_at" })
     updatedAt!: Date;
 }

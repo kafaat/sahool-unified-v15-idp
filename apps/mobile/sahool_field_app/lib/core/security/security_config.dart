@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'screen_security_service.dart';
 
 /// SAHOOL Security Configuration
 /// إعدادات الأمان للتطبيق
@@ -9,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// - Biometric authentication settings
 /// - Session timeout configuration
 /// - Security level management
+/// - Screen security and screenshot prevention
 
 /// Security level enumeration
 enum SecurityLevel {
@@ -178,6 +180,21 @@ class SecurityConfig {
     return level != SecurityLevel.low;
   }
 
+  /// Whether to enable SSL certificate pinning
+  bool get enableCertificatePinning {
+    return level == SecurityLevel.high || level == SecurityLevel.maximum;
+  }
+
+  /// Whether to enforce strict certificate pinning (fail if no match)
+  bool get strictCertificatePinning {
+    return level == SecurityLevel.maximum;
+  }
+
+  /// Whether to allow certificate pinning bypass in debug mode
+  bool get allowPinningDebugBypass {
+    return level != SecurityLevel.maximum;
+  }
+
   /// Request timeout duration
   Duration get requestTimeout {
     switch (level) {
@@ -254,6 +271,143 @@ class SecurityConfig {
         return const Duration(minutes: 30);
       case SecurityLevel.maximum:
         return const Duration(hours: 1);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Device Security
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Whether to check for root/jailbreak on startup
+  bool get checkRootJailbreak {
+    return level != SecurityLevel.low;
+  }
+
+  /// Whether to check for emulator/simulator
+  bool get checkEmulator {
+    return level == SecurityLevel.high || level == SecurityLevel.maximum;
+  }
+
+  /// Whether to check for developer mode
+  bool get checkDeveloperMode {
+    return level == SecurityLevel.maximum;
+  }
+
+  /// Whether to block app on rooted/jailbroken device
+  bool get blockOnRootJailbreak {
+    return level == SecurityLevel.high || level == SecurityLevel.maximum;
+  }
+
+  /// Whether to block app on emulator
+  bool get blockOnEmulator {
+    return level == SecurityLevel.maximum;
+  }
+
+  /// Whether to allow security bypass in debug mode
+  bool get allowSecurityBypassInDebug {
+    return level != SecurityLevel.maximum;
+  }
+
+  /// Whether to prevent screenshots
+  bool get preventScreenshots {
+    return level == SecurityLevel.high || level == SecurityLevel.maximum;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Screen Security Configuration
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Enable screenshot prevention
+  bool get screenSecurityEnabled {
+    // Enable for medium and above security levels
+    return level != SecurityLevel.low;
+  }
+
+  /// Enable app-wide screenshot protection
+  bool get appWideScreenProtection {
+    // Only enable app-wide for high and maximum levels
+    return level == SecurityLevel.high || level == SecurityLevel.maximum;
+  }
+
+  /// Screen types that should be secured based on security level
+  Set<SecuredScreenType> get securedScreenTypes {
+    switch (level) {
+      case SecurityLevel.low:
+        // Low: No screen protection
+        return {};
+      case SecurityLevel.medium:
+        // Medium: Protect sensitive financial and auth screens
+        return {
+          SecuredScreenType.authentication,
+          SecuredScreenType.wallet,
+        };
+      case SecurityLevel.high:
+        // High: Protect all sensitive screens
+        return {
+          SecuredScreenType.authentication,
+          SecuredScreenType.wallet,
+          SecuredScreenType.personalData,
+          SecuredScreenType.evidencePhotos,
+        };
+      case SecurityLevel.maximum:
+        // Maximum: Protect all screens app-wide
+        return {
+          SecuredScreenType.all,
+        };
+    }
+  }
+
+  /// Check if a specific screen type should be secured
+  bool shouldSecureScreen(SecuredScreenType screenType) {
+    final types = securedScreenTypes;
+    // If 'all' is in the set, secure everything
+    if (types.contains(SecuredScreenType.all)) return true;
+    // Otherwise check if the specific type is in the set
+    return types.contains(screenType);
+  }
+
+  /// Show warning message when screen security is active
+  bool get showScreenSecurityWarning {
+    switch (level) {
+      case SecurityLevel.low:
+        return false;
+      case SecurityLevel.medium:
+        return true; // Show once to educate users
+      case SecurityLevel.high:
+      case SecurityLevel.maximum:
+        return false; // Users at this level are already aware
+    }
+  }
+
+  /// Detect and warn about screen recording
+  bool get detectScreenRecording {
+    return level == SecurityLevel.high || level == SecurityLevel.maximum;
+  }
+
+  /// Warning messages for screen security
+  String get screenSecurityWarningAr {
+    switch (level) {
+      case SecurityLevel.low:
+        return '';
+      case SecurityLevel.medium:
+        return 'لا يمكن أخذ لقطات شاشة في بعض الصفحات لحماية بياناتك المالية';
+      case SecurityLevel.high:
+        return 'لا يمكن أخذ لقطات شاشة في الصفحات الحساسة لحماية بياناتك';
+      case SecurityLevel.maximum:
+        return 'لا يمكن أخذ لقطات شاشة في التطبيق لحماية بياناتك السرية';
+    }
+  }
+
+  String get screenSecurityWarningEn {
+    switch (level) {
+      case SecurityLevel.low:
+        return '';
+      case SecurityLevel.medium:
+        return 'Screenshots are disabled on financial screens to protect your data';
+      case SecurityLevel.high:
+        return 'Screenshots are disabled on sensitive screens to protect your data';
+      case SecurityLevel.maximum:
+        return 'Screenshots are disabled app-wide to protect your confidential data';
     }
   }
 

@@ -6,16 +6,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import DOMPurify from 'dompurify';
 import { useEquipment } from '../hooks/useEquipment';
 import { MapPin, Loader2 } from 'lucide-react';
-
-// Leaflet type definition for CDN-loaded library
-declare global {
-  interface Window {
-    L?: typeof import('leaflet');
-  }
-}
 
 export function EquipmentMap() {
   const mapRef = useRef<HTMLDivElement>(null);
@@ -28,12 +20,9 @@ export function EquipmentMap() {
 
     // Initialize map
     const initMap = async () => {
-      // Check if Leaflet is loaded
-      if (typeof window === 'undefined' || !window.L) {
-        console.warn('Leaflet library not loaded');
-        return;
-      }
-      const L = window.L;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const L = (window as any).L;
+      if (!L) return;
 
       // Create map if it doesn't exist
       if (!mapInstanceRef.current && mapRef.current) {
@@ -84,38 +73,26 @@ export function EquipmentMap() {
             iconAnchor: [15, 15],
           });
 
-          // Sanitize popup content
-          const safeNameAr = DOMPurify.sanitize(String(item.nameAr), { ALLOWED_TAGS: [] });
-          const safeName = DOMPurify.sanitize(String(item.name), { ALLOWED_TAGS: [] });
-          const safeFieldName = item.location.fieldName ? DOMPurify.sanitize(String(item.location.fieldName), { ALLOWED_TAGS: [] }) : '';
-          const safeStatus = DOMPurify.sanitize(getStatusLabel(item.status), { ALLOWED_TAGS: [] });
-
-          const popupContent = DOMPurify.sanitize(
-            `
-            <div style="direction: rtl; text-align: right;">
-              <h3 style="font-weight: bold; margin-bottom: 8px;">${safeNameAr}</h3>
-              <p style="margin: 4px 0;">${safeName}</p>
-              ${
-                safeFieldName
-                  ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${safeFieldName}</p>`
-                  : ''
-              }
-              <p style="margin: 4px 0; font-size: 0.875rem;">
-                الحالة: <span style="font-weight: 600;">${safeStatus}</span>
-              </p>
-            </div>
-          `,
-            {
-              ALLOWED_TAGS: ['div', 'h3', 'p', 'span'],
-              ALLOWED_ATTR: ['style'],
-            }
-          );
-
           const marker = L.marker([item.location.latitude, item.location.longitude], {
             icon: customIcon,
           })
             .addTo(mapInstanceRef.current)
-            .bindPopup(popupContent);
+            .bindPopup(
+              `
+              <div style="direction: rtl; text-align: right;">
+                <h3 style="font-weight: bold; margin-bottom: 8px;">${item.nameAr}</h3>
+                <p style="margin: 4px 0;">${item.name}</p>
+                ${
+                  item.location.fieldName
+                    ? `<p style="margin: 4px 0; font-size: 0.875rem; color: #666;">الحقل: ${item.location.fieldName}</p>`
+                    : ''
+                }
+                <p style="margin: 4px 0; font-size: 0.875rem;">
+                  الحالة: <span style="font-weight: 600;">${getStatusLabel(item.status)}</span>
+                </p>
+              </div>
+            `
+            );
 
           markersRef.current.push(marker);
         });

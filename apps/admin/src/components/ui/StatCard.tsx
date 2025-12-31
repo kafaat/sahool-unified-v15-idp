@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary fix for lucide-react types with React 19
 'use client';
 
 // Statistics Card Component

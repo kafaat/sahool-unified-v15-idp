@@ -6,10 +6,14 @@ SAHOOL Field Service - Database Configuration
 import os
 from typing import Dict, Any
 
-# Database connection URL
-DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgres://sahool:sahool@postgres:5432/sahool"
-)
+# Database connection URL - MUST be set via environment variable in production
+# Set DATABASE_URL in .env file (see .env.example for format)
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise EnvironmentError(
+        "DATABASE_URL environment variable is required. "
+        "See .env.example for format"
+    )
 
 # Tortoise ORM Configuration
 TORTOISE_ORM: Dict[str, Any] = {

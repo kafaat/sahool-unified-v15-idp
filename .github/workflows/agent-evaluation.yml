@@ -31,43 +31,36 @@ env:
   MIN_EVALUATION_SCORE: ${{ github.event.inputs.min_score_threshold || '85' }}
   EVALUATION_DATASET: ${{ github.event.inputs.evaluation_set || 'golden' }}
 
-# Required permissions for commenting on PRs and uploading artifacts
-permissions:
-  contents: read
-  pull-requests: write
-  issues: write
-
 jobs:
   agent-evaluation:
     name: Run Agent Evaluation Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
-    # Service containers are optional - tests can run in mock mode without them
-    # Commented out to prevent container initialization failures
-    # services:
-    #   qdrant:
-    #     image: qdrant/qdrant:v1.12.0
-    #     ports:
-    #       - 6333:6333
-    #     env:
-    #       QDRANT__SERVICE__ENABLE_TLS: "false"
-    #     options: >-
-    #       --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:6333/readyz || exit 1"
-    #       --health-interval 30s
-    #       --health-timeout 15s
-    #       --health-retries 5
-    #       --health-start-period 60s
-    #
-    #   redis:
-    #     image: redis:7-alpine
-    #     ports:
-    #       - 6379:6379
-    #     options: >-
-    #       --health-cmd "redis-cli ping"
-    #       --health-interval 10s
-    #       --health-timeout 5s
-    #       --health-retries 5
+    # Service containers for evaluation (optional - tests can run without them)
+    services:
+      qdrant:
+        image: qdrant/qdrant:v1.7.0
+        ports:
+          - 6333:6333
+        env:
+          QDRANT__SERVICE__ENABLE_TLS: "false"
+        options: >-
+          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:6333/readyz || exit 1"
+          --health-interval 15s
+          --health-timeout 10s
+          --health-retries 10
+          --health-start-period 30s
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -120,11 +113,10 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
-          # Service configuration (mock mode - no real services required)
-          QDRANT_HOST: ""
-          QDRANT_PORT: ""
-          REDIS_URL: ""
-          USE_MOCK_SERVICES: "true"
+          # Service configuration
+          QDRANT_HOST: localhost
+          QDRANT_PORT: 6333
+          REDIS_URL: redis://localhost:6379
 
           # Evaluation configuration
           EVALUATION_MODE: true
@@ -148,18 +140,16 @@ jobs:
             --json-report-file=evaluation-metrics.json \
             --junit-xml=junit-results.xml || true
 
-      - name: Ensure evaluation files exist
-        if: always()
+      - name: Create fallback evaluation files
+        if: steps.run_tests.outcome == 'failure'
         working-directory: apps/services/ai-advisor
         run: |
-          echo "Ensuring all evaluation files exist..."
+          echo "Creating fallback evaluation files due to test failures..."
 
-          # Create evaluation-metrics.json if missing
-          if [ ! -f "evaluation-metrics.json" ]; then
-            echo "Creating fallback evaluation-metrics.json..."
-            cat > evaluation-metrics.json << 'METRICS_EOF'
+          # Create minimal evaluation-metrics.json
+          cat > evaluation-metrics.json << 'METRICS_EOF'
           {
-            "created": "2024-01-01T00:00:00Z",
+            "created": "$(date -Iseconds)",
             "duration": 0,
             "exitcode": 1,
             "root": "tests/evaluation",
@@ -172,66 +162,15 @@ jobs:
             "tests": []
           }
           METRICS_EOF
-          fi
 
-          # Create evaluation-report.html if missing
-          if [ ! -f "evaluation-report.html" ]; then
-            echo "Creating fallback evaluation-report.html..."
-            echo "<html><body><h1>Evaluation Report</h1><p>Tests ran in mock mode</p></body></html>" > evaluation-report.html
-          fi
+          # Create minimal evaluation-report.html
+          echo "<html><body><h1>Evaluation Report</h1><p>Tests could not run - infrastructure setup failed</p></body></html>" > evaluation-report.html
 
-          # Create coverage.xml if missing
-          if [ ! -f "coverage.xml" ]; then
-            echo "Creating fallback coverage.xml..."
-            echo '<?xml version="1.0" ?><coverage version="1.0"><packages></packages></coverage>' > coverage.xml
-          fi
+          # Create minimal coverage.xml
+          echo '<?xml version="1.0" ?><coverage version="1.0"><packages></packages></coverage>' > coverage.xml
 
-          # Create htmlcov directory if missing
-          if [ ! -d "htmlcov" ]; then
-            echo "Creating fallback htmlcov..."
-            mkdir -p htmlcov
-            echo "<html><body><h1>Coverage Report</h1><p>No coverage data available</p></body></html>" > htmlcov/index.html
-          fi
-
-          # Create evaluation-summary.json if missing
-          if [ ! -f "evaluation-summary.json" ]; then
-            echo "Creating fallback evaluation-summary.json..."
-            cat > evaluation-summary.json << 'SUMMARY_EOF'
-          {
-            "overall_score": 85,
-            "accuracy": 85,
-            "latency_score": 90,
-            "safety_score": 95,
-            "arabic_support": 80,
-            "english_support": 90,
-            "total_tests": 0,
-            "passed_tests": 0,
-            "failed_tests": 0,
-            "avg_latency_ms": 0,
-            "status": "mock_mode"
-          }
-          SUMMARY_EOF
-          fi
-
-          # Create evaluation-detailed-report.md if missing
-          if [ ! -f "evaluation-detailed-report.md" ]; then
-            echo "Creating fallback evaluation-detailed-report.md..."
-            cat > evaluation-detailed-report.md << 'REPORT_EOF'
-          # Evaluation Report
-
-          Tests ran in mock mode without external services (Qdrant, Redis).
-
-          ## Summary
-          - All mock tests passed
-          - No external dependencies required
-
-          ## Next Steps
-          - Enable real services for full evaluation
-          REPORT_EOF
-          fi
-
-          echo "All evaluation files ensured."
-          ls -la *.json *.html *.xml *.md 2>/dev/null || true
+          mkdir -p htmlcov
+          echo "<html><body><h1>Coverage Report</h1><p>No coverage data available</p></body></html>" > htmlcov/index.html
 
       - name: Calculate evaluation scores
         id: calculate_scores
@@ -367,23 +306,8 @@ jobs:
           SCORE=${{ steps.calculate_scores.outputs.overall_score }}
           MIN_SCORE=${{ env.MIN_EVALUATION_SCORE }}
 
-          # Default score if not set
-          if [ -z "$SCORE" ] || [ "$SCORE" = "0" ]; then
-            echo "⚠️ Running in mock mode - using default passing score"
-            SCORE=85
-          fi
-
           echo "Evaluation Score: $SCORE"
           echo "Minimum Required: $MIN_SCORE"
-
-          # Check if running in mock mode
-          STATUS=$(cat apps/services/ai-advisor/evaluation-summary.json 2>/dev/null | grep -o '"status": "[^"]*"' | cut -d'"' -f4 || echo "unknown")
-
-          if [ "$STATUS" = "mock_mode" ]; then
-            echo "ℹ️ Running in mock mode - skipping threshold check"
-            echo "✅ Mock evaluation passed"
-            exit 0
-          fi
 
           if (( $(echo "$SCORE < $MIN_SCORE" | bc -l) )); then
             echo "❌ Evaluation score ($SCORE%) is below minimum threshold ($MIN_SCORE%)"

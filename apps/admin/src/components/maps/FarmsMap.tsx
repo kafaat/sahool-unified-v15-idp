@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary fix for react-leaflet types with React 19
 'use client';
 
 // Sahool Farms Map Component

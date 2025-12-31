@@ -10,79 +10,7 @@ import { Search } from 'lucide-react';
 import { usePosts } from '../hooks/useCommunity';
 import { PostCard } from './PostCard';
 import { CreatePost } from './CreatePost';
-import type { CommunityFilters, Post, PostType } from '../types';
-
-// Mock posts for E2E testing when API is not available
-const mockPosts: Post[] = [
-  {
-    id: 'mock-1',
-    userId: 'user-1',
-    type: 'tip',
-    status: 'active',
-    title: 'Best Practices for Date Palm Cultivation',
-    titleAr: 'أفضل الممارسات لزراعة النخيل',
-    content: 'Here are some tips for growing date palms...',
-    contentAr: 'إليكم بعض النصائح لزراعة النخيل. الري المنتظم والتسميد المناسب هما أساس النجاح.',
-    userName: 'Ahmed',
-    userNameAr: 'أحمد محمد',
-    userBadge: 'verified' as const,
-    likes: 42,
-    comments: 8,
-    shares: 5,
-    views: 156,
-    isLiked: false,
-    isSaved: false,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    tagsAr: ['نخيل', 'زراعة', 'نصائح'],
-    location: { city: 'Riyadh', cityAr: 'الرياض', region: 'Central', regionAr: 'الوسطى' },
-  },
-  {
-    id: 'mock-2',
-    userId: 'user-2',
-    type: 'question',
-    status: 'active',
-    title: 'How to Deal with Plant Diseases?',
-    titleAr: 'كيفية التعامل مع أمراض النباتات؟',
-    content: 'I noticed some yellow spots on my tomato plants...',
-    contentAr: 'لاحظت بقع صفراء على نباتات الطماطم. ما هو أفضل علاج؟',
-    userName: 'Fatima',
-    userNameAr: 'فاطمة علي',
-    userBadge: 'farmer' as const,
-    likes: 15,
-    comments: 12,
-    shares: 2,
-    views: 89,
-    isLiked: true,
-    isSaved: false,
-    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    tagsAr: ['أمراض', 'طماطم', 'مساعدة'],
-  },
-  {
-    id: 'mock-3',
-    userId: 'user-3',
-    type: 'experience',
-    status: 'active',
-    title: 'My Experience with Drip Irrigation',
-    titleAr: 'تجربتي مع الري بالتنقيط',
-    content: 'After installing drip irrigation...',
-    contentAr: 'بعد تركيب نظام الري بالتنقيط، تحسن المحصول بنسبة 30%. أنصح الجميع بتجربته.',
-    userName: 'Khalid',
-    userNameAr: 'خالد السعيد',
-    userBadge: 'expert' as const,
-    likes: 67,
-    comments: 23,
-    shares: 12,
-    views: 312,
-    isLiked: false,
-    isSaved: true,
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    tagsAr: ['ري', 'تجربة', 'توفير_مياه'],
-    location: { city: 'Jeddah', cityAr: 'جدة', region: 'Western', regionAr: 'الغربية' },
-  },
-];
+import type { CommunityFilters, PostType } from '../types';
 
 export const Feed: React.FC = () => {
   const [filters, setFilters] = useState<CommunityFilters>({
@@ -90,15 +18,7 @@ export const Feed: React.FC = () => {
   });
   const [showCreatePost, setShowCreatePost] = useState(false);
 
-  const { data: posts, isLoading, isError } = usePosts(filters);
-
-  // Use mock data when API fails or returns empty (for E2E tests)
-  const displayPosts = (posts && posts.length > 0) ? posts : (isError ? mockPosts : posts);
-
-  // Log query state for debugging
-  if (typeof window !== 'undefined') {
-    console.log('Community Feed Query State:', { isLoading, isError, hasData: !!posts, postCount: posts?.length, usingMockData: displayPosts === mockPosts });
-  }
+  const { data: posts, isLoading } = usePosts(filters);
 
   const postTypes: Array<{ value: PostType | 'all'; label: string; labelAr: string }> = [
     { value: 'all', label: 'All', labelAr: 'الكل' },
@@ -179,13 +99,13 @@ export const Feed: React.FC = () => {
         </div>
 
         {/* Posts */}
-        {isLoading && !isError ? (
+        {isLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" data-testid="loading-spinner"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
           </div>
-        ) : displayPosts && displayPosts.length > 0 ? (
+        ) : posts && posts.length > 0 ? (
           <div className="space-y-4">
-            {displayPosts.map((post) => (
+            {posts.map((post) => (
               <PostCard key={post.id} post={post} />
             ))}
           </div>

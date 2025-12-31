@@ -35,41 +35,7 @@ const categoryLabels = {
 };
 
 export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
-  const { data: costData, isLoading, error } = useCostAnalysis(filters);
-
-  // Mock data for testing/development when API is not available
-  const mockCostData = [
-    {
-      fieldId: '1',
-      fieldNameAr: 'الحقل الشمالي',
-      totalCost: 85000,
-      costPerHectare: 2833,
-      breakdown: {
-        seeds: 15000,
-        fertilizers: 25000,
-        pesticides: 12000,
-        irrigation: 18000,
-        labor: 10000,
-        equipment: 3000,
-        other: 2000,
-      },
-    },
-    {
-      fieldId: '2',
-      fieldNameAr: 'الحقل الجنوبي',
-      totalCost: 65000,
-      costPerHectare: 2600,
-      breakdown: {
-        seeds: 12000,
-        fertilizers: 20000,
-        pesticides: 10000,
-        irrigation: 13000,
-        labor: 7000,
-        equipment: 2000,
-        other: 1000,
-      },
-    },
-  ];
+  const { data: costData, isLoading } = useCostAnalysis(filters);
 
   if (isLoading) {
     return (
@@ -79,10 +45,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
     );
   }
 
-  // Use real data if available, otherwise use mock data when there's an error
-  const displayData = costData || (error ? mockCostData : null);
-
-  if (!displayData || displayData.length === 0) {
+  if (!costData || costData.length === 0) {
     return (
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
         <p className="text-gray-600">لا توجد بيانات تكاليف متاحة</p>
@@ -92,7 +55,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
   }
 
   // Calculate total breakdown across all fields
-  const totalBreakdown = displayData.reduce(
+  const totalBreakdown = costData.reduce(
     (acc, field) => {
       Object.keys(field.breakdown).forEach((key) => {
         const category = key as keyof typeof field.breakdown;
@@ -109,7 +72,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
     color: COLORS[category as keyof typeof COLORS] || '#6b7280',
   }));
 
-  const totalCost = displayData.reduce((sum, field) => sum + field.totalCost, 0);
+  const totalCost = costData.reduce((sum, field) => sum + field.totalCost, 0);
 
   return (
     <div className="space-y-6">
@@ -128,13 +91,13 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
           <div>
             <p className="text-sm text-gray-600">عدد الحقول</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
-              {displayData.length}
+              {costData.length}
             </p>
           </div>
           <div>
             <p className="text-sm text-gray-600">متوسط التكلفة للحقل</p>
             <p className="text-3xl font-bold text-gray-900 mt-2">
-              {(totalCost / displayData.length).toLocaleString('ar-SA', { maximumFractionDigits: 0 })} ريال
+              {(totalCost / costData.length).toLocaleString('ar-SA', { maximumFractionDigits: 0 })} ريال
             </p>
           </div>
         </div>
@@ -153,7 +116,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={(entry: { name: string; value: number }) => `${entry.name}: ${((entry.value / totalCost) * 100).toFixed(1)}%`}
+                label={(entry) => `${entry.name}: ${((entry.value / totalCost) * 100).toFixed(1)}%`}
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
@@ -171,7 +134,7 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ filters }) => {
 
       {/* Detailed Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayData.map((field) => (
+        {costData.map((field) => (
           <div
             key={field.fieldId}
             className="bg-white p-6 rounded-xl shadow-sm border border-gray-200"

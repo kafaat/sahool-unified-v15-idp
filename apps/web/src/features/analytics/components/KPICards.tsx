@@ -54,7 +54,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="kpi-cards-grid">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {kpis.map((kpi) => {
         const Icon = iconMap[kpi.icon] || BarChart;
         const TrendIcon = getTrendIcon(kpi.trend);
@@ -64,7 +64,6 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
         return (
           <div
             key={kpi.id}
-            data-testid={`stat-card-${kpi.id}`}
             className={`p-6 rounded-xl border-2 shadow-sm transition-all hover:shadow-md ${statusColor}`}
           >
             <div className="flex items-start justify-between">
@@ -86,7 +85,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
                 <span className="text-3xl font-bold text-gray-900">
                   {kpi.value.toLocaleString('ar-SA')}
                 </span>
-                <span className="text-sm text-gray-500" data-testid="unit-indicator">{kpi.unitAr}</span>
+                <span className="text-sm text-gray-500">{kpi.unitAr}</span>
               </div>
             </div>
 

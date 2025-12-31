@@ -71,7 +71,7 @@ export function initSentry(config: SentryConfig): void {
     },
 
     // Don't send PII
-    beforeBreadcrumb(breadcrumb: Sentry.Breadcrumb) {
+    beforeBreadcrumb(breadcrumb: Sentry.Breadcrumb): Sentry.Breadcrumb | null {
       // Remove sensitive data from breadcrumbs
       if (breadcrumb.category === 'xhr' || breadcrumb.category === 'fetch') {
         if (breadcrumb.data?.url?.includes('password')) {

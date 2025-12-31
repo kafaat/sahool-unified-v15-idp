@@ -1,0 +1,14 @@
+# SAHOOL MQTT ACL Configuration
+# Default deny all, then allow specific patterns
+
+# Allow all users to read/write to sahool/# topics
+topic readwrite sahool/#
+
+# Allow admin users full access
+user admin
+topic readwrite #
+
+# IoT devices can publish sensor data
+user sahool_iot
+topic write sahool/sensors/#
+topic read sahool/commands/#

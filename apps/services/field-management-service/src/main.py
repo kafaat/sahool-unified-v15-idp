@@ -5,6 +5,7 @@ Port: 8090
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Optional, List
@@ -12,6 +13,10 @@ from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+# Add shared middleware to path
+shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+sys.path.insert(0, shared_path)
 
 from profitability_analyzer import (
     ProfitabilityAnalyzer,
@@ -90,6 +95,16 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup rate limiting middleware
+try:
+    from middleware.rate_limiter import setup_rate_limiting
+    setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
+    logger.info("Rate limiting enabled")
+except ImportError as e:
+    logger.warning(f"Rate limiting not available: {e}")
+except Exception as e:
+    logger.warning(f"Failed to setup rate limiting: {e}")
 
 
 # ============== Health Check ==============

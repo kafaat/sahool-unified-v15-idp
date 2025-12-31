@@ -169,6 +169,48 @@ class Task(BaseModel):
 # In-Memory Storage (Replace with PostgreSQL in production)
 # ═══════════════════════════════════════════════════════════════════════════
 
+# TODO: MIGRATE TO POSTGRESQL
+# Current: tasks_db and evidence_db stored in-memory (lost on restart)
+# Issues:
+#   - No persistence across service restarts
+#   - No multi-instance support (distributed deployment)
+#   - No transaction support for task + evidence updates
+#   - No audit trail for task status changes
+# Required:
+#   1. Create PostgreSQL tables:
+#      a) 'tasks' table:
+#         - task_id (UUID, PK)
+#         - tenant_id (VARCHAR, indexed)
+#         - title, title_ar (VARCHAR)
+#         - description, description_ar (TEXT)
+#         - task_type (VARCHAR)
+#         - priority (VARCHAR)
+#         - status (VARCHAR, indexed)
+#         - field_id (VARCHAR, indexed)
+#         - zone_id (VARCHAR)
+#         - assigned_to (VARCHAR, indexed)
+#         - created_by (VARCHAR)
+#         - due_date (TIMESTAMP, indexed)
+#         - scheduled_time (TIME)
+#         - estimated_duration_minutes (INTEGER)
+#         - actual_duration_minutes (INTEGER)
+#         - created_at (TIMESTAMP)
+#         - updated_at (TIMESTAMP)
+#         - completed_at (TIMESTAMP)
+#         - completion_notes (TEXT)
+#         - metadata (JSONB)
+#      b) 'task_evidence' table:
+#         - evidence_id (UUID, PK)
+#         - task_id (UUID, FK -> tasks.task_id)
+#         - type (VARCHAR)
+#         - content (TEXT)
+#         - captured_at (TIMESTAMP)
+#         - location (GEOGRAPHY POINT)
+#   2. Create Tortoise ORM models: Task, TaskEvidence
+#   3. Create repository: TaskRepository with methods similar to current functions
+#   4. Add indexes: (tenant_id, status), (assigned_to, status), (field_id, status)
+#   5. Add task status history table for audit trail
+# Migration Priority: HIGH - Task management is core functionality
 tasks_db: dict[str, Task] = {}
 evidence_db: dict[str, Evidence] = {}
 

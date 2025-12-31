@@ -17,11 +17,10 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
-import sys
-# Use relative path instead of hardcoded absolute path
-shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
-sys.path.append(shared_path)
-from database.base import Base
+from sqlalchemy.orm import declarative_base
+
+# Create local Base for models (standalone service doesn't need shared module)
+Base = declarative_base()
 
 from .models.inventory import (
     InventoryItem, InventoryMovement, InventoryTransaction,
@@ -79,6 +78,16 @@ app = FastAPI(title="SAHOOL Inventory Service", description="Agricultural invent
 # CORS Configuration - secure origins from environment
 CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ORIGINS, allow_credentials=True, allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"], allow_headers=["Content-Type", "Authorization", "X-Tenant-Id"])
+
+# Setup rate limiting middleware
+try:
+    from middleware.rate_limiter import setup_rate_limiting
+    setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
+    logger.info("Rate limiting enabled")
+except ImportError as e:
+    logger.warning(f"Rate limiting not available: {e}")
+except Exception as e:
+    logger.warning(f"Failed to setup rate limiting: {e}")
 
 @app.get("/health")
 async def health(db: AsyncSession = Depends(get_db)):

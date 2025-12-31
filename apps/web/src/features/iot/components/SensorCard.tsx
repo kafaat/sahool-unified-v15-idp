@@ -72,16 +72,7 @@ export function SensorCard({ sensor, onClick }: SensorCardProps) {
       onClick={onClick ? handleClick : undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handleClick();
-              }
-            }
-          : undefined
-      }
+      onKeyDown={onClick ? (e) => e.key === 'Enter' && handleClick() : undefined}
     >
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -108,7 +99,7 @@ export function SensorCard({ sensor, onClick }: SensorCardProps) {
                 <p className="text-sm text-gray-600">القراءة الحالية</p>
                 <p className="text-3xl font-bold text-green-700 mt-1">
                   {reading.value.toFixed(1)}
-                  <span className="text-lg mr-2" data-testid="unit-indicator">{reading.unit}</span>
+                  <span className="text-lg mr-2">{reading.unit}</span>
                 </p>
               </div>
               <Activity className="w-8 h-8 text-green-600 opacity-50" />

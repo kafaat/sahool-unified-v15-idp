@@ -2,14 +2,23 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../config/config.dart';
+import '../security/security_config.dart';
+import '../security/certificate_pinning_service.dart';
 
-/// SAHOOL API Client with offline handling
+/// SAHOOL API Client with offline handling and certificate pinning
 class ApiClient {
   late final Dio _dio;
   String? _authToken;
   String _tenantId = AppConfig.defaultTenantId;
+  CertificatePinningService? _certificatePinningService;
 
-  ApiClient({String? baseUrl}) {
+  ApiClient({
+    String? baseUrl,
+    SecurityConfig? securityConfig,
+    CertificatePinningService? certificatePinningService,
+  }) {
+    final config = securityConfig ?? const SecurityConfig();
+
     _dio = Dio(BaseOptions(
       baseUrl: baseUrl ?? AppConfig.apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
@@ -19,6 +28,23 @@ class ApiClient {
         'Accept': 'application/json',
       },
     ));
+
+    // Configure certificate pinning if enabled
+    if (config.enableCertificatePinning) {
+      _certificatePinningService = certificatePinningService ??
+          CertificatePinningService(
+            allowDebugBypass: config.allowPinningDebugBypass,
+            enforceStrict: config.strictCertificatePinning,
+          );
+      _certificatePinningService!.configureDio(_dio);
+
+      if (kDebugMode) {
+        print('🔒 SSL Certificate Pinning enabled');
+        print('   Strict mode: ${config.strictCertificatePinning}');
+        print('   Debug bypass: ${config.allowPinningDebugBypass}');
+        print('   Configured domains: ${_certificatePinningService!.getConfiguredDomains()}');
+      }
+    }
 
     // Add interceptors
     _dio.interceptors.add(_AuthInterceptor(this));
@@ -35,6 +61,21 @@ class ApiClient {
 
   String? get authToken => _authToken;
   String get tenantId => _tenantId;
+  CertificatePinningService? get certificatePinningService => _certificatePinningService;
+
+  /// Check if certificate pinning is enabled
+  bool get isCertificatePinningEnabled => _certificatePinningService != null;
+
+  /// Check for expiring certificate pins
+  List<ExpiringPin> getExpiringPins({int daysThreshold = 30}) {
+    if (_certificatePinningService == null) return [];
+    return _certificatePinningService!.getExpiringPins(daysThreshold: daysThreshold);
+  }
+
+  /// Update certificate pins for a domain
+  void updateCertificatePins(String domain, List<CertificatePin> pins) {
+    _certificatePinningService?.addPins(domain, pins);
+  }
 
   /// GET request
   Future<dynamic> get(

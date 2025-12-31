@@ -5,14 +5,14 @@ import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../config/config.dart';
 import 'network_status.dart';
-import '../../features/ecological_records/data/sync/ecological_sync_handler.dart';
+import 'sync_metrics_service.dart';
 
 /// Sync Engine - Handles offline-first synchronization with ETag support
 class SyncEngine {
   final AppDatabase database;
+  final SyncMetricsService? metricsService;
   final NetworkStatus _networkStatus = NetworkStatus();
   late final ApiClient _apiClient;
-  late final EcologicalSyncHandler _ecologicalHandler;
 
   Timer? _syncTimer;
   bool _isSyncing = false;
@@ -20,12 +20,11 @@ class SyncEngine {
   final _syncStatusController = StreamController<SyncStatus>.broadcast();
   Stream<SyncStatus> get syncStatus => _syncStatusController.stream;
 
-  SyncEngine({required this.database}) {
+  SyncEngine({
+    required this.database,
+    this.metricsService,
+  }) {
     _apiClient = ApiClient();
-    _ecologicalHandler = EcologicalSyncHandler(
-      db: database,
-      apiClient: _apiClient,
-    );
   }
 
   /// Get current tenant ID from API client
@@ -69,6 +68,8 @@ class SyncEngine {
 
     _isSyncing = true;
     _syncStatusController.add(SyncStatus.syncing);
+
+    final syncStartTime = DateTime.now();
 
     try {
       // 1. Process outbox (upload local changes)
@@ -149,15 +150,15 @@ class SyncEngine {
 
   /// Process single outbox item with ETag support
   Future<_ItemResult> _processOutboxItem(OutboxData item) async {
-    // Delegate ecological records to specialized handler
-    if (_ecologicalHandler.handlers.containsKey(item.entityType)) {
-      final handler = _ecologicalHandler.handlers[item.entityType]!;
-      final success = await handler(item);
-      return success ? _ItemResult.success : _ItemResult.failed;
-    }
-
-    // Process other entity types (fields, tasks, etc.)
     final payload = jsonDecode(item.payload) as Map<String, dynamic>;
+    final payloadSize = item.payload.length;
+
+    // Start metrics tracking
+    final operationId = metricsService?.startSyncOperation(
+      type: SyncOperationType.upload,
+      entityType: item.entityType,
+      estimatedPayloadSize: payloadSize,
+    );
 
     // Build headers with If-Match for optimistic locking
     Map<String, String>? headers;
@@ -180,13 +181,45 @@ class SyncEngine {
         default:
           await _apiClient.post(item.apiEndpoint, payload, headers: headers);
       }
+
+      // Record success
+      if (operationId != null) {
+        await metricsService?.completeSyncOperation(
+          operationId: operationId,
+          success: true,
+          actualPayloadSize: payloadSize,
+        );
+      }
+
       return _ItemResult.success;
     } catch (e) {
       // Check for 409 Conflict
       if (e.toString().contains('409') || e.toString().contains('Conflict')) {
         await _handleConflict(item);
+
+        // Record conflict
+        if (operationId != null) {
+          await metricsService?.completeSyncOperation(
+            operationId: operationId,
+            success: true,
+            actualPayloadSize: payloadSize,
+            wasConflict: true,
+            conflictResolution: ConflictResolution.serverWins,
+          );
+        }
+
         return _ItemResult.conflict;
       }
+
+      // Record failure
+      if (operationId != null) {
+        await metricsService?.completeSyncOperation(
+          operationId: operationId,
+          success: false,
+          errorMessage: e.toString(),
+        );
+      }
+
       rethrow;
     }
   }
@@ -216,14 +249,6 @@ class SyncEngine {
         return 'الحقل';
       case 'task':
         return 'المهمة';
-      case 'biodiversity_record':
-        return 'سجل التنوع البيولوجي';
-      case 'soil_health_record':
-        return 'سجل صحة التربة';
-      case 'water_conservation_record':
-        return 'سجل الحفاظ على المياه';
-      case 'farm_practice_record':
-        return 'سجل الممارسات الزراعية';
       default:
         return 'البيانات';
     }
@@ -232,6 +257,12 @@ class SyncEngine {
   /// Pull latest data from server
   Future<PullResult> _pullFromServer() async {
     int count = 0;
+
+    // Start metrics tracking
+    final operationId = metricsService?.startSyncOperation(
+      type: SyncOperationType.download,
+      entityType: 'tasks',
+    );
 
     try {
       // Pull tasks
@@ -245,17 +276,30 @@ class SyncEngine {
           tasksResponse.cast<Map<String, dynamic>>(),
         );
         count += tasksResponse.length;
+
+        // Estimate payload size
+        final payloadSize = jsonEncode(tasksResponse).length;
+
+        // Record success
+        if (operationId != null) {
+          await metricsService?.completeSyncOperation(
+            operationId: operationId,
+            success: true,
+            actualPayloadSize: payloadSize,
+          );
+        }
       }
     } catch (e) {
       print('⚠️ Failed to pull tasks: $e');
-    }
 
-    // Pull ecological records using specialized handler
-    try {
-      await _ecologicalHandler.pullFromServer(_tenantId);
-      print('✅ Successfully pulled ecological records');
-    } catch (e) {
-      print('⚠️ Failed to pull ecological records: $e');
+      // Record failure
+      if (operationId != null) {
+        await metricsService?.completeSyncOperation(
+          operationId: operationId,
+          success: false,
+          errorMessage: e.toString(),
+        );
+      }
     }
 
     return PullResult(count: count);

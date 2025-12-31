@@ -9,6 +9,25 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '@/lib/api';
 import { Alert } from '../types';
 
+// API Alert response type
+interface ApiAlert {
+  id: string;
+  title?: string;
+  type?: string;
+  titleAr?: string;
+  message?: string;
+  description?: string;
+  messageAr?: string;
+  severity?: Alert['severity'];
+  category?: Alert['category'];
+  status?: Alert['status'];
+  fieldId?: string;
+  fieldName?: string;
+  createdAt?: string;
+  acknowledged?: boolean;
+  actionUrl?: string;
+}
+
 // Default alerts for fallback/demo
 const DEFAULT_ALERTS: Alert[] = [
   {
@@ -52,19 +71,19 @@ const DEFAULT_ALERTS: Alert[] = [
 ];
 
 // Helper function to map API alerts to our Alert type
-const mapApiAlert = (alert: any): Alert => ({
+const mapApiAlert = (alert: ApiAlert): Alert => ({
   id: alert.id,
-  title: alert.title || alert.type,
-  titleAr: alert.titleAr || alert.title,
-  message: alert.message || alert.description,
-  messageAr: alert.messageAr || alert.message,
+  title: alert.title || alert.type || 'Alert',
+  titleAr: alert.titleAr || alert.title || 'تنبيه',
+  message: alert.message || alert.description || '',
+  messageAr: alert.messageAr || alert.message || '',
   severity: alert.severity || 'info',
-  category: alert.category || 'general',
+  category: alert.category || 'system',
   status: alert.status || 'active',
   fieldId: alert.fieldId,
   fieldName: alert.fieldName,
   createdAt: alert.createdAt || new Date().toISOString(),
-  read: alert.acknowledged || false,
+  read: alert.acknowledged ?? false,
   actionUrl: alert.actionUrl,
 });
 

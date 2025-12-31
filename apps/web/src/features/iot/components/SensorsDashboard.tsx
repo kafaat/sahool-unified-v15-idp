@@ -14,23 +14,14 @@ interface SensorsDashboardProps {
 }
 
 export function SensorsDashboard({ onSensorClick }: SensorsDashboardProps = {}) {
-  const { data: sensors, isLoading: sensorsLoading, error: sensorsError } = useSensors();
-  const { data: stats, isLoading: statsLoading, error: statsError } = useSensorStats();
+  const { data: sensors, isLoading: sensorsLoading } = useSensors();
+  const { data: stats, isLoading: statsLoading } = useSensorStats();
 
   if (sensorsLoading || statsLoading) {
     return (
-      <div className="flex items-center justify-center py-12" data-testid="loading-state">
+      <div className="flex items-center justify-center py-12">
         <Loader2 className="w-8 h-8 animate-spin text-green-600" />
         <span className="mr-3 text-gray-600">جاري التحميل...</span>
-      </div>
-    );
-  }
-
-  if (sensorsError || statsError) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500">فشل تحميل المستشعرات</p>
-        <p className="text-sm text-gray-400 mt-2">Failed to load sensors</p>
       </div>
     );
   }

@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import DOMPurify from 'dompurify';
 import { apiClient } from '@/lib/api';
 import type { Field } from '@/lib/api/types';
 
@@ -194,37 +193,40 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
         setSelectedField(fieldId);
         onFieldSelect?.(fieldId);
 
-        // Sanitize content to prevent XSS using DOMPurify
-        const safeName = DOMPurify.sanitize(String(props?.name || 'حقل'), { ALLOWED_TAGS: [] });
-        const safeCrop = DOMPurify.sanitize(String(props?.crop || '-'), { ALLOWED_TAGS: [] });
-        const safeArea = DOMPurify.sanitize(String(props?.area || '0'), { ALLOWED_TAGS: [] });
-        const safeNdvi = props?.ndvi ? DOMPurify.sanitize(String(props.ndvi.toFixed(2)), { ALLOWED_TAGS: [] }) : 'N/A';
+        // Show popup with escaped content to prevent XSS
+        const escapeHtml = (text: string | number | undefined): string => {
+          if (text === undefined || text === null) return '';
+          const str = String(text);
+          const div = document.createElement('div');
+          div.textContent = str;
+          return div.innerHTML;
+        };
+
+        const safeName = escapeHtml(props?.name) || 'حقل';
+        const safeCrop = escapeHtml(props?.crop) || '-';
+        const safeArea = escapeHtml(props?.area) || '0';
+        const safeNdvi = props?.ndvi ? escapeHtml(props.ndvi.toFixed(2)) : 'N/A';
         const statusClass = props?.status === 'healthy' ? 'bg-green-100 text-green-800' :
                            props?.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
                            'bg-red-100 text-red-800';
         const statusText = props?.status === 'healthy' ? 'صحي' :
                           props?.status === 'warning' ? 'تحذير' : 'حرج';
 
-        const popupContent = DOMPurify.sanitize(`
-          <div class="p-2 text-right" dir="rtl">
-            <h4 class="font-bold text-sm">${safeName}</h4>
-            <p class="text-xs text-gray-600">المحصول: ${safeCrop}</p>
-            <p class="text-xs text-gray-600">المساحة: ${safeArea} هكتار</p>
-            <p class="text-xs text-gray-600">NDVI: ${safeNdvi}</p>
-            <div class="mt-2">
-              <span class="text-xs px-2 py-0.5 rounded-full ${statusClass}">
-                ${statusText}
-              </span>
-            </div>
-          </div>
-        `, {
-          ALLOWED_TAGS: ['div', 'h4', 'p', 'span'],
-          ALLOWED_ATTR: ['class', 'dir'],
-        });
-
         new maplibregl.Popup()
           .setLngLat(e.lngLat)
-          .setHTML(popupContent)
+          .setHTML(`
+            <div class="p-2 text-right" dir="rtl">
+              <h4 class="font-bold text-sm">${safeName}</h4>
+              <p class="text-xs text-gray-600">المحصول: ${safeCrop}</p>
+              <p class="text-xs text-gray-600">المساحة: ${safeArea} هكتار</p>
+              <p class="text-xs text-gray-600">NDVI: ${safeNdvi}</p>
+              <div class="mt-2">
+                <span class="text-xs px-2 py-0.5 rounded-full ${statusClass}">
+                  ${statusText}
+                </span>
+              </div>
+            </div>
+          `)
           .addTo(map.current!);
       }
     });
@@ -246,10 +248,13 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     if (geojsonData.features.length > 0) {
       const bounds = new maplibregl.LngLatBounds();
       geojsonData.features.forEach(feature => {
-        if (feature?.geometry?.type === 'Polygon' && feature.geometry.coordinates?.[0]) {
-          feature.geometry.coordinates[0].forEach(coord => {
-            bounds.extend(coord as [number, number]);
-          });
+        if (feature.geometry.type === 'Polygon' && feature.geometry.coordinates) {
+          const outerRing = feature.geometry.coordinates[0];
+          if (outerRing) {
+            outerRing.forEach(coord => {
+              bounds.extend(coord as [number, number]);
+            });
+          }
         }
       });
       map.current.fitBounds(bounds, { padding: 50 });

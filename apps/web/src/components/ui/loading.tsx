@@ -1,7 +1,7 @@
-import React, { HTMLAttributes } from 'react';
+import * as React from 'react';
 import { clsx } from 'clsx';
 
-export interface LoadingProps extends HTMLAttributes<HTMLDivElement> {
+export interface LoadingProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'spinner' | 'dots' | 'pulse';
   text?: string;

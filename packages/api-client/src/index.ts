@@ -590,22 +590,22 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   private generateMockFarms(): Farm[] {
-    const governorates = ['sanaa', 'taiz', 'ibb', 'hadramaut', 'hodeidah', 'dhamar'];
-    const crops = ['wheat', 'coffee', 'qat', 'date_palm', 'mango', 'banana', 'sorghum'];
+    const governorates = ['sanaa', 'taiz', 'ibb', 'hadramaut', 'hodeidah', 'dhamar'] as const;
+    const crops = ['wheat', 'coffee', 'qat', 'date_palm', 'mango', 'banana', 'sorghum'] as const;
 
     return Array.from({ length: 25 }, (_, i) => ({
       id: `farm-${i + 1}`,
       name: `Farm ${i + 1}`,
       nameAr: `مزرعة ${i + 1}`,
       ownerId: `user-${Math.floor(Math.random() * 10) + 1}`,
-      governorate: governorates[Math.floor(Math.random() * governorates.length)],
+      governorate: governorates[Math.floor(Math.random() * governorates.length)] ?? 'sanaa',
       district: 'District',
       area: Math.random() * 50 + 5,
       coordinates: {
         lat: 13.5 + Math.random() * 3,
         lng: 43.5 + Math.random() * 5,
       },
-      crops: [crops[Math.floor(Math.random() * crops.length)]],
+      crops: [crops[Math.floor(Math.random() * crops.length)] ?? 'wheat'],
       status: 'active' as const,
       healthScore: Math.floor(Math.random() * 40) + 60,
       lastUpdated: new Date().toISOString(),
@@ -619,12 +619,13 @@ export class SahoolApiClient {
       { id: 'tomato_early_blight', name: 'Early Blight', nameAr: 'اللفحة المبكرة' },
       { id: 'powdery_mildew', name: 'Powdery Mildew', nameAr: 'البياض الدقيقي' },
       { id: 'bacterial_spot', name: 'Bacterial Spot', nameAr: 'التبقع البكتيري' },
-    ];
+    ] as const;
+    const defaultDisease = diseases[0];
     const severities: Severity[] = ['low', 'medium', 'high', 'critical'];
     const statuses: DiagnosisStatus[] = ['pending', 'confirmed', 'rejected', 'treated'];
 
     return Array.from({ length: 20 }, (_, i) => {
-      const disease = diseases[Math.floor(Math.random() * diseases.length)];
+      const disease = diseases[Math.floor(Math.random() * diseases.length)] ?? defaultDisease;
       return {
         id: `diag-${i + 1}`,
         farmId: `farm-${Math.floor(Math.random() * 25) + 1}`,
@@ -636,8 +637,8 @@ export class SahoolApiClient {
         diseaseName: disease.name,
         diseaseNameAr: disease.nameAr,
         confidence: Math.random() * 30 + 70,
-        severity: severities[Math.floor(Math.random() * severities.length)],
-        status: statuses[Math.floor(Math.random() * statuses.length)],
+        severity: severities[Math.floor(Math.random() * severities.length)] ?? 'medium',
+        status: statuses[Math.floor(Math.random() * statuses.length)] ?? 'pending',
         location: {
           lat: 13.5 + Math.random() * 3,
           lng: 43.5 + Math.random() * 5,

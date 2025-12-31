@@ -53,7 +53,8 @@ function getClientIP(request: NextRequest): string {
   const realIp = request.headers.get('x-real-ip');
 
   if (forwarded) {
-    return forwarded.split(',')[0].trim();
+    const firstIp = forwarded.split(',')[0];
+    return firstIp ? firstIp.trim() : 'unknown';
   }
 
   if (realIp) {
@@ -101,7 +102,6 @@ export async function POST(request: NextRequest) {
 
     // Filter out known false positives
     const blockedUri = report['blocked-uri'];
-    const violatedDirective = report['violated-directive'];
 
     // Skip browser extensions
     if (

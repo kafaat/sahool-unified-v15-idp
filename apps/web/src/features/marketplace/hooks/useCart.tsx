@@ -5,7 +5,7 @@
 
 'use client';
 
-import { createContext, useContext, useState, useCallback, useMemo, ReactNode, useEffect } from 'react';
+import * as React from 'react';
 import type { Product, CartItem, Cart } from '../types';
 
 interface CartContextType {
@@ -16,7 +16,7 @@ interface CartContextType {
   clearCart: () => void;
 }
 
-const CartContext = createContext<CartContextType | null>(null);
+const CartContext = React.createContext<CartContextType | null>(null);
 
 /**
  * Calculate cart totals
@@ -40,11 +40,11 @@ function calculateTotals(items: CartItem[]): Cart {
 /**
  * Cart Provider Component
  */
-export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [items, setItems] = React.useState<CartItem[]>([]);
 
   // Load cart from localStorage on mount
-  useEffect(() => {
+  React.useEffect(() => {
     const savedCart = localStorage.getItem('sahool-cart');
     if (savedCart) {
       try {
@@ -56,11 +56,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Save cart to localStorage on change
-  useEffect(() => {
+  React.useEffect(() => {
     localStorage.setItem('sahool-cart', JSON.stringify(items));
   }, [items]);
 
-  const addItem = useCallback((product: Product, quantity = 1) => {
+  const addItem = React.useCallback((product: Product, quantity = 1) => {
     setItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.productId === product.id);
 
@@ -86,11 +86,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const removeItem = useCallback((productId: string) => {
+  const removeItem = React.useCallback((productId: string) => {
     setItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
   }, []);
 
-  const updateQuantity = useCallback((productId: string, quantity: number) => {
+  const updateQuantity = React.useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
       setItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
       return;
@@ -101,13 +101,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
-  const clearCart = useCallback(() => {
+  const clearCart = React.useCallback(() => {
     setItems([]);
   }, []);
 
-  const cart = useMemo(() => calculateTotals(items), [items]);
+  const cart = React.useMemo(() => calculateTotals(items), [items]);
 
-  const value = useMemo(
+  const value = React.useMemo(
     () => ({ cart, addItem, removeItem, updateQuantity, clearCart }),
     [cart, addItem, removeItem, updateQuantity, clearCart]
   );
@@ -123,7 +123,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
  * Hook to use cart
  */
 export const useCart = () => {
-  const context = useContext(CartContext);
+  const context = React.useContext(CartContext);
   if (!context) {
     throw new Error('useCart must be used within CartProvider');
   }

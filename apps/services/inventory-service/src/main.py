@@ -17,11 +17,10 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
-import sys
-# Use relative path instead of hardcoded absolute path
-shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
-sys.path.append(shared_path)
-from database.base import Base
+from sqlalchemy.orm import declarative_base
+
+# Create local Base for models (standalone service doesn't need shared module)
+Base = declarative_base()
 
 from .models.inventory import (
     InventoryItem, InventoryMovement, InventoryTransaction,

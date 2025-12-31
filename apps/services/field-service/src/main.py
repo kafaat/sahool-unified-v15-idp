@@ -15,7 +15,11 @@ from fastapi import FastAPI, HTTPException, Query, Response, Header, Depends
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
-from cors_config import setup_cors_middleware
+try:
+    from cors_config import setup_cors_middleware
+except ImportError:
+    # Fallback if shared config not available
+    setup_cors_middleware = None
 
 from .models import (
     FieldCreate,
@@ -128,7 +132,19 @@ app = FastAPI(
 )
 
 # CORS - Use centralized secure configuration
-setup_cors_middleware(app)
+if setup_cors_middleware:
+    setup_cors_middleware(app)
+else:
+    # Fallback CORS configuration if shared config not available
+    from fastapi.middleware.cors import CORSMiddleware
+    CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+        allow_headers=["*"],
+    )
 
 
 # ============== Health Endpoints ==============

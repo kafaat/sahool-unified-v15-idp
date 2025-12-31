@@ -18,9 +18,9 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
 import sys
-# Use relative path instead of hardcoded absolute path
-shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
-sys.path.append(shared_path)
+# Use relative path to shared database module
+shared_db_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared', 'database'))
+sys.path.insert(0, os.path.dirname(shared_db_path))
 from database.base import Base
 
 from .models.inventory import (

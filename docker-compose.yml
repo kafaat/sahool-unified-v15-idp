@@ -36,8 +36,6 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:
@@ -98,8 +96,6 @@ services:
       options:
         max-size: "50m"
         max-file: "3"
-    security_opt:
-      - no-new-privileges:true
     deploy:
       resources:
         limits:

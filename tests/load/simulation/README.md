@@ -1,62 +1,65 @@
-# SAHOOL IDP - Virtual Simulation Environment
-# بيئة المحاكاة الافتراضية لمنصة سهول
+# SAHOOL IDP - Load Testing Simulation Environment
+# بيئة محاكاة اختبار الحمل لمنصة سهول
+
+[![Load Test Validation](https://github.com/kafaat/sahool-unified-v15-idp/actions/workflows/load-test-validation.yml/badge.svg)](https://github.com/kafaat/sahool-unified-v15-idp/actions/workflows/load-test-validation.yml)
 
 ## نظرة عامة | Overview
 
-بيئة محاكاة افتراضية كاملة لاختبار الحمل على نظام SAHOOL IDP باستخدام:
-- **10 وكلاء افتراضيين** (Virtual Agents) يضربون النظام بالطلبات المتزامنة
-- **3 نسخ من التطبيق** (Application Instances) لاختبار توزيع الحمل
+بيئة محاكاة افتراضية كاملة لاختبار الحمل على نظام SAHOOL IDP مع دعم:
+
+### الإصدار الأساسي (Standard)
+- **10-20 وكيل افتراضي** (Virtual Agents)
+- **3 نسخ من التطبيق** (Application Instances)
 - **Nginx Load Balancer** لتوزيع الطلبات
 - **Redis** للجلسات الموزعة
 - **PostgreSQL + PgBouncer** لتجميع اتصالات قاعدة البيانات
 - **K6** لاختبار الحمل مع **InfluxDB + Grafana** للمراقبة
 
-A complete virtual simulation environment for load testing the SAHOOL IDP system.
+### الإصدار المتقدم (Advanced) 🆕
+- **15-100+ وكيل افتراضي**
+- **5 نسخ من التطبيق** (High Availability)
+- **Prometheus + Alertmanager** للتنبيهات
+- **25+ قاعدة تنبيه** مخصصة
+- **اختبار هندسة الفوضى** (Chaos Engineering)
+- **4 أنواع اختبارات**: Standard, Stress, Spike, Chaos
 
 ---
 
 ## البنية المعمارية | Architecture
 
 ```
-                                    ┌─────────────────┐
-                                    │   K6 Agents     │
-                                    │  (10 Virtual    │
-                                    │   Users)        │
-                                    └────────┬────────┘
+                                    ┌─────────────────────┐
+                                    │    K6 Load Tester   │
+                                    │  (15-100+ Agents)   │
+                                    └──────────┬──────────┘
+                                               │
+                                               ▼
+                                ┌────────────────────────────┐
+                                │   Nginx Load Balancer      │
+                                │   (least_conn algorithm)   │
+                                └────────────┬───────────────┘
                                              │
-                                             ▼
-                              ┌──────────────────────────┐
-                              │   Nginx Load Balancer    │
-                              │   (least_conn)           │
-                              │   Port: 8080             │
-                              └──────────┬───────────────┘
-                                         │
-                    ┌────────────────────┼────────────────────┐
-                    │                    │                    │
-                    ▼                    ▼                    ▼
-           ┌───────────────┐    ┌───────────────┐    ┌───────────────┐
-           │  App Instance │    │  App Instance │    │  App Instance │
-           │      #1       │    │      #2       │    │      #3       │
-           │  172.30.0.100 │    │  172.30.0.101 │    │  172.30.0.102 │
-           └───────┬───────┘    └───────┬───────┘    └───────┬───────┘
-                   │                    │                    │
-                   └────────────────────┼────────────────────┘
-                                        │
-                   ┌────────────────────┴────────────────────┐
-                   │                                         │
-                   ▼                                         ▼
-          ┌───────────────┐                         ┌───────────────┐
-          │   PgBouncer   │                         │    Redis      │
-          │  Connection   │                         │   Sessions    │
-          │    Pooler     │                         │   & Cache     │
-          └───────┬───────┘                         └───────────────┘
-                  │
-                  ▼
-          ┌───────────────┐
-          │  PostgreSQL   │
-          │  (PostGIS)    │
-          │ max_conn=200  │
-          └───────────────┘
+           ┌──────────┬──────────┬──────────┼──────────┬──────────┐
+           │          │          │          │          │          │
+           ▼          ▼          ▼          ▼          ▼          ▼
+      ┌─────────┐┌─────────┐┌─────────┐┌─────────┐┌─────────┐
+      │ App #1  ││ App #2  ││ App #3  ││ App #4  ││ App #5  │
+      └────┬────┘└────┬────┘└────┬────┘└────┬────┘└────┬────┘
+           │          │          │          │          │
+           └──────────┴──────────┼──────────┴──────────┘
+                                 │
+              ┌──────────────────┼──────────────────┐
+              │                  │                  │
+              ▼                  ▼                  ▼
+       ┌───────────┐      ┌───────────┐      ┌───────────┐
+       │ PgBouncer │      │   Redis   │      │Prometheus │
+       │  (Pool)   │      │  (Cache)  │      │ (Metrics) │
+       └─────┬─────┘      └───────────┘      └─────┬─────┘
+             │                                     │
+             ▼                                     ▼
+       ┌───────────┐                        ┌───────────┐
+       │PostgreSQL │                        │Alertmgr   │
+       └───────────┘                        └───────────┘
 ```
 
 ---
@@ -66,42 +69,110 @@ A complete virtual simulation environment for load testing the SAHOOL IDP system
 ### المتطلبات | Prerequisites
 - Docker 20.10+
 - Docker Compose 2.0+
-- 4GB+ RAM available
-- 10GB+ disk space
+- 8GB+ RAM (للإصدار المتقدم)
+- 15GB+ disk space
 
-### خطوات التشغيل | Steps
+### Linux / Mac
 
 ```bash
 # 1. انتقل إلى مجلد المحاكاة
 cd tests/load/simulation
 
-# 2. شغّل البنية التحتية
-./run-simulation.sh start
+# 2. تحقق من جاهزية البيئة
+./verify-simulation.sh
 
-# 3. شغّل اختبار الحمل مع 10 وكلاء
+# === الإصدار الأساسي (3 نسخ، 10-20 وكيل) ===
+./run-simulation.sh start
 ./run-simulation.sh test 10
 
-# 4. شاهد النتائج في Grafana
-open http://localhost:3031
+# === الإصدار المتقدم (5 نسخ، 15-100+ وكيل) ===
+./run-advanced.sh start
+./run-advanced.sh stress 50    # اختبار ضغط
+./run-advanced.sh chaos high   # اختبار فوضى
 
-# 5. أوقف كل شيء
+# 3. شاهد النتائج
+open http://localhost:3031     # Grafana (Basic)
+open http://localhost:3032     # Grafana (Advanced)
+open http://localhost:9091     # Prometheus
+open http://localhost:9094     # Alertmanager
+
+# 4. إيقاف
 ./run-simulation.sh stop
+./run-advanced.sh stop
 ```
+
+### Windows (PowerShell)
+
+```powershell
+# 1. انتقل إلى مجلد المحاكاة
+cd tests\load\simulation
+
+# 2. تحقق من جاهزية البيئة
+.\verify-simulation.ps1
+
+# === الإصدار الأساسي ===
+.\run-simulation.ps1 -Command Start
+.\run-simulation.ps1 -Command Test -AgentCount 10
+
+# === الإصدار المتقدم ===
+.\run-advanced.ps1 -Command start
+.\run-advanced.ps1 -Command stress -AgentCount 50
+.\run-advanced.ps1 -Command chaos -ChaosLevel high
+
+# 3. إيقاف
+.\run-simulation.ps1 -Command Stop
+.\run-advanced.ps1 -Command stop
+```
+
+---
+
+## أنواع الاختبارات | Test Types
+
+| النوع | الوكلاء | الوصف | الأمر |
+|-------|--------|-------|-------|
+| **Standard** | 20 | اختبار أساسي متوازن | `./run-advanced.sh standard` |
+| **Stress** | 20→100 | زيادة تدريجية للضغط | `./run-advanced.sh stress 50` |
+| **Spike** | 20→200 | ارتفاع مفاجئ في الحمل | `./run-advanced.sh spike` |
+| **Chaos** | 30+ | حقن أخطاء عشوائية | `./run-advanced.sh chaos high` |
+
+### مستويات Chaos Testing
+
+| المستوى | نسبة الفشل | الوصف |
+|---------|-----------|-------|
+| `low` | 5% | اختبار خفيف |
+| `medium` | 15% | اختبار متوسط |
+| `high` | 30% | اختبار شديد |
+| `extreme` | 50% | اختبار قاسي |
 
 ---
 
 ## الأوامر المتاحة | Available Commands
 
+### الإصدار الأساسي (run-simulation)
+
 | الأمر | الوصف |
 |-------|-------|
-| `./run-simulation.sh start` | تشغيل البنية التحتية |
-| `./run-simulation.sh start-apps` | تشغيل نسخ التطبيق |
-| `./run-simulation.sh test [N]` | تشغيل المحاكاة مع N وكيل |
-| `./run-simulation.sh quick [URL]` | اختبار سريع بدون بنية تحتية |
-| `./run-simulation.sh status` | حالة الخدمات |
-| `./run-simulation.sh logs [service]` | عرض السجلات |
-| `./run-simulation.sh stop` | إيقاف الخدمات |
-| `./run-simulation.sh clean` | تنظيف كامل |
+| `start` | تشغيل البنية التحتية (3 نسخ) |
+| `test [N]` | تشغيل المحاكاة مع N وكيل |
+| `quick [URL]` | اختبار سريع بدون بنية تحتية |
+| `status` | حالة الخدمات |
+| `logs [service]` | عرض السجلات |
+| `stop` | إيقاف الخدمات |
+| `clean` | تنظيف كامل |
+
+### الإصدار المتقدم (run-advanced)
+
+| الأمر | الوصف |
+|-------|-------|
+| `start` | تشغيل البنية التحتية (5 نسخ + مراقبة) |
+| `standard` | اختبار قياسي (20 وكيل) |
+| `stress [N]` | اختبار ضغط (N وكيل أساسي) |
+| `spike` | اختبار ارتفاع مفاجئ |
+| `chaos [level]` | اختبار فوضى |
+| `all` | تشغيل جميع الاختبارات |
+| `status` | حالة الخدمات |
+| `stop` | إيقاف الخدمات |
+| `clean` | تنظيف كامل |
 
 ---
 
@@ -109,91 +180,107 @@ open http://localhost:3031
 
 ```
 simulation/
-├── docker-compose-sim.yml     # Docker Compose configuration
-├── run-simulation.sh          # Execution script
-├── README.md                  # This file
-├── PROBLEM_ANALYSIS_REPORT.md # Expected problems & solutions
+├── docker-compose-sim.yml        # Basic: 3 instances
+├── docker-compose-advanced.yml   # Advanced: 5 instances + monitoring
+├── run-simulation.sh             # Basic runner (Linux)
+├── run-simulation.ps1            # Basic runner (Windows)
+├── run-advanced.sh               # Advanced runner (Linux)
+├── run-advanced.ps1              # Advanced runner (Windows)
+├── verify-simulation.sh          # Verification (Linux)
+├── verify-simulation.ps1         # Verification (Windows)
+├── quick-test.sh                 # Quick validation (CI/CD)
 ├── config/
-│   ├── nginx.conf             # Nginx load balancer config
-│   ├── proxy-params.conf      # Nginx proxy parameters
-│   ├── nginx-upstream.conf    # Nginx upstream config
-│   └── application-ha.yml     # High availability app config
+│   ├── nginx.conf                # Basic LB config
+│   ├── nginx-advanced.conf       # Advanced LB config (5 instances)
+│   └── proxy-params.conf         # Proxy parameters
 ├── scripts/
-│   └── agent-simulation.js    # K6 agent simulation script
+│   ├── agent-simulation.js       # Basic K6 script
+│   ├── advanced-scenarios.js     # Advanced multi-scenario K6
+│   └── chaos-testing.js          # Chaos engineering K6
+├── monitoring/
+│   ├── prometheus.yml            # Prometheus config
+│   ├── alertmanager.yml          # Alert routing
+│   └── alert-rules.yml           # 25+ alert rules
 ├── grafana/
 │   ├── dashboards/
-│   │   ├── dashboards.yml     # Dashboard provisioning
-│   │   └── k6-dashboard.json  # K6 metrics dashboard
+│   │   ├── k6-dashboard.json     # Basic dashboard
+│   │   └── advanced-dashboard.json # Advanced dashboard
 │   └── datasources/
-│       └── influxdb.yml       # InfluxDB datasource
-├── init-scripts/              # Database init scripts
-└── results/                   # Test results output
+│       └── influxdb.yml          # InfluxDB datasource
+├── init-scripts/                 # Database init scripts
+└── results/                      # Test results output
 ```
 
 ---
 
-## سيناريو المحاكاة | Simulation Scenario
+## سيناريوهات الاختبار | Test Scenarios
 
-### مراحل الوكيل | Agent Phases
-
-كل وكيل (Virtual User) يمر بالمراحل التالية:
-
-1. **Phase 1: Authentication** - تسجيل الدخول
-   - POST `/api/auth/login`
-   - Measure: `login_duration_ms`
-
-2. **Phase 2: Profile** - جلب الملف الشخصي
-   - GET `/api/profile`
-   - Measure: `profile_duration_ms`
-
-3. **Phase 3: Session Persistence** - اختبار استمرارية الجلسة
-   - 3 طلبات متتالية للتحقق من عدم فقدان الجلسة
-   - Measure: `session_persistence_rate`
-
-4. **Phase 4: Field Operations** - عمليات الحقول
-   - GET `/api/fields` - قائمة الحقول
-   - POST `/api/fields` - إنشاء حقل
-   - Measure: `field_list_duration_ms`, `field_create_duration_ms`
-
-5. **Phase 5: Cleanup** - التنظيف
-   - DELETE `/api/fields/{id}`
-
-### ملف التحميل | Load Profile
+### السيناريو الأساسي (Basic)
 
 ```
-VUs (Virtual Users)
-    │
- 20 ├─────────────────────┐
-    │                     │
- 10 ├──────┐              ├──────┐
-    │      │              │      │
-  0 └──────┴──────────────┴──────┴────▶ Time
-    0     30s    1m      1m30s   2m  2m30s
+Agent Flow:
+  1. Login → 2. Profile → 3. Session Check → 4. Field Ops → 5. Cleanup
+```
 
-    Ramp up → Hold → Stress → Hold → Ramp down
+### السيناريوهات المتقدمة (Advanced)
+
+| السيناريو | النسبة | العمليات |
+|-----------|--------|----------|
+| **Auth Flow** | 20% | Login, Session persistence |
+| **Field Operations** | 40% | List, Create, Update, Delete |
+| **Weather Queries** | 25% | Current weather, Forecasts |
+| **IoT Data** | 15% | Sensor readings, History |
+
+---
+
+## نظام التنبيهات | Alerting System
+
+### فئات التنبيهات
+
+| الفئة | عدد القواعد | أمثلة |
+|-------|------------|-------|
+| Application | 4 | HighErrorRate, ServiceDown |
+| Database | 3 | HighConnections, PoolExhaustion |
+| Cache | 3 | RedisDown, HighMemory |
+| Load Balancer | 2 | AllBackendsDown |
+| Load Test | 3 | SessionLoss, RaceConditions |
+| System | 3 | HighCPU, LowDisk |
+
+### تكوين التنبيهات
+
+```yaml
+# monitoring/alertmanager.yml
+route:
+  receiver: 'default-receiver'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
 ```
 
 ---
 
-## المقاييس المخصصة | Custom Metrics
+## المقاييس | Metrics
 
-### معدلات النجاح | Success Rates
-- `login_success_rate` - معدل نجاح تسجيل الدخول
-- `profile_success_rate` - معدل نجاح جلب الملف الشخصي
-- `session_persistence_rate` - معدل استمرارية الجلسة
-- `field_operations_success_rate` - معدل نجاح عمليات الحقول
+### معدلات النجاح
+- `auth_success_rate` - نجاح المصادقة
+- `field_ops_success_rate` - نجاح عمليات الحقول
+- `weather_success_rate` - نجاح استعلامات الطقس
+- `session_persistence_rate` - استمرارية الجلسة
 
-### أوقات الاستجابة | Response Times
-- `login_duration_ms` - وقت تسجيل الدخول
-- `profile_duration_ms` - وقت جلب الملف الشخصي
-- `field_list_duration_ms` - وقت قائمة الحقول
-- `field_create_duration_ms` - وقت إنشاء حقل
+### عدادات الأخطاء
+- `connection_pool_errors` - استنفاد الاتصالات
+- `session_loss_errors` - فقدان الجلسات
+- `race_condition_errors` - تعارض البيانات
+- `timeout_errors` - انتهاء المهلة
+- `server_errors_5xx` - أخطاء الخادم
+- `client_errors_4xx` - أخطاء العميل
 
-### عدادات الأخطاء | Error Counters
-- `connection_pool_errors` - أخطاء تجمع الاتصالات
-- `session_loss_errors` - أخطاء فقدان الجلسة
-- `race_condition_errors` - أخطاء التنافس
-- `timeout_errors` - أخطاء المهلة
+### Chaos Metrics
+- `recovery_rate` - معدل التعافي
+- `failover_success_rate` - نجاح التجاوز
+- `graceful_degradation_rate` - التدهور المتحكم
+- `circuit_breaker_trips` - تفعيل قاطع الدائرة
 
 ---
 
@@ -201,84 +288,112 @@ VUs (Virtual Users)
 
 | المقياس | الهدف | الحد المقبول |
 |---------|-------|-------------|
-| p95 Response Time | <500ms | <800ms |
+| p95 Response Time | <500ms | <1000ms |
 | Error Rate | <1% | <5% |
 | Login Success | >99% | >95% |
 | Session Persistence | >95% | >90% |
-| Connection Pool Errors | 0 | <10 |
-| Session Loss Errors | 0 | <5 |
-| Race Condition Errors | 0 | <5 |
-
----
-
-## المشاكل المتوقعة | Expected Problems
-
-راجع [PROBLEM_ANALYSIS_REPORT.md](./PROBLEM_ANALYSIS_REPORT.md) للتفاصيل الكاملة:
-
-1. **استنفاد تجمع الاتصالات** (Connection Pool Exhaustion)
-2. **فقدان الجلسات** (Session Loss)
-3. **منافسة البيانات** (Race Conditions)
-4. **بطء الاستجابة** (High Latency)
+| Connection Pool Errors | 0 | <50 |
+| Recovery Rate (Chaos) | >90% | >80% |
 
 ---
 
 ## الوصول للخدمات | Service Access
 
-| الخدمة | العنوان | البيانات الافتراضية |
-|--------|---------|-------------------|
-| Nginx (Load Balancer) | http://localhost:8080 | - |
-| Grafana | http://localhost:3031 | admin / admin |
-| InfluxDB | http://localhost:8087 | admin / adminpassword123 |
-| PostgreSQL | localhost:5433 | sahool_admin / simulation_password_123 |
+### الإصدار الأساسي
+
+| الخدمة | العنوان | البيانات |
+|--------|---------|----------|
+| App (LB) | http://localhost:8080 | - |
+| Grafana | http://localhost:3031 | admin/admin |
+| InfluxDB | http://localhost:8087 | admin/adminpassword123 |
+| PostgreSQL | localhost:5433 | sahool_admin |
 | Redis | localhost:6380 | sim_redis_pass_123 |
+
+### الإصدار المتقدم
+
+| الخدمة | العنوان | البيانات |
+|--------|---------|----------|
+| App (LB) | http://localhost:8081 | - |
+| Grafana | http://localhost:3032 | admin/admin |
+| Prometheus | http://localhost:9091 | - |
+| Alertmanager | http://localhost:9094 | - |
+| InfluxDB | http://localhost:8088 | admin/advancedpassword123 |
+
+---
+
+## CI/CD Integration
+
+### GitHub Actions
+
+يتم تشغيل workflow تلقائياً عند تعديل ملفات المحاكاة:
+
+```yaml
+# .github/workflows/load-test-validation.yml
+on:
+  push:
+    paths:
+      - 'tests/load/simulation/**'
+```
+
+### الاختبارات المحلية
+
+```bash
+# اختبار سريع بدون Docker
+./quick-test.sh
+
+# التحقق الكامل
+./verify-simulation.sh
+```
 
 ---
 
 ## استكشاف الأخطاء | Troubleshooting
 
 ### الخدمات لا تبدأ
+
 ```bash
 # تحقق من السجلات
-./run-simulation.sh logs
+./run-advanced.sh logs
 
-# تحقق من حالة Docker
-docker-compose -f docker-compose-sim.yml ps
+# تحقق من الموارد
+docker stats
 ```
 
-### أخطاء الاتصال بقاعدة البيانات
-```bash
-# تحقق من PostgreSQL
-docker exec sahool_db_sim pg_isready -U sahool_admin
+### أخطاء الاتصال
 
-# تحقق من اتصالات PgBouncer
-docker exec sahool_pgbouncer_sim psql -h localhost -p 6432 -U sahool_admin -c "SHOW POOLS"
+```bash
+# PostgreSQL
+docker exec sahool_db_advanced pg_isready -U sahool_admin
+
+# Redis
+docker exec sahool_redis_advanced redis-cli ping
+
+# Nginx
+curl http://localhost:8081/nginx-health
 ```
 
-### أخطاء Redis
-```bash
-# تحقق من Redis
-docker exec sahool_redis_sim redis-cli -a sim_redis_pass_123 ping
+### مشاكل الذاكرة
 
-# عرض الجلسات المخزنة
-docker exec sahool_redis_sim redis-cli -a sim_redis_pass_123 KEYS "sahool:session:*"
+```bash
+# زيادة موارد Docker
+# Docker Desktop → Settings → Resources → Memory: 8GB+
 ```
 
 ---
 
 ## المساهمة | Contributing
 
-للمساهمة في تحسين هذه البيئة:
-
 1. Fork the repository
-2. Create a feature branch
-3. Add your improvements
-4. Submit a pull request
+2. Create feature branch: `git checkout -b feature/my-feature`
+3. Run tests: `./quick-test.sh`
+4. Commit changes
+5. Submit pull request
 
 ---
 
 ## الترخيص | License
 
-هذا المشروع جزء من منصة SAHOOL.
+جزء من منصة SAHOOL IDP
 
 ---
 

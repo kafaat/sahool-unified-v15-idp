@@ -515,7 +515,7 @@
   },
   {
     "id": "weather-001-en",
-    "category": "weather_forecast",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "What is the weather forecast for my farm this week?",
@@ -540,7 +540,7 @@
   },
   {
     "id": "weather-001-ar",
-    "category": "weather_forecast",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "ما توقعات الطقس لمزرعتي هذا الأسبوع؟",
@@ -565,7 +565,7 @@
   },
   {
     "id": "weather-002-en",
-    "category": "weather_forecast",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "Is there frost risk for my citrus orchard tonight?",
@@ -591,7 +591,7 @@
   },
   {
     "id": "weather-002-ar",
-    "category": "weather_forecast",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "هل هناك خطر صقيع على بستان الحمضيات الليلة؟",
@@ -617,7 +617,7 @@
   },
   {
     "id": "fertilizer-001-en",
-    "category": "fertilizer_recommendation",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "What fertilizer should I use for my olive trees?",
@@ -643,7 +643,7 @@
   },
   {
     "id": "fertilizer-001-ar",
-    "category": "fertilizer_recommendation",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "ما السماد المناسب لأشجار الزيتون؟",
@@ -669,7 +669,7 @@
   },
   {
     "id": "fertilizer-002-en",
-    "category": "fertilizer_recommendation",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "My corn leaves are turning yellow. Is it a nitrogen deficiency?",
@@ -695,7 +695,7 @@
   },
   {
     "id": "fertilizer-002-ar",
-    "category": "fertilizer_recommendation",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "أوراق الذرة تصفر. هل هو نقص نيتروجين؟",
@@ -721,7 +721,7 @@
   },
   {
     "id": "pest-001-en",
-    "category": "pest_control",
+    "category": "disease_diagnosis",
     "language": "en",
     "input": {
       "query": "I found aphids on my pepper plants. How do I control them?",
@@ -747,7 +747,7 @@
   },
   {
     "id": "pest-001-ar",
-    "category": "pest_control",
+    "category": "disease_diagnosis",
     "language": "ar",
     "input": {
       "query": "وجدت المن على نباتات الفلفل. كيف أسيطر عليها؟",
@@ -773,7 +773,7 @@
   },
   {
     "id": "pest-002-en",
-    "category": "pest_control",
+    "category": "disease_diagnosis",
     "language": "en",
     "input": {
       "query": "Red palm weevil is attacking my date palms. What should I do?",
@@ -799,7 +799,7 @@
   },
   {
     "id": "pest-002-ar",
-    "category": "pest_control",
+    "category": "disease_diagnosis",
     "language": "ar",
     "input": {
       "query": "سوسة النخيل الحمراء تهاجم نخيلي. ماذا أفعل؟",
@@ -825,7 +825,7 @@
   },
   {
     "id": "soil-001-en",
-    "category": "soil_analysis",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "What is the ideal soil pH for growing tomatoes?",
@@ -850,7 +850,7 @@
   },
   {
     "id": "soil-001-ar",
-    "category": "soil_analysis",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "ما درجة حموضة التربة المثالية لزراعة الطماطم؟",
@@ -875,7 +875,7 @@
   },
   {
     "id": "soil-002-en",
-    "category": "soil_analysis",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "My soil test shows high salinity. Can I still grow crops?",
@@ -900,7 +900,7 @@
   },
   {
     "id": "soil-002-ar",
-    "category": "soil_analysis",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "تحليل التربة يظهر ملوحة عالية. هل يمكنني زراعة محاصيل؟",
@@ -925,7 +925,7 @@
   },
   {
     "id": "crop-rec-001-en",
-    "category": "crop_recommendation",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "What crops are suitable for my region in summer?",
@@ -951,7 +951,7 @@
   },
   {
     "id": "crop-rec-001-ar",
-    "category": "crop_recommendation",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "ما المحاصيل المناسبة لمنطقتي في الصيف؟",
@@ -977,7 +977,7 @@
   },
   {
     "id": "crop-rec-002-en",
-    "category": "crop_recommendation",
+    "category": "field_analysis",
     "language": "en",
     "input": {
       "query": "I want to start an organic vegetable farm. What should I grow?",
@@ -1003,7 +1003,7 @@
   },
   {
     "id": "crop-rec-002-ar",
-    "category": "crop_recommendation",
+    "category": "field_analysis",
     "language": "ar",
     "input": {
       "query": "أريد بدء مزرعة خضروات عضوية. ماذا أزرع؟",
@@ -1029,7 +1029,7 @@
   },
   {
     "id": "market-001-en",
-    "category": "market_prices",
+    "category": "multi_agent",
     "language": "en",
     "input": {
       "query": "What is the current market price for wheat?",
@@ -1054,7 +1054,7 @@
   },
   {
     "id": "market-001-ar",
-    "category": "market_prices",
+    "category": "multi_agent",
     "language": "ar",
     "input": {
       "query": "ما سعر السوق الحالي للقمح؟",
@@ -1079,7 +1079,7 @@
   },
   {
     "id": "market-002-en",
-    "category": "market_prices",
+    "category": "multi_agent",
     "language": "en",
     "input": {
       "query": "When is the best time to sell my date harvest?",
@@ -1105,7 +1105,7 @@
   },
   {
     "id": "market-002-ar",
-    "category": "market_prices",
+    "category": "multi_agent",
     "language": "ar",
     "input": {
       "query": "متى أفضل وقت لبيع محصول التمور؟",

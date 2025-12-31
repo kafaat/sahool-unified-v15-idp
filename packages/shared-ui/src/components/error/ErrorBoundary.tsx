@@ -178,7 +178,7 @@ export function AsyncErrorBoundary({
 }: {
   children: ReactNode;
   fallback?: ReactNode;
-}): JSX.Element {
+}): React.ReactElement {
   return (
     <ErrorBoundary fallback={fallback}>
       <React.Suspense

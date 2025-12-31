@@ -30,8 +30,6 @@ import type {
 } from './types';
 import {
   ApiError,
-  NetworkError,
-  AuthError,
   parseAxiosError,
 } from './errors';
 

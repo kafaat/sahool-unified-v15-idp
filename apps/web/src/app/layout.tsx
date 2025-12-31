@@ -22,10 +22,12 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { locale?: string };
+  params: Promise<{ locale?: string }>;
 }) {
+  // In Next.js 15, params are Promises
+  const resolvedParams = await params;
   // Default to 'ar' if no locale is provided
-  const locale = params.locale || 'ar';
+  const locale = resolvedParams.locale || 'ar';
 
   // Validate locale
   if (!locales.includes(locale as any)) {

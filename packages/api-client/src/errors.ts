@@ -281,7 +281,6 @@ export function parseAxiosError(
 ): ApiError {
   const config = error.config;
   const response = error.response;
-  const request = error.request;
 
   const errorEndpoint = endpoint || config?.url || 'unknown';
   const errorMethod = method || config?.method?.toUpperCase() || 'unknown';

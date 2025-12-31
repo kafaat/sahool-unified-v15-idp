@@ -1,15 +1,15 @@
 // ═══════════════════════════════════════════════════════════════════════════════
-// SAHOOL IDP - Multi-Client Realistic Simulation v2.0
-// محاكاة واقعية متعددة العملاء - الإصدار المحسن
+// SAHOOL IDP - Multi-Client Maximum Performance Simulation v3.0
+// محاكاة الأداء الأقصى متعددة العملاء - الإصدار النهائي
 // ═══════════════════════════════════════════════════════════════════════════════
 //
-// Simulates realistic production traffic with improved distribution:
-// - 50% Mobile (iOS + Android) - العاملين في الحقول (80% success target)
-// - 30% Web Browser - المستخدمين عبر المتصفح (50% success target)
-// - 15% Dashboard Admin - لوحة تحكم المديرين (40% success target)
-// - 5% API/Integration - الأنظمة المتكاملة (95% success target)
+// Maximum performance simulation with optimized distribution:
+// - 80% Mobile (iOS + Android) - العاملين في الحقول (95% success target)
+// - 12% Web Browser - المستخدمين عبر المتصفح (90% success target)
+// - 5% Dashboard Admin - لوحة تحكم المديرين (85% success target)
+// - 3% API/Integration - الأنظمة المتكاملة (99% success target)
 //
-// Target: 15-100+ concurrent users with platform-specific success rates
+// Target: 15-100+ concurrent users with maximum success rates
 //
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -26,17 +26,17 @@ const BASE_URL = __ENV.BASE_URL || 'http://localhost:8081';
 const TOTAL_VUS = parseInt(__ENV.TOTAL_VUS) || 20;
 const TEST_DURATION = __ENV.TEST_DURATION || '5m';
 
-// Distribution ratios (must sum to 1.0) - التوزيع الواقعي المحسن
-const MOBILE_RATIO = 0.50;      // 50% mobile traffic (iOS + Android)
-const WEB_RATIO = 0.30;         // 30% web browser users
-const DASHBOARD_RATIO = 0.15;   // 15% admin dashboard
-const API_RATIO = 0.05;         // 5% API/integration
+// Distribution ratios (must sum to 1.0) - التوزيع الأقصى
+const MOBILE_RATIO = 0.80;      // 80% mobile traffic (iOS + Android) - الأعلى
+const WEB_RATIO = 0.12;         // 12% web browser users
+const DASHBOARD_RATIO = 0.05;   // 5% admin dashboard
+const API_RATIO = 0.03;         // 3% API/integration
 
-// Success rate targets per platform - أهداف نسب النجاح
-const MOBILE_SUCCESS_TARGET = 0.80;     // 80% success rate for mobile
-const WEB_SUCCESS_TARGET = 0.50;        // 50% success rate for web
-const DASHBOARD_SUCCESS_TARGET = 0.40;  // 40% success rate for dashboard
-const API_SUCCESS_TARGET = 0.95;        // 95% success rate for API
+// Success rate targets per platform - أهداف نسب النجاح القصوى
+const MOBILE_SUCCESS_TARGET = 0.95;     // 95% success rate for mobile
+const WEB_SUCCESS_TARGET = 0.90;        // 90% success rate for web
+const DASHBOARD_SUCCESS_TARGET = 0.85;  // 85% success rate for dashboard
+const API_SUCCESS_TARGET = 0.99;        // 99% success rate for API
 
 // Calculate VUs per type
 const MOBILE_VUS = Math.max(1, Math.ceil(TOTAL_VUS * MOBILE_RATIO));
@@ -260,25 +260,25 @@ export const options = {
     },
 
     thresholds: {
-        // Overall thresholds
-        'overall_success_rate': ['rate>0.70'],
-        'overall_login_success': ['rate>0.80'],
-        'overall_api_success': ['rate>0.90'],
+        // Overall thresholds - Maximum performance
+        'overall_success_rate': ['rate>0.90'],
+        'overall_login_success': ['rate>0.95'],
+        'overall_api_success': ['rate>0.98'],
 
-        // Platform-specific thresholds (realistic targets)
-        'mobile_success_rate': [`rate>${MOBILE_SUCCESS_TARGET}`],           // 80%
-        'web_success_rate': [`rate>${WEB_SUCCESS_TARGET}`],                 // 50%
-        'dashboard_success_rate': [`rate>${DASHBOARD_SUCCESS_TARGET}`],     // 40%
-        'api_integration_success_rate': [`rate>${API_SUCCESS_TARGET}`],     // 95%
+        // Platform-specific thresholds (maximum targets)
+        'mobile_success_rate': [`rate>${MOBILE_SUCCESS_TARGET}`],           // 95%
+        'web_success_rate': [`rate>${WEB_SUCCESS_TARGET}`],                 // 90%
+        'dashboard_success_rate': [`rate>${DASHBOARD_SUCCESS_TARGET}`],     // 85%
+        'api_integration_success_rate': [`rate>${API_SUCCESS_TARGET}`],     // 99%
 
-        // Response time thresholds
-        'response_time_mobile': ['p(95)<3000', 'avg<1500'],
-        'response_time_web': ['p(95)<5000', 'avg<2000'],
-        'response_time_dashboard': ['p(95)<8000', 'avg<3000'],
-        'response_time_api': ['p(95)<1000', 'avg<500'],
+        // Response time thresholds - Optimized
+        'response_time_mobile': ['p(95)<2000', 'avg<1000'],
+        'response_time_web': ['p(95)<3000', 'avg<1500'],
+        'response_time_dashboard': ['p(95)<5000', 'avg<2000'],
+        'response_time_api': ['p(95)<500', 'avg<250'],
 
-        // Error thresholds
-        'http_req_failed': ['rate<0.30'],
+        // Error thresholds - Strict
+        'http_req_failed': ['rate<0.10'],
     },
 };
 
@@ -1158,29 +1158,29 @@ export function erpSyncFlow() {
 
 export function setup() {
     console.log('═══════════════════════════════════════════════════════════════════════════════');
-    console.log('           🌐 SAHOOL IDP - Multi-Client Realistic Simulation v2.0');
-    console.log('           محاكاة واقعية متعددة العملاء لمنصة سهول - الإصدار المحسن');
+    console.log('           🚀 SAHOOL IDP - Maximum Performance Simulation v3.0');
+    console.log('           محاكاة الأداء الأقصى متعددة العملاء لمنصة سهول');
     console.log('═══════════════════════════════════════════════════════════════════════════════');
     console.log('');
     console.log(`  📊 TOTAL VIRTUAL USERS: ${TOTAL_VUS}`);
     console.log('');
-    console.log('  TRAFFIC DISTRIBUTION (التوزيع المحسن):');
+    console.log('  TRAFFIC DISTRIBUTION (التوزيع الأقصى):');
     console.log('  ────────────────────────────────────────────────────────────────────────────');
-    console.log(`  📱 Mobile (50%):     ${MOBILE_VUS} VUs  [Target: ${MOBILE_SUCCESS_TARGET * 100}% success]`);
+    console.log(`  📱 Mobile (80%):     ${MOBILE_VUS} VUs  [Target: ${MOBILE_SUCCESS_TARGET * 100}% success]`);
     console.log(`     ├─ 🍎 iOS:        ${Math.ceil(MOBILE_VUS * 0.45)} VUs (field workers)`);
     console.log(`     └─ 🤖 Android:    ${Math.ceil(MOBILE_VUS * 0.55)} VUs (field workers)`);
     console.log('');
-    console.log(`  🌐 Web Browser (30%): ${WEB_VUS} VUs  [Target: ${WEB_SUCCESS_TARGET * 100}% success]`);
+    console.log(`  🌐 Web Browser (12%): ${WEB_VUS} VUs  [Target: ${WEB_SUCCESS_TARGET * 100}% success]`);
     console.log(`     ├─ 👤 Users:      ${Math.ceil(WEB_VUS * 0.50)} VUs`);
     console.log(`     ├─ 👔 Managers:   ${Math.ceil(WEB_VUS * 0.30)} VUs`);
     console.log(`     └─ 👁️  Viewers:    ${Math.ceil(WEB_VUS * 0.20)} VUs`);
     console.log('');
-    console.log(`  🖥️  Dashboard (15%):  ${DASHBOARD_VUS} VUs  [Target: ${DASHBOARD_SUCCESS_TARGET * 100}% success]`);
+    console.log(`  🖥️  Dashboard (5%):   ${DASHBOARD_VUS} VUs  [Target: ${DASHBOARD_SUCCESS_TARGET * 100}% success]`);
     console.log(`     ├─ 👑 Admins:     ${Math.ceil(DASHBOARD_VUS * 0.50)} VUs`);
     console.log(`     ├─ 📊 Analysts:   ${Math.ceil(DASHBOARD_VUS * 0.30)} VUs`);
     console.log(`     └─ ⭐ SuperAdmins: ${Math.ceil(DASHBOARD_VUS * 0.20)} VUs`);
     console.log('');
-    console.log(`  🔌 API (5%):         ${API_VUS} VUs  [Target: ${API_SUCCESS_TARGET * 100}% success]`);
+    console.log(`  🔌 API (3%):         ${API_VUS} VUs  [Target: ${API_SUCCESS_TARGET * 100}% success]`);
     console.log(`     ├─ 🌡️  IoT:        ${Math.ceil(API_VUS * 0.50)} VUs`);
     console.log(`     ├─ ☀️  Weather:    ${Math.ceil(API_VUS * 0.30)} VUs`);
     console.log(`     └─ 🏢 ERP:        ${Math.ceil(API_VUS * 0.20)} VUs`);
@@ -1188,7 +1188,7 @@ export function setup() {
     console.log('  ────────────────────────────────────────────────────────────────────────────');
     console.log(`  🎯 Target: ${BASE_URL}`);
     console.log(`  ⏱️  Duration: ${TEST_DURATION}`);
-    console.log('  ✅ Success Thresholds: Mobile 80% | Web 50% | Dashboard 40% | API 95%');
+    console.log('  🚀 Maximum Thresholds: Mobile 95% | Web 90% | Dashboard 85% | API 99%');
     console.log('═══════════════════════════════════════════════════════════════════════════════');
     console.log('');
 
@@ -1225,7 +1225,7 @@ export function handleSummary(data) {
 
     const summary = {
         timestamp: new Date().toISOString(),
-        test_type: 'multi_client_realistic_v2',
+        test_type: 'multi_client_maximum_performance_v3',
         configuration: {
             total_vus: TOTAL_VUS,
             mobile_vus: MOBILE_VUS,
@@ -1298,25 +1298,25 @@ export function handleSummary(data) {
 
     const textSummary = `
 ═══════════════════════════════════════════════════════════════════════════════════════
-                    🌐 MULTI-CLIENT SIMULATION RESULTS v2.0
-                    نتائج المحاكاة الواقعية المحسنة متعددة العملاء
+                    🚀 MAXIMUM PERFORMANCE SIMULATION RESULTS v3.0
+                    نتائج محاكاة الأداء الأقصى متعددة العملاء
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-📊 TRAFFIC DISTRIBUTION (التوزيع):
+📊 TRAFFIC DISTRIBUTION (التوزيع الأقصى):
 ────────────────────────────────────────────────────────────────────────────────────────
   📱 Mobile:    ${summary.traffic_distribution.mobile.percentage.padStart(6)} ${mobileBar} (${mobileReqs} requests)
   🌐 Web:       ${summary.traffic_distribution.web.percentage.padStart(6)} ${webBar} (${webReqs} requests)
   🖥️  Dashboard: ${summary.traffic_distribution.dashboard.percentage.padStart(6)} ${dashboardBar} (${dashboardReqs} requests)
   🔌 API:       ${summary.traffic_distribution.api.percentage.padStart(6)} ${apiBar} (${apiReqs} requests)
 
-✅ SUCCESS RATES (نسب النجاح):
+🚀 SUCCESS RATES (نسب النجاح القصوى):
 ────────────────────────────────────────────────────────────────────────────────────────
-  🎯 Overall Success:      ${summary.success_rates.overall}  ${parseFloat(summary.success_rates.overall) >= 70 ? '✓ PASS' : '✗ FAIL'}
+  🎯 Overall Success:      ${summary.success_rates.overall}  ${parseFloat(summary.success_rates.overall) >= 90 ? '✓ PASS' : '✗ FAIL'}
   🔐 Login Success:        ${summary.success_rates.login}
-  📱 Mobile Success:       ${summary.success_rates.mobile}  [Target: 80%] ${mobileRate >= 80 ? '✓' : '✗'}
-  🌐 Web Success:          ${summary.success_rates.web}  [Target: 50%] ${webRate >= 50 ? '✓' : '✗'}
-  🖥️  Dashboard Success:    ${summary.success_rates.dashboard}  [Target: 40%] ${dashboardRate >= 40 ? '✓' : '✗'}
-  🔌 API Success:          ${summary.success_rates.api}  [Target: 95%] ${apiRate >= 95 ? '✓' : '✗'}
+  📱 Mobile Success:       ${summary.success_rates.mobile}  [Target: 95%] ${mobileRate >= 95 ? '✓' : '✗'}
+  🌐 Web Success:          ${summary.success_rates.web}  [Target: 90%] ${webRate >= 90 ? '✓' : '✗'}
+  🖥️  Dashboard Success:    ${summary.success_rates.dashboard}  [Target: 85%] ${dashboardRate >= 85 ? '✓' : '✗'}
+  🔌 API Success:          ${summary.success_rates.api}  [Target: 99%] ${apiRate >= 99 ? '✓' : '✗'}
 
 ⚡ RESPONSE TIMES (أوقات الاستجابة):
 ────────────────────────────────────────────────────────────────────────────────────────
@@ -1339,7 +1339,7 @@ export function handleSummary(data) {
 
     return {
         'stdout': textSummary,
-        './results/multi-client-results-v2.json': JSON.stringify(summary, null, 2),
+        './results/multi-client-max-performance-v3.json': JSON.stringify(summary, null, 2),
     };
 }
 

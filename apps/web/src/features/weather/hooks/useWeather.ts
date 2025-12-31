@@ -4,7 +4,36 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import type { WeatherData, WeatherForecast, WeatherAlert, ForecastDataPoint } from '../types';
+import type { WeatherData, WeatherAlert, ForecastDataPoint } from '../types';
+
+// API Response Types
+interface ApiForecastDay {
+  date: string;
+  temp_max_c: number;
+  temp_min_c: number;
+  precipitation_mm?: number;
+  wind_speed_max_kmh?: number;
+}
+
+interface ApiWeatherAlert {
+  id?: string;
+  type?: string;
+  alert_type?: string;
+  severity?: string;
+  title?: string;
+  title_en?: string;
+  title_ar?: string;
+  titleAr?: string;
+  description?: string;
+  descriptionAr?: string;
+  affectedAreas?: string[];
+  affectedAreasAr?: string[];
+  startTime?: string;
+  startDate?: string;
+  endTime?: string;
+  endDate?: string;
+  isActive?: boolean;
+}
 
 // API Configuration
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -88,7 +117,7 @@ async function fetchWeatherForecast(lat?: number, lon?: number, days: number = 7
     // Transform API response to our ForecastDataPoint format
     const forecastData = data.forecast || data.daily_forecast || [];
 
-    return forecastData.map((day: any) => ({
+    return forecastData.map((day: ApiForecastDay) => ({
       date: day.date,
       temperature: (day.temp_max_c + day.temp_min_c) / 2,
       humidity: 60, // API might not provide this
@@ -131,7 +160,7 @@ async function fetchWeatherAlerts(lat?: number, lon?: number): Promise<WeatherAl
     const data = await response.json();
     const alerts = data.alerts || [];
 
-    return alerts.map((alert: any) => ({
+    return alerts.map((alert: ApiWeatherAlert) => ({
       id: alert.id || String(Math.random()),
       type: alert.type || alert.alert_type || 'weather',
       severity: alert.severity || 'warning',
@@ -158,9 +187,9 @@ async function fetchWeatherAlerts(lat?: number, lon?: number): Promise<WeatherAl
 // ─────────────────────────────────────────────────────────────────────────────
 
 function getWindDirection(degrees: number): string {
-  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+  const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'] as const;
   const index = Math.round(degrees / 45) % 8;
-  return directions[index];
+  return directions[index] ?? 'N';
 }
 
 function getWeatherCondition(cloudCover: number): string {

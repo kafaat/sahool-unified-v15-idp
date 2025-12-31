@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * SAHOOL Tasks Hook
  * خطاف المهام
@@ -6,7 +5,37 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/client';
-import type { Task, TaskFormData, TaskFilters, TaskStatus, Priority } from '../types';
+import type { Task, TaskFormData, TaskFilters, TaskStatus } from '../types';
+
+// API Task response type (backend format)
+interface ApiTask {
+  id?: string;
+  task_id?: string;
+  tenant_id?: string;
+  tenantId?: string;
+  field_id?: string;
+  fieldId?: string;
+  farm_id?: string;
+  farmId?: string;
+  title?: string;
+  title_ar?: string;
+  description?: string;
+  description_ar?: string;
+  status?: string;
+  priority?: string;
+  type?: string;
+  taskType?: string;
+  due_date?: string;
+  dueDate?: string;
+  assigned_to?: string;
+  assigneeId?: string;
+  evidence_photos?: string[];
+  evidence_notes?: string;
+  created_at?: string;
+  createdAt?: string;
+  updated_at?: string;
+  updatedAt?: string;
+}
 
 // Map frontend status to backend status
 const mapStatusToBackend = (status: TaskStatus): string => {
@@ -32,6 +61,29 @@ const mapStatusToFrontend = (status: string): TaskStatus => {
   return (statusMap[status] as TaskStatus) || 'open';
 };
 
+// Transform API task to frontend Task format
+function mapApiTaskToTask(task: ApiTask): Task {
+  return {
+    id: task.id || task.task_id || '',
+    tenant_id: task.tenant_id || task.tenantId || '',
+    field_id: task.field_id || task.fieldId || '',
+    farm_id: task.farm_id || task.farmId,
+    title: task.title || '',
+    title_ar: task.title_ar,
+    description: task.description,
+    description_ar: task.description_ar,
+    status: mapStatusToFrontend(task.status || 'pending'),
+    priority: (task.priority as Task['priority']) || 'medium',
+    type: task.type || task.taskType,
+    due_date: task.due_date || task.dueDate,
+    assigned_to: task.assigned_to || task.assigneeId,
+    evidence_photos: task.evidence_photos || [],
+    evidence_notes: task.evidence_notes,
+    created_at: task.created_at || task.createdAt || new Date().toISOString(),
+    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
+  };
+}
+
 async function fetchTasks(filters?: TaskFilters): Promise<Task[]> {
   const options: {
     tenantId?: string;
@@ -53,25 +105,7 @@ async function fetchTasks(filters?: TaskFilters): Promise<Task[]> {
   }
 
   // Transform backend data to Task format
-  return response.data.map((task: any) => ({
-    id: task.id || task.task_id,
-    tenant_id: task.tenant_id || task.tenantId || '',
-    field_id: task.field_id || task.fieldId || '',
-    farm_id: task.farm_id || task.farmId,
-    title: task.title,
-    title_ar: task.title_ar,
-    description: task.description,
-    description_ar: task.description_ar,
-    status: mapStatusToFrontend(task.status),
-    priority: task.priority,
-    type: task.type || task.taskType,
-    due_date: task.due_date || task.dueDate,
-    assigned_to: task.assigned_to || task.assigneeId,
-    evidence_photos: task.evidence_photos || [],
-    evidence_notes: task.evidence_notes,
-    created_at: task.created_at || task.createdAt || new Date().toISOString(),
-    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
-  }));
+  return (response.data as ApiTask[]).map(mapApiTaskToTask);
 }
 
 async function fetchTaskById(id: string): Promise<Task> {
@@ -81,35 +115,16 @@ async function fetchTaskById(id: string): Promise<Task> {
     throw new Error(response.error || 'Failed to fetch task');
   }
 
-  const task = response.data;
-  return {
-    id: task.id || task.task_id,
-    tenant_id: task.tenant_id || task.tenantId || '',
-    field_id: task.field_id || task.fieldId || '',
-    farm_id: task.farm_id || task.farmId,
-    title: task.title,
-    title_ar: task.title_ar,
-    description: task.description,
-    description_ar: task.description_ar,
-    status: mapStatusToFrontend(task.status),
-    priority: task.priority,
-    type: task.type || task.taskType,
-    due_date: task.due_date || task.dueDate,
-    assigned_to: task.assigned_to || task.assigneeId,
-    evidence_photos: task.evidence_photos || [],
-    evidence_notes: task.evidence_notes,
-    created_at: task.created_at || task.createdAt || new Date().toISOString(),
-    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
-  };
+  return mapApiTaskToTask(response.data as ApiTask);
 }
 
 async function createTask(data: TaskFormData): Promise<Task> {
   const payload = {
     title: data.title,
     description: data.description,
-    fieldId: data.field_id || '',
-    assigneeId: data.assigned_to,
-    dueDate: data.due_date,
+    field_id: data.field_id || '',
+    assignee_id: data.assigned_to,
+    due_date: data.due_date,
     priority: data.priority as 'low' | 'medium' | 'high',
     taskType: 'general',
   };
@@ -120,26 +135,7 @@ async function createTask(data: TaskFormData): Promise<Task> {
     throw new Error(response.error || 'Failed to create task');
   }
 
-  const task = response.data;
-  return {
-    id: task.id || task.task_id,
-    tenant_id: task.tenant_id || task.tenantId || '',
-    field_id: task.field_id || task.fieldId || '',
-    farm_id: task.farm_id || task.farmId,
-    title: task.title,
-    title_ar: task.title_ar,
-    description: task.description,
-    description_ar: task.description_ar,
-    status: mapStatusToFrontend(task.status || 'pending'),
-    priority: task.priority,
-    type: task.type || task.taskType,
-    due_date: task.due_date || task.dueDate,
-    assigned_to: task.assigned_to || task.assigneeId,
-    evidence_photos: task.evidence_photos || [],
-    evidence_notes: task.evidence_notes,
-    created_at: task.created_at || task.createdAt || new Date().toISOString(),
-    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
-  };
+  return mapApiTaskToTask(response.data as ApiTask);
 }
 
 async function updateTask(id: string, data: Partial<TaskFormData>): Promise<Task> {
@@ -159,26 +155,7 @@ async function updateTask(id: string, data: Partial<TaskFormData>): Promise<Task
     throw new Error(response.error || 'Failed to update task');
   }
 
-  const task = response.data;
-  return {
-    id: task.id || task.task_id,
-    tenant_id: task.tenant_id || task.tenantId || '',
-    field_id: task.field_id || task.fieldId || '',
-    farm_id: task.farm_id || task.farmId,
-    title: task.title,
-    title_ar: task.title_ar,
-    description: task.description,
-    description_ar: task.description_ar,
-    status: mapStatusToFrontend(task.status),
-    priority: task.priority,
-    type: task.type || task.taskType,
-    due_date: task.due_date || task.dueDate,
-    assigned_to: task.assigned_to || task.assigneeId,
-    evidence_photos: task.evidence_photos || [],
-    evidence_notes: task.evidence_notes,
-    created_at: task.created_at || task.createdAt || new Date().toISOString(),
-    updated_at: task.updated_at || task.updatedAt || new Date().toISOString(),
-  };
+  return mapApiTaskToTask(response.data as ApiTask);
 }
 
 async function updateTaskStatus(id: string, status: TaskStatus): Promise<Task> {

@@ -1,0 +1,55 @@
+# SAHOOL MQTT ACL Configuration - قائمة التحكم في الوصول لـ MQTT
+# ============================================================================
+# Topic Access Control List for SAHOOL IoT Platform
+# ============================================================================
+
+# ============================================================================
+# User Access Patterns - أنماط وصول المستخدمين
+# ============================================================================
+
+# IoT Gateway - Full access to all sensor topics
+user iot-gateway
+topic readwrite sahool/+/sensors/#
+topic readwrite sahool/+/devices/#
+topic readwrite sahool/+/commands/#
+topic read sahool/+/alerts/#
+
+# Field Service - Access to field-related topics
+user field-service
+topic read sahool/+/sensors/soil/#
+topic read sahool/+/sensors/weather/#
+topic write sahool/+/fields/#
+topic read sahool/+/devices/irrigation/#
+
+# Alert Service - Read sensors, write alerts
+user alert-service
+topic read sahool/+/sensors/#
+topic readwrite sahool/+/alerts/#
+topic write sahool/+/notifications/#
+
+# Notification Service - Send notifications
+user notification-service
+topic read sahool/+/alerts/#
+topic write sahool/+/notifications/#
+
+# Virtual Sensors Service
+user virtual-sensors
+topic readwrite sahool/+/sensors/virtual/#
+topic read sahool/+/sensors/#
+
+# ============================================================================
+# Pattern-Based Access - الوصول المبني على الأنماط
+# ============================================================================
+
+# Tenant-scoped pattern: sahool/{tenant_id}/...
+# Example: sahool/tenant123/sensors/soil/moisture
+
+# Pattern explanation:
+# + = single level wildcard (matches one topic level)
+# # = multi-level wildcard (matches any number of levels)
+
+# ============================================================================
+# Default Deny - الرفض الافتراضي
+# ============================================================================
+# All topics not explicitly allowed are denied by default
+# This is the most secure approach for production environments

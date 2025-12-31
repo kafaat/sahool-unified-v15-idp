@@ -363,3 +363,157 @@ def lookup_subject(event_type: str) -> str:
         NATS subject
     """
     return SUBJECT_REGISTRY.get(event_type, get_subject_for_event(event_type))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tenant-Scoped Subjects - موضوعات محددة النطاق للمستأجرين
+# ─────────────────────────────────────────────────────────────────────────────
+# CRITICAL: Multi-tenancy requires tenant isolation in event streams
+# Pattern: sahool.tenant.{tenant_id}.{domain}.{action}
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+    """
+    Get a tenant-scoped NATS subject for isolated event streams.
+
+    This ensures events from one tenant are not visible to other tenants,
+    providing data isolation in a multi-tenant environment.
+
+    Args:
+        tenant_id: The unique tenant identifier (e.g., "org_123")
+        domain: The event domain (e.g., "field", "weather", "billing")
+        action: The event action (e.g., "created", "updated", "deleted")
+
+    Returns:
+        Tenant-scoped NATS subject (e.g., "sahool.tenant.org_123.field.created")
+
+    Example:
+        >>> get_tenant_subject("org_123", "field", "created")
+        'sahool.tenant.org_123.field.created'
+    """
+    if not tenant_id:
+        raise ValueError("tenant_id is required for tenant-scoped subjects")
+    return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
+
+def get_tenant_wildcard(tenant_id: str, domain: str = "*") -> str:
+    """
+    Get a wildcard subject to subscribe to all events for a tenant.
+
+    Args:
+        tenant_id: The unique tenant identifier
+        domain: Optional domain filter (default "*" for all domains)
+
+    Returns:
+        Wildcard subject for tenant events
+
+    Example:
+        >>> get_tenant_wildcard("org_123")
+        'sahool.tenant.org_123.>'
+        >>> get_tenant_wildcard("org_123", "field")
+        'sahool.tenant.org_123.field.*'
+    """
+    if not tenant_id:
+        raise ValueError("tenant_id is required for tenant-scoped subjects")
+    if domain == "*":
+        return f"sahool.tenant.{tenant_id}.>"
+    return f"sahool.tenant.{tenant_id}.{domain}.*"
+
+
+def get_all_tenants_subject(domain: str, action: str) -> str:
+    """
+    Get a subject pattern to subscribe to events from ALL tenants.
+
+    WARNING: Only use for admin/system services that need cross-tenant visibility.
+
+    Args:
+        domain: The event domain
+        action: The event action
+
+    Returns:
+        Cross-tenant subject pattern
+
+    Example:
+        >>> get_all_tenants_subject("billing", "payment.completed")
+        'sahool.tenant.*.billing.payment.completed'
+    """
+    return f"sahool.tenant.*.{domain}.{action}"
+
+
+class TenantSubjectBuilder:
+    """
+    Builder class for constructing tenant-scoped NATS subjects.
+
+    Usage:
+        builder = TenantSubjectBuilder("org_123")
+        field_created = builder.field.created()  # sahool.tenant.org_123.field.created
+        all_weather = builder.weather.all()      # sahool.tenant.org_123.weather.*
+    """
+
+    def __init__(self, tenant_id: str):
+        if not tenant_id:
+            raise ValueError("tenant_id is required")
+        self.tenant_id = tenant_id
+        self._prefix = f"sahool.tenant.{tenant_id}"
+
+    def subject(self, domain: str, action: str) -> str:
+        """Build a subject for the given domain and action."""
+        return f"{self._prefix}.{domain}.{action}"
+
+    def wildcard(self, domain: str) -> str:
+        """Build a wildcard subject for the given domain."""
+        return f"{self._prefix}.{domain}.*"
+
+    @property
+    def field(self) -> "DomainSubjectBuilder":
+        """Get builder for field subjects."""
+        return DomainSubjectBuilder(self._prefix, "field")
+
+    @property
+    def weather(self) -> "DomainSubjectBuilder":
+        """Get builder for weather subjects."""
+        return DomainSubjectBuilder(self._prefix, "weather")
+
+    @property
+    def billing(self) -> "DomainSubjectBuilder":
+        """Get builder for billing subjects."""
+        return DomainSubjectBuilder(self._prefix, "billing")
+
+    @property
+    def iot(self) -> "DomainSubjectBuilder":
+        """Get builder for IoT subjects."""
+        return DomainSubjectBuilder(self._prefix, "iot")
+
+    @property
+    def notification(self) -> "DomainSubjectBuilder":
+        """Get builder for notification subjects."""
+        return DomainSubjectBuilder(self._prefix, "notification")
+
+
+class DomainSubjectBuilder:
+    """Builder for domain-specific subjects."""
+
+    def __init__(self, prefix: str, domain: str):
+        self._prefix = prefix
+        self._domain = domain
+
+    def created(self) -> str:
+        """Subject for created events."""
+        return f"{self._prefix}.{self._domain}.created"
+
+    def updated(self) -> str:
+        """Subject for updated events."""
+        return f"{self._prefix}.{self._domain}.updated"
+
+    def deleted(self) -> str:
+        """Subject for deleted events."""
+        return f"{self._prefix}.{self._domain}.deleted"
+
+    def action(self, action: str) -> str:
+        """Subject for custom action."""
+        return f"{self._prefix}.{self._domain}.{action}"
+
+    def all(self) -> str:
+        """Wildcard subject for all events in this domain."""
+        return f"{self._prefix}.{self._domain}.*"

@@ -1,9 +1,9 @@
 'use client';
-import { useEffect, useRef, HTMLAttributes } from 'react';
+import * as React from 'react';
 import { clsx } from 'clsx';
 import { X } from 'lucide-react';
 
-export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
+export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
@@ -25,9 +25,9 @@ export function Modal({
   className,
   ...props
 }: ModalProps) {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = React.useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         onClose();
@@ -107,7 +107,7 @@ export function Modal({
   );
 }
 
-export function ModalFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
+export function ModalFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={clsx(

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/security/screen_security_service.dart';
+import '../../../core/security/security_config.dart';
 
 /// OTP Login Screen - تسجيل الدخول برقم الهاتف
 /// تصميم بسيط للمزارعين الذين لا يحفظون كلمات المرور
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneController = TextEditingController();
   final List<TextEditingController> _otpControllers = List.generate(
     4,
@@ -99,9 +102,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
+    return SecureScreen(
+      screenType: SecuredScreenType.authentication,
+      showWarning: ref.watch(securityConfigProvider).showScreenSecurityWarning,
+      warningMessageAr: 'لا يمكن أخذ لقطات شاشة في شاشة تسجيل الدخول لحماية بياناتك',
+      warningMessageEn: 'Screenshots are disabled on login screen to protect your credentials',
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,6 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

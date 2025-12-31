@@ -84,8 +84,9 @@ test_json_valid() {
 test_js_syntax() {
     local file="$1"
     local desc="$2"
-    # Basic syntax check - look for common patterns
-    if grep -q "export default function" "$file" 2>/dev/null; then
+    # Basic syntax check - look for K6 export patterns
+    # K6 supports both "export default function" and scenario-based "export function"
+    if grep -qE "export (default )?function" "$file" 2>/dev/null; then
         test_pass "$desc"
         return 0
     else

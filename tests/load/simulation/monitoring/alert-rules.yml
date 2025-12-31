@@ -1,0 +1,247 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - Prometheus Alert Rules
+# قواعد التنبيهات لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Application Alerts - تنبيهات التطبيق
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_application_alerts
+    rules:
+      # High error rate
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m]))
+          / sum(rate(http_requests_total[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High error rate detected - معدل أخطاء مرتفع"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 10%)"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High response time - وقت استجابة مرتفع"
+          description: "P95 response time is {{ $value | humanizeDuration }}"
+
+      # Service down
+      - alert: ServiceDown
+        expr: up{job="sahool-apps"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Service instance down - خدمة متوقفة"
+          description: "{{ $labels.instance }} is down"
+
+      # Too few instances
+      - alert: TooFewInstances
+        expr: count(up{job="sahool-apps"} == 1) < 3
+        for: 2m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Too few app instances - عدد قليل من النسخ"
+          description: "Only {{ $value }} instances are running (minimum: 3)"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Database Alerts - تنبيهات قاعدة البيانات
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_database_alerts
+    rules:
+      # High connection usage
+      - alert: HighDatabaseConnections
+        expr: |
+          pg_stat_activity_count / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: database
+        annotations:
+          summary: "High database connections - اتصالات قاعدة بيانات مرتفعة"
+          description: "Connection usage is {{ $value | humanizePercentage }}"
+
+      # Connection pool exhaustion
+      - alert: ConnectionPoolExhaustion
+        expr: |
+          pgbouncer_pools_cl_waiting > 10
+        for: 2m
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "Connection pool exhaustion - استنفاد اتصالات"
+          description: "{{ $value }} clients waiting for connections"
+
+      # Database down
+      - alert: DatabaseDown
+        expr: pg_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "PostgreSQL is down - قاعدة البيانات متوقفة"
+          description: "PostgreSQL instance is not responding"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Cache Alerts - تنبيهات التخزين المؤقت
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_cache_alerts
+    rules:
+      # Redis down
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Redis is down - Redis متوقف"
+          description: "Redis instance is not responding"
+
+      # High Redis memory usage
+      - alert: HighRedisMemory
+        expr: |
+          redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High Redis memory usage - استخدام ذاكرة مرتفع"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}"
+
+      # Redis connection issues
+      - alert: RedisConnectionIssues
+        expr: redis_connected_clients > 1000
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Too many Redis connections - اتصالات كثيرة"
+          description: "{{ $value }} clients connected to Redis"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Load Balancer Alerts - تنبيهات موازن الحمل
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_loadbalancer_alerts
+    rules:
+      # All backends down
+      - alert: AllBackendsDown
+        expr: |
+          nginx_upstream_peers_active == 0
+        for: 30s
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "All backends are down - جميع الخوادم متوقفة"
+          description: "No active backend servers available"
+
+      # High upstream response time
+      - alert: HighUpstreamLatency
+        expr: |
+          nginx_upstream_response_time_seconds > 1
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High upstream latency - تأخر مرتفع"
+          description: "Upstream response time is {{ $value }}s"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Load Test Specific Alerts - تنبيهات اختبار الحمل
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_loadtest_alerts
+    rules:
+      # Session loss threshold
+      - alert: HighSessionLossRate
+        expr: |
+          increase(session_loss_errors_total[5m]) > 20
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "High session loss rate - فقدان جلسات مرتفع"
+          description: "{{ $value }} sessions lost in the last 5 minutes"
+
+      # Race condition detection
+      - alert: RaceConditionsDetected
+        expr: |
+          increase(race_condition_errors_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Race conditions detected - تعارضات مكتشفة"
+          description: "{{ $value }} race conditions in the last 5 minutes"
+
+      # Circuit breaker triggered
+      - alert: CircuitBreakerTriggered
+        expr: |
+          increase(circuit_breaker_trips_total[5m]) > 5
+        for: 1m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Circuit breaker triggered - قاطع الدائرة نشط"
+          description: "Circuit breaker tripped {{ $value }} times"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # System Alerts - تنبيهات النظام
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_system_alerts
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: |
+          100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High CPU usage - استخدام معالج مرتفع"
+          description: "CPU usage is {{ $value }}%"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High memory usage - استخدام ذاكرة مرتفع"
+          description: "Memory usage is {{ $value }}%"
+
+      # Disk space low
+      - alert: LowDiskSpace
+        expr: |
+          (node_filesystem_avail_bytes / node_filesystem_size_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Low disk space - مساحة قرص منخفضة"
+          description: "Only {{ $value }}% disk space available"

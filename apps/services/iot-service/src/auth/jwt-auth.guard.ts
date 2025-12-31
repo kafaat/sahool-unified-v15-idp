@@ -33,7 +33,11 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('JWT secret not configured');
       }
 
-      const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
+      // SECURITY: Explicitly specify allowed algorithms to prevent algorithm confusion attacks
+      const algorithm = process.env.JWT_ALGORITHM || 'HS256';
+      const decoded = jwt.verify(token, secret, {
+        algorithms: [algorithm as jwt.Algorithm],
+      }) as jwt.JwtPayload;
 
       // Attach user info to request
       request.user = {
@@ -82,7 +86,11 @@ export class OptionalJwtAuthGuard implements CanActivate {
         return true;
       }
 
-      const decoded = jwt.verify(token, secret) as jwt.JwtPayload;
+      // SECURITY: Explicitly specify allowed algorithms to prevent algorithm confusion attacks
+      const algorithm = process.env.JWT_ALGORITHM || 'HS256';
+      const decoded = jwt.verify(token, secret, {
+        algorithms: [algorithm as jwt.Algorithm],
+      }) as jwt.JwtPayload;
 
       request.user = {
         id: decoded.sub || decoded.user_id,

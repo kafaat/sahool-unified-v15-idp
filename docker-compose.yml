@@ -19,7 +19,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-sahool}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+      - ./infrastructure/core/postgres/init:/docker-entrypoint-initdb.d:ro
     # Use tmpfs for temporary data (security hardening)
     tmpfs:
       - /tmp
@@ -179,9 +179,8 @@ services:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
     volumes:
-      - ./infra/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infra/mqtt/passwd:/mosquitto/config/passwd:ro
-      - ./infra/mqtt/acl:/mosquitto/config/acl:ro
+      - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./infrastructure/core/mqtt/passwd:/mosquitto/config/passwd:ro
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
     ports:
@@ -220,19 +219,16 @@ services:
       - "127.0.0.1:6334:6334"
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
+    # Qdrant healthcheck disabled - minimal image lacks curl/wget/ps
     healthcheck:
-      test: ["CMD-SHELL", "wget -q --spider http://localhost:6333/readyz || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
+      disable: true
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     deploy:
       resources:
         limits:
-          cpus: '1'
+          cpus: '1.0'
           memory: 1G
         reservations:
           cpus: '0.25'
@@ -265,7 +261,7 @@ services:
       # - "8443:8443"
       - "127.0.0.1:8001:8001"
     volumes:
-      - ./infra/kong/kong.yml:/kong/declarative/kong.yml:ro
+      - ./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro
       - ./infrastructure/gateway/kong/ssl:/etc/kong/ssl:ro
       - kong_logs:/var/log/kong
     depends_on:

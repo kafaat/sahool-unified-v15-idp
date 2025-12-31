@@ -468,6 +468,124 @@ services:
     profiles:
       - chaos-test
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Mobile App Simulation (15-50+ agents)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-mobile:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_mobile
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      MOBILE_VUS: "${MOBILE_VUS:-20}"
+      TEST_DURATION: "${TEST_DURATION:-5m}"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.44
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/mobile-app-simulation.js"]
+    profiles:
+      - mobile-test
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Web Dashboard Simulation (15-30+ agents)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-web:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_web
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      WEB_VUS: "${WEB_VUS:-15}"
+      TEST_DURATION: "${TEST_DURATION:-5m}"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.45
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/web-dashboard-simulation.js"]
+    profiles:
+      - web-test
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Multi-Client Realistic Simulation (20-100+ agents)
+  # 60% Mobile + 30% Web + 10% API
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-multiclient:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_multiclient
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      TOTAL_VUS: "${TOTAL_VUS:-20}"
+      TEST_DURATION: "${TEST_DURATION:-5m}"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.46
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/multi-client-simulation.js"]
+    profiles:
+      - multiclient-test
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Full Production Simulation (50-100+ agents)
+  # Combined stress + multi-client
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-production:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_production
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      TOTAL_VUS: "${TOTAL_VUS:-50}"
+      TEST_DURATION: "${TEST_DURATION:-10m}"
+      ENVIRONMENT: "production-sim"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.47
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/multi-client-simulation.js"]
+    profiles:
+      - production-test
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # USAGE:
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -477,6 +595,10 @@ services:
 #
 # Start with all 5 app instances:
 #   docker-compose -f docker-compose-advanced.yml up -d
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# STANDARD TESTS:
+# ═════════════════════════════════════════════════════════════════════════════
 #
 # Run Standard Test (20 agents):
 #   docker-compose -f docker-compose-advanced.yml --profile standard-test run --rm sahool-k6-standard
@@ -490,10 +612,30 @@ services:
 # Run Chaos Test:
 #   docker-compose -f docker-compose-advanced.yml --profile chaos-test run --rm sahool-k6-chaos
 #
-# Access Points:
-#   - Grafana: http://localhost:3032
+# ═════════════════════════════════════════════════════════════════════════════
+# NEW CLIENT-SPECIFIC TESTS:
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# Run Mobile App Simulation (iOS + Android, 15-50+ agents):
+#   MOBILE_VUS=20 docker-compose -f docker-compose-advanced.yml --profile mobile-test run --rm sahool-k6-mobile
+#
+# Run Web Dashboard Simulation (Admin + Manager + Analyst, 15-30+ agents):
+#   WEB_VUS=15 docker-compose -f docker-compose-advanced.yml --profile web-test run --rm sahool-k6-web
+#
+# Run Multi-Client Realistic Simulation (60% Mobile + 30% Web + 10% API):
+#   TOTAL_VUS=20 docker-compose -f docker-compose-advanced.yml --profile multiclient-test run --rm sahool-k6-multiclient
+#
+# Run Full Production Simulation (50-100+ agents):
+#   TOTAL_VUS=50 docker-compose -f docker-compose-advanced.yml --profile production-test run --rm sahool-k6-production
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# ACCESS POINTS:
+# ═════════════════════════════════════════════════════════════════════════════
+#
+#   - Grafana: http://localhost:3032 (admin/admin)
 #   - Prometheus: http://localhost:9091
 #   - Alertmanager: http://localhost:9094
 #   - App Load Balancer: http://localhost:8081
+#   - InfluxDB: http://localhost:8088
 #
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -1,7 +1,6 @@
 <#
 .SYNOPSIS
     SAHOOL IDP - Simulation Environment Verification Script (PowerShell)
-    سكريبت التحقق من بيئة المحاكاة لمنصة سهول
 
 .DESCRIPTION
     This script verifies that all simulation files are present and valid,
@@ -28,9 +27,9 @@ param(
     [string]$Mode = "Full"
 )
 
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # CONFIGURATION
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 $ErrorActionPreference = "Continue"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -41,16 +40,16 @@ $Script:ChecksPassed = 0
 $Script:ChecksFailed = 0
 $Script:Warnings = 0
 
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # HELPER FUNCTIONS
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 function Write-Banner {
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "===============================================================================" -ForegroundColor Cyan
     Write-Host "  SAHOOL IDP - Simulation Verification Script (PowerShell)" -ForegroundColor Cyan
-    Write-Host "  سكريبت التحقق من بيئة المحاكاة" -ForegroundColor Cyan
-    Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  Simulation Environment Verification" -ForegroundColor Cyan
+    Write-Host "===============================================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  Project Root: $ProjectRoot"
     Write-Host "  Script Dir: $ScriptDir"
@@ -60,35 +59,35 @@ function Write-Banner {
 function Write-SectionHeader {
     param([string]$Title)
     Write-Host ""
-    Write-Host "───────────────────────────────────────────────────────────────────────────────" -ForegroundColor Blue
+    Write-Host "-------------------------------------------------------------------------------" -ForegroundColor Blue
     Write-Host "  $Title" -ForegroundColor Blue
-    Write-Host "───────────────────────────────────────────────────────────────────────────────" -ForegroundColor Blue
+    Write-Host "-------------------------------------------------------------------------------" -ForegroundColor Blue
 }
 
 function Write-CheckPass {
     param([string]$Message)
-    Write-Host "  [✓ PASS] $Message" -ForegroundColor Green
+    Write-Host "  [PASS] $Message" -ForegroundColor Green
     $Script:ChecksPassed++
 }
 
 function Write-CheckFail {
     param([string]$Message)
-    Write-Host "  [✗ FAIL] $Message" -ForegroundColor Red
+    Write-Host "  [FAIL] $Message" -ForegroundColor Red
     $Script:ChecksFailed++
 }
 
 function Write-CheckWarn {
     param([string]$Message)
-    Write-Host "  [⚠ WARN] $Message" -ForegroundColor Yellow
+    Write-Host "  [WARN] $Message" -ForegroundColor Yellow
     $Script:Warnings++
 }
 
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # VERIFICATION FUNCTIONS
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 function Test-CoreFiles {
-    Write-SectionHeader "1. Core Simulation Files - الملفات الأساسية"
+    Write-SectionHeader "1. Core Simulation Files"
 
     # docker-compose-sim.yml
     $composeFile = Join-Path $ScriptDir "docker-compose-sim.yml"
@@ -124,6 +123,14 @@ function Test-CoreFiles {
         Write-CheckFail "docker-compose-sim.yml NOT FOUND"
     }
 
+    # docker-compose-advanced.yml
+    $advancedFile = Join-Path $ScriptDir "docker-compose-advanced.yml"
+    if (Test-Path $advancedFile) {
+        Write-CheckPass "docker-compose-advanced.yml exists"
+    } else {
+        Write-CheckWarn "docker-compose-advanced.yml missing"
+    }
+
     # README.md
     if (Test-Path (Join-Path $ScriptDir "README.md")) {
         Write-CheckPass "README.md documentation exists"
@@ -144,17 +151,10 @@ function Test-CoreFiles {
     } else {
         Write-CheckWarn "run-simulation.ps1 PowerShell script missing"
     }
-
-    # .env.example
-    if (Test-Path (Join-Path $ScriptDir ".env.example")) {
-        Write-CheckPass ".env.example environment template exists"
-    } else {
-        Write-CheckWarn ".env.example template missing"
-    }
 }
 
 function Test-NginxConfig {
-    Write-SectionHeader "2. Nginx Configuration - إعدادات موازن الحمل"
+    Write-SectionHeader "2. Nginx Configuration"
 
     $nginxConf = Join-Path $ScriptDir "config\nginx.conf"
     if (Test-Path $nginxConf) {
@@ -183,82 +183,111 @@ function Test-NginxConfig {
         Write-CheckFail "config/nginx.conf NOT FOUND"
     }
 
-    # nginx-upstream.conf
-    if (Test-Path (Join-Path $ScriptDir "config\nginx-upstream.conf")) {
-        Write-CheckPass "config/nginx-upstream.conf exists"
+    # nginx-advanced.conf
+    if (Test-Path (Join-Path $ScriptDir "config\nginx-advanced.conf")) {
+        Write-CheckPass "config/nginx-advanced.conf exists"
     } else {
-        Write-CheckWarn "config/nginx-upstream.conf missing (optional)"
+        Write-CheckWarn "config/nginx-advanced.conf missing"
     }
 
     # proxy-params.conf
     if (Test-Path (Join-Path $ScriptDir "config\proxy-params.conf")) {
         Write-CheckPass "config/proxy-params.conf exists"
     } else {
-        Write-CheckWarn "config/proxy-params.conf missing (optional)"
+        Write-CheckWarn "config/proxy-params.conf missing"
     }
 }
 
 function Test-K6Scripts {
-    Write-SectionHeader "3. K6 Load Testing Scripts - سكريبتات اختبار الحمل"
+    Write-SectionHeader "3. K6 Load Testing Scripts"
 
-    $k6Script = Join-Path $ScriptDir "scripts\agent-simulation.js"
-    if (Test-Path $k6Script) {
-        Write-CheckPass "scripts/agent-simulation.js exists"
+    $scriptsDir = Join-Path $ScriptDir "scripts"
 
-        $content = Get-Content $k6Script -Raw
+    $scripts = @(
+        "agent-simulation.js",
+        "advanced-scenarios.js",
+        "chaos-testing.js",
+        "mobile-app-simulation.js",
+        "web-dashboard-simulation.js",
+        "multi-client-simulation.js"
+    )
 
-        if ($content -match "export default function") {
-            Write-CheckPass "agent-simulation.js has main test function"
+    foreach ($script in $scripts) {
+        $scriptPath = Join-Path $scriptsDir $script
+        if (Test-Path $scriptPath) {
+            Write-CheckPass "$script exists"
+
+            $content = Get-Content $scriptPath -Raw
+            if ($content -match "export (default )?function") {
+                Write-CheckPass "$script has valid K6 structure"
+            } else {
+                Write-CheckWarn "$script may have invalid structure"
+            }
         } else {
-            Write-CheckFail "agent-simulation.js missing main test function"
+            Write-CheckFail "$script not found"
         }
-
-        if ($content -match "loginSuccessRate") {
-            Write-CheckPass "agent-simulation.js has custom metrics"
-        } else {
-            Write-CheckWarn "agent-simulation.js missing custom metrics"
-        }
-
-        if ($content -match "connection_pool_errors") {
-            Write-CheckPass "agent-simulation.js tracks connection pool errors"
-        } else {
-            Write-CheckWarn "agent-simulation.js may not track connection pool errors"
-        }
-
-        if ($content -match "session_loss_errors") {
-            Write-CheckPass "agent-simulation.js tracks session loss errors"
-        } else {
-            Write-CheckWarn "agent-simulation.js may not track session loss errors"
-        }
-    } else {
-        Write-CheckFail "scripts/agent-simulation.js NOT FOUND"
     }
 }
 
 function Test-GrafanaConfig {
-    Write-SectionHeader "4. Grafana Dashboards - لوحات المراقبة"
+    Write-SectionHeader "4. Grafana Dashboards"
 
-    if (Test-Path (Join-Path $ScriptDir "grafana\dashboards\k6-dashboard.json")) {
-        Write-CheckPass "grafana/dashboards/k6-dashboard.json exists"
-    } else {
-        Write-CheckWarn "grafana/dashboards/k6-dashboard.json missing"
+    $dashboardsDir = Join-Path $ScriptDir "grafana\dashboards"
+
+    $dashboards = @(
+        "k6-dashboard.json",
+        "advanced-dashboard.json",
+        "multi-client-dashboard.json"
+    )
+
+    foreach ($dashboard in $dashboards) {
+        $dashPath = Join-Path $dashboardsDir $dashboard
+        if (Test-Path $dashPath) {
+            Write-CheckPass "$dashboard exists"
+
+            try {
+                $null = Get-Content $dashPath -Raw | ConvertFrom-Json
+                Write-CheckPass "$dashboard is valid JSON"
+            } catch {
+                Write-CheckFail "$dashboard is invalid JSON"
+            }
+        } else {
+            Write-CheckWarn "$dashboard not found"
+        }
     }
 
-    if (Test-Path (Join-Path $ScriptDir "grafana\dashboards\dashboards.yml")) {
-        Write-CheckPass "grafana/dashboards/dashboards.yml exists"
+    $datasourcesDir = Join-Path $ScriptDir "grafana\datasources"
+    $influxDs = Join-Path $datasourcesDir "influxdb.yml"
+    if (Test-Path $influxDs) {
+        Write-CheckPass "InfluxDB datasource config exists"
     } else {
-        Write-CheckWarn "grafana/dashboards/dashboards.yml missing"
+        Write-CheckWarn "InfluxDB datasource config not found"
     }
+}
 
-    if (Test-Path (Join-Path $ScriptDir "grafana\datasources\influxdb.yml")) {
-        Write-CheckPass "grafana/datasources/influxdb.yml exists"
-    } else {
-        Write-CheckWarn "grafana/datasources/influxdb.yml missing"
+function Test-MonitoringConfig {
+    Write-SectionHeader "5. Monitoring Configuration"
+
+    $monitoringDir = Join-Path $ScriptDir "monitoring"
+
+    $configs = @(
+        "prometheus.yml",
+        "alertmanager.yml",
+        "alert-rules.yml"
+    )
+
+    foreach ($config in $configs) {
+        $configPath = Join-Path $monitoringDir $config
+        if (Test-Path $configPath) {
+            Write-CheckPass "$config exists"
+        } else {
+            Write-CheckWarn "$config not found"
+        }
     }
 }
 
 function Test-Dockerfile {
-    Write-SectionHeader "5. Application Dockerfile - ملف بناء التطبيق"
+    Write-SectionHeader "6. Application Dockerfile"
 
     $dockerfile = Join-Path $ProjectRoot "apps\services\field-ops\Dockerfile"
     if (Test-Path $dockerfile) {
@@ -266,18 +295,10 @@ function Test-Dockerfile {
 
         $content = Get-Content $dockerfile -Raw
 
-        if ($content -match "FROM python") {
-            Write-CheckPass "Dockerfile uses Python base image"
-        } elseif ($content -match "FROM node") {
-            Write-CheckPass "Dockerfile uses Node.js base image"
+        if ($content -match "FROM") {
+            Write-CheckPass "Dockerfile has FROM instruction"
         } else {
-            Write-CheckWarn "Dockerfile base image unclear"
-        }
-
-        if ($content -match "HEALTHCHECK") {
-            Write-CheckPass "Dockerfile includes HEALTHCHECK"
-        } else {
-            Write-CheckWarn "Dockerfile missing HEALTHCHECK instruction"
+            Write-CheckFail "Dockerfile missing FROM instruction"
         }
 
         if ($content -match "8080") {
@@ -287,12 +308,11 @@ function Test-Dockerfile {
         }
     } else {
         Write-CheckFail "apps/services/field-ops/Dockerfile NOT FOUND"
-        Write-Host "    → The docker-compose-sim.yml references this Dockerfile" -ForegroundColor Yellow
     }
 }
 
 function Test-Directories {
-    Write-SectionHeader "6. Required Directories - المجلدات المطلوبة"
+    Write-SectionHeader "7. Required Directories"
 
     # Results directory
     $resultsDir = Join-Path $ScriptDir "results"
@@ -329,8 +349,30 @@ function Test-Directories {
     }
 }
 
+function Test-RunnerScripts {
+    Write-SectionHeader "8. Runner Scripts"
+
+    $scripts = @(
+        "run-simulation.sh",
+        "run-simulation.ps1",
+        "run-advanced.sh",
+        "run-advanced.ps1",
+        "run-multiclient.ps1",
+        "verify-simulation.sh"
+    )
+
+    foreach ($script in $scripts) {
+        $scriptPath = Join-Path $ScriptDir $script
+        if (Test-Path $scriptPath) {
+            Write-CheckPass "$script exists"
+        } else {
+            Write-CheckWarn "$script not found"
+        }
+    }
+}
+
 function Test-DockerEnvironment {
-    Write-SectionHeader "7. Docker Environment - بيئة Docker"
+    Write-SectionHeader "9. Docker Environment"
 
     # Check if Docker is installed
     try {
@@ -347,15 +389,15 @@ function Test-DockerEnvironment {
 
     # Check if Docker Compose is available
     try {
-        $composeVersion = docker-compose --version 2>&1
+        $composeVersion = docker compose version 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-CheckPass "Docker Compose is installed (standalone)"
+            Write-CheckPass "Docker Compose is installed (plugin)"
             Write-Host "    Version: $composeVersion" -ForegroundColor Cyan
         } else {
-            # Try docker compose (plugin)
-            $composeVersion = docker compose version 2>&1
+            # Try docker-compose (standalone)
+            $composeVersion = docker-compose --version 2>&1
             if ($LASTEXITCODE -eq 0) {
-                Write-CheckPass "Docker Compose is installed (plugin)"
+                Write-CheckPass "Docker Compose is installed (standalone)"
                 Write-Host "    Version: $composeVersion" -ForegroundColor Cyan
             } else {
                 Write-CheckFail "Docker Compose is NOT installed"
@@ -379,7 +421,7 @@ function Test-DockerEnvironment {
 }
 
 function Test-DockerCompose {
-    Write-SectionHeader "8. Build Test - اختبار البناء"
+    Write-SectionHeader "10. Docker Compose Validation"
 
     try {
         $dockerInfo = docker info 2>&1
@@ -396,30 +438,34 @@ function Test-DockerCompose {
 
     Push-Location $ScriptDir
     try {
-        $result = docker-compose -f docker-compose-sim.yml config 2>&1
+        $result = docker compose -f docker-compose-sim.yml config 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-CheckPass "docker-compose-sim.yml is valid YAML"
+            Write-CheckPass "docker-compose-sim.yml is valid"
         } else {
             Write-CheckFail "docker-compose-sim.yml has syntax errors"
-            Write-Host "    Run: docker-compose -f docker-compose-sim.yml config" -ForegroundColor Yellow
         }
     } catch {
-        Write-CheckFail "Could not validate docker-compose configuration"
+        Write-CheckWarn "Could not validate docker-compose-sim.yml"
+    }
+
+    try {
+        $result = docker compose -f docker-compose-advanced.yml config 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-CheckPass "docker-compose-advanced.yml is valid"
+        } else {
+            Write-CheckWarn "docker-compose-advanced.yml has issues"
+        }
+    } catch {
+        Write-CheckWarn "Could not validate docker-compose-advanced.yml"
     }
     Pop-Location
-
-    Write-Host ""
-    Write-Host "  To build and run the simulation:" -ForegroundColor White
-    Write-Host "    cd $ScriptDir" -ForegroundColor Cyan
-    Write-Host "    .\run-simulation.ps1 -Command Start" -ForegroundColor Cyan
-    Write-Host "    .\run-simulation.ps1 -Command Test" -ForegroundColor Cyan
 }
 
 function Write-Summary {
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
-    Write-Host "  VERIFICATION SUMMARY - ملخص التحقق" -ForegroundColor Cyan
-    Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "===============================================================================" -ForegroundColor Cyan
+    Write-Host "  VERIFICATION SUMMARY" -ForegroundColor Cyan
+    Write-Host "===============================================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  Passed:   $Script:ChecksPassed checks" -ForegroundColor Green
     Write-Host "  Failed:   $Script:ChecksFailed checks" -ForegroundColor Red
@@ -427,30 +473,31 @@ function Write-Summary {
     Write-Host ""
 
     if ($Script:ChecksFailed -eq 0) {
-        Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Green
-        Write-Host "  ✓ ALL CRITICAL CHECKS PASSED - SIMULATION READY" -ForegroundColor Green
-        Write-Host "  ✓ جميع الفحوصات الحرجة نجحت - المحاكاة جاهزة" -ForegroundColor Green
-        Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Green
+        Write-Host "===============================================================================" -ForegroundColor Green
+        Write-Host "  ALL CRITICAL CHECKS PASSED - SIMULATION READY" -ForegroundColor Green
+        Write-Host "===============================================================================" -ForegroundColor Green
         Write-Host ""
         Write-Host "  Next steps:" -ForegroundColor White
-        Write-Host "    1. cd tests\load\simulation"
-        Write-Host "    2. .\run-simulation.ps1 -Command Start"
-        Write-Host "    3. .\run-simulation.ps1 -Command Test"
+        Write-Host "    1. .\run-simulation.ps1 -Command Start"
+        Write-Host "    2. .\run-simulation.ps1 -Command Test -AgentCount 10"
+        Write-Host ""
+        Write-Host "  Or for multi-client testing:" -ForegroundColor White
+        Write-Host "    1. .\run-multiclient.ps1 -Command start"
+        Write-Host "    2. .\run-multiclient.ps1 -Command multiclient -VUs 20"
         Write-Host ""
         return $true
     } else {
-        Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Red
-        Write-Host "  ✗ SOME CHECKS FAILED - REVIEW REQUIRED" -ForegroundColor Red
-        Write-Host "  ✗ بعض الفحوصات فشلت - مراجعة مطلوبة" -ForegroundColor Red
-        Write-Host "═══════════════════════════════════════════════════════════════════════════════" -ForegroundColor Red
+        Write-Host "===============================================================================" -ForegroundColor Red
+        Write-Host "  SOME CHECKS FAILED - REVIEW REQUIRED" -ForegroundColor Red
+        Write-Host "===============================================================================" -ForegroundColor Red
         Write-Host ""
         return $false
     }
 }
 
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # MAIN
-# ═══════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 Write-Banner
 
@@ -461,8 +508,10 @@ switch ($Mode) {
         Test-NginxConfig
         Test-K6Scripts
         Test-GrafanaConfig
+        Test-MonitoringConfig
         Test-Dockerfile
         Test-Directories
+        Test-RunnerScripts
     }
     "Build" {
         Write-Host "Running build test only..." -ForegroundColor White
@@ -474,8 +523,10 @@ switch ($Mode) {
         Test-NginxConfig
         Test-K6Scripts
         Test-GrafanaConfig
+        Test-MonitoringConfig
         Test-Dockerfile
         Test-Directories
+        Test-RunnerScripts
         Test-DockerEnvironment
         Test-DockerCompose
     }

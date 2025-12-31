@@ -15,6 +15,45 @@
 
 version: '3.8'
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# YAML ANCHORS - Common Environment Variables (must be defined before use)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+x-app-common-env: &app-common-env
+  # Application settings
+  NODE_ENV: production
+  LOG_LEVEL: info
+  # Database - through PgBouncer
+  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-simulation_password_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_sim}?pool_timeout=60
+  DB_HOST: sahool-pgbouncer
+  DB_PORT: "6432"
+  DB_USER: ${POSTGRES_USER:-sahool_admin}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
+  DB_NAME: ${POSTGRES_DB:-sahool_sim}
+  # Redis session store
+  REDIS_URL: redis://:${REDIS_PASSWORD:-sim_redis_pass_123}@sahool-redis:6379
+  REDIS_HOST: sahool-redis
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-sim_redis_pass_123}
+  # Session configuration
+  SESSION_STORE_TYPE: redis
+  SESSION_SECRET: simulation_session_secret_key_123
+  # Connection pool settings (HikariCP equivalent for Node.js)
+  DB_POOL_MIN: "5"
+  DB_POOL_MAX: "20"
+  DB_POOL_ACQUIRE_TIMEOUT: "30000"
+  DB_POOL_IDLE_TIMEOUT: "600000"
+  DB_POOL_CONNECTION_TIMEOUT: "30000"
+  # Tomcat/Server thread pool settings
+  SERVER_MAX_THREADS: "200"
+  SERVER_MIN_SPARE_THREADS: "10"
+  SERVER_MAX_CONNECTIONS: "10000"
+  # JWT configuration
+  JWT_SECRET: simulation_jwt_secret_key_for_testing_only
+  JWT_EXPIRY: "3600"
+  # Tenant
+  DEFAULT_TENANT_ID: tenant_simulation
+
 networks:
   sahool-sim-network:
     driver: bridge
@@ -175,6 +214,7 @@ services:
     volumes:
       - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./config/nginx-upstream.conf:/etc/nginx/conf.d/upstream.conf:ro
+      - ./config/proxy-params.conf:/etc/nginx/conf.d/proxy-params.conf:ro
     networks:
       sahool-sim-network:
         ipv4_address: 172.30.0.20
@@ -390,45 +430,6 @@ services:
     command: ["run", "--quiet", "agent-simulation.js"]
     profiles:
       - testing
-
-# ═══════════════════════════════════════════════════════════════════════════
-# YAML ANCHORS - Common Environment Variables
-# ═══════════════════════════════════════════════════════════════════════════
-
-x-app-common-env: &app-common-env
-  # Application settings
-  NODE_ENV: production
-  LOG_LEVEL: info
-  # Database - through PgBouncer
-  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-simulation_password_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_sim}?pool_timeout=60
-  DB_HOST: sahool-pgbouncer
-  DB_PORT: "6432"
-  DB_USER: ${POSTGRES_USER:-sahool_admin}
-  DB_PASSWORD: ${POSTGRES_PASSWORD:-simulation_password_123}
-  DB_NAME: ${POSTGRES_DB:-sahool_sim}
-  # Redis session store
-  REDIS_URL: redis://:${REDIS_PASSWORD:-sim_redis_pass_123}@sahool-redis:6379
-  REDIS_HOST: sahool-redis
-  REDIS_PORT: "6379"
-  REDIS_PASSWORD: ${REDIS_PASSWORD:-sim_redis_pass_123}
-  # Session configuration
-  SESSION_STORE_TYPE: redis
-  SESSION_SECRET: simulation_session_secret_key_123
-  # Connection pool settings (HikariCP equivalent for Node.js)
-  DB_POOL_MIN: "5"
-  DB_POOL_MAX: "20"
-  DB_POOL_ACQUIRE_TIMEOUT: "30000"
-  DB_POOL_IDLE_TIMEOUT: "600000"
-  DB_POOL_CONNECTION_TIMEOUT: "30000"
-  # Tomcat/Server thread pool settings
-  SERVER_MAX_THREADS: "200"
-  SERVER_MIN_SPARE_THREADS: "10"
-  SERVER_MAX_CONNECTIONS: "10000"
-  # JWT configuration
-  JWT_SECRET: simulation_jwt_secret_key_for_testing_only
-  JWT_EXPIRY: "3600"
-  # Tenant
-  DEFAULT_TENANT_ID: tenant_simulation
 
 # ═══════════════════════════════════════════════════════════════════════════
 # USAGE INSTRUCTIONS

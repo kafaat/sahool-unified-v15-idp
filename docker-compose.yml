@@ -75,7 +75,7 @@ services:
       ADMIN_USERS: pgbouncer_admin
       STATS_USERS: pgbouncer_stats
     volumes:
-      - ./infrastructure/core/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini
+      - ./infrastructure/core/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
     ports:
       - "127.0.0.1:6432:6432"  # SECURITY: localhost only
     depends_on:
@@ -219,9 +219,14 @@ services:
       - "127.0.0.1:6334:6334"
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
-    # Qdrant healthcheck disabled - minimal image lacks curl/wget/ps
+    # Qdrant healthcheck using built-in telemetry endpoint
+    # فحص صحة Qdrant باستخدام نقطة نهاية القياس عن بعد المدمجة
     healthcheck:
-      disable: true
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1080,6 +1085,8 @@ services:
       postgres:
         condition: service_healthy
       nats:
+        condition: service_healthy
+      iot_gateway:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8094/healthz')"]

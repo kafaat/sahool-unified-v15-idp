@@ -340,7 +340,7 @@ services:
       - sahool-network
 
   # Marketplace Service - Agricultural Marketplace & FinTech
-  marketplace_service:
+  marketplace-service:
     build:
       context: ./apps/services/marketplace-service
       dockerfile: Dockerfile
@@ -383,7 +383,7 @@ services:
       - sahool-network
 
   # Research Core - Scientific Research Management
-  research_core:
+  research-core:
     build:
       context: ./apps/services/research-core
       dockerfile: Dockerfile
@@ -429,7 +429,7 @@ services:
       - sahool-network
 
   # Disaster Assessment Service
-  disaster_assessment:
+  disaster-assessment:
     build:
       context: ./apps/services/disaster-assessment
       dockerfile: Dockerfile
@@ -476,7 +476,7 @@ services:
   # ⚠️ DEPRECATED: yield_prediction - Migrating to yield-prediction-service
   # This service is being consolidated into yield-prediction-service (Port 8098)
   # Kept temporarily for backwards compatibility
-  yield_prediction:
+  yield-prediction:
     build:
       context: ./apps/services/yield-prediction
       dockerfile: Dockerfile
@@ -523,7 +523,7 @@ services:
   # ⚠️ DEPRECATED: lai_estimation - Migrating to vegetation-analysis-service
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
-  lai_estimation:
+  lai-estimation:
     build:
       context: ./apps/services/lai-estimation
       dockerfile: Dockerfile
@@ -570,7 +570,7 @@ services:
   # ⚠️ DEPRECATED: crop_growth_model - Migrating to crop-intelligence-service
   # This service is being consolidated into crop-intelligence-service (Port 8095)
   # Kept temporarily for backwards compatibility
-  crop_growth_model:
+  crop-growth-model:
     build:
       context: ./apps/services/crop-growth-model
       dockerfile: Dockerfile
@@ -615,7 +615,7 @@ services:
       - sahool-network
 
   # Chat Service - Agricultural Chat & Messaging
-  chat_service:
+  chat-service:
     build:
       context: ./apps/services/chat-service
       dockerfile: Dockerfile
@@ -658,7 +658,7 @@ services:
       - sahool-network
 
   # IoT Service - IoT Device & Sensor Management
-  iot_service:
+  iot-service:
     build:
       context: ./apps/services/iot-service
       dockerfile: Dockerfile
@@ -709,7 +709,7 @@ services:
   # ⚠️ DEPRECATED: community_chat - Migrating to chat-service
   # This service is being consolidated into chat-service (Port 8114)
   # Kept temporarily for backwards compatibility
-  community_chat:
+  community-chat:
     build:
       context: ./apps/services/community-chat
       dockerfile: Dockerfile
@@ -757,7 +757,7 @@ services:
   # ⚠️ DEPRECATED: field_ops - Migrating to field-management-service
   # This service is being consolidated into field-management-service (Port 3000)
   # Kept temporarily for backwards compatibility
-  field_ops:
+  field-ops:
     build:
       context: ./apps/services/field-ops
       dockerfile: Dockerfile
@@ -801,7 +801,7 @@ services:
       - sahool-network
 
   # WebSocket Gateway
-  ws_gateway:
+  ws-gateway:
     build:
       context: ./apps/services/ws-gateway
       dockerfile: Dockerfile
@@ -843,7 +843,7 @@ services:
       - sahool-network
 
   # Billing Core Service
-  billing_core:
+  billing-core:
     build:
       context: ./apps/services/billing-core
       dockerfile: Dockerfile
@@ -941,7 +941,7 @@ services:
       - sahool-network
 
   # Indicators Service
-  indicators_service:
+  indicators-service:
     build:
       context: ./apps/services/indicators-service
       dockerfile: Dockerfile
@@ -1062,7 +1062,7 @@ services:
       - sahool-network
 
   # Irrigation Smart Service
-  irrigation_smart:
+  irrigation-smart:
     build:
       context: ./apps/services/irrigation-smart
       dockerfile: Dockerfile
@@ -1073,7 +1073,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
-      - IOT_GATEWAY_URL=http://iot_gateway:8106
+      - IOT_GATEWAY_URL=http://iot-gateway:8106
     ports:
       - "8094:8094"
     depends_on:
@@ -1145,7 +1145,7 @@ services:
       - sahool-network
 
   # Virtual Sensors Engine
-  virtual_sensors:
+  virtual-sensors:
     build:
       context: ./apps/services/virtual-sensors
       dockerfile: Dockerfile
@@ -1224,7 +1224,7 @@ services:
       - sahool-network
 
   # Field Chat Service
-  field_chat:
+  field-chat:
     build:
       context: ./apps/services/field-chat
       dockerfile: Dockerfile
@@ -1268,7 +1268,7 @@ services:
       - sahool-network
 
   # Equipment Service
-  equipment_service:
+  equipment-service:
     build:
       context: ./apps/services/equipment-service
       dockerfile: Dockerfile
@@ -1306,7 +1306,7 @@ services:
       - sahool-network
 
   # Task Service
-  task_service:
+  task-service:
     build:
       context: ./apps/services/task-service
       dockerfile: Dockerfile
@@ -1344,7 +1344,7 @@ services:
       - sahool-network
 
   # Provider Config Service
-  provider_config:
+  provider-config:
     build:
       context: ./apps/services/provider-config
       dockerfile: Dockerfile
@@ -1377,7 +1377,7 @@ services:
   # ⚠️ DEPRECATED: agro_advisor - Migrating to advisory-service
   # This service is being consolidated into advisory-service (Port 8093)
   # Kept temporarily for backwards compatibility
-  agro_advisor:
+  agro-advisor:
     build:
       context: ./apps/services
       dockerfile: agro-advisor/Dockerfile
@@ -1418,7 +1418,7 @@ services:
       - sahool-network
 
   # IoT Gateway Service
-  iot_gateway:
+  iot-gateway:
     build:
       context: ./apps/services/iot-gateway
       dockerfile: Dockerfile
@@ -1468,7 +1468,7 @@ services:
   # ⚠️ DEPRECATED: ndvi_engine - Migrating to vegetation-analysis-service
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
-  ndvi_engine:
+  ndvi-engine:
     build:
       context: ./apps/services/ndvi-engine
       dockerfile: Dockerfile
@@ -1511,7 +1511,7 @@ services:
   # ⚠️ DEPRECATED: weather_core - Migrating to weather-service
   # This service is being consolidated into weather-service (Port 8092)
   # Kept temporarily for backwards compatibility
-  weather_core:
+  weather-core:
     build:
       context: ./apps/services/weather-core
       dockerfile: Dockerfile
@@ -1556,7 +1556,7 @@ services:
       - sahool-network
 
   # Notification Service
-  notification_service:
+  notification-service:
     build:
       context: ./apps/services/notification-service
       dockerfile: Dockerfile
@@ -1604,7 +1604,7 @@ services:
       - sahool-network
 
   # Astronomical Calendar Service
-  astronomical_calendar:
+  astronomical-calendar:
     build:
       context: ./apps/services/astronomical-calendar
       dockerfile: Dockerfile
@@ -1640,7 +1640,7 @@ services:
       - sahool-network
 
   # AI Advisor Service
-  ai_advisor:
+  ai-advisor:
     build:
       context: ./apps/services/ai-advisor
       dockerfile: Dockerfile
@@ -1705,7 +1705,7 @@ services:
       - sahool-network
 
   # Alert Service
-  alert_service:
+  alert-service:
     build:
       context: ./apps/services
       dockerfile: alert-service/Dockerfile
@@ -1716,7 +1716,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
-      - NOTIFICATION_SERVICE_URL=http://notification_service:8110
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8110
     ports:
       - "8113:8113"
     depends_on:
@@ -1724,7 +1724,7 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
-      notification_service:
+      notification-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8113/healthz')"]
@@ -1749,7 +1749,7 @@ services:
   # ⚠️ DEPRECATED: field_service - Migrating to field-management-service
   # This service is being consolidated into field-management-service (Port 3000)
   # Kept temporarily for backwards compatibility
-  field_service:
+  field-service:
     build:
       context: ./apps/services/field-service
       dockerfile: Dockerfile
@@ -1791,7 +1791,7 @@ services:
       - sahool-network
 
   # Inventory Service
-  inventory_service:
+  inventory-service:
     build:
       context: ./apps/services/inventory-service
       dockerfile: Dockerfile
@@ -1832,7 +1832,7 @@ services:
   # ⚠️ DEPRECATED: ndvi_processor - Migrating to vegetation-analysis-service
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
-  ndvi_processor:
+  ndvi-processor:
     build:
       context: ./apps/services/ndvi-processor
       dockerfile: Dockerfile
@@ -1876,7 +1876,7 @@ services:
   # ⚠️ DEPRECATED: crop_health - Migrating to crop-intelligence-service
   # This service is being consolidated into crop-intelligence-service (Port 8095)
   # Kept temporarily for backwards compatibility
-  crop_health:
+  crop-health:
     build:
       context: ./apps/services/crop-health
       dockerfile: Dockerfile
@@ -1909,20 +1909,20 @@ services:
       - sahool-network
 
   # Agro Rules Worker - NATS Event-Driven Worker
-  agro_rules:
+  agro-rules:
     build:
       context: ./apps/services/agro-rules
       dockerfile: Dockerfile
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://nats:4222
-      - FIELDOPS_URL=http://field_ops:8080
+      - FIELDOPS_URL=http://field-ops:8080
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     depends_on:
       nats:
         condition: service_healthy
-      field_ops:
+      field-ops:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "pgrep", "-f", "python.*worker"]

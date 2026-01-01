@@ -57,6 +57,7 @@ RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=2
 # Copy Prisma schema and regenerate client for production environment
 # Add retry logic for network resilience
 COPY --from=builder /app/prisma ./prisma
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
     (sleep 10 && npx prisma generate) || \

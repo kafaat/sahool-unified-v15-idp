@@ -107,6 +107,60 @@ function formatTimeAgo(timestamp: string): string {
   return then.toLocaleDateString('ar-YE');
 }
 
+// Type-safe payload renderer component
+function PayloadDetails({ event }: { event: TimelineEvent }): React.ReactElement | null {
+  const payload = event.payload;
+
+  if (event.event_type === 'task_created' && isTaskPayload(payload)) {
+    return <span>📋 {payload.title}</span>;
+  }
+
+  if (event.event_type === 'task_completed' && isTaskPayload(payload)) {
+    return <span>✅ {payload.title}</span>;
+  }
+
+  if (event.event_type === 'weather_alert_issued' && isWeatherAlertPayload(payload)) {
+    return <span>⚠️ {payload.type} - {payload.location}</span>;
+  }
+
+  if (event.event_type === 'image_diagnosed' && isDiagnosisPayload(payload)) {
+    return (
+      <span>
+        {payload.disease_detected ? '🔴' : '🟢'}
+        {' '}
+        {payload.disease || 'لا يوجد مرض'}
+        {' '}
+        ({Math.round(payload.confidence * 100)}%)
+      </span>
+    );
+  }
+
+  if (event.event_type === 'ndvi_processed' && isNdviPayload(payload)) {
+    const statusClass = payload.status === 'healthy'
+      ? 'bg-green-100 text-green-700'
+      : payload.status === 'warning'
+        ? 'bg-yellow-100 text-yellow-700'
+        : 'bg-red-100 text-red-700';
+    const statusLabel = payload.status === 'healthy'
+      ? 'صحي'
+      : payload.status === 'warning'
+        ? 'تحذير'
+        : 'حرج';
+
+    return (
+      <span>
+        🛰️ NDVI: {payload.ndvi}
+        {' '}
+        <span className={`px-1 rounded ${statusClass}`}>
+          {statusLabel}
+        </span>
+      </span>
+    );
+  }
+
+  return null;
+}
+
 const EventCard = React.memo<{ event: TimelineEvent }>(function EventCard({ event }) {
   const icon = getEventIcon(event.event_type);
   const colorClass = getEventColor(event.event_type);
@@ -127,38 +181,7 @@ const EventCard = React.memo<{ event: TimelineEvent }>(function EventCard({ even
 
           {/* Payload details - Type-safe rendering */}
           <div className="mt-1 text-xs text-gray-500">
-            {event.event_type === 'task_created' && isTaskPayload(event.payload as EventPayload) && (
-              <span>📋 {(event.payload as TaskPayload).title}</span>
-            )}
-            {event.event_type === 'task_completed' && isTaskPayload(event.payload as EventPayload) && (
-              <span>✅ {(event.payload as TaskPayload).title}</span>
-            )}
-            {event.event_type === 'weather_alert_issued' && isWeatherAlertPayload(event.payload as EventPayload) && (
-              <span>⚠️ {(event.payload as WeatherAlertPayload).type} - {(event.payload as WeatherAlertPayload).location}</span>
-            )}
-            {event.event_type === 'image_diagnosed' && isDiagnosisPayload(event.payload as EventPayload) && (
-              <span>
-                {(event.payload as DiagnosisPayload).disease_detected ? '🔴' : '🟢'}
-                {' '}
-                {(event.payload as DiagnosisPayload).disease || 'لا يوجد مرض'}
-                {' '}
-                ({Math.round((event.payload as DiagnosisPayload).confidence * 100)}%)
-              </span>
-            )}
-            {event.event_type === 'ndvi_processed' && isNdviPayload(event.payload as EventPayload) && (
-              <span>
-                🛰️ NDVI: {(event.payload as NdviPayload).ndvi}
-                {' '}
-                <span className={`px-1 rounded ${
-                  (event.payload as NdviPayload).status === 'healthy' ? 'bg-green-100 text-green-700' :
-                  (event.payload as NdviPayload).status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
-                  'bg-red-100 text-red-700'
-                }`}>
-                  {(event.payload as NdviPayload).status === 'healthy' ? 'صحي' :
-                   (event.payload as NdviPayload).status === 'warning' ? 'تحذير' : 'حرج'}
-                </span>
-              </span>
-            )}
+            <PayloadDetails event={event} />
           </div>
 
           {/* Aggregate ID */}

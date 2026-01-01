@@ -30,7 +30,9 @@ test_cases = [
 ]
 
 for text, should_detect in test_cases:
-    detected = any(re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns)
+    detected = any(
+        re.search(pattern, text, re.IGNORECASE) for pattern in prompt_injection_patterns
+    )
     status = "✓" if detected == should_detect else "✗"
     print(f"{status} '{text[:40]}...' - Detected: {detected}")
     assert detected == should_detect, f"Failed for: {text}"
@@ -66,14 +68,17 @@ print("Test 3: Topic Filtering (Agriculture Focus)")
 print("-" * 40)
 
 allowed_topics = [
-    "agriculture", "farming", "crops", "wheat", "irrigation",
-    "زراعة", "محاصيل", "قمح"
+    "agriculture",
+    "farming",
+    "crops",
+    "wheat",
+    "irrigation",
+    "زراعة",
+    "محاصيل",
+    "قمح",
 ]
 
-blocked_topics = [
-    "terrorism", "weapons", "drugs", "violence",
-    "إرهاب", "أسلحة"
-]
+blocked_topics = ["terrorism", "weapons", "drugs", "violence", "إرهاب", "أسلحة"]
 
 test_cases = [
     ("How to grow wheat crops?", True, False),
@@ -136,7 +141,9 @@ test_cases = [
 ]
 
 for text, should_detect in test_cases:
-    detected = any(re.search(pattern, text, re.IGNORECASE) for pattern in uncertainty_markers)
+    detected = any(
+        re.search(pattern, text, re.IGNORECASE) for pattern in uncertainty_markers
+    )
     status = "✓" if detected == should_detect else "✗"
     print(f"{status} '{text[:40]}...' - Has markers: {detected}")
     assert detected == should_detect, f"Failed for: {text}"
@@ -147,7 +154,10 @@ print()
 print("Test 6: Trust Level Determination")
 print("-" * 40)
 
-def get_trust_level(roles=None, is_premium=False, is_verified=False, account_age_days=0):
+
+def get_trust_level(
+    roles=None, is_premium=False, is_verified=False, account_age_days=0
+):
     """Simplified trust level determination"""
     roles = roles or []
 
@@ -161,6 +171,7 @@ def get_trust_level(roles=None, is_premium=False, is_verified=False, account_age
         return "BASIC"
     else:
         return "UNTRUSTED"
+
 
 test_cases = [
     ({"roles": ["admin"]}, "ADMIN"),
@@ -182,21 +193,23 @@ print()
 print("Test 7: PII Masking")
 print("-" * 40)
 
+
 def mask_pii(text):
     """Simple PII masking"""
     # Mask emails
     text = re.sub(
         r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b",
         lambda m: m.group(0)[:2] + "*" * (len(m.group(0)) - 4) + m.group(0)[-2:],
-        text
+        text,
     )
     # Mask phone numbers
     text = re.sub(
         r"(\+?966|0)?5\d{8}",
         lambda m: m.group(0)[:3] + "*" * (len(m.group(0)) - 5) + m.group(0)[-2:],
-        text
+        text,
     )
     return text
+
 
 test_cases = [
     "Contact me at farmer@example.com",

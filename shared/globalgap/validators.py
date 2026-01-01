@@ -62,9 +62,7 @@ def validate_ggn_number(ggn: str) -> Tuple[bool, Optional[str]]:
 
 
 def validate_compliance_percentage(
-    compliant_count: int,
-    total_count: int,
-    not_applicable_count: int = 0
+    compliant_count: int, total_count: int, not_applicable_count: int = 0
 ) -> Tuple[float, bool]:
     """
     Calculate and validate compliance percentage
@@ -98,8 +96,7 @@ def validate_compliance_percentage(
 
 
 def check_major_must_compliance(
-    findings: List[Dict],
-    checklist_items: List[Dict]
+    findings: List[Dict], checklist_items: List[Dict]
 ) -> Tuple[bool, Dict]:
     """
     Check if Major Must requirements are met
@@ -117,7 +114,8 @@ def check_major_must_compliance(
     """
     # Filter Major Must items
     major_must_items = [
-        item for item in checklist_items
+        item
+        for item in checklist_items
         if item.get("compliance_level") == ComplianceLevel.MAJOR_MUST
     ]
 
@@ -147,11 +145,13 @@ def check_major_must_compliance(
             # No finding means not assessed - counts as non-compliant
             non_compliant += 1
             total += 1
-            failed_items.append({
-                "id": item_id,
-                "title_en": item.get("title_en"),
-                "reason": "Not assessed"
-            })
+            failed_items.append(
+                {
+                    "id": item_id,
+                    "title_en": item.get("title_en"),
+                    "reason": "Not assessed",
+                }
+            )
             continue
 
         if finding.get("is_not_applicable", False):
@@ -163,11 +163,13 @@ def check_major_must_compliance(
             compliant += 1
         else:
             non_compliant += 1
-            failed_items.append({
-                "id": item_id,
-                "title_en": item.get("title_en"),
-                "reason": finding.get("notes_en", "Non-compliant")
-            })
+            failed_items.append(
+                {
+                    "id": item_id,
+                    "title_en": item.get("title_en"),
+                    "reason": finding.get("notes_en", "Non-compliant"),
+                }
+            )
 
     # Calculate percentage
     percentage, _ = validate_compliance_percentage(compliant, total, 0)
@@ -188,8 +190,7 @@ def check_major_must_compliance(
 
 
 def check_minor_must_compliance(
-    findings: List[Dict],
-    checklist_items: List[Dict]
+    findings: List[Dict], checklist_items: List[Dict]
 ) -> Tuple[bool, Dict]:
     """
     Check if Minor Must requirements are met
@@ -207,7 +208,8 @@ def check_minor_must_compliance(
     """
     # Filter Minor Must items
     minor_must_items = [
-        item for item in checklist_items
+        item
+        for item in checklist_items
         if item.get("compliance_level") == ComplianceLevel.MINOR_MUST
     ]
 
@@ -236,11 +238,13 @@ def check_minor_must_compliance(
         if not finding:
             non_compliant += 1
             total += 1
-            failed_items.append({
-                "id": item_id,
-                "title_en": item.get("title_en"),
-                "reason": "Not assessed"
-            })
+            failed_items.append(
+                {
+                    "id": item_id,
+                    "title_en": item.get("title_en"),
+                    "reason": "Not assessed",
+                }
+            )
             continue
 
         if finding.get("is_not_applicable", False):
@@ -252,11 +256,13 @@ def check_minor_must_compliance(
             compliant += 1
         else:
             non_compliant += 1
-            failed_items.append({
-                "id": item_id,
-                "title_en": item.get("title_en"),
-                "reason": finding.get("notes_en", "Non-compliant")
-            })
+            failed_items.append(
+                {
+                    "id": item_id,
+                    "title_en": item.get("title_en"),
+                    "reason": finding.get("notes_en", "Non-compliant"),
+                }
+            )
 
     # Calculate percentage
     percentage, _ = validate_compliance_percentage(compliant, total, 0)
@@ -279,7 +285,7 @@ def check_minor_must_compliance(
 def validate_certificate_validity(
     issue_date: date,
     expiry_date: Optional[date] = None,
-    check_date: Optional[date] = None
+    check_date: Optional[date] = None,
 ) -> Tuple[bool, Dict]:
     """
     Validate certificate validity period
@@ -332,15 +338,15 @@ def validate_certificate_validity(
         "check_date": check_date.isoformat(),
         "days_remaining": days_remaining,
         "needs_renewal_warning": needs_renewal_warning,
-        "status": "valid" if is_currently_valid else (
-            "expired" if days_remaining < 0 else "not_yet_valid"
+        "status": (
+            "valid"
+            if is_currently_valid
+            else ("expired" if days_remaining < 0 else "not_yet_valid")
         ),
     }
 
 
-def validate_farm_registration(
-    farm_data: Dict
-) -> Tuple[bool, List[str]]:
+def validate_farm_registration(farm_data: Dict) -> Tuple[bool, List[str]]:
     """
     Validate farm registration data completeness
     التحقق من اكتمال بيانات تسجيل المزرعة
@@ -404,9 +410,7 @@ def validate_farm_registration(
 
 
 def validate_audit_completion(
-    audit_data: Dict,
-    findings: List[Dict],
-    checklist_items: List[Dict]
+    audit_data: Dict, findings: List[Dict], checklist_items: List[Dict]
 ) -> Tuple[bool, Dict]:
     """
     Validate if audit is complete and ready for certification decision
@@ -429,11 +433,13 @@ def validate_audit_completion(
 
     for item in checklist_items:
         if item["id"] not in findings_dict:
-            missing_items.append({
-                "id": item["id"],
-                "title_en": item["title_en"],
-                "compliance_level": item["compliance_level"],
-            })
+            missing_items.append(
+                {
+                    "id": item["id"],
+                    "title_en": item["title_en"],
+                    "compliance_level": item["compliance_level"],
+                }
+            )
 
     if missing_items:
         errors.append(f"{len(missing_items)} items not assessed")
@@ -460,7 +466,8 @@ def validate_audit_completion(
 
     # Check for critical non-conformances
     critical_ncs = [
-        nc for nc in audit_data.get("non_conformances", [])
+        nc
+        for nc in audit_data.get("non_conformances", [])
         if nc.get("severity") == "CRITICAL"
     ]
     if critical_ncs:
@@ -468,11 +475,14 @@ def validate_audit_completion(
 
     # Check for open non-conformances
     open_ncs = [
-        nc for nc in audit_data.get("non_conformances", [])
+        nc
+        for nc in audit_data.get("non_conformances", [])
         if nc.get("status") == "OPEN"
     ]
     if open_ncs:
-        warnings.append(f"{len(open_ncs)} open non-conformances require corrective actions")
+        warnings.append(
+            f"{len(open_ncs)} open non-conformances require corrective actions"
+        )
 
     # Determine certification recommendation
     can_certify = len(errors) == 0
@@ -498,8 +508,7 @@ def validate_audit_completion(
 
 
 def validate_corrective_action(
-    corrective_action: Dict,
-    non_conformance: Dict
+    corrective_action: Dict, non_conformance: Dict
 ) -> Tuple[bool, List[str]]:
     """
     Validate corrective action plan

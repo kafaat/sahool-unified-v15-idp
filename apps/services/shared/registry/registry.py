@@ -21,6 +21,7 @@ logger = structlog.get_logger()
 
 class HealthStatus(str, Enum):
     """Agent health status / حالة صحة الوكيل"""
+
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
     DEGRADED = "degraded"
@@ -29,6 +30,7 @@ class HealthStatus(str, Enum):
 
 class HealthCheckResult(BaseModel):
     """Health check result / نتيجة فحص الصحة"""
+
     agent_id: str
     status: HealthStatus
     timestamp: datetime = Field(default_factory=datetime.utcnow)
@@ -42,33 +44,20 @@ class RegistryConfig(BaseModel):
     Registry configuration
     تكوين السجل
     """
+
     health_check_interval_seconds: int = Field(
-        default=60,
-        description="How often to check agent health",
-        ge=10,
-        le=3600
+        default=60, description="How often to check agent health", ge=10, le=3600
     )
     health_check_timeout_seconds: int = Field(
-        default=5,
-        description="Health check request timeout",
-        ge=1,
-        le=60
+        default=5, description="Health check request timeout", ge=1, le=60
     )
     max_retries: int = Field(
-        default=3,
-        description="Max health check retries",
-        ge=0,
-        le=10
+        default=3, description="Max health check retries", ge=0, le=10
     )
     enable_auto_discovery: bool = Field(
-        default=False,
-        description="Enable automatic agent discovery"
+        default=False, description="Enable automatic agent discovery"
     )
-    ttl_seconds: int = Field(
-        default=3600,
-        description="Agent registration TTL",
-        ge=60
-    )
+    ttl_seconds: int = Field(default=3600, description="Agent registration TTL", ge=60)
 
 
 class AgentRegistry:
@@ -109,8 +98,10 @@ class AgentRegistry:
         if self.config.health_check_interval_seconds > 0:
             self._health_check_task = asyncio.create_task(self._health_check_loop())
 
-        self._logger.info("agent_registry_started",
-                         health_check_enabled=self._health_check_task is not None)
+        self._logger.info(
+            "agent_registry_started",
+            health_check_enabled=self._health_check_task is not None,
+        )
 
     async def stop(self):
         """
@@ -174,17 +165,19 @@ class AgentRegistry:
                     self._tag_index[tag_lower] = set()
                 self._tag_index[tag_lower].add(agent_card.agent_id)
 
-            self._logger.info("agent_registered",
-                            agent_id=agent_card.agent_id,
-                            version=agent_card.version,
-                            capabilities=len(agent_card.capabilities))
+            self._logger.info(
+                "agent_registered",
+                agent_id=agent_card.agent_id,
+                version=agent_card.version,
+                capabilities=len(agent_card.capabilities),
+            )
 
             return True
 
         except Exception as e:
-            self._logger.error("agent_registration_failed",
-                             agent_id=agent_card.agent_id,
-                             error=str(e))
+            self._logger.error(
+                "agent_registration_failed", agent_id=agent_card.agent_id, error=str(e)
+            )
             raise
 
     async def deregister_agent(self, agent_id: str) -> bool:
@@ -337,14 +330,14 @@ class AgentRegistry:
             return HealthCheckResult(
                 agent_id=agent_id,
                 status=HealthStatus.UNKNOWN,
-                error="Agent not found in registry"
+                error="Agent not found in registry",
             )
 
         if not agent_card.health_endpoint:
             return HealthCheckResult(
                 agent_id=agent_id,
                 status=HealthStatus.UNKNOWN,
-                error="No health endpoint configured"
+                error="No health endpoint configured",
             )
 
         start_time = datetime.utcnow()
@@ -368,14 +361,18 @@ class AgentRegistry:
                     agent_id=agent_id,
                     status=status,
                     response_time_ms=response_time,
-                    metadata=response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                    metadata=(
+                        response.json()
+                        if response.headers.get("content-type", "").startswith(
+                            "application/json"
+                        )
+                        else {}
+                    ),
                 )
 
         except Exception as e:
             result = HealthCheckResult(
-                agent_id=agent_id,
-                status=HealthStatus.UNHEALTHY,
-                error=str(e)
+                agent_id=agent_id, status=HealthStatus.UNHEALTHY, error=str(e)
             )
 
         # Cache result
@@ -415,14 +412,19 @@ class AgentRegistry:
             Dictionary with registry statistics
         """
         healthy_count = sum(
-            1 for status in self._health_status.values()
+            1
+            for status in self._health_status.values()
             if status.status == HealthStatus.HEALTHY
         )
 
         return {
             "total_agents": len(self._agents),
-            "active_agents": len([a for a in self._agents.values() if a.status == "active"]),
-            "inactive_agents": len([a for a in self._agents.values() if a.status == "inactive"]),
+            "active_agents": len(
+                [a for a in self._agents.values() if a.status == "active"]
+            ),
+            "inactive_agents": len(
+                [a for a in self._agents.values() if a.status == "inactive"]
+            ),
             "healthy_agents": healthy_count,
             "capabilities": len(self._capability_index),
             "skills": len(self._skill_index),
@@ -434,8 +436,10 @@ class AgentRegistry:
         Background health check loop
         حلقة فحص الصحة في الخلفية
         """
-        self._logger.info("health_check_loop_started",
-                         interval_seconds=self.config.health_check_interval_seconds)
+        self._logger.info(
+            "health_check_loop_started",
+            interval_seconds=self.config.health_check_interval_seconds,
+        )
 
         while True:
             try:
@@ -443,7 +447,8 @@ class AgentRegistry:
 
                 # Check health of all active agents
                 active_agents = [
-                    a for a in self._agents.values()
+                    a
+                    for a in self._agents.values()
                     if a.status == "active" and a.health_endpoint
                 ]
 
@@ -451,8 +456,7 @@ class AgentRegistry:
 
                 # Check all agents concurrently
                 tasks = [
-                    self.check_agent_health(agent.agent_id)
-                    for agent in active_agents
+                    self.check_agent_health(agent.agent_id) for agent in active_agents
                 ]
 
                 if tasks:

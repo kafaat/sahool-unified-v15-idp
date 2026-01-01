@@ -12,6 +12,7 @@ from .disease import DiseaseSeverity, CropType, Treatment
 
 class DiagnosisRequest(BaseModel):
     """طلب تشخيص"""
+
     field_id: Optional[str] = None
     crop_type: Optional[CropType] = None
     symptoms_description: Optional[str] = None
@@ -23,6 +24,7 @@ class DiagnosisRequest(BaseModel):
 
 class DiagnosisResult(BaseModel):
     """نتيجة التشخيص"""
+
     diagnosis_id: str = Field(description="معرف التشخيص الفريد")
     timestamp: datetime = Field(description="وقت التشخيص")
 
@@ -35,7 +37,9 @@ class DiagnosisResult(BaseModel):
     # Confidence and severity
     confidence: float = Field(ge=0, le=1, description="نسبة الثقة في التشخيص")
     severity: DiseaseSeverity = Field(description="مستوى خطورة الإصابة")
-    affected_area_percent: float = Field(ge=0, le=100, description="نسبة المنطقة المصابة")
+    affected_area_percent: float = Field(
+        ge=0, le=100, description="نسبة المنطقة المصابة"
+    )
 
     # Crop information
     detected_crop: CropType = Field(description="نوع المحصول المكتشف")
@@ -47,12 +51,18 @@ class DiagnosisResult(BaseModel):
 
     # Expert review
     needs_expert_review: bool = Field(description="يحتاج مراجعة خبير")
-    expert_review_reason: Optional[str] = Field(None, description="سبب طلب مراجعة الخبير")
+    expert_review_reason: Optional[str] = Field(
+        None, description="سبب طلب مراجعة الخبير"
+    )
 
     # Additional metadata
     weather_consideration: Optional[str] = Field(None, description="اعتبارات الطقس")
-    prevention_tips: List[str] = Field(default_factory=list, description="نصائح الوقاية")
-    prevention_tips_ar: List[str] = Field(default_factory=list, description="نصائح الوقاية بالعربية")
+    prevention_tips: List[str] = Field(
+        default_factory=list, description="نصائح الوقاية"
+    )
+    prevention_tips_ar: List[str] = Field(
+        default_factory=list, description="نصائح الوقاية بالعربية"
+    )
 
     # Image URL (for Admin Dashboard)
     image_url: Optional[str] = Field(None, description="رابط الصورة المحفوظة")
@@ -60,6 +70,7 @@ class DiagnosisResult(BaseModel):
 
 class DiagnosisHistoryRecord(BaseModel):
     """سجل تشخيص محفوظ للوحة التحكم"""
+
     id: str
     image_url: str
     thumbnail_url: Optional[str] = None
@@ -81,6 +92,7 @@ class DiagnosisHistoryRecord(BaseModel):
 
 class BatchDiagnosisResult(BaseModel):
     """نتيجة تشخيص دفعة من الصور"""
+
     batch_id: str
     field_id: Optional[str] = None
     total_images: int

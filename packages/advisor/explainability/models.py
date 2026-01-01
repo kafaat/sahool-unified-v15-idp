@@ -25,9 +25,9 @@ class ConfidenceBreakdown:
     """تفصيل درجة الثقة."""
 
     knowledge_score: float  # مدى تطابق المعرفة
-    context_score: float    # اكتمال سياق الحقل
-    recency_score: float    # حداثة البيانات
-    overall: float          # النتيجة الإجمالية
+    context_score: float  # اكتمال سياق الحقل
+    recency_score: float  # حداثة البيانات
+    overall: float  # النتيجة الإجمالية
 
 
 @dataclass(frozen=True)

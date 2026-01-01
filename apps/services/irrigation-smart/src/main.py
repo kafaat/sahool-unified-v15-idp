@@ -17,13 +17,15 @@ import math
 
 # Field-First: Action Template Support
 import sys
-sys.path.insert(0, '/app')
+
+sys.path.insert(0, "/app")
 try:
     from shared.contracts.actions import (
         ActionTemplate,
         ActionTemplateFactory,
         UrgencyLevel as ActionUrgency,
     )
+
     ACTION_TEMPLATE_AVAILABLE = True
 except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False

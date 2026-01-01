@@ -1,6 +1,7 @@
 """
 Stock Manager - Handles FIFO batch consumption and stock operations
 """
+
 from datetime import datetime
 from typing import List, Optional, Tuple
 from prisma import Prisma
@@ -15,9 +16,7 @@ class StockManager:
         self.db = db
 
     async def consume_stock_fifo(
-        self,
-        item_id: str,
-        quantity: float
+        self, item_id: str, quantity: float
     ) -> Tuple[List[dict], float]:
         """
         Consume stock using FIFO (First In First Out) method
@@ -37,11 +36,8 @@ class StockManager:
         async with self.db.tx() as transaction:
             # Get all batches for this item with row lock, ordered by received date (FIFO)
             batches = await transaction.batchlot.find_many(
-                where={
-                    "itemId": item_id,
-                    "remainingQty": {"gt": 0}
-                },
-                order={"receivedDate": "asc"}
+                where={"itemId": item_id, "remainingQty": {"gt": 0}},
+                order={"receivedDate": "asc"},
             )
 
             if not batches:
@@ -61,16 +57,18 @@ class StockManager:
                 # Update batch remaining quantity within transaction
                 await transaction.batchlot.update(
                     where={"id": batch.id},
-                    data={"remainingQty": batch.remainingQty - consume_from_batch}
+                    data={"remainingQty": batch.remainingQty - consume_from_batch},
                 )
 
                 # Record consumed batch
-                consumed_batches.append({
-                    "batch_id": batch.id,
-                    "lot_number": batch.lotNumber,
-                    "quantity": consume_from_batch,
-                    "unit_cost": batch.unitCost or 0.0
-                })
+                consumed_batches.append(
+                    {
+                        "batch_id": batch.id,
+                        "lot_number": batch.lotNumber,
+                        "quantity": consume_from_batch,
+                        "unit_cost": batch.unitCost or 0.0,
+                    }
+                )
 
                 total_consumed += consume_from_batch
                 remaining_to_consume -= consume_from_batch
@@ -94,7 +92,7 @@ class StockManager:
         invoice_number: Optional[str] = None,
         unit_cost: Optional[float] = None,
         quality_grade: Optional[str] = None,
-        certifications: Optional[List[str]] = None
+        certifications: Optional[List[str]] = None,
     ) -> BatchLot:
         """Add a new batch/lot of stock"""
         # Validate input
@@ -114,16 +112,13 @@ class StockManager:
                 "invoiceNumber": invoice_number,
                 "unitCost": unit_cost,
                 "qualityGrade": quality_grade,
-                "certifications": certifications or []
+                "certifications": certifications or [],
             }
         )
         return batch
 
     async def update_item_quantities(
-        self,
-        item_id: str,
-        quantity_change: float,
-        is_addition: bool = True
+        self, item_id: str, quantity_change: float, is_addition: bool = True
     ) -> InventoryItem:
         """
         Update item quantities (current and available)
@@ -151,8 +146,10 @@ class StockManager:
             data={
                 "currentQuantity": new_current,
                 "availableQuantity": new_available,
-                "lastRestocked": datetime.utcnow() if is_addition else item.lastRestocked
-            }
+                "lastRestocked": (
+                    datetime.utcnow() if is_addition else item.lastRestocked
+                ),
+            },
         )
 
         return updated_item
@@ -170,7 +167,7 @@ class StockManager:
         field_id: Optional[str] = None,
         crop_season_id: Optional[str] = None,
         performed_by: Optional[str] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
     ) -> StockMovement:
         """Create a stock movement audit record"""
         total_cost = (unit_cost * quantity) if unit_cost else None
@@ -189,17 +186,13 @@ class StockManager:
                 "fieldId": field_id,
                 "cropSeasonId": crop_season_id,
                 "performedBy": performed_by,
-                "notes": notes
+                "notes": notes,
             }
         )
 
         return movement
 
-    async def reserve_stock(
-        self,
-        item_id: str,
-        quantity: float
-    ) -> InventoryItem:
+    async def reserve_stock(self, item_id: str, quantity: float) -> InventoryItem:
         """Reserve stock for orders/tasks"""
         # Validate input
         if quantity <= 0:
@@ -221,17 +214,13 @@ class StockManager:
                 where={"id": item_id},
                 data={
                     "reservedQuantity": item.reservedQuantity + quantity,
-                    "availableQuantity": item.availableQuantity - quantity
-                }
+                    "availableQuantity": item.availableQuantity - quantity,
+                },
             )
 
         return updated_item
 
-    async def release_reservation(
-        self,
-        item_id: str,
-        quantity: float
-    ) -> InventoryItem:
+    async def release_reservation(self, item_id: str, quantity: float) -> InventoryItem:
         """Release reserved stock back to available"""
         # Validate input
         if quantity <= 0:
@@ -253,16 +242,14 @@ class StockManager:
                 where={"id": item_id},
                 data={
                     "reservedQuantity": item.reservedQuantity - quantity,
-                    "availableQuantity": item.availableQuantity + quantity
-                }
+                    "availableQuantity": item.availableQuantity + quantity,
+                },
             )
 
         return updated_item
 
     async def get_batches_for_item(
-        self,
-        item_id: str,
-        include_empty: bool = False
+        self, item_id: str, include_empty: bool = False
     ) -> List[BatchLot]:
         """Get all batches for an item"""
         where_clause = {"itemId": item_id}
@@ -270,8 +257,7 @@ class StockManager:
             where_clause["remainingQty"] = {"gt": 0}
 
         batches = await self.db.batchlot.find_many(
-            where=where_clause,
-            order={"receivedDate": "asc"}
+            where=where_clause, order={"receivedDate": "asc"}
         )
 
         return batches
@@ -284,25 +270,28 @@ class StockManager:
                     {"reorderLevel": {"not": None}},
                     {
                         "OR": [
-                            {"currentQuantity": {"lte": self.db.inventoryitem.fields.reorderLevel}},
+                            {
+                                "currentQuantity": {
+                                    "lte": self.db.inventoryitem.fields.reorderLevel
+                                }
+                            },
                         ]
-                    }
+                    },
                 ]
             }
         )
 
         # Filter in Python for accurate comparison
         low_stock_items = [
-            item for item in items
-            if item.reorderLevel is not None and item.currentQuantity <= item.reorderLevel
+            item
+            for item in items
+            if item.reorderLevel is not None
+            and item.currentQuantity <= item.reorderLevel
         ]
 
         return low_stock_items
 
-    async def check_expiring_items(
-        self,
-        days_threshold: int = 30
-    ) -> List[BatchLot]:
+    async def check_expiring_items(self, days_threshold: int = 30) -> List[BatchLot]:
         """Get batches expiring within threshold days"""
         from datetime import timedelta
 
@@ -313,11 +302,11 @@ class StockManager:
                 "AND": [
                     {"expiryDate": {"not": None}},
                     {"expiryDate": {"lte": threshold_date}},
-                    {"remainingQty": {"gt": 0}}
+                    {"remainingQty": {"gt": 0}},
                 ]
             },
             order={"expiryDate": "asc"},
-            include={"item": True}
+            include={"item": True},
         )
 
         return batches
@@ -344,5 +333,5 @@ class StockManager:
         return {
             "total_value": total_value,
             "by_category": value_by_category,
-            "item_count": len(items)
+            "item_count": len(items),
         }

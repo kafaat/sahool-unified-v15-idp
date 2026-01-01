@@ -53,7 +53,10 @@ app = FastAPI(
 )
 
 # CORS middleware - secure origins from environment
-CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+CORS_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:3001,http://localhost:8080",
+).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -80,7 +83,11 @@ HIJRI_MONTHS = {
     9: {"name": "رمضان", "name_en": "Ramadan", "days": 30},
     10: {"name": "شوال", "name_en": "Shawwal", "days": 29},
     11: {"name": "ذو القعدة", "name_en": "Dhu al-Qadah", "days": 30},
-    12: {"name": "ذو الحجة", "name_en": "Dhu al-Hijjah", "days": 29},  # 30 في السنة الكبيسة
+    12: {
+        "name": "ذو الحجة",
+        "name_en": "Dhu al-Hijjah",
+        "days": 29,
+    },  # 30 في السنة الكبيسة
 }
 
 # المنازل القمرية الـ 28 (منازل النجوم)
@@ -96,7 +103,7 @@ LUNAR_MANSIONS = {
         "crops": ["قمح", "شعير", "ذرة"],
         "activities": ["زراعة", "تطعيم"],
         "avoid": [],
-        "description": "منزلة خصبة جداً، مناسبة لزراعة الحبوب"
+        "description": "منزلة خصبة جداً، مناسبة لزراعة الحبوب",
     },
     2: {
         "name": "البطين",
@@ -109,7 +116,7 @@ LUNAR_MANSIONS = {
         "crops": ["خضروات", "بقوليات"],
         "activities": ["زراعة", "ري"],
         "avoid": ["حصاد"],
-        "description": "مناسبة للخضروات الورقية"
+        "description": "مناسبة للخضروات الورقية",
     },
     3: {
         "name": "الثريا",
@@ -122,7 +129,7 @@ LUNAR_MANSIONS = {
         "crops": ["جميع المحاصيل"],
         "activities": ["زراعة", "غرس", "تطعيم", "تقليم"],
         "avoid": [],
-        "description": "أفضل المنازل للزراعة على الإطلاق - نجم الثريا المبارك"
+        "description": "أفضل المنازل للزراعة على الإطلاق - نجم الثريا المبارك",
     },
     4: {
         "name": "الدبران",
@@ -135,7 +142,7 @@ LUNAR_MANSIONS = {
         "crops": ["فواكه", "أشجار"],
         "activities": ["غرس الأشجار", "تطعيم"],
         "avoid": ["حصاد الحبوب"],
-        "description": "مثالية لغرس الأشجار المثمرة"
+        "description": "مثالية لغرس الأشجار المثمرة",
     },
     5: {
         "name": "الهقعة",
@@ -148,7 +155,7 @@ LUNAR_MANSIONS = {
         "crops": ["زهور", "نباتات عطرية"],
         "activities": ["جمع البذور"],
         "avoid": ["زراعة", "ري"],
-        "description": "مناسبة للنباتات العطرية فقط"
+        "description": "مناسبة للنباتات العطرية فقط",
     },
     6: {
         "name": "الهنعة",
@@ -161,7 +168,7 @@ LUNAR_MANSIONS = {
         "crops": [],
         "activities": ["مكافحة آفات"],
         "avoid": ["زراعة", "غرس"],
-        "description": "غير مناسبة للزراعة - مناسبة للراحة"
+        "description": "غير مناسبة للزراعة - مناسبة للراحة",
     },
     7: {
         "name": "الذراع",
@@ -174,7 +181,7 @@ LUNAR_MANSIONS = {
         "crops": ["خيار", "بطيخ", "شمام"],
         "activities": ["ري", "زراعة القرعيات"],
         "avoid": ["حصاد"],
-        "description": "ممتازة لزراعة المحاصيل التي تحتاج ماء كثير"
+        "description": "ممتازة لزراعة المحاصيل التي تحتاج ماء كثير",
     },
     8: {
         "name": "النثرة",
@@ -187,7 +194,7 @@ LUNAR_MANSIONS = {
         "crops": ["خضروات مائية"],
         "activities": ["ري", "تسميد"],
         "avoid": ["حصاد الحبوب"],
-        "description": "مناسبة للتسميد والري"
+        "description": "مناسبة للتسميد والري",
     },
     9: {
         "name": "الطرف",
@@ -200,7 +207,7 @@ LUNAR_MANSIONS = {
         "crops": [],
         "activities": ["مكافحة حشرات"],
         "avoid": ["زراعة", "ري", "غرس"],
-        "description": "منزلة حارة - تجنب الزراعة"
+        "description": "منزلة حارة - تجنب الزراعة",
     },
     10: {
         "name": "الجبهة",
@@ -213,7 +220,7 @@ LUNAR_MANSIONS = {
         "crops": [],
         "activities": ["حصاد"],
         "avoid": ["زراعة", "ري"],
-        "description": "مناسبة للحصاد فقط"
+        "description": "مناسبة للحصاد فقط",
     },
     11: {
         "name": "الزبرة",
@@ -226,7 +233,7 @@ LUNAR_MANSIONS = {
         "crops": ["فلفل", "بهارات"],
         "activities": ["حصاد", "تجفيف"],
         "avoid": ["زراعة"],
-        "description": "مناسبة للتجفيف والتخزين"
+        "description": "مناسبة للتجفيف والتخزين",
     },
     12: {
         "name": "الصرفة",
@@ -239,7 +246,7 @@ LUNAR_MANSIONS = {
         "crops": ["طماطم", "باذنجان"],
         "activities": ["تقليم"],
         "avoid": ["غرس أشجار"],
-        "description": "بداية تحسن الظروف"
+        "description": "بداية تحسن الظروف",
     },
     13: {
         "name": "العواء",
@@ -252,7 +259,7 @@ LUNAR_MANSIONS = {
         "crops": ["حبوب", "بقوليات"],
         "activities": ["زراعة", "حرث"],
         "avoid": [],
-        "description": "ممتازة لتحضير الأرض والزراعة"
+        "description": "ممتازة لتحضير الأرض والزراعة",
     },
     14: {
         "name": "السماك",
@@ -265,7 +272,7 @@ LUNAR_MANSIONS = {
         "crops": ["جميع المحاصيل"],
         "activities": ["زراعة", "غرس", "تطعيم"],
         "avoid": [],
-        "description": "من أفضل المنازل للزراعة"
+        "description": "من أفضل المنازل للزراعة",
     },
     15: {
         "name": "الغفر",
@@ -278,7 +285,7 @@ LUNAR_MANSIONS = {
         "crops": ["زهور", "نباتات زينة"],
         "activities": ["زراعة الزهور"],
         "avoid": ["غرس أشجار"],
-        "description": "مناسبة للنباتات الجمالية"
+        "description": "مناسبة للنباتات الجمالية",
     },
     16: {
         "name": "الزبانا",
@@ -291,7 +298,7 @@ LUNAR_MANSIONS = {
         "crops": ["خضروات ورقية"],
         "activities": ["ري خفيف"],
         "avoid": ["زراعة ثقيلة"],
-        "description": "مناسبة للخضروات الورقية"
+        "description": "مناسبة للخضروات الورقية",
     },
     17: {
         "name": "الإكليل",
@@ -304,7 +311,7 @@ LUNAR_MANSIONS = {
         "crops": ["جذريات", "بطاطس"],
         "activities": ["ري", "زراعة الجذور"],
         "avoid": ["حصاد"],
-        "description": "مثالية لزراعة المحاصيل الجذرية"
+        "description": "مثالية لزراعة المحاصيل الجذرية",
     },
     18: {
         "name": "القلب",
@@ -317,7 +324,7 @@ LUNAR_MANSIONS = {
         "crops": [],
         "activities": ["مكافحة آفات"],
         "avoid": ["زراعة", "غرس"],
-        "description": "قلب العقرب - تجنب الزراعة"
+        "description": "قلب العقرب - تجنب الزراعة",
     },
     19: {
         "name": "الشولة",
@@ -330,7 +337,7 @@ LUNAR_MANSIONS = {
         "crops": [],
         "activities": ["راحة"],
         "avoid": ["جميع الأنشطة الزراعية"],
-        "description": "ذنب العقرب - أسوأ المنازل للزراعة"
+        "description": "ذنب العقرب - أسوأ المنازل للزراعة",
     },
     20: {
         "name": "النعائم",
@@ -343,7 +350,7 @@ LUNAR_MANSIONS = {
         "crops": ["علف"],
         "activities": ["حرث"],
         "avoid": ["زراعة دقيقة"],
-        "description": "مناسبة لتحضير الأرض"
+        "description": "مناسبة لتحضير الأرض",
     },
     21: {
         "name": "البلدة",
@@ -356,7 +363,7 @@ LUNAR_MANSIONS = {
         "crops": ["حبوب"],
         "activities": ["بذر"],
         "avoid": [],
-        "description": "مناسبة للبذر والتحضير"
+        "description": "مناسبة للبذر والتحضير",
     },
     22: {
         "name": "سعد الذابح",
@@ -369,7 +376,7 @@ LUNAR_MANSIONS = {
         "crops": ["جذريات", "بصل", "ثوم"],
         "activities": ["زراعة", "حصاد"],
         "avoid": [],
-        "description": "مناسبة للمحاصيل تحت الأرض"
+        "description": "مناسبة للمحاصيل تحت الأرض",
     },
     23: {
         "name": "سعد بلع",
@@ -382,7 +389,7 @@ LUNAR_MANSIONS = {
         "crops": ["أشجار", "فواكه"],
         "activities": ["غرس", "تطعيم"],
         "avoid": [],
-        "description": "ممتازة لغرس الأشجار"
+        "description": "ممتازة لغرس الأشجار",
     },
     24: {
         "name": "سعد السعود",
@@ -395,7 +402,7 @@ LUNAR_MANSIONS = {
         "crops": ["جميع المحاصيل"],
         "activities": ["جميع الأنشطة"],
         "avoid": [],
-        "description": "أسعد المنازل - مباركة لجميع الأعمال"
+        "description": "أسعد المنازل - مباركة لجميع الأعمال",
     },
     25: {
         "name": "سعد الأخبية",
@@ -408,7 +415,7 @@ LUNAR_MANSIONS = {
         "crops": ["خضروات", "زهور"],
         "activities": ["زراعة", "ري"],
         "avoid": [],
-        "description": "مناسبة للزراعة والتجميل"
+        "description": "مناسبة للزراعة والتجميل",
     },
     26: {
         "name": "المقدم",
@@ -421,7 +428,7 @@ LUNAR_MANSIONS = {
         "crops": ["أرز", "قصب"],
         "activities": ["ري", "زراعة مائية"],
         "avoid": ["حصاد"],
-        "description": "ممتازة للمحاصيل المائية"
+        "description": "ممتازة للمحاصيل المائية",
     },
     27: {
         "name": "المؤخر",
@@ -434,7 +441,7 @@ LUNAR_MANSIONS = {
         "crops": ["سمك", "طحالب"],
         "activities": ["استزراع مائي"],
         "avoid": ["زراعة برية"],
-        "description": "للاستزراع المائي"
+        "description": "للاستزراع المائي",
     },
     28: {
         "name": "الرشاء",
@@ -447,20 +454,60 @@ LUNAR_MANSIONS = {
         "crops": ["خضروات مائية"],
         "activities": ["ري", "تحضير"],
         "avoid": [],
-        "description": "انتهاء الدورة - تحضير للموسم الجديد"
+        "description": "انتهاء الدورة - تحضير للموسم الجديد",
     },
 }
 
 # مراحل القمر
 MOON_PHASES = {
-    "new_moon": {"name": "المحاق", "name_en": "New Moon", "icon": "🌑", "farming_good": False},
-    "waxing_crescent": {"name": "الهلال المتزايد", "name_en": "Waxing Crescent", "icon": "🌒", "farming_good": True},
-    "first_quarter": {"name": "التربيع الأول", "name_en": "First Quarter", "icon": "🌓", "farming_good": True},
-    "waxing_gibbous": {"name": "الأحدب المتزايد", "name_en": "Waxing Gibbous", "icon": "🌔", "farming_good": True},
-    "full_moon": {"name": "البدر", "name_en": "Full Moon", "icon": "🌕", "farming_good": True},
-    "waning_gibbous": {"name": "الأحدب المتناقص", "name_en": "Waning Gibbous", "icon": "🌖", "farming_good": False},
-    "last_quarter": {"name": "التربيع الأخير", "name_en": "Last Quarter", "icon": "🌗", "farming_good": False},
-    "waning_crescent": {"name": "الهلال المتناقص", "name_en": "Waning Crescent", "icon": "🌘", "farming_good": False},
+    "new_moon": {
+        "name": "المحاق",
+        "name_en": "New Moon",
+        "icon": "🌑",
+        "farming_good": False,
+    },
+    "waxing_crescent": {
+        "name": "الهلال المتزايد",
+        "name_en": "Waxing Crescent",
+        "icon": "🌒",
+        "farming_good": True,
+    },
+    "first_quarter": {
+        "name": "التربيع الأول",
+        "name_en": "First Quarter",
+        "icon": "🌓",
+        "farming_good": True,
+    },
+    "waxing_gibbous": {
+        "name": "الأحدب المتزايد",
+        "name_en": "Waxing Gibbous",
+        "icon": "🌔",
+        "farming_good": True,
+    },
+    "full_moon": {
+        "name": "البدر",
+        "name_en": "Full Moon",
+        "icon": "🌕",
+        "farming_good": True,
+    },
+    "waning_gibbous": {
+        "name": "الأحدب المتناقص",
+        "name_en": "Waning Gibbous",
+        "icon": "🌖",
+        "farming_good": False,
+    },
+    "last_quarter": {
+        "name": "التربيع الأخير",
+        "name_en": "Last Quarter",
+        "icon": "🌗",
+        "farming_good": False,
+    },
+    "waning_crescent": {
+        "name": "الهلال المتناقص",
+        "name_en": "Waning Crescent",
+        "icon": "🌘",
+        "farming_good": False,
+    },
 }
 
 # الأمثال الزراعية اليمنية التقليدية
@@ -635,7 +682,7 @@ YEMENI_SEASONS = {
         "months": [6, 7, 8],
         "description": "موسم الأمطار الموسمية - زراعة الذرة والدخن",
         "main_crops": ["ذرة", "دخن", "سمسم"],
-        "activities": ["زراعة الحبوب", "حصاد القات"]
+        "activities": ["زراعة الحبوب", "حصاد القات"],
     },
     "kharif": {
         "name": "الخريف",
@@ -643,7 +690,7 @@ YEMENI_SEASONS = {
         "months": [9, 10, 11],
         "description": "موسم الحصاد والتجفيف",
         "main_crops": ["بن", "عنب"],
-        "activities": ["حصاد", "تجفيف", "تخزين"]
+        "activities": ["حصاد", "تجفيف", "تخزين"],
     },
     "shita": {
         "name": "الشتاء",
@@ -651,7 +698,7 @@ YEMENI_SEASONS = {
         "months": [12, 1, 2],
         "description": "موسم زراعة الخضروات الشتوية",
         "main_crops": ["قمح", "شعير", "خضروات"],
-        "activities": ["زراعة القمح", "ري"]
+        "activities": ["زراعة القمح", "ري"],
     },
     "rabi": {
         "name": "الربيع",
@@ -659,8 +706,8 @@ YEMENI_SEASONS = {
         "months": [3, 4, 5],
         "description": "موسم الأزهار وغرس الأشجار",
         "main_crops": ["فواكه", "بن"],
-        "activities": ["غرس الأشجار", "تطعيم", "تقليم"]
-    }
+        "activities": ["غرس الأشجار", "تطعيم", "تقليم"],
+    },
 }
 
 # الأبراج الزراعية
@@ -668,11 +715,21 @@ ZODIAC_FARMING = {
     "aries": {"name": "الحمل", "element": "نار", "fertility": "جافة", "score": 4},
     "taurus": {"name": "الثور", "element": "أرض", "fertility": "خصبة جداً", "score": 9},
     "gemini": {"name": "الجوزاء", "element": "هواء", "fertility": "جافة", "score": 3},
-    "cancer": {"name": "السرطان", "element": "ماء", "fertility": "خصبة جداً", "score": 10},
+    "cancer": {
+        "name": "السرطان",
+        "element": "ماء",
+        "fertility": "خصبة جداً",
+        "score": 10,
+    },
     "leo": {"name": "الأسد", "element": "نار", "fertility": "جافة جداً", "score": 2},
     "virgo": {"name": "العذراء", "element": "أرض", "fertility": "جافة", "score": 5},
     "libra": {"name": "الميزان", "element": "هواء", "fertility": "متوسطة", "score": 6},
-    "scorpio": {"name": "العقرب", "element": "ماء", "fertility": "خصبة جداً", "score": 9},
+    "scorpio": {
+        "name": "العقرب",
+        "element": "ماء",
+        "fertility": "خصبة جداً",
+        "score": 9,
+    },
     "sagittarius": {"name": "القوس", "element": "نار", "fertility": "جافة", "score": 3},
     "capricorn": {"name": "الجدي", "element": "أرض", "fertility": "خصبة", "score": 7},
     "aquarius": {"name": "الدلو", "element": "هواء", "fertility": "جافة", "score": 4},
@@ -684,8 +741,10 @@ ZODIAC_FARMING = {
 # نماذج البيانات (Pydantic Models)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class MoonPhase(BaseModel):
     """مرحلة القمر"""
+
     phase_key: str = Field(..., description="مفتاح المرحلة")
     name: str = Field(..., description="اسم المرحلة بالعربية")
     name_en: str = Field(..., description="اسم المرحلة بالإنجليزية")
@@ -698,6 +757,7 @@ class MoonPhase(BaseModel):
 
 class LunarMansion(BaseModel):
     """منزلة قمرية"""
+
     number: int = Field(..., ge=1, le=28, description="رقم المنزلة")
     name: str = Field(..., description="اسم المنزلة بالعربية")
     name_en: str = Field(..., description="اسم المنزلة بالإنجليزية")
@@ -714,6 +774,7 @@ class LunarMansion(BaseModel):
 
 class HijriDate(BaseModel):
     """التاريخ الهجري"""
+
     year: int = Field(..., description="السنة الهجرية")
     month: int = Field(..., ge=1, le=12, description="الشهر")
     day: int = Field(..., ge=1, le=30, description="اليوم")
@@ -724,6 +785,7 @@ class HijriDate(BaseModel):
 
 class ZodiacInfo(BaseModel):
     """معلومات البرج"""
+
     name: str = Field(..., description="اسم البرج بالعربية")
     name_en: str = Field(..., description="اسم البرج بالإنجليزية")
     element: str = Field(..., description="العنصر")
@@ -733,6 +795,7 @@ class ZodiacInfo(BaseModel):
 
 class SeasonInfo(BaseModel):
     """معلومات الموسم"""
+
     name: str = Field(..., description="اسم الموسم بالعربية")
     name_en: str = Field(..., description="اسم الموسم بالإنجليزية")
     description: str = Field(..., description="وصف الموسم")
@@ -742,6 +805,7 @@ class SeasonInfo(BaseModel):
 
 class FarmingRecommendation(BaseModel):
     """توصية زراعية"""
+
     activity: str = Field(..., description="النشاط")
     suitability: str = Field(..., description="مدى الملاءمة")
     suitability_score: int = Field(..., ge=1, le=10, description="درجة الملاءمة")
@@ -751,18 +815,24 @@ class FarmingRecommendation(BaseModel):
 
 class DailyAstronomicalData(BaseModel):
     """البيانات الفلكية اليومية"""
+
     date_gregorian: str = Field(..., description="التاريخ الميلادي")
     date_hijri: HijriDate = Field(..., description="التاريخ الهجري")
     moon_phase: MoonPhase = Field(..., description="مرحلة القمر")
     lunar_mansion: LunarMansion = Field(..., description="المنزلة القمرية")
     zodiac: ZodiacInfo = Field(..., description="البرج")
     season: SeasonInfo = Field(..., description="الموسم")
-    overall_farming_score: int = Field(..., ge=1, le=10, description="درجة الزراعة الإجمالية")
-    recommendations: List[FarmingRecommendation] = Field(..., description="التوصيات الزراعية")
+    overall_farming_score: int = Field(
+        ..., ge=1, le=10, description="درجة الزراعة الإجمالية"
+    )
+    recommendations: List[FarmingRecommendation] = Field(
+        ..., description="التوصيات الزراعية"
+    )
 
 
 class WeeklyForecast(BaseModel):
     """التوقعات الأسبوعية"""
+
     start_date: str
     end_date: str
     days: List[DailyAstronomicalData]
@@ -773,6 +843,7 @@ class WeeklyForecast(BaseModel):
 
 class CropCalendar(BaseModel):
     """تقويم المحصول"""
+
     crop_name: str
     crop_name_en: str
     best_planting_mansions: List[int]
@@ -786,6 +857,7 @@ class CropCalendar(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════════
 # الحسابات الفلكية
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def calculate_julian_day(year: int, month: int, day: int) -> float:
     """حساب اليوم اليولياني"""
@@ -828,7 +900,7 @@ def calculate_moon_phase(dt: datetime) -> dict:
         illumination=round(illumination, 1),
         age_days=round(moon_age, 2),
         is_waxing=is_waxing,
-        farming_good=phase_data["farming_good"]
+        farming_good=phase_data["farming_good"],
     )
 
 
@@ -859,7 +931,7 @@ def calculate_lunar_mansion(dt: datetime) -> LunarMansion:
         crops=mansion_data["crops"],
         activities=mansion_data["activities"],
         avoid=mansion_data["avoid"],
-        description=mansion_data["description"]
+        description=mansion_data["description"],
     )
 
 
@@ -903,7 +975,7 @@ def gregorian_to_hijri(year: int, month: int, day: int) -> HijriDate:
         day=hijri_day,
         month_name=HIJRI_MONTHS[hijri_month]["name"],
         month_name_en=HIJRI_MONTHS[hijri_month]["name_en"],
-        weekday=weekday
+        weekday=weekday,
     )
 
 
@@ -911,17 +983,28 @@ def get_zodiac_sign(dt: datetime) -> ZodiacInfo:
     """الحصول على البرج الشمسي"""
     # تواريخ الأبراج التقريبية
     zodiac_dates = [
-        (1, 20, "aquarius"), (2, 19, "pisces"), (3, 21, "aries"),
-        (4, 20, "taurus"), (5, 21, "gemini"), (6, 21, "cancer"),
-        (7, 23, "leo"), (8, 23, "virgo"), (9, 23, "libra"),
-        (10, 23, "scorpio"), (11, 22, "sagittarius"), (12, 22, "capricorn"),
+        (1, 20, "aquarius"),
+        (2, 19, "pisces"),
+        (3, 21, "aries"),
+        (4, 20, "taurus"),
+        (5, 21, "gemini"),
+        (6, 21, "cancer"),
+        (7, 23, "leo"),
+        (8, 23, "virgo"),
+        (9, 23, "libra"),
+        (10, 23, "scorpio"),
+        (11, 22, "sagittarius"),
+        (12, 22, "capricorn"),
     ]
 
     month, day = dt.month, dt.day
 
     sign_key = "capricorn"  # افتراضي
     for zd in zodiac_dates:
-        if (month == zd[0] and day >= zd[1]) or (month == zd[0] + 1 and day < zodiac_dates[(zodiac_dates.index(zd) + 1) % 12][1]):
+        if (month == zd[0] and day >= zd[1]) or (
+            month == zd[0] + 1
+            and day < zodiac_dates[(zodiac_dates.index(zd) + 1) % 12][1]
+        ):
             sign_key = zd[2]
             break
 
@@ -963,7 +1046,7 @@ def get_zodiac_sign(dt: datetime) -> ZodiacInfo:
         name_en=sign_key.capitalize(),
         element=zodiac_data["element"],
         fertility=zodiac_data["fertility"],
-        score=zodiac_data["score"]
+        score=zodiac_data["score"],
     )
 
 
@@ -976,23 +1059,17 @@ def get_current_season(month: int) -> SeasonInfo:
                 name_en=season_data["name_en"],
                 description=season_data["description"],
                 main_crops=season_data["main_crops"],
-                activities=season_data["activities"]
+                activities=season_data["activities"],
             )
 
     # افتراضي
     return SeasonInfo(
-        name="غير محدد",
-        name_en="Unknown",
-        description="",
-        main_crops=[],
-        activities=[]
+        name="غير محدد", name_en="Unknown", description="", main_crops=[], activities=[]
     )
 
 
 def calculate_farming_recommendations(
-    moon_phase: MoonPhase,
-    lunar_mansion: LunarMansion,
-    zodiac: ZodiacInfo
+    moon_phase: MoonPhase, lunar_mansion: LunarMansion, zodiac: ZodiacInfo
 ) -> List[FarmingRecommendation]:
     """حساب التوصيات الزراعية"""
     recommendations = []
@@ -1002,15 +1079,25 @@ def calculate_farming_recommendations(
     if moon_phase.is_waxing:
         planting_score = min(10, planting_score + 2)
 
-    planting_suitability = "ممتازة" if planting_score >= 8 else "جيدة" if planting_score >= 6 else "متوسطة" if planting_score >= 4 else "ضعيفة"
+    planting_suitability = (
+        "ممتازة"
+        if planting_score >= 8
+        else (
+            "جيدة"
+            if planting_score >= 6
+            else "متوسطة" if planting_score >= 4 else "ضعيفة"
+        )
+    )
 
-    recommendations.append(FarmingRecommendation(
-        activity="زراعة",
-        suitability=planting_suitability,
-        suitability_score=planting_score,
-        reason=f"المنزلة: {lunar_mansion.name} ({lunar_mansion.farming}), القمر: {moon_phase.name}",
-        best_time="الصباح الباكر" if planting_score >= 6 else None
-    ))
+    recommendations.append(
+        FarmingRecommendation(
+            activity="زراعة",
+            suitability=planting_suitability,
+            suitability_score=planting_score,
+            reason=f"المنزلة: {lunar_mansion.name} ({lunar_mansion.farming}), القمر: {moon_phase.name}",
+            best_time="الصباح الباكر" if planting_score >= 6 else None,
+        )
+    )
 
     # توصية الري
     irrigation_score = 5
@@ -1020,13 +1107,19 @@ def calculate_farming_recommendations(
         irrigation_score += 2
     irrigation_score = min(10, irrigation_score)
 
-    recommendations.append(FarmingRecommendation(
-        activity="ري",
-        suitability="ممتازة" if irrigation_score >= 8 else "جيدة" if irrigation_score >= 6 else "متوسطة",
-        suitability_score=irrigation_score,
-        reason=f"عنصر البرج: {zodiac.element}, عنصر المنزلة: {lunar_mansion.element}",
-        best_time="الفجر أو المغرب"
-    ))
+    recommendations.append(
+        FarmingRecommendation(
+            activity="ري",
+            suitability=(
+                "ممتازة"
+                if irrigation_score >= 8
+                else "جيدة" if irrigation_score >= 6 else "متوسطة"
+            ),
+            suitability_score=irrigation_score,
+            reason=f"عنصر البرج: {zodiac.element}, عنصر المنزلة: {lunar_mansion.element}",
+            best_time="الفجر أو المغرب",
+        )
+    )
 
     # توصية الحصاد
     harvest_score = 5
@@ -1036,13 +1129,19 @@ def calculate_farming_recommendations(
         harvest_score += 2
     harvest_score = min(10, harvest_score)
 
-    recommendations.append(FarmingRecommendation(
-        activity="حصاد",
-        suitability="ممتازة" if harvest_score >= 8 else "جيدة" if harvest_score >= 6 else "متوسطة",
-        suitability_score=harvest_score,
-        reason=f"القمر {'متناقص' if not moon_phase.is_waxing else 'متزايد'} - {'مناسب' if not moon_phase.is_waxing else 'غير مثالي'} للحصاد",
-        best_time="منتصف النهار" if harvest_score >= 6 else None
-    ))
+    recommendations.append(
+        FarmingRecommendation(
+            activity="حصاد",
+            suitability=(
+                "ممتازة"
+                if harvest_score >= 8
+                else "جيدة" if harvest_score >= 6 else "متوسطة"
+            ),
+            suitability_score=harvest_score,
+            reason=f"القمر {'متناقص' if not moon_phase.is_waxing else 'متزايد'} - {'مناسب' if not moon_phase.is_waxing else 'غير مثالي'} للحصاد",
+            best_time="منتصف النهار" if harvest_score >= 6 else None,
+        )
+    )
 
     # توصية التقليم
     pruning_score = 5
@@ -1052,21 +1151,25 @@ def calculate_farming_recommendations(
         pruning_score += 2
     pruning_score = min(10, pruning_score)
 
-    recommendations.append(FarmingRecommendation(
-        activity="تقليم",
-        suitability="ممتازة" if pruning_score >= 8 else "جيدة" if pruning_score >= 6 else "متوسطة",
-        suitability_score=pruning_score,
-        reason=f"القمر المتناقص أفضل للتقليم",
-        best_time="الصباح"
-    ))
+    recommendations.append(
+        FarmingRecommendation(
+            activity="تقليم",
+            suitability=(
+                "ممتازة"
+                if pruning_score >= 8
+                else "جيدة" if pruning_score >= 6 else "متوسطة"
+            ),
+            suitability_score=pruning_score,
+            reason=f"القمر المتناقص أفضل للتقليم",
+            best_time="الصباح",
+        )
+    )
 
     return recommendations
 
 
 def calculate_overall_score(
-    moon_phase: MoonPhase,
-    lunar_mansion: LunarMansion,
-    zodiac: ZodiacInfo
+    moon_phase: MoonPhase, lunar_mansion: LunarMansion, zodiac: ZodiacInfo
 ) -> int:
     """حساب الدرجة الإجمالية للزراعة"""
     base_score = lunar_mansion.farming_score
@@ -1091,7 +1194,9 @@ def get_daily_astronomical_data(dt: datetime) -> DailyAstronomicalData:
     season = get_current_season(dt.month)
     hijri = gregorian_to_hijri(dt.year, dt.month, dt.day)
 
-    recommendations = calculate_farming_recommendations(moon_phase, lunar_mansion, zodiac)
+    recommendations = calculate_farming_recommendations(
+        moon_phase, lunar_mansion, zodiac
+    )
     overall_score = calculate_overall_score(moon_phase, lunar_mansion, zodiac)
 
     return DailyAstronomicalData(
@@ -1102,13 +1207,14 @@ def get_daily_astronomical_data(dt: datetime) -> DailyAstronomicalData:
         zodiac=zodiac,
         season=season,
         overall_farming_score=overall_score,
-        recommendations=recommendations
+        recommendations=recommendations,
     )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # نقاط النهاية (API Endpoints)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/healthz", tags=["Health"])
 def health_check():
@@ -1117,7 +1223,7 @@ def health_check():
         "status": "healthy",
         "service": "astronomical-calendar",
         "version": "15.5.0",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
 
@@ -1149,7 +1255,9 @@ def get_date(date_str: str):
         dt = datetime.strptime(date_str, "%Y-%m-%d")
         return get_daily_astronomical_data(dt)
     except ValueError:
-        raise HTTPException(status_code=400, detail="صيغة التاريخ غير صحيحة. استخدم YYYY-MM-DD")
+        raise HTTPException(
+            status_code=400, detail="صيغة التاريخ غير صحيحة. استخدم YYYY-MM-DD"
+        )
 
 
 @app.get("/v1/week", response_model=WeeklyForecast, tags=["Calendar"])
@@ -1185,7 +1293,9 @@ def get_weekly_forecast(
             best_planting.append(date_str)
 
         # أفضل أيام الحصاد: القمر متناقص + درجة جيدة
-        harvest_rec = next((r for r in data.recommendations if r.activity == "حصاد"), None)
+        harvest_rec = next(
+            (r for r in data.recommendations if r.activity == "حصاد"), None
+        )
         if harvest_rec and harvest_rec.suitability_score >= 7:
             best_harvesting.append(date_str)
 
@@ -1200,7 +1310,7 @@ def get_weekly_forecast(
         days=days,
         best_planting_days=best_planting,
         best_harvesting_days=best_harvesting,
-        avoid_days=avoid_days
+        avoid_days=avoid_days,
     )
 
 
@@ -1241,15 +1351,17 @@ def list_lunar_mansions():
     """قائمة جميع المنازل القمرية الـ 28"""
     mansions = []
     for num, data in LUNAR_MANSIONS.items():
-        mansions.append({
-            "number": num,
-            "name": data["name"],
-            "name_en": data["name_en"],
-            "constellation": data["constellation"],
-            "element": data["element"],
-            "farming_score": data["farming_score"],
-            "crops": data["crops"]
-        })
+        mansions.append(
+            {
+                "number": num,
+                "name": data["name"],
+                "name_en": data["name_en"],
+                "constellation": data["constellation"],
+                "element": data["element"],
+                "farming_score": data["farming_score"],
+                "crops": data["crops"],
+            }
+        )
     return {"mansions": mansions, "total": 28}
 
 
@@ -1324,7 +1436,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["waxing_crescent", "first_quarter", "waxing_gibbous"],
             "best_zodiac_signs": ["taurus", "cancer", "scorpio", "pisces"],
             "optimal_months": [10, 11, 12],
-            "planting_guide": "يُزرع في منازل الثريا والدبران والسماك، في القمر المتزايد، خلال أشهر الخريف"
+            "planting_guide": "يُزرع في منازل الثريا والدبران والسماك، في القمر المتزايد، خلال أشهر الخريف",
         },
         "wheat": {
             "crop_name": "قمح",
@@ -1333,7 +1445,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["waxing_crescent", "first_quarter", "waxing_gibbous"],
             "best_zodiac_signs": ["taurus", "cancer", "scorpio", "pisces"],
             "optimal_months": [10, 11, 12],
-            "planting_guide": "Plant during Thuraya, Dabaran, Simak mansions, in waxing moon, during autumn"
+            "planting_guide": "Plant during Thuraya, Dabaran, Simak mansions, in waxing moon, during autumn",
         },
         "طماطم": {
             "crop_name": "طماطم",
@@ -1342,7 +1454,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["waxing_crescent", "first_quarter"],
             "best_zodiac_signs": ["cancer", "scorpio", "pisces", "taurus"],
             "optimal_months": [2, 3, 9, 10],
-            "planting_guide": "تُزرع في منزلة الثريا والذراع، في القمر المتزايد، في الربيع أو الخريف"
+            "planting_guide": "تُزرع في منزلة الثريا والذراع، في القمر المتزايد، في الربيع أو الخريف",
         },
         "tomato": {
             "crop_name": "طماطم",
@@ -1351,7 +1463,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["waxing_crescent", "first_quarter"],
             "best_zodiac_signs": ["cancer", "scorpio", "pisces", "taurus"],
             "optimal_months": [2, 3, 9, 10],
-            "planting_guide": "Plant during Thuraya, Dhira mansions, in waxing moon, in spring or autumn"
+            "planting_guide": "Plant during Thuraya, Dhira mansions, in waxing moon, in spring or autumn",
         },
         "بن": {
             "crop_name": "بن",
@@ -1360,7 +1472,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["first_quarter", "waxing_gibbous"],
             "best_zodiac_signs": ["taurus", "cancer", "capricorn"],
             "optimal_months": [3, 4],
-            "planting_guide": "يُغرس في منازل الثريا وسعد بلع، في الربيع، القمر المتزايد"
+            "planting_guide": "يُغرس في منازل الثريا وسعد بلع، في الربيع، القمر المتزايد",
         },
         "coffee": {
             "crop_name": "بن",
@@ -1369,7 +1481,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["first_quarter", "waxing_gibbous"],
             "best_zodiac_signs": ["taurus", "cancer", "capricorn"],
             "optimal_months": [3, 4],
-            "planting_guide": "Plant during Thuraya, Sa'd Bula mansions, in spring, waxing moon"
+            "planting_guide": "Plant during Thuraya, Sa'd Bula mansions, in spring, waxing moon",
         },
         "موز": {
             "crop_name": "موز",
@@ -1378,7 +1490,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["first_quarter", "full_moon"],
             "best_zodiac_signs": ["cancer", "scorpio", "pisces"],
             "optimal_months": [2, 3, 4],
-            "planting_guide": "يُغرس في المنازل المائية، في القمر المتزايد، في الربيع"
+            "planting_guide": "يُغرس في المنازل المائية، في القمر المتزايد، في الربيع",
         },
         "بصل": {
             "crop_name": "بصل",
@@ -1387,7 +1499,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["waning_gibbous", "last_quarter"],
             "best_zodiac_signs": ["capricorn", "taurus", "virgo"],
             "optimal_months": [10, 11],
-            "planting_guide": "يُزرع في القمر المتناقص لتقوية الجذور، في الخريف"
+            "planting_guide": "يُزرع في القمر المتناقص لتقوية الجذور، في الخريف",
         },
         "ثوم": {
             "crop_name": "ثوم",
@@ -1396,7 +1508,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["waning_gibbous", "last_quarter"],
             "best_zodiac_signs": ["capricorn", "taurus", "scorpio"],
             "optimal_months": [10, 11],
-            "planting_guide": "يُزرع في القمر المتناقص، في منازل الإكليل وسعد الذابح"
+            "planting_guide": "يُزرع في القمر المتناقص، في منازل الإكليل وسعد الذابح",
         },
         "ذرة": {
             "crop_name": "ذرة",
@@ -1405,7 +1517,7 @@ def get_crop_calendar(crop_name: str):
             "best_moon_phases": ["waxing_crescent", "first_quarter"],
             "best_zodiac_signs": ["cancer", "scorpio", "pisces", "taurus"],
             "optimal_months": [6, 7],
-            "planting_guide": "تُزرع مع بداية الأمطار الموسمية، في منزلة الثريا أو السماك"
+            "planting_guide": "تُزرع مع بداية الأمطار الموسمية، في منزلة الثريا أو السماك",
         },
     }
 
@@ -1413,7 +1525,7 @@ def get_crop_calendar(crop_name: str):
     if crop_key not in crop_calendars:
         raise HTTPException(
             status_code=404,
-            detail=f"المحصول '{crop_name}' غير موجود. المحاصيل المدعومة: قمح، طماطم، بن، موز، بصل، ثوم، ذرة"
+            detail=f"المحصول '{crop_name}' غير موجود. المحاصيل المدعومة: قمح، طماطم، بن، موز، بصل، ثوم، ذرة",
         )
 
     crop_data = crop_calendars[crop_key]
@@ -1439,7 +1551,7 @@ def get_crop_calendar(crop_name: str):
         best_zodiac_signs=crop_data["best_zodiac_signs"],
         optimal_months=crop_data["optimal_months"],
         planting_guide=crop_data["planting_guide"],
-        current_suitability=current_suitability
+        current_suitability=current_suitability,
     )
 
 
@@ -1463,7 +1575,7 @@ def list_supported_crops():
 @app.get("/v1/best-days", tags=["Calendar"])
 def get_best_farming_days(
     activity: str = Query("زراعة", description="النشاط: زراعة، حصاد، ري، تقليم"),
-    days: int = Query(30, ge=7, le=90, description="عدد الأيام للبحث")
+    days: int = Query(30, ge=7, le=90, description="عدد الأيام للبحث"),
 ):
     """
     البحث عن أفضل الأيام لنشاط زراعي معين
@@ -1480,28 +1592,30 @@ def get_best_farming_days(
         # البحث عن التوصية المطلوبة
         for rec in data.recommendations:
             if rec.activity == activity and rec.suitability_score >= 7:
-                best_days.append({
-                    "date": dt.strftime("%Y-%m-%d"),
-                    "hijri_date": f"{data.date_hijri.day} {data.date_hijri.month_name}",
-                    "moon_phase": data.moon_phase.name,
-                    "lunar_mansion": data.lunar_mansion.name,
-                    "score": rec.suitability_score,
-                    "reason": rec.reason
-                })
+                best_days.append(
+                    {
+                        "date": dt.strftime("%Y-%m-%d"),
+                        "hijri_date": f"{data.date_hijri.day} {data.date_hijri.month_name}",
+                        "moon_phase": data.moon_phase.name,
+                        "lunar_mansion": data.lunar_mansion.name,
+                        "score": rec.suitability_score,
+                        "reason": rec.reason,
+                    }
+                )
                 break
 
     return {
         "activity": activity,
         "search_period_days": days,
         "best_days": best_days,
-        "total_found": len(best_days)
+        "total_found": len(best_days),
     }
 
 
 @app.get("/v1/integration/weather", tags=["Integration"])
 async def get_integrated_data(
     location_id: str = Query("sanaa", description="معرف الموقع"),
-    date_str: Optional[str] = Query(None, description="التاريخ (YYYY-MM-DD)")
+    date_str: Optional[str] = Query(None, description="التاريخ (YYYY-MM-DD)"),
 ):
     """
     دمج البيانات الفلكية مع بيانات الطقس
@@ -1525,7 +1639,7 @@ async def get_integrated_data(
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"http://sahool-weather-advanced:8092/v1/current/{location_id}",
-                timeout=5.0
+                timeout=5.0,
             )
             if response.status_code == 200:
                 weather_data = response.json()
@@ -1541,9 +1655,13 @@ async def get_integrated_data(
         if weather_data and "temperature" in weather_data:
             temp = weather_data.get("temperature", 25)
             if rec.activity == "ري" and temp > 35:
-                integrated_rec["weather_note"] = "⚠️ درجة الحرارة مرتفعة - يُنصح بالري في الصباح الباكر أو المساء"
+                integrated_rec["weather_note"] = (
+                    "⚠️ درجة الحرارة مرتفعة - يُنصح بالري في الصباح الباكر أو المساء"
+                )
             elif rec.activity == "زراعة" and temp < 10:
-                integrated_rec["weather_note"] = "⚠️ درجة الحرارة منخفضة - قد تؤثر على الإنبات"
+                integrated_rec["weather_note"] = (
+                    "⚠️ درجة الحرارة منخفضة - قد تؤثر على الإنبات"
+                )
 
         integrated_recommendations.append(integrated_rec)
 
@@ -1556,17 +1674,18 @@ async def get_integrated_data(
             "lunar_mansion": astro_data.lunar_mansion.dict(),
             "zodiac": astro_data.zodiac.dict(),
             "season": astro_data.season.dict(),
-            "overall_score": astro_data.overall_farming_score
+            "overall_score": astro_data.overall_farming_score,
         },
         "weather": weather_data,
         "integrated_recommendations": integrated_recommendations,
-        "summary_ar": f"اليوم في منزلة {astro_data.lunar_mansion.name}، والقمر {astro_data.moon_phase.name}. درجة ملاءمة الزراعة: {astro_data.overall_farming_score}/10"
+        "summary_ar": f"اليوم في منزلة {astro_data.lunar_mansion.name}، والقمر {astro_data.moon_phase.name}. درجة ملاءمة الزراعة: {astro_data.overall_farming_score}/10",
     }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # الأمثال الزراعية والنجوم
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/v1/proverbs", tags=["Yemeni Wisdom"])
 def get_all_proverbs():
@@ -1582,9 +1701,9 @@ def get_all_proverbs():
         "general": YEMENI_FARMING_PROVERBS["general"],
         "by_crop": YEMENI_FARMING_PROVERBS["by_crop"],
         "by_season": YEMENI_FARMING_PROVERBS["by_season"],
-        "total_proverbs": len(YEMENI_FARMING_PROVERBS["general"]) +
-                         sum(len(v) for v in YEMENI_FARMING_PROVERBS["by_crop"].values()) +
-                         sum(len(v) for v in YEMENI_FARMING_PROVERBS["by_season"].values())
+        "total_proverbs": len(YEMENI_FARMING_PROVERBS["general"])
+        + sum(len(v) for v in YEMENI_FARMING_PROVERBS["by_crop"].values())
+        + sum(len(v) for v in YEMENI_FARMING_PROVERBS["by_season"].values()),
     }
 
 
@@ -1626,7 +1745,7 @@ def get_proverb_of_the_day():
         "current_moon_phase": moon_phase.name,
         "current_season": season.name,
         "season_proverbs": season_proverbs,
-        "context": f"اليوم نحن في منزلة {lunar_mansion.name} والقمر {moon_phase.name}"
+        "context": f"اليوم نحن في منزلة {lunar_mansion.name} والقمر {moon_phase.name}",
     }
 
 
@@ -1644,14 +1763,10 @@ def get_crop_proverbs(crop_name: str):
         return {
             "crop": crop_name,
             "proverbs": [],
-            "note": f"لا توجد أمثال مسجلة لهذا المحصول. المحاصيل المتاحة: {', '.join(available_crops)}"
+            "note": f"لا توجد أمثال مسجلة لهذا المحصول. المحاصيل المتاحة: {', '.join(available_crops)}",
         }
 
-    return {
-        "crop": crop_name,
-        "proverbs": proverbs,
-        "count": len(proverbs)
-    }
+    return {"crop": crop_name, "proverbs": proverbs, "count": len(proverbs)}
 
 
 @app.get("/v1/proverbs/mansion/{mansion_name}", tags=["Yemeni Wisdom"])
@@ -1660,7 +1775,8 @@ def get_mansion_proverbs(mansion_name: str):
     الحصول على الأمثال المرتبطة بمنزلة قمرية معينة
     """
     matching_proverbs = [
-        p for p in YEMENI_FARMING_PROVERBS["general"]
+        p
+        for p in YEMENI_FARMING_PROVERBS["general"]
         if p.get("mansion") == mansion_name
     ]
 
@@ -1672,7 +1788,7 @@ def get_mansion_proverbs(mansion_name: str):
                 "number": num,
                 "name": data["name"],
                 "farming_score": data["farming_score"],
-                "description": data["description"]
+                "description": data["description"],
             }
             break
 
@@ -1680,7 +1796,7 @@ def get_mansion_proverbs(mansion_name: str):
         "mansion": mansion_name,
         "mansion_info": mansion_info,
         "proverbs": matching_proverbs,
-        "count": len(matching_proverbs)
+        "count": len(matching_proverbs),
     }
 
 
@@ -1697,7 +1813,7 @@ def get_important_stars():
     return {
         "stars": IMPORTANT_STARS,
         "total": len(IMPORTANT_STARS),
-        "note": "هذه النجوم يستخدمها المزارعون اليمنيون منذ آلاف السنين لتحديد مواعيد الزراعة"
+        "note": "هذه النجوم يستخدمها المزارعون اليمنيون منذ آلاف السنين لتحديد مواعيد الزراعة",
     }
 
 
@@ -1712,7 +1828,7 @@ def get_star_info(star_name: str):
         available_stars = list(IMPORTANT_STARS.keys())
         raise HTTPException(
             status_code=404,
-            detail=f"النجم '{star_name}' غير موجود. النجوم المتاحة: {', '.join(available_stars)}"
+            detail=f"النجم '{star_name}' غير موجود. النجوم المتاحة: {', '.join(available_stars)}",
         )
 
     # هل النجم طالع حالياً؟
@@ -1723,7 +1839,11 @@ def get_star_info(star_name: str):
         "star": star,
         "is_currently_rising": is_rising,
         "rising_month_name": HIJRI_MONTHS.get(star["rising_month"], {}).get("name", ""),
-        "advice": star["farming_impact"] if is_rising else f"سيطلع هذا النجم في شهر {star['rising_month']}"
+        "advice": (
+            star["farming_impact"]
+            if is_rising
+            else f"سيطلع هذا النجم في شهر {star['rising_month']}"
+        ),
     }
 
 
@@ -1756,10 +1876,16 @@ def get_daily_wisdom():
     # نصائح المنزلة
     mansion_tips = []
     if astro_data.lunar_mansion.farming_score >= 7:
-        mansion_tips.append(f"🌟 اليوم مناسب للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10")
-        mansion_tips.append(f"المحاصيل المقترحة: {', '.join(astro_data.lunar_mansion.crops[:3])}")
+        mansion_tips.append(
+            f"🌟 اليوم مناسب للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10"
+        )
+        mansion_tips.append(
+            f"المحاصيل المقترحة: {', '.join(astro_data.lunar_mansion.crops[:3])}"
+        )
     else:
-        mansion_tips.append(f"⚠️ اليوم غير مثالي للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10")
+        mansion_tips.append(
+            f"⚠️ اليوم غير مثالي للزراعة - درجة الملاءمة: {astro_data.lunar_mansion.farming_score}/10"
+        )
         if astro_data.lunar_mansion.avoid:
             mansion_tips.append(f"تجنب: {', '.join(astro_data.lunar_mansion.avoid)}")
 
@@ -1776,24 +1902,24 @@ def get_daily_wisdom():
         "proverb_of_the_day": {
             "text": proverb["proverb"],
             "meaning": proverb["meaning"],
-            "application": proverb["application"]
+            "application": proverb["application"],
         },
         "current_mansion": {
             "name": astro_data.lunar_mansion.name,
             "description": astro_data.lunar_mansion.description,
-            "tips": mansion_tips
+            "tips": mansion_tips,
         },
         "moon_phase": {
             "name": astro_data.moon_phase.name,
             "icon": astro_data.moon_phase.icon,
             "illumination": f"{astro_data.moon_phase.illumination:.0f}%",
-            "tips": moon_tips
+            "tips": moon_tips,
         },
         "current_star": current_star,
         "season": {
             "name": astro_data.season.name,
             "crops": astro_data.season.main_crops,
-            "activities": astro_data.season.activities
+            "activities": astro_data.season.activities,
         },
         "overall_score": astro_data.overall_farming_score,
         "summary": f"""
@@ -1806,7 +1932,7 @@ def get_daily_wisdom():
 📜 مثل اليوم:
 "{proverb['proverb']}"
 - {proverb['meaning']}
-        """.strip()
+        """.strip(),
     }
 
 
@@ -1816,4 +1942,5 @@ def get_daily_wisdom():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8111)

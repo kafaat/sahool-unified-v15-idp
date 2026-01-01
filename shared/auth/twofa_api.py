@@ -50,7 +50,7 @@ class TwoFASetupResponse(BaseModel):
                 "qr_code": "data:image/png;base64,iVBORw0KG...",
                 "manual_entry_key": "JBSWY3DPEHPK3PXP",
                 "issuer": "SAHOOL Agricultural Platform",
-                "account_name": "admin@sahool.io"
+                "account_name": "admin@sahool.io",
             }
         }
 
@@ -61,18 +61,16 @@ class TwoFAVerifyRequest(BaseModel):
     token: str = Field(..., description="6-digit TOTP code", min_length=6, max_length=6)
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "token": "123456"
-            }
-        }
+        json_schema_extra = {"example": {"token": "123456"}}
 
 
 class TwoFAVerifyResponse(BaseModel):
     """Response for 2FA verification"""
 
     success: bool = Field(..., description="Whether 2FA was enabled successfully")
-    backup_codes: list[str] = Field(..., description="Backup codes for account recovery")
+    backup_codes: list[str] = Field(
+        ..., description="Backup codes for account recovery"
+    )
     message: str = Field(..., description="Success message")
 
     class Config:
@@ -80,7 +78,7 @@ class TwoFAVerifyResponse(BaseModel):
             "example": {
                 "success": True,
                 "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
-                "message": "Two-factor authentication enabled successfully"
+                "message": "Two-factor authentication enabled successfully",
             }
         }
 
@@ -91,26 +89,19 @@ class TwoFADisableRequest(BaseModel):
     token: str = Field(..., description="6-digit TOTP code or backup code")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "token": "123456"
-            }
-        }
+        json_schema_extra = {"example": {"token": "123456"}}
 
 
 class TwoFAStatusResponse(BaseModel):
     """Response for 2FA status"""
 
     enabled: bool = Field(..., description="Whether 2FA is enabled")
-    backup_codes_remaining: int = Field(..., description="Number of unused backup codes")
+    backup_codes_remaining: int = Field(
+        ..., description="Number of unused backup codes"
+    )
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "enabled": True,
-                "backup_codes_remaining": 8
-            }
-        }
+        json_schema_extra = {"example": {"enabled": True, "backup_codes_remaining": 8}}
 
 
 class BackupCodesResponse(BaseModel):
@@ -123,7 +114,7 @@ class BackupCodesResponse(BaseModel):
         json_schema_extra = {
             "example": {
                 "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
-                "message": "Previous backup codes have been invalidated"
+                "message": "Previous backup codes have been invalidated",
             }
         }
 
@@ -142,7 +133,7 @@ def get_user_service():
     if _user_service is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="User service not configured"
+            detail="User service not configured",
         )
     return _user_service
 
@@ -176,7 +167,7 @@ async def setup_twofa(
     if not user.has_role("admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin users can set up 2FA"
+            detail="Only admin users can set up 2FA",
         )
 
     try:
@@ -200,14 +191,14 @@ async def setup_twofa(
             qr_code=qr_code,
             manual_entry_key=secret,
             issuer=twofa_service.issuer,
-            account_name=user.email
+            account_name=user.email,
         )
 
     except Exception as e:
         logger.error(f"Error setting up 2FA for user {user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to set up two-factor authentication"
+            detail="Failed to set up two-factor authentication",
         )
 
 
@@ -231,7 +222,7 @@ async def verify_and_enable_twofa(
     if not user.has_role("admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin users can enable 2FA"
+            detail="Only admin users can enable 2FA",
         )
 
     try:
@@ -243,7 +234,7 @@ async def verify_and_enable_twofa(
         if not user_data or not user_data.twofa_secret:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="2FA setup not initiated. Please call /setup first"
+                detail="2FA setup not initiated. Please call /setup first",
             )
 
         # Verify TOTP token
@@ -252,7 +243,7 @@ async def verify_and_enable_twofa(
             logger.warning(f"Invalid TOTP token provided by user {user.id}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid verification code"
+                detail="Invalid verification code",
             )
 
         # Generate backup codes
@@ -269,7 +260,7 @@ async def verify_and_enable_twofa(
         return TwoFAVerifyResponse(
             success=True,
             backup_codes=backup_codes,
-            message="Two-factor authentication enabled successfully. Save your backup codes in a secure location."
+            message="Two-factor authentication enabled successfully. Save your backup codes in a secure location.",
         )
 
     except HTTPException:
@@ -278,7 +269,7 @@ async def verify_and_enable_twofa(
         logger.error(f"Error enabling 2FA for user {user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to enable two-factor authentication"
+            detail="Failed to enable two-factor authentication",
         )
 
 
@@ -296,7 +287,7 @@ async def disable_twofa(
     if not user.has_role("admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin users can disable 2FA"
+            detail="Only admin users can disable 2FA",
         )
 
     try:
@@ -308,7 +299,7 @@ async def disable_twofa(
         if not user_data or not user_data.twofa_enabled:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Two-factor authentication is not enabled"
+                detail="Two-factor authentication is not enabled",
             )
 
         # Try to verify as TOTP token first
@@ -318,15 +309,14 @@ async def disable_twofa(
         is_valid_backup = False
         if not is_valid_totp and user_data.twofa_backup_codes:
             is_valid_backup, _ = twofa_service.verify_backup_code(
-                request.token,
-                user_data.twofa_backup_codes
+                request.token, user_data.twofa_backup_codes
             )
 
         if not is_valid_totp and not is_valid_backup:
             logger.warning(f"Invalid code provided for 2FA disable by user {user.id}")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid verification code"
+                detail="Invalid verification code",
             )
 
         # Disable 2FA
@@ -336,7 +326,7 @@ async def disable_twofa(
 
         return {
             "success": True,
-            "message": "Two-factor authentication has been disabled"
+            "message": "Two-factor authentication has been disabled",
         }
 
     except HTTPException:
@@ -345,7 +335,7 @@ async def disable_twofa(
         logger.error(f"Error disabling 2FA for user {user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to disable two-factor authentication"
+            detail="Failed to disable two-factor authentication",
         )
 
 
@@ -360,7 +350,7 @@ async def get_twofa_status(
     if not user.has_role("admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin users can access 2FA status"
+            detail="Only admin users can access 2FA status",
         )
 
     try:
@@ -373,14 +363,14 @@ async def get_twofa_status(
 
         return TwoFAStatusResponse(
             enabled=user_data.twofa_enabled if user_data else False,
-            backup_codes_remaining=backup_codes_remaining
+            backup_codes_remaining=backup_codes_remaining,
         )
 
     except Exception as e:
         logger.error(f"Error getting 2FA status for user {user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get two-factor authentication status"
+            detail="Failed to get two-factor authentication status",
         )
 
 
@@ -399,7 +389,7 @@ async def regenerate_backup_codes(
     if not user.has_role("admin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only admin users can regenerate backup codes"
+            detail="Only admin users can regenerate backup codes",
         )
 
     try:
@@ -411,16 +401,18 @@ async def regenerate_backup_codes(
         if not user_data or not user_data.twofa_enabled:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Two-factor authentication is not enabled"
+                detail="Two-factor authentication is not enabled",
             )
 
         # Verify TOTP token
         is_valid = twofa_service.verify_totp(user_data.twofa_secret, request.token)
         if not is_valid:
-            logger.warning(f"Invalid TOTP token for backup code regeneration by user {user.id}")
+            logger.warning(
+                f"Invalid TOTP token for backup code regeneration by user {user.id}"
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid verification code"
+                detail="Invalid verification code",
             )
 
         # Generate new backup codes
@@ -436,7 +428,7 @@ async def regenerate_backup_codes(
 
         return BackupCodesResponse(
             backup_codes=backup_codes,
-            message="Previous backup codes have been invalidated. Save these new codes in a secure location."
+            message="Previous backup codes have been invalidated. Save these new codes in a secure location.",
         )
 
     except HTTPException:
@@ -445,5 +437,5 @@ async def regenerate_backup_codes(
         logger.error(f"Error regenerating backup codes for user {user.id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to regenerate backup codes"
+            detail="Failed to regenerate backup codes",
         )

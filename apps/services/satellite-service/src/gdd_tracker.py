@@ -31,14 +31,16 @@ logger = logging.getLogger(__name__)
 
 class GDDMethod(Enum):
     """GDD calculation methods"""
-    SIMPLE = "simple"           # (Tmax + Tmin) / 2 - Tbase
-    MODIFIED = "modified"       # With upper cutoff
-    SINE = "sine"              # Sine wave approximation
+
+    SIMPLE = "simple"  # (Tmax + Tmin) / 2 - Tbase
+    MODIFIED = "modified"  # With upper cutoff
+    SINE = "sine"  # Sine wave approximation
 
 
 @dataclass
 class GDDDataPoint:
     """Single day's GDD data"""
+
     date: date
     temp_min: float
     temp_max: float
@@ -60,6 +62,7 @@ class GDDDataPoint:
 @dataclass
 class GrowthMilestone:
     """Growth milestone based on GDD"""
+
     stage_name_en: str
     stage_name_ar: str
     gdd_required: float
@@ -78,8 +81,12 @@ class GrowthMilestone:
             "gdd_required": round(self.gdd_required, 1),
             "gdd_accumulated": round(self.gdd_accumulated, 1),
             "is_reached": self.is_reached,
-            "reached_date": self.reached_date.isoformat() if self.reached_date else None,
-            "expected_date": self.expected_date.isoformat() if self.expected_date else None,
+            "reached_date": (
+                self.reached_date.isoformat() if self.reached_date else None
+            ),
+            "expected_date": (
+                self.expected_date.isoformat() if self.expected_date else None
+            ),
             "days_remaining": self.days_remaining,
             "description_ar": self.description_ar,
             "description_en": self.description_en,
@@ -89,6 +96,7 @@ class GrowthMilestone:
 @dataclass
 class GDDChart:
     """Complete GDD chart for a field/crop"""
+
     field_id: str
     crop_code: str
     crop_name_ar: str
@@ -167,13 +175,14 @@ class GDDChart:
             "metadata": {
                 "calculation_method": self.calculation_method,
                 "confidence": round(self.confidence, 2),
-            }
+            },
         }
 
 
 @dataclass
 class CropGDDRequirements:
     """GDD requirements for a crop"""
+
     crop_code: str
     crop_name_ar: str
     crop_name_en: str
@@ -212,7 +221,6 @@ class GDDTracker:
         "SORGHUM": {"base": 10, "upper": 35},
         "MILLET": {"base": 8, "upper": 35},
         "RICE": {"base": 10, "upper": 30},
-
         # Vegetables - الخضروات
         "TOMATO": {"base": 10, "upper": 30},
         "POTATO": {"base": 7, "upper": 30},
@@ -225,7 +233,6 @@ class GDDTracker:
         "OKRA": {"base": 15, "upper": 35},
         "CABBAGE": {"base": 5, "upper": 25},
         "LETTUCE": {"base": 5, "upper": 25},
-
         # Legumes - البقوليات
         "FABA_BEAN": {"base": 0, "upper": 30},
         "LENTIL": {"base": 5, "upper": 30},
@@ -233,14 +240,12 @@ class GDDTracker:
         "COWPEA": {"base": 8, "upper": 35},
         "PEANUT": {"base": 12, "upper": 35},
         "ALFALFA": {"base": 5, "upper": 30},
-
         # Cash Crops - المحاصيل النقدية
         "COTTON": {"base": 15.5, "upper": 35},
         "COFFEE": {"base": 10, "upper": 32},
         "QAT": {"base": 10, "upper": 35},
         "SESAME": {"base": 10, "upper": 35},
         "TOBACCO": {"base": 10, "upper": 35},
-
         # Fruits - الفواكه
         "DATE_PALM": {"base": 18, "upper": None},
         "GRAPE": {"base": 10, "upper": None},
@@ -251,7 +256,6 @@ class GDDTracker:
         "POMEGRANATE": {"base": 10, "upper": None},
         "FIG": {"base": 10, "upper": None},
         "GUAVA": {"base": 10, "upper": None},
-
         # Fodder - الأعلاف
         "RHODES_GRASS": {"base": 10, "upper": 35},
         "SUDAN_GRASS": {"base": 10, "upper": 35},
@@ -265,196 +269,742 @@ class GDDTracker:
             "name_en": "Wheat",
             "total": 2000,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 150, "desc_ar": "ظهور البادرات", "desc_en": "Seedling emergence"},
-                {"name_en": "Tillering", "name_ar": "التفريع", "gdd": 450, "desc_ar": "بداية التفريع", "desc_en": "Tiller initiation"},
-                {"name_en": "Stem Elongation", "name_ar": "استطالة الساق", "gdd": 800, "desc_ar": "استطالة الساق", "desc_en": "Stem elongation"},
-                {"name_en": "Booting", "name_ar": "الإسبال", "gdd": 1100, "desc_ar": "طرد السنابل", "desc_en": "Boot stage"},
-                {"name_en": "Heading", "name_ar": "الطرد", "gdd": 1300, "desc_ar": "ظهور السنابل", "desc_en": "Heading"},
-                {"name_en": "Flowering", "name_ar": "الإزهار", "gdd": 1500, "desc_ar": "الإزهار والتلقيح", "desc_en": "Flowering and pollination"},
-                {"name_en": "Grain Fill", "name_ar": "امتلاء الحبوب", "gdd": 1700, "desc_ar": "امتلاء الحبوب", "desc_en": "Grain filling"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 2000, "desc_ar": "النضج الفسيولوجي", "desc_en": "Physiological maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 150,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Seedling emergence",
+                },
+                {
+                    "name_en": "Tillering",
+                    "name_ar": "التفريع",
+                    "gdd": 450,
+                    "desc_ar": "بداية التفريع",
+                    "desc_en": "Tiller initiation",
+                },
+                {
+                    "name_en": "Stem Elongation",
+                    "name_ar": "استطالة الساق",
+                    "gdd": 800,
+                    "desc_ar": "استطالة الساق",
+                    "desc_en": "Stem elongation",
+                },
+                {
+                    "name_en": "Booting",
+                    "name_ar": "الإسبال",
+                    "gdd": 1100,
+                    "desc_ar": "طرد السنابل",
+                    "desc_en": "Boot stage",
+                },
+                {
+                    "name_en": "Heading",
+                    "name_ar": "الطرد",
+                    "gdd": 1300,
+                    "desc_ar": "ظهور السنابل",
+                    "desc_en": "Heading",
+                },
+                {
+                    "name_en": "Flowering",
+                    "name_ar": "الإزهار",
+                    "gdd": 1500,
+                    "desc_ar": "الإزهار والتلقيح",
+                    "desc_en": "Flowering and pollination",
+                },
+                {
+                    "name_en": "Grain Fill",
+                    "name_ar": "امتلاء الحبوب",
+                    "gdd": 1700,
+                    "desc_ar": "امتلاء الحبوب",
+                    "desc_en": "Grain filling",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 2000,
+                    "desc_ar": "النضج الفسيولوجي",
+                    "desc_en": "Physiological maturity",
+                },
+            ],
         },
         "BARLEY": {
             "name_ar": "شعير",
             "name_en": "Barley",
             "total": 1800,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 140, "desc_ar": "ظهور البادرات", "desc_en": "Seedling emergence"},
-                {"name_en": "Tillering", "name_ar": "التفريع", "gdd": 400, "desc_ar": "بداية التفريع", "desc_en": "Tiller initiation"},
-                {"name_en": "Stem Elongation", "name_ar": "استطالة الساق", "gdd": 750, "desc_ar": "استطالة الساق", "desc_en": "Stem elongation"},
-                {"name_en": "Heading", "name_ar": "الطرد", "gdd": 1100, "desc_ar": "ظهور السنابل", "desc_en": "Heading"},
-                {"name_en": "Flowering", "name_ar": "الإزهار", "gdd": 1300, "desc_ar": "الإزهار", "desc_en": "Flowering"},
-                {"name_en": "Grain Fill", "name_ar": "امتلاء الحبوب", "gdd": 1550, "desc_ar": "امتلاء الحبوب", "desc_en": "Grain filling"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 1800, "desc_ar": "النضج", "desc_en": "Maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 140,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Seedling emergence",
+                },
+                {
+                    "name_en": "Tillering",
+                    "name_ar": "التفريع",
+                    "gdd": 400,
+                    "desc_ar": "بداية التفريع",
+                    "desc_en": "Tiller initiation",
+                },
+                {
+                    "name_en": "Stem Elongation",
+                    "name_ar": "استطالة الساق",
+                    "gdd": 750,
+                    "desc_ar": "استطالة الساق",
+                    "desc_en": "Stem elongation",
+                },
+                {
+                    "name_en": "Heading",
+                    "name_ar": "الطرد",
+                    "gdd": 1100,
+                    "desc_ar": "ظهور السنابل",
+                    "desc_en": "Heading",
+                },
+                {
+                    "name_en": "Flowering",
+                    "name_ar": "الإزهار",
+                    "gdd": 1300,
+                    "desc_ar": "الإزهار",
+                    "desc_en": "Flowering",
+                },
+                {
+                    "name_en": "Grain Fill",
+                    "name_ar": "امتلاء الحبوب",
+                    "gdd": 1550,
+                    "desc_ar": "امتلاء الحبوب",
+                    "desc_en": "Grain filling",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 1800,
+                    "desc_ar": "النضج",
+                    "desc_en": "Maturity",
+                },
+            ],
         },
         "CORN": {
             "name_ar": "ذرة شامية",
             "name_en": "Corn",
             "total": 2700,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 120, "desc_ar": "ظهور البادرات", "desc_en": "Seedling emergence"},
-                {"name_en": "4-Leaf", "name_ar": "4 أوراق", "gdd": 350, "desc_ar": "مرحلة 4 أوراق", "desc_en": "V4 stage"},
-                {"name_en": "8-Leaf", "name_ar": "8 أوراق", "gdd": 750, "desc_ar": "مرحلة 8 أوراق", "desc_en": "V8 stage"},
-                {"name_en": "Tasseling", "name_ar": "ظهور النورة", "gdd": 1400, "desc_ar": "ظهور النورة الذكرية", "desc_en": "Tassel emergence"},
-                {"name_en": "Silking", "name_ar": "ظهور الحرير", "gdd": 1500, "desc_ar": "ظهور الحرير", "desc_en": "Silk emergence"},
-                {"name_en": "Blister", "name_ar": "حبوب مائية", "gdd": 1750, "desc_ar": "الحبوب المائية", "desc_en": "Blister stage"},
-                {"name_en": "Dent", "name_ar": "تسنن الحبوب", "gdd": 2300, "desc_ar": "تسنن الحبوب", "desc_en": "Dent stage"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 2700, "desc_ar": "النضج الفسيولوجي", "desc_en": "Physiological maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 120,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Seedling emergence",
+                },
+                {
+                    "name_en": "4-Leaf",
+                    "name_ar": "4 أوراق",
+                    "gdd": 350,
+                    "desc_ar": "مرحلة 4 أوراق",
+                    "desc_en": "V4 stage",
+                },
+                {
+                    "name_en": "8-Leaf",
+                    "name_ar": "8 أوراق",
+                    "gdd": 750,
+                    "desc_ar": "مرحلة 8 أوراق",
+                    "desc_en": "V8 stage",
+                },
+                {
+                    "name_en": "Tasseling",
+                    "name_ar": "ظهور النورة",
+                    "gdd": 1400,
+                    "desc_ar": "ظهور النورة الذكرية",
+                    "desc_en": "Tassel emergence",
+                },
+                {
+                    "name_en": "Silking",
+                    "name_ar": "ظهور الحرير",
+                    "gdd": 1500,
+                    "desc_ar": "ظهور الحرير",
+                    "desc_en": "Silk emergence",
+                },
+                {
+                    "name_en": "Blister",
+                    "name_ar": "حبوب مائية",
+                    "gdd": 1750,
+                    "desc_ar": "الحبوب المائية",
+                    "desc_en": "Blister stage",
+                },
+                {
+                    "name_en": "Dent",
+                    "name_ar": "تسنن الحبوب",
+                    "gdd": 2300,
+                    "desc_ar": "تسنن الحبوب",
+                    "desc_en": "Dent stage",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 2700,
+                    "desc_ar": "النضج الفسيولوجي",
+                    "desc_en": "Physiological maturity",
+                },
+            ],
         },
         "SORGHUM": {
             "name_ar": "ذرة رفيعة",
             "name_en": "Sorghum",
             "total": 2400,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 100, "desc_ar": "ظهور البادرات", "desc_en": "Seedling emergence"},
-                {"name_en": "3-Leaf", "name_ar": "3 أوراق", "gdd": 300, "desc_ar": "مرحلة 3 أوراق", "desc_en": "3-leaf stage"},
-                {"name_en": "5-Leaf", "name_ar": "5 أوراق", "gdd": 600, "desc_ar": "مرحلة 5 أوراق", "desc_en": "5-leaf stage"},
-                {"name_en": "Boot", "name_ar": "الإسبال", "gdd": 1200, "desc_ar": "مرحلة الإسبال", "desc_en": "Boot stage"},
-                {"name_en": "Flowering", "name_ar": "الإزهار", "gdd": 1500, "desc_ar": "الإزهار", "desc_en": "Flowering"},
-                {"name_en": "Soft Dough", "name_ar": "عجينة لينة", "gdd": 1900, "desc_ar": "الحبوب العجينية", "desc_en": "Soft dough"},
-                {"name_en": "Hard Dough", "name_ar": "عجينة صلبة", "gdd": 2200, "desc_ar": "الحبوب الصلبة", "desc_en": "Hard dough"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 2400, "desc_ar": "النضج", "desc_en": "Maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 100,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Seedling emergence",
+                },
+                {
+                    "name_en": "3-Leaf",
+                    "name_ar": "3 أوراق",
+                    "gdd": 300,
+                    "desc_ar": "مرحلة 3 أوراق",
+                    "desc_en": "3-leaf stage",
+                },
+                {
+                    "name_en": "5-Leaf",
+                    "name_ar": "5 أوراق",
+                    "gdd": 600,
+                    "desc_ar": "مرحلة 5 أوراق",
+                    "desc_en": "5-leaf stage",
+                },
+                {
+                    "name_en": "Boot",
+                    "name_ar": "الإسبال",
+                    "gdd": 1200,
+                    "desc_ar": "مرحلة الإسبال",
+                    "desc_en": "Boot stage",
+                },
+                {
+                    "name_en": "Flowering",
+                    "name_ar": "الإزهار",
+                    "gdd": 1500,
+                    "desc_ar": "الإزهار",
+                    "desc_en": "Flowering",
+                },
+                {
+                    "name_en": "Soft Dough",
+                    "name_ar": "عجينة لينة",
+                    "gdd": 1900,
+                    "desc_ar": "الحبوب العجينية",
+                    "desc_en": "Soft dough",
+                },
+                {
+                    "name_en": "Hard Dough",
+                    "name_ar": "عجينة صلبة",
+                    "gdd": 2200,
+                    "desc_ar": "الحبوب الصلبة",
+                    "desc_en": "Hard dough",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 2400,
+                    "desc_ar": "النضج",
+                    "desc_en": "Maturity",
+                },
+            ],
         },
         "MILLET": {
             "name_ar": "دخن",
             "name_en": "Millet",
             "total": 1800,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 80, "desc_ar": "ظهور البادرات", "desc_en": "Emergence"},
-                {"name_en": "Tillering", "name_ar": "التفريع", "gdd": 400, "desc_ar": "التفريع", "desc_en": "Tillering"},
-                {"name_en": "Boot", "name_ar": "الإسبال", "gdd": 1000, "desc_ar": "الإسبال", "desc_en": "Boot"},
-                {"name_en": "Heading", "name_ar": "الطرد", "gdd": 1200, "desc_ar": "طرد السنابل", "desc_en": "Heading"},
-                {"name_en": "Flowering", "name_ar": "الإزهار", "gdd": 1350, "desc_ar": "الإزهار", "desc_en": "Flowering"},
-                {"name_en": "Grain Fill", "name_ar": "امتلاء الحبوب", "gdd": 1600, "desc_ar": "امتلاء الحبوب", "desc_en": "Grain fill"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 1800, "desc_ar": "النضج", "desc_en": "Maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 80,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Emergence",
+                },
+                {
+                    "name_en": "Tillering",
+                    "name_ar": "التفريع",
+                    "gdd": 400,
+                    "desc_ar": "التفريع",
+                    "desc_en": "Tillering",
+                },
+                {
+                    "name_en": "Boot",
+                    "name_ar": "الإسبال",
+                    "gdd": 1000,
+                    "desc_ar": "الإسبال",
+                    "desc_en": "Boot",
+                },
+                {
+                    "name_en": "Heading",
+                    "name_ar": "الطرد",
+                    "gdd": 1200,
+                    "desc_ar": "طرد السنابل",
+                    "desc_en": "Heading",
+                },
+                {
+                    "name_en": "Flowering",
+                    "name_ar": "الإزهار",
+                    "gdd": 1350,
+                    "desc_ar": "الإزهار",
+                    "desc_en": "Flowering",
+                },
+                {
+                    "name_en": "Grain Fill",
+                    "name_ar": "امتلاء الحبوب",
+                    "gdd": 1600,
+                    "desc_ar": "امتلاء الحبوب",
+                    "desc_en": "Grain fill",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 1800,
+                    "desc_ar": "النضج",
+                    "desc_en": "Maturity",
+                },
+            ],
         },
         "TOMATO": {
             "name_ar": "طماطم",
             "name_en": "Tomato",
             "total": 1500,
             "stages": [
-                {"name_en": "Seedling", "name_ar": "الشتلة", "gdd": 100, "desc_ar": "مرحلة الشتلة", "desc_en": "Seedling stage"},
-                {"name_en": "Transplant", "name_ar": "الشتل", "gdd": 150, "desc_ar": "بعد الشتل", "desc_en": "After transplanting"},
-                {"name_en": "Vegetative", "name_ar": "النمو الخضري", "gdd": 400, "desc_ar": "النمو الخضري", "desc_en": "Vegetative growth"},
-                {"name_en": "First Flower", "name_ar": "الزهرة الأولى", "gdd": 700, "desc_ar": "ظهور الزهرة الأولى", "desc_en": "First flower"},
-                {"name_en": "Fruit Set", "name_ar": "عقد الثمار", "gdd": 900, "desc_ar": "عقد الثمار", "desc_en": "Fruit set"},
-                {"name_en": "Fruit Development", "name_ar": "نمو الثمار", "gdd": 1200, "desc_ar": "نمو الثمار", "desc_en": "Fruit development"},
-                {"name_en": "Ripening", "name_ar": "النضج", "gdd": 1500, "desc_ar": "نضج الثمار", "desc_en": "Fruit ripening"},
-            ]
+                {
+                    "name_en": "Seedling",
+                    "name_ar": "الشتلة",
+                    "gdd": 100,
+                    "desc_ar": "مرحلة الشتلة",
+                    "desc_en": "Seedling stage",
+                },
+                {
+                    "name_en": "Transplant",
+                    "name_ar": "الشتل",
+                    "gdd": 150,
+                    "desc_ar": "بعد الشتل",
+                    "desc_en": "After transplanting",
+                },
+                {
+                    "name_en": "Vegetative",
+                    "name_ar": "النمو الخضري",
+                    "gdd": 400,
+                    "desc_ar": "النمو الخضري",
+                    "desc_en": "Vegetative growth",
+                },
+                {
+                    "name_en": "First Flower",
+                    "name_ar": "الزهرة الأولى",
+                    "gdd": 700,
+                    "desc_ar": "ظهور الزهرة الأولى",
+                    "desc_en": "First flower",
+                },
+                {
+                    "name_en": "Fruit Set",
+                    "name_ar": "عقد الثمار",
+                    "gdd": 900,
+                    "desc_ar": "عقد الثمار",
+                    "desc_en": "Fruit set",
+                },
+                {
+                    "name_en": "Fruit Development",
+                    "name_ar": "نمو الثمار",
+                    "gdd": 1200,
+                    "desc_ar": "نمو الثمار",
+                    "desc_en": "Fruit development",
+                },
+                {
+                    "name_en": "Ripening",
+                    "name_ar": "النضج",
+                    "gdd": 1500,
+                    "desc_ar": "نضج الثمار",
+                    "desc_en": "Fruit ripening",
+                },
+            ],
         },
         "POTATO": {
             "name_ar": "بطاطس",
             "name_en": "Potato",
             "total": 1600,
             "stages": [
-                {"name_en": "Sprout", "name_ar": "التبرعم", "gdd": 100, "desc_ar": "بداية التبرعم", "desc_en": "Sprout emergence"},
-                {"name_en": "Vegetative", "name_ar": "النمو الخضري", "gdd": 400, "desc_ar": "النمو الخضري", "desc_en": "Vegetative growth"},
-                {"name_en": "Tuber Initiation", "name_ar": "بداية الدرنات", "gdd": 700, "desc_ar": "بداية تكوين الدرنات", "desc_en": "Tuber initiation"},
-                {"name_en": "Tuber Bulking", "name_ar": "تضخم الدرنات", "gdd": 1100, "desc_ar": "تضخم الدرنات", "desc_en": "Tuber bulking"},
-                {"name_en": "Maturation", "name_ar": "النضج", "gdd": 1600, "desc_ar": "نضج الدرنات", "desc_en": "Maturation"},
-            ]
+                {
+                    "name_en": "Sprout",
+                    "name_ar": "التبرعم",
+                    "gdd": 100,
+                    "desc_ar": "بداية التبرعم",
+                    "desc_en": "Sprout emergence",
+                },
+                {
+                    "name_en": "Vegetative",
+                    "name_ar": "النمو الخضري",
+                    "gdd": 400,
+                    "desc_ar": "النمو الخضري",
+                    "desc_en": "Vegetative growth",
+                },
+                {
+                    "name_en": "Tuber Initiation",
+                    "name_ar": "بداية الدرنات",
+                    "gdd": 700,
+                    "desc_ar": "بداية تكوين الدرنات",
+                    "desc_en": "Tuber initiation",
+                },
+                {
+                    "name_en": "Tuber Bulking",
+                    "name_ar": "تضخم الدرنات",
+                    "gdd": 1100,
+                    "desc_ar": "تضخم الدرنات",
+                    "desc_en": "Tuber bulking",
+                },
+                {
+                    "name_en": "Maturation",
+                    "name_ar": "النضج",
+                    "gdd": 1600,
+                    "desc_ar": "نضج الدرنات",
+                    "desc_en": "Maturation",
+                },
+            ],
         },
         "ONION": {
             "name_ar": "بصل",
             "name_en": "Onion",
             "total": 1800,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 150, "desc_ar": "الإنبات", "desc_en": "Emergence"},
-                {"name_en": "Vegetative", "name_ar": "النمو الخضري", "gdd": 600, "desc_ar": "النمو الخضري", "desc_en": "Vegetative growth"},
-                {"name_en": "Bulbing", "name_ar": "تكوين البصلة", "gdd": 1200, "desc_ar": "تكوين البصلة", "desc_en": "Bulb formation"},
-                {"name_en": "Maturation", "name_ar": "النضج", "gdd": 1800, "desc_ar": "نضج البصلة", "desc_en": "Bulb maturation"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 150,
+                    "desc_ar": "الإنبات",
+                    "desc_en": "Emergence",
+                },
+                {
+                    "name_en": "Vegetative",
+                    "name_ar": "النمو الخضري",
+                    "gdd": 600,
+                    "desc_ar": "النمو الخضري",
+                    "desc_en": "Vegetative growth",
+                },
+                {
+                    "name_en": "Bulbing",
+                    "name_ar": "تكوين البصلة",
+                    "gdd": 1200,
+                    "desc_ar": "تكوين البصلة",
+                    "desc_en": "Bulb formation",
+                },
+                {
+                    "name_en": "Maturation",
+                    "name_ar": "النضج",
+                    "gdd": 1800,
+                    "desc_ar": "نضج البصلة",
+                    "desc_en": "Bulb maturation",
+                },
+            ],
         },
         "COTTON": {
             "name_ar": "قطن",
             "name_en": "Cotton",
             "total": 2400,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 80, "desc_ar": "ظهور البادرات", "desc_en": "Emergence"},
-                {"name_en": "Squaring", "name_ar": "ظهور البراعم", "gdd": 600, "desc_ar": "ظهور البراعم الزهرية", "desc_en": "First square"},
-                {"name_en": "First Flower", "name_ar": "الزهرة الأولى", "gdd": 1100, "desc_ar": "الزهرة الأولى", "desc_en": "First flower"},
-                {"name_en": "First Boll", "name_ar": "اللوزة الأولى", "gdd": 1300, "desc_ar": "اللوزة الأولى", "desc_en": "First boll"},
-                {"name_en": "Boll Opening", "name_ar": "تفتح اللوز", "gdd": 2100, "desc_ar": "بداية تفتح اللوز", "desc_en": "First open boll"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 2400, "desc_ar": "النضج الكامل", "desc_en": "Full maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 80,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Emergence",
+                },
+                {
+                    "name_en": "Squaring",
+                    "name_ar": "ظهور البراعم",
+                    "gdd": 600,
+                    "desc_ar": "ظهور البراعم الزهرية",
+                    "desc_en": "First square",
+                },
+                {
+                    "name_en": "First Flower",
+                    "name_ar": "الزهرة الأولى",
+                    "gdd": 1100,
+                    "desc_ar": "الزهرة الأولى",
+                    "desc_en": "First flower",
+                },
+                {
+                    "name_en": "First Boll",
+                    "name_ar": "اللوزة الأولى",
+                    "gdd": 1300,
+                    "desc_ar": "اللوزة الأولى",
+                    "desc_en": "First boll",
+                },
+                {
+                    "name_en": "Boll Opening",
+                    "name_ar": "تفتح اللوز",
+                    "gdd": 2100,
+                    "desc_ar": "بداية تفتح اللوز",
+                    "desc_en": "First open boll",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 2400,
+                    "desc_ar": "النضج الكامل",
+                    "desc_en": "Full maturity",
+                },
+            ],
         },
         "COFFEE": {
             "name_ar": "بن",
             "name_en": "Coffee",
             "total": 3000,  # Annual cycle
             "stages": [
-                {"name_en": "Bud Break", "name_ar": "تفتح البراعم", "gdd": 500, "desc_ar": "تفتح البراعم", "desc_en": "Bud break"},
-                {"name_en": "Flowering", "name_ar": "الإزهار", "gdd": 1200, "desc_ar": "الإزهار", "desc_en": "Flowering"},
-                {"name_en": "Pin Head", "name_ar": "رأس الدبوس", "gdd": 1500, "desc_ar": "مرحلة رأس الدبوس", "desc_en": "Pin head stage"},
-                {"name_en": "Green Berry", "name_ar": "الحبة الخضراء", "gdd": 2000, "desc_ar": "الحبة الخضراء", "desc_en": "Green berry"},
-                {"name_en": "Ripening", "name_ar": "النضج", "gdd": 2700, "desc_ar": "بداية النضج", "desc_en": "Ripening begins"},
-                {"name_en": "Harvest", "name_ar": "الحصاد", "gdd": 3000, "desc_ar": "جاهز للحصاد", "desc_en": "Ready for harvest"},
-            ]
+                {
+                    "name_en": "Bud Break",
+                    "name_ar": "تفتح البراعم",
+                    "gdd": 500,
+                    "desc_ar": "تفتح البراعم",
+                    "desc_en": "Bud break",
+                },
+                {
+                    "name_en": "Flowering",
+                    "name_ar": "الإزهار",
+                    "gdd": 1200,
+                    "desc_ar": "الإزهار",
+                    "desc_en": "Flowering",
+                },
+                {
+                    "name_en": "Pin Head",
+                    "name_ar": "رأس الدبوس",
+                    "gdd": 1500,
+                    "desc_ar": "مرحلة رأس الدبوس",
+                    "desc_en": "Pin head stage",
+                },
+                {
+                    "name_en": "Green Berry",
+                    "name_ar": "الحبة الخضراء",
+                    "gdd": 2000,
+                    "desc_ar": "الحبة الخضراء",
+                    "desc_en": "Green berry",
+                },
+                {
+                    "name_en": "Ripening",
+                    "name_ar": "النضج",
+                    "gdd": 2700,
+                    "desc_ar": "بداية النضج",
+                    "desc_en": "Ripening begins",
+                },
+                {
+                    "name_en": "Harvest",
+                    "name_ar": "الحصاد",
+                    "gdd": 3000,
+                    "desc_ar": "جاهز للحصاد",
+                    "desc_en": "Ready for harvest",
+                },
+            ],
         },
         "FABA_BEAN": {
             "name_ar": "فول",
             "name_en": "Faba Bean",
             "total": 1800,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 120, "desc_ar": "ظهور البادرات", "desc_en": "Emergence"},
-                {"name_en": "Vegetative", "name_ar": "النمو الخضري", "gdd": 500, "desc_ar": "النمو الخضري", "desc_en": "Vegetative growth"},
-                {"name_en": "Flowering", "name_ar": "الإزهار", "gdd": 1000, "desc_ar": "الإزهار", "desc_en": "Flowering"},
-                {"name_en": "Pod Fill", "name_ar": "امتلاء القرون", "gdd": 1400, "desc_ar": "امتلاء القرون", "desc_en": "Pod filling"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 1800, "desc_ar": "النضج", "desc_en": "Maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 120,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Emergence",
+                },
+                {
+                    "name_en": "Vegetative",
+                    "name_ar": "النمو الخضري",
+                    "gdd": 500,
+                    "desc_ar": "النمو الخضري",
+                    "desc_en": "Vegetative growth",
+                },
+                {
+                    "name_en": "Flowering",
+                    "name_ar": "الإزهار",
+                    "gdd": 1000,
+                    "desc_ar": "الإزهار",
+                    "desc_en": "Flowering",
+                },
+                {
+                    "name_en": "Pod Fill",
+                    "name_ar": "امتلاء القرون",
+                    "gdd": 1400,
+                    "desc_ar": "امتلاء القرون",
+                    "desc_en": "Pod filling",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 1800,
+                    "desc_ar": "النضج",
+                    "desc_en": "Maturity",
+                },
+            ],
         },
         "LENTIL": {
             "name_ar": "عدس",
             "name_en": "Lentil",
             "total": 1600,
             "stages": [
-                {"name_en": "Emergence", "name_ar": "الإنبات", "gdd": 100, "desc_ar": "ظهور البادرات", "desc_en": "Emergence"},
-                {"name_en": "Vegetative", "name_ar": "النمو الخضري", "gdd": 450, "desc_ar": "النمو الخضري", "desc_en": "Vegetative growth"},
-                {"name_en": "Flowering", "name_ar": "الإزهار", "gdd": 900, "desc_ar": "الإزهار", "desc_en": "Flowering"},
-                {"name_en": "Pod Fill", "name_ar": "امتلاء القرون", "gdd": 1250, "desc_ar": "امتلاء القرون", "desc_en": "Pod filling"},
-                {"name_en": "Maturity", "name_ar": "النضج", "gdd": 1600, "desc_ar": "النضج", "desc_en": "Maturity"},
-            ]
+                {
+                    "name_en": "Emergence",
+                    "name_ar": "الإنبات",
+                    "gdd": 100,
+                    "desc_ar": "ظهور البادرات",
+                    "desc_en": "Emergence",
+                },
+                {
+                    "name_en": "Vegetative",
+                    "name_ar": "النمو الخضري",
+                    "gdd": 450,
+                    "desc_ar": "النمو الخضري",
+                    "desc_en": "Vegetative growth",
+                },
+                {
+                    "name_en": "Flowering",
+                    "name_ar": "الإزهار",
+                    "gdd": 900,
+                    "desc_ar": "الإزهار",
+                    "desc_en": "Flowering",
+                },
+                {
+                    "name_en": "Pod Fill",
+                    "name_ar": "امتلاء القرون",
+                    "gdd": 1250,
+                    "desc_ar": "امتلاء القرون",
+                    "desc_en": "Pod filling",
+                },
+                {
+                    "name_en": "Maturity",
+                    "name_ar": "النضج",
+                    "gdd": 1600,
+                    "desc_ar": "النضج",
+                    "desc_en": "Maturity",
+                },
+            ],
         },
         "GRAPE": {
             "name_ar": "عنب",
             "name_en": "Grape",
             "total": 2800,
             "stages": [
-                {"name_en": "Bud Break", "name_ar": "تفتح البراعم", "gdd": 100, "desc_ar": "تفتح البراعم", "desc_en": "Bud break"},
-                {"name_en": "Bloom", "name_ar": "الإزهار", "gdd": 800, "desc_ar": "الإزهار", "desc_en": "Bloom"},
-                {"name_en": "Fruit Set", "name_ar": "عقد الثمار", "gdd": 1100, "desc_ar": "عقد الثمار", "desc_en": "Fruit set"},
-                {"name_en": "Veraison", "name_ar": "بداية النضج", "gdd": 2000, "desc_ar": "بداية تلون الحبات", "desc_en": "Veraison (color change)"},
-                {"name_en": "Harvest", "name_ar": "الحصاد", "gdd": 2800, "desc_ar": "جاهز للحصاد", "desc_en": "Harvest maturity"},
-            ]
+                {
+                    "name_en": "Bud Break",
+                    "name_ar": "تفتح البراعم",
+                    "gdd": 100,
+                    "desc_ar": "تفتح البراعم",
+                    "desc_en": "Bud break",
+                },
+                {
+                    "name_en": "Bloom",
+                    "name_ar": "الإزهار",
+                    "gdd": 800,
+                    "desc_ar": "الإزهار",
+                    "desc_en": "Bloom",
+                },
+                {
+                    "name_en": "Fruit Set",
+                    "name_ar": "عقد الثمار",
+                    "gdd": 1100,
+                    "desc_ar": "عقد الثمار",
+                    "desc_en": "Fruit set",
+                },
+                {
+                    "name_en": "Veraison",
+                    "name_ar": "بداية النضج",
+                    "gdd": 2000,
+                    "desc_ar": "بداية تلون الحبات",
+                    "desc_en": "Veraison (color change)",
+                },
+                {
+                    "name_en": "Harvest",
+                    "name_ar": "الحصاد",
+                    "gdd": 2800,
+                    "desc_ar": "جاهز للحصاد",
+                    "desc_en": "Harvest maturity",
+                },
+            ],
         },
         "DATE_PALM": {
             "name_ar": "نخيل التمر",
             "name_en": "Date Palm",
             "total": 4500,  # From pollination to harvest
             "stages": [
-                {"name_en": "Pollination", "name_ar": "التلقيح", "gdd": 100, "desc_ar": "وقت التلقيح", "desc_en": "Pollination time"},
-                {"name_en": "Hababouk", "name_ar": "حبابوك", "gdd": 900, "desc_ar": "مرحلة الحبابوك", "desc_en": "Hababouk stage"},
-                {"name_en": "Kimri", "name_ar": "كمري", "gdd": 1800, "desc_ar": "مرحلة الكمري", "desc_en": "Kimri stage"},
-                {"name_en": "Khalal", "name_ar": "خلال", "gdd": 3000, "desc_ar": "مرحلة الخلال", "desc_en": "Khalal stage"},
-                {"name_en": "Rutab", "name_ar": "رطب", "gdd": 4000, "desc_ar": "مرحلة الرطب", "desc_en": "Rutab stage"},
-                {"name_en": "Tamar", "name_ar": "تمر", "gdd": 4500, "desc_ar": "مرحلة التمر", "desc_en": "Tamar (dry date)"},
-            ]
+                {
+                    "name_en": "Pollination",
+                    "name_ar": "التلقيح",
+                    "gdd": 100,
+                    "desc_ar": "وقت التلقيح",
+                    "desc_en": "Pollination time",
+                },
+                {
+                    "name_en": "Hababouk",
+                    "name_ar": "حبابوك",
+                    "gdd": 900,
+                    "desc_ar": "مرحلة الحبابوك",
+                    "desc_en": "Hababouk stage",
+                },
+                {
+                    "name_en": "Kimri",
+                    "name_ar": "كمري",
+                    "gdd": 1800,
+                    "desc_ar": "مرحلة الكمري",
+                    "desc_en": "Kimri stage",
+                },
+                {
+                    "name_en": "Khalal",
+                    "name_ar": "خلال",
+                    "gdd": 3000,
+                    "desc_ar": "مرحلة الخلال",
+                    "desc_en": "Khalal stage",
+                },
+                {
+                    "name_en": "Rutab",
+                    "name_ar": "رطب",
+                    "gdd": 4000,
+                    "desc_ar": "مرحلة الرطب",
+                    "desc_en": "Rutab stage",
+                },
+                {
+                    "name_en": "Tamar",
+                    "name_ar": "تمر",
+                    "gdd": 4500,
+                    "desc_ar": "مرحلة التمر",
+                    "desc_en": "Tamar (dry date)",
+                },
+            ],
         },
         "ALFALFA": {
             "name_ar": "برسيم حجازي",
             "name_en": "Alfalfa",
             "total": 900,  # Per cutting cycle
             "stages": [
-                {"name_en": "Regrowth", "name_ar": "النمو الجديد", "gdd": 150, "desc_ar": "بداية النمو", "desc_en": "Early regrowth"},
-                {"name_en": "Vegetative", "name_ar": "النمو الخضري", "gdd": 450, "desc_ar": "النمو الخضري", "desc_en": "Vegetative growth"},
-                {"name_en": "Bud", "name_ar": "البرعم", "gdd": 700, "desc_ar": "مرحلة البرعم", "desc_en": "Bud stage"},
-                {"name_en": "Flower", "name_ar": "الإزهار", "gdd": 900, "desc_ar": "الإزهار - جاهز للحش", "desc_en": "Flowering - ready to cut"},
-            ]
+                {
+                    "name_en": "Regrowth",
+                    "name_ar": "النمو الجديد",
+                    "gdd": 150,
+                    "desc_ar": "بداية النمو",
+                    "desc_en": "Early regrowth",
+                },
+                {
+                    "name_en": "Vegetative",
+                    "name_ar": "النمو الخضري",
+                    "gdd": 450,
+                    "desc_ar": "النمو الخضري",
+                    "desc_en": "Vegetative growth",
+                },
+                {
+                    "name_en": "Bud",
+                    "name_ar": "البرعم",
+                    "gdd": 700,
+                    "desc_ar": "مرحلة البرعم",
+                    "desc_en": "Bud stage",
+                },
+                {
+                    "name_en": "Flower",
+                    "name_ar": "الإزهار",
+                    "gdd": 900,
+                    "desc_ar": "الإزهار - جاهز للحش",
+                    "desc_en": "Flowering - ready to cut",
+                },
+            ],
         },
     }
 
@@ -466,7 +1016,7 @@ class GDDTracker:
         latitude: float,
         longitude: float,
         end_date: Optional[date] = None,
-        method: str = "simple"
+        method: str = "simple",
     ) -> GDDChart:
         """
         Generate comprehensive GDD chart from planting to current/end date.
@@ -518,19 +1068,21 @@ class GDDTracker:
                 temp_max=weather_point.temperature_max_c,
                 base_temp=base_temp,
                 upper_temp=upper_temp,
-                method=method
+                method=method,
             )
 
             accumulated += daily_gdd
 
-            daily_data.append(GDDDataPoint(
-                date=day_date,
-                temp_min=weather_point.temperature_min_c,
-                temp_max=weather_point.temperature_max_c,
-                temp_avg=weather_point.temperature_c,
-                daily_gdd=daily_gdd,
-                accumulated_gdd=accumulated
-            ))
+            daily_data.append(
+                GDDDataPoint(
+                    date=day_date,
+                    temp_min=weather_point.temperature_min_c,
+                    temp_max=weather_point.temperature_max_c,
+                    temp_avg=weather_point.temperature_c,
+                    daily_gdd=daily_gdd,
+                    accumulated_gdd=accumulated,
+                )
+            )
 
         # Calculate current status
         total_gdd = accumulated
@@ -538,8 +1090,8 @@ class GDDTracker:
         avg_daily_gdd = total_gdd / max(1, days_since_planting)
 
         # Determine current stage and next stage
-        current_stage, current_stage_ar, next_stage, next_stage_ar, gdd_to_next = self.get_current_stage(
-            crop_code, total_gdd
+        current_stage, current_stage_ar, next_stage, next_stage_ar, gdd_to_next = (
+            self.get_current_stage(crop_code, total_gdd)
         )
 
         # Generate milestones
@@ -548,7 +1100,7 @@ class GDDTracker:
             accumulated_gdd=total_gdd,
             daily_avg_gdd=avg_daily_gdd,
             current_date=end_date,
-            daily_data=daily_data
+            daily_data=daily_data,
         )
 
         # Predict harvest
@@ -570,7 +1122,7 @@ class GDDTracker:
             days_since_planting=days_since_planting,
             base_temp=base_temp,
             upper_temp=upper_temp,
-            method=method
+            method=method,
         )
 
         # Calculate confidence
@@ -602,7 +1154,7 @@ class GDDTracker:
             vs_normal_description_ar=vs_normal_ar,
             vs_normal_description_en=vs_normal_en,
             calculation_method=method,
-            confidence=confidence
+            confidence=confidence,
         )
 
     async def get_gdd_forecast(
@@ -613,7 +1165,7 @@ class GDDTracker:
         target_gdd: float,
         base_temp: float = 10,
         upper_temp: Optional[float] = None,
-        method: str = "simple"
+        method: str = "simple",
     ) -> Dict:
         """
         Forecast when target GDD will be reached using weather forecast.
@@ -649,28 +1201,34 @@ class GDDTracker:
                 temp_max=day.temperature_max_c,
                 base_temp=base_temp,
                 upper_temp=upper_temp,
-                method=method
+                method=method,
             )
 
             accumulated += daily_gdd
 
-            forecast_data.append({
-                "date": day.timestamp.date().isoformat(),
-                "temp_min_c": round(day.temperature_min_c, 1),
-                "temp_max_c": round(day.temperature_max_c, 1),
-                "daily_gdd": round(daily_gdd, 1),
-                "accumulated_gdd": round(accumulated, 1),
-            })
+            forecast_data.append(
+                {
+                    "date": day.timestamp.date().isoformat(),
+                    "temp_min_c": round(day.temperature_min_c, 1),
+                    "temp_max_c": round(day.temperature_max_c, 1),
+                    "daily_gdd": round(daily_gdd, 1),
+                    "accumulated_gdd": round(accumulated, 1),
+                }
+            )
 
             if target_date is None and accumulated >= target_gdd:
                 target_date = day.timestamp.date()
 
         # If target not reached in forecast, estimate using average
         if target_date is None and forecast_data:
-            avg_forecast_gdd = sum(d["daily_gdd"] for d in forecast_data) / len(forecast_data)
+            avg_forecast_gdd = sum(d["daily_gdd"] for d in forecast_data) / len(
+                forecast_data
+            )
             if avg_forecast_gdd > 0:
                 remaining_days = int((target_gdd - accumulated) / avg_forecast_gdd)
-                target_date = forecast.daily[-1].timestamp.date() + timedelta(days=remaining_days)
+                target_date = forecast.daily[-1].timestamp.date() + timedelta(
+                    days=remaining_days
+                )
                 is_estimated = True
             else:
                 target_date = None
@@ -696,7 +1254,7 @@ class GDDTracker:
         temp_max: float,
         base_temp: float,
         upper_temp: Optional[float] = None,
-        method: str = "simple"
+        method: str = "simple",
     ) -> float:
         """
         Calculate daily GDD using specified method.
@@ -754,8 +1312,8 @@ class GDDTracker:
 
                 # GDD accumulated (integral of sine curve above base)
                 gdd = (1 / math.pi) * (
-                    (avg - base_temp) * (math.pi - 2 * theta) +
-                    2 * amplitude * math.cos(theta)
+                    (avg - base_temp) * (math.pi - 2 * theta)
+                    + 2 * amplitude * math.cos(theta)
                 )
 
                 return max(0, gdd)
@@ -766,9 +1324,7 @@ class GDDTracker:
             return max(0, avg_temp - base_temp)
 
     def get_current_stage(
-        self,
-        crop_code: str,
-        accumulated_gdd: float
+        self, crop_code: str, accumulated_gdd: float
     ) -> Tuple[str, str, str, str, float]:
         """
         Get current growth stage based on accumulated GDD.
@@ -811,7 +1367,13 @@ class GDDTracker:
                 gdd_to_next = stage["gdd"] - accumulated_gdd
                 break
 
-        return (current_stage_en, current_stage_ar, next_stage_en, next_stage_ar, gdd_to_next)
+        return (
+            current_stage_en,
+            current_stage_ar,
+            next_stage_en,
+            next_stage_ar,
+            gdd_to_next,
+        )
 
     def get_milestones(
         self,
@@ -819,7 +1381,7 @@ class GDDTracker:
         accumulated_gdd: float,
         daily_avg_gdd: float,
         current_date: date,
-        daily_data: List[GDDDataPoint]
+        daily_data: List[GDDDataPoint],
     ) -> List[GrowthMilestone]:
         """
         Generate milestone list with actual/predicted dates.
@@ -868,18 +1430,20 @@ class GDDTracker:
                 else:
                     days_remaining = None
 
-            milestones.append(GrowthMilestone(
-                stage_name_en=stage["name_en"],
-                stage_name_ar=stage["name_ar"],
-                gdd_required=gdd_req,
-                gdd_accumulated=accumulated_gdd,
-                is_reached=is_reached,
-                reached_date=reached_date,
-                expected_date=expected_date,
-                days_remaining=days_remaining,
-                description_ar=stage["desc_ar"],
-                description_en=stage["desc_en"],
-            ))
+            milestones.append(
+                GrowthMilestone(
+                    stage_name_en=stage["name_en"],
+                    stage_name_ar=stage["name_ar"],
+                    gdd_required=gdd_req,
+                    gdd_accumulated=accumulated_gdd,
+                    is_reached=is_reached,
+                    reached_date=reached_date,
+                    expected_date=expected_date,
+                    days_remaining=days_remaining,
+                    description_ar=stage["desc_ar"],
+                    description_en=stage["desc_en"],
+                )
+            )
 
         return milestones
 
@@ -891,7 +1455,7 @@ class GDDTracker:
         days_since_planting: int,
         base_temp: float,
         upper_temp: Optional[float] = None,
-        method: str = "simple"
+        method: str = "simple",
     ) -> Tuple[float, str, str]:
         """
         Compare current GDD accumulation to historical 10-year average.
@@ -913,7 +1477,9 @@ class GDDTracker:
             for year in sample_years:
                 try:
                     # Calculate start date for this historical year
-                    start_date = date.today().replace(year=year) - timedelta(days=days_since_planting)
+                    start_date = date.today().replace(year=year) - timedelta(
+                        days=days_since_planting
+                    )
                     end_date = date.today().replace(year=year)
 
                     # Skip if dates are in the future
@@ -932,13 +1498,15 @@ class GDDTracker:
                             temp_max=day.temperature_max_c,
                             base_temp=base_temp,
                             upper_temp=upper_temp,
-                            method=method
+                            method=method,
                         )
                         gdd_sum += daily_gdd
 
                     gdd_samples.append(gdd_sum)
                 except Exception as e:
-                    logger.warning(f"Could not fetch historical data for year {year}: {e}")
+                    logger.warning(
+                        f"Could not fetch historical data for year {year}: {e}"
+                    )
                     continue
 
             if not gdd_samples:
@@ -970,10 +1538,7 @@ class GDDTracker:
             logger.error(f"Error comparing to normal: {e}")
             return (0.0, "خطأ في المقارنة", "Comparison error")
 
-    async def get_crop_requirements(
-        self,
-        crop_code: str
-    ) -> CropGDDRequirements:
+    async def get_crop_requirements(self, crop_code: str) -> CropGDDRequirements:
         """
         Get GDD requirements for a crop.
 
@@ -994,15 +1559,17 @@ class GDDTracker:
         stages = []
         prev_gdd = 0
         for stage in crop_params["stages"]:
-            stages.append({
-                "name_en": stage["name_en"],
-                "name_ar": stage["name_ar"],
-                "gdd_start": prev_gdd,
-                "gdd_end": stage["gdd"],
-                "gdd_duration": stage["gdd"] - prev_gdd,
-                "description_ar": stage["desc_ar"],
-                "description_en": stage["desc_en"],
-            })
+            stages.append(
+                {
+                    "name_en": stage["name_en"],
+                    "name_ar": stage["name_ar"],
+                    "gdd_start": prev_gdd,
+                    "gdd_end": stage["gdd"],
+                    "gdd_duration": stage["gdd"] - prev_gdd,
+                    "description_ar": stage["desc_ar"],
+                    "description_en": stage["desc_en"],
+                }
+            )
             prev_gdd = stage["gdd"]
 
         return CropGDDRequirements(
@@ -1012,7 +1579,7 @@ class GDDTracker:
             base_temp=temp_params["base"],
             upper_temp=temp_params.get("upper"),
             total_gdd_required=crop_params["total"],
-            stages=stages
+            stages=stages,
         )
 
     def get_all_crops(self) -> List[Dict]:
@@ -1024,16 +1591,20 @@ class GDDTracker:
         """
         crops = []
         for crop_code, params in self.CROP_GDD_REQUIREMENTS.items():
-            temp_params = self.CROP_BASE_TEMPS.get(crop_code, {"base": 10, "upper": None})
-            crops.append({
-                "crop_code": crop_code,
-                "crop_name_ar": params["name_ar"],
-                "crop_name_en": params["name_en"],
-                "base_temp_c": temp_params["base"],
-                "upper_temp_c": temp_params.get("upper"),
-                "total_gdd_required": params["total"],
-                "num_stages": len(params["stages"]),
-            })
+            temp_params = self.CROP_BASE_TEMPS.get(
+                crop_code, {"base": 10, "upper": None}
+            )
+            crops.append(
+                {
+                    "crop_code": crop_code,
+                    "crop_name_ar": params["name_ar"],
+                    "crop_name_en": params["name_en"],
+                    "base_temp_c": temp_params["base"],
+                    "upper_temp_c": temp_params.get("upper"),
+                    "total_gdd_required": params["total"],
+                    "num_stages": len(params["stages"]),
+                }
+            )
 
         return sorted(crops, key=lambda x: x["crop_name_en"])
 
@@ -1053,7 +1624,7 @@ class GDDTracker:
         days_score = min(1.0, days_elapsed / 30)
 
         # Combine
-        confidence = (obs_score * 0.6 + days_score * 0.4)
+        confidence = obs_score * 0.6 + days_score * 0.4
         return min(0.95, max(0.5, confidence))
 
 

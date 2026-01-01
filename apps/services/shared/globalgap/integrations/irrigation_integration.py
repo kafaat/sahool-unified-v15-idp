@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class WaterSource(str, Enum):
     """مصادر المياه - Water Sources"""
+
     GROUNDWATER = "groundwater"  # مياه جوفية
     SURFACE_WATER = "surface_water"  # مياه سطحية
     RAINWATER = "rainwater"  # مياه أمطار
@@ -31,6 +32,7 @@ class WaterSource(str, Enum):
 
 class WaterQualityStatus(str, Enum):
     """حالة جودة المياه - Water Quality Status"""
+
     COMPLIANT = "compliant"  # متوافق
     NON_COMPLIANT = "non_compliant"  # غير متوافق
     PENDING_TEST = "pending_test"  # في انتظار الاختبار
@@ -40,6 +42,7 @@ class WaterQualityStatus(str, Enum):
 @dataclass
 class IrrigationRecord:
     """سجل الري - Irrigation Record"""
+
     field_id: str
     irrigation_date: datetime
     water_volume_m3: float
@@ -56,6 +59,7 @@ class IrrigationRecord:
 @dataclass
 class WaterUsageReport:
     """تقرير استخدام المياه - Water Usage Report"""
+
     farm_id: str
     field_id: str
     period_start: datetime
@@ -82,10 +86,7 @@ class IrrigationIntegration:
         self.logger = logging.getLogger(__name__)
 
     async def map_irrigation_to_spring(
-        self,
-        irrigation_data: dict,
-        field_id: str,
-        tenant_id: str
+        self, irrigation_data: dict, field_id: str, tenant_id: str
     ) -> Dict[str, Any]:
         """
         تعيين بيانات الري إلى متطلبات إدارة المياه SPRING
@@ -105,7 +106,9 @@ class IrrigationIntegration:
             self.logger.info(f"Mapping irrigation data for field {field_id}")
 
             # Extract irrigation details
-            water_volume = irrigation_data.get("water_volume_liters", 0) / 1000  # Convert to m3
+            water_volume = (
+                irrigation_data.get("water_volume_liters", 0) / 1000
+            )  # Convert to m3
             water_source = WaterSource(irrigation_data.get("water_source", "unknown"))
             irrigation_method = irrigation_data.get("irrigation_method", "unknown")
 
@@ -113,21 +116,22 @@ class IrrigationIntegration:
             spring_data = {
                 "field_id": field_id,
                 "irrigation_event_id": irrigation_data.get("id"),
-                "date": irrigation_data.get("timestamp", datetime.now(timezone.utc).isoformat()),
-
+                "date": irrigation_data.get(
+                    "timestamp", datetime.now(timezone.utc).isoformat()
+                ),
                 # Water quantity
                 "water_volume_m3": water_volume,
                 "irrigation_method": irrigation_method,
                 "application_efficiency": self._calculate_efficiency(irrigation_method),
-
                 # Water source tracking (SPRING requirement)
                 "water_source": {
                     "type": water_source.value,
                     "location": irrigation_data.get("source_location"),
                     "license_number": irrigation_data.get("source_license"),
-                    "quality_status": irrigation_data.get("quality_status", "pending_test"),
+                    "quality_status": irrigation_data.get(
+                        "quality_status", "pending_test"
+                    ),
                 },
-
                 # Water quality parameters
                 "water_quality": {
                     "ph": irrigation_data.get("ph_level"),
@@ -135,7 +139,6 @@ class IrrigationIntegration:
                     "test_date": irrigation_data.get("quality_test_date"),
                     "meets_standards": self._check_water_quality(irrigation_data),
                 },
-
                 # Compliance tracking
                 "compliance": {
                     "spring_compliant": self._check_spring_compliance(irrigation_data),
@@ -151,10 +154,12 @@ class IrrigationIntegration:
                 farm_id=irrigation_data.get("farm_id", "unknown"),
                 records_synced=1,
                 sync_status="success",
-                correlation_id=irrigation_data.get("correlation_id")
+                correlation_id=irrigation_data.get("correlation_id"),
             )
 
-            self.logger.info(f"Successfully mapped irrigation data for field {field_id}")
+            self.logger.info(
+                f"Successfully mapped irrigation data for field {field_id}"
+            )
             return spring_data
 
         except Exception as e:
@@ -168,7 +173,7 @@ class IrrigationIntegration:
                 records_synced=0,
                 sync_status="failed",
                 error_message=str(e),
-                correlation_id=irrigation_data.get("correlation_id")
+                correlation_id=irrigation_data.get("correlation_id"),
             )
 
             raise
@@ -180,7 +185,7 @@ class IrrigationIntegration:
         tenant_id: str,
         start_date: datetime,
         end_date: datetime,
-        irrigation_records: List[IrrigationRecord]
+        irrigation_records: List[IrrigationRecord],
     ) -> WaterUsageReport:
         """
         إنشاء تقرير استخدام المياه لتدقيق GlobalGAP
@@ -211,15 +216,21 @@ class IrrigationIntegration:
             source_breakdown = {}
             for record in irrigation_records:
                 source = record.water_source.value
-                source_breakdown[source] = source_breakdown.get(source, 0) + record.water_volume_m3
+                source_breakdown[source] = (
+                    source_breakdown.get(source, 0) + record.water_volume_m3
+                )
 
             # Check compliance
             non_compliant = []
             for record in irrigation_records:
                 if record.water_quality_status == WaterQualityStatus.NON_COMPLIANT:
-                    non_compliant.append(f"{record.field_id}_{record.irrigation_date.isoformat()}")
+                    non_compliant.append(
+                        f"{record.field_id}_{record.irrigation_date.isoformat()}"
+                    )
 
-            compliance_status = "compliant" if len(non_compliant) == 0 else "non_compliant"
+            compliance_status = (
+                "compliant" if len(non_compliant) == 0 else "non_compliant"
+            )
 
             # Generate recommendations
             recommendations = self._generate_water_recommendations(
@@ -236,7 +247,7 @@ class IrrigationIntegration:
                 source_breakdown=source_breakdown,
                 compliance_status=compliance_status,
                 non_compliant_records=non_compliant,
-                recommendations=recommendations
+                recommendations=recommendations,
             )
 
             # Check if compliance update is needed
@@ -258,10 +269,7 @@ class IrrigationIntegration:
             raise
 
     async def track_water_source_compliance(
-        self,
-        farm_id: str,
-        tenant_id: str,
-        water_sources: List[Dict[str, Any]]
+        self, farm_id: str, tenant_id: str, water_sources: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
         """
         تتبع امتثال مصادر المياه
@@ -322,17 +330,23 @@ class IrrigationIntegration:
                     status = "pending"
                     compliance_results["pending_sources"] += 1
 
-                compliance_results["sources"].append({
-                    "source_id": source_id,
-                    "source_type": source_type,
-                    "status": status,
-                    "license_valid": license_valid,
-                    "quality_recent": quality_recent,
-                    "last_test_date": source.get("last_quality_test_date"),
-                })
+                compliance_results["sources"].append(
+                    {
+                        "source_id": source_id,
+                        "source_type": source_type,
+                        "status": status,
+                        "license_valid": license_valid,
+                        "quality_recent": quality_recent,
+                        "last_test_date": source.get("last_quality_test_date"),
+                    }
+                )
 
             # Publish compliance update
-            overall_status = "compliant" if compliance_results["non_compliant_sources"] == 0 else "non_compliant"
+            overall_status = (
+                "compliant"
+                if compliance_results["non_compliant_sources"] == 0
+                else "non_compliant"
+            )
             await self.event_publisher.publish_compliance_updated(
                 tenant_id=tenant_id,
                 farm_id=farm_id,
@@ -408,14 +422,16 @@ class IrrigationIntegration:
         self,
         total_volume: float,
         source_breakdown: Dict[str, float],
-        records: List[IrrigationRecord]
+        records: List[IrrigationRecord],
     ) -> List[str]:
         """إنشاء توصيات إدارة المياه - Generate water management recommendations"""
         recommendations = []
 
         # Check for excessive water use
         if total_volume > 1000:  # Example threshold
-            recommendations.append("Consider implementing water-saving irrigation methods")
+            recommendations.append(
+                "Consider implementing water-saving irrigation methods"
+            )
 
         # Check source diversity
         if len(source_breakdown) == 1:
@@ -423,16 +439,24 @@ class IrrigationIntegration:
 
         # Check for non-compliant records
         non_compliant_count = sum(
-            1 for r in records if r.water_quality_status == WaterQualityStatus.NON_COMPLIANT
+            1
+            for r in records
+            if r.water_quality_status == WaterQualityStatus.NON_COMPLIANT
         )
         if non_compliant_count > 0:
-            recommendations.append(f"Address {non_compliant_count} water quality issues immediately")
+            recommendations.append(
+                f"Address {non_compliant_count} water quality issues immediately"
+            )
 
         # Check for pending tests
         pending_count = sum(
-            1 for r in records if r.water_quality_status == WaterQualityStatus.PENDING_TEST
+            1
+            for r in records
+            if r.water_quality_status == WaterQualityStatus.PENDING_TEST
         )
         if pending_count > 0:
-            recommendations.append(f"Complete {pending_count} pending water quality tests")
+            recommendations.append(
+                f"Complete {pending_count} pending water quality tests"
+            )
 
         return recommendations

@@ -21,7 +21,7 @@ def mock_env_vars():
         "NATS_URL": "nats://localhost:4222",
         "PORT": "8081",
     }
-   
+
     with patch.dict(os.environ, env_vars, clear=False):
         yield env_vars
 
@@ -40,7 +40,7 @@ def sample_user_payload() -> Dict[str, Any]:
         "user_id": "user-123",
         "tenant_id": "tenant-456",
         "roles": ["farmer"],
-        "exp": datetime.utcnow() + timedelta(hours=1)
+        "exp": datetime.utcnow() + timedelta(hours=1),
     }
 
 
@@ -52,7 +52,7 @@ def sample_admin_payload() -> Dict[str, Any]:
         "user_id": "admin-789",
         "tenant_id": "tenant-admin",
         "roles": ["super_admin"],
-        "exp": datetime.utcnow() + timedelta(hours=1)
+        "exp": datetime.utcnow() + timedelta(hours=1),
     }
 
 
@@ -74,7 +74,7 @@ def expired_jwt_token(sample_jwt_secret) -> str:
     expired_payload = {
         "sub": "user-999",
         "tenant_id": "tenant-999",
-        "exp": datetime.utcnow() - timedelta(hours=1)  # Expired
+        "exp": datetime.utcnow() - timedelta(hours=1),  # Expired
     }
     return jwt.encode(expired_payload, sample_jwt_secret, algorithm="HS256")
 
@@ -104,15 +104,12 @@ def sample_broadcast_request() -> Dict[str, Any]:
         "message": {
             "type": "notification",
             "title": "Test Alert",
-            "body": "This is a test notification"
-        }
+            "body": "This is a test notification",
+        },
     }
 
 
 @pytest.fixture
 def sample_room_message() -> Dict[str, Any]:
     """Sample room message"""
-    return {
-        "action": "join",
-        "room": "field:field-123"
-    }
+    return {"action": "join", "room": "field:field-123"}

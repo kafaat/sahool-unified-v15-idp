@@ -13,23 +13,29 @@ from uuid import UUID
 
 class FieldService(Protocol):
     """بروتوكول خدمة بيانات الحقل."""
+
     def get_field(self, field_id: UUID) -> dict[str, Any]: ...
 
 
 class NdviService(Protocol):
     """بروتوكول خدمة NDVI."""
+
     def get_latest(self, field_id: UUID) -> dict[str, Any] | None: ...
-    def get_summary(self, field_id: UUID, start: date, end: date) -> dict[str, Any] | None: ...
+    def get_summary(
+        self, field_id: UUID, start: date, end: date
+    ) -> dict[str, Any] | None: ...
 
 
 class WeatherService(Protocol):
     """بروتوكول خدمة الطقس."""
+
     def get_current(self, field_id: UUID) -> dict[str, Any] | None: ...
     def get_forecast(self, field_id: UUID, days: int) -> list[dict] | None: ...
 
 
 class SoilService(Protocol):
     """بروتوكول خدمة التربة."""
+
     def get_profile(self, field_id: UUID) -> dict[str, Any] | None: ...
 
 
@@ -78,7 +84,9 @@ class AggregatedContext:
         ]
 
         if self.ndvi_current is not None:
-            lines.append(f"NDVI: {self.ndvi_current:.2f} ({self.ndvi_health or 'غير محدد'})")
+            lines.append(
+                f"NDVI: {self.ndvi_current:.2f} ({self.ndvi_health or 'غير محدد'})"
+            )
 
         if self.weather_summary:
             lines.append(f"الطقس: {self.weather_summary}")

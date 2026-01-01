@@ -56,7 +56,9 @@ REDACTED = "***REDACTED***"
 REDACTED_EMAIL = "***@***.***"
 
 
-def redact_dict(d: dict[str, Any], depth: int = 0, max_depth: int = 10) -> dict[str, Any]:
+def redact_dict(
+    d: dict[str, Any], depth: int = 0, max_depth: int = 10
+) -> dict[str, Any]:
     """
     Recursively redact sensitive data from a dictionary.
 
@@ -92,8 +94,11 @@ def redact_dict(d: dict[str, Any], depth: int = 0, max_depth: int = 10) -> dict[
             out[key] = redact_dict(value, depth + 1, max_depth)
         elif isinstance(value, list):
             out[key] = [
-                redact_dict(item, depth + 1, max_depth) if isinstance(item, dict)
-                else redact_value(item)
+                (
+                    redact_dict(item, depth + 1, max_depth)
+                    if isinstance(item, dict)
+                    else redact_value(item)
+                )
                 for item in value
             ]
         else:

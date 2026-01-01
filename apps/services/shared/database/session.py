@@ -13,7 +13,12 @@ from sqlalchemy.pool import QueuePool
 
 # Try async imports
 try:
-    from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+    from sqlalchemy.ext.asyncio import (
+        create_async_engine,
+        AsyncSession,
+        async_sessionmaker,
+    )
+
     ASYNC_AVAILABLE = True
 except ImportError:
     ASYNC_AVAILABLE = False
@@ -154,7 +159,9 @@ async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
             return result.scalars().all()
     """
     if not ASYNC_AVAILABLE:
-        raise RuntimeError("Async SQLAlchemy not available. Install sqlalchemy[asyncio] and asyncpg")
+        raise RuntimeError(
+            "Async SQLAlchemy not available. Install sqlalchemy[asyncio] and asyncpg"
+        )
 
     if _AsyncSessionLocal is None:
         init_db(async_mode=True)

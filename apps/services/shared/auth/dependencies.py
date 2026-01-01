@@ -133,6 +133,7 @@ def require_roles(allowed_roles: List[str]) -> Callable:
         async def admin_route(user: User = Depends(require_roles(["admin", "super_admin"]))):
             ...
     """
+
     async def role_checker(
         current_user: User = Depends(get_current_active_user),
     ) -> User:
@@ -156,6 +157,7 @@ def require_permissions(required_permissions: List[str]) -> Callable:
         async def create_farm(user: User = Depends(require_permissions(["farm:create"]))):
             ...
     """
+
     async def permission_checker(
         current_user: User = Depends(get_current_active_user),
     ) -> User:
@@ -186,6 +188,7 @@ def require_tenant_access(tenant_id_param: str = "tenant_id") -> Callable:
         ):
             ...
     """
+
     async def tenant_checker(
         current_user: User = Depends(get_current_active_user),
         **kwargs,
@@ -271,7 +274,9 @@ require_super_admin = require_roles(["super_admin"])
 require_farm_access = require_roles(["super_admin", "tenant_admin", "farm_manager"])
 
 # Field operations access
-require_field_access = require_roles(["super_admin", "tenant_admin", "farm_manager", "field_operator"])
+require_field_access = require_roles(
+    ["super_admin", "tenant_admin", "farm_manager", "field_operator"]
+)
 
 # Any authenticated user
 require_authenticated = get_current_active_user

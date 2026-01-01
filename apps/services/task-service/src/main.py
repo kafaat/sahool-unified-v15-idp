@@ -37,13 +37,18 @@ app = FastAPI(
 # CORS - Secure configuration
 # In production, use explicit origins from environment or CORS_SETTINGS
 import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.cors_config import CORS_SETTINGS
+
     app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
 except ImportError:
     # Fallback for standalone deployment
-    ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "https://sahool.io,https://admin.sahool.io,http://localhost:3000").split(",")
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,
@@ -86,6 +91,7 @@ class TaskStatus(str, Enum):
 
 class TaskCreate(BaseModel):
     """Create a new task"""
+
     title: str = Field(..., min_length=1, max_length=200)
     title_ar: Optional[str] = None
     description: Optional[str] = None
@@ -103,6 +109,7 @@ class TaskCreate(BaseModel):
 
 class TaskUpdate(BaseModel):
     """Update task properties"""
+
     title: Optional[str] = None
     title_ar: Optional[str] = None
     description: Optional[str] = None
@@ -121,6 +128,7 @@ class TaskUpdate(BaseModel):
 
 class TaskComplete(BaseModel):
     """Complete a task with evidence"""
+
     notes: Optional[str] = None
     notes_ar: Optional[str] = None
     photo_urls: Optional[list[str]] = None
@@ -130,6 +138,7 @@ class TaskComplete(BaseModel):
 
 class Evidence(BaseModel):
     """Evidence attached to a task"""
+
     evidence_id: str
     task_id: str
     type: str  # photo, note, voice, measurement
@@ -140,6 +149,7 @@ class Evidence(BaseModel):
 
 class Task(BaseModel):
     """Full task model"""
+
     task_id: str
     tenant_id: str
     title: str
@@ -354,7 +364,9 @@ seed_demo_data()
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")) -> str:
+def get_tenant_id(
+    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
+) -> str:
     """Extract tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
@@ -404,11 +416,18 @@ async def list_tasks(
         filtered = [t for t in filtered if t.due_date and t.due_date >= due_after]
 
     # Sort by due_date (urgent first), then priority
-    priority_order = {TaskPriority.URGENT: 0, TaskPriority.HIGH: 1, TaskPriority.MEDIUM: 2, TaskPriority.LOW: 3}
-    filtered.sort(key=lambda t: (t.due_date or datetime.max, priority_order.get(t.priority, 99)))
+    priority_order = {
+        TaskPriority.URGENT: 0,
+        TaskPriority.HIGH: 1,
+        TaskPriority.MEDIUM: 2,
+        TaskPriority.LOW: 3,
+    }
+    filtered.sort(
+        key=lambda t: (t.due_date or datetime.max, priority_order.get(t.priority, 99))
+    )
 
     total = len(filtered)
-    paginated = filtered[offset:offset + limit]
+    paginated = filtered[offset : offset + limit]
 
     return {
         "tasks": [t.model_dump() for t in paginated],
@@ -427,7 +446,8 @@ async def get_today_tasks(
     today_end = today_start + timedelta(days=1)
 
     today_tasks = [
-        t for t in tasks_db.values()
+        t
+        for t in tasks_db.values()
         if t.tenant_id == tenant_id
         and t.due_date
         and today_start <= t.due_date < today_end
@@ -447,10 +467,13 @@ async def get_upcoming_tasks(
     """Get upcoming tasks for the next N days"""
     now = datetime.utcnow()
     future = now + timedelta(days=days)
-    tomorrow = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    tomorrow = (now + timedelta(days=1)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
 
     upcoming = [
-        t for t in tasks_db.values()
+        t
+        for t in tasks_db.values()
         if t.tenant_id == tenant_id
         and t.due_date
         and tomorrow <= t.due_date <= future
@@ -477,28 +500,38 @@ async def get_task_stats(
     week_end = week_start + timedelta(days=7)
 
     week_tasks = [
-        t for t in tenant_tasks
-        if t.due_date and week_start <= t.due_date < week_end
+        t for t in tenant_tasks if t.due_date and week_start <= t.due_date < week_end
     ]
 
-    completed_this_week = len([t for t in week_tasks if t.status == TaskStatus.COMPLETED])
+    completed_this_week = len(
+        [t for t in week_tasks if t.status == TaskStatus.COMPLETED]
+    )
     total_this_week = len(week_tasks)
 
     return {
         "total": len(tenant_tasks),
         "pending": len([t for t in tenant_tasks if t.status == TaskStatus.PENDING]),
-        "in_progress": len([t for t in tenant_tasks if t.status == TaskStatus.IN_PROGRESS]),
+        "in_progress": len(
+            [t for t in tenant_tasks if t.status == TaskStatus.IN_PROGRESS]
+        ),
         "completed": len([t for t in tenant_tasks if t.status == TaskStatus.COMPLETED]),
-        "overdue": len([
-            t for t in tenant_tasks
-            if t.status not in [TaskStatus.COMPLETED, TaskStatus.CANCELLED]
-            and t.due_date
-            and t.due_date < now
-        ]),
+        "overdue": len(
+            [
+                t
+                for t in tenant_tasks
+                if t.status not in [TaskStatus.COMPLETED, TaskStatus.CANCELLED]
+                and t.due_date
+                and t.due_date < now
+            ]
+        ),
         "week_progress": {
             "completed": completed_this_week,
             "total": total_this_week,
-            "percentage": round(completed_this_week / total_this_week * 100) if total_this_week > 0 else 0,
+            "percentage": (
+                round(completed_this_week / total_this_week * 100)
+                if total_this_week > 0
+                else 0
+            ),
         },
     }
 
@@ -665,7 +698,9 @@ async def delete_task(
 @app.post("/api/v1/tasks/{task_id}/evidence", response_model=Evidence, status_code=201)
 async def add_evidence(
     task_id: str,
-    evidence_type: str = Query(..., description="Type: photo, note, voice, measurement"),
+    evidence_type: str = Query(
+        ..., description="Type: photo, note, voice, measurement"
+    ),
     content: str = Query(..., description="URL or text content"),
     lat: Optional[float] = None,
     lon: Optional[float] = None,
@@ -699,4 +734,5 @@ async def add_evidence(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)

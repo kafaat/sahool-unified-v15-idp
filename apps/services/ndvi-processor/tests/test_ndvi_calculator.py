@@ -78,7 +78,7 @@ class TestNDVICalculator:
     @staticmethod
     def _calculate_ndvi(nir: np.ndarray, red: np.ndarray) -> np.ndarray:
         """Calculate NDVI from NIR and RED bands."""
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide="ignore", invalid="ignore"):
             ndvi = (nir - red) / (nir + red)
             ndvi = np.nan_to_num(ndvi, nan=0.0, posinf=1.0, neginf=-1.0)
         return np.clip(ndvi, -1.0, 1.0)
@@ -87,14 +87,17 @@ class TestNDVICalculator:
 class TestNDVIClassification:
     """Test suite for NDVI classification."""
 
-    @pytest.mark.parametrize("ndvi,expected_class", [
-        (-0.5, "water"),
-        (0.0, "bare_soil"),
-        (0.15, "sparse_vegetation"),
-        (0.35, "moderate_vegetation"),
-        (0.55, "dense_vegetation"),
-        (0.8, "very_dense_vegetation"),
-    ])
+    @pytest.mark.parametrize(
+        "ndvi,expected_class",
+        [
+            (-0.5, "water"),
+            (0.0, "bare_soil"),
+            (0.15, "sparse_vegetation"),
+            (0.35, "moderate_vegetation"),
+            (0.55, "dense_vegetation"),
+            (0.8, "very_dense_vegetation"),
+        ],
+    )
     def test_classify_ndvi(self, ndvi: float, expected_class: str):
         """Test NDVI classification into categories."""
         result = self._classify_ndvi(ndvi)
@@ -103,8 +106,14 @@ class TestNDVIClassification:
     def test_classify_ndvi_array(self):
         """Test classification of NDVI array."""
         ndvi_array = np.array([-0.5, 0.0, 0.2, 0.4, 0.6, 0.85])
-        expected = ["water", "bare_soil", "sparse_vegetation",
-                   "moderate_vegetation", "dense_vegetation", "very_dense_vegetation"]
+        expected = [
+            "water",
+            "bare_soil",
+            "sparse_vegetation",
+            "moderate_vegetation",
+            "dense_vegetation",
+            "very_dense_vegetation",
+        ]
 
         result = [self._classify_ndvi(v) for v in ndvi_array]
         assert result == expected

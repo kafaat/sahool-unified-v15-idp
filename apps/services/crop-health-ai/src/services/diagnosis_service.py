@@ -113,7 +113,9 @@ class DiagnosisService:
         image_url = self._save_image(image_bytes, filename, diagnosis_id)
 
         # Run prediction
-        disease_key, confidence, all_predictions = prediction_service.predict(image_bytes)
+        disease_key, confidence, all_predictions = prediction_service.predict(
+            image_bytes
+        )
 
         # Get disease info
         disease_info = disease_service.get_disease(disease_key)
@@ -124,7 +126,9 @@ class DiagnosisService:
         needs_expert = confidence < EXPERT_REVIEW_THRESHOLD
         expert_reason = None
         if needs_expert:
-            expert_reason = f"نسبة الثقة منخفضة ({confidence:.1%}). يُنصح بمراجعة مهندس زراعي."
+            expert_reason = (
+                f"نسبة الثقة منخفضة ({confidence:.1%}). يُنصح بمراجعة مهندس زراعي."
+            )
 
         # Calculate severity
         severity = disease_info["severity_default"]
@@ -171,13 +175,17 @@ class DiagnosisService:
             urgent_action_required=urgent,
             needs_expert_review=needs_expert,
             expert_review_reason=expert_reason,
-            weather_consideration="تجنب الرش قبل المطر" if disease_info.get("treatments") else None,
+            weather_consideration=(
+                "تجنب الرش قبل المطر" if disease_info.get("treatments") else None
+            ),
             prevention_tips=disease_info.get("prevention", []),
             prevention_tips_ar=disease_info.get("prevention_ar", []),
             image_url=image_url,
         )
 
-        logger.info(f"✅ Diagnosis completed: {disease_key} ({confidence:.2%}) for field {field_id}")
+        logger.info(
+            f"✅ Diagnosis completed: {disease_key} ({confidence:.2%}) for field {field_id}"
+        )
 
         return diagnosis
 
@@ -194,12 +202,18 @@ class DiagnosisService:
             disease_key, confidence, _ = prediction_service.predict(image_bytes)
             disease_info = disease_service.get_disease(disease_key)
 
-            results.append({
-                "filename": filename,
-                "disease": disease_key,
-                "confidence": confidence,
-                "disease_name_ar": disease_info.get("name_ar", "غير معروف") if disease_info else "غير معروف"
-            })
+            results.append(
+                {
+                    "filename": filename,
+                    "disease": disease_key,
+                    "confidence": confidence,
+                    "disease_name_ar": (
+                        disease_info.get("name_ar", "غير معروف")
+                        if disease_info
+                        else "غير معروف"
+                    ),
+                }
+            )
 
         return {
             "batch_id": batch_id,
@@ -210,8 +224,12 @@ class DiagnosisService:
             "summary": {
                 "healthy_count": sum(1 for r in results if r["disease"] == "healthy"),
                 "infected_count": sum(1 for r in results if r["disease"] != "healthy"),
-                "average_confidence": sum(r["confidence"] for r in results) / len(results) if results else 0
-            }
+                "average_confidence": (
+                    sum(r["confidence"] for r in results) / len(results)
+                    if results
+                    else 0
+                ),
+            },
         }
 
     def get_history(
@@ -232,7 +250,7 @@ class DiagnosisService:
         if governorate:
             filtered = [d for d in filtered if d.get("governorate") == governorate]
 
-        return filtered[offset:offset + limit]
+        return filtered[offset : offset + limit]
 
     def get_diagnosis_by_id(self, diagnosis_id: str) -> Optional[Dict[str, Any]]:
         """الحصول على تشخيص محدد"""
@@ -241,7 +259,9 @@ class DiagnosisService:
                 disease_key = record.get("disease_id")
                 disease_info = disease_service.get_disease(disease_key)
                 if disease_info:
-                    record["treatments"] = [t.model_dump() for t in disease_info.get("treatments", [])]
+                    record["treatments"] = [
+                        t.model_dump() for t in disease_info.get("treatments", [])
+                    ]
                     record["prevention_tips_ar"] = disease_info.get("prevention_ar", [])
                 return record
         return None
@@ -305,11 +325,11 @@ class DiagnosisService:
             "high_count": high,
             "by_disease": by_disease,
             "by_governorate": by_governorate,
-            "last_updated": datetime.utcnow().isoformat()
+            "last_updated": datetime.utcnow().isoformat(),
         }
 
     # Allowed image extensions for security
-    ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'}
+    ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp", "bmp"}
     MAX_FILENAME_LENGTH = 255
 
     def _save_image(
@@ -322,7 +342,9 @@ class DiagnosisService:
         try:
             # Security: Validate and sanitize filename
             if not filename or len(filename) > self.MAX_FILENAME_LENGTH:
-                logger.warning(f"Invalid filename length: {len(filename) if filename else 0}")
+                logger.warning(
+                    f"Invalid filename length: {len(filename) if filename else 0}"
+                )
                 filename = "image.jpg"
 
             # Extract and validate extension
@@ -381,7 +403,11 @@ class DiagnosisService:
             "disease_name_ar": disease_info["name_ar"],
             "confidence": confidence,
             "severity": severity.value,
-            "crop_type": detected_crop.value if hasattr(detected_crop, 'value') else str(detected_crop),
+            "crop_type": (
+                detected_crop.value
+                if hasattr(detected_crop, "value")
+                else str(detected_crop)
+            ),
             "field_id": field_id,
             "governorate": governorate,
             "location": {"lat": lat, "lng": lng} if lat and lng else None,

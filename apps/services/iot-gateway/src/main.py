@@ -21,8 +21,7 @@ from .registry import DeviceRegistry, DeviceStatus, get_registry
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("iot-gateway")
 
@@ -62,7 +61,9 @@ async def handle_mqtt_message(msg: MqttMessage):
         if not device:
             # Auto-register device if enabled (for backward compatibility)
             # In production, devices should be pre-registered
-            auto_register_enabled = os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
+            auto_register_enabled = (
+                os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
+            )
 
             if auto_register_enabled:
                 logger.warning(
@@ -86,7 +87,10 @@ async def handle_mqtt_message(msg: MqttMessage):
         sensor_type_lower = reading.sensor_type.lower()
         if sensor_type_lower in SENSOR_RANGES:
             range_config = SENSOR_RANGES[sensor_type_lower]
-            if reading.value < range_config["min"] or reading.value > range_config["max"]:
+            if (
+                reading.value < range_config["min"]
+                or reading.value > range_config["max"]
+            ):
                 logger.error(
                     f"MQTT message rejected: Value {reading.value} out of range "
                     f"for {reading.sensor_type}. Device: {reading.device_id}, "
@@ -319,7 +323,9 @@ class DeviceRegisterRequest(BaseModel):
 # ============== Authorization & Validation Functions ==============
 
 
-def validate_device_authorization(device_id: str, tenant_id: str, field_id: str) -> bool:
+def validate_device_authorization(
+    device_id: str, tenant_id: str, field_id: str
+) -> bool:
     """
     Validate that device is authorized for the tenant and field
     """
@@ -354,11 +360,7 @@ def validate_device_authorization(device_id: str, tenant_id: str, field_id: str)
 
 
 def validate_sensor_reading(
-    device_id: str,
-    tenant_id: str,
-    field_id: str,
-    sensor_type: str,
-    value: float
+    device_id: str, tenant_id: str, field_id: str, sensor_type: str, value: float
 ) -> None:
     """
     Comprehensive validation for sensor reading
@@ -370,14 +372,13 @@ def validate_sensor_reading(
         logger.error(f"Sensor reading rejected: Device {device_id} not registered")
         raise HTTPException(
             status_code=404,
-            detail=f"Device {device_id} not registered. Please register device first."
+            detail=f"Device {device_id} not registered. Please register device first.",
         )
 
     # 2. Validate device authorization
     if not validate_device_authorization(device_id, tenant_id, field_id):
         raise HTTPException(
-            status_code=403,
-            detail="Device not authorized for this tenant or field"
+            status_code=403, detail="Device not authorized for this tenant or field"
         )
 
     # 3. Value range already validated by Pydantic model
@@ -410,11 +411,7 @@ async def post_sensor_reading(req: SensorReadingRequest):
 
     # Validate device authorization and sensor reading
     validate_sensor_reading(
-        req.device_id,
-        req.tenant_id,
-        req.field_id,
-        req.sensor_type,
-        req.value
+        req.device_id, req.tenant_id, req.field_id, req.sensor_type, req.value
     )
 
     timestamp = req.timestamp or datetime.now(timezone.utc).isoformat()
@@ -477,13 +474,12 @@ async def post_batch_readings(req: BatchReadingRequest):
         logger.error(f"Batch reading rejected: Device {req.device_id} not registered")
         raise HTTPException(
             status_code=404,
-            detail=f"Device {req.device_id} not registered. Please register device first."
+            detail=f"Device {req.device_id} not registered. Please register device first.",
         )
 
     if not validate_device_authorization(req.device_id, req.tenant_id, req.field_id):
         raise HTTPException(
-            status_code=403,
-            detail="Device not authorized for this tenant or field"
+            status_code=403, detail="Device not authorized for this tenant or field"
         )
 
     event_ids = []
@@ -507,14 +503,17 @@ async def post_batch_readings(req: BatchReadingRequest):
             if sensor_type_lower in SENSOR_RANGES:
                 range_config = SENSOR_RANGES[sensor_type_lower]
                 value_float = float(value)
-                if value_float < range_config["min"] or value_float > range_config["max"]:
+                if (
+                    value_float < range_config["min"]
+                    or value_float > range_config["max"]
+                ):
                     logger.error(
                         f"Batch reading {idx} rejected: Value {value_float} out of range "
                         f"for {sensor_type}. Expected {range_config['min']} to {range_config['max']}"
                     )
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Reading {idx}: Value {value_float} out of range for {sensor_type}"
+                        detail=f"Reading {idx}: Value {value_float} out of range for {sensor_type}",
                     )
 
             event_id = await publisher.publish_sensor_reading(
@@ -536,8 +535,7 @@ async def post_batch_readings(req: BatchReadingRequest):
                 f"Error processing batch reading {idx} for device {req.device_id}: {e}"
             )
             raise HTTPException(
-                status_code=400,
-                detail=f"Error processing reading {idx}: {str(e)}"
+                status_code=400, detail=f"Error processing reading {idx}: {str(e)}"
             )
 
     # Update device status

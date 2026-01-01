@@ -31,11 +31,14 @@ try:
         FieldMonitoringWorkflow,
         AllIndicesTask,
     )
+
     EO_LEARN_AVAILABLE = True
     logger.info("sahool-eo package available")
 
     # Check if Sentinel Hub is configured
-    if os.environ.get("SENTINEL_HUB_CLIENT_ID") and os.environ.get("SENTINEL_HUB_CLIENT_SECRET"):
+    if os.environ.get("SENTINEL_HUB_CLIENT_ID") and os.environ.get(
+        "SENTINEL_HUB_CLIENT_SECRET"
+    ):
         SENTINEL_HUB_CONFIGURED = True
         logger.info("Sentinel Hub credentials configured")
     else:
@@ -76,6 +79,7 @@ def get_eo_client():
 # =============================================================================
 # Real Data Fetching
 # =============================================================================
+
 
 async def fetch_real_satellite_data(
     field_id: str,
@@ -199,12 +203,15 @@ def convert_eo_result_to_api_format(
 # Data Source Status
 # =============================================================================
 
+
 def get_data_source_status() -> Dict[str, Any]:
     """Get current data source status"""
     return {
         "eo_learn_available": EO_LEARN_AVAILABLE,
         "sentinel_hub_configured": SENTINEL_HUB_CONFIGURED,
-        "data_mode": "real" if (EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED) else "simulated",
+        "data_mode": (
+            "real" if (EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED) else "simulated"
+        ),
         "message": (
             "Using real Sentinel Hub data"
             if SENTINEL_HUB_CONFIGURED
@@ -216,6 +223,7 @@ def get_data_source_status() -> Dict[str, Any]:
 # =============================================================================
 # Configuration Check
 # =============================================================================
+
 
 def check_eo_configuration() -> Dict[str, Any]:
     """Check eo-learn configuration and dependencies"""
@@ -230,38 +238,44 @@ def check_eo_configuration() -> Dict[str, Any]:
 
     try:
         import sahool_eo
+
         checks["sahool_eo_installed"] = True
     except ImportError:
         pass
 
     try:
         import sentinelhub
+
         checks["sentinelhub_installed"] = True
     except ImportError:
         pass
 
     try:
         import eolearn
+
         checks["eolearn_installed"] = True
     except ImportError:
         pass
 
     try:
         import s2cloudless
+
         checks["s2cloudless_installed"] = True
     except ImportError:
         pass
 
     checks["credentials_configured"] = bool(
-        os.environ.get("SENTINEL_HUB_CLIENT_ID") and
-        os.environ.get("SENTINEL_HUB_CLIENT_SECRET")
+        os.environ.get("SENTINEL_HUB_CLIENT_ID")
+        and os.environ.get("SENTINEL_HUB_CLIENT_SECRET")
     )
 
-    checks["all_ready"] = all([
-        checks["sahool_eo_installed"],
-        checks["sentinelhub_installed"],
-        checks["eolearn_installed"],
-        checks["credentials_configured"],
-    ])
+    checks["all_ready"] = all(
+        [
+            checks["sahool_eo_installed"],
+            checks["sentinelhub_installed"],
+            checks["eolearn_installed"],
+            checks["credentials_configured"],
+        ]
+    )
 
     return checks

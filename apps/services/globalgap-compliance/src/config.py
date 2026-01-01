@@ -23,7 +23,9 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # Database Configuration | إعدادات قاعدة البيانات
-    database_url: str = "postgresql+asyncpg://sahool:sahool@postgres:5432/sahool_compliance"
+    database_url: str = (
+        "postgresql+asyncpg://sahool:sahool@postgres:5432/sahool_compliance"
+    )
     database_pool_size: int = 10
     database_max_overflow: int = 20
 
@@ -43,7 +45,9 @@ class Settings(BaseSettings):
 
     # Compliance Settings | إعدادات الامتثال
     audit_retention_days: int = 1825  # 5 years | 5 سنوات
-    certificate_renewal_warning_days: int = 90  # Warn 90 days before expiry | تحذير قبل 90 يوم من انتهاء الصلاحية
+    certificate_renewal_warning_days: int = (
+        90  # Warn 90 days before expiry | تحذير قبل 90 يوم من انتهاء الصلاحية
+    )
 
     # Checklist Configuration | إعدادات قوائم المراجعة
     enable_auto_checklist_generation: bool = True

@@ -52,15 +52,15 @@ class ChecklistService:
                 compliance_criteria_ar=[
                     "وجود نظام لحفظ السجلات",
                     "السجلات متاحة للمراجعة",
-                    "السجلات محفوظة لمدة عامين على الأقل"
+                    "السجلات محفوظة لمدة عامين على الأقل",
                 ],
                 compliance_criteria_en=[
                     "Record keeping system exists",
                     "Records available for review",
-                    "Records kept for at least 2 years"
+                    "Records kept for at least 2 years",
                 ],
                 verification_methods=["document_review", "interview"],
-                required_evidence=["record_keeping_system", "sample_records"]
+                required_evidence=["record_keeping_system", "sample_records"],
             ),
             ChecklistItem(
                 id="cp_af_5_1_1",
@@ -74,15 +74,15 @@ class ChecklistService:
                 compliance_criteria_ar=[
                     "قائمة بجميع المبيدات المستخدمة",
                     "أرقام التسجيل الرسمية متاحة",
-                    "المبيدات مسجلة للمحاصيل المستهدفة"
+                    "المبيدات مسجلة للمحاصيل المستهدفة",
                 ],
                 compliance_criteria_en=[
                     "List of all pesticides used",
                     "Official registration numbers available",
-                    "Pesticides registered for target crops"
+                    "Pesticides registered for target crops",
                 ],
                 verification_methods=["document_review", "visual_inspection"],
-                required_evidence=["pesticide_list", "registration_certificates"]
+                required_evidence=["pesticide_list", "registration_certificates"],
             ),
             ChecklistItem(
                 id="cp_af_3_2_1",
@@ -96,15 +96,15 @@ class ChecklistService:
                 compliance_criteria_ar=[
                     "سجلات تطبيق الأسمدة متاحة",
                     "السجلات تتضمن التاريخ والنوع والكمية",
-                    "السجلات محدثة"
+                    "السجلات محدثة",
                 ],
                 compliance_criteria_en=[
                     "Fertilizer application records available",
                     "Records include date, type, and quantity",
-                    "Records are up to date"
+                    "Records are up to date",
                 ],
                 verification_methods=["document_review"],
-                required_evidence=["fertilizer_application_records"]
+                required_evidence=["fertilizer_application_records"],
             ),
             ChecklistItem(
                 id="cp_af_4_1_1",
@@ -118,15 +118,15 @@ class ChecklistService:
                 compliance_criteria_ar=[
                     "تقارير تحليل المياه متاحة",
                     "التحليل يشمل المعايير الميكروبيولوجية",
-                    "التحليل حديث (خلال العام الماضي)"
+                    "التحليل حديث (خلال العام الماضي)",
                 ],
                 compliance_criteria_en=[
                     "Water analysis reports available",
                     "Analysis includes microbiological parameters",
-                    "Analysis is recent (within last year)"
+                    "Analysis is recent (within last year)",
                 ],
                 verification_methods=["document_review"],
-                required_evidence=["water_analysis_reports"]
+                required_evidence=["water_analysis_reports"],
             ),
             ChecklistItem(
                 id="cp_af_10_1_1",
@@ -140,15 +140,15 @@ class ChecklistService:
                 compliance_criteria_ar=[
                     "وجود خطة موثقة",
                     "الخطة تحدد مناطق الحماية",
-                    "الخطة تتضمن إجراءات محددة"
+                    "الخطة تتضمن إجراءات محددة",
                 ],
                 compliance_criteria_en=[
                     "Documented plan exists",
                     "Plan identifies protection areas",
-                    "Plan includes specific actions"
+                    "Plan includes specific actions",
                 ],
                 verification_methods=["document_review", "visual_inspection"],
-                required_evidence=["biodiversity_plan"]
+                required_evidence=["biodiversity_plan"],
             ),
         ]
 
@@ -156,9 +156,7 @@ class ChecklistService:
             self.checklist_items[item.id] = item
 
     async def get_checklist_by_category(
-        self,
-        category: ChecklistCategory,
-        ifa_version: str = "6.0"
+        self, category: ChecklistCategory, ifa_version: str = "6.0"
     ) -> List[ChecklistItem]:
         """
         Get checklist items for a specific category
@@ -172,7 +170,8 @@ class ChecklistService:
             List of checklist items | قائمة عناصر قائمة المراجعة
         """
         items = [
-            item for item in self.checklist_items.values()
+            item
+            for item in self.checklist_items.values()
             if item.category == category and item.ifa_version == ifa_version
         ]
         return items
@@ -180,7 +179,7 @@ class ChecklistService:
     async def get_all_checklist_items(
         self,
         ifa_version: str = "6.0",
-        compliance_level: Optional[ComplianceLevel] = None
+        compliance_level: Optional[ComplianceLevel] = None,
     ) -> List[ChecklistItem]:
         """
         Get all checklist items
@@ -194,18 +193,20 @@ class ChecklistService:
             List of checklist items | قائمة عناصر قائمة المراجعة
         """
         items = [
-            item for item in self.checklist_items.values()
+            item
+            for item in self.checklist_items.values()
             if item.ifa_version == ifa_version
         ]
 
         if compliance_level:
-            items = [item for item in items if item.compliance_level == compliance_level]
+            items = [
+                item for item in items if item.compliance_level == compliance_level
+            ]
 
         return items
 
     async def get_checklist_item(
-        self,
-        control_point_number: str
+        self, control_point_number: str
     ) -> Optional[ChecklistItem]:
         """
         Get a specific checklist item by control point number
@@ -223,11 +224,7 @@ class ChecklistService:
         return None
 
     async def generate_farm_checklist(
-        self,
-        farm_id: str,
-        tenant_id: str,
-        crop_types: List[str],
-        scope: str = "full"
+        self, farm_id: str, tenant_id: str, crop_types: List[str], scope: str = "full"
     ) -> Checklist:
         """
         Generate a customized checklist for a farm
@@ -248,9 +245,21 @@ class ChecklistService:
 
         # Count by compliance level
         # العد حسب مستوى الامتثال
-        major_must = sum(1 for item in all_items if item.compliance_level == ComplianceLevel.MAJOR_MUST)
-        minor_must = sum(1 for item in all_items if item.compliance_level == ComplianceLevel.MINOR_MUST)
-        recommendations = sum(1 for item in all_items if item.compliance_level == ComplianceLevel.RECOMMENDATION)
+        major_must = sum(
+            1
+            for item in all_items
+            if item.compliance_level == ComplianceLevel.MAJOR_MUST
+        )
+        minor_must = sum(
+            1
+            for item in all_items
+            if item.compliance_level == ComplianceLevel.MINOR_MUST
+        )
+        recommendations = sum(
+            1
+            for item in all_items
+            if item.compliance_level == ComplianceLevel.RECOMMENDATION
+        )
 
         # Create checklist
         # إنشاء قائمة المراجعة
@@ -265,15 +274,14 @@ class ChecklistService:
             total_items=len(all_items),
             major_must_count=major_must,
             minor_must_count=minor_must,
-            recommendation_count=recommendations
+            recommendation_count=recommendations,
         )
 
         self.checklists[checklist.id] = checklist
         return checklist
 
     async def create_assessment(
-        self,
-        assessment: ChecklistAssessment
+        self, assessment: ChecklistAssessment
     ) -> ChecklistAssessment:
         """
         Create a new checklist assessment
@@ -297,7 +305,7 @@ class ChecklistService:
         assessment_id: str,
         status: ControlPointStatus,
         evidence_description: Optional[str] = None,
-        assessor_notes: Optional[str] = None
+        assessor_notes: Optional[str] = None,
     ) -> Optional[ChecklistAssessment]:
         """
         Update an existing checklist assessment
@@ -319,9 +327,7 @@ class ChecklistService:
         return None
 
     async def get_farm_assessments(
-        self,
-        farm_id: str,
-        tenant_id: str
+        self, farm_id: str, tenant_id: str
     ) -> List[ChecklistAssessment]:
         """
         Get all assessments for a farm
@@ -339,9 +345,7 @@ class ChecklistService:
         return []
 
     async def get_assessment_summary(
-        self,
-        farm_id: str,
-        tenant_id: str
+        self, farm_id: str, tenant_id: str
     ) -> Dict[str, Any]:
         """
         Get assessment summary for a farm
@@ -358,23 +362,37 @@ class ChecklistService:
 
         summary = {
             "total_assessments": len(assessments),
-            "compliant": sum(1 for a in assessments if a.status == ControlPointStatus.COMPLIANT),
-            "non_compliant": sum(1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT),
-            "not_applicable": sum(1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE),
-            "not_assessed": sum(1 for a in assessments if a.status == ControlPointStatus.NOT_ASSESSED),
+            "compliant": sum(
+                1 for a in assessments if a.status == ControlPointStatus.COMPLIANT
+            ),
+            "non_compliant": sum(
+                1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT
+            ),
+            "not_applicable": sum(
+                1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE
+            ),
+            "not_assessed": sum(
+                1 for a in assessments if a.status == ControlPointStatus.NOT_ASSESSED
+            ),
             "completion_percentage": (
-                len([a for a in assessments if a.status != ControlPointStatus.NOT_ASSESSED])
-                / len(assessments) * 100
-                if assessments else 0
+                len(
+                    [
+                        a
+                        for a in assessments
+                        if a.status != ControlPointStatus.NOT_ASSESSED
+                    ]
+                )
+                / len(assessments)
+                * 100
+                if assessments
+                else 0
             ),
         }
 
         return summary
 
     async def search_checklist_items(
-        self,
-        query: str,
-        language: str = "ar"
+        self, query: str, language: str = "ar"
     ) -> List[ChecklistItem]:
         """
         Search checklist items by keyword
@@ -392,12 +410,16 @@ class ChecklistService:
 
         for item in self.checklist_items.values():
             if language == "ar":
-                if (query_lower in item.title_ar.lower() or
-                    query_lower in item.requirement_ar.lower()):
+                if (
+                    query_lower in item.title_ar.lower()
+                    or query_lower in item.requirement_ar.lower()
+                ):
                     results.append(item)
             else:
-                if (query_lower in item.title_en.lower() or
-                    query_lower in item.requirement_en.lower()):
+                if (
+                    query_lower in item.title_en.lower()
+                    or query_lower in item.requirement_en.lower()
+                ):
                     results.append(item)
 
         return results

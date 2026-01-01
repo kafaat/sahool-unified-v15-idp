@@ -96,8 +96,14 @@ class ReportGenerator:
         passed_tests = self.metrics.get("passed_tests", 0)
         failed_tests = self.metrics.get("failed_tests", 0)
 
-        status_emoji = "✅" if overall_score >= 85 else "⚠️" if overall_score >= 70 else "❌"
-        status_text = "PASS" if overall_score >= 85 else "WARNING" if overall_score >= 70 else "FAIL"
+        status_emoji = (
+            "✅" if overall_score >= 85 else "⚠️" if overall_score >= 70 else "❌"
+        )
+        status_text = (
+            "PASS"
+            if overall_score >= 85
+            else "WARNING" if overall_score >= 70 else "FAIL"
+        )
 
         return [
             "## Executive Summary",
@@ -200,7 +206,11 @@ class ReportGenerator:
         max_latency = self.metrics.get("max_latency_ms", 0.0)
         min_latency = self.metrics.get("min_latency_ms", 0.0)
 
-        latency_status = "✅ Excellent" if avg_latency < 2000 else "⚠️ Acceptable" if avg_latency < 5000 else "❌ Poor"
+        latency_status = (
+            "✅ Excellent"
+            if avg_latency < 2000
+            else "⚠️ Acceptable" if avg_latency < 5000 else "❌ Poor"
+        )
 
         return [
             "## Performance Metrics",
@@ -237,11 +247,15 @@ class ReportGenerator:
         ]
 
         if overall_score >= 85:
-            recommendations.append("✅ Excellent performance! Agent is ready for production.")
+            recommendations.append(
+                "✅ Excellent performance! Agent is ready for production."
+            )
         elif overall_score >= 70:
             recommendations.append("⚠️ Good performance with room for improvement.")
         else:
-            recommendations.append("❌ Performance below threshold. Review and improve before deploying.")
+            recommendations.append(
+                "❌ Performance below threshold. Review and improve before deploying."
+            )
 
         if accuracy < 75:
             recommendations.append(
@@ -344,9 +358,7 @@ class ReportGenerator:
 
 def main():
     """Main execution"""
-    parser = argparse.ArgumentParser(
-        description="Generate detailed evaluation report"
-    )
+    parser = argparse.ArgumentParser(description="Generate detailed evaluation report")
     parser.add_argument(
         "--metrics",
         type=Path,

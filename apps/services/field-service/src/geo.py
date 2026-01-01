@@ -89,7 +89,9 @@ def is_polygon_closed(coordinates: List[List[List[float]]]) -> bool:
     return outer_ring[0] == outer_ring[-1]
 
 
-def validate_polygon(coordinates: List[List[List[float]]]) -> Tuple[bool, Optional[str]]:
+def validate_polygon(
+    coordinates: List[List[List[float]]],
+) -> Tuple[bool, Optional[str]]:
     """
     التحقق من صحة المضلع
 
@@ -124,8 +126,7 @@ def validate_polygon(coordinates: List[List[List[float]]]) -> Tuple[bool, Option
 
 
 def check_polygon_overlap(
-    polygon1: List[List[List[float]]],
-    polygon2: List[List[List[float]]]
+    polygon1: List[List[List[float]]], polygon2: List[List[List[float]]]
 ) -> Tuple[bool, float]:
     """
     فحص تداخل مضلعين
@@ -153,8 +154,7 @@ def check_polygon_overlap(
 
 
 def point_in_polygon(
-    point: Tuple[float, float],
-    polygon: List[List[List[float]]]
+    point: Tuple[float, float], polygon: List[List[List[float]]]
 ) -> bool:
     """
     فحص إذا كانت النقطة داخل المضلع
@@ -178,8 +178,9 @@ def point_in_polygon(
         lng_i, lat_i = outer_ring[i][0], outer_ring[i][1]
         lng_j, lat_j = outer_ring[j][0], outer_ring[j][1]
 
-        if ((lat_i > lat) != (lat_j > lat)) and \
-           (lng < (lng_j - lng_i) * (lat - lat_i) / (lat_j - lat_i) + lng_i):
+        if ((lat_i > lat) != (lat_j > lat)) and (
+            lng < (lng_j - lng_i) * (lat - lat_i) / (lat_j - lat_i) + lng_i
+        ):
             inside = not inside
 
         j = i
@@ -188,8 +189,7 @@ def point_in_polygon(
 
 
 def distance_between_points(
-    point1: Tuple[float, float],
-    point2: Tuple[float, float]
+    point1: Tuple[float, float], point2: Tuple[float, float]
 ) -> float:
     """
     حساب المسافة بين نقطتين بالكيلومتر
@@ -207,8 +207,10 @@ def distance_between_points(
     dlat = lat2 - lat1
     dlng = lng2 - lng1
 
-    a = math.sin(dlat / 2) ** 2 + \
-        math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
+    )
 
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
@@ -219,7 +221,7 @@ def polygon_to_kml(
     field_id: str,
     field_name: str,
     coordinates: List[List[List[float]]],
-    description: Optional[str] = None
+    description: Optional[str] = None,
 ) -> str:
     """
     تحويل المضلع إلى صيغة KML
@@ -233,9 +235,7 @@ def polygon_to_kml(
     outer_ring = coordinates[0]
 
     # تحويل الإحداثيات إلى صيغة KML (lng,lat,altitude)
-    coord_str = " ".join(
-        f"{p[0]},{p[1]},0" for p in outer_ring
-    )
+    coord_str = " ".join(f"{p[0]},{p[1]},0" for p in outer_ring)
 
     kml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
@@ -271,7 +271,7 @@ def polygon_to_geojson(
     field_id: str,
     field_name: str,
     coordinates: List[List[List[float]]],
-    properties: Optional[Dict[str, Any]] = None
+    properties: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     تحويل المضلع إلى صيغة GeoJSON Feature
@@ -280,10 +280,12 @@ def polygon_to_geojson(
         GeoJSON Feature object
     """
     props = properties or {}
-    props.update({
-        "field_id": field_id,
-        "name": field_name,
-    })
+    props.update(
+        {
+            "field_id": field_id,
+            "name": field_name,
+        }
+    )
 
     return {
         "type": "Feature",
@@ -291,5 +293,5 @@ def polygon_to_geojson(
         "geometry": {
             "type": "Polygon",
             "coordinates": coordinates,
-        }
+        },
     }

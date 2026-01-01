@@ -142,7 +142,7 @@ Communicate in both Arabic and English when appropriate.
             "soil_data": soil_data,
             "weather_data": weather_data,
             "irrigation_system": irrigation_system,
-            "task": "irrigation_recommendation"
+            "task": "irrigation_recommendation",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -177,7 +177,7 @@ Communicate in both Arabic and English when appropriate.
             "growth_stage": growth_stage,
             "et0": et0,
             "rainfall": rainfall,
-            "task": "water_calculation"
+            "task": "water_calculation",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -206,7 +206,7 @@ Communicate in both Arabic and English when appropriate.
             "sensor_data": sensor_data,
             "soil_type": soil_type,
             "crop_type": crop_type,
-            "task": "moisture_analysis"
+            "task": "moisture_analysis",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -235,7 +235,7 @@ Communicate in both Arabic and English when appropriate.
             "current_system": current_system,
             "field_characteristics": field_characteristics,
             "water_availability": water_availability,
-            "task": "system_optimization"
+            "task": "system_optimization",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -267,7 +267,7 @@ Communicate in both Arabic and English when appropriate.
             "growth_stage": growth_stage,
             "water_deficit": water_deficit,
             "priority_areas": priority_areas,
-            "task": "drought_management"
+            "task": "drought_management",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -299,7 +299,7 @@ Communicate in both Arabic and English when appropriate.
             "growth_stage": growth_stage,
             "soil_analysis": soil_analysis,
             "irrigation_schedule": irrigation_schedule,
-            "task": "fertigation_advice"
+            "task": "fertigation_advice",
         }
 
         return await self.think(query, context=context, use_rag=True)

@@ -11,7 +11,14 @@ from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, HTTPException, Header
+from fastapi import (
+    FastAPI,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+    HTTPException,
+    Header,
+)
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
@@ -22,8 +29,7 @@ from .events import EventType
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("ws-gateway")
 
@@ -216,7 +222,7 @@ async def websocket_endpoint(
         connection_id=connection_id,
         websocket=websocket,
         user_id=user_id,
-        tenant_id=tenant_id
+        tenant_id=tenant_id,
     )
 
     # Send connection confirmation
@@ -251,6 +257,7 @@ async def websocket_endpoint(
 
 class BroadcastRequest(BaseModel):
     """Request model for broadcasting messages"""
+
     tenant_id: Optional[str] = None
     user_id: Optional[str] = None
     field_id: Optional[str] = None
@@ -280,8 +287,7 @@ async def broadcast_message(
 
     if not token:
         raise HTTPException(
-            status_code=401,
-            detail="Authorization token required for broadcast"
+            status_code=401, detail="Authorization token required for broadcast"
         )
 
     try:
@@ -295,8 +301,7 @@ async def broadcast_message(
             roles = payload.get("roles", [])
             if "super_admin" not in roles:
                 raise HTTPException(
-                    status_code=403,
-                    detail="Cannot broadcast to a different tenant"
+                    status_code=403, detail="Cannot broadcast to a different tenant"
                 )
 
         logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")

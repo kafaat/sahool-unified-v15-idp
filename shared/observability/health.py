@@ -19,6 +19,7 @@ from fastapi.responses import JSONResponse
 
 class HealthStatus(str, Enum):
     """Health check status values"""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
@@ -27,6 +28,7 @@ class HealthStatus(str, Enum):
 @dataclass
 class ComponentHealth:
     """Health status of a single component"""
+
     name: str
     status: HealthStatus
     message: str = ""
@@ -37,12 +39,19 @@ class ComponentHealth:
 @dataclass
 class ServiceHealth:
     """Overall service health status"""
+
     service_name: str
     version: str
     status: HealthStatus
     components: List[ComponentHealth] = field(default_factory=list)
     uptime_seconds: float = 0
-    timestamp: str = field(default_factory=lambda: datetime.now(datetime.UTC).isoformat() if hasattr(datetime, 'UTC') else datetime.utcnow().isoformat() + 'Z')
+    timestamp: str = field(
+        default_factory=lambda: (
+            datetime.now(datetime.UTC).isoformat()
+            if hasattr(datetime, "UTC")
+            else datetime.utcnow().isoformat() + "Z"
+        )
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for JSON response"""
@@ -194,13 +203,13 @@ def create_health_router(health_checker: HealthChecker) -> APIRouter:
         Used by Kubernetes to restart crashed containers.
         """
         health = await health_checker.check_liveness()
-        
+
         if health.status == HealthStatus.UNHEALTHY:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 content=health.to_dict(),
             )
-        
+
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=health.to_dict(),
@@ -213,7 +222,7 @@ def create_health_router(health_checker: HealthChecker) -> APIRouter:
         Used by Kubernetes to route traffic to the service.
         """
         health = await health_checker.check_readiness()
-        
+
         if health.status == HealthStatus.UNHEALTHY:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -224,7 +233,7 @@ def create_health_router(health_checker: HealthChecker) -> APIRouter:
                 status_code=status.HTTP_200_OK,
                 content=health.to_dict(),
             )
-        
+
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=health.to_dict(),
@@ -238,13 +247,13 @@ def create_health_router(health_checker: HealthChecker) -> APIRouter:
         """
         # For now, use readiness checks for startup
         health = await health_checker.check_readiness()
-        
+
         if health.status == HealthStatus.UNHEALTHY:
             return JSONResponse(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 content=health.to_dict(),
             )
-        
+
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=health.to_dict(),
@@ -258,10 +267,10 @@ def create_health_router(health_checker: HealthChecker) -> APIRouter:
         """
         liveness_health = await health_checker.check_liveness()
         readiness_health = await health_checker.check_readiness()
-        
+
         # Combine results
         all_components = liveness_health.components + readiness_health.components
-        
+
         # Determine overall status
         if any(c.status == HealthStatus.UNHEALTHY for c in all_components):
             overall_status = HealthStatus.UNHEALTHY
@@ -272,7 +281,7 @@ def create_health_router(health_checker: HealthChecker) -> APIRouter:
         else:
             overall_status = HealthStatus.HEALTHY
             http_status = status.HTTP_200_OK
-        
+
         combined_health = ServiceHealth(
             service_name=health_checker.service_name,
             version=health_checker.version,
@@ -280,7 +289,7 @@ def create_health_router(health_checker: HealthChecker) -> APIRouter:
             components=all_components,
             uptime_seconds=time.time() - health_checker.start_time,
         )
-        
+
         return JSONResponse(
             status_code=http_status,
             content=combined_health.to_dict(),
@@ -294,14 +303,14 @@ async def check_database(db_connection) -> ComponentHealth:
     """Check database connectivity"""
     try:
         # Try a simple query
-        if hasattr(db_connection, 'execute_query'):
+        if hasattr(db_connection, "execute_query"):
             await db_connection.execute_query("SELECT 1")
-        elif hasattr(db_connection, 'fetch_one'):
+        elif hasattr(db_connection, "fetch_one"):
             await db_connection.fetch_one("SELECT 1")
         else:
             # Assume it's healthy if we have a connection object
             pass
-        
+
         return ComponentHealth(
             name="database",
             status=HealthStatus.HEALTHY,
@@ -359,9 +368,10 @@ def check_disk_space(threshold_percent: float = 90.0) -> ComponentHealth:
     """Check disk space usage"""
     try:
         import shutil
+
         disk_usage = shutil.disk_usage("/")
         used_percent = (disk_usage.used / disk_usage.total) * 100
-        
+
         if used_percent > threshold_percent:
             return ComponentHealth(
                 name="disk_space",
@@ -369,7 +379,7 @@ def check_disk_space(threshold_percent: float = 90.0) -> ComponentHealth:
                 message=f"Disk usage at {used_percent:.1f}%",
                 metadata={"used_percent": used_percent},
             )
-        
+
         return ComponentHealth(
             name="disk_space",
             status=HealthStatus.HEALTHY,
@@ -388,9 +398,10 @@ def check_memory(threshold_percent: float = 90.0) -> ComponentHealth:
     """Check memory usage"""
     try:
         import psutil
+
         memory = psutil.virtual_memory()
         used_percent = memory.percent
-        
+
         if used_percent > threshold_percent:
             return ComponentHealth(
                 name="memory",
@@ -398,7 +409,7 @@ def check_memory(threshold_percent: float = 90.0) -> ComponentHealth:
                 message=f"Memory usage at {used_percent:.1f}%",
                 metadata={"used_percent": used_percent},
             )
-        
+
         return ComponentHealth(
             name="memory",
             status=HealthStatus.HEALTHY,

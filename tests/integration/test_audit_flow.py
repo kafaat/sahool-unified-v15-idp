@@ -122,19 +122,21 @@ class TestHashChain:
             )
             entry_hash = compute_entry_hash(prev_hash=prev_hash, canonical=canonical)
 
-            entries.append({
-                "tenant_id": "tenant-123",
-                "actor_id": f"actor-{i}",
-                "actor_type": "user",
-                "action": f"action.{i}",
-                "resource_type": "resource",
-                "resource_id": f"res-{i}",
-                "correlation_id": f"corr-{i}",
-                "details_json": "{}",
-                "created_at": f"2024-01-0{i+1}T00:00:00+00:00",
-                "prev_hash": prev_hash,
-                "entry_hash": entry_hash,
-            })
+            entries.append(
+                {
+                    "tenant_id": "tenant-123",
+                    "actor_id": f"actor-{i}",
+                    "actor_type": "user",
+                    "action": f"action.{i}",
+                    "resource_type": "resource",
+                    "resource_id": f"res-{i}",
+                    "correlation_id": f"corr-{i}",
+                    "details_json": "{}",
+                    "created_at": f"2024-01-0{i+1}T00:00:00+00:00",
+                    "prev_hash": prev_hash,
+                    "entry_hash": entry_hash,
+                }
+            )
             prev_hash = entry_hash
 
         is_valid, errors = verify_chain(iter(entries))
@@ -160,19 +162,21 @@ class TestHashChain:
             )
             entry_hash = compute_entry_hash(prev_hash=prev_hash, canonical=canonical)
 
-            entries.append({
-                "tenant_id": "tenant-123",
-                "actor_id": f"actor-{i}",
-                "actor_type": "user",
-                "action": f"action.{i}",
-                "resource_type": "resource",
-                "resource_id": f"res-{i}",
-                "correlation_id": f"corr-{i}",
-                "details_json": "{}",
-                "created_at": f"2024-01-0{i+1}T00:00:00+00:00",
-                "prev_hash": prev_hash,
-                "entry_hash": entry_hash,
-            })
+            entries.append(
+                {
+                    "tenant_id": "tenant-123",
+                    "actor_id": f"actor-{i}",
+                    "actor_type": "user",
+                    "action": f"action.{i}",
+                    "resource_type": "resource",
+                    "resource_id": f"res-{i}",
+                    "correlation_id": f"corr-{i}",
+                    "details_json": "{}",
+                    "created_at": f"2024-01-0{i+1}T00:00:00+00:00",
+                    "prev_hash": prev_hash,
+                    "entry_hash": entry_hash,
+                }
+            )
             prev_hash = entry_hash
 
         # Tamper with middle entry
@@ -225,7 +229,7 @@ class TestRedaction:
                 "credentials": {
                     "password": "secret123",
                     "api_key": "key123",
-                }
+                },
             }
         }
 
@@ -457,19 +461,21 @@ class TestAuditIntegration:
 
             entry_hash = compute_entry_hash(prev_hash=prev_hash, canonical=canonical)
 
-            entries.append({
-                "tenant_id": str(tenant_id),
-                "actor_id": str(uuid4()),
-                "actor_type": "user",
-                "action": f"test.action_{i}",
-                "resource_type": "test",
-                "resource_id": f"test-{i}",
-                "correlation_id": str(uuid4()),
-                "details_json": json.dumps({"iteration": i}),
-                "created_at": created_at,
-                "prev_hash": prev_hash,
-                "entry_hash": entry_hash,
-            })
+            entries.append(
+                {
+                    "tenant_id": str(tenant_id),
+                    "actor_id": str(uuid4()),
+                    "actor_type": "user",
+                    "action": f"test.action_{i}",
+                    "resource_type": "test",
+                    "resource_id": f"test-{i}",
+                    "correlation_id": str(uuid4()),
+                    "details_json": json.dumps({"iteration": i}),
+                    "created_at": created_at,
+                    "prev_hash": prev_hash,
+                    "entry_hash": entry_hash,
+                }
+            )
 
             prev_hash = entry_hash
 
@@ -495,7 +501,14 @@ class TestSensitiveKeysCoverage:
 
     def test_authentication_keys(self):
         """Authentication-related keys are sensitive"""
-        auth_keys = ["password", "token", "access_token", "refresh_token", "jwt", "bearer"]
+        auth_keys = [
+            "password",
+            "token",
+            "access_token",
+            "refresh_token",
+            "jwt",
+            "bearer",
+        ]
         for key in auth_keys:
             assert key in SENSITIVE_KEYS, f"{key} should be in SENSITIVE_KEYS"
 

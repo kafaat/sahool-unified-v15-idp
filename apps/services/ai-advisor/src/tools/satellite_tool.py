@@ -52,8 +52,7 @@ class SatelliteTool:
                     params["end_date"] = end_date
 
                 response = await client.get(
-                    f"{self.base_url}/api/v1/satellite/ndvi",
-                    params=params
+                    f"{self.base_url}/api/v1/satellite/ndvi", params=params
                 )
                 response.raise_for_status()
 
@@ -61,20 +60,13 @@ class SatelliteTool:
                 logger.info(
                     "ndvi_data_retrieved",
                     field_id=field_id,
-                    data_points=len(result.get("data", []))
+                    data_points=len(result.get("data", [])),
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "ndvi_retrieval_failed",
-                error=str(e),
-                field_id=field_id
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("ndvi_retrieval_failed", error=str(e), field_id=field_id)
+            return {"error": str(e), "status": "failed"}
 
     async def get_field_imagery(
         self,
@@ -104,8 +96,7 @@ class SatelliteTool:
                     params["date"] = date
 
                 response = await client.get(
-                    f"{self.base_url}/api/v1/satellite/imagery",
-                    params=params
+                    f"{self.base_url}/api/v1/satellite/imagery", params=params
                 )
                 response.raise_for_status()
 
@@ -114,20 +105,13 @@ class SatelliteTool:
                     "satellite_imagery_retrieved",
                     field_id=field_id,
                     layer=layer,
-                    date=date or "latest"
+                    date=date or "latest",
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "satellite_imagery_failed",
-                error=str(e),
-                field_id=field_id
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("satellite_imagery_failed", error=str(e), field_id=field_id)
+            return {"error": str(e), "status": "failed"}
 
     async def analyze_field_zones(
         self,
@@ -152,7 +136,7 @@ class SatelliteTool:
                     json={
                         "field_id": field_id,
                         "analysis_type": analysis_type,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -161,20 +145,13 @@ class SatelliteTool:
                     "field_zones_analyzed",
                     field_id=field_id,
                     analysis_type=analysis_type,
-                    zones=len(result.get("zones", []))
+                    zones=len(result.get("zones", [])),
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "field_zones_analysis_failed",
-                error=str(e),
-                field_id=field_id
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("field_zones_analysis_failed", error=str(e), field_id=field_id)
+            return {"error": str(e), "status": "failed"}
 
     async def get_time_series(
         self,
@@ -205,7 +182,7 @@ class SatelliteTool:
                         "index": index,
                         "start_date": start_date,
                         "end_date": end_date,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -214,20 +191,13 @@ class SatelliteTool:
                     "time_series_retrieved",
                     field_id=field_id,
                     index=index,
-                    period=f"{start_date} to {end_date}"
+                    period=f"{start_date} to {end_date}",
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "time_series_failed",
-                error=str(e),
-                field_id=field_id
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("time_series_failed", error=str(e), field_id=field_id)
+            return {"error": str(e), "status": "failed"}
 
     async def detect_changes(
         self,
@@ -255,7 +225,7 @@ class SatelliteTool:
                         "field_id": field_id,
                         "baseline_date": baseline_date,
                         "comparison_date": comparison_date,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -264,17 +234,10 @@ class SatelliteTool:
                     "change_detection_complete",
                     field_id=field_id,
                     baseline_date=baseline_date,
-                    comparison_date=comparison_date
+                    comparison_date=comparison_date,
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "change_detection_failed",
-                error=str(e),
-                field_id=field_id
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("change_detection_failed", error=str(e), field_id=field_id)
+            return {"error": str(e), "status": "failed"}

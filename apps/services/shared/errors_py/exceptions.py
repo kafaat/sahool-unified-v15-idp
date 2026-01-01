@@ -161,7 +161,10 @@ class NotFoundException(AppException):
     @classmethod
     def conversation(cls, conversation_id: Optional[str] = None) -> "NotFoundException":
         """Create exception for conversation not found"""
-        return cls(ErrorCode.CONVERSATION_NOT_FOUND, details={"conversationId": conversation_id})
+        return cls(
+            ErrorCode.CONVERSATION_NOT_FOUND,
+            details={"conversationId": conversation_id},
+        )
 
     @classmethod
     def message(cls, message_id: Optional[str] = None) -> "NotFoundException":
@@ -281,7 +284,9 @@ class ExternalServiceException(AppException):
         )
 
     @classmethod
-    def satellite_service(cls, error: Optional[Any] = None) -> "ExternalServiceException":
+    def satellite_service(
+        cls, error: Optional[Any] = None
+    ) -> "ExternalServiceException":
         """Create exception for satellite service error"""
         return cls(
             ErrorCode.SATELLITE_SERVICE_UNAVAILABLE,

@@ -65,11 +65,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
         ]
         self.require_auth = require_auth
 
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Process the request and validate JWT token.
 
@@ -114,7 +110,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
                         content={
                             "error": e.error.code,
                             "message": e.error.en,
-                        }
+                        },
                     )
 
         elif self.require_auth:
@@ -123,7 +119,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
                 content={
                     "error": AuthErrors.MISSING_TOKEN.code,
                     "message": AuthErrors.MISSING_TOKEN.en,
-                }
+                },
             )
 
         # Continue to next middleware or route handler
@@ -182,11 +178,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
         ```
     """
 
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Process the request and extract tenant context.
 
@@ -262,16 +254,17 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.exclude_paths = exclude_paths or ["/health", "/docs", "/redoc", "/metrics"]
 
         # Redis connection (lazy initialized)
-        self._redis_url = redis_url or config.REDIS_URL if hasattr(config, 'REDIS_URL') else None
+        self._redis_url = (
+            redis_url or config.REDIS_URL if hasattr(config, "REDIS_URL") else None
+        )
         self._redis = None
         self._redis_available = False
 
         # In-memory fallback storage
         self._request_timestamps: dict[str, list[float]] = defaultdict(list)
-        self._burst_tokens: dict[str, dict] = defaultdict(lambda: {
-            'tokens': burst_limit,
-            'last_update': time.time()
-        })
+        self._burst_tokens: dict[str, dict] = defaultdict(
+            lambda: {"tokens": burst_limit, "last_update": time.time()}
+        )
 
     async def _ensure_redis_connection(self):
         """Lazily initialize Redis connection."""
@@ -280,10 +273,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         try:
             import redis.asyncio as redis
+
             self._redis = redis.from_url(
-                self._redis_url,
-                encoding="utf-8",
-                decode_responses=True
+                self._redis_url, encoding="utf-8", decode_responses=True
             )
             await self._redis.ping()
             self._redis_available = True
@@ -292,14 +284,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             logger.warning("redis package not installed, using in-memory rate limiting")
             self._redis_available = False
         except Exception as e:
-            logger.warning(f"Redis connection failed: {e}, using in-memory rate limiting")
+            logger.warning(
+                f"Redis connection failed: {e}, using in-memory rate limiting"
+            )
             self._redis_available = False
 
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Process the request and apply rate limiting.
 
@@ -333,7 +323,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                     "identifier": identifier,
                     "path": request.url.path,
                     "method": request.method,
-                }
+                },
             )
 
             return JSONResponse(
@@ -348,7 +338,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                     "X-RateLimit-Remaining": str(max(0, remaining)),
                     "X-RateLimit-Reset": str(int(time.time() + reset_time)),
                     "Retry-After": str(reset_time),
-                }
+                },
             )
 
         # Add rate limit headers to successful response
@@ -360,8 +350,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return response
 
     def _get_identifier(self, request: Request) -> str:
-        """Get unique identifier for rate limiting"""
+        """Get unique identifier for rate limiting (not a Flask route)"""
         if hasattr(request.state, "user") and request.state.user:
+            # nosemgrep
             return f"user:{request.state.user.id}"
 
         # Fallback to IP address (check for proxy headers)
@@ -371,6 +362,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         else:
             client_ip = request.client.host if request.client else "unknown"
 
+        # nosemgrep
         return f"ip:{client_ip}"
 
     async def _check_rate_limit(self, identifier: str) -> tuple[bool, int, int]:
@@ -426,8 +418,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             # Check burst limit using token bucket
             if burst_data:
                 burst_info = json.loads(burst_data)
-                tokens = burst_info['tokens']
-                last_update = burst_info['last_update']
+                tokens = burst_info["tokens"]
+                last_update = burst_info["last_update"]
 
                 # Refill tokens based on time elapsed
                 elapsed = now - last_update
@@ -443,16 +435,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 # Consume one token
                 tokens -= 1
                 await self._redis.set(
-                    burst_key,
-                    str({'tokens': tokens, 'last_update': now}),
-                    ex=120
+                    burst_key, str({"tokens": tokens, "last_update": now}), ex=120
                 )
             else:
                 # Initialize burst tokens
                 await self._redis.set(
                     burst_key,
-                    str({'tokens': self.burst_limit - 1, 'last_update': now}),
-                    ex=120
+                    str({"tokens": self.burst_limit - 1, "last_update": now}),
+                    ex=120,
                 )
 
             # Check minute limit
@@ -469,7 +459,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
             remaining = min(
                 self.requests_per_minute - minute_count - 1,
-                self.requests_per_hour - hour_count - 1
+                self.requests_per_hour - hour_count - 1,
             )
 
             return False, remaining, 60
@@ -497,8 +487,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Check burst limit using token bucket
         burst_info = self._burst_tokens[identifier]
-        tokens = burst_info['tokens']
-        last_update = burst_info['last_update']
+        tokens = burst_info["tokens"]
+        last_update = burst_info["last_update"]
 
         # Refill tokens
         elapsed = now - last_update
@@ -519,14 +509,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
         # Allow request - record it
         timestamps.append(now)
-        self._burst_tokens[identifier] = {
-            'tokens': tokens - 1,
-            'last_update': now
-        }
+        self._burst_tokens[identifier] = {"tokens": tokens - 1, "last_update": now}
 
         remaining = min(
             self.requests_per_minute - minute_requests - 1,
-            self.requests_per_hour - hour_requests - 1
+            self.requests_per_hour - hour_requests - 1,
         )
 
         return False, remaining, 60
@@ -546,11 +533,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         ```
     """
 
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Add security headers to response.
 
@@ -567,6 +550,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
 
         return response

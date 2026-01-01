@@ -10,9 +10,13 @@ This file should not be executed - endpoints are in main.py
 # If this file is imported, define dummy app to prevent errors
 try:
     from fastapi import FastAPI
+
     # Check if we're in the main module context
     import sys
-    if 'main' not in sys.modules or not hasattr(sys.modules.get('main', type('', (), {})()), 'app'):
+
+    if "main" not in sys.modules or not hasattr(
+        sys.modules.get("main", type("", (), {})()), "app"
+    ):
         raise NameError("app not in main context")
     from main import app  # Try to import app from main
 except (NameError, ImportError, AttributeError):
@@ -21,11 +25,15 @@ except (NameError, ImportError, AttributeError):
         def post(self, *args, **kwargs):
             def decorator(func):
                 return func
+
             return decorator
+
         def get(self, *args, **kwargs):
             def decorator(func):
                 return func
+
             return decorator
+
     app = DummyApp()
 
 from typing import Optional, List, Dict
@@ -39,43 +47,62 @@ logger = logging.getLogger(__name__)
 
 # Dummy variables to prevent NameError
 try:
-    from main import get_timeseries, SatelliteSource, _sar_processor, _yield_predictor, YEMEN_REGIONS
+    from main import (
+        get_timeseries,
+        SatelliteSource,
+        _sar_processor,
+        _yield_predictor,
+        YEMEN_REGIONS,
+    )
 except ImportError:
     # Define dummies
     async def get_timeseries(*args, **kwargs):
         return {"timeseries": []}
+
     class SatelliteSource:
         SENTINEL2 = "sentinel2"
+
     _sar_processor = None
     _yield_predictor = None
     YEMEN_REGIONS = {}
 
+
 class YieldPredictionRequest(BaseModel):
     """Request for crop yield prediction"""
+
     field_id: str = Field(..., description="معرف الحقل")
     crop_code: str = Field(..., description="رمز المحصول (WHEAT, TOMATO, etc.)")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     planting_date: Optional[date] = Field(None, description="تاريخ الزراعة")
-    field_area_ha: float = Field(default=1.0, ge=0.01, description="مساحة الحقل بالهكتار")
+    field_area_ha: float = Field(
+        default=1.0, ge=0.01, description="مساحة الحقل بالهكتار"
+    )
 
     # Optional: provide NDVI time series (if available)
     ndvi_series: Optional[List[float]] = Field(
         None,
-        description="سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)"
+        description="سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)",
     )
 
     # Weather data (optional - will be estimated if not provided)
     precipitation_mm: Optional[float] = Field(None, description="الأمطار الكلية (مم)")
-    avg_temp_min: Optional[float] = Field(None, description="متوسط درجة الحرارة الصغرى (°س)")
-    avg_temp_max: Optional[float] = Field(None, description="متوسط درجة الحرارة الكبرى (°س)")
+    avg_temp_min: Optional[float] = Field(
+        None, description="متوسط درجة الحرارة الصغرى (°س)"
+    )
+    avg_temp_max: Optional[float] = Field(
+        None, description="متوسط درجة الحرارة الكبرى (°س)"
+    )
 
     # Optional: soil moisture from SAR
-    soil_moisture: Optional[float] = Field(None, ge=0, le=1, description="رطوبة التربة (0-1)")
+    soil_moisture: Optional[float] = Field(
+        None, ge=0, le=1, description="رطوبة التربة (0-1)"
+    )
 
 
 class YieldPredictionResponse(BaseModel):
     """Response for crop yield prediction"""
+
     field_id: str
     crop_code: str
     crop_name_ar: str
@@ -98,6 +125,7 @@ class YieldPredictionResponse(BaseModel):
 
 class YieldHistoryItem(BaseModel):
     """Historical yield prediction item"""
+
     prediction_id: str
     prediction_date: str
     crop_code: str
@@ -110,6 +138,7 @@ class YieldHistoryItem(BaseModel):
 
 class RegionalYieldStats(BaseModel):
     """Regional yield statistics"""
+
     governorate: str
     governorate_ar: str
     crop_code: str
@@ -125,6 +154,7 @@ class RegionalYieldStats(BaseModel):
 # Add these endpoints before the `if __name__ == "__main__":` line:
 # NOTE: These endpoints are already integrated into main.py
 # The decorators below are kept for reference but won't execute if app is not the real FastAPI app
+
 
 @app.post("/v1/yield-prediction", response_model=YieldPredictionResponse)
 async def predict_yield(request: YieldPredictionRequest):
@@ -152,7 +182,9 @@ async def predict_yield(request: YieldPredictionRequest):
                 days=90,  # Last 3 months
                 satellite=SatelliteSource.SENTINEL2,
             )
-            request.ndvi_series = [point["ndvi"] for point in timeseries_data["timeseries"]]
+            request.ndvi_series = [
+                point["ndvi"] for point in timeseries_data["timeseries"]
+            ]
             data_sources.append("sentinel-2_ndvi_timeseries")
         except Exception as e:
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
@@ -169,8 +201,12 @@ async def predict_yield(request: YieldPredictionRequest):
     # Prepare weather data
     if request.avg_temp_min is not None and request.avg_temp_max is not None:
         # Generate daily temperature series (assume 90 days)
-        temp_min_series = [request.avg_temp_min + random.uniform(-3, 3) for _ in range(90)]
-        temp_max_series = [request.avg_temp_max + random.uniform(-3, 3) for _ in range(90)]
+        temp_min_series = [
+            request.avg_temp_min + random.uniform(-3, 3) for _ in range(90)
+        ]
+        temp_max_series = [
+            request.avg_temp_max + random.uniform(-3, 3) for _ in range(90)
+        ]
         data_sources.append("user_provided_weather")
     else:
         # Use Yemen regional defaults based on location
@@ -203,7 +239,9 @@ async def predict_yield(request: YieldPredictionRequest):
                 end_date=date.today(),
             )
             if sar_result and sar_result.soil_moisture_timeseries:
-                soil_moisture = sar_result.soil_moisture_timeseries[-1].soil_moisture_m3m3
+                soil_moisture = sar_result.soil_moisture_timeseries[
+                    -1
+                ].soil_moisture_m3m3
                 data_sources.append("sentinel-1_sar_soil_moisture")
         except Exception as e:
             logger.warning(f"Failed to fetch SAR soil moisture: {e}")
@@ -259,7 +297,9 @@ async def predict_yield(request: YieldPredictionRequest):
 @app.get("/v1/yield-history/{field_id}")
 async def get_yield_history(
     field_id: str,
-    seasons: int = Query(default=5, ge=1, le=20, description="Number of past seasons to retrieve"),
+    seasons: int = Query(
+        default=5, ge=1, le=20, description="Number of past seasons to retrieve"
+    ),
     crop_code: Optional[str] = Query(None, description="Filter by crop code"),
 ):
     """
@@ -274,6 +314,7 @@ async def get_yield_history(
     # Import shared crop catalog
     try:
         import sys
+
         sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
         from apps.services.shared.crops import ALL_CROPS
 
@@ -284,7 +325,7 @@ async def get_yield_history(
             # Random selection of common Yemen crops
             crop_codes = random.sample(
                 ["WHEAT", "SORGHUM", "TOMATO", "POTATO", "ONION", "CORN"],
-                k=min(seasons, 3)
+                k=min(seasons, 3),
             )
     except (ValueError, KeyError, IndexError):
         crop_codes = ["WHEAT", "TOMATO", "POTATO"]
@@ -296,6 +337,7 @@ async def get_yield_history(
 
         try:
             from apps.services.shared.crops import get_crop
+
             crop_info = get_crop(crop_code_selected)
             crop_name_ar = crop_info.name_ar if crop_info else crop_code_selected
             base_yield = crop_info.base_yield_ton_ha if crop_info else 2.0
@@ -336,21 +378,32 @@ async def get_yield_history(
         "summary": {
             "total_predictions": len(history),
             "completed_harvests": len([h for h in history if h.actual_yield_ton_ha]),
-            "average_predicted_yield": round(
-                sum(h.predicted_yield_ton_ha for h in history) / len(history), 2
-            ) if history else 0,
-            "average_actual_yield": round(
-                sum(h.actual_yield_ton_ha for h in history if h.actual_yield_ton_ha) /
-                len([h for h in history if h.actual_yield_ton_ha]), 2
-            ) if any(h.actual_yield_ton_ha for h in history) else None,
-        }
+            "average_predicted_yield": (
+                round(sum(h.predicted_yield_ton_ha for h in history) / len(history), 2)
+                if history
+                else 0
+            ),
+            "average_actual_yield": (
+                round(
+                    sum(h.actual_yield_ton_ha for h in history if h.actual_yield_ton_ha)
+                    / len([h for h in history if h.actual_yield_ton_ha]),
+                    2,
+                )
+                if any(h.actual_yield_ton_ha for h in history)
+                else None
+            ),
+        },
     }
 
 
 @app.get("/v1/regional-yields/{governorate}")
 async def get_regional_yields(
-    governorate: str = Path(..., description="Yemen governorate (e.g., 'ibb', 'taiz', 'hodeidah')"),
-    crop: Optional[str] = Query(None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"),
+    governorate: str = Path(
+        ..., description="Yemen governorate (e.g., 'ibb', 'taiz', 'hodeidah')"
+    ),
+    crop: Optional[str] = Query(
+        None, description="Filter by crop code (e.g., 'WHEAT', 'TOMATO')"
+    ),
 ):
     """
     الحصول على إحصائيات الإنتاجية الإقليمية | Get Regional Yield Statistics
@@ -364,7 +417,7 @@ async def get_regional_yields(
     if governorate.lower() not in YEMEN_REGIONS:
         raise HTTPException(
             status_code=404,
-            detail=f"Governorate '{governorate}' not found. Available: {', '.join(YEMEN_REGIONS.keys())}"
+            detail=f"Governorate '{governorate}' not found. Available: {', '.join(YEMEN_REGIONS.keys())}",
         )
 
     gov_info = YEMEN_REGIONS[governorate.lower()]
@@ -374,6 +427,7 @@ async def get_regional_yields(
     # Import crop catalog
     try:
         import sys
+
         sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
         from apps.services.shared.crops import ALL_CROPS, get_crops_for_region
 
@@ -383,9 +437,23 @@ async def get_regional_yields(
         else:
             # Get common crops for this region type
             if region_type == "highland":
-                crop_codes = ["WHEAT", "BARLEY", "POTATO", "TOMATO", "FABA_BEAN", "COFFEE"]
+                crop_codes = [
+                    "WHEAT",
+                    "BARLEY",
+                    "POTATO",
+                    "TOMATO",
+                    "FABA_BEAN",
+                    "COFFEE",
+                ]
             elif region_type == "coastal":
-                crop_codes = ["SORGHUM", "MILLET", "BANANA", "MANGO", "SESAME", "COTTON"]
+                crop_codes = [
+                    "SORGHUM",
+                    "MILLET",
+                    "BANANA",
+                    "MANGO",
+                    "SESAME",
+                    "COTTON",
+                ]
             else:  # desert
                 crop_codes = ["DATE_PALM", "WHEAT", "BARLEY", "ALFALFA"]
 
@@ -396,8 +464,7 @@ async def get_regional_yields(
 
     if not crops_to_show:
         raise HTTPException(
-            status_code=404,
-            detail=f"No crop data available for {governorate}"
+            status_code=404, detail=f"No crop data available for {governorate}"
         )
 
     # Generate regional statistics
@@ -434,7 +501,11 @@ async def get_regional_yields(
         "summary": {
             "total_crops": len(regional_stats),
             "total_fields": sum(s.field_count for s in regional_stats),
-            "highest_yield_crop": max(regional_stats, key=lambda x: x.average_yield_ton_ha).crop_name_en if regional_stats else None,
+            "highest_yield_crop": (
+                max(regional_stats, key=lambda x: x.average_yield_ton_ha).crop_name_en
+                if regional_stats
+                else None
+            ),
         },
         "note": "Production system would aggregate real field data. Currently showing simulated regional averages.",
     }

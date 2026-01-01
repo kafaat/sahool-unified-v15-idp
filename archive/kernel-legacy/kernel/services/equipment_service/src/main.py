@@ -36,12 +36,17 @@ app = FastAPI(
 
 # CORS - Secure configuration
 import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.cors_config import CORS_SETTINGS
+
     app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
 except ImportError:
-    ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "https://sahool.io,https://admin.sahool.io,http://localhost:3000").split(",")
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,
@@ -94,6 +99,7 @@ class MaintenanceType(str, Enum):
 
 class EquipmentCreate(BaseModel):
     """Create a new equipment"""
+
     name: str = Field(..., min_length=1, max_length=200)
     name_ar: Optional[str] = None
     equipment_type: EquipmentType
@@ -112,6 +118,7 @@ class EquipmentCreate(BaseModel):
 
 class EquipmentUpdate(BaseModel):
     """Update equipment properties"""
+
     name: Optional[str] = None
     name_ar: Optional[str] = None
     equipment_type: Optional[EquipmentType] = None
@@ -131,6 +138,7 @@ class EquipmentUpdate(BaseModel):
 
 class MaintenanceRecord(BaseModel):
     """Maintenance record"""
+
     record_id: str
     equipment_id: str
     maintenance_type: MaintenanceType
@@ -145,6 +153,7 @@ class MaintenanceRecord(BaseModel):
 
 class MaintenanceAlert(BaseModel):
     """Maintenance alert"""
+
     alert_id: str
     equipment_id: str
     equipment_name: str
@@ -160,6 +169,7 @@ class MaintenanceAlert(BaseModel):
 
 class Equipment(BaseModel):
     """Full equipment model"""
+
     equipment_id: str
     tenant_id: str
     name: str
@@ -400,7 +410,7 @@ async def list_equipment(
     filtered.sort(key=lambda e: e.name)
 
     total = len(filtered)
-    paginated = filtered[offset:offset + limit]
+    paginated = filtered[offset : offset + limit]
 
     return {
         "equipment": [e.model_dump() for e in paginated],
@@ -443,7 +453,9 @@ async def get_maintenance_alerts(
 ):
     """Get maintenance alerts"""
     # Get equipment IDs for this tenant
-    tenant_eq_ids = {e.equipment_id for e in equipment_db.values() if e.tenant_id == tenant_id}
+    tenant_eq_ids = {
+        e.equipment_id for e in equipment_db.values() if e.tenant_id == tenant_id
+    }
 
     alerts = [a for a in alerts_db.values() if a.equipment_id in tenant_eq_ids]
 
@@ -637,7 +649,11 @@ async def get_maintenance_history(
     }
 
 
-@app.post("/api/v1/equipment/{equipment_id}/maintenance", response_model=MaintenanceRecord, status_code=201)
+@app.post(
+    "/api/v1/equipment/{equipment_id}/maintenance",
+    response_model=MaintenanceRecord,
+    status_code=201,
+)
 async def add_maintenance_record(
     equipment_id: str,
     maintenance_type: MaintenanceType,
@@ -697,4 +713,5 @@ async def delete_equipment(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)

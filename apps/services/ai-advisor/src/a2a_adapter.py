@@ -15,7 +15,9 @@ from typing import Dict, Any, List
 
 # Add shared path for imports
 # إضافة المسار المشترك للاستيراد
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', 'shared'))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "shared")
+)
 
 from a2a.agent import A2AAgent, AgentCapability
 from a2a.protocol import TaskMessage
@@ -33,12 +35,7 @@ class AIAdvisorA2AAgent(A2AAgent):
     يعرض قدرات المستشار الذكي عبر بروتوكول A2A.
     """
 
-    def __init__(
-        self,
-        base_url: str,
-        agents: Dict[str, Any],
-        supervisor: Any
-    ):
+    def __init__(self, base_url: str, agents: Dict[str, Any], supervisor: Any):
         """
         Initialize AI Advisor A2A agent
         تهيئة وكيل A2A للمستشار الذكي
@@ -72,7 +69,7 @@ class AIAdvisorA2AAgent(A2AAgent):
         logger.info(
             "ai_advisor_a2a_agent_initialized",
             agent_id=self.agent_id,
-            capabilities_count=len(self.get_capabilities())
+            capabilities_count=len(self.get_capabilities()),
         )
 
     def get_capabilities(self) -> List[AgentCapability]:
@@ -93,7 +90,7 @@ class AIAdvisorA2AAgent(A2AAgent):
                     "properties": {
                         "crop_type": {
                             "type": "string",
-                            "description": "Type of crop (wheat, corn, tomato, etc.)"
+                            "description": "Type of crop (wheat, corn, tomato, etc.)",
                         },
                         "symptoms": {
                             "type": "object",
@@ -101,21 +98,21 @@ class AIAdvisorA2AAgent(A2AAgent):
                             "properties": {
                                 "leaf_condition": {"type": "string"},
                                 "color_changes": {"type": "string"},
-                                "growth_issues": {"type": "string"}
-                            }
+                                "growth_issues": {"type": "string"},
+                            },
                         },
                         "image_path": {
                             "type": "string",
                             "description": "Optional path to crop image",
-                            "nullable": True
+                            "nullable": True,
                         },
                         "location": {
                             "type": "string",
                             "description": "Field location",
-                            "nullable": True
-                        }
+                            "nullable": True,
+                        },
                     },
-                    "required": ["crop_type", "symptoms"]
+                    "required": ["crop_type", "symptoms"],
                 },
                 output_schema={
                     "type": "object",
@@ -123,8 +120,8 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "diagnosis": {"type": "string"},
                         "confidence": {"type": "number", "minimum": 0, "maximum": 1},
                         "treatment_recommendations": {"type": "array"},
-                        "preventive_measures": {"type": "array"}
-                    }
+                        "preventive_measures": {"type": "array"},
+                    },
                 },
                 tags=["agriculture", "disease", "diagnosis", "crop-health"],
                 examples=[
@@ -133,17 +130,23 @@ class AIAdvisorA2AAgent(A2AAgent):
                             "crop_type": "tomato",
                             "symptoms": {
                                 "leaf_condition": "yellow spots",
-                                "color_changes": "brown edges"
-                            }
+                                "color_changes": "brown edges",
+                            },
                         },
                         "output": {
                             "diagnosis": "Early Blight (Alternaria solani)",
                             "confidence": 0.85,
-                            "treatment_recommendations": ["Apply fungicide", "Remove infected leaves"],
-                            "preventive_measures": ["Ensure proper spacing", "Avoid overhead watering"]
-                        }
+                            "treatment_recommendations": [
+                                "Apply fungicide",
+                                "Remove infected leaves",
+                            ],
+                            "preventive_measures": [
+                                "Ensure proper spacing",
+                                "Avoid overhead watering",
+                            ],
+                        },
                     }
-                ]
+                ],
             ),
             AgentCapability(
                 capability_id="irrigation-optimization",
@@ -155,25 +158,31 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "crop_type": {"type": "string"},
                         "growth_stage": {
                             "type": "string",
-                            "enum": ["germination", "vegetative", "flowering", "fruiting", "maturity"]
+                            "enum": [
+                                "germination",
+                                "vegetative",
+                                "flowering",
+                                "fruiting",
+                                "maturity",
+                            ],
                         },
                         "soil_data": {
                             "type": "object",
                             "properties": {
                                 "moisture_level": {"type": "number"},
-                                "soil_type": {"type": "string"}
-                            }
+                                "soil_type": {"type": "string"},
+                            },
                         },
                         "weather_data": {
                             "type": "object",
                             "properties": {
                                 "temperature": {"type": "number"},
                                 "humidity": {"type": "number"},
-                                "rainfall_forecast": {"type": "array"}
-                            }
-                        }
+                                "rainfall_forecast": {"type": "array"},
+                            },
+                        },
                     },
-                    "required": ["crop_type", "growth_stage"]
+                    "required": ["crop_type", "growth_stage"],
                 },
                 output_schema={
                     "type": "object",
@@ -181,8 +190,8 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "irrigation_schedule": {"type": "object"},
                         "water_amount_mm": {"type": "number"},
                         "frequency_days": {"type": "number"},
-                        "recommendations": {"type": "array"}
-                    }
+                        "recommendations": {"type": "array"},
+                    },
                 },
                 tags=["agriculture", "irrigation", "water-management", "optimization"],
             ),
@@ -197,9 +206,9 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "area_hectares": {"type": "number"},
                         "growth_stage": {"type": "string"},
                         "field_data": {"type": "object"},
-                        "weather_data": {"type": "object"}
+                        "weather_data": {"type": "object"},
                     },
-                    "required": ["crop_type", "area_hectares", "growth_stage"]
+                    "required": ["crop_type", "area_hectares", "growth_stage"],
                 },
                 output_schema={
                     "type": "object",
@@ -207,8 +216,8 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "predicted_yield_tons": {"type": "number"},
                         "confidence_interval": {"type": "object"},
                         "factors_analysis": {"type": "object"},
-                        "optimization_suggestions": {"type": "array"}
-                    }
+                        "optimization_suggestions": {"type": "array"},
+                    },
                 },
                 tags=["agriculture", "yield", "prediction", "analytics"],
             ),
@@ -223,9 +232,12 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "crop_type": {"type": "string"},
                         "include_disease_check": {"type": "boolean", "default": True},
                         "include_irrigation": {"type": "boolean", "default": True},
-                        "include_yield_prediction": {"type": "boolean", "default": True}
+                        "include_yield_prediction": {
+                            "type": "boolean",
+                            "default": True,
+                        },
                     },
-                    "required": ["field_id", "crop_type"]
+                    "required": ["field_id", "crop_type"],
                 },
                 output_schema={
                     "type": "object",
@@ -236,8 +248,8 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "disease_risk": {"type": "object"},
                         "irrigation_advice": {"type": "object"},
                         "yield_prediction": {"type": "object"},
-                        "overall_recommendations": {"type": "array"}
-                    }
+                        "overall_recommendations": {"type": "array"},
+                    },
                 },
                 tags=["agriculture", "field-analysis", "comprehensive", "satellite"],
             ),
@@ -252,11 +264,11 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "language": {
                             "type": "string",
                             "enum": ["en", "ar"],
-                            "default": "en"
+                            "default": "en",
                         },
-                        "context": {"type": "object", "nullable": True}
+                        "context": {"type": "object", "nullable": True},
                     },
-                    "required": ["question"]
+                    "required": ["question"],
                 },
                 output_schema={
                     "type": "object",
@@ -264,8 +276,8 @@ class AIAdvisorA2AAgent(A2AAgent):
                         "answer": {"type": "string"},
                         "sources": {"type": "array"},
                         "related_topics": {"type": "array"},
-                        "confidence": {"type": "number"}
-                    }
+                        "confidence": {"type": "number"},
+                    },
                 },
                 tags=["agriculture", "advisory", "general", "qa"],
             ),
@@ -276,11 +288,15 @@ class AIAdvisorA2AAgent(A2AAgent):
         Register task handlers for each capability
         تسجيل معالجات المهام لكل قدرة
         """
-        self.register_task_handler("crop-disease-diagnosis", self._handle_disease_diagnosis)
+        self.register_task_handler(
+            "crop-disease-diagnosis", self._handle_disease_diagnosis
+        )
         self.register_task_handler("irrigation-optimization", self._handle_irrigation)
         self.register_task_handler("yield-prediction", self._handle_yield_prediction)
         self.register_task_handler("field-analysis", self._handle_field_analysis)
-        self.register_task_handler("general-agricultural-query", self._handle_general_query)
+        self.register_task_handler(
+            "general-agricultural-query", self._handle_general_query
+        )
 
     async def _handle_disease_diagnosis(self, task: TaskMessage) -> Dict[str, Any]:
         """
@@ -440,9 +456,7 @@ class AIAdvisorA2AAgent(A2AAgent):
 
 
 def create_ai_advisor_a2a_agent(
-    base_url: str,
-    agents: Dict[str, Any],
-    supervisor: Any
+    base_url: str, agents: Dict[str, Any], supervisor: Any
 ) -> AIAdvisorA2AAgent:
     """
     Factory function to create AI Advisor A2A agent
@@ -456,8 +470,4 @@ def create_ai_advisor_a2a_agent(
     Returns:
         Configured AIAdvisorA2AAgent instance
     """
-    return AIAdvisorA2AAgent(
-        base_url=base_url,
-        agents=agents,
-        supervisor=supervisor
-    )
+    return AIAdvisorA2AAgent(base_url=base_url, agents=agents, supervisor=supervisor)

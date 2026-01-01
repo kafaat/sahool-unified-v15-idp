@@ -26,8 +26,7 @@ class TestRecommendationEndpoints:
     def test_get_recommendation(self, test_client, sample_recommendation_request):
         """Test POST /v1/fertilizer/recommend endpoint"""
         response = test_client.post(
-            "/v1/fertilizer/recommend",
-            json=sample_recommendation_request
+            "/v1/fertilizer/recommend", json=sample_recommendation_request
         )
 
         if response.status_code == status.HTTP_200_OK:
@@ -43,7 +42,7 @@ class TestRecommendationEndpoints:
             "field_id": "field_minimal",
             "crop_type": "wheat",
             "growth_stage": "vegetative",
-            "area_hectares": 1.0
+            "area_hectares": 1.0,
         }
 
         # Try common endpoint paths
@@ -51,7 +50,7 @@ class TestRecommendationEndpoints:
             "/v1/fertilizer/recommend",
             "/recommend",
             "/v1/recommend",
-            "/fertilizer/recommend"
+            "/fertilizer/recommend",
         ]
 
         success = False
@@ -71,19 +70,14 @@ class TestSoilAnalysisEndpoints:
     def test_submit_soil_analysis(self, test_client, sample_soil_analysis):
         """Test submitting soil analysis"""
         # Try common endpoint paths
-        endpoints = [
-            "/v1/soil/analysis",
-            "/soil/analysis",
-            "/v1/analysis",
-            "/analysis"
-        ]
+        endpoints = ["/v1/soil/analysis", "/soil/analysis", "/v1/analysis", "/analysis"]
 
         for endpoint in endpoints:
             response = test_client.post(endpoint, json=sample_soil_analysis)
             if response.status_code in [
                 status.HTTP_200_OK,
                 status.HTTP_201_CREATED,
-                status.HTTP_422_UNPROCESSABLE_ENTITY
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
             ]:
                 # Found valid endpoint
                 return
@@ -97,7 +91,7 @@ class TestSoilAnalysisEndpoints:
         endpoints = [
             f"/v1/soil/{field_id}",
             f"/soil/{field_id}",
-            f"/v1/fields/{field_id}/soil"
+            f"/v1/fields/{field_id}/soil",
         ]
 
         for endpoint in endpoints:
@@ -114,18 +108,14 @@ class TestFertilizationSchedule:
 
     def test_create_schedule(self, test_client, sample_schedule_request):
         """Test creating fertilization schedule"""
-        endpoints = [
-            "/v1/fertilizer/schedule",
-            "/schedule",
-            "/v1/schedule"
-        ]
+        endpoints = ["/v1/fertilizer/schedule", "/schedule", "/v1/schedule"]
 
         for endpoint in endpoints:
             response = test_client.post(endpoint, json=sample_schedule_request)
             if response.status_code in [
                 status.HTTP_200_OK,
                 status.HTTP_201_CREATED,
-                status.HTTP_422_UNPROCESSABLE_ENTITY
+                status.HTTP_422_UNPROCESSABLE_ENTITY,
             ]:
                 return
 
@@ -159,7 +149,7 @@ class TestDataValidation:
             "field_id": "field_001",
             "crop_type": "invalid_crop",
             "growth_stage": "vegetative",
-            "area_hectares": 1.0
+            "area_hectares": 1.0,
         }
 
         response = test_client.post("/v1/fertilizer/recommend", json=request)
@@ -167,7 +157,7 @@ class TestDataValidation:
         assert response.status_code in [
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             status.HTTP_400_BAD_REQUEST,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         ]
 
     def test_negative_area(self, test_client):
@@ -176,14 +166,14 @@ class TestDataValidation:
             "field_id": "field_001",
             "crop_type": "wheat",
             "growth_stage": "vegetative",
-            "area_hectares": -1.0  # Invalid
+            "area_hectares": -1.0,  # Invalid
         }
 
         response = test_client.post("/v1/fertilizer/recommend", json=request)
         assert response.status_code in [
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             status.HTTP_400_BAD_REQUEST,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         ]
 
     def test_invalid_ph_value(self, test_client):
@@ -194,30 +184,28 @@ class TestDataValidation:
             "ph": 15.0,  # Invalid - pH should be 0-14
             "nitrogen_ppm": 100.0,
             "phosphorus_ppm": 50.0,
-            "potassium_ppm": 150.0
+            "potassium_ppm": 150.0,
         }
 
         response = test_client.post("/v1/soil/analysis", json=request)
         assert response.status_code in [
             status.HTTP_422_UNPROCESSABLE_ENTITY,
             status.HTTP_400_BAD_REQUEST,
-            status.HTTP_404_NOT_FOUND
+            status.HTTP_404_NOT_FOUND,
         ]
 
 
 class TestCropSpecificRecommendations:
     """Test crop-specific recommendations"""
 
-    @pytest.mark.parametrize("crop", [
-        "wheat", "tomato", "corn", "potato", "cucumber"
-    ])
+    @pytest.mark.parametrize("crop", ["wheat", "tomato", "corn", "potato", "cucumber"])
     def test_recommendation_for_different_crops(self, test_client, crop):
         """Test recommendations for various crops"""
         request = {
             "field_id": f"field_{crop}",
             "crop_type": crop,
             "growth_stage": "vegetative",
-            "area_hectares": 1.0
+            "area_hectares": 1.0,
         }
 
         response = test_client.post("/v1/fertilizer/recommend", json=request)
@@ -226,23 +214,23 @@ class TestCropSpecificRecommendations:
             status.HTTP_200_OK,
             status.HTTP_201_CREATED,
             status.HTTP_404_NOT_FOUND,
-            status.HTTP_422_UNPROCESSABLE_ENTITY
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
         ]
 
 
 class TestGrowthStageRecommendations:
     """Test growth stage specific recommendations"""
 
-    @pytest.mark.parametrize("stage", [
-        "seedling", "vegetative", "flowering", "fruiting", "maturity"
-    ])
+    @pytest.mark.parametrize(
+        "stage", ["seedling", "vegetative", "flowering", "fruiting", "maturity"]
+    )
     def test_recommendation_by_growth_stage(self, test_client, stage):
         """Test recommendations for different growth stages"""
         request = {
             "field_id": "field_stage_test",
             "crop_type": "tomato",
             "growth_stage": stage,
-            "area_hectares": 1.0
+            "area_hectares": 1.0,
         }
 
         response = test_client.post("/v1/fertilizer/recommend", json=request)
@@ -250,5 +238,5 @@ class TestGrowthStageRecommendations:
             status.HTTP_200_OK,
             status.HTTP_201_CREATED,
             status.HTTP_404_NOT_FOUND,
-            status.HTTP_422_UNPROCESSABLE_ENTITY
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
         ]

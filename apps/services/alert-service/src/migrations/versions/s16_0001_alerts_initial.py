@@ -31,29 +31,25 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column("tenant_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column("field_id", sa.String(length=100), nullable=False),
-
         # Classification
         sa.Column("type", sa.String(length=40), nullable=False),
         sa.Column("severity", sa.String(length=20), nullable=False),
-        sa.Column("status", sa.String(length=20), nullable=False, server_default="active"),
-
+        sa.Column(
+            "status", sa.String(length=20), nullable=False, server_default="active"
+        ),
         # Content (bilingual)
         sa.Column("title", sa.String(length=200), nullable=False),
         sa.Column("title_en", sa.String(length=200), nullable=True),
         sa.Column("message", sa.Text(), nullable=False),
         sa.Column("message_en", sa.Text(), nullable=True),
-
         # Recommendations (JSON arrays)
         sa.Column("recommendations", postgresql.JSONB(), nullable=True),
         sa.Column("recommendations_en", postgresql.JSONB(), nullable=True),
-
         # Metadata
         sa.Column("metadata", postgresql.JSONB(), nullable=True),
-
         # Source tracking
         sa.Column("source_service", sa.String(length=80), nullable=True),
         sa.Column("correlation_id", sa.String(length=100), nullable=True),
-
         # Timestamps
         sa.Column(
             "created_at",
@@ -62,15 +58,12 @@ def upgrade() -> None:
             server_default=sa.text("NOW()"),
         ),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=True),
-
         # Acknowledgment
         sa.Column("acknowledged_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("acknowledged_by", sa.String(length=100), nullable=True),
-
         # Dismissal
         sa.Column("dismissed_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("dismissed_by", sa.String(length=100), nullable=True),
-
         # Resolution
         sa.Column("resolved_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("resolved_by", sa.String(length=100), nullable=True),
@@ -122,28 +115,21 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column("tenant_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column("field_id", sa.String(length=100), nullable=False),
-
         # Rule naming (bilingual)
         sa.Column("name", sa.String(length=100), nullable=False),
         sa.Column("name_en", sa.String(length=100), nullable=True),
-
         # Rule status
         sa.Column("enabled", sa.Boolean(), nullable=False, server_default="true"),
-
         # Rule condition (JSON)
         # Structure: {metric: str, operator: str, value: float, duration_minutes: int}
         sa.Column("condition", postgresql.JSONB(), nullable=False),
-
         # Alert configuration (JSON)
         # Structure: {type: str, severity: str, title: str, title_en: str, message_template: str}
         sa.Column("alert_config", postgresql.JSONB(), nullable=False),
-
         # Cooldown period
         sa.Column("cooldown_hours", sa.Integer(), nullable=False, server_default="24"),
-
         # Tracking
         sa.Column("last_triggered_at", sa.DateTime(timezone=True), nullable=True),
-
         # Timestamps
         sa.Column(
             "created_at",

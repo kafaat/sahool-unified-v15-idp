@@ -58,6 +58,7 @@ try:
     from nats.aio.client import Client as NATSClient
     from nats.aio.msg import Msg
     from nats.js import JetStreamContext
+
     _nats_available = True
 except ImportError:
     logger.warning("NATS package not installed. Install with: pip install nats-py")
@@ -79,15 +80,21 @@ class SubscriberConfig(BaseModel):
 
     servers: List[str] = Field(
         default_factory=lambda: [os.getenv("NATS_URL", "nats://localhost:4222")],
-        description="NATS server URLs"
+        description="NATS server URLs",
     )
     name: str = Field(
         default_factory=lambda: os.getenv("SERVICE_NAME", "sahool-subscriber"),
-        description="Subscriber client name"
+        description="Subscriber client name",
     )
-    reconnect_time_wait: int = Field(default=2, description="Seconds between reconnect attempts")
-    max_reconnect_attempts: int = Field(default=60, description="Maximum reconnect attempts")
-    connect_timeout: int = Field(default=10, description="Connection timeout in seconds")
+    reconnect_time_wait: int = Field(
+        default=2, description="Seconds between reconnect attempts"
+    )
+    max_reconnect_attempts: int = Field(
+        default=60, description="Maximum reconnect attempts"
+    )
+    connect_timeout: int = Field(
+        default=10, description="Connection timeout in seconds"
+    )
 
     # JetStream
     enable_jetstream: bool = Field(default=True, description="Use JetStream consumers")
@@ -95,16 +102,28 @@ class SubscriberConfig(BaseModel):
 
     # Error handling (DEPRECATED - use dlq_config instead)
     enable_error_retry: bool = Field(default=True, description="Retry failed messages")
-    max_error_retries: int = Field(default=3, description="Maximum error retries per message")
-    error_retry_delay: float = Field(default=1.0, description="Delay between error retries")
+    max_error_retries: int = Field(
+        default=3, description="Maximum error retries per message"
+    )
+    error_retry_delay: float = Field(
+        default=1.0, description="Delay between error retries"
+    )
 
     # Performance
-    max_concurrent_messages: int = Field(default=10, description="Max concurrent message processing")
-    pending_messages_limit: int = Field(default=1000, description="Pending messages limit")
+    max_concurrent_messages: int = Field(
+        default=10, description="Max concurrent message processing"
+    )
+    pending_messages_limit: int = Field(
+        default=1000, description="Pending messages limit"
+    )
 
     # Dead Letter Queue
-    enable_dlq: bool = Field(default=True, description="Enable Dead Letter Queue for failed messages")
-    dlq_config: Optional[DLQConfig] = Field(None, description="DLQ configuration (uses defaults if None)")
+    enable_dlq: bool = Field(
+        default=True, description="Enable Dead Letter Queue for failed messages"
+    )
+    dlq_config: Optional[DLQConfig] = Field(
+        None, description="DLQ configuration (uses defaults if None)"
+    )
 
 
 class Subscription(BaseModel):
@@ -115,10 +134,18 @@ class Subscription(BaseModel):
 
     subject: str = Field(..., description="NATS subject")
     handler: Any = Field(..., description="Message handler function")
-    event_class: Optional[Type[BaseEvent]] = Field(None, description="Expected event class")
-    queue_group: Optional[str] = Field(None, description="Queue group for load balancing")
-    durable_name: Optional[str] = Field(None, description="Durable consumer name (JetStream)")
-    auto_ack: bool = Field(default=True, description="Automatically acknowledge messages")
+    event_class: Optional[Type[BaseEvent]] = Field(
+        None, description="Expected event class"
+    )
+    queue_group: Optional[str] = Field(
+        None, description="Queue group for load balancing"
+    )
+    durable_name: Optional[str] = Field(
+        None, description="Durable consumer name (JetStream)"
+    )
+    auto_ack: bool = Field(
+        default=True, description="Automatically acknowledge messages"
+    )
 
     class Config:
         arbitrary_types_allowed = True
@@ -174,7 +201,9 @@ class EventSubscriber:
         self._error_count = 0
         self._dlq_count = 0
         self._retry_count = 0
-        self._processing_semaphore = asyncio.Semaphore(self.config.max_concurrent_messages)
+        self._processing_semaphore = asyncio.Semaphore(
+            self.config.max_concurrent_messages
+        )
 
         # DLQ configuration
         self._dlq_config = self.config.dlq_config or DLQConfig()
@@ -209,7 +238,9 @@ class EventSubscriber:
             True if connected successfully, False otherwise
         """
         if not _nats_available:
-            logger.error("NATS library not available. Install with: pip install nats-py")
+            logger.error(
+                "NATS library not available. Install with: pip install nats-py"
+            )
             return False
 
         if self.is_connected:
@@ -241,7 +272,9 @@ class EventSubscriber:
                     try:
                         await create_dlq_streams(self._js, self._dlq_config)
                         self._dlq_initialized = True
-                        logger.info(f"✅ DLQ initialized (max retries: {self._dlq_config.max_retry_attempts})")
+                        logger.info(
+                            f"✅ DLQ initialized (max retries: {self._dlq_config.max_retry_attempts})"
+                        )
                     except Exception as e:
                         logger.warning(f"⚠️  Failed to initialize DLQ: {e}")
 
@@ -456,7 +489,9 @@ class EventSubscriber:
                 subject = msg.subject
                 data = msg.data.decode("utf-8")
 
-                logger.debug(f"📨 Received message on {subject}: {len(data)} bytes (retry: {retry_count})")
+                logger.debug(
+                    f"📨 Received message on {subject}: {len(data)} bytes (retry: {retry_count})"
+                )
 
                 # Deserialize message
                 event = await self._deserialize_message(data, subscription.event_class)
@@ -686,6 +721,7 @@ async def close_subscriber():
 # Import and add DLQ methods to EventSubscriber
 try:
     from . import subscriber_dlq
+
     subscriber_dlq.add_dlq_methods_to_subscriber(EventSubscriber)
 except Exception as e:
     logger.warning(f"Failed to add DLQ methods to EventSubscriber: {e}")

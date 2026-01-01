@@ -32,19 +32,23 @@ def upgrade() -> None:
 
     # Partial index for low stock items (WHERE current_stock <= reorder_level)
     # Used for: Low stock alerts and reorder suggestions
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX idx_inventory_items_low_stock
         ON inventory_items (tenant_id, current_stock)
         WHERE current_stock <= reorder_level
-    """)
+    """
+    )
 
     # Partial index for items with expiry dates
     # Used for: Expiry tracking and FIFO/FEFO inventory management
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX idx_inventory_items_expiry
         ON inventory_items (expiry_date)
         WHERE has_expiry = true AND expiry_date IS NOT NULL
-    """)
+    """
+    )
 
     # Composite index for SKU lookups within tenant
     # Used for: Item search by SKU (most common lookup pattern)
@@ -56,11 +60,13 @@ def upgrade() -> None:
 
     # Partial index for barcode lookups (only when barcode exists)
     # Used for: Barcode scanning operations
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX idx_inventory_items_barcode
         ON inventory_items (barcode)
         WHERE barcode IS NOT NULL
-    """)
+    """
+    )
 
     # -------------------------------------------------------------------------
     # Inventory Movements Performance Indexes
@@ -80,11 +86,13 @@ def upgrade() -> None:
 
     # Partial index for party-related transactions
     # Used for: Customer/Supplier transaction history
-    op.execute("""
+    op.execute(
+        """
         CREATE INDEX idx_inventory_transactions_party
         ON inventory_transactions (party_id)
         WHERE party_id IS NOT NULL
-    """)
+    """
+    )
 
 
 def downgrade() -> None:
@@ -92,10 +100,14 @@ def downgrade() -> None:
     Drop performance indexes for inventory tables.
     """
     # Drop inventory_transactions indexes
-    op.drop_index("idx_inventory_transactions_party", table_name="inventory_transactions")
+    op.drop_index(
+        "idx_inventory_transactions_party", table_name="inventory_transactions"
+    )
 
     # Drop inventory_movements indexes
-    op.drop_index("idx_inventory_movements_date_range", table_name="inventory_movements")
+    op.drop_index(
+        "idx_inventory_movements_date_range", table_name="inventory_movements"
+    )
 
     # Drop inventory_items indexes
     op.drop_index("idx_inventory_items_barcode", table_name="inventory_items")

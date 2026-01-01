@@ -32,8 +32,8 @@ def client():
             "next_full_moon": "2026-01-13",
             "agriculture": {
                 "suitable_for": ["pruning", "harvesting"],
-                "avoid": ["planting", "grafting"]
-            }
+                "avoid": ["planting", "grafting"],
+            },
         }
 
     @app.get("/api/v1/lunar-mansion")
@@ -48,8 +48,8 @@ def client():
             "element": "air",
             "agriculture": {
                 "recommendation": "مناسب للزراعة والغرس",
-                "crops": ["wheat", "barley", "vegetables"]
-            }
+                "crops": ["wheat", "barley", "vegetables"],
+            },
         }
 
     @app.get("/api/v1/hijri")
@@ -61,8 +61,8 @@ def client():
                 "month": 6,
                 "day": 22,
                 "month_name": "جمادى الآخرة",
-                "month_name_en": "Jumada al-Thani"
-            }
+                "month_name_en": "Jumada al-Thani",
+            },
         }
 
     @app.get("/api/v1/zodiac/agricultural")
@@ -76,8 +76,8 @@ def client():
             "agriculture": {
                 "element": "earth",
                 "fertility": "high",
-                "suitable_activities": ["planting_root_crops", "fertilizing"]
-            }
+                "suitable_activities": ["planting_root_crops", "fertilizing"],
+            },
         }
 
     @app.get("/api/v1/planting-calendar")
@@ -91,10 +91,10 @@ def client():
                     "crop_ar": "القمح",
                     "activity": "planting",
                     "optimal_days": [1, 5, 10, 15],
-                    "moon_phase": "waxing"
+                    "moon_phase": "waxing",
                 }
             ],
-            "traditional_wisdom": "شهر الزراعة الشتوية"
+            "traditional_wisdom": "شهر الزراعة الشتوية",
         }
 
     @app.get("/api/v1/seasons")
@@ -105,7 +105,7 @@ def client():
             "traditional_name": "الشتاء",
             "start_date": "2025-12-21",
             "end_date": "2026-03-20",
-            "agricultural_notes": "موسم زراعة الحبوب الشتوية"
+            "agricultural_notes": "موسم زراعة الحبوب الشتوية",
         }
 
     @app.get("/api/v1/today")
@@ -119,8 +119,8 @@ def client():
             "agriculture": {
                 "overall_rating": "good",
                 "best_activities": ["harvesting", "pruning"],
-                "avoid": ["planting_seeds"]
-            }
+                "avoid": ["planting_seeds"],
+            },
         }
 
     return TestClient(app)
@@ -271,4 +271,9 @@ class TestTodayInfo:
         assert response.status_code == 200
         data = response.json()
         assert "overall_rating" in data["agriculture"]
-        assert data["agriculture"]["overall_rating"] in ["excellent", "good", "moderate", "poor"]
+        assert data["agriculture"]["overall_rating"] in [
+            "excellent",
+            "good",
+            "moderate",
+            "poor",
+        ]

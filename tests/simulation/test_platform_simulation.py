@@ -64,7 +64,9 @@ def create_test_field(
         "area_hectares": area_hectares,
         "geometry": {
             "type": "Polygon",
-            "coordinates": [[[44.0, 15.0], [44.1, 15.0], [44.1, 15.1], [44.0, 15.1], [44.0, 15.0]]],
+            "coordinates": [
+                [[44.0, 15.0], [44.1, 15.0], [44.1, 15.1], [44.0, 15.1], [44.0, 15.0]]
+            ],
         },
         "created_at": datetime.now().isoformat(),
         "status": "active",
@@ -117,15 +119,12 @@ class TestEventFlowSimulation:
         # Simulate event publication
         await mock_publish(
             f"sahool.{tenant_id}.field.created",
-            {"field_id": field_id, "geometry": field["geometry"]}
+            {"field_id": field_id, "geometry": field["geometry"]},
         )
 
         # Simulate satellite service processing
         ndvi_result = create_ndvi_observation(field_id)
-        await mock_publish(
-            f"sahool.{tenant_id}.ndvi.calculated",
-            ndvi_result
-        )
+        await mock_publish(f"sahool.{tenant_id}.ndvi.calculated", ndvi_result)
 
         # Assert
         assert len(events_published) == 2
@@ -146,7 +145,9 @@ class TestEventFlowSimulation:
         events = []
 
         async def track_event(subject: str, payload: dict):
-            events.append({"subject": subject, "payload": payload, "time": datetime.now()})
+            events.append(
+                {"subject": subject, "payload": payload, "time": datetime.now()}
+            )
 
         # Step 1: Low NDVI detected
         low_ndvi = create_ndvi_observation(field_id, value=0.15)  # Critically low
@@ -248,8 +249,7 @@ class TestAuthenticationSimulation:
         from shared.security.rbac import has_permission, Permission
 
         super_admin = create_test_principal(
-            tenant_id=generate_tenant_id(),
-            roles=["super_admin"]
+            tenant_id=generate_tenant_id(), roles=["super_admin"]
         )
 
         # Super admin has all permissions
@@ -273,6 +273,7 @@ class TestServiceCommunicationSimulation:
         محاكاة: القاطع الكهربائي يفتح بعد فشل متكرر
         """
         import sys
+
         sys.path.insert(0, "shared/python-lib")
         from sahool_core.resilient_client import CircuitBreaker, CircuitState
 
@@ -294,6 +295,7 @@ class TestServiceCommunicationSimulation:
         محاكاة: البيانات المخزنة تُعاد عند عدم توفر الخدمة
         """
         import sys
+
         sys.path.insert(0, "shared/python-lib")
         from sahool_core.resilient_client import CircuitBreaker
 
@@ -332,12 +334,14 @@ class TestDataConsistencySimulation:
         def create_with_outbox(entity: dict, event: dict):
             """Atomic operation: save entity + outbox entry."""
             # In real implementation, both are in same DB transaction
-            outbox.append({
-                "id": str(uuid.uuid4()),
-                "event": event,
-                "status": "pending",
-                "created_at": datetime.now(),
-            })
+            outbox.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "event": event,
+                    "status": "pending",
+                    "created_at": datetime.now(),
+                }
+            )
             return entity
 
         # Create field with outbox
@@ -406,8 +410,7 @@ class TestErrorHandlingSimulation:
         from shared.security.guard import require
 
         principal = create_test_principal(
-            tenant_id=generate_tenant_id(),
-            roles=["viewer"]
+            tenant_id=generate_tenant_id(), roles=["viewer"]
         )
 
         try:
@@ -425,6 +428,7 @@ class TestErrorHandlingSimulation:
         محاكاة: النظام يتدهور بأمان عند فشل خدمة
         """
         import sys
+
         sys.path.insert(0, "shared/python-lib")
         from sahool_core.resilient_client import CircuitBreaker
 
@@ -469,11 +473,13 @@ class TestEndToEndSimulation:
 
         # Step 1: Create field
         field = create_test_field(tenant_id=tenant_id, name="حقل القمح الشمالي")
-        workflow_log.append({
-            "step": "field_created",
-            "field_id": field["id"],
-            "time": datetime.now().isoformat(),
-        })
+        workflow_log.append(
+            {
+                "step": "field_created",
+                "field_id": field["id"],
+                "time": datetime.now().isoformat(),
+            }
+        )
 
         # Step 2: Satellite imagery (simulated)
         imagery_metadata = {
@@ -483,19 +489,23 @@ class TestEndToEndSimulation:
             "cloud_cover": 3.5,
             "resolution": "10m",
         }
-        workflow_log.append({
-            "step": "imagery_acquired",
-            "metadata": imagery_metadata,
-            "time": datetime.now().isoformat(),
-        })
+        workflow_log.append(
+            {
+                "step": "imagery_acquired",
+                "metadata": imagery_metadata,
+                "time": datetime.now().isoformat(),
+            }
+        )
 
         # Step 3: NDVI calculation
         ndvi = create_ndvi_observation(field["id"], value=0.72)
-        workflow_log.append({
-            "step": "ndvi_calculated",
-            "ndvi": ndvi,
-            "time": datetime.now().isoformat(),
-        })
+        workflow_log.append(
+            {
+                "step": "ndvi_calculated",
+                "ndvi": ndvi,
+                "time": datetime.now().isoformat(),
+            }
+        )
 
         # Step 4: Health assessment
         health = {
@@ -505,11 +515,13 @@ class TestEndToEndSimulation:
             "growth_stage": "vegetative",
             "stress_indicators": [],
         }
-        workflow_log.append({
-            "step": "health_assessed",
-            "assessment": health,
-            "time": datetime.now().isoformat(),
-        })
+        workflow_log.append(
+            {
+                "step": "health_assessed",
+                "assessment": health,
+                "time": datetime.now().isoformat(),
+            }
+        )
 
         # Step 5: Generate recommendation
         recommendation = {
@@ -519,11 +531,13 @@ class TestEndToEndSimulation:
             "message_en": "Irrigation recommended within 48 hours",
             "priority": "medium",
         }
-        workflow_log.append({
-            "step": "recommendation_generated",
-            "recommendation": recommendation,
-            "time": datetime.now().isoformat(),
-        })
+        workflow_log.append(
+            {
+                "step": "recommendation_generated",
+                "recommendation": recommendation,
+                "time": datetime.now().isoformat(),
+            }
+        )
 
         # Step 6: Notify farmer
         notification = {
@@ -533,11 +547,13 @@ class TestEndToEndSimulation:
             "body_ar": recommendation["message_ar"],
             "delivered": True,
         }
-        workflow_log.append({
-            "step": "farmer_notified",
-            "notification": notification,
-            "time": datetime.now().isoformat(),
-        })
+        workflow_log.append(
+            {
+                "step": "farmer_notified",
+                "notification": notification,
+                "time": datetime.now().isoformat(),
+            }
+        )
 
         # Assertions
         assert len(workflow_log) == 6

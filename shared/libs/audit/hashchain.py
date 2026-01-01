@@ -65,17 +65,19 @@ def build_canonical_string(
         Canonical string representation
     """
     # Pipe-delimited for simplicity; order is fixed
-    return "|".join([
-        tenant_id,
-        actor_id or "",
-        actor_type,
-        action,
-        resource_type,
-        resource_id,
-        correlation_id,
-        details_json,
-        created_at_iso,
-    ])
+    return "|".join(
+        [
+            tenant_id,
+            actor_id or "",
+            actor_type,
+            action,
+            resource_type,
+            resource_id,
+            correlation_id,
+            details_json,
+            created_at_iso,
+        ]
+    )
 
 
 def verify_chain(entries: Iterator[dict]) -> tuple[bool, list[str]]:
@@ -114,7 +116,9 @@ def verify_chain(entries: Iterator[dict]) -> tuple[bool, list[str]]:
             details_json=entry["details_json"],
             created_at_iso=entry["created_at"],
         )
-        computed_hash = compute_entry_hash(prev_hash=stored_prev_hash, canonical=canonical)
+        computed_hash = compute_entry_hash(
+            prev_hash=stored_prev_hash, canonical=canonical
+        )
 
         if computed_hash != stored_entry_hash:
             errors.append(

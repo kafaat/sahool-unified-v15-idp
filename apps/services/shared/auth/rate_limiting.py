@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 # Authentication-Specific Rate Limit Configurations
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class AuthRateLimitConfigs:
     """Predefined rate limit configurations for authentication endpoints.
@@ -105,6 +106,7 @@ AUTH_RATE_CONFIGS = AuthRateLimitConfigs()
 # Authentication Rate Limiter
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class AuthRateLimiter:
     """Specialized rate limiter for authentication endpoints.
 
@@ -132,9 +134,12 @@ class AuthRateLimiter:
             client_ip = request.client.host if request.client else "unknown"
 
         # Combine IP with identifier if provided (rate limit key, not HTML - not a Flask route)
+        # This is NOT a Flask route - it's a rate limit key function
         if identifier:
-            return f"auth:{client_ip}:{identifier}"  # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
-        return f"auth:{client_ip}"  # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
+            # nosemgrep
+            return f"auth:{client_ip}:{identifier}"
+        # nosemgrep
+        return f"auth:{client_ip}"
 
     async def check_login_limit(
         self,
@@ -154,8 +159,10 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, username)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
-            key, AUTH_RATE_CONFIGS.LOGIN
+        allowed, remaining, limit, reset = (
+            await self._limiter._in_memory.check_rate_limit(
+                key, AUTH_RATE_CONFIGS.LOGIN
+            )
         )
 
         if not allowed:
@@ -192,8 +199,10 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, email)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
-            key, AUTH_RATE_CONFIGS.PASSWORD_RESET
+        allowed, remaining, limit, reset = (
+            await self._limiter._in_memory.check_rate_limit(
+                key, AUTH_RATE_CONFIGS.PASSWORD_RESET
+            )
         )
 
         if not allowed:
@@ -230,8 +239,10 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, email)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
-            key, AUTH_RATE_CONFIGS.REGISTRATION
+        allowed, remaining, limit, reset = (
+            await self._limiter._in_memory.check_rate_limit(
+                key, AUTH_RATE_CONFIGS.REGISTRATION
+            )
         )
 
         if not allowed:
@@ -268,8 +279,10 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, user_id)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
-            key, AUTH_RATE_CONFIGS.TOKEN_REFRESH
+        allowed, remaining, limit, reset = (
+            await self._limiter._in_memory.check_rate_limit(
+                key, AUTH_RATE_CONFIGS.TOKEN_REFRESH
+            )
         )
 
         if not allowed:

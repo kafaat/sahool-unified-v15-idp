@@ -20,8 +20,12 @@ class FieldErrorModel(BaseModel):
 
     field: str = Field(..., description="Field name that failed validation")
     message: str = Field(..., description="Error message in English")
-    message_ar: Optional[str] = Field(None, description="Error message in Arabic - الرسالة بالعربية")
-    constraint: Optional[str] = Field(None, description="Validation constraint that failed")
+    message_ar: Optional[str] = Field(
+        None, description="Error message in Arabic - الرسالة بالعربية"
+    )
+    constraint: Optional[str] = Field(
+        None, description="Validation constraint that failed"
+    )
     value: Optional[Any] = Field(None, description="Invalid value that was provided")
 
     class Config:
@@ -44,12 +48,16 @@ class ErrorDetailsModel(BaseModel):
 
     code: str = Field(..., description="Error code")
     message: str = Field(..., description="Error message in English")
-    messageAr: str = Field(..., description="Error message in Arabic - الرسالة بالعربية")
+    messageAr: str = Field(
+        ..., description="Error message in Arabic - الرسالة بالعربية"
+    )
     category: Optional[ErrorCategory] = Field(None, description="Error category")
     retryable: bool = Field(..., description="Whether the operation can be retried")
     timestamp: str = Field(..., description="Timestamp when error occurred")
     path: Optional[str] = Field(None, description="Request path where error occurred")
-    details: Optional[Dict[str, Any]] = Field(None, description="Additional error details")
+    details: Optional[Dict[str, Any]] = Field(
+        None, description="Additional error details"
+    )
     requestId: Optional[str] = Field(None, description="Request ID for tracking")
     stack: Optional[str] = Field(None, description="Stack trace (only in development)")
 
@@ -74,7 +82,9 @@ class ErrorResponseModel(BaseModel):
     استجابة الخطأ القياسية
     """
 
-    success: bool = Field(False, description="Success indicator (always false for errors)")
+    success: bool = Field(
+        False, description="Success indicator (always false for errors)"
+    )
     error: ErrorDetailsModel = Field(..., description="Error details")
 
     class Config:
@@ -107,8 +117,13 @@ class SuccessResponseModel(BaseModel, Generic[T]):
     success: bool = Field(True, description="Success indicator")
     data: T = Field(..., description="Response data")
     message: Optional[str] = Field(None, description="Response message in English")
-    messageAr: Optional[str] = Field(None, description="Response message in Arabic - الرسالة بالعربية")
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="Response timestamp")
+    messageAr: Optional[str] = Field(
+        None, description="Response message in Arabic - الرسالة بالعربية"
+    )
+    timestamp: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat(),
+        description="Response timestamp",
+    )
 
     class Config:
         json_schema_extra = {
@@ -155,8 +170,13 @@ class PaginatedResponseModel(BaseModel, Generic[T]):
     data: List[T] = Field(..., description="Response data")
     meta: PaginationMetaModel = Field(..., description="Pagination metadata")
     message: Optional[str] = Field(None, description="Response message in English")
-    messageAr: Optional[str] = Field(None, description="Response message in Arabic - الرسالة بالعربية")
-    timestamp: str = Field(default_factory=lambda: datetime.utcnow().isoformat(), description="Response timestamp")
+    messageAr: Optional[str] = Field(
+        None, description="Response message in Arabic - الرسالة بالعربية"
+    )
+    timestamp: str = Field(
+        default_factory=lambda: datetime.utcnow().isoformat(),
+        description="Response timestamp",
+    )
 
     class Config:
         json_schema_extra = {

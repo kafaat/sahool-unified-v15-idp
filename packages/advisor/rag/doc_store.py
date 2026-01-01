@@ -69,14 +69,14 @@ class InMemoryVectorStore:
 
         # Simple upsert: replace existing chunks with same IDs
         existing_ids = {
-            f"{c.doc_id}:{c.chunk_id}"
-            for c in self._collections[collection]
+            f"{c.doc_id}:{c.chunk_id}" for c in self._collections[collection]
         }
         for chunk in chunks:
             chunk_key = f"{chunk.doc_id}:{chunk.chunk_id}"
             if chunk_key in existing_ids:
                 self._collections[collection] = [
-                    c for c in self._collections[collection]
+                    c
+                    for c in self._collections[collection]
                     if f"{c.doc_id}:{c.chunk_id}" != chunk_key
                 ]
         self._collections[collection].extend(chunks)

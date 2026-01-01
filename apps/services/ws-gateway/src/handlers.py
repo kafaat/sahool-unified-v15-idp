@@ -17,6 +17,7 @@ logger = logging.getLogger("ws-gateway.handlers")
 
 class MessageType:
     """Client message types"""
+
     SUBSCRIBE = "subscribe"
     UNSUBSCRIBE = "unsubscribe"
     PING = "ping"
@@ -47,9 +48,7 @@ class WebSocketMessageHandler:
         }
 
     async def handle_message(
-        self,
-        connection_id: str,
-        message: Dict[str, Any]
+        self, connection_id: str, message: Dict[str, Any]
     ) -> Optional[Dict]:
         """
         Route message to appropriate handler
@@ -83,11 +82,7 @@ class WebSocketMessageHandler:
                 "message_ar": "حدث خطأ في معالجة الرسالة",
             }
 
-    async def handle_subscribe(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_subscribe(self, connection_id: str, message: Dict) -> Dict:
         """
         Subscribe to topics/rooms
         الاشتراك في المواضيع/الغرف
@@ -126,11 +121,7 @@ class WebSocketMessageHandler:
             "message_ar": f"تم الاشتراك في {len(joined)} موضوع",
         }
 
-    async def handle_unsubscribe(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_unsubscribe(self, connection_id: str, message: Dict) -> Dict:
         """
         Unsubscribe from topics/rooms
         إلغاء الاشتراك من المواضيع
@@ -153,11 +144,7 @@ class WebSocketMessageHandler:
             "message_ar": f"تم إلغاء الاشتراك من {len(left)} موضوع",
         }
 
-    async def handle_ping(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_ping(self, connection_id: str, message: Dict) -> Dict:
         """
         Respond to ping
         الرد على رسالة ping
@@ -167,11 +154,7 @@ class WebSocketMessageHandler:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-    async def handle_broadcast(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_broadcast(self, connection_id: str, message: Dict) -> Dict:
         """
         Broadcast message to room/topic
         بث رسالة إلى غرفة/موضوع
@@ -218,9 +201,7 @@ class WebSocketMessageHandler:
 
         # Broadcast (excluding sender)
         sent_count = await self.room_manager.broadcast_to_room(
-            room_id,
-            broadcast_msg,
-            exclude_connection=connection_id
+            room_id, broadcast_msg, exclude_connection=connection_id
         )
 
         return {
@@ -230,11 +211,7 @@ class WebSocketMessageHandler:
             "timestamp": datetime.utcnow().isoformat(),
         }
 
-    async def handle_join_room(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_join_room(self, connection_id: str, message: Dict) -> Dict:
         """
         Join a specific room
         الانضمام إلى غرفة محددة
@@ -264,11 +241,7 @@ class WebSocketMessageHandler:
             "message_ar": "تم الانضمام للغرفة" if success else "فشل الانضمام للغرفة",
         }
 
-    async def handle_leave_room(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_leave_room(self, connection_id: str, message: Dict) -> Dict:
         """
         Leave a specific room
         مغادرة غرفة محددة
@@ -291,11 +264,7 @@ class WebSocketMessageHandler:
             "message_ar": "تم مغادرة الغرفة" if success else "فشل مغادرة الغرفة",
         }
 
-    async def handle_typing(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_typing(self, connection_id: str, message: Dict) -> Dict:
         """
         Handle typing indicator
         معالج مؤشر الكتابة
@@ -321,9 +290,7 @@ class WebSocketMessageHandler:
         }
 
         await self.room_manager.broadcast_to_room(
-            room_id,
-            typing_msg,
-            exclude_connection=connection_id
+            room_id, typing_msg, exclude_connection=connection_id
         )
 
         return {
@@ -331,11 +298,7 @@ class WebSocketMessageHandler:
             "room": room_id,
         }
 
-    async def handle_read(
-        self,
-        connection_id: str,
-        message: Dict
-    ) -> Dict:
+    async def handle_read(self, connection_id: str, message: Dict) -> Dict:
         """
         Handle read receipt
         معالج إيصال القراءة
@@ -361,9 +324,7 @@ class WebSocketMessageHandler:
         }
 
         await self.room_manager.broadcast_to_room(
-            room_id,
-            read_msg,
-            exclude_connection=connection_id
+            room_id, read_msg, exclude_connection=connection_id
         )
 
         return {
@@ -409,11 +370,7 @@ class WebSocketMessageHandler:
 
         return False
 
-    def _validate_broadcast_permission(
-        self,
-        connection_id: str,
-        room_id: str
-    ) -> bool:
+    def _validate_broadcast_permission(self, connection_id: str, room_id: str) -> bool:
         """
         Validate if connection can broadcast to room
         التحقق من صلاحية البث في الغرفة

@@ -63,65 +63,54 @@ class DLQConfig(BaseModel):
         default=3,
         ge=1,
         le=10,
-        description="Maximum retry attempts before moving to DLQ"
+        description="Maximum retry attempts before moving to DLQ",
     )
     initial_retry_delay: float = Field(
-        default=1.0,
-        ge=0.1,
-        description="Initial retry delay in seconds"
+        default=1.0, ge=0.1, description="Initial retry delay in seconds"
     )
     max_retry_delay: float = Field(
         default=60.0,
         ge=1.0,
-        description="Maximum retry delay in seconds (caps exponential backoff)"
+        description="Maximum retry delay in seconds (caps exponential backoff)",
     )
     backoff_multiplier: float = Field(
-        default=2.0,
-        ge=1.0,
-        description="Exponential backoff multiplier"
+        default=2.0, ge=1.0, description="Exponential backoff multiplier"
     )
 
     # DLQ Stream configuration
     dlq_stream_name: str = Field(
-        default="SAHOOL_DLQ",
-        description="Name of the DLQ JetStream stream"
+        default="SAHOOL_DLQ", description="Name of the DLQ JetStream stream"
     )
     dlq_subject_prefix: str = Field(
-        default="sahool.dlq",
-        description="Subject prefix for DLQ messages"
+        default="sahool.dlq", description="Subject prefix for DLQ messages"
     )
 
     # Retention
     dlq_max_age_days: int = Field(
-        default=30,
-        ge=1,
-        description="Maximum age of messages in DLQ (days)"
+        default=30, ge=1, description="Maximum age of messages in DLQ (days)"
     )
     dlq_max_messages: int = Field(
-        default=100000,
-        ge=1000,
-        description="Maximum number of messages in DLQ stream"
+        default=100000, ge=1000, description="Maximum number of messages in DLQ stream"
     )
     dlq_max_bytes: int = Field(
         default=10 * 1024 * 1024 * 1024,  # 10 GB
         ge=1024 * 1024,
-        description="Maximum bytes in DLQ stream"
+        description="Maximum bytes in DLQ stream",
     )
 
     # Monitoring and alerting
     alert_threshold: int = Field(
         default=100,
         ge=1,
-        description="Alert when DLQ message count exceeds this threshold"
+        description="Alert when DLQ message count exceeds this threshold",
     )
     alert_enabled: bool = Field(
-        default=True,
-        description="Enable alerting for DLQ accumulation"
+        default=True, description="Enable alerting for DLQ accumulation"
     )
     alert_check_interval_seconds: int = Field(
         default=300,  # 5 minutes
         ge=60,
-        description="Interval to check DLQ size for alerts"
+        description="Interval to check DLQ size for alerts",
     )
 
     # Environment overrides
@@ -186,34 +175,40 @@ class DLQMessageMetadata(BaseModel):
     # Original message info
     original_subject: str = Field(..., description="Original NATS subject")
     original_event_id: Optional[str] = Field(None, description="Original event ID")
-    correlation_id: Optional[str] = Field(None, description="Correlation ID for tracing")
+    correlation_id: Optional[str] = Field(
+        None, description="Correlation ID for tracing"
+    )
 
     # Failure info
     retry_count: int = Field(default=0, ge=0, description="Number of retry attempts")
     failure_reason: str = Field(..., description="Reason for failure")
-    failure_timestamp: str = Field(..., description="ISO 8601 timestamp of final failure")
+    failure_timestamp: str = Field(
+        ..., description="ISO 8601 timestamp of final failure"
+    )
     error_type: Optional[str] = Field(None, description="Python exception class name")
     error_traceback: Optional[str] = Field(None, description="Stack trace (truncated)")
 
     # Consumer info
-    consumer_service: Optional[str] = Field(None, description="Service that failed to process")
+    consumer_service: Optional[str] = Field(
+        None, description="Service that failed to process"
+    )
     consumer_version: Optional[str] = Field(None, description="Service version")
     handler_function: Optional[str] = Field(None, description="Handler function name")
 
     # Retry history
     retry_timestamps: List[str] = Field(
-        default_factory=list,
-        description="ISO 8601 timestamps of each retry attempt"
+        default_factory=list, description="ISO 8601 timestamps of each retry attempt"
     )
     retry_errors: List[str] = Field(
-        default_factory=list,
-        description="Error messages from each retry"
+        default_factory=list, description="Error messages from each retry"
     )
 
     # Replay info
     replayed: bool = Field(default=False, description="Has this message been replayed")
     replay_count: int = Field(default=0, ge=0, description="Number of replay attempts")
-    last_replay_timestamp: Optional[str] = Field(None, description="Last replay timestamp")
+    last_replay_timestamp: Optional[str] = Field(
+        None, description="Last replay timestamp"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

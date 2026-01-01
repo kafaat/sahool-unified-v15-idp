@@ -24,8 +24,10 @@ logger = logging.getLogger(__name__)
 # Crop Growth Stages
 # =============================================================================
 
+
 class CropGrowthStage:
     """Crop growth stage definitions"""
+
     GERMINATION = "germination"
     VEGETATIVE = "vegetative"
     FLOWERING = "flowering"
@@ -48,6 +50,7 @@ GROWTH_STAGE_NDVI = {
 # =============================================================================
 # Yield Prediction Workflow
 # =============================================================================
+
 
 class YieldPredictionWorkflow:
     """
@@ -159,7 +162,7 @@ class YieldPredictionWorkflow:
             # Get crop coefficients
             coeffs = self.crop_coefficients.get(
                 crop_type.lower(),
-                self.crop_coefficients.get("wheat")  # Default to wheat
+                self.crop_coefficients.get("wheat"),  # Default to wheat
             )
 
             # Calculate yield based on method
@@ -183,22 +186,26 @@ class YieldPredictionWorkflow:
             yield_min = predicted_yield * (1 - 0.15)  # -15%
             yield_max = predicted_yield * (1 + 0.15)  # +15%
 
-            result.update({
-                "status": "success",
-                "predicted_yield_kg_ha": round(predicted_yield, 0),
-                "total_yield_kg": round(total_yield, 0),
-                "yield_range": {
-                    "min_kg_ha": round(yield_min, 0),
-                    "max_kg_ha": round(yield_max, 0),
-                },
-                "confidence_score": round(confidence, 2),
-                "growth_metrics": {
-                    "current_ndvi": round(current_ndvi, 3),
-                    "peak_ndvi": round(max(d["value"] for d in ndvi_series), 3),
-                    "integrated_ndvi": round(sum(d["value"] for d in ndvi_series), 3),
-                    "observations_count": len(ndvi_series),
-                },
-            })
+            result.update(
+                {
+                    "status": "success",
+                    "predicted_yield_kg_ha": round(predicted_yield, 0),
+                    "total_yield_kg": round(total_yield, 0),
+                    "yield_range": {
+                        "min_kg_ha": round(yield_min, 0),
+                        "max_kg_ha": round(yield_max, 0),
+                    },
+                    "confidence_score": round(confidence, 2),
+                    "growth_metrics": {
+                        "current_ndvi": round(current_ndvi, 3),
+                        "peak_ndvi": round(max(d["value"] for d in ndvi_series), 3),
+                        "integrated_ndvi": round(
+                            sum(d["value"] for d in ndvi_series), 3
+                        ),
+                        "observations_count": len(ndvi_series),
+                    },
+                }
+            )
 
             # Generate YieldPredicted event
             result["event"] = self._create_yield_event(result)
@@ -217,10 +224,12 @@ class YieldPredictionWorkflow:
         series = []
         for obs in historical_data:
             if "ndvi" in obs and obs["ndvi"] is not None:
-                series.append({
-                    "date": obs.get("date", ""),
-                    "value": float(obs["ndvi"]),
-                })
+                series.append(
+                    {
+                        "date": obs.get("date", ""),
+                        "value": float(obs["ndvi"]),
+                    }
+                )
         return sorted(series, key=lambda x: x["date"])
 
     def _extract_lai_series(self, historical_data: List[Dict]) -> List[Dict]:
@@ -228,10 +237,12 @@ class YieldPredictionWorkflow:
         series = []
         for obs in historical_data:
             if "lai" in obs and obs["lai"] is not None:
-                series.append({
-                    "date": obs.get("date", ""),
-                    "value": float(obs["lai"]),
-                })
+                series.append(
+                    {
+                        "date": obs.get("date", ""),
+                        "value": float(obs["lai"]),
+                    }
+                )
         return sorted(series, key=lambda x: x["date"])
 
     def _determine_growth_stage(self, current_ndvi: float) -> str:
@@ -247,11 +258,7 @@ class YieldPredictionWorkflow:
         else:
             return CropGrowthStage.VEGETATIVE
 
-    def _integrated_ndvi_yield(
-        self,
-        ndvi_series: List[Dict],
-        coeffs: Dict
-    ) -> float:
+    def _integrated_ndvi_yield(self, ndvi_series: List[Dict], coeffs: Dict) -> float:
         """
         Calculate yield from integrated NDVI
 
@@ -268,11 +275,7 @@ class YieldPredictionWorkflow:
 
         return max(0, yield_estimate)
 
-    def _peak_ndvi_yield(
-        self,
-        ndvi_series: List[Dict],
-        coeffs: Dict
-    ) -> float:
+    def _peak_ndvi_yield(self, ndvi_series: List[Dict], coeffs: Dict) -> float:
         """
         Calculate yield from peak NDVI
 
@@ -285,11 +288,7 @@ class YieldPredictionWorkflow:
 
         return max(0, yield_estimate)
 
-    def _lai_based_yield(
-        self,
-        lai_series: List[Dict],
-        coeffs: Dict
-    ) -> float:
+    def _lai_based_yield(self, lai_series: List[Dict], coeffs: Dict) -> float:
         """
         Calculate yield from LAI
 
@@ -307,9 +306,7 @@ class YieldPredictionWorkflow:
         return max(0, yield_estimate)
 
     def _calculate_confidence(
-        self,
-        ndvi_series: List[Dict],
-        growth_stage: str
+        self, ndvi_series: List[Dict], growth_stage: str
     ) -> float:
         """Calculate prediction confidence score"""
         confidence = 0.5  # Base confidence
@@ -369,6 +366,7 @@ class YieldPredictionWorkflow:
 # Growth Stage Estimation
 # =============================================================================
 
+
 class GrowthStageEstimator:
     """
     Estimate crop growth stage from vegetation indices
@@ -404,11 +402,7 @@ class GrowthStageEstimator:
             },
         }
 
-    def estimate(
-        self,
-        ndvi_series: List[Dict],
-        planting_date: str
-    ) -> Dict[str, Any]:
+    def estimate(self, ndvi_series: List[Dict], planting_date: str) -> Dict[str, Any]:
         """
         Estimate current growth stage and progression
 
@@ -437,8 +431,7 @@ class GrowthStageEstimator:
 
         # Estimate days to next stage
         durations = self.stage_durations.get(
-            self.crop_type,
-            self.stage_durations["wheat"]
+            self.crop_type, self.stage_durations["wheat"]
         )
         stage_duration = durations.get(current_stage, 20)
 
@@ -446,7 +439,11 @@ class GrowthStageEstimator:
             "current_stage": current_stage,
             "days_since_planting": days_since_planting,
             "current_ndvi": round(current_ndvi, 3),
-            "ndvi_trend": "increasing" if trend > 0.02 else "decreasing" if trend < -0.02 else "stable",
+            "ndvi_trend": (
+                "increasing"
+                if trend > 0.02
+                else "decreasing" if trend < -0.02 else "stable"
+            ),
             "estimated_stage_duration": stage_duration,
             "estimated_harvest_date": self._estimate_harvest_date(
                 planting_date, current_stage, durations
@@ -461,10 +458,7 @@ class GrowthStageEstimator:
         return CropGrowthStage.VEGETATIVE
 
     def _estimate_harvest_date(
-        self,
-        planting_date: str,
-        current_stage: str,
-        durations: Dict
+        self, planting_date: str, current_stage: str, durations: Dict
     ) -> str:
         """Estimate harvest date based on remaining stages"""
         planting = datetime.strptime(planting_date, "%Y-%m-%d")
@@ -473,10 +467,7 @@ class GrowthStageEstimator:
         stages = list(GROWTH_STAGE_NDVI.keys())
         current_idx = stages.index(current_stage) if current_stage in stages else 0
 
-        remaining_days = sum(
-            durations.get(stage, 20)
-            for stage in stages[current_idx:]
-        )
+        remaining_days = sum(durations.get(stage, 20) for stage in stages[current_idx:])
 
         harvest_date = planting + timedelta(days=remaining_days)
         return harvest_date.date().isoformat()

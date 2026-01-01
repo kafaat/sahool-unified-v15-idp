@@ -18,9 +18,11 @@ from enum import Enum
 # Service Configuration - تكوين الخدمات
 # =============================================================================
 
+
 @dataclass
 class ServiceConfig:
     """Service endpoint configuration"""
+
     name: str
     name_ar: str
     port: int
@@ -38,20 +40,25 @@ SERVICES = {
     "weather": ServiceConfig("Weather Advanced", "خدمة الطقس المتقدمة", 8092),
     "fertilizer": ServiceConfig("Fertilizer Advisor", "مستشار الأسمدة", 8093),
     "irrigation": ServiceConfig("Irrigation Smart", "الري الذكي", 8094),
-    "crop_health": ServiceConfig("Crop Health AI", "صحة المحاصيل بالذكاء الاصطناعي", 8095),
+    "crop_health": ServiceConfig(
+        "Crop Health AI", "صحة المحاصيل بالذكاء الاصطناعي", 8095
+    ),
     "virtual_sensors": ServiceConfig("Virtual Sensors", "المستشعرات الافتراضية", 8096),
     "community": ServiceConfig("Community Chat", "مجتمع المزارعين", 8097),
     "yield_engine": ServiceConfig("Yield Engine", "محرك الإنتاجية", 8098),
     "iot_gateway": ServiceConfig("IoT Gateway", "بوابة إنترنت الأشياء", 8100),
     "equipment": ServiceConfig("Equipment Manager", "إدارة المعدات", 8101),
     "notifications": ServiceConfig("Notification Service", "خدمة الإشعارات", 8109),
-    "astronomical": ServiceConfig("Astronomical Calendar", "التقويم الفلكي اليمني", 8111),
+    "astronomical": ServiceConfig(
+        "Astronomical Calendar", "التقويم الفلكي اليمني", 8111
+    ),
 }
 
 
 # =============================================================================
 # Test Results
 # =============================================================================
+
 
 class TestStatus(str, Enum):
     PASSED = "passed"
@@ -62,6 +69,7 @@ class TestStatus(str, Enum):
 @dataclass
 class TestResult:
     """Single test result"""
+
     name: str
     status: TestStatus
     duration_ms: float
@@ -110,6 +118,7 @@ class TestSuite:
 # =============================================================================
 # Mock Backend Services
 # =============================================================================
+
 
 class MockBackendService:
     """Simulates backend service responses"""
@@ -210,6 +219,7 @@ class MockWeatherService(MockBackendService):
         """Get current weather"""
         self.request_count += 1
         import random
+
         return {
             "location": {"lat": lat, "lng": lng},
             "temperature": round(random.uniform(20, 35), 1),
@@ -219,7 +229,9 @@ class MockWeatherService(MockBackendService):
             "timestamp": datetime.now().isoformat(),
         }
 
-    def get_forecast(self, lat: float, lng: float, days: int = 7) -> List[Dict[str, Any]]:
+    def get_forecast(
+        self, lat: float, lng: float, days: int = 7
+    ) -> List[Dict[str, Any]]:
         """Get weather forecast"""
         self.request_count += 1
         import random
@@ -227,13 +239,17 @@ class MockWeatherService(MockBackendService):
 
         forecast = []
         for i in range(days):
-            forecast.append({
-                "date": (datetime.now() + timedelta(days=i)).strftime("%Y-%m-%d"),
-                "high": round(random.uniform(28, 38), 1),
-                "low": round(random.uniform(18, 25), 1),
-                "condition": random.choice(["sunny", "cloudy", "rainy", "partly_cloudy"]),
-                "precipitation_chance": random.randint(0, 100),
-            })
+            forecast.append(
+                {
+                    "date": (datetime.now() + timedelta(days=i)).strftime("%Y-%m-%d"),
+                    "high": round(random.uniform(28, 38), 1),
+                    "low": round(random.uniform(18, 25), 1),
+                    "condition": random.choice(
+                        ["sunny", "cloudy", "rainy", "partly_cloudy"]
+                    ),
+                    "precipitation_chance": random.randint(0, 100),
+                }
+            )
         return forecast
 
 
@@ -244,7 +260,9 @@ class MockNotificationService(MockBackendService):
         super().__init__(SERVICES["notifications"])
         self.notifications = []
 
-    def send_notification(self, tenant_id: str, user_id: str, message: str, title: str = None) -> Dict[str, Any]:
+    def send_notification(
+        self, tenant_id: str, user_id: str, message: str, title: str = None
+    ) -> Dict[str, Any]:
         """Send notification"""
         self.request_count += 1
         notification = {
@@ -308,6 +326,7 @@ class MockAstronomicalService(MockBackendService):
 # Integration Tests
 # =============================================================================
 
+
 async def test_billing_integration(suite: TestSuite):
     """Test billing service integration"""
     print("\n🧪 اختبار تكامل خدمة الفوترة")
@@ -324,20 +343,24 @@ async def test_billing_integration(suite: TestSuite):
         assert len(plans) == 4, "Should have 4 plans"
         assert any(p["id"] == "free" for p in plans), "Should have free plan"
 
-        suite.add_result(TestResult(
-            name="جلب خطط الاشتراك",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"تم جلب {len(plans)} خطة",
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب خطط الاشتراك",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"تم جلب {len(plans)} خطة",
+            )
+        )
         print(f"   ✅ جلب خطط الاشتراك: {len(plans)} خطة")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="جلب خطط الاشتراك",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب خطط الاشتراك",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ جلب خطط الاشتراك: {e}")
 
     # Test 2: Get subscription
@@ -349,20 +372,24 @@ async def test_billing_integration(suite: TestSuite):
         assert sub["tenant_id"] == "tenant-test-001"
         assert sub["status"] == "active"
 
-        suite.add_result(TestResult(
-            name="جلب اشتراك المستأجر",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"الخطة: {sub['plan_id']}",
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب اشتراك المستأجر",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"الخطة: {sub['plan_id']}",
+            )
+        )
         print(f"   ✅ جلب اشتراك المستأجر: {sub['plan_id']}")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="جلب اشتراك المستأجر",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب اشتراك المستأجر",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ جلب اشتراك المستأجر: {e}")
 
     # Test 3: Check quota
@@ -374,20 +401,24 @@ async def test_billing_integration(suite: TestSuite):
         assert "remaining" in quota
         assert quota["allowed"] is True
 
-        suite.add_result(TestResult(
-            name="فحص الحصة",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"متبقي: {quota['remaining']}",
-        ))
+        suite.add_result(
+            TestResult(
+                name="فحص الحصة",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"متبقي: {quota['remaining']}",
+            )
+        )
         print(f"   ✅ فحص الحصة: متبقي {quota['remaining']}")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="فحص الحصة",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="فحص الحصة",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ فحص الحصة: {e}")
 
 
@@ -408,20 +439,24 @@ async def test_weather_integration(suite: TestSuite):
         assert "humidity" in current
         assert current["location"]["lat"] == 15.3694
 
-        suite.add_result(TestResult(
-            name="جلب الطقس الحالي",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"{current['temperature']}°C, {current['condition']}",
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب الطقس الحالي",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"{current['temperature']}°C, {current['condition']}",
+            )
+        )
         print(f"   ✅ الطقس الحالي: {current['temperature']}°C")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="جلب الطقس الحالي",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب الطقس الحالي",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ الطقس الحالي: {e}")
 
     # Test 2: Weather forecast
@@ -433,20 +468,24 @@ async def test_weather_integration(suite: TestSuite):
         assert len(forecast) == 7
         assert all("high" in day and "low" in day for day in forecast)
 
-        suite.add_result(TestResult(
-            name="جلب توقعات الطقس",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"توقعات {len(forecast)} أيام",
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب توقعات الطقس",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"توقعات {len(forecast)} أيام",
+            )
+        )
         print(f"   ✅ توقعات الطقس: {len(forecast)} أيام")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="جلب توقعات الطقس",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب توقعات الطقس",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ توقعات الطقس: {e}")
 
 
@@ -471,20 +510,24 @@ async def test_notification_integration(suite: TestSuite):
         assert result["status"] == "sent"
         assert "id" in result
 
-        suite.add_result(TestResult(
-            name="إرسال إشعار",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"ID: {result['id']}",
-        ))
+        suite.add_result(
+            TestResult(
+                name="إرسال إشعار",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"ID: {result['id']}",
+            )
+        )
         print(f"   ✅ إرسال إشعار: {result['id']}")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="إرسال إشعار",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="إرسال إشعار",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ إرسال إشعار: {e}")
 
     # Test 2: Get notifications
@@ -495,20 +538,24 @@ async def test_notification_integration(suite: TestSuite):
 
         assert len(user_notifs) >= 1
 
-        suite.add_result(TestResult(
-            name="جلب إشعارات المستخدم",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"{len(user_notifs)} إشعار",
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب إشعارات المستخدم",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"{len(user_notifs)} إشعار",
+            )
+        )
         print(f"   ✅ جلب إشعارات المستخدم: {len(user_notifs)}")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="جلب إشعارات المستخدم",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="جلب إشعارات المستخدم",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ جلب إشعارات المستخدم: {e}")
 
 
@@ -529,20 +576,24 @@ async def test_astronomical_integration(suite: TestSuite):
         assert "yemeni_season" in info
         assert "moon_phase" in info
 
-        suite.add_result(TestResult(
-            name="معلومات اليوم الفلكية",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"{info['yemeni_season']} - {info['moon_phase']}",
-        ))
+        suite.add_result(
+            TestResult(
+                name="معلومات اليوم الفلكية",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"{info['yemeni_season']} - {info['moon_phase']}",
+            )
+        )
         print(f"   ✅ معلومات اليوم: {info['yemeni_season']}")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="معلومات اليوم الفلكية",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="معلومات اليوم الفلكية",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ معلومات اليوم: {e}")
 
     # Test 2: Planting calendar
@@ -554,20 +605,24 @@ async def test_astronomical_integration(suite: TestSuite):
         assert "best_planting_season" in calendar
         assert "optimal_months" in calendar
 
-        suite.add_result(TestResult(
-            name="تقويم الزراعة",
-            status=TestStatus.PASSED,
-            duration_ms=duration,
-            message=f"موسم الزراعة: {calendar['best_planting_season']}",
-        ))
+        suite.add_result(
+            TestResult(
+                name="تقويم الزراعة",
+                status=TestStatus.PASSED,
+                duration_ms=duration,
+                message=f"موسم الزراعة: {calendar['best_planting_season']}",
+            )
+        )
         print(f"   ✅ تقويم الزراعة: {calendar['best_planting_season']}")
     except Exception as e:
-        suite.add_result(TestResult(
-            name="تقويم الزراعة",
-            status=TestStatus.FAILED,
-            duration_ms=0,
-            message=str(e),
-        ))
+        suite.add_result(
+            TestResult(
+                name="تقويم الزراعة",
+                status=TestStatus.FAILED,
+                duration_ms=0,
+                message=str(e),
+            )
+        )
         print(f"   ❌ تقويم الزراعة: {e}")
 
 
@@ -585,26 +640,31 @@ async def test_service_health_checks(suite: TestSuite):
 
             assert health["status"] == "healthy"
 
-            suite.add_result(TestResult(
-                name=f"صحة {config.name_ar}",
-                status=TestStatus.PASSED,
-                duration_ms=duration,
-                message=f"Port {config.port}",
-            ))
+            suite.add_result(
+                TestResult(
+                    name=f"صحة {config.name_ar}",
+                    status=TestStatus.PASSED,
+                    duration_ms=duration,
+                    message=f"Port {config.port}",
+                )
+            )
             print(f"   ✅ {config.name_ar}: healthy (:{config.port})")
         except Exception as e:
-            suite.add_result(TestResult(
-                name=f"صحة {config.name_ar}",
-                status=TestStatus.FAILED,
-                duration_ms=0,
-                message=str(e),
-            ))
+            suite.add_result(
+                TestResult(
+                    name=f"صحة {config.name_ar}",
+                    status=TestStatus.FAILED,
+                    duration_ms=0,
+                    message=str(e),
+                )
+            )
             print(f"   ❌ {config.name_ar}: {e}")
 
 
 # =============================================================================
 # Main
 # =============================================================================
+
 
 async def run_integration_tests():
     """Run all integration tests"""

@@ -17,8 +17,7 @@ from collections import defaultdict
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -26,6 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ServiceConfig:
     """Configuration for a microservice"""
+
     name: str
     port: int
     tier: str  # starter, professional, enterprise
@@ -55,7 +55,7 @@ SERVICES = [
         tier="starter",
         type="nestjs",
         description_en="Field Management Core - Manage agricultural fields and boundaries",
-        description_ar="إدارة الحقول الزراعية - إدارة الحقول والحدود الزراعية"
+        description_ar="إدارة الحقول الزراعية - إدارة الحقول والحدود الزراعية",
     ),
     ServiceConfig(
         name="weather_core",
@@ -63,7 +63,7 @@ SERVICES = [
         tier="starter",
         type="python",
         description_en="Weather Service - Real-time weather data and forecasts",
-        description_ar="خدمة الطقس - بيانات الطقس والتنبؤات في الوقت الفعلي"
+        description_ar="خدمة الطقس - بيانات الطقس والتنبؤات في الوقت الفعلي",
     ),
     ServiceConfig(
         name="astronomical_calendar",
@@ -71,7 +71,7 @@ SERVICES = [
         tier="starter",
         type="python",
         description_en="Yemeni Agricultural Astronomical Calendar",
-        description_ar="التقويم الفلكي الزراعي اليمني"
+        description_ar="التقويم الفلكي الزراعي اليمني",
     ),
     ServiceConfig(
         name="agro_advisor",
@@ -79,7 +79,7 @@ SERVICES = [
         tier="starter",
         type="python",
         description_en="Agricultural Advisory - Crop recommendations and advice",
-        description_ar="المستشار الزراعي - توصيات ونصائح زراعية"
+        description_ar="المستشار الزراعي - توصيات ونصائح زراعية",
     ),
     ServiceConfig(
         name="notification_service",
@@ -87,9 +87,8 @@ SERVICES = [
         tier="starter",
         type="python",
         description_en="Notification Service - Email, SMS, and push notifications",
-        description_ar="خدمة الإشعارات - البريد الإلكتروني والرسائل والإشعارات"
+        description_ar="خدمة الإشعارات - البريد الإلكتروني والرسائل والإشعارات",
     ),
-
     # ═══════════════════════════════════════════════════════════════
     # PROFESSIONAL PACKAGE - حزمة سهول الاحترافية
     # ═══════════════════════════════════════════════════════════════
@@ -99,7 +98,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Satellite Imagery Service - Sentinel Hub, NASA, Planet integration",
-        description_ar="خدمة الأقمار الصناعية - تكامل مع Sentinel Hub وNASA وPlanet"
+        description_ar="خدمة الأقمار الصناعية - تكامل مع Sentinel Hub وNASA وPlanet",
     ),
     ServiceConfig(
         name="ndvi_engine",
@@ -107,7 +106,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="NDVI Analysis Engine - Vegetation index calculation",
-        description_ar="محرك تحليل NDVI - حساب مؤشر الغطاء النباتي"
+        description_ar="محرك تحليل NDVI - حساب مؤشر الغطاء النباتي",
     ),
     ServiceConfig(
         name="crop_health_ai",
@@ -115,7 +114,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Crop Health AI - Disease detection using computer vision",
-        description_ar="الذكاء الاصطناعي لصحة المحاصيل - كشف الأمراض باستخدام الرؤية الحاسوبية"
+        description_ar="الذكاء الاصطناعي لصحة المحاصيل - كشف الأمراض باستخدام الرؤية الحاسوبية",
     ),
     ServiceConfig(
         name="irrigation_smart",
@@ -123,7 +122,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Smart Irrigation - ET0 calculation and irrigation scheduling",
-        description_ar="الري الذكي - حساب التبخر والنتح وجدولة الري"
+        description_ar="الري الذكي - حساب التبخر والنتح وجدولة الري",
     ),
     ServiceConfig(
         name="virtual_sensors",
@@ -131,7 +130,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Virtual Sensors - ML-based sensor data prediction",
-        description_ar="المستشعرات الافتراضية - التنبؤ ببيانات المستشعرات باستخدام التعلم الآلي"
+        description_ar="المستشعرات الافتراضية - التنبؤ ببيانات المستشعرات باستخدام التعلم الآلي",
     ),
     ServiceConfig(
         name="yield_engine",
@@ -139,7 +138,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Yield Prediction Engine - Crop yield forecasting",
-        description_ar="محرك التنبؤ بالإنتاجية - التنبؤ بإنتاجية المحاصيل"
+        description_ar="محرك التنبؤ بالإنتاجية - التنبؤ بإنتاجية المحاصيل",
     ),
     ServiceConfig(
         name="fertilizer_advisor",
@@ -147,7 +146,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Fertilizer Advisor - NPK recommendations based on soil analysis",
-        description_ar="مستشار التسميد - توصيات NPK بناءً على تحليل التربة"
+        description_ar="مستشار التسميد - توصيات NPK بناءً على تحليل التربة",
     ),
     ServiceConfig(
         name="inventory_service",
@@ -155,7 +154,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Inventory Management - Track seeds, fertilizers, equipment",
-        description_ar="إدارة المخزون - تتبع البذور والأسمدة والمعدات"
+        description_ar="إدارة المخزون - تتبع البذور والأسمدة والمعدات",
     ),
     ServiceConfig(
         name="crop_health",
@@ -163,7 +162,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Crop Health Monitoring - Track crop stages and health",
-        description_ar="مراقبة صحة المحاصيل - تتبع مراحل المحاصيل وصحتها"
+        description_ar="مراقبة صحة المحاصيل - تتبع مراحل المحاصيل وصحتها",
     ),
     ServiceConfig(
         name="field_ops",
@@ -171,7 +170,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Field Operations - Manage farming activities and tasks",
-        description_ar="عمليات الحقل - إدارة الأنشطة الزراعية والمهام"
+        description_ar="عمليات الحقل - إدارة الأنشطة الزراعية والمهام",
     ),
     ServiceConfig(
         name="task_service",
@@ -179,7 +178,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Task Management - Create and assign agricultural tasks",
-        description_ar="إدارة المهام - إنشاء وتعيين المهام الزراعية"
+        description_ar="إدارة المهام - إنشاء وتعيين المهام الزراعية",
     ),
     ServiceConfig(
         name="equipment_service",
@@ -187,7 +186,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Equipment Management - Track and maintain farm equipment",
-        description_ar="إدارة المعدات - تتبع وصيانة المعدات الزراعية"
+        description_ar="إدارة المعدات - تتبع وصيانة المعدات الزراعية",
     ),
     ServiceConfig(
         name="field_chat",
@@ -195,7 +194,7 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Field Chat - Communication and collaboration for farmers",
-        description_ar="محادثات الحقل - التواصل والتعاون بين المزارعين"
+        description_ar="محادثات الحقل - التواصل والتعاون بين المزارعين",
     ),
     ServiceConfig(
         name="indicators_service",
@@ -203,9 +202,8 @@ SERVICES = [
         tier="professional",
         type="python",
         description_en="Agricultural Indicators - Calculate and track farm KPIs",
-        description_ar="المؤشرات الزراعية - حساب وتتبع مؤشرات الأداء الزراعي"
+        description_ar="المؤشرات الزراعية - حساب وتتبع مؤشرات الأداء الزراعي",
     ),
-
     # ═══════════════════════════════════════════════════════════════
     # ENTERPRISE PACKAGE - حزمة سهول للمؤسسات
     # ═══════════════════════════════════════════════════════════════
@@ -215,7 +213,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Multi-Agent AI Advisor - RAG-powered agricultural intelligence",
-        description_ar="المستشار الذكي متعدد الوكلاء - الذكاء الزراعي المدعوم بـ RAG"
+        description_ar="المستشار الذكي متعدد الوكلاء - الذكاء الزراعي المدعوم بـ RAG",
     ),
     ServiceConfig(
         name="iot_gateway",
@@ -223,7 +221,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="IoT Gateway - Connect and manage agricultural sensors",
-        description_ar="بوابة إنترنت الأشياء - توصيل وإدارة أجهزة الاستشعار الزراعية"
+        description_ar="بوابة إنترنت الأشياء - توصيل وإدارة أجهزة الاستشعار الزراعية",
     ),
     ServiceConfig(
         name="research_core",
@@ -231,7 +229,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="Research Core - Scientific research and trials management",
-        description_ar="نواة البحث العلمي - إدارة البحوث والتجارب العلمية"
+        description_ar="نواة البحث العلمي - إدارة البحوث والتجارب العلمية",
     ),
     ServiceConfig(
         name="marketplace_service",
@@ -239,7 +237,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="SAHOOL Marketplace - Buy and sell agricultural products",
-        description_ar="سوق سهول - بيع وشراء المنتجات الزراعية"
+        description_ar="سوق سهول - بيع وشراء المنتجات الزراعية",
     ),
     ServiceConfig(
         name="billing_core",
@@ -247,7 +245,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Billing Service - Subscription and payment management",
-        description_ar="خدمة الفوترة - إدارة الاشتراكات والمدفوعات"
+        description_ar="خدمة الفوترة - إدارة الاشتراكات والمدفوعات",
     ),
     ServiceConfig(
         name="disaster_assessment",
@@ -255,7 +253,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="Disaster Assessment - Evaluate agricultural disaster impact",
-        description_ar="تقييم الكوارث - تقييم تأثير الكوارث الزراعية"
+        description_ar="تقييم الكوارث - تقييم تأثير الكوارث الزراعية",
     ),
     ServiceConfig(
         name="crop_growth_model",
@@ -263,7 +261,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="Crop Growth Simulation - WOFOST-based crop modeling",
-        description_ar="محاكاة نمو المحاصيل - نمذجة المحاصيل بناءً على WOFOST"
+        description_ar="محاكاة نمو المحاصيل - نمذجة المحاصيل بناءً على WOFOST",
     ),
     ServiceConfig(
         name="lai_estimation",
@@ -271,7 +269,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="LAI Estimation - Leaf Area Index calculation from satellite",
-        description_ar="تقدير مؤشر مساحة الأوراق - حساب LAI من صور الأقمار"
+        description_ar="تقدير مؤشر مساحة الأوراق - حساب LAI من صور الأقمار",
     ),
     ServiceConfig(
         name="weather_advanced",
@@ -279,7 +277,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Advanced Weather - High-resolution forecasts and climate data",
-        description_ar="الطقس المتقدم - تنبؤات عالية الدقة وبيانات المناخ"
+        description_ar="الطقس المتقدم - تنبؤات عالية الدقة وبيانات المناخ",
     ),
     ServiceConfig(
         name="provider_config",
@@ -287,7 +285,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Provider Configuration - Manage external API integrations",
-        description_ar="تكوين المزودين - إدارة تكاملات الـ API الخارجية"
+        description_ar="تكوين المزودين - إدارة تكاملات الـ API الخارجية",
     ),
     ServiceConfig(
         name="ws_gateway",
@@ -295,7 +293,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="WebSocket Gateway - Real-time data streaming",
-        description_ar="بوابة WebSocket - بث البيانات في الوقت الفعلي"
+        description_ar="بوابة WebSocket - بث البيانات في الوقت الفعلي",
     ),
     ServiceConfig(
         name="community_chat",
@@ -303,7 +301,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="Community Chat - Farmer community discussions",
-        description_ar="محادثات المجتمع - نقاشات مجتمع المزارعين"
+        description_ar="محادثات المجتمع - نقاشات مجتمع المزارعين",
     ),
     ServiceConfig(
         name="iot_service",
@@ -311,7 +309,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="IoT Management - Device provisioning and data processing",
-        description_ar="إدارة إنترنت الأشياء - توفير الأجهزة ومعالجة البيانات"
+        description_ar="إدارة إنترنت الأشياء - توفير الأجهزة ومعالجة البيانات",
     ),
     ServiceConfig(
         name="field_service",
@@ -319,7 +317,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Field Service Management - Coordinate field workers and tasks",
-        description_ar="إدارة خدمات الحقل - تنسيق العمال والمهام الميدانية"
+        description_ar="إدارة خدمات الحقل - تنسيق العمال والمهام الميدانية",
     ),
     ServiceConfig(
         name="alert_service",
@@ -327,7 +325,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Alert Service - Automated alerts for critical events",
-        description_ar="خدمة التنبيهات - تنبيهات تلقائية للأحداث الحرجة"
+        description_ar="خدمة التنبيهات - تنبيهات تلقائية للأحداث الحرجة",
     ),
     ServiceConfig(
         name="ndvi_processor",
@@ -335,7 +333,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="NDVI Processor - Batch processing of satellite imagery",
-        description_ar="معالج NDVI - معالجة دفعات صور الأقمار الصناعية"
+        description_ar="معالج NDVI - معالجة دفعات صور الأقمار الصناعية",
     ),
     ServiceConfig(
         name="yield_prediction",
@@ -343,7 +341,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Yield Prediction ML - Advanced ML models for yield forecasting",
-        description_ar="التنبؤ بالإنتاجية - نماذج تعلم آلي متقدمة للتنبؤ بالإنتاجية"
+        description_ar="التنبؤ بالإنتاجية - نماذج تعلم آلي متقدمة للتنبؤ بالإنتاجية",
     ),
     ServiceConfig(
         name="agro_rules",
@@ -351,7 +349,7 @@ SERVICES = [
         tier="enterprise",
         type="python",
         description_en="Agricultural Rules Engine - Business rules and automation",
-        description_ar="محرك القواعد الزراعية - قواعد العمل والأتمتة"
+        description_ar="محرك القواعد الزراعية - قواعد العمل والأتمتة",
     ),
     ServiceConfig(
         name="chat_service",
@@ -359,7 +357,7 @@ SERVICES = [
         tier="enterprise",
         type="nestjs",
         description_en="Chat Service - General messaging and communication",
-        description_ar="خدمة المحادثة - الرسائل والتواصل العام"
+        description_ar="خدمة المحادثة - الرسائل والتواصل العام",
     ),
 ]
 
@@ -414,12 +412,11 @@ class OpenAPIAggregator:
         for service in self.services:
             spec = self.fetch_spec(service)
             if spec:
-                self.specs[service.name] = {
-                    'spec': spec,
-                    'config': service
-                }
+                self.specs[service.name] = {"spec": spec, "config": service}
 
-        logger.info(f"\nSuccessfully fetched {len(self.specs)}/{len(self.services)} specs")
+        logger.info(
+            f"\nSuccessfully fetched {len(self.specs)}/{len(self.services)} specs"
+        )
         if self.errors:
             logger.warning(f"Failed to fetch {len(self.errors)} specs")
 
@@ -429,51 +426,42 @@ class OpenAPIAggregator:
 
         # Create the base unified spec
         unified_spec = {
-            'openapi': '3.1.0',
-            'info': {
-                'title': 'SAHOOL Platform - Unified API Documentation / واجهات برمجة منصة سهول الموحدة',
-                'version': '1.0.0',
-                'description': self._get_platform_description(),
-                'contact': {
-                    'name': 'SAHOOL Platform',
-                    'url': 'https://sahool.com',
-                    'email': 'support@sahool.com'
+            "openapi": "3.1.0",
+            "info": {
+                "title": "SAHOOL Platform - Unified API Documentation / واجهات برمجة منصة سهول الموحدة",
+                "version": "1.0.0",
+                "description": self._get_platform_description(),
+                "contact": {
+                    "name": "SAHOOL Platform",
+                    "url": "https://sahool.com",
+                    "email": "support@sahool.com",
                 },
-                'license': {
-                    'name': 'Proprietary',
-                    'url': 'https://sahool.com/license'
-                }
+                "license": {"name": "Proprietary", "url": "https://sahool.com/license"},
             },
-            'servers': [
-                {
-                    'url': 'http://localhost',
-                    'description': 'Local Development'
-                },
-                {
-                    'url': 'https://api.sahool.com',
-                    'description': 'Production'
-                }
+            "servers": [
+                {"url": "http://localhost", "description": "Local Development"},
+                {"url": "https://api.sahool.com", "description": "Production"},
             ],
-            'paths': {},
-            'components': {
-                'schemas': {},
-                'securitySchemes': {
-                    'bearerAuth': {
-                        'type': 'http',
-                        'scheme': 'bearer',
-                        'bearerFormat': 'JWT',
-                        'description': 'JWT authentication token / رمز المصادقة JWT'
+            "paths": {},
+            "components": {
+                "schemas": {},
+                "securitySchemes": {
+                    "bearerAuth": {
+                        "type": "http",
+                        "scheme": "bearer",
+                        "bearerFormat": "JWT",
+                        "description": "JWT authentication token / رمز المصادقة JWT",
                     }
-                }
+                },
             },
-            'tags': self._generate_tags(),
-            'x-tagGroups': self._generate_tag_groups()
+            "tags": self._generate_tags(),
+            "x-tagGroups": self._generate_tag_groups(),
         }
 
         # Merge paths and components from each service
         for service_name, service_data in self.specs.items():
-            spec = service_data['spec']
-            config = service_data['config']
+            spec = service_data["spec"]
+            config = service_data["config"]
 
             self._merge_service_paths(unified_spec, spec, config)
             self._merge_service_components(unified_spec, spec, service_name)
@@ -533,13 +521,15 @@ All API endpoints require JWT authentication unless otherwise specified.
             services_by_tier[service.tier].append(service)
 
         # Add tags for each service
-        for tier in ['starter', 'professional', 'enterprise']:
+        for tier in ["starter", "professional", "enterprise"]:
             for service in services_by_tier[tier]:
-                tags.append({
-                    'name': service.name,
-                    'description': f"{service.description_en}\n\n{service.description_ar}",
-                    'x-tier': tier
-                })
+                tags.append(
+                    {
+                        "name": service.name,
+                        "description": f"{service.description_en}\n\n{service.description_ar}",
+                        "x-tier": tier,
+                    }
+                )
 
         return tags
 
@@ -547,80 +537,86 @@ All API endpoints require JWT authentication unless otherwise specified.
         """Generate tag groups for organizing services by tier"""
         return [
             {
-                'name': '🌱 Starter Package - الباقة المبتدئة',
-                'tags': [s.name for s in self.services if s.tier == 'starter']
+                "name": "🌱 Starter Package - الباقة المبتدئة",
+                "tags": [s.name for s in self.services if s.tier == "starter"],
             },
             {
-                'name': '🚜 Professional Package - الباقة الاحترافية',
-                'tags': [s.name for s in self.services if s.tier == 'professional']
+                "name": "🚜 Professional Package - الباقة الاحترافية",
+                "tags": [s.name for s in self.services if s.tier == "professional"],
             },
             {
-                'name': '🏢 Enterprise Package - الباقة المؤسسية',
-                'tags': [s.name for s in self.services if s.tier == 'enterprise']
-            }
+                "name": "🏢 Enterprise Package - الباقة المؤسسية",
+                "tags": [s.name for s in self.services if s.tier == "enterprise"],
+            },
         ]
 
-    def _merge_service_paths(self, unified: Dict, service_spec: Dict, config: ServiceConfig):
+    def _merge_service_paths(
+        self, unified: Dict, service_spec: Dict, config: ServiceConfig
+    ):
         """Merge paths from a service spec into the unified spec"""
-        if 'paths' not in service_spec:
+        if "paths" not in service_spec:
             return
 
-        for path, path_item in service_spec['paths'].items():
+        for path, path_item in service_spec["paths"].items():
             # Prefix path with service name to avoid conflicts
             unified_path = f"/{config.name}{path}"
 
             # Add service tag to all operations
-            for method in ['get', 'post', 'put', 'patch', 'delete', 'options', 'head']:
+            for method in ["get", "post", "put", "patch", "delete", "options", "head"]:
                 if method in path_item:
                     operation = path_item[method]
 
                     # Add service tag
-                    if 'tags' not in operation:
-                        operation['tags'] = []
-                    if config.name not in operation['tags']:
-                        operation['tags'].insert(0, config.name)
+                    if "tags" not in operation:
+                        operation["tags"] = []
+                    if config.name not in operation["tags"]:
+                        operation["tags"].insert(0, config.name)
 
                     # Add tier information
-                    operation['x-tier'] = config.tier
+                    operation["x-tier"] = config.tier
 
                     # Add server override for this operation
-                    operation['servers'] = [{
-                        'url': f'http://localhost:{config.port}',
-                        'description': f'{config.description_en}'
-                    }]
+                    operation["servers"] = [
+                        {
+                            "url": f"http://localhost:{config.port}",
+                            "description": f"{config.description_en}",
+                        }
+                    ]
 
-            unified['paths'][unified_path] = path_item
+            unified["paths"][unified_path] = path_item
 
-    def _merge_service_components(self, unified: Dict, service_spec: Dict, service_name: str):
+    def _merge_service_components(
+        self, unified: Dict, service_spec: Dict, service_name: str
+    ):
         """Merge components (schemas) from a service spec"""
-        if 'components' not in service_spec:
+        if "components" not in service_spec:
             return
 
-        if 'schemas' in service_spec['components']:
-            for schema_name, schema in service_spec['components']['schemas'].items():
+        if "schemas" in service_spec["components"]:
+            for schema_name, schema in service_spec["components"]["schemas"].items():
                 # Prefix schema name with service name to avoid conflicts
                 unified_schema_name = f"{service_name}_{schema_name}"
-                unified['components']['schemas'][unified_schema_name] = schema
+                unified["components"]["schemas"][unified_schema_name] = schema
 
     def save_to_file(self, spec: Dict, output_file: str):
         """Save the unified spec to a YAML file"""
         logger.info(f"Saving unified spec to {output_file}")
 
         try:
-            with open(output_file, 'w', encoding='utf-8') as f:
+            with open(output_file, "w", encoding="utf-8") as f:
                 yaml.dump(
                     spec,
                     f,
                     default_flow_style=False,
                     allow_unicode=True,
                     sort_keys=False,
-                    width=120
+                    width=120,
                 )
             logger.info(f"✓ Successfully saved to {output_file}")
 
             # Also save as JSON for easier programmatic access
-            json_file = output_file.replace('.yaml', '.json')
-            with open(json_file, 'w', encoding='utf-8') as f:
+            json_file = output_file.replace(".yaml", ".json")
+            with open(json_file, "w", encoding="utf-8") as f:
                 json.dump(spec, f, indent=2, ensure_ascii=False)
             logger.info(f"✓ Also saved JSON version to {json_file}")
 
@@ -630,17 +626,17 @@ All API endpoints require JWT authentication unless otherwise specified.
 
     def print_summary(self):
         """Print a summary of the aggregation"""
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("SAHOOL OpenAPI Aggregation Summary")
-        print("="*80)
+        print("=" * 80)
 
         # Group by tier
         services_by_tier = defaultdict(list)
         for service_name, service_data in self.specs.items():
-            tier = service_data['config'].tier
+            tier = service_data["config"].tier
             services_by_tier[tier].append(service_name)
 
-        for tier in ['starter', 'professional', 'enterprise']:
+        for tier in ["starter", "professional", "enterprise"]:
             print(f"\n{tier.upper()} TIER: {len(services_by_tier[tier])} services")
             for service in sorted(services_by_tier[tier]):
                 print(f"  ✓ {service}")
@@ -650,9 +646,9 @@ All API endpoints require JWT authentication unless otherwise specified.
             for error in self.errors:
                 print(f"  {error}")
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print(f"Total: {len(self.specs)}/{len(self.services)} services aggregated")
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
 
 def main():
@@ -667,7 +663,9 @@ def main():
         # Check if we got at least some specs
         if not aggregator.specs:
             logger.error("Failed to fetch any OpenAPI specs. Are the services running?")
-            logger.info("Start services with: docker-compose -f packages/starter/docker-compose.yml up -d")
+            logger.info(
+                "Start services with: docker-compose -f packages/starter/docker-compose.yml up -d"
+            )
             sys.exit(1)
 
         # Merge specs
@@ -685,6 +683,7 @@ def main():
     except Exception as e:
         logger.error(f"✗ Fatal error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

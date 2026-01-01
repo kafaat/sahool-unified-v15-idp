@@ -27,21 +27,21 @@ def create_golden_dataset() -> List[Dict[str, Any]]:
                 "context": {
                     "crop_type": "wheat",
                     "location": "Yemen",
-                    "season": "winter"
-                }
+                    "season": "winter",
+                },
             },
             "expected_output": {
                 "response": "Yellow spots on wheat leaves typically indicate fungal disease such as leaf rust or septoria.",
                 "agents": ["disease_expert"],
                 "key_points": ["yellow spots", "fungal disease", "wheat", "treatment"],
-                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"]
+                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["disease", "wheat", "leaf"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # Arabic: Disease Diagnosis
         {
@@ -53,21 +53,21 @@ def create_golden_dataset() -> List[Dict[str, Any]]:
                 "context": {
                     "crop_type": "wheat",
                     "location": "اليمن",
-                    "season": "شتاء"
-                }
+                    "season": "شتاء",
+                },
             },
             "expected_output": {
                 "response": "البقع الصفراء على أوراق القمح تشير عادة إلى مرض فطري مثل صدأ الأوراق",
                 "agents": ["disease_expert"],
                 "key_points": ["بقع صفراء", "مرض فطري", "القمح", "علاج"],
-                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"]
+                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["مرض", "القمح"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # English: Irrigation Advice
         {
@@ -80,21 +80,26 @@ def create_golden_dataset() -> List[Dict[str, Any]]:
                     "crop_type": "tomato",
                     "growth_stage": "flowering",
                     "soil_moisture": 45,
-                    "temperature": 28
-                }
+                    "temperature": 28,
+                },
             },
             "expected_output": {
                 "response": "Tomato plants during flowering stage need consistent moisture. Irrigate when soil moisture drops below 50%.",
                 "agents": ["irrigation_advisor"],
-                "key_points": ["tomato", "flowering", "soil moisture", "irrigation schedule"],
-                "safety_constraints": ["water_conservation", "no_overwatering"]
+                "key_points": [
+                    "tomato",
+                    "flowering",
+                    "soil moisture",
+                    "irrigation schedule",
+                ],
+                "safety_constraints": ["water_conservation", "no_overwatering"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["irrigation", "tomato", "moisture"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # English: Field Analysis
         {
@@ -107,21 +112,21 @@ def create_golden_dataset() -> List[Dict[str, Any]]:
                     "field_id": "field-123",
                     "crop_type": "corn",
                     "ndvi_average": 0.65,
-                    "growth_stage": "vegetative"
-                }
+                    "growth_stage": "vegetative",
+                },
             },
             "expected_output": {
                 "response": "NDVI of 0.65 indicates moderate vegetation health. Corn in vegetative stage should have higher values.",
                 "agents": ["field_analyst"],
                 "key_points": ["NDVI", "corn", "field health", "vegetation"],
-                "safety_constraints": ["accurate_analysis"]
+                "safety_constraints": ["accurate_analysis"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["NDVI", "corn", "health"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # English: Yield Prediction
         {
@@ -134,21 +139,21 @@ def create_golden_dataset() -> List[Dict[str, Any]]:
                     "crop_type": "wheat",
                     "field_size_hectares": 10,
                     "growth_stage": "grain filling",
-                    "weather_conditions": "favorable"
-                }
+                    "weather_conditions": "favorable",
+                },
             },
             "expected_output": {
                 "response": "Based on favorable conditions and grain filling stage, expect 4-5 tons per hectare yield.",
                 "agents": ["yield_predictor"],
                 "key_points": ["yield", "wheat", "prediction", "tons per hectare"],
-                "safety_constraints": ["realistic_expectations"]
+                "safety_constraints": ["realistic_expectations"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["yield", "wheat", "tons"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # Multi-agent coordination test
         {
@@ -161,21 +166,21 @@ def create_golden_dataset() -> List[Dict[str, Any]]:
                     "crop_type": "wheat",
                     "ndvi_average": 0.45,
                     "soil_moisture": 30,
-                    "growth_stage": "heading"
-                }
+                    "growth_stage": "heading",
+                },
             },
             "expected_output": {
                 "response": "Low NDVI and soil moisture indicate stress. Immediate irrigation recommended to prevent yield loss.",
                 "agents": ["field_analyst", "irrigation_advisor", "yield_predictor"],
                 "key_points": ["NDVI", "irrigation", "yield impact", "coordination"],
-                "safety_constraints": ["holistic_advice"]
+                "safety_constraints": ["holistic_advice"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.70,
                 "required_keywords": ["NDVI", "irrigation", "yield"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 8000
-            }
+                "max_latency_ms": 8000,
+            },
         },
     ]
 

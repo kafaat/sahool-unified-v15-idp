@@ -28,6 +28,7 @@ router = APIRouter(prefix="/v1/alerts", tags=["Alerts"])
 
 class InventoryAlertResponse(BaseModel):
     """Alert response model"""
+
     id: str
     alert_type: str
     priority: str
@@ -55,6 +56,7 @@ class InventoryAlertResponse(BaseModel):
 
 class AlertSettingsModel(BaseModel):
     """Alert settings"""
+
     expiry_warning_days: int = 30
     expiry_critical_days: int = 7
     enable_email_alerts: bool = True
@@ -64,17 +66,20 @@ class AlertSettingsModel(BaseModel):
 
 class AcknowledgeAlertRequest(BaseModel):
     """Acknowledge alert request"""
+
     acknowledged_by: str
 
 
 class ResolveAlertRequest(BaseModel):
     """Resolve alert request"""
+
     resolved_by: str
     resolution_notes: Optional[str] = None
 
 
 class SnoozeAlertRequest(BaseModel):
     """Snooze alert request"""
+
     snooze_hours: int = Field(24, ge=1, le=168)
 
 
@@ -117,22 +122,25 @@ async def get_alerts(
             try:
                 priority_enum = AlertPriority[priority.upper()]
             except KeyError:
-                raise HTTPException(status_code=400, detail=f"Invalid priority: {priority}")
+                raise HTTPException(
+                    status_code=400, detail=f"Invalid priority: {priority}"
+                )
 
         type_enum = None
         if alert_type:
             try:
                 type_enum = AlertType[alert_type.upper()]
             except KeyError:
-                raise HTTPException(status_code=400, detail=f"Invalid alert type: {alert_type}")
+                raise HTTPException(
+                    status_code=400, detail=f"Invalid alert type: {alert_type}"
+                )
 
         alerts = await manager.get_active_alerts(
-            priority=priority_enum,
-            alert_type=type_enum
+            priority=priority_enum, alert_type=type_enum
         )
 
         total = len(alerts)
-        paginated = alerts[offset:offset + limit]
+        paginated = alerts[offset : offset + limit]
 
         return {
             "alerts": [alert.to_dict() for alert in paginated],
@@ -187,17 +195,11 @@ async def get_alerts_summary():
 
 
 @router.post("/{alert_id}/acknowledge")
-async def acknowledge_alert(
-    alert_id: str,
-    data: AcknowledgeAlertRequest
-):
+async def acknowledge_alert(alert_id: str, data: AcknowledgeAlertRequest):
     """Acknowledge an alert"""
     try:
         manager = get_alert_manager()
-        alert = await manager.acknowledge_alert(
-            alert_id,
-            data.acknowledged_by
-        )
+        alert = await manager.acknowledge_alert(alert_id, data.acknowledged_by)
 
         if not alert:
             raise HTTPException(status_code=404, detail="Alert not found")
@@ -214,17 +216,12 @@ async def acknowledge_alert(
 
 
 @router.post("/{alert_id}/resolve")
-async def resolve_alert(
-    alert_id: str,
-    data: ResolveAlertRequest
-):
+async def resolve_alert(alert_id: str, data: ResolveAlertRequest):
     """Resolve an alert"""
     try:
         manager = get_alert_manager()
         alert = await manager.resolve_alert(
-            alert_id,
-            data.resolved_by,
-            data.resolution_notes
+            alert_id, data.resolved_by, data.resolution_notes
         )
 
         if not alert:
@@ -242,17 +239,11 @@ async def resolve_alert(
 
 
 @router.post("/{alert_id}/snooze")
-async def snooze_alert(
-    alert_id: str,
-    data: SnoozeAlertRequest
-):
+async def snooze_alert(alert_id: str, data: SnoozeAlertRequest):
     """Snooze an alert"""
     try:
         manager = get_alert_manager()
-        alert = await manager.snooze_alert(
-            alert_id,
-            data.snooze_hours
-        )
+        alert = await manager.snooze_alert(alert_id, data.snooze_hours)
 
         if not alert:
             raise HTTPException(status_code=404, detail="Alert not found")
@@ -271,15 +262,13 @@ async def snooze_alert(
 @router.post("/check-now")
 async def check_alerts_now(background_tasks: BackgroundTasks):
     """Trigger immediate alert check"""
+
     async def run_check():
         manager = get_alert_manager()
         await manager.check_all_alerts()
 
     background_tasks.add_task(run_check)
-    return {
-        "message": "Alert check initiated",
-        "status": "processing"
-    }
+    return {"message": "Alert check initiated", "status": "processing"}
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -292,20 +281,22 @@ settings_db = {}  # In-memory settings storage
 @router.get("/settings")
 async def get_alert_settings(tenant_id: str = "tenant_demo"):
     """Get alert settings"""
-    settings = settings_db.get(tenant_id, {
-        "expiry_warning_days": 30,
-        "expiry_critical_days": 7,
-        "enable_email_alerts": True,
-        "enable_push_alerts": True,
-        "alert_check_interval": 60,
-    })
+    settings = settings_db.get(
+        tenant_id,
+        {
+            "expiry_warning_days": 30,
+            "expiry_critical_days": 7,
+            "enable_email_alerts": True,
+            "enable_push_alerts": True,
+            "alert_check_interval": 60,
+        },
+    )
     return settings
 
 
 @router.put("/settings")
 async def update_alert_settings(
-    data: AlertSettingsModel,
-    tenant_id: str = "tenant_demo"
+    data: AlertSettingsModel, tenant_id: str = "tenant_demo"
 ):
     """Update alert settings"""
     settings = data.model_dump()

@@ -26,7 +26,7 @@ class ChannelsService:
     @staticmethod
     def generate_verification_code(length: int = 6) -> str:
         """Generate a random verification code"""
-        return ''.join(random.choices(string.digits, k=length))
+        return "".join(random.choices(string.digits, k=length))
 
     @staticmethod
     async def add_channel(
@@ -58,7 +58,11 @@ class ChannelsService:
                 raise ValueError(f"Invalid channel type: {channel_type}")
 
             # Determine if verification is needed
-            needs_verification = channel_type in [ChannelType.EMAIL, ChannelType.SMS, ChannelType.WHATSAPP]
+            needs_verification = channel_type in [
+                ChannelType.EMAIL,
+                ChannelType.SMS,
+                ChannelType.WHATSAPP,
+            ]
             verification_code = None
 
             if needs_verification:
@@ -258,7 +262,9 @@ class ChannelsService:
                     "channel": channel.channel.value,
                     "address": channel.address,
                     "verified": channel.verified,
-                    "verified_at": channel.verified_at.isoformat() if channel.verified_at else None,
+                    "verified_at": (
+                        channel.verified_at.isoformat() if channel.verified_at else None
+                    ),
                     "enabled": channel.enabled,
                     "metadata": channel.metadata,
                     "created_at": channel.created_at.isoformat(),

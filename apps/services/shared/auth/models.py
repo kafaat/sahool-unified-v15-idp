@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 
 class UserStatus(str, Enum):
     """User account status"""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     SUSPENDED = "suspended"
@@ -20,12 +21,13 @@ class UserStatus(str, Enum):
 
 class RoleType(str, Enum):
     """Predefined role types"""
-    SUPER_ADMIN = "super_admin"        # Full system access
-    TENANT_ADMIN = "tenant_admin"      # Full tenant access
-    FARM_MANAGER = "farm_manager"      # Farm management
+
+    SUPER_ADMIN = "super_admin"  # Full system access
+    TENANT_ADMIN = "tenant_admin"  # Full tenant access
+    FARM_MANAGER = "farm_manager"  # Farm management
     FIELD_OPERATOR = "field_operator"  # Field operations
-    AGRONOMIST = "agronomist"          # Crop & soil analysis
-    VIEWER = "viewer"                  # Read-only access
+    AGRONOMIST = "agronomist"  # Crop & soil analysis
+    VIEWER = "viewer"  # Read-only access
 
 
 @dataclass
@@ -34,6 +36,7 @@ class Permission:
     Permission definition
     تعريف الصلاحية
     """
+
     id: str
     name: str
     description: str = ""
@@ -55,6 +58,7 @@ class Role:
     Role definition with permissions
     تعريف الدور مع الصلاحيات
     """
+
     id: str
     name: str
     description: str = ""
@@ -84,6 +88,7 @@ class User:
     User model for authentication
     نموذج المستخدم للمصادقة
     """
+
     id: str
     email: str
     hashed_password: str
@@ -185,11 +190,17 @@ PERM_CROP_DELETE = Permission("crop:delete", "Delete crops", "crop", ["delete"])
 
 # Sensor permissions
 PERM_SENSOR_READ = Permission("sensor:read", "View sensor data", "sensor", ["read"])
-PERM_SENSOR_MANAGE = Permission("sensor:manage", "Manage sensors", "sensor", ["create", "update", "delete"])
+PERM_SENSOR_MANAGE = Permission(
+    "sensor:manage", "Manage sensors", "sensor", ["create", "update", "delete"]
+)
 
 # Irrigation permissions
-PERM_IRRIGATION_VIEW = Permission("irrigation:view", "View irrigation", "irrigation", ["read"])
-PERM_IRRIGATION_CONTROL = Permission("irrigation:control", "Control irrigation", "irrigation", ["update"])
+PERM_IRRIGATION_VIEW = Permission(
+    "irrigation:view", "View irrigation", "irrigation", ["read"]
+)
+PERM_IRRIGATION_CONTROL = Permission(
+    "irrigation:control", "Control irrigation", "irrigation", ["update"]
+)
 
 # Report permissions
 PERM_REPORT_VIEW = Permission("report:view", "View reports", "report", ["read"])
@@ -197,15 +208,21 @@ PERM_REPORT_EXPORT = Permission("report:export", "Export reports", "report", ["e
 
 # Billing permissions
 PERM_BILLING_VIEW = Permission("billing:view", "View billing", "billing", ["read"])
-PERM_BILLING_MANAGE = Permission("billing:manage", "Manage billing", "billing", ["create", "update", "delete"])
+PERM_BILLING_MANAGE = Permission(
+    "billing:manage", "Manage billing", "billing", ["create", "update", "delete"]
+)
 
 # User management permissions
 PERM_USER_READ = Permission("user:read", "View users", "user", ["read"])
-PERM_USER_MANAGE = Permission("user:manage", "Manage users", "user", ["create", "update", "delete"])
+PERM_USER_MANAGE = Permission(
+    "user:manage", "Manage users", "user", ["create", "update", "delete"]
+)
 
 # Role management permissions
 PERM_ROLE_READ = Permission("role:read", "View roles", "role", ["read"])
-PERM_ROLE_MANAGE = Permission("role:manage", "Manage roles", "role", ["create", "update", "delete"])
+PERM_ROLE_MANAGE = Permission(
+    "role:manage", "Manage roles", "role", ["create", "update", "delete"]
+)
 
 # System permissions
 PERM_SYSTEM_ADMIN = Permission("system:admin", "System administration", "system", ["*"])
@@ -221,7 +238,7 @@ ROLE_SUPER_ADMIN = Role(
     name=RoleType.SUPER_ADMIN.value,
     description="Full system access",
     is_system_role=True,
-    permissions={PERM_SYSTEM_ADMIN}
+    permissions={PERM_SYSTEM_ADMIN},
 )
 
 ROLE_TENANT_ADMIN = Role(
@@ -230,16 +247,31 @@ ROLE_TENANT_ADMIN = Role(
     description="Full tenant access",
     is_system_role=True,
     permissions={
-        PERM_FARM_CREATE, PERM_FARM_READ, PERM_FARM_UPDATE, PERM_FARM_DELETE,
-        PERM_FIELD_CREATE, PERM_FIELD_READ, PERM_FIELD_UPDATE, PERM_FIELD_DELETE,
-        PERM_CROP_CREATE, PERM_CROP_READ, PERM_CROP_UPDATE, PERM_CROP_DELETE,
-        PERM_SENSOR_READ, PERM_SENSOR_MANAGE,
-        PERM_IRRIGATION_VIEW, PERM_IRRIGATION_CONTROL,
-        PERM_REPORT_VIEW, PERM_REPORT_EXPORT,
-        PERM_BILLING_VIEW, PERM_BILLING_MANAGE,
-        PERM_USER_READ, PERM_USER_MANAGE,
-        PERM_ROLE_READ, PERM_ROLE_MANAGE,
-    }
+        PERM_FARM_CREATE,
+        PERM_FARM_READ,
+        PERM_FARM_UPDATE,
+        PERM_FARM_DELETE,
+        PERM_FIELD_CREATE,
+        PERM_FIELD_READ,
+        PERM_FIELD_UPDATE,
+        PERM_FIELD_DELETE,
+        PERM_CROP_CREATE,
+        PERM_CROP_READ,
+        PERM_CROP_UPDATE,
+        PERM_CROP_DELETE,
+        PERM_SENSOR_READ,
+        PERM_SENSOR_MANAGE,
+        PERM_IRRIGATION_VIEW,
+        PERM_IRRIGATION_CONTROL,
+        PERM_REPORT_VIEW,
+        PERM_REPORT_EXPORT,
+        PERM_BILLING_VIEW,
+        PERM_BILLING_MANAGE,
+        PERM_USER_READ,
+        PERM_USER_MANAGE,
+        PERM_ROLE_READ,
+        PERM_ROLE_MANAGE,
+    },
 )
 
 ROLE_FARM_MANAGER = Role(
@@ -248,14 +280,24 @@ ROLE_FARM_MANAGER = Role(
     description="Farm management access",
     is_system_role=True,
     permissions={
-        PERM_FARM_READ, PERM_FARM_UPDATE,
-        PERM_FIELD_CREATE, PERM_FIELD_READ, PERM_FIELD_UPDATE, PERM_FIELD_DELETE,
-        PERM_CROP_CREATE, PERM_CROP_READ, PERM_CROP_UPDATE, PERM_CROP_DELETE,
-        PERM_SENSOR_READ, PERM_SENSOR_MANAGE,
-        PERM_IRRIGATION_VIEW, PERM_IRRIGATION_CONTROL,
-        PERM_REPORT_VIEW, PERM_REPORT_EXPORT,
+        PERM_FARM_READ,
+        PERM_FARM_UPDATE,
+        PERM_FIELD_CREATE,
+        PERM_FIELD_READ,
+        PERM_FIELD_UPDATE,
+        PERM_FIELD_DELETE,
+        PERM_CROP_CREATE,
+        PERM_CROP_READ,
+        PERM_CROP_UPDATE,
+        PERM_CROP_DELETE,
+        PERM_SENSOR_READ,
+        PERM_SENSOR_MANAGE,
+        PERM_IRRIGATION_VIEW,
+        PERM_IRRIGATION_CONTROL,
+        PERM_REPORT_VIEW,
+        PERM_REPORT_EXPORT,
         PERM_USER_READ,
-    }
+    },
 )
 
 ROLE_FIELD_OPERATOR = Role(
@@ -265,11 +307,14 @@ ROLE_FIELD_OPERATOR = Role(
     is_system_role=True,
     permissions={
         PERM_FARM_READ,
-        PERM_FIELD_READ, PERM_FIELD_UPDATE,
-        PERM_CROP_READ, PERM_CROP_UPDATE,
+        PERM_FIELD_READ,
+        PERM_FIELD_UPDATE,
+        PERM_CROP_READ,
+        PERM_CROP_UPDATE,
         PERM_SENSOR_READ,
-        PERM_IRRIGATION_VIEW, PERM_IRRIGATION_CONTROL,
-    }
+        PERM_IRRIGATION_VIEW,
+        PERM_IRRIGATION_CONTROL,
+    },
 )
 
 ROLE_AGRONOMIST = Role(
@@ -280,10 +325,12 @@ ROLE_AGRONOMIST = Role(
     permissions={
         PERM_FARM_READ,
         PERM_FIELD_READ,
-        PERM_CROP_READ, PERM_CROP_UPDATE,
+        PERM_CROP_READ,
+        PERM_CROP_UPDATE,
         PERM_SENSOR_READ,
-        PERM_REPORT_VIEW, PERM_REPORT_EXPORT,
-    }
+        PERM_REPORT_VIEW,
+        PERM_REPORT_EXPORT,
+    },
 )
 
 ROLE_VIEWER = Role(
@@ -297,7 +344,7 @@ ROLE_VIEWER = Role(
         PERM_CROP_READ,
         PERM_SENSOR_READ,
         PERM_REPORT_VIEW,
-    }
+    },
 )
 
 # Role registry

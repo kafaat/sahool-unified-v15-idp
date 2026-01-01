@@ -15,11 +15,11 @@ BASE_URL = "http://localhost:8110"
 
 
 class Colors:
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BLUE = '\033[94m'
-    END = '\033[0m'
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BLUE = "\033[94m"
+    END = "\033[0m"
 
 
 def print_test(name: str):
@@ -49,12 +49,16 @@ async def test_health_check():
             data = response.json()
             print_success(f"Health check passed")
             print_info(f"Service: {data.get('service')} v{data.get('version')}")
-            print_info(f"Database status: {data.get('database', {}).get('status', 'unknown')}")
+            print_info(
+                f"Database status: {data.get('database', {}).get('status', 'unknown')}"
+            )
             print_info(f"NATS connected: {data.get('nats_connected')}")
 
-            if data.get('stats'):
-                stats = data['stats']
-                print_info(f"Total notifications: {stats.get('total_notifications', 0)}")
+            if data.get("stats"):
+                stats = data["stats"]
+                print_info(
+                    f"Total notifications: {stats.get('total_notifications', 0)}"
+                )
                 print_info(f"Pending: {stats.get('pending_notifications', 0)}")
 
             return True
@@ -74,13 +78,10 @@ async def test_create_notification():
         "title_ar": "اختبار تنبيه طقس",
         "body": "This is a test weather alert",
         "body_ar": "هذا اختبار لتنبيه الطقس",
-        "data": {
-            "temperature": 35,
-            "humidity": 80
-        },
+        "data": {"temperature": 35, "humidity": 80},
         "target_farmers": ["farmer-1"],
         "channels": ["in_app", "push"],
-        "expires_in_hours": 24
+        "expires_in_hours": 24,
     }
 
     async with httpx.AsyncClient() as client:
@@ -92,7 +93,7 @@ async def test_create_notification():
             print_info(f"ID: {data.get('id')}")
             print_info(f"Type: {data.get('type')} ({data.get('type_ar')})")
             print_info(f"Priority: {data.get('priority')} ({data.get('priority_ar')})")
-            return data.get('id')
+            return data.get("id")
         else:
             print_error(f"Failed to create notification: {response.status_code}")
             print_error(f"Response: {response.text}")
@@ -108,10 +109,7 @@ async def test_weather_alert():
         "alert_type": "frost",
         "severity": "critical",
         "expected_date": date.today().isoformat(),
-        "details": {
-            "min_temperature": -2,
-            "duration_hours": 8
-        }
+        "details": {"min_temperature": -2, "duration_hours": 8},
     }
 
     async with httpx.AsyncClient() as client:
@@ -122,7 +120,7 @@ async def test_weather_alert():
             print_success(f"Weather alert created")
             print_info(f"ID: {data.get('id')}")
             print_info(f"Title (AR): {data.get('title_ar')}")
-            return data.get('id')
+            return data.get("id")
         else:
             print_error(f"Failed to create weather alert: {response.status_code}")
             return None
@@ -139,7 +137,7 @@ async def test_pest_alert():
         "affected_crops": ["tomato", "wheat"],
         "severity": "high",
         "recommendations": ["Use organic pesticides", "Increase monitoring"],
-        "recommendations_ar": ["استخدم المبيدات العضوية", "زد من المراقبة"]
+        "recommendations_ar": ["استخدم المبيدات العضوية", "زد من المراقبة"],
     }
 
     async with httpx.AsyncClient() as client:
@@ -150,7 +148,7 @@ async def test_pest_alert():
             print_success(f"Pest alert created")
             print_info(f"ID: {data.get('id')}")
             print_info(f"Title (AR): {data.get('title_ar')}")
-            return data.get('id')
+            return data.get("id")
         else:
             print_error(f"Failed to create pest alert: {response.status_code}")
             return None
@@ -166,18 +164,20 @@ async def test_irrigation_reminder():
         "field_name": "North Field",
         "crop": "tomato",
         "water_needed_mm": 25.5,
-        "urgency": "medium"
+        "urgency": "medium",
     }
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(f"{BASE_URL}/v1/reminders/irrigation", json=payload)
+        response = await client.post(
+            f"{BASE_URL}/v1/reminders/irrigation", json=payload
+        )
 
         if response.status_code == 200:
             data = response.json()
             print_success(f"Irrigation reminder created")
             print_info(f"ID: {data.get('id')}")
             print_info(f"Title (AR): {data.get('title_ar')}")
-            return data.get('id')
+            return data.get("id")
         else:
             print_error(f"Failed to create irrigation reminder: {response.status_code}")
             return None
@@ -196,7 +196,7 @@ async def test_get_farmer_notifications():
             print_info(f"Total: {data.get('total')}")
             print_info(f"Unread: {data.get('unread_count')}")
 
-            notifications = data.get('notifications', [])
+            notifications = data.get("notifications", [])
             if notifications:
                 print_info(f"Latest notification: {notifications[0].get('title_ar')}")
 
@@ -217,7 +217,7 @@ async def test_mark_as_read(notification_id: str):
     async with httpx.AsyncClient() as client:
         response = await client.patch(
             f"{BASE_URL}/v1/notifications/{notification_id}/read",
-            params={"farmer_id": "farmer-1"}
+            params={"farmer_id": "farmer-1"},
         )
 
         if response.status_code == 200:
@@ -243,13 +243,15 @@ async def test_broadcast_notifications():
             print_success(f"Retrieved broadcast notifications")
             print_info(f"Total: {data.get('total')}")
 
-            notifications = data.get('notifications', [])
+            notifications = data.get("notifications", [])
             if notifications:
                 print_info(f"Latest: {notifications[0].get('title_ar')}")
 
             return True
         else:
-            print_error(f"Failed to get broadcast notifications: {response.status_code}")
+            print_error(
+                f"Failed to get broadcast notifications: {response.status_code}"
+            )
             return False
 
 
@@ -266,13 +268,12 @@ async def test_update_preferences():
         "market_prices": False,
         "quiet_hours_start": "22:00",
         "quiet_hours_end": "06:00",
-        "min_priority": "medium"
+        "min_priority": "medium",
     }
 
     async with httpx.AsyncClient() as client:
         response = await client.put(
-            f"{BASE_URL}/v1/farmers/farmer-1/preferences",
-            json=payload
+            f"{BASE_URL}/v1/farmers/farmer-1/preferences", json=payload
         )
 
         if response.status_code == 200:
@@ -300,7 +301,7 @@ async def test_stats():
             print_info(f"Active weather alerts: {data.get('active_weather_alerts')}")
             print_info(f"Active pest alerts: {data.get('active_pest_alerts')}")
 
-            by_type = data.get('by_type', {})
+            by_type = data.get("by_type", {})
             if by_type:
                 print_info(f"By type: {by_type}")
 
@@ -392,4 +393,5 @@ if __name__ == "__main__":
     except Exception as e:
         print_error(f"Test failed with error: {e}")
         import traceback
+
         traceback.print_exc()

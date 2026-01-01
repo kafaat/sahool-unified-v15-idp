@@ -20,7 +20,6 @@ Usage:
     await nats.publish(SAHOOL_FIELD_CREATED, event_data)
 """
 
-
 # ─────────────────────────────────────────────────────────────────────────────
 # Field Subjects - موضوعات الحقول
 # ─────────────────────────────────────────────────────────────────────────────
@@ -328,23 +327,18 @@ SUBJECT_REGISTRY = {
     "field.created": SAHOOL_FIELD_CREATED,
     "field.updated": SAHOOL_FIELD_UPDATED,
     "field.deleted": SAHOOL_FIELD_DELETED,
-
     # Weather
     "weather.forecast": SAHOOL_WEATHER_FORECAST,
     "weather.alert": SAHOOL_WEATHER_ALERT,
-
     # Satellite
     "satellite.data.ready": SAHOOL_SATELLITE_DATA_READY,
     "satellite.anomaly": SAHOOL_SATELLITE_ANOMALY,
-
     # Health
     "health.disease.detected": SAHOOL_HEALTH_DISEASE_DETECTED,
     "health.stress.detected": SAHOOL_HEALTH_STRESS_DETECTED,
-
     # Inventory
     "inventory.low_stock": SAHOOL_INVENTORY_LOW_STOCK,
     "inventory.batch.expired": SAHOOL_INVENTORY_BATCH_EXPIRED,
-
     # Billing
     "billing.subscription.created": SAHOOL_BILLING_SUBSCRIPTION_CREATED,
     "billing.payment.completed": SAHOOL_BILLING_PAYMENT_COMPLETED,

@@ -36,7 +36,7 @@ class AuditService:
         compliance_record: ComplianceRecord,
         non_conformities: List[NonConformity],
         audit_type: str = "internal",
-        auditor_name: str = ""
+        auditor_name: str = "",
     ) -> AuditResult:
         """
         Prepare a comprehensive audit report
@@ -56,20 +56,16 @@ class AuditService:
         # Count findings by severity
         # عد النتائج حسب الخطورة
         critical_findings = sum(
-            1 for nc in non_conformities
-            if nc.severity == SeverityLevel.CRITICAL
+            1 for nc in non_conformities if nc.severity == SeverityLevel.CRITICAL
         )
         major_findings = sum(
-            1 for nc in non_conformities
-            if nc.severity == SeverityLevel.MAJOR
+            1 for nc in non_conformities if nc.severity == SeverityLevel.MAJOR
         )
         minor_findings = sum(
-            1 for nc in non_conformities
-            if nc.severity == SeverityLevel.MINOR
+            1 for nc in non_conformities if nc.severity == SeverityLevel.MINOR
         )
         observations = sum(
-            1 for nc in non_conformities
-            if nc.severity == SeverityLevel.OBSERVATION
+            1 for nc in non_conformities if nc.severity == SeverityLevel.OBSERVATION
         )
 
         # Determine audit status
@@ -77,14 +73,13 @@ class AuditService:
         audit_status = self._determine_audit_status(
             compliance_percentage=compliance_record.compliance_percentage,
             major_must_fails=compliance_record.major_must_fails,
-            critical_findings=critical_findings
+            critical_findings=critical_findings,
         )
 
         # Generate recommendations
         # إنشاء التوصيات
         recommendations = self._generate_recommendations(
-            compliance_record=compliance_record,
-            non_conformities=non_conformities
+            compliance_record=compliance_record, non_conformities=non_conformities
         )
 
         # Generate executive summary
@@ -92,13 +87,13 @@ class AuditService:
         executive_summary_ar = self._generate_executive_summary_ar(
             compliance_record=compliance_record,
             audit_status=audit_status,
-            total_findings=len(non_conformities)
+            total_findings=len(non_conformities),
         )
 
         executive_summary_en = self._generate_executive_summary_en(
             compliance_record=compliance_record,
             audit_status=audit_status,
-            total_findings=len(non_conformities)
+            total_findings=len(non_conformities),
         )
 
         # Create audit result
@@ -125,7 +120,7 @@ class AuditService:
                 datetime.utcnow() + timedelta(days=90)
                 if audit_status != "passed"
                 else None
-            )
+            ),
         )
 
         return audit_result
@@ -134,7 +129,7 @@ class AuditService:
         self,
         compliance_percentage: float,
         major_must_fails: int,
-        critical_findings: int
+        critical_findings: int,
     ) -> str:
         """
         Determine overall audit status
@@ -163,9 +158,7 @@ class AuditService:
         return "passed"
 
     def _generate_recommendations(
-        self,
-        compliance_record: ComplianceRecord,
-        non_conformities: List[NonConformity]
+        self, compliance_record: ComplianceRecord, non_conformities: List[NonConformity]
     ) -> List[str]:
         """
         Generate recommendations based on audit findings
@@ -199,7 +192,8 @@ class AuditService:
         # Recommendations for specific categories
         # توصيات لفئات محددة
         crop_protection_issues = sum(
-            1 for nc in non_conformities
+            1
+            for nc in non_conformities
             if "5." in nc.control_point_number  # AF.5.x.x = Crop Protection
         )
         if crop_protection_issues > 3:
@@ -209,7 +203,8 @@ class AuditService:
             )
 
         record_keeping_issues = sum(
-            1 for nc in non_conformities
+            1
+            for nc in non_conformities
             if "1." in nc.control_point_number  # AF.1.x.x = Site Management/Records
         )
         if record_keeping_issues > 2:
@@ -236,17 +231,15 @@ class AuditService:
         self,
         compliance_record: ComplianceRecord,
         audit_status: str,
-        total_findings: int
+        total_findings: int,
     ) -> str:
         """
         Generate executive summary in Arabic
         إنشاء الملخص التنفيذي بالعربية
         """
-        status_text = {
-            "passed": "ناجح",
-            "failed": "فاشل",
-            "conditional": "مشروط"
-        }.get(audit_status, "غير محدد")
+        status_text = {"passed": "ناجح", "failed": "فاشل", "conditional": "مشروط"}.get(
+            audit_status, "غير محدد"
+        )
 
         summary = f"""
 ملخص تنفيذي لتدقيق الامتثال لمعايير GlobalGAP IFA v6.0
@@ -272,7 +265,7 @@ class AuditService:
         self,
         compliance_record: ComplianceRecord,
         audit_status: str,
-        total_findings: int
+        total_findings: int,
     ) -> str:
         """
         Generate executive summary in English
@@ -298,10 +291,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
 """
         return summary.strip()
 
-    async def save_audit_result(
-        self,
-        audit_result: AuditResult
-    ) -> AuditResult:
+    async def save_audit_result(self, audit_result: AuditResult) -> AuditResult:
         """
         Save audit result to database
         حفظ نتيجة التدقيق في قاعدة البيانات
@@ -319,10 +309,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
         self.audit_results[audit_result.id] = audit_result
         return audit_result
 
-    async def get_audit_result(
-        self,
-        audit_id: str
-    ) -> Optional[AuditResult]:
+    async def get_audit_result(self, audit_id: str) -> Optional[AuditResult]:
         """
         Get audit result by ID
         الحصول على نتيجة التدقيق حسب المعرف
@@ -336,10 +323,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
         return self.audit_results.get(audit_id)
 
     async def get_farm_audit_history(
-        self,
-        farm_id: str,
-        tenant_id: str,
-        limit: int = 10
+        self, farm_id: str, tenant_id: str, limit: int = 10
     ) -> List[AuditResult]:
         """
         Get audit history for a farm
@@ -356,7 +340,8 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
         # In real implementation, query database
         # في التطبيق الفعلي، الاستعلام من قاعدة البيانات
         results = [
-            audit for audit in self.audit_results.values()
+            audit
+            for audit in self.audit_results.values()
             if audit.farm_id == farm_id and audit.tenant_id == tenant_id
         ]
 
@@ -367,9 +352,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
         return results[:limit]
 
     async def schedule_follow_up_audit(
-        self,
-        audit_id: str,
-        follow_up_date: datetime
+        self, audit_id: str, follow_up_date: datetime
     ) -> Optional[Dict[str, Any]]:
         """
         Schedule a follow-up audit
@@ -396,15 +379,13 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
                 f"Control point {nc.control_point_number}"
                 for nc in []  # Would be loaded from non-conformities
             ],
-            "created_at": datetime.utcnow().isoformat()
+            "created_at": datetime.utcnow().isoformat(),
         }
 
         return follow_up
 
     async def generate_audit_certificate_recommendation(
-        self,
-        audit_result: AuditResult,
-        compliance_record: ComplianceRecord
+        self, audit_result: AuditResult, compliance_record: ComplianceRecord
     ) -> Dict[str, Any]:
         """
         Generate recommendation for certification based on audit
@@ -420,9 +401,9 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
         # Check certification eligibility
         # التحقق من الأهلية للحصول على الشهادة
         is_eligible = (
-            audit_result.audit_status == "passed" and
-            compliance_record.major_must_fails == 0 and
-            compliance_record.compliance_percentage >= 95.0
+            audit_result.audit_status == "passed"
+            and compliance_record.major_must_fails == 0
+            and compliance_record.compliance_percentage >= 95.0
         )
 
         recommendation = {
@@ -452,7 +433,7 @@ Recommendation: {'Immediate corrective actions required' if audit_status != 'pas
                 ["Apply for GGN certificate", "Schedule external audit"]
                 if is_eligible
                 else ["Address non-conformities", "Conduct follow-up audit"]
-            )
+            ),
         }
 
         return recommendation

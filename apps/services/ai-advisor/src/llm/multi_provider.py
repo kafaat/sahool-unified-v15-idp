@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 # Data Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class LLMProviderType(Enum):
     ANTHROPIC = "anthropic"
     OPENAI = "openai"
@@ -32,6 +33,7 @@ class LLMProviderType(Enum):
 @dataclass
 class LLMMessage:
     """Chat message"""
+
     role: str  # system, user, assistant
     content: str
 
@@ -39,6 +41,7 @@ class LLMMessage:
 @dataclass
 class LLMResponse:
     """LLM response with metadata"""
+
     content: str
     provider: str
     model: str
@@ -50,6 +53,7 @@ class LLMResponse:
 @dataclass
 class LLMResult:
     """Result wrapper with fallback info"""
+
     data: Optional[LLMResponse]
     provider: str
     failed_providers: List[str] = field(default_factory=list)
@@ -64,6 +68,7 @@ class LLMResult:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Base Provider Interface
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class LLMProvider(ABC):
     """Base class for LLM providers"""
@@ -107,6 +112,7 @@ class LLMProvider(ABC):
 # Anthropic Claude Provider
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class AnthropicProvider(LLMProvider):
     """
     Anthropic Claude API
@@ -130,6 +136,7 @@ class AnthropicProvider(LLMProvider):
         if self._client is None and self.is_configured:
             try:
                 from anthropic import AsyncAnthropic
+
                 self._client = AsyncAnthropic(api_key=self.api_key)
             except ImportError:
                 logger.error("anthropic package not installed")
@@ -148,6 +155,7 @@ class AnthropicProvider(LLMProvider):
             raise ValueError("Anthropic client not configured")
 
         import time
+
         start = time.time()
 
         # Separate system message
@@ -157,17 +165,14 @@ class AnthropicProvider(LLMProvider):
             if msg.role == "system":
                 system_msg = msg.content
             else:
-                chat_messages.append({
-                    "role": msg.role,
-                    "content": msg.content
-                })
+                chat_messages.append({"role": msg.role, "content": msg.content})
 
         response = await client.messages.create(
             model=model or self.default_model,
             max_tokens=max_tokens,
             temperature=temperature,
             system=system_msg,
-            messages=chat_messages
+            messages=chat_messages,
         )
 
         latency = (time.time() - start) * 1000
@@ -178,7 +183,7 @@ class AnthropicProvider(LLMProvider):
             model=response.model,
             tokens_used=response.usage.input_tokens + response.usage.output_tokens,
             latency_ms=latency,
-            finish_reason=response.stop_reason or "stop"
+            finish_reason=response.stop_reason or "stop",
         )
 
     async def complete(
@@ -195,6 +200,7 @@ class AnthropicProvider(LLMProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 # OpenAI Provider
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class OpenAIProvider(LLMProvider):
     """
@@ -219,6 +225,7 @@ class OpenAIProvider(LLMProvider):
         if self._client is None and self.is_configured:
             try:
                 from openai import AsyncOpenAI
+
                 self._client = AsyncOpenAI(api_key=self.api_key)
             except ImportError:
                 logger.error("openai package not installed")
@@ -237,18 +244,16 @@ class OpenAIProvider(LLMProvider):
             raise ValueError("OpenAI client not configured")
 
         import time
+
         start = time.time()
 
-        chat_messages = [
-            {"role": msg.role, "content": msg.content}
-            for msg in messages
-        ]
+        chat_messages = [{"role": msg.role, "content": msg.content} for msg in messages]
 
         response = await client.chat.completions.create(
             model=model or self.default_model,
             max_tokens=max_tokens,
             temperature=temperature,
-            messages=chat_messages
+            messages=chat_messages,
         )
 
         latency = (time.time() - start) * 1000
@@ -259,7 +264,7 @@ class OpenAIProvider(LLMProvider):
             model=response.model,
             tokens_used=response.usage.total_tokens if response.usage else 0,
             latency_ms=latency,
-            finish_reason=response.choices[0].finish_reason or "stop"
+            finish_reason=response.choices[0].finish_reason or "stop",
         )
 
     async def complete(
@@ -276,6 +281,7 @@ class OpenAIProvider(LLMProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Google Gemini Provider
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class GoogleGeminiProvider(LLMProvider):
     """
@@ -300,6 +306,7 @@ class GoogleGeminiProvider(LLMProvider):
         if self._client is None and self.is_configured:
             try:
                 import google.generativeai as genai
+
                 genai.configure(api_key=self.api_key)
                 self._client = genai
             except ImportError:
@@ -319,6 +326,7 @@ class GoogleGeminiProvider(LLMProvider):
             raise ValueError("Gemini client not configured")
 
         import time
+
         start = time.time()
 
         # Convert messages to Gemini format
@@ -327,7 +335,7 @@ class GoogleGeminiProvider(LLMProvider):
             generation_config={
                 "max_output_tokens": max_tokens,
                 "temperature": temperature,
-            }
+            },
         )
 
         # Build chat history
@@ -339,7 +347,11 @@ class GoogleGeminiProvider(LLMProvider):
             if msg.role == "system":
                 system_instruction = msg.content
             elif msg.role == "user":
-                prompt = f"{system_instruction}\n\n{msg.content}" if system_instruction else msg.content
+                prompt = (
+                    f"{system_instruction}\n\n{msg.content}"
+                    if system_instruction
+                    else msg.content
+                )
                 response = await chat.send_message_async(prompt)
                 system_instruction = ""
 
@@ -354,7 +366,7 @@ class GoogleGeminiProvider(LLMProvider):
             model=model or self.default_model,
             tokens_used=0,  # Gemini doesn't provide token count easily
             latency_ms=latency,
-            finish_reason="stop"
+            finish_reason="stop",
         )
 
     async def complete(
@@ -371,6 +383,7 @@ class GoogleGeminiProvider(LLMProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Multi-Provider LLM Service
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class MultiLLMService:
     """
@@ -401,7 +414,9 @@ class MultiLLMService:
             self._add_anthropic_first()
 
         configured = [p.name for p in self.providers if p.is_configured]
-        logger.info(f"Multi-LLM Service initialized with providers: {', '.join(configured)}")
+        logger.info(
+            f"Multi-LLM Service initialized with providers: {', '.join(configured)}"
+        )
 
     def _add_anthropic_first(self):
         anthropic = AnthropicProvider()
@@ -469,8 +484,7 @@ class MultiLLMService:
         providers_to_try = self.providers
         if specific_provider:
             providers_to_try = [
-                p for p in self.providers
-                if specific_provider.lower() in p.name.lower()
+                p for p in self.providers if specific_provider.lower() in p.name.lower()
             ]
 
         for provider in providers_to_try:
@@ -487,7 +501,7 @@ class MultiLLMService:
                 return LLMResult(
                     data=response,
                     provider=provider.name,
-                    failed_providers=failed_providers
+                    failed_providers=failed_providers,
                 )
             except Exception as e:
                 failed_providers.append(f"{provider.name}: {str(e)}")
@@ -498,7 +512,7 @@ class MultiLLMService:
             provider="none",
             failed_providers=failed_providers,
             error="All LLM providers failed",
-            error_ar="فشل جميع مزودي نماذج اللغة"
+            error_ar="فشل جميع مزودي نماذج اللغة",
         )
 
     async def complete(
@@ -511,7 +525,9 @@ class MultiLLMService:
     ) -> LLMResult:
         """Simple completion with fallback"""
         messages = [LLMMessage(role="user", content=prompt)]
-        return await self.chat(messages, model, max_tokens, temperature, specific_provider)
+        return await self.chat(
+            messages, model, max_tokens, temperature, specific_provider
+        )
 
     def get_available_providers(self) -> List[Dict[str, Any]]:
         """Get list of available providers"""
@@ -526,7 +542,7 @@ class MultiLLMService:
                 "name_ar": p.name_ar,
                 "configured": p.is_configured,
                 "default_model": p.default_model if p.is_configured else None,
-                "type": p.__class__.__name__
+                "type": p.__class__.__name__,
             }
             for p in all_providers
         ]

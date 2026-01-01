@@ -14,8 +14,10 @@ from enum import Enum
 
 # ==================== Categories ====================
 
+
 class SpringCategory(str, Enum):
     """SPRING checklist categories / فئات قائمة تحقق SPRING"""
+
     WATER_SOURCES = "WATER_SOURCES"
     WATER_EFFICIENCY = "WATER_EFFICIENCY"
     IRRIGATION_SYSTEMS = "IRRIGATION_SYSTEMS"
@@ -78,8 +80,10 @@ SPRING_CATEGORIES = {
 
 # ==================== Compliance Levels ====================
 
+
 class SpringComplianceLevel(str, Enum):
     """SPRING compliance level / مستوى امتثال SPRING"""
+
     MANDATORY = "MANDATORY"  # إلزامي
     RECOMMENDED = "RECOMMENDED"  # موصى به
 
@@ -141,7 +145,6 @@ SPRING_CHECKLIST: List[Dict] = [
         "verification_en": "Feasibility studies, treatment systems, quality test results",
         "verification_ar": "دراسات الجدوى، أنظمة المعالجة، نتائج اختبار الجودة",
     },
-
     # ==================== WATER EFFICIENCY ====================
     {
         "item_id": "WE.01",
@@ -221,7 +224,6 @@ SPRING_CHECKLIST: List[Dict] = [
         "verification_en": "Field observations, practice documentation, water savings estimates",
         "verification_ar": "الملاحظات الميدانية، توثيق الممارسات، تقديرات توفير المياه",
     },
-
     # ==================== IRRIGATION SYSTEMS ====================
     {
         "item_id": "IS.01",
@@ -288,7 +290,6 @@ SPRING_CHECKLIST: List[Dict] = [
         "verification_en": "Automation equipment, system operation records",
         "verification_ar": "معدات الأتمتة، سجلات تشغيل النظام",
     },
-
     # ==================== WATER QUALITY ====================
     {
         "item_id": "WQ.01",
@@ -342,7 +343,6 @@ SPRING_CHECKLIST: List[Dict] = [
         "verification_en": "Treatment system documentation, operational records",
         "verification_ar": "وثائق نظام المعالجة، سجلات التشغيل",
     },
-
     # ==================== LEGAL COMPLIANCE ====================
     {
         "item_id": "LC.01",
@@ -397,7 +397,6 @@ SPRING_CHECKLIST: List[Dict] = [
         "verification_en": "Legal documents, community agreements, historical records",
         "verification_ar": "الوثائق القانونية، الاتفاقيات المجتمعية، السجلات التاريخية",
     },
-
     # ==================== MONITORING & RECORDS ====================
     {
         "item_id": "MR.01",
@@ -469,6 +468,7 @@ SPRING_CHECKLIST: List[Dict] = [
 
 # ==================== Helper Functions ====================
 
+
 def get_spring_category(category_code: str) -> Optional[Dict]:
     """
     Get SPRING category details
@@ -522,12 +522,13 @@ def get_mandatory_items() -> List[Dict]:
     Returns:
         List of mandatory items
     """
-    return [item for item in SPRING_CHECKLIST if item["compliance_level"] == "MANDATORY"]
+    return [
+        item for item in SPRING_CHECKLIST if item["compliance_level"] == "MANDATORY"
+    ]
 
 
 def calculate_spring_compliance(
-    compliant_items: List[str],
-    all_items: Optional[List[str]] = None
+    compliant_items: List[str], all_items: Optional[List[str]] = None
 ) -> Dict[str, float]:
     """
     Calculate SPRING compliance score
@@ -546,16 +547,27 @@ def calculate_spring_compliance(
     total_items = len(all_items)
     compliant_count = len([item for item in compliant_items if item in all_items])
 
-    compliance_percentage = (compliant_count / total_items * 100) if total_items > 0 else 0
+    compliance_percentage = (
+        (compliant_count / total_items * 100) if total_items > 0 else 0
+    )
 
     # Calculate by category
     category_compliance = {}
     for category_code in SPRING_CATEGORIES.keys():
-        category_items = [item["item_id"] for item in get_items_by_category(category_code)
-                         if item["item_id"] in all_items]
-        category_compliant = [item for item in compliant_items if item in category_items]
+        category_items = [
+            item["item_id"]
+            for item in get_items_by_category(category_code)
+            if item["item_id"] in all_items
+        ]
+        category_compliant = [
+            item for item in compliant_items if item in category_items
+        ]
         category_total = len(category_items)
-        category_percentage = (len(category_compliant) / category_total * 100) if category_total > 0 else 0
+        category_percentage = (
+            (len(category_compliant) / category_total * 100)
+            if category_total > 0
+            else 0
+        )
         category_compliance[category_code] = category_percentage
 
     return {

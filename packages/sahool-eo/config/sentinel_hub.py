@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class SatelliteDataSource(str, Enum):
     """Supported satellite data sources"""
+
     SENTINEL2_L2A = "sentinel-2-l2a"
     SENTINEL2_L1C = "sentinel-2-l1c"
     SENTINEL1_GRD = "sentinel-1-grd"
@@ -28,15 +29,17 @@ class SatelliteDataSource(str, Enum):
 
 class ResolutionPreset(str, Enum):
     """Resolution presets for different use cases"""
-    HIGH = "high"      # 10m for Sentinel-2
+
+    HIGH = "high"  # 10m for Sentinel-2
     MEDIUM = "medium"  # 20m
-    LOW = "low"        # 60m or lower
+    LOW = "low"  # 60m or lower
     NATIVE = "native"  # Use satellite's native resolution
 
 
 @dataclass
 class BandConfig:
     """Configuration for a satellite band"""
+
     name: str
     wavelength_nm: str
     resolution_m: int
@@ -61,6 +64,7 @@ class SentinelHubConfig:
             client_secret="your-client-secret"
         )
     """
+
     client_id: str
     client_secret: str
     instance_id: Optional[str] = None
@@ -81,12 +85,14 @@ class SentinelHubConfig:
     request_timeout: int = 120
 
     # Yemen-specific defaults (SAHOOL focus area)
-    yemen_bbox: Dict[str, float] = field(default_factory=lambda: {
-        "min_lon": 42.5,
-        "max_lon": 54.0,
-        "min_lat": 12.0,
-        "max_lat": 19.0
-    })
+    yemen_bbox: Dict[str, float] = field(
+        default_factory=lambda: {
+            "min_lon": 42.5,
+            "max_lon": 54.0,
+            "min_lat": 12.0,
+            "max_lat": 19.0,
+        }
+    )
 
     @classmethod
     def from_env(cls) -> "SentinelHubConfig":
@@ -120,7 +126,9 @@ class SentinelHubConfig:
         )
 
     @classmethod
-    def from_governance(cls, governance_path: str = "governance/credentials.yaml") -> "SentinelHubConfig":
+    def from_governance(
+        cls, governance_path: str = "governance/credentials.yaml"
+    ) -> "SentinelHubConfig":
         """
         Load configuration from SAHOOL governance credentials file
 
@@ -130,7 +138,7 @@ class SentinelHubConfig:
         import yaml
 
         try:
-            with open(governance_path, 'r') as f:
+            with open(governance_path, "r") as f:
                 creds = yaml.safe_load(f)
 
             sh_config = creds.get("sentinel_hub", {})
@@ -192,6 +200,7 @@ LANDSAT8_BANDS = {
 # SAHOOL EO Client
 # =============================================================================
 
+
 class SahoolEOClient:
     """
     Main client for SAHOOL Earth Observation operations
@@ -241,10 +250,7 @@ class SahoolEOClient:
 
         # Return empty config (will fail on validate)
         logger.warning("No Sentinel Hub credentials found. Using placeholder config.")
-        return SentinelHubConfig(
-            client_id="PLACEHOLDER",
-            client_secret="PLACEHOLDER"
-        )
+        return SentinelHubConfig(client_id="PLACEHOLDER", client_secret="PLACEHOLDER")
 
     def initialize(self) -> bool:
         """
@@ -298,7 +304,7 @@ class SahoolEOClient:
         min_lat: float,
         max_lon: float,
         max_lat: float,
-        crs: str = "EPSG:4326"
+        crs: str = "EPSG:4326",
     ):
         """
         Create a bounding box for data fetching
@@ -315,16 +321,9 @@ class SahoolEOClient:
         """
         from sentinelhub import BBox, CRS
 
-        return BBox(
-            bbox=[min_lon, min_lat, max_lon, max_lat],
-            crs=CRS(crs)
-        )
+        return BBox(bbox=[min_lon, min_lat, max_lon, max_lat], crs=CRS(crs))
 
-    def create_time_interval(
-        self,
-        start_date: str,
-        end_date: str
-    ) -> tuple:
+    def create_time_interval(self, start_date: str, end_date: str) -> tuple:
         """
         Create a time interval for data fetching
 
@@ -342,7 +341,7 @@ class SahoolEOClient:
         bbox,
         time_interval: tuple,
         data_source: SatelliteDataSource = SatelliteDataSource.SENTINEL2_L2A,
-        max_cloud_coverage: Optional[float] = None
+        max_cloud_coverage: Optional[float] = None,
     ) -> List[Dict[str, Any]]:
         """
         Search for available satellite data
@@ -378,7 +377,7 @@ class SahoolEOClient:
             collection=collection,
             bbox=bbox,
             time=time_interval,
-            filter=f"eo:cloud_cover < {cloud_cover}"
+            filter=f"eo:cloud_cover < {cloud_cover}",
         )
 
         return list(search_results)

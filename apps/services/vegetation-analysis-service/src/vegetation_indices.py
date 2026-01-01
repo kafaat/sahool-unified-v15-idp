@@ -21,37 +21,40 @@ import math
 # Enums
 # =============================================================================
 
+
 class VegetationIndex(Enum):
     """All supported vegetation indices"""
+
     # Existing (basic)
-    NDVI = "ndvi"      # Normalized Difference Vegetation Index
-    NDWI = "ndwi"      # Normalized Difference Water Index
-    EVI = "evi"        # Enhanced Vegetation Index
-    SAVI = "savi"      # Soil Adjusted Vegetation Index
-    LAI = "lai"        # Leaf Area Index
-    NDMI = "ndmi"      # Normalized Difference Moisture Index
+    NDVI = "ndvi"  # Normalized Difference Vegetation Index
+    NDWI = "ndwi"  # Normalized Difference Water Index
+    EVI = "evi"  # Enhanced Vegetation Index
+    SAVI = "savi"  # Soil Adjusted Vegetation Index
+    LAI = "lai"  # Leaf Area Index
+    NDMI = "ndmi"  # Normalized Difference Moisture Index
 
     # Advanced - Chlorophyll & Nitrogen
-    NDRE = "ndre"      # Normalized Difference Red Edge (chlorophyll)
-    CVI = "cvi"        # Chlorophyll Vegetation Index
-    MCARI = "mcari"    # Modified Chlorophyll Absorption Ratio
-    TCARI = "tcari"    # Transformed CARI
-    SIPI = "sipi"      # Structure Insensitive Pigment Index
+    NDRE = "ndre"  # Normalized Difference Red Edge (chlorophyll)
+    CVI = "cvi"  # Chlorophyll Vegetation Index
+    MCARI = "mcari"  # Modified Chlorophyll Absorption Ratio
+    TCARI = "tcari"  # Transformed CARI
+    SIPI = "sipi"  # Structure Insensitive Pigment Index
 
     # Advanced - Early Stress Detection
-    GNDVI = "gndvi"    # Green NDVI (nitrogen, early stress)
-    VARI = "vari"      # Visible Atmospherically Resistant Index
-    GLI = "gli"        # Green Leaf Index
-    GRVI = "grvi"      # Green-Red Vegetation Index
+    GNDVI = "gndvi"  # Green NDVI (nitrogen, early stress)
+    VARI = "vari"  # Visible Atmospherically Resistant Index
+    GLI = "gli"  # Green Leaf Index
+    GRVI = "grvi"  # Green-Red Vegetation Index
 
     # Advanced - Soil & Atmosphere Correction
-    MSAVI = "msavi"    # Modified SAVI (sparse vegetation)
-    OSAVI = "osavi"    # Optimized SAVI
-    ARVI = "arvi"      # Atmospherically Resistant VI
+    MSAVI = "msavi"  # Modified SAVI (sparse vegetation)
+    OSAVI = "osavi"  # Optimized SAVI
+    ARVI = "arvi"  # Atmospherically Resistant VI
 
 
 class CropType(Enum):
     """Crop types for Yemen agriculture"""
+
     WHEAT = "wheat"
     BARLEY = "barley"
     SORGHUM = "sorghum"
@@ -69,15 +72,17 @@ class CropType(Enum):
 
 class GrowthStage(Enum):
     """Crop growth stages"""
-    EMERGENCE = "emergence"          # البزوغ
-    VEGETATIVE = "vegetative"        # النمو الخضري
-    REPRODUCTIVE = "reproductive"    # الإزهار والإثمار
-    MATURATION = "maturation"        # النضج
-    HARVEST = "harvest"              # الحصاد
+
+    EMERGENCE = "emergence"  # البزوغ
+    VEGETATIVE = "vegetative"  # النمو الخضري
+    REPRODUCTIVE = "reproductive"  # الإزهار والإثمار
+    MATURATION = "maturation"  # النضج
+    HARVEST = "harvest"  # الحصاد
 
 
 class HealthStatus(Enum):
     """Health status levels"""
+
     EXCELLENT = "excellent"
     GOOD = "good"
     FAIR = "fair"
@@ -89,27 +94,30 @@ class HealthStatus(Enum):
 # Data Models
 # =============================================================================
 
+
 @dataclass
 class BandData:
     """
     Sentinel-2 MSI band reflectance values (0-1 scale)
     قيم الانعكاسية لنطاقات Sentinel-2
     """
-    B02_blue: float      # 490nm - Blue
-    B03_green: float     # 560nm - Green
-    B04_red: float       # 665nm - Red
-    B05_red_edge1: float # 705nm - Red Edge 1
-    B06_red_edge2: float # 740nm - Red Edge 2
-    B07_red_edge3: float # 783nm - Red Edge 3
-    B08_nir: float       # 842nm - NIR
-    B8A_nir_narrow: float # 865nm - NIR Narrow
-    B11_swir1: float     # 1610nm - SWIR1
-    B12_swir2: float     # 2190nm - SWIR2
+
+    B02_blue: float  # 490nm - Blue
+    B03_green: float  # 560nm - Green
+    B04_red: float  # 665nm - Red
+    B05_red_edge1: float  # 705nm - Red Edge 1
+    B06_red_edge2: float  # 740nm - Red Edge 2
+    B07_red_edge3: float  # 783nm - Red Edge 3
+    B08_nir: float  # 842nm - NIR
+    B8A_nir_narrow: float  # 865nm - NIR Narrow
+    B11_swir1: float  # 1610nm - SWIR1
+    B12_swir2: float  # 2190nm - SWIR2
 
 
 @dataclass
 class IndexInterpretation:
     """Interpretation of a vegetation index value"""
+
     index_name: str
     value: float
     status: HealthStatus
@@ -122,6 +130,7 @@ class IndexInterpretation:
 @dataclass
 class AllIndices:
     """Complete set of calculated indices"""
+
     # Basic
     ndvi: float
     ndwi: float
@@ -157,6 +166,7 @@ class AllIndices:
 # Vegetation Indices Calculator
 # =============================================================================
 
+
 class VegetationIndicesCalculator:
     """
     Calculate all vegetation indices from Sentinel-2 bands
@@ -181,20 +191,17 @@ class VegetationIndicesCalculator:
             savi=self.savi(bands),
             lai=self.lai(ndvi),
             ndmi=self.ndmi(bands),
-
             # Chlorophyll & Nitrogen
             ndre=self.ndre(bands),
             cvi=self.cvi(bands),
             mcari=self.mcari(bands),
             tcari=self.tcari(bands),
             sipi=self.sipi(bands),
-
             # Early Stress Detection
             gndvi=self.gndvi(bands),
             vari=self.vari(bands),
             gli=self.gli(bands),
             grvi=self.grvi(bands),
-
             # Soil/Atmosphere Corrected
             msavi=self.msavi(bands),
             osavi=self.osavi(bands),
@@ -246,7 +253,9 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B04_red + L == 0:
             return 0.0
-        return round(((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red + L)) * (1 + L), 4)
+        return round(
+            ((b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red + L)) * (1 + L), 4
+        )
 
     def lai(self, ndvi: float) -> float:
         """
@@ -298,7 +307,7 @@ class VegetationIndicesCalculator:
         """
         if b.B03_green == 0:
             return 0.0
-        cvi_val = b.B08_nir * (b.B04_red / (b.B03_green ** 2))
+        cvi_val = b.B08_nir * (b.B04_red / (b.B03_green**2))
         return round(min(cvi_val, 10), 4)
 
     def mcari(self, b: BandData) -> float:
@@ -310,9 +319,9 @@ class VegetationIndicesCalculator:
         """
         if b.B04_red == 0:
             return 0.0
-        mcari_val = ((b.B05_red_edge1 - b.B04_red) -
-                     0.2 * (b.B05_red_edge1 - b.B03_green)) * \
-                    (b.B05_red_edge1 / b.B04_red)
+        mcari_val = (
+            (b.B05_red_edge1 - b.B04_red) - 0.2 * (b.B05_red_edge1 - b.B03_green)
+        ) * (b.B05_red_edge1 / b.B04_red)
         return round(max(0, min(mcari_val, 1.5)), 4)
 
     def tcari(self, b: BandData) -> float:
@@ -324,9 +333,10 @@ class VegetationIndicesCalculator:
         """
         if b.B04_red == 0:
             return 0.0
-        tcari_val = 3 * ((b.B05_red_edge1 - b.B04_red) -
-                        0.2 * (b.B05_red_edge1 - b.B03_green) *
-                        (b.B05_red_edge1 / b.B04_red))
+        tcari_val = 3 * (
+            (b.B05_red_edge1 - b.B04_red)
+            - 0.2 * (b.B05_red_edge1 - b.B03_green) * (b.B05_red_edge1 / b.B04_red)
+        )
         return round(max(0, min(tcari_val, 3)), 4)
 
     def sipi(self, b: BandData) -> float:
@@ -407,7 +417,7 @@ class VegetationIndicesCalculator:
         """
         try:
             term1 = 2 * b.B08_nir + 1
-            term2 = term1 ** 2
+            term2 = term1**2
             term3 = 8 * (b.B08_nir - b.B04_red)
             sqrt_term = math.sqrt(max(0, term2 - term3))
             msavi_val = (term1 - sqrt_term) / 2
@@ -447,6 +457,7 @@ class VegetationIndicesCalculator:
 # Crop-Specific Thresholds and Interpretation
 # =============================================================================
 
+
 class IndexInterpreter:
     """
     Interpret vegetation indices for specific crops and growth stages
@@ -456,50 +467,126 @@ class IndexInterpreter:
     # Crop-specific NDVI thresholds
     NDVI_THRESHOLDS = {
         CropType.WHEAT: {
-            GrowthStage.EMERGENCE: {"excellent": 0.3, "good": 0.2, "fair": 0.1, "poor": 0.05},
-            GrowthStage.VEGETATIVE: {"excellent": 0.7, "good": 0.5, "fair": 0.3, "poor": 0.2},
-            GrowthStage.REPRODUCTIVE: {"excellent": 0.8, "good": 0.6, "fair": 0.4, "poor": 0.3},
-            GrowthStage.MATURATION: {"excellent": 0.6, "good": 0.4, "fair": 0.25, "poor": 0.15},
+            GrowthStage.EMERGENCE: {
+                "excellent": 0.3,
+                "good": 0.2,
+                "fair": 0.1,
+                "poor": 0.05,
+            },
+            GrowthStage.VEGETATIVE: {
+                "excellent": 0.7,
+                "good": 0.5,
+                "fair": 0.3,
+                "poor": 0.2,
+            },
+            GrowthStage.REPRODUCTIVE: {
+                "excellent": 0.8,
+                "good": 0.6,
+                "fair": 0.4,
+                "poor": 0.3,
+            },
+            GrowthStage.MATURATION: {
+                "excellent": 0.6,
+                "good": 0.4,
+                "fair": 0.25,
+                "poor": 0.15,
+            },
         },
         CropType.SORGHUM: {
-            GrowthStage.EMERGENCE: {"excellent": 0.35, "good": 0.25, "fair": 0.15, "poor": 0.08},
-            GrowthStage.VEGETATIVE: {"excellent": 0.75, "good": 0.6, "fair": 0.4, "poor": 0.25},
-            GrowthStage.REPRODUCTIVE: {"excellent": 0.85, "good": 0.7, "fair": 0.5, "poor": 0.35},
-            GrowthStage.MATURATION: {"excellent": 0.5, "good": 0.35, "fair": 0.2, "poor": 0.1},
+            GrowthStage.EMERGENCE: {
+                "excellent": 0.35,
+                "good": 0.25,
+                "fair": 0.15,
+                "poor": 0.08,
+            },
+            GrowthStage.VEGETATIVE: {
+                "excellent": 0.75,
+                "good": 0.6,
+                "fair": 0.4,
+                "poor": 0.25,
+            },
+            GrowthStage.REPRODUCTIVE: {
+                "excellent": 0.85,
+                "good": 0.7,
+                "fair": 0.5,
+                "poor": 0.35,
+            },
+            GrowthStage.MATURATION: {
+                "excellent": 0.5,
+                "good": 0.35,
+                "fair": 0.2,
+                "poor": 0.1,
+            },
         },
         CropType.COFFEE: {
-            GrowthStage.VEGETATIVE: {"excellent": 0.8, "good": 0.65, "fair": 0.5, "poor": 0.35},
-            GrowthStage.REPRODUCTIVE: {"excellent": 0.85, "good": 0.7, "fair": 0.55, "poor": 0.4},
+            GrowthStage.VEGETATIVE: {
+                "excellent": 0.8,
+                "good": 0.65,
+                "fair": 0.5,
+                "poor": 0.35,
+            },
+            GrowthStage.REPRODUCTIVE: {
+                "excellent": 0.85,
+                "good": 0.7,
+                "fair": 0.55,
+                "poor": 0.4,
+            },
         },
         CropType.QAT: {
-            GrowthStage.VEGETATIVE: {"excellent": 0.75, "good": 0.6, "fair": 0.45, "poor": 0.3},
-            GrowthStage.REPRODUCTIVE: {"excellent": 0.8, "good": 0.65, "fair": 0.5, "poor": 0.35},
+            GrowthStage.VEGETATIVE: {
+                "excellent": 0.75,
+                "good": 0.6,
+                "fair": 0.45,
+                "poor": 0.3,
+            },
+            GrowthStage.REPRODUCTIVE: {
+                "excellent": 0.8,
+                "good": 0.65,
+                "fair": 0.5,
+                "poor": 0.35,
+            },
         },
         # Default for unknown crops
         CropType.UNKNOWN: {
-            GrowthStage.EMERGENCE: {"excellent": 0.3, "good": 0.2, "fair": 0.1, "poor": 0.05},
-            GrowthStage.VEGETATIVE: {"excellent": 0.7, "good": 0.5, "fair": 0.3, "poor": 0.2},
-            GrowthStage.REPRODUCTIVE: {"excellent": 0.8, "good": 0.6, "fair": 0.4, "poor": 0.3},
-            GrowthStage.MATURATION: {"excellent": 0.55, "good": 0.4, "fair": 0.25, "poor": 0.15},
+            GrowthStage.EMERGENCE: {
+                "excellent": 0.3,
+                "good": 0.2,
+                "fair": 0.1,
+                "poor": 0.05,
+            },
+            GrowthStage.VEGETATIVE: {
+                "excellent": 0.7,
+                "good": 0.5,
+                "fair": 0.3,
+                "poor": 0.2,
+            },
+            GrowthStage.REPRODUCTIVE: {
+                "excellent": 0.8,
+                "good": 0.6,
+                "fair": 0.4,
+                "poor": 0.3,
+            },
+            GrowthStage.MATURATION: {
+                "excellent": 0.55,
+                "good": 0.4,
+                "fair": 0.25,
+                "poor": 0.15,
+            },
         },
     }
 
     # NDRE thresholds (chlorophyll/nitrogen)
-    NDRE_THRESHOLDS = {
-        "excellent": 0.35, "good": 0.25, "fair": 0.15, "poor": 0.08
-    }
+    NDRE_THRESHOLDS = {"excellent": 0.35, "good": 0.25, "fair": 0.15, "poor": 0.08}
 
     # GNDVI thresholds (early stress)
-    GNDVI_THRESHOLDS = {
-        "excellent": 0.6, "good": 0.45, "fair": 0.3, "poor": 0.15
-    }
+    GNDVI_THRESHOLDS = {"excellent": 0.6, "good": 0.45, "fair": 0.3, "poor": 0.15}
 
     # Water stress thresholds (NDWI/NDMI)
     WATER_STRESS_THRESHOLDS = {
-        "no_stress": 0.2,      # > 0.2: No water stress
-        "mild_stress": 0.0,    # 0.0-0.2: Mild stress
+        "no_stress": 0.2,  # > 0.2: No water stress
+        "mild_stress": 0.0,  # 0.0-0.2: Mild stress
         "moderate_stress": -0.1,  # -0.1-0.0: Moderate stress
-        "severe_stress": -0.2   # < -0.2: Severe stress
+        "severe_stress": -0.2,  # < -0.2: Severe stress
     }
 
     def interpret_index(
@@ -507,7 +594,7 @@ class IndexInterpreter:
         index_name: str,
         value: float,
         crop_type: CropType = CropType.UNKNOWN,
-        growth_stage: GrowthStage = GrowthStage.VEGETATIVE
+        growth_stage: GrowthStage = GrowthStage.VEGETATIVE,
     ) -> IndexInterpretation:
         """
         Interpret a vegetation index value for a specific crop and growth stage
@@ -532,20 +619,15 @@ class IndexInterpreter:
             return self._interpret_generic(index_name, value)
 
     def _interpret_ndvi(
-        self,
-        value: float,
-        crop_type: CropType,
-        growth_stage: GrowthStage
+        self, value: float, crop_type: CropType, growth_stage: GrowthStage
     ) -> IndexInterpretation:
         """Interpret NDVI value"""
         # Get thresholds for this crop and stage
         crop_thresholds = self.NDVI_THRESHOLDS.get(
-            crop_type,
-            self.NDVI_THRESHOLDS[CropType.UNKNOWN]
+            crop_type, self.NDVI_THRESHOLDS[CropType.UNKNOWN]
         )
         stage_thresholds = crop_thresholds.get(
-            growth_stage,
-            crop_thresholds.get(GrowthStage.VEGETATIVE, {})
+            growth_stage, crop_thresholds.get(GrowthStage.VEGETATIVE, {})
         )
 
         # Determine status
@@ -582,7 +664,7 @@ class IndexInterpreter:
             description_ar=desc_ar,
             description_en=desc_en,
             confidence=confidence,
-            threshold_info=stage_thresholds
+            threshold_info=stage_thresholds,
         )
 
     def _interpret_ndre(self, value: float) -> IndexInterpretation:
@@ -620,7 +702,7 @@ class IndexInterpreter:
             description_ar=desc_ar,
             description_en=desc_en,
             confidence=confidence,
-            threshold_info=self.NDRE_THRESHOLDS
+            threshold_info=self.NDRE_THRESHOLDS,
         )
 
     def _interpret_gndvi(self, value: float) -> IndexInterpretation:
@@ -658,10 +740,12 @@ class IndexInterpreter:
             description_ar=desc_ar,
             description_en=desc_en,
             confidence=confidence,
-            threshold_info=self.GNDVI_THRESHOLDS
+            threshold_info=self.GNDVI_THRESHOLDS,
         )
 
-    def _interpret_water_stress(self, index_name: str, value: float) -> IndexInterpretation:
+    def _interpret_water_stress(
+        self, index_name: str, value: float
+    ) -> IndexInterpretation:
         """Interpret NDWI/NDMI (water stress)"""
         if value > self.WATER_STRESS_THRESHOLDS["no_stress"]:
             status = HealthStatus.EXCELLENT
@@ -696,7 +780,7 @@ class IndexInterpreter:
             description_ar=desc_ar,
             description_en=desc_en,
             confidence=confidence,
-            threshold_info=self.WATER_STRESS_THRESHOLDS
+            threshold_info=self.WATER_STRESS_THRESHOLDS,
         )
 
     def _interpret_evi(self, value: float) -> IndexInterpretation:
@@ -729,7 +813,7 @@ class IndexInterpreter:
             description_ar=desc_ar,
             description_en=desc_en,
             confidence=0.8,
-            threshold_info={"excellent": 0.5, "good": 0.35, "fair": 0.2, "poor": 0.1}
+            threshold_info={"excellent": 0.5, "good": 0.35, "fair": 0.2, "poor": 0.1},
         )
 
     def _interpret_lai(self, value: float, crop_type: CropType) -> IndexInterpretation:
@@ -770,7 +854,7 @@ class IndexInterpreter:
             description_ar=desc_ar,
             description_en=desc_en,
             confidence=0.75,
-            threshold_info=thresholds
+            threshold_info=thresholds,
         )
 
     def _interpret_generic(self, index_name: str, value: float) -> IndexInterpretation:
@@ -794,13 +878,10 @@ class IndexInterpreter:
             description_ar=f"القيمة: {value:.3f}",
             description_en=f"Value: {value:.3f}",
             confidence=0.6,
-            threshold_info={}
+            threshold_info={},
         )
 
-    def get_recommended_indices(
-        self,
-        growth_stage: GrowthStage
-    ) -> List[str]:
+    def get_recommended_indices(self, growth_stage: GrowthStage) -> List[str]:
         """
         Get recommended indices for a specific growth stage
         الحصول على المؤشرات الموصى بها حسب مرحلة النمو

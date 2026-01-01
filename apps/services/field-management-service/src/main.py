@@ -15,14 +15,16 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
 # Add shared middleware to path
-shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+shared_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "shared")
+)
 sys.path.insert(0, shared_path)
 
 from profitability_analyzer import (
     ProfitabilityAnalyzer,
     CropProfitability,
     SeasonSummary,
-    CostCategory
+    CostCategory,
 )
 
 import logging
@@ -75,7 +77,7 @@ async def lifespan(app: FastAPI):
 
     # Initialize profitability analyzer
     app.state.analyzer = ProfitabilityAnalyzer(
-        db_pool=getattr(app.state, 'db_pool', None)
+        db_pool=getattr(app.state, "db_pool", None)
     )
 
     logger.info("Field Core ready on port 8090")
@@ -99,6 +101,7 @@ app = FastAPI(
 # Setup rate limiting middleware
 try:
     from middleware.rate_limiter import setup_rate_limiting
+
     setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
     logger.info("Rate limiting enabled")
 except ImportError as e:
@@ -181,7 +184,7 @@ async def get_crop_profitability(
     crop_season_id: str,
     field_id: str = Query(..., description="Field ID"),
     crop_code: str = Query(..., description="Crop code"),
-    area_ha: float = Query(..., gt=0, description="Area in hectares")
+    area_ha: float = Query(..., gt=0, description="Area in hectares"),
 ):
     """
     Get profitability analysis for a specific crop season.
@@ -196,7 +199,7 @@ async def get_crop_profitability(
             crop_code=crop_code,
             area_ha=area_ha,
             costs=None,  # Will use regional estimates
-            revenues=None
+            revenues=None,
         )
 
         return analysis
@@ -224,7 +227,7 @@ async def analyze_profitability(request: AnalyzeCropRequest):
                     "amount": c.amount,
                     "unit": c.unit,
                     "quantity": c.quantity,
-                    "unit_cost": c.unit_cost or c.amount
+                    "unit_cost": c.unit_cost or c.amount,
                 }
                 for c in request.costs
             ]
@@ -237,7 +240,7 @@ async def analyze_profitability(request: AnalyzeCropRequest):
                     "quantity": r.quantity,
                     "unit": r.unit,
                     "unit_price": r.unit_price,
-                    "grade": r.grade
+                    "grade": r.grade,
                 }
                 for r in request.revenues
             ]
@@ -248,16 +251,13 @@ async def analyze_profitability(request: AnalyzeCropRequest):
             crop_code=request.crop_code,
             area_ha=request.area_ha,
             costs=costs_dict,
-            revenues=revenues_dict
+            revenues=revenues_dict,
         )
 
         # Get recommendations
         recommendations = analyzer.generate_recommendations(analysis)
 
-        return {
-            "analysis": analysis,
-            "recommendations": recommendations
-        }
+        return {"analysis": analysis, "recommendations": recommendations}
     except Exception as e:
         logger.error(f"Error analyzing profitability: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -276,11 +276,12 @@ async def get_season_summary(request: AnalyzeSeasonRequest):
         crops_data = [
             {
                 "field_id": crop.field_id,
-                "crop_season_id": crop.crop_season_id or f"{crop.field_id}-{request.season_year}",
+                "crop_season_id": crop.crop_season_id
+                or f"{crop.field_id}-{request.season_year}",
                 "crop_code": crop.crop_code,
                 "area_ha": crop.area_ha,
                 "costs": crop.costs,
-                "revenues": crop.revenues
+                "revenues": crop.revenues,
             }
             for crop in request.crops
         ]
@@ -288,7 +289,7 @@ async def get_season_summary(request: AnalyzeSeasonRequest):
         summary = await analyzer.analyze_season(
             farmer_id=request.farmer_id,
             season_year=request.season_year,
-            crops_data=crops_data
+            crops_data=crops_data,
         )
 
         return summary
@@ -301,7 +302,7 @@ async def get_season_summary(request: AnalyzeSeasonRequest):
 async def compare_crops(
     crops: str = Query(..., description="Comma-separated crop codes"),
     area_ha: float = Query(1.0, gt=0, description="Area in hectares"),
-    region: str = Query("sanaa", description="Region for benchmarks")
+    region: str = Query("sanaa", description="Region for benchmarks"),
 ):
     """
     Compare profitability of different crops.
@@ -314,9 +315,7 @@ async def compare_crops(
         crop_codes = [c.strip() for c in crops.split(",")]
 
         comparisons = await analyzer.compare_crops(
-            crop_codes=crop_codes,
-            area_ha=area_ha,
-            region=region
+            crop_codes=crop_codes, area_ha=area_ha, region=region
         )
 
         return {
@@ -324,7 +323,7 @@ async def compare_crops(
             "area_ha": area_ha,
             "crops": comparisons,
             "best_crop": comparisons[0] if comparisons else None,
-            "worst_crop": comparisons[-1] if comparisons else None
+            "worst_crop": comparisons[-1] if comparisons else None,
         }
     except Exception as e:
         logger.error(f"Error comparing crops: {e}")
@@ -336,7 +335,9 @@ async def calculate_break_even(
     crop_code: str = Query(..., description="Crop code"),
     area_ha: float = Query(..., gt=0, description="Area in hectares"),
     total_costs: float = Query(..., gt=0, description="Total costs in YER"),
-    expected_price: float = Query(..., gt=0, description="Expected price per kg in YER")
+    expected_price: float = Query(
+        ..., gt=0, description="Expected price per kg in YER"
+    ),
 ):
     """
     Calculate break-even yield and price for a crop.
@@ -349,7 +350,7 @@ async def calculate_break_even(
             crop_code=crop_code,
             area_ha=area_ha,
             total_costs=total_costs,
-            expected_price=expected_price
+            expected_price=expected_price,
         )
 
         return result
@@ -362,7 +363,7 @@ async def calculate_break_even(
 async def get_historical(
     field_id: str,
     crop_code: str,
-    years: int = Query(5, ge=1, le=10, description="Number of years of history")
+    years: int = Query(5, ge=1, le=10, description="Number of years of history"),
 ):
     """
     Get historical profitability data for a crop on a specific field.
@@ -372,16 +373,14 @@ async def get_historical(
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
         history = await analyzer.get_historical_profitability(
-            field_id=field_id,
-            crop_code=crop_code,
-            years=years
+            field_id=field_id, crop_code=crop_code, years=years
         )
 
         return {
             "field_id": field_id,
             "crop_code": crop_code,
             "years_analyzed": years,
-            "history": history
+            "history": history,
         }
     except Exception as e:
         logger.error(f"Error getting historical data: {e}")
@@ -390,8 +389,7 @@ async def get_historical(
 
 @app.get("/v1/profitability/benchmarks/{crop_code}")
 async def get_benchmarks(
-    crop_code: str,
-    region: str = Query("sanaa", description="Region for benchmarks")
+    crop_code: str, region: str = Query("sanaa", description="Region for benchmarks")
 ):
     """
     Get regional benchmark costs, yields, and revenues for a crop.
@@ -401,14 +399,13 @@ async def get_benchmarks(
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
         benchmarks = await analyzer.get_regional_benchmarks(
-            crop_code=crop_code,
-            region=region
+            crop_code=crop_code, region=region
         )
 
         if not benchmarks:
             raise HTTPException(
                 status_code=404,
-                detail=f"No benchmark data available for crop {crop_code}"
+                detail=f"No benchmark data available for crop {crop_code}",
             )
 
         return benchmarks
@@ -421,8 +418,7 @@ async def get_benchmarks(
 
 @app.get("/v1/profitability/cost-breakdown/{crop_code}")
 async def get_cost_breakdown(
-    crop_code: str,
-    area_ha: float = Query(1.0, gt=0, description="Area in hectares")
+    crop_code: str, area_ha: float = Query(1.0, gt=0, description="Area in hectares")
 ):
     """
     Get detailed cost breakdown by category for a crop.
@@ -432,21 +428,15 @@ async def get_cost_breakdown(
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
         breakdown = await analyzer.get_cost_breakdown(
-            crop_code=crop_code,
-            area_ha=area_ha
+            crop_code=crop_code, area_ha=area_ha
         )
 
         if not breakdown:
             raise HTTPException(
-                status_code=404,
-                detail=f"No cost data available for crop {crop_code}"
+                status_code=404, detail=f"No cost data available for crop {crop_code}"
             )
 
-        return {
-            "crop_code": crop_code,
-            "area_ha": area_ha,
-            "breakdown": breakdown
-        }
+        return {"crop_code": crop_code, "area_ha": area_ha, "breakdown": breakdown}
     except HTTPException:
         raise
     except Exception as e:
@@ -467,19 +457,18 @@ async def list_available_crops():
 
     crops = []
     for crop_code in analyzer.CROP_NAMES_EN.keys():
-        crops.append({
-            "crop_code": crop_code,
-            "name_en": analyzer.CROP_NAMES_EN[crop_code],
-            "name_ar": analyzer.CROP_NAMES_AR[crop_code],
-            "has_regional_data": crop_code in analyzer.REGIONAL_COSTS,
-            "regional_yield_kg_ha": analyzer.REGIONAL_YIELDS.get(crop_code),
-            "regional_price_yer_kg": analyzer.REGIONAL_PRICES.get(crop_code)
-        })
+        crops.append(
+            {
+                "crop_code": crop_code,
+                "name_en": analyzer.CROP_NAMES_EN[crop_code],
+                "name_ar": analyzer.CROP_NAMES_AR[crop_code],
+                "has_regional_data": crop_code in analyzer.REGIONAL_COSTS,
+                "regional_yield_kg_ha": analyzer.REGIONAL_YIELDS.get(crop_code),
+                "regional_price_yer_kg": analyzer.REGIONAL_PRICES.get(crop_code),
+            }
+        )
 
-    return {
-        "total": len(crops),
-        "crops": crops
-    }
+    return {"total": len(crops), "crops": crops}
 
 
 @app.get("/v1/costs/categories")
@@ -499,8 +488,8 @@ async def list_cost_categories():
                     "machinery": "آلات",
                     "land": "أرض",
                     "marketing": "تسويق",
-                    "other": "أخرى"
-                }.get(cat.value, cat.value)
+                    "other": "أخرى",
+                }.get(cat.value, cat.value),
             }
             for cat in CostCategory
         ]

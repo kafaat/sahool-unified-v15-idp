@@ -34,6 +34,7 @@ logger = logging.getLogger("globalgap-compliance")
 # مستودع الامتثال الرئيسي
 # =============================================================================
 
+
 class ComplianceRepository:
     """
     Comprehensive repository for GlobalGAP compliance operations
@@ -63,7 +64,7 @@ class ComplianceRepository:
         farm_id: UUID,
         include_history: bool = True,
         include_responses: bool = False,
-        include_non_conformances: bool = False
+        include_non_conformances: bool = False,
     ) -> Dict[str, Any]:
         """
         Get comprehensive compliance information for a farm
@@ -87,14 +88,14 @@ class ComplianceRepository:
                     "farm_id": str(farm_id),
                     "registrations": [],
                     "compliance_status": "NOT_REGISTERED",
-                    "message": "No GlobalGAP registrations found for this farm"
+                    "message": "No GlobalGAP registrations found for this farm",
                 }
 
             result = {
                 "farm_id": str(farm_id),
                 "registrations": registrations,
                 "compliance_records": [],
-                "summary": {}
+                "summary": {},
             }
 
             # Get compliance records for each registration
@@ -102,44 +103,52 @@ class ComplianceRepository:
             all_compliance_records = []
 
             for registration in registrations:
-                reg_id = registration['id']
+                reg_id = registration["id"]
 
                 if include_history:
                     records = await self.compliance_records.get_by_registration(reg_id)
                 else:
-                    latest = await self.compliance_records.get_latest_by_registration(reg_id)
+                    latest = await self.compliance_records.get_latest_by_registration(
+                        reg_id
+                    )
                     records = [latest] if latest else []
 
                 # Enhance records with additional data
                 # تحسين السجلات ببيانات إضافية
                 for record in records:
-                    record['registration'] = registration
+                    record["registration"] = registration
 
                     if include_responses:
-                        record['responses'] = await self.checklist_responses.get_by_compliance_record(
-                            record['id']
+                        record["responses"] = (
+                            await self.checklist_responses.get_by_compliance_record(
+                                record["id"]
+                            )
                         )
-                        record['non_compliant_count'] = sum(
-                            1 for r in record['responses'] if r['response'] == 'NON_COMPLIANT'
+                        record["non_compliant_count"] = sum(
+                            1
+                            for r in record["responses"]
+                            if r["response"] == "NON_COMPLIANT"
                         )
 
                     if include_non_conformances:
-                        record['non_conformances'] = await self.non_conformances.get_by_compliance_record(
-                            record['id']
+                        record["non_conformances"] = (
+                            await self.non_conformances.get_by_compliance_record(
+                                record["id"]
+                            )
                         )
-                        record['open_nc_count'] = sum(
-                            1 for nc in record['non_conformances']
-                            if nc['status'] in ('OPEN', 'IN_PROGRESS')
+                        record["open_nc_count"] = sum(
+                            1
+                            for nc in record["non_conformances"]
+                            if nc["status"] in ("OPEN", "IN_PROGRESS")
                         )
 
                     all_compliance_records.append(record)
 
-            result['compliance_records'] = all_compliance_records
+            result["compliance_records"] = all_compliance_records
 
             # Calculate summary statistics / حساب الإحصائيات الموجزة
-            result['summary'] = await self._calculate_farm_summary(
-                registrations,
-                all_compliance_records
+            result["summary"] = await self._calculate_farm_summary(
+                registrations, all_compliance_records
             )
 
             return result
@@ -151,40 +160,47 @@ class ComplianceRepository:
     async def _calculate_farm_summary(
         self,
         registrations: List[Dict[str, Any]],
-        compliance_records: List[Dict[str, Any]]
+        compliance_records: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
         Calculate summary statistics for farm compliance
         حساب الإحصائيات الموجزة لامتثال المزرعة
         """
-        active_registrations = [r for r in registrations if r['certificate_status'] == 'ACTIVE']
+        active_registrations = [
+            r for r in registrations if r["certificate_status"] == "ACTIVE"
+        ]
         latest_records = sorted(
             compliance_records,
-            key=lambda x: x['audit_date'] if x['audit_date'] else date.min,
-            reverse=True
+            key=lambda x: x["audit_date"] if x["audit_date"] else date.min,
+            reverse=True,
         )
 
         summary = {
             "total_registrations": len(registrations),
             "active_registrations": len(active_registrations),
             "total_audits": len(compliance_records),
-            "latest_audit_date": latest_records[0]['audit_date'] if latest_records else None,
+            "latest_audit_date": (
+                latest_records[0]["audit_date"] if latest_records else None
+            ),
         }
 
         if latest_records:
             latest = latest_records[0]
-            summary.update({
-                "current_compliance_score": latest.get('overall_compliance'),
-                "current_major_must_score": latest.get('major_must_score'),
-                "current_minor_must_score": latest.get('minor_must_score'),
-                "compliance_trend": await self._calculate_compliance_trend(compliance_records),
-            })
+            summary.update(
+                {
+                    "current_compliance_score": latest.get("overall_compliance"),
+                    "current_major_must_score": latest.get("major_must_score"),
+                    "current_minor_must_score": latest.get("minor_must_score"),
+                    "compliance_trend": await self._calculate_compliance_trend(
+                        compliance_records
+                    ),
+                }
+            )
 
         return summary
 
     async def _calculate_compliance_trend(
-        self,
-        compliance_records: List[Dict[str, Any]]
+        self, compliance_records: List[Dict[str, Any]]
     ) -> str:
         """
         Calculate compliance trend (improving/declining/stable)
@@ -195,12 +211,12 @@ class ComplianceRepository:
 
         sorted_records = sorted(
             compliance_records,
-            key=lambda x: x['audit_date'] if x['audit_date'] else date.min
+            key=lambda x: x["audit_date"] if x["audit_date"] else date.min,
         )
 
         recent = sorted_records[-2:]
-        if recent[0].get('overall_compliance') and recent[1].get('overall_compliance'):
-            diff = recent[1]['overall_compliance'] - recent[0]['overall_compliance']
+        if recent[0].get("overall_compliance") and recent[1].get("overall_compliance"):
+            diff = recent[1]["overall_compliance"] - recent[0]["overall_compliance"]
 
             if diff > 5:
                 return "IMPROVING"
@@ -223,7 +239,7 @@ class ComplianceRepository:
         response: str,
         evidence_path: Optional[str] = None,
         notes: Optional[str] = None,
-        auto_create_non_conformance: bool = True
+        auto_create_non_conformance: bool = True,
     ) -> Dict[str, Any]:
         """
         Save a checklist response and optionally create non-conformance
@@ -254,14 +270,18 @@ class ComplianceRepository:
                 """
 
                 row = await conn.fetchrow(
-                    query, compliance_record_id, checklist_item_id, response,
-                    evidence_path, notes
+                    query,
+                    compliance_record_id,
+                    checklist_item_id,
+                    response,
+                    evidence_path,
+                    notes,
                 )
                 response_data = dict(row)
 
                 # Auto-create non-conformance if response is NON_COMPLIANT
                 # إنشاء عدم المطابقة تلقائيًا إذا كانت الاستجابة غير متوافقة
-                if auto_create_non_conformance and response == 'NON_COMPLIANT':
+                if auto_create_non_conformance and response == "NON_COMPLIANT":
                     nc_query = """
                         INSERT INTO non_conformances (
                             compliance_record_id, checklist_item_id, severity,
@@ -271,14 +291,19 @@ class ComplianceRepository:
                         RETURNING *
                     """
 
-                    nc_description = f"Non-compliance identified for {checklist_item_id}"
+                    nc_description = (
+                        f"Non-compliance identified for {checklist_item_id}"
+                    )
                     if notes:
                         nc_description += f": {notes}"
 
                     nc_row = await conn.fetchrow(
-                        nc_query, compliance_record_id, checklist_item_id, nc_description
+                        nc_query,
+                        compliance_record_id,
+                        checklist_item_id,
+                        nc_description,
                     )
-                    response_data['non_conformance'] = dict(nc_row) if nc_row else None
+                    response_data["non_conformance"] = dict(nc_row) if nc_row else None
 
                 logger.info(
                     f"Saved checklist response: {checklist_item_id} = {response}"
@@ -294,7 +319,7 @@ class ComplianceRepository:
         self,
         compliance_record_id: UUID,
         responses: List[Dict[str, Any]],
-        auto_create_non_conformances: bool = True
+        auto_create_non_conformances: bool = True,
     ) -> List[Dict[str, Any]]:
         """
         Save multiple checklist responses in a batch with transaction
@@ -315,11 +340,11 @@ class ComplianceRepository:
                 for resp in responses:
                     result = await self.save_checklist_response(
                         compliance_record_id=compliance_record_id,
-                        checklist_item_id=resp['checklist_item_id'],
-                        response=resp['response'],
-                        evidence_path=resp.get('evidence_path'),
-                        notes=resp.get('notes'),
-                        auto_create_non_conformance=auto_create_non_conformances
+                        checklist_item_id=resp["checklist_item_id"],
+                        response=resp["response"],
+                        evidence_path=resp.get("evidence_path"),
+                        notes=resp.get("notes"),
+                        auto_create_non_conformance=auto_create_non_conformances,
                     )
                     results.append(result)
 
@@ -342,7 +367,7 @@ class ComplianceRepository:
         severity: str,
         description: str,
         corrective_action: Optional[str] = None,
-        due_date: Optional[date] = None
+        due_date: Optional[date] = None,
     ) -> Dict[str, Any]:
         """
         Create a non-conformance record
@@ -363,7 +388,7 @@ class ComplianceRepository:
             # Auto-calculate due date based on severity if not provided
             # حساب تاريخ الاستحقاق تلقائيًا بناءً على الخطورة إذا لم يتم توفيره
             if due_date is None:
-                days_offset = 30 if severity == 'MAJOR' else 60
+                days_offset = 30 if severity == "MAJOR" else 60
                 due_date = date.today() + timedelta(days=days_offset)
 
             nc = await self.non_conformances.create(
@@ -373,12 +398,10 @@ class ComplianceRepository:
                 description=description,
                 corrective_action=corrective_action,
                 due_date=due_date,
-                status='OPEN'
+                status="OPEN",
             )
 
-            logger.info(
-                f"Created {severity} non-conformance for {checklist_item_id}"
-            )
+            logger.info(f"Created {severity} non-conformance for {checklist_item_id}")
 
             return nc
 
@@ -391,7 +414,7 @@ class ComplianceRepository:
         nc_id: UUID,
         status: str,
         corrective_action: Optional[str] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Update non-conformance status with validation
@@ -399,14 +422,14 @@ class ComplianceRepository:
         """
         try:
             resolved_date = None
-            if status in ('RESOLVED', 'VERIFIED'):
+            if status in ("RESOLVED", "VERIFIED"):
                 resolved_date = date.today()
 
             nc = await self.non_conformances.update_status(
                 nc_id=nc_id,
                 status=status,
                 corrective_action=corrective_action,
-                resolved_date=resolved_date
+                resolved_date=resolved_date,
             )
 
             logger.info(f"Updated non-conformance {nc_id} to status {status}")
@@ -425,7 +448,7 @@ class ComplianceRepository:
         self,
         start_date: Optional[date] = None,
         end_date: Optional[date] = None,
-        min_compliance_threshold: float = 80.0
+        min_compliance_threshold: float = 80.0,
     ) -> Dict[str, Any]:
         """
         Generate comprehensive compliance summary report
@@ -497,7 +520,7 @@ class ComplianceRepository:
 
                 nc_stats = await conn.fetchrow(
                     nc_query,
-                    *(params[:-1] if params else [])  # Exclude threshold param
+                    *(params[:-1] if params else []),  # Exclude threshold param
                 )
 
                 # Get compliance by scope
@@ -517,8 +540,7 @@ class ComplianceRepository:
                 """
 
                 scope_stats = await conn.fetch(
-                    scope_query,
-                    *(params[:-1] if params else [])
+                    scope_query, *(params[:-1] if params else [])
                 )
 
                 return {
@@ -538,9 +560,7 @@ class ComplianceRepository:
             raise
 
     async def get_farm_compliance_history(
-        self,
-        farm_id: UUID,
-        limit: Optional[int] = 10
+        self, farm_id: UUID, limit: Optional[int] = 10
     ) -> List[Dict[str, Any]]:
         """
         Get compliance history for a farm with trend analysis
@@ -579,7 +599,7 @@ class ComplianceRepository:
         self,
         checklist_item_id: str,
         start_date: Optional[date] = None,
-        end_date: Optional[date] = None
+        end_date: Optional[date] = None,
     ) -> Dict[str, Any]:
         """
         Analyze compliance patterns for a specific checklist item
@@ -645,9 +665,7 @@ class ComplianceRepository:
             raise
 
     async def get_overdue_corrective_actions(
-        self,
-        severity: Optional[str] = None,
-        days_overdue: Optional[int] = None
+        self, severity: Optional[str] = None, days_overdue: Optional[int] = None
     ) -> List[Dict[str, Any]]:
         """
         Get overdue corrective actions with farm and audit details
@@ -655,7 +673,10 @@ class ComplianceRepository:
         """
         try:
             async with get_connection() as conn:
-                filters = ["nc.status IN ('OPEN', 'IN_PROGRESS')", "nc.due_date < CURRENT_DATE"]
+                filters = [
+                    "nc.status IN ('OPEN', 'IN_PROGRESS')",
+                    "nc.due_date < CURRENT_DATE",
+                ]
                 params = []
 
                 if severity:
@@ -663,7 +684,9 @@ class ComplianceRepository:
                     params.append(severity)
 
                 if days_overdue:
-                    filters.append(f"nc.due_date < CURRENT_DATE - ${len(params) + 1}::interval")
+                    filters.append(
+                        f"nc.due_date < CURRENT_DATE - ${len(params) + 1}::interval"
+                    )
                     params.append(f"{days_overdue} days")
 
                 where_clause = " AND ".join(filters)
@@ -692,8 +715,7 @@ class ComplianceRepository:
             raise
 
     async def get_expiring_certificates_report(
-        self,
-        days_ahead: int = 90
+        self, days_ahead: int = 90
     ) -> List[Dict[str, Any]]:
         """
         Get certificates expiring within specified days with compliance status
@@ -732,9 +754,7 @@ class ComplianceRepository:
             raise
 
     async def get_compliance_trends(
-        self,
-        farm_id: Optional[UUID] = None,
-        months: int = 12
+        self, farm_id: Optional[UUID] = None, months: int = 12
     ) -> Dict[str, Any]:
         """
         Get compliance trends over time with monthly aggregation
@@ -792,7 +812,7 @@ class ComplianceRepository:
         audit_date: date,
         responses: List[Dict[str, Any]],
         auditor_notes: Optional[str] = None,
-        calculate_scores: bool = True
+        calculate_scores: bool = True,
     ) -> Dict[str, Any]:
         """
         Create a complete compliance record with all responses in one transaction
@@ -811,11 +831,14 @@ class ComplianceRepository:
                 """
 
                 record = await conn.fetchrow(
-                    record_query, registration_id, checklist_version,
-                    audit_date, auditor_notes
+                    record_query,
+                    registration_id,
+                    checklist_version,
+                    audit_date,
+                    auditor_notes,
                 )
                 compliance_record = dict(record)
-                compliance_record_id = record['id']
+                compliance_record_id = record["id"]
 
                 # Save all responses
                 # حفظ جميع الاستجابات
@@ -836,15 +859,15 @@ class ComplianceRepository:
                     resp_row = await conn.fetchrow(
                         resp_query,
                         compliance_record_id,
-                        resp['checklist_item_id'],
-                        resp['response'],
-                        resp.get('evidence_path'),
-                        resp.get('notes')
+                        resp["checklist_item_id"],
+                        resp["response"],
+                        resp.get("evidence_path"),
+                        resp.get("notes"),
                     )
                     saved_responses.append(dict(resp_row))
 
                     # Create non-conformance if needed
-                    if resp['response'] == 'NON_COMPLIANT':
+                    if resp["response"] == "NON_COMPLIANT":
                         nc_query = """
                             INSERT INTO non_conformances (
                                 compliance_record_id, checklist_item_id, severity,
@@ -854,13 +877,18 @@ class ComplianceRepository:
                             RETURNING *
                         """
 
-                        severity = resp.get('severity', 'MAJOR')
-                        description = resp.get('nc_description',
-                            f"Non-compliance for {resp['checklist_item_id']}")
+                        severity = resp.get("severity", "MAJOR")
+                        description = resp.get(
+                            "nc_description",
+                            f"Non-compliance for {resp['checklist_item_id']}",
+                        )
 
                         nc_row = await conn.fetchrow(
-                            nc_query, compliance_record_id,
-                            resp['checklist_item_id'], severity, description
+                            nc_query,
+                            compliance_record_id,
+                            resp["checklist_item_id"],
+                            severity,
+                            description,
                         )
                         non_conformances.append(dict(nc_row))
 
@@ -879,15 +907,16 @@ class ComplianceRepository:
                     """
 
                     updated_record = await conn.fetchrow(
-                        update_query, compliance_record_id,
-                        scores['major_must_score'],
-                        scores['minor_must_score'],
-                        scores['overall_compliance']
+                        update_query,
+                        compliance_record_id,
+                        scores["major_must_score"],
+                        scores["minor_must_score"],
+                        scores["overall_compliance"],
                     )
                     compliance_record = dict(updated_record)
 
-                compliance_record['responses'] = saved_responses
-                compliance_record['non_conformances'] = non_conformances
+                compliance_record["responses"] = saved_responses
+                compliance_record["non_conformances"] = non_conformances
 
                 logger.info(
                     f"Created compliance record {compliance_record_id} with "
@@ -901,8 +930,7 @@ class ComplianceRepository:
             raise
 
     def _calculate_compliance_scores(
-        self,
-        responses: List[Dict[str, Any]]
+        self, responses: List[Dict[str, Any]]
     ) -> Dict[str, float]:
         """
         Calculate compliance scores from responses
@@ -926,9 +954,9 @@ class ComplianceRepository:
             }
 
         total = len(responses)
-        compliant = sum(1 for r in responses if r['response'] == 'COMPLIANT')
-        non_compliant = sum(1 for r in responses if r['response'] == 'NON_COMPLIANT')
-        not_applicable = sum(1 for r in responses if r['response'] == 'NOT_APPLICABLE')
+        compliant = sum(1 for r in responses if r["response"] == "COMPLIANT")
+        non_compliant = sum(1 for r in responses if r["response"] == "NON_COMPLIANT")
+        not_applicable = sum(1 for r in responses if r["response"] == "NOT_APPLICABLE")
 
         # Calculate scores (simplified)
         applicable = total - not_applicable

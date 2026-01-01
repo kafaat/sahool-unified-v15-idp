@@ -24,18 +24,19 @@ from collections import defaultdict
 
 class GrowthStage(Enum):
     """Crop growth stages based on BBCH scale"""
-    BARE_SOIL = "bare_soil"           # Before planting / BBCH 00
-    GERMINATION = "germination"        # BBCH 00-09
-    EMERGENCE = "emergence"            # BBCH 10-19
-    LEAF_DEVELOPMENT = "leaf_dev"      # BBCH 20-29
-    TILLERING = "tillering"            # BBCH 30-39 (cereals)
-    STEM_ELONGATION = "stem_elong"     # BBCH 40-49
-    BOOTING = "booting"                # BBCH 50-59 (cereals)
-    FLOWERING = "flowering"            # BBCH 60-69
-    FRUIT_DEVELOPMENT = "fruit_dev"    # BBCH 70-79
-    RIPENING = "ripening"              # BBCH 80-89
-    SENESCENCE = "senescence"          # BBCH 90-99
-    HARVESTED = "harvested"            # Post-harvest
+
+    BARE_SOIL = "bare_soil"  # Before planting / BBCH 00
+    GERMINATION = "germination"  # BBCH 00-09
+    EMERGENCE = "emergence"  # BBCH 10-19
+    LEAF_DEVELOPMENT = "leaf_dev"  # BBCH 20-29
+    TILLERING = "tillering"  # BBCH 30-39 (cereals)
+    STEM_ELONGATION = "stem_elong"  # BBCH 40-49
+    BOOTING = "booting"  # BBCH 50-59 (cereals)
+    FLOWERING = "flowering"  # BBCH 60-69
+    FRUIT_DEVELOPMENT = "fruit_dev"  # BBCH 70-79
+    RIPENING = "ripening"  # BBCH 80-89
+    SENESCENCE = "senescence"  # BBCH 90-99
+    HARVESTED = "harvested"  # Post-harvest
 
     @property
     def label_ar(self) -> str:
@@ -52,7 +53,7 @@ class GrowthStage(Enum):
             "fruit_dev": "تطور الثمار",
             "ripening": "نضج",
             "senescence": "شيخوخة",
-            "harvested": "محصود"
+            "harvested": "محصود",
         }
         return labels.get(self.value, self.value)
 
@@ -71,7 +72,7 @@ class GrowthStage(Enum):
             "fruit_dev": "Fruit Development",
             "ripening": "Ripening",
             "senescence": "Senescence",
-            "harvested": "Harvested"
+            "harvested": "Harvested",
         }
         return labels.get(self.value, self.value)
 
@@ -79,6 +80,7 @@ class GrowthStage(Enum):
 @dataclass
 class PhenologyResult:
     """Result of phenology detection for a field"""
+
     field_id: str
     crop_type: str
     current_stage: GrowthStage
@@ -102,6 +104,7 @@ class PhenologyResult:
 @dataclass
 class PhenologyTimeline:
     """Expected phenology timeline for crop planning"""
+
     field_id: str
     crop_type: str
     planting_date: date
@@ -129,12 +132,12 @@ class PhenologyDetector:
 
     # NDVI thresholds for phenological event detection
     NDVI_THRESHOLDS = {
-        "bare_soil": 0.10,        # Bare soil baseline
-        "emergence": 0.20,        # Green-up begins (SOS)
-        "active_growth": 0.35,    # Active vegetative growth
-        "peak": 0.65,             # Maximum greenness (POS)
-        "senescence_start": 0.45, # Decline begins
-        "harvest_ready": 0.25,    # Ready for harvest (EOS)
+        "bare_soil": 0.10,  # Bare soil baseline
+        "emergence": 0.20,  # Green-up begins (SOS)
+        "active_growth": 0.35,  # Active vegetative growth
+        "peak": 0.65,  # Maximum greenness (POS)
+        "senescence_start": 0.45,  # Decline begins
+        "harvest_ready": 0.25,  # Ready for harvest (EOS)
     }
 
     # Yemen crop-specific phenology parameters
@@ -145,187 +148,459 @@ class PhenologyDetector:
             "name_ar": "قمح",
             "season_length_days": 120,
             "stages": {
-                "germination": {"duration_days": 10, "ndvi_start": 0.15, "ndvi_end": 0.25},
-                "emergence": {"duration_days": 15, "ndvi_start": 0.25, "ndvi_end": 0.35},
-                "tillering": {"duration_days": 30, "ndvi_start": 0.35, "ndvi_end": 0.55},
-                "stem_elongation": {"duration_days": 20, "ndvi_start": 0.55, "ndvi_end": 0.70},
+                "germination": {
+                    "duration_days": 10,
+                    "ndvi_start": 0.15,
+                    "ndvi_end": 0.25,
+                },
+                "emergence": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.25,
+                    "ndvi_end": 0.35,
+                },
+                "tillering": {
+                    "duration_days": 30,
+                    "ndvi_start": 0.35,
+                    "ndvi_end": 0.55,
+                },
+                "stem_elongation": {
+                    "duration_days": 20,
+                    "ndvi_start": 0.55,
+                    "ndvi_end": 0.70,
+                },
                 "booting": {"duration_days": 10, "ndvi_start": 0.70, "ndvi_end": 0.75},
-                "flowering": {"duration_days": 12, "ndvi_start": 0.75, "ndvi_end": 0.72},
+                "flowering": {
+                    "duration_days": 12,
+                    "ndvi_start": 0.75,
+                    "ndvi_end": 0.72,
+                },
                 "ripening": {"duration_days": 18, "ndvi_start": 0.72, "ndvi_end": 0.45},
-                "senescence": {"duration_days": 5, "ndvi_start": 0.45, "ndvi_end": 0.25},
+                "senescence": {
+                    "duration_days": 5,
+                    "ndvi_start": 0.45,
+                    "ndvi_end": 0.25,
+                },
             },
             "critical_periods": [
-                {"stage": "tillering", "reason_ar": "فترة حرجة للتسميد", "reason_en": "Critical fertilization period"},
-                {"stage": "flowering", "reason_ar": "حساس للإجهاد المائي", "reason_en": "Sensitive to water stress"},
-            ]
+                {
+                    "stage": "tillering",
+                    "reason_ar": "فترة حرجة للتسميد",
+                    "reason_en": "Critical fertilization period",
+                },
+                {
+                    "stage": "flowering",
+                    "reason_ar": "حساس للإجهاد المائي",
+                    "reason_en": "Sensitive to water stress",
+                },
+            ],
         },
         "sorghum": {
             "name_ar": "ذرة رفيعة",
             "season_length_days": 110,
             "stages": {
-                "germination": {"duration_days": 7, "ndvi_start": 0.15, "ndvi_end": 0.25},
-                "emergence": {"duration_days": 12, "ndvi_start": 0.25, "ndvi_end": 0.35},
-                "leaf_development": {"duration_days": 35, "ndvi_start": 0.35, "ndvi_end": 0.60},
-                "stem_elongation": {"duration_days": 20, "ndvi_start": 0.60, "ndvi_end": 0.75},
-                "flowering": {"duration_days": 15, "ndvi_start": 0.75, "ndvi_end": 0.70},
-                "fruit_development": {"duration_days": 15, "ndvi_start": 0.70, "ndvi_end": 0.55},
+                "germination": {
+                    "duration_days": 7,
+                    "ndvi_start": 0.15,
+                    "ndvi_end": 0.25,
+                },
+                "emergence": {
+                    "duration_days": 12,
+                    "ndvi_start": 0.25,
+                    "ndvi_end": 0.35,
+                },
+                "leaf_development": {
+                    "duration_days": 35,
+                    "ndvi_start": 0.35,
+                    "ndvi_end": 0.60,
+                },
+                "stem_elongation": {
+                    "duration_days": 20,
+                    "ndvi_start": 0.60,
+                    "ndvi_end": 0.75,
+                },
+                "flowering": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.75,
+                    "ndvi_end": 0.70,
+                },
+                "fruit_development": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.70,
+                    "ndvi_end": 0.55,
+                },
                 "ripening": {"duration_days": 20, "ndvi_start": 0.55, "ndvi_end": 0.30},
-                "senescence": {"duration_days": 6, "ndvi_start": 0.30, "ndvi_end": 0.20},
+                "senescence": {
+                    "duration_days": 6,
+                    "ndvi_start": 0.30,
+                    "ndvi_end": 0.20,
+                },
             },
             "critical_periods": [
-                {"stage": "flowering", "reason_ar": "حساس جداً للحرارة", "reason_en": "Very sensitive to heat"},
-                {"stage": "fruit_development", "reason_ar": "احتياجات مائية عالية", "reason_en": "High water requirements"},
-            ]
+                {
+                    "stage": "flowering",
+                    "reason_ar": "حساس جداً للحرارة",
+                    "reason_en": "Very sensitive to heat",
+                },
+                {
+                    "stage": "fruit_development",
+                    "reason_ar": "احتياجات مائية عالية",
+                    "reason_en": "High water requirements",
+                },
+            ],
         },
         "millet": {
             "name_ar": "دخن",
             "season_length_days": 90,
             "stages": {
-                "germination": {"duration_days": 5, "ndvi_start": 0.15, "ndvi_end": 0.22},
-                "emergence": {"duration_days": 10, "ndvi_start": 0.22, "ndvi_end": 0.32},
-                "leaf_development": {"duration_days": 25, "ndvi_start": 0.32, "ndvi_end": 0.55},
-                "stem_elongation": {"duration_days": 15, "ndvi_start": 0.55, "ndvi_end": 0.65},
-                "flowering": {"duration_days": 12, "ndvi_start": 0.65, "ndvi_end": 0.62},
-                "fruit_development": {"duration_days": 15, "ndvi_start": 0.62, "ndvi_end": 0.45},
+                "germination": {
+                    "duration_days": 5,
+                    "ndvi_start": 0.15,
+                    "ndvi_end": 0.22,
+                },
+                "emergence": {
+                    "duration_days": 10,
+                    "ndvi_start": 0.22,
+                    "ndvi_end": 0.32,
+                },
+                "leaf_development": {
+                    "duration_days": 25,
+                    "ndvi_start": 0.32,
+                    "ndvi_end": 0.55,
+                },
+                "stem_elongation": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.55,
+                    "ndvi_end": 0.65,
+                },
+                "flowering": {
+                    "duration_days": 12,
+                    "ndvi_start": 0.65,
+                    "ndvi_end": 0.62,
+                },
+                "fruit_development": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.62,
+                    "ndvi_end": 0.45,
+                },
                 "ripening": {"duration_days": 8, "ndvi_start": 0.45, "ndvi_end": 0.25},
             },
             "critical_periods": [
-                {"stage": "flowering", "reason_ar": "حساس للرياح", "reason_en": "Sensitive to wind"},
-            ]
+                {
+                    "stage": "flowering",
+                    "reason_ar": "حساس للرياح",
+                    "reason_en": "Sensitive to wind",
+                },
+            ],
         },
-
         # Vegetables (الخضروات)
         "tomato": {
             "name_ar": "طماطم",
             "season_length_days": 105,
             "stages": {
-                "germination": {"duration_days": 8, "ndvi_start": 0.15, "ndvi_end": 0.25},
-                "emergence": {"duration_days": 12, "ndvi_start": 0.25, "ndvi_end": 0.35},
-                "leaf_development": {"duration_days": 25, "ndvi_start": 0.35, "ndvi_end": 0.60},
-                "flowering": {"duration_days": 15, "ndvi_start": 0.60, "ndvi_end": 0.70},
-                "fruit_development": {"duration_days": 30, "ndvi_start": 0.70, "ndvi_end": 0.65},
+                "germination": {
+                    "duration_days": 8,
+                    "ndvi_start": 0.15,
+                    "ndvi_end": 0.25,
+                },
+                "emergence": {
+                    "duration_days": 12,
+                    "ndvi_start": 0.25,
+                    "ndvi_end": 0.35,
+                },
+                "leaf_development": {
+                    "duration_days": 25,
+                    "ndvi_start": 0.35,
+                    "ndvi_end": 0.60,
+                },
+                "flowering": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.60,
+                    "ndvi_end": 0.70,
+                },
+                "fruit_development": {
+                    "duration_days": 30,
+                    "ndvi_start": 0.70,
+                    "ndvi_end": 0.65,
+                },
                 "ripening": {"duration_days": 15, "ndvi_start": 0.65, "ndvi_end": 0.55},
             },
             "critical_periods": [
-                {"stage": "flowering", "reason_ar": "التلقيح الحرج", "reason_en": "Critical pollination"},
-                {"stage": "fruit_development", "reason_ar": "احتياجات غذائية عالية", "reason_en": "High nutrient demand"},
-            ]
+                {
+                    "stage": "flowering",
+                    "reason_ar": "التلقيح الحرج",
+                    "reason_en": "Critical pollination",
+                },
+                {
+                    "stage": "fruit_development",
+                    "reason_ar": "احتياجات غذائية عالية",
+                    "reason_en": "High nutrient demand",
+                },
+            ],
         },
         "potato": {
             "name_ar": "بطاطس",
             "season_length_days": 100,
             "stages": {
-                "germination": {"duration_days": 12, "ndvi_start": 0.12, "ndvi_end": 0.22},
-                "emergence": {"duration_days": 15, "ndvi_start": 0.22, "ndvi_end": 0.35},
-                "leaf_development": {"duration_days": 30, "ndvi_start": 0.35, "ndvi_end": 0.65},
-                "flowering": {"duration_days": 10, "ndvi_start": 0.65, "ndvi_end": 0.68},
-                "fruit_development": {"duration_days": 25, "ndvi_start": 0.68, "ndvi_end": 0.55},
+                "germination": {
+                    "duration_days": 12,
+                    "ndvi_start": 0.12,
+                    "ndvi_end": 0.22,
+                },
+                "emergence": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.22,
+                    "ndvi_end": 0.35,
+                },
+                "leaf_development": {
+                    "duration_days": 30,
+                    "ndvi_start": 0.35,
+                    "ndvi_end": 0.65,
+                },
+                "flowering": {
+                    "duration_days": 10,
+                    "ndvi_start": 0.65,
+                    "ndvi_end": 0.68,
+                },
+                "fruit_development": {
+                    "duration_days": 25,
+                    "ndvi_start": 0.68,
+                    "ndvi_end": 0.55,
+                },
                 "ripening": {"duration_days": 8, "ndvi_start": 0.55, "ndvi_end": 0.30},
             },
             "critical_periods": [
-                {"stage": "fruit_development", "reason_ar": "تكوين الدرنات", "reason_en": "Tuber formation"},
-            ]
+                {
+                    "stage": "fruit_development",
+                    "reason_ar": "تكوين الدرنات",
+                    "reason_en": "Tuber formation",
+                },
+            ],
         },
         "onion": {
             "name_ar": "بصل",
             "season_length_days": 120,
             "stages": {
-                "germination": {"duration_days": 10, "ndvi_start": 0.15, "ndvi_end": 0.22},
-                "emergence": {"duration_days": 18, "ndvi_start": 0.22, "ndvi_end": 0.30},
-                "leaf_development": {"duration_days": 50, "ndvi_start": 0.30, "ndvi_end": 0.55},
-                "fruit_development": {"duration_days": 30, "ndvi_start": 0.55, "ndvi_end": 0.50},
+                "germination": {
+                    "duration_days": 10,
+                    "ndvi_start": 0.15,
+                    "ndvi_end": 0.22,
+                },
+                "emergence": {
+                    "duration_days": 18,
+                    "ndvi_start": 0.22,
+                    "ndvi_end": 0.30,
+                },
+                "leaf_development": {
+                    "duration_days": 50,
+                    "ndvi_start": 0.30,
+                    "ndvi_end": 0.55,
+                },
+                "fruit_development": {
+                    "duration_days": 30,
+                    "ndvi_start": 0.55,
+                    "ndvi_end": 0.50,
+                },
                 "ripening": {"duration_days": 12, "ndvi_start": 0.50, "ndvi_end": 0.25},
             },
             "critical_periods": [
-                {"stage": "fruit_development", "reason_ar": "تكوين البصلة", "reason_en": "Bulb formation"},
-            ]
+                {
+                    "stage": "fruit_development",
+                    "reason_ar": "تكوين البصلة",
+                    "reason_en": "Bulb formation",
+                },
+            ],
         },
-
         # Cash Crops (المحاصيل النقدية)
         "coffee": {
             "name_ar": "بن",
             "season_length_days": 365,  # Perennial, one harvest cycle
             "stages": {
-                "emergence": {"duration_days": 45, "ndvi_start": 0.30, "ndvi_end": 0.40},
-                "leaf_development": {"duration_days": 120, "ndvi_start": 0.40, "ndvi_end": 0.60},
-                "flowering": {"duration_days": 60, "ndvi_start": 0.60, "ndvi_end": 0.70},
-                "fruit_development": {"duration_days": 90, "ndvi_start": 0.70, "ndvi_end": 0.65},
+                "emergence": {
+                    "duration_days": 45,
+                    "ndvi_start": 0.30,
+                    "ndvi_end": 0.40,
+                },
+                "leaf_development": {
+                    "duration_days": 120,
+                    "ndvi_start": 0.40,
+                    "ndvi_end": 0.60,
+                },
+                "flowering": {
+                    "duration_days": 60,
+                    "ndvi_start": 0.60,
+                    "ndvi_end": 0.70,
+                },
+                "fruit_development": {
+                    "duration_days": 90,
+                    "ndvi_start": 0.70,
+                    "ndvi_end": 0.65,
+                },
                 "ripening": {"duration_days": 50, "ndvi_start": 0.65, "ndvi_end": 0.55},
             },
             "critical_periods": [
-                {"stage": "flowering", "reason_ar": "التلقيح والعقد", "reason_en": "Pollination and fruit set"},
-                {"stage": "fruit_development", "reason_ar": "نمو الحبوب", "reason_en": "Bean development"},
-            ]
+                {
+                    "stage": "flowering",
+                    "reason_ar": "التلقيح والعقد",
+                    "reason_en": "Pollination and fruit set",
+                },
+                {
+                    "stage": "fruit_development",
+                    "reason_ar": "نمو الحبوب",
+                    "reason_en": "Bean development",
+                },
+            ],
         },
         "qat": {
             "name_ar": "قات",
             "season_length_days": 90,  # Harvest cycle for leaves
             "stages": {
-                "leaf_development": {"duration_days": 60, "ndvi_start": 0.40, "ndvi_end": 0.65},
+                "leaf_development": {
+                    "duration_days": 60,
+                    "ndvi_start": 0.40,
+                    "ndvi_end": 0.65,
+                },
                 "ripening": {"duration_days": 30, "ndvi_start": 0.65, "ndvi_end": 0.60},
             },
             "critical_periods": [
-                {"stage": "leaf_development", "reason_ar": "جودة الأوراق", "reason_en": "Leaf quality"},
-            ]
+                {
+                    "stage": "leaf_development",
+                    "reason_ar": "جودة الأوراق",
+                    "reason_en": "Leaf quality",
+                },
+            ],
         },
-
         # Legumes (البقوليات)
         "faba_bean": {
             "name_ar": "فول",
             "season_length_days": 130,
             "stages": {
-                "germination": {"duration_days": 8, "ndvi_start": 0.15, "ndvi_end": 0.25},
-                "emergence": {"duration_days": 15, "ndvi_start": 0.25, "ndvi_end": 0.35},
-                "leaf_development": {"duration_days": 40, "ndvi_start": 0.35, "ndvi_end": 0.60},
-                "flowering": {"duration_days": 20, "ndvi_start": 0.60, "ndvi_end": 0.70},
-                "fruit_development": {"duration_days": 30, "ndvi_start": 0.70, "ndvi_end": 0.55},
+                "germination": {
+                    "duration_days": 8,
+                    "ndvi_start": 0.15,
+                    "ndvi_end": 0.25,
+                },
+                "emergence": {
+                    "duration_days": 15,
+                    "ndvi_start": 0.25,
+                    "ndvi_end": 0.35,
+                },
+                "leaf_development": {
+                    "duration_days": 40,
+                    "ndvi_start": 0.35,
+                    "ndvi_end": 0.60,
+                },
+                "flowering": {
+                    "duration_days": 20,
+                    "ndvi_start": 0.60,
+                    "ndvi_end": 0.70,
+                },
+                "fruit_development": {
+                    "duration_days": 30,
+                    "ndvi_start": 0.70,
+                    "ndvi_end": 0.55,
+                },
                 "ripening": {"duration_days": 17, "ndvi_start": 0.55, "ndvi_end": 0.30},
             },
             "critical_periods": [
-                {"stage": "flowering", "reason_ar": "تثبيت النيتروجين", "reason_en": "Nitrogen fixation"},
-            ]
+                {
+                    "stage": "flowering",
+                    "reason_ar": "تثبيت النيتروجين",
+                    "reason_en": "Nitrogen fixation",
+                },
+            ],
         },
         "lentil": {
             "name_ar": "عدس",
             "season_length_days": 110,
             "stages": {
-                "germination": {"duration_days": 7, "ndvi_start": 0.15, "ndvi_end": 0.23},
-                "emergence": {"duration_days": 12, "ndvi_start": 0.23, "ndvi_end": 0.32},
-                "leaf_development": {"duration_days": 35, "ndvi_start": 0.32, "ndvi_end": 0.55},
-                "flowering": {"duration_days": 18, "ndvi_start": 0.55, "ndvi_end": 0.65},
-                "fruit_development": {"duration_days": 25, "ndvi_start": 0.65, "ndvi_end": 0.45},
+                "germination": {
+                    "duration_days": 7,
+                    "ndvi_start": 0.15,
+                    "ndvi_end": 0.23,
+                },
+                "emergence": {
+                    "duration_days": 12,
+                    "ndvi_start": 0.23,
+                    "ndvi_end": 0.32,
+                },
+                "leaf_development": {
+                    "duration_days": 35,
+                    "ndvi_start": 0.32,
+                    "ndvi_end": 0.55,
+                },
+                "flowering": {
+                    "duration_days": 18,
+                    "ndvi_start": 0.55,
+                    "ndvi_end": 0.65,
+                },
+                "fruit_development": {
+                    "duration_days": 25,
+                    "ndvi_start": 0.65,
+                    "ndvi_end": 0.45,
+                },
                 "ripening": {"duration_days": 13, "ndvi_start": 0.45, "ndvi_end": 0.25},
             },
             "critical_periods": [
-                {"stage": "flowering", "reason_ar": "حساس للحرارة", "reason_en": "Heat sensitive"},
-            ]
+                {
+                    "stage": "flowering",
+                    "reason_ar": "حساس للحرارة",
+                    "reason_en": "Heat sensitive",
+                },
+            ],
         },
-
         # Fruits (الفواكه)
         "mango": {
             "name_ar": "مانجو",
             "season_length_days": 180,  # Fruiting cycle
             "stages": {
-                "flowering": {"duration_days": 30, "ndvi_start": 0.50, "ndvi_end": 0.60},
-                "fruit_development": {"duration_days": 90, "ndvi_start": 0.60, "ndvi_end": 0.70},
+                "flowering": {
+                    "duration_days": 30,
+                    "ndvi_start": 0.50,
+                    "ndvi_end": 0.60,
+                },
+                "fruit_development": {
+                    "duration_days": 90,
+                    "ndvi_start": 0.60,
+                    "ndvi_end": 0.70,
+                },
                 "ripening": {"duration_days": 60, "ndvi_start": 0.70, "ndvi_end": 0.65},
             },
             "critical_periods": [
-                {"stage": "flowering", "reason_ar": "التلقيح", "reason_en": "Pollination"},
-            ]
+                {
+                    "stage": "flowering",
+                    "reason_ar": "التلقيح",
+                    "reason_en": "Pollination",
+                },
+            ],
         },
         "grape": {
             "name_ar": "عنب",
             "season_length_days": 150,
             "stages": {
-                "leaf_development": {"duration_days": 40, "ndvi_start": 0.30, "ndvi_end": 0.50},
-                "flowering": {"duration_days": 20, "ndvi_start": 0.50, "ndvi_end": 0.60},
-                "fruit_development": {"duration_days": 60, "ndvi_start": 0.60, "ndvi_end": 0.70},
+                "leaf_development": {
+                    "duration_days": 40,
+                    "ndvi_start": 0.30,
+                    "ndvi_end": 0.50,
+                },
+                "flowering": {
+                    "duration_days": 20,
+                    "ndvi_start": 0.50,
+                    "ndvi_end": 0.60,
+                },
+                "fruit_development": {
+                    "duration_days": 60,
+                    "ndvi_start": 0.60,
+                    "ndvi_end": 0.70,
+                },
                 "ripening": {"duration_days": 30, "ndvi_start": 0.70, "ndvi_end": 0.60},
             },
             "critical_periods": [
-                {"stage": "fruit_development", "reason_ar": "حجم وجودة الثمار", "reason_en": "Berry size and quality"},
-            ]
+                {
+                    "stage": "fruit_development",
+                    "reason_ar": "حجم وجودة الثمار",
+                    "reason_en": "Berry size and quality",
+                },
+            ],
         },
     }
 
@@ -334,7 +609,7 @@ class PhenologyDetector:
         field_id: str,
         crop_type: str,
         ndvi_series: List[Dict],  # [{date, value}]
-        planting_date: Optional[date] = None
+        planting_date: Optional[date] = None,
     ) -> PhenologyResult:
         """
         Detect current growth stage from NDVI pattern.
@@ -360,16 +635,28 @@ class PhenologyDetector:
 
         crop_type = crop_type.lower()
         if crop_type not in self.YEMEN_CROP_SEASONS:
-            raise ValueError(f"Unknown crop type: {crop_type}. Must be one of {list(self.YEMEN_CROP_SEASONS.keys())}")
+            raise ValueError(
+                f"Unknown crop type: {crop_type}. Must be one of {list(self.YEMEN_CROP_SEASONS.keys())}"
+            )
 
         crop_params = self.YEMEN_CROP_SEASONS[crop_type]
 
         # Sort by date
-        ndvi_series = sorted(ndvi_series, key=lambda x: x["date"] if isinstance(x["date"], date) else datetime.fromisoformat(x["date"]).date())
+        ndvi_series = sorted(
+            ndvi_series,
+            key=lambda x: (
+                x["date"]
+                if isinstance(x["date"], date)
+                else datetime.fromisoformat(x["date"]).date()
+            ),
+        )
 
         # Smooth the series
         smoothed = self._smooth_ndvi_series([x["value"] for x in ndvi_series])
-        ndvi_smooth = [{"date": ndvi_series[i]["date"], "value": smoothed[i]} for i in range(len(ndvi_series))]
+        ndvi_smooth = [
+            {"date": ndvi_series[i]["date"], "value": smoothed[i]}
+            for i in range(len(ndvi_series))
+        ]
 
         # Detect phenological events
         sos_date = self._detect_sos(ndvi_smooth, planting_date)
@@ -395,7 +682,9 @@ class PhenologyDetector:
         # Calculate season progress
         if sos_date and current_date:
             days_since_sos = (current_date - sos_date).days
-            season_progress = min(100, (days_since_sos / crop_params["season_length_days"]) * 100)
+            season_progress = min(
+                100, (days_since_sos / crop_params["season_length_days"]) * 100
+            )
         else:
             season_progress = 0
 
@@ -429,14 +718,11 @@ class PhenologyDetector:
             sos_date=sos_date,
             pos_date=pos_date,
             eos_date=eos_date,
-            estimated_harvest_date=harvest_date
+            estimated_harvest_date=harvest_date,
         )
 
     def get_phenology_timeline(
-        self,
-        field_id: str,
-        crop_type: str,
-        planting_date: date
+        self, field_id: str, crop_type: str, planting_date: date
     ) -> PhenologyTimeline:
         """
         Generate expected phenology timeline for planning.
@@ -462,18 +748,20 @@ class PhenologyDetector:
             duration = stage_params["duration_days"]
             end_date = current_date + timedelta(days=duration)
 
-            stages.append({
-                "stage": stage_name,
-                "stage_ar": self._stage_name_to_enum(stage_name).label_ar,
-                "stage_en": self._stage_name_to_enum(stage_name).label_en,
-                "start_date": current_date.isoformat(),
-                "end_date": end_date.isoformat(),
-                "duration_days": duration,
-                "ndvi_range": {
-                    "min": stage_params["ndvi_start"],
-                    "max": stage_params["ndvi_end"]
+            stages.append(
+                {
+                    "stage": stage_name,
+                    "stage_ar": self._stage_name_to_enum(stage_name).label_ar,
+                    "stage_en": self._stage_name_to_enum(stage_name).label_en,
+                    "start_date": current_date.isoformat(),
+                    "end_date": end_date.isoformat(),
+                    "duration_days": duration,
+                    "ndvi_range": {
+                        "min": stage_params["ndvi_start"],
+                        "max": stage_params["ndvi_end"],
+                    },
                 }
-            })
+            )
 
             current_date = end_date
 
@@ -485,15 +773,17 @@ class PhenologyDetector:
             # Find the stage dates
             stage_info = next((s for s in stages if s["stage"] == cp["stage"]), None)
             if stage_info:
-                critical_periods.append({
-                    "stage": cp["stage"],
-                    "stage_ar": stage_info["stage_ar"],
-                    "stage_en": stage_info["stage_en"],
-                    "start_date": stage_info["start_date"],
-                    "end_date": stage_info["end_date"],
-                    "reason_ar": cp["reason_ar"],
-                    "reason_en": cp["reason_en"]
-                })
+                critical_periods.append(
+                    {
+                        "stage": cp["stage"],
+                        "stage_ar": stage_info["stage_ar"],
+                        "stage_en": stage_info["stage_en"],
+                        "start_date": stage_info["start_date"],
+                        "end_date": stage_info["end_date"],
+                        "reason_ar": cp["reason_ar"],
+                        "reason_en": cp["reason_en"],
+                    }
+                )
 
         return PhenologyTimeline(
             field_id=field_id,
@@ -502,13 +792,11 @@ class PhenologyDetector:
             stages=stages,
             harvest_estimate=harvest_date,
             season_length_days=crop_params["season_length_days"],
-            critical_periods=critical_periods
+            critical_periods=critical_periods,
         )
 
     def _smooth_ndvi_series(
-        self,
-        ndvi_values: List[float],
-        window_size: int = 5
+        self, ndvi_values: List[float], window_size: int = 5
     ) -> List[float]:
         """
         Apply simple moving average smoothing to remove noise.
@@ -529,7 +817,9 @@ class PhenologyDetector:
 
         return smoothed
 
-    def _detect_sos(self, ndvi_series: List[Dict], planting_date: Optional[date] = None) -> Optional[date]:
+    def _detect_sos(
+        self, ndvi_series: List[Dict], planting_date: Optional[date] = None
+    ) -> Optional[date]:
         """
         Detect Start of Season (SOS).
 
@@ -539,7 +829,16 @@ class PhenologyDetector:
 
         # If planting date is known, search after it
         if planting_date:
-            ndvi_series = [x for x in ndvi_series if (x["date"] if isinstance(x["date"], date) else datetime.fromisoformat(x["date"]).date()) >= planting_date]
+            ndvi_series = [
+                x
+                for x in ndvi_series
+                if (
+                    x["date"]
+                    if isinstance(x["date"], date)
+                    else datetime.fromisoformat(x["date"]).date()
+                )
+                >= planting_date
+            ]
 
         for i in range(len(ndvi_series) - 2):
             current = ndvi_series[i]["value"]
@@ -572,7 +871,9 @@ class PhenologyDetector:
         dt = max_point["date"]
         return dt if isinstance(dt, date) else datetime.fromisoformat(dt).date()
 
-    def _detect_eos(self, ndvi_series: List[Dict], pos_date: Optional[date]) -> Optional[date]:
+    def _detect_eos(
+        self, ndvi_series: List[Dict], pos_date: Optional[date]
+    ) -> Optional[date]:
         """
         Detect End of Season (EOS).
 
@@ -582,7 +883,16 @@ class PhenologyDetector:
 
         # Search after POS
         if pos_date:
-            ndvi_series = [x for x in ndvi_series if (x["date"] if isinstance(x["date"], date) else datetime.fromisoformat(x["date"]).date()) > pos_date]
+            ndvi_series = [
+                x
+                for x in ndvi_series
+                if (
+                    x["date"]
+                    if isinstance(x["date"], date)
+                    else datetime.fromisoformat(x["date"]).date()
+                )
+                > pos_date
+            ]
 
         for point in ndvi_series:
             if point["value"] < threshold:
@@ -598,7 +908,7 @@ class PhenologyDetector:
         sos_date: Optional[date],
         pos_date: Optional[date],
         eos_date: Optional[date],
-        crop_params: Dict
+        crop_params: Dict,
     ) -> Tuple[GrowthStage, date, int]:
         """
         Determine current growth stage based on dates and NDVI.
@@ -641,10 +951,7 @@ class PhenologyDetector:
         return GrowthStage.SENESCENCE, stage_start, (current_date - stage_start).days
 
     def _predict_next_stage(
-        self,
-        current_stage: GrowthStage,
-        days_in_stage: int,
-        crop_params: Dict
+        self, current_stage: GrowthStage, days_in_stage: int, crop_params: Dict
     ) -> Tuple[GrowthStage, int]:
         """
         Predict next growth stage and days remaining.
@@ -680,10 +987,7 @@ class PhenologyDetector:
         return next_stage, days_remaining
 
     def _calculate_confidence(
-        self,
-        ndvi_series: List[Dict],
-        detected_stage: GrowthStage,
-        crop_params: Dict
+        self, ndvi_series: List[Dict], detected_stage: GrowthStage, crop_params: Dict
     ) -> float:
         """
         Calculate confidence in stage detection.
@@ -709,7 +1013,9 @@ class PhenologyDetector:
                 ndvi_match = 1.0
             else:
                 # How far outside range?
-                deviation = min(abs(current_ndvi - ndvi_min), abs(current_ndvi - ndvi_max))
+                deviation = min(
+                    abs(current_ndvi - ndvi_min), abs(current_ndvi - ndvi_max)
+                )
                 ndvi_match = max(0.3, 1.0 - deviation)
         else:
             ndvi_match = 0.6
@@ -718,7 +1024,7 @@ class PhenologyDetector:
         obs_score = min(1.0, len(ndvi_series) / 10)
 
         # Combine
-        confidence = (ndvi_match * 0.6 + obs_score * 0.4)
+        confidence = ndvi_match * 0.6 + obs_score * 0.4
         return min(0.95, max(0.4, confidence))
 
     def _get_stage_recommendations(
@@ -727,7 +1033,7 @@ class PhenologyDetector:
         stage: GrowthStage,
         days_to_next: int,
         current_ndvi: float,
-        crop_params: Dict
+        crop_params: Dict,
     ) -> Tuple[List[str], List[str]]:
         """
         Get Arabic and English recommendations for current stage.
@@ -809,7 +1115,11 @@ class PhenologyDetector:
             en.append("🔄 Plan for next season")
 
         # NDVI-based alerts
-        if current_ndvi < 0.3 and stage in [GrowthStage.LEAF_DEVELOPMENT, GrowthStage.TILLERING, GrowthStage.FLOWERING]:
+        if current_ndvi < 0.3 and stage in [
+            GrowthStage.LEAF_DEVELOPMENT,
+            GrowthStage.TILLERING,
+            GrowthStage.FLOWERING,
+        ]:
             ar.append("⚠️ NDVI منخفض - تحقق من صحة النباتات")
             en.append("⚠️ Low NDVI - check plant health")
 
@@ -844,7 +1154,7 @@ class PhenologyDetector:
                 "id": crop_id,
                 "name_ar": params["name_ar"],
                 "name_en": crop_id.replace("_", " ").title(),
-                "season_length_days": params["season_length_days"]
+                "season_length_days": params["season_length_days"],
             }
             for crop_id, params in self.YEMEN_CROP_SEASONS.items()
         ]

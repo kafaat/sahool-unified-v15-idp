@@ -36,10 +36,16 @@ class BaseEvent(BaseModel):
     النموذج الأساسي لجميع الأحداث مع البيانات الوصفية المشتركة
     """
 
-    event_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique event identifier")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Event timestamp")
+    event_id: str = Field(
+        default_factory=lambda: str(uuid4()), description="Unique event identifier"
+    )
+    timestamp: datetime = Field(
+        default_factory=datetime.utcnow, description="Event timestamp"
+    )
     version: str = Field(default="1.0", description="Event schema version")
-    source_service: Optional[str] = Field(None, description="Service that emitted the event")
+    source_service: Optional[str] = Field(
+        None, description="Service that emitted the event"
+    )
 
     class Config:
         json_encoders = {
@@ -64,9 +70,15 @@ class FieldCreatedEvent(BaseEvent):
     farm_id: UUID = Field(..., description="Parent farm identifier")
     tenant_id: UUID = Field(..., description="Tenant/organization identifier")
     name: str = Field(..., min_length=1, max_length=120, description="Field name")
-    name_ar: Optional[str] = Field(None, max_length=120, description="Arabic field name")
-    geometry_wkt: str = Field(..., min_length=10, description="Field geometry in WKT format")
-    area_hectares: Optional[float] = Field(None, ge=0, description="Field area in hectares")
+    name_ar: Optional[str] = Field(
+        None, max_length=120, description="Arabic field name"
+    )
+    geometry_wkt: str = Field(
+        ..., min_length=10, description="Field geometry in WKT format"
+    )
+    area_hectares: Optional[float] = Field(
+        None, ge=0, description="Field area in hectares"
+    )
     soil_type: Optional[str] = Field(None, description="Soil type")
     irrigation_type: Optional[str] = Field(None, description="Irrigation type")
     created_by: Optional[UUID] = Field(None, description="User who created the field")
@@ -80,12 +92,16 @@ class FieldUpdatedEvent(BaseEvent):
 
     field_id: UUID = Field(..., description="Field identifier")
     name: Optional[str] = Field(None, max_length=120, description="Updated field name")
-    name_ar: Optional[str] = Field(None, max_length=120, description="Updated Arabic name")
+    name_ar: Optional[str] = Field(
+        None, max_length=120, description="Updated Arabic name"
+    )
     geometry_wkt: Optional[str] = Field(None, description="Updated geometry")
     area_hectares: Optional[float] = Field(None, ge=0, description="Updated area")
     soil_type: Optional[str] = Field(None, description="Updated soil type")
     irrigation_type: Optional[str] = Field(None, description="Updated irrigation type")
-    ndvi_value: Optional[float] = Field(None, ge=-1, le=1, description="Latest NDVI value")
+    ndvi_value: Optional[float] = Field(
+        None, ge=-1, le=1, description="Latest NDVI value"
+    )
     updated_by: Optional[UUID] = Field(None, description="User who updated the field")
 
 
@@ -118,10 +134,16 @@ class WeatherForecastEvent(BaseEvent):
     location_lon: float = Field(..., ge=-180, le=180, description="Longitude")
     forecast_date: datetime = Field(..., description="Forecast date/time")
     temperature: Optional[float] = Field(None, description="Temperature in Celsius")
-    humidity: Optional[float] = Field(None, ge=0, le=100, description="Humidity percentage")
+    humidity: Optional[float] = Field(
+        None, ge=0, le=100, description="Humidity percentage"
+    )
     wind_speed: Optional[float] = Field(None, ge=0, description="Wind speed in km/h")
-    precipitation: Optional[float] = Field(None, ge=0, description="Precipitation in mm")
-    conditions: Optional[str] = Field(None, description="Weather conditions description")
+    precipitation: Optional[float] = Field(
+        None, ge=0, description="Precipitation in mm"
+    )
+    conditions: Optional[str] = Field(
+        None, description="Weather conditions description"
+    )
     provider: Optional[str] = Field(None, description="Weather data provider")
 
 
@@ -137,12 +159,10 @@ class WeatherAlertEvent(BaseEvent):
     alert_type: str = Field(
         ...,
         pattern="^(frost|heatwave|storm|heavy_rain|drought|wind)$",
-        description="Alert type"
+        description="Alert type",
     )
     severity: str = Field(
-        ...,
-        pattern="^(info|warning|critical)$",
-        description="Alert severity"
+        ..., pattern="^(info|warning|critical)$", description="Alert severity"
     )
     title: str = Field(..., description="Alert title")
     title_ar: Optional[str] = Field(None, description="Arabic alert title")
@@ -150,7 +170,9 @@ class WeatherAlertEvent(BaseEvent):
     message_ar: Optional[str] = Field(None, description="Arabic alert message")
     start_time: datetime = Field(..., description="Alert start time")
     end_time: Optional[datetime] = Field(None, description="Alert end time")
-    affected_area_radius_km: Optional[float] = Field(None, ge=0, description="Affected area radius")
+    affected_area_radius_km: Optional[float] = Field(
+        None, ge=0, description="Affected area radius"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -166,15 +188,25 @@ class SatelliteDataReadyEvent(BaseEvent):
 
     field_id: UUID = Field(..., description="Field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
-    satellite_source: str = Field(..., description="Satellite source (e.g., Sentinel-2, Landsat)")
+    satellite_source: str = Field(
+        ..., description="Satellite source (e.g., Sentinel-2, Landsat)"
+    )
     capture_date: datetime = Field(..., description="Image capture date")
-    processing_date: datetime = Field(default_factory=datetime.utcnow, description="Processing date")
-    cloud_coverage: Optional[float] = Field(None, ge=0, le=100, description="Cloud coverage percentage")
+    processing_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Processing date"
+    )
+    cloud_coverage: Optional[float] = Field(
+        None, ge=0, le=100, description="Cloud coverage percentage"
+    )
 
     # Vegetation indices
     ndvi_mean: Optional[float] = Field(None, ge=-1, le=1, description="Mean NDVI value")
-    ndvi_min: Optional[float] = Field(None, ge=-1, le=1, description="Minimum NDVI value")
-    ndvi_max: Optional[float] = Field(None, ge=-1, le=1, description="Maximum NDVI value")
+    ndvi_min: Optional[float] = Field(
+        None, ge=-1, le=1, description="Minimum NDVI value"
+    )
+    ndvi_max: Optional[float] = Field(
+        None, ge=-1, le=1, description="Maximum NDVI value"
+    )
     evi_mean: Optional[float] = Field(None, description="Mean EVI value")
     ndwi_mean: Optional[float] = Field(None, ge=-1, le=1, description="Mean NDWI value")
 
@@ -184,8 +216,12 @@ class SatelliteDataReadyEvent(BaseEvent):
     data_url: Optional[str] = Field(None, description="Raw data URL")
 
     # Metadata
-    resolution_meters: Optional[float] = Field(None, ge=0, description="Image resolution")
-    bands: Optional[List[str]] = Field(default_factory=list, description="Available spectral bands")
+    resolution_meters: Optional[float] = Field(
+        None, ge=0, description="Image resolution"
+    )
+    bands: Optional[List[str]] = Field(
+        default_factory=list, description="Available spectral bands"
+    )
 
 
 class SatelliteAnomalyEvent(BaseEvent):
@@ -200,17 +236,21 @@ class SatelliteAnomalyEvent(BaseEvent):
     anomaly_type: str = Field(
         ...,
         pattern="^(ndvi_drop|vegetation_loss|water_stress|disease_pattern|growth_delay)$",
-        description="Anomaly type"
+        description="Anomaly type",
     )
     severity: str = Field(
-        ...,
-        pattern="^(low|medium|high|critical)$",
-        description="Anomaly severity"
+        ..., pattern="^(low|medium|high|critical)$", description="Anomaly severity"
     )
     confidence_score: float = Field(..., ge=0, le=1, description="Detection confidence")
-    affected_area_hectares: Optional[float] = Field(None, ge=0, description="Affected area size")
-    affected_area_percentage: Optional[float] = Field(None, ge=0, le=100, description="Percentage of field affected")
-    detection_date: datetime = Field(default_factory=datetime.utcnow, description="Detection date")
+    affected_area_hectares: Optional[float] = Field(
+        None, ge=0, description="Affected area size"
+    )
+    affected_area_percentage: Optional[float] = Field(
+        None, ge=0, le=100, description="Percentage of field affected"
+    )
+    detection_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Detection date"
+    )
 
     # Comparison values
     current_value: Optional[float] = Field(None, description="Current index value")
@@ -218,13 +258,19 @@ class SatelliteAnomalyEvent(BaseEvent):
     deviation: Optional[float] = Field(None, description="Deviation from baseline")
 
     # Location
-    centroid_lat: Optional[float] = Field(None, ge=-90, le=90, description="Anomaly centroid latitude")
-    centroid_lon: Optional[float] = Field(None, ge=-180, le=180, description="Anomaly centroid longitude")
+    centroid_lat: Optional[float] = Field(
+        None, ge=-90, le=90, description="Anomaly centroid latitude"
+    )
+    centroid_lon: Optional[float] = Field(
+        None, ge=-180, le=180, description="Anomaly centroid longitude"
+    )
     geometry_wkt: Optional[str] = Field(None, description="Affected area geometry")
 
     # Recommendations
     recommended_action: Optional[str] = Field(None, description="Recommended action")
-    recommended_action_ar: Optional[str] = Field(None, description="Arabic recommended action")
+    recommended_action_ar: Optional[str] = Field(
+        None, description="Arabic recommended action"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -238,35 +284,51 @@ class DiseaseDetectedEvent(BaseEvent):
     حدث يُطلق عند اكتشاف مرض نباتي
     """
 
-    detection_id: UUID = Field(default_factory=uuid4, description="Detection identifier")
+    detection_id: UUID = Field(
+        default_factory=uuid4, description="Detection identifier"
+    )
     field_id: UUID = Field(..., description="Affected field")
     tenant_id: UUID = Field(..., description="Tenant identifier")
     crop_type: Optional[str] = Field(None, description="Affected crop type")
 
     disease_name: str = Field(..., description="Disease name")
     disease_name_ar: Optional[str] = Field(None, description="Arabic disease name")
-    disease_category: Optional[str] = Field(None, description="Disease category (fungal, bacterial, viral, pest)")
+    disease_category: Optional[str] = Field(
+        None, description="Disease category (fungal, bacterial, viral, pest)"
+    )
 
     confidence_score: float = Field(..., ge=0, le=1, description="Detection confidence")
     severity: str = Field(
-        ...,
-        pattern="^(low|medium|high|critical)$",
-        description="Disease severity"
+        ..., pattern="^(low|medium|high|critical)$", description="Disease severity"
     )
 
     # Detection details
-    detection_method: Optional[str] = Field(None, description="Detection method (AI, manual, sensor)")
-    affected_area_hectares: Optional[float] = Field(None, ge=0, description="Affected area")
-    symptoms_observed: Optional[List[str]] = Field(default_factory=list, description="Observed symptoms")
+    detection_method: Optional[str] = Field(
+        None, description="Detection method (AI, manual, sensor)"
+    )
+    affected_area_hectares: Optional[float] = Field(
+        None, ge=0, description="Affected area"
+    )
+    symptoms_observed: Optional[List[str]] = Field(
+        default_factory=list, description="Observed symptoms"
+    )
 
     # Images
-    image_urls: Optional[List[str]] = Field(default_factory=list, description="Disease image URLs")
+    image_urls: Optional[List[str]] = Field(
+        default_factory=list, description="Disease image URLs"
+    )
 
     # Recommendations
-    treatment_recommendation: Optional[str] = Field(None, description="Treatment recommendation")
-    treatment_recommendation_ar: Optional[str] = Field(None, description="Arabic treatment")
+    treatment_recommendation: Optional[str] = Field(
+        None, description="Treatment recommendation"
+    )
+    treatment_recommendation_ar: Optional[str] = Field(
+        None, description="Arabic treatment"
+    )
     urgency_level: Optional[str] = Field(None, description="Treatment urgency")
-    estimated_yield_impact: Optional[float] = Field(None, ge=0, le=100, description="Est. yield impact %")
+    estimated_yield_impact: Optional[float] = Field(
+        None, ge=0, le=100, description="Est. yield impact %"
+    )
 
 
 class CropStressEvent(BaseEvent):
@@ -275,35 +337,47 @@ class CropStressEvent(BaseEvent):
     حدث يُطلق عند اكتشاف إجهاد نباتي
     """
 
-    stress_id: UUID = Field(default_factory=uuid4, description="Stress event identifier")
+    stress_id: UUID = Field(
+        default_factory=uuid4, description="Stress event identifier"
+    )
     field_id: UUID = Field(..., description="Affected field")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
     stress_type: str = Field(
         ...,
         pattern="^(water|nutrient|heat|cold|salinity|compaction)$",
-        description="Stress type"
+        description="Stress type",
     )
     severity: str = Field(
-        ...,
-        pattern="^(low|medium|high|critical)$",
-        description="Stress severity"
+        ..., pattern="^(low|medium|high|critical)$", description="Stress severity"
     )
     confidence_score: float = Field(..., ge=0, le=1, description="Detection confidence")
 
     # Indicators
     ndvi_value: Optional[float] = Field(None, ge=-1, le=1, description="NDVI value")
-    ndwi_value: Optional[float] = Field(None, ge=-1, le=1, description="NDWI value (water stress)")
+    ndwi_value: Optional[float] = Field(
+        None, ge=-1, le=1, description="NDWI value (water stress)"
+    )
     temperature_value: Optional[float] = Field(None, description="Temperature reading")
-    soil_moisture_value: Optional[float] = Field(None, ge=0, le=100, description="Soil moisture %")
+    soil_moisture_value: Optional[float] = Field(
+        None, ge=0, le=100, description="Soil moisture %"
+    )
 
-    affected_area_hectares: Optional[float] = Field(None, ge=0, description="Affected area")
-    detection_date: datetime = Field(default_factory=datetime.utcnow, description="Detection date")
+    affected_area_hectares: Optional[float] = Field(
+        None, ge=0, description="Affected area"
+    )
+    detection_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Detection date"
+    )
 
     # Recommendations
     action_required: Optional[str] = Field(None, description="Required action")
-    action_required_ar: Optional[str] = Field(None, description="Arabic action required")
-    time_sensitivity: Optional[str] = Field(None, description="Time sensitivity (immediate, soon, monitor)")
+    action_required_ar: Optional[str] = Field(
+        None, description="Arabic action required"
+    )
+    time_sensitivity: Optional[str] = Field(
+        None, description="Time sensitivity (immediate, soon, monitor)"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -330,20 +404,26 @@ class LowStockEvent(BaseEvent):
     current_quantity: float = Field(..., ge=0, description="Current stock quantity")
     unit_of_measure: str = Field(..., description="Unit of measure (kg, L, units)")
     threshold_quantity: float = Field(..., ge=0, description="Low stock threshold")
-    reorder_quantity: Optional[float] = Field(None, ge=0, description="Recommended reorder quantity")
+    reorder_quantity: Optional[float] = Field(
+        None, ge=0, description="Recommended reorder quantity"
+    )
 
     severity: str = Field(
-        ...,
-        pattern="^(low|medium|high|critical)$",
-        description="Alert severity"
+        ..., pattern="^(low|medium|high|critical)$", description="Alert severity"
     )
 
     # Supplier info
-    preferred_supplier_id: Optional[UUID] = Field(None, description="Preferred supplier")
-    estimated_restock_days: Optional[int] = Field(None, ge=0, description="Days to restock")
+    preferred_supplier_id: Optional[UUID] = Field(
+        None, description="Preferred supplier"
+    )
+    estimated_restock_days: Optional[int] = Field(
+        None, ge=0, description="Days to restock"
+    )
 
     # Cost estimation
-    estimated_cost: Optional[float] = Field(None, ge=0, description="Estimated reorder cost")
+    estimated_cost: Optional[float] = Field(
+        None, ge=0, description="Estimated reorder cost"
+    )
     currency: Optional[str] = Field(default="SAR", description="Currency code")
 
 
@@ -368,18 +448,22 @@ class BatchExpiredEvent(BaseEvent):
     unit_of_measure: str = Field(..., description="Unit of measure")
 
     status: str = Field(
-        ...,
-        pattern="^(expiring_soon|expired|critical)$",
-        description="Expiry status"
+        ..., pattern="^(expiring_soon|expired|critical)$", description="Expiry status"
     )
-    days_until_expiry: int = Field(..., description="Days until expiry (negative if expired)")
+    days_until_expiry: int = Field(
+        ..., description="Days until expiry (negative if expired)"
+    )
 
-    value_at_risk: Optional[float] = Field(None, ge=0, description="Value of at-risk inventory")
+    value_at_risk: Optional[float] = Field(
+        None, ge=0, description="Value of at-risk inventory"
+    )
     currency: Optional[str] = Field(default="SAR", description="Currency code")
 
     # Recommendations
     recommended_action: Optional[str] = Field(None, description="Recommended action")
-    recommended_action_ar: Optional[str] = Field(None, description="Arabic recommended action")
+    recommended_action_ar: Optional[str] = Field(
+        None, description="Arabic recommended action"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -400,20 +484,18 @@ class SubscriptionCreatedEvent(BaseEvent):
     plan_id: str = Field(..., description="Subscription plan ID")
     plan_name: str = Field(..., description="Plan name")
     plan_tier: str = Field(
-        ...,
-        pattern="^(free|basic|professional|enterprise)$",
-        description="Plan tier"
+        ..., pattern="^(free|basic|professional|enterprise)$", description="Plan tier"
     )
 
     billing_cycle: str = Field(
-        ...,
-        pattern="^(monthly|quarterly|annual)$",
-        description="Billing cycle"
+        ..., pattern="^(monthly|quarterly|annual)$", description="Billing cycle"
     )
 
     start_date: datetime = Field(..., description="Subscription start date")
     end_date: Optional[datetime] = Field(None, description="Subscription end date")
-    trial_end_date: Optional[datetime] = Field(None, description="Trial period end date")
+    trial_end_date: Optional[datetime] = Field(
+        None, description="Trial period end date"
+    )
 
     # Pricing
     price_amount: float = Field(..., ge=0, description="Subscription price")
@@ -421,11 +503,17 @@ class SubscriptionCreatedEvent(BaseEvent):
 
     # Limits and features
     max_fields: Optional[int] = Field(None, ge=0, description="Maximum fields allowed")
-    max_area_hectares: Optional[float] = Field(None, ge=0, description="Maximum area allowed")
-    features_enabled: Optional[List[str]] = Field(default_factory=list, description="Enabled features")
+    max_area_hectares: Optional[float] = Field(
+        None, ge=0, description="Maximum area allowed"
+    )
+    features_enabled: Optional[List[str]] = Field(
+        default_factory=list, description="Enabled features"
+    )
 
     auto_renew: bool = Field(default=True, description="Auto-renewal enabled")
-    payment_method_id: Optional[str] = Field(None, description="Payment method identifier")
+    payment_method_id: Optional[str] = Field(
+        None, description="Payment method identifier"
+    )
 
 
 class PaymentCompletedEvent(BaseEvent):
@@ -445,21 +533,29 @@ class PaymentCompletedEvent(BaseEvent):
     payment_method: str = Field(
         ...,
         pattern="^(credit_card|debit_card|bank_transfer|wallet|apple_pay|stc_pay|mada)$",
-        description="Payment method"
+        description="Payment method",
     )
-    payment_provider: Optional[str] = Field(None, description="Payment provider (Stripe, Tap, etc.)")
+    payment_provider: Optional[str] = Field(
+        None, description="Payment provider (Stripe, Tap, etc.)"
+    )
 
     transaction_id: str = Field(..., description="Payment gateway transaction ID")
-    payment_date: datetime = Field(default_factory=datetime.utcnow, description="Payment date")
+    payment_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Payment date"
+    )
 
     # Payment details
     description: Optional[str] = Field(None, description="Payment description")
-    description_ar: Optional[str] = Field(None, description="Arabic payment description")
+    description_ar: Optional[str] = Field(
+        None, description="Arabic payment description"
+    )
 
     # Tax and fees
     subtotal: Optional[float] = Field(None, ge=0, description="Subtotal before tax")
     tax_amount: Optional[float] = Field(None, ge=0, description="Tax amount (VAT)")
-    tax_percentage: Optional[float] = Field(None, ge=0, le=100, description="Tax percentage")
+    tax_percentage: Optional[float] = Field(
+        None, ge=0, le=100, description="Tax percentage"
+    )
 
     # Receipt
     receipt_url: Optional[str] = Field(None, description="Payment receipt URL")
@@ -474,7 +570,9 @@ class SubscriptionRenewedEvent(BaseEvent):
 
     subscription_id: UUID = Field(..., description="Subscription identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
-    renewal_date: datetime = Field(default_factory=datetime.utcnow, description="Renewal date")
+    renewal_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Renewal date"
+    )
     previous_end_date: datetime = Field(..., description="Previous end date")
     new_end_date: datetime = Field(..., description="New end date")
     payment_id: Optional[UUID] = Field(None, description="Related payment")
@@ -497,11 +595,15 @@ class PaymentFailedEvent(BaseEvent):
 
     failure_reason: str = Field(..., description="Failure reason code")
     failure_message: Optional[str] = Field(None, description="Failure message")
-    failure_message_ar: Optional[str] = Field(None, description="Arabic failure message")
+    failure_message_ar: Optional[str] = Field(
+        None, description="Arabic failure message"
+    )
 
     payment_method: Optional[str] = Field(None, description="Payment method used")
     retry_count: int = Field(default=0, ge=0, description="Number of retry attempts")
-    next_retry_date: Optional[datetime] = Field(None, description="Next automatic retry date")
+    next_retry_date: Optional[datetime] = Field(
+        None, description="Next automatic retry date"
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -511,28 +613,22 @@ class PaymentFailedEvent(BaseEvent):
 __all__ = [
     # Base
     "BaseEvent",
-
     # Field events
     "FieldCreatedEvent",
     "FieldUpdatedEvent",
     "FieldDeletedEvent",
-
     # Weather events
     "WeatherForecastEvent",
     "WeatherAlertEvent",
-
     # Satellite events
     "SatelliteDataReadyEvent",
     "SatelliteAnomalyEvent",
-
     # Health events
     "DiseaseDetectedEvent",
     "CropStressEvent",
-
     # Inventory events
     "LowStockEvent",
     "BatchExpiredEvent",
-
     # Billing events
     "SubscriptionCreatedEvent",
     "PaymentCompletedEvent",

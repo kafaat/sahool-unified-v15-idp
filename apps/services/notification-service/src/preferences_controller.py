@@ -25,8 +25,11 @@ router = APIRouter(prefix="/v1/preferences", tags=["Preferences"])
 
 class UpdateEventPreferenceRequest(BaseModel):
     """طلب تحديث تفضيلات حدث - Update Event Preference Request"""
+
     user_id: str = Field(..., description="User ID")
-    event_type: str = Field(..., description="Event type (weather_alert, pest_outbreak, etc.)")
+    event_type: str = Field(
+        ..., description="Event type (weather_alert, pest_outbreak, etc.)"
+    )
     channels: List[str] = Field(..., description="List of channel types to use")
     enabled: bool = Field(True, description="Whether this event type is enabled")
     tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
@@ -39,16 +42,21 @@ class UpdateEventPreferenceRequest(BaseModel):
                 "event_type": "weather_alert",
                 "channels": ["email", "sms", "push"],
                 "enabled": True,
-                "tenant_id": "tenant-1"
+                "tenant_id": "tenant-1",
             }
         }
 
 
 class SetQuietHoursRequest(BaseModel):
     """طلب تحديد ساعات الهدوء - Set Quiet Hours Request"""
+
     user_id: str = Field(..., description="User ID")
-    quiet_hours_start: Optional[str] = Field(None, description="Start time in HH:MM format (e.g., '22:00')")
-    quiet_hours_end: Optional[str] = Field(None, description="End time in HH:MM format (e.g., '06:00')")
+    quiet_hours_start: Optional[str] = Field(
+        None, description="Start time in HH:MM format (e.g., '22:00')"
+    )
+    quiet_hours_end: Optional[str] = Field(
+        None, description="End time in HH:MM format (e.g., '06:00')"
+    )
     tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
 
     class Config:
@@ -57,15 +65,18 @@ class SetQuietHoursRequest(BaseModel):
                 "user_id": "farmer-123",
                 "quiet_hours_start": "22:00",
                 "quiet_hours_end": "06:00",
-                "tenant_id": "tenant-1"
+                "tenant_id": "tenant-1",
             }
         }
 
 
 class BulkUpdatePreferencesRequest(BaseModel):
     """طلب تحديث تفضيلات متعددة - Bulk Update Preferences Request"""
+
     user_id: str = Field(..., description="User ID")
-    preferences: List[Dict[str, Any]] = Field(..., description="List of preference updates")
+    preferences: List[Dict[str, Any]] = Field(
+        ..., description="List of preference updates"
+    )
     tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
 
     class Config:
@@ -77,19 +88,19 @@ class BulkUpdatePreferencesRequest(BaseModel):
                     {
                         "event_type": "weather_alert",
                         "channels": ["email", "sms", "push"],
-                        "enabled": True
+                        "enabled": True,
                     },
                     {
                         "event_type": "pest_outbreak",
                         "channels": ["sms", "push"],
-                        "enabled": True
+                        "enabled": True,
                     },
                     {
                         "event_type": "irrigation_reminder",
                         "channels": ["push"],
-                        "enabled": False
-                    }
-                ]
+                        "enabled": False,
+                    },
+                ],
             }
         }
 
@@ -128,7 +139,9 @@ async def get_preferences(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.get("/event/{event_type}", summary="الحصول على تفضيلات حدث معين - Get Event Preference")
+@router.get(
+    "/event/{event_type}", summary="الحصول على تفضيلات حدث معين - Get Event Preference"
+)
 async def get_event_preference(
     event_type: str,
     user_id: str = Query(..., description="User ID"),
@@ -228,7 +241,11 @@ async def set_quiet_hours(request: SetQuietHoursRequest):
 
         return {
             "success": result["success"],
-            "message": "تم تحديث ساعات الهدوء بنجاح - Quiet hours updated successfully" if result["success"] else "فشل تحديث ساعات الهدوء - Failed to update quiet hours",
+            "message": (
+                "تم تحديث ساعات الهدوء بنجاح - Quiet hours updated successfully"
+                if result["success"]
+                else "فشل تحديث ساعات الهدوء - Failed to update quiet hours"
+            ),
             "message_en": result["message"],
             "data": result,
         }

@@ -21,15 +21,14 @@ class Base(DeclarativeBase):
     def __tablename__(cls) -> str:
         # Convert CamelCase to snake_case
         name = cls.__name__
-        return "".join(
-            ["_" + c.lower() if c.isupper() else c for c in name]
-        ).lstrip("_")
+        return "".join(["_" + c.lower() if c.isupper() else c for c in name]).lstrip(
+            "_"
+        )
 
     def to_dict(self) -> dict[str, Any]:
         """Convert model to dictionary"""
         return {
-            column.name: getattr(self, column.name)
-            for column in self.__table__.columns
+            column.name: getattr(self, column.name) for column in self.__table__.columns
         }
 
     def __repr__(self) -> str:

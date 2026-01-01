@@ -48,8 +48,16 @@ class PreferencesService:
                     "event_type": pref.event_type,
                     "channels": pref.channels or [],
                     "enabled": pref.enabled,
-                    "quiet_hours_start": pref.quiet_hours_start.strftime("%H:%M") if pref.quiet_hours_start else None,
-                    "quiet_hours_end": pref.quiet_hours_end.strftime("%H:%M") if pref.quiet_hours_end else None,
+                    "quiet_hours_start": (
+                        pref.quiet_hours_start.strftime("%H:%M")
+                        if pref.quiet_hours_start
+                        else None
+                    ),
+                    "quiet_hours_end": (
+                        pref.quiet_hours_end.strftime("%H:%M")
+                        if pref.quiet_hours_end
+                        else None
+                    ),
                     "metadata": pref.metadata,
                     "created_at": pref.created_at.isoformat(),
                     "updated_at": pref.updated_at.isoformat(),
@@ -113,8 +121,16 @@ class PreferencesService:
                 "event_type": preference.event_type,
                 "channels": preference.channels,
                 "enabled": preference.enabled,
-                "quiet_hours_start": preference.quiet_hours_start.strftime("%H:%M") if preference.quiet_hours_start else None,
-                "quiet_hours_end": preference.quiet_hours_end.strftime("%H:%M") if preference.quiet_hours_end else None,
+                "quiet_hours_start": (
+                    preference.quiet_hours_start.strftime("%H:%M")
+                    if preference.quiet_hours_start
+                    else None
+                ),
+                "quiet_hours_end": (
+                    preference.quiet_hours_end.strftime("%H:%M")
+                    if preference.quiet_hours_end
+                    else None
+                ),
                 "metadata": preference.metadata,
                 "updated_at": preference.updated_at.isoformat(),
             }
@@ -151,7 +167,9 @@ class PreferencesService:
                     if not (0 <= hour <= 23 and 0 <= minute <= 59):
                         raise ValueError
                 except (ValueError, AttributeError):
-                    raise ValueError(f"Invalid time format for quiet_hours_start: {quiet_hours_start}. Expected HH:MM")
+                    raise ValueError(
+                        f"Invalid time format for quiet_hours_start: {quiet_hours_start}. Expected HH:MM"
+                    )
 
             if quiet_hours_end:
                 try:
@@ -159,7 +177,9 @@ class PreferencesService:
                     if not (0 <= hour <= 23 and 0 <= minute <= 59):
                         raise ValueError
                 except (ValueError, AttributeError):
-                    raise ValueError(f"Invalid time format for quiet_hours_end: {quiet_hours_end}. Expected HH:MM")
+                    raise ValueError(
+                        f"Invalid time format for quiet_hours_end: {quiet_hours_end}. Expected HH:MM"
+                    )
 
             # Update quiet hours
             success = await NotificationPreferenceRepository.update_quiet_hours(
@@ -231,11 +251,13 @@ class PreferencesService:
                     metadata=metadata,
                 )
 
-                updated_prefs.append({
-                    "event_type": pref.event_type,
-                    "channels": pref.channels,
-                    "enabled": pref.enabled,
-                })
+                updated_prefs.append(
+                    {
+                        "event_type": pref.event_type,
+                        "channels": pref.channels,
+                        "enabled": pref.enabled,
+                    }
+                )
                 updated_count += 1
 
             logger.info(f"Bulk updated {updated_count} preferences for user {user_id}")
@@ -285,8 +307,16 @@ class PreferencesService:
                 "event_type": preference.event_type,
                 "channels": preference.channels or [],
                 "enabled": preference.enabled,
-                "quiet_hours_start": preference.quiet_hours_start.strftime("%H:%M") if preference.quiet_hours_start else None,
-                "quiet_hours_end": preference.quiet_hours_end.strftime("%H:%M") if preference.quiet_hours_end else None,
+                "quiet_hours_start": (
+                    preference.quiet_hours_start.strftime("%H:%M")
+                    if preference.quiet_hours_start
+                    else None
+                ),
+                "quiet_hours_end": (
+                    preference.quiet_hours_end.strftime("%H:%M")
+                    if preference.quiet_hours_end
+                    else None
+                ),
                 "metadata": preference.metadata,
                 "created_at": preference.created_at.isoformat(),
                 "updated_at": preference.updated_at.isoformat(),
@@ -337,7 +367,9 @@ class PreferencesService:
             if not channels:
                 channels = ["in_app", "push"]
 
-            logger.debug(f"Notification allowed for user {user_id}, event {event_type}, channels: {channels}")
+            logger.debug(
+                f"Notification allowed for user {user_id}, event {event_type}, channels: {channels}"
+            )
             return True, channels
 
         except Exception as e:

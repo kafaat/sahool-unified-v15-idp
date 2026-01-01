@@ -63,7 +63,7 @@ class Supervisor:
         logger.info(
             "supervisor_initialized",
             num_agents=len(agents),
-            agent_names=list(agents.keys())
+            agent_names=list(agents.keys()),
         )
 
     def _get_routing_prompt(self) -> str:
@@ -126,7 +126,7 @@ Respond with a JSON object containing:
         try:
             messages = [
                 SystemMessage(content=self._get_routing_prompt()),
-                HumanMessage(content=f"Query: {query}\n\nContext: {context or {}}")
+                HumanMessage(content=f"Query: {query}\n\nContext: {context or {}}"),
             ]
 
             response = await self.llm.ainvoke(messages)
@@ -134,6 +134,7 @@ Respond with a JSON object containing:
             # Parse routing decision (simplified - in production use JSON mode)
             # تحليل قرار التوجيه (مبسط - استخدم وضع JSON في الإنتاج)
             import json
+
             try:
                 routing = json.loads(response.content)
             except (json.JSONDecodeError, TypeError, ValueError):
@@ -142,13 +143,13 @@ Respond with a JSON object containing:
                 routing = {
                     "agents_needed": list(self.agents.keys()),
                     "reasoning": "Fallback routing due to parsing error",
-                    "query_breakdown": {name: query for name in self.agents.keys()}
+                    "query_breakdown": {name: query for name in self.agents.keys()},
                 }
 
             logger.info(
                 "query_routed",
                 agents_needed=routing.get("agents_needed", []),
-                reasoning=routing.get("reasoning", "")
+                reasoning=routing.get("reasoning", ""),
             )
 
             return routing
@@ -195,24 +196,20 @@ Respond with a JSON object containing:
                     agent_query = query_breakdown.get(agent_name, query)
 
                     response = await agent.think(
-                        query=agent_query,
-                        context=context,
-                        use_rag=True
+                        query=agent_query, context=context, use_rag=True
                     )
                     agent_responses[agent_name] = response
 
             # Synthesize responses
             # دمج الاستجابات
             synthesized = await self._synthesize_responses(
-                query=query,
-                agent_responses=agent_responses,
-                context=context
+                query=query, agent_responses=agent_responses, context=context
             )
 
             logger.info(
                 "coordination_complete",
                 query_length=len(query),
-                agents_consulted=len(agent_responses)
+                agents_consulted=len(agent_responses),
             )
 
             return {
@@ -220,16 +217,12 @@ Respond with a JSON object containing:
                 "agents_consulted": list(agent_responses.keys()),
                 "agent_responses": agent_responses,
                 "synthesized_answer": synthesized,
-                "status": "success"
+                "status": "success",
             }
 
         except Exception as e:
             logger.error("coordination_failed", error=str(e))
-            return {
-                "query": query,
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"query": query, "error": str(e), "status": "failed"}
 
     async def _synthesize_responses(
         self,
@@ -277,11 +270,14 @@ Provide a well-structured, comprehensive answer that addresses the user's query.
             )
 
         messages = [
-            SystemMessage(content="You are an expert agricultural advisor synthesizing insights."),
-            HumanMessage(content=synthesis_prompt.format(
-                query=query,
-                responses="\n".join(responses_text)
-            ))
+            SystemMessage(
+                content="You are an expert agricultural advisor synthesizing insights."
+            ),
+            HumanMessage(
+                content=synthesis_prompt.format(
+                    query=query, responses="\n".join(responses_text)
+                )
+            ),
         ]
 
         response = await self.llm.ainvoke(messages)

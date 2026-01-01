@@ -24,7 +24,7 @@ def client():
             "id": "notif_001",
             "status": "sent",
             "channels": ["push", "email"],
-            "timestamp": "2025-12-23T10:00:00Z"
+            "timestamp": "2025-12-23T10:00:00Z",
         }
 
     @app.get("/api/v1/users/{user_id}/notifications")
@@ -39,10 +39,10 @@ def client():
                     "title_en": "Irrigation Alert",
                     "body": "حقلك يحتاج للري",
                     "read": False,
-                    "timestamp": "2025-12-23T08:00:00Z"
+                    "timestamp": "2025-12-23T08:00:00Z",
                 }
             ],
-            "unread_count": 3
+            "unread_count": 3,
         }
 
     @app.put("/api/v1/notifications/{notification_id}/read")
@@ -57,17 +57,13 @@ def client():
     def get_preferences(user_id: str):
         return {
             "user_id": user_id,
-            "channels": {
-                "push": True,
-                "email": True,
-                "sms": False
-            },
+            "channels": {"push": True, "email": True, "sms": False},
             "categories": {
                 "alerts": True,
                 "tasks": True,
                 "weather": True,
-                "marketing": False
-            }
+                "marketing": False,
+            },
         }
 
     @app.put("/api/v1/users/{user_id}/preferences")
@@ -76,18 +72,14 @@ def client():
 
     @app.post("/api/v1/notifications/broadcast")
     def broadcast():
-        return {
-            "broadcast_id": "broadcast_001",
-            "recipients": 150,
-            "status": "queued"
-        }
+        return {"broadcast_id": "broadcast_001", "recipients": 150, "status": "queued"}
 
     @app.get("/api/v1/templates")
     def list_templates():
         return {
             "templates": [
                 {"id": "irrigation_alert", "name": "Irrigation Alert"},
-                {"id": "weather_warning", "name": "Weather Warning"}
+                {"id": "weather_warning", "name": "Weather Warning"},
             ]
         }
 
@@ -106,12 +98,15 @@ class TestSendNotification:
     """Test sending notifications"""
 
     def test_send_notification(self, client):
-        response = client.post("/api/v1/notifications/send", json={
-            "user_id": "user_001",
-            "type": "alert",
-            "title": "Test",
-            "body": "Test notification"
-        })
+        response = client.post(
+            "/api/v1/notifications/send",
+            json={
+                "user_id": "user_001",
+                "type": "alert",
+                "title": "Test",
+                "body": "Test notification",
+            },
+        )
         assert response.status_code == 200
         assert response.json()["status"] == "sent"
 
@@ -147,9 +142,10 @@ class TestPreferences:
         assert "categories" in data
 
     def test_update_preferences(self, client):
-        response = client.put("/api/v1/users/user_001/preferences", json={
-            "channels": {"push": True, "email": False}
-        })
+        response = client.put(
+            "/api/v1/users/user_001/preferences",
+            json={"channels": {"push": True, "email": False}},
+        )
         assert response.status_code == 200
 
 
@@ -157,11 +153,14 @@ class TestBroadcast:
     """Test broadcast notifications"""
 
     def test_broadcast(self, client):
-        response = client.post("/api/v1/notifications/broadcast", json={
-            "tenant_id": "tenant_001",
-            "title": "Announcement",
-            "body": "Important message"
-        })
+        response = client.post(
+            "/api/v1/notifications/broadcast",
+            json={
+                "tenant_id": "tenant_001",
+                "title": "Announcement",
+                "body": "Important message",
+            },
+        )
         assert response.status_code == 200
         assert "recipients" in response.json()
 

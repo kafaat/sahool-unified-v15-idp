@@ -28,7 +28,15 @@ from pathlib import Path
 import httpx
 import nats
 from nats.js.api import StreamConfig, RetentionPolicy
-from fastapi import FastAPI, HTTPException, Query, Header, Depends, BackgroundTasks, Request
+from fastapi import (
+    FastAPI,
+    HTTPException,
+    Query,
+    Header,
+    Depends,
+    BackgroundTasks,
+    Request,
+)
 from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -39,6 +47,7 @@ from . import models as db_models
 
 # Authentication imports
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
 try:
     from auth.dependencies import (
@@ -47,6 +56,7 @@ try:
         api_key_auth,
     )
     from auth.models import User
+
     AUTH_AVAILABLE = True
 except ImportError:
     # SECURITY: Auth module not available - restrict access in production
@@ -61,32 +71,32 @@ except ImportError:
         """Fallback - blocks access in production, allows in dev only"""
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
             raise HTTPException(
-                status_code=503,
-                detail="Authentication service unavailable"
+                status_code=503, detail="Authentication service unavailable"
             )
         logger.warning("Auth bypass active - DEVELOPMENT MODE ONLY")
         return None
 
     def require_roles(roles):
         """Fallback - blocks access in production, allows in dev only"""
+
         async def check_roles():
             if ENVIRONMENT not in ("development", "dev", "test", "testing"):
                 raise HTTPException(
-                    status_code=503,
-                    detail="Authorization service unavailable"
+                    status_code=503, detail="Authorization service unavailable"
                 )
             logger.warning(f"Role check bypassed for {roles} - DEVELOPMENT MODE ONLY")
             return None
+
         return check_roles
 
     async def api_key_auth():
         """Fallback - blocks access in production, allows in dev only"""
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
             raise HTTPException(
-                status_code=503,
-                detail="API key auth service unavailable"
+                status_code=503, detail="API key auth service unavailable"
             )
         return None
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -112,9 +122,13 @@ async def init_nats():
         try:
             await js.add_stream(
                 name="BILLING",
-                subjects=["sahool.billing.*", "sahool.payment.*", "sahool.subscription.*"],
+                subjects=[
+                    "sahool.billing.*",
+                    "sahool.payment.*",
+                    "sahool.subscription.*",
+                ],
                 retention=RetentionPolicy.LIMITS,
-                max_age=86400 * 30  # 30 days
+                max_age=86400 * 30,  # 30 days
             )
         except Exception:
             pass  # Stream already exists
@@ -129,6 +143,7 @@ async def publish_event(subject: str, data: dict):
     if js:
         try:
             import json
+
             payload = json.dumps(data, default=str).encode()
             await js.publish(subject, payload)
             logger.info(f"Event published: {subject}")
@@ -136,6 +151,7 @@ async def publish_event(subject: str, data: dict):
             logger.warning(f"Failed to publish event {subject}: {e}")
     else:
         logger.info(f"Event (local): {subject} - {data}")
+
 
 # =============================================================================
 # App Configuration
@@ -157,7 +173,9 @@ async def lifespan(app: FastAPI):
             # Initialize default plans in database
             await init_default_plans_in_db()
         else:
-            logger.warning("Database connection check failed - some features may not work")
+            logger.warning(
+                "Database connection check failed - some features may not work"
+            )
     except Exception as e:
         logger.error(f"Database initialization failed: {e}")
         logger.warning("Service will start but database features will be unavailable")
@@ -181,6 +199,7 @@ app = FastAPI(
 # Rate Limiting - Security measure for payment endpoints
 try:
     from middleware.rate_limiter import setup_rate_limiting
+
     rate_limiter = setup_rate_limiting(
         app,
         use_redis=os.getenv("REDIS_URL") is not None,
@@ -197,7 +216,9 @@ DEFAULT_CURRENCY = os.getenv("DEFAULT_CURRENCY", "USD")
 YER_EXCHANGE_RATE = float(os.getenv("YER_EXCHANGE_RATE", "250"))  # 1 USD = 250 YER
 
 # Tharwatt Payment Gateway Configuration - بوابة ثروات
-THARWATT_BASE_URL = os.getenv("THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253")
+THARWATT_BASE_URL = os.getenv(
+    "THARWATT_BASE_URL", "https://developers-test.tharwatt.com:5253"
+)
 THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
 THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
 THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
@@ -217,11 +238,13 @@ def verify_tenant_access(current_user, tenant_id: str) -> bool:
         return True  # No auth - allow access (dev mode)
 
     # Super admins can access any tenant
-    if hasattr(current_user, 'has_any_role') and current_user.has_any_role(['super_admin']):
+    if hasattr(current_user, "has_any_role") and current_user.has_any_role(
+        ["super_admin"]
+    ):
         return True
 
     # Users can only access their own tenant
-    user_tenant = getattr(current_user, 'tenant_id', None)
+    user_tenant = getattr(current_user, "tenant_id", None)
     return user_tenant == tenant_id
 
 
@@ -232,8 +255,7 @@ def require_tenant_or_admin(current_user, tenant_id: str):
     """
     if not verify_tenant_access(current_user, tenant_id):
         raise HTTPException(
-            status_code=403,
-            detail="Access denied - cannot access this tenant's data"
+            status_code=403, detail="Access denied - cannot access this tenant's data"
         )
 
 
@@ -301,6 +323,7 @@ class Currency(str, Enum):
 
 class PlanFeature(BaseModel):
     """ميزة الخطة"""
+
     name: str
     name_ar: str
     included: bool
@@ -309,6 +332,7 @@ class PlanFeature(BaseModel):
 
 class PlanPricing(BaseModel):
     """تسعير الخطة"""
+
     monthly_usd: Decimal
     quarterly_usd: Decimal
     yearly_usd: Decimal
@@ -317,6 +341,7 @@ class PlanPricing(BaseModel):
 
 class Plan(BaseModel):
     """خطة الاشتراك"""
+
     plan_id: str
     name: str
     name_ar: str
@@ -333,6 +358,7 @@ class Plan(BaseModel):
 
 class TenantContact(BaseModel):
     """معلومات الاتصال"""
+
     name: str
     name_ar: str
     email: EmailStr
@@ -344,6 +370,7 @@ class TenantContact(BaseModel):
 
 class Tenant(BaseModel):
     """المستأجر/العميل"""
+
     tenant_id: str
     name: str
     name_ar: str
@@ -356,6 +383,7 @@ class Tenant(BaseModel):
 
 class Subscription(BaseModel):
     """الاشتراك"""
+
     subscription_id: str
     tenant_id: str
     plan_id: str
@@ -384,6 +412,7 @@ class Subscription(BaseModel):
 
 class InvoiceLineItem(BaseModel):
     """بند الفاتورة"""
+
     description: str
     description_ar: str
     quantity: int = 1
@@ -394,6 +423,7 @@ class InvoiceLineItem(BaseModel):
 
 class Invoice(BaseModel):
     """الفاتورة"""
+
     invoice_id: str
     invoice_number: str  # e.g., SAH-2025-0001
     tenant_id: str
@@ -430,6 +460,7 @@ class Invoice(BaseModel):
 
 class Payment(BaseModel):
     """الدفعة"""
+
     payment_id: str
     invoice_id: str
     tenant_id: str
@@ -453,6 +484,7 @@ class Payment(BaseModel):
 
 class UsageRecord(BaseModel):
     """سجل الاستخدام"""
+
     record_id: str
     tenant_id: str
     metric: str
@@ -541,13 +573,44 @@ async def init_default_plans_in_db():
                 "setup_fee_usd": "0",
             },
             "features": {
-                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": 3},
-                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": 10},
-                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
-                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": False},
-                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": False},
-                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": False},
-                "support": {"name": "Email Support", "name_ar": "دعم البريد", "included": True},
+                "fields": {
+                    "name": "Fields",
+                    "name_ar": "الحقول",
+                    "included": True,
+                    "limit": 3,
+                },
+                "satellite": {
+                    "name": "Satellite Analysis",
+                    "name_ar": "تحليل الأقمار",
+                    "included": True,
+                    "limit": 10,
+                },
+                "weather": {
+                    "name": "Weather Forecasts",
+                    "name_ar": "توقعات الطقس",
+                    "included": True,
+                    "limit": None,
+                },
+                "irrigation": {
+                    "name": "Irrigation Planning",
+                    "name_ar": "تخطيط الري",
+                    "included": False,
+                },
+                "ai_diagnosis": {
+                    "name": "AI Crop Diagnosis",
+                    "name_ar": "تشخيص المحاصيل",
+                    "included": False,
+                },
+                "reports": {
+                    "name": "PDF Reports",
+                    "name_ar": "تقارير PDF",
+                    "included": False,
+                },
+                "support": {
+                    "name": "Email Support",
+                    "name_ar": "دعم البريد",
+                    "included": True,
+                },
             },
             "limits": {
                 "fields": 3,
@@ -571,13 +634,47 @@ async def init_default_plans_in_db():
                 "setup_fee_usd": "0",
             },
             "features": {
-                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": 10},
-                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": 50},
-                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
-                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": True, "limit": None},
-                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": True, "limit": 20},
-                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": True, "limit": 10},
-                "support": {"name": "Email Support", "name_ar": "دعم البريد", "included": True},
+                "fields": {
+                    "name": "Fields",
+                    "name_ar": "الحقول",
+                    "included": True,
+                    "limit": 10,
+                },
+                "satellite": {
+                    "name": "Satellite Analysis",
+                    "name_ar": "تحليل الأقمار",
+                    "included": True,
+                    "limit": 50,
+                },
+                "weather": {
+                    "name": "Weather Forecasts",
+                    "name_ar": "توقعات الطقس",
+                    "included": True,
+                    "limit": None,
+                },
+                "irrigation": {
+                    "name": "Irrigation Planning",
+                    "name_ar": "تخطيط الري",
+                    "included": True,
+                    "limit": None,
+                },
+                "ai_diagnosis": {
+                    "name": "AI Crop Diagnosis",
+                    "name_ar": "تشخيص المحاصيل",
+                    "included": True,
+                    "limit": 20,
+                },
+                "reports": {
+                    "name": "PDF Reports",
+                    "name_ar": "تقارير PDF",
+                    "included": True,
+                    "limit": 10,
+                },
+                "support": {
+                    "name": "Email Support",
+                    "name_ar": "دعم البريد",
+                    "included": True,
+                },
             },
             "limits": {
                 "fields": 10,
@@ -603,14 +700,52 @@ async def init_default_plans_in_db():
                 "setup_fee_usd": "0",
             },
             "features": {
-                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": 50},
-                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": 200},
-                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
-                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": True, "limit": None},
-                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": True, "limit": 100},
-                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": True, "limit": None},
-                "support": {"name": "Priority Support", "name_ar": "دعم أولوية", "included": True},
-                "api_access": {"name": "API Access", "name_ar": "الوصول للـAPI", "included": True},
+                "fields": {
+                    "name": "Fields",
+                    "name_ar": "الحقول",
+                    "included": True,
+                    "limit": 50,
+                },
+                "satellite": {
+                    "name": "Satellite Analysis",
+                    "name_ar": "تحليل الأقمار",
+                    "included": True,
+                    "limit": 200,
+                },
+                "weather": {
+                    "name": "Weather Forecasts",
+                    "name_ar": "توقعات الطقس",
+                    "included": True,
+                    "limit": None,
+                },
+                "irrigation": {
+                    "name": "Irrigation Planning",
+                    "name_ar": "تخطيط الري",
+                    "included": True,
+                    "limit": None,
+                },
+                "ai_diagnosis": {
+                    "name": "AI Crop Diagnosis",
+                    "name_ar": "تشخيص المحاصيل",
+                    "included": True,
+                    "limit": 100,
+                },
+                "reports": {
+                    "name": "PDF Reports",
+                    "name_ar": "تقارير PDF",
+                    "included": True,
+                    "limit": None,
+                },
+                "support": {
+                    "name": "Priority Support",
+                    "name_ar": "دعم أولوية",
+                    "included": True,
+                },
+                "api_access": {
+                    "name": "API Access",
+                    "name_ar": "الوصول للـAPI",
+                    "included": True,
+                },
             },
             "limits": {
                 "fields": 50,
@@ -637,16 +772,62 @@ async def init_default_plans_in_db():
                 "setup_fee_usd": "0",
             },
             "features": {
-                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": None},
-                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": None},
-                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
-                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": True, "limit": None},
-                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": True, "limit": None},
-                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": True, "limit": None},
-                "support": {"name": "Dedicated Support", "name_ar": "دعم مخصص", "included": True},
-                "api_access": {"name": "API Access", "name_ar": "الوصول للـAPI", "included": True},
-                "sla": {"name": "SLA Guarantee", "name_ar": "ضمان SLA", "included": True},
-                "custom_integrations": {"name": "Custom Integrations", "name_ar": "تكاملات مخصصة", "included": True},
+                "fields": {
+                    "name": "Fields",
+                    "name_ar": "الحقول",
+                    "included": True,
+                    "limit": None,
+                },
+                "satellite": {
+                    "name": "Satellite Analysis",
+                    "name_ar": "تحليل الأقمار",
+                    "included": True,
+                    "limit": None,
+                },
+                "weather": {
+                    "name": "Weather Forecasts",
+                    "name_ar": "توقعات الطقس",
+                    "included": True,
+                    "limit": None,
+                },
+                "irrigation": {
+                    "name": "Irrigation Planning",
+                    "name_ar": "تخطيط الري",
+                    "included": True,
+                    "limit": None,
+                },
+                "ai_diagnosis": {
+                    "name": "AI Crop Diagnosis",
+                    "name_ar": "تشخيص المحاصيل",
+                    "included": True,
+                    "limit": None,
+                },
+                "reports": {
+                    "name": "PDF Reports",
+                    "name_ar": "تقارير PDF",
+                    "included": True,
+                    "limit": None,
+                },
+                "support": {
+                    "name": "Dedicated Support",
+                    "name_ar": "دعم مخصص",
+                    "included": True,
+                },
+                "api_access": {
+                    "name": "API Access",
+                    "name_ar": "الوصول للـAPI",
+                    "included": True,
+                },
+                "sla": {
+                    "name": "SLA Guarantee",
+                    "name_ar": "ضمان SLA",
+                    "included": True,
+                },
+                "custom_integrations": {
+                    "name": "Custom Integrations",
+                    "name_ar": "تكاملات مخصصة",
+                    "included": True,
+                },
             },
             "limits": {
                 "fields": -1,
@@ -670,7 +851,9 @@ async def init_default_plans_in_db():
                     await repo.plans.upsert(**plan_data)
                     logger.info(f"Initialized plan: {plan_data['plan_id']}")
                 except Exception as e:
-                    logger.error(f"Failed to initialize plan {plan_data['plan_id']}: {e}")
+                    logger.error(
+                        f"Failed to initialize plan {plan_data['plan_id']}: {e}"
+                    )
 
             logger.info("Default plans initialized successfully")
     except Exception as e:
@@ -726,7 +909,9 @@ def get_billing_period_end(start_date: date, cycle: BillingCycle) -> date:
         return start_date + timedelta(days=365)
 
 
-async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) -> Dict[str, Any]:
+async def check_usage_limit_db(
+    db: AsyncSession, tenant_id: str, metric: str
+) -> Dict[str, Any]:
     """
     Check usage limits for a tenant (database version)
     التحقق من حدود الاستخدام للمستأجر (نسخة قاعدة البيانات)
@@ -762,7 +947,9 @@ async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) ->
         return {"allowed": True, "limit": None, "used": 0, "remaining": "unlimited"}
 
     # Calculate current usage for the current month
-    current_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    current_month_start = datetime.utcnow().replace(
+        day=1, hour=0, minute=0, second=0, microsecond=0
+    )
     used = await repo.usage_records.get_metric_count(
         tenant_id=tenant_id,
         metric_type=metric,
@@ -862,10 +1049,16 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
                 "name_ar": p.name_ar,
                 "tier": p.tier.value,
                 "pricing": {
-                    "monthly_usd": float(Decimal(str(p.pricing.get("monthly_usd", "0")))),
-                    "monthly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
+                    "monthly_usd": float(
+                        Decimal(str(p.pricing.get("monthly_usd", "0")))
+                    ),
+                    "monthly_yer": float(
+                        convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))
+                    ),
                     "yearly_usd": float(Decimal(str(p.pricing.get("yearly_usd", "0")))),
-                    "yearly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
+                    "yearly_yer": float(
+                        convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))
+                    ),
                 },
                 "limits": p.limits,
                 "trial_days": p.trial_days,
@@ -900,10 +1093,16 @@ async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
             "created_at": plan.created_at.isoformat(),
         },
         "pricing_yer": {
-            "monthly": float(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
-            "quarterly": float(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
-            "yearly": float(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
-        }
+            "monthly": float(
+                convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))
+            ),
+            "quarterly": float(
+                convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))
+            ),
+            "yearly": float(
+                convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))
+            ),
+        },
     }
 
 
@@ -968,7 +1167,7 @@ async def create_plan(
             "pricing": plan.pricing,
             "limits": plan.limits,
             "trial_days": plan.trial_days,
-        }
+        },
     }
 
 
@@ -1014,7 +1213,11 @@ async def create_tenant(
         billing_cycle=request.billing_cycle,
         start_date=today,
         end_date=get_billing_period_end(today, request.billing_cycle),
-        status=db_models.SubscriptionStatus.TRIAL if trial_end else db_models.SubscriptionStatus.ACTIVE,
+        status=(
+            db_models.SubscriptionStatus.TRIAL
+            if trial_end
+            else db_models.SubscriptionStatus.ACTIVE
+        ),
         trial_end_date=trial_end,
     )
 
@@ -1068,14 +1271,18 @@ async def get_tenant(
             "is_active": tenant.is_active,
             "created_at": tenant.created_at.isoformat(),
         },
-        "subscription": {
-            "subscription_id": str(subscription.id),
-            "plan_id": subscription.plan_id,
-            "status": subscription.status.value,
-            "billing_cycle": subscription.billing_cycle.value,
-            "start_date": subscription.start_date.isoformat(),
-            "end_date": subscription.end_date.isoformat(),
-        } if subscription else None,
+        "subscription": (
+            {
+                "subscription_id": str(subscription.id),
+                "plan_id": subscription.plan_id,
+                "status": subscription.status.value,
+                "billing_cycle": subscription.billing_cycle.value,
+                "start_date": subscription.start_date.isoformat(),
+                "end_date": subscription.end_date.isoformat(),
+            }
+            if subscription
+            else None
+        ),
         "usage": usage,
     }
 
@@ -1109,16 +1316,24 @@ async def get_subscription(
             "start_date": subscription.start_date.isoformat(),
             "end_date": subscription.end_date.isoformat(),
             "next_billing_date": subscription.next_billing_date.isoformat(),
-            "trial_end_date": subscription.trial_end_date.isoformat() if subscription.trial_end_date else None,
+            "trial_end_date": (
+                subscription.trial_end_date.isoformat()
+                if subscription.trial_end_date
+                else None
+            ),
         },
-        "plan": {
-            "plan_id": plan.plan_id,
-            "name": plan.name,
-            "name_ar": plan.name_ar,
-            "tier": plan.tier.value,
-            "pricing": plan.pricing,
-            "limits": plan.limits,
-        } if plan else None,
+        "plan": (
+            {
+                "plan_id": plan.plan_id,
+                "name": plan.name,
+                "name_ar": plan.name_ar,
+                "tier": plan.tier.value,
+                "pricing": plan.pricing,
+                "limits": plan.limits,
+            }
+            if plan
+            else None
+        ),
         "days_remaining": (subscription.end_date - date.today()).days,
         "is_trial": subscription.status == db_models.SubscriptionStatus.TRIAL,
     }
@@ -1152,7 +1367,9 @@ async def update_subscription(
 
     if request.billing_cycle and request.billing_cycle != subscription.billing_cycle:
         update_data["billing_cycle"] = request.billing_cycle
-        update_data["end_date"] = get_billing_period_end(subscription.start_date, request.billing_cycle)
+        update_data["end_date"] = get_billing_period_end(
+            subscription.start_date, request.billing_cycle
+        )
         changes.append(f"Billing cycle changed to {request.billing_cycle.value}")
 
     if request.payment_method:
@@ -1206,7 +1423,11 @@ async def cancel_subscription(
         "success": True,
         "status": subscription.status.value,
         "end_date": subscription.end_date.isoformat(),
-        "message_ar": "تم إلغاء اشتراكك. سيظل حسابك نشطاً حتى نهاية الفترة المدفوعة." if not immediate else "تم إلغاء اشتراكك فوراً.",
+        "message_ar": (
+            "تم إلغاء اشتراكك. سيظل حسابك نشطاً حتى نهاية الفترة المدفوعة."
+            if not immediate
+            else "تم إلغاء اشتراكك فوراً."
+        ),
     }
 
 
@@ -1242,7 +1463,7 @@ async def record_usage(
     if not limit_check["allowed"]:
         raise HTTPException(
             429,
-            f"تم تجاوز الحد الأقصى للاستخدام: {request.metric}. الحد: {limit_check.get('limit', 'N/A')}, المستخدم: {limit_check.get('used', 'N/A')}"
+            f"تم تجاوز الحد الأقصى للاستخدام: {request.metric}. الحد: {limit_check.get('limit', 'N/A')}, المستخدم: {limit_check.get('used', 'N/A')}",
         )
 
     # Create usage record in database
@@ -1294,7 +1515,9 @@ async def get_quota(
             "limit": limit if limit != -1 else "unlimited",
             "used": check.get("used", 0),
             "remaining": check.get("remaining", "unlimited" if limit == -1 else 0),
-            "percentage": round((check.get("used", 0) / limit) * 100, 1) if limit > 0 else 0,
+            "percentage": (
+                round((check.get("used", 0) / limit) * 100, 1) if limit > 0 else 0
+            ),
         }
 
     return {
@@ -1328,7 +1551,7 @@ async def enforce_quota(
                 "metric": metric,
                 "limit": check.get("limit"),
                 "used": check.get("used"),
-            }
+            },
         )
 
     return {
@@ -1435,13 +1658,21 @@ async def get_invoice(
             "notes": invoice.notes,
             "notes_ar": invoice.notes_ar,
         },
-        "tenant": {
-            "tenant_id": tenant.tenant_id,
-            "name": tenant.name,
-            "name_ar": tenant.name_ar,
-            "contact": tenant.contact,
-        } if tenant else None,
-        "amount_yer": float(convert_to_yer(invoice.total)) if invoice.currency == db_models.Currency.USD else float(invoice.total),
+        "tenant": (
+            {
+                "tenant_id": tenant.tenant_id,
+                "name": tenant.name,
+                "name_ar": tenant.name_ar,
+                "contact": tenant.contact,
+            }
+            if tenant
+            else None
+        ),
+        "amount_yer": (
+            float(convert_to_yer(invoice.total))
+            if invoice.currency == db_models.Currency.USD
+            else float(invoice.total)
+        ),
     }
 
 
@@ -1549,13 +1780,16 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
         except httpx.HTTPError as e:
             logger.error(f"Tharwatt API error: {e}")
             # Security: Don't expose internal error details to client
-            raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
+            raise HTTPException(
+                502, "Payment gateway temporarily unavailable. Please try again."
+            )
 
 
 async def call_stripe_api(payment: Any, token: str) -> dict:
     """Call Stripe payment API"""
     try:
         import stripe
+
         stripe.api_key = STRIPE_API_KEY
 
         charge = stripe.Charge.create(
@@ -1573,7 +1807,9 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
     except Exception as e:
         logger.error(f"Stripe API error: {e}")
         # Security: Don't expose internal error details to client
-        raise HTTPException(502, "Payment processing failed. Please try again or contact support.")
+        raise HTTPException(
+            502, "Payment processing failed. Please try again or contact support."
+        )
 
 
 @app.post("/v1/payments")
@@ -1619,37 +1855,50 @@ async def create_payment(
     # Process payment based on method
     if request.method == PaymentMethod.CREDIT_CARD and STRIPE_API_KEY:
         # Stripe Payment Processing
-        token = getattr(request, 'stripe_token', None)
+        token = getattr(request, "stripe_token", None)
         if token:
             # Create temporary payment object for API call
-            temp_payment = type('obj', (object,), {
-                'payment_id': str(payment.id),
-                'invoice_id': str(payment.invoice_id),
-                'tenant_id': payment.tenant_id,
-                'amount': payment.amount,
-                'currency': payment.currency,
-            })()
+            temp_payment = type(
+                "obj",
+                (object,),
+                {
+                    "payment_id": str(payment.id),
+                    "invoice_id": str(payment.invoice_id),
+                    "tenant_id": payment.tenant_id,
+                    "amount": payment.amount,
+                    "currency": payment.currency,
+                },
+            )()
             stripe_response = await call_stripe_api(temp_payment, token)
             if stripe_response.get("status") == "succeeded":
                 await repo.payments.mark_succeeded(
-                    payment.id,
-                    external_id=stripe_response.get("stripe_charge_id")
+                    payment.id, external_id=stripe_response.get("stripe_charge_id")
                 )
             else:
-                await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
+                await repo.payments.update(
+                    payment.id, status=db_models.PaymentStatus.PROCESSING
+                )
 
     elif request.method == PaymentMethod.THARWATT and THARWATT_API_KEY:
         # Tharwatt Payment Gateway - بوابة ثروات
-        phone_number = getattr(request, 'phone_number', '')
+        phone_number = getattr(request, "phone_number", "")
         if phone_number:
-            temp_payment = type('obj', (object,), {
-                'payment_id': str(payment.id),
-                'invoice_id': str(payment.invoice_id),
-                'amount': payment.amount,
-            })()
+            temp_payment = type(
+                "obj",
+                (object,),
+                {
+                    "payment_id": str(payment.id),
+                    "invoice_id": str(payment.invoice_id),
+                    "amount": payment.amount,
+                },
+            )()
             tharwatt_response = await call_tharwatt_api(temp_payment, phone_number)
-            await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
-            logger.info(f"Tharwatt payment initiated: {payment.id} - Response: {tharwatt_response}")
+            await repo.payments.update(
+                payment.id, status=db_models.PaymentStatus.PROCESSING
+            )
+            logger.info(
+                f"Tharwatt payment initiated: {payment.id} - Response: {tharwatt_response}"
+            )
 
     elif request.method == PaymentMethod.CASH:
         await repo.payments.mark_succeeded(payment.id)
@@ -1675,7 +1924,7 @@ async def create_payment(
             "currency": payment.currency.value,
             "method": payment.method.value,
             "status": payment.status.value,
-        }
+        },
     )
 
     # Refresh invoice to get updated status
@@ -1738,6 +1987,7 @@ async def list_payments(
 
 class TharwattWebhookPayload(BaseModel):
     """Tharwatt webhook payload"""
+
     transaction_id: str
     status: str  # 'completed', 'failed', 'cancelled'
     amount: Decimal
@@ -1763,14 +2013,14 @@ def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
 
     # Validate signature is present
     if not signature:
-        logger.error("Tharwatt webhook signature missing in X-Tharwatt-Signature header")
+        logger.error(
+            "Tharwatt webhook signature missing in X-Tharwatt-Signature header"
+        )
         return False
 
     try:
         expected_signature = hmac.new(
-            THARWATT_WEBHOOK_SECRET.encode('utf-8'),
-            payload,
-            hashlib.sha256
+            THARWATT_WEBHOOK_SECRET.encode("utf-8"), payload, hashlib.sha256
         ).hexdigest()
 
         # Use constant-time comparison to prevent timing attacks
@@ -1809,6 +2059,7 @@ async def tharwatt_webhook(
     # Parse payload after verification
     try:
         import json
+
         payload_dict = json.loads(raw_body)
         payload = TharwattWebhookPayload(**payload_dict)
     except Exception as e:
@@ -1823,7 +2074,9 @@ async def tharwatt_webhook(
             break
 
     if not payment:
-        logger.warning(f"Tharwatt webhook: Payment not found for reference {payload.reference}")
+        logger.warning(
+            f"Tharwatt webhook: Payment not found for reference {payload.reference}"
+        )
         raise HTTPException(404, "Payment not found")
 
     # Update payment status
@@ -1853,13 +2106,15 @@ async def tharwatt_webhook(
                 "amount": float(payment.amount),
                 "method": "tharwatt",
                 "transaction_id": payload.transaction_id,
-            }
+            },
         )
 
     elif payload.status == "failed":
         payment.status = PaymentStatus.FAILED
         payment.failure_reason = payload.error_message or "Payment failed"
-        logger.warning(f"Tharwatt payment failed: {payment.payment_id} - {payload.error_message}")
+        logger.warning(
+            f"Tharwatt payment failed: {payment.payment_id} - {payload.error_message}"
+        )
 
         # Publish payment failed event
         background_tasks.add_task(
@@ -1869,7 +2124,7 @@ async def tharwatt_webhook(
                 "payment_id": payment.payment_id,
                 "invoice_id": payment.invoice_id,
                 "error": payload.error_message,
-            }
+            },
         )
 
     elif payload.status == "cancelled":
@@ -1891,6 +2146,7 @@ async def tharwatt_webhook(
 
 class StripeWebhookPayload(BaseModel):
     """Stripe webhook event payload"""
+
     id: str
     type: str
     data: Dict[str, Any]
@@ -1913,6 +2169,7 @@ def verify_stripe_signature(payload: bytes, signature: str) -> bool:
 
     try:
         import stripe
+
         stripe.Webhook.construct_event(payload, signature, STRIPE_WEBHOOK_SECRET)
         return True
     except stripe.error.SignatureVerificationError as e:
@@ -1940,6 +2197,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
 
     try:
         import json
+
         event = json.loads(payload)
     except json.JSONDecodeError:
         raise HTTPException(400, "Invalid payload")
@@ -1979,7 +2237,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
                         "amount": float(payment.amount),
                         "method": "stripe",
                         "stripe_charge_id": data.get("id"),
-                    }
+                    },
                 )
 
     elif event_type == "charge.failed":
@@ -1998,7 +2256,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
                     {
                         "payment_id": payment_id,
                         "error": payment.failure_reason,
-                    }
+                    },
                 )
 
     elif event_type == "customer.subscription.updated":
@@ -2015,7 +2273,9 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
                 elif stripe_status == "canceled":
                     subscription.status = SubscriptionStatus.CANCELED
 
-                logger.info(f"Stripe subscription updated: {subscription_id} -> {stripe_status}")
+                logger.info(
+                    f"Stripe subscription updated: {subscription_id} -> {stripe_status}"
+                )
 
                 # Publish subscription event
                 background_tasks.add_task(
@@ -2025,7 +2285,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
                         "subscription_id": subscription_id,
                         "tenant_id": subscription.tenant_id,
                         "status": subscription.status.value,
-                    }
+                    },
                 )
 
     return {"received": True}
@@ -2050,7 +2310,8 @@ async def get_revenue_report(
 
     # Calculate revenue from paid invoices
     paid_invoices = [
-        inv for inv in INVOICES.values()
+        inv
+        for inv in INVOICES.values()
         if inv.status == InvoiceStatus.PAID
         and inv.paid_date
         and start_date <= inv.paid_date <= end_date
@@ -2117,4 +2378,5 @@ async def get_subscriptions_report(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8089)

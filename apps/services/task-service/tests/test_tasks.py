@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.main import app, tasks_db, TaskType, TaskPriority, TaskStatus
@@ -228,7 +229,9 @@ class TestTaskWorkflow:
         task_id = create_response.json()["task_id"]
 
         # Cancel the task
-        response = client.post(f"/api/v1/tasks/{task_id}/cancel?reason=Weather%20conditions")
+        response = client.post(
+            f"/api/v1/tasks/{task_id}/cancel?reason=Weather%20conditions"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "cancelled"
@@ -288,7 +291,7 @@ class TestTaskEvidence:
             "notes": "Done",
             "photo_urls": [
                 "https://example.com/photo1.jpg",
-                "https://example.com/photo2.jpg"
+                "https://example.com/photo2.jpg",
             ],
         }
         response = client.post(f"/api/v1/tasks/{task_id}/complete", json=complete_data)
@@ -321,8 +324,15 @@ class TestTaskTypes:
     def test_all_task_types_valid(self, client):
         """Test that all task types are accepted"""
         types = [
-            "irrigation", "fertilization", "spraying", "scouting",
-            "maintenance", "sampling", "harvest", "planting", "other"
+            "irrigation",
+            "fertilization",
+            "spraying",
+            "scouting",
+            "maintenance",
+            "sampling",
+            "harvest",
+            "planting",
+            "other",
         ]
         for task_type in types:
             data = {

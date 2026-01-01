@@ -26,9 +26,13 @@ try:
     from opentelemetry.instrumentation.redis import RedisInstrumentor
     from opentelemetry.instrumentation.asyncpg import AsyncPGInstrumentor
     from opentelemetry.propagate import set_global_textmap
-    from opentelemetry.propagators.cloud_trace_propagator import CloudTraceFormatPropagator
+    from opentelemetry.propagators.cloud_trace_propagator import (
+        CloudTraceFormatPropagator,
+    )
     from opentelemetry.trace import Status, StatusCode, SpanKind
-    from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+    from opentelemetry.trace.propagation.tracecontext import (
+        TraceContextTextMapPropagator,
+    )
     from opentelemetry.baggage.propagation import W3CBaggagePropagator
     from opentelemetry.propagators.composite import CompositeHTTPPropagator
 
@@ -63,11 +67,16 @@ class TracingConfig:
         self.gcp_project_id = gcp_project_id or os.getenv("GCP_PROJECT_ID")
         self.otlp_endpoint = otlp_endpoint or os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
         self.sample_rate = float(os.getenv("OTEL_SAMPLE_RATE", str(sample_rate)))
-        self.enable_console_export = enable_console_export or os.getenv("OTEL_CONSOLE_EXPORT", "false").lower() == "true"
+        self.enable_console_export = (
+            enable_console_export
+            or os.getenv("OTEL_CONSOLE_EXPORT", "false").lower() == "true"
+        )
 
         # Additional service attributes
         self.service_namespace = os.getenv("SERVICE_NAMESPACE", "sahool")
-        self.service_instance_id = os.getenv("HOSTNAME", os.getenv("POD_NAME", "unknown"))
+        self.service_instance_id = os.getenv(
+            "HOSTNAME", os.getenv("POD_NAME", "unknown")
+        )
         self.deployment_environment = os.getenv("DEPLOYMENT_ENV", self.environment)
 
 
@@ -101,13 +110,15 @@ class DistributedTracer:
             return
 
         # Create resource with service information
-        resource = Resource.create({
-            SERVICE_NAME: self.config.service_name,
-            SERVICE_VERSION: self.config.service_version,
-            "service.namespace": self.config.service_namespace,
-            "service.instance.id": self.config.service_instance_id,
-            "deployment.environment": self.config.deployment_environment,
-        })
+        resource = Resource.create(
+            {
+                SERVICE_NAME: self.config.service_name,
+                SERVICE_VERSION: self.config.service_version,
+                "service.namespace": self.config.service_namespace,
+                "service.instance.id": self.config.service_instance_id,
+                "deployment.environment": self.config.deployment_environment,
+            }
+        )
 
         # Create tracer provider
         provider = TracerProvider(resource=resource)
@@ -132,7 +143,7 @@ class DistributedTracer:
             f"v{self.config.service_version}"
         )
 
-    def _add_exporters(self, provider: 'TracerProvider') -> None:
+    def _add_exporters(self, provider: "TracerProvider") -> None:
         """Add span exporters based on configuration."""
         if not OTEL_AVAILABLE:
             return
@@ -144,7 +155,9 @@ class DistributedTracer:
                     project_id=self.config.gcp_project_id,
                 )
                 provider.add_span_processor(BatchSpanProcessor(cloud_trace_exporter))
-                logger.info(f"Google Cloud Trace exporter enabled for project: {self.config.gcp_project_id}")
+                logger.info(
+                    f"Google Cloud Trace exporter enabled for project: {self.config.gcp_project_id}"
+                )
             except Exception as e:
                 logger.warning(f"Failed to setup Google Cloud Trace exporter: {e}")
 
@@ -170,11 +183,13 @@ class DistributedTracer:
 
         # Support both W3C Trace Context and Google Cloud Trace format
         set_global_textmap(
-            CompositeHTTPPropagator([
-                TraceContextTextMapPropagator(),
-                CloudTraceFormatPropagator(),
-                W3CBaggagePropagator(),
-            ])
+            CompositeHTTPPropagator(
+                [
+                    TraceContextTextMapPropagator(),
+                    CloudTraceFormatPropagator(),
+                    W3CBaggagePropagator(),
+                ]
+            )
         )
 
     def instrument_fastapi(self, app) -> None:
@@ -227,7 +242,7 @@ class DistributedTracer:
     def span(
         self,
         name: str,
-        kind: Optional['SpanKind'] = None,
+        kind: Optional["SpanKind"] = None,
         attributes: Optional[Dict[str, Any]] = None,
     ):
         """
@@ -277,6 +292,7 @@ class DistributedTracer:
                 # Your agent code
                 pass
         """
+
         def decorator(func: Callable) -> Callable:
             @wraps(func)
             async def async_wrapper(*args, **kwargs):
@@ -345,6 +361,7 @@ class DistributedTracer:
 
             # Return appropriate wrapper based on function type
             import asyncio
+
             if asyncio.iscoroutinefunction(func):
                 return async_wrapper
             else:
@@ -369,9 +386,9 @@ class DistributedTracer:
 
         ctx = span.get_span_context()
         return {
-            "trace_id": format(ctx.trace_id, '032x'),
-            "span_id": format(ctx.span_id, '016x'),
-            "trace_flags": format(ctx.trace_flags, '02x'),
+            "trace_id": format(ctx.trace_id, "032x"),
+            "span_id": format(ctx.span_id, "016x"),
+            "trace_flags": format(ctx.trace_flags, "02x"),
             "trace_state": str(ctx.trace_state),
         }
 
@@ -397,7 +414,9 @@ class DistributedTracer:
                     # Convert complex types to string
                     span.set_attribute(key, str(value))
 
-    def add_span_event(self, name: str, attributes: Optional[Dict[str, Any]] = None) -> None:
+    def add_span_event(
+        self, name: str, attributes: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Add an event to current span.
         إضافة حدث إلى النطاق الحالي.
@@ -468,7 +487,9 @@ def get_tracer() -> Optional[DistributedTracer]:
     return _tracer
 
 
-def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None):
+def trace_function(
+    name: Optional[str] = None, attributes: Optional[Dict[str, Any]] = None
+):
     """
     Decorator to trace a function.
     مزخرف لتتبع دالة.
@@ -479,6 +500,7 @@ def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, An
             # Your code
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         span_name = name or f"{func.__module__}.{func.__name__}"
 
@@ -501,6 +523,7 @@ def trace_function(name: Optional[str] = None, attributes: Optional[Dict[str, An
                 return func(*args, **kwargs)
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         else:

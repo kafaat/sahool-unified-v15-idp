@@ -123,11 +123,7 @@ class UserService:
             user.updated_at = datetime.now(timezone.utc)
         return user
 
-    def enable_twofa(
-        self,
-        user_id: str,
-        backup_codes: list[str]
-    ) -> Optional[User]:
+    def enable_twofa(self, user_id: str, backup_codes: list[str]) -> Optional[User]:
         """Enable 2FA for user and store backup codes"""
         user = self._users.get(user_id)
         if user:
@@ -147,9 +143,7 @@ class UserService:
         return user
 
     def update_backup_codes(
-        self,
-        user_id: str,
-        backup_codes: list[str]
+        self, user_id: str, backup_codes: list[str]
     ) -> Optional[User]:
         """Update user's backup codes"""
         user = self._users.get(user_id)
@@ -158,11 +152,7 @@ class UserService:
             user.updated_at = datetime.now(timezone.utc)
         return user
 
-    def remove_backup_code(
-        self,
-        user_id: str,
-        code_hash: str
-    ) -> Optional[User]:
+    def remove_backup_code(self, user_id: str, code_hash: str) -> Optional[User]:
         """Remove a used backup code"""
         user = self._users.get(user_id)
         if user and user.twofa_backup_codes:

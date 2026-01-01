@@ -119,7 +119,9 @@ class FieldDataResource(ResourceProvider):
 
         try:
             if resource_type == "info":
-                response = await self.client.get(f"{self.base_url}/api/fields/{field_id}")
+                response = await self.client.get(
+                    f"{self.base_url}/api/fields/{field_id}"
+                )
             elif resource_type == "boundaries":
                 response = await self.client.get(
                     f"{self.base_url}/api/fields/{field_id}/boundaries"
@@ -141,10 +143,14 @@ class FieldDataResource(ResourceProvider):
             import json
 
             mime_type = (
-                "application/geo+json" if resource_type == "boundaries" else "application/json"
+                "application/geo+json"
+                if resource_type == "boundaries"
+                else "application/json"
             )
 
-            return ResourceContent(uri=uri, mimeType=mime_type, text=json.dumps(data, indent=2))
+            return ResourceContent(
+                uri=uri, mimeType=mime_type, text=json.dumps(data, indent=2)
+            )
 
         except httpx.HTTPError as e:
             raise RuntimeError(f"Failed to fetch field resource: {str(e)}")
@@ -206,7 +212,9 @@ class WeatherDataResource(ResourceProvider):
                     f"{self.base_url}/api/weather/forecast", params={"days": days}
                 )
             elif resource_path == "advisories":
-                response = await self.client.get(f"{self.base_url}/api/weather/advisories")
+                response = await self.client.get(
+                    f"{self.base_url}/api/weather/advisories"
+                )
             elif resource_path.startswith("historical/"):
                 days = resource_path.split("/")[1].replace("day", "")
                 response = await self.client.get(
@@ -218,7 +226,9 @@ class WeatherDataResource(ResourceProvider):
             response.raise_for_status()
             data = response.json()
 
-            return ResourceContent(uri=uri, mimeType="application/json", text=json.dumps(data, indent=2))
+            return ResourceContent(
+                uri=uri, mimeType="application/json", text=json.dumps(data, indent=2)
+            )
 
         except httpx.HTTPError as e:
             raise RuntimeError(f"Failed to fetch weather resource: {str(e)}")
@@ -303,7 +313,9 @@ class CropCatalogResource(ResourceProvider):
                 resource_type = parts[1]
 
                 if resource_type == "info":
-                    response = await self.client.get(f"{self.base_url}/api/crops/{crop_id}")
+                    response = await self.client.get(
+                        f"{self.base_url}/api/crops/{crop_id}"
+                    )
                 elif resource_type == "growing-guide":
                     response = await self.client.get(
                         f"{self.base_url}/api/crops/{crop_id}/growing-guide"
@@ -322,7 +334,9 @@ class CropCatalogResource(ResourceProvider):
             response.raise_for_status()
             data = response.json()
 
-            return ResourceContent(uri=uri, mimeType="application/json", text=json.dumps(data, indent=2))
+            return ResourceContent(
+                uri=uri, mimeType="application/json", text=json.dumps(data, indent=2)
+            )
 
         except httpx.HTTPError as e:
             raise RuntimeError(f"Failed to fetch crop resource: {str(e)}")

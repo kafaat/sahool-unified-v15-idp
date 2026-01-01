@@ -14,10 +14,9 @@ class AuthConfig:
     """Authentication configuration settings"""
 
     # JWT Settings
-    secret_key: str = field(default_factory=lambda: os.getenv(
-        "AUTH_SECRET_KEY",
-        secrets.token_urlsafe(32)
-    ))
+    secret_key: str = field(
+        default_factory=lambda: os.getenv("AUTH_SECRET_KEY", secrets.token_urlsafe(32))
+    )
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
@@ -54,12 +53,12 @@ class AuthConfig:
         return cls(
             secret_key=os.getenv(f"{prefix}_SECRET_KEY", secrets.token_urlsafe(32)),
             algorithm=os.getenv(f"{prefix}_ALGORITHM", "HS256"),
-            access_token_expire_minutes=int(os.getenv(
-                f"{prefix}_ACCESS_TOKEN_EXPIRE_MINUTES", "30"
-            )),
-            refresh_token_expire_days=int(os.getenv(
-                f"{prefix}_REFRESH_TOKEN_EXPIRE_DAYS", "7"
-            )),
+            access_token_expire_minutes=int(
+                os.getenv(f"{prefix}_ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+            ),
+            refresh_token_expire_days=int(
+                os.getenv(f"{prefix}_REFRESH_TOKEN_EXPIRE_DAYS", "7")
+            ),
             issuer=os.getenv(f"{prefix}_ISSUER", "sahool-auth"),
             audience=os.getenv(f"{prefix}_AUDIENCE", "sahool-api"),
             api_key_header=os.getenv(f"{prefix}_API_KEY_HEADER", "X-API-Key"),
@@ -67,18 +66,23 @@ class AuthConfig:
             password_min_length=int(os.getenv(f"{prefix}_PASSWORD_MIN_LENGTH", "8")),
             password_require_uppercase=os.getenv(
                 f"{prefix}_PASSWORD_REQUIRE_UPPERCASE", "true"
-            ).lower() == "true",
+            ).lower()
+            == "true",
             password_require_lowercase=os.getenv(
                 f"{prefix}_PASSWORD_REQUIRE_LOWERCASE", "true"
-            ).lower() == "true",
+            ).lower()
+            == "true",
             password_require_digit=os.getenv(
                 f"{prefix}_PASSWORD_REQUIRE_DIGIT", "true"
-            ).lower() == "true",
+            ).lower()
+            == "true",
             password_require_special=os.getenv(
                 f"{prefix}_PASSWORD_REQUIRE_SPECIAL", "false"
-            ).lower() == "true",
+            ).lower()
+            == "true",
             session_max_age=int(os.getenv(f"{prefix}_SESSION_MAX_AGE", "86400")),
-            oauth2_enabled=os.getenv(f"{prefix}_OAUTH2_ENABLED", "false").lower() == "true",
+            oauth2_enabled=os.getenv(f"{prefix}_OAUTH2_ENABLED", "false").lower()
+            == "true",
             google_client_id=os.getenv(f"{prefix}_GOOGLE_CLIENT_ID"),
             google_client_secret=os.getenv(f"{prefix}_GOOGLE_CLIENT_SECRET"),
         )

@@ -37,7 +37,7 @@ async def check_field_soil_moisture():
 
         response = await client.get(
             f"{base_url}/v1/soil-moisture/{field_id}",
-            params={"lat": latitude, "lon": longitude}
+            params={"lat": latitude, "lon": longitude},
         )
 
         if response.status_code == 200:
@@ -47,7 +47,9 @@ async def check_field_soil_moisture():
             print(f"Timestamp: {data['timestamp']}")
             print(f"\nSoil Moisture:")
             print(f"  - Percentage: {data['soil_moisture']['percent']}%")
-            print(f"  - Volumetric: {data['soil_moisture']['volumetric_water_content']} m³/m³")
+            print(
+                f"  - Volumetric: {data['soil_moisture']['volumetric_water_content']} m³/m³"
+            )
             print(f"  - Status: {data['soil_moisture']['status']}")
             print(f"  - الحالة: {data['soil_moisture']['status_ar']}")
             print(f"\nSAR Data:")
@@ -61,7 +63,7 @@ async def check_field_soil_moisture():
             print(f"  AR: {data['recommendation_ar']}")
 
             # Decision making
-            moisture = data['soil_moisture']['percent']
+            moisture = data["soil_moisture"]["percent"]
             if moisture < 20:
                 print(f"\n⚠️  ALERT: Immediate irrigation recommended!")
                 print(f"⚠️  تنبيه: يوصى بالري الفوري!")
@@ -77,8 +79,7 @@ async def check_field_soil_moisture():
         print("-" * 80)
 
         response = await client.get(
-            f"{base_url}/v1/irrigation-events/{field_id}",
-            params={"days": 30}
+            f"{base_url}/v1/irrigation-events/{field_id}", params={"days": 30}
         )
 
         if response.status_code == 200:
@@ -87,18 +88,24 @@ async def check_field_soil_moisture():
             print(f"Period: Last {data['period_days']} days")
             print(f"Events detected: {data['events_detected']}")
 
-            if data['events_detected'] > 0:
+            if data["events_detected"] > 0:
                 print(f"\nSummary:")
-                print(f"  - Total water applied: {data['summary']['total_water_applied_mm']} mm")
-                print(f"  - Average per event: {data['summary']['average_application_mm']} mm")
+                print(
+                    f"  - Total water applied: {data['summary']['total_water_applied_mm']} mm"
+                )
+                print(
+                    f"  - Average per event: {data['summary']['average_application_mm']} mm"
+                )
 
                 print(f"\nDetailed events:")
-                for i, event in enumerate(data['events'][:5], 1):  # Show first 5
+                for i, event in enumerate(data["events"][:5], 1):  # Show first 5
                     print(f"\n  Event {i}:")
                     print(f"    Date: {event['detected_date']}")
-                    print(f"    Moisture change: {event['moisture_change']['before_percent']}% → "
-                          f"{event['moisture_change']['after_percent']}% "
-                          f"(+{event['moisture_change']['increase_percent']}%)")
+                    print(
+                        f"    Moisture change: {event['moisture_change']['before_percent']}% → "
+                        f"{event['moisture_change']['after_percent']}% "
+                        f"(+{event['moisture_change']['increase_percent']}%)"
+                    )
                     print(f"    Estimated water: {event['estimated_water_mm']} mm")
                     print(f"    Confidence: {event['confidence'] * 100:.0f}%")
             else:
@@ -118,8 +125,8 @@ async def check_field_soil_moisture():
                 "start_date": start_date.strftime("%Y-%m-%d"),
                 "end_date": end_date.strftime("%Y-%m-%d"),
                 "lat": latitude,
-                "lon": longitude
-            }
+                "lon": longitude,
+            },
         )
 
         if response.status_code == 200:
@@ -129,27 +136,33 @@ async def check_field_soil_moisture():
             print(f"Data points: {data['data_points_count']}")
 
             print(f"\nStatistics:")
-            stats = data['statistics']
+            stats = data["statistics"]
             print(f"  - Average moisture: {stats['average_moisture_percent']}%")
-            print(f"  - Range: {stats['min_moisture_percent']}% - {stats['max_moisture_percent']}%")
+            print(
+                f"  - Range: {stats['min_moisture_percent']}% - {stats['max_moisture_percent']}%"
+            )
             print(f"  - Variability: {stats['moisture_range_percent']}%")
             print(f"  - Trend: {stats['trend']}")
 
             # Show recent data points
             print(f"\nRecent acquisitions:")
-            for point in data['timeseries'][-5:]:  # Last 5 points
-                date = datetime.fromisoformat(point['acquisition_date'])
-                print(f"  {date.strftime('%Y-%m-%d')}: "
-                      f"{point['soil_moisture_percent']:5.1f}% "
-                      f"(VV: {point['backscatter']['vv_db']:6.1f} dB, "
-                      f"VH: {point['backscatter']['vh_db']:6.1f} dB) "
-                      f"[{point['orbit_direction']}]")
+            for point in data["timeseries"][-5:]:  # Last 5 points
+                date = datetime.fromisoformat(point["acquisition_date"])
+                print(
+                    f"  {date.strftime('%Y-%m-%d')}: "
+                    f"{point['soil_moisture_percent']:5.1f}% "
+                    f"(VV: {point['backscatter']['vv_db']:6.1f} dB, "
+                    f"VH: {point['backscatter']['vh_db']:6.1f} dB) "
+                    f"[{point['orbit_direction']}]"
+                )
 
             # Trend analysis
-            if stats['trend'] == 'increasing':
-                print(f"\n📈 Soil moisture is increasing (recent rainfall or irrigation)")
+            if stats["trend"] == "increasing":
+                print(
+                    f"\n📈 Soil moisture is increasing (recent rainfall or irrigation)"
+                )
                 print(f"📈 رطوبة التربة تتزايد (أمطار أو ري حديث)")
-            elif stats['trend'] == 'decreasing':
+            elif stats["trend"] == "decreasing":
                 print(f"\n📉 Soil moisture is decreasing (consider irrigation)")
                 print(f"📉 رطوبة التربة تتناقص (فكر في الري)")
             else:

@@ -53,27 +53,26 @@ async def test_iot_device_registration_workflow(
         "model": "SM-200",
         "firmware_version": "2.1.0",
         "field_id": "field-test-123",
-        "location": {
-            "latitude": 15.3694,
-            "longitude": 44.1910
-        },
+        "location": {"latitude": 15.3694, "longitude": 44.1910},
         "configuration": {
             "measurement_interval_minutes": 30,
             "depth_cm": 30,
             "alert_threshold_low": 20,
-            "alert_threshold_high": 80
-        }
+            "alert_threshold_high": 80,
+        },
     }
 
     # Act - تنفيذ
     response = await http_client.post(
-        f"{iot_gateway_url}/v1/devices",
-        json=device_data,
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/devices", json=device_data, headers=auth_headers
     )
 
     # Assert - التحقق
-    assert response.status_code in (200, 201, 401), f"Failed to register device: {response.text}"
+    assert response.status_code in (
+        200,
+        201,
+        401,
+    ), f"Failed to register device: {response.text}"
 
     if response.status_code in (200, 201):
         registered_device = response.json()
@@ -100,8 +99,7 @@ async def test_iot_device_listing_workflow(
 
     # Get all devices - الحصول على جميع الأجهزة
     response = await http_client.get(
-        f"{iot_gateway_url}/v1/devices",
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/devices", headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -137,23 +135,23 @@ async def test_soil_moisture_reading_workflow(
     reading_data = iot_factory.create(sensor_type="soil_moisture")
 
     # Add required fields
-    reading_data.update({
-        "field_id": "field-test-123",
-        "location": {
-            "latitude": 15.3694,
-            "longitude": 44.1910,
-            "depth_cm": 30
+    reading_data.update(
+        {
+            "field_id": "field-test-123",
+            "location": {"latitude": 15.3694, "longitude": 44.1910, "depth_cm": 30},
         }
-    })
+    )
 
     # Send reading to gateway - إرسال القراءة إلى البوابة
     response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings",
-        json=reading_data,
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers
     )
 
-    assert response.status_code in (200, 201, 401), f"Failed to submit reading: {response.text}"
+    assert response.status_code in (
+        200,
+        201,
+        401,
+    ), f"Failed to submit reading: {response.text}"
 
     if response.status_code in (200, 201):
         result = response.json()
@@ -183,22 +181,12 @@ async def test_temperature_humidity_reading_workflow(
         "sensor_type": "temperature_humidity",
         "field_id": "field-test-123",
         "timestamp": datetime.utcnow().isoformat(),
-        "readings": {
-            "temperature_c": 38.5,
-            "humidity_percent": 32,
-            "heat_index": 42.3
-        },
-        "location": {
-            "latitude": 15.3694,
-            "longitude": 44.1910,
-            "height_cm": 150
-        }
+        "readings": {"temperature_c": 38.5, "humidity_percent": 32, "heat_index": 42.3},
+        "location": {"latitude": 15.3694, "longitude": 44.1910, "height_cm": 150},
     }
 
     response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings",
-        json=reading_data,
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -231,19 +219,13 @@ async def test_soil_nutrient_reading_workflow(
             "phosphorus_ppm": 28,
             "potassium_ppm": 120,
             "ph": 6.8,
-            "ec_ds_m": 1.2
+            "ec_ds_m": 1.2,
         },
-        "location": {
-            "latitude": 15.3694,
-            "longitude": 44.1910,
-            "depth_cm": 20
-        }
+        "location": {"latitude": 15.3694, "longitude": 44.1910, "depth_cm": 20},
     }
 
     response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings",
-        json=reading_data,
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/readings", json=reading_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -279,33 +261,31 @@ async def test_batch_readings_workflow(
                 "timestamp": (datetime.utcnow() - timedelta(minutes=30)).isoformat(),
                 "sensor_type": "soil_moisture",
                 "value": 42.5,
-                "unit": "%"
+                "unit": "%",
             },
             {
                 "timestamp": (datetime.utcnow() - timedelta(minutes=20)).isoformat(),
                 "sensor_type": "soil_moisture",
                 "value": 41.8,
-                "unit": "%"
+                "unit": "%",
             },
             {
                 "timestamp": (datetime.utcnow() - timedelta(minutes=10)).isoformat(),
                 "sensor_type": "soil_moisture",
                 "value": 41.2,
-                "unit": "%"
+                "unit": "%",
             },
             {
                 "timestamp": datetime.utcnow().isoformat(),
                 "sensor_type": "soil_moisture",
                 "value": 40.5,
-                "unit": "%"
-            }
-        ]
+                "unit": "%",
+            },
+        ],
     }
 
     response = await http_client.post(
-        f"{iot_gateway_url}/v1/readings/batch",
-        json=batch_data,
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/readings/batch", json=batch_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -336,10 +316,7 @@ async def test_realtime_data_streaming_workflow(
 
     # This would typically use WebSocket connection
     # For HTTP testing, we check if the endpoint exists
-    response = await http_client.get(
-        f"{ws_gateway_url}/healthz",
-        headers=auth_headers
-    )
+    response = await http_client.get(f"{ws_gateway_url}/healthz", headers=auth_headers)
 
     # WebSocket gateway should be running
     assert response.status_code in (200, 404, 401)
@@ -373,13 +350,11 @@ async def test_sensor_data_aggregation_workflow(
         "sensor_type": "soil_moisture",
         "aggregation": "hourly",
         "start_date": (datetime.utcnow() - timedelta(days=1)).isoformat(),
-        "end_date": datetime.utcnow().isoformat()
+        "end_date": datetime.utcnow().isoformat(),
     }
 
     response = await http_client.get(
-        f"{iot_gateway_url}/v1/readings/aggregated",
-        params=params,
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/readings/aggregated", params=params, headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -422,27 +397,27 @@ async def test_automated_irrigation_workflow(
             "sensor_type": "soil_moisture",
             "operator": "less_than",
             "threshold": 30,
-            "consecutive_readings": 2
+            "consecutive_readings": 2,
         },
         "actions": [
             {
                 "action_type": "actuator_control",
                 "device_id": "valve-001",
                 "command": "open",
-                "duration_minutes": 30
+                "duration_minutes": 30,
             }
         ],
         "stop_conditions": {
             "sensor_type": "soil_moisture",
             "operator": "greater_than",
-            "threshold": 50
-        }
+            "threshold": 50,
+        },
     }
 
     response = await http_client.post(
         f"{iot_gateway_url}/v1/automation/rules",
         json=automation_rule,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 201, 401)
@@ -469,16 +444,13 @@ async def test_irrigation_valve_control_workflow(
     valve_command = {
         "device_id": "valve-test-001",
         "command": "open",
-        "parameters": {
-            "duration_minutes": 15,
-            "flow_rate_lpm": 50
-        }
+        "parameters": {"duration_minutes": 15, "flow_rate_lpm": 50},
     }
 
     response = await http_client.post(
         f"{iot_gateway_url}/v1/actuators/command",
         json=valve_command,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 201, 401)
@@ -516,21 +488,21 @@ async def test_sensor_threshold_alert_workflow(
                 "condition": "less_than",
                 "value": 25,
                 "severity": "high",
-                "alert_type": "irrigation_needed"
+                "alert_type": "irrigation_needed",
             },
             {
                 "condition": "greater_than",
                 "value": 75,
                 "severity": "medium",
-                "alert_type": "over_irrigation"
-            }
-        ]
+                "alert_type": "over_irrigation",
+            },
+        ],
     }
 
     response = await http_client.post(
         f"{iot_gateway_url}/v1/devices/thresholds",
         json=threshold_config,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 201, 401)
@@ -566,13 +538,11 @@ async def test_device_health_monitoring_workflow(
         "signal_strength_dbm": -72,
         "temperature_c": 28,
         "uptime_hours": 720,
-        "error_count": 0
+        "error_count": 0,
     }
 
     response = await http_client.post(
-        f"{iot_gateway_url}/v1/devices/health",
-        json=health_data,
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/devices/health", json=health_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -597,8 +567,7 @@ async def test_device_offline_detection_workflow(
 
     # Get offline devices - الحصول على الأجهزة غير المتصلة
     response = await http_client.get(
-        f"{iot_gateway_url}/v1/devices/offline",
-        headers=auth_headers
+        f"{iot_gateway_url}/v1/devices/offline", headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -633,13 +602,13 @@ async def test_sensor_data_export_workflow(
         "start_date": (datetime.utcnow() - timedelta(days=7)).isoformat(),
         "end_date": datetime.utcnow().isoformat(),
         "format": "csv",
-        "sensor_types": ["soil_moisture", "temperature"]
+        "sensor_types": ["soil_moisture", "temperature"],
     }
 
     response = await http_client.get(
         f"{iot_gateway_url}/v1/readings/export",
         params=export_params,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 401, 404)
@@ -665,13 +634,13 @@ async def test_sensor_analytics_workflow(
     analytics_params = {
         "field_id": "field-test-123",
         "sensor_type": "soil_moisture",
-        "period": "last_7_days"
+        "period": "last_7_days",
     }
 
     response = await http_client.get(
         f"{iot_gateway_url}/v1/analytics/sensors",
         params=analytics_params,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     if response.status_code == 200:

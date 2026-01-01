@@ -36,11 +36,13 @@ class EventConsumer:
 
     def on(self, event_class: Type[BaseEvent]):
         """Decorator to register an event handler"""
+
         def decorator(handler: Callable):
             event_type = event_class.EVENT_TYPE
             self._handlers[event_type] = (event_class, handler)
             logger.info(f"Registered handler for {event_type}")
             return handler
+
         return decorator
 
     def register(self, event_type: str, handler: Callable):

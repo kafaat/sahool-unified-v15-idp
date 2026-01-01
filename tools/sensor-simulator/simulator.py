@@ -100,6 +100,7 @@ SENSORS = {
 # Sensor Simulator Class
 # =============================================================================
 
+
 class SensorSimulator:
     """Simulates IoT sensors sending data to MQTT broker"""
 
@@ -128,7 +129,9 @@ class SensorSimulator:
     def connect(self) -> bool:
         """Connect to MQTT broker"""
         try:
-            self.client = mqtt.Client(client_id=f"simulator-{self.field_id}-{int(time.time())}")
+            self.client = mqtt.Client(
+                client_id=f"simulator-{self.field_id}-{int(time.time())}"
+            )
 
             def on_connect(client, userdata, flags, rc):
                 if rc == 0:
@@ -263,7 +266,9 @@ class SensorSimulator:
 
         self.running = True
         print(f"\n🚜 Starting sensor simulation for field: {self.field_id}")
-        print(f"📡 Publishing to: sahool/{self.tenant}/farm/{self.farm_id}/field/{self.field_id}/sensor/*")
+        print(
+            f"📡 Publishing to: sahool/{self.tenant}/farm/{self.farm_id}/field/{self.field_id}/sensor/*"
+        )
         print(f"⏱️  Interval: {interval} seconds")
         print("-" * 60)
 
@@ -296,9 +301,11 @@ class SensorSimulator:
         finally:
             self.disconnect()
 
+
 # =============================================================================
 # Multi-Field Simulator
 # =============================================================================
+
 
 class MultiFarmSimulator:
     """Simulate multiple fields at once"""
@@ -333,50 +340,59 @@ class MultiFarmSimulator:
             for sim in self.simulators:
                 sim.disconnect()
 
+
 # =============================================================================
 # CLI
 # =============================================================================
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="SAHOOL IoT Sensor Simulator - محاكي حساسات إنترنت الأشياء"
     )
     parser.add_argument(
-        "--broker", "-b",
+        "--broker",
+        "-b",
         default=DEFAULT_BROKER,
-        help=f"MQTT broker address (default: {DEFAULT_BROKER})"
+        help=f"MQTT broker address (default: {DEFAULT_BROKER})",
     )
     parser.add_argument(
-        "--port", "-p",
+        "--port",
+        "-p",
         type=int,
         default=DEFAULT_PORT,
-        help=f"MQTT broker port (default: {DEFAULT_PORT})"
+        help=f"MQTT broker port (default: {DEFAULT_PORT})",
     )
     parser.add_argument(
-        "--field", "-f",
+        "--field",
+        "-f",
         default=DEFAULT_FIELD_ID,
-        help=f"Field ID to simulate (default: {DEFAULT_FIELD_ID})"
+        help=f"Field ID to simulate (default: {DEFAULT_FIELD_ID})",
     )
     parser.add_argument(
-        "--interval", "-i",
+        "--interval",
+        "-i",
         type=int,
         default=DEFAULT_INTERVAL,
-        help=f"Publishing interval in seconds (default: {DEFAULT_INTERVAL})"
+        help=f"Publishing interval in seconds (default: {DEFAULT_INTERVAL})",
     )
     parser.add_argument(
-        "--multi", "-m",
+        "--multi",
+        "-m",
         nargs="+",
-        help="Simulate multiple fields (e.g., --multi field-1 field-2 field-3)"
+        help="Simulate multiple fields (e.g., --multi field-1 field-2 field-3)",
     )
 
     args = parser.parse_args()
 
-    print("""
+    print(
+        """
 ╔═══════════════════════════════════════════════════════════════════╗
 ║              SAHOOL IoT Sensor Simulator 🌾                       ║
 ║              محاكي حساسات إنترنت الأشياء                          ║
 ╚═══════════════════════════════════════════════════════════════════╝
-    """)
+    """
+    )
 
     if args.multi:
         simulator = MultiFarmSimulator(
@@ -392,6 +408,7 @@ def main():
         )
 
     simulator.run(interval=args.interval)
+
 
 if __name__ == "__main__":
     main()

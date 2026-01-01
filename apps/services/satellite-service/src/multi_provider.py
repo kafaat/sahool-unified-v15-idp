@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 # Data Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class SatelliteType(Enum):
     SENTINEL2 = "sentinel-2"
     LANDSAT8 = "landsat-8"
@@ -37,11 +38,12 @@ class SatelliteType(Enum):
 @dataclass
 class VegetationIndices:
     """Vegetation indices calculated from satellite bands"""
+
     ndvi: float  # Normalized Difference Vegetation Index
     ndwi: float  # Normalized Difference Water Index
-    evi: float   # Enhanced Vegetation Index
+    evi: float  # Enhanced Vegetation Index
     savi: float  # Soil Adjusted Vegetation Index
-    lai: float   # Leaf Area Index (estimated)
+    lai: float  # Leaf Area Index (estimated)
     ndmi: float  # Normalized Difference Moisture Index
     provider: str = ""
 
@@ -49,6 +51,7 @@ class VegetationIndices:
 @dataclass
 class SatelliteScene:
     """Satellite scene metadata"""
+
     scene_id: str
     satellite: SatelliteType
     acquisition_date: datetime
@@ -63,6 +66,7 @@ class SatelliteScene:
 @dataclass
 class SatelliteAnalysis:
     """Complete satellite analysis result"""
+
     field_id: str
     analysis_date: datetime
     satellite: SatelliteType
@@ -81,6 +85,7 @@ class SatelliteAnalysis:
 @dataclass
 class SatelliteResult:
     """Result wrapper with fallback info"""
+
     data: Any
     provider: str
     failed_providers: List[str] = field(default_factory=list)
@@ -97,6 +102,7 @@ class SatelliteResult:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Base Provider Interface
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class SatelliteProvider(ABC):
     """Base class for satellite data providers"""
@@ -157,6 +163,7 @@ class SatelliteProvider(ABC):
 # Sentinel Hub Provider (ESA Copernicus)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class SentinelHubProvider(SatelliteProvider):
     """
     Sentinel Hub API - ESA Copernicus Data
@@ -185,7 +192,11 @@ class SentinelHubProvider(SatelliteProvider):
 
     async def _get_token(self) -> Optional[str]:
         """Get OAuth2 token"""
-        if self._token and self._token_expires and datetime.utcnow() < self._token_expires:
+        if (
+            self._token
+            and self._token_expires
+            and datetime.utcnow() < self._token_expires
+        ):
             return self._token
 
         if not self.is_configured:
@@ -199,12 +210,14 @@ class SentinelHubProvider(SatelliteProvider):
                     "grant_type": "client_credentials",
                     "client_id": self.client_id,
                     "client_secret": self.client_secret,
-                }
+                },
             )
             response.raise_for_status()
             data = response.json()
             self._token = data["access_token"]
-            self._token_expires = datetime.utcnow() + timedelta(seconds=data.get("expires_in", 3600) - 60)
+            self._token_expires = datetime.utcnow() + timedelta(
+                seconds=data.get("expires_in", 3600) - 60
+            )
             return self._token
         except Exception as e:
             logger.error(f"Sentinel Hub auth failed: {e}")
@@ -240,8 +253,8 @@ class SentinelHubProvider(SatelliteProvider):
                     "datetime": f"{start_date.isoformat()}/{end_date.isoformat()}",
                     "collections": [collection],
                     "limit": 10,
-                    "filter": f"eo:cloud_cover < {max_cloud_cover}"
-                }
+                    "filter": f"eo:cloud_cover < {max_cloud_cover}",
+                },
             )
             response.raise_for_status()
             data = response.json()
@@ -249,15 +262,19 @@ class SentinelHubProvider(SatelliteProvider):
             scenes = []
             for feature in data.get("features", []):
                 props = feature.get("properties", {})
-                scenes.append(SatelliteScene(
-                    scene_id=feature.get("id", ""),
-                    satellite=satellite or SatelliteType.SENTINEL2,
-                    acquisition_date=datetime.fromisoformat(props.get("datetime", "").replace("Z", "")),
-                    cloud_cover_pct=props.get("eo:cloud_cover", 0),
-                    sun_elevation=props.get("view:sun_elevation", 45),
-                    bbox=tuple(feature.get("bbox", [0, 0, 0, 0])),
-                    provider=self.name
-                ))
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=feature.get("id", ""),
+                        satellite=satellite or SatelliteType.SENTINEL2,
+                        acquisition_date=datetime.fromisoformat(
+                            props.get("datetime", "").replace("Z", "")
+                        ),
+                        cloud_cover_pct=props.get("eo:cloud_cover", 0),
+                        sun_elevation=props.get("view:sun_elevation", 45),
+                        bbox=tuple(feature.get("bbox", [0, 0, 0, 0])),
+                        provider=self.name,
+                    )
+                )
             return scenes
 
         except Exception as e:
@@ -303,38 +320,52 @@ class SentinelHubProvider(SatelliteProvider):
                 self.PROCESS_URL,
                 headers={
                     "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 json={
                     "input": {
                         "bounds": {
-                            "bbox": [lon - buffer, lat - buffer, lon + buffer, lat + buffer]
+                            "bbox": [
+                                lon - buffer,
+                                lat - buffer,
+                                lon + buffer,
+                                lat + buffer,
+                            ]
                         },
-                        "data": [{
-                            "type": "sentinel-2-l2a",
-                            "dataFilter": {
-                                "timeRange": {
-                                    "from": acquisition_date.isoformat() + "T00:00:00Z",
-                                    "to": acquisition_date.isoformat() + "T23:59:59Z"
+                        "data": [
+                            {
+                                "type": "sentinel-2-l2a",
+                                "dataFilter": {
+                                    "timeRange": {
+                                        "from": acquisition_date.isoformat()
+                                        + "T00:00:00Z",
+                                        "to": acquisition_date.isoformat()
+                                        + "T23:59:59Z",
+                                    },
+                                    "maxCloudCoverage": 50,
                                 },
-                                "maxCloudCoverage": 50
                             }
-                        }]
+                        ],
                     },
                     "output": {
                         "width": 1,
                         "height": 1,
-                        "responses": [{"format": {"type": "application/json"}}]
+                        "responses": [{"format": {"type": "application/json"}}],
                     },
-                    "evalscript": evalscript
-                }
+                    "evalscript": evalscript,
+                },
             )
             response.raise_for_status()
             # Parse response and extract values
             # This is simplified - actual response parsing depends on format
             return VegetationIndices(
-                ndvi=0.5, ndwi=0.1, evi=0.4, savi=0.45, lai=2.5, ndmi=0.15,
-                provider=self.name
+                ndvi=0.5,
+                ndwi=0.1,
+                evi=0.4,
+                savi=0.45,
+                lai=2.5,
+                ndmi=0.15,
+                provider=self.name,
             )
         except Exception as e:
             logger.error(f"Sentinel Hub indices failed: {e}")
@@ -344,6 +375,7 @@ class SentinelHubProvider(SatelliteProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 # NASA Earthdata Provider (MODIS/VIIRS)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class NASAEarthdataProvider(SatelliteProvider):
     """
@@ -389,24 +421,28 @@ class NASAEarthdataProvider(SatelliteProvider):
                     "point": f"{lon},{lat}",
                     "temporal": f"{start_date.isoformat()},{end_date.isoformat()}",
                     "page_size": 10,
-                }
+                },
             )
             response.raise_for_status()
             data = response.json()
 
             scenes = []
             for entry in data.get("feed", {}).get("entry", []):
-                scenes.append(SatelliteScene(
-                    scene_id=entry.get("id", ""),
-                    satellite=SatelliteType.MODIS,
-                    acquisition_date=datetime.fromisoformat(
-                        entry.get("time_start", datetime.utcnow().isoformat()).replace("Z", "")
-                    ),
-                    cloud_cover_pct=0,  # MODIS products are composites
-                    sun_elevation=45,
-                    bbox=(lon - 0.1, lat - 0.1, lon + 0.1, lat + 0.1),
-                    provider=self.name
-                ))
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=entry.get("id", ""),
+                        satellite=SatelliteType.MODIS,
+                        acquisition_date=datetime.fromisoformat(
+                            entry.get(
+                                "time_start", datetime.utcnow().isoformat()
+                            ).replace("Z", "")
+                        ),
+                        cloud_cover_pct=0,  # MODIS products are composites
+                        sun_elevation=45,
+                        bbox=(lon - 0.1, lat - 0.1, lon + 0.1, lat + 0.1),
+                        provider=self.name,
+                    )
+                )
             return scenes
 
         except Exception as e:
@@ -433,6 +469,7 @@ class NASAEarthdataProvider(SatelliteProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Copernicus STAC Provider (Free, Limited Auth)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class CopernicusSTACProvider(SatelliteProvider):
     """
@@ -475,10 +512,8 @@ class CopernicusSTACProvider(SatelliteProvider):
                     "datetime": f"{start_date.isoformat()}T00:00:00Z/{end_date.isoformat()}T23:59:59Z",
                     "collections": ["SENTINEL-2"],
                     "limit": 10,
-                    "query": {
-                        "eo:cloud_cover": {"lt": max_cloud_cover}
-                    }
-                }
+                    "query": {"eo:cloud_cover": {"lt": max_cloud_cover}},
+                },
             )
             response.raise_for_status()
             data = response.json()
@@ -489,16 +524,20 @@ class CopernicusSTACProvider(SatelliteProvider):
                 dt_str = props.get("datetime", datetime.utcnow().isoformat())
                 if dt_str:
                     dt_str = dt_str.replace("Z", "").split(".")[0]
-                scenes.append(SatelliteScene(
-                    scene_id=feature.get("id", ""),
-                    satellite=SatelliteType.SENTINEL2,
-                    acquisition_date=datetime.fromisoformat(dt_str),
-                    cloud_cover_pct=props.get("eo:cloud_cover", 0),
-                    sun_elevation=props.get("view:sun_elevation", 45),
-                    bbox=tuple(feature.get("bbox", [0, 0, 0, 0])),
-                    thumbnail_url=feature.get("assets", {}).get("thumbnail", {}).get("href"),
-                    provider=self.name
-                ))
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=feature.get("id", ""),
+                        satellite=SatelliteType.SENTINEL2,
+                        acquisition_date=datetime.fromisoformat(dt_str),
+                        cloud_cover_pct=props.get("eo:cloud_cover", 0),
+                        sun_elevation=props.get("view:sun_elevation", 45),
+                        bbox=tuple(feature.get("bbox", [0, 0, 0, 0])),
+                        thumbnail_url=feature.get("assets", {})
+                        .get("thumbnail", {})
+                        .get("href"),
+                        provider=self.name,
+                    )
+                )
             return scenes
 
         except Exception as e:
@@ -520,6 +559,7 @@ class CopernicusSTACProvider(SatelliteProvider):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Simulated Provider (Fallback)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class SimulatedProvider(SatelliteProvider):
     """
@@ -553,15 +593,17 @@ class SimulatedProvider(SatelliteProvider):
         current = start_date
         while current <= end_date:
             if random.random() > 0.3:  # 70% chance of scene
-                scenes.append(SatelliteScene(
-                    scene_id=f"SIM_{current.isoformat()}_{random.randint(1000, 9999)}",
-                    satellite=satellite or SatelliteType.SENTINEL2,
-                    acquisition_date=datetime.combine(current, datetime.min.time()),
-                    cloud_cover_pct=random.uniform(0, max_cloud_cover),
-                    sun_elevation=random.uniform(30, 70),
-                    bbox=(lon - 0.01, lat - 0.01, lon + 0.01, lat + 0.01),
-                    provider=self.name
-                ))
+                scenes.append(
+                    SatelliteScene(
+                        scene_id=f"SIM_{current.isoformat()}_{random.randint(1000, 9999)}",
+                        satellite=satellite or SatelliteType.SENTINEL2,
+                        acquisition_date=datetime.combine(current, datetime.min.time()),
+                        cloud_cover_pct=random.uniform(0, max_cloud_cover),
+                        sun_elevation=random.uniform(30, 70),
+                        bbox=(lon - 0.01, lat - 0.01, lon + 0.01, lat + 0.01),
+                        provider=self.name,
+                    )
+                )
             current += timedelta(days=5)  # Sentinel-2 revisit
         return scenes
 
@@ -589,13 +631,14 @@ class SimulatedProvider(SatelliteProvider):
             savi=round(base_ndvi * 0.9, 4),
             lai=round(base_ndvi * 5, 2),
             ndmi=round(random.uniform(-0.1, 0.3), 4),
-            provider=self.name
+            provider=self.name,
         )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Multi-Provider Satellite Service
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class MultiSatelliteService:
     """
@@ -660,7 +703,9 @@ class MultiSatelliteService:
         satellite: Optional[SatelliteType] = None,
     ) -> SatelliteResult:
         """Search for satellite scenes with automatic fallback"""
-        cache_key = f"search_{lat:.2f}_{lon:.2f}_{start_date}_{end_date}_{max_cloud_cover}"
+        cache_key = (
+            f"search_{lat:.2f}_{lon:.2f}_{start_date}_{end_date}_{max_cloud_cover}"
+        )
 
         cached = self._get_cached(cache_key)
         if cached:
@@ -682,7 +727,7 @@ class MultiSatelliteService:
                         data=scenes,
                         provider=provider.name,
                         failed_providers=failed_providers,
-                        is_simulated=isinstance(provider, SimulatedProvider)
+                        is_simulated=isinstance(provider, SimulatedProvider),
                     )
             except Exception as e:
                 failed_providers.append(f"{provider.name}: {str(e)}")
@@ -692,7 +737,7 @@ class MultiSatelliteService:
             provider="none",
             failed_providers=failed_providers,
             error="All satellite providers failed",
-            error_ar="فشل جميع مزودي الأقمار الصناعية"
+            error_ar="فشل جميع مزودي الأقمار الصناعية",
         )
 
     async def get_indices(
@@ -724,7 +769,7 @@ class MultiSatelliteService:
                         data=indices,
                         provider=provider.name,
                         failed_providers=failed_providers,
-                        is_simulated=isinstance(provider, SimulatedProvider)
+                        is_simulated=isinstance(provider, SimulatedProvider),
                     )
             except Exception as e:
                 failed_providers.append(f"{provider.name}: {str(e)}")
@@ -734,7 +779,7 @@ class MultiSatelliteService:
             provider="none",
             failed_providers=failed_providers,
             error="All index providers failed",
-            error_ar="فشل جميع مزودي المؤشرات"
+            error_ar="فشل جميع مزودي المؤشرات",
         )
 
     async def analyze_field(
@@ -756,10 +801,14 @@ class MultiSatelliteService:
         indices = indices_result.data
 
         # Calculate health score and status
-        health_score, health_status, health_status_ar, anomalies = self._assess_health(indices)
+        health_score, health_status, health_status_ar, anomalies = self._assess_health(
+            indices
+        )
 
         # Generate recommendations
-        recommendations_ar, recommendations_en = self._generate_recommendations(anomalies)
+        recommendations_ar, recommendations_en = self._generate_recommendations(
+            anomalies
+        )
 
         analysis = SatelliteAnalysis(
             field_id=field_id,
@@ -773,17 +822,19 @@ class MultiSatelliteService:
             recommendations_ar=recommendations_ar,
             recommendations_en=recommendations_en,
             provider=indices_result.provider,
-            is_simulated=indices_result.is_simulated
+            is_simulated=indices_result.is_simulated,
         )
 
         return SatelliteResult(
             data=analysis,
             provider=indices_result.provider,
             failed_providers=indices_result.failed_providers,
-            is_simulated=indices_result.is_simulated
+            is_simulated=indices_result.is_simulated,
         )
 
-    def _assess_health(self, indices: VegetationIndices) -> Tuple[float, str, str, List[str]]:
+    def _assess_health(
+        self, indices: VegetationIndices
+    ) -> Tuple[float, str, str, List[str]]:
         """Assess vegetation health from indices"""
         anomalies = []
         score = 50.0
@@ -840,7 +891,9 @@ class MultiSatelliteService:
 
         return score, status, status_ar, anomalies
 
-    def _generate_recommendations(self, anomalies: List[str]) -> Tuple[List[str], List[str]]:
+    def _generate_recommendations(
+        self, anomalies: List[str]
+    ) -> Tuple[List[str], List[str]]:
         """Generate bilingual recommendations"""
         ar, en = [], []
 
@@ -878,7 +931,7 @@ class MultiSatelliteService:
                 "name_ar": p.name_ar,
                 "configured": p.is_configured,
                 "satellites": [s.value for s in p.supported_satellites],
-                "type": p.__class__.__name__
+                "type": p.__class__.__name__,
             }
             for p in self.providers
         ]

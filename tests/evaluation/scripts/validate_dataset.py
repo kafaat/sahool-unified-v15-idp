@@ -207,9 +207,7 @@ class DatasetValidator:
 
         max_latency = criteria["max_latency_ms"]
         if max_latency <= 0:
-            self.errors.append(
-                f"Test case {idx}: max_latency_ms must be positive"
-            )
+            self.errors.append(f"Test case {idx}: max_latency_ms must be positive")
             return False
 
         if max_latency > 30000:

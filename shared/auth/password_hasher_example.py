@@ -16,6 +16,7 @@ the new Argon2id password hasher into your application.
 
 from shared.auth.password_hasher import hash_password, verify_password
 
+
 def basic_usage_example():
     """Basic password hashing and verification"""
 
@@ -43,18 +44,14 @@ from datetime import datetime
 from typing import Optional
 from shared.auth.password_hasher import hash_password
 
+
 class UserRegistrationService:
     """Service for registering new users"""
 
     def __init__(self, db_session):
         self.db = db_session
 
-    async def register_user(
-        self,
-        email: str,
-        password: str,
-        name: str
-    ) -> dict:
+    async def register_user(self, email: str, password: str, name: str) -> dict:
         """
         Register a new user with Argon2id password
 
@@ -75,13 +72,13 @@ class UserRegistrationService:
 
         # Create user record
         user = {
-            'email': email,
-            'name': name,
-            'password_hash': password_hash,
-            'password_algorithm': 'argon2id',
-            'password_needs_migration': False,
-            'created_at': datetime.utcnow(),
-            'is_active': True
+            "email": email,
+            "name": name,
+            "password_hash": password_hash,
+            "password_algorithm": "argon2id",
+            "password_needs_migration": False,
+            "created_at": datetime.utcnow(),
+            "is_active": True,
         }
 
         # Save to database (pseudo-code)
@@ -97,8 +94,9 @@ class UserRegistrationService:
 
 from shared.auth.password_migration_helper import (
     PasswordMigrationHelper,
-    UserRepository
+    UserRepository,
 )
+
 
 class SQLAlchemyUserRepository:
     """Example repository implementation with SQLAlchemy"""
@@ -113,32 +111,43 @@ class SQLAlchemyUserRepository:
 
         if user:
             return {
-                'id': str(user.id),
-                'email': user.email,
-                'password_hash': user.password_hash,
-                'password_algorithm': getattr(user, 'password_algorithm', 'bcrypt'),
-                'password_needs_migration': getattr(user, 'password_needs_migration', True)
+                "id": str(user.id),
+                "email": user.email,
+                "password_hash": user.password_hash,
+                "password_algorithm": getattr(user, "password_algorithm", "bcrypt"),
+                "password_needs_migration": getattr(
+                    user, "password_needs_migration", True
+                ),
             }
         return None
 
     def update_password_hash(self, user_id: str, password_hash: str) -> bool:
         """Update user's password hash"""
         # Pseudo-code
-        result = self.db.query(User).filter(User.id == user_id).update({
-            'password_hash': password_hash,
-            'password_algorithm': 'argon2id',
-            'password_needs_migration': False,
-            'updated_at': datetime.utcnow()
-        })
+        result = (
+            self.db.query(User)
+            .filter(User.id == user_id)
+            .update(
+                {
+                    "password_hash": password_hash,
+                    "password_algorithm": "argon2id",
+                    "password_needs_migration": False,
+                    "updated_at": datetime.utcnow(),
+                }
+            )
+        )
         self.db.commit()
         return result > 0
 
     def mark_password_migrated(self, user_id: str) -> bool:
         """Mark user's password as migrated"""
-        result = self.db.query(User).filter(User.id == user_id).update({
-            'password_needs_migration': False,
-            'updated_at': datetime.utcnow()
-        })
+        result = (
+            self.db.query(User)
+            .filter(User.id == user_id)
+            .update(
+                {"password_needs_migration": False, "updated_at": datetime.utcnow()}
+            )
+        )
         self.db.commit()
         return result > 0
 
@@ -167,10 +176,7 @@ class LoginService:
             ValueError: If credentials are invalid
         """
         # Authenticate and check for migration
-        result = await self.migration_helper.authenticate_and_migrate(
-            email,
-            password
-        )
+        result = await self.migration_helper.authenticate_and_migrate(email, password)
 
         if not result.success:
             raise ValueError(result.error_message or "Invalid credentials")
@@ -178,8 +184,7 @@ class LoginService:
         # If password needs migration, update it
         if result.needs_password_update and result.new_password_hash:
             await self.migration_helper.complete_migration(
-                result.user_id,
-                result.new_password_hash
+                result.user_id, result.new_password_hash
             )
             print(f"✓ Password migrated to Argon2id for user {result.user_id}")
 
@@ -187,9 +192,9 @@ class LoginService:
         access_token = self.jwt_service.create_token(result.user_id)
 
         return {
-            'access_token': access_token,
-            'user_id': result.user_id,
-            'token_type': 'Bearer'
+            "access_token": access_token,
+            "user_id": result.user_id,
+            "token_type": "Bearer",
         }
 
 
@@ -340,6 +345,7 @@ async def change_password(
 # مثال 5: سكريبت ترحيل دفعي
 # ========================================
 
+
 def run_batch_migration():
     """
     Example of running batch migration
@@ -348,11 +354,12 @@ def run_batch_migration():
     Actual rehashing happens on next login.
     """
     import sys
-    sys.path.insert(0, '/home/user/sahool-unified-v15-idp')
+
+    sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
 
     from database.migrations.migrate_passwords_to_argon2 import (
         get_database_connection,
-        PasswordMigrator
+        PasswordMigrator,
     )
 
     # Get database connection
@@ -363,7 +370,7 @@ def run_batch_migration():
         migrator = PasswordMigrator(
             conn,
             dry_run=False,  # Set to True for testing
-            force=False      # Set to True to rehash even Argon2id passwords
+            force=False,  # Set to True to rehash even Argon2id passwords
         )
 
         # Run migration
@@ -381,6 +388,7 @@ def run_batch_migration():
 # مثال 6: مراقبة تقدم الترحيل
 # ========================================
 
+
 def monitor_migration_progress(db_connection):
     """Monitor password migration progress"""
 
@@ -396,19 +404,23 @@ def monitor_migration_progress(db_connection):
 
     for row in stats:
         algorithm, count, needs_migration, percentage = row
-        print(f"{algorithm:20} | Total: {count:5} | Pending: {needs_migration:5} | {percentage}%")
+        print(
+            f"{algorithm:20} | Total: {count:5} | Pending: {needs_migration:5} | {percentage}%"
+        )
 
     print("=" * 70)
 
     # Get total progress
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT
             COUNT(*) as total_users,
             SUM(CASE WHEN password_needs_migration THEN 1 ELSE 0 END) as pending,
             ROUND(100.0 * SUM(CASE WHEN password_algorithm = 'argon2id' THEN 1 ELSE 0 END) / COUNT(*), 2) as argon2_percentage
         FROM users
         WHERE password_hash IS NOT NULL
-    """)
+    """
+    )
 
     total, pending, argon2_pct = cursor.fetchone()
 
@@ -425,10 +437,15 @@ def monitor_migration_progress(db_connection):
 # مثال 7: اختبار خوارزميات كلمات المرور
 # ========================================
 
+
 def test_all_algorithms():
     """Test hashing and verification for all supported algorithms"""
 
-    from shared.auth.password_hasher import PasswordHasher, ARGON2_AVAILABLE, BCRYPT_AVAILABLE
+    from shared.auth.password_hasher import (
+        PasswordHasher,
+        ARGON2_AVAILABLE,
+        BCRYPT_AVAILABLE,
+    )
     import hashlib
     import secrets
 
@@ -454,7 +471,10 @@ def test_all_algorithms():
     if BCRYPT_AVAILABLE:
         print("\n2. Testing bcrypt (legacy)...")
         import bcrypt
-        bcrypt_hash = bcrypt.hashpw(test_password.encode('utf-8'), bcrypt.gensalt(rounds=12)).decode('utf-8')
+
+        bcrypt_hash = bcrypt.hashpw(
+            test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
+        ).decode("utf-8")
         is_valid, needs_rehash = hasher.verify_password(test_password, bcrypt_hash)
         print(f"   Hash: {bcrypt_hash[:50]}...")
         print(f"   Verification: {'✓ PASS' if is_valid else '✗ FAIL'}")
@@ -465,7 +485,9 @@ def test_all_algorithms():
     # Test PBKDF2 compatibility
     print("\n3. Testing PBKDF2 (legacy)...")
     salt = secrets.token_bytes(32)
-    hashed = hashlib.pbkdf2_hmac('sha256', test_password.encode('utf-8'), salt, 100_000, 32)
+    hashed = hashlib.pbkdf2_hmac(
+        "sha256", test_password.encode("utf-8"), salt, 100_000, 32
+    )
     pbkdf2_hash = f"{salt.hex()}${hashed.hex()}"
     is_valid, needs_rehash = hasher.verify_password(test_password, pbkdf2_hash)
     print(f"   Hash: {pbkdf2_hash[:50]}...")
@@ -480,7 +502,7 @@ def test_all_algorithms():
 # الدالة الرئيسية
 # ========================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("\n" + "=" * 70)
     print("SAHOOL Password Hasher - Integration Examples")
     print("=" * 70)

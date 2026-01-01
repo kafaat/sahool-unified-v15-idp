@@ -47,7 +47,7 @@ class DataExporter:
         self,
         field_id: str,
         analysis_data: Dict,
-        format: ExportFormat = ExportFormat.GEOJSON
+        format: ExportFormat = ExportFormat.GEOJSON,
     ) -> ExportResult:
         """
         Export field analysis (NDVI, health, etc.) in specified format.
@@ -80,15 +80,17 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode('utf-8')) if isinstance(data, str) else len(data),
-            generated_at=datetime.now()
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
+            generated_at=datetime.now(),
         )
 
     def export_timeseries(
         self,
         field_id: str,
         timeseries_data: List[Dict],
-        format: ExportFormat = ExportFormat.CSV
+        format: ExportFormat = ExportFormat.CSV,
     ) -> ExportResult:
         """
         Export time series data (NDVI over time).
@@ -104,11 +106,15 @@ class DataExporter:
         if format == ExportFormat.CSV:
             data = self._to_csv(timeseries_data)
         elif format == ExportFormat.JSON:
-            data = json.dumps({
-                "field_id": field_id,
-                "timeseries": timeseries_data,
-                "count": len(timeseries_data)
-            }, indent=2, default=str)
+            data = json.dumps(
+                {
+                    "field_id": field_id,
+                    "timeseries": timeseries_data,
+                    "count": len(timeseries_data),
+                },
+                indent=2,
+                default=str,
+            )
         elif format == ExportFormat.GEOJSON:
             # Create a FeatureCollection with time series points
             features = []
@@ -118,10 +124,13 @@ class DataExporter:
                         "type": "Feature",
                         "geometry": {
                             "type": "Point",
-                            "coordinates": [point["longitude"], point["latitude"]]
+                            "coordinates": [point["longitude"], point["latitude"]],
                         },
-                        "properties": {k: v for k, v in point.items()
-                                     if k not in ["latitude", "longitude"]}
+                        "properties": {
+                            k: v
+                            for k, v in point.items()
+                            if k not in ["latitude", "longitude"]
+                        },
                     }
                     features.append(feature)
 
@@ -131,8 +140,8 @@ class DataExporter:
                 "properties": {
                     "field_id": field_id,
                     "count": len(features),
-                    "generated_at": datetime.now().isoformat()
-                }
+                    "generated_at": datetime.now().isoformat(),
+                },
             }
             data = json.dumps(geojson, indent=2)
         else:
@@ -145,14 +154,14 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode('utf-8')) if isinstance(data, str) else len(data),
-            generated_at=datetime.now()
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
+            generated_at=datetime.now(),
         )
 
     def export_boundaries(
-        self,
-        boundaries: List[Dict],
-        format: ExportFormat = ExportFormat.GEOJSON
+        self, boundaries: List[Dict], format: ExportFormat = ExportFormat.GEOJSON
     ) -> ExportResult:
         """
         Export field boundaries as GeoJSON or KML.
@@ -169,14 +178,18 @@ class DataExporter:
             for boundary in boundaries:
                 feature = {
                     "type": "Feature",
-                    "geometry": boundary.get("geometry", {
-                        "type": "Polygon",
-                        "coordinates": boundary.get("coordinates", [])
-                    }),
+                    "geometry": boundary.get(
+                        "geometry",
+                        {
+                            "type": "Polygon",
+                            "coordinates": boundary.get("coordinates", []),
+                        },
+                    ),
                     "properties": {
-                        k: v for k, v in boundary.items()
+                        k: v
+                        for k, v in boundary.items()
                         if k not in ["geometry", "coordinates"]
-                    }
+                    },
                 }
                 features.append(feature)
 
@@ -185,8 +198,8 @@ class DataExporter:
                 "features": features,
                 "properties": {
                     "count": len(features),
-                    "generated_at": datetime.now().isoformat()
-                }
+                    "generated_at": datetime.now().isoformat(),
+                },
             }
             data = json.dumps(geojson, indent=2)
 
@@ -194,11 +207,15 @@ class DataExporter:
             data = self._boundaries_to_kml(boundaries)
 
         elif format == ExportFormat.JSON:
-            data = json.dumps({
-                "boundaries": boundaries,
-                "count": len(boundaries),
-                "generated_at": datetime.now().isoformat()
-            }, indent=2, default=str)
+            data = json.dumps(
+                {
+                    "boundaries": boundaries,
+                    "count": len(boundaries),
+                    "generated_at": datetime.now().isoformat(),
+                },
+                indent=2,
+                default=str,
+            )
         else:
             raise ValueError(f"Format {format} not supported for boundaries")
 
@@ -209,14 +226,14 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode('utf-8')) if isinstance(data, str) else len(data),
-            generated_at=datetime.now()
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
+            generated_at=datetime.now(),
         )
 
     def export_yield_prediction(
-        self,
-        prediction_data: Dict,
-        format: ExportFormat = ExportFormat.JSON
+        self, prediction_data: Dict, format: ExportFormat = ExportFormat.JSON
     ) -> ExportResult:
         """
         Export yield prediction results.
@@ -248,14 +265,14 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode('utf-8')) if isinstance(data, str) else len(data),
-            generated_at=datetime.now()
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
+            generated_at=datetime.now(),
         )
 
     def export_changes_report(
-        self,
-        changes: List[Dict],
-        format: ExportFormat = ExportFormat.CSV
+        self, changes: List[Dict], format: ExportFormat = ExportFormat.CSV
     ) -> ExportResult:
         """
         Export change detection report.
@@ -270,11 +287,15 @@ class DataExporter:
         if format == ExportFormat.CSV:
             data = self._to_csv(changes)
         elif format == ExportFormat.JSON:
-            data = json.dumps({
-                "changes": changes,
-                "count": len(changes),
-                "generated_at": datetime.now().isoformat()
-            }, indent=2, default=str)
+            data = json.dumps(
+                {
+                    "changes": changes,
+                    "count": len(changes),
+                    "generated_at": datetime.now().isoformat(),
+                },
+                indent=2,
+                default=str,
+            )
         elif format == ExportFormat.GEOJSON:
             features = []
             for change in changes:
@@ -283,10 +304,13 @@ class DataExporter:
                         "type": "Feature",
                         "geometry": {
                             "type": "Point",
-                            "coordinates": [change["longitude"], change["latitude"]]
+                            "coordinates": [change["longitude"], change["latitude"]],
                         },
-                        "properties": {k: v for k, v in change.items()
-                                     if k not in ["latitude", "longitude"]}
+                        "properties": {
+                            k: v
+                            for k, v in change.items()
+                            if k not in ["latitude", "longitude"]
+                        },
                     }
                     features.append(feature)
 
@@ -295,8 +319,8 @@ class DataExporter:
                 "features": features,
                 "properties": {
                     "count": len(features),
-                    "generated_at": datetime.now().isoformat()
-                }
+                    "generated_at": datetime.now().isoformat(),
+                },
             }
             data = json.dumps(geojson, indent=2)
         else:
@@ -309,8 +333,10 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode('utf-8')) if isinstance(data, str) else len(data),
-            generated_at=datetime.now()
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
+            generated_at=datetime.now(),
         )
 
     def _to_geojson(self, data: Dict, geometry_type: str = "Point") -> str:
@@ -335,28 +361,22 @@ class DataExporter:
             lon = lon or imagery.get("longitude")
 
         if geometry_type == "Point" and lat and lon:
-            geometry = {
-                "type": "Point",
-                "coordinates": [float(lon), float(lat)]
-            }
+            geometry = {"type": "Point", "coordinates": [float(lon), float(lat)]}
         elif geometry_type == "Polygon" and "coordinates" in data:
-            geometry = {
-                "type": "Polygon",
-                "coordinates": data["coordinates"]
-            }
+            geometry = {"type": "Polygon", "coordinates": data["coordinates"]}
         else:
             # Default to null geometry
             geometry = None
 
         # Create properties (exclude coordinate fields)
-        properties = {k: v for k, v in data.items()
-                     if k not in ["latitude", "longitude", "lat", "lon", "coordinates", "geometry"]}
-
-        feature = {
-            "type": "Feature",
-            "geometry": geometry,
-            "properties": properties
+        properties = {
+            k: v
+            for k, v in data.items()
+            if k
+            not in ["latitude", "longitude", "lat", "lon", "coordinates", "geometry"]
         }
+
+        feature = {"type": "Feature", "geometry": geometry, "properties": properties}
 
         return json.dumps(feature, indent=2, default=str)
 
@@ -414,29 +434,29 @@ class DataExporter:
             lon = lon or imagery.get("longitude")
 
         # Create KML structure
-        kml = Element('kml', xmlns="http://www.opengis.net/kml/2.2")
-        document = SubElement(kml, 'Document')
+        kml = Element("kml", xmlns="http://www.opengis.net/kml/2.2")
+        document = SubElement(kml, "Document")
 
-        doc_name = SubElement(document, 'name')
+        doc_name = SubElement(document, "name")
         doc_name.text = "SAHOOL Satellite Analysis"
 
-        placemark = SubElement(document, 'Placemark')
-        placemark_name = SubElement(placemark, 'name')
+        placemark = SubElement(document, "Placemark")
+        placemark_name = SubElement(placemark, "name")
         placemark_name.text = name
 
         # Add description with data
-        description = SubElement(placemark, 'description')
+        description = SubElement(placemark, "description")
         desc_text = self._format_kml_description(data)
         description.text = desc_text
 
         # Add point
         if lat and lon:
-            point = SubElement(placemark, 'Point')
-            coordinates = SubElement(point, 'coordinates')
+            point = SubElement(placemark, "Point")
+            coordinates = SubElement(point, "coordinates")
             coordinates.text = f"{lon},{lat},0"
 
         # Convert to pretty XML string
-        xml_string = tostring(kml, encoding='unicode')
+        xml_string = tostring(kml, encoding="unicode")
         dom = minidom.parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
@@ -450,28 +470,28 @@ class DataExporter:
         Returns:
             KML XML string
         """
-        kml = Element('kml', xmlns="http://www.opengis.net/kml/2.2")
-        document = SubElement(kml, 'Document')
+        kml = Element("kml", xmlns="http://www.opengis.net/kml/2.2")
+        document = SubElement(kml, "Document")
 
-        doc_name = SubElement(document, 'name')
+        doc_name = SubElement(document, "name")
         doc_name.text = "SAHOOL Field Boundaries"
 
         for idx, boundary in enumerate(boundaries):
-            placemark = SubElement(document, 'Placemark')
-            placemark_name = SubElement(placemark, 'name')
+            placemark = SubElement(document, "Placemark")
+            placemark_name = SubElement(placemark, "name")
             placemark_name.text = boundary.get("field_id", f"Field {idx + 1}")
 
             # Add description
-            description = SubElement(placemark, 'description')
+            description = SubElement(placemark, "description")
             description.text = self._format_kml_description(boundary)
 
             # Add polygon if coordinates exist
             coords = boundary.get("coordinates", [])
             if coords:
-                polygon = SubElement(placemark, 'Polygon')
-                outer = SubElement(polygon, 'outerBoundaryIs')
-                linear_ring = SubElement(outer, 'LinearRing')
-                coordinates = SubElement(linear_ring, 'coordinates')
+                polygon = SubElement(placemark, "Polygon")
+                outer = SubElement(polygon, "outerBoundaryIs")
+                linear_ring = SubElement(outer, "LinearRing")
+                coordinates = SubElement(linear_ring, "coordinates")
 
                 # Convert coordinates to KML format
                 coord_text = []
@@ -483,7 +503,7 @@ class DataExporter:
                 coordinates.text = " ".join(coord_text)
 
         # Convert to pretty XML string
-        xml_string = tostring(kml, encoding='unicode')
+        xml_string = tostring(kml, encoding="unicode")
         dom = minidom.parseString(xml_string)
         return dom.toprettyxml(indent="  ")
 
@@ -508,7 +528,7 @@ class DataExporter:
         lines.append("</table>]]>")
         return "".join(lines)
 
-    def _flatten_dict(self, d: Dict, parent_key: str = '', sep: str = '_') -> Dict:
+    def _flatten_dict(self, d: Dict, parent_key: str = "", sep: str = "_") -> Dict:
         """
         Flatten nested dictionary.
 
@@ -605,10 +625,7 @@ class DataExporter:
         return flat
 
     def generate_filename(
-        self,
-        prefix: str,
-        field_id: str,
-        format: ExportFormat
+        self, prefix: str, field_id: str, format: ExportFormat
     ) -> str:
         """
         Generate filename with timestamp.

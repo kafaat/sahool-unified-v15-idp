@@ -21,6 +21,7 @@ from typing import Dict, Any
 # Field Core CRUD Operations - عمليات الحقول
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 class TestFieldOperations:
@@ -31,7 +32,7 @@ class TestFieldOperations:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test creating a new field
@@ -45,7 +46,10 @@ class TestFieldOperations:
         response = await http_client.post(url, json=field_data, headers=auth_headers)
 
         # Assert - التحقق
-        assert response.status_code in (200, 201), f"Failed to create field: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to create field: {response.text}"
         data = response.json()
         assert data.get("name") == field_data["name"]
         assert data.get("crop_type") == field_data["crop_type"]
@@ -56,7 +60,7 @@ class TestFieldOperations:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test retrieving a field by ID
@@ -65,7 +69,9 @@ class TestFieldOperations:
         # Arrange - Create a field first
         field_data = field_factory.create()
         create_url = f"{service_urls['field_core']}/api/v1/fields"
-        create_response = await http_client.post(create_url, json=field_data, headers=auth_headers)
+        create_response = await http_client.post(
+            create_url, json=field_data, headers=auth_headers
+        )
 
         if create_response.status_code not in (200, 201):
             pytest.skip("Field creation failed, skipping get test")
@@ -87,7 +93,7 @@ class TestFieldOperations:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         field_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test updating a field
@@ -96,7 +102,9 @@ class TestFieldOperations:
         # Arrange - Create a field first
         field_data = field_factory.create()
         create_url = f"{service_urls['field_core']}/api/v1/fields"
-        create_response = await http_client.post(create_url, json=field_data, headers=auth_headers)
+        create_response = await http_client.post(
+            create_url, json=field_data, headers=auth_headers
+        )
 
         if create_response.status_code not in (200, 201):
             pytest.skip("Field creation failed, skipping update test")
@@ -107,16 +115,21 @@ class TestFieldOperations:
         # Act - Update the field
         update_data = {"crop_type": "corn", "area_hectares": 50.0}
         update_url = f"{service_urls['field_core']}/api/v1/fields/{field_id}"
-        response = await http_client.put(update_url, json=update_data, headers=auth_headers)
+        response = await http_client.put(
+            update_url, json=update_data, headers=auth_headers
+        )
 
         # Assert
-        assert response.status_code in (200, 204), f"Failed to update field: {response.text}"
+        assert response.status_code in (
+            200,
+            204,
+        ), f"Failed to update field: {response.text}"
 
     async def test_list_fields(
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test listing all fields
@@ -136,6 +149,7 @@ class TestFieldOperations:
 # Weather Forecast Tests - اختبارات توقعات الطقس
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 class TestWeatherForecast:
@@ -146,7 +160,7 @@ class TestWeatherForecast:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         weather_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting current weather for location
@@ -157,14 +171,12 @@ class TestWeatherForecast:
         url = f"{service_urls['weather_core']}/api/v1/weather/current"
 
         # Act
-        response = await http_client.get(
-            url,
-            params=location,
-            headers=auth_headers
-        )
+        response = await http_client.get(url, params=location, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get current weather: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get current weather: {response.text}"
         data = response.json()
         assert "temperature" in data or "temp" in data
         assert "humidity" in data
@@ -174,7 +186,7 @@ class TestWeatherForecast:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         weather_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting weather forecast for multiple days
@@ -185,11 +197,7 @@ class TestWeatherForecast:
         url = f"{service_urls['weather_core']}/api/v1/weather/forecast"
 
         # Act
-        response = await http_client.get(
-            url,
-            params=location,
-            headers=auth_headers
-        )
+        response = await http_client.get(url, params=location, headers=auth_headers)
 
         # Assert
         assert response.status_code == 200, f"Failed to get forecast: {response.text}"
@@ -201,6 +209,7 @@ class TestWeatherForecast:
 # Astronomical Calendar Tests - اختبارات التقويم الفلكي
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 class TestAstronomicalCalendar:
@@ -210,7 +219,7 @@ class TestAstronomicalCalendar:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting lunar phase information
@@ -223,7 +232,9 @@ class TestAstronomicalCalendar:
         response = await http_client.get(url, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get lunar phase: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get lunar phase: {response.text}"
         data = response.json()
         assert "phase" in data or "moon_phase" in data
 
@@ -231,7 +242,7 @@ class TestAstronomicalCalendar:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting agricultural planting calendar
@@ -245,7 +256,9 @@ class TestAstronomicalCalendar:
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get planting calendar: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get planting calendar: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -253,6 +266,7 @@ class TestAstronomicalCalendar:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Agro Advisor Tests - اختبارات المستشار الزراعي
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -263,7 +277,7 @@ class TestAgroAdvisor:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting crop recommendations
@@ -271,17 +285,16 @@ class TestAgroAdvisor:
         """
         # Arrange
         url = f"{service_urls['agro_advisor']}/api/v1/recommendations/crop"
-        query = {
-            "soil_type": "loamy",
-            "climate": "arid",
-            "season": "spring"
-        }
+        query = {"soil_type": "loamy", "climate": "arid", "season": "spring"}
 
         # Act
         response = await http_client.post(url, json=query, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201), f"Failed to get crop recommendations: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to get crop recommendations: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -289,7 +302,7 @@ class TestAgroAdvisor:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting fertilizer recommendations
@@ -302,20 +315,24 @@ class TestAgroAdvisor:
             "soil_nutrients": {
                 "nitrogen": "low",
                 "phosphorus": "medium",
-                "potassium": "high"
-            }
+                "potassium": "high",
+            },
         }
 
         # Act
         response = await http_client.post(url, json=query, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201), f"Failed to get fertilizer recommendations: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to get fertilizer recommendations: {response.text}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Notification Tests - اختبارات الإشعارات
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -327,7 +344,7 @@ class TestNotifications:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         notification_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test sending a notification
@@ -335,16 +352,21 @@ class TestNotifications:
         """
         # Arrange
         notification_data = notification_factory.create(
-            user_id="test-user-123",
-            notification_type="weather_alert"
+            user_id="test-user-123", notification_type="weather_alert"
         )
         url = f"{service_urls['notification_service']}/api/v1/notifications"
 
         # Act
-        response = await http_client.post(url, json=notification_data, headers=auth_headers)
+        response = await http_client.post(
+            url, json=notification_data, headers=auth_headers
+        )
 
         # Assert
-        assert response.status_code in (200, 201, 202), f"Failed to send notification: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+            202,
+        ), f"Failed to send notification: {response.text}"
         data = response.json()
         assert "id" in data or "notification_id" in data or "status" in data
 
@@ -352,7 +374,7 @@ class TestNotifications:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test retrieving user notifications
@@ -366,7 +388,9 @@ class TestNotifications:
         response = await http_client.get(url, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get notifications: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get notifications: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -375,23 +399,27 @@ class TestNotifications:
 # Service Health Tests - اختبارات صحة الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 class TestStarterPackageHealth:
     """Test health endpoints of starter package services - اختبار نقاط صحة خدمات الحزمة المبتدئة"""
 
-    @pytest.mark.parametrize("service_name", [
-        "field_core",
-        "weather_core",
-        "astronomical_calendar",
-        "agro_advisor",
-        "notification_service"
-    ])
+    @pytest.mark.parametrize(
+        "service_name",
+        [
+            "field_core",
+            "weather_core",
+            "astronomical_calendar",
+            "agro_advisor",
+            "notification_service",
+        ],
+    )
     async def test_service_health(
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        service_name: str
+        service_name: str,
     ):
         """
         Test service health endpoint
@@ -408,4 +436,7 @@ class TestStarterPackageHealth:
         response = await http_client.get(url, timeout=10)
 
         # Assert
-        assert response.status_code in (200, 204), f"Service {service_name} is not healthy: {response.text}"
+        assert response.status_code in (
+            200,
+            204,
+        ), f"Service {service_name} is not healthy: {response.text}"

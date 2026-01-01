@@ -31,9 +31,7 @@ def test_basic_token_creation():
     try:
         # Create a token
         token = create_service_token(
-            service_name="farm-service",
-            target_service="field-service",
-            ttl=300
+            service_name="farm-service", target_service="field-service", ttl=300
         )
         print(f"✓ Token created successfully")
         print(f"  Token (first 50 chars): {token[:50]}...")
@@ -67,7 +65,7 @@ def test_service_class():
             service_name="crop-service",
             target_service="weather-service",
             ttl=600,
-            extra_claims={"request_id": "test-123"}
+            extra_claims={"request_id": "test-123"},
         )
         print(f"✓ Token created with ServiceToken.create()")
 
@@ -94,9 +92,7 @@ def test_unauthorized_service():
     try:
         # This should fail - notification-service cannot call farm-service
         token = create_service_token(
-            service_name="notification-service",
-            target_service="farm-service",
-            ttl=300
+            service_name="notification-service", target_service="farm-service", ttl=300
         )
         print(f"✗ Test failed: Should have raised an exception")
         return False
@@ -113,9 +109,7 @@ def test_invalid_service():
     try:
         # This should fail - invalid service name
         token = create_service_token(
-            service_name="invalid-service",
-            target_service="field-service",
-            ttl=300
+            service_name="invalid-service", target_service="field-service", ttl=300
         )
         print(f"✗ Test failed: Should have raised an exception")
         return False
@@ -167,7 +161,13 @@ def test_get_allowed_targets():
     targets = get_allowed_targets("farm-service")
     print(f"farm-service can call: {targets}")
 
-    expected_targets = ["field-service", "crop-service", "equipment-service", "user-service", "tenant-service"]
+    expected_targets = [
+        "field-service",
+        "crop-service",
+        "equipment-service",
+        "user-service",
+        "tenant-service",
+    ]
     for target in expected_targets:
         if target not in targets:
             print(f"✗ Missing expected target: {target}")
@@ -213,9 +213,7 @@ def test_token_expiration():
     try:
         # Create token with 1 second TTL
         token = create_service_token(
-            service_name="farm-service",
-            target_service="field-service",
-            ttl=1
+            service_name="farm-service", target_service="field-service", ttl=1
         )
         print(f"✓ Token created with 1 second TTL")
 
@@ -243,9 +241,9 @@ def test_token_expiration():
 
 def run_all_tests():
     """Run all tests and report results"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Service-to-Service Authentication Test Suite")
-    print("="*60)
+    print("=" * 60)
 
     tests = [
         ("Basic Token Creation", test_basic_token_creation),
@@ -268,9 +266,9 @@ def run_all_tests():
             results.append((name, False))
 
     # Print summary
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("Test Summary")
-    print("="*60)
+    print("=" * 60)
 
     passed = sum(1 for _, result in results if result)
     total = len(results)

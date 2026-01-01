@@ -22,7 +22,12 @@ class EventPublisher:
         await publisher.publish(FieldCreatedEvent(...))
     """
 
-    def __init__(self, nats_client=None, service_name: str = "unknown", service_version: str = "0.0.0"):
+    def __init__(
+        self,
+        nats_client=None,
+        service_name: str = "unknown",
+        service_version: str = "0.0.0",
+    ):
         self._nats = nats_client
         self._service_name = service_name
         self._service_version = service_version
@@ -43,6 +48,7 @@ class EventPublisher:
 
         # Add source information
         from .base import EventSource
+
         event.source = EventSource(
             service=self._service_name,
             version=self._service_version,
@@ -58,7 +64,9 @@ class EventPublisher:
 
             if self._nats:
                 await self._nats.publish(subject, payload)
-                logger.info(f"Published event: {event.event_type} (id={event.event_id})")
+                logger.info(
+                    f"Published event: {event.event_type} (id={event.event_id})"
+                )
             else:
                 # Fallback: log event for debugging
                 logger.warning(f"No NATS client - logging event: {event}")

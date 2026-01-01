@@ -39,9 +39,7 @@ def parse_used_env() -> set[str]:
         return set()
 
     return set(
-        line.strip()
-        for line in USED_ENV_FILE.read_text().splitlines()
-        if line.strip()
+        line.strip() for line in USED_ENV_FILE.read_text().splitlines() if line.strip()
     )
 
 
@@ -64,7 +62,9 @@ def main() -> int:
     print(f"   Used in codebase: {len(used)}")
 
     if missing:
-        print(f"\n❌ ENV vars used in code but missing in .env.example ({len(missing)}):")
+        print(
+            f"\n❌ ENV vars used in code but missing in .env.example ({len(missing)}):"
+        )
         for key in sorted(missing):
             print(f"   - {key}")
 

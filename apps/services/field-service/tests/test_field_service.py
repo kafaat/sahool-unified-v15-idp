@@ -24,8 +24,16 @@ class TestFieldCreation:
             },
             "boundary": {
                 "type": "Polygon",
-                "coordinates": [[[46.67, 24.71], [46.68, 24.71], [46.68, 24.72], [46.67, 24.72], [46.67, 24.71]]]
-            }
+                "coordinates": [
+                    [
+                        [46.67, 24.71],
+                        [46.68, 24.71],
+                        [46.68, 24.72],
+                        [46.67, 24.72],
+                        [46.67, 24.71],
+                    ]
+                ],
+            },
         }
 
         field = self._create_field(field_data, tenant_id="tenant-123")
@@ -52,8 +60,8 @@ class TestFieldCreation:
             "area_hectares": 10,
             "boundary": {
                 "type": "Polygon",
-                "coordinates": [[[0, 0], [1, 1]]]  # Not enough points
-            }
+                "coordinates": [[[0, 0], [1, 1]]],  # Not enough points
+            },
         }
 
         with pytest.raises(ValueError, match="boundary"):
@@ -82,7 +90,9 @@ class TestFieldCreation:
         if boundary:
             coords = boundary.get("coordinates", [[]])[0]
             if len(coords) < 4:
-                raise ValueError("Invalid boundary: polygon must have at least 4 points")
+                raise ValueError(
+                    "Invalid boundary: polygon must have at least 4 points"
+                )
 
         return {
             "id": str(uuid4()),
@@ -105,7 +115,7 @@ class TestFieldBoundary:
         """Test calculating field centroid from boundary."""
         boundary = {
             "type": "Polygon",
-            "coordinates": [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]
+            "coordinates": [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]],
         }
 
         centroid = self._calculate_centroid(boundary)
@@ -118,7 +128,9 @@ class TestFieldBoundary:
         # Simple 10x10 square at equator
         boundary = {
             "type": "Polygon",
-            "coordinates": [[[0, 0], [0.0001, 0], [0.0001, 0.0001], [0, 0.0001], [0, 0]]]
+            "coordinates": [
+                [[0, 0], [0.0001, 0], [0.0001, 0.0001], [0, 0.0001], [0, 0]]
+            ],
         }
 
         # At equator, 0.0001 degrees ≈ 11 meters
@@ -131,7 +143,7 @@ class TestFieldBoundary:
         # First and last point must be the same
         boundary = {
             "type": "Polygon",
-            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]]  # Not closed
+            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]],  # Not closed
         }
 
         is_valid = self._is_valid_boundary(boundary)
@@ -142,7 +154,7 @@ class TestFieldBoundary:
         """Test valid boundary passes validation."""
         boundary = {
             "type": "Polygon",
-            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]  # Closed
+            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],  # Closed
         }
 
         is_valid = self._is_valid_boundary(boundary)
@@ -206,7 +218,7 @@ class TestFieldNDVIHistory:
                 {"date": "2024-01-15", "mean": 0.68, "min": 0.50, "max": 0.82},
                 {"date": "2024-02-01", "mean": 0.55, "min": 0.35, "max": 0.70},
                 {"date": "2024-02-15", "mean": 0.60, "min": 0.40, "max": 0.75},
-            ]
+            ],
         }
 
     def test_add_ndvi_record(self, field_with_history):
@@ -243,10 +255,7 @@ class TestFieldNDVIHistory:
     @staticmethod
     def _add_ndvi_record(field: dict, record: dict) -> dict:
         """Add NDVI record to field history."""
-        return {
-            **field,
-            "ndvi_history": [*field["ndvi_history"], record]
-        }
+        return {**field, "ndvi_history": [*field["ndvi_history"], record]}
 
     @staticmethod
     def _calculate_trend(history: list) -> dict:
@@ -290,7 +299,7 @@ class TestFieldCropRotation:
             "crop_type": "wheat",
             "crop_history": [
                 {"crop": "barley", "start": "2023-01-01", "end": "2023-06-01"}
-            ]
+            ],
         }
 
         updated = self._update_crop(field, "corn", "2024-03-01")
@@ -306,7 +315,7 @@ class TestFieldCropRotation:
             "crop_history": [
                 {"crop": "wheat", "start": "2023-01", "end": "2023-06"},
                 {"crop": "corn", "start": "2023-07", "end": "2023-12"},
-            ]
+            ],
         }
 
         history = self._get_crop_history(field)
@@ -321,11 +330,13 @@ class TestFieldCropRotation:
         crop_history = field.get("crop_history", [])
 
         if current_crop:
-            crop_history.append({
-                "crop": current_crop,
-                "start": crop_history[-1]["end"] if crop_history else None,
-                "end": start_date,
-            })
+            crop_history.append(
+                {
+                    "crop": current_crop,
+                    "start": crop_history[-1]["end"] if crop_history else None,
+                    "end": start_date,
+                }
+            )
 
         return {
             **field,

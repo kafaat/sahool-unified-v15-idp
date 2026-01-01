@@ -37,12 +37,17 @@ app = FastAPI(
 
 # CORS - Secure configuration
 import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.cors_config import CORS_SETTINGS
+
     app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
 except ImportError:
-    ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "https://sahool.io,https://admin.sahool.io,http://localhost:3000").split(",")
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,
@@ -77,6 +82,7 @@ class UserRole(str, Enum):
 
 class PostCreate(BaseModel):
     """Create a new post"""
+
     title: str = Field(..., min_length=1, max_length=300)
     title_ar: Optional[str] = None
     content: str = Field(..., min_length=1, max_length=5000)
@@ -90,6 +96,7 @@ class PostCreate(BaseModel):
 
 class CommentCreate(BaseModel):
     """Create a comment"""
+
     content: str = Field(..., min_length=1, max_length=2000)
     content_ar: Optional[str] = None
     parent_comment_id: Optional[str] = None
@@ -97,6 +104,7 @@ class CommentCreate(BaseModel):
 
 class User(BaseModel):
     """User profile"""
+
     user_id: str
     name: str
     name_ar: Optional[str] = None
@@ -113,6 +121,7 @@ class User(BaseModel):
 
 class Comment(BaseModel):
     """Comment model"""
+
     comment_id: str
     post_id: str
     author: User
@@ -128,6 +137,7 @@ class Comment(BaseModel):
 
 class Post(BaseModel):
     """Full post model"""
+
     post_id: str
     tenant_id: str
     author: User
@@ -152,6 +162,7 @@ class Post(BaseModel):
 
 class Story(BaseModel):
     """Story model (24hr content)"""
+
     story_id: str
     author: User
     media_url: str
@@ -404,7 +415,9 @@ async def health_check():
 async def list_posts(
     category: Optional[PostCategory] = Query(None, description="Filter by category"),
     author_id: Optional[str] = Query(None, description="Filter by author"),
-    has_expert_reply: Optional[bool] = Query(None, description="Filter by expert reply"),
+    has_expert_reply: Optional[bool] = Query(
+        None, description="Filter by expert reply"
+    ),
     search: Optional[str] = Query(None, description="Search in title and content"),
     sort_by: str = Query("recent", description="Sort: recent, popular, unanswered"),
     limit: int = Query(20, ge=1, le=50),
@@ -423,7 +436,8 @@ async def list_posts(
     if search:
         search_lower = search.lower()
         filtered = [
-            p for p in filtered
+            p
+            for p in filtered
             if search_lower in p.title.lower()
             or search_lower in p.content.lower()
             or (p.title_ar and search_lower in p.title_ar)
@@ -432,7 +446,9 @@ async def list_posts(
 
     # Sort
     if sort_by == "popular":
-        filtered.sort(key=lambda p: (p.likes_count + p.comments_count * 2), reverse=True)
+        filtered.sort(
+            key=lambda p: (p.likes_count + p.comments_count * 2), reverse=True
+        )
     elif sort_by == "unanswered":
         filtered = [p for p in filtered if not p.has_expert_reply]
         filtered.sort(key=lambda p: p.created_at, reverse=True)
@@ -441,7 +457,7 @@ async def list_posts(
         filtered.sort(key=lambda p: (not p.is_pinned, p.created_at), reverse=True)
 
     total = len(filtered)
-    paginated = filtered[offset:offset + limit]
+    paginated = filtered[offset : offset + limit]
 
     return {
         "posts": [p.model_dump() for p in paginated],
@@ -582,14 +598,12 @@ async def get_comments(
     comments = [c for c in comments_db.values() if c.post_id == post_id]
 
     # Sort: accepted answer first, then expert replies, then by date
-    comments.sort(key=lambda c: (
-        not c.is_accepted_answer,
-        not c.is_expert_reply,
-        c.created_at
-    ))
+    comments.sort(
+        key=lambda c: (not c.is_accepted_answer, not c.is_expert_reply, c.created_at)
+    )
 
     total = len(comments)
-    paginated = comments[offset:offset + limit]
+    paginated = comments[offset : offset + limit]
 
     return {
         "comments": [c.model_dump() for c in paginated],
@@ -668,7 +682,9 @@ async def accept_answer(
         raise HTTPException(status_code=404, detail="Post not found")
 
     if post.author.user_id != user_id:
-        raise HTTPException(status_code=403, detail="Only post author can accept answers")
+        raise HTTPException(
+            status_code=403, detail="Only post author can accept answers"
+        )
 
     # Unaccept other answers
     for c in comments_db.values():
@@ -719,10 +735,7 @@ async def get_stories(
 ):
     """Get active stories (not expired)"""
     now = datetime.utcnow()
-    active_stories = [
-        s for s in stories_db.values()
-        if s.expires_at > now
-    ]
+    active_stories = [s for s in stories_db.values() if s.expires_at > now]
     active_stories.sort(key=lambda s: s.created_at, reverse=True)
 
     return {
@@ -818,8 +831,10 @@ async def search(
 
     # Search posts
     matching_posts = [
-        p for p in posts_db.values()
-        if p.tenant_id == tenant_id and (
+        p
+        for p in posts_db.values()
+        if p.tenant_id == tenant_id
+        and (
             q_lower in p.title.lower()
             or q_lower in p.content.lower()
             or (p.title_ar and q_lower in p.title_ar)
@@ -829,9 +844,9 @@ async def search(
 
     # Search users
     matching_users = [
-        u for u in users_db.values()
-        if q_lower in u.name.lower()
-        or (u.name_ar and q_lower in u.name_ar)
+        u
+        for u in users_db.values()
+        if q_lower in u.name.lower() or (u.name_ar and q_lower in u.name_ar)
     ][:10]
 
     return {
@@ -847,4 +862,5 @@ async def search(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)

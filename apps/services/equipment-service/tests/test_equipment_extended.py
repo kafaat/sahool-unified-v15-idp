@@ -14,7 +14,7 @@ class TestEquipmentEnums:
     def test_equipment_type_enum(self):
         """Test EquipmentType enum"""
         from src.main import EquipmentType
-       
+
         assert EquipmentType.TRACTOR == "tractor"
         assert EquipmentType.PUMP == "pump"
         assert EquipmentType.DRONE == "drone"
@@ -24,7 +24,7 @@ class TestEquipmentEnums:
     def test_equipment_status_enum(self):
         """Test EquipmentStatus enum"""
         from src.main import EquipmentStatus
-       
+
         assert EquipmentStatus.OPERATIONAL == "operational"
         assert EquipmentStatus.MAINTENANCE == "maintenance"
         assert EquipmentStatus.INACTIVE == "inactive"
@@ -33,7 +33,7 @@ class TestEquipmentEnums:
     def test_maintenance_priority_enum(self):
         """Test MaintenancePriority enum"""
         from src.main import MaintenancePriority
-       
+
         assert MaintenancePriority.LOW == "low"
         assert MaintenancePriority.MEDIUM == "medium"
         assert MaintenancePriority.HIGH == "high"
@@ -42,7 +42,7 @@ class TestEquipmentEnums:
     def test_maintenance_type_enum(self):
         """Test MaintenanceType enum"""
         from src.main import MaintenanceType
-       
+
         assert MaintenanceType.OIL_CHANGE == "oil_change"
         assert MaintenanceType.FILTER_CHANGE == "filter_change"
         assert MaintenanceType.TIRE_CHECK == "tire_check"
@@ -55,7 +55,7 @@ class TestEquipmentDataModels:
     def test_equipment_create_model(self):
         """Test EquipmentCreate model"""
         from src.main import EquipmentCreate, EquipmentType
-       
+
         equipment = EquipmentCreate(
             name="John Deere Tractor",
             name_ar="جرار جون دير",
@@ -63,9 +63,9 @@ class TestEquipmentDataModels:
             brand="John Deere",
             model="5075E",
             serial_number="JD123456",
-            year_manufactured=2022
+            year_manufactured=2022,
         )
-       
+
         assert equipment.name == "John Deere Tractor"
         assert equipment.equipment_type == EquipmentType.TRACTOR
         assert equipment.brand == "John Deere"
@@ -74,12 +74,11 @@ class TestEquipmentDataModels:
     def test_equipment_create_minimal(self):
         """Test EquipmentCreate with minimal required fields"""
         from src.main import EquipmentCreate, EquipmentType
-       
+
         equipment = EquipmentCreate(
-            name="Basic Pump",
-            equipment_type=EquipmentType.PUMP
+            name="Basic Pump", equipment_type=EquipmentType.PUMP
         )
-       
+
         assert equipment.name == "Basic Pump"
         assert equipment.equipment_type == EquipmentType.PUMP
         assert equipment.name_ar is None
@@ -93,26 +92,20 @@ class TestEquipmentValidation:
         """Test equipment name length constraints"""
         from src.main import EquipmentCreate, EquipmentType
         from pydantic import ValidationError
-       
+
         # Name too short (empty)
         with pytest.raises(ValidationError):
-            EquipmentCreate(
-                name="",
-                equipment_type=EquipmentType.TRACTOR
-            )
-       
+            EquipmentCreate(name="", equipment_type=EquipmentType.TRACTOR)
+
         # Name too long (> 200 chars)
         with pytest.raises(ValidationError):
-            EquipmentCreate(
-                name="x" * 201,
-                equipment_type=EquipmentType.TRACTOR
-            )
+            EquipmentCreate(name="x" * 201, equipment_type=EquipmentType.TRACTOR)
 
     def test_equipment_type_validation(self):
         """Test equipment type is required"""
         from src.main import EquipmentCreate
         from pydantic import ValidationError
-       
+
         with pytest.raises(ValidationError):
             EquipmentCreate(name="Test Equipment")
 

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 # Default limits (in bytes)
 DEFAULT_MAX_BODY_SIZE = 10 * 1024 * 1024  # 10MB
-DEFAULT_MAX_JSON_SIZE = 1 * 1024 * 1024   # 1MB
+DEFAULT_MAX_JSON_SIZE = 1 * 1024 * 1024  # 1MB
 DEFAULT_MAX_FILE_SIZE = 50 * 1024 * 1024  # 50MB
 
 
@@ -73,7 +73,9 @@ class RequestSizeLimiter:
 
         return False
 
-    def check_request(self, request: Request) -> tuple[bool, Optional[str], Optional[int]]:
+    def check_request(
+        self, request: Request
+    ) -> tuple[bool, Optional[str], Optional[int]]:
         """
         Check if request meets size/type requirements.
         Returns (allowed, error_message, status_code)
@@ -135,14 +137,18 @@ async def request_size_middleware(request: Request, call_next: Callable) -> Resp
                 "content_length": content_length,
                 "content_type": request.headers.get("content-type", ""),
                 "reason": error_message,
-            }
+            },
         )
 
         return JSONResponse(
             status_code=status_code or 400,
             content={
                 "error": error_message,
-                "error_ar": "حجم الطلب غير مسموح به" if status_code == 413 else "نوع المحتوى غير مدعوم",
+                "error_ar": (
+                    "حجم الطلب غير مسموح به"
+                    if status_code == 413
+                    else "نوع المحتوى غير مدعوم"
+                ),
             },
         )
 

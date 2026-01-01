@@ -20,12 +20,14 @@ import math
 
 # Import shared crop catalog
 import sys
+
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
 try:
     from apps.services.shared.crops import ALL_CROPS, CropInfo, get_crop
 except ImportError:
     # Fallback for standalone testing
     ALL_CROPS = {}
+
     def get_crop(code: str):
         return None
 
@@ -33,6 +35,7 @@ except ImportError:
 @dataclass
 class YieldPrediction:
     """Yield prediction result with confidence and recommendations"""
+
     field_id: str
     crop_code: str
     crop_name_ar: str
@@ -200,7 +203,9 @@ class YieldPredictor:
 
         # Calculate water stress
         precipitation = weather_data.get("precipitation_mm", 0)
-        et0 = weather_data.get("et0_mm", precipitation * 1.2)  # Estimate if not provided
+        et0 = weather_data.get(
+            "et0_mm", precipitation * 1.2
+        )  # Estimate if not provided
         water_stress_factor = self.calculate_water_stress(
             precipitation=precipitation,
             et0=et0,
@@ -242,10 +247,10 @@ class YieldPredictor:
 
         # Ensemble prediction (weighted average)
         predicted_yield = (
-            0.40 * ndvi_yield +
-            0.30 * gdd_yield +
-            0.20 * water_yield +
-            0.10 * soil_yield
+            0.40 * ndvi_yield
+            + 0.30 * gdd_yield
+            + 0.20 * water_yield
+            + 0.10 * soil_yield
         )
 
         # Calculate confidence based on data quality and consistency
@@ -346,7 +351,7 @@ class YieldPredictor:
         for i in range(n):
             avg_temp = (temp_max_series[i] + temp_min_series[i]) / 2
             if avg_temp > base_temp:
-                gdd += (avg_temp - base_temp)
+                gdd += avg_temp - base_temp
 
         return round(gdd, 1)
 
@@ -393,8 +398,7 @@ class YieldPredictor:
         Yield = base_yield * (1 + k * (NDVI_integral - baseline))
         """
         coeffs = self.NDVI_YIELD_COEFFICIENTS.get(
-            crop_code,
-            self.NDVI_YIELD_COEFFICIENTS["DEFAULT"]
+            crop_code, self.NDVI_YIELD_COEFFICIENTS["DEFAULT"]
         )
 
         k = coeffs["k"]
@@ -425,10 +429,7 @@ class YieldPredictor:
         Predict yield from GDD using response curve.
         Yield increases with GDD up to optimal, then decreases.
         """
-        gdd_req = self.GDD_REQUIREMENTS.get(
-            crop_code,
-            self.GDD_REQUIREMENTS["DEFAULT"]
-        )
+        gdd_req = self.GDD_REQUIREMENTS.get(crop_code, self.GDD_REQUIREMENTS["DEFAULT"])
 
         optimal = gdd_req["optimal"]
         min_gdd = gdd_req["min"]
@@ -469,7 +470,9 @@ class YieldPredictor:
         elif soil_moisture < 0.4:
             sm_factor = max(0.4, soil_moisture / 0.4)  # Drought stress
         else:  # > 0.6
-            sm_factor = max(0.7, 1.0 - 0.3 * ((soil_moisture - 0.6) / 0.4))  # Waterlogging
+            sm_factor = max(
+                0.7, 1.0 - 0.3 * ((soil_moisture - 0.6) / 0.4)
+            )  # Waterlogging
 
         return base_yield * sm_factor
 
@@ -538,8 +541,10 @@ class YieldPredictor:
         if model_variance:
             mean_yield = sum(model_variance) / len(model_variance)
             if mean_yield > 0:
-                variance = sum((y - mean_yield) ** 2 for y in model_variance) / len(model_variance)
-                cv = (variance ** 0.5) / mean_yield  # Coefficient of variation
+                variance = sum((y - mean_yield) ** 2 for y in model_variance) / len(
+                    model_variance
+                )
+                cv = (variance**0.5) / mean_yield  # Coefficient of variation
                 agreement_factor = max(0.5, 1 - cv)
                 confidence *= agreement_factor
 
@@ -565,7 +570,9 @@ class YieldPredictor:
         # Normalize each factor to 0-1 scale
         factors = {
             "vegetation_health": min(1.0, ndvi_peak / 0.8),  # 0.8 = excellent
-            "biomass_accumulation": min(1.0, ndvi_integral / 60.0),  # 60 = high productivity
+            "biomass_accumulation": min(
+                1.0, ndvi_integral / 60.0
+            ),  # 60 = high productivity
             "thermal_time": self._normalize_gdd(gdd, crop_code),
             "water_availability": water_stress_factor,
             "soil_moisture": min(1.0, soil_moisture / 0.6),  # 0.6 = optimal
@@ -576,10 +583,7 @@ class YieldPredictor:
 
     def _normalize_gdd(self, gdd: float, crop_code: str) -> float:
         """Normalize GDD to 0-1 scale based on crop requirements."""
-        gdd_req = self.GDD_REQUIREMENTS.get(
-            crop_code,
-            self.GDD_REQUIREMENTS["DEFAULT"]
-        )
+        gdd_req = self.GDD_REQUIREMENTS.get(crop_code, self.GDD_REQUIREMENTS["DEFAULT"])
         optimal = gdd_req["optimal"]
 
         # 1.0 at optimal, decreases away from optimal
@@ -635,9 +639,7 @@ class YieldPredictor:
                 f"🌱 Poor vegetation health (NDVI: {ndvi_peak:.2f}) - apply nitrogen fertilizer immediately"
             )
         elif ndvi_peak < 0.65:
-            recommendations_ar.append(
-                "🌿 صحة النباتات متوسطة - تحسين التسميد الورقي"
-            )
+            recommendations_ar.append("🌿 صحة النباتات متوسطة - تحسين التسميد الورقي")
             recommendations_en.append(
                 "🌿 Moderate vegetation - improve foliar fertilization"
             )
@@ -700,12 +702,14 @@ class YieldPredictor:
                 "soil_moisture": "soil moisture",
             }
 
-            critical_ar = ", ".join([factor_names_ar.get(f, f) for f in critical_factors])
-            critical_en = ", ".join([factor_names_en.get(f, f) for f in critical_factors])
-
-            recommendations_ar.append(
-                f"⚠️ عوامل حرجة تحتاج تحسين: {critical_ar}"
+            critical_ar = ", ".join(
+                [factor_names_ar.get(f, f) for f in critical_factors]
             )
+            critical_en = ", ".join(
+                [factor_names_en.get(f, f) for f in critical_factors]
+            )
+
+            recommendations_ar.append(f"⚠️ عوامل حرجة تحتاج تحسين: {critical_ar}")
             recommendations_en.append(
                 f"⚠️ Critical factors needing improvement: {critical_en}"
             )

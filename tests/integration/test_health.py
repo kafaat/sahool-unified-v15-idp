@@ -7,6 +7,7 @@ import pytest
 
 # We need to import the app from each service
 import sys
+
 sys.path.insert(0, "kernel/services/field_ops/src")
 
 

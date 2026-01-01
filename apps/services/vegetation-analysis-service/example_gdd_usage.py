@@ -22,9 +22,9 @@ BASE_URL = "http://localhost:8090"
 
 async def example_1_list_all_crops():
     """Example 1: Get list of all supported crops"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("EXAMPLE 1: List All Supported Crops")
-    print("="*70)
+    print("=" * 70)
 
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{BASE_URL}/v1/gdd/crops")
@@ -32,10 +32,12 @@ async def example_1_list_all_crops():
 
         print(f"\nTotal crops supported: {data['total_crops']}")
         print("\nSample crops:")
-        print(f"{'Code':<15} {'Name (EN)':<25} {'Name (AR)':<20} {'Base Temp':<12} {'Total GDD'}")
+        print(
+            f"{'Code':<15} {'Name (EN)':<25} {'Name (AR)':<20} {'Base Temp':<12} {'Total GDD'}"
+        )
         print("-" * 100)
 
-        for crop in data['crops'][:10]:
+        for crop in data["crops"][:10]:
             print(
                 f"{crop['crop_code']:<15} "
                 f"{crop['crop_name_en']:<25} "
@@ -49,9 +51,9 @@ async def example_1_list_all_crops():
 
 async def example_2_wheat_requirements():
     """Example 2: Get detailed requirements for wheat"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("EXAMPLE 2: Wheat GDD Requirements")
-    print("="*70)
+    print("=" * 70)
 
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{BASE_URL}/v1/gdd/requirements/WHEAT")
@@ -62,10 +64,12 @@ async def example_2_wheat_requirements():
         print(f"Total GDD Required: {wheat['total_gdd_required']}")
 
         print("\nGrowth Stages:")
-        print(f"{'#':<3} {'Stage (EN)':<25} {'Stage (AR)':<25} {'GDD':<10} {'Duration'}")
+        print(
+            f"{'#':<3} {'Stage (EN)':<25} {'Stage (AR)':<25} {'GDD':<10} {'Duration'}"
+        )
         print("-" * 100)
 
-        for i, stage in enumerate(wheat['stages'], 1):
+        for i, stage in enumerate(wheat["stages"], 1):
             print(
                 f"{i:<3} "
                 f"{stage['name_en']:<25} "
@@ -77,9 +81,9 @@ async def example_2_wheat_requirements():
 
 async def example_3_track_wheat_field():
     """Example 3: Track GDD for a wheat field"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("EXAMPLE 3: Track Wheat Field Development")
-    print("="*70)
+    print("=" * 70)
 
     # Wheat planted 60 days ago in Sanaa
     planting_date = (date.today() - timedelta(days=60)).isoformat()
@@ -101,8 +105,8 @@ async def example_3_track_wheat_field():
                     "planting_date": planting_date,
                     "lat": sanaa_lat,
                     "lon": sanaa_lon,
-                    "method": "simple"
-                }
+                    "method": "simple",
+                },
             )
 
             if response.status_code == 200:
@@ -111,18 +115,34 @@ async def example_3_track_wheat_field():
                 print(f"\nCurrent Status:")
                 print(f"  Date: {chart['current_status']['date']}")
                 print(f"  Total GDD: {chart['current_status']['total_gdd']:.1f}")
-                print(f"  Average Daily GDD: {chart['current_status']['avg_daily_gdd']:.1f}")
-                print(f"  Days Since Planting: {chart['current_status']['days_since_planting']}")
+                print(
+                    f"  Average Daily GDD: {chart['current_status']['avg_daily_gdd']:.1f}"
+                )
+                print(
+                    f"  Days Since Planting: {chart['current_status']['days_since_planting']}"
+                )
 
                 print(f"\nCurrent Stage:")
-                print(f"  {chart['current_stage']['name_en']} ({chart['current_stage']['name_ar']})")
-                print(f"  Next Stage: {chart['current_stage']['next_stage_en']} ({chart['current_stage']['next_stage_ar']})")
-                print(f"  GDD to Next Stage: {chart['current_stage']['gdd_to_next_stage']:.1f}")
+                print(
+                    f"  {chart['current_stage']['name_en']} ({chart['current_stage']['name_ar']})"
+                )
+                print(
+                    f"  Next Stage: {chart['current_stage']['next_stage_en']} ({chart['current_stage']['next_stage_ar']})"
+                )
+                print(
+                    f"  GDD to Next Stage: {chart['current_stage']['gdd_to_next_stage']:.1f}"
+                )
 
                 print(f"\nHarvest Prediction:")
-                print(f"  Estimated Date: {chart['harvest_prediction']['estimated_date']}")
-                print(f"  Days Remaining: {chart['harvest_prediction']['days_remaining']}")
-                print(f"  GDD Remaining: {chart['harvest_prediction']['gdd_remaining']:.1f}")
+                print(
+                    f"  Estimated Date: {chart['harvest_prediction']['estimated_date']}"
+                )
+                print(
+                    f"  Days Remaining: {chart['harvest_prediction']['days_remaining']}"
+                )
+                print(
+                    f"  GDD Remaining: {chart['harvest_prediction']['gdd_remaining']:.1f}"
+                )
 
                 print(f"\nComparison to Normal:")
                 print(f"  {chart['comparison']['description_en']}")
@@ -132,9 +152,13 @@ async def example_3_track_wheat_field():
                 print(f"{'Stage':<25} {'Required GDD':<15} {'Status':<15} {'Date'}")
                 print("-" * 80)
 
-                for m in chart['milestones'][:5]:  # Show first 5
-                    status = "✓ Reached" if m['is_reached'] else "○ Pending"
-                    date_str = m['reached_date'] if m['is_reached'] else m['expected_date'] or "TBD"
+                for m in chart["milestones"][:5]:  # Show first 5
+                    status = "✓ Reached" if m["is_reached"] else "○ Pending"
+                    date_str = (
+                        m["reached_date"]
+                        if m["is_reached"]
+                        else m["expected_date"] or "TBD"
+                    )
                     print(
                         f"{m['stage_name_en']:<25} "
                         f"{m['gdd_required']:>10.0f}      "
@@ -142,15 +166,17 @@ async def example_3_track_wheat_field():
                         f"{date_str}"
                     )
 
-                if len(chart['milestones']) > 5:
+                if len(chart["milestones"]) > 5:
                     print(f"... and {len(chart['milestones']) - 5} more milestones")
 
                 # Show last 5 days of GDD data
                 print(f"\nRecent Daily GDD (last 5 days):")
-                print(f"{'Date':<12} {'Tmin':<8} {'Tmax':<8} {'Daily GDD':<12} {'Total GDD'}")
+                print(
+                    f"{'Date':<12} {'Tmin':<8} {'Tmax':<8} {'Daily GDD':<12} {'Total GDD'}"
+                )
                 print("-" * 60)
 
-                for day in chart['daily_data'][-5:]:
+                for day in chart["daily_data"][-5:]:
                     print(
                         f"{day['date']:<12} "
                         f"{day['temp_min_c']:>6.1f}°C "
@@ -171,9 +197,9 @@ async def example_3_track_wheat_field():
 
 async def example_4_forecast_flowering():
     """Example 4: Forecast when flowering will occur"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("EXAMPLE 4: Forecast Wheat Flowering Date")
-    print("="*70)
+    print("=" * 70)
 
     # Wheat currently at 1100 GDD, needs 1500 for flowering
     current_gdd = 1100
@@ -197,8 +223,8 @@ async def example_4_forecast_flowering():
                     "current_gdd": current_gdd,
                     "target_gdd": flowering_gdd,
                     "base_temp": 0,  # Wheat base temp
-                    "method": "simple"
-                }
+                    "method": "simple",
+                },
             )
 
             if response.status_code == 200:
@@ -206,13 +232,17 @@ async def example_4_forecast_flowering():
 
                 print(f"\nForecast Result:")
                 print(f"  Estimated Flowering Date: {forecast['estimated_date']}")
-                print(f"  Is Estimated: {'Yes (beyond forecast period)' if forecast['is_estimated'] else 'No (within forecast)'}")
+                print(
+                    f"  Is Estimated: {'Yes (beyond forecast period)' if forecast['is_estimated'] else 'No (within forecast)'}"
+                )
 
                 print(f"\nNext 7 Days GDD Forecast:")
-                print(f"{'Date':<12} {'Tmin':<8} {'Tmax':<8} {'Daily GDD':<12} {'Total GDD'}")
+                print(
+                    f"{'Date':<12} {'Tmin':<8} {'Tmax':<8} {'Daily GDD':<12} {'Total GDD'}"
+                )
                 print("-" * 60)
 
-                for day in forecast['forecast_data'][:7]:
+                for day in forecast["forecast_data"][:7]:
                     print(
                         f"{day['date']:<12} "
                         f"{day['temp_min_c']:>6.1f}°C "
@@ -231,9 +261,9 @@ async def example_4_forecast_flowering():
 
 async def example_5_quick_stage_lookup():
     """Example 5: Quick stage lookup"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("EXAMPLE 5: Quick Growth Stage Lookup")
-    print("="*70)
+    print("=" * 70)
 
     # Check what stage wheat is at with 1247 GDD
     crop = "WHEAT"
@@ -244,17 +274,22 @@ async def example_5_quick_stage_lookup():
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"{BASE_URL}/v1/gdd/stage/{crop}",
-                params={"gdd": gdd}
+                f"{BASE_URL}/v1/gdd/stage/{crop}", params={"gdd": gdd}
             )
 
             if response.status_code == 200:
                 result = response.json()
 
                 print(f"\nResult:")
-                print(f"  Current Stage: {result['current_stage']['name_en']} ({result['current_stage']['name_ar']})")
-                print(f"  Stage Range: {result['current_stage']['gdd_start']:.0f} - {result['current_stage']['gdd_end']:.0f} GDD")
-                print(f"  Next Stage: {result['next_stage']['name_en']} ({result['next_stage']['name_ar']})")
+                print(
+                    f"  Current Stage: {result['current_stage']['name_en']} ({result['current_stage']['name_ar']})"
+                )
+                print(
+                    f"  Stage Range: {result['current_stage']['gdd_start']:.0f} - {result['current_stage']['gdd_end']:.0f} GDD"
+                )
+                print(
+                    f"  Next Stage: {result['next_stage']['name_en']} ({result['next_stage']['name_ar']})"
+                )
                 print(f"  GDD to Next Stage: {result['gdd_to_next_stage']:.1f}")
                 print(f"  Progress: {result['progress_percent']:.1f}% of total season")
 
@@ -267,10 +302,10 @@ async def example_5_quick_stage_lookup():
 
 async def main():
     """Run all examples"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("GDD API USAGE EXAMPLES")
     print("Growing Degree Days Tracking for Crop Development")
-    print("="*70)
+    print("=" * 70)
 
     try:
         await example_1_list_all_crops()
@@ -279,9 +314,9 @@ async def main():
         await example_4_forecast_flowering()
         await example_5_quick_stage_lookup()
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("✅ All examples completed!")
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
         print("\nNext Steps:")
         print("1. Try with different crops (TOMATO, COFFEE, DATE_PALM, etc.)")

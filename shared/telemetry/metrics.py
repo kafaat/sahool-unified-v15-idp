@@ -41,7 +41,12 @@ from opentelemetry.sdk.metrics.export import (
     ConsoleMetricExporter,
 )
 from opentelemetry.exporter.prometheus import PrometheusMetricReader
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION, DEPLOYMENT_ENVIRONMENT
+from opentelemetry.sdk.resources import (
+    Resource,
+    SERVICE_NAME,
+    SERVICE_VERSION,
+    DEPLOYMENT_ENVIRONMENT,
+)
 from prometheus_client import start_http_server, REGISTRY
 
 logger = logging.getLogger(__name__)
@@ -86,7 +91,9 @@ def init_metrics(
 
     # Auto-detect service name from environment
     if not service_name:
-        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv("SERVICE_NAME", "sahool-service")
+        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv(
+            "SERVICE_NAME", "sahool-service"
+        )
 
     if not service_version:
         service_version = os.getenv("SERVICE_VERSION", "1.0.0")
@@ -95,19 +102,24 @@ def init_metrics(
         environment = os.getenv("ENVIRONMENT", "development")
 
     # Create resource with service information
-    resource = Resource.create({
-        SERVICE_NAME: service_name,
-        SERVICE_VERSION: service_version,
-        DEPLOYMENT_ENVIRONMENT: environment,
-        "service.namespace": "sahool",
-        "service.instance.id": os.getenv("HOSTNAME", "unknown"),
-    })
+    resource = Resource.create(
+        {
+            SERVICE_NAME: service_name,
+            SERVICE_VERSION: service_version,
+            DEPLOYMENT_ENVIRONMENT: environment,
+            "service.namespace": "sahool",
+            "service.instance.id": os.getenv("HOSTNAME", "unknown"),
+        }
+    )
 
     # Configure metric readers
     metric_readers = []
 
     # Add Prometheus exporter
-    if enable_prometheus or os.getenv("PROMETHEUS_METRICS_ENABLED", "true").lower() == "true":
+    if (
+        enable_prometheus
+        or os.getenv("PROMETHEUS_METRICS_ENABLED", "true").lower() == "true"
+    ):
         try:
             prometheus_reader = PrometheusMetricReader()
             metric_readers.append(prometheus_reader)
@@ -115,7 +127,9 @@ def init_metrics(
             # Start Prometheus HTTP server
             prometheus_port = int(os.getenv("PROMETHEUS_PORT", prometheus_port))
             start_http_server(port=prometheus_port, registry=REGISTRY)
-            logger.info(f"Prometheus metrics endpoint started on port {prometheus_port}")
+            logger.info(
+                f"Prometheus metrics endpoint started on port {prometheus_port}"
+            )
         except Exception as e:
             logger.error(f"Failed to configure Prometheus exporter: {e}")
 
@@ -162,12 +176,16 @@ def init_metrics(
         unit="1",
     )
 
-    logger.info(f"OpenTelemetry metrics initialized: service={service_name}, env={environment}")
+    logger.info(
+        f"OpenTelemetry metrics initialized: service={service_name}, env={environment}"
+    )
 
     return _meter_provider
 
 
-def get_meter(name: Optional[str] = None, version: Optional[str] = None) -> metrics.Meter:
+def get_meter(
+    name: Optional[str] = None, version: Optional[str] = None
+) -> metrics.Meter:
     """
     Get a meter instance.
 
@@ -228,7 +246,9 @@ def track_request(
 
 
 @contextmanager
-def track_request_duration(method: str, endpoint: str, labels: Optional[Dict[str, str]] = None):
+def track_request_duration(
+    method: str, endpoint: str, labels: Optional[Dict[str, str]] = None
+):
     """
     Context manager to track request duration.
 
@@ -502,7 +522,9 @@ class SahoolMetrics:
         )
 
     @staticmethod
-    def track_crop_health_analysis(crop_type: str, health_score: float, duration: float):
+    def track_crop_health_analysis(
+        crop_type: str, health_score: float, duration: float
+    ):
         """Track crop health analysis."""
         track_business_metric(
             "sahool_crop_health_analyses_total",
@@ -538,7 +560,9 @@ class SahoolMetrics:
         )
 
     @staticmethod
-    def track_marketplace_transaction(transaction_type: str, amount: float, status: str):
+    def track_marketplace_transaction(
+        transaction_type: str, amount: float, status: str
+    ):
         """Track marketplace transaction."""
         track_business_metric(
             "sahool_marketplace_transactions_total",

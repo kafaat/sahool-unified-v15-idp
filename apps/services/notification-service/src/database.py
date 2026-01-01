@@ -16,8 +16,7 @@ logger = logging.getLogger("sahool-notifications.database")
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise EnvironmentError(
-        "DATABASE_URL environment variable is required. "
-        "See .env.example for format"
+        "DATABASE_URL environment variable is required. " "See .env.example for format"
     )
 
 # Tortoise ORM configuration
@@ -27,7 +26,10 @@ TORTOISE_ORM = {
     },
     "apps": {
         "models": {
-            "models": ["apps.services.notification-service.src.models", "aerich.models"],
+            "models": [
+                "apps.services.notification-service.src.models",
+                "aerich.models",
+            ],
             "default_connection": "default",
         },
     },
@@ -66,12 +68,14 @@ async def init_db(create_db: bool = False) -> None:
         try:
             # Try relative import first (for Docker container)
             from .models import Notification
+
             config = TORTOISE_ORM_LOCAL
             logger.info("Using local module path configuration (src.models)")
         except ImportError:
             # Fall back to full path import (for local development)
             try:
                 from apps.services.notification_service.src.models import Notification
+
                 config = TORTOISE_ORM
                 logger.info("Using full module path configuration")
             except ImportError:
@@ -83,15 +87,21 @@ async def init_db(create_db: bool = False) -> None:
         await Tortoise.init(config=config)
 
         logger.info("✅ Database connection established")
-        logger.info(f"📊 Database URL: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'configured'}")
+        logger.info(
+            f"📊 Database URL: {DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'configured'}"
+        )
 
         # Generate schemas (only in development!)
         if create_db:
-            logger.warning("⚠️  Creating database schemas - this should only be done in development!")
+            logger.warning(
+                "⚠️  Creating database schemas - this should only be done in development!"
+            )
             await Tortoise.generate_schemas()
             logger.info("✅ Database schemas created")
         else:
-            logger.info("ℹ️  Skipping schema generation (use Aerich migrations in production)")
+            logger.info(
+                "ℹ️  Skipping schema generation (use Aerich migrations in production)"
+            )
 
     except DBConnectionError as e:
         logger.error(f"❌ Failed to connect to database: {e}")
@@ -127,7 +137,9 @@ async def check_db_health() -> dict:
         return {
             "status": "healthy",
             "connected": True,
-            "database": DATABASE_URL.split("/")[-1] if "/" in DATABASE_URL else "unknown",
+            "database": (
+                DATABASE_URL.split("/")[-1] if "/" in DATABASE_URL else "unknown"
+            ),
         }
     except Exception as e:
         logger.error(f"Database health check failed: {e}")
@@ -159,9 +171,7 @@ async def get_db_stats() -> dict:
         }
     except Exception as e:
         logger.error(f"Failed to get database stats: {e}")
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
 
 
 # Migration helpers (for Aerich)

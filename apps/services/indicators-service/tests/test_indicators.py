@@ -27,8 +27,8 @@ def client():
                 "ndvi": {"value": 0.72, "status": "healthy", "trend": "stable"},
                 "health_score": {"value": 85, "status": "good"},
                 "water_stress": {"value": 0.15, "status": "low"},
-                "nitrogen_index": {"value": 0.68, "status": "adequate"}
-            }
+                "nitrogen_index": {"value": 0.68, "status": "adequate"},
+            },
         }
 
     @app.get("/api/v1/fields/{field_id}/indicators/history")
@@ -40,14 +40,14 @@ def client():
             "data": [
                 {"date": "2025-12-20", "value": 0.70},
                 {"date": "2025-12-21", "value": 0.71},
-                {"date": "2025-12-22", "value": 0.72}
+                {"date": "2025-12-22", "value": 0.72},
             ],
             "statistics": {
                 "min": 0.68,
                 "max": 0.75,
                 "avg": 0.71,
-                "trend": "increasing"
-            }
+                "trend": "increasing",
+            },
         }
 
     @app.get("/api/v1/tenants/{tenant_id}/dashboard")
@@ -58,13 +58,9 @@ def client():
                 "total_fields": 15,
                 "healthy_fields": 12,
                 "warning_fields": 2,
-                "critical_fields": 1
+                "critical_fields": 1,
             },
-            "avg_indicators": {
-                "ndvi": 0.68,
-                "health_score": 78,
-                "water_stress": 0.22
-            }
+            "avg_indicators": {"ndvi": 0.68, "health_score": 78, "water_stress": 0.22},
         }
 
     @app.get("/api/v1/fields/{field_id}/alerts")
@@ -78,9 +74,9 @@ def client():
                     "severity": "warning",
                     "message": "زيادة إجهاد الماء المكتشف",
                     "message_en": "Increased water stress detected",
-                    "timestamp": "2025-12-23T08:00:00Z"
+                    "timestamp": "2025-12-23T08:00:00Z",
                 }
-            ]
+            ],
         }
 
     @app.post("/api/v1/fields/{field_id}/indicators/compute")
@@ -88,13 +84,8 @@ def client():
         return {
             "field_id": field_id,
             "computed_at": "2025-12-23T10:00:00Z",
-            "indicators": {
-                "ndvi": 0.72,
-                "evi": 0.58,
-                "ndwi": -0.05,
-                "lai": 3.2
-            },
-            "status": "computed"
+            "indicators": {"ndvi": 0.72, "evi": 0.58, "ndwi": -0.05, "lai": 3.2},
+            "status": "computed",
         }
 
     @app.get("/api/v1/benchmarks/{crop}")
@@ -104,8 +95,8 @@ def client():
             "benchmarks": {
                 "ndvi": {"min": 0.4, "optimal": 0.7, "max": 0.9},
                 "health_score": {"min": 60, "optimal": 85, "max": 100},
-                "water_stress": {"min": 0, "optimal": 0.1, "max": 0.3}
-            }
+                "water_stress": {"min": 0, "optimal": 0.1, "max": 0.3},
+            },
         }
 
     return TestClient(app)
@@ -143,7 +134,9 @@ class TestIndicatorHistory:
     """Test indicator history"""
 
     def test_get_indicator_history(self, client):
-        response = client.get("/api/v1/fields/field_001/indicators/history?indicator=ndvi")
+        response = client.get(
+            "/api/v1/fields/field_001/indicators/history?indicator=ndvi"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["indicator"] == "ndvi"
@@ -151,7 +144,9 @@ class TestIndicatorHistory:
         assert len(data["data"]) > 0
 
     def test_history_has_statistics(self, client):
-        response = client.get("/api/v1/fields/field_001/indicators/history?indicator=ndvi")
+        response = client.get(
+            "/api/v1/fields/field_001/indicators/history?indicator=ndvi"
+        )
         assert response.status_code == 200
         stats = response.json()["statistics"]
         assert "min" in stats
@@ -202,10 +197,10 @@ class TestComputeIndicators:
     """Test indicator computation"""
 
     def test_compute_indicators(self, client):
-        response = client.post("/api/v1/fields/field_001/indicators/compute", json={
-            "source": "sentinel-2",
-            "date": "2025-12-23"
-        })
+        response = client.post(
+            "/api/v1/fields/field_001/indicators/compute",
+            json={"source": "sentinel-2", "date": "2025-12-23"},
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "computed"

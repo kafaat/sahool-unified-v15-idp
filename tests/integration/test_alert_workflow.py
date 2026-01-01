@@ -56,39 +56,26 @@ async def test_weather_alert_creation_workflow(
         "title_ar": "تحذير من الأمطار الغزيرة",
         "description": "Heavy rainfall expected in the next 24 hours. Secure your crops and equipment.",
         "description_ar": "من المتوقع هطول أمطار غزيرة خلال الـ 24 ساعة القادمة. قم بتأمين محاصيلك ومعداتك.",
-        "location": {
-            "latitude": 15.3694,
-            "longitude": 44.1910,
-            "radius_km": 50
-        },
+        "location": {"latitude": 15.3694, "longitude": 44.1910, "radius_km": 50},
         "valid_from": datetime.utcnow().isoformat(),
         "valid_until": (datetime.utcnow() + timedelta(hours=24)).isoformat(),
-        "data": {
-            "rainfall_mm": 80,
-            "wind_speed_kmh": 45,
-            "temperature_c": 22
-        },
+        "data": {"rainfall_mm": 80, "wind_speed_kmh": 45, "temperature_c": 22},
         "actions": [
-            {
-                "action": "secure_equipment",
-                "action_ar": "تأمين المعدات"
-            },
-            {
-                "action": "check_drainage",
-                "action_ar": "فحص نظام الصرف"
-            }
-        ]
+            {"action": "secure_equipment", "action_ar": "تأمين المعدات"},
+            {"action": "check_drainage", "action_ar": "فحص نظام الصرف"},
+        ],
     }
 
     # Act - تنفيذ
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     # Assert - التحقق
-    assert response.status_code in (200, 201), f"Failed to create alert: {response.text}"
+    assert response.status_code in (
+        200,
+        201,
+    ), f"Failed to create alert: {response.text}"
 
     created_alert = response.json()
 
@@ -122,39 +109,37 @@ async def test_frost_alert_workflow(
         "title_ar": "تنبيه الصقيع - احمِ محاصيلك",
         "description": "Frost conditions expected tonight. Take immediate action to protect sensitive crops.",
         "description_ar": "من المتوقع ظروف صقيع الليلة. اتخذ إجراءات فورية لحماية المحاصيل الحساسة.",
-        "location": {
-            "latitude": 15.3694,
-            "longitude": 44.1910,
-            "radius_km": 30
-        },
+        "location": {"latitude": 15.3694, "longitude": 44.1910, "radius_km": 30},
         "valid_from": datetime.utcnow().isoformat(),
         "valid_until": (datetime.utcnow() + timedelta(hours=12)).isoformat(),
         "data": {
             "min_temperature_c": -2,
             "frost_probability": 0.85,
-            "affected_hours": 6
+            "affected_hours": 6,
         },
         "actions": [
             {
                 "action": "cover_sensitive_crops",
                 "action_ar": "غطِ المحاصيل الحساسة",
-                "priority": "critical"
+                "priority": "critical",
             },
             {
                 "action": "run_frost_protection",
                 "action_ar": "شغل نظام الحماية من الصقيع",
-                "priority": "high"
-            }
-        ]
+                "priority": "high",
+            },
+        ],
     }
 
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
-    assert response.status_code in (200, 201, 401), f"Unexpected response: {response.status_code}"
+    assert response.status_code in (
+        200,
+        201,
+        401,
+    ), f"Unexpected response: {response.status_code}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -187,11 +172,7 @@ async def test_pest_outbreak_alert_workflow(
         "title_ar": "تنبيه سرب الجراد",
         "description": "Locust swarm detected moving towards your region. Immediate action required.",
         "description_ar": "تم رصد سرب جراد يتحرك نحو منطقتك. مطلوب إجراء فوري.",
-        "location": {
-            "latitude": 15.5000,
-            "longitude": 44.2000,
-            "radius_km": 100
-        },
+        "location": {"latitude": 15.5000, "longitude": 44.2000, "radius_km": 100},
         "valid_from": datetime.utcnow().isoformat(),
         "valid_until": (datetime.utcnow() + timedelta(hours=48)).isoformat(),
         "data": {
@@ -199,31 +180,29 @@ async def test_pest_outbreak_alert_workflow(
             "pest_type_ar": "جراد الصحراء",
             "swarm_density": "high",
             "movement_direction": "northeast",
-            "estimated_arrival_hours": 12
+            "estimated_arrival_hours": 12,
         },
         "actions": [
             {
                 "action": "apply_pesticide",
                 "action_ar": "رش المبيدات",
-                "priority": "critical"
+                "priority": "critical",
             },
             {
                 "action": "coordinate_with_authorities",
                 "action_ar": "التنسيق مع السلطات",
-                "priority": "high"
+                "priority": "high",
             },
             {
                 "action": "monitor_crops",
                 "action_ar": "مراقبة المحاصيل",
-                "priority": "medium"
-            }
-        ]
+                "priority": "medium",
+            },
+        ],
     }
 
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -262,32 +241,30 @@ async def test_disease_detection_alert_workflow(
             "disease_name_ar": "صدأ القمح",
             "confidence": 0.87,
             "affected_area_percentage": 15,
-            "spread_rate": "medium"
+            "spread_rate": "medium",
         },
         "actions": [
             {
                 "action": "apply_fungicide",
                 "action_ar": "رش مبيد فطري",
                 "priority": "high",
-                "product_recommendations": ["Propiconazole", "Tebuconazole"]
+                "product_recommendations": ["Propiconazole", "Tebuconazole"],
             },
             {
                 "action": "isolate_affected_area",
                 "action_ar": "عزل المنطقة المصابة",
-                "priority": "high"
+                "priority": "high",
             },
             {
                 "action": "increase_monitoring",
                 "action_ar": "زيادة المراقبة",
-                "priority": "medium"
-            }
-        ]
+                "priority": "medium",
+            },
+        ],
     }
 
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -331,22 +308,20 @@ async def test_soil_moisture_alert_workflow(
             "current_moisture_percentage": 18,
             "optimal_range": [25, 35],
             "sensor_depth_cm": 30,
-            "measurement_time": datetime.utcnow().isoformat()
+            "measurement_time": datetime.utcnow().isoformat(),
         },
         "actions": [
             {
                 "action": "irrigate_field",
                 "action_ar": "ري الحقل",
                 "priority": "high",
-                "estimated_water_needed_liters": 5000
+                "estimated_water_needed_liters": 5000,
             }
-        ]
+        ],
     }
 
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -385,26 +360,24 @@ async def test_temperature_threshold_alert_workflow(
             "current_temperature_c": 42,
             "safe_threshold_c": 35,
             "duration_hours": 3,
-            "heat_stress_index": "severe"
+            "heat_stress_index": "severe",
         },
         "actions": [
             {
                 "action": "increase_irrigation",
                 "action_ar": "زيادة الري",
-                "priority": "high"
+                "priority": "high",
             },
             {
                 "action": "provide_shade",
                 "action_ar": "توفير الظل",
-                "priority": "medium"
-            }
-        ]
+                "priority": "medium",
+            },
+        ],
     }
 
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -434,8 +407,7 @@ async def test_get_active_alerts_workflow(
 
     # Get all active alerts - الحصول على جميع التنبيهات النشطة
     response = await http_client.get(
-        f"{alert_service_url}/v1/alerts/active",
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts/active", headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -475,13 +447,11 @@ async def test_acknowledge_alert_workflow(
         "title_ar": "جدولة الري",
         "description": "Scheduled irrigation for tomorrow morning",
         "description_ar": "ري مجدول لصباح الغد",
-        "field_id": "field-test-123"
+        "field_id": "field-test-123",
     }
 
     create_response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     if create_response.status_code in (200, 201):
@@ -491,7 +461,7 @@ async def test_acknowledge_alert_workflow(
         # Acknowledge the alert - الإقرار بالتنبيه
         ack_response = await http_client.post(
             f"{alert_service_url}/v1/alerts/{alert_id}/acknowledge",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert ack_response.status_code in (200, 204, 401)
@@ -522,13 +492,11 @@ async def test_dismiss_alert_workflow(
         "title": "Equipment Maintenance Due",
         "title_ar": "صيانة المعدات مستحقة",
         "description": "Tractor service is due this week",
-        "description_ar": "صيانة الجرار مستحقة هذا الأسبوع"
+        "description_ar": "صيانة الجرار مستحقة هذا الأسبوع",
     }
 
     create_response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     if create_response.status_code in (200, 201):
@@ -537,8 +505,7 @@ async def test_dismiss_alert_workflow(
 
         # Dismiss the alert - رفض التنبيه
         dismiss_response = await http_client.delete(
-            f"{alert_service_url}/v1/alerts/{alert_id}",
-            headers=auth_headers
+            f"{alert_service_url}/v1/alerts/{alert_id}", headers=auth_headers
         )
 
         assert dismiss_response.status_code in (200, 204, 404, 401)
@@ -575,20 +542,14 @@ async def test_alert_priority_workflow(
         "title_ar": "عاجل: تحذير من فيضانات مفاجئة",
         "description": "Flash flood imminent. Evacuate low-lying areas immediately.",
         "description_ar": "فيضان مفاجئ وشيك. قم بإخلاء المناطق المنخفضة فوراً.",
-        "location": {
-            "latitude": 15.3694,
-            "longitude": 44.1910,
-            "radius_km": 20
-        },
+        "location": {"latitude": 15.3694, "longitude": 44.1910, "radius_km": 20},
         "priority_override": "critical",
         "require_acknowledgment": True,
-        "escalation_minutes": 5
+        "escalation_minutes": 5,
     }
 
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=critical_alert,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=critical_alert, headers=auth_headers
     )
 
     if response.status_code in (200, 201):
@@ -623,13 +584,11 @@ async def test_multi_channel_alert_delivery(
         "description_ar": "تدهور الأحوال الجوية. احصد المحصول فوراً.",
         "field_id": "field-test-123",
         "channels": ["push", "sms", "email", "in_app"],
-        "priority": "critical"
+        "priority": "critical",
     }
 
     response = await http_client.post(
-        f"{alert_service_url}/v1/alerts",
-        json=alert_data,
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts", json=alert_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -659,8 +618,7 @@ async def test_alert_statistics_workflow(
 
     # Get alert statistics - الحصول على إحصائيات التنبيهات
     response = await http_client.get(
-        f"{alert_service_url}/v1/alerts/statistics",
-        headers=auth_headers
+        f"{alert_service_url}/v1/alerts/statistics", headers=auth_headers
     )
 
     if response.status_code == 200:

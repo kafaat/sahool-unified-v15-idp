@@ -18,65 +18,50 @@ VERSIONS = {
     "uvicorn": "0.27.0",  # uvicorn[standard]
     "pydantic": "2.9.2",
     "starlette": "0.41.3",  # Included with FastAPI
-
     # HTTP Clients
     "httpx": "0.28.1",
     "aiohttp": "3.11.12",  # Security fix for CVE-2025-53643
-
     # Database - PostgreSQL
     "sqlalchemy": "2.0.36",
     "psycopg2-binary": "2.9.10",
     "asyncpg": "0.30.0",
     "alembic": "1.14.0",
     "greenlet": "3.1.1",
-
     # Database - Tortoise ORM (legacy support)
     "tortoise-orm": "0.21.7",
     "aerich": "0.7.2",
-
     # Messaging
     "nats-py": "2.9.0",
     "redis": "5.2.1",
-
     # Authentication & Security
     "pyjwt": "2.10.1",
     "bcrypt": "4.2.1",
     "passlib": "1.7.4",
     "python-jose": "3.4.0",  # CVE-2024-33663, CVE-2024-33664 fixed
-
     # Validation
     "jsonschema": "4.23.0",
-
     # Image Processing
     "pillow": "11.0.0",
     "numpy": "1.26.4",  # <2.1.0 for TensorFlow compatibility
-
     # AI/ML
     "tensorflow-cpu": "2.18.0",
-
     # Firebase
     "firebase-admin": "6.6.0",
-
     # Scheduling
     "apscheduler": "3.10.4",
-
     # Payment
     "stripe": "7.0.0",
-
     # Date/Time
     "python-dateutil": "2.9.0",
-
     # Observability
     "prometheus-client": "0.21.1",
     "opentelemetry-api": "1.29.0",
     "opentelemetry-sdk": "1.29.0",
     "opentelemetry-instrumentation-fastapi": "0.50b0",
     "structlog": "24.4.0",
-
     # Utilities
     "python-dotenv": "1.0.1",
     "python-multipart": "0.0.18",
-
     # Testing
     "pytest": "8.3.4",
     "pytest-asyncio": "0.24.0",
@@ -121,6 +106,7 @@ SERVICE_VERSIONS = {
 # =============================================================================
 # Base Requirements Generation
 # =============================================================================
+
 
 def generate_base_requirements() -> str:
     """Generate base requirements.txt content"""
@@ -178,7 +164,4 @@ def get_service_url(service_name: str, host: str = "localhost") -> str:
 
 def get_all_service_urls(host: str = "localhost") -> dict:
     """Get URLs for all services"""
-    return {
-        name: f"http://{host}:{port}"
-        for name, port in SERVICE_PORTS.items()
-    }
+    return {name: f"http://{host}:{port}" for name, port in SERVICE_PORTS.items()}

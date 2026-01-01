@@ -38,7 +38,7 @@ class TestJobManagement:
             field_id="field_001",
             job_type="ndvi_calculation",
             parameters={"source": "sentinel-2"},
-            priority=5
+            priority=5,
         )
 
         assert job_id is not None
@@ -64,14 +64,10 @@ class TestJobManagement:
             tenant_id="test_tenant",
             field_id="field_001",
             job_type="ndvi_calculation",
-            parameters={}
+            parameters={},
         )
 
-        updated_job = update_job_status(
-            job_id,
-            JobStatus.PROCESSING,
-            progress=25
-        )
+        updated_job = update_job_status(job_id, JobStatus.PROCESSING, progress=25)
 
         assert updated_job is not None
         assert updated_job["status"] == JobStatus.PROCESSING.value
@@ -84,15 +80,12 @@ class TestJobManagement:
             tenant_id="test_tenant",
             field_id="field_001",
             job_type="ndvi_calculation",
-            parameters={}
+            parameters={},
         )
 
         result = {"ndvi_mean": 0.65, "files": {}}
         updated_job = update_job_status(
-            job_id,
-            JobStatus.COMPLETED,
-            progress=100,
-            result=result
+            job_id, JobStatus.COMPLETED, progress=100, result=result
         )
 
         assert updated_job is not None
@@ -107,13 +100,11 @@ class TestJobManagement:
             tenant_id="test_tenant",
             field_id="field_001",
             job_type="ndvi_calculation",
-            parameters={}
+            parameters={},
         )
 
         updated_job = update_job_status(
-            job_id,
-            JobStatus.FAILED,
-            error="Processing error"
+            job_id, JobStatus.FAILED, error="Processing error"
         )
 
         assert updated_job is not None
@@ -127,7 +118,7 @@ class TestJobManagement:
             tenant_id="test_tenant",
             field_id="field_001",
             job_type="ndvi_calculation",
-            parameters={}
+            parameters={},
         )
 
         success = cancel_job(job_id)
@@ -142,7 +133,7 @@ class TestJobManagement:
             tenant_id="test_tenant",
             field_id="field_001",
             job_type="ndvi_calculation",
-            parameters={}
+            parameters={},
         )
 
         update_job_status(job_id, JobStatus.COMPLETED)
@@ -195,7 +186,7 @@ class TestNDVIProcessing:
         result = process_ndvi_mock(
             field_id="field_001",
             source=SatelliteSource.SENTINEL_2,
-            date_range=("2025-12-01", "2025-12-15")
+            date_range=("2025-12-01", "2025-12-15"),
         )
 
         assert result.field_id == "field_001"
@@ -210,7 +201,7 @@ class TestNDVIProcessing:
         result = process_ndvi_mock(
             field_id="field_002",
             source=SatelliteSource.LANDSAT_8,
-            date_range=("2025-12-01", "2025-12-15")
+            date_range=("2025-12-01", "2025-12-15"),
         )
 
         assert result.source.satellite == "landsat-8"
@@ -221,7 +212,7 @@ class TestNDVIProcessing:
         result = process_ndvi_mock(
             field_id="field_003",
             source=SatelliteSource.MODIS,
-            date_range=("2025-12-01", "2025-12-15")
+            date_range=("2025-12-01", "2025-12-15"),
         )
 
         assert result.source.satellite == "modis"
@@ -236,8 +227,8 @@ class TestNDVIProcessing:
             options={
                 "atmospheric_correction": False,
                 "cloud_masking": False,
-                "cloud_threshold_percent": 30
-            }
+                "cloud_threshold_percent": 30,
+            },
         )
 
         assert result.processing.atmospheric_correction is None
@@ -249,7 +240,7 @@ class TestNDVIProcessing:
         process_ndvi_mock(
             field_id="field_get_test",
             source=SatelliteSource.SENTINEL_2,
-            date_range=("2025-12-01", "2025-12-01")
+            date_range=("2025-12-01", "2025-12-01"),
         )
 
         result = get_field_ndvi("field_get_test")
@@ -266,7 +257,7 @@ class TestNDVIProcessing:
         process_ndvi_mock(
             field_id="field_date_test",
             source=SatelliteSource.SENTINEL_2,
-            date_range=("2025-12-15", "2025-12-15")
+            date_range=("2025-12-15", "2025-12-15"),
         )
 
         result = get_field_ndvi("field_date_test", date="2025-12-15")
@@ -280,9 +271,7 @@ class TestTimeseriesAnalysis:
     def test_get_ndvi_timeseries(self):
         """Test getting NDVI timeseries"""
         timeseries = get_ndvi_timeseries(
-            "field_timeseries_test",
-            "2025-01-01",
-            "2025-01-31"
+            "field_timeseries_test", "2025-01-01", "2025-01-31"
         )
 
         assert len(timeseries) > 0
@@ -292,11 +281,7 @@ class TestTimeseriesAnalysis:
 
     def test_timeseries_date_range(self):
         """Test timeseries respects date range"""
-        timeseries = get_ndvi_timeseries(
-            "field_range_test",
-            "2025-06-01",
-            "2025-06-30"
-        )
+        timeseries = get_ndvi_timeseries("field_range_test", "2025-06-01", "2025-06-30")
 
         for point in timeseries:
             assert "2025-06-01" <= point.date <= "2025-06-30"
@@ -308,10 +293,7 @@ class TestChangeAnalysis:
     def test_analyze_change(self):
         """Test change analysis between two dates"""
         result = analyze_change(
-            "field_change_test",
-            "2025-01-01",
-            "2025-06-01",
-            include_zones=True
+            "field_change_test", "2025-01-01", "2025-06-01", include_zones=True
         )
 
         assert result["field_id"] == "field_change_test"
@@ -325,10 +307,7 @@ class TestChangeAnalysis:
     def test_analyze_change_without_zones(self):
         """Test change analysis without zone breakdown"""
         result = analyze_change(
-            "field_no_zones",
-            "2025-01-01",
-            "2025-06-01",
-            include_zones=False
+            "field_no_zones", "2025-01-01", "2025-06-01", include_zones=False
         )
 
         assert result["zones"] is None
@@ -336,10 +315,7 @@ class TestChangeAnalysis:
     def test_analyze_change_metrics(self):
         """Test change analysis metrics are valid"""
         result = analyze_change(
-            "field_metrics",
-            "2025-01-01",
-            "2025-12-01",
-            include_zones=True
+            "field_metrics", "2025-01-01", "2025-12-01", include_zones=True
         )
 
         change = result["change"]
@@ -350,9 +326,9 @@ class TestChangeAnalysis:
 
         # Percentages should sum to ~100
         total_pct = (
-            change["percent_increased"] +
-            change["percent_decreased"] +
-            change["percent_stable"]
+            change["percent_increased"]
+            + change["percent_decreased"]
+            + change["percent_stable"]
         )
         assert 95 <= total_pct <= 105
 
@@ -390,11 +366,7 @@ class TestAnomalyDetection:
 
     def test_detect_anomaly(self):
         """Test anomaly detection"""
-        result = detect_anomaly(
-            "field_anomaly_test",
-            "2025-12-27",
-            current_ndvi=0.3
-        )
+        result = detect_anomaly("field_anomaly_test", "2025-12-27", current_ndvi=0.3)
 
         assert result["field_id"] == "field_anomaly_test"
         assert result["date"] == "2025-12-27"
@@ -407,10 +379,7 @@ class TestAnomalyDetection:
 
     def test_detect_anomaly_auto_ndvi(self):
         """Test anomaly detection with auto-generated NDVI"""
-        result = detect_anomaly(
-            "field_auto_anomaly",
-            "2025-12-27"
-        )
+        result = detect_anomaly("field_auto_anomaly", "2025-12-27")
 
         assert "current_ndvi" in result
         assert -1 <= result["current_ndvi"] <= 1
@@ -418,11 +387,7 @@ class TestAnomalyDetection:
     def test_anomaly_severity(self):
         """Test anomaly severity classification"""
         # Test with extreme values to trigger anomaly
-        result = detect_anomaly(
-            "field_extreme",
-            "2025-12-27",
-            current_ndvi=0.1
-        )
+        result = detect_anomaly("field_extreme", "2025-12-27", current_ndvi=0.1)
 
         if result["is_anomaly"]:
             assert result["anomaly_type"] in ["positive", "negative"]
@@ -439,7 +404,7 @@ class TestCompositing:
             year=2025,
             month=12,
             method=CompositeMethod.MAX_NDVI,
-            source=SatelliteSource.SENTINEL_2
+            source=SatelliteSource.SENTINEL_2,
         )
 
         assert composite["field_id"] == "field_composite_test"
@@ -457,7 +422,7 @@ class TestCompositing:
             CompositeMethod.MAX_NDVI,
             CompositeMethod.MEAN_NDVI,
             CompositeMethod.MEDIAN_NDVI,
-            CompositeMethod.MIN_CLOUD
+            CompositeMethod.MIN_CLOUD,
         ]
 
         for method in methods:
@@ -466,23 +431,47 @@ class TestCompositing:
                 year=2025,
                 month=1,
                 method=method,
-                source=SatelliteSource.SENTINEL_2
+                source=SatelliteSource.SENTINEL_2,
             )
             assert composite["method"] == method.value
 
     def test_get_composites(self):
         """Test retrieving composites for a field"""
         # Create some composites first
-        create_composite("field_get_comp", 2025, 11, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2)
-        create_composite("field_get_comp", 2025, 12, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2)
+        create_composite(
+            "field_get_comp",
+            2025,
+            11,
+            CompositeMethod.MAX_NDVI,
+            SatelliteSource.SENTINEL_2,
+        )
+        create_composite(
+            "field_get_comp",
+            2025,
+            12,
+            CompositeMethod.MAX_NDVI,
+            SatelliteSource.SENTINEL_2,
+        )
 
         composites = get_composites("field_get_comp")
         assert len(composites) >= 2
 
     def test_get_composites_by_year(self):
         """Test retrieving composites filtered by year"""
-        create_composite("field_year_comp", 2025, 1, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2)
-        create_composite("field_year_comp", 2024, 12, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2)
+        create_composite(
+            "field_year_comp",
+            2025,
+            1,
+            CompositeMethod.MAX_NDVI,
+            SatelliteSource.SENTINEL_2,
+        )
+        create_composite(
+            "field_year_comp",
+            2024,
+            12,
+            CompositeMethod.MAX_NDVI,
+            SatelliteSource.SENTINEL_2,
+        )
 
         composites_2025 = get_composites("field_year_comp", year=2025)
         assert all(c["year"] == 2025 for c in composites_2025)
@@ -490,11 +479,7 @@ class TestCompositing:
     def test_composite_statistics(self):
         """Test composite statistics are valid"""
         composite = create_composite(
-            "field_stats",
-            2025,
-            6,
-            CompositeMethod.MAX_NDVI,
-            SatelliteSource.SENTINEL_2
+            "field_stats", 2025, 6, CompositeMethod.MAX_NDVI, SatelliteSource.SENTINEL_2
         )
 
         stats = composite["statistics"]

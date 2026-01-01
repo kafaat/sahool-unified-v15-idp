@@ -409,17 +409,19 @@ def list_categories():
     categories = []
     for category in CropCategory:
         crops_in_category = get_crops_by_category(category)
-        categories.append({
-            "code": category.value,
-            "name_en": category.value.replace("_", " ").title(),
-            "count": len(crops_in_category),
-            "crops": [crop.code for crop in crops_in_category]
-        })
+        categories.append(
+            {
+                "code": category.value,
+                "name_en": category.value.replace("_", " ").title(),
+                "count": len(crops_in_category),
+                "crops": [crop.code for crop in crops_in_category],
+            }
+        )
 
     return {
         "categories": categories,
         "total_categories": len(categories),
-        "total_crops": len(ALL_CROPS)
+        "total_crops": len(ALL_CROPS),
     }
 
 
@@ -427,7 +429,9 @@ def list_categories():
 def search_crops_endpoint(q: str):
     """Search crops by Arabic or English name"""
     if not q or len(q) < 2:
-        raise HTTPException(status_code=400, detail="Query must be at least 2 characters")
+        raise HTTPException(
+            status_code=400, detail="Query must be at least 2 characters"
+        )
 
     results = search_crops_catalog(q)
 
@@ -449,7 +453,7 @@ def search_crops_endpoint(q: str):
             }
             for crop in results
         ],
-        "count": len(results)
+        "count": len(results),
     }
 
 
@@ -478,7 +482,7 @@ def list_all_crops():
     return {
         "crops_by_category": crops_by_category,
         "total_crops": len(ALL_CROPS),
-        "category_counts": CATEGORIES_COUNT
+        "category_counts": CATEGORIES_COUNT,
     }
 
 
@@ -522,7 +526,7 @@ def get_crop_details(crop_code: str):
         "economics": {
             "price_usd_per_ton": crop.price_usd_per_ton,
         },
-        "varieties_available": len(varieties)
+        "varieties_available": len(varieties),
     }
 
 
@@ -567,7 +571,7 @@ def get_crop_varieties(crop_code: str):
             }
             for v in varieties
         ],
-        "count": len(varieties)
+        "count": len(varieties),
     }
 
 

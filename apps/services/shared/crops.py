@@ -18,63 +18,67 @@ from typing import Optional, Dict, List
 
 class CropCategory(str, Enum):
     """تصنيفات المحاصيل الرئيسية"""
-    CEREALS = "cereals"                    # الحبوب
-    LEGUMES = "legumes"                    # البقوليات
-    VEGETABLES = "vegetables"              # الخضروات
-    FRUITS = "fruits"                      # الفواكه
-    OILSEEDS = "oilseeds"                  # البذور الزيتية
-    FIBER = "fiber"                        # الألياف
-    SUGAR = "sugar"                        # السكريات
-    STIMULANTS = "stimulants"              # المنبهات
-    SPICES = "spices"                      # التوابل والأعشاب
-    FODDER = "fodder"                      # الأعلاف
-    TUBERS = "tubers"                      # الدرنيات
+
+    CEREALS = "cereals"  # الحبوب
+    LEGUMES = "legumes"  # البقوليات
+    VEGETABLES = "vegetables"  # الخضروات
+    FRUITS = "fruits"  # الفواكه
+    OILSEEDS = "oilseeds"  # البذور الزيتية
+    FIBER = "fiber"  # الألياف
+    SUGAR = "sugar"  # السكريات
+    STIMULANTS = "stimulants"  # المنبهات
+    SPICES = "spices"  # التوابل والأعشاب
+    FODDER = "fodder"  # الأعلاف
+    TUBERS = "tubers"  # الدرنيات
 
 
 class GrowthHabit(str, Enum):
     """طريقة النمو"""
-    ANNUAL = "annual"                      # حولي
-    PERENNIAL = "perennial"                # معمر
-    BIENNIAL = "biennial"                  # ثنائي الحول
+
+    ANNUAL = "annual"  # حولي
+    PERENNIAL = "perennial"  # معمر
+    BIENNIAL = "biennial"  # ثنائي الحول
 
 
 class WaterRequirement(str, Enum):
     """متطلبات المياه"""
-    VERY_LOW = "very_low"                  # منخفضة جداً (<300mm)
-    LOW = "low"                            # منخفضة (300-500mm)
-    MEDIUM = "medium"                      # متوسطة (500-800mm)
-    HIGH = "high"                          # عالية (800-1200mm)
-    VERY_HIGH = "very_high"                # عالية جداً (>1200mm)
+
+    VERY_LOW = "very_low"  # منخفضة جداً (<300mm)
+    LOW = "low"  # منخفضة (300-500mm)
+    MEDIUM = "medium"  # متوسطة (500-800mm)
+    HIGH = "high"  # عالية (800-1200mm)
+    VERY_HIGH = "very_high"  # عالية جداً (>1200mm)
 
 
 @dataclass
 class CropInfo:
     """معلومات المحصول الشاملة"""
-    code: str                              # رمز المحصول (FAO-based)
-    name_en: str                           # الاسم بالإنجليزية
-    name_ar: str                           # الاسم بالعربية
-    scientific_name: str                   # الاسم العلمي
-    category: CropCategory                 # التصنيف
-    growth_habit: GrowthHabit              # طريقة النمو
+
+    code: str  # رمز المحصول (FAO-based)
+    name_en: str  # الاسم بالإنجليزية
+    name_ar: str  # الاسم بالعربية
+    scientific_name: str  # الاسم العلمي
+    category: CropCategory  # التصنيف
+    growth_habit: GrowthHabit  # طريقة النمو
 
     # Growing conditions
-    growing_season_days: int               # مدة الموسم (أيام)
-    optimal_temp_min: float                # درجة الحرارة المثلى (الصغرى)
-    optimal_temp_max: float                # درجة الحرارة المثلى (الكبرى)
-    water_requirement: WaterRequirement    # متطلبات المياه
+    growing_season_days: int  # مدة الموسم (أيام)
+    optimal_temp_min: float  # درجة الحرارة المثلى (الصغرى)
+    optimal_temp_max: float  # درجة الحرارة المثلى (الكبرى)
+    water_requirement: WaterRequirement  # متطلبات المياه
 
     # Yield data
-    base_yield_ton_ha: float               # الإنتاجية الأساسية (طن/هكتار)
-    yield_unit: str = "ton/ha"             # وحدة القياس
+    base_yield_ton_ha: float  # الإنتاجية الأساسية (طن/هكتار)
+    yield_unit: str = "ton/ha"  # وحدة القياس
 
     # Yemen specific
-    yemen_regions: List[str] = None        # المناطق اليمنية المناسبة
-    local_varieties: List[str] = None      # الأصناف المحلية
+    yemen_regions: List[str] = None  # المناطق اليمنية المناسبة
+    local_varieties: List[str] = None  # الأصناف المحلية
 
     # FAO Kc coefficients (optional)
-    kc_ini: Optional[float] = None         # معامل المحصول الأولي
-    kc_mid: Optional[float] = None         # معامل المحصول الأقصى
-    kc_end: Optional[float] = None         # معامل المحصول النهائي
+    kc_ini: Optional[float] = None  # معامل المحصول الأولي
+    kc_mid: Optional[float] = None  # معامل المحصول الأقصى
+    kc_end: Optional[float] = None  # معامل المحصول النهائي
 
     # Economic data (USD/ton)
     price_usd_per_ton: Optional[float] = None
@@ -99,7 +103,9 @@ CEREALS = {
         base_yield_ton_ha=2.5,
         yemen_regions=["تهامة", "الجوف", "مأرب", "صعدة"],
         local_varieties=["بلدي", "شامي"],
-        kc_ini=0.3, kc_mid=1.15, kc_end=0.25,
+        kc_ini=0.3,
+        kc_mid=1.15,
+        kc_end=0.25,
         price_usd_per_ton=350,
     ),
     "BARLEY": CropInfo(
@@ -116,7 +122,9 @@ CEREALS = {
         base_yield_ton_ha=2.0,
         yemen_regions=["المرتفعات", "صعدة", "عمران"],
         local_varieties=["بلدي", "أبيض"],
-        kc_ini=0.3, kc_mid=1.15, kc_end=0.25,
+        kc_ini=0.3,
+        kc_mid=1.15,
+        kc_end=0.25,
         price_usd_per_ton=280,
     ),
     "CORN": CropInfo(
@@ -133,7 +141,9 @@ CEREALS = {
         base_yield_ton_ha=4.0,
         yemen_regions=["تهامة", "وادي حضرموت"],
         local_varieties=["أصفر", "أبيض"],
-        kc_ini=0.3, kc_mid=1.20, kc_end=0.35,
+        kc_ini=0.3,
+        kc_mid=1.20,
+        kc_end=0.35,
         price_usd_per_ton=280,
     ),
     "SORGHUM": CropInfo(
@@ -150,7 +160,9 @@ CEREALS = {
         base_yield_ton_ha=2.0,
         yemen_regions=["تهامة", "الحديدة", "لحج"],
         local_varieties=["بيضاء", "حمراء", "ذهبية"],
-        kc_ini=0.3, kc_mid=1.0, kc_end=0.55,
+        kc_ini=0.3,
+        kc_mid=1.0,
+        kc_end=0.55,
         price_usd_per_ton=250,
     ),
     "MILLET": CropInfo(
@@ -167,7 +179,9 @@ CEREALS = {
         base_yield_ton_ha=1.5,
         yemen_regions=["تهامة", "الحديدة"],
         local_varieties=["بلدي"],
-        kc_ini=0.3, kc_mid=1.0, kc_end=0.30,
+        kc_ini=0.3,
+        kc_mid=1.0,
+        kc_end=0.30,
         price_usd_per_ton=300,
     ),
     "RICE": CropInfo(
@@ -183,7 +197,9 @@ CEREALS = {
         water_requirement=WaterRequirement.VERY_HIGH,
         base_yield_ton_ha=4.0,
         yemen_regions=["وادي حضرموت"],
-        kc_ini=1.05, kc_mid=1.20, kc_end=0.90,
+        kc_ini=1.05,
+        kc_mid=1.20,
+        kc_end=0.90,
         price_usd_per_ton=500,
     ),
 }
@@ -207,7 +223,9 @@ LEGUMES = {
         base_yield_ton_ha=2.5,
         yemen_regions=["المرتفعات", "إب", "ذمار"],
         local_varieties=["بلدي", "مصري"],
-        kc_ini=0.5, kc_mid=1.15, kc_end=1.10,
+        kc_ini=0.5,
+        kc_mid=1.15,
+        kc_end=1.10,
         price_usd_per_ton=600,
     ),
     "LENTIL": CropInfo(
@@ -223,7 +241,9 @@ LEGUMES = {
         water_requirement=WaterRequirement.LOW,
         base_yield_ton_ha=1.0,
         yemen_regions=["المرتفعات", "صعدة"],
-        kc_ini=0.4, kc_mid=1.1, kc_end=0.3,
+        kc_ini=0.4,
+        kc_mid=1.1,
+        kc_end=0.3,
         price_usd_per_ton=800,
     ),
     "CHICKPEA": CropInfo(
@@ -239,7 +259,9 @@ LEGUMES = {
         water_requirement=WaterRequirement.LOW,
         base_yield_ton_ha=1.2,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.4, kc_mid=1.0, kc_end=0.35,
+        kc_ini=0.4,
+        kc_mid=1.0,
+        kc_end=0.35,
         price_usd_per_ton=900,
     ),
     "COWPEA": CropInfo(
@@ -255,7 +277,9 @@ LEGUMES = {
         water_requirement=WaterRequirement.LOW,
         base_yield_ton_ha=1.5,
         yemen_regions=["تهامة", "لحج"],
-        kc_ini=0.4, kc_mid=1.05, kc_end=0.60,
+        kc_ini=0.4,
+        kc_mid=1.05,
+        kc_end=0.60,
         price_usd_per_ton=700,
     ),
     "GREEN_BEAN": CropInfo(
@@ -271,7 +295,9 @@ LEGUMES = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=12.0,
         yemen_regions=["المرتفعات", "إب"],
-        kc_ini=0.4, kc_mid=1.15, kc_end=0.35,
+        kc_ini=0.4,
+        kc_mid=1.15,
+        kc_end=0.35,
         price_usd_per_ton=500,
     ),
     "PEANUT": CropInfo(
@@ -287,7 +313,9 @@ LEGUMES = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=2.0,
         yemen_regions=["تهامة", "لحج"],
-        kc_ini=0.4, kc_mid=1.15, kc_end=0.60,
+        kc_ini=0.4,
+        kc_mid=1.15,
+        kc_end=0.60,
         price_usd_per_ton=1000,
     ),
     "FENUGREEK": CropInfo(
@@ -304,7 +332,9 @@ LEGUMES = {
         base_yield_ton_ha=1.5,
         yemen_regions=["المرتفعات", "صنعاء", "ذمار"],
         local_varieties=["بلدي يمني"],
-        kc_ini=0.4, kc_mid=1.0, kc_end=0.35,
+        kc_ini=0.4,
+        kc_mid=1.0,
+        kc_end=0.35,
         price_usd_per_ton=1500,
     ),
 }
@@ -328,7 +358,9 @@ VEGETABLES = {
         base_yield_ton_ha=35.0,
         yemen_regions=["المرتفعات", "تهامة", "وادي حضرموت"],
         local_varieties=["بلدي", "هجين"],
-        kc_ini=0.6, kc_mid=1.15, kc_end=0.80,
+        kc_ini=0.6,
+        kc_mid=1.15,
+        kc_end=0.80,
         price_usd_per_ton=400,
     ),
     "POTATO": CropInfo(
@@ -345,7 +377,9 @@ VEGETABLES = {
         base_yield_ton_ha=20.0,
         yemen_regions=["المرتفعات", "ذمار", "إب"],
         local_varieties=["سبونتا", "دايمونت"],
-        kc_ini=0.5, kc_mid=1.15, kc_end=0.75,
+        kc_ini=0.5,
+        kc_mid=1.15,
+        kc_end=0.75,
         price_usd_per_ton=320,
     ),
     "ONION": CropInfo(
@@ -362,7 +396,9 @@ VEGETABLES = {
         base_yield_ton_ha=25.0,
         yemen_regions=["المرتفعات", "تهامة"],
         local_varieties=["أحمر يمني", "أبيض"],
-        kc_ini=0.7, kc_mid=1.05, kc_end=0.75,
+        kc_ini=0.7,
+        kc_mid=1.05,
+        kc_end=0.75,
         price_usd_per_ton=350,
     ),
     "GARLIC": CropInfo(
@@ -379,7 +415,9 @@ VEGETABLES = {
         base_yield_ton_ha=8.0,
         yemen_regions=["المرتفعات", "صعدة"],
         local_varieties=["بلدي"],
-        kc_ini=0.7, kc_mid=1.0, kc_end=0.70,
+        kc_ini=0.7,
+        kc_mid=1.0,
+        kc_end=0.70,
         price_usd_per_ton=1500,
     ),
     "PEPPER": CropInfo(
@@ -395,7 +433,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.HIGH,
         base_yield_ton_ha=25.0,
         yemen_regions=["المرتفعات", "تهامة"],
-        kc_ini=0.6, kc_mid=1.05, kc_end=0.90,
+        kc_ini=0.6,
+        kc_mid=1.05,
+        kc_end=0.90,
         price_usd_per_ton=600,
     ),
     "CHILI": CropInfo(
@@ -412,7 +452,9 @@ VEGETABLES = {
         base_yield_ton_ha=15.0,
         yemen_regions=["تهامة", "لحج"],
         local_varieties=["يمني حار"],
-        kc_ini=0.6, kc_mid=1.05, kc_end=0.90,
+        kc_ini=0.6,
+        kc_mid=1.05,
+        kc_end=0.90,
         price_usd_per_ton=800,
     ),
     "EGGPLANT": CropInfo(
@@ -428,7 +470,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.HIGH,
         base_yield_ton_ha=30.0,
         yemen_regions=["المرتفعات", "تهامة"],
-        kc_ini=0.6, kc_mid=1.05, kc_end=0.90,
+        kc_ini=0.6,
+        kc_mid=1.05,
+        kc_end=0.90,
         price_usd_per_ton=350,
     ),
     "CUCUMBER": CropInfo(
@@ -444,7 +488,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.HIGH,
         base_yield_ton_ha=40.0,
         yemen_regions=["المرتفعات", "تهامة"],
-        kc_ini=0.6, kc_mid=1.0, kc_end=0.75,
+        kc_ini=0.6,
+        kc_mid=1.0,
+        kc_end=0.75,
         price_usd_per_ton=300,
     ),
     "ZUCCHINI": CropInfo(
@@ -460,7 +506,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=30.0,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.5, kc_mid=1.0, kc_end=0.80,
+        kc_ini=0.5,
+        kc_mid=1.0,
+        kc_end=0.80,
         price_usd_per_ton=280,
     ),
     "WATERMELON": CropInfo(
@@ -476,7 +524,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.HIGH,
         base_yield_ton_ha=35.0,
         yemen_regions=["تهامة", "لحج"],
-        kc_ini=0.4, kc_mid=1.0, kc_end=0.75,
+        kc_ini=0.4,
+        kc_mid=1.0,
+        kc_end=0.75,
         price_usd_per_ton=200,
     ),
     "CARROT": CropInfo(
@@ -492,7 +542,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=35.0,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.7, kc_mid=1.05, kc_end=0.95,
+        kc_ini=0.7,
+        kc_mid=1.05,
+        kc_end=0.95,
         price_usd_per_ton=400,
     ),
     "CABBAGE": CropInfo(
@@ -508,7 +560,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=40.0,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.7, kc_mid=1.05, kc_end=0.95,
+        kc_ini=0.7,
+        kc_mid=1.05,
+        kc_end=0.95,
         price_usd_per_ton=250,
     ),
     "LETTUCE": CropInfo(
@@ -524,7 +578,9 @@ VEGETABLES = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=25.0,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.7, kc_mid=1.0, kc_end=0.95,
+        kc_ini=0.7,
+        kc_mid=1.0,
+        kc_end=0.95,
         price_usd_per_ton=400,
     ),
     "OKRA": CropInfo(
@@ -541,7 +597,9 @@ VEGETABLES = {
         base_yield_ton_ha=12.0,
         yemen_regions=["تهامة", "لحج", "أبين"],
         local_varieties=["بلدي"],
-        kc_ini=0.5, kc_mid=1.0, kc_end=0.90,
+        kc_ini=0.5,
+        kc_mid=1.0,
+        kc_end=0.90,
         price_usd_per_ton=600,
     ),
 }
@@ -565,7 +623,9 @@ FRUITS = {
         base_yield_ton_ha=8.0,
         yemen_regions=["وادي حضرموت", "شبوة", "المهرة"],
         local_varieties=["مدهول", "برحي", "خلاص", "سكري"],
-        kc_ini=0.9, kc_mid=0.95, kc_end=0.95,
+        kc_ini=0.9,
+        kc_mid=0.95,
+        kc_end=0.95,
         price_usd_per_ton=1500,
     ),
     "MANGO": CropInfo(
@@ -582,7 +642,9 @@ FRUITS = {
         base_yield_ton_ha=10.0,
         yemen_regions=["تهامة", "لحج", "أبين"],
         local_varieties=["عويس", "زبدة", "هندي"],
-        kc_ini=0.8, kc_mid=0.9, kc_end=0.85,
+        kc_ini=0.8,
+        kc_mid=0.9,
+        kc_end=0.85,
         price_usd_per_ton=800,
     ),
     "BANANA": CropInfo(
@@ -599,7 +661,9 @@ FRUITS = {
         base_yield_ton_ha=30.0,
         yemen_regions=["تهامة", "لحج"],
         local_varieties=["بلدي", "كافنديش"],
-        kc_ini=0.5, kc_mid=1.1, kc_end=1.0,
+        kc_ini=0.5,
+        kc_mid=1.1,
+        kc_end=1.0,
         price_usd_per_ton=500,
     ),
     "GRAPE": CropInfo(
@@ -616,7 +680,9 @@ FRUITS = {
         base_yield_ton_ha=12.0,
         yemen_regions=["المرتفعات", "صعدة", "عمران"],
         local_varieties=["بلدي", "رازقي", "عسيلي"],
-        kc_ini=0.3, kc_mid=0.85, kc_end=0.45,
+        kc_ini=0.3,
+        kc_mid=0.85,
+        kc_end=0.45,
         price_usd_per_ton=700,
     ),
     "PAPAYA": CropInfo(
@@ -632,7 +698,9 @@ FRUITS = {
         water_requirement=WaterRequirement.HIGH,
         base_yield_ton_ha=40.0,
         yemen_regions=["تهامة", "لحج"],
-        kc_ini=0.6, kc_mid=1.0, kc_end=0.80,
+        kc_ini=0.6,
+        kc_mid=1.0,
+        kc_end=0.80,
         price_usd_per_ton=400,
     ),
     "CITRUS_ORANGE": CropInfo(
@@ -648,7 +716,9 @@ FRUITS = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=20.0,
         yemen_regions=["المرتفعات", "تهامة"],
-        kc_ini=0.7, kc_mid=0.65, kc_end=0.65,
+        kc_ini=0.7,
+        kc_mid=0.65,
+        kc_end=0.65,
         price_usd_per_ton=450,
     ),
     "CITRUS_LEMON": CropInfo(
@@ -664,7 +734,9 @@ FRUITS = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=15.0,
         yemen_regions=["المرتفعات", "تهامة"],
-        kc_ini=0.7, kc_mid=0.65, kc_end=0.65,
+        kc_ini=0.7,
+        kc_mid=0.65,
+        kc_end=0.65,
         price_usd_per_ton=500,
     ),
     "POMEGRANATE": CropInfo(
@@ -681,7 +753,9 @@ FRUITS = {
         base_yield_ton_ha=12.0,
         yemen_regions=["المرتفعات", "صعدة"],
         local_varieties=["بلدي يمني"],
-        kc_ini=0.6, kc_mid=0.85, kc_end=0.65,
+        kc_ini=0.6,
+        kc_mid=0.85,
+        kc_end=0.65,
         price_usd_per_ton=700,
     ),
     "FIG": CropInfo(
@@ -697,7 +771,9 @@ FRUITS = {
         water_requirement=WaterRequirement.LOW,
         base_yield_ton_ha=8.0,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.5, kc_mid=0.85, kc_end=0.75,
+        kc_ini=0.5,
+        kc_mid=0.85,
+        kc_end=0.75,
         price_usd_per_ton=800,
     ),
     "GUAVA": CropInfo(
@@ -713,7 +789,9 @@ FRUITS = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=25.0,
         yemen_regions=["تهامة", "لحج"],
-        kc_ini=0.6, kc_mid=0.85, kc_end=0.75,
+        kc_ini=0.6,
+        kc_mid=0.85,
+        kc_end=0.75,
         price_usd_per_ton=500,
     ),
 }
@@ -737,7 +815,9 @@ STIMULANTS = {
         base_yield_ton_ha=0.8,
         yemen_regions=["بني مطر", "حراز", "يافع", "حيمة", "برع"],
         local_varieties=["مخا", "متري", "برعي", "عديني", "حيمي", "يافعي"],
-        kc_ini=0.9, kc_mid=0.95, kc_end=0.95,
+        kc_ini=0.9,
+        kc_mid=0.95,
+        kc_end=0.95,
         price_usd_per_ton=8000,
     ),
     "QAT": CropInfo(
@@ -754,7 +834,9 @@ STIMULANTS = {
         base_yield_ton_ha=4.0,
         yemen_regions=["صنعاء", "تعز", "إب", "ذمار"],
         local_varieties=["شامي", "بلدي", "مطري"],
-        kc_ini=0.95, kc_mid=1.0, kc_end=0.95,
+        kc_ini=0.95,
+        kc_mid=1.0,
+        kc_end=0.95,
         price_usd_per_ton=3000,
     ),
 }
@@ -778,7 +860,9 @@ OILSEEDS = {
         base_yield_ton_ha=0.8,
         yemen_regions=["تهامة", "لحج"],
         local_varieties=["أبيض", "أحمر"],
-        kc_ini=0.35, kc_mid=1.1, kc_end=0.25,
+        kc_ini=0.35,
+        kc_mid=1.1,
+        kc_end=0.25,
         price_usd_per_ton=2000,
     ),
     "SUNFLOWER": CropInfo(
@@ -794,7 +878,9 @@ OILSEEDS = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=2.0,
         yemen_regions=["المرتفعات", "تهامة"],
-        kc_ini=0.35, kc_mid=1.1, kc_end=0.35,
+        kc_ini=0.35,
+        kc_mid=1.1,
+        kc_end=0.35,
         price_usd_per_ton=600,
     ),
     "SOYBEAN": CropInfo(
@@ -810,7 +896,9 @@ OILSEEDS = {
         water_requirement=WaterRequirement.MEDIUM,
         base_yield_ton_ha=2.5,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.4, kc_mid=1.15, kc_end=0.50,
+        kc_ini=0.4,
+        kc_mid=1.15,
+        kc_end=0.50,
         price_usd_per_ton=450,
     ),
 }
@@ -834,7 +922,9 @@ FODDER = {
         base_yield_ton_ha=15.0,
         yield_unit="ton/ha/cut",
         yemen_regions=["وادي حضرموت", "المرتفعات"],
-        kc_ini=0.4, kc_mid=1.2, kc_end=1.15,
+        kc_ini=0.4,
+        kc_mid=1.2,
+        kc_end=1.15,
         price_usd_per_ton=200,
     ),
     "CLOVER": CropInfo(
@@ -851,7 +941,9 @@ FODDER = {
         base_yield_ton_ha=60.0,
         yield_unit="ton/ha (fresh)",
         yemen_regions=["المرتفعات", "تهامة"],
-        kc_ini=0.4, kc_mid=1.05, kc_end=1.05,
+        kc_ini=0.4,
+        kc_mid=1.05,
+        kc_end=1.05,
         price_usd_per_ton=80,
     ),
     "RHODES_GRASS": CropInfo(
@@ -868,7 +960,9 @@ FODDER = {
         base_yield_ton_ha=12.0,
         yield_unit="ton/ha/cut",
         yemen_regions=["تهامة", "لحج"],
-        kc_ini=0.5, kc_mid=0.95, kc_end=0.85,
+        kc_ini=0.5,
+        kc_mid=0.95,
+        kc_end=0.85,
         price_usd_per_ton=150,
     ),
 }
@@ -891,7 +985,9 @@ SPICES = {
         water_requirement=WaterRequirement.LOW,
         base_yield_ton_ha=1.0,
         yemen_regions=["المرتفعات"],
-        kc_ini=0.5, kc_mid=0.95, kc_end=0.70,
+        kc_ini=0.5,
+        kc_mid=0.95,
+        kc_end=0.70,
         price_usd_per_ton=2000,
     ),
     "CUMIN": CropInfo(
@@ -907,7 +1003,9 @@ SPICES = {
         water_requirement=WaterRequirement.LOW,
         base_yield_ton_ha=0.5,
         yemen_regions=["المرتفعات", "صعدة"],
-        kc_ini=0.35, kc_mid=0.95, kc_end=0.60,
+        kc_ini=0.35,
+        kc_mid=0.95,
+        kc_end=0.60,
         price_usd_per_ton=3500,
     ),
     "HENNA": CropInfo(
@@ -924,7 +1022,9 @@ SPICES = {
         base_yield_ton_ha=3.0,
         yemen_regions=["تهامة", "وادي حضرموت"],
         local_varieties=["يمني بلدي"],
-        kc_ini=0.5, kc_mid=0.85, kc_end=0.70,
+        kc_ini=0.5,
+        kc_mid=0.85,
+        kc_end=0.70,
         price_usd_per_ton=1000,
     ),
     "BASIL": CropInfo(
@@ -941,7 +1041,9 @@ SPICES = {
         base_yield_ton_ha=15.0,
         yield_unit="ton/ha (fresh)",
         yemen_regions=["المرتفعات"],
-        kc_ini=0.6, kc_mid=1.0, kc_end=0.90,
+        kc_ini=0.6,
+        kc_mid=1.0,
+        kc_end=0.90,
         price_usd_per_ton=500,
     ),
 }
@@ -965,7 +1067,9 @@ FIBER = {
         base_yield_ton_ha=2.5,
         yemen_regions=["تهامة", "لحج", "أبين"],
         local_varieties=["يمني طويل التيلة"],
-        kc_ini=0.35, kc_mid=1.2, kc_end=0.60,
+        kc_ini=0.35,
+        kc_mid=1.2,
+        kc_end=0.60,
         price_usd_per_ton=1800,
     ),
 }
@@ -988,7 +1092,9 @@ SUGAR = {
         water_requirement=WaterRequirement.VERY_HIGH,
         base_yield_ton_ha=80.0,
         yemen_regions=["تهامة", "لحج"],
-        kc_ini=0.40, kc_mid=1.25, kc_end=0.75,
+        kc_ini=0.40,
+        kc_mid=1.25,
+        kc_end=0.75,
         price_usd_per_ton=50,
     ),
 }
@@ -1016,6 +1122,7 @@ ALL_CROPS: Dict[str, CropInfo] = {
 # HELPER FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def get_crop(code: str) -> Optional[CropInfo]:
     """Get crop by code"""
     return ALL_CROPS.get(code.upper())
@@ -1028,13 +1135,16 @@ def get_crops_by_category(category: CropCategory) -> List[CropInfo]:
 
 def get_crops_by_water_requirement(requirement: WaterRequirement) -> List[CropInfo]:
     """Get crops by water requirement"""
-    return [crop for crop in ALL_CROPS.values() if crop.water_requirement == requirement]
+    return [
+        crop for crop in ALL_CROPS.values() if crop.water_requirement == requirement
+    ]
 
 
 def get_crops_for_region(region: str) -> List[CropInfo]:
     """Get crops suitable for a Yemen region"""
     return [
-        crop for crop in ALL_CROPS.values()
+        crop
+        for crop in ALL_CROPS.values()
         if crop.yemen_regions and region in crop.yemen_regions
     ]
 
@@ -1043,7 +1153,8 @@ def search_crops(query: str) -> List[CropInfo]:
     """Search crops by name (English or Arabic)"""
     query_lower = query.lower()
     return [
-        crop for crop in ALL_CROPS.values()
+        crop
+        for crop in ALL_CROPS.values()
         if query_lower in crop.name_en.lower() or query in crop.name_ar
     ]
 
@@ -1076,4 +1187,6 @@ if __name__ == "__main__":
     print("\nYemen-specific crops:")
     for crop in ALL_CROPS.values():
         if crop.local_varieties:
-            print(f"  - {crop.name_ar} ({crop.name_en}): {', '.join(crop.local_varieties)}")
+            print(
+                f"  - {crop.name_ar} ({crop.name_en}): {', '.join(crop.local_varieties)}"
+            )

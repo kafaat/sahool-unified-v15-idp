@@ -357,9 +357,7 @@ async def get_cache_stats() -> Dict[str, Any]:
             "misses": info.get("keyspace_misses", 0),
             "hit_rate": round(
                 info.get("keyspace_hits", 0)
-                / max(
-                    info.get("keyspace_hits", 0) + info.get("keyspace_misses", 0), 1
-                )
+                / max(info.get("keyspace_hits", 0) + info.get("keyspace_misses", 0), 1)
                 * 100,
                 2,
             ),

@@ -125,7 +125,7 @@ def set_twofa_config(config: TwoFAConfig) -> None:
 def configure_twofa(
     enforcement_level: TwoFAEnforcementLevel = TwoFAEnforcementLevel.OPTIONAL,
     grace_period_days: int = 30,
-    **kwargs
+    **kwargs,
 ) -> TwoFAConfig:
     """
     Configure 2FA settings.
@@ -150,7 +150,7 @@ def configure_twofa(
     config = TwoFAConfig(
         enforcement_level=enforcement_level,
         grace_period_days=grace_period_days,
-        **kwargs
+        **kwargs,
     )
     set_twofa_config(config)
     return config
@@ -177,7 +177,7 @@ class TwoFAEnforcementMiddleware:
         user_roles: list[str],
         user_created_at: datetime,
         twofa_enabled: bool,
-        exempt_paths: Optional[list[str]] = None
+        exempt_paths: Optional[list[str]] = None,
     ) -> tuple[bool, Optional[str]]:
         """
         Check if 2FA is required for the user and if they comply.

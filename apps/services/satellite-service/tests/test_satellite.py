@@ -24,8 +24,8 @@ def client():
             "location": {"lat": lat, "lon": lon},
             "imagery": [
                 {"source": "sentinel-2", "date": "2025-12-20", "cloud_cover": 5},
-                {"source": "sentinel-2", "date": "2025-12-15", "cloud_cover": 12}
-            ]
+                {"source": "sentinel-2", "date": "2025-12-15", "cloud_cover": 12},
+            ],
         }
 
     @app.post("/api/v1/imagery/request")
@@ -33,7 +33,7 @@ def client():
         return {
             "request_id": "req_001",
             "status": "processing",
-            "estimated_time_minutes": 5
+            "estimated_time_minutes": 5,
         }
 
     @app.get("/api/v1/imagery/{request_id}")
@@ -41,7 +41,7 @@ def client():
         return {
             "request_id": request_id,
             "status": "completed",
-            "download_url": "https://cdn.sahool.io/imagery/req_001.tiff"
+            "download_url": "https://cdn.sahool.io/imagery/req_001.tiff",
         }
 
     @app.get("/api/v1/fields/{field_id}/imagery")
@@ -49,8 +49,12 @@ def client():
         return {
             "field_id": field_id,
             "images": [
-                {"date": "2025-12-20", "source": "sentinel-2", "indices": ["ndvi", "ndwi"]}
-            ]
+                {
+                    "date": "2025-12-20",
+                    "source": "sentinel-2",
+                    "indices": ["ndvi", "ndwi"],
+                }
+            ],
         }
 
     @app.get("/api/v1/sources")
@@ -58,7 +62,7 @@ def client():
         return {
             "sources": [
                 {"id": "sentinel-2", "name": "Sentinel-2", "resolution": "10m"},
-                {"id": "landsat-8", "name": "Landsat 8", "resolution": "30m"}
+                {"id": "landsat-8", "name": "Landsat 8", "resolution": "30m"},
             ]
         }
 
@@ -80,11 +84,14 @@ class TestImageryAvailability:
 
 class TestImageryRequest:
     def test_request_imagery(self, client):
-        response = client.post("/api/v1/imagery/request", json={
-            "field_id": "field_001",
-            "date": "2025-12-20",
-            "source": "sentinel-2"
-        })
+        response = client.post(
+            "/api/v1/imagery/request",
+            json={
+                "field_id": "field_001",
+                "date": "2025-12-20",
+                "source": "sentinel-2",
+            },
+        )
         assert response.status_code == 200
         assert "request_id" in response.json()
 

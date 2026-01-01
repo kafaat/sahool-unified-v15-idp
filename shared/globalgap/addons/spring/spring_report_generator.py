@@ -35,35 +35,63 @@ from .spring_checklist import (
 
 # ==================== Water Balance Models ====================
 
+
 class WaterBalanceCalculation(BaseModel):
     """
     Water balance calculation for a reporting period
     حساب توازن المياه لفترة التقرير
     """
-    period_start: date = Field(..., description="Period start date / تاريخ بداية الفترة")
+
+    period_start: date = Field(
+        ..., description="Period start date / تاريخ بداية الفترة"
+    )
     period_end: date = Field(..., description="Period end date / تاريخ نهاية الفترة")
     farm_id: str = Field(..., description="Farm identifier / معرف المزرعة")
 
     # Inputs (المدخلات)
-    irrigation_water_m3: float = Field(..., ge=0, description="Irrigation water (m³) / مياه الري")
+    irrigation_water_m3: float = Field(
+        ..., ge=0, description="Irrigation water (m³) / مياه الري"
+    )
     rainfall_m3: float = Field(0, ge=0, description="Rainfall (m³) / الأمطار")
-    recycled_water_m3: float = Field(0, ge=0, description="Recycled water (m³) / المياه المعاد تدويرها")
-    total_input_m3: float = Field(..., ge=0, description="Total input (m³) / المدخلات الكلية")
+    recycled_water_m3: float = Field(
+        0, ge=0, description="Recycled water (m³) / المياه المعاد تدويرها"
+    )
+    total_input_m3: float = Field(
+        ..., ge=0, description="Total input (m³) / المدخلات الكلية"
+    )
 
     # Outputs (المخرجات)
-    crop_evapotranspiration_m3: float = Field(..., ge=0, description="Crop ET (m³) / التبخر النتح للمحصول")
-    runoff_m3: float = Field(0, ge=0, description="Surface runoff (m³) / الجريان السطحي")
-    deep_percolation_m3: float = Field(0, ge=0, description="Deep percolation (m³) / الترشح العميق")
-    evaporation_m3: float = Field(0, ge=0, description="Direct evaporation (m³) / التبخر المباشر")
-    total_output_m3: float = Field(..., ge=0, description="Total output (m³) / المخرجات الكلية")
+    crop_evapotranspiration_m3: float = Field(
+        ..., ge=0, description="Crop ET (m³) / التبخر النتح للمحصول"
+    )
+    runoff_m3: float = Field(
+        0, ge=0, description="Surface runoff (m³) / الجريان السطحي"
+    )
+    deep_percolation_m3: float = Field(
+        0, ge=0, description="Deep percolation (m³) / الترشح العميق"
+    )
+    evaporation_m3: float = Field(
+        0, ge=0, description="Direct evaporation (m³) / التبخر المباشر"
+    )
+    total_output_m3: float = Field(
+        ..., ge=0, description="Total output (m³) / المخرجات الكلية"
+    )
 
     # Balance (التوازن)
-    storage_change_m3: float = Field(..., description="Storage change (m³) / تغيير التخزين")
-    balance_error_percent: float = Field(0, ge=0, description="Balance error (%) / خطأ التوازن")
+    storage_change_m3: float = Field(
+        ..., description="Storage change (m³) / تغيير التخزين"
+    )
+    balance_error_percent: float = Field(
+        0, ge=0, description="Balance error (%) / خطأ التوازن"
+    )
 
     # Efficiency (الكفاءة)
-    beneficial_use_efficiency_percent: float = Field(..., ge=0, le=100, description="Beneficial use (%) / الاستخدام المفيد")
-    water_productivity_kg_per_m3: Optional[float] = Field(None, description="Water productivity (kg/m³) / إنتاجية المياه")
+    beneficial_use_efficiency_percent: float = Field(
+        ..., ge=0, le=100, description="Beneficial use (%) / الاستخدام المفيد"
+    )
+    water_productivity_kg_per_m3: Optional[float] = Field(
+        None, description="Water productivity (kg/m³) / إنتاجية المياه"
+    )
 
     class Config:
         json_schema_extra = {
@@ -83,7 +111,7 @@ class WaterBalanceCalculation(BaseModel):
                 "storage_change_m3": 0,
                 "balance_error_percent": 0.5,
                 "beneficial_use_efficiency_percent": 83.3,
-                "water_productivity_kg_per_m3": 6.8
+                "water_productivity_kg_per_m3": 6.8,
             }
         }
 
@@ -93,13 +121,16 @@ class SpringReportSection(BaseModel):
     Report section
     قسم التقرير
     """
+
     section_id: str = Field(..., description="Section identifier / معرف القسم")
     title_en: str = Field(..., description="Section title (English) / عنوان القسم")
     title_ar: str = Field(..., description="Section title (Arabic) / عنوان القسم")
     content_en: str = Field(..., description="Section content (English) / محتوى القسم")
     content_ar: str = Field(..., description="Section content (Arabic) / محتوى القسم")
     order: int = Field(..., description="Display order / ترتيب العرض")
-    subsections: List['SpringReportSection'] = Field(default_factory=list, description="Subsections / الأقسام الفرعية")
+    subsections: List["SpringReportSection"] = Field(
+        default_factory=list, description="Subsections / الأقسام الفرعية"
+    )
 
 
 class SpringReport(BaseModel):
@@ -107,8 +138,11 @@ class SpringReport(BaseModel):
     Complete SPRING compliance report
     تقرير امتثال SPRING الكامل
     """
+
     report_id: str = Field(..., description="Report identifier / معرف التقرير")
-    generated_date: datetime = Field(default_factory=datetime.utcnow, description="Generation date / تاريخ الإنشاء")
+    generated_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Generation date / تاريخ الإنشاء"
+    )
     report_period_start: date = Field(..., description="Period start / بداية الفترة")
     report_period_end: date = Field(..., description="Period end / نهاية الفترة")
 
@@ -117,28 +151,48 @@ class SpringReport(BaseModel):
     farm_name_ar: str = Field(..., description="Farm name (Arabic) / اسم المزرعة")
 
     # Executive Summary
-    executive_summary_en: str = Field(..., description="Executive summary (EN) / الملخص التنفيذي")
-    executive_summary_ar: str = Field(..., description="Executive summary (AR) / الملخص التنفيذي")
+    executive_summary_en: str = Field(
+        ..., description="Executive summary (EN) / الملخص التنفيذي"
+    )
+    executive_summary_ar: str = Field(
+        ..., description="Executive summary (AR) / الملخص التنفيذي"
+    )
 
     # Water Balance
-    water_balance: WaterBalanceCalculation = Field(..., description="Water balance / توازن المياه")
+    water_balance: WaterBalanceCalculation = Field(
+        ..., description="Water balance / توازن المياه"
+    )
 
     # Efficiency Score
-    efficiency_score: WaterEfficiencyScore = Field(..., description="Efficiency score / درجة الكفاءة")
+    efficiency_score: WaterEfficiencyScore = Field(
+        ..., description="Efficiency score / درجة الكفاءة"
+    )
 
     # Compliance Assessment
-    compliance_summary: Dict[str, Any] = Field(..., description="Compliance summary / ملخص الامتثال")
+    compliance_summary: Dict[str, Any] = Field(
+        ..., description="Compliance summary / ملخص الامتثال"
+    )
 
     # Sections
-    sections: List[SpringReportSection] = Field(default_factory=list, description="Report sections / أقسام التقرير")
+    sections: List[SpringReportSection] = Field(
+        default_factory=list, description="Report sections / أقسام التقرير"
+    )
 
     # Recommendations
-    recommendations_en: List[str] = Field(default_factory=list, description="Recommendations (EN) / التوصيات")
-    recommendations_ar: List[str] = Field(default_factory=list, description="Recommendations (AR) / التوصيات")
+    recommendations_en: List[str] = Field(
+        default_factory=list, description="Recommendations (EN) / التوصيات"
+    )
+    recommendations_ar: List[str] = Field(
+        default_factory=list, description="Recommendations (AR) / التوصيات"
+    )
 
     # Yemen-specific insights
-    yemen_context_notes_en: Optional[str] = Field(None, description="Yemen context (EN) / السياق اليمني")
-    yemen_context_notes_ar: Optional[str] = Field(None, description="Yemen context (AR) / السياق اليمني")
+    yemen_context_notes_en: Optional[str] = Field(
+        None, description="Yemen context (EN) / السياق اليمني"
+    )
+    yemen_context_notes_ar: Optional[str] = Field(
+        None, description="Yemen context (AR) / السياق اليمني"
+    )
 
     class Config:
         json_encoders = {
@@ -148,6 +202,7 @@ class SpringReport(BaseModel):
 
 
 # ==================== Report Generator Class ====================
+
 
 class SpringReportGenerator:
     """
@@ -212,8 +267,12 @@ class SpringReportGenerator:
 
         # Generate report sections
         sections = self._generate_report_sections(
-            water_sources, usage_records, quality_tests,
-            efficiency_records, rainfall_records, compliance_summary
+            water_sources,
+            usage_records,
+            quality_tests,
+            efficiency_records,
+            rainfall_records,
+            compliance_summary,
         )
 
         # Generate recommendations
@@ -258,7 +317,7 @@ class SpringReportGenerator:
     ) -> tuple[str, str]:
         """Generate executive summary in both languages"""
 
-        compliance_pct = compliance['overall_compliance_percentage']
+        compliance_pct = compliance["overall_compliance_percentage"]
         efficiency_pct = efficiency.average_application_efficiency
         water_use = balance.total_input_m3
 
@@ -309,84 +368,102 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
         sources_content_en = self._format_water_sources_section(water_sources, "en")
         sources_content_ar = self._format_water_sources_section(water_sources, "ar")
 
-        sections.append(SpringReportSection(
-            section_id="water_sources",
-            title_en="Water Sources Assessment",
-            title_ar="تقييم مصادر المياه",
-            content_en=sources_content_en,
-            content_ar=sources_content_ar,
-            order=1,
-        ))
+        sections.append(
+            SpringReportSection(
+                section_id="water_sources",
+                title_en="Water Sources Assessment",
+                title_ar="تقييم مصادر المياه",
+                content_en=sources_content_en,
+                content_ar=sources_content_ar,
+                order=1,
+            )
+        )
 
         # Section 2: Water Usage
         usage_content_en = self._format_water_usage_section(usage_records, "en")
         usage_content_ar = self._format_water_usage_section(usage_records, "ar")
 
-        sections.append(SpringReportSection(
-            section_id="water_usage",
-            title_en="Water Usage Analysis",
-            title_ar="تحليل استخدام المياه",
-            content_en=usage_content_en,
-            content_ar=usage_content_ar,
-            order=2,
-        ))
+        sections.append(
+            SpringReportSection(
+                section_id="water_usage",
+                title_en="Water Usage Analysis",
+                title_ar="تحليل استخدام المياه",
+                content_en=usage_content_en,
+                content_ar=usage_content_ar,
+                order=2,
+            )
+        )
 
         # Section 3: Water Quality
         quality_content_en = self._format_water_quality_section(quality_tests, "en")
         quality_content_ar = self._format_water_quality_section(quality_tests, "ar")
 
-        sections.append(SpringReportSection(
-            section_id="water_quality",
-            title_en="Water Quality Monitoring",
-            title_ar="مراقبة جودة المياه",
-            content_en=quality_content_en,
-            content_ar=quality_content_ar,
-            order=3,
-        ))
+        sections.append(
+            SpringReportSection(
+                section_id="water_quality",
+                title_en="Water Quality Monitoring",
+                title_ar="مراقبة جودة المياه",
+                content_en=quality_content_en,
+                content_ar=quality_content_ar,
+                order=3,
+            )
+        )
 
         # Section 4: Irrigation Efficiency
-        efficiency_content_en = self._format_efficiency_section(efficiency_records, "en")
-        efficiency_content_ar = self._format_efficiency_section(efficiency_records, "ar")
+        efficiency_content_en = self._format_efficiency_section(
+            efficiency_records, "en"
+        )
+        efficiency_content_ar = self._format_efficiency_section(
+            efficiency_records, "ar"
+        )
 
-        sections.append(SpringReportSection(
-            section_id="irrigation_efficiency",
-            title_en="Irrigation Efficiency",
-            title_ar="كفاءة الري",
-            content_en=efficiency_content_en,
-            content_ar=efficiency_content_ar,
-            order=4,
-        ))
+        sections.append(
+            SpringReportSection(
+                section_id="irrigation_efficiency",
+                title_en="Irrigation Efficiency",
+                title_ar="كفاءة الري",
+                content_en=efficiency_content_en,
+                content_ar=efficiency_content_ar,
+                order=4,
+            )
+        )
 
         # Section 5: Rainwater Harvesting (if applicable)
         if rainfall_records:
             rainfall_content_en = self._format_rainfall_section(rainfall_records, "en")
             rainfall_content_ar = self._format_rainfall_section(rainfall_records, "ar")
 
-            sections.append(SpringReportSection(
-                section_id="rainwater_harvesting",
-                title_en="Rainwater Harvesting",
-                title_ar="حصاد مياه الأمطار",
-                content_en=rainfall_content_en,
-                content_ar=rainfall_content_ar,
-                order=5,
-            ))
+            sections.append(
+                SpringReportSection(
+                    section_id="rainwater_harvesting",
+                    title_en="Rainwater Harvesting",
+                    title_ar="حصاد مياه الأمطار",
+                    content_en=rainfall_content_en,
+                    content_ar=rainfall_content_ar,
+                    order=5,
+                )
+            )
 
         # Section 6: Compliance Summary
         compliance_content_en = self._format_compliance_section(compliance, "en")
         compliance_content_ar = self._format_compliance_section(compliance, "ar")
 
-        sections.append(SpringReportSection(
-            section_id="compliance_summary",
-            title_en="SPRING Compliance Summary",
-            title_ar="ملخص امتثال SPRING",
-            content_en=compliance_content_en,
-            content_ar=compliance_content_ar,
-            order=6,
-        ))
+        sections.append(
+            SpringReportSection(
+                section_id="compliance_summary",
+                title_en="SPRING Compliance Summary",
+                title_ar="ملخص امتثال SPRING",
+                content_en=compliance_content_en,
+                content_ar=compliance_content_ar,
+                order=6,
+            )
+        )
 
         return sections
 
-    def _format_water_sources_section(self, sources: List[WaterSource], lang: str) -> str:
+    def _format_water_sources_section(
+        self, sources: List[WaterSource], lang: str
+    ) -> str:
         """Format water sources section"""
         if lang == "en":
             content = f"Total Water Sources: {len(sources)}\n\n"
@@ -404,15 +481,21 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
                 if source.legal_permit_number:
                     content += f"  التصريح: {source.legal_permit_number}\n"
                 if source.capacity_cubic_meters:
-                    content += f"  السعة: {source.capacity_cubic_meters:,.0f} متر مكعب\n"
+                    content += (
+                        f"  السعة: {source.capacity_cubic_meters:,.0f} متر مكعب\n"
+                    )
                 content += "\n"
 
         return content
 
-    def _format_water_usage_section(self, usage: List[WaterUsageMetric], lang: str) -> str:
+    def _format_water_usage_section(
+        self, usage: List[WaterUsageMetric], lang: str
+    ) -> str:
         """Format water usage section"""
         total_usage = sum(u.volume_cubic_meters for u in usage)
-        total_area = sum(u.crop_area_hectares or 0 for u in usage if u.crop_area_hectares)
+        total_area = sum(
+            u.crop_area_hectares or 0 for u in usage if u.crop_area_hectares
+        )
 
         if lang == "en":
             content = f"Total Water Usage: {total_usage:,.0f} m³\n"
@@ -429,27 +512,45 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
 
         return content
 
-    def _format_water_quality_section(self, tests: List[WaterQualityTest], lang: str) -> str:
+    def _format_water_quality_section(
+        self, tests: List[WaterQualityTest], lang: str
+    ) -> str:
         """Format water quality section"""
         passing_tests = sum(1 for t in tests if t.meets_irrigation_standards)
 
         if lang == "en":
             content = f"Total Quality Tests: {len(tests)}\n"
             content += f"Tests Meeting Standards: {passing_tests}/{len(tests)}\n"
-            content += f"Compliance Rate: {(passing_tests/len(tests)*100):.1f}%\n" if len(tests) > 0 else ""
+            content += (
+                f"Compliance Rate: {(passing_tests/len(tests)*100):.1f}%\n"
+                if len(tests) > 0
+                else ""
+            )
         else:
             content = f"إجمالي اختبارات الجودة: {len(tests)}\n"
             content += f"الاختبارات المطابقة للمعايير: {passing_tests}/{len(tests)}\n"
-            content += f"معدل الامتثال: {(passing_tests/len(tests)*100):.1f}%\n" if len(tests) > 0 else ""
+            content += (
+                f"معدل الامتثال: {(passing_tests/len(tests)*100):.1f}%\n"
+                if len(tests) > 0
+                else ""
+            )
 
         return content
 
-    def _format_efficiency_section(self, records: List[IrrigationEfficiency], lang: str) -> str:
+    def _format_efficiency_section(
+        self, records: List[IrrigationEfficiency], lang: str
+    ) -> str:
         """Format efficiency section"""
         if not records:
-            return "No efficiency records available" if lang == "en" else "لا توجد سجلات كفاءة متاحة"
+            return (
+                "No efficiency records available"
+                if lang == "en"
+                else "لا توجد سجلات كفاءة متاحة"
+            )
 
-        avg_efficiency = sum(r.application_efficiency_percent for r in records) / len(records)
+        avg_efficiency = sum(r.application_efficiency_percent for r in records) / len(
+            records
+        )
 
         if lang == "en":
             content = f"Average Application Efficiency: {avg_efficiency:.1f}%\n"
@@ -464,7 +565,9 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
 
         return content
 
-    def _format_rainfall_section(self, records: List[RainfallHarvesting], lang: str) -> str:
+    def _format_rainfall_section(
+        self, records: List[RainfallHarvesting], lang: str
+    ) -> str:
         """Format rainfall harvesting section"""
         total_collected = sum(r.collected_volume_m3 for r in records)
 
@@ -484,7 +587,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
             content += f"Compliant Items: {compliance['compliant_items']}\n"
             content += f"Non-Compliant Items: {compliance['non_compliant_items']}\n\n"
             content += "Category Compliance:\n"
-            for category, pct in compliance['category_compliance'].items():
+            for category, pct in compliance["category_compliance"].items():
                 cat_info = SPRING_CATEGORIES.get(category, {})
                 content += f"- {cat_info.get('name_en', category)}: {pct:.1f}%\n"
         else:
@@ -492,7 +595,7 @@ coverage and {efficiency.soil_moisture_monitoring_coverage}% soil moisture senso
             content += f"العناصر المطابقة: {compliance['compliant_items']}\n"
             content += f"العناصر غير المطابقة: {compliance['non_compliant_items']}\n\n"
             content += "امتثال الفئات:\n"
-            for category, pct in compliance['category_compliance'].items():
+            for category, pct in compliance["category_compliance"].items():
                 cat_info = SPRING_CATEGORIES.get(category, {})
                 content += f"- {cat_info.get('name_ar', category)}: {pct:.1f}%\n"
 
@@ -634,6 +737,7 @@ Recommendations for Yemen Context:
 
 # ==================== Helper Functions ====================
 
+
 def generate_spring_report(
     farm_id: str,
     farm_name_en: str,
@@ -707,15 +811,18 @@ def export_report_to_text(report: SpringReport, language: str = "both") -> str:
     def add_section(title: str, content: str):
         output.append(f"\n{'=' * 80}")
         output.append(title)
-        output.append('=' * 80)
+        output.append("=" * 80)
         output.append(content)
 
     if language in ["en", "both"]:
-        add_section("SPRING COMPLIANCE REPORT", f"""
+        add_section(
+            "SPRING COMPLIANCE REPORT",
+            f"""
 Farm: {report.farm_name_en}
 Report Period: {report.report_period_start} to {report.report_period_end}
 Generated: {report.generated_date.strftime('%Y-%m-%d %H:%M')}
-        """)
+        """,
+        )
 
         add_section("EXECUTIVE SUMMARY", report.executive_summary_en)
 
@@ -723,7 +830,10 @@ Generated: {report.generated_date.strftime('%Y-%m-%d %H:%M')}
             add_section(section.title_en, section.content_en)
 
         if report.recommendations_en:
-            add_section("RECOMMENDATIONS", "\n".join(f"• {r}" for r in report.recommendations_en))
+            add_section(
+                "RECOMMENDATIONS",
+                "\n".join(f"• {r}" for r in report.recommendations_en),
+            )
 
         if report.yemen_context_notes_en:
             add_section("YEMEN CONTEXT", report.yemen_context_notes_en)
@@ -734,11 +844,14 @@ Generated: {report.generated_date.strftime('%Y-%m-%d %H:%M')}
             output.append("النسخة العربية / ARABIC VERSION")
             output.append("=" * 80)
 
-        add_section("تقرير امتثال SPRING", f"""
+        add_section(
+            "تقرير امتثال SPRING",
+            f"""
 المزرعة: {report.farm_name_ar}
 فترة التقرير: {report.report_period_start} إلى {report.report_period_end}
 تاريخ الإنشاء: {report.generated_date.strftime('%Y-%m-%d %H:%M')}
-        """)
+        """,
+        )
 
         add_section("الملخص التنفيذي", report.executive_summary_ar)
 
@@ -746,7 +859,9 @@ Generated: {report.generated_date.strftime('%Y-%m-%d %H:%M')}
             add_section(section.title_ar, section.content_ar)
 
         if report.recommendations_ar:
-            add_section("التوصيات", "\n".join(f"• {r}" for r in report.recommendations_ar))
+            add_section(
+                "التوصيات", "\n".join(f"• {r}" for r in report.recommendations_ar)
+            )
 
         if report.yemen_context_notes_ar:
             add_section("السياق اليمني", report.yemen_context_notes_ar)

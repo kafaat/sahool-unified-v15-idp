@@ -23,8 +23,10 @@ logger = logging.getLogger(__name__)
 # Request/Response Models
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class RevokeTokenRequest(BaseModel):
     """Request to revoke a single token"""
+
     jti: str = Field(..., description="JWT ID to revoke")
     reason: Optional[str] = Field("manual", description="Reason for revocation")
 
@@ -32,41 +34,38 @@ class RevokeTokenRequest(BaseModel):
         json_schema_extra = {
             "example": {
                 "jti": "550e8400-e29b-41d4-a716-446655440000",
-                "reason": "user_logout"
+                "reason": "user_logout",
             }
         }
 
 
 class RevokeUserTokensRequest(BaseModel):
     """Request to revoke all tokens for a user"""
+
     user_id: str = Field(..., description="User ID")
     reason: Optional[str] = Field("manual", description="Reason for revocation")
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "user_id": "user-123",
-                "reason": "password_change"
-            }
+            "example": {"user_id": "user-123", "reason": "password_change"}
         }
 
 
 class RevokeTenantTokensRequest(BaseModel):
     """Request to revoke all tokens for a tenant"""
+
     tenant_id: str = Field(..., description="Tenant ID")
     reason: Optional[str] = Field("security", description="Reason for revocation")
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "tenant_id": "tenant-456",
-                "reason": "security_breach"
-            }
+            "example": {"tenant_id": "tenant-456", "reason": "security_breach"}
         }
 
 
 class RevocationResponse(BaseModel):
     """Response for revocation operations"""
+
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(..., description="Response message")
     revoked_count: Optional[int] = Field(None, description="Number of tokens revoked")
@@ -76,13 +75,14 @@ class RevocationResponse(BaseModel):
             "example": {
                 "success": True,
                 "message": "Token revoked successfully",
-                "revoked_count": 1
+                "revoked_count": 1,
             }
         }
 
 
 class TokenStatusResponse(BaseModel):
     """Response for token status check"""
+
     is_revoked: bool = Field(..., description="Whether token is revoked")
     reason: Optional[str] = Field(None, description="Revocation reason")
     revoked_at: Optional[float] = Field(None, description="When token was revoked")
@@ -92,17 +92,20 @@ class TokenStatusResponse(BaseModel):
             "example": {
                 "is_revoked": True,
                 "reason": "user_logout",
-                "revoked_at": 1640000000.0
+                "revoked_at": 1640000000.0,
             }
         }
 
 
 class RevocationStatsResponse(BaseModel):
     """Response for revocation statistics"""
+
     initialized: bool = Field(..., description="Store initialization status")
     revoked_tokens: int = Field(..., description="Number of revoked tokens")
     revoked_users: int = Field(..., description="Number of users with revoked tokens")
-    revoked_tenants: int = Field(..., description="Number of tenants with revoked tokens")
+    revoked_tenants: int = Field(
+        ..., description="Number of tenants with revoked tokens"
+    )
     redis_url: Optional[str] = Field(None, description="Redis connection URL (masked)")
 
     class Config:
@@ -112,7 +115,7 @@ class RevocationStatsResponse(BaseModel):
                 "revoked_tokens": 42,
                 "revoked_users": 10,
                 "revoked_tenants": 2,
-                "redis_url": "localhost:6379/0"
+                "redis_url": "localhost:6379/0",
             }
         }
 
@@ -163,14 +166,14 @@ async def revoke_token_endpoint(
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to revoke token"
+                detail="Failed to revoke token",
             )
 
     except Exception as e:
         logger.error(f"Error revoking token: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to revoke token: {str(e)}"
+            detail=f"Failed to revoke token: {str(e)}",
         )
 
 
@@ -196,8 +199,7 @@ async def revoke_current_token(
         authorization = request.headers.get("Authorization")
         if not authorization:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="No token provided"
+                status_code=status.HTTP_400_BAD_REQUEST, detail="No token provided"
             )
 
         # Extract JTI from token
@@ -207,7 +209,7 @@ async def revoke_current_token(
         if not payload.jti:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Token does not have JTI claim"
+                detail="Token does not have JTI claim",
             )
 
         # Revoke token
@@ -227,7 +229,7 @@ async def revoke_current_token(
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to logout"
+                detail="Failed to logout",
             )
 
     except HTTPException:
@@ -236,7 +238,7 @@ async def revoke_current_token(
         logger.error(f"Error revoking current token: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to logout: {str(e)}"
+            detail=f"Failed to logout: {str(e)}",
         )
 
 
@@ -263,7 +265,7 @@ async def revoke_user_tokens_endpoint(
     if request.user_id != current_user.id and not is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can only revoke your own tokens"
+            detail="You can only revoke your own tokens",
         )
 
     try:
@@ -283,7 +285,7 @@ async def revoke_user_tokens_endpoint(
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to revoke user tokens"
+                detail="Failed to revoke user tokens",
             )
 
     except HTTPException:
@@ -292,7 +294,7 @@ async def revoke_user_tokens_endpoint(
         logger.error(f"Error revoking user tokens: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to revoke user tokens: {str(e)}"
+            detail=f"Failed to revoke user tokens: {str(e)}",
         )
 
 
@@ -330,14 +332,14 @@ async def revoke_all_current_user_tokens(
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to revoke all tokens"
+                detail="Failed to revoke all tokens",
             )
 
     except Exception as e:
         logger.error(f"Error revoking all user tokens: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to revoke all tokens: {str(e)}"
+            detail=f"Failed to revoke all tokens: {str(e)}",
         )
 
 
@@ -364,8 +366,7 @@ async def revoke_tenant_tokens_endpoint(
 
     if not is_admin:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required"
         )
 
     try:
@@ -385,7 +386,7 @@ async def revoke_tenant_tokens_endpoint(
         else:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to revoke tenant tokens"
+                detail="Failed to revoke tenant tokens",
             )
 
     except HTTPException:
@@ -394,7 +395,7 @@ async def revoke_tenant_tokens_endpoint(
         logger.error(f"Error revoking tenant tokens: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to revoke tenant tokens: {str(e)}"
+            detail=f"Failed to revoke tenant tokens: {str(e)}",
         )
 
 
@@ -436,7 +437,7 @@ async def check_token_status(
         logger.error(f"Error checking token status: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to check token status: {str(e)}"
+            detail=f"Failed to check token status: {str(e)}",
         )
 
 
@@ -461,8 +462,7 @@ async def get_revocation_stats(
 
     if not is_admin:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin privileges required"
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required"
         )
 
     try:
@@ -475,7 +475,7 @@ async def get_revocation_stats(
         logger.error(f"Error getting revocation stats: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get revocation stats: {str(e)}"
+            detail=f"Failed to get revocation stats: {str(e)}",
         )
 
 
@@ -500,22 +500,18 @@ async def health_check() -> dict:
             return {
                 "status": "healthy",
                 "service": "token_revocation",
-                "redis": "connected"
+                "redis": "connected",
             }
         else:
             return {
                 "status": "unhealthy",
                 "service": "token_revocation",
-                "redis": "disconnected"
+                "redis": "disconnected",
             }
 
     except Exception as e:
         logger.error(f"Health check failed: {e}")
-        return {
-            "status": "unhealthy",
-            "service": "token_revocation",
-            "error": str(e)
-        }
+        return {"status": "unhealthy", "service": "token_revocation", "error": str(e)}
 
 
 # Export router for inclusion in main app

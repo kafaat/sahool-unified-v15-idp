@@ -28,6 +28,7 @@ _nats_available = False
 try:
     import nats
     from nats.aio.client import Client as NATSClient
+
     _nats_available = True
 except ImportError:
     logger.warning("NATS package not installed. NATS publishing disabled.")
@@ -36,9 +37,10 @@ except ImportError:
 
 class NATSConfig(BaseModel):
     """NATS connection configuration"""
-    servers: list[str] = Field(default_factory=lambda: [
-        os.getenv("NATS_URL", "nats://localhost:4222")
-    ])
+
+    servers: list[str] = Field(
+        default_factory=lambda: [os.getenv("NATS_URL", "nats://localhost:4222")]
+    )
     name: str = Field(default="sahool-publisher")
     reconnect_time_wait: int = Field(default=2)
     max_reconnect_attempts: int = Field(default=60)
@@ -50,9 +52,14 @@ class AnalysisEvent(BaseModel):
 
     Used by analysis services to notify downstream consumers
     """
+
     event_id: str = Field(default_factory=lambda: str(uuid4()))
-    event_type: str = Field(..., description="e.g., 'ndvi.computed', 'irrigation.recommended'")
-    source_service: str = Field(..., description="e.g., 'satellite-service', 'irrigation-smart'")
+    event_type: str = Field(
+        ..., description="e.g., 'ndvi.computed', 'irrigation.recommended'"
+    )
+    source_service: str = Field(
+        ..., description="e.g., 'satellite-service', 'irrigation-smart'"
+    )
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Target
@@ -71,19 +78,21 @@ class AnalysisEvent(BaseModel):
     notification_channels: list[str] = Field(default_factory=lambda: ["in_app"])
 
     def to_json(self) -> str:
-        return json.dumps({
-            "event_id": self.event_id,
-            "event_type": self.event_type,
-            "source_service": self.source_service,
-            "timestamp": self.timestamp.isoformat(),
-            "tenant_id": self.tenant_id,
-            "field_id": self.field_id,
-            "farmer_id": self.farmer_id,
-            "data": self.data,
-            "action_template": self.action_template,
-            "notification_priority": self.notification_priority,
-            "notification_channels": self.notification_channels,
-        })
+        return json.dumps(
+            {
+                "event_id": self.event_id,
+                "event_type": self.event_type,
+                "source_service": self.source_service,
+                "timestamp": self.timestamp.isoformat(),
+                "tenant_id": self.tenant_id,
+                "field_id": self.field_id,
+                "farmer_id": self.farmer_id,
+                "data": self.data,
+                "action_template": self.action_template,
+                "notification_priority": self.notification_priority,
+                "notification_channels": self.notification_channels,
+            }
+        )
 
 
 class NATSPublisher:
@@ -168,7 +177,7 @@ class NATSPublisher:
         Subject format: sahool.analysis.{event_type}
         """
         subject = f"sahool.analysis.{event.event_type.replace('.', '_')}"
-        data = event.to_json().encode('utf-8')
+        data = event.to_json().encode("utf-8")
 
         success = await self.publish(subject, data)
 
@@ -206,7 +215,7 @@ class NATSPublisher:
         )
 
         subject = f"sahool.actions.{action_type}"
-        data = event.to_json().encode('utf-8')
+        data = event.to_json().encode("utf-8")
 
         return await self.publish(subject, data)
 

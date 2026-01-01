@@ -55,11 +55,13 @@ from .events import (
 # Enums and Constants
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class ActivityType(str, Enum):
     """
     Field operation activity types
     أنواع أنشطة عمليات الحقل
     """
+
     PLANTING = "PLANTING"  # الزراعة
     IRRIGATION = "IRRIGATION"  # الري
     FERTILIZATION = "FERTILIZATION"  # التسميد
@@ -78,6 +80,7 @@ class HarvestMethod(str, Enum):
     Harvest methods
     طرق الحصاد
     """
+
     MANUAL = "MANUAL"  # يدوي
     MECHANICAL = "MECHANICAL"  # ميكانيكي
     SEMI_MECHANICAL = "SEMI_MECHANICAL"  # شبه ميكانيكي
@@ -88,6 +91,7 @@ class PackagingType(str, Enum):
     Packaging types
     أنواع التعبئة
     """
+
     BULK = "BULK"  # سائب
     CRATE = "CRATE"  # صندوق
     BOX = "BOX"  # علبة
@@ -99,6 +103,7 @@ class PackagingType(str, Enum):
 # ─────────────────────────────────────────────────────────────────────────────
 # Data Models
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class FieldActivity(BaseModel):
     """
@@ -114,8 +119,12 @@ class FieldActivity(BaseModel):
     # Activity details
     activity_type: ActivityType = Field(..., description="Activity type")
     activity_date: date = Field(..., description="Activity date")
-    activity_description_en: str = Field(..., description="Activity description (English)")
-    activity_description_ar: Optional[str] = Field(None, description="Activity description (Arabic)")
+    activity_description_en: str = Field(
+        ..., description="Activity description (English)"
+    )
+    activity_description_ar: Optional[str] = Field(
+        None, description="Activity description (Arabic)"
+    )
 
     # Worker information
     worker_name: Optional[str] = Field(None, description="Worker/operator name")
@@ -125,28 +134,35 @@ class FieldActivity(BaseModel):
     # Time tracking
     start_time: Optional[datetime] = Field(None, description="Activity start time")
     end_time: Optional[datetime] = Field(None, description="Activity end time")
-    duration_hours: Optional[float] = Field(None, ge=0, description="Activity duration in hours")
+    duration_hours: Optional[float] = Field(
+        None, ge=0, description="Activity duration in hours"
+    )
 
     # Area covered
-    area_covered_ha: Optional[float] = Field(None, ge=0, description="Area covered in hectares")
+    area_covered_ha: Optional[float] = Field(
+        None, ge=0, description="Area covered in hectares"
+    )
 
     # Equipment used
-    equipment_used: Optional[List[str]] = Field(default_factory=list, description="Equipment used")
+    equipment_used: Optional[List[str]] = Field(
+        default_factory=list, description="Equipment used"
+    )
 
     # Inputs used (fertilizers, pesticides, etc.)
     inputs_used: Optional[List[Dict[str, Any]]] = Field(
-        default_factory=list,
-        description="Inputs used (product name, quantity, etc.)"
+        default_factory=list, description="Inputs used (product name, quantity, etc.)"
     )
 
     # Weather conditions
     weather_conditions: Optional[str] = Field(None, description="Weather conditions")
-    temperature_celsius: Optional[float] = Field(None, description="Temperature in Celsius")
+    temperature_celsius: Optional[float] = Field(
+        None, description="Temperature in Celsius"
+    )
 
     # GlobalGAP compliance mapping
     related_control_points: List[str] = Field(
         default_factory=list,
-        description="Related GlobalGAP control points (e.g., ['AF.1.1.1', 'AF.2.3.4'])"
+        description="Related GlobalGAP control points (e.g., ['AF.1.1.1', 'AF.2.3.4'])",
     )
 
     # Evidence
@@ -192,38 +208,66 @@ class HarvestBatch(BaseModel):
 
     # Quantities
     quantity_kg: float = Field(..., ge=0, description="Quantity in kilograms")
-    quantity_units: Optional[int] = Field(None, ge=0, description="Quantity in units (boxes, crates, etc.)")
+    quantity_units: Optional[int] = Field(
+        None, ge=0, description="Quantity in units (boxes, crates, etc.)"
+    )
     packaging_type: Optional[PackagingType] = Field(None, description="Packaging type")
 
     # Quality
-    quality_grade: Optional[str] = Field(None, description="Quality grade (A, B, C, etc.)")
+    quality_grade: Optional[str] = Field(
+        None, description="Quality grade (A, B, C, etc.)"
+    )
     quality_notes_en: Optional[str] = Field(None, description="Quality notes (English)")
     quality_notes_ar: Optional[str] = Field(None, description="Quality notes (Arabic)")
 
     # Traceability
     ggn: Optional[str] = Field(None, description="GlobalGAP Number")
     planting_date: Optional[date] = Field(None, description="Planting date")
-    days_to_harvest: Optional[int] = Field(None, ge=0, description="Days from planting to harvest")
+    days_to_harvest: Optional[int] = Field(
+        None, ge=0, description="Days from planting to harvest"
+    )
 
     # Growing period activities (counts)
-    irrigation_records_count: int = Field(default=0, ge=0, description="Number of irrigation records")
-    fertilizer_records_count: int = Field(default=0, ge=0, description="Number of fertilizer applications")
-    pest_control_records_count: int = Field(default=0, ge=0, description="Number of pest control activities")
-    other_activities_count: int = Field(default=0, ge=0, description="Number of other activities")
+    irrigation_records_count: int = Field(
+        default=0, ge=0, description="Number of irrigation records"
+    )
+    fertilizer_records_count: int = Field(
+        default=0, ge=0, description="Number of fertilizer applications"
+    )
+    pest_control_records_count: int = Field(
+        default=0, ge=0, description="Number of pest control activities"
+    )
+    other_activities_count: int = Field(
+        default=0, ge=0, description="Number of other activities"
+    )
 
     # Withdrawal periods compliance
-    last_pesticide_application_date: Optional[date] = Field(None, description="Last pesticide application date")
-    withdrawal_period_days: Optional[int] = Field(None, ge=0, description="Required withdrawal period")
-    days_since_last_pesticide: Optional[int] = Field(None, description="Days since last pesticide")
-    withdrawal_period_respected: bool = Field(default=True, description="Withdrawal period respected")
+    last_pesticide_application_date: Optional[date] = Field(
+        None, description="Last pesticide application date"
+    )
+    withdrawal_period_days: Optional[int] = Field(
+        None, ge=0, description="Required withdrawal period"
+    )
+    days_since_last_pesticide: Optional[int] = Field(
+        None, description="Days since last pesticide"
+    )
+    withdrawal_period_respected: bool = Field(
+        default=True, description="Withdrawal period respected"
+    )
 
     # Storage and handling
     storage_location: Optional[str] = Field(None, description="Storage location")
-    storage_temperature_celsius: Optional[float] = Field(None, description="Storage temperature")
-    cold_chain_maintained: bool = Field(default=True, description="Cold chain maintained (if required)")
+    storage_temperature_celsius: Optional[float] = Field(
+        None, description="Storage temperature"
+    )
+    cold_chain_maintained: bool = Field(
+        default=True, description="Cold chain maintained (if required)"
+    )
 
     # Destination
-    destination: Optional[str] = Field(None, description="Destination (customer, market, etc.)")
+    destination: Optional[str] = Field(
+        None, description="Destination (customer, market, etc.)"
+    )
     dispatch_date: Optional[date] = Field(None, description="Dispatch date")
 
     # Metadata
@@ -247,7 +291,9 @@ class TraceabilityRecord(BaseModel):
     سجل تتبع كامل من المزرعة إلى المائدة
     """
 
-    record_id: str = Field(default_factory=lambda: str(uuid4()), description="Traceability record ID")
+    record_id: str = Field(
+        default_factory=lambda: str(uuid4()), description="Traceability record ID"
+    )
     batch_id: str = Field(..., description="Related harvest batch ID")
     batch_number: str = Field(..., description="Batch/lot number")
 
@@ -275,39 +321,50 @@ class TraceabilityRecord(BaseModel):
 
     # Activity traceability
     linked_activities: List[str] = Field(
-        default_factory=list,
-        description="Linked activity IDs"
+        default_factory=list, description="Linked activity IDs"
     )
 
-    irrigation_records_linked: int = Field(default=0, ge=0, description="Linked irrigation records")
-    fertilizer_records_linked: int = Field(default=0, ge=0, description="Linked fertilizer records")
-    pest_control_records_linked: int = Field(default=0, ge=0, description="Linked pest control records")
-    harvest_records_linked: int = Field(default=0, ge=0, description="Linked harvest records")
+    irrigation_records_linked: int = Field(
+        default=0, ge=0, description="Linked irrigation records"
+    )
+    fertilizer_records_linked: int = Field(
+        default=0, ge=0, description="Linked fertilizer records"
+    )
+    pest_control_records_linked: int = Field(
+        default=0, ge=0, description="Linked pest control records"
+    )
+    harvest_records_linked: int = Field(
+        default=0, ge=0, description="Linked harvest records"
+    )
 
     # Input traceability
     fertilizers_used: List[Dict[str, Any]] = Field(
         default_factory=list,
-        description="List of fertilizers used with dates and quantities"
+        description="List of fertilizers used with dates and quantities",
     )
     pesticides_used: List[Dict[str, Any]] = Field(
         default_factory=list,
-        description="List of pesticides used with dates and quantities"
+        description="List of pesticides used with dates and quantities",
     )
 
     # Compliance indicators
-    full_traceability: bool = Field(..., description="Complete farm-to-fork traceability")
+    full_traceability: bool = Field(
+        ..., description="Complete farm-to-fork traceability"
+    )
     all_inputs_documented: bool = Field(..., description="All inputs documented")
-    withdrawal_periods_respected: bool = Field(default=True, description="All withdrawal periods respected")
-    globalgap_compliant: bool = Field(..., description="Meets GlobalGAP traceability requirements")
+    withdrawal_periods_respected: bool = Field(
+        default=True, description="All withdrawal periods respected"
+    )
+    globalgap_compliant: bool = Field(
+        ..., description="Meets GlobalGAP traceability requirements"
+    )
 
     # Issues
     traceability_gaps_en: List[str] = Field(
-        default_factory=list,
-        description="Identified traceability gaps (English)"
+        default_factory=list, description="Identified traceability gaps (English)"
     )
     traceability_gaps_ar: List[str] = Field(
-        default_factory=list,
-        description="Identified traceability gaps (Arabic)"
+        default_factory=list, description="Identified traceability gaps (Arabic)"
     )
 
     # QR code / barcode
@@ -339,24 +396,23 @@ class ActivityComplianceMapping(BaseModel):
 
     # Related GlobalGAP control points
     related_control_points: List[str] = Field(
-        default_factory=list,
-        description="Related control point IDs"
+        default_factory=list, description="Related control point IDs"
     )
 
     # Required documentation
     required_records_en: List[str] = Field(
-        default_factory=list,
-        description="Required records (English)"
+        default_factory=list, description="Required records (English)"
     )
     required_records_ar: List[str] = Field(
-        default_factory=list,
-        description="Required records (Arabic)"
+        default_factory=list, description="Required records (Arabic)"
     )
 
     # Evidence requirements
     photos_required: bool = Field(default=False, description="Photos required")
     documents_required: bool = Field(default=False, description="Documents required")
-    worker_training_required: bool = Field(default=False, description="Worker training required")
+    worker_training_required: bool = Field(
+        default=False, description="Worker training required"
+    )
 
     class Config:
         use_enum_values = True
@@ -365,6 +421,7 @@ class ActivityComplianceMapping(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 # Integration Class
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class FieldOpsIntegration:
     """
@@ -393,7 +450,9 @@ class FieldOpsIntegration:
         # Activity to control point mappings
         self._activity_mappings = self._initialize_activity_mappings()
 
-    def _initialize_activity_mappings(self) -> Dict[ActivityType, ActivityComplianceMapping]:
+    def _initialize_activity_mappings(
+        self,
+    ) -> Dict[ActivityType, ActivityComplianceMapping]:
         """Initialize activity to compliance mappings"""
         return {
             ActivityType.PLANTING: ActivityComplianceMapping(
@@ -401,7 +460,11 @@ class FieldOpsIntegration:
                 activity_name_en="Planting",
                 activity_name_ar="الزراعة",
                 related_control_points=["AF.1.1.1", "AF.1.2.1"],
-                required_records_en=["Planting date", "Seed variety", "Planting density"],
+                required_records_en=[
+                    "Planting date",
+                    "Seed variety",
+                    "Planting density",
+                ],
                 required_records_ar=["تاريخ الزراعة", "صنف البذور", "كثافة الزراعة"],
                 documents_required=True,
             ),
@@ -410,7 +473,11 @@ class FieldOpsIntegration:
                 activity_name_en="Irrigation",
                 activity_name_ar="الري",
                 related_control_points=["AF.3.1.1", "AF.3.2.1", "ENV.3.1.1"],
-                required_records_en=["Water volume", "Water source", "Irrigation method"],
+                required_records_en=[
+                    "Water volume",
+                    "Water source",
+                    "Irrigation method",
+                ],
                 required_records_ar=["حجم المياه", "مصدر المياه", "طريقة الري"],
                 documents_required=True,
             ),
@@ -428,7 +495,11 @@ class FieldOpsIntegration:
                 activity_name_en="Pest Control",
                 activity_name_ar="مكافحة الآفات",
                 related_control_points=["AF.5.1.1", "AF.5.2.1", "AF.5.3.1"],
-                required_records_en=["Pest identification", "Treatment method", "PPP details"],
+                required_records_en=[
+                    "Pest identification",
+                    "Treatment method",
+                    "PPP details",
+                ],
                 required_records_ar=["تحديد الآفة", "طريقة العلاج", "تفاصيل PPP"],
                 documents_required=True,
                 worker_training_required=True,
@@ -453,7 +524,9 @@ class FieldOpsIntegration:
             True if connected successfully
         """
         if self.publisher is None:
-            self.publisher = EventPublisher(service_name="globalgap-field-ops-integration")
+            self.publisher = EventPublisher(
+                service_name="globalgap-field-ops-integration"
+            )
 
         if not self.publisher.is_connected:
             self._connected = await self.publisher.connect()
@@ -675,14 +748,13 @@ class FieldOpsIntegration:
 
         # Assess traceability completeness
         full_traceability = (
-            irrigation_records_count > 0 and
-            fertilizer_records_count > 0 and
-            harvest_records_count > 0
+            irrigation_records_count > 0
+            and fertilizer_records_count > 0
+            and harvest_records_count > 0
         )
 
         all_inputs_documented = (
-            fertilizers_used is not None and
-            len(fertilizers_used) > 0
+            fertilizers_used is not None and len(fertilizers_used) > 0
         )
 
         # Check for traceability gaps
@@ -762,8 +834,7 @@ class FieldOpsIntegration:
             )
 
             await self.publisher.publish_event(
-                GlobalGAPSubjects.TRACEABILITY_RECORD_CREATED,
-                event
+                GlobalGAPSubjects.TRACEABILITY_RECORD_CREATED, event
             )
 
         return record
@@ -773,8 +844,7 @@ class FieldOpsIntegration:
     # ─────────────────────────────────────────────────────────────────────────
 
     def get_activity_compliance_mapping(
-        self,
-        activity_type: ActivityType
+        self, activity_type: ActivityType
     ) -> Optional[ActivityComplianceMapping]:
         """
         Get compliance mapping for an activity type
@@ -788,7 +858,9 @@ class FieldOpsIntegration:
         """
         return self._activity_mappings.get(activity_type)
 
-    def get_all_activity_mappings(self) -> Dict[ActivityType, ActivityComplianceMapping]:
+    def get_all_activity_mappings(
+        self,
+    ) -> Dict[ActivityType, ActivityComplianceMapping]:
         """
         Get all activity to compliance mappings
         الحصول على جميع روابط الأنشطة بالامتثال
@@ -821,13 +893,11 @@ __all__ = [
     "ActivityType",
     "HarvestMethod",
     "PackagingType",
-
     # Models
     "FieldActivity",
     "HarvestBatch",
     "TraceabilityRecord",
     "ActivityComplianceMapping",
-
     # Integration
     "FieldOpsIntegration",
 ]

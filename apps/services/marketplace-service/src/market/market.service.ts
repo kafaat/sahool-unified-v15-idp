@@ -10,7 +10,6 @@
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { ProductCategory, SellerType } from '@prisma/client';
 
 // Types
 interface YieldData {
@@ -27,7 +26,7 @@ interface YieldData {
 interface CreateProductDto {
   name: string;
   nameAr: string;
-  category: ProductCategory;
+  category: string;
   price: number;
   stock: number;
   unit: string;
@@ -35,7 +34,7 @@ interface CreateProductDto {
   descriptionAr?: string;
   imageUrl?: string;
   sellerId: string;
-  sellerType: SellerType;
+  sellerType: string;
   sellerName?: string;
   cropType?: string;
   governorate?: string;

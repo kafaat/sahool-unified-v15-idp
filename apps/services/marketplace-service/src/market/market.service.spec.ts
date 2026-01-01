@@ -6,6 +6,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MarketService } from './market.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsService } from '../events/events.service';
 
 describe('MarketService', () => {
   let service: MarketService;
@@ -26,6 +27,13 @@ describe('MarketService', () => {
     },
   };
 
+  const mockEventsService = {
+    publishOrderPlaced: jest.fn(),
+    publishOrderCompleted: jest.fn(),
+    publishOrderCancelled: jest.fn(),
+    publishInventoryLowStock: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -33,6 +41,10 @@ describe('MarketService', () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: EventsService,
+          useValue: mockEventsService,
         },
       ],
     }).compile();

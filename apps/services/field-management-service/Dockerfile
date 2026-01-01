@@ -23,7 +23,11 @@ RUN npm install
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
-RUN npx prisma generate
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate || \
+    (sleep 5 && npx prisma generate) || \
+    (sleep 10 && npx prisma generate) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy source and build
 COPY tsconfig.json ./

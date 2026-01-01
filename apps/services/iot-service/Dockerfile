@@ -17,6 +17,14 @@ COPY package.json ./
 # Install all dependencies with retry for network resilience
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
+# Copy Prisma schema and generate client
+COPY prisma ./prisma
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate || \
+    (sleep 5 && npx prisma generate) || \
+    (sleep 10 && npx prisma generate) || \
+    (echo "Prisma generate failed after retries" && exit 1)
+
 # Copy source
 COPY . .
 
@@ -44,6 +52,14 @@ COPY package.json ./
 
 # Install production dependencies with retry for network resilience
 RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm cache clean --force
+
+# Copy Prisma schema and regenerate client for production
+COPY --from=builder /app/prisma ./prisma
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate || \
+    (sleep 5 && npx prisma generate) || \
+    (sleep 10 && npx prisma generate) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy built application
 COPY --from=builder /app/dist ./dist

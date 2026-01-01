@@ -20,7 +20,11 @@ RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-m
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
-RUN npx prisma generate
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+RUN npx prisma generate || \
+    (sleep 5 && npx prisma generate) || \
+    (sleep 10 && npx prisma generate) || \
+    (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy source and build
 COPY tsconfig.json ./

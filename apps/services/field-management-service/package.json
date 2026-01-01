@@ -23,7 +23,7 @@
     "db:reset": "npm run prisma:migrate:reset -- --force"
   },
   "dependencies": {
-    "@sahool/field-shared": "workspace:*",
+    "@sahool/field-shared": "file:../../packages/field-shared",
     "@prisma/client": "^5.22.0",
     "reflect-metadata": "^0.2.2",
     "dotenv": "^16.4.7"

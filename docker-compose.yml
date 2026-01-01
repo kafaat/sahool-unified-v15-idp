@@ -1073,7 +1073,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
-      - IOT_GATEWAY_URL=http://iot_gateway:8106
+      - IOT_GATEWAY_URL=http://iot-gateway:8106
     ports:
       - "8094:8094"
     depends_on:
@@ -1716,7 +1716,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgres://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}
       - NATS_URL=nats://nats:4222
-      - NOTIFICATION_SERVICE_URL=http://notification_service:8110
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8110
     ports:
       - "8113:8113"
     depends_on:
@@ -1916,7 +1916,7 @@ services:
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://nats:4222
-      - FIELDOPS_URL=http://field_ops:8080
+      - FIELDOPS_URL=http://field-ops:8080
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     depends_on:

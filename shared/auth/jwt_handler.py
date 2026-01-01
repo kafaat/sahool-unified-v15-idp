@@ -226,9 +226,8 @@ def decode_token_unsafe(token: str) -> dict:
         >>> print(f"Debug: user_id={payload.get('sub')}")
     """
     try:
-        # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
         # This function is intentionally unverified for debugging purposes only
-        return jwt.decode(
+        return jwt.decode(  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
             token,
             options={"verify_signature": False}
         )

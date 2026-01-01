@@ -11,6 +11,10 @@ import { PrismaService } from './prisma/prisma.service';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
 import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
+import { ProfilesModule } from './profiles/profiles.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { EventsModule } from './events/events.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -32,6 +36,12 @@ import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
         limit: 1000, // 1000 requests per hour
       },
     ]),
+    // Enhanced audit trail system
+    AuditModule,
+    // Feature modules
+    ProfilesModule,
+    ReviewsModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -46,5 +56,6 @@ import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
       useClass: ThrottlerGuard,
     },
   ],
+  exports: [],
 })
 export class AppModule {}

@@ -3,6 +3,8 @@ import { DataSource } from "typeorm";
 import { Field } from "./entity/Field";
 import { FieldBoundaryHistory } from "./entity/FieldBoundaryHistory";
 import { SyncStatus } from "./entity/SyncStatus";
+import { PestIncident } from "./entity/PestIncident";
+import { PestTreatment } from "./entity/PestTreatment";
 
 /**
  * SAHOOL Field Core - Database Configuration
@@ -27,7 +29,7 @@ export const AppDataSource = new DataSource({
     synchronize: process.env.NODE_ENV !== "production",
     logging: process.env.NODE_ENV !== "production",
 
-    entities: [Field, FieldBoundaryHistory, SyncStatus],
+    entities: [Field, FieldBoundaryHistory, SyncStatus, PestIncident, PestTreatment],
     migrations: ["dist/migrations/*.js"],
     subscribers: [],
 

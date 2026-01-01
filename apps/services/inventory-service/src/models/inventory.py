@@ -13,6 +13,7 @@ from sqlalchemy import (
     Column, String, Float, Integer, Boolean, DateTime, Date,
     ForeignKey, Text, Numeric, Enum as SQLEnum, Index, func
 )
+import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase
 from sqlalchemy.ext.declarative import declared_attr
@@ -221,9 +222,37 @@ class InventoryItem(TenantEntity):
 
     # Indexes for performance
     __table_args__ = (
-        Index('idx_inventory_items_tenant_sku', 'tenant_id', 'sku'),
+        # Existing indexes
         Index('idx_inventory_items_category', 'category_id'),
         Index('idx_inventory_items_warehouse', 'warehouse_id'),
+
+        # Performance indexes
+        # Composite index for SKU lookups within tenant
+        Index('idx_inventory_items_sku_tenant', 'tenant_id', 'sku'),
+
+        # Partial index for low stock items (requires PostgreSQL)
+        # WHERE current_stock <= reorder_level
+        Index(
+            'idx_inventory_items_low_stock',
+            'tenant_id', 'current_stock',
+            postgresql_where=sa.text('current_stock <= reorder_level')
+        ),
+
+        # Partial index for items with expiry dates
+        # WHERE has_expiry = true AND expiry_date IS NOT NULL
+        Index(
+            'idx_inventory_items_expiry',
+            'expiry_date',
+            postgresql_where=sa.text('has_expiry = true AND expiry_date IS NOT NULL')
+        ),
+
+        # Partial index for barcode lookups (only when barcode exists)
+        # WHERE barcode IS NOT NULL
+        Index(
+            'idx_inventory_items_barcode',
+            'barcode',
+            postgresql_where=sa.text('barcode IS NOT NULL')
+        ),
     )
 
 
@@ -294,6 +323,14 @@ class InventoryMovement(TenantEntity):
         Index('idx_inventory_movements_tenant_date', 'tenant_id', 'movement_date'),
         Index('idx_inventory_movements_item', 'item_id'),
         Index('idx_inventory_movements_field', 'field_id'),
+
+        # Performance index for date range queries with descending order
+        # Used for: Movement history, audit trails, recent activity
+        Index(
+            'idx_inventory_movements_date_range',
+            'tenant_id',
+            sa.text('movement_date DESC')
+        ),
     )
 
 
@@ -356,4 +393,13 @@ class InventoryTransaction(TenantEntity):
         Index('idx_inventory_transactions_tenant_date', 'tenant_id', 'transaction_date'),
         Index('idx_inventory_transactions_item', 'item_id'),
         Index('idx_inventory_transactions_field', 'field_id'),
+
+        # Performance index for party-related transactions (partial index)
+        # WHERE party_id IS NOT NULL
+        # Used for: Customer/Supplier transaction history
+        Index(
+            'idx_inventory_transactions_party',
+            'party_id',
+            postgresql_where=sa.text('party_id IS NOT NULL')
+        ),
     )

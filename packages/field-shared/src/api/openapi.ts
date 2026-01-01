@@ -65,6 +65,10 @@ All endpoints require JWT authentication via the \`Authorization: Bearer <token>
             description: "Vegetation index data - بيانات مؤشر الغطاء النباتي"
         },
         {
+            name: "Pests",
+            description: "Pest management and treatment tracking - إدارة الآفات والعلاجات"
+        },
+        {
             name: "Health",
             description: "Service health endpoints"
         }
@@ -350,6 +354,464 @@ All endpoints require JWT authentication via the \`Authorization: Bearer <token>
                 },
                 security: []
             }
+        },
+        "/pests/incidents": {
+            get: {
+                tags: ["Pests"],
+                summary: "List pest incidents",
+                description: "Get paginated list of pest incidents - قائمة حوادث الآفات",
+                operationId: "listPestIncidents",
+                parameters: [
+                    { $ref: "#/components/parameters/TenantId" },
+                    {
+                        name: "fieldId",
+                        in: "query",
+                        description: "Filter by field ID",
+                        schema: { type: "string", format: "uuid" }
+                    },
+                    {
+                        name: "cropSeasonId",
+                        in: "query",
+                        description: "Filter by crop season ID",
+                        schema: { type: "string", format: "uuid" }
+                    },
+                    {
+                        name: "status",
+                        in: "query",
+                        description: "Filter by incident status",
+                        schema: {
+                            type: "string",
+                            enum: ["DETECTED", "MONITORING", "TREATING", "RESOLVED", "RECURRING"]
+                        }
+                    },
+                    {
+                        name: "pestType",
+                        in: "query",
+                        description: "Filter by pest type",
+                        schema: {
+                            type: "string",
+                            enum: ["INSECT", "FUNGUS", "BACTERIA", "VIRUS", "WEED", "RODENT", "BIRD", "NEMATODE", "OTHER"]
+                        }
+                    },
+                    { $ref: "#/components/parameters/Limit" },
+                    { $ref: "#/components/parameters/Offset" }
+                ],
+                responses: {
+                    "200": {
+                        description: "Successful response",
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    properties: {
+                                        success: { type: "boolean" },
+                                        data: {
+                                            type: "array",
+                                            items: { $ref: "#/components/schemas/PestIncident" }
+                                        },
+                                        pagination: { $ref: "#/components/schemas/Pagination" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            },
+            post: {
+                tags: ["Pests"],
+                summary: "Report pest incident",
+                description: "Report a new pest incident - الإبلاغ عن حادثة آفة",
+                operationId: "reportPestIncident",
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/PestIncidentCreate" },
+                            examples: {
+                                aphids: {
+                                    summary: "Aphid infestation",
+                                    value: {
+                                        fieldId: "123e4567-e89b-12d3-a456-426614174000",
+                                        tenantId: "tenant-001",
+                                        pestType: "INSECT",
+                                        pestName: "Aphids",
+                                        severityLevel: 3,
+                                        affectedArea: 0.5,
+                                        detectedAt: "2026-01-01T10:00:00Z",
+                                        reportedBy: "Field Inspector",
+                                        location: { lat: 24.6, lng: 46.7 },
+                                        notes: "Found on wheat leaves"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    "201": {
+                        description: "Pest incident reported successfully",
+                        content: {
+                            "application/json": {
+                                schema: { $ref: "#/components/schemas/PestIncident" }
+                            }
+                        }
+                    },
+                    "400": { $ref: "#/components/responses/BadRequest" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            }
+        },
+        "/pests/incidents/{id}": {
+            get: {
+                tags: ["Pests"],
+                summary: "Get pest incident",
+                description: "Get pest incident details with treatments - تفاصيل حادثة الآفة",
+                operationId: "getPestIncident",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        description: "Pest incident ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                responses: {
+                    "200": {
+                        description: "Successful response",
+                        content: {
+                            "application/json": {
+                                schema: { $ref: "#/components/schemas/PestIncident" }
+                            }
+                        }
+                    },
+                    "404": { $ref: "#/components/responses/NotFound" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            },
+            put: {
+                tags: ["Pests"],
+                summary: "Update pest incident",
+                description: "Update pest incident details - تحديث حادثة الآفة",
+                operationId: "updatePestIncident",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        description: "Pest incident ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/PestIncidentUpdate" }
+                        }
+                    }
+                },
+                responses: {
+                    "200": {
+                        description: "Pest incident updated successfully",
+                        content: {
+                            "application/json": {
+                                schema: { $ref: "#/components/schemas/PestIncident" }
+                            }
+                        }
+                    },
+                    "400": { $ref: "#/components/responses/BadRequest" },
+                    "404": { $ref: "#/components/responses/NotFound" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            },
+            delete: {
+                tags: ["Pests"],
+                summary: "Delete pest incident",
+                description: "Delete a pest incident - حذف حادثة الآفة",
+                operationId: "deletePestIncident",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        description: "Pest incident ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                responses: {
+                    "200": { description: "Pest incident deleted successfully" },
+                    "404": { $ref: "#/components/responses/NotFound" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            }
+        },
+        "/pests/incidents/{id}/status": {
+            patch: {
+                tags: ["Pests"],
+                summary: "Update incident status",
+                description: "Update pest incident status - تحديث حالة حادثة الآفة",
+                operationId: "updatePestIncidentStatus",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        description: "Pest incident ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: {
+                                type: "object",
+                                required: ["status"],
+                                properties: {
+                                    status: {
+                                        type: "string",
+                                        enum: ["DETECTED", "MONITORING", "TREATING", "RESOLVED", "RECURRING"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    "200": {
+                        description: "Status updated successfully",
+                        content: {
+                            "application/json": {
+                                schema: { $ref: "#/components/schemas/PestIncident" }
+                            }
+                        }
+                    },
+                    "400": { $ref: "#/components/responses/BadRequest" },
+                    "404": { $ref: "#/components/responses/NotFound" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            }
+        },
+        "/pests/treatments": {
+            get: {
+                tags: ["Pests"],
+                summary: "List pest treatments",
+                description: "Get paginated list of pest treatments - قائمة علاجات الآفات",
+                operationId: "listPestTreatments",
+                parameters: [
+                    { $ref: "#/components/parameters/TenantId" },
+                    {
+                        name: "incidentId",
+                        in: "query",
+                        description: "Filter by incident ID",
+                        schema: { type: "string", format: "uuid" }
+                    },
+                    { $ref: "#/components/parameters/Limit" },
+                    { $ref: "#/components/parameters/Offset" }
+                ],
+                responses: {
+                    "200": {
+                        description: "Successful response",
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    properties: {
+                                        success: { type: "boolean" },
+                                        data: {
+                                            type: "array",
+                                            items: { $ref: "#/components/schemas/PestTreatment" }
+                                        },
+                                        pagination: { $ref: "#/components/schemas/Pagination" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            },
+            post: {
+                tags: ["Pests"],
+                summary: "Record pest treatment",
+                description: "Record a new pest treatment application - تسجيل علاج الآفة",
+                operationId: "recordPestTreatment",
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/PestTreatmentCreate" },
+                            examples: {
+                                insecticide: {
+                                    summary: "Insecticide application",
+                                    value: {
+                                        incidentId: "123e4567-e89b-12d3-a456-426614174001",
+                                        tenantId: "tenant-001",
+                                        treatmentDate: "2026-01-01T14:00:00Z",
+                                        method: "Spray application",
+                                        productUsed: "Neem Oil",
+                                        quantity: 5,
+                                        unit: "liters",
+                                        appliedBy: "Farm Worker A",
+                                        cost: 250.50,
+                                        notes: "Applied in early morning"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                responses: {
+                    "201": {
+                        description: "Treatment recorded successfully",
+                        content: {
+                            "application/json": {
+                                schema: { $ref: "#/components/schemas/PestTreatment" }
+                            }
+                        }
+                    },
+                    "400": { $ref: "#/components/responses/BadRequest" },
+                    "404": { description: "Pest incident not found" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            }
+        },
+        "/pests/treatments/{id}": {
+            get: {
+                tags: ["Pests"],
+                summary: "Get pest treatment",
+                description: "Get pest treatment details - تفاصيل علاج الآفة",
+                operationId: "getPestTreatment",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        description: "Pest treatment ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                responses: {
+                    "200": {
+                        description: "Successful response",
+                        content: {
+                            "application/json": {
+                                schema: { $ref: "#/components/schemas/PestTreatment" }
+                            }
+                        }
+                    },
+                    "404": { $ref: "#/components/responses/NotFound" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            },
+            put: {
+                tags: ["Pests"],
+                summary: "Update pest treatment",
+                description: "Update pest treatment details - تحديث علاج الآفة",
+                operationId: "updatePestTreatment",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        description: "Pest treatment ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                requestBody: {
+                    required: true,
+                    content: {
+                        "application/json": {
+                            schema: { $ref: "#/components/schemas/PestTreatmentUpdate" }
+                        }
+                    }
+                },
+                responses: {
+                    "200": {
+                        description: "Treatment updated successfully",
+                        content: {
+                            "application/json": {
+                                schema: { $ref: "#/components/schemas/PestTreatment" }
+                            }
+                        }
+                    },
+                    "400": { $ref: "#/components/responses/BadRequest" },
+                    "404": { $ref: "#/components/responses/NotFound" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            },
+            delete: {
+                tags: ["Pests"],
+                summary: "Delete pest treatment",
+                description: "Delete a pest treatment - حذف علاج الآفة",
+                operationId: "deletePestTreatment",
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        required: true,
+                        description: "Pest treatment ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                responses: {
+                    "200": { description: "Treatment deleted successfully" },
+                    "404": { $ref: "#/components/responses/NotFound" },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            }
+        },
+        "/pests/incidents/{incidentId}/treatments": {
+            get: {
+                tags: ["Pests"],
+                summary: "Get incident treatments",
+                description: "Get all treatments for a specific incident - علاجات حادثة معينة",
+                operationId: "getIncidentTreatments",
+                parameters: [
+                    {
+                        name: "incidentId",
+                        in: "path",
+                        required: true,
+                        description: "Pest incident ID",
+                        schema: { type: "string", format: "uuid" }
+                    }
+                ],
+                responses: {
+                    "200": {
+                        description: "Successful response",
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    properties: {
+                                        success: { type: "boolean" },
+                                        data: {
+                                            type: "array",
+                                            items: { $ref: "#/components/schemas/PestTreatment" }
+                                        },
+                                        count: { type: "integer" }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": { $ref: "#/components/responses/Unauthorized" }
+                },
+                security: [{ bearerAuth: [] }]
+            }
         }
     },
     components: {
@@ -513,6 +975,210 @@ All endpoints require JWT authentication via the \`Authorization: Bearer <token>
                             }
                         }
                     }
+                }
+            },
+            PestIncident: {
+                type: "object",
+                properties: {
+                    id: { type: "string", format: "uuid" },
+                    fieldId: { type: "string", format: "uuid" },
+                    cropSeasonId: { type: "string", format: "uuid", nullable: true },
+                    tenantId: { type: "string" },
+                    pestType: {
+                        type: "string",
+                        enum: ["INSECT", "FUNGUS", "BACTERIA", "VIRUS", "WEED", "RODENT", "BIRD", "NEMATODE", "OTHER"]
+                    },
+                    pestName: { type: "string", maxLength: 255 },
+                    severityLevel: {
+                        type: "integer",
+                        minimum: 1,
+                        maximum: 5,
+                        description: "Severity level from 1 (low) to 5 (critical)"
+                    },
+                    affectedArea: {
+                        type: "number",
+                        description: "Affected area in hectares"
+                    },
+                    status: {
+                        type: "string",
+                        enum: ["DETECTED", "MONITORING", "TREATING", "RESOLVED", "RECURRING"]
+                    },
+                    detectedAt: { type: "string", format: "date-time" },
+                    reportedBy: { type: "string", maxLength: 255 },
+                    location: {
+                        type: "object",
+                        nullable: true,
+                        properties: {
+                            lat: { type: "number" },
+                            lng: { type: "number" },
+                            coordinates: {
+                                type: "array",
+                                items: {
+                                    type: "array",
+                                    items: { type: "number" }
+                                }
+                            }
+                        }
+                    },
+                    photos: {
+                        type: "array",
+                        nullable: true,
+                        items: { type: "string" },
+                        description: "Array of photo URLs"
+                    },
+                    notes: { type: "string", nullable: true },
+                    treatments: {
+                        type: "array",
+                        items: { $ref: "#/components/schemas/PestTreatment" }
+                    },
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" }
+                },
+                required: ["fieldId", "tenantId", "pestType", "pestName", "severityLevel", "affectedArea", "detectedAt", "reportedBy"]
+            },
+            PestIncidentCreate: {
+                type: "object",
+                properties: {
+                    fieldId: { type: "string", format: "uuid" },
+                    cropSeasonId: { type: "string", format: "uuid", nullable: true },
+                    tenantId: { type: "string" },
+                    pestType: {
+                        type: "string",
+                        enum: ["INSECT", "FUNGUS", "BACTERIA", "VIRUS", "WEED", "RODENT", "BIRD", "NEMATODE", "OTHER"]
+                    },
+                    pestName: { type: "string", maxLength: 255 },
+                    severityLevel: {
+                        type: "integer",
+                        minimum: 1,
+                        maximum: 5
+                    },
+                    affectedArea: { type: "number" },
+                    detectedAt: { type: "string", format: "date-time" },
+                    reportedBy: { type: "string", maxLength: 255 },
+                    location: {
+                        type: "object",
+                        nullable: true,
+                        properties: {
+                            lat: { type: "number" },
+                            lng: { type: "number" }
+                        }
+                    },
+                    photos: {
+                        type: "array",
+                        nullable: true,
+                        items: { type: "string" }
+                    },
+                    notes: { type: "string", nullable: true },
+                    status: {
+                        type: "string",
+                        enum: ["DETECTED", "MONITORING", "TREATING", "RESOLVED", "RECURRING"],
+                        nullable: true
+                    }
+                },
+                required: ["fieldId", "tenantId", "pestType", "pestName", "severityLevel", "affectedArea", "detectedAt", "reportedBy"]
+            },
+            PestIncidentUpdate: {
+                type: "object",
+                properties: {
+                    pestType: {
+                        type: "string",
+                        enum: ["INSECT", "FUNGUS", "BACTERIA", "VIRUS", "WEED", "RODENT", "BIRD", "NEMATODE", "OTHER"]
+                    },
+                    pestName: { type: "string", maxLength: 255 },
+                    severityLevel: {
+                        type: "integer",
+                        minimum: 1,
+                        maximum: 5
+                    },
+                    affectedArea: { type: "number" },
+                    status: {
+                        type: "string",
+                        enum: ["DETECTED", "MONITORING", "TREATING", "RESOLVED", "RECURRING"]
+                    },
+                    location: {
+                        type: "object",
+                        nullable: true,
+                        properties: {
+                            lat: { type: "number" },
+                            lng: { type: "number" }
+                        }
+                    },
+                    photos: {
+                        type: "array",
+                        nullable: true,
+                        items: { type: "string" }
+                    },
+                    notes: { type: "string", nullable: true }
+                }
+            },
+            PestTreatment: {
+                type: "object",
+                properties: {
+                    id: { type: "string", format: "uuid" },
+                    incidentId: { type: "string", format: "uuid" },
+                    tenantId: { type: "string" },
+                    treatmentDate: { type: "string", format: "date-time" },
+                    method: { type: "string", maxLength: 255 },
+                    productUsed: { type: "string", maxLength: 255 },
+                    productId: { type: "string", format: "uuid", nullable: true },
+                    quantity: { type: "number" },
+                    unit: { type: "string", maxLength: 50 },
+                    appliedBy: { type: "string", maxLength: 255 },
+                    effectiveness: {
+                        type: "integer",
+                        minimum: 1,
+                        maximum: 5,
+                        nullable: true,
+                        description: "Treatment effectiveness from 1 (ineffective) to 5 (very effective)"
+                    },
+                    cost: { type: "number", nullable: true },
+                    notes: { type: "string", nullable: true },
+                    createdAt: { type: "string", format: "date-time" },
+                    updatedAt: { type: "string", format: "date-time" }
+                },
+                required: ["incidentId", "tenantId", "treatmentDate", "method", "productUsed", "quantity", "unit", "appliedBy"]
+            },
+            PestTreatmentCreate: {
+                type: "object",
+                properties: {
+                    incidentId: { type: "string", format: "uuid" },
+                    tenantId: { type: "string" },
+                    treatmentDate: { type: "string", format: "date-time" },
+                    method: { type: "string", maxLength: 255 },
+                    productUsed: { type: "string", maxLength: 255 },
+                    productId: { type: "string", format: "uuid", nullable: true },
+                    quantity: { type: "number" },
+                    unit: { type: "string", maxLength: 50 },
+                    appliedBy: { type: "string", maxLength: 255 },
+                    effectiveness: {
+                        type: "integer",
+                        minimum: 1,
+                        maximum: 5,
+                        nullable: true
+                    },
+                    cost: { type: "number", nullable: true },
+                    notes: { type: "string", nullable: true }
+                },
+                required: ["incidentId", "tenantId", "treatmentDate", "method", "productUsed", "quantity", "unit", "appliedBy"]
+            },
+            PestTreatmentUpdate: {
+                type: "object",
+                properties: {
+                    treatmentDate: { type: "string", format: "date-time" },
+                    method: { type: "string", maxLength: 255 },
+                    productUsed: { type: "string", maxLength: 255 },
+                    productId: { type: "string", format: "uuid", nullable: true },
+                    quantity: { type: "number" },
+                    unit: { type: "string", maxLength: 50 },
+                    appliedBy: { type: "string", maxLength: 255 },
+                    effectiveness: {
+                        type: "integer",
+                        minimum: 1,
+                        maximum: 5,
+                        nullable: true
+                    },
+                    cost: { type: "number", nullable: true },
+                    notes: { type: "string", nullable: true }
                 }
             }
         },

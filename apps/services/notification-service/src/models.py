@@ -7,6 +7,18 @@ from tortoise import fields
 from tortoise.models import Model
 from datetime import datetime
 from typing import Optional
+from enum import Enum
+
+
+class ChannelType(str, Enum):
+    """
+    نوع القناة - Channel Type Enum
+    """
+    EMAIL = "email"
+    SMS = "sms"
+    PUSH = "push"
+    WHATSAPP = "whatsapp"
+    IN_APP = "in_app"
 
 
 class Notification(Model):
@@ -115,33 +127,70 @@ class NotificationTemplate(Model):
         return f"NotificationTemplate({self.name})"
 
 
-class NotificationPreference(Model):
+class NotificationChannel(Model):
     """
-    نموذج تفضيلات الإشعارات
-    Notification Preferences - user preferences for receiving notifications
+    نموذج قناة الإشعار
+    Notification Channel - stores user's communication channels and addresses
     """
     id = fields.UUIDField(pk=True)
     tenant_id = fields.CharField(max_length=100, index=True, null=True)
     user_id = fields.CharField(max_length=100, index=True, description="Farmer/User ID")
 
-    # Channel preferences
-    channel = fields.CharField(max_length=20, description="push, sms, in_app, email")
-    enabled = fields.BooleanField(default=True, description="Is this channel enabled for the user")
+    # Channel information
+    channel = fields.CharEnumField(ChannelType, description="Channel type: EMAIL, SMS, PUSH, WHATSAPP, IN_APP")
+    address = fields.CharField(max_length=255, description="Channel address (email, phone, FCM token, etc.)")
 
-    # Quiet hours (do not disturb)
+    # Verification
+    verified = fields.BooleanField(default=False, description="Whether this channel is verified")
+    verified_at = fields.DatetimeField(null=True, description="When the channel was verified")
+    verification_code = fields.CharField(max_length=10, null=True, description="Verification code for unverified channels")
+
+    # Status
+    enabled = fields.BooleanField(default=True, description="Whether this channel is enabled for notifications")
+
+    # Metadata
+    metadata = fields.JSONField(null=True, description="Additional channel metadata (device info, etc.)")
+
+    # Timestamps
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+    class Meta:
+        table = "notification_channels"
+        unique_together = (("user_id", "channel", "address"),)
+        indexes = [
+            ("tenant_id", "user_id"),
+            ("user_id", "channel"),
+        ]
+
+    def __str__(self):
+        return f"NotificationChannel({self.user_id}, {self.channel}, {self.address})"
+
+
+class NotificationPreference(Model):
+    """
+    نموذج تفضيلات الإشعارات
+    Notification Preferences - event-specific user preferences for notification channels
+    """
+    id = fields.UUIDField(pk=True)
+    tenant_id = fields.CharField(max_length=100, index=True, null=True)
+    user_id = fields.CharField(max_length=100, index=True, description="Farmer/User ID")
+
+    # Event type for this preference
+    event_type = fields.CharField(max_length=50, description="Event type: weather_alert, pest_outbreak, etc.")
+
+    # Channels to use for this event type
+    channels = fields.JSONField(default=list, description="List of channel types to use: ['email', 'sms', 'push']")
+
+    # General settings
+    enabled = fields.BooleanField(default=True, description="Whether notifications for this event type are enabled")
+
+    # Quiet hours (do not disturb) - applies to all event types for this user
     quiet_hours_start = fields.TimeField(null=True, description="Start of quiet hours (e.g., 22:00)")
     quiet_hours_end = fields.TimeField(null=True, description="End of quiet hours (e.g., 06:00)")
 
-    # Type-specific preferences
-    notification_types = fields.JSONField(null=True, description="Dict of notification types and their enabled status")
-    min_priority = fields.CharField(max_length=20, default="low", description="Minimum priority to receive")
-
-    # Device tokens (for push notifications)
-    device_tokens = fields.JSONField(null=True, description="List of FCM/APNS device tokens")
-
     # Metadata
-    language = fields.CharField(max_length=10, default="ar", description="Preferred language (ar, en)")
-    timezone = fields.CharField(max_length=50, default="Asia/Aden", description="User timezone")
+    metadata = fields.JSONField(null=True, description="Additional preferences metadata")
 
     # Timestamps
     created_at = fields.DatetimeField(auto_now_add=True)
@@ -149,13 +198,14 @@ class NotificationPreference(Model):
 
     class Meta:
         table = "notification_preferences"
-        unique_together = (("user_id", "channel"),)
+        unique_together = (("user_id", "event_type"),)
         indexes = [
             ("tenant_id", "user_id"),
+            ("user_id", "event_type"),
         ]
 
     def __str__(self):
-        return f"NotificationPreference({self.user_id}, {self.channel})"
+        return f"NotificationPreference({self.user_id}, {self.event_type})"
 
     def is_in_quiet_hours(self, check_time: Optional[datetime] = None) -> bool:
         """Check if current time is in quiet hours"""

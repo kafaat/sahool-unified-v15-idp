@@ -1,0 +1,29 @@
+{
+  "name": "@sahool/shared-events",
+  "version": "1.0.0",
+  "description": "Shared NATS event bus for SAHOOL microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "nats",
+    "events",
+    "microservices",
+    "sahool"
+  ],
+  "author": "SAHOOL Platform",
+  "license": "MIT",
+  "dependencies": {
+    "nats": "^2.28.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.7.2"
+  }
+}

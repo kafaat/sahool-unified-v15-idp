@@ -2,6 +2,7 @@
 // مخطط قاعدة بيانات خدمة المحادثات للسوق الزراعي
 
 datasource db {
+  url      = env("DATABASE_URL")
   provider = "postgresql"
 }
 

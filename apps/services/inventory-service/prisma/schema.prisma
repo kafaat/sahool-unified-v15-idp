@@ -2,6 +2,7 @@
 // مخطط قاعدة بيانات خدمة المخزون
 
 datasource db {
+  url      = env("DATABASE_URL")
   provider = "postgresql"
 }
 

@@ -11,6 +11,8 @@ export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   closeOnOverlay?: boolean;
   showCloseButton?: boolean;
+  /** Optional description ID for aria-describedby */
+  descriptionId?: string;
 }
 
 export function Modal({
@@ -21,11 +23,13 @@ export function Modal({
   size = 'md',
   closeOnOverlay = true,
   showCloseButton = true,
+  descriptionId,
   children,
   className,
   ...props
 }: ModalProps) {
   const modalRef = React.useRef<HTMLDivElement>(null);
+  const titleId = React.useId();
 
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -65,9 +69,14 @@ export function Modal({
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={handleOverlayClick}
+      aria-hidden="true"
     >
       <div
         ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={(title || titleAr) ? titleId : undefined}
+        aria-describedby={descriptionId}
         className={clsx(
           'relative bg-white rounded-lg shadow-xl w-full',
           sizes[size],
@@ -80,7 +89,7 @@ export function Modal({
         {(title || titleAr || showCloseButton) && (
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             {(title || titleAr) && (
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 id={titleId} className="text-xl font-bold text-gray-900">
                 <span className="text-gray-900">{titleAr}</span>
                 {titleAr && title && <span className="mx-2">•</span>}
                 {title && <span className="text-gray-600 text-base">{title}</span>}

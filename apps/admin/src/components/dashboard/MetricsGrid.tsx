@@ -7,6 +7,7 @@ import StatCard from '@/components/ui/StatCard';
 import { LucideIcon } from 'lucide-react';
 
 export interface Metric {
+  id?: string;
   title: string;
   value: number | string;
   icon: LucideIcon;
@@ -39,9 +40,9 @@ export default function MetricsGrid({
 
   return (
     <div className={`grid ${gridCols[columns]} gap-6 ${className}`}>
-      {metrics.map((metric, index) => (
+      {metrics.map((metric) => (
         <StatCard
-          key={index}
+          key={metric.id || metric.title}
           title={metric.title}
           value={metric.value}
           icon={metric.icon}

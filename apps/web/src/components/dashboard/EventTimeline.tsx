@@ -5,6 +5,49 @@ import { useEffect, useState } from 'react';
 import { wsClient, TimelineEvent, getEventIcon, getEventColor, formatEventType } from '@/lib/ws';
 import { SkeletonEventItem } from './ui/Skeleton';
 
+// Type-safe payload interfaces - واجهات الأحمال المُحددة النوع
+interface TaskPayload {
+  title: string;
+  field_id: string;
+}
+
+interface WeatherAlertPayload {
+  type: string;
+  severity: 'info' | 'warning' | 'critical';
+  location: string;
+}
+
+interface DiagnosisPayload {
+  disease_detected: boolean;
+  confidence: number;
+  disease?: string;
+}
+
+interface NdviPayload {
+  field_id: string;
+  ndvi: number | string;
+  status: 'healthy' | 'warning' | 'critical';
+}
+
+type EventPayload = TaskPayload | WeatherAlertPayload | DiagnosisPayload | NdviPayload | Record<string, unknown>;
+
+// Type guards for payload types - حراس الأنواع
+function isTaskPayload(payload: EventPayload): payload is TaskPayload {
+  return 'title' in payload && 'field_id' in payload;
+}
+
+function isWeatherAlertPayload(payload: EventPayload): payload is WeatherAlertPayload {
+  return 'type' in payload && 'location' in payload;
+}
+
+function isDiagnosisPayload(payload: EventPayload): payload is DiagnosisPayload {
+  return 'disease_detected' in payload && 'confidence' in payload;
+}
+
+function isNdviPayload(payload: EventPayload): payload is NdviPayload {
+  return 'ndvi' in payload && 'status' in payload;
+}
+
 // Sample events for demo mode
 const SAMPLE_EVENTS: TimelineEvent[] = [
   {
@@ -82,37 +125,37 @@ const EventCard = React.memo<{ event: TimelineEvent }>(function EventCard({ even
             <span className="text-xs text-gray-400">{formatTimeAgo(event.timestamp)}</span>
           </div>
 
-          {/* Payload details */}
+          {/* Payload details - Type-safe rendering */}
           <div className="mt-1 text-xs text-gray-500">
-            {event.event_type === 'task_created' && (
-              <span>📋 {(event.payload as any).title}</span>
+            {event.event_type === 'task_created' && isTaskPayload(event.payload as EventPayload) && (
+              <span>📋 {(event.payload as TaskPayload).title}</span>
             )}
-            {event.event_type === 'task_completed' && (
-              <span>✅ {(event.payload as any).title}</span>
+            {event.event_type === 'task_completed' && isTaskPayload(event.payload as EventPayload) && (
+              <span>✅ {(event.payload as TaskPayload).title}</span>
             )}
-            {event.event_type === 'weather_alert_issued' && (
-              <span>⚠️ {(event.payload as any).type} - {(event.payload as any).location}</span>
+            {event.event_type === 'weather_alert_issued' && isWeatherAlertPayload(event.payload as EventPayload) && (
+              <span>⚠️ {(event.payload as WeatherAlertPayload).type} - {(event.payload as WeatherAlertPayload).location}</span>
             )}
-            {event.event_type === 'image_diagnosed' && (
+            {event.event_type === 'image_diagnosed' && isDiagnosisPayload(event.payload as EventPayload) && (
               <span>
-                {(event.payload as any).disease_detected ? '🔴' : '🟢'}
+                {(event.payload as DiagnosisPayload).disease_detected ? '🔴' : '🟢'}
                 {' '}
-                {(event.payload as any).disease || 'لا يوجد مرض'}
+                {(event.payload as DiagnosisPayload).disease || 'لا يوجد مرض'}
                 {' '}
-                ({Math.round((event.payload as any).confidence * 100)}%)
+                ({Math.round((event.payload as DiagnosisPayload).confidence * 100)}%)
               </span>
             )}
-            {event.event_type === 'ndvi_processed' && (
+            {event.event_type === 'ndvi_processed' && isNdviPayload(event.payload as EventPayload) && (
               <span>
-                🛰️ NDVI: {(event.payload as any).ndvi}
+                🛰️ NDVI: {(event.payload as NdviPayload).ndvi}
                 {' '}
                 <span className={`px-1 rounded ${
-                  (event.payload as any).status === 'healthy' ? 'bg-green-100 text-green-700' :
-                  (event.payload as any).status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
+                  (event.payload as NdviPayload).status === 'healthy' ? 'bg-green-100 text-green-700' :
+                  (event.payload as NdviPayload).status === 'warning' ? 'bg-yellow-100 text-yellow-700' :
                   'bg-red-100 text-red-700'
                 }`}>
-                  {(event.payload as any).status === 'healthy' ? 'صحي' :
-                   (event.payload as any).status === 'warning' ? 'تحذير' : 'حرج'}
+                  {(event.payload as NdviPayload).status === 'healthy' ? 'صحي' :
+                   (event.payload as NdviPayload).status === 'warning' ? 'تحذير' : 'حرج'}
                 </span>
               </span>
             )}

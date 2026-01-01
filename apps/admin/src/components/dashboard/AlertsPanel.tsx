@@ -90,10 +90,11 @@ export default function AlertsPanel({
             )}
           </div>
           {showFilters && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" role="group" aria-label="فلترة التنبيهات">
               <button
                 onClick={() => setFilter('all')}
-                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
+                aria-pressed={filter === 'all'}
+                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sahool-500 ${
                   filter === 'all'
                     ? 'bg-sahool-600 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -103,7 +104,8 @@ export default function AlertsPanel({
               </button>
               <button
                 onClick={() => setFilter('critical')}
-                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
+                aria-pressed={filter === 'critical'}
+                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 ${
                   filter === 'critical'
                     ? 'bg-red-600 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -113,7 +115,8 @@ export default function AlertsPanel({
               </button>
               <button
                 onClick={() => setFilter('unread')}
-                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors ${
+                aria-pressed={filter === 'unread'}
+                className={`px-3 py-1 text-xs font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   filter === 'unread'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -201,18 +204,20 @@ export default function AlertsPanel({
                           <button
                             onClick={() => onMarkAsRead(alert.id)}
                             className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                            aria-label="وضع علامة كمقروء"
                             title="وضع علامة كمقروء"
                           >
-                            <CheckCircle className="w-3 h-3" />
+                            <CheckCircle className="w-3 h-3" aria-hidden="true" />
                           </button>
                         )}
                         {onDismiss && (
                           <button
                             onClick={() => onDismiss(alert.id)}
                             className="text-xs text-gray-400 hover:text-gray-600"
+                            aria-label="إخفاء التنبيه"
                             title="إخفاء"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-3 h-3" aria-hidden="true" />
                           </button>
                         )}
                       </div>

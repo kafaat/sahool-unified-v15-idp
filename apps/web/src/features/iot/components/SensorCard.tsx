@@ -1,10 +1,16 @@
 /**
  * Sensor Card Component
  * مكون بطاقة المستشعر
+ *
+ * Enhanced with:
+ * - React.memo for performance optimization
+ * - Full keyboard accessibility (Enter + Space)
+ * - useCallback for event handlers
  */
 
 'use client';
 
+import React, { useCallback } from 'react';
 import Link from 'next/link';
 import { useLatestReading } from '../hooks/useSensors';
 import type { Sensor } from '../types';
@@ -55,24 +61,32 @@ const typeIcons = {
   wind: '🌬️',
 };
 
-export function SensorCard({ sensor, onClick }: SensorCardProps) {
+const SensorCardComponent: React.FC<SensorCardProps> = ({ sensor, onClick }) => {
   const { data: latestReading } = useLatestReading(sensor.id);
 
   const reading = latestReading || sensor.lastReading;
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (onClick) {
       onClick(sensor.id);
     }
-  };
+  }, [onClick, sensor.id]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onClick(sensor.id);
+    }
+  }, [onClick, sensor.id]);
 
   const cardContent = (
     <div
-      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer"
+      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
       onClick={onClick ? handleClick : undefined}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
-      onKeyDown={onClick ? (e) => e.key === 'Enter' && handleClick() : undefined}
+      onKeyDown={onClick ? handleKeyDown : undefined}
+      aria-label={`مستشعر ${sensor.nameAr} - ${statusLabels[sensor.status]}`}
     >
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -152,4 +166,10 @@ export function SensorCard({ sensor, onClick }: SensorCardProps) {
       {cardContent}
     </Link>
   );
-}
+};
+
+// Memoize component for performance
+export const SensorCard = React.memo(SensorCardComponent);
+SensorCard.displayName = 'SensorCard';
+
+export default SensorCard;

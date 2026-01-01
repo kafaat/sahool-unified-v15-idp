@@ -1,7 +1,7 @@
 """
 SAHOOL Inventory Service - Main API
 Agricultural inventory management and analytics
-Port: 8115
+Port: 8116
 """
 
 import os
@@ -84,7 +84,7 @@ async def lifespan(app: FastAPI):
         logger.info("Database tables ready")
     except Exception as e:
         logger.warning(f"Database setup warning: {e}")
-    logger.info("Inventory Service ready on port 8115")
+    logger.info("Inventory Service ready on port 8116")
     yield
     await engine.dispose()
     logger.info("Inventory Service shutting down")
@@ -362,5 +362,5 @@ async def get_dashboard_metrics(
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8115))
+    port = int(os.getenv("PORT", 8116))
     uvicorn.run(app, host="0.0.0.0", port=port)

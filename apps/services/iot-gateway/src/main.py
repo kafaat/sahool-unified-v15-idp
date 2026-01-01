@@ -203,7 +203,7 @@ async def lifespan(app: FastAPI):
     # Start offline device checker
     asyncio.create_task(check_offline_devices())
 
-    print("✅ IoT Gateway ready on port 8096")
+    print("✅ IoT Gateway ready on port 8106")
 
     yield
 
@@ -701,5 +701,5 @@ def get_stats():
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8096))
+    port = int(os.getenv("PORT", 8106))
     uvicorn.run(app, host="0.0.0.0", port=port)

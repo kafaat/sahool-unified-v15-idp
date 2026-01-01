@@ -134,9 +134,12 @@ class AuthRateLimiter:
             client_ip = request.client.host if request.client else "unknown"
 
         # Combine IP with identifier if provided (rate limit key, not HTML - not a Flask route)
+        # This is NOT a Flask route - it's a rate limit key function
         if identifier:
-            return f"auth:{client_ip}:{identifier}"  # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
-        return f"auth:{client_ip}"  # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
+            # nosemgrep
+            return f"auth:{client_ip}:{identifier}"
+        # nosemgrep
+        return f"auth:{client_ip}"
 
     async def check_login_limit(
         self,

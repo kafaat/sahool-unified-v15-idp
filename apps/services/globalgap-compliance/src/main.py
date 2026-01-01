@@ -22,13 +22,18 @@ try:
 except ImportError:
     # Fallback if shared config not available | احتياطي إذا لم يكن التكوين المشترك متاحًا
     def setup_cors_middleware(app):
+        import os
         from fastapi.middleware.cors import CORSMiddleware
 
+        # Get allowed origins from environment or use safe defaults
+        cors_origins = os.getenv(
+            "CORS_ORIGINS", "http://localhost:3000,http://localhost:8080"
+        ).split(",")
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=["*"],
+            allow_origins=cors_origins,  # nosemgrep: python.fastapi.security.wildcard-cors
             allow_credentials=True,
-            allow_methods=["*"],
+            allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             allow_headers=["*"],
         )
 

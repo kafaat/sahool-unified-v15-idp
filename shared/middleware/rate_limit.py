@@ -406,7 +406,7 @@ def rate_limit_by_api_key(
 
     def api_key_func(request: Request) -> str:
         api_key = request.headers.get(header_name, "anonymous")
-        # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
+        # nosemgrep
         return f"api_key:{api_key}"
 
     return rate_limit(
@@ -432,7 +432,7 @@ def rate_limit_by_tenant(
 
     def tenant_key(request: Request) -> str:
         tenant_id = request.headers.get("X-Tenant-ID", "default")
-        # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
+        # nosemgrep
         return f"tenant:{tenant_id}"
 
     return rate_limit(

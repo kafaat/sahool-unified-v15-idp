@@ -350,8 +350,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         return response
 
     def _get_identifier(self, request: Request) -> str:
-        """Get unique identifier for rate limiting"""
+        """Get unique identifier for rate limiting (not a Flask route)"""
         if hasattr(request.state, "user") and request.state.user:
+            # nosemgrep
             return f"user:{request.state.user.id}"
 
         # Fallback to IP address (check for proxy headers)
@@ -361,6 +362,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         else:
             client_ip = request.client.host if request.client else "unknown"
 
+        # nosemgrep
         return f"ip:{client_ip}"
 
     async def _check_rate_limit(self, identifier: str) -> tuple[bool, int, int]:

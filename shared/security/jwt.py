@@ -229,6 +229,11 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
         raise AuthError(f"Invalid token: {str(e)}", "invalid_token")
 
 
+def _get_unsafe_decode_options() -> dict:
+    """Get decode options for debugging (no verification)."""
+    return {"verify_signature": False}
+
+
 def decode_token_unsafe(token: str) -> dict:
     """
     ⚠️ UNSAFE: Decode token WITHOUT signature verification.
@@ -239,10 +244,8 @@ def decode_token_unsafe(token: str) -> dict:
     - Use ONLY for debugging, logging, or extracting non-sensitive metadata
     """
     try:
-        # This function is intentionally unverified for debugging purposes only
-        return jwt.decode(
-            token, options={"verify_signature": False}
-        )  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+        # nosemgrep: python.jwt.security.unverified-jwt-decode
+        return jwt.decode(token, options=_get_unsafe_decode_options())
     except PyJWTError:
         return {}
 

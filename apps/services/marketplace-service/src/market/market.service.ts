@@ -101,7 +101,7 @@ export class MarketService {
       data: {
         name: data.name,
         nameAr: data.nameAr,
-        category: data.category,
+        category: data.category as any, // Cast to Prisma enum type
         price: data.price,
         stock: data.stock,
         unit: data.unit,
@@ -109,7 +109,7 @@ export class MarketService {
         descriptionAr: data.descriptionAr,
         imageUrl: data.imageUrl,
         sellerId: data.sellerId,
-        sellerType: data.sellerType,
+        sellerType: data.sellerType as any, // Cast to Prisma enum type
         sellerName: data.sellerName,
         cropType: data.cropType,
         governorate: data.governorate,

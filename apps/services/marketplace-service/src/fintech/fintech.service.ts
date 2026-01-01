@@ -587,7 +587,7 @@ export class FintechService {
         termMonths: data.termMonths,
         startDate,
         dueDate,
-        purpose: data.purpose,
+        purpose: data.purpose as any, // Cast to Prisma enum type
         purposeDetails: data.purposeDetails,
         collateralType: data.collateralType,
         collateralValue: data.collateralValue,
@@ -1158,7 +1158,7 @@ export class FintechService {
     const event = await this.prisma.creditEvent.create({
       data: {
         walletId: data.walletId,
-        eventType: data.eventType,
+        eventType: data.eventType as any, // Cast to Prisma enum type
         amount: data.amount,
         impact,
         description: data.description,
@@ -2093,7 +2093,7 @@ export class FintechService {
       data: {
         walletId,
         amount,
-        frequency,
+        frequency: frequency as any, // Cast to Prisma enum type
         nextPaymentDate,
         loanId,
         description,

@@ -77,11 +77,7 @@ def create_access_token(
     if extra_claims:
         payload.update(extra_claims)
 
-    return jwt.encode(
-        payload,
-        config.get_signing_key(),
-        algorithm=config.JWT_ALGORITHM
-    )
+    return jwt.encode(payload, config.get_signing_key(), algorithm=config.JWT_ALGORITHM)
 
 
 def create_refresh_token(
@@ -120,11 +116,7 @@ def create_refresh_token(
     if tenant_id:
         payload["tid"] = tenant_id
 
-    return jwt.encode(
-        payload,
-        config.get_signing_key(),
-        algorithm=config.JWT_ALGORITHM
-    )
+    return jwt.encode(payload, config.get_signing_key(), algorithm=config.JWT_ALGORITHM)
 
 
 def verify_token(token: str) -> TokenPayload:
@@ -172,7 +164,7 @@ def verify_token(token: str) -> TokenPayload:
             audience=config.JWT_AUDIENCE,
             options={
                 "require": ["sub", "exp", "iat"],
-            }
+            },
         )
 
         # Extract required fields
@@ -282,7 +274,9 @@ def create_token_pair(
     }
 
 
-def refresh_access_token(refresh_token: str, roles: list[str], permissions: Optional[list[str]] = None) -> str:
+def refresh_access_token(
+    refresh_token: str, roles: list[str], permissions: Optional[list[str]] = None
+) -> str:
     """
     Create a new access token using a refresh token.
 

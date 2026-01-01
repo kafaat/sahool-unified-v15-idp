@@ -14,9 +14,12 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
-# Install dependencies first (better caching) with retry for network resilience
-COPY package*.json ./
-RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Upgrade npm to latest version for better dependency resolution
+RUN npm install -g npm@11.7.0
+
+# Install dependencies first (better caching)
+COPY package.json ./
+RUN npm install
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma
@@ -46,9 +49,12 @@ RUN addgroup --system sahool && \
 # Install curl for healthcheck and OpenSSL for Prisma compatibility
 RUN apk add --no-cache curl ca-certificates openssl
 
+# Upgrade npm to latest version for better dependency resolution
+RUN npm install -g npm@11.7.0
+
 # Copy package files and install production dependencies
-COPY --from=builder /app/package*.json ./
-RUN npm install --omit=dev --silent --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+COPY --from=builder /app/package.json ./
+RUN npm install --omit=dev
 
 # Copy Prisma schema and regenerate client for production environment
 # Add retry logic for network resilience

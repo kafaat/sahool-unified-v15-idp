@@ -28,6 +28,15 @@ interface TwoFASetup {
   account_name: string;
 }
 
+interface TwoFAStatus {
+  enabled: boolean;
+  backup_codes_remaining: number;
+}
+
+interface TwoFAVerifyResponse {
+  backup_codes: string[];
+}
+
 interface BackupCode {
   code: string;
   used: boolean;
@@ -61,7 +70,7 @@ export default function SecuritySettingsPage() {
 
   const loadTwoFAStatus = async () => {
     try {
-      const response = await apiClient.get('/admin/2fa/status');
+      const response = await apiClient.get<TwoFAStatus>('/admin/2fa/status');
       if (response.success && response.data) {
         setTwoFAEnabled(response.data.enabled);
         setBackupCodesRemaining(response.data.backup_codes_remaining);
@@ -76,7 +85,7 @@ export default function SecuritySettingsPage() {
     setError('');
 
     try {
-      const response = await apiClient.post('/admin/2fa/setup');
+      const response = await apiClient.post<TwoFASetup>('/admin/2fa/setup');
       if (response.success && response.data) {
         setSetupData(response.data);
         setShowSetup(true);
@@ -100,7 +109,7 @@ export default function SecuritySettingsPage() {
     setError('');
 
     try {
-      const response = await apiClient.post('/admin/2fa/verify', {
+      const response = await apiClient.post<TwoFAVerifyResponse>('/admin/2fa/verify', {
         token: verificationCode,
       });
 
@@ -159,7 +168,7 @@ export default function SecuritySettingsPage() {
     setError('');
 
     try {
-      const response = await apiClient.post('/admin/2fa/backup-codes', {
+      const response = await apiClient.post<TwoFAVerifyResponse>('/admin/2fa/backup-codes', {
         token: code,
       });
 

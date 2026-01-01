@@ -21,26 +21,27 @@ export interface BaseFarmData {
 }
 
 // Dynamic import for Leaflet (SSR not supported)
+// Using type assertions to preserve react-leaflet prop types
 const MapContainer = dynamic(
   () => import('react-leaflet').then((mod) => mod.MapContainer),
   { ssr: false }
-);
+) as any;
 const TileLayer = dynamic(
   () => import('react-leaflet').then((mod) => mod.TileLayer),
   { ssr: false }
-);
+) as any;
 const Marker = dynamic(
   () => import('react-leaflet').then((mod) => mod.Marker),
   { ssr: false }
-);
+) as any;
 const Popup = dynamic(
   () => import('react-leaflet').then((mod) => mod.Popup),
   { ssr: false }
-);
+) as any;
 const CircleMarker = dynamic(
   () => import('react-leaflet').then((mod) => mod.CircleMarker),
   { ssr: false }
-);
+) as any;
 
 interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
   farms: T[];

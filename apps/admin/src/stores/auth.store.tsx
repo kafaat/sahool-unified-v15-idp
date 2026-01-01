@@ -12,11 +12,18 @@ interface User {
   tenant_id?: string;
 }
 
+interface LoginResponse {
+  requires_2fa?: boolean;
+  temp_token?: string;
+  access_token?: string;
+  user?: User;
+}
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, totp_code?: string) => Promise<LoginResponse | void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
 }

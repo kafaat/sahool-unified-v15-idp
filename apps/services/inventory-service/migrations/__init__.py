@@ -1,0 +1,3 @@
+"""
+Inventory Service - Database Migrations
+"""

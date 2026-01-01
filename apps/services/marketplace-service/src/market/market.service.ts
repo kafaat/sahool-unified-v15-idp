@@ -8,8 +8,9 @@
  * - Order processing
  */
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsService } from '../events/events.service';
 
 // Types
 interface YieldData {
@@ -51,7 +52,11 @@ interface CreateOrderDto {
 
 @Injectable()
 export class MarketService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => EventsService))
+    private eventsService: EventsService,
+  ) {}
 
   // ═══════════════════════════════════════════════════════════════════════════
   // المنتجات - Products
@@ -219,7 +224,7 @@ export class MarketService {
       }
 
       // Batch update stock atomically within transaction
-      await Promise.all(
+      const updatedProducts = await Promise.all(
         stockUpdates.map((update) =>
           tx.product.update({
             where: { id: update.id },
@@ -227,6 +232,26 @@ export class MarketService {
           }),
         ),
       );
+
+      // Check for low stock after update (outside transaction to avoid blocking)
+      // We'll do this in a non-blocking way after the transaction completes
+      Promise.all(
+        updatedProducts.map(async (product) => {
+          const LOW_STOCK_THRESHOLD = 10;
+          if (product.stock <= LOW_STOCK_THRESHOLD && product.stock > 0) {
+            await this.eventsService.publishInventoryLowStock({
+              productId: product.id,
+              productName: product.nameAr || product.name,
+              currentStock: product.stock,
+              threshold: LOW_STOCK_THRESHOLD,
+              unit: product.unit,
+            });
+          }
+        }),
+      ).catch((err) => {
+        // Log error but don't fail the order
+        console.error('Error publishing inventory low stock events:', err);
+      });
 
       const serviceFee = subtotal * 0.02; // 2% رسوم خدمة
       const deliveryFee = 500; // رسوم توصيل ثابتة (ريال يمني)
@@ -253,6 +278,19 @@ export class MarketService {
           },
         },
         include: { items: true },
+      });
+
+      // Publish order.placed event to NATS
+      await this.eventsService.publishOrderPlaced({
+        orderId: order.id,
+        userId: order.buyerId,
+        items: orderItems.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.unitPrice,
+        })),
+        totalAmount: order.totalAmount,
+        currency: 'YER', // Yemeni Rial
       });
 
       return order;

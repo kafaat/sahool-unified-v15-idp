@@ -16,6 +16,54 @@ datasource db {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Farm Entity - المزارع
+// Farm locations and boundaries with geospatial support
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Farm {
+  id      String @id @default(uuid()) @db.Uuid
+  version Int    @default(1) // Optimistic locking
+
+  // Basic Info
+  name     String @db.VarChar(255)
+  tenantId String @map("tenant_id") @db.VarChar(100)
+  ownerId  String @map("owner_id") @db.VarChar(100)
+
+  // Geospatial (PostGIS)
+  location Unsupported("geometry(Point, 4326)")? // Farm headquarters
+  boundary Unsupported("geometry(Polygon, 4326)")? // Farm boundary
+
+  // Calculated Fields
+  totalAreaHectares Decimal? @map("total_area_hectares") @db.Decimal(10, 4)
+
+  // Contact & Address
+  address String? @db.VarChar(500)
+  phone   String? @db.VarChar(50)
+  email   String? @db.VarChar(255)
+
+  // Flexible Metadata
+  metadata Json? @db.JsonB
+
+  // Sync Metadata
+  isDeleted       Boolean  @default(false) @map("is_deleted")
+  serverUpdatedAt DateTime @default(now()) @map("server_updated_at") @db.Timestamptz
+  etag            String?  @default(uuid()) @db.VarChar(64)
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  fields Field[]
+
+  // Indexes
+  @@index([tenantId], name: "idx_farm_tenant")
+  @@index([ownerId], name: "idx_farm_owner")
+  @@index([serverUpdatedAt], name: "idx_farm_sync")
+  @@map("farms")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Field Entity - الحقول الزراعية
 // Core geospatial entity with sync support
 // ─────────────────────────────────────────────────────────────────────────────
@@ -29,6 +77,10 @@ model Field {
   tenantId String  @map("tenant_id") @db.VarChar(100)
   cropType String  @map("crop_type") @db.VarChar(100)
   ownerId  String? @map("owner_id") @db.Uuid
+
+  // Farm Reference
+  farmId String? @map("farm_id") @db.Uuid
+  farm   Farm?   @relation(fields: [farmId], references: [id], onDelete: SetNull)
 
   // Geospatial (PostGIS) - handled via raw SQL
   // boundary: geometry(Polygon, 4326)
@@ -236,6 +288,92 @@ model NdviReading {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Pest Incident - حوادث الآفات
+// Tracks pest detection and monitoring
+// ─────────────────────────────────────────────────────────────────────────────
+
+model PestIncident {
+  id String @id @default(uuid()) @db.Uuid
+
+  // References
+  fieldId       String  @map("field_id") @db.Uuid
+  cropSeasonId  String? @map("crop_season_id") @db.Uuid
+  tenantId      String  @map("tenant_id") @db.VarChar(100)
+
+  // Pest Information
+  pestType      PestType      @map("pest_type")
+  pestName      String        @map("pest_name") @db.VarChar(255)
+  severityLevel Int           @map("severity_level") // 1-5 scale
+  affectedArea  Decimal       @map("affected_area") @db.Decimal(10, 4) // hectares
+  status        IncidentStatus @default(DETECTED)
+
+  // Detection Details
+  detectedAt DateTime @map("detected_at") @db.Timestamptz
+  reportedBy String   @map("reported_by") @db.VarChar(255)
+
+  // Location & Evidence
+  location Json?  @db.JsonB // {lat, lng, coordinates}
+  photos   Json?  @db.JsonB // Array of photo URLs
+  notes    String? @db.Text
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  treatments PestTreatment[]
+
+  // Indexes
+  @@index([fieldId], name: "idx_pest_incident_field")
+  @@index([tenantId], name: "idx_pest_incident_tenant")
+  @@index([status], name: "idx_pest_incident_status")
+  @@index([detectedAt], name: "idx_pest_incident_date")
+  @@map("pest_incidents")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pest Treatment - علاجات الآفات
+// Records treatment actions taken for pest incidents
+// ─────────────────────────────────────────────────────────────────────────────
+
+model PestTreatment {
+  id String @id @default(uuid()) @db.Uuid
+
+  // References
+  incidentId String @map("incident_id") @db.Uuid
+  tenantId   String @map("tenant_id") @db.VarChar(100)
+
+  // Treatment Details
+  treatmentDate DateTime @map("treatment_date") @db.Timestamptz
+  method        String   @db.VarChar(255)
+  productUsed   String   @map("product_used") @db.VarChar(255)
+  productId     String?  @map("product_id") @db.Uuid
+
+  // Application Details
+  quantity   Decimal @db.Decimal(10, 3)
+  unit       String  @db.VarChar(50)
+  appliedBy  String  @map("applied_by") @db.VarChar(255)
+
+  // Results
+  effectiveness Int?     @db.SmallInt // 1-5 scale
+  cost          Decimal? @db.Decimal(10, 2)
+  notes         String?  @db.Text
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  incident PestIncident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([incidentId], name: "idx_pest_treatment_incident")
+  @@index([tenantId], name: "idx_pest_treatment_tenant")
+  @@index([treatmentDate], name: "idx_pest_treatment_date")
+  @@map("pest_treatments")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Enums
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -298,4 +436,28 @@ enum TaskState {
   overdue
 
   @@map("task_state")
+}
+
+enum PestType {
+  INSECT
+  FUNGUS
+  BACTERIA
+  VIRUS
+  WEED
+  RODENT
+  BIRD
+  NEMATODE
+  OTHER
+
+  @@map("pest_type")
+}
+
+enum IncidentStatus {
+  DETECTED
+  MONITORING
+  TREATING
+  RESOLVED
+  RECURRING
+
+  @@map("incident_status")
 }

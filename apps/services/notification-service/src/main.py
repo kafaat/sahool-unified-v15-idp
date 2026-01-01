@@ -44,6 +44,11 @@ from .repository import (
 from .sms_client import get_sms_client
 from .email_client import get_email_client
 
+# Multi-channel support
+from .channels_controller import router as channels_router
+from .preferences_controller import router as preferences_router
+from .preferences_service import PreferencesService
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sahool-notifications")
@@ -74,6 +79,7 @@ class NotificationChannel(str, Enum):
     PUSH = "push"
     SMS = "sms"
     EMAIL = "email"
+    WHATSAPP = "whatsapp"
     IN_APP = "in_app"
 
 
@@ -329,7 +335,7 @@ async def create_notification(
     expires_in_hours: Optional[int] = 24,
     tenant_id: Optional[str] = None,
 ):
-    """إنشاء إشعار جديد - Database version"""
+    """إنشاء إشعار جديد - Database version with preference checking"""
 
     # Determine target farmers based on criteria
     recipients = determine_recipients_by_criteria(
@@ -341,8 +347,22 @@ async def create_notification(
     # Create notification for each recipient
     notifications = []
     for farmer_id in recipients:
+        # Check user preferences for this event type
+        should_send, preferred_channels = await PreferencesService.check_if_should_send(
+            user_id=farmer_id,
+            event_type=type.value,
+            tenant_id=tenant_id,
+        )
+
+        if not should_send:
+            logger.debug(f"Skipping notification for user {farmer_id} - event type disabled in preferences")
+            continue
+
+        # Use preferred channels if available, otherwise use provided channels
+        final_channels = preferred_channels if preferred_channels else [ch.value for ch in channels]
+
         # Get primary channel from list
-        channel = channels[0].value if channels else "in_app"
+        channel = final_channels[0] if final_channels else "in_app"
 
         notification = await NotificationRepository.create(
             user_id=farmer_id,
@@ -358,7 +378,7 @@ async def create_notification(
                 **data,
                 "type_ar": NOTIFICATION_TYPE_AR[type],
                 "priority_ar": PRIORITY_AR[priority],
-                "channels": [ch.value for ch in channels],
+                "channels": final_channels,
             },
             target_governorates=[g.value for g in target_governorates] if target_governorates else None,
             target_crops=[c.value for c in target_crops] if target_crops else None,
@@ -366,20 +386,25 @@ async def create_notification(
         )
         notifications.append(notification)
 
+        # Send notifications via appropriate channels (async background task)
+        for channel_name in final_channels:
+            try:
+                # Convert channel name string to enum
+                channel_enum = NotificationChannel(channel_name)
+                asyncio.create_task(
+                    send_notification_via_channel(
+                        notification=notification,
+                        channel=channel_enum,
+                        farmer_id=notification.user_id,
+                    )
+                )
+            except ValueError:
+                logger.warning(f"Invalid channel type: {channel_name}")
+                continue
+
     logger.info(
         f"📬 Created {len(notifications)} notification(s) for {len(recipients)} farmer(s)"
     )
-
-    # Send notifications via appropriate channels (async background task)
-    for notification in notifications:
-        for channel in channels:
-            asyncio.create_task(
-                send_notification_via_channel(
-                    notification=notification,
-                    channel=channel,
-                    farmer_id=notification.user_id,
-                )
-            )
 
     # Return first notification for API response compatibility
     return notifications[0] if notifications else None
@@ -392,7 +417,7 @@ async def send_notification_via_channel(
 ):
     """
     إرسال إشعار عبر قناة معينة
-    Send notification via specific channel (SMS, Email, or Push)
+    Send notification via specific channel (SMS, Email, Push, or WhatsApp)
     """
     try:
         if channel == NotificationChannel.SMS:
@@ -401,6 +426,8 @@ async def send_notification_via_channel(
             await send_email_notification(notification, farmer_id)
         elif channel == NotificationChannel.PUSH:
             await send_push_notification(notification, farmer_id)
+        elif channel == NotificationChannel.WHATSAPP:
+            await send_whatsapp_notification(notification, farmer_id)
         # IN_APP notifications are already stored in database, no action needed
 
     except Exception as e:
@@ -614,6 +641,53 @@ async def send_push_notification(notification, farmer_id: str):
         await NotificationLogRepository.create_log(
             notification_id=notification.id,
             channel="push",
+            status="failed",
+            error_message=str(e),
+        )
+
+
+async def send_whatsapp_notification(notification, farmer_id: str):
+    """إرسال إشعار عبر WhatsApp"""
+    try:
+        # Get farmer profile to get WhatsApp number
+        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        if not farmer_profile or not farmer_profile.phone:
+            logger.warning(f"No WhatsApp number for farmer {farmer_id}")
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="whatsapp",
+                status="failed",
+                error_message="No WhatsApp number available",
+            )
+            return
+
+        # For now, WhatsApp integration is a placeholder
+        # In production, you would integrate with WhatsApp Business API or Twilio WhatsApp
+        logger.info(f"WhatsApp notification placeholder for {farmer_profile.phone}")
+
+        # Placeholder: Log as pending until WhatsApp client is implemented
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel="whatsapp",
+            status="pending",
+            error_message="WhatsApp client not yet implemented",
+        )
+
+        # TODO: Implement WhatsApp Business API integration
+        # Example using Twilio:
+        # from twilio.rest import Client
+        # client = Client(account_sid, auth_token)
+        # message = client.messages.create(
+        #     from_='whatsapp:+14155238886',
+        #     body=notification.title + "\n" + notification.body,
+        #     to=f'whatsapp:{farmer_profile.phone}'
+        # )
+
+    except Exception as e:
+        logger.error(f"Error sending WhatsApp notification: {e}")
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel="whatsapp",
             status="failed",
             error_message=str(e),
         )
@@ -847,6 +921,10 @@ app = FastAPI(
     description="Personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration.",
     lifespan=lifespan,
 )
+
+# Include routers for multi-channel support
+app.include_router(channels_router)
+app.include_router(preferences_router)
 
 # Setup rate limiting middleware
 try:

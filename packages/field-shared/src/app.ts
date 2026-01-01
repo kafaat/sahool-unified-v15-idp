@@ -18,6 +18,8 @@ import {
     calculatePolygonArea,
     GeoValidationResult
 } from "./middleware/validation";
+import { pestRoutes } from "./api/pest-routes";
+import { geoRoutes } from "./geo/geo-routes";
 
 /**
  * Create and configure the field management Express application
@@ -1254,11 +1256,23 @@ export function createFieldApp(serviceName: string = "field-service"): Applicati
             });
         }
     });
-    
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Pest Management API Routes
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    app.use("/api/v1/pests", pestRoutes);
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Geospatial API Routes (PostGIS)
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    app.use("/api/v1/geo", geoRoutes);
+
     // ─────────────────────────────────────────────────────────────────────────────
     // Error Handler
     // ─────────────────────────────────────────────────────────────────────────────
-    
+
         app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
             console.error("Unhandled error:", err);
             res.status(500).json({
@@ -1319,6 +1333,34 @@ export async function startFieldService(serviceName: string, port: number = 3000
         console.log("    GET  /api/v1/fields/:id/ndvi  - Field NDVI analysis");
         console.log("    PUT  /api/v1/fields/:id/ndvi  - Update NDVI value");
         console.log("    GET  /api/v1/ndvi/summary     - Tenant-wide NDVI summary");
+        console.log("");
+        console.log("  🐛 Pest Management:");
+        console.log("    GET    /api/v1/pests/incidents           - List pest incidents");
+        console.log("    POST   /api/v1/pests/incidents           - Report pest incident");
+        console.log("    GET    /api/v1/pests/incidents/:id       - Get incident details");
+        console.log("    PUT    /api/v1/pests/incidents/:id       - Update incident");
+        console.log("    PATCH  /api/v1/pests/incidents/:id/status - Update status");
+        console.log("    DELETE /api/v1/pests/incidents/:id       - Delete incident");
+        console.log("    GET    /api/v1/pests/treatments          - List treatments");
+        console.log("    POST   /api/v1/pests/treatments          - Record treatment");
+        console.log("    GET    /api/v1/pests/treatments/:id      - Get treatment details");
+        console.log("    PUT    /api/v1/pests/treatments/:id      - Update treatment");
+        console.log("    DELETE /api/v1/pests/treatments/:id      - Delete treatment");
+        console.log("");
+        console.log("  🌍 Geospatial (PostGIS):");
+        console.log("    GET  /api/v1/geo/fields/radius          - Find fields in radius");
+        console.log("    GET  /api/v1/geo/farms/nearby           - Find nearby farms");
+        console.log("    GET  /api/v1/geo/fields/:id/area        - Calculate field area");
+        console.log("    POST /api/v1/geo/fields/:id/contains-point - Check point in field");
+        console.log("    GET  /api/v1/geo/fields/bbox            - Find fields in bbox");
+        console.log("    GET  /api/v1/geo/fields/:id1/distance/:id2 - Distance between fields");
+        console.log("    GET  /api/v1/geo/region/stats           - Regional statistics");
+        console.log("    GET  /api/v1/geo/fields/:id/geojson     - Get field GeoJSON");
+        console.log("    GET  /api/v1/geo/farms/:id/geojson      - Get farm GeoJSON");
+        console.log("    GET  /api/v1/geo/farms/:id/fields       - Get farm's fields");
+        console.log("    POST /api/v1/geo/fields                 - Create field with boundary");
+        console.log("    PUT  /api/v1/geo/fields/:id/boundary    - Update field boundary");
+        console.log("    POST /api/v1/geo/farms                  - Create farm with location");
         console.log("");
         console.log("  🔐 Conflict Resolution:");
         console.log("    • GET returns ETag header + body.etag + server_version");

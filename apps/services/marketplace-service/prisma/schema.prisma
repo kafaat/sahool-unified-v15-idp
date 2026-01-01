@@ -46,6 +46,10 @@ model Product {
   status      ProductStatus @default(AVAILABLE)
   featured    Boolean  @default(false)
 
+  // Soft Delete Fields
+  deletedAt   DateTime? @map("deleted_at")
+  deletedBy   String?   @map("deleted_by")
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -56,6 +60,7 @@ model Product {
   @@index([category, status]) // Optimize category filtering
   @@index([status, featured]) // Optimize featured product queries
   @@index([id, stock]) // Optimize stock check queries
+  @@index([deletedAt]) // Optimize soft delete queries
 }
 
 enum ProductCategory {
@@ -110,6 +115,10 @@ model Order {
   deliveryDate    DateTime? @map("delivery_date")
   deliveryNotes   String?  @map("delivery_notes")
 
+  // Soft Delete Fields
+  deletedAt   DateTime? @map("deleted_at")
+  deletedBy   String?   @map("deleted_by")
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -120,6 +129,7 @@ model Order {
   @@index([buyerId, status]) // Optimize buyer order queries
   @@index([status, createdAt]) // Optimize order filtering and sorting
   @@index([createdAt]) // Optimize time-based queries
+  @@index([deletedAt]) // Optimize soft delete queries
 }
 
 model OrderItem {
@@ -192,6 +202,10 @@ model Wallet {
   kycStatus   String?  @map("kyc_status") // pending, approved, rejected
   pin         String?  // رمز PIN مشفر (للمعاملات الكبيرة)
 
+  // Soft Delete Fields
+  deletedAt   DateTime? @map("deleted_at")
+  deletedBy   String?   @map("deleted_by")
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
@@ -204,6 +218,7 @@ model Wallet {
   auditLogs   WalletAuditLog[]
 
   @@map("wallets")
+  @@index([deletedAt]) // Optimize soft delete queries
 }
 
 enum CreditTier {
@@ -306,12 +321,17 @@ model Loan {
 
   status      LoanStatus @default(PENDING)
 
+  // Soft Delete Fields
+  deletedAt   DateTime? @map("deleted_at")
+  deletedBy   String?   @map("deleted_by")
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   wallet      Wallet   @relation(fields: [walletId], references: [id])
 
   @@map("loans")
+  @@index([deletedAt]) // Optimize soft delete queries
 }
 
 enum LoanPurpose {
@@ -498,4 +518,132 @@ model WalletAuditLog {
   @@index([createdAt])
   @@index([idempotencyKey])
   @@map("wallet_audit_logs")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 10. ملفات البائع والمشتري - Seller & Buyer Profiles
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model SellerProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  tenantId    String   @map("tenant_id")
+
+  // معلومات العمل
+  businessName String  @map("business_name")
+  businessType BusinessType @map("business_type")
+  taxId       String?  @map("tax_id")
+
+  // التقييم والإحصائيات
+  rating      Float    @default(0.0) // متوسط التقييم (0-5)
+  totalSales  Int      @default(0) @map("total_sales")
+  totalRevenue Float   @default(0.0) @map("total_revenue")
+
+  // التحقق
+  verified    Boolean  @default(false)
+  verifiedAt  DateTime? @map("verified_at")
+
+  // معلومات الدفع
+  bankAccount Json?    @map("bank_account") // معلومات الحساب البنكي
+  payoutPreferences Json? @map("payout_preferences") // تفضيلات الدفع
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  reviewResponses ReviewResponse[]
+
+  @@index([userId])
+  @@index([tenantId])
+  @@index([businessType])
+  @@index([verified])
+  @@map("seller_profiles")
+}
+
+enum BusinessType {
+  INDIVIDUAL      // فرد
+  FARM            // مزرعة
+  COOPERATIVE     // تعاونية
+  DISTRIBUTOR     // موزع
+  RETAILER        // تاجر تجزئة
+}
+
+model BuyerProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  tenantId    String   @map("tenant_id")
+
+  // عناوين الشحن
+  shippingAddresses Json? @map("shipping_addresses") // قائمة عناوين الشحن
+
+  // طريقة الدفع المفضلة
+  preferredPayment String? @map("preferred_payment") // wallet, cash, bank_transfer
+
+  // الإحصائيات
+  totalPurchases Int     @default(0) @map("total_purchases")
+  totalSpent     Float   @default(0.0) @map("total_spent")
+  loyaltyPoints  Int     @default(0) @map("loyalty_points")
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  reviews     ProductReview[]
+
+  @@index([userId])
+  @@index([tenantId])
+  @@map("buyer_profiles")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 11. نظام التقييمات - Product Review System
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ProductReview {
+  id          String   @id @default(uuid())
+  productId   String   @map("product_id")
+  buyerId     String   @map("buyer_id")
+  orderId     String   @map("order_id")
+
+  // التقييم والمحتوى
+  rating      Int      // 1-5 نجوم
+  title       String
+  comment     String?  @db.Text
+
+  // الصور
+  photos      Json?    // قائمة روابط الصور
+
+  // التحقق والحالة
+  verified    Boolean  @default(false) // تم التحقق من الشراء
+  helpful     Int      @default(0) // عدد التصويتات المفيدة
+  reported    Boolean  @default(false) // تم الإبلاغ عن التقييم
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  buyer       BuyerProfile @relation(fields: [buyerId], references: [id])
+  response    ReviewResponse?
+
+  @@index([productId])
+  @@index([buyerId])
+  @@index([orderId])
+  @@index([rating])
+  @@index([verified])
+  @@map("product_reviews")
+}
+
+model ReviewResponse {
+  id          String   @id @default(uuid())
+  reviewId    String   @unique @map("review_id")
+  sellerId    String   @map("seller_id")
+
+  response    String   @db.Text
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  review      ProductReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  seller      SellerProfile @relation(fields: [sellerId], references: [id])
+
+  @@index([reviewId])
+  @@index([sellerId])
+  @@map("review_responses")
 }

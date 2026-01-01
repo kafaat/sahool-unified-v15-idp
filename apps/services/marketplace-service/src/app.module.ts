@@ -11,6 +11,12 @@ import { PrismaService } from './prisma/prisma.service';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
 import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
+import { ProfilesModule } from './profiles/profiles.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { EventsModule } from './events/events.module';
+// NOTE: AuditModule requires @sahool/shared-audit package
+// which needs monorepo build context. Enable when Docker build supports shared packages.
+// import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -32,6 +38,13 @@ import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
         limit: 1000, // 1000 requests per hour
       },
     ]),
+    // Event bus module (stub when @sahool/shared-events not available)
+    EventsModule,
+    // Feature modules
+    ProfilesModule,
+    ReviewsModule,
+    // NOTE: Enable when Docker build supports shared packages
+    // AuditModule,
   ],
   controllers: [AppController],
   providers: [
@@ -46,5 +59,6 @@ import { JwtAuthGuard, OptionalJwtAuthGuard } from './auth/jwt-auth.guard';
       useClass: ThrottlerGuard,
     },
   ],
+  exports: [],
 })
 export class AppModule {}

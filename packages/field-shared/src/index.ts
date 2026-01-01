@@ -7,3 +7,15 @@ export * from './middleware/validation';
 export * from './middleware/logger';
 export * from './data-source';
 export { createFieldApp, startFieldService } from './app';
+
+// Geospatial Module (PostGIS)
+export { GeoService, geoService, geoRoutes } from './geo';
+export type {
+    FieldInRadius,
+    NearbyFarm,
+    FieldInBBox,
+    RegionStats,
+    FieldAreaResult,
+    PointInFieldResult,
+    FieldsDistanceResult
+} from './geo';

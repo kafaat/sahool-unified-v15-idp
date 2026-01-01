@@ -194,6 +194,8 @@ const EventCard = React.memo<{ event: TimelineEvent }>(function EventCard({ even
   );
 });
 
+EventCard.displayName = 'EventCard';
+
 interface EventTimelineProps {
   tenantId?: string;
 }

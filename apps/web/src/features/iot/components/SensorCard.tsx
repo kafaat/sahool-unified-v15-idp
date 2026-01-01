@@ -10,7 +10,7 @@
 
 'use client';
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useLatestReading } from '../hooks/useSensors';
 import type { Sensor } from '../types';
@@ -79,6 +79,12 @@ const SensorCardComponent: React.FC<SensorCardProps> = ({ sensor, onClick }) => 
     }
   }, [onClick, sensor.id]);
 
+  // Memoize ARIA label for accessibility
+  const ariaLabel = useMemo(() =>
+    `مستشعر ${sensor.nameAr} - ${statusLabels[sensor.status]}`,
+    [sensor.nameAr, sensor.status]
+  );
+
   const cardContent = (
     <div
       className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
@@ -86,7 +92,7 @@ const SensorCardComponent: React.FC<SensorCardProps> = ({ sensor, onClick }) => 
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? handleKeyDown : undefined}
-      aria-label={`مستشعر ${sensor.nameAr} - ${statusLabels[sensor.status]}`}
+      aria-label={ariaLabel}
     >
         {/* Header */}
         <div className="flex items-start justify-between">

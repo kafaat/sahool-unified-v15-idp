@@ -45,9 +45,13 @@ const typeLabels = {
 };
 
 const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => {
-  const maintenanceDue = equipment.nextMaintenanceDate
-    ? new Date(equipment.nextMaintenanceDate) < new Date()
-    : false;
+  // Memoize maintenance check to avoid Date recreation on every render
+  const maintenanceDue = useMemo(() =>
+    equipment.nextMaintenanceDate
+      ? new Date(equipment.nextMaintenanceDate) < new Date()
+      : false,
+    [equipment.nextMaintenanceDate]
+  );
 
   // Memoize ARIA label for accessibility
   const ariaLabel = useMemo(() => {

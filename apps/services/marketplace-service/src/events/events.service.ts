@@ -1,90 +1,32 @@
 /**
- * Events Service for SAHOOL Marketplace Service
- * Manages NATS connection and provides event logging
+ * Events Service Stub for SAHOOL Marketplace Service
+ * Provides a no-op implementation when @sahool/shared-events is not available
+ *
+ * TODO: Enable full NATS event bus integration when Docker build supports shared packages
  */
 
 import { Injectable, Logger } from '@nestjs/common';
-import {
-  initializeNatsClient,
-  NatsClient,
-  subscribeAll,
-  createLoggingHandler,
-  publishOrderPlaced,
-  publishOrderCompleted,
-  publishOrderCancelled,
-  publishInventoryLowStock,
-} from '@sahool/shared-events';
-import { Subscription } from 'nats';
 
 @Injectable()
 export class EventsService {
   private readonly logger = new Logger(EventsService.name);
-  private loggingSubscription: Subscription | null = null;
 
   /**
-   * Connect to NATS and setup event logging
+   * Connect to NATS (no-op stub)
    */
   async connect(): Promise<void> {
-    try {
-      this.logger.log('Connecting to NATS event bus...');
-
-      await initializeNatsClient({
-        servers: process.env.NATS_URL || 'nats://localhost:4222',
-        name: 'marketplace-service',
-        debug: process.env.NODE_ENV !== 'production',
-      });
-
-      this.logger.log('Successfully connected to NATS event bus');
-
-      // Subscribe to all events for logging (in development)
-      if (process.env.NODE_ENV !== 'production') {
-        await this.setupEventLogging();
-      }
-    } catch (error) {
-      this.logger.error('Failed to connect to NATS event bus:', error);
-      // Don't throw - allow service to start even if NATS is unavailable
-    }
+    this.logger.log('Events service running in stub mode (NATS disabled)');
   }
 
   /**
-   * Setup event logging for all events
-   */
-  private async setupEventLogging(): Promise<void> {
-    try {
-      this.logger.log('Setting up event logging subscriber...');
-
-      this.loggingSubscription = await subscribeAll(
-        createLoggingHandler('[Marketplace Event]')
-      );
-
-      this.logger.log('Event logging subscriber active');
-    } catch (error) {
-      this.logger.error('Failed to setup event logging:', error);
-    }
-  }
-
-  /**
-   * Disconnect from NATS
+   * Disconnect from NATS (no-op stub)
    */
   async disconnect(): Promise<void> {
-    try {
-      if (this.loggingSubscription) {
-        await this.loggingSubscription.drain();
-      }
-
-      const client = NatsClient.getInstance({
-        servers: process.env.NATS_URL || 'nats://localhost:4222',
-      });
-
-      await client.disconnect();
-      this.logger.log('Disconnected from NATS event bus');
-    } catch (error) {
-      this.logger.error('Error disconnecting from NATS:', error);
-    }
+    // No-op
   }
 
   /**
-   * Publish order placed event
+   * Publish order placed event (no-op stub)
    */
   async publishOrderPlaced(orderData: {
     orderId: string;
@@ -97,16 +39,11 @@ export class EventsService {
     totalAmount: number;
     currency: string;
   }): Promise<void> {
-    try {
-      await publishOrderPlaced(orderData);
-      this.logger.debug(`Published order.placed event for order ${orderData.orderId}`);
-    } catch (error) {
-      this.logger.error('Failed to publish order.placed event:', error);
-    }
+    this.logger.debug(`[Stub] Order placed: ${orderData.orderId}`);
   }
 
   /**
-   * Publish order completed event
+   * Publish order completed event (no-op stub)
    */
   async publishOrderCompleted(orderData: {
     orderId: string;
@@ -115,16 +52,11 @@ export class EventsService {
     totalAmount: number;
     currency: string;
   }): Promise<void> {
-    try {
-      await publishOrderCompleted(orderData);
-      this.logger.debug(`Published order.completed event for order ${orderData.orderId}`);
-    } catch (error) {
-      this.logger.error('Failed to publish order.completed event:', error);
-    }
+    this.logger.debug(`[Stub] Order completed: ${orderData.orderId}`);
   }
 
   /**
-   * Publish order cancelled event
+   * Publish order cancelled event (no-op stub)
    */
   async publishOrderCancelled(orderData: {
     orderId: string;
@@ -132,16 +64,11 @@ export class EventsService {
     cancelledAt: Date;
     reason?: string;
   }): Promise<void> {
-    try {
-      await publishOrderCancelled(orderData);
-      this.logger.debug(`Published order.cancelled event for order ${orderData.orderId}`);
-    } catch (error) {
-      this.logger.error('Failed to publish order.cancelled event:', error);
-    }
+    this.logger.debug(`[Stub] Order cancelled: ${orderData.orderId}`);
   }
 
   /**
-   * Publish inventory low stock event
+   * Publish inventory low stock event (no-op stub)
    */
   async publishInventoryLowStock(inventoryData: {
     productId: string;
@@ -150,13 +77,6 @@ export class EventsService {
     threshold: number;
     unit: string;
   }): Promise<void> {
-    try {
-      await publishInventoryLowStock(inventoryData);
-      this.logger.debug(
-        `Published inventory.low_stock event for product ${inventoryData.productId}`
-      );
-    } catch (error) {
-      this.logger.error('Failed to publish inventory.low_stock event:', error);
-    }
+    this.logger.debug(`[Stub] Low stock: ${inventoryData.productId}`);
   }
 }

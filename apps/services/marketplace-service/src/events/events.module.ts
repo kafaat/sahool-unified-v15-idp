@@ -1,11 +1,12 @@
 /**
- * Events Module for SAHOOL Marketplace Service
- * Handles NATS event bus initialization and event logging
+ * Events Module Stub for SAHOOL Marketplace Service
+ * Provides EventsService as a module when shared packages are not available
  */
 
-import { Module, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Module, OnModuleInit, OnModuleDestroy, Global } from '@nestjs/common';
 import { EventsService } from './events.service';
 
+@Global()
 @Module({
   providers: [EventsService],
   exports: [EventsService],

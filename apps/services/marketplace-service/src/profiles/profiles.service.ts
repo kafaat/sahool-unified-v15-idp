@@ -9,6 +9,7 @@ import {
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
+// Note: Using 'any' type for JSON fields to avoid Prisma version-specific type issues
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateSellerProfileDto,
@@ -240,7 +241,7 @@ export class ProfilesService {
       data: {
         userId: dto.userId,
         tenantId: dto.tenantId,
-        shippingAddresses: dto.shippingAddresses || [],
+        shippingAddresses: (dto.shippingAddresses || []) as any,
         preferredPayment: dto.preferredPayment,
       },
     });
@@ -304,7 +305,7 @@ export class ProfilesService {
       where: { userId },
       data: {
         ...(dto.shippingAddresses !== undefined && {
-          shippingAddresses: dto.shippingAddresses,
+          shippingAddresses: dto.shippingAddresses as any,
         }),
         ...(dto.preferredPayment !== undefined && {
           preferredPayment: dto.preferredPayment,
@@ -345,7 +346,7 @@ export class ProfilesService {
 
     return this.prisma.buyerProfile.update({
       where: { userId },
-      data: { shippingAddresses: addresses },
+      data: { shippingAddresses: addresses as any },
     });
   }
 
@@ -368,7 +369,7 @@ export class ProfilesService {
 
     return this.prisma.buyerProfile.update({
       where: { userId },
-      data: { shippingAddresses: filteredAddresses },
+      data: { shippingAddresses: filteredAddresses as any },
     });
   }
 

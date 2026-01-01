@@ -24,8 +24,6 @@
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "^5.22.0",
-    "@sahool/shared-audit": "file:../../../packages/shared-audit",
-    "@sahool/shared-events": "file:../../../packages/shared-events",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "jsonwebtoken": "^9.0.2",

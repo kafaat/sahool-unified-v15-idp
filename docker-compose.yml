@@ -414,8 +414,8 @@ services:
   # Consolidates: field-core, field-service, field-ops
   field-management-service:
     build:
-      context: ./apps/services/field-management-service
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/field-management-service/Dockerfile
     container_name: sahool-field-management-service
     environment:
       - NODE_ENV=production

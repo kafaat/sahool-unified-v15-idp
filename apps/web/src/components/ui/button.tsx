@@ -47,6 +47,8 @@ export function Button({
         className
       )}
       disabled={disabled || isLoading}
+      aria-busy={isLoading || undefined}
+      aria-disabled={disabled || isLoading || undefined}
       {...props}
     >
       {isLoading && (

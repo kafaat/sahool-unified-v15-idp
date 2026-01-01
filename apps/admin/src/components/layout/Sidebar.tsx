@@ -80,13 +80,14 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+      <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto" aria-label="التنقل الرئيسي">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
           return (
             <Link
               key={item.name}
               href={item.href}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
                 isActive
@@ -94,10 +95,10 @@ export default function Sidebar() {
                   : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               )}
             >
-              <item.icon className={cn('w-5 h-5', isActive ? 'text-sahool-600' : 'text-gray-400')} />
+              <item.icon className={cn('w-5 h-5', isActive ? 'text-sahool-600' : 'text-gray-400')} aria-hidden="true" />
               {item.name}
               {'badge' in item && item.badge && item.badge > 0 && (
-                <span className="mr-auto bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">
+                <span className="mr-auto bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full" aria-label={`${item.badge} جديد`}>
                   {item.badge}
                 </span>
               )}
@@ -109,6 +110,8 @@ export default function Sidebar() {
         <div className="pt-2">
           <button
             onClick={() => setPrecisionExpanded(!precisionExpanded)}
+            aria-expanded={precisionExpanded}
+            aria-controls="precision-agriculture-menu"
             className={cn(
               'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
               pathname?.startsWith('/precision-agriculture')
@@ -116,22 +119,24 @@ export default function Sidebar() {
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             )}
           >
-            <Sprout className={cn('w-5 h-5', pathname?.startsWith('/precision-agriculture') ? 'text-sahool-600' : 'text-gray-400')} />
+            <Sprout className={cn('w-5 h-5', pathname?.startsWith('/precision-agriculture') ? 'text-sahool-600' : 'text-gray-400')} aria-hidden="true" />
             الزراعة الدقيقة
             {precisionExpanded ? (
-              <ChevronDown className="w-4 h-4 mr-auto" />
+              <ChevronDown className="w-4 h-4 mr-auto" aria-hidden="true" />
             ) : (
-              <ChevronRight className="w-4 h-4 mr-auto" />
+              <ChevronRight className="w-4 h-4 mr-auto" aria-hidden="true" />
             )}
           </button>
           {precisionExpanded && (
-            <div className="mr-4 mt-1 space-y-1">
+            <div id="precision-agriculture-menu" className="mr-4 mt-1 space-y-1" role="menu">
               {precisionAgricultureNav.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
+                    role="menuitem"
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all',
                       isActive
@@ -139,7 +144,7 @@ export default function Sidebar() {
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     )}
                   >
-                    <item.icon className={cn('w-4 h-4', isActive ? 'text-sahool-600' : 'text-gray-400')} />
+                    <item.icon className={cn('w-4 h-4', isActive ? 'text-sahool-600' : 'text-gray-400')} aria-hidden="true" />
                     {item.name}
                   </Link>
                 );
@@ -152,6 +157,8 @@ export default function Sidebar() {
         <div className="pt-2">
           <button
             onClick={() => setAnalyticsExpanded(!analyticsExpanded)}
+            aria-expanded={analyticsExpanded}
+            aria-controls="analytics-menu"
             className={cn(
               'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
               pathname?.startsWith('/analytics')
@@ -159,22 +166,24 @@ export default function Sidebar() {
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             )}
           >
-            <TrendingUp className={cn('w-5 h-5', pathname?.startsWith('/analytics') ? 'text-sahool-600' : 'text-gray-400')} />
+            <TrendingUp className={cn('w-5 h-5', pathname?.startsWith('/analytics') ? 'text-sahool-600' : 'text-gray-400')} aria-hidden="true" />
             التحليلات
             {analyticsExpanded ? (
-              <ChevronDown className="w-4 h-4 mr-auto" />
+              <ChevronDown className="w-4 h-4 mr-auto" aria-hidden="true" />
             ) : (
-              <ChevronRight className="w-4 h-4 mr-auto" />
+              <ChevronRight className="w-4 h-4 mr-auto" aria-hidden="true" />
             )}
           </button>
           {analyticsExpanded && (
-            <div className="mr-4 mt-1 space-y-1">
+            <div id="analytics-menu" className="mr-4 mt-1 space-y-1" role="menu">
               {analyticsNav.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
+                    role="menuitem"
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all',
                       isActive
@@ -182,7 +191,7 @@ export default function Sidebar() {
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     )}
                   >
-                    <item.icon className={cn('w-4 h-4', isActive ? 'text-sahool-600' : 'text-gray-400')} />
+                    <item.icon className={cn('w-4 h-4', isActive ? 'text-sahool-600' : 'text-gray-400')} aria-hidden="true" />
                     {item.name}
                   </Link>
                 );

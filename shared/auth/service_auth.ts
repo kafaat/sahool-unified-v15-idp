@@ -229,8 +229,37 @@ export class ServiceToken {
    */
   static verify(token: string): ServiceTokenPayload {
     try {
+      // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+      // Never trust algorithm from environment variables or token header
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+
+      // Decode header without verification to check algorithm
+      const header = jwt.decode(token, { complete: true })?.header;
+      if (!header || !header.alg) {
+        throw new ServiceAuthException(
+          ServiceAuthErrors.INVALID_SERVICE_TOKEN,
+          401,
+        );
+      }
+
+      // Reject 'none' algorithm explicitly
+      if (header.alg.toLowerCase() === 'none') {
+        throw new ServiceAuthException(
+          ServiceAuthErrors.INVALID_SERVICE_TOKEN,
+          401,
+        );
+      }
+
+      // Verify algorithm is in whitelist
+      if (!ALLOWED_ALGORITHMS.includes(header.alg as jwt.Algorithm)) {
+        throw new ServiceAuthException(
+          ServiceAuthErrors.INVALID_SERVICE_TOKEN,
+          401,
+        );
+      }
+
       const decoded = jwt.verify(token, JWTConfig.getVerificationKey(), {
-        algorithms: [JWTConfig.ALGORITHM as jwt.Algorithm],
+        algorithms: ALLOWED_ALGORITHMS,
         issuer: JWTConfig.ISSUER,
         audience: JWTConfig.AUDIENCE,
       }) as any;

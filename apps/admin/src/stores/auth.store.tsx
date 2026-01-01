@@ -12,11 +12,18 @@ interface User {
   tenant_id?: string;
 }
 
+interface LoginResponse {
+  requires_2fa?: boolean;
+  temp_token?: string;
+  access_token?: string;
+  user?: User;
+}
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, totp_code?: string) => Promise<LoginResponse | void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
 }
@@ -27,9 +34,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<User | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  const login = React.useCallback(async (email: string, password: string) => {
-    const response = await apiClient.login(email, password);
+  const login = React.useCallback(async (email: string, password: string, totp_code?: string) => {
+    const response = await apiClient.login(email, password, totp_code);
     if (response.success && response.data) {
+      // Check if 2FA is required
+      if (response.data.requires_2fa) {
+        // Return the response so the component can handle 2FA
+        return response.data;
+      }
+
       const { access_token, user } = response.data;
       // Set cookie with security flags
       Cookies.set('sahool_admin_token', access_token, {
@@ -39,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       apiClient.setToken(access_token);
       setUser(user as User);
+      return response.data;
     } else {
       throw new Error(response.error || 'Login failed');
     }

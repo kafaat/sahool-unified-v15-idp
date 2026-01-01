@@ -101,7 +101,7 @@ export class MarketService {
       data: {
         name: data.name,
         nameAr: data.nameAr,
-        category: data.category as any,
+        category: data.category as any, // Cast to Prisma enum type
         price: data.price,
         stock: data.stock,
         unit: data.unit,
@@ -109,7 +109,7 @@ export class MarketService {
         descriptionAr: data.descriptionAr,
         imageUrl: data.imageUrl,
         sellerId: data.sellerId,
-        sellerType: data.sellerType as any,
+        sellerType: data.sellerType as any, // Cast to Prisma enum type
         sellerName: data.sellerName,
         cropType: data.cropType,
         governorate: data.governorate,
@@ -176,15 +176,23 @@ export class MarketService {
   async createOrder(data: CreateOrderDto) {
     // Use transaction to ensure atomic stock check and decrement
     return this.prisma.$transaction(async (tx) => {
+      // Batch fetch all products at once to avoid N+1 queries
+      const productIds = data.items.map((item) => item.productId);
+      const products = await tx.product.findMany({
+        where: { id: { in: productIds } },
+      });
+
+      // Create a typed map for quick lookup
+      type ProductType = typeof products[number];
+      const productMap = new Map<string, ProductType>(products.map((p) => [p.id, p]));
+
       // حساب المبالغ
       let subtotal = 0;
       const orderItems: any[] = [];
+      const stockUpdates: any[] = [];
 
       for (const item of data.items) {
-        // Lock the product row during transaction
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-        });
+        const product = productMap.get(item.productId);
 
         if (!product) {
           throw new Error(`المنتج غير موجود: ${item.productId}`);
@@ -204,12 +212,21 @@ export class MarketService {
           totalPrice,
         });
 
-        // تحديث المخزون atomically within transaction
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
+        stockUpdates.push({
+          id: item.productId,
+          quantity: item.quantity,
         });
       }
+
+      // Batch update stock atomically within transaction
+      await Promise.all(
+        stockUpdates.map((update) =>
+          tx.product.update({
+            where: { id: update.id },
+            data: { stock: { decrement: update.quantity } },
+          }),
+        ),
+      );
 
       const serviceFee = subtotal * 0.02; // 2% رسوم خدمة
       const deliveryFee = 500; // رسوم توصيل ثابتة (ريال يمني)

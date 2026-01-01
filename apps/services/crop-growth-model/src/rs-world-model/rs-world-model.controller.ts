@@ -6,7 +6,7 @@
 
 import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBody, ApiParam } from '@nestjs/swagger';
-import { RSWorldModelService } from './rs-world-model.service';
+import { RSWorldModelService, TileData } from './rs-world-model.service';
 
 type Direction = 'up' | 'down' | 'left' | 'right';
 type ScenarioType = 'general' | 'flood' | 'urban' | 'rural' | 'agricultural';
@@ -187,8 +187,8 @@ export class RSWorldModelController {
   })
   @ApiResponse({ status: 200, description: 'Spatial reasoning result' })
   performSpatialReasoning(@Body() input: SpatialReasoningInput) {
-    // Fill in missing properties
-    const centralTile = {
+    // Fill in missing properties to create a complete TileData object
+    const centralTile: TileData = {
       ...input.centralTile,
       landCover: [],
       features: [],
@@ -196,7 +196,7 @@ export class RSWorldModelController {
     };
 
     const result = this.rsWorldModelService.performSpatialReasoning({
-      centralTile: centralTile as any,
+      centralTile,
       direction: input.direction,
     });
 
@@ -238,7 +238,7 @@ export class RSWorldModelController {
   })
   @ApiResponse({ status: 200, description: 'Multi-directional expansion result' })
   expandMultiDirectional(@Body() input: MultiDirectionalInput) {
-    const centralTile = {
+    const centralTile: TileData = {
       ...input.centralTile,
       landCover: [],
       features: [],
@@ -246,7 +246,7 @@ export class RSWorldModelController {
     };
 
     const result = this.rsWorldModelService.expandMultiDirectional({
-      centralTile: centralTile as any,
+      centralTile,
       expansionLevels: input.expansionLevels,
     });
 
@@ -347,7 +347,7 @@ export class RSWorldModelController {
     @Query('direction') direction?: Direction,
     @Query('scenario') scenario?: ScenarioType,
   ) {
-    const centralTile = {
+    const centralTile: TileData = {
       id: 'demo_tile',
       position: { row: 1, col: 1 },
       bounds: { minLat: 24.7, maxLat: 24.71, minLng: 46.7, maxLng: 46.71 },
@@ -359,7 +359,7 @@ export class RSWorldModelController {
     };
 
     const result = this.rsWorldModelService.performSpatialReasoning({
-      centralTile: centralTile as any,
+      centralTile,
       direction: direction || 'right',
     });
 
@@ -383,7 +383,7 @@ export class RSWorldModelController {
   @ApiQuery({ name: 'scenario', required: false, enum: ['general', 'flood', 'urban', 'rural', 'agricultural'], example: 'agricultural' })
   @ApiResponse({ status: 200, description: 'Demo expansion result' })
   demoExpansion(@Query('scenario') scenario?: ScenarioType) {
-    const centralTile = {
+    const centralTile: TileData = {
       id: 'demo_center',
       position: { row: 1, col: 1 },
       bounds: { minLat: 24.7, maxLat: 24.71, minLng: 46.7, maxLng: 46.71 },
@@ -395,7 +395,7 @@ export class RSWorldModelController {
     };
 
     const result = this.rsWorldModelService.expandMultiDirectional({
-      centralTile: centralTile as any,
+      centralTile,
       expansionLevels: 1,
     });
 
@@ -413,7 +413,7 @@ export class RSWorldModelController {
   })
   @ApiResponse({ status: 200, description: 'Flood scenario demo result' })
   demoFloodScenario() {
-    const centralTile = {
+    const centralTile: TileData = {
       id: 'flood_center',
       position: { row: 1, col: 1 },
       bounds: { minLat: 24.7, maxLat: 24.71, minLng: 46.7, maxLng: 46.71 },
@@ -425,7 +425,7 @@ export class RSWorldModelController {
     };
 
     const expansion = this.rsWorldModelService.expandMultiDirectional({
-      centralTile: centralTile as any,
+      centralTile,
       expansionLevels: 1,
     });
 

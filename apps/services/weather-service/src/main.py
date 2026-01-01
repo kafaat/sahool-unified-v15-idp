@@ -10,11 +10,31 @@ Multi-Provider Support:
 """
 
 import os
+import sys
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Optional, List
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel, Field
+
+# Add shared modules to path
+SHARED_PATH = Path("/app/shared")
+if not SHARED_PATH.exists():
+    # Fallback for local development
+    SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
+if str(SHARED_PATH) not in sys.path:
+    sys.path.insert(0, str(SHARED_PATH))
+
+# Import unified error handling
+from errors_py import (
+    setup_exception_handlers,
+    add_request_id_middleware,
+    ExternalServiceException,
+    InternalServerException,
+    ErrorCode,
+    create_success_response,
+)
 
 from .events import get_publisher
 from .providers import MockWeatherProvider, OpenMeteoProvider, MultiWeatherService
@@ -71,6 +91,10 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 # ============== Health Check ==============
@@ -171,9 +195,8 @@ async def get_current_weather(req: LocationRequest):
         if app.state.multi_provider:
             result = await app.state.multi_provider.get_current(req.lat, req.lon)
             if not result.success:
-                raise HTTPException(
-                    status_code=503,
-                    detail={
+                raise ExternalServiceException.weather_service(
+                    details={
                         "error": result.error,
                         "error_ar": result.error_ar,
                         "failed_providers": result.failed_providers
@@ -232,10 +255,10 @@ async def get_current_weather(req: LocationRequest):
             "event_ids": event_ids,
         }
 
-    except HTTPException:
+    except (ExternalServiceException, InternalServerException):
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+        raise ExternalServiceException.weather_service(e)
 
 
 @app.post("/weather/forecast")
@@ -253,9 +276,8 @@ async def get_forecast(req: LocationRequest, days: int = 7):
                 req.lat, req.lon, min(days, 16)
             )
             if not result.success:
-                raise HTTPException(
-                    status_code=503,
-                    detail={
+                raise ExternalServiceException.weather_service(
+                    details={
                         "error": result.error,
                         "error_ar": result.error_ar,
                         "failed_providers": result.failed_providers
@@ -292,10 +314,10 @@ async def get_forecast(req: LocationRequest, days: int = 7):
             "days": len(forecast),
         }
 
-    except HTTPException:
+    except (ExternalServiceException, InternalServerException):
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}")
+        raise ExternalServiceException.weather_service(e)
 
 
 @app.post("/weather/irrigation")

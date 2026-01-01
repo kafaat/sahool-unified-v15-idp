@@ -156,15 +156,21 @@ export class PlantingStrategyController {
    */
   @Get('methods/:methodId')
   getMethod(@Param('methodId') methodId: string) {
-    const validMethods = ['equal_row', 'wide_strip', 'space_broadcasting', 'small_basin'];
-    if (!validMethods.includes(methodId)) {
+    type PlantingMethodType = 'equal_row' | 'wide_strip' | 'space_broadcasting' | 'small_basin';
+    const validMethods: PlantingMethodType[] = ['equal_row', 'wide_strip', 'space_broadcasting', 'small_basin'];
+
+    const isValidMethod = (id: string): id is PlantingMethodType => {
+      return validMethods.includes(id as PlantingMethodType);
+    };
+
+    if (!isValidMethod(methodId)) {
       throw new HttpException(
         `Invalid method ID. Valid options: ${validMethods.join(', ')}`,
         HttpStatus.BAD_REQUEST
       );
     }
 
-    const method = this.plantingStrategyService.getMethod(methodId as any);
+    const method = this.plantingStrategyService.getMethod(methodId);
     if (!method) {
       throw new HttpException('Method not found', HttpStatus.NOT_FOUND);
     }
@@ -181,8 +187,14 @@ export class PlantingStrategyController {
    */
   @Get('methods/:methodId/guidance')
   getMethodGuidance(@Param('methodId') methodId: string) {
-    const validMethods = ['equal_row', 'wide_strip', 'space_broadcasting', 'small_basin'];
-    if (!validMethods.includes(methodId)) {
+    type PlantingMethodType = 'equal_row' | 'wide_strip' | 'space_broadcasting' | 'small_basin';
+    const validMethods: PlantingMethodType[] = ['equal_row', 'wide_strip', 'space_broadcasting', 'small_basin'];
+
+    const isValidMethod = (id: string): id is PlantingMethodType => {
+      return validMethods.includes(id as PlantingMethodType);
+    };
+
+    if (!isValidMethod(methodId)) {
       throw new HttpException(
         `Invalid method ID. Valid options: ${validMethods.join(', ')}`,
         HttpStatus.BAD_REQUEST
@@ -190,7 +202,7 @@ export class PlantingStrategyController {
     }
 
     try {
-      const guidance = this.plantingStrategyService.getMethodGuidance(methodId as any);
+      const guidance = this.plantingStrategyService.getMethodGuidance(methodId);
       return {
         success: true,
         guidance,

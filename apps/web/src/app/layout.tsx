@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import './globals.css';
 import { Providers } from './providers';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { locales, getDirection } from '@sahool/i18n';
+import { locales, getDirection, type Locale } from '@sahool/i18n';
 
 export const metadata: Metadata = {
   title: 'سهول | SAHOOL - Smart Agriculture Platform',
@@ -27,15 +27,21 @@ export default async function RootLayout({
   // In Next.js 15, params are Promises
   const resolvedParams = await params;
   // Default to 'ar' if no locale is provided
-  const locale = resolvedParams.locale || 'ar';
+  const localeStr = resolvedParams.locale || 'ar';
+
+  // Type guard to check if locale is valid
+  const isValidLocale = (l: string): l is Locale => {
+    return locales.includes(l as Locale);
+  };
 
   // Validate locale
-  if (!locales.includes(locale as any)) {
+  if (!isValidLocale(localeStr)) {
     notFound();
   }
 
+  const locale: Locale = localeStr;
   const messages = await getMessages();
-  const direction = getDirection(locale as any);
+  const direction = getDirection(locale);
 
   return (
     <html lang={locale} dir={direction}>

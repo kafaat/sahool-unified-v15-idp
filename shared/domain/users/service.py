@@ -110,3 +110,64 @@ class UserService:
         if active_only:
             users = [u for u in users if u.is_active]
         return users
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # Two-Factor Authentication Methods
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    def update_twofa_secret(self, user_id: str, secret: str) -> Optional[User]:
+        """Update user's 2FA secret (during setup)"""
+        user = self._users.get(user_id)
+        if user:
+            user.twofa_secret = secret
+            user.updated_at = datetime.now(timezone.utc)
+        return user
+
+    def enable_twofa(
+        self,
+        user_id: str,
+        backup_codes: list[str]
+    ) -> Optional[User]:
+        """Enable 2FA for user and store backup codes"""
+        user = self._users.get(user_id)
+        if user:
+            user.twofa_enabled = True
+            user.twofa_backup_codes = backup_codes
+            user.updated_at = datetime.now(timezone.utc)
+        return user
+
+    def disable_twofa(self, user_id: str) -> Optional[User]:
+        """Disable 2FA for user"""
+        user = self._users.get(user_id)
+        if user:
+            user.twofa_enabled = False
+            user.twofa_secret = None
+            user.twofa_backup_codes = None
+            user.updated_at = datetime.now(timezone.utc)
+        return user
+
+    def update_backup_codes(
+        self,
+        user_id: str,
+        backup_codes: list[str]
+    ) -> Optional[User]:
+        """Update user's backup codes"""
+        user = self._users.get(user_id)
+        if user:
+            user.twofa_backup_codes = backup_codes
+            user.updated_at = datetime.now(timezone.utc)
+        return user
+
+    def remove_backup_code(
+        self,
+        user_id: str,
+        code_hash: str
+    ) -> Optional[User]:
+        """Remove a used backup code"""
+        user = self._users.get(user_id)
+        if user and user.twofa_backup_codes:
+            user.twofa_backup_codes = [
+                c for c in user.twofa_backup_codes if c != code_hash
+            ]
+            user.updated_at = datetime.now(timezone.utc)
+        return user

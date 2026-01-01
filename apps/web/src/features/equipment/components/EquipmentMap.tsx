@@ -20,8 +20,8 @@ export function EquipmentMap() {
 
     // Initialize map
     const initMap = async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const L = (window as any).L;
+      // Access Leaflet from window (loaded via CDN in layout)
+      const L = (window as typeof window & { L?: any }).L;
       if (!L) return;
 
       // Create map if it doesn't exist

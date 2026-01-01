@@ -125,6 +125,25 @@ from .subscriber import (
     close_subscriber,
 )
 
+# DLQ Support
+from .dlq_config import (
+    DLQConfig,
+    DLQMessageMetadata,
+    create_dlq_streams,
+    is_retriable_error,
+    should_retry,
+)
+
+from .dlq_service import (
+    DLQManager,
+    create_dlq_router,
+)
+
+from .dlq_monitoring import (
+    DLQMonitor,
+    DLQAlert,
+)
+
 __all__ = [
     # Base
     "BaseEvent",
@@ -216,4 +235,19 @@ __all__ = [
     "SubscriberConfig",
     "get_subscriber",
     "close_subscriber",
+
+    # DLQ Configuration
+    "DLQConfig",
+    "DLQMessageMetadata",
+    "create_dlq_streams",
+    "is_retriable_error",
+    "should_retry",
+
+    # DLQ Management
+    "DLQManager",
+    "create_dlq_router",
+
+    # DLQ Monitoring
+    "DLQMonitor",
+    "DLQAlert",
 ]

@@ -19,10 +19,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from .models import (
+    Plan,
+    Tenant,
     Subscription,
     Invoice,
     Payment,
     UsageRecord,
+    PlanTier,
     SubscriptionStatus,
     InvoiceStatus,
     PaymentStatus,
@@ -30,6 +33,270 @@ from .models import (
     Currency,
     BillingCycle,
 )
+
+
+# =============================================================================
+# Plan Repository
+# =============================================================================
+
+class PlanRepository:
+    """
+    Repository for Plan operations
+    مستودع عمليات الخطط
+    """
+
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create(
+        self,
+        plan_id: str,
+        name: str,
+        name_ar: str,
+        description: str,
+        description_ar: str,
+        tier: PlanTier,
+        pricing: Dict[str, Any],
+        features: Dict[str, Any],
+        limits: Dict[str, Any],
+        trial_days: int = 14,
+        is_active: bool = True,
+    ) -> Plan:
+        """Create a new plan - إنشاء خطة جديدة"""
+        plan = Plan(
+            plan_id=plan_id,
+            name=name,
+            name_ar=name_ar,
+            description=description,
+            description_ar=description_ar,
+            tier=tier,
+            pricing=pricing,
+            features=features,
+            limits=limits,
+            trial_days=trial_days,
+            is_active=is_active,
+        )
+
+        self.db.add(plan)
+        await self.db.commit()
+        await self.db.refresh(plan)
+
+        return plan
+
+    async def get_by_id(self, plan_id: uuid.UUID) -> Optional[Plan]:
+        """Get plan by UUID - الحصول على خطة بواسطة المعرف UUID"""
+        result = await self.db.execute(
+            select(Plan).where(Plan.id == plan_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_plan_id(self, plan_id: str) -> Optional[Plan]:
+        """Get plan by plan_id - الحصول على خطة بواسطة معرف الخطة"""
+        result = await self.db.execute(
+            select(Plan).where(Plan.plan_id == plan_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def list_all(
+        self,
+        active_only: bool = True,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> List[Plan]:
+        """List all plans - قائمة جميع الخطط"""
+        query = select(Plan)
+
+        if active_only:
+            query = query.where(Plan.is_active == True)
+
+        query = query.order_by(asc(Plan.tier)).limit(limit).offset(offset)
+
+        result = await self.db.execute(query)
+        return list(result.scalars().all())
+
+    async def update(
+        self,
+        plan_id: str,
+        **kwargs,
+    ) -> Optional[Plan]:
+        """Update plan - تحديث الخطة"""
+        kwargs["updated_at"] = datetime.utcnow()
+
+        await self.db.execute(
+            update(Plan)
+            .where(Plan.plan_id == plan_id)
+            .values(**kwargs)
+        )
+        await self.db.commit()
+
+        return await self.get_by_plan_id(plan_id)
+
+    async def delete(self, plan_id: str) -> bool:
+        """Delete plan (soft delete by setting is_active=False) - حذف خطة"""
+        result = await self.db.execute(
+            update(Plan)
+            .where(Plan.plan_id == plan_id)
+            .values(is_active=False, updated_at=datetime.utcnow())
+        )
+        await self.db.commit()
+
+        return result.rowcount > 0
+
+    async def upsert(
+        self,
+        plan_id: str,
+        name: str,
+        name_ar: str,
+        description: str,
+        description_ar: str,
+        tier: PlanTier,
+        pricing: Dict[str, Any],
+        features: Dict[str, Any],
+        limits: Dict[str, Any],
+        trial_days: int = 14,
+        is_active: bool = True,
+    ) -> Plan:
+        """Create or update plan - إنشاء أو تحديث خطة"""
+        existing = await self.get_by_plan_id(plan_id)
+
+        if existing:
+            return await self.update(
+                plan_id=plan_id,
+                name=name,
+                name_ar=name_ar,
+                description=description,
+                description_ar=description_ar,
+                tier=tier,
+                pricing=pricing,
+                features=features,
+                limits=limits,
+                trial_days=trial_days,
+                is_active=is_active,
+            )
+        else:
+            return await self.create(
+                plan_id=plan_id,
+                name=name,
+                name_ar=name_ar,
+                description=description,
+                description_ar=description_ar,
+                tier=tier,
+                pricing=pricing,
+                features=features,
+                limits=limits,
+                trial_days=trial_days,
+                is_active=is_active,
+            )
+
+
+# =============================================================================
+# Tenant Repository
+# =============================================================================
+
+class TenantRepository:
+    """
+    Repository for Tenant operations
+    مستودع عمليات المستأجرين
+    """
+
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create(
+        self,
+        tenant_id: str,
+        name: str,
+        name_ar: str,
+        contact: Dict[str, Any],
+        tax_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        is_active: bool = True,
+    ) -> Tenant:
+        """Create a new tenant - إنشاء مستأجر جديد"""
+        tenant = Tenant(
+            tenant_id=tenant_id,
+            name=name,
+            name_ar=name_ar,
+            contact=contact,
+            tax_id=tax_id,
+            extra_metadata=metadata or {},
+            is_active=is_active,
+        )
+
+        self.db.add(tenant)
+        await self.db.commit()
+        await self.db.refresh(tenant)
+
+        return tenant
+
+    async def get_by_id(self, tenant_id: uuid.UUID) -> Optional[Tenant]:
+        """Get tenant by UUID - الحصول على مستأجر بواسطة المعرف UUID"""
+        result = await self.db.execute(
+            select(Tenant).where(Tenant.id == tenant_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_tenant_id(self, tenant_id: str) -> Optional[Tenant]:
+        """Get tenant by tenant_id - الحصول على مستأجر بواسطة معرف المستأجر"""
+        result = await self.db.execute(
+            select(Tenant).where(Tenant.tenant_id == tenant_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def list_all(
+        self,
+        active_only: bool = True,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> List[Tenant]:
+        """List all tenants - قائمة جميع المستأجرين"""
+        query = select(Tenant)
+
+        if active_only:
+            query = query.where(Tenant.is_active == True)
+
+        query = query.order_by(desc(Tenant.created_at)).limit(limit).offset(offset)
+
+        result = await self.db.execute(query)
+        return list(result.scalars().all())
+
+    async def update(
+        self,
+        tenant_id: str,
+        **kwargs,
+    ) -> Optional[Tenant]:
+        """Update tenant - تحديث المستأجر"""
+        kwargs["updated_at"] = datetime.utcnow()
+
+        await self.db.execute(
+            update(Tenant)
+            .where(Tenant.tenant_id == tenant_id)
+            .values(**kwargs)
+        )
+        await self.db.commit()
+
+        return await self.get_by_tenant_id(tenant_id)
+
+    async def delete(self, tenant_id: str) -> bool:
+        """Delete tenant (soft delete by setting is_active=False) - حذف مستأجر"""
+        result = await self.db.execute(
+            update(Tenant)
+            .where(Tenant.tenant_id == tenant_id)
+            .values(is_active=False, updated_at=datetime.utcnow())
+        )
+        await self.db.commit()
+
+        return result.rowcount > 0
+
+    async def count_total(self, active_only: bool = True) -> int:
+        """Count total tenants - عد إجمالي المستأجرين"""
+        query = select(func.count(Tenant.id))
+
+        if active_only:
+            query = query.where(Tenant.is_active == True)
+
+        result = await self.db.execute(query)
+        return result.scalar_one()
 
 
 # =============================================================================
@@ -735,6 +1002,8 @@ class BillingRepository:
 
     def __init__(self, db: AsyncSession):
         self.db = db
+        self.plans = PlanRepository(db)
+        self.tenants = TenantRepository(db)
         self.subscriptions = SubscriptionRepository(db)
         self.invoices = InvoiceRepository(db)
         self.payments = PaymentRepository(db)

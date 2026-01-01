@@ -7,7 +7,9 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
-import { ParticipantRole } from '@prisma/client';
+
+// Define ParticipantRole locally to avoid Prisma client generation dependency
+type ParticipantRole = 'BUYER' | 'SELLER' | 'ADMIN';
 
 @Injectable()
 export class ChatService {
@@ -49,7 +51,7 @@ export class ChatService {
         participants: {
           create: dto.participantIds.map((userId, index) => ({
             userId,
-            role: index === 0 ? ParticipantRole.BUYER : ParticipantRole.SELLER,
+            role: index === 0 ? 'BUYER' : 'SELLER',
           })),
         },
       },
@@ -84,31 +86,33 @@ export class ChatService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
+        _count: {
+          select: {
+            messages: {
+              where: {
+                senderId: { not: userId },
+                isRead: false,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         updatedAt: 'desc',
       },
     });
 
-    // Calculate unread count for each conversation
-    const conversationsWithUnread = await Promise.all(
-      conversations.map(async (conv) => {
-        const participant = conv.participants[0];
-        const unreadCount = await this.prisma.message.count({
-          where: {
-            conversationId: conv.id,
-            senderId: { not: userId },
-            isRead: false,
-          },
-        });
+    // Map conversations with unread count from _count
+    const conversationsWithUnread = conversations.map((conv) => {
+      const participant = conv.participants[0];
+      const { _count, ...conversationData } = conv;
 
-        return {
-          ...conv,
-          unreadCount,
-          lastReadAt: participant?.lastReadAt,
-        };
-      }),
-    );
+      return {
+        ...conversationData,
+        unreadCount: _count.messages,
+        lastReadAt: participant?.lastReadAt,
+      };
+    });
 
     return conversationsWithUnread;
   }
@@ -157,6 +161,36 @@ export class ChatService {
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  /**
+   * Get messages with cursor-based pagination (optimized for large datasets)
+   * الحصول على الرسائل مع ترقيم مبني على المؤشر (محسّن للبيانات الكبيرة)
+   */
+  async getMessagesCursor(
+    conversationId: string,
+    cursor?: string,
+    limit: number = 50,
+  ) {
+    const messages = await this.prisma.message.findMany({
+      where: { conversationId },
+      orderBy: { createdAt: 'desc' },
+      take: limit + 1, // Fetch one extra to determine if there are more
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1, // Skip the cursor itself
+      }),
+    });
+
+    const hasMore = messages.length > limit;
+    const results = hasMore ? messages.slice(0, limit) : messages;
+    const nextCursor = hasMore ? results[results.length - 1].id : null;
+
+    return {
+      messages: results.reverse(), // Return in chronological order
+      nextCursor,
+      hasMore,
     };
   }
 

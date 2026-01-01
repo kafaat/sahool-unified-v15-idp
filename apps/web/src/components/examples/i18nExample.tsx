@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { getDirection, getLocaleDisplayName } from '@sahool/i18n';
+import { getDirection, getLocaleDisplayName, locales, type Locale } from '@sahool/i18n';
 
 export function I18nExample() {
   // Get translation functions for different namespaces
@@ -19,9 +19,13 @@ export function I18nExample() {
   const tDashboard = useTranslations('dashboard');
 
   // Get current locale
-  const locale = useLocale();
-  const direction = getDirection(locale as any);
-  const localeDisplayName = getLocaleDisplayName(locale as any);
+  const localeStr = useLocale();
+
+  // Type guard to ensure locale is valid
+  const locale: Locale = locales.includes(localeStr as Locale) ? (localeStr as Locale) : 'ar';
+
+  const direction = getDirection(locale);
+  const localeDisplayName = getLocaleDisplayName(locale);
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">

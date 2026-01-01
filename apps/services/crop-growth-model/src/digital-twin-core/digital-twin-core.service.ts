@@ -42,11 +42,14 @@ export interface DroneInspectionData {
   anomaliesDetected: AnomalyDetection[];
 }
 
+export type AnomalyType = 'pest' | 'disease' | 'nutrient_deficiency' | 'water_stress' | 'weed';
+export type SeverityLevel = 'low' | 'medium' | 'high';
+
 export interface AnomalyDetection {
-  type: 'pest' | 'disease' | 'nutrient_deficiency' | 'water_stress' | 'weed';
+  type: AnomalyType;
   confidence: number;
   location: { lat: number; lng: number };
-  severity: 'low' | 'medium' | 'high';
+  severity: SeverityLevel;
   affectedArea: number; // m²
 }
 
@@ -429,11 +432,14 @@ export class DigitalTwinCoreService {
 
     // Simulate random anomaly detection
     if (Math.random() > 0.7) {
+      const anomalyTypes: AnomalyType[] = ['pest', 'disease', 'water_stress', 'nutrient_deficiency'];
+      const severityLevels: SeverityLevel[] = ['low', 'medium', 'high'];
+
       anomalies.push({
-        type: ['pest', 'disease', 'water_stress', 'nutrient_deficiency'][Math.floor(Math.random() * 4)] as any,
+        type: anomalyTypes[Math.floor(Math.random() * anomalyTypes.length)],
         confidence: 0.75 + Math.random() * 0.2,
         location: { lat: 24.7 + Math.random() * 0.01, lng: 46.7 + Math.random() * 0.01 },
-        severity: ['low', 'medium', 'high'][Math.floor(Math.random() * 3)] as any,
+        severity: severityLevels[Math.floor(Math.random() * severityLevels.length)],
         affectedArea: 50 + Math.random() * 200,
       });
     }
@@ -828,12 +834,13 @@ export class DigitalTwinCoreService {
     modelUncertainty: number;
   }): AssimilationResult {
     const posteriorState: Partial<DigitalTwinState> = { ...params.priorState };
-    const innovation: { [key: string]: number } = {};
-    const kalmanGain: { [key: string]: number } = {};
+    const innovation: Record<string, number> = {};
+    const kalmanGain: Record<string, number> = {};
 
     for (const obs of params.observations) {
       // Simplified Kalman update
-      const priorValue = (params.priorState as any)[obs.parameter] || obs.value;
+      const priorStateRecord = params.priorState as Record<string, any>;
+      const priorValue = priorStateRecord[obs.parameter] || obs.value;
       const priorVar = params.modelUncertainty ** 2;
       const obsVar = obs.uncertainty ** 2;
 
@@ -847,7 +854,8 @@ export class DigitalTwinCoreService {
 
       // Posterior update
       const posteriorValue = priorValue + K * innov;
-      (posteriorState as any)[obs.parameter] = posteriorValue;
+      const posteriorStateRecord = posteriorState as Record<string, any>;
+      posteriorStateRecord[obs.parameter] = posteriorValue;
     }
 
     return {

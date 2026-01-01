@@ -4,7 +4,10 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import type { Config } from 'tailwindcss';
-import sharedConfig from '@sahool/tailwind-config';
+
+// Use relative import to avoid module resolution issues in CI
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const sharedConfig = require('../../packages/tailwind-config');
 
 const config: Config = {
   // Use shared config as base

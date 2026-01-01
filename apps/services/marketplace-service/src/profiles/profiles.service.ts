@@ -326,7 +326,8 @@ export class ProfilesService {
       throw new NotFoundException('Buyer profile not found');
     }
 
-    const addresses = (profile.shippingAddresses as ShippingAddress[]) || [];
+    const addresses =
+      (profile.shippingAddresses as unknown as ShippingAddress[]) || [];
 
     // If this is the default address, unset all other defaults
     if (dto.isDefault) {
@@ -362,7 +363,8 @@ export class ProfilesService {
       throw new NotFoundException('Buyer profile not found');
     }
 
-    const addresses = (profile.shippingAddresses as ShippingAddress[]) || [];
+    const addresses =
+      (profile.shippingAddresses as unknown as ShippingAddress[]) || [];
     const filteredAddresses = addresses.filter(
       (addr) => addr.label !== addressLabel,
     );

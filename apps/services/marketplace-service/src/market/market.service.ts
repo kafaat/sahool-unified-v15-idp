@@ -182,8 +182,9 @@ export class MarketService {
         where: { id: { in: productIds } },
       });
 
-      // Create a map for quick lookup
-      const productMap = new Map(products.map((p) => [p.id, p]));
+      // Create a typed map for quick lookup
+      type ProductType = typeof products[number];
+      const productMap = new Map<string, ProductType>(products.map((p) => [p.id, p]));
 
       // حساب المبالغ
       let subtotal = 0;

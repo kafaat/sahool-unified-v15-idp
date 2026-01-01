@@ -7,7 +7,9 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { SendMessageDto } from './dto/send-message.dto';
-import { ParticipantRole } from '@prisma/client';
+
+// Define ParticipantRole locally to avoid Prisma client generation dependency
+type ParticipantRole = 'BUYER' | 'SELLER' | 'ADMIN';
 
 @Injectable()
 export class ChatService {
@@ -49,7 +51,7 @@ export class ChatService {
         participants: {
           create: dto.participantIds.map((userId, index) => ({
             userId,
-            role: index === 0 ? ParticipantRole.BUYER : ParticipantRole.SELLER,
+            role: index === 0 ? 'BUYER' : 'SELLER',
           })),
         },
       },

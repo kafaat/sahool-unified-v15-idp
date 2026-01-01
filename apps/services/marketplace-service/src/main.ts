@@ -10,10 +10,37 @@
  */
 
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { HttpExceptionFilter } from '@sahool/shared/errors';
+
+// Local HttpExceptionFilter for unified error handling
+@Catch()
+class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    const request = ctx.getRequest();
+
+    const status = exception instanceof HttpException
+      ? exception.getStatus()
+      : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    const message = exception instanceof HttpException
+      ? exception.message
+      : 'خطأ داخلي في الخادم';
+
+    response.status(status).json({
+      success: false,
+      error: {
+        code: `ERR_${status}`,
+        message,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+      },
+    });
+  }
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

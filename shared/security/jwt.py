@@ -234,7 +234,8 @@ def decode_token_unsafe(token: str) -> dict:
     """
     try:
         # This function is intentionally unverified for debugging purposes only
-        return jwt.decode(token, options={"verify_signature": False})  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+        # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+        return jwt.decode(token, options={"verify_signature": False})
     except PyJWTError:
         return {}
 

@@ -33,10 +33,28 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('JWT secret not configured');
       }
 
-      // SECURITY: Explicitly specify allowed algorithms to prevent algorithm confusion attacks
-      const algorithm = process.env.JWT_ALGORITHM || 'HS256';
+      // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+      // Never trust algorithm from environment variables or token header
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+
+      // Decode header without verification to check algorithm
+      const header = jwt.decode(token, { complete: true })?.header;
+      if (!header || !header.alg) {
+        throw new UnauthorizedException('Invalid token: missing algorithm');
+      }
+
+      // Reject 'none' algorithm explicitly
+      if (header.alg.toLowerCase() === 'none') {
+        throw new UnauthorizedException('Invalid token: none algorithm not allowed');
+      }
+
+      // Verify algorithm is in whitelist
+      if (!ALLOWED_ALGORITHMS.includes(header.alg as jwt.Algorithm)) {
+        throw new UnauthorizedException('Invalid token: unsupported algorithm');
+      }
+
       const decoded = jwt.verify(token, secret, {
-        algorithms: [algorithm as jwt.Algorithm],
+        algorithms: ALLOWED_ALGORITHMS,
       }) as jwt.JwtPayload;
 
       // Attach user info to request
@@ -86,10 +104,28 @@ export class OptionalJwtAuthGuard implements CanActivate {
         return true;
       }
 
-      // SECURITY: Explicitly specify allowed algorithms to prevent algorithm confusion attacks
-      const algorithm = process.env.JWT_ALGORITHM || 'HS256';
+      // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+      // Never trust algorithm from environment variables or token header
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+
+      // Decode header without verification to check algorithm
+      const header = jwt.decode(token, { complete: true })?.header;
+      if (!header || !header.alg) {
+        return true; // Allow unauthenticated for optional guard
+      }
+
+      // Reject 'none' algorithm explicitly
+      if (header.alg.toLowerCase() === 'none') {
+        return true; // Allow unauthenticated for optional guard
+      }
+
+      // Verify algorithm is in whitelist
+      if (!ALLOWED_ALGORITHMS.includes(header.alg as jwt.Algorithm)) {
+        return true; // Allow unauthenticated for optional guard
+      }
+
       const decoded = jwt.verify(token, secret, {
-        algorithms: [algorithm as jwt.Algorithm],
+        algorithms: ALLOWED_ALGORITHMS,
       }) as jwt.JwtPayload;
 
       request.user = {

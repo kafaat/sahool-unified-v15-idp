@@ -34,7 +34,7 @@ export class LogsService {
         treatmentId: dto.treatmentId,
         logDate: new Date(dto.logDate),
         logTime: dto.logTime,
-        category: dto.category as any,
+        category: dto.category,
         title: dto.title,
         titleAr: dto.titleAr,
         notes: dto.notes,

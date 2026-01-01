@@ -389,20 +389,33 @@ export class WebSocketClient {
 let wsClient: WebSocketClient | null = null;
 
 /**
+ * Dummy WebSocket client for SSR
+ */
+class DummyWebSocketClient implements Partial<WebSocketClient> {
+  connect(): void {}
+  disconnect(): void {}
+  on<T = unknown>(_event: WebSocketEventType, _callback: EventCallback<T>): () => void {
+    return () => {};
+  }
+  onStatusChange(_callback: (status: ConnectionStatus) => void): () => void {
+    return () => {};
+  }
+  send(_type: string, _data: unknown): void {}
+  getStatus(): ConnectionStatus {
+    return ConnectionStatus.DISCONNECTED;
+  }
+  isConnected(): boolean {
+    return false;
+  }
+}
+
+/**
  * Get the singleton WebSocket client instance
  */
 export function getWebSocketClient(): WebSocketClient {
   if (typeof window === 'undefined') {
     // Server-side rendering, return a dummy client
-    return {
-      connect: () => {},
-      disconnect: () => {},
-      on: () => () => {},
-      onStatusChange: () => () => {},
-      send: () => {},
-      getStatus: () => ConnectionStatus.DISCONNECTED,
-      isConnected: () => false,
-    } as unknown as WebSocketClient;
+    return new DummyWebSocketClient() as WebSocketClient;
   }
 
   if (!wsClient) {

@@ -1,0 +1,6 @@
+# Two-Factor Authentication Requirements
+# Install these packages for 2FA functionality
+
+pyotp>=2.9.0          # TOTP generation and verification
+qrcode[pil]>=7.4.2    # QR code generation with PIL support
+Pillow>=10.0.0        # Image processing for QR codes

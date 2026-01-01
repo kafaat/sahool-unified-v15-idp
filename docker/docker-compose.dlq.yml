@@ -1,0 +1,125 @@
+version: '3.8'
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# SAHOOL Dead Letter Queue (DLQ) Management Service
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#
+# Provides DLQ management API and monitoring for failed messages.
+#
+# Usage:
+#   docker-compose -f docker/docker-compose.dlq.yml up -d
+#
+# Endpoints:
+#   - API: http://localhost:8090/docs
+#   - Health: http://localhost:8090/health
+#   - Stats: http://localhost:8090/dlq/stats
+#
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+services:
+  # ────────────────────────────────────────────────────────────────────────────
+  # DLQ Management Service
+  # ────────────────────────────────────────────────────────────────────────────
+  dlq-service:
+    image: python:3.11-slim
+    container_name: sahool-dlq-service
+    working_dir: /app
+    volumes:
+      - ../shared:/app/shared:ro
+      - ../requirements:/app/requirements:ro
+    command: >
+      sh -c "
+      pip install -q fastapi uvicorn nats-py pydantic aiohttp &&
+      cd /app/shared/events &&
+      uvicorn dlq_service:app --host 0.0.0.0 --port 8090 --reload
+      "
+    ports:
+      - "8090:8090"
+    environment:
+      # NATS connection
+      NATS_URL: nats://nats:4222
+
+      # DLQ configuration
+      DLQ_ENABLED: "true"
+      DLQ_MAX_RETRIES: "3"
+      DLQ_INITIAL_DELAY: "1.0"
+      DLQ_MAX_DELAY: "60.0"
+      DLQ_STREAM_NAME: "SAHOOL_DLQ"
+      DLQ_MAX_AGE_DAYS: "30"
+      DLQ_MAX_MESSAGES: "100000"
+      DLQ_ALERT_THRESHOLD: "100"
+
+      # Service metadata
+      SERVICE_NAME: dlq-service
+      SERVICE_VERSION: "1.0.0"
+
+      # Logging
+      LOG_LEVEL: INFO
+
+    networks:
+      - sahool-network
+    depends_on:
+      - nats
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    labels:
+      com.sahool.service: "dlq-management"
+      com.sahool.description: "Dead Letter Queue Management API"
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # DLQ Monitor (Background Task)
+  # ────────────────────────────────────────────────────────────────────────────
+  dlq-monitor:
+    image: python:3.11-slim
+    container_name: sahool-dlq-monitor
+    working_dir: /app
+    volumes:
+      - ../shared:/app/shared:ro
+      - ../requirements:/app/requirements:ro
+    command: >
+      sh -c "
+      pip install -q nats-py pydantic aiohttp &&
+      cd /app/shared/events &&
+      python dlq_monitoring.py
+      "
+    environment:
+      # NATS connection
+      NATS_URL: nats://nats:4222
+
+      # DLQ configuration
+      DLQ_ENABLED: "true"
+      DLQ_STREAM_NAME: "SAHOOL_DLQ"
+      DLQ_ALERT_ENABLED: "true"
+      DLQ_ALERT_THRESHOLD: "100"
+      DLQ_ALERT_CHECK_INTERVAL: "300"
+
+      # Alert integrations (optional)
+      # SLACK_WEBHOOK_URL: https://hooks.slack.com/services/YOUR/WEBHOOK/URL
+      # ALERT_EMAIL: alerts@sahool.com
+
+      # Logging
+      LOG_LEVEL: INFO
+
+    networks:
+      - sahool-network
+    depends_on:
+      - nats
+    restart: unless-stopped
+
+    labels:
+      com.sahool.service: "dlq-monitor"
+      com.sahool.description: "DLQ Monitoring and Alerting"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Networks
+# ──────────────────────────────────────────────────────────────────────────────
+networks:
+  sahool-network:
+    external: true

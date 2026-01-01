@@ -13,6 +13,10 @@ from jwt import PyJWTError
 from .config import config
 from .models import AuthErrors, AuthException, TokenPayload
 
+# SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+# Never trust algorithm from environment variables or token header
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
+
 
 def create_access_token(
     user_id: str,
@@ -139,12 +143,31 @@ def verify_token(token: str) -> TokenPayload:
     Example:
         >>> payload = verify_token(token)
         >>> print(payload.user_id, payload.roles)
+
+    Security: Uses hardcoded algorithm whitelist to prevent algorithm confusion attacks
     """
     try:
+        # SECURITY FIX: Decode header to validate algorithm before verification
+        unverified_header = jwt.get_unverified_header(token)
+
+        if not unverified_header or "alg" not in unverified_header:
+            raise AuthException(AuthErrors.INVALID_TOKEN)
+
+        algorithm = unverified_header["alg"]
+
+        # Reject 'none' algorithm explicitly
+        if algorithm.lower() == "none":
+            raise AuthException(AuthErrors.INVALID_TOKEN)
+
+        # Verify algorithm is in whitelist
+        if algorithm not in ALLOWED_ALGORITHMS:
+            raise AuthException(AuthErrors.INVALID_TOKEN)
+
+        # SECURITY FIX: Use hardcoded whitelist instead of environment variable
         payload = jwt.decode(
             token,
             config.get_verification_key(),
-            algorithms=[config.JWT_ALGORITHM],
+            algorithms=ALLOWED_ALGORITHMS,
             issuer=config.JWT_ISSUER,
             audience=config.JWT_AUDIENCE,
             options={

@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 # Add shared modules to path
@@ -21,6 +21,16 @@ if not SHARED_PATH.exists():
     SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
+
+# Import unified error handling
+from errors_py import (
+    setup_exception_handlers,
+    add_request_id_middleware,
+    NotFoundException,
+    ValidationException,
+    ErrorCode,
+    create_success_response,
+)
 
 # Import shared crop catalogs
 from crops import (
@@ -85,6 +95,10 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
 
 
 # ============== Health Check ==============
@@ -253,15 +267,18 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
     """Get disease information by ID"""
     disease = get_disease(disease_id)
     if not disease:
-        raise HTTPException(status_code=404, detail="Disease not found")
+        raise NotFoundException(
+            ErrorCode.RESOURCE_NOT_FOUND,
+            details={"resource": "disease", "disease_id": disease_id}
+        )
 
-    return {
+    return create_success_response({
         "id": disease_id,
         **disease,
         "actions_details": [
             get_action_details(action, lang) for action in disease["actions"]
         ],
-    }
+    })
 
 
 # ============== Nutrient Endpoints ==============
@@ -343,9 +360,12 @@ def get_deficiency_info(deficiency_id: str):
     """Get nutrient deficiency information by ID"""
     deficiency = get_deficiency(deficiency_id)
     if not deficiency:
-        raise HTTPException(status_code=404, detail="Deficiency not found")
+        raise NotFoundException(
+            ErrorCode.RESOURCE_NOT_FOUND,
+            details={"resource": "deficiency", "deficiency_id": deficiency_id}
+        )
 
-    return {"id": deficiency_id, **deficiency}
+    return create_success_response({"id": deficiency_id, **deficiency})
 
 
 # ============== Fertilizer Endpoints ==============
@@ -388,9 +408,12 @@ def get_fertilizer_info(fertilizer_id: str):
     """Get fertilizer information by ID"""
     fert = get_fertilizer(fertilizer_id)
     if not fert:
-        raise HTTPException(status_code=404, detail="Fertilizer not found")
+        raise NotFoundException(
+            ErrorCode.RESOURCE_NOT_FOUND,
+            details={"resource": "fertilizer", "fertilizer_id": fertilizer_id}
+        )
 
-    return {"id": fertilizer_id, **fert}
+    return create_success_response({"id": fertilizer_id, **fert})
 
 
 @app.get("/fertilizer/nutrient/{nutrient}")
@@ -427,7 +450,10 @@ def list_categories():
 def search_crops_endpoint(q: str):
     """Search crops by Arabic or English name"""
     if not q or len(q) < 2:
-        raise HTTPException(status_code=400, detail="Query must be at least 2 characters")
+        raise ValidationException(
+            ErrorCode.INVALID_INPUT,
+            details={"field": "q", "message": "Query must be at least 2 characters"}
+        )
 
     results = search_crops_catalog(q)
 
@@ -487,7 +513,7 @@ def get_crop_details(crop_code: str):
     """Get single crop details with Yemen varieties"""
     crop = get_crop(crop_code)
     if not crop:
-        raise HTTPException(status_code=404, detail=f"Crop '{crop_code}' not found")
+        raise NotFoundException.crop(crop_code)
 
     # Get Yemen varieties for this crop
     varieties = get_varieties_by_crop(crop_code)
@@ -532,7 +558,7 @@ def get_crop_varieties(crop_code: str):
     # First check if crop exists
     crop = get_crop(crop_code)
     if not crop:
-        raise HTTPException(status_code=404, detail=f"Crop '{crop_code}' not found")
+        raise NotFoundException.crop(crop_code)
 
     # Get varieties for this crop
     varieties = get_varieties_by_crop(crop_code)
@@ -576,18 +602,18 @@ def get_crop_stages(crop: str):
     """Get growth stages for a crop"""
     timeline = get_stage_timeline(crop)
     if not timeline:
-        raise HTTPException(status_code=404, detail="Crop not found")
+        raise NotFoundException.crop(crop)
 
-    return {"crop": crop, "stages": timeline}
+    return create_success_response({"crop": crop, "stages": timeline})
 
 
 @app.get("/crops/{crop}/requirements")
 def get_crop_requirements_legacy(crop: str):
     """Get nutrient requirements for a crop (legacy endpoint)"""
     if crop not in CROP_REQUIREMENTS:
-        raise HTTPException(status_code=404, detail="Crop not found")
+        raise NotFoundException.crop(crop)
 
-    return {"crop": crop, **CROP_REQUIREMENTS[crop]}
+    return create_success_response({"crop": crop, **CROP_REQUIREMENTS[crop]})
 
 
 # ============== Actions ==============

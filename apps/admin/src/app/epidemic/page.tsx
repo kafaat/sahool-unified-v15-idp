@@ -86,7 +86,9 @@ export default function EpidemicCenterPage() {
 
     diagnoses.forEach(d => {
       // Try to match governorate from diagnosis
-      const govName = (d as any).governorate?.toLowerCase() || '';
+      // Type assertion needed as governorate might be optional in some diagnosis types
+      const diagnosisWithGov = d as typeof d & { governorate?: string };
+      const govName = diagnosisWithGov.governorate?.toLowerCase() || '';
       const gov = GOVERNORATES.find(g =>
         g.id === govName || g.name.includes(govName)
       );
@@ -185,13 +187,13 @@ export default function EpidemicCenterPage() {
           <span className="text-sm text-gray-600">الفترة الزمنية:</span>
           <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
             {[
-              { key: 'day', label: 'اليوم' },
-              { key: 'week', label: 'الأسبوع' },
-              { key: 'month', label: 'الشهر' },
+              { key: 'day' as const, label: 'اليوم' },
+              { key: 'week' as const, label: 'الأسبوع' },
+              { key: 'month' as const, label: 'الشهر' },
             ].map(({ key, label }) => (
               <button
                 key={key}
-                onClick={() => setTimeRange(key as any)}
+                onClick={() => setTimeRange(key)}
                 className={cn(
                   'px-3 py-1 text-sm rounded-md transition-colors',
                   timeRange === key

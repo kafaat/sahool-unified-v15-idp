@@ -92,9 +92,248 @@ class BillingCycle(str, enum.Enum):
     YEARLY = "yearly"
 
 
+class PlanTier(str, enum.Enum):
+    """مستوى الخطة"""
+    FREE = "free"
+    STARTER = "starter"
+    PROFESSIONAL = "professional"
+    ENTERPRISE = "enterprise"
+
+
 # =============================================================================
 # Database Models
 # =============================================================================
+
+class Plan(Base):
+    """
+    Plan Model - نموذج الخطة
+
+    Represents a subscription plan with pricing and features
+    يمثل خطة اشتراك مع التسعير والميزات
+    """
+    __tablename__ = "plans"
+
+    # Primary Key
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
+    )
+
+    # Plan Identifier (e.g., "free", "starter", "professional")
+    plan_id: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="معرف الخطة الفريد"
+    )
+
+    # Names
+    name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="اسم الخطة (EN)"
+    )
+
+    name_ar: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="اسم الخطة (AR)"
+    )
+
+    # Descriptions
+    description: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        comment="وصف الخطة (EN)"
+    )
+
+    description_ar: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        comment="وصف الخطة (AR)"
+    )
+
+    # Tier
+    tier: Mapped[PlanTier] = mapped_column(
+        SQLEnum(PlanTier, name="plan_tier_enum"),
+        nullable=False,
+        index=True,
+        comment="مستوى الخطة"
+    )
+
+    # Pricing (stored as JSONB for flexibility)
+    pricing: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        comment="تسعير الخطة (monthly_usd, quarterly_usd, yearly_usd, setup_fee_usd)"
+    )
+
+    # Features (stored as JSONB)
+    features: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        default={},
+        server_default="{}",
+        comment="ميزات الخطة"
+    )
+
+    # Limits (stored as JSONB)
+    limits: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        default={},
+        server_default="{}",
+        comment="حدود الخطة"
+    )
+
+    # Status
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="true",
+        index=True,
+        comment="نشطة؟"
+    )
+
+    # Trial
+    trial_days: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=14,
+        server_default="14",
+        comment="أيام الفترة التجريبية"
+    )
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ الإنشاء"
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ آخر تحديث"
+    )
+
+    # Indexes
+    __table_args__ = (
+        Index("idx_plan_tier_active", "tier", "is_active"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Plan(id={self.id}, plan_id={self.plan_id}, name={self.name}, tier={self.tier})>"
+
+
+class Tenant(Base):
+    """
+    Tenant Model - نموذج المستأجر
+
+    Represents a customer/tenant in the system
+    يمثل عميل/مستأجر في النظام
+    """
+    __tablename__ = "tenants"
+
+    # Primary Key
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default="gen_random_uuid()",
+    )
+
+    # Tenant ID (for external references)
+    tenant_id: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        unique=True,
+        index=True,
+        comment="معرف المستأجر الفريد"
+    )
+
+    # Names
+    name: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="اسم المستأجر (EN)"
+    )
+
+    name_ar: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+        comment="اسم المستأجر (AR)"
+    )
+
+    # Contact Info (stored as JSONB)
+    contact: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        comment="معلومات الاتصال (name, email, phone, address, etc.)"
+    )
+
+    # Tax ID
+    tax_id: Mapped[Optional[str]] = mapped_column(
+        String(100),
+        nullable=True,
+        comment="الرقم الضريبي"
+    )
+
+    # Status
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="true",
+        index=True,
+        comment="نشط؟"
+    )
+
+    # Metadata (renamed to avoid SQLAlchemy reserved name conflict)
+    extra_metadata: Mapped[Optional[dict]] = mapped_column(
+        "metadata",  # Database column name stays as 'metadata'
+        JSONB,
+        nullable=True,
+        default={},
+        server_default="{}",
+        comment="بيانات إضافية"
+    )
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ الإنشاء"
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        server_default="CURRENT_TIMESTAMP",
+        comment="تاريخ آخر تحديث"
+    )
+
+    # Indexes
+    __table_args__ = (
+        Index("idx_tenant_active", "is_active"),
+    )
+
+    def __repr__(self) -> str:
+        return f"<Tenant(id={self.id}, tenant_id={self.tenant_id}, name={self.name})>"
+
 
 class Subscription(Base):
     """

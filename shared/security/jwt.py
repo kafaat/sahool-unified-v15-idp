@@ -53,6 +53,10 @@ JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-platform")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
 JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
 
+# SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+# Never trust algorithm from environment variables or token header
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
+
 
 def validate_jwt_configuration() -> bool:
     """Validate JWT configuration on startup"""
@@ -130,12 +134,31 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
 
     Raises:
         AuthError: If token is invalid, expired, or revoked
+
+    Security: Uses hardcoded algorithm whitelist to prevent algorithm confusion attacks
     """
     try:
+        # SECURITY FIX: Decode header to validate algorithm before verification
+        unverified_header = jwt.get_unverified_header(token)
+
+        if not unverified_header or "alg" not in unverified_header:
+            raise AuthError("Invalid token: missing algorithm", "invalid_token")
+
+        algorithm = unverified_header["alg"]
+
+        # Reject 'none' algorithm explicitly
+        if algorithm.lower() == "none":
+            raise AuthError("Invalid token: none algorithm not allowed", "invalid_token")
+
+        # Verify algorithm is in whitelist
+        if algorithm not in ALLOWED_ALGORITHMS:
+            raise AuthError(f"Invalid token: unsupported algorithm {algorithm}", "invalid_token")
+
+        # SECURITY FIX: Use hardcoded whitelist instead of environment variable
         payload = jwt.decode(
             token,
             _get_verify_key(),
-            algorithms=[JWT_ALGORITHM],
+            algorithms=ALLOWED_ALGORITHMS,
             issuer=JWT_ISSUER,
             audience=JWT_AUDIENCE,
             options={

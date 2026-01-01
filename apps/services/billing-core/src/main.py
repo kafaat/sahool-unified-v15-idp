@@ -154,6 +154,8 @@ async def lifespan(app: FastAPI):
         db_connected = await check_db_connection()
         if db_connected:
             logger.info("Database initialized and connected successfully")
+            # Initialize default plans in database
+            await init_default_plans_in_db()
         else:
             logger.warning("Database connection check failed - some features may not work")
     except Exception as e:
@@ -505,117 +507,79 @@ class CreatePaymentRequest(BaseModel):
 
 
 # =============================================================================
-# In-Memory Storage (Replace with PostgreSQL in production)
+# Database Initialization - Default Plans
 # =============================================================================
 
-# TODO: MIGRATE TO POSTGRESQL
-# Current: PLANS, TENANTS, SUBSCRIPTIONS (partially), INVOICES, PAYMENTS, USAGE_RECORDS in-memory
-# Status: SUBSCRIPTIONS partially migrated to database, others still in-memory
-# Issues:
-#   - PLANS lost on restart (requires reconfiguration)
-#   - TENANTS lost on restart (critical - customer data)
-#   - INVOICES/PAYMENTS lost on restart (compliance issue - no audit trail)
-#   - USAGE_RECORDS lost on restart (billing accuracy issues)
-#   - Cannot scale horizontally (each pod has separate state)
-# Required:
-#   1. Complete database migration for:
-#      a) 'plans' table (already exists, populate from PLANS dict on startup)
-#      b) 'tenants' table:
-#         - tenant_id (UUID, PK)
-#         - name, name_ar (VARCHAR)
-#         - contact (JSONB)
-#         - settings (JSONB)
-#         - created_at, updated_at (TIMESTAMP)
-#      c) 'invoices' table (extend existing):
-#         - Add line_items (JSONB)
-#         - Add payment tracking
-#      d) 'payments' table:
-#         - payment_id (UUID, PK)
-#         - invoice_id (UUID, FK)
-#         - tenant_id (VARCHAR, indexed)
-#         - amount, currency
-#         - method, status
-#         - stripe_payment_id
-#         - processed_at (TIMESTAMP)
-#      e) 'usage_records' table:
-#         - id (UUID, PK)
-#         - tenant_id (VARCHAR, indexed)
-#         - metric (VARCHAR, indexed)
-#         - quantity (INTEGER)
-#         - timestamp (TIMESTAMP, indexed)
-#   2. Update BillingRepository to handle all entities
-#   3. Migrate initialization: Load PLANS from database on startup
-#   4. Add composite indexes: (tenant_id, timestamp) for usage analytics
-# Migration Priority: CRITICAL - Billing data must be persistent for compliance
-PLANS: Dict[str, Plan] = {}
-TENANTS: Dict[str, Tenant] = {}
-SUBSCRIPTIONS: Dict[str, Subscription] = {}
-INVOICES: Dict[str, Invoice] = {}
-PAYMENTS: Dict[str, Payment] = {}
-USAGE_RECORDS: List[UsageRecord] = []
+# INVOICE_COUNTER: Global counter for invoice numbers
+# Will be replaced with database sequence in production
 INVOICE_COUNTER: int = 0
 
 
-# =============================================================================
-# Initialize Default Plans
-# =============================================================================
+async def init_default_plans_in_db():
+    """
+    Initialize default plans in database
+    تهيئة الخطط الافتراضية في قاعدة البيانات
 
-def init_default_plans():
-    """تهيئة الخطط الافتراضية"""
-    global PLANS
+    This function is called on startup to ensure default plans exist in the database.
+    It uses upsert logic to avoid duplicates.
+    """
+    from .database import get_db_context
 
-    PLANS = {
-        "free": Plan(
-            plan_id="free",
-            name="Free",
-            name_ar="مجاني",
-            description="Perfect for small farmers getting started",
-            description_ar="مثالي للمزارعين الصغار للبدء",
-            tier=PlanTier.FREE,
-            pricing=PlanPricing(
-                monthly_usd=Decimal("0"),
-                quarterly_usd=Decimal("0"),
-                yearly_usd=Decimal("0"),
-            ),
-            features={
-                "fields": PlanFeature(name="Fields", name_ar="الحقول", included=True, limit=3),
-                "satellite": PlanFeature(name="Satellite Analysis", name_ar="تحليل الأقمار", included=True, limit=10),
-                "weather": PlanFeature(name="Weather Forecasts", name_ar="توقعات الطقس", included=True, limit=None),
-                "irrigation": PlanFeature(name="Irrigation Planning", name_ar="تخطيط الري", included=False),
-                "ai_diagnosis": PlanFeature(name="AI Crop Diagnosis", name_ar="تشخيص المحاصيل", included=False),
-                "reports": PlanFeature(name="PDF Reports", name_ar="تقارير PDF", included=False),
-                "support": PlanFeature(name="Email Support", name_ar="دعم البريد", included=True),
+    # Define default plans as dictionaries that can be inserted into the database
+    default_plans_data = [
+        {
+            "plan_id": "free",
+            "name": "Free",
+            "name_ar": "مجاني",
+            "description": "Perfect for small farmers getting started",
+            "description_ar": "مثالي للمزارعين الصغار للبدء",
+            "tier": db_models.PlanTier.FREE,
+            "pricing": {
+                "monthly_usd": "0",
+                "quarterly_usd": "0",
+                "yearly_usd": "0",
+                "setup_fee_usd": "0",
             },
-            limits={
+            "features": {
+                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": 3},
+                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": 10},
+                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
+                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": False},
+                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": False},
+                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": False},
+                "support": {"name": "Email Support", "name_ar": "دعم البريد", "included": True},
+            },
+            "limits": {
                 "fields": 3,
                 "satellite_analyses_per_month": 10,
                 "storage_gb": 1,
                 "api_calls_per_day": 100,
             },
-            trial_days=0,
-        ),
-        "starter": Plan(
-            plan_id="starter",
-            name="Starter",
-            name_ar="المبتدئ",
-            description="For growing farms with moderate needs",
-            description_ar="للمزارع المتنامية ذات الاحتياجات المتوسطة",
-            tier=PlanTier.STARTER,
-            pricing=PlanPricing(
-                monthly_usd=Decimal("29"),
-                quarterly_usd=Decimal("79"),
-                yearly_usd=Decimal("290"),
-            ),
-            features={
-                "fields": PlanFeature(name="Fields", name_ar="الحقول", included=True, limit=10),
-                "satellite": PlanFeature(name="Satellite Analysis", name_ar="تحليل الأقمار", included=True, limit=50),
-                "weather": PlanFeature(name="Weather Forecasts", name_ar="توقعات الطقس", included=True, limit=None),
-                "irrigation": PlanFeature(name="Irrigation Planning", name_ar="تخطيط الري", included=True, limit=None),
-                "ai_diagnosis": PlanFeature(name="AI Crop Diagnosis", name_ar="تشخيص المحاصيل", included=True, limit=20),
-                "reports": PlanFeature(name="PDF Reports", name_ar="تقارير PDF", included=True, limit=10),
-                "support": PlanFeature(name="Email Support", name_ar="دعم البريد", included=True),
+            "trial_days": 0,
+        },
+        {
+            "plan_id": "starter",
+            "name": "Starter",
+            "name_ar": "المبتدئ",
+            "description": "For growing farms with moderate needs",
+            "description_ar": "للمزارع المتنامية ذات الاحتياجات المتوسطة",
+            "tier": db_models.PlanTier.STARTER,
+            "pricing": {
+                "monthly_usd": "29",
+                "quarterly_usd": "79",
+                "yearly_usd": "290",
+                "setup_fee_usd": "0",
             },
-            limits={
+            "features": {
+                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": 10},
+                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": 50},
+                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
+                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": True, "limit": None},
+                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": True, "limit": 20},
+                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": True, "limit": 10},
+                "support": {"name": "Email Support", "name_ar": "دعم البريد", "included": True},
+            },
+            "limits": {
                 "fields": 10,
                 "satellite_analyses_per_month": 50,
                 "ai_diagnoses_per_month": 20,
@@ -623,67 +587,69 @@ def init_default_plans():
                 "storage_gb": 5,
                 "api_calls_per_day": 500,
             },
-            trial_days=14,
-        ),
-        "professional": Plan(
-            plan_id="professional",
-            name="Professional",
-            name_ar="الاحترافي",
-            description="For professional farmers and agricultural businesses",
-            description_ar="للمزارعين المحترفين والأعمال الزراعية",
-            tier=PlanTier.PROFESSIONAL,
-            pricing=PlanPricing(
-                monthly_usd=Decimal("99"),
-                quarterly_usd=Decimal("269"),
-                yearly_usd=Decimal("990"),
-            ),
-            features={
-                "fields": PlanFeature(name="Fields", name_ar="الحقول", included=True, limit=50),
-                "satellite": PlanFeature(name="Satellite Analysis", name_ar="تحليل الأقمار", included=True, limit=200),
-                "weather": PlanFeature(name="Weather Forecasts", name_ar="توقعات الطقس", included=True, limit=None),
-                "irrigation": PlanFeature(name="Irrigation Planning", name_ar="تخطيط الري", included=True, limit=None),
-                "ai_diagnosis": PlanFeature(name="AI Crop Diagnosis", name_ar="تشخيص المحاصيل", included=True, limit=100),
-                "reports": PlanFeature(name="PDF Reports", name_ar="تقارير PDF", included=True, limit=None),
-                "support": PlanFeature(name="Priority Support", name_ar="دعم أولوية", included=True),
-                "api_access": PlanFeature(name="API Access", name_ar="الوصول للـAPI", included=True),
+            "trial_days": 14,
+        },
+        {
+            "plan_id": "professional",
+            "name": "Professional",
+            "name_ar": "الاحترافي",
+            "description": "For professional farmers and agricultural businesses",
+            "description_ar": "للمزارعين المحترفين والأعمال الزراعية",
+            "tier": db_models.PlanTier.PROFESSIONAL,
+            "pricing": {
+                "monthly_usd": "99",
+                "quarterly_usd": "269",
+                "yearly_usd": "990",
+                "setup_fee_usd": "0",
             },
-            limits={
+            "features": {
+                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": 50},
+                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": 200},
+                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
+                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": True, "limit": None},
+                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": True, "limit": 100},
+                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": True, "limit": None},
+                "support": {"name": "Priority Support", "name_ar": "دعم أولوية", "included": True},
+                "api_access": {"name": "API Access", "name_ar": "الوصول للـAPI", "included": True},
+            },
+            "limits": {
                 "fields": 50,
                 "satellite_analyses_per_month": 200,
                 "ai_diagnoses_per_month": 100,
-                "pdf_reports_per_month": -1,  # Unlimited
+                "pdf_reports_per_month": -1,
                 "storage_gb": 25,
                 "api_calls_per_day": 2000,
                 "team_members": 5,
             },
-            trial_days=14,
-        ),
-        "enterprise": Plan(
-            plan_id="enterprise",
-            name="Enterprise",
-            name_ar="المؤسسات",
-            description="Custom solutions for large agricultural operations",
-            description_ar="حلول مخصصة للعمليات الزراعية الكبيرة",
-            tier=PlanTier.ENTERPRISE,
-            pricing=PlanPricing(
-                monthly_usd=Decimal("499"),
-                quarterly_usd=Decimal("1349"),
-                yearly_usd=Decimal("4990"),
-            ),
-            features={
-                "fields": PlanFeature(name="Fields", name_ar="الحقول", included=True, limit=None),
-                "satellite": PlanFeature(name="Satellite Analysis", name_ar="تحليل الأقمار", included=True, limit=None),
-                "weather": PlanFeature(name="Weather Forecasts", name_ar="توقعات الطقس", included=True, limit=None),
-                "irrigation": PlanFeature(name="Irrigation Planning", name_ar="تخطيط الري", included=True, limit=None),
-                "ai_diagnosis": PlanFeature(name="AI Crop Diagnosis", name_ar="تشخيص المحاصيل", included=True, limit=None),
-                "reports": PlanFeature(name="PDF Reports", name_ar="تقارير PDF", included=True, limit=None),
-                "support": PlanFeature(name="Dedicated Support", name_ar="دعم مخصص", included=True),
-                "api_access": PlanFeature(name="API Access", name_ar="الوصول للـAPI", included=True),
-                "sla": PlanFeature(name="SLA Guarantee", name_ar="ضمان SLA", included=True),
-                "custom_integrations": PlanFeature(name="Custom Integrations", name_ar="تكاملات مخصصة", included=True),
+            "trial_days": 14,
+        },
+        {
+            "plan_id": "enterprise",
+            "name": "Enterprise",
+            "name_ar": "المؤسسات",
+            "description": "Custom solutions for large agricultural operations",
+            "description_ar": "حلول مخصصة للعمليات الزراعية الكبيرة",
+            "tier": db_models.PlanTier.ENTERPRISE,
+            "pricing": {
+                "monthly_usd": "499",
+                "quarterly_usd": "1349",
+                "yearly_usd": "4990",
+                "setup_fee_usd": "0",
             },
-            limits={
-                "fields": -1,  # Unlimited
+            "features": {
+                "fields": {"name": "Fields", "name_ar": "الحقول", "included": True, "limit": None},
+                "satellite": {"name": "Satellite Analysis", "name_ar": "تحليل الأقمار", "included": True, "limit": None},
+                "weather": {"name": "Weather Forecasts", "name_ar": "توقعات الطقس", "included": True, "limit": None},
+                "irrigation": {"name": "Irrigation Planning", "name_ar": "تخطيط الري", "included": True, "limit": None},
+                "ai_diagnosis": {"name": "AI Crop Diagnosis", "name_ar": "تشخيص المحاصيل", "included": True, "limit": None},
+                "reports": {"name": "PDF Reports", "name_ar": "تقارير PDF", "included": True, "limit": None},
+                "support": {"name": "Dedicated Support", "name_ar": "دعم مخصص", "included": True},
+                "api_access": {"name": "API Access", "name_ar": "الوصول للـAPI", "included": True},
+                "sla": {"name": "SLA Guarantee", "name_ar": "ضمان SLA", "included": True},
+                "custom_integrations": {"name": "Custom Integrations", "name_ar": "تكاملات مخصصة", "included": True},
+            },
+            "limits": {
+                "fields": -1,
                 "satellite_analyses_per_month": -1,
                 "ai_diagnoses_per_month": -1,
                 "pdf_reports_per_month": -1,
@@ -691,13 +657,25 @@ def init_default_plans():
                 "api_calls_per_day": 10000,
                 "team_members": -1,
             },
-            trial_days=30,
-        ),
-    }
+            "trial_days": 30,
+        },
+    ]
 
+    try:
+        async with get_db_context() as db:
+            repo = BillingRepository(db)
 
-# Initialize on startup
-init_default_plans()
+            for plan_data in default_plans_data:
+                try:
+                    await repo.plans.upsert(**plan_data)
+                    logger.info(f"Initialized plan: {plan_data['plan_id']}")
+                except Exception as e:
+                    logger.error(f"Failed to initialize plan {plan_data['plan_id']}: {e}")
+
+            logger.info("Default plans initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize default plans: {e}")
+        # Don't raise - allow service to start even if plan initialization fails
 
 
 # =============================================================================
@@ -718,14 +696,24 @@ def convert_to_yer(amount_usd: Decimal) -> Decimal:
     return amount_usd * Decimal(str(YER_EXCHANGE_RATE))
 
 
-def get_plan_price(plan: Plan, cycle: BillingCycle) -> Decimal:
-    """الحصول على سعر الخطة حسب دورة الفوترة"""
+def get_plan_price(plan_pricing: dict, cycle: BillingCycle) -> Decimal:
+    """
+    Get plan price based on billing cycle
+    الحصول على سعر الخطة حسب دورة الفوترة
+
+    Args:
+        plan_pricing: Plan pricing dict from database (contains monthly_usd, quarterly_usd, yearly_usd)
+        cycle: Billing cycle enum
+
+    Returns:
+        Decimal: Price for the billing cycle
+    """
     if cycle == BillingCycle.MONTHLY:
-        return plan.pricing.monthly_usd
+        return Decimal(str(plan_pricing.get("monthly_usd", "0")))
     elif cycle == BillingCycle.QUARTERLY:
-        return plan.pricing.quarterly_usd
+        return Decimal(str(plan_pricing.get("quarterly_usd", "0")))
     else:
-        return plan.pricing.yearly_usd
+        return Decimal(str(plan_pricing.get("yearly_usd", "0")))
 
 
 def get_billing_period_end(start_date: date, cycle: BillingCycle) -> date:
@@ -738,36 +726,47 @@ def get_billing_period_end(start_date: date, cycle: BillingCycle) -> date:
         return start_date + timedelta(days=365)
 
 
-def check_usage_limit(tenant_id: str, metric: str) -> Dict[str, Any]:
-    """التحقق من حدود الاستخدام"""
-    tenant = TENANTS.get(tenant_id)
+async def check_usage_limit_db(db: AsyncSession, tenant_id: str, metric: str) -> Dict[str, Any]:
+    """
+    Check usage limits for a tenant (database version)
+    التحقق من حدود الاستخدام للمستأجر (نسخة قاعدة البيانات)
+
+    Args:
+        db: Database session
+        tenant_id: Tenant ID
+        metric: Metric name (e.g., "satellite_analyses_per_month")
+
+    Returns:
+        Dict with allowed, limit, used, remaining
+    """
+    repo = BillingRepository(db)
+
+    # Check if tenant exists
+    tenant = await repo.tenants.get_by_tenant_id(tenant_id)
     if not tenant:
         return {"allowed": False, "reason": "Tenant not found"}
 
     # Get active subscription
-    subscription = None
-    for sub in SUBSCRIPTIONS.values():
-        if sub.tenant_id == tenant_id and sub.status in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]:
-            subscription = sub
-            break
-
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
     if not subscription:
         return {"allowed": False, "reason": "No active subscription"}
 
-    plan = PLANS.get(subscription.plan_id)
+    # Get plan
+    plan = await repo.plans.get_by_plan_id(subscription.plan_id)
     if not plan:
         return {"allowed": False, "reason": "Plan not found"}
 
     # Check limit
     limit = plan.limits.get(metric, 0)
     if limit == -1:  # Unlimited
-        return {"allowed": True, "limit": None, "used": 0}
+        return {"allowed": True, "limit": None, "used": 0, "remaining": "unlimited"}
 
-    # Calculate current usage
-    current_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0)
-    used = sum(
-        r.quantity for r in USAGE_RECORDS
-        if r.tenant_id == tenant_id and r.metric == metric and r.timestamp >= current_month_start
+    # Calculate current usage for the current month
+    current_month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    used = await repo.usage_records.get_metric_count(
+        tenant_id=tenant_id,
+        metric_type=metric,
+        start_date=current_month_start,
     )
 
     return {
@@ -826,9 +825,18 @@ def generate_invoice(subscription: Subscription) -> Invoice:
 
 
 @app.get("/healthz")
-async def health_check():
+async def health_check(db: AsyncSession = Depends(get_db)):
     """Health check endpoint with database status"""
     db_status = await db_health_check()
+
+    # Get plans count from database
+    plans_count = 0
+    try:
+        repo = BillingRepository(db)
+        plans = await repo.plans.list_all(active_only=False, limit=1000)
+        plans_count = len(plans)
+    except Exception:
+        pass
 
     return {
         "status": "ok" if db_status.get("status") == "healthy" else "degraded",
@@ -836,16 +844,15 @@ async def health_check():
         "version": "15.6.0",
         "database": db_status,
         "nats": "connected" if nats_client else "disconnected",
-        "plans_count": len(PLANS),
+        "plans_count": plans_count,
     }
 
 
 @app.get("/v1/plans")
-def list_plans(active_only: bool = True):
+async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db)):
     """قائمة الخطط المتاحة"""
-    plans = list(PLANS.values())
-    if active_only:
-        plans = [p for p in plans if p.is_active]
+    repo = BillingRepository(db)
+    plans = await repo.plans.list_all(active_only=active_only, limit=1000)
 
     return {
         "plans": [
@@ -855,10 +862,10 @@ def list_plans(active_only: bool = True):
                 "name_ar": p.name_ar,
                 "tier": p.tier.value,
                 "pricing": {
-                    "monthly_usd": float(p.pricing.monthly_usd),
-                    "monthly_yer": float(convert_to_yer(p.pricing.monthly_usd)),
-                    "yearly_usd": float(p.pricing.yearly_usd),
-                    "yearly_yer": float(convert_to_yer(p.pricing.yearly_usd)),
+                    "monthly_usd": float(Decimal(str(p.pricing.get("monthly_usd", "0")))),
+                    "monthly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
+                    "yearly_usd": float(Decimal(str(p.pricing.get("yearly_usd", "0")))),
+                    "yearly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
                 },
                 "limits": p.limits,
                 "trial_days": p.trial_days,
@@ -869,18 +876,33 @@ def list_plans(active_only: bool = True):
 
 
 @app.get("/v1/plans/{plan_id}")
-def get_plan(plan_id: str):
+async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
     """تفاصيل خطة محددة"""
-    plan = PLANS.get(plan_id)
+    repo = BillingRepository(db)
+    plan = await repo.plans.get_by_plan_id(plan_id)
+
     if not plan:
         raise HTTPException(404, "الخطة غير موجودة")
 
     return {
-        "plan": plan.dict(),
+        "plan": {
+            "plan_id": plan.plan_id,
+            "name": plan.name,
+            "name_ar": plan.name_ar,
+            "description": plan.description,
+            "description_ar": plan.description_ar,
+            "tier": plan.tier.value,
+            "pricing": plan.pricing,
+            "features": plan.features,
+            "limits": plan.limits,
+            "is_active": plan.is_active,
+            "trial_days": plan.trial_days,
+            "created_at": plan.created_at.isoformat(),
+        },
         "pricing_yer": {
-            "monthly": float(convert_to_yer(plan.pricing.monthly_usd)),
-            "quarterly": float(convert_to_yer(plan.pricing.quarterly_usd)),
-            "yearly": float(convert_to_yer(plan.pricing.yearly_usd)),
+            "monthly": float(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
+            "quarterly": float(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
+            "yearly": float(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
         }
     }
 
@@ -889,44 +911,65 @@ def get_plan(plan_id: str):
 async def create_plan(
     request: CreatePlanRequest,
     current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
+    db: AsyncSession = Depends(get_db),
 ):
     """إنشاء خطة جديدة (للمسؤولين)"""
     plan_id = request.name.lower().replace(" ", "_")
 
-    if plan_id in PLANS:
+    repo = BillingRepository(db)
+
+    # Check if plan already exists
+    existing_plan = await repo.plans.get_by_plan_id(plan_id)
+    if existing_plan:
         raise HTTPException(400, "الخطة موجودة بالفعل")
 
+    # Build features dict
     features = {}
     for feature_name, included in request.features.items():
         limit = request.limits.get(feature_name)
-        features[feature_name] = PlanFeature(
-            name=feature_name.replace("_", " ").title(),
-            name_ar=feature_name,  # TODO: Add proper Arabic translations
-            included=included,
-            limit=limit,
-        )
+        features[feature_name] = {
+            "name": feature_name.replace("_", " ").title(),
+            "name_ar": feature_name,  # TODO: Add proper Arabic translations
+            "included": included,
+            "limit": limit,
+        }
 
-    plan = Plan(
+    # Build pricing dict
+    pricing = {
+        "monthly_usd": str(request.monthly_price_usd),
+        "quarterly_usd": str(request.monthly_price_usd * Decimal("2.7")),
+        "yearly_usd": str(request.monthly_price_usd * Decimal("10")),
+        "setup_fee_usd": "0",
+    }
+
+    # Create plan in database
+    plan = await repo.plans.create(
         plan_id=plan_id,
         name=request.name,
         name_ar=request.name_ar,
         description=request.description,
         description_ar=request.description_ar,
         tier=request.tier,
-        pricing=PlanPricing(
-            monthly_usd=request.monthly_price_usd,
-            quarterly_usd=request.monthly_price_usd * Decimal("2.7"),
-            yearly_usd=request.monthly_price_usd * Decimal("10"),
-        ),
+        pricing=pricing,
         features=features,
         limits=request.limits,
         trial_days=request.trial_days,
     )
 
-    PLANS[plan_id] = plan
     logger.info(f"Plan created: {plan_id}")
 
-    return {"success": True, "plan": plan.dict()}
+    return {
+        "success": True,
+        "plan": {
+            "plan_id": plan.plan_id,
+            "name": plan.name,
+            "name_ar": plan.name_ar,
+            "tier": plan.tier.value,
+            "pricing": plan.pricing,
+            "limits": plan.limits,
+            "trial_days": plan.trial_days,
+        }
+    }
 
 
 # =============================================================================
@@ -941,31 +984,30 @@ async def create_tenant(
 ):
     """تسجيل مستأجر جديد مع اشتراك"""
     tenant_id = str(uuid.uuid4())
+    repo = BillingRepository(db)
 
-    # Validate plan
-    plan = PLANS.get(request.plan_id)
+    # Validate plan exists in database
+    plan = await repo.plans.get_by_plan_id(request.plan_id)
     if not plan:
         raise HTTPException(400, "الخطة غير موجودة")
 
-    # Create tenant (still in memory for now, will migrate later)
-    tenant = Tenant(
+    # Create tenant in database
+    tenant = await repo.tenants.create(
         tenant_id=tenant_id,
         name=request.name,
         name_ar=request.name_ar,
-        contact=TenantContact(
-            name=request.name,
-            name_ar=request.name_ar,
-            email=request.email,
-            phone=request.phone,
-        ),
+        contact={
+            "name": request.name,
+            "name_ar": request.name_ar,
+            "email": request.email,
+            "phone": request.phone,
+        },
     )
-    TENANTS[tenant_id] = tenant
 
     # Create subscription in database
     today = date.today()
     trial_end = today + timedelta(days=plan.trial_days) if plan.trial_days > 0 else None
 
-    repo = BillingRepository(db)
     subscription = await repo.subscriptions.create(
         tenant_id=tenant_id,
         plan_id=request.plan_id,
@@ -992,33 +1034,48 @@ async def create_tenant(
 async def get_tenant(
     tenant_id: str,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """معلومات المستأجر"""
     # Verify tenant access
     require_tenant_or_admin(current_user, tenant_id)
 
-    tenant = TENANTS.get(tenant_id)
+    repo = BillingRepository(db)
+
+    # Get tenant from database
+    tenant = await repo.tenants.get_by_tenant_id(tenant_id)
     if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
 
     # Get subscription
-    subscription = None
-    for sub in SUBSCRIPTIONS.values():
-        if sub.tenant_id == tenant_id:
-            subscription = sub
-            break
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
 
     # Get usage summary
     usage = {}
     if subscription:
-        plan = PLANS.get(subscription.plan_id)
+        plan = await repo.plans.get_by_plan_id(subscription.plan_id)
         if plan:
             for metric in plan.limits.keys():
-                usage[metric] = check_usage_limit(tenant_id, metric)
+                usage[metric] = await check_usage_limit_db(db, tenant_id, metric)
 
     return {
-        "tenant": tenant.dict(),
-        "subscription": subscription.dict() if subscription else None,
+        "tenant": {
+            "tenant_id": tenant.tenant_id,
+            "name": tenant.name,
+            "name_ar": tenant.name_ar,
+            "contact": tenant.contact,
+            "tax_id": tenant.tax_id,
+            "is_active": tenant.is_active,
+            "created_at": tenant.created_at.isoformat(),
+        },
+        "subscription": {
+            "subscription_id": str(subscription.id),
+            "plan_id": subscription.plan_id,
+            "status": subscription.status.value,
+            "billing_cycle": subscription.billing_cycle.value,
+            "start_date": subscription.start_date.isoformat(),
+            "end_date": subscription.end_date.isoformat(),
+        } if subscription else None,
         "usage": usage,
     }
 
@@ -1039,7 +1096,7 @@ async def get_subscription(
     if not subscription:
         raise HTTPException(404, "لا يوجد اشتراك")
 
-    plan = PLANS.get(subscription.plan_id)
+    plan = await repo.plans.get_by_plan_id(subscription.plan_id)
 
     return {
         "subscription": {
@@ -1054,7 +1111,14 @@ async def get_subscription(
             "next_billing_date": subscription.next_billing_date.isoformat(),
             "trial_end_date": subscription.trial_end_date.isoformat() if subscription.trial_end_date else None,
         },
-        "plan": plan.dict() if plan else None,
+        "plan": {
+            "plan_id": plan.plan_id,
+            "name": plan.name,
+            "name_ar": plan.name_ar,
+            "tier": plan.tier.value,
+            "pricing": plan.pricing,
+            "limits": plan.limits,
+        } if plan else None,
         "days_remaining": (subscription.end_date - date.today()).days,
         "is_trial": subscription.status == db_models.SubscriptionStatus.TRIAL,
     }
@@ -1065,42 +1129,50 @@ async def update_subscription(
     tenant_id: str,
     request: UpdateSubscriptionRequest,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """تحديث الاشتراك (ترقية/تخفيض)"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    subscription = None
-    for sub in SUBSCRIPTIONS.values():
-        if sub.tenant_id == tenant_id:
-            subscription = sub
-            break
+    repo = BillingRepository(db)
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
 
     if not subscription:
         raise HTTPException(404, "لا يوجد اشتراك")
 
     changes = []
+    update_data = {}
 
     if request.plan_id and request.plan_id != subscription.plan_id:
-        new_plan = PLANS.get(request.plan_id)
+        new_plan = await repo.plans.get_by_plan_id(request.plan_id)
         if not new_plan:
             raise HTTPException(400, "الخطة غير موجودة")
-        subscription.plan_id = request.plan_id
+        update_data["plan_id"] = request.plan_id
         changes.append(f"Plan changed to {new_plan.name}")
 
     if request.billing_cycle and request.billing_cycle != subscription.billing_cycle:
-        subscription.billing_cycle = request.billing_cycle
-        subscription.end_date = get_billing_period_end(subscription.start_date, request.billing_cycle)
+        update_data["billing_cycle"] = request.billing_cycle
+        update_data["end_date"] = get_billing_period_end(subscription.start_date, request.billing_cycle)
         changes.append(f"Billing cycle changed to {request.billing_cycle.value}")
 
     if request.payment_method:
-        subscription.payment_method = request.payment_method
+        update_data["payment_method"] = request.payment_method
         changes.append(f"Payment method set to {request.payment_method.value}")
 
-    subscription.updated_at = datetime.utcnow()
+    # Update subscription in database
+    if update_data:
+        subscription = await repo.subscriptions.update(subscription.id, **update_data)
 
     return {
         "success": True,
-        "subscription": subscription.dict(),
+        "subscription": {
+            "subscription_id": str(subscription.id),
+            "tenant_id": subscription.tenant_id,
+            "plan_id": subscription.plan_id,
+            "status": subscription.status.value,
+            "billing_cycle": subscription.billing_cycle.value,
+            "end_date": subscription.end_date.isoformat(),
+        },
         "changes": changes,
     }
 
@@ -1110,27 +1182,23 @@ async def cancel_subscription(
     tenant_id: str,
     immediate: bool = False,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """إلغاء الاشتراك"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    subscription = None
-    for sub in SUBSCRIPTIONS.values():
-        if sub.tenant_id == tenant_id:
-            subscription = sub
-            break
+    repo = BillingRepository(db)
 
+    # Get subscription first
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
     if not subscription:
         raise HTTPException(404, "لا يوجد اشتراك")
 
-    subscription.canceled_at = datetime.utcnow()
-
-    if immediate:
-        subscription.status = SubscriptionStatus.CANCELED
-        subscription.end_date = date.today()
-    else:
-        # Will be canceled at end of billing period
-        subscription.status = SubscriptionStatus.ACTIVE  # Keep active until end
+    # Cancel it
+    subscription = await repo.subscriptions.cancel(
+        subscription_id=subscription.id,
+        immediate=immediate,
+    )
 
     logger.info(f"Subscription canceled for tenant {tenant_id}, immediate={immediate}")
 
@@ -1157,18 +1225,20 @@ async def record_usage(
     """تسجيل استخدام"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    if tenant_id not in TENANTS:
+    repo = BillingRepository(db)
+
+    # Check tenant exists in database
+    tenant = await repo.tenants.get_by_tenant_id(tenant_id)
+    if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
 
     # Get subscription
-    repo = BillingRepository(db)
     subscription = await repo.subscriptions.get_by_tenant(tenant_id)
-
     if not subscription:
         raise HTTPException(404, "لا يوجد اشتراك نشط")
 
     # Check limit before recording
-    limit_check = check_usage_limit(tenant_id, request.metric)
+    limit_check = await check_usage_limit_db(db, tenant_id, request.metric)
     if not limit_check["allowed"]:
         raise HTTPException(
             429,
@@ -1195,32 +1265,31 @@ async def record_usage(
 async def get_quota(
     tenant_id: str,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """حالة الحصة والاستخدام"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    tenant = TENANTS.get(tenant_id)
+    repo = BillingRepository(db)
+
+    # Get tenant from database
+    tenant = await repo.tenants.get_by_tenant_id(tenant_id)
     if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
 
     # Get subscription and plan
-    subscription = None
-    for sub in SUBSCRIPTIONS.values():
-        if sub.tenant_id == tenant_id:
-            subscription = sub
-            break
-
+    subscription = await repo.subscriptions.get_by_tenant(tenant_id)
     if not subscription:
         return {"error": "لا يوجد اشتراك نشط"}
 
-    plan = PLANS.get(subscription.plan_id)
+    plan = await repo.plans.get_by_plan_id(subscription.plan_id)
     if not plan:
         return {"error": "الخطة غير موجودة"}
 
     # Calculate usage for each metric
     usage_summary = {}
     for metric, limit in plan.limits.items():
-        check = check_usage_limit(tenant_id, metric)
+        check = await check_usage_limit_db(db, tenant_id, metric)
         usage_summary[metric] = {
             "limit": limit if limit != -1 else "unlimited",
             "used": check.get("used", 0),
@@ -1243,12 +1312,13 @@ async def enforce_quota(
     x_tenant_id: Optional[str] = Header(default=None),
     metric: str = Query(...),
     api_key: str = Depends(api_key_auth),  # Service-to-service auth
+    db: AsyncSession = Depends(get_db),
 ):
     """التحقق من الصلاحيات (للـ Gateway)"""
     if not x_tenant_id:
         raise HTTPException(400, "Missing x-tenant-id header")
 
-    check = check_usage_limit(x_tenant_id, metric)
+    check = await check_usage_limit_db(db, x_tenant_id, metric)
 
     if not check["allowed"]:
         raise HTTPException(
@@ -1280,22 +1350,42 @@ async def list_invoices(
     status: Optional[InvoiceStatus] = None,
     limit: int = Query(default=20, le=100),
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """قائمة الفواتير"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    if tenant_id not in TENANTS:
+    repo = BillingRepository(db)
+
+    # Check tenant exists
+    tenant = await repo.tenants.get_by_tenant_id(tenant_id)
+    if not tenant:
         raise HTTPException(404, "المستأجر غير موجود")
 
-    invoices = [inv for inv in INVOICES.values() if inv.tenant_id == tenant_id]
-
-    if status:
-        invoices = [inv for inv in invoices if inv.status == status]
-
-    invoices.sort(key=lambda x: x.issue_date, reverse=True)
+    # Get invoices from database
+    db_status = db_models.InvoiceStatus(status.value) if status else None
+    invoices = await repo.invoices.list_by_tenant(
+        tenant_id=tenant_id,
+        status=db_status,
+        limit=limit,
+    )
 
     return {
-        "invoices": [inv.dict() for inv in invoices[:limit]],
+        "invoices": [
+            {
+                "invoice_id": str(inv.id),
+                "invoice_number": inv.invoice_number,
+                "tenant_id": inv.tenant_id,
+                "status": inv.status.value,
+                "currency": inv.currency.value,
+                "total": float(inv.total),
+                "amount_due": float(inv.amount_due),
+                "issue_date": inv.issue_date.isoformat(),
+                "due_date": inv.due_date.isoformat(),
+                "paid_date": inv.paid_date.isoformat() if inv.paid_date else None,
+            }
+            for inv in invoices
+        ],
         "total": len(invoices),
     }
 
@@ -1304,21 +1394,54 @@ async def list_invoices(
 async def get_invoice(
     invoice_id: str,
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """تفاصيل فاتورة"""
-    invoice = INVOICES.get(invoice_id)
+    try:
+        invoice_uuid = uuid.UUID(invoice_id)
+    except (ValueError, AttributeError):
+        raise HTTPException(400, "معرف فاتورة غير صالح")
+
+    repo = BillingRepository(db)
+    invoice = await repo.invoices.get_by_id(invoice_uuid)
+
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
 
     # Verify tenant access for this invoice
     require_tenant_or_admin(current_user, invoice.tenant_id)
 
-    tenant = TENANTS.get(invoice.tenant_id)
+    # Get tenant
+    tenant = await repo.tenants.get_by_tenant_id(invoice.tenant_id)
 
     return {
-        "invoice": invoice.dict(),
-        "tenant": tenant.dict() if tenant else None,
-        "amount_yer": float(convert_to_yer(invoice.total)) if invoice.currency == Currency.USD else float(invoice.total),
+        "invoice": {
+            "invoice_id": str(invoice.id),
+            "invoice_number": invoice.invoice_number,
+            "tenant_id": invoice.tenant_id,
+            "subscription_id": str(invoice.subscription_id),
+            "status": invoice.status.value,
+            "currency": invoice.currency.value,
+            "issue_date": invoice.issue_date.isoformat(),
+            "due_date": invoice.due_date.isoformat(),
+            "paid_date": invoice.paid_date.isoformat() if invoice.paid_date else None,
+            "subtotal": float(invoice.subtotal),
+            "tax_amount": float(invoice.tax_amount),
+            "discount_amount": float(invoice.discount_amount),
+            "total": float(invoice.total),
+            "amount_paid": float(invoice.amount_paid),
+            "amount_due": float(invoice.amount_due),
+            "line_items": invoice.line_items,
+            "notes": invoice.notes,
+            "notes_ar": invoice.notes_ar,
+        },
+        "tenant": {
+            "tenant_id": tenant.tenant_id,
+            "name": tenant.name,
+            "name_ar": tenant.name_ar,
+            "contact": tenant.contact,
+        } if tenant else None,
+        "amount_yer": float(convert_to_yer(invoice.total)) if invoice.currency == db_models.Currency.USD else float(invoice.total),
     }
 
 
@@ -1339,12 +1462,12 @@ async def generate_tenant_invoice(
     if not subscription:
         raise HTTPException(404, "لا يوجد اشتراك")
 
-    # Generate invoice data
-    plan = PLANS.get(subscription.plan_id)
+    # Generate invoice data - get plan from database
+    plan = await repo.plans.get_by_plan_id(subscription.plan_id)
     if not plan:
         raise HTTPException(404, "الخطة غير موجودة")
 
-    price = get_plan_price(plan, subscription.billing_cycle)
+    price = get_plan_price(plan.pricing, subscription.billing_cycle)
 
     line_items = [
         {
@@ -1581,15 +1704,29 @@ async def list_payments(
     tenant_id: str,
     limit: int = Query(default=20, le=100),
     current_user=Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """قائمة المدفوعات"""
     require_tenant_or_admin(current_user, tenant_id)
 
-    payments = [p for p in PAYMENTS.values() if p.tenant_id == tenant_id]
-    payments.sort(key=lambda x: x.created_at, reverse=True)
+    repo = BillingRepository(db)
+    payments = await repo.payments.list_by_tenant(tenant_id=tenant_id, limit=limit)
 
     return {
-        "payments": [p.dict() for p in payments[:limit]],
+        "payments": [
+            {
+                "payment_id": str(p.id),
+                "invoice_id": str(p.invoice_id),
+                "tenant_id": p.tenant_id,
+                "amount": float(p.amount),
+                "currency": p.currency.value,
+                "status": p.status.value,
+                "method": p.method.value,
+                "created_at": p.created_at.isoformat(),
+                "paid_at": p.paid_at.isoformat() if p.paid_at else None,
+            }
+            for p in payments
+        ],
         "total": len(payments),
     }
 

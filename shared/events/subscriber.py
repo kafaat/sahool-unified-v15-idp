@@ -33,12 +33,20 @@ import asyncio
 import json
 import logging
 import os
+import traceback
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field, ValidationError
 
 from .contracts import BaseEvent
+from .dlq_config import (
+    DLQConfig,
+    DLQMessageMetadata,
+    create_dlq_streams,
+    is_retriable_error,
+    should_retry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +93,7 @@ class SubscriberConfig(BaseModel):
     enable_jetstream: bool = Field(default=True, description="Use JetStream consumers")
     jetstream_domain: Optional[str] = Field(None, description="JetStream domain")
 
-    # Error handling
+    # Error handling (DEPRECATED - use dlq_config instead)
     enable_error_retry: bool = Field(default=True, description="Retry failed messages")
     max_error_retries: int = Field(default=3, description="Maximum error retries per message")
     error_retry_delay: float = Field(default=1.0, description="Delay between error retries")
@@ -93,6 +101,10 @@ class SubscriberConfig(BaseModel):
     # Performance
     max_concurrent_messages: int = Field(default=10, description="Max concurrent message processing")
     pending_messages_limit: int = Field(default=1000, description="Pending messages limit")
+
+    # Dead Letter Queue
+    enable_dlq: bool = Field(default=True, description="Enable Dead Letter Queue for failed messages")
+    dlq_config: Optional[DLQConfig] = Field(None, description="DLQ configuration (uses defaults if None)")
 
 
 class Subscription(BaseModel):
@@ -160,7 +172,13 @@ class EventSubscriber:
         # Statistics
         self._message_count = 0
         self._error_count = 0
+        self._dlq_count = 0
+        self._retry_count = 0
         self._processing_semaphore = asyncio.Semaphore(self.config.max_concurrent_messages)
+
+        # DLQ configuration
+        self._dlq_config = self.config.dlq_config or DLQConfig()
+        self._dlq_initialized = False
 
     @property
     def is_connected(self) -> bool:
@@ -174,9 +192,12 @@ class EventSubscriber:
             "connected": self._connected,
             "message_count": self._message_count,
             "error_count": self._error_count,
+            "dlq_count": self._dlq_count,
+            "retry_count": self._retry_count,
             "active_subscriptions": len(self._subscriptions),
             "service_name": self.service_name,
             "service_version": self.service_version,
+            "dlq_enabled": self.config.enable_dlq,
         }
 
     async def connect(self) -> bool:
@@ -214,6 +235,15 @@ class EventSubscriber:
             if self.config.enable_jetstream:
                 self._js = self._nc.jetstream(domain=self.config.jetstream_domain)
                 logger.info("✅ JetStream enabled")
+
+                # Initialize DLQ streams if enabled
+                if self.config.enable_dlq and not self._dlq_initialized:
+                    try:
+                        await create_dlq_streams(self._js, self._dlq_config)
+                        self._dlq_initialized = True
+                        logger.info(f"✅ DLQ initialized (max retries: {self._dlq_config.max_retry_attempts})")
+                    except Exception as e:
+                        logger.warning(f"⚠️  Failed to initialize DLQ: {e}")
 
             self._connected = True
             logger.info(f"✅ Connected to NATS: {self.config.servers}")
@@ -403,15 +433,30 @@ class EventSubscriber:
 
     async def _message_handler(self, msg: Msg, subscription: Subscription):
         """
-        Handle incoming NATS message.
-        معالجة رسالة NATS الواردة
+        Handle incoming NATS message with DLQ support.
+        معالجة رسالة NATS الواردة مع دعم قائمة الرسائل الفاشلة
         """
         async with self._processing_semaphore:
+            # Get retry count from message headers
+            retry_count = 0
+            retry_timestamps = []
+            retry_errors = []
+
+            if hasattr(msg, "headers") and msg.headers:
+                retry_count = int(msg.headers.get("Nats-Retry-Count", "0"))
+                retry_timestamps_str = msg.headers.get("Nats-Retry-Timestamps", "")
+                retry_errors_str = msg.headers.get("Nats-Retry-Errors", "")
+
+                if retry_timestamps_str:
+                    retry_timestamps = retry_timestamps_str.split(",")
+                if retry_errors_str:
+                    retry_errors = retry_errors_str.split("||")
+
             try:
                 subject = msg.subject
                 data = msg.data.decode("utf-8")
 
-                logger.debug(f"📨 Received message on {subject}: {len(data)} bytes")
+                logger.debug(f"📨 Received message on {subject}: {len(data)} bytes (retry: {retry_count})")
 
                 # Deserialize message
                 event = await self._deserialize_message(data, subscription.event_class)
@@ -433,8 +478,23 @@ class EventSubscriber:
                 logger.error(f"❌ Error processing message on {msg.subject}: {e}")
                 self._error_count += 1
 
-                # Retry if enabled
-                if self.config.enable_error_retry:
+                # Record retry attempt
+                retry_timestamps.append(datetime.utcnow().isoformat())
+                retry_errors.append(str(e)[:200])  # Truncate error message
+
+                # Check if we should retry or move to DLQ
+                if self.config.enable_dlq and self._dlq_config:
+                    # Use DLQ logic
+                    await self._handle_failed_message_with_dlq(
+                        msg=msg,
+                        subscription=subscription,
+                        error=e,
+                        retry_count=retry_count,
+                        retry_timestamps=retry_timestamps,
+                        retry_errors=retry_errors,
+                    )
+                elif self.config.enable_error_retry:
+                    # Legacy retry logic (deprecated)
                     await self._retry_message(msg, subscription, attempt=1)
                 else:
                     # NAK the message if using JetStream
@@ -617,3 +677,15 @@ async def close_subscriber():
     if _subscriber_instance:
         await _subscriber_instance.close()
         _subscriber_instance = None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Add DLQ Methods to EventSubscriber
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Import and add DLQ methods to EventSubscriber
+try:
+    from . import subscriber_dlq
+    subscriber_dlq.add_dlq_methods_to_subscriber(EventSubscriber)
+except Exception as e:
+    logger.warning(f"Failed to add DLQ methods to EventSubscriber: {e}")

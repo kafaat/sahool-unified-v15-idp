@@ -22,16 +22,45 @@ function LoginForm() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // 2FA states
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [tempToken, setTempToken] = useState('');
+  const [twoFACode, setTwoFACode] = useState('');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      router.push(returnTo);
+      const result = await login(email, password, requires2FA ? twoFACode : undefined);
+
+      // Check if 2FA is required
+      if (result && typeof result === 'object' && 'requires_2fa' in result && result.requires_2fa) {
+        setRequires2FA(true);
+        setTempToken(result.temp_token || '');
+        setError('');
+      } else {
+        router.push(returnTo);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'فشل تسجيل الدخول');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handle2FASubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      // Call 2FA verification endpoint
+      await login(email, password, twoFACode);
+      router.push(returnTo);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'رمز التحقق غير صحيح');
     } finally {
       setIsLoading(false);
     }
@@ -52,7 +81,7 @@ function LoginForm() {
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-            تسجيل الدخول
+            {requires2FA ? 'التحقق الثنائي' : 'تسجيل الدخول'}
           </h2>
 
           {error && (
@@ -61,63 +90,103 @@ function LoginForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                البريد الإلكتروني
-              </label>
-              <div className="relative">
-                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                  placeholder="admin@sahool.io"
-                  required
-                  dir="ltr"
-                />
-              </div>
+          {requires2FA && (
+            <div className="bg-blue-50 text-blue-700 p-4 rounded-lg mb-6 text-sm">
+              أدخل رمز التحقق من تطبيق المصادقة أو استخدم رمز النسخ الاحتياطي
             </div>
+          )}
 
-            {/* Password Field */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                كلمة المرور
-              </label>
-              <div className="relative">
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pr-10 pl-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                  placeholder="••••••••"
-                  required
-                  dir="ltr"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          <form onSubmit={requires2FA ? handle2FASubmit : handleSubmit} className="space-y-5">
+            {!requires2FA && (
+              <>
+                {/* Email Field */}
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    البريد الإلكتروني
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                      placeholder="admin@sahool.io"
+                      required
+                      dir="ltr"
+                    />
+                  </div>
+                </div>
+
+                {/* Password Field */}
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    كلمة المرور
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pr-10 pl-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
+                      placeholder="••••••••"
+                      required
+                      dir="ltr"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-5 h-5" />
+                      ) : (
+                        <Eye className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {requires2FA && (
+              /* 2FA Code Field */
+              <div>
+                <label
+                  htmlFor="twoFACode"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
-                </button>
+                  رمز التحقق
+                </label>
+                <div className="relative">
+                  <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    id="twoFACode"
+                    type="text"
+                    value={twoFACode}
+                    onChange={(e) => setTwoFACode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    className="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition text-center text-2xl tracking-widest"
+                    placeholder="000000"
+                    required
+                    maxLength={6}
+                    dir="ltr"
+                    autoFocus
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  أدخل الرمز المكون من 6 أرقام من تطبيق المصادقة
+                </p>
               </div>
-            </div>
+            )}
 
             {/* Submit Button */}
             <button
@@ -128,12 +197,27 @@ function LoginForm() {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>جاري تسجيل الدخول...</span>
+                  <span>{requires2FA ? 'جاري التحقق...' : 'جاري تسجيل الدخول...'}</span>
                 </>
               ) : (
-                <span>تسجيل الدخول</span>
+                <span>{requires2FA ? 'تحقق' : 'تسجيل الدخول'}</span>
               )}
             </button>
+
+            {/* Back button for 2FA */}
+            {requires2FA && (
+              <button
+                type="button"
+                onClick={() => {
+                  setRequires2FA(false);
+                  setTwoFACode('');
+                  setError('');
+                }}
+                className="w-full text-green-600 py-2 px-4 rounded-lg font-medium hover:bg-green-50 transition"
+              >
+                العودة لتسجيل الدخول
+              </button>
+            )}
           </form>
 
           {/* Demo Credentials (Development Only) */}

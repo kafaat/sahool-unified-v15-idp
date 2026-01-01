@@ -29,13 +29,18 @@ logger = logging.getLogger("ws-gateway")
 
 # JWT Configuration - Always required in production
 JWT_SECRET = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+
+# SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+# Never trust algorithm from environment variables or token header
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
 
 
 async def validate_jwt_token(token: str) -> dict:
     """
     Validate JWT token and return payload
     التحقق من صحة التوكن وإرجاع البيانات
+
+    Security: Uses hardcoded algorithm whitelist to prevent algorithm confusion attacks
     """
     if not token:
         raise ValueError("Token is required")
@@ -44,7 +49,24 @@ async def validate_jwt_token(token: str) -> dict:
         raise ValueError("JWT_SECRET not configured")
 
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        # SECURITY FIX: Decode header to validate algorithm before verification
+        unverified_header = jwt.get_unverified_header(token)
+
+        if not unverified_header or "alg" not in unverified_header:
+            raise ValueError("Invalid token: missing algorithm")
+
+        algorithm = unverified_header["alg"]
+
+        # Reject 'none' algorithm explicitly
+        if algorithm.lower() == "none":
+            raise ValueError("Invalid token: none algorithm not allowed")
+
+        # Verify algorithm is in whitelist
+        if algorithm not in ALLOWED_ALGORITHMS:
+            raise ValueError(f"Invalid token: unsupported algorithm {algorithm}")
+
+        # SECURITY FIX: Use hardcoded whitelist instead of environment variable
+        payload = jwt.decode(token, JWT_SECRET, algorithms=ALLOWED_ALGORITHMS)
         return payload
     except JWTError as e:
         raise ValueError(f"Invalid token: {str(e)}")

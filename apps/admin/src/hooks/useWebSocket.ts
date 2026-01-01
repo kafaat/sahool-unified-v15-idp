@@ -120,7 +120,8 @@ export function useWebSocket(
   // Subscribe function
   const subscribe = useCallback(
     <T = unknown>(event: EventType, handler: (data: T) => void) => {
-      return clientRef.current.on<T>(event as any, handler);
+      // EventType is compatible with the WebSocketClient's event type
+      return clientRef.current.on<T>(event, handler);
     },
     []
   );

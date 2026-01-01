@@ -56,7 +56,7 @@ upstreams:
   - name: ai-advisor-upstream
     algorithm: round-robin
     targets:
-      - target: ai_advisor:8112
+      - target: ai-advisor:8112
         weight: 100
     healthchecks:
       active:
@@ -86,7 +86,7 @@ upstreams:
   - name: iot-gateway-upstream
     algorithm: round-robin
     targets:
-      - target: iot_gateway:8106
+      - target: iot-gateway:8106
         weight: 100
     healthchecks:
       active:
@@ -96,7 +96,7 @@ upstreams:
   - name: iot-service-upstream
     algorithm: round-robin
     targets:
-      - target: iot_service:8117
+      - target: iot-service:8117
         weight: 100
     healthchecks:
       active:
@@ -106,7 +106,7 @@ upstreams:
   - name: virtual-sensors-upstream
     algorithm: round-robin
     targets:
-      - target: virtual_sensors:8096
+      - target: virtual-sensors:8096
         weight: 100
     healthchecks:
       active:
@@ -116,7 +116,7 @@ upstreams:
   - name: marketplace-service-upstream
     algorithm: round-robin
     targets:
-      - target: marketplace_service:3010
+      - target: marketplace-service:3010
         weight: 100
     healthchecks:
       active:
@@ -126,7 +126,7 @@ upstreams:
   - name: billing-core-upstream
     algorithm: round-robin
     targets:
-      - target: billing_core:8089
+      - target: billing-core:8089
         weight: 100
     healthchecks:
       active:
@@ -136,7 +136,7 @@ upstreams:
   - name: notification-service-upstream
     algorithm: round-robin
     targets:
-      - target: notification_service:8110
+      - target: notification-service:8110
         weight: 100
     healthchecks:
       active:
@@ -146,7 +146,7 @@ upstreams:
   - name: research-core-upstream
     algorithm: round-robin
     targets:
-      - target: research_core:3015
+      - target: research-core:3015
         weight: 100
     healthchecks:
       active:
@@ -156,7 +156,7 @@ upstreams:
   - name: disaster-assessment-upstream
     algorithm: round-robin
     targets:
-      - target: disaster_assessment:3020
+      - target: disaster-assessment:3020
         weight: 100
     healthchecks:
       active:
@@ -413,7 +413,7 @@ services:
   # محرك NDVI - NDVI Engine
   # ============================================================================
   - name: ndvi-engine
-    url: http://ndvi_engine:8107
+    url: http://ndvi-engine:8107
     tags:
       - professional
       - analytics
@@ -611,7 +611,7 @@ services:
   # خدمة المخزون - Inventory Service
   # ============================================================================
   - name: inventory-service
-    url: http://inventory_service:8116
+    url: http://inventory-service:8116
     tags:
       - professional
       - inventory
@@ -687,7 +687,7 @@ services:
   # بوابة إنترنت الأشياء - IoT Gateway
   # ============================================================================
   - name: iot-gateway
-    url: http://iot_gateway:8106
+    url: http://iot-gateway:8106
     tags:
       - enterprise
       - iot
@@ -1289,7 +1289,7 @@ services:
   # خدمة التنبيهات - Alert Service
   # ============================================================================
   - name: alert-service
-    url: http://alert_service:8113
+    url: http://alert-service:8113
     tags:
       - shared
       - alerts
@@ -1401,7 +1401,7 @@ services:
   # معالج NDVI - NDVI Processor
   # ============================================================================
   - name: ndvi-processor
-    url: http://ndvi_processor:8118
+    url: http://ndvi-processor:8118
     tags:
       - professional
       - analytics

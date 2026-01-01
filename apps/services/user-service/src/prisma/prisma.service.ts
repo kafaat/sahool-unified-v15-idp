@@ -42,20 +42,24 @@ export class PrismaService
       createPrismaEncryptionMiddleware(encryptionConfig, {
         debug: process.env.CRYPTO_DEBUG === 'true',
         onError: (error, context) => {
+          // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
           console.error(
-            `[Encryption Error] ${context.operation} failed for ${context.model}.${context.field}:`,
+            '[Encryption Error] %s failed for %s.%s: %s',
+            context.operation,
+            context.model,
+            context.field,
             error.message
           );
         },
       })
     );
 
-    console.log('🔐 Field-level encryption enabled for User Service');
+    console.log('Field-level encryption enabled for User Service');
   }
 
   async onModuleInit() {
     await this.$connect();
-    console.log('📦 User Service Database connected successfully');
+    console.log('User Service Database connected successfully');
   }
 
   async onModuleDestroy() {

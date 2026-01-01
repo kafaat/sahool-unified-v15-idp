@@ -25,7 +25,9 @@ class WeatherForecastUpdatedEvent(BaseEvent):
     def _payload_to_dict(self) -> Dict[str, Any]:
         return {
             "location_id": self.location_id,
-            "forecast_date": self.forecast_date.isoformat() if self.forecast_date else None,
+            "forecast_date": (
+                self.forecast_date.isoformat() if self.forecast_date else None
+            ),
             "temperature_min": self.temperature_min,
             "temperature_max": self.temperature_max,
             "precipitation_mm": self.precipitation_mm,

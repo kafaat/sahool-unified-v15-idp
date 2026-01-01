@@ -146,7 +146,9 @@ class HallucinationDetector:
             confidence_score -= 0.1
 
         # Check for contradictions (simple check: repeated negations)
-        negations = len(re.findall(r"\b(not|no|never|neither|nor)\b", text, re.IGNORECASE))
+        negations = len(
+            re.findall(r"\b(not|no|never|neither|nor)\b", text, re.IGNORECASE)
+        )
         if negations > len(text.split()) * 0.1:  # More than 10% negations
             markers.append("excessive_negations")
             confidence_score -= 0.1
@@ -217,9 +219,7 @@ class SafetyContentChecker:
         ]
 
         # Compile patterns
-        self.harmful_regex = re.compile(
-            "|".join(self.harmful_patterns), re.IGNORECASE
-        )
+        self.harmful_regex = re.compile("|".join(self.harmful_patterns), re.IGNORECASE)
         self.dangerous_ag_regex = re.compile(
             "|".join(self.dangerous_agricultural_patterns), re.IGNORECASE
         )
@@ -251,8 +251,7 @@ class SafetyContentChecker:
             r"that would be (dangerous|harmful|illegal)",
         ]
         refusal_count = sum(
-            1 for pattern in refusal_patterns
-            if re.search(pattern, text, re.IGNORECASE)
+            1 for pattern in refusal_patterns if re.search(pattern, text, re.IGNORECASE)
         )
         if refusal_count > 2:
             issues.append("excessive_refusals")
@@ -300,7 +299,9 @@ class CitationChecker:
         if language == "ar":
             reminder = "\n\nملاحظة: يُرجى الرجوع إلى مصادر موثوقة للتحقق."
         else:
-            reminder = "\n\nNote: Please refer to authoritative sources for verification."
+            reminder = (
+                "\n\nNote: Please refer to authoritative sources for verification."
+            )
 
         return text + reminder
 
@@ -332,9 +333,7 @@ class PIILeakageDetector:
             r"(بريدي|هاتفي|عنواني) هو",
         ]
 
-        self.leakage_regex = re.compile(
-            "|".join(self.leakage_patterns), re.IGNORECASE
-        )
+        self.leakage_regex = re.compile("|".join(self.leakage_patterns), re.IGNORECASE)
 
     def detect_leakage(self, text: str) -> Tuple[bool, Dict[str, int]]:
         """
@@ -421,6 +420,7 @@ class OutputFilter:
 
                 if mask_pii:
                     from .input_filter import PIIDetector
+
                     pii_detector = PIIDetector()
                     filtered_output, _ = pii_detector.detect_and_mask(filtered_output)
                     warnings.append("PII masked in output")
@@ -464,17 +464,16 @@ class OutputFilter:
             metadata["disclaimer_added"] = True
 
         # Determine overall safety
-        is_safe = (
-            not metadata.get("safety_issues")
-            and confidence_score > 0.5
-        )
+        is_safe = not metadata.get("safety_issues") and confidence_score > 0.5
 
         safety_level = (
             ContentSafetyLevel.HIGH_RISK
             if metadata.get("safety_issues")
-            else ContentSafetyLevel.MEDIUM_RISK
-            if has_hallucination_markers or metadata.get("pii_leakage")
-            else ContentSafetyLevel.SAFE
+            else (
+                ContentSafetyLevel.MEDIUM_RISK
+                if has_hallucination_markers or metadata.get("pii_leakage")
+                else ContentSafetyLevel.SAFE
+            )
         )
 
         return OutputFilterResult(

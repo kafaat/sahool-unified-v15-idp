@@ -25,9 +25,14 @@ router = APIRouter(prefix="/v1/channels", tags=["Channels"])
 
 class AddChannelRequest(BaseModel):
     """طلب إضافة قناة - Add Channel Request"""
+
     user_id: str = Field(..., description="User ID")
-    channel_type: str = Field(..., description="Channel type: email, sms, push, whatsapp, in_app")
-    address: str = Field(..., description="Channel address (email, phone, FCM token, etc.)")
+    channel_type: str = Field(
+        ..., description="Channel type: email, sms, push, whatsapp, in_app"
+    )
+    address: str = Field(
+        ..., description="Channel address (email, phone, FCM token, etc.)"
+    )
     tenant_id: Optional[str] = Field(None, description="Tenant ID for multi-tenancy")
     metadata: Optional[Dict[str, Any]] = Field(None, description="Additional metadata")
 
@@ -38,13 +43,14 @@ class AddChannelRequest(BaseModel):
                 "channel_type": "email",
                 "address": "farmer@example.com",
                 "tenant_id": "tenant-1",
-                "metadata": {"device": "web"}
+                "metadata": {"device": "web"},
             }
         }
 
 
 class VerifyChannelRequest(BaseModel):
     """طلب تحقق من قناة - Verify Channel Request"""
+
     channel_id: str = Field(..., description="Channel ID")
     verification_code: str = Field(..., description="Verification code")
     user_id: str = Field(..., description="User ID")
@@ -54,13 +60,14 @@ class VerifyChannelRequest(BaseModel):
             "example": {
                 "channel_id": "550e8400-e29b-41d4-a716-446655440000",
                 "verification_code": "123456",
-                "user_id": "farmer-123"
+                "user_id": "farmer-123",
             }
         }
 
 
 class UpdateChannelStatusRequest(BaseModel):
     """طلب تحديث حالة قناة - Update Channel Status Request"""
+
     channel_id: str = Field(..., description="Channel ID")
     user_id: str = Field(..., description="User ID")
     enabled: bool = Field(..., description="Whether channel should be enabled")
@@ -70,7 +77,7 @@ class UpdateChannelStatusRequest(BaseModel):
             "example": {
                 "channel_id": "550e8400-e29b-41d4-a716-446655440000",
                 "user_id": "farmer-123",
-                "enabled": True
+                "enabled": True,
             }
         }
 
@@ -132,7 +139,11 @@ async def verify_channel(request: VerifyChannelRequest):
 
         return {
             "success": result["success"],
-            "message": "تم التحقق من القناة بنجاح - Channel verified successfully" if result["success"] else "رمز التحقق غير صحيح - Invalid verification code",
+            "message": (
+                "تم التحقق من القناة بنجاح - Channel verified successfully"
+                if result["success"]
+                else "رمز التحقق غير صحيح - Invalid verification code"
+            ),
             "message_en": result["message"],
             "data": result,
         }
@@ -161,7 +172,11 @@ async def remove_channel(
 
         return {
             "success": result["success"],
-            "message": "تم حذف القناة بنجاح - Channel removed successfully" if result["success"] else "فشل حذف القناة - Failed to remove channel",
+            "message": (
+                "تم حذف القناة بنجاح - Channel removed successfully"
+                if result["success"]
+                else "فشل حذف القناة - Failed to remove channel"
+            ),
             "message_en": result["message"],
         }
 

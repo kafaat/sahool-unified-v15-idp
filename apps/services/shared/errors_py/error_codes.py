@@ -13,16 +13,17 @@ from http import HTTPStatus
 
 class ErrorCategory(str, Enum):
     """Error Code Categories - فئات أكواد الأخطاء"""
-    VALIDATION = "VALIDATION"           # أخطاء التحقق من صحة البيانات
-    AUTHENTICATION = "AUTHENTICATION"   # أخطاء المصادقة
-    AUTHORIZATION = "AUTHORIZATION"     # أخطاء التفويض
-    NOT_FOUND = "NOT_FOUND"             # الموارد غير الموجودة
-    CONFLICT = "CONFLICT"               # تعارض في البيانات
-    BUSINESS_LOGIC = "BUSINESS_LOGIC"   # أخطاء منطق الأعمال
+
+    VALIDATION = "VALIDATION"  # أخطاء التحقق من صحة البيانات
+    AUTHENTICATION = "AUTHENTICATION"  # أخطاء المصادقة
+    AUTHORIZATION = "AUTHORIZATION"  # أخطاء التفويض
+    NOT_FOUND = "NOT_FOUND"  # الموارد غير الموجودة
+    CONFLICT = "CONFLICT"  # تعارض في البيانات
+    BUSINESS_LOGIC = "BUSINESS_LOGIC"  # أخطاء منطق الأعمال
     EXTERNAL_SERVICE = "EXTERNAL_SERVICE"  # أخطاء الخدمات الخارجية
-    DATABASE = "DATABASE"               # أخطاء قاعدة البيانات
-    INTERNAL = "INTERNAL"               # أخطاء داخلية
-    RATE_LIMIT = "RATE_LIMIT"           # تجاوز الحد المسموح
+    DATABASE = "DATABASE"  # أخطاء قاعدة البيانات
+    INTERNAL = "INTERNAL"  # أخطاء داخلية
+    RATE_LIMIT = "RATE_LIMIT"  # تجاوز الحد المسموح
 
 
 class ErrorCode(str, Enum):
@@ -125,12 +126,14 @@ class ErrorCode(str, Enum):
 
 class BilingualMessage(NamedTuple):
     """Bilingual Error Message - رسالة خطأ ثنائية اللغة"""
+
     en: str  # English message
     ar: str  # Arabic message - الرسالة العربية
 
 
 class ErrorCodeMetadata(NamedTuple):
     """Error Code Metadata - بيانات كود الخطأ الوصفية"""
+
     code: ErrorCode
     category: ErrorCategory
     http_status: int
@@ -146,8 +149,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
         message=BilingualMessage(
-            en="Validation error occurred",
-            ar="حدث خطأ في التحقق من صحة البيانات"
+            en="Validation error occurred", ar="حدث خطأ في التحقق من صحة البيانات"
         ),
         retryable=False,
     ),
@@ -156,8 +158,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
         message=BilingualMessage(
-            en="Invalid input provided",
-            ar="تم تقديم بيانات غير صالحة"
+            en="Invalid input provided", ar="تم تقديم بيانات غير صالحة"
         ),
         retryable=False,
     ),
@@ -166,8 +167,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
         message=BilingualMessage(
-            en="Required field is missing",
-            ar="حقل مطلوب غير موجود"
+            en="Required field is missing", ar="حقل مطلوب غير موجود"
         ),
         retryable=False,
     ),
@@ -175,10 +175,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_FORMAT,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Invalid format",
-            ar="تنسيق غير صالح"
-        ),
+        message=BilingualMessage(en="Invalid format", ar="تنسيق غير صالح"),
         retryable=False,
     ),
     ErrorCode.INVALID_EMAIL: ErrorCodeMetadata(
@@ -186,8 +183,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
         message=BilingualMessage(
-            en="Invalid email format",
-            ar="تنسيق البريد الإلكتروني غير صالح"
+            en="Invalid email format", ar="تنسيق البريد الإلكتروني غير صالح"
         ),
         retryable=False,
     ),
@@ -196,8 +192,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
         message=BilingualMessage(
-            en="Invalid phone number format",
-            ar="تنسيق رقم الهاتف غير صالح"
+            en="Invalid phone number format", ar="تنسيق رقم الهاتف غير صالح"
         ),
         retryable=False,
     ),
@@ -205,10 +200,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_DATE,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Invalid date format",
-            ar="تنسيق التاريخ غير صالح"
-        ),
+        message=BilingualMessage(en="Invalid date format", ar="تنسيق التاريخ غير صالح"),
         retryable=False,
     ),
     ErrorCode.INVALID_RANGE: ErrorCodeMetadata(
@@ -216,8 +208,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
         message=BilingualMessage(
-            en="Value is outside the valid range",
-            ar="القيمة خارج النطاق الصحيح"
+            en="Value is outside the valid range", ar="القيمة خارج النطاق الصحيح"
         ),
         retryable=False,
     ),
@@ -225,22 +216,15 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.INVALID_ENUM_VALUE,
         category=ErrorCategory.VALIDATION,
         http_status=HTTPStatus.BAD_REQUEST,
-        message=BilingualMessage(
-            en="Invalid enum value",
-            ar="قيمة التعداد غير صالحة"
-        ),
+        message=BilingualMessage(en="Invalid enum value", ar="قيمة التعداد غير صالحة"),
         retryable=False,
     ),
-
     # Authentication Errors
     ErrorCode.AUTHENTICATION_FAILED: ErrorCodeMetadata(
         code=ErrorCode.AUTHENTICATION_FAILED,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Authentication failed",
-            ar="فشلت المصادقة"
-        ),
+        message=BilingualMessage(en="Authentication failed", ar="فشلت المصادقة"),
         retryable=False,
     ),
     ErrorCode.INVALID_CREDENTIALS: ErrorCodeMetadata(
@@ -248,8 +232,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
         message=BilingualMessage(
-            en="Invalid credentials provided",
-            ar="بيانات اعتماد غير صالحة"
+            en="Invalid credentials provided", ar="بيانات اعتماد غير صالحة"
         ),
         retryable=False,
     ),
@@ -258,8 +241,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
         message=BilingualMessage(
-            en="Authentication token has expired",
-            ar="انتهت صلاحية رمز المصادقة"
+            en="Authentication token has expired", ar="انتهت صلاحية رمز المصادقة"
         ),
         retryable=False,
     ),
@@ -268,8 +250,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
         message=BilingualMessage(
-            en="Invalid authentication token",
-            ar="رمز مصادقة غير صالح"
+            en="Invalid authentication token", ar="رمز مصادقة غير صالح"
         ),
         retryable=False,
     ),
@@ -278,8 +259,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
         message=BilingualMessage(
-            en="Authentication token is missing",
-            ar="رمز المصادقة مفقود"
+            en="Authentication token is missing", ar="رمز المصادقة مفقود"
         ),
         retryable=False,
     ),
@@ -287,30 +267,21 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.SESSION_EXPIRED,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Session has expired",
-            ar="انتهت صلاحية الجلسة"
-        ),
+        message=BilingualMessage(en="Session has expired", ar="انتهت صلاحية الجلسة"),
         retryable=False,
     ),
     ErrorCode.ACCOUNT_LOCKED: ErrorCodeMetadata(
         code=ErrorCode.ACCOUNT_LOCKED,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Account is locked",
-            ar="الحساب مقفل"
-        ),
+        message=BilingualMessage(en="Account is locked", ar="الحساب مقفل"),
         retryable=False,
     ),
     ErrorCode.ACCOUNT_DISABLED: ErrorCodeMetadata(
         code=ErrorCode.ACCOUNT_DISABLED,
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
-        message=BilingualMessage(
-            en="Account is disabled",
-            ar="الحساب معطل"
-        ),
+        message=BilingualMessage(en="Account is disabled", ar="الحساب معطل"),
         retryable=False,
     ),
     ErrorCode.EMAIL_NOT_VERIFIED: ErrorCodeMetadata(
@@ -318,21 +289,16 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHENTICATION,
         http_status=HTTPStatus.UNAUTHORIZED,
         message=BilingualMessage(
-            en="Email address not verified",
-            ar="البريد الإلكتروني غير مُفعّل"
+            en="Email address not verified", ar="البريد الإلكتروني غير مُفعّل"
         ),
         retryable=False,
     ),
-
     # Authorization Errors
     ErrorCode.FORBIDDEN: ErrorCodeMetadata(
         code=ErrorCode.FORBIDDEN,
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
-        message=BilingualMessage(
-            en="Access forbidden",
-            ar="الوصول محظور"
-        ),
+        message=BilingualMessage(en="Access forbidden", ar="الوصول محظور"),
         retryable=False,
     ),
     ErrorCode.INSUFFICIENT_PERMISSIONS: ErrorCodeMetadata(
@@ -341,7 +307,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         http_status=HTTPStatus.FORBIDDEN,
         message=BilingualMessage(
             en="Insufficient permissions to perform this action",
-            ar="صلاحيات غير كافية لتنفيذ هذا الإجراء"
+            ar="صلاحيات غير كافية لتنفيذ هذا الإجراء",
         ),
         retryable=False,
     ),
@@ -349,10 +315,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.ACCESS_DENIED,
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
-        message=BilingualMessage(
-            en="Access denied",
-            ar="تم رفض الوصول"
-        ),
+        message=BilingualMessage(en="Access denied", ar="تم رفض الوصول"),
         retryable=False,
     ),
     ErrorCode.TENANT_MISMATCH: ErrorCodeMetadata(
@@ -361,7 +324,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         http_status=HTTPStatus.FORBIDDEN,
         message=BilingualMessage(
             en="Resource does not belong to your organization",
-            ar="المورد لا ينتمي إلى مؤسستك"
+            ar="المورد لا ينتمي إلى مؤسستك",
         ),
         retryable=False,
     ),
@@ -370,8 +333,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
         message=BilingualMessage(
-            en="Required role not assigned",
-            ar="الدور المطلوب غير معين"
+            en="Required role not assigned", ar="الدور المطلوب غير معين"
         ),
         retryable=False,
     ),
@@ -380,8 +342,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
         message=BilingualMessage(
-            en="Active subscription required",
-            ar="يتطلب اشتراك نشط"
+            en="Active subscription required", ar="يتطلب اشتراك نشط"
         ),
         retryable=False,
     ),
@@ -390,132 +351,95 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.AUTHORIZATION,
         http_status=HTTPStatus.FORBIDDEN,
         message=BilingualMessage(
-            en="Usage quota exceeded",
-            ar="تم تجاوز حصة الاستخدام"
+            en="Usage quota exceeded", ar="تم تجاوز حصة الاستخدام"
         ),
         retryable=False,
     ),
-
     # Not Found Errors
     ErrorCode.RESOURCE_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.RESOURCE_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Resource not found",
-            ar="المورد غير موجود"
-        ),
+        message=BilingualMessage(en="Resource not found", ar="المورد غير موجود"),
         retryable=False,
     ),
     ErrorCode.USER_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.USER_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="User not found",
-            ar="المستخدم غير موجود"
-        ),
+        message=BilingualMessage(en="User not found", ar="المستخدم غير موجود"),
         retryable=False,
     ),
     ErrorCode.FARM_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.FARM_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Farm not found",
-            ar="المزرعة غير موجودة"
-        ),
+        message=BilingualMessage(en="Farm not found", ar="المزرعة غير موجودة"),
         retryable=False,
     ),
     ErrorCode.FIELD_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.FIELD_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Field not found",
-            ar="الحقل غير موجود"
-        ),
+        message=BilingualMessage(en="Field not found", ar="الحقل غير موجود"),
         retryable=False,
     ),
     ErrorCode.CROP_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.CROP_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Crop not found",
-            ar="المحصول غير موجود"
-        ),
+        message=BilingualMessage(en="Crop not found", ar="المحصول غير موجود"),
         retryable=False,
     ),
     ErrorCode.SENSOR_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.SENSOR_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Sensor not found",
-            ar="المستشعر غير موجود"
-        ),
+        message=BilingualMessage(en="Sensor not found", ar="المستشعر غير موجود"),
         retryable=False,
     ),
     ErrorCode.CONVERSATION_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.CONVERSATION_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Conversation not found",
-            ar="المحادثة غير موجودة"
-        ),
+        message=BilingualMessage(en="Conversation not found", ar="المحادثة غير موجودة"),
         retryable=False,
     ),
     ErrorCode.MESSAGE_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.MESSAGE_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Message not found",
-            ar="الرسالة غير موجودة"
-        ),
+        message=BilingualMessage(en="Message not found", ar="الرسالة غير موجودة"),
         retryable=False,
     ),
     ErrorCode.WALLET_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.WALLET_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Wallet not found",
-            ar="المحفظة غير موجودة"
-        ),
+        message=BilingualMessage(en="Wallet not found", ar="المحفظة غير موجودة"),
         retryable=False,
     ),
     ErrorCode.ORDER_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.ORDER_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Order not found",
-            ar="الطلب غير موجود"
-        ),
+        message=BilingualMessage(en="Order not found", ar="الطلب غير موجود"),
         retryable=False,
     ),
     ErrorCode.PRODUCT_NOT_FOUND: ErrorCodeMetadata(
         code=ErrorCode.PRODUCT_NOT_FOUND,
         category=ErrorCategory.NOT_FOUND,
         http_status=HTTPStatus.NOT_FOUND,
-        message=BilingualMessage(
-            en="Product not found",
-            ar="المنتج غير موجود"
-        ),
+        message=BilingualMessage(en="Product not found", ar="المنتج غير موجود"),
         retryable=False,
     ),
-
     # Conflict Errors
     ErrorCode.RESOURCE_ALREADY_EXISTS: ErrorCodeMetadata(
         code=ErrorCode.RESOURCE_ALREADY_EXISTS,
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
-            en="Resource already exists",
-            ar="المورد موجود بالفعل"
+            en="Resource already exists", ar="المورد موجود بالفعل"
         ),
         retryable=False,
     ),
@@ -524,8 +448,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
-            en="Email address already registered",
-            ar="البريد الإلكتروني مسجل بالفعل"
+            en="Email address already registered", ar="البريد الإلكتروني مسجل بالفعل"
         ),
         retryable=False,
     ),
@@ -534,8 +457,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
-            en="Phone number already registered",
-            ar="رقم الهاتف مسجل بالفعل"
+            en="Phone number already registered", ar="رقم الهاتف مسجل بالفعل"
         ),
         retryable=False,
     ),
@@ -545,7 +467,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
             en="Resource was modified by another user",
-            ar="تم تعديل المورد بواسطة مستخدم آخر"
+            ar="تم تعديل المورد بواسطة مستخدم آخر",
         ),
         retryable=True,
     ),
@@ -554,31 +476,23 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.CONFLICT,
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
-            en="Version mismatch detected",
-            ar="تم اكتشاف عدم تطابق في الإصدار"
+            en="Version mismatch detected", ar="تم اكتشاف عدم تطابق في الإصدار"
         ),
         retryable=True,
     ),
-
     # Business Logic Errors
     ErrorCode.BUSINESS_RULE_VIOLATION: ErrorCodeMetadata(
         code=ErrorCode.BUSINESS_RULE_VIOLATION,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Business rule violation",
-            ar="انتهاك قاعدة عمل"
-        ),
+        message=BilingualMessage(en="Business rule violation", ar="انتهاك قاعدة عمل"),
         retryable=False,
     ),
     ErrorCode.INSUFFICIENT_BALANCE: ErrorCodeMetadata(
         code=ErrorCode.INSUFFICIENT_BALANCE,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Insufficient balance",
-            ar="الرصيد غير كافي"
-        ),
+        message=BilingualMessage(en="Insufficient balance", ar="الرصيد غير كافي"),
         retryable=False,
     ),
     ErrorCode.INVALID_STATE_TRANSITION: ErrorCodeMetadata(
@@ -586,8 +500,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
-            en="Invalid state transition",
-            ar="انتقال حالة غير صالح"
+            en="Invalid state transition", ar="انتقال حالة غير صالح"
         ),
         retryable=False,
     ),
@@ -597,7 +510,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
             en="Operation not allowed in current state",
-            ar="العملية غير مسموحة في الحالة الحالية"
+            ar="العملية غير مسموحة في الحالة الحالية",
         ),
         retryable=False,
     ),
@@ -606,8 +519,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
-            en="Amount must be greater than zero",
-            ar="المبلغ يجب أن يكون أكبر من صفر"
+            en="Amount must be greater than zero", ar="المبلغ يجب أن يكون أكبر من صفر"
         ),
         retryable=False,
     ),
@@ -616,8 +528,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
-            en="Invalid planting date",
-            ar="تاريخ الزراعة غير صالح"
+            en="Invalid planting date", ar="تاريخ الزراعة غير صالح"
         ),
         retryable=False,
     ),
@@ -627,7 +538,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
             en="Harvest date cannot be before planting date",
-            ar="تاريخ الحصاد لا يمكن أن يكون قبل تاريخ الزراعة"
+            ar="تاريخ الحصاد لا يمكن أن يكون قبل تاريخ الزراعة",
         ),
         retryable=False,
     ),
@@ -636,8 +547,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
-            en="Field already has an active crop",
-            ar="الحقل يحتوي بالفعل على محصول نشط"
+            en="Field already has an active crop", ar="الحقل يحتوي بالفعل على محصول نشط"
         ),
         retryable=False,
     ),
@@ -646,8 +556,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
-            en="Escrow already exists for this order",
-            ar="يوجد إسكرو لهذا الطلب بالفعل"
+            en="Escrow already exists for this order", ar="يوجد إسكرو لهذا الطلب بالفعل"
         ),
         retryable=False,
     ),
@@ -655,10 +564,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.LOAN_NOT_ACTIVE,
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
-        message=BilingualMessage(
-            en="Loan is not active",
-            ar="القرض غير نشط"
-        ),
+        message=BilingualMessage(en="Loan is not active", ar="القرض غير نشط"),
         retryable=False,
     ),
     ErrorCode.PAYMENT_NOT_PENDING: ErrorCodeMetadata(
@@ -666,20 +572,17 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.BUSINESS_LOGIC,
         http_status=HTTPStatus.UNPROCESSABLE_ENTITY,
         message=BilingualMessage(
-            en="Payment is not in pending state",
-            ar="الدفعة ليست في حالة الانتظار"
+            en="Payment is not in pending state", ar="الدفعة ليست في حالة الانتظار"
         ),
         retryable=False,
     ),
-
     # External Service Errors
     ErrorCode.EXTERNAL_SERVICE_ERROR: ErrorCodeMetadata(
         code=ErrorCode.EXTERNAL_SERVICE_ERROR,
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
         message=BilingualMessage(
-            en="External service error",
-            ar="خطأ في الخدمة الخارجية"
+            en="External service error", ar="خطأ في الخدمة الخارجية"
         ),
         retryable=True,
     ),
@@ -689,7 +592,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         http_status=HTTPStatus.SERVICE_UNAVAILABLE,
         message=BilingualMessage(
             en="Weather service is currently unavailable",
-            ar="خدمة الطقس غير متاحة حالياً"
+            ar="خدمة الطقس غير متاحة حالياً",
         ),
         retryable=True,
     ),
@@ -699,7 +602,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         http_status=HTTPStatus.SERVICE_UNAVAILABLE,
         message=BilingualMessage(
             en="Satellite service is currently unavailable",
-            ar="خدمة الأقمار الصناعية غير متاحة حالياً"
+            ar="خدمة الأقمار الصناعية غير متاحة حالياً",
         ),
         retryable=True,
     ),
@@ -707,10 +610,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.PAYMENT_GATEWAY_ERROR,
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
-        message=BilingualMessage(
-            en="Payment gateway error",
-            ar="خطأ في بوابة الدفع"
-        ),
+        message=BilingualMessage(en="Payment gateway error", ar="خطأ في بوابة الدفع"),
         retryable=True,
     ),
     ErrorCode.SMS_SERVICE_ERROR: ErrorCodeMetadata(
@@ -718,8 +618,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
         message=BilingualMessage(
-            en="SMS service error",
-            ar="خطأ في خدمة الرسائل النصية"
+            en="SMS service error", ar="خطأ في خدمة الرسائل النصية"
         ),
         retryable=True,
     ),
@@ -728,8 +627,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
         message=BilingualMessage(
-            en="Email service error",
-            ar="خطأ في خدمة البريد الإلكتروني"
+            en="Email service error", ar="خطأ في خدمة البريد الإلكتروني"
         ),
         retryable=True,
     ),
@@ -737,21 +635,16 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.MAPS_SERVICE_ERROR,
         category=ErrorCategory.EXTERNAL_SERVICE,
         http_status=HTTPStatus.BAD_GATEWAY,
-        message=BilingualMessage(
-            en="Maps service error",
-            ar="خطأ في خدمة الخرائط"
-        ),
+        message=BilingualMessage(en="Maps service error", ar="خطأ في خدمة الخرائط"),
         retryable=True,
     ),
-
     # Database Errors
     ErrorCode.DATABASE_ERROR: ErrorCodeMetadata(
         code=ErrorCode.DATABASE_ERROR,
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
         message=BilingualMessage(
-            en="Database error occurred",
-            ar="حدث خطأ في قاعدة البيانات"
+            en="Database error occurred", ar="حدث خطأ في قاعدة البيانات"
         ),
         retryable=True,
     ),
@@ -760,8 +653,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.SERVICE_UNAVAILABLE,
         message=BilingualMessage(
-            en="Failed to connect to database",
-            ar="فشل الاتصال بقاعدة البيانات"
+            en="Failed to connect to database", ar="فشل الاتصال بقاعدة البيانات"
         ),
         retryable=True,
     ),
@@ -770,8 +662,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.REQUEST_TIMEOUT,
         message=BilingualMessage(
-            en="Database query timeout",
-            ar="انتهت مهلة استعلام قاعدة البيانات"
+            en="Database query timeout", ar="انتهت مهلة استعلام قاعدة البيانات"
         ),
         retryable=True,
     ),
@@ -780,8 +671,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
         message=BilingualMessage(
-            en="Database transaction failed",
-            ar="فشلت معاملة قاعدة البيانات"
+            en="Database transaction failed", ar="فشلت معاملة قاعدة البيانات"
         ),
         retryable=True,
     ),
@@ -790,8 +680,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
-            en="Database constraint violation",
-            ar="انتهاك قيد قاعدة البيانات"
+            en="Database constraint violation", ar="انتهاك قيد قاعدة البيانات"
         ),
         retryable=False,
     ),
@@ -800,8 +689,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
-            en="Foreign key constraint violation",
-            ar="انتهاك قيد المفتاح الخارجي"
+            en="Foreign key constraint violation", ar="انتهاك قيد المفتاح الخارجي"
         ),
         retryable=False,
     ),
@@ -810,21 +698,16 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.DATABASE,
         http_status=HTTPStatus.CONFLICT,
         message=BilingualMessage(
-            en="Unique constraint violation",
-            ar="انتهاك قيد الفريدية"
+            en="Unique constraint violation", ar="انتهاك قيد الفريدية"
         ),
         retryable=False,
     ),
-
     # Internal Errors
     ErrorCode.INTERNAL_SERVER_ERROR: ErrorCodeMetadata(
         code=ErrorCode.INTERNAL_SERVER_ERROR,
         category=ErrorCategory.INTERNAL,
         http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-        message=BilingualMessage(
-            en="Internal server error",
-            ar="خطأ داخلي في الخادم"
-        ),
+        message=BilingualMessage(en="Internal server error", ar="خطأ داخلي في الخادم"),
         retryable=True,
     ),
     ErrorCode.SERVICE_UNAVAILABLE: ErrorCodeMetadata(
@@ -832,8 +715,7 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.INTERNAL,
         http_status=HTTPStatus.SERVICE_UNAVAILABLE,
         message=BilingualMessage(
-            en="Service temporarily unavailable",
-            ar="الخدمة غير متاحة مؤقتاً"
+            en="Service temporarily unavailable", ar="الخدمة غير متاحة مؤقتاً"
         ),
         retryable=True,
     ),
@@ -841,20 +723,14 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         code=ErrorCode.CONFIGURATION_ERROR,
         category=ErrorCategory.INTERNAL,
         http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-        message=BilingualMessage(
-            en="Configuration error",
-            ar="خطأ في التكوين"
-        ),
+        message=BilingualMessage(en="Configuration error", ar="خطأ في التكوين"),
         retryable=False,
     ),
     ErrorCode.NOT_IMPLEMENTED: ErrorCodeMetadata(
         code=ErrorCode.NOT_IMPLEMENTED,
         category=ErrorCategory.INTERNAL,
         http_status=HTTPStatus.NOT_IMPLEMENTED,
-        message=BilingualMessage(
-            en="Feature not implemented",
-            ar="الميزة غير مطبقة"
-        ),
+        message=BilingualMessage(en="Feature not implemented", ar="الميزة غير مطبقة"),
         retryable=False,
     ),
     ErrorCode.DEPENDENCY_FAILED: ErrorCodeMetadata(
@@ -862,41 +738,30 @@ ERROR_REGISTRY: Dict[ErrorCode, ErrorCodeMetadata] = {
         category=ErrorCategory.INTERNAL,
         http_status=HTTPStatus.FAILED_DEPENDENCY,
         message=BilingualMessage(
-            en="Dependency service failed",
-            ar="فشلت خدمة الاعتماد"
+            en="Dependency service failed", ar="فشلت خدمة الاعتماد"
         ),
         retryable=True,
     ),
-
     # Rate Limiting
     ErrorCode.RATE_LIMIT_EXCEEDED: ErrorCodeMetadata(
         code=ErrorCode.RATE_LIMIT_EXCEEDED,
         category=ErrorCategory.RATE_LIMIT,
         http_status=HTTPStatus.TOO_MANY_REQUESTS,
-        message=BilingualMessage(
-            en="Rate limit exceeded",
-            ar="تم تجاوز حد المعدل"
-        ),
+        message=BilingualMessage(en="Rate limit exceeded", ar="تم تجاوز حد المعدل"),
         retryable=True,
     ),
     ErrorCode.TOO_MANY_REQUESTS: ErrorCodeMetadata(
         code=ErrorCode.TOO_MANY_REQUESTS,
         category=ErrorCategory.RATE_LIMIT,
         http_status=HTTPStatus.TOO_MANY_REQUESTS,
-        message=BilingualMessage(
-            en="Too many requests",
-            ar="طلبات كثيرة جداً"
-        ),
+        message=BilingualMessage(en="Too many requests", ar="طلبات كثيرة جداً"),
         retryable=True,
     ),
     ErrorCode.API_QUOTA_EXCEEDED: ErrorCodeMetadata(
         code=ErrorCode.API_QUOTA_EXCEEDED,
         category=ErrorCategory.RATE_LIMIT,
         http_status=HTTPStatus.TOO_MANY_REQUESTS,
-        message=BilingualMessage(
-            en="API quota exceeded",
-            ar="تم تجاوز حصة API"
-        ),
+        message=BilingualMessage(en="API quota exceeded", ar="تم تجاوز حصة API"),
         retryable=False,
     ),
 }
@@ -916,6 +781,7 @@ def get_error_codes_by_category(category: ErrorCategory) -> List[ErrorCode]:
     الحصول على جميع أكواد الأخطاء حسب الفئة
     """
     return [
-        code for code, metadata in ERROR_REGISTRY.items()
+        code
+        for code, metadata in ERROR_REGISTRY.items()
         if metadata.category == category
     ]

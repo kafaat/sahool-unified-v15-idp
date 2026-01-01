@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # Base Fetch Task
 # =============================================================================
 
+
 class BaseSahoolFetchTask:
     """
     Base class for SAHOOL fetch tasks
@@ -31,7 +32,7 @@ class BaseSahoolFetchTask:
         resolution: int = 10,
         max_cloud_coverage: float = 30.0,
         cache_folder: str = "./eo_cache",
-        config=None
+        config=None,
     ):
         """
         Initialize fetch task
@@ -63,6 +64,7 @@ class BaseSahoolFetchTask:
 # Sentinel-2 Fetch Task
 # =============================================================================
 
+
 class SahoolSentinelFetchTask(BaseSahoolFetchTask):
     """
     Fetch Sentinel-2 L2A data for SAHOOL platform
@@ -82,7 +84,20 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
     """
 
     # Default bands for agricultural monitoring
-    DEFAULT_BANDS = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12", "SCL", "CLP"]
+    DEFAULT_BANDS = [
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B8A",
+        "B11",
+        "B12",
+        "SCL",
+        "CLP",
+    ]
 
     # Evalscript for fetching Sentinel-2 data
     EVALSCRIPT = """
@@ -132,9 +147,11 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
         resolution: int = 10,
         max_cloud_coverage: float = 30.0,
         mosaicking_order: str = "leastCC",
-        **kwargs
+        **kwargs,
     ):
-        super().__init__(bands or self.DEFAULT_BANDS, resolution, max_cloud_coverage, **kwargs)
+        super().__init__(
+            bands or self.DEFAULT_BANDS, resolution, max_cloud_coverage, **kwargs
+        )
         self.mosaicking_order = mosaicking_order
         self.data_collection = "SENTINEL2_L2A"
 
@@ -142,7 +159,7 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
         self,
         bbox,
         time_interval: Tuple[str, str],
-        size: Optional[Tuple[int, int]] = None
+        size: Optional[Tuple[int, int]] = None,
     ):
         """
         Execute the fetch task
@@ -212,7 +229,9 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
             eopatch[FeatureType.DATA]["BANDS"] = data["BANDS.tif"][np.newaxis, ...]
             eopatch[FeatureType.MASK]["SCL"] = data["SCL.tif"][np.newaxis, ...]
             eopatch[FeatureType.MASK]["CLP"] = data["CLP.tif"][np.newaxis, ...]
-            eopatch[FeatureType.MASK]["dataMask"] = data["dataMask.tif"][np.newaxis, ...]
+            eopatch[FeatureType.MASK]["dataMask"] = data["dataMask.tif"][
+                np.newaxis, ...
+            ]
 
             # Add metadata
             eopatch[FeatureType.META_INFO]["time_interval"] = time_interval
@@ -223,7 +242,9 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
             # Add timestamps
             eopatch[FeatureType.TIMESTAMP] = [datetime.now()]
 
-            logger.info(f"Successfully fetched Sentinel-2 data: {data['BANDS.tif'].shape}")
+            logger.info(
+                f"Successfully fetched Sentinel-2 data: {data['BANDS.tif'].shape}"
+            )
             return eopatch
 
         except ImportError as e:
@@ -237,22 +258,33 @@ class SahoolSentinelFetchTask(BaseSahoolFetchTask):
     def get_band_mapping(self) -> Dict[str, int]:
         """Get mapping of band names to indices"""
         return {
-            "B02": 0, "BLUE": 0,
-            "B03": 1, "GREEN": 1,
-            "B04": 2, "RED": 2,
-            "B05": 3, "RE1": 3,
-            "B06": 4, "RE2": 4,
-            "B07": 5, "RE3": 5,
-            "B08": 6, "NIR": 6,
-            "B8A": 7, "NIR_NARROW": 7,
-            "B11": 8, "SWIR1": 8,
-            "B12": 9, "SWIR2": 9,
+            "B02": 0,
+            "BLUE": 0,
+            "B03": 1,
+            "GREEN": 1,
+            "B04": 2,
+            "RED": 2,
+            "B05": 3,
+            "RE1": 3,
+            "B06": 4,
+            "RE2": 4,
+            "B07": 5,
+            "RE3": 5,
+            "B08": 6,
+            "NIR": 6,
+            "B8A": 7,
+            "NIR_NARROW": 7,
+            "B11": 8,
+            "SWIR1": 8,
+            "B12": 9,
+            "SWIR2": 9,
         }
 
 
 # =============================================================================
 # Landsat Fetch Task
 # =============================================================================
+
 
 class SahoolLandsatFetchTask(BaseSahoolFetchTask):
     """
@@ -296,16 +328,13 @@ class SahoolLandsatFetchTask(BaseSahoolFetchTask):
     """
 
     def __init__(
-        self,
-        resolution: int = 30,
-        max_cloud_coverage: float = 30.0,
-        **kwargs
+        self, resolution: int = 30, max_cloud_coverage: float = 30.0, **kwargs
     ):
         super().__init__(
             bands=["B02", "B03", "B04", "B05", "B06", "B07"],
             resolution=resolution,
             max_cloud_coverage=max_cloud_coverage,
-            **kwargs
+            **kwargs,
         )
         self.data_collection = "LANDSAT_OT_L2"
 
@@ -364,18 +393,25 @@ class SahoolLandsatFetchTask(BaseSahoolFetchTask):
     def get_band_mapping(self) -> Dict[str, int]:
         """Get mapping of band names to indices"""
         return {
-            "B02": 0, "BLUE": 0,
-            "B03": 1, "GREEN": 1,
-            "B04": 2, "RED": 2,
-            "B05": 3, "NIR": 3,
-            "B06": 4, "SWIR1": 4,
-            "B07": 5, "SWIR2": 5,
+            "B02": 0,
+            "BLUE": 0,
+            "B03": 1,
+            "GREEN": 1,
+            "B04": 2,
+            "RED": 2,
+            "B05": 3,
+            "NIR": 3,
+            "B06": 4,
+            "SWIR1": 4,
+            "B07": 5,
+            "SWIR2": 5,
         }
 
 
 # =============================================================================
 # MODIS Fetch Task
 # =============================================================================
+
 
 class SahoolMODISFetchTask(BaseSahoolFetchTask):
     """
@@ -389,12 +425,10 @@ class SahoolMODISFetchTask(BaseSahoolFetchTask):
         self,
         resolution: int = 250,
         product: str = "MOD09GQ",  # Daily Surface Reflectance
-        **kwargs
+        **kwargs,
     ):
         super().__init__(
-            bands=["B01", "B02"],  # Red, NIR
-            resolution=resolution,
-            **kwargs
+            bands=["B01", "B02"], resolution=resolution, **kwargs  # Red, NIR
         )
         self.product = product
 
@@ -416,6 +450,8 @@ class SahoolMODISFetchTask(BaseSahoolFetchTask):
     def get_band_mapping(self) -> Dict[str, int]:
         """Get mapping of band names to indices"""
         return {
-            "B01": 0, "RED": 0,
-            "B02": 1, "NIR": 1,
+            "B01": 0,
+            "RED": 0,
+            "B02": 1,
+            "NIR": 1,
         }

@@ -61,7 +61,7 @@ def mock_openai_client():
     mock_response.choices = [
         Mock(
             message=Mock(content="This is a test response from GPT."),
-            finish_reason="stop"
+            finish_reason="stop",
         )
     ]
     mock_response.model = "gpt-4o"
@@ -78,10 +78,9 @@ def mock_embeddings_manager():
     محاكاة مدير التضمينات
     """
     mock_manager = Mock()
-    mock_manager.get_model_info = Mock(return_value={
-        "model_name": "test-embeddings-model",
-        "dimensions": 384
-    })
+    mock_manager.get_model_info = Mock(
+        return_value={"model_name": "test-embeddings-model", "dimensions": 384}
+    )
     return mock_manager
 
 
@@ -92,14 +91,15 @@ def mock_knowledge_retriever(mock_embeddings_manager):
     محاكاة مسترجع المعرفة RAG
     """
     mock_retriever = Mock()
-    mock_retriever.retrieve = Mock(return_value=[
-        Mock(page_content="Agricultural knowledge 1", metadata={"source": "test1"}),
-        Mock(page_content="Agricultural knowledge 2", metadata={"source": "test2"}),
-    ])
-    mock_retriever.get_collection_info = Mock(return_value={
-        "collection_name": "test-collection",
-        "documents_count": 100
-    })
+    mock_retriever.retrieve = Mock(
+        return_value=[
+            Mock(page_content="Agricultural knowledge 1", metadata={"source": "test1"}),
+            Mock(page_content="Agricultural knowledge 2", metadata={"source": "test2"}),
+        ]
+    )
+    mock_retriever.get_collection_info = Mock(
+        return_value={"collection_name": "test-collection", "documents_count": 100}
+    )
     return mock_retriever
 
 
@@ -110,12 +110,14 @@ def mock_crop_health_tool():
     محاكاة أداة صحة المحاصيل
     """
     mock_tool = AsyncMock()
-    mock_tool.analyze_image = AsyncMock(return_value={
-        "disease_detected": True,
-        "disease_name": "Leaf Blight",
-        "confidence": 0.85,
-        "affected_area": 0.25
-    })
+    mock_tool.analyze_image = AsyncMock(
+        return_value={
+            "disease_detected": True,
+            "disease_name": "Leaf Blight",
+            "confidence": 0.85,
+            "affected_area": 0.25,
+        }
+    )
     return mock_tool
 
 
@@ -126,12 +128,14 @@ def mock_weather_tool():
     محاكاة أداة الطقس
     """
     mock_tool = AsyncMock()
-    mock_tool.get_current_weather = AsyncMock(return_value={
-        "temperature": 28.5,
-        "humidity": 65,
-        "conditions": "partly cloudy",
-        "precipitation": 0
-    })
+    mock_tool.get_current_weather = AsyncMock(
+        return_value={
+            "temperature": 28.5,
+            "humidity": 65,
+            "conditions": "partly cloudy",
+            "precipitation": 0,
+        }
+    )
     return mock_tool
 
 
@@ -142,13 +146,15 @@ def mock_satellite_tool():
     محاكاة أداة بيانات الأقمار الصناعية
     """
     mock_tool = AsyncMock()
-    mock_tool.get_ndvi = AsyncMock(return_value={
-        "field_id": "test-field-123",
-        "ndvi_average": 0.75,
-        "ndvi_min": 0.6,
-        "ndvi_max": 0.85,
-        "date": "2024-12-01"
-    })
+    mock_tool.get_ndvi = AsyncMock(
+        return_value={
+            "field_id": "test-field-123",
+            "ndvi_average": 0.75,
+            "ndvi_min": 0.6,
+            "ndvi_max": 0.85,
+            "date": "2024-12-01",
+        }
+    )
     return mock_tool
 
 
@@ -161,10 +167,7 @@ def sample_question_request() -> Dict[str, Any]:
     return {
         "question": "What is the best time to plant wheat?",
         "language": "en",
-        "context": {
-            "location": "Yemen",
-            "season": "winter"
-        }
+        "context": {"location": "Yemen", "season": "winter"},
     }
 
 
@@ -176,13 +179,9 @@ def sample_diagnose_request() -> Dict[str, Any]:
     """
     return {
         "crop_type": "wheat",
-        "symptoms": {
-            "leaf_color": "yellow",
-            "spots": True,
-            "wilting": False
-        },
+        "symptoms": {"leaf_color": "yellow", "spots": True, "wilting": False},
         "image_path": "/tmp/test-crop-image.jpg",
-        "location": "test-field-123"
+        "location": "test-field-123",
     }
 
 
@@ -197,15 +196,9 @@ def sample_recommendation_request() -> Dict[str, Any]:
         "growth_stage": "flowering",
         "recommendation_type": "irrigation",
         "field_data": {
-            "soil": {
-                "moisture": 45,
-                "type": "loamy"
-            },
-            "weather": {
-                "temperature": 25,
-                "humidity": 60
-            }
-        }
+            "soil": {"moisture": 45, "type": "loamy"},
+            "weather": {"temperature": 25, "humidity": 60},
+        },
     }
 
 
@@ -220,5 +213,5 @@ def sample_field_analysis_request() -> Dict[str, Any]:
         "crop_type": "corn",
         "include_disease_check": True,
         "include_irrigation": True,
-        "include_yield_prediction": True
+        "include_yield_prediction": True,
     }

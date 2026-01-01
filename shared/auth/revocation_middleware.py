@@ -71,11 +71,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
         ]
         self.fail_open = fail_open
 
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Check if token is revoked before allowing access.
 
@@ -130,7 +126,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
                         "error": AuthErrors.TOKEN_REVOKED.code,
                         "message": AuthErrors.TOKEN_REVOKED.en,
                         "reason": reason,
-                    }
+                    },
                 )
 
         except AuthException as e:
@@ -147,7 +143,7 @@ class TokenRevocationMiddleware(BaseHTTPMiddleware):
                     content={
                         "error": "service_unavailable",
                         "message": "Token revocation service unavailable",
-                    }
+                    },
                 )
 
         # Continue to next middleware or route handler
@@ -266,7 +262,7 @@ class RevocationCheckDependency:
                         "error": AuthErrors.TOKEN_REVOKED.code,
                         "message": AuthErrors.TOKEN_REVOKED.en,
                         "reason": reason,
-                    }
+                    },
                 )
 
         except HTTPException:
@@ -279,7 +275,7 @@ class RevocationCheckDependency:
                 detail={
                     "error": e.error.code,
                     "message": e.error.en,
-                }
+                },
             )
 
         except Exception as e:
@@ -292,7 +288,7 @@ class RevocationCheckDependency:
                     detail={
                         "error": "service_unavailable",
                         "message": "Token revocation service unavailable",
-                    }
+                    },
                 )
 
     def _extract_token(self, request: Request) -> Optional[str]:

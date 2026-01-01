@@ -148,11 +148,15 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
 
         # Reject 'none' algorithm explicitly
         if algorithm.lower() == "none":
-            raise AuthError("Invalid token: none algorithm not allowed", "invalid_token")
+            raise AuthError(
+                "Invalid token: none algorithm not allowed", "invalid_token"
+            )
 
         # Verify algorithm is in whitelist
         if algorithm not in ALLOWED_ALGORITHMS:
-            raise AuthError(f"Invalid token: unsupported algorithm {algorithm}", "invalid_token")
+            raise AuthError(
+                f"Invalid token: unsupported algorithm {algorithm}", "invalid_token"
+            )
 
         # SECURITY FIX: Use hardcoded whitelist instead of environment variable
         payload = jwt.decode(
@@ -202,7 +206,9 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
                     logger.warning(
                         f"Revoked token used: user={user_id}, jti={jti}, reason={reason}"
                     )
-                    raise AuthError(f"Token has been revoked: {reason}", "token_revoked")
+                    raise AuthError(
+                        f"Token has been revoked: {reason}", "token_revoked"
+                    )
 
             except ImportError:
                 # Revocation service not available, skip check
@@ -234,7 +240,9 @@ def decode_token_unsafe(token: str) -> dict:
     """
     try:
         # This function is intentionally unverified for debugging purposes only
-        return jwt.decode(token, options={"verify_signature": False})  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+        return jwt.decode(
+            token, options={"verify_signature": False}
+        )  # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
     except PyJWTError:
         return {}
 

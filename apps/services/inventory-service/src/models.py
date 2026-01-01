@@ -1,6 +1,7 @@
 """
 Pydantic models for Inventory Service
 """
+
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, Field
@@ -125,6 +126,7 @@ class StockMovementBase(BaseModel):
 
 class StockInRequest(BaseModel):
     """Request for receiving stock (purchase)"""
+
     itemId: str
     quantity: float
     unitCost: Optional[float] = None
@@ -143,6 +145,7 @@ class StockInRequest(BaseModel):
 
 class StockOutRequest(BaseModel):
     """Request for stock usage (sale, damage, etc.)"""
+
     itemId: str
     quantity: float
     movementType: MovementType = MovementType.SALE
@@ -154,6 +157,7 @@ class StockOutRequest(BaseModel):
 
 class StockApplyRequest(BaseModel):
     """Request for field application"""
+
     itemId: str
     quantity: float
     fieldId: str
@@ -164,6 +168,7 @@ class StockApplyRequest(BaseModel):
 
 class StockAdjustRequest(BaseModel):
     """Request for manual stock adjustment"""
+
     itemId: str
     newQuantity: float
     reason: str

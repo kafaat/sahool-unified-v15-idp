@@ -26,6 +26,7 @@ from shared.auth.middleware import RateLimitMiddleware
 # Example 1: Basic FastAPI Application with Global Rate Limiting
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def example_1_basic_global_rate_limiting():
     """
     مثال 1: تطبيق بسيط مع تحديد معدل عام
@@ -54,6 +55,7 @@ def example_1_basic_global_rate_limiting():
 # Example 2: Custom Rate Limiting with Different Limits
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def example_2_custom_rate_limits():
     """
     مثال 2: endpoints مختلفة مع حدود مخصصة
@@ -75,6 +77,7 @@ def example_2_custom_rate_limits():
         """Expensive operation with strict limits"""
         # Simulate expensive operation
         import asyncio
+
         await asyncio.sleep(0.1)
         return {"message": "Expensive operation completed"}
 
@@ -90,6 +93,7 @@ def example_2_custom_rate_limits():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Example 3: User-Based Rate Limiting (Requires Authentication)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def example_3_user_based_rate_limiting():
     """
@@ -136,6 +140,7 @@ def example_3_user_based_rate_limiting():
 # Example 4: API Key Based Rate Limiting
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def example_4_api_key_rate_limiting():
     """
     مثال 4: تحديد معدل بناءً على API key
@@ -147,9 +152,7 @@ def example_4_api_key_rate_limiting():
 
     @app.get("/api/v1/data")
     @rate_limit_by_api_key(
-        requests_per_minute=100,
-        requests_per_hour=5000,
-        header_name="X-API-Key"
+        requests_per_minute=100, requests_per_hour=5000, header_name="X-API-Key"
     )
     async def get_api_data(request: Request):
         """Rate limited per API key"""
@@ -164,9 +167,7 @@ def example_4_api_key_rate_limiting():
 
     @app.post("/api/v1/process")
     @rate_limit_by_api_key(
-        requests_per_minute=50,
-        requests_per_hour=1000,
-        header_name="X-API-Key"
+        requests_per_minute=50, requests_per_hour=1000, header_name="X-API-Key"
     )
     async def process_api_request(request: Request):
         """Processing endpoint with lower limits"""
@@ -178,6 +179,7 @@ def example_4_api_key_rate_limiting():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Example 5: Tenant-Based Rate Limiting (Multi-Tenancy)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def example_5_tenant_rate_limiting():
     """
@@ -208,6 +210,7 @@ def example_5_tenant_rate_limiting():
 # Example 6: Custom Key Function
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def example_6_custom_key_function():
     """
     مثال 6: دالة مفتاح مخصصة
@@ -232,20 +235,14 @@ def example_6_custom_key_function():
 
     @app.get("/org/resources")
     @rate_limit(
-        requests_per_minute=50,
-        requests_per_hour=2000,
-        key_func=organization_key
+        requests_per_minute=50, requests_per_hour=2000, key_func=organization_key
     )
     async def get_org_resources(request: Request):
         """Rate limited by organization"""
         return {"message": "Organization resources"}
 
     @app.post("/org/action")
-    @rate_limit(
-        requests_per_minute=20,
-        requests_per_hour=500,
-        key_func=combined_key
-    )
+    @rate_limit(requests_per_minute=20, requests_per_hour=500, key_func=combined_key)
     async def org_action(request: Request):
         """Rate limited by user + organization combination"""
         return {"status": "action completed"}
@@ -256,6 +253,7 @@ def example_6_custom_key_function():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Example 7: Using RateLimitMiddleware Directly
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def example_7_middleware_configuration():
     """
@@ -297,6 +295,7 @@ def example_7_middleware_configuration():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Example 8: Manual Rate Limit Checking
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def example_8_manual_rate_limit_check():
     """
@@ -340,6 +339,7 @@ def example_8_manual_rate_limit_check():
 # Example 9: Dynamic Rate Limits Based on User Tier
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def example_9_dynamic_rate_limits():
     """
     مثال 9: حدود ديناميكية بناءً على مستوى المستخدم
@@ -362,19 +362,13 @@ def example_9_dynamic_rate_limits():
         # Define tier-specific limits
         tier_limits = {
             "free": RateLimitConfig(
-                requests_per_minute=30,
-                requests_per_hour=500,
-                burst_limit=5
+                requests_per_minute=30, requests_per_hour=500, burst_limit=5
             ),
             "standard": RateLimitConfig(
-                requests_per_minute=60,
-                requests_per_hour=2000,
-                burst_limit=10
+                requests_per_minute=60, requests_per_hour=2000, burst_limit=10
             ),
             "premium": RateLimitConfig(
-                requests_per_minute=120,
-                requests_per_hour=5000,
-                burst_limit=20
+                requests_per_minute=120, requests_per_hour=5000, burst_limit=20
             ),
         }
 
@@ -400,6 +394,7 @@ def example_9_dynamic_rate_limits():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Example 10: Complete Production Application
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def example_10_complete_production_app():
     """

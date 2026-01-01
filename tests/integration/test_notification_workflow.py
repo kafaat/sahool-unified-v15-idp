@@ -46,8 +46,7 @@ async def test_create_notification_workflow(
     notification_url = service_urls.get("notification_service", "http://localhost:8110")
 
     notification_data = notification_factory.create(
-        user_id="test-farmer-123",
-        notification_type="weather_alert"
+        user_id="test-farmer-123", notification_type="weather_alert"
     )
 
     # Convert to API format
@@ -61,18 +60,18 @@ async def test_create_notification_workflow(
         "data": {},
         "target_farmers": ["test-farmer-123"],
         "channels": ["push", "in_app"],
-        "expires_in_hours": 24
+        "expires_in_hours": 24,
     }
 
     # Act - إنشاء الإشعار
     response = await http_client.post(
-        f"{notification_url}/v1/notifications",
-        json=api_data,
-        headers=auth_headers
+        f"{notification_url}/v1/notifications", json=api_data, headers=auth_headers
     )
 
     # Assert - التحقق من النتائج
-    assert response.status_code == 200, f"Failed to create notification: {response.text}"
+    assert (
+        response.status_code == 200
+    ), f"Failed to create notification: {response.text}"
 
     created_notification = response.json()
 
@@ -115,19 +114,21 @@ async def test_weather_alert_workflow(
         "details": {
             "temperature_min": -2,
             "temperature_max": 10,
-            "description": "Frost expected tonight"
-        }
+            "description": "Frost expected tonight",
+        },
     }
 
     # Act - إرسال تنبيه الطقس
     response = await http_client.post(
         f"{notification_url}/v1/alerts/weather",
         json=weather_alert,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     # Assert
-    assert response.status_code == 200, f"Failed to create weather alert: {response.text}"
+    assert (
+        response.status_code == 200
+    ), f"Failed to create weather alert: {response.text}"
 
     alert = response.json()
 
@@ -172,20 +173,18 @@ async def test_pest_outbreak_alert_workflow(
         "recommendations": [
             "Remove infected plants immediately",
             "Apply appropriate fungicide",
-            "Improve air circulation"
+            "Improve air circulation",
         ],
         "recommendations_ar": [
             "قم بإزالة النباتات المصابة فوراً",
             "استخدم مبيد فطري مناسب",
-            "حسّن دوران الهواء"
-        ]
+            "حسّن دوران الهواء",
+        ],
     }
 
     # Act - إرسال تنبيه الآفات
     response = await http_client.post(
-        f"{notification_url}/v1/alerts/pest",
-        json=pest_alert,
-        headers=auth_headers
+        f"{notification_url}/v1/alerts/pest", json=pest_alert, headers=auth_headers
     )
 
     # Assert
@@ -229,18 +228,20 @@ async def test_irrigation_reminder_workflow(
         "field_name": "North Field",
         "crop": "wheat",
         "water_needed_mm": 25.5,
-        "urgency": "medium"
+        "urgency": "medium",
     }
 
     # Act - إرسال تذكير الري
     response = await http_client.post(
         f"{notification_url}/v1/reminders/irrigation",
         json=irrigation_reminder,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     # Assert
-    assert response.status_code == 200, f"Failed to create irrigation reminder: {response.text}"
+    assert (
+        response.status_code == 200
+    ), f"Failed to create irrigation reminder: {response.text}"
 
     reminder = response.json()
 
@@ -293,13 +294,13 @@ async def test_farmer_notification_retrieval_workflow(
         "field_ids": ["field-1", "field-2"],
         "phone": "+967771234567",
         "notification_channels": ["push", "in_app"],
-        "language": "ar"
+        "language": "ar",
     }
 
     register_response = await http_client.post(
         f"{notification_url}/v1/farmers/register",
         json=farmer_profile,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert register_response.status_code == 200
@@ -318,13 +319,11 @@ async def test_farmer_notification_retrieval_workflow(
         "body": "Heavy rain expected tomorrow",
         "body_ar": "أمطار غزيرة متوقعة غداً",
         "target_governorates": ["sanaa"],
-        "channels": ["push", "in_app"]
+        "channels": ["push", "in_app"],
     }
 
     weather_response = await http_client.post(
-        f"{notification_url}/v1/notifications",
-        json=weather_data,
-        headers=auth_headers
+        f"{notification_url}/v1/notifications", json=weather_data, headers=auth_headers
     )
     if weather_response.status_code == 200:
         notifications_created.append(weather_response.json())
@@ -338,13 +337,11 @@ async def test_farmer_notification_retrieval_workflow(
         "body": "Check your wheat field for signs of disease",
         "body_ar": "تحقق من حقل القمح للكشف عن علامات المرض",
         "target_crops": ["wheat"],
-        "channels": ["in_app"]
+        "channels": ["in_app"],
     }
 
     crop_response = await http_client.post(
-        f"{notification_url}/v1/notifications",
-        json=crop_data,
-        headers=auth_headers
+        f"{notification_url}/v1/notifications", json=crop_data, headers=auth_headers
     )
     if crop_response.status_code == 200:
         notifications_created.append(crop_response.json())
@@ -354,8 +351,7 @@ async def test_farmer_notification_retrieval_workflow(
     await asyncio.sleep(0.5)
 
     get_response = await http_client.get(
-        f"{notification_url}/v1/notifications/farmer/{farmer_id}",
-        headers=auth_headers
+        f"{notification_url}/v1/notifications/farmer/{farmer_id}", headers=auth_headers
     )
 
     assert get_response.status_code == 200
@@ -373,12 +369,18 @@ async def test_farmer_notification_retrieval_workflow(
     if len(farmer_notifications["notifications"]) > 1:
         for i in range(len(farmer_notifications["notifications"]) - 1):
             current = datetime.fromisoformat(
-                farmer_notifications["notifications"][i]["created_at"].replace("Z", "+00:00")
+                farmer_notifications["notifications"][i]["created_at"].replace(
+                    "Z", "+00:00"
+                )
             )
             next_notif = datetime.fromisoformat(
-                farmer_notifications["notifications"][i + 1]["created_at"].replace("Z", "+00:00")
+                farmer_notifications["notifications"][i + 1]["created_at"].replace(
+                    "Z", "+00:00"
+                )
             )
-            assert current >= next_notif, "Notifications should be sorted by created_at descending"
+            assert (
+                current >= next_notif
+            ), "Notifications should be sorted by created_at descending"
 
 
 @pytest.mark.integration
@@ -408,13 +410,13 @@ async def test_notification_filtering_workflow(
         "governorate": "ibb",
         "crops": ["coffee", "banana"],
         "notification_channels": ["in_app"],
-        "language": "ar"
+        "language": "ar",
     }
 
     await http_client.post(
         f"{notification_url}/v1/farmers/register",
         json=farmer_profile,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     # Create notifications of different types
@@ -429,13 +431,13 @@ async def test_notification_filtering_workflow(
             "body": f"Test notification of type {ntype}",
             "body_ar": f"إشعار اختبار من نوع {ntype}",
             "target_farmers": [farmer_id],
-            "channels": ["in_app"]
+            "channels": ["in_app"],
         }
 
         await http_client.post(
             f"{notification_url}/v1/notifications",
             json=notif_data,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
     # Wait for processing
@@ -445,7 +447,7 @@ async def test_notification_filtering_workflow(
     for ntype in notification_types:
         filter_response = await http_client.get(
             f"{notification_url}/v1/notifications/farmer/{farmer_id}?type={ntype}",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         if filter_response.status_code == 200:
@@ -458,7 +460,7 @@ async def test_notification_filtering_workflow(
     # Test filtering by unread - اختبار التصفية حسب غير المقروء
     unread_response = await http_client.get(
         f"{notification_url}/v1/notifications/farmer/{farmer_id}?unread_only=true",
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     if unread_response.status_code == 200:
@@ -496,13 +498,11 @@ async def test_mark_notification_read_workflow(
         "body": "Test notification",
         "body_ar": "إشعار اختبار",
         "target_farmers": [farmer_id],
-        "channels": ["in_app"]
+        "channels": ["in_app"],
     }
 
     create_response = await http_client.post(
-        f"{notification_url}/v1/notifications",
-        json=notif_data,
-        headers=auth_headers
+        f"{notification_url}/v1/notifications", json=notif_data, headers=auth_headers
     )
 
     assert create_response.status_code == 200
@@ -512,7 +512,7 @@ async def test_mark_notification_read_workflow(
     # Mark as read - تحديد كمقروء
     read_response = await http_client.patch(
         f"{notification_url}/v1/notifications/{notification_id}/read?farmer_id={farmer_id}",
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert read_response.status_code == 200
@@ -560,14 +560,14 @@ async def test_broadcast_notifications_workflow(
             "crop": "wheat",
             "old_price": 100,
             "new_price": 110,
-            "currency": "YER"
-        }
+            "currency": "YER",
+        },
     }
 
     create_response = await http_client.post(
         f"{notification_url}/v1/notifications",
         json=broadcast_data,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert create_response.status_code == 200
@@ -577,8 +577,7 @@ async def test_broadcast_notifications_workflow(
 
     # Retrieve broadcast notifications - استرجاع الإشعارات العامة
     broadcast_response = await http_client.get(
-        f"{notification_url}/v1/notifications/broadcast",
-        headers=auth_headers
+        f"{notification_url}/v1/notifications/broadcast", headers=auth_headers
     )
 
     assert broadcast_response.status_code == 200
@@ -590,7 +589,7 @@ async def test_broadcast_notifications_workflow(
     # Test filtering by governorate - اختبار التصفية حسب المحافظة
     gov_response = await http_client.get(
         f"{notification_url}/v1/notifications/broadcast?governorate=sanaa",
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     if gov_response.status_code == 200:
@@ -603,7 +602,7 @@ async def test_broadcast_notifications_workflow(
     # Test filtering by crop - اختبار التصفية حسب المحصول
     crop_response = await http_client.get(
         f"{notification_url}/v1/notifications/broadcast?crop=wheat",
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     if crop_response.status_code == 200:
@@ -646,13 +645,13 @@ async def test_notification_preferences_workflow(
         "governorate": "taiz",
         "crops": ["coffee"],
         "notification_channels": ["push", "in_app"],
-        "language": "ar"
+        "language": "ar",
     }
 
     register_response = await http_client.post(
         f"{notification_url}/v1/farmers/register",
         json=farmer_profile,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert register_response.status_code == 200
@@ -667,13 +666,13 @@ async def test_notification_preferences_workflow(
         "market_prices": False,  # Disable market prices
         "quiet_hours_start": "22:00",
         "quiet_hours_end": "06:00",
-        "min_priority": "medium"  # Only medium and above
+        "min_priority": "medium",  # Only medium and above
     }
 
     pref_response = await http_client.put(
         f"{notification_url}/v1/farmers/{farmer_id}/preferences",
         json=preferences,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert pref_response.status_code == 200
@@ -716,8 +715,7 @@ async def test_notification_statistics_workflow(
 
     # Get statistics - الحصول على الإحصائيات
     stats_response = await http_client.get(
-        f"{notification_url}/v1/stats",
-        headers=auth_headers
+        f"{notification_url}/v1/stats", headers=auth_headers
     )
 
     assert stats_response.status_code == 200

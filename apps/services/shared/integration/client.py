@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 class ServiceName(str, Enum):
     """Available services"""
+
     BILLING = "billing-core"
     SATELLITE = "satellite-service"
     INDICATORS = "indicators-service"
@@ -36,6 +37,7 @@ class ServiceName(str, Enum):
 @dataclass
 class ServiceResponse:
     """Response from a service call"""
+
     success: bool
     status_code: int
     data: Optional[Dict[str, Any]] = None
@@ -87,7 +89,9 @@ class ServiceClient:
             headers["Authorization"] = f"Bearer {self.auth_token}"
         return headers
 
-    def _get_cache_key(self, method: str, path: str, params: Optional[Dict] = None) -> str:
+    def _get_cache_key(
+        self, method: str, path: str, params: Optional[Dict] = None
+    ) -> str:
         """Generate cache key"""
         param_str = "&".join(f"{k}={v}" for k, v in sorted((params or {}).items()))
         return f"{method}:{path}?{param_str}"
@@ -298,6 +302,7 @@ def get_service_client(
 # Convenience Functions - دوال مساعدة
 # =============================================================================
 
+
 async def get_current_weather(location_id: str) -> Optional[Dict]:
     """Get current weather for a location"""
     client = get_service_client(ServiceName.WEATHER)
@@ -324,7 +329,7 @@ async def record_usage(tenant_id: str, usage_type: str, amount: float) -> bool:
     client = get_service_client(ServiceName.BILLING)
     response = await client.post(
         f"/v1/tenants/{tenant_id}/usage",
-        json={"usage_type": usage_type, "amount": amount}
+        json={"usage_type": usage_type, "amount": amount},
     )
     return response.success
 
@@ -351,7 +356,7 @@ async def send_notification(
             "title": title,
             "body": body,
             "type": notification_type,
-        }
+        },
     )
     return response.success
 
@@ -375,7 +380,6 @@ async def analyze_crop_health(image_path: str, crop_type: str) -> Optional[Dict]
     """Analyze crop health from image"""
     client = get_service_client(ServiceName.CROP_HEALTH)
     response = await client.post(
-        "/v1/analyze",
-        json={"image_path": image_path, "crop_type": crop_type}
+        "/v1/analyze", json={"image_path": image_path, "crop_type": crop_type}
     )
     return response.data if response.success else None

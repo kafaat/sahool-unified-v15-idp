@@ -42,7 +42,9 @@ def upgrade() -> None:
         sa.Column("longitude", sa.Float(), nullable=True),
         sa.Column("total_area_hectares", sa.Float(), nullable=True),
         sa.Column("owner_id", postgresql.UUID(as_uuid=True), nullable=False),
-        sa.Column("status", sa.String(length=20), nullable=False, server_default="active"),
+        sa.Column(
+            "status", sa.String(length=20), nullable=False, server_default="active"
+        ),
         sa.Column("metadata_json", postgresql.JSONB(), nullable=True),
         sa.Column(
             "created_at",
@@ -76,7 +78,9 @@ def upgrade() -> None:
         sa.Column("area_hectares", sa.Float(), nullable=False),
         sa.Column("soil_type", sa.String(length=40), nullable=True),
         sa.Column("irrigation_type", sa.String(length=40), nullable=True),
-        sa.Column("status", sa.String(length=20), nullable=False, server_default="active"),
+        sa.Column(
+            "status", sa.String(length=20), nullable=False, server_default="active"
+        ),
         sa.Column("current_crop_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column("metadata_json", postgresql.JSONB(), nullable=True),
         sa.Column(
@@ -104,10 +108,12 @@ def upgrade() -> None:
     op.create_index("ix_fields_farm", "fields", ["farm_id"])
 
     # Add PostGIS geometry column
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE fields
         ADD COLUMN geom geometry(Polygon, 4326);
-    """)
+    """
+    )
 
     # Create GIST spatial index
     op.execute("CREATE INDEX ix_fields_geom ON fields USING GIST (geom);")
@@ -122,7 +128,12 @@ def upgrade() -> None:
         sa.Column("field_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("name", sa.String(length=140), nullable=False),
         sa.Column("name_ar", sa.String(length=140), nullable=True),
-        sa.Column("zone_type", sa.String(length=40), nullable=False, server_default="management"),
+        sa.Column(
+            "zone_type",
+            sa.String(length=40),
+            nullable=False,
+            server_default="management",
+        ),
         sa.Column("geometry_wkt", sa.Text(), nullable=False),
         sa.Column("center_latitude", sa.Float(), nullable=True),
         sa.Column("center_longitude", sa.Float(), nullable=True),
@@ -154,10 +165,12 @@ def upgrade() -> None:
     op.create_index("ix_zones_type", "zones", ["zone_type"])
 
     # Add PostGIS geometry column
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE zones
         ADD COLUMN geom geometry(Polygon, 4326);
-    """)
+    """
+    )
 
     # Create GIST spatial index
     op.execute("CREATE INDEX ix_zones_geom ON zones USING GIST (geom);")
@@ -202,10 +215,12 @@ def upgrade() -> None:
     op.create_index("ix_subzones_zone", "sub_zones", ["zone_id"])
 
     # Add PostGIS geometry column
-    op.execute("""
+    op.execute(
+        """
         ALTER TABLE sub_zones
         ADD COLUMN geom geometry(Polygon, 4326);
-    """)
+    """
+    )
 
     # Create GIST spatial index
     op.execute("CREATE INDEX ix_subzones_geom ON sub_zones USING GIST (geom);")
@@ -213,7 +228,8 @@ def upgrade() -> None:
     # -------------------------------------------------------------------------
     # Create trigger to auto-sync geometry_wkt → geom on INSERT/UPDATE
     # -------------------------------------------------------------------------
-    op.execute("""
+    op.execute(
+        """
         CREATE OR REPLACE FUNCTION sync_geometry_from_wkt()
         RETURNS TRIGGER AS $$
         BEGIN
@@ -223,16 +239,19 @@ def upgrade() -> None:
             RETURN NEW;
         END;
         $$ LANGUAGE plpgsql;
-    """)
+    """
+    )
 
     # Apply trigger to all spatial tables
     for table in ["fields", "zones", "sub_zones"]:
-        op.execute(f"""
+        op.execute(
+            f"""
             CREATE TRIGGER trg_{table}_sync_geom
             BEFORE INSERT OR UPDATE ON {table}
             FOR EACH ROW
             EXECUTE FUNCTION sync_geometry_from_wkt();
-        """)
+        """
+        )
 
 
 def downgrade() -> None:

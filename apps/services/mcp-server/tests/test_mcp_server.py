@@ -11,7 +11,9 @@ from fastapi.testclient import TestClient
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+)
 
 from apps.services.mcp_server.src.main import app
 
@@ -170,7 +172,10 @@ class TestMCPProtocol:
             "jsonrpc": "2.0",
             "id": 6,
             "method": "prompts/get",
-            "params": {"name": "field_analysis", "arguments": {"field_id": "field-123"}},
+            "params": {
+                "name": "field_analysis",
+                "arguments": {"field_id": "field-123"},
+            },
         }
 
         response = client.post("/mcp", json=request)

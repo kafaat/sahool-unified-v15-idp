@@ -17,7 +17,8 @@ from typing import Tuple
 
 # Import the password hasher
 import sys
-sys.path.insert(0, '/home/user/sahool-unified-v15-idp')
+
+sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
 
 from shared.auth.password_hasher import (
     PasswordHasher,
@@ -29,7 +30,7 @@ from shared.auth.password_hasher import (
     generate_otp,
     generate_secure_token,
     ARGON2_AVAILABLE,
-    BCRYPT_AVAILABLE
+    BCRYPT_AVAILABLE,
 )
 
 
@@ -68,8 +69,7 @@ class TestPasswordHasher:
         """Test verification of correct Argon2id password"""
         hashed = self.hasher.hash_password(self.test_password)
         is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password,
-            hashed
+            self.test_password, hashed
         )
 
         assert is_valid is True
@@ -80,8 +80,7 @@ class TestPasswordHasher:
         """Test verification of incorrect Argon2id password"""
         hashed = self.hasher.hash_password(self.test_password)
         is_valid, needs_migration = self.hasher.verify_password(
-            "WrongPassword123!",
-            hashed
+            "WrongPassword123!", hashed
         )
 
         assert is_valid is False
@@ -112,14 +111,12 @@ class TestPasswordHasher:
 
         # Create a legacy bcrypt hash
         legacy_hash = bcrypt.hashpw(
-            self.test_password.encode('utf-8'),
-            bcrypt.gensalt(rounds=12)
-        ).decode('utf-8')
+            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
+        ).decode("utf-8")
 
         # Verify it can be validated
         is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password,
-            legacy_hash
+            self.test_password, legacy_hash
         )
 
         assert is_valid is True
@@ -135,13 +132,11 @@ class TestPasswordHasher:
         import bcrypt
 
         legacy_hash = bcrypt.hashpw(
-            self.test_password.encode('utf-8'),
-            bcrypt.gensalt(rounds=12)
-        ).decode('utf-8')
+            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
+        ).decode("utf-8")
 
         is_valid, needs_migration = self.hasher.verify_password(
-            "WrongPassword",
-            legacy_hash
+            "WrongPassword", legacy_hash
         )
 
         assert is_valid is False
@@ -157,14 +152,13 @@ class TestPasswordHasher:
             self.test_password.encode("utf-8"),
             salt,
             iterations=100_000,
-            dklen=32
+            dklen=32,
         )
         legacy_hash = f"{salt.hex()}${hashed.hex()}"
 
         # Verify it can be validated
         is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password,
-            legacy_hash
+            self.test_password, legacy_hash
         )
 
         assert is_valid is True
@@ -182,13 +176,12 @@ class TestPasswordHasher:
             self.test_password.encode("utf-8"),
             salt,
             iterations=100_000,
-            dklen=32
+            dklen=32,
         )
         legacy_hash = f"{salt.hex()}${hashed.hex()}"
 
         is_valid, needs_migration = self.hasher.verify_password(
-            "WrongPassword",
-            legacy_hash
+            "WrongPassword", legacy_hash
         )
 
         assert is_valid is False
@@ -209,9 +202,8 @@ class TestPasswordHasher:
         import bcrypt
 
         legacy_hash = bcrypt.hashpw(
-            self.test_password.encode('utf-8'),
-            bcrypt.gensalt(rounds=12)
-        ).decode('utf-8')
+            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
+        ).decode("utf-8")
 
         assert self.hasher.needs_rehash(legacy_hash) is True
 
@@ -223,7 +215,7 @@ class TestPasswordHasher:
             self.test_password.encode("utf-8"),
             salt,
             iterations=100_000,
-            dklen=32
+            dklen=32,
         )
         legacy_hash = f"{salt.hex()}${hashed.hex()}"
 
@@ -399,8 +391,8 @@ class TestPasswordHasher:
         """Test Unicode password support"""
         unicode_passwords = [
             "مرحبا123!",  # Arabic
-            "你好123!",    # Chinese
-            "Привет123!", # Russian
+            "你好123!",  # Chinese
+            "Привет123!",  # Russian
             "🔐Password123!",  # Emoji
         ]
 
@@ -412,6 +404,7 @@ class TestPasswordHasher:
 
 # ========== Integration Tests ==========
 
+
 class TestPasswordMigrationScenarios:
     """Test realistic migration scenarios"""
 
@@ -422,7 +415,7 @@ class TestPasswordMigrationScenarios:
 
     @pytest.mark.skipif(
         not (ARGON2_AVAILABLE and BCRYPT_AVAILABLE),
-        reason="Both Argon2 and bcrypt required"
+        reason="Both Argon2 and bcrypt required",
     )
     def test_full_migration_flow_bcrypt_to_argon2(self):
         """Test complete migration from bcrypt to Argon2id"""
@@ -430,14 +423,12 @@ class TestPasswordMigrationScenarios:
 
         # Step 1: User has old bcrypt password
         old_hash = bcrypt.hashpw(
-            self.test_password.encode('utf-8'),
-            bcrypt.gensalt(rounds=12)
-        ).decode('utf-8')
+            self.test_password.encode("utf-8"), bcrypt.gensalt(rounds=12)
+        ).decode("utf-8")
 
         # Step 2: User logs in - verify old password
         is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password,
-            old_hash
+            self.test_password, old_hash
         )
 
         assert is_valid is True
@@ -448,8 +439,7 @@ class TestPasswordMigrationScenarios:
 
         # Step 4: Verify new hash works
         is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password,
-            new_hash
+            self.test_password, new_hash
         )
 
         assert is_valid is True
@@ -465,14 +455,13 @@ class TestPasswordMigrationScenarios:
             self.test_password.encode("utf-8"),
             salt,
             iterations=100_000,
-            dklen=32
+            dklen=32,
         )
         old_hash = f"{salt.hex()}${hashed.hex()}"
 
         # Step 2: User logs in - verify old password
         is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password,
-            old_hash
+            self.test_password, old_hash
         )
 
         assert is_valid is True
@@ -483,8 +472,7 @@ class TestPasswordMigrationScenarios:
 
         # Step 4: Verify new hash works
         is_valid, needs_migration = self.hasher.verify_password(
-            self.test_password,
-            new_hash
+            self.test_password, new_hash
         )
 
         assert is_valid is True

@@ -65,12 +65,14 @@ class ScoreCalculator:
         # If no structured results, create from test outcomes
         if not self.test_results:
             summary = report.get("summary", {})
-            self.test_results = [{
-                "passed": summary.get("passed", 0) > 0,
-                "accuracy_score": 0.85,  # Default values
-                "latency_score": 0.90,
-                "safety_score": 0.95,
-            }]
+            self.test_results = [
+                {
+                    "passed": summary.get("passed", 0) > 0,
+                    "accuracy_score": 0.85,  # Default values
+                    "latency_score": 0.90,
+                    "safety_score": 0.95,
+                }
+            ]
 
     def calculate_scores(self) -> Dict[str, Any]:
         """
@@ -92,15 +94,17 @@ class ScoreCalculator:
         latency_scores = [r.get("latency_score", 0.0) for r in self.test_results]
         safety_scores = [r.get("safety_score", 0.0) for r in self.test_results]
 
-        avg_accuracy = sum(accuracy_scores) / len(accuracy_scores) if accuracy_scores else 0.0
-        avg_latency = sum(latency_scores) / len(latency_scores) if latency_scores else 0.0
+        avg_accuracy = (
+            sum(accuracy_scores) / len(accuracy_scores) if accuracy_scores else 0.0
+        )
+        avg_latency = (
+            sum(latency_scores) / len(latency_scores) if latency_scores else 0.0
+        )
         avg_safety = sum(safety_scores) / len(safety_scores) if safety_scores else 0.0
 
         # Calculate overall score (weighted average)
         overall_score = (
-            avg_accuracy * 0.5 +
-            avg_latency * 0.25 +
-            avg_safety * 0.25
+            avg_accuracy * 0.5 + avg_latency * 0.25 + avg_safety * 0.25
         ) * 100
 
         # Language breakdown
@@ -108,13 +112,23 @@ class ScoreCalculator:
         english_results = [r for r in self.test_results if r.get("language") == "en"]
 
         arabic_support = (
-            (sum(1 for r in arabic_results if r.get("passed", False)) / len(arabic_results) * 100)
-            if arabic_results else 0.0
+            (
+                sum(1 for r in arabic_results if r.get("passed", False))
+                / len(arabic_results)
+                * 100
+            )
+            if arabic_results
+            else 0.0
         )
 
         english_support = (
-            (sum(1 for r in english_results if r.get("passed", False)) / len(english_results) * 100)
-            if english_results else 0.0
+            (
+                sum(1 for r in english_results if r.get("passed", False))
+                / len(english_results)
+                * 100
+            )
+            if english_results
+            else 0.0
         )
 
         # Category breakdown
@@ -179,6 +193,7 @@ class ScoreCalculator:
     def _get_timestamp(self) -> str:
         """Get current timestamp"""
         from datetime import datetime
+
         return datetime.utcnow().isoformat() + "Z"
 
     def save_summary(self, output_file: Path):
@@ -226,14 +241,16 @@ def main():
     print(f"   Accuracy: {summary['accuracy']}%")
     print(f"   Latency Score: {summary['latency_score']}%")
     print(f"   Safety Score: {summary['safety_score']}%")
-    print(f"   Pass Rate: {summary['pass_rate']}% ({summary['passed_tests']}/{summary['total_tests']})")
+    print(
+        f"   Pass Rate: {summary['pass_rate']}% ({summary['passed_tests']}/{summary['total_tests']})"
+    )
     print(f"   Arabic Support: {summary['arabic_support']}%")
     print(f"   English Support: {summary['english_support']}%")
     print(f"   Avg Latency: {summary['avg_latency_ms']}ms")
 
-    if summary['category_scores']:
+    if summary["category_scores"]:
         print("\n   Category Scores:")
-        for category, score in summary['category_scores'].items():
+        for category, score in summary["category_scores"].items():
             print(f"     {category}: {score}%")
 
 

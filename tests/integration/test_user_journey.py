@@ -56,16 +56,14 @@ async def test_new_farmer_onboarding_journey(
 
     # List available plans
     plans_response = await http_client.get(
-        f"{billing_url}/v1/plans",
-        headers=auth_headers
+        f"{billing_url}/v1/plans", headers=auth_headers
     )
 
     if plans_response.status_code == 200:
         plans = plans_response.json()
         # Farmer chooses starter plan
         starter_plan = next(
-            (p for p in plans.get("plans", []) if p.get("plan_id") == "starter"),
-            None
+            (p for p in plans.get("plans", []) if p.get("plan_id") == "starter"), None
         )
         assert starter_plan is not None
 
@@ -76,13 +74,11 @@ async def test_new_farmer_onboarding_journey(
         "email": "newfarmer-test@sahool.io",
         "phone": "+967777999888",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     subscription_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     if subscription_response.status_code == 200:
@@ -96,9 +92,7 @@ async def test_new_farmer_onboarding_journey(
     field_data = field_factory.create(name="My First Wheat Field", crop_type="wheat")
 
     field_response = await http_client.post(
-        f"{field_ops_url}/api/v1/fields",
-        json=field_data,
-        headers=auth_headers
+        f"{field_ops_url}/api/v1/fields", json=field_data, headers=auth_headers
     )
 
     if field_response.status_code == 201:
@@ -113,8 +107,7 @@ async def test_new_farmer_onboarding_journey(
 
         # Get crop calendar recommendations
         calendar_response = await http_client.get(
-            f"{agro_advisor_url}/api/v1/calendar/{field_id}",
-            headers=auth_headers
+            f"{agro_advisor_url}/api/v1/calendar/{field_id}", headers=auth_headers
         )
 
         # Should get recommendations or require more data
@@ -126,16 +119,13 @@ async def test_new_farmer_onboarding_journey(
     notification_prefs = {
         "channels": ["push", "sms", "in_app"],
         "types": ["weather_alerts", "irrigation_reminders", "pest_alerts"],
-        "quiet_hours": {
-            "start": "22:00",
-            "end": "07:00"
-        }
+        "quiet_hours": {"start": "22:00", "end": "07:00"},
     }
 
     prefs_response = await http_client.put(
         f"{notification_url}/v1/preferences",
         json=notification_prefs,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert prefs_response.status_code in (200, 201, 401)
@@ -173,7 +163,7 @@ async def test_daily_farming_operations_journey(
     weather_response = await http_client.get(
         f"{weather_url}/api/v1/weather/forecast",
         params={"latitude": 15.3694, "longitude": 44.1910, "days": 7},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     # Should get weather data
@@ -186,7 +176,7 @@ async def test_daily_farming_operations_journey(
     sensors_response = await http_client.get(
         f"{iot_url}/v1/readings/latest",
         params={"field_id": field_id},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     # May or may not have IoT sensors
@@ -196,8 +186,7 @@ async def test_daily_farming_operations_journey(
     irrigation_url = service_urls.get("irrigation_smart", "http://localhost:8094")
 
     schedule_response = await http_client.get(
-        f"{irrigation_url}/api/v1/irrigation/schedule/{field_id}",
-        headers=auth_headers
+        f"{irrigation_url}/api/v1/irrigation/schedule/{field_id}", headers=auth_headers
     )
 
     assert schedule_response.status_code in (200, 404, 401)
@@ -208,7 +197,7 @@ async def test_daily_farming_operations_journey(
     alerts_response = await http_client.get(
         f"{alert_url}/v1/alerts/active",
         params={"field_id": field_id},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert alerts_response.status_code in (200, 401)
@@ -225,13 +214,11 @@ async def test_daily_farming_operations_journey(
         "description_ar": "ري حقل القمح لمدة ساعتين",
         "duration_minutes": 120,
         "water_used_liters": 5000,
-        "cost_yer": 500
+        "cost_yer": 500,
     }
 
     activity_response = await http_client.post(
-        f"{task_url}/api/v1/activities",
-        json=activity_data,
-        headers=auth_headers
+        f"{task_url}/api/v1/activities", json=activity_data, headers=auth_headers
     )
 
     assert activity_response.status_code in (200, 201, 401, 422)
@@ -242,13 +229,11 @@ async def test_daily_farming_operations_journey(
     question = {
         "question": "ما هو أفضل وقت للري بناءً على حالة حقلي الحالية؟",
         "field_id": field_id,
-        "language": "ar"
+        "language": "ar",
     }
 
     ai_response = await http_client.post(
-        f"{ai_advisor_url}/api/v1/advisor/ask",
-        json=question,
-        headers=auth_headers
+        f"{ai_advisor_url}/api/v1/advisor/ask", json=question, headers=auth_headers
     )
 
     assert ai_response.status_code in (200, 401, 503)
@@ -292,7 +277,7 @@ async def test_crisis_management_journey(
     notif_response = await http_client.get(
         f"{notification_url}/v1/notifications",
         params={"type": "pest_alert", "limit": 10},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert notif_response.status_code in (200, 401)
@@ -302,8 +287,7 @@ async def test_crisis_management_journey(
 
     # Get crop health analysis
     health_response = await http_client.get(
-        f"{crop_health_url}/api/v1/health/field/{field_id}",
-        headers=auth_headers
+        f"{crop_health_url}/api/v1/health/field/{field_id}", headers=auth_headers
     )
 
     assert health_response.status_code in (200, 404, 401)
@@ -314,7 +298,7 @@ async def test_crisis_management_journey(
     treatment_response = await http_client.get(
         f"{agro_advisor_url}/api/v1/recommendations/pest-control",
         params={"field_id": field_id, "pest_type": "aphids"},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert treatment_response.status_code in (200, 404, 401)
@@ -326,7 +310,7 @@ async def test_crisis_management_journey(
     search_response = await http_client.get(
         f"{marketplace_url}/api/v1/products/search",
         params={"query": "pesticide", "category": "inputs"},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     if search_response.status_code == 200:
@@ -338,17 +322,15 @@ async def test_crisis_management_journey(
                 {
                     "product_id": "product-pesticide-001",
                     "quantity": 2,
-                    "unit_price": 15000
+                    "unit_price": 15000,
                 }
             ],
             "urgent": True,
-            "notes": "Urgent - pest outbreak"
+            "notes": "Urgent - pest outbreak",
         }
 
         order_response = await http_client.post(
-            f"{marketplace_url}/api/v1/orders",
-            json=order_data,
-            headers=auth_headers
+            f"{marketplace_url}/api/v1/orders", json=order_data, headers=auth_headers
         )
 
         assert order_response.status_code in (200, 201, 401, 422)
@@ -363,13 +345,11 @@ async def test_crisis_management_journey(
         "title_ar": "رش المبيد الحشري لمكافحة حشرات المن",
         "pesticide_used": "Imidacloprid",
         "quantity_ml": 500,
-        "area_treated_hectares": 2.5
+        "area_treated_hectares": 2.5,
     }
 
     activity_response = await http_client.post(
-        f"{task_url}/api/v1/activities",
-        json=treatment_activity,
-        headers=auth_headers
+        f"{task_url}/api/v1/activities", json=treatment_activity, headers=auth_headers
     )
 
     assert activity_response.status_code in (200, 201, 401, 422)
@@ -406,8 +386,7 @@ async def test_seasonal_planning_journey(
     yield_url = service_urls.get("yield_engine", "http://localhost:3021")
 
     yield_response = await http_client.get(
-        f"{yield_url}/api/v1/yield/history/{field_id}",
-        headers=auth_headers
+        f"{yield_url}/api/v1/yield/history/{field_id}", headers=auth_headers
     )
 
     assert yield_response.status_code in (200, 404, 401)
@@ -418,7 +397,7 @@ async def test_seasonal_planning_journey(
     calendar_response = await http_client.get(
         f"{calendar_url}/api/v1/calendar/planting-dates",
         params={"crop": "wheat", "location": "Sana'a"},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert calendar_response.status_code in (200, 401)
@@ -429,7 +408,7 @@ async def test_seasonal_planning_journey(
     rotation_response = await http_client.get(
         f"{agro_advisor_url}/api/v1/recommendations/crop-rotation",
         params={"field_id": field_id, "previous_crop": "wheat"},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert rotation_response.status_code in (200, 404, 401)
@@ -446,21 +425,21 @@ async def test_seasonal_planning_journey(
                 "type": "fertilizer",
                 "name": "NPK 20-20-20",
                 "quantity_kg": 500,
-                "estimated_cost_yer": 250000
+                "estimated_cost_yer": 250000,
             },
             {
                 "type": "seeds",
                 "name": "Wheat Seeds - Local Variety",
                 "quantity_kg": 150,
-                "estimated_cost_yer": 60000
-            }
-        ]
+                "estimated_cost_yer": 60000,
+            },
+        ],
     }
 
     plan_response = await http_client.post(
         f"{inventory_url}/api/v1/purchase-plans",
         json=purchase_plan,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert plan_response.status_code in (200, 201, 401, 422)
@@ -473,28 +452,26 @@ async def test_seasonal_planning_journey(
             "title": "Plow field",
             "title_ar": "حرث الحقل",
             "due_date": (datetime.utcnow() + timedelta(days=7)).isoformat(),
-            "priority": "high"
+            "priority": "high",
         },
         {
             "title": "Apply base fertilizer",
             "title_ar": "وضع السماد الأساسي",
             "due_date": (datetime.utcnow() + timedelta(days=10)).isoformat(),
-            "priority": "high"
+            "priority": "high",
         },
         {
             "title": "Plant seeds",
             "title_ar": "زراعة البذور",
             "due_date": (datetime.utcnow() + timedelta(days=14)).isoformat(),
-            "priority": "critical"
-        }
+            "priority": "critical",
+        },
     ]
 
     for task_data in tasks:
         task_data["field_id"] = field_id
         task_response = await http_client.post(
-            f"{task_url}/api/v1/tasks",
-            json=task_data,
-            headers=auth_headers
+            f"{task_url}/api/v1/tasks", json=task_data, headers=auth_headers
         )
 
         assert task_response.status_code in (200, 201, 401, 422)
@@ -507,13 +484,13 @@ async def test_seasonal_planning_journey(
         "crop": "wheat",
         "start_date": (datetime.utcnow() + timedelta(days=14)).isoformat(),
         "schedule_type": "smart",  # Based on ET0 calculations
-        "enable_automation": True
+        "enable_automation": True,
     }
 
     irrigation_response = await http_client.post(
         f"{irrigation_url}/api/v1/irrigation/schedules",
         json=irrigation_plan,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert irrigation_response.status_code in (200, 201, 401, 422)
@@ -553,8 +530,7 @@ async def test_business_growth_journey(
 
     # Check current subscription
     subscription_response = await http_client.get(
-        f"{billing_url}/v1/subscription",
-        headers=auth_headers
+        f"{billing_url}/v1/subscription", headers=auth_headers
     )
 
     if subscription_response.status_code == 200:
@@ -564,13 +540,13 @@ async def test_business_growth_journey(
         upgrade_data = {
             "new_plan_id": "professional",
             "billing_cycle": "annual",  # Save money with annual billing
-            "apply_proration": True
+            "apply_proration": True,
         }
 
         upgrade_response = await http_client.post(
             f"{billing_url}/v1/subscription/upgrade",
             json=upgrade_data,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         assert upgrade_response.status_code in (200, 401, 422)
@@ -582,7 +558,7 @@ async def test_business_growth_journey(
     satellite_response = await http_client.get(
         f"{satellite_url}/api/v1/satellite/imagery/{field_id}",
         params={"start_date": (datetime.utcnow() - timedelta(days=30)).isoformat()},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert satellite_response.status_code in (200, 404, 401)
@@ -591,8 +567,7 @@ async def test_business_growth_journey(
     ndvi_url = service_urls.get("ndvi_engine", "http://localhost:8107")
 
     ndvi_response = await http_client.get(
-        f"{ndvi_url}/api/v1/ndvi/fields/{field_id}/analysis",
-        headers=auth_headers
+        f"{ndvi_url}/api/v1/ndvi/fields/{field_id}/analysis", headers=auth_headers
     )
 
     assert ndvi_response.status_code in (200, 404, 401)
@@ -601,13 +576,13 @@ async def test_business_growth_journey(
     enterprise_upgrade = {
         "new_plan_id": "enterprise",
         "billing_cycle": "annual",
-        "apply_proration": True
+        "apply_proration": True,
     }
 
     enterprise_response = await http_client.post(
         f"{billing_url}/v1/subscription/upgrade",
         json=enterprise_upgrade,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert enterprise_response.status_code in (200, 401, 422)
@@ -619,13 +594,13 @@ async def test_business_growth_journey(
         "farmer_type": "progressive",
         "farm_size_hectares": 50,
         "interested_in": ["soil_health", "climate_resilience"],
-        "willing_to_share_data": True
+        "willing_to_share_data": True,
     }
 
     research_response = await http_client.post(
         f"{research_url}/api/v1/participants",
         json=research_registration,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert research_response.status_code in (200, 201, 401, 422)
@@ -638,13 +613,13 @@ async def test_business_growth_journey(
         "business_name_ar": "مزرعة أحمد العضوية",
         "business_type": "producer",
         "products_offered": ["organic_wheat", "organic_vegetables"],
-        "certifications": ["organic_certified"]
+        "certifications": ["organic_certified"],
     }
 
     seller_response = await http_client.post(
         f"{marketplace_url}/api/v1/sellers",
         json=seller_registration,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert seller_response.status_code in (200, 201, 401, 422)
@@ -690,13 +665,11 @@ async def test_multi_service_integration_journey(
         "sensor_type": "soil_moisture",
         "value": 18,  # Low moisture
         "unit": "%",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
     }
 
     sensor_response = await http_client.post(
-        f"{iot_url}/v1/readings",
-        json=sensor_reading,
-        headers=auth_headers
+        f"{iot_url}/v1/readings", json=sensor_reading, headers=auth_headers
     )
 
     # Steps 2-3: Alert and notification happen automatically
@@ -711,13 +684,13 @@ async def test_multi_service_integration_journey(
         "current_moisture_percent": 18,
         "target_moisture_percent": 40,
         "soil_type": "loamy",
-        "crop_type": "wheat"
+        "crop_type": "wheat",
     }
 
     calc_response = await http_client.post(
         f"{irrigation_url}/api/v1/irrigation/calculate",
         json=irrigation_calc,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     water_needed = 0
@@ -735,13 +708,11 @@ async def test_multi_service_integration_journey(
         "title_ar": "ري عاجل مطلوب",
         "priority": "high",
         "auto_created": True,
-        "due_date": datetime.utcnow().isoformat()
+        "due_date": datetime.utcnow().isoformat(),
     }
 
     task_response = await http_client.post(
-        f"{task_url}/api/v1/tasks",
-        json=irrigation_task,
-        headers=auth_headers
+        f"{task_url}/api/v1/tasks", json=irrigation_task, headers=auth_headers
     )
 
     # Step 6: Farmer approves (or auto-approved if configured)
@@ -749,16 +720,11 @@ async def test_multi_service_integration_journey(
     valve_command = {
         "device_id": "valve-001",
         "command": "open",
-        "parameters": {
-            "duration_minutes": 30,
-            "target_volume_liters": water_needed
-        }
+        "parameters": {"duration_minutes": 30, "target_volume_liters": water_needed},
     }
 
     actuator_response = await http_client.post(
-        f"{iot_url}/v1/actuators/command",
-        json=valve_command,
-        headers=auth_headers
+        f"{iot_url}/v1/actuators/command", json=valve_command, headers=auth_headers
     )
 
     # Step 8: Monitor water usage (happens automatically)
@@ -767,8 +733,7 @@ async def test_multi_service_integration_journey(
     billing_url = service_urls.get("billing_core", "http://localhost:8089")
 
     usage_response = await http_client.get(
-        f"{billing_url}/v1/usage",
-        headers=auth_headers
+        f"{billing_url}/v1/usage", headers=auth_headers
     )
 
     if usage_response.status_code == 200:

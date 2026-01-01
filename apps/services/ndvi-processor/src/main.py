@@ -55,8 +55,7 @@ from .processing import (
 import logging
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -143,7 +142,7 @@ async def process_job_background(job_id: str, request: ProcessRequest):
                 "ndvi_id": result.id,
                 "ndvi_mean": result.statistics.mean,
                 "files": result.files.model_dump(),
-            }
+            },
         )
 
         logger.info(f"Job {job_id} completed successfully")
@@ -159,23 +158,24 @@ async def process_job_background(job_id: str, request: ProcessRequest):
 @app.get("/health")
 def health():
     """فحص الصحة - Health check with metrics"""
-    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
+    active_jobs = len(
+        [j for j in list_jobs() if j["status"] in ["queued", "processing"]]
+    )
     return {
         "status": "healthy",
         "service": "ndvi-processor",
         "version": "16.0.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "metrics": {
-            "queue_size": active_jobs,
-            "total_jobs": len(list_jobs())
-        }
+        "metrics": {"queue_size": active_jobs, "total_jobs": len(list_jobs())},
     }
 
 
 @app.get("/healthz")
 def healthz():
     """فحص الصحة - Kubernetes liveness probe"""
-    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
+    active_jobs = len(
+        [j for j in list_jobs() if j["status"] in ["queued", "processing"]]
+    )
     return {
         "status": "healthy",
         "service": "ndvi-processor",
@@ -195,10 +195,7 @@ def readiness():
 
 
 @app.post("/process", response_model=JobResponse, status_code=202)
-async def start_processing(
-    request: ProcessRequest,
-    background_tasks: BackgroundTasks
-):
+async def start_processing(request: ProcessRequest, background_tasks: BackgroundTasks):
     """بدء معالجة صورة جديدة"""
     job_id = create_job(
         tenant_id=request.tenant_id,
@@ -268,6 +265,7 @@ async def get_ndvi(
     if not result:
         # توليد نتيجة محاكاة
         from .processing import process_ndvi_mock
+
         mock_result = process_ndvi_mock(
             field_id=field_id,
             source=SatelliteSource.SENTINEL_2,
@@ -286,6 +284,7 @@ async def get_latest_ndvi(field_id: str):
     if not result:
         # توليد نتيجة محاكاة
         from .processing import process_ndvi_mock
+
         mock_result = process_ndvi_mock(
             field_id=field_id,
             source=SatelliteSource.SENTINEL_2,
@@ -380,8 +379,7 @@ async def export_ndvi(
     if format == ExportFormat.CSV:
         if not start or not end:
             raise HTTPException(
-                status_code=400,
-                detail="start و end مطلوبان لتصدير CSV"
+                status_code=400, detail="start و end مطلوبان لتصدير CSV"
             )
 
         data = get_ndvi_timeseries(field_id, start, end)
@@ -394,7 +392,7 @@ async def export_ndvi(
             media_type="text/csv",
             headers={
                 "Content-Disposition": f'attachment; filename="{field_id}_ndvi.csv"'
-            }
+            },
         )
 
     elif format == ExportFormat.JSON:

@@ -23,6 +23,7 @@ except ImportError:
     # Fallback if shared config not available | احتياطي إذا لم يكن التكوين المشترك متاحًا
     def setup_cors_middleware(app):
         from fastapi.middleware.cors import CORSMiddleware
+
         app.add_middleware(
             CORSMiddleware,
             allow_origins=["*"],
@@ -30,6 +31,7 @@ except ImportError:
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
 
 from .config import settings
 from .models.compliance import (
@@ -60,7 +62,7 @@ from .services.audit_service import AuditService
 structlog.configure(
     processors=[
         structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ]
 )
 logger = structlog.get_logger(__name__)
@@ -69,7 +71,9 @@ logger = structlog.get_logger(__name__)
 # ============== Authentication ==============
 
 
-def get_tenant_id(x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")) -> str:
+def get_tenant_id(
+    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
+) -> str:
     """
     Extract and validate tenant ID from X-Tenant-Id header
     استخراج والتحقق من معرف المستأجر من رأس X-Tenant-Id
@@ -166,7 +170,7 @@ def health():
         "dependencies": {
             "database": "disconnected",  # TODO: Implement database health check
             "nats": "disconnected",  # TODO: Implement NATS health check
-        }
+        },
     }
 
 
@@ -201,10 +205,7 @@ def readiness():
 
 
 @app.get("/farms/{farm_id}/compliance")
-async def get_farm_compliance(
-    farm_id: str,
-    tenant_id: str = Depends(get_tenant_id)
-):
+async def get_farm_compliance(farm_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get current compliance status for a farm
     الحصول على حالة الامتثال الحالية للمزرعة
@@ -233,7 +234,7 @@ async def get_farm_compliance(
 async def create_or_update_compliance(
     farm_id: str,
     compliance_data: ComplianceRecord,
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Create or update compliance record for a farm
@@ -256,7 +257,7 @@ async def create_or_update_compliance(
         farm_id=farm_id,
         tenant_id=tenant_id,
         status=saved_record.overall_status.value,
-        compliance_percentage=saved_record.compliance_percentage
+        compliance_percentage=saved_record.compliance_percentage,
     )
 
     return saved_record
@@ -266,7 +267,7 @@ async def create_or_update_compliance(
 async def get_compliance_trends(
     farm_id: str,
     months: int = Query(12, ge=1, le=24),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Get compliance trends over time
@@ -279,7 +280,7 @@ async def get_compliance_trends(
         "farm_id": farm_id,
         "tenant_id": tenant_id,
         "trends": trends,
-        "period_months": months
+        "period_months": months,
     }
 
 
@@ -290,7 +291,7 @@ async def get_compliance_trends(
 async def get_checklists(
     ifa_version: str = Query("6.0", description="IFA version | إصدار معايير IFA"),
     checklist_type: Optional[str] = Query(None, description="full, partial, follow_up"),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Get available checklists
@@ -298,18 +299,15 @@ async def get_checklists(
     """
     # Filter checklists | تصفية قوائم المراجعة
     filtered = [
-        c for c in _checklists.values()
+        c
+        for c in _checklists.values()
         if c.get("ifa_version") == ifa_version and c.get("is_active", True)
     ]
 
     if checklist_type:
         filtered = [c for c in filtered if c.get("checklist_type") == checklist_type]
 
-    return {
-        "checklists": filtered,
-        "total": len(filtered),
-        "ifa_version": ifa_version
-    }
+    return {"checklists": filtered, "total": len(filtered), "ifa_version": ifa_version}
 
 
 @app.get("/checklists/{checklist_id}/items")
@@ -317,7 +315,7 @@ async def get_checklist_items(
     checklist_id: str,
     category: Optional[ChecklistCategory] = Query(None),
     compliance_level: Optional[ComplianceLevel] = Query(None),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Get checklist items (control points)
@@ -325,28 +323,27 @@ async def get_checklist_items(
     """
     # Filter items | تصفية العناصر
     filtered = [
-        item for item in _checklist_items.values()
-        if item.get("is_active", True)
+        item for item in _checklist_items.values() if item.get("is_active", True)
     ]
 
     if category:
         filtered = [item for item in filtered if item.get("category") == category.value]
 
     if compliance_level:
-        filtered = [item for item in filtered if item.get("compliance_level") == compliance_level.value]
+        filtered = [
+            item
+            for item in filtered
+            if item.get("compliance_level") == compliance_level.value
+        ]
 
-    return {
-        "checklist_id": checklist_id,
-        "items": filtered,
-        "total": len(filtered)
-    }
+    return {"checklist_id": checklist_id, "items": filtered, "total": len(filtered)}
 
 
 @app.post("/farms/{farm_id}/assessments", status_code=201)
 async def create_assessment(
     farm_id: str,
     assessment: ChecklistAssessment,
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Create or update a checklist assessment for a farm
@@ -366,7 +363,7 @@ async def create_assessment(
         "assessment_created",
         farm_id=farm_id,
         control_point=assessment.control_point_number,
-        status=assessment.status.value
+        status=assessment.status.value,
     )
 
     return assessment_data
@@ -376,7 +373,7 @@ async def create_assessment(
 async def get_farm_assessments(
     farm_id: str,
     status: Optional[ControlPointStatus] = Query(None),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Get all assessments for a farm
@@ -384,18 +381,15 @@ async def get_farm_assessments(
     """
     # Filter assessments | تصفية التقييمات
     filtered = [
-        a for a in _assessments.values()
+        a
+        for a in _assessments.values()
         if a.get("farm_id") == farm_id and a.get("tenant_id") == tenant_id
     ]
 
     if status:
         filtered = [a for a in filtered if a.get("status") == status.value]
 
-    return {
-        "farm_id": farm_id,
-        "assessments": filtered,
-        "total": len(filtered)
-    }
+    return {"farm_id": farm_id, "assessments": filtered, "total": len(filtered)}
 
 
 # ============== Audit Endpoints ==============
@@ -404,9 +398,11 @@ async def get_farm_assessments(
 @app.post("/audits", status_code=201)
 async def create_audit(
     farm_id: str = Query(..., description="Farm identifier"),
-    audit_type: str = Query("internal", description="internal, external, certification"),
+    audit_type: str = Query(
+        "internal", description="internal, external, certification"
+    ),
     auditor_name: str = Query(..., description="Name of auditor"),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Prepare and create an audit report
@@ -421,7 +417,7 @@ async def create_audit(
     if not compliance_record:
         raise HTTPException(
             status_code=404,
-            detail="No compliance record found for this farm. Please assess compliance first."
+            detail="No compliance record found for this farm. Please assess compliance first.",
         )
 
     # Get non-conformities | الحصول على عدم المطابقات
@@ -434,7 +430,7 @@ async def create_audit(
         compliance_record=compliance_record,
         non_conformities=non_conformities,
         audit_type=audit_type,
-        auditor_name=auditor_name
+        auditor_name=auditor_name,
     )
 
     # Save audit result | حفظ نتيجة التدقيق
@@ -445,17 +441,14 @@ async def create_audit(
         farm_id=farm_id,
         audit_type=audit_type,
         audit_status=saved_audit.audit_status,
-        overall_score=saved_audit.overall_score
+        overall_score=saved_audit.overall_score,
     )
 
     return saved_audit
 
 
 @app.get("/audits/{audit_id}")
-async def get_audit(
-    audit_id: str,
-    tenant_id: str = Depends(get_tenant_id)
-):
+async def get_audit(audit_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get audit result by ID
     الحصول على نتيجة التدقيق حسب المعرف
@@ -477,7 +470,7 @@ async def get_audit(
 async def get_farm_audits(
     farm_id: str,
     limit: int = Query(10, ge=1, le=100),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Get audit history for a farm
@@ -486,11 +479,7 @@ async def get_farm_audits(
     audit_service = app.state.audit_service
     audits = await audit_service.get_farm_audit_history(farm_id, tenant_id, limit)
 
-    return {
-        "farm_id": farm_id,
-        "audits": audits,
-        "total": len(audits)
-    }
+    return {"farm_id": farm_id, "audits": audits, "total": len(audits)}
 
 
 # ============== Non-Conformity Endpoints ==============
@@ -501,7 +490,7 @@ async def get_farm_non_conformities(
     farm_id: str,
     severity: Optional[SeverityLevel] = Query(None),
     resolved: Optional[bool] = Query(None),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Get non-conformities for a farm
@@ -509,10 +498,7 @@ async def get_farm_non_conformities(
     """
     compliance_service = app.state.compliance_service
     non_conformities = await compliance_service.get_non_conformities(
-        farm_id=farm_id,
-        tenant_id=tenant_id,
-        severity=severity,
-        resolved=resolved
+        farm_id=farm_id, tenant_id=tenant_id, severity=severity, resolved=resolved
     )
 
     return {
@@ -521,15 +507,14 @@ async def get_farm_non_conformities(
         "total": len(non_conformities),
         "filters": {
             "severity": severity.value if severity else None,
-            "resolved": resolved
-        }
+            "resolved": resolved,
+        },
     }
 
 
 @app.post("/non-conformities", status_code=201)
 async def create_non_conformity(
-    non_conformity: NonConformity,
-    tenant_id: str = Depends(get_tenant_id)
+    non_conformity: NonConformity, tenant_id: str = Depends(get_tenant_id)
 ):
     """
     Create a new non-conformity record
@@ -541,7 +526,7 @@ async def create_non_conformity(
     logger.info(
         "non_conformity_created",
         control_point=non_conformity.control_point_number,
-        severity=non_conformity.severity.value
+        severity=non_conformity.severity.value,
     )
 
     return created
@@ -554,7 +539,7 @@ async def create_non_conformity(
 async def get_farm_certificates(
     farm_id: str,
     status: Optional[CertificateStatus] = Query(None),
-    tenant_id: str = Depends(get_tenant_id)
+    tenant_id: str = Depends(get_tenant_id),
 ):
     """
     Get GGN certificates for a farm
@@ -562,24 +547,20 @@ async def get_farm_certificates(
     """
     # Filter certificates | تصفية الشهادات
     filtered = [
-        cert for cert in _certificates.values()
+        cert
+        for cert in _certificates.values()
         if cert.get("farm_id") == farm_id and cert.get("tenant_id") == tenant_id
     ]
 
     if status:
         filtered = [cert for cert in filtered if cert.get("status") == status.value]
 
-    return {
-        "farm_id": farm_id,
-        "certificates": filtered,
-        "total": len(filtered)
-    }
+    return {"farm_id": farm_id, "certificates": filtered, "total": len(filtered)}
 
 
 @app.post("/certificates", status_code=201)
 async def create_certificate(
-    certificate: GGNCertificate,
-    tenant_id: str = Depends(get_tenant_id)
+    certificate: GGNCertificate, tenant_id: str = Depends(get_tenant_id)
 ):
     """
     Create a new GGN certificate
@@ -599,17 +580,14 @@ async def create_certificate(
         "certificate_created",
         farm_id=certificate.farm_id,
         ggn_number=certificate.ggn_number,
-        status=certificate.status.value
+        status=certificate.status.value,
     )
 
     return cert_data
 
 
 @app.get("/certificates/{certificate_id}")
-async def get_certificate(
-    certificate_id: str,
-    tenant_id: str = Depends(get_tenant_id)
-):
+async def get_certificate(certificate_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get certificate by ID
     الحصول على الشهادة حسب المعرف

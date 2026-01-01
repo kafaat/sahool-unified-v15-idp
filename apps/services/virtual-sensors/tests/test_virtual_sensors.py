@@ -24,10 +24,15 @@ def client():
             "field_id": field_id,
             "sensors": [
                 {"type": "soil_moisture", "value": 42, "unit": "%", "confidence": 0.85},
-                {"type": "soil_temperature", "value": 24, "unit": "°C", "confidence": 0.90},
-                {"type": "et0", "value": 5.2, "unit": "mm/day", "confidence": 0.88}
+                {
+                    "type": "soil_temperature",
+                    "value": 24,
+                    "unit": "°C",
+                    "confidence": 0.90,
+                },
+                {"type": "et0", "value": 5.2, "unit": "mm/day", "confidence": 0.88},
             ],
-            "last_updated": "2025-12-23T10:00:00Z"
+            "last_updated": "2025-12-23T10:00:00Z",
         }
 
     @app.post("/api/v1/fields/{field_id}/estimate")
@@ -37,7 +42,7 @@ def client():
             "sensor_type": "soil_moisture",
             "estimated_value": 42,
             "confidence": 0.85,
-            "inputs_used": ["ndvi", "weather", "historical"]
+            "inputs_used": ["ndvi", "weather", "historical"],
         }
 
     @app.get("/api/v1/models")
@@ -45,7 +50,7 @@ def client():
         return {
             "models": [
                 {"id": "soil_moisture_v2", "type": "soil_moisture", "accuracy": 0.87},
-                {"id": "et0_penman", "type": "et0", "accuracy": 0.92}
+                {"id": "et0_penman", "type": "et0", "accuracy": 0.92},
             ]
         }
 
@@ -75,9 +80,9 @@ class TestVirtualSensors:
 
 class TestEstimation:
     def test_estimate_sensor(self, client):
-        response = client.post("/api/v1/fields/field_001/estimate", json={
-            "sensor_type": "soil_moisture"
-        })
+        response = client.post(
+            "/api/v1/fields/field_001/estimate", json={"sensor_type": "soil_moisture"}
+        )
         assert response.status_code == 200
         assert "estimated_value" in response.json()
 

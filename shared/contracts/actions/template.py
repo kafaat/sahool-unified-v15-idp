@@ -27,7 +27,7 @@ class TimeWindow(BaseModel):
     preferred_time_end: Optional[time] = None
     avoid_conditions: List[str] = Field(
         default_factory=list,
-        description="ظروف يجب تجنبها مثل: rain, high_wind, extreme_heat"
+        description="ظروف يجب تجنبها مثل: rain, high_wind, extreme_heat",
     )
 
 
@@ -70,13 +70,9 @@ class ActionTemplate(BaseModel):
 
     # === Identity ===
     action_id: str = Field(
-        default_factory=lambda: str(uuid.uuid4()),
-        description="معرف فريد للإجراء"
+        default_factory=lambda: str(uuid.uuid4()), description="معرف فريد للإجراء"
     )
-    action_type: ActionType = Field(
-        ...,
-        description="نوع الإجراء"
-    )
+    action_type: ActionType = Field(..., description="نوع الإجراء")
 
     # === What (ماذا) ===
     title_ar: str = Field(..., min_length=3, max_length=200)
@@ -84,100 +80,62 @@ class ActionTemplate(BaseModel):
     description_ar: str = Field(..., min_length=10)
     description_en: str = Field(..., min_length=10)
     summary_ar: Optional[str] = Field(
-        None,
-        max_length=500,
-        description="ملخص قصير للعرض في الإشعارات"
+        None, max_length=500, description="ملخص قصير للعرض في الإشعارات"
     )
 
     # === Why (لماذا) - Analysis Source ===
     source_service: str = Field(
-        ...,
-        description="اسم الخدمة المصدر مثل: satellite-service, crop-health-ai"
+        ..., description="اسم الخدمة المصدر مثل: satellite-service, crop-health-ai"
     )
-    source_analysis_id: Optional[str] = Field(
-        None,
-        description="معرف التحليل المصدر"
-    )
+    source_analysis_id: Optional[str] = Field(None, description="معرف التحليل المصدر")
     source_analysis_type: Optional[str] = Field(
-        None,
-        description="نوع التحليل مثل: ndvi_drop, disease_detected"
+        None, description="نوع التحليل مثل: ndvi_drop, disease_detected"
     )
     confidence: float = Field(
-        ...,
-        ge=0,
-        le=1,
-        description="مستوى الثقة في التوصية (0-1)"
+        ..., ge=0, le=1, description="مستوى الثقة في التوصية (0-1)"
     )
-    reasoning_ar: Optional[str] = Field(
-        None,
-        description="شرح سبب التوصية بالعربية"
-    )
-    reasoning_en: Optional[str] = Field(
-        None,
-        description="شرح سبب التوصية بالإنجليزية"
-    )
+    reasoning_ar: Optional[str] = Field(None, description="شرح سبب التوصية بالعربية")
+    reasoning_en: Optional[str] = Field(None, description="شرح سبب التوصية بالإنجليزية")
 
     # === When (متى) ===
-    urgency: UrgencyLevel = Field(
-        ...,
-        description="مستوى الاستعجال"
-    )
-    deadline: Optional[datetime] = Field(
-        None,
-        description="الموعد النهائي للتنفيذ"
-    )
+    urgency: UrgencyLevel = Field(..., description="مستوى الاستعجال")
+    deadline: Optional[datetime] = Field(None, description="الموعد النهائي للتنفيذ")
     optimal_window: Optional[TimeWindow] = Field(
-        None,
-        description="النافذة الزمنية المثالية"
+        None, description="النافذة الزمنية المثالية"
     )
 
     # === Where (أين) ===
     field_id: str = Field(..., description="معرف الحقل")
     zone_ids: List[str] = Field(
-        default_factory=list,
-        description="معرفات المناطق المحددة داخل الحقل"
+        default_factory=list, description="معرفات المناطق المحددة داخل الحقل"
     )
     geometry: Optional[Dict[str, Any]] = Field(
-        None,
-        description="GeoJSON للمنطقة المستهدفة"
+        None, description="GeoJSON للمنطقة المستهدفة"
     )
 
     # === How (كيف) ===
-    steps: List[ActionStep] = Field(
-        default_factory=list,
-        description="خطوات التنفيذ"
-    )
+    steps: List[ActionStep] = Field(default_factory=list, description="خطوات التنفيذ")
     resources_needed: List[Resource] = Field(
-        default_factory=list,
-        description="الموارد المطلوبة"
+        default_factory=list, description="الموارد المطلوبة"
     )
     estimated_duration_minutes: int = Field(
-        ...,
-        gt=0,
-        description="الوقت المتوقع للتنفيذ بالدقائق"
+        ..., gt=0, description="الوقت المتوقع للتنفيذ بالدقائق"
     )
-    estimated_cost: Optional[float] = Field(
-        None,
-        description="التكلفة التقديرية"
-    )
+    estimated_cost: Optional[float] = Field(None, description="التكلفة التقديرية")
     cost_currency: str = "YER"
 
     # === Field-First: Offline Support ===
     offline_executable: bool = Field(
-        default=True,
-        description="هل يمكن تنفيذه بدون اتصال؟"
+        default=True, description="هل يمكن تنفيذه بدون اتصال؟"
     )
     fallback_instructions_ar: str = Field(
-        ...,
-        description="تعليمات Fallback بالعربية في حال عدم الاتصال"
+        ..., description="تعليمات Fallback بالعربية في حال عدم الاتصال"
     )
     fallback_instructions_en: str = Field(
-        ...,
-        description="تعليمات Fallback بالإنجليزية"
+        ..., description="تعليمات Fallback بالإنجليزية"
     )
     requires_sync_before: bool = Field(
-        default=False,
-        description="هل يتطلب مزامنة قبل التنفيذ؟"
+        default=False, description="هل يتطلب مزامنة قبل التنفيذ؟"
     )
 
     # === Metadata ===
@@ -185,10 +143,7 @@ class ActionTemplate(BaseModel):
     expires_at: Optional[datetime] = None
     status: ActionStatus = Field(default=ActionStatus.PENDING)
     priority_score: float = Field(
-        default=0,
-        ge=0,
-        le=100,
-        description="درجة الأولوية للترتيب (0-100)"
+        default=0, ge=0, le=100, description="درجة الأولوية للترتيب (0-100)"
     )
     tags: List[str] = Field(default_factory=list)
     metadata: Dict[str, Any] = Field(default_factory=dict)
@@ -214,7 +169,7 @@ class ActionTemplate(BaseModel):
                 "estimated_duration_minutes": 120,
                 "offline_executable": True,
                 "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بري الحقل لمدة ساعتين في الصباح الباكر",
-                "fallback_instructions_en": "If data unavailable, irrigate field for 2 hours in early morning"
+                "fallback_instructions_en": "If data unavailable, irrigate field for 2 hours in early morning",
             }
         }
 
@@ -224,7 +179,7 @@ class ActionTemplate(BaseModel):
             UrgencyLevel.CRITICAL: 40,
             UrgencyLevel.HIGH: 30,
             UrgencyLevel.MEDIUM: 20,
-            UrgencyLevel.LOW: 10
+            UrgencyLevel.LOW: 10,
         }
         base_score = urgency_weights.get(self.urgency, 10)
         confidence_bonus = self.confidence * 30
@@ -255,7 +210,7 @@ class ActionTemplate(BaseModel):
             "field_id": self.field_id,
             "deadline": self.deadline.isoformat() if self.deadline else None,
             "confidence": self.confidence,
-            "offline_executable": self.offline_executable
+            "offline_executable": self.offline_executable,
         }
 
     def to_task_card(self) -> Dict[str, Any]:
@@ -268,7 +223,7 @@ class ActionTemplate(BaseModel):
             "urgency": {
                 "level": self.urgency.value,
                 "label_ar": self.urgency.label_ar,
-                "color": self._get_urgency_color()
+                "color": self._get_urgency_color(),
             },
             "field_id": self.field_id,
             "duration_minutes": self.estimated_duration_minutes,
@@ -277,14 +232,14 @@ class ActionTemplate(BaseModel):
             "confidence_percent": int(self.confidence * 100),
             "status": self.status.value,
             "offline_ready": self.offline_executable,
-            "created_at": self.created_at.isoformat()
+            "created_at": self.created_at.isoformat(),
         }
 
     def _get_urgency_color(self) -> str:
         colors = {
-            UrgencyLevel.LOW: "#22C55E",      # green
-            UrgencyLevel.MEDIUM: "#EAB308",   # yellow
-            UrgencyLevel.HIGH: "#F97316",     # orange
-            UrgencyLevel.CRITICAL: "#EF4444"  # red
+            UrgencyLevel.LOW: "#22C55E",  # green
+            UrgencyLevel.MEDIUM: "#EAB308",  # yellow
+            UrgencyLevel.HIGH: "#F97316",  # orange
+            UrgencyLevel.CRITICAL: "#EF4444",  # red
         }
         return colors.get(self.urgency, "#6B7280")

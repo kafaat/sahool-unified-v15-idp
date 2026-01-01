@@ -21,6 +21,7 @@ from typing import Dict, Any
 # Complete Field Workflow Test - اختبار سير عمل الحقل الكامل
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.slow
@@ -33,7 +34,7 @@ async def test_complete_field_workflow(
     ensure_field_ops_ready,
     ensure_weather_ready,
     ensure_ndvi_ready,
-    cleanup_test_data: Dict[str, list]
+    cleanup_test_data: Dict[str, list],
 ):
     """
     Test complete field workflow: Create → NDVI → Weather → Recommendations
@@ -53,14 +54,15 @@ async def test_complete_field_workflow(
     print("\n[Step 1] Creating field...")
 
     field_response = await workflow_client.post(
-        "http://localhost:8080/api/v1/fields",
-        headers=e2e_headers,
-        json=test_field_data
+        "http://localhost:8080/api/v1/fields", headers=e2e_headers, json=test_field_data
     )
 
     # Should create field or require authentication
-    assert field_response.status_code in (201, 401, 422), \
-        f"Field creation failed with status {field_response.status_code}"
+    assert field_response.status_code in (
+        201,
+        401,
+        422,
+    ), f"Field creation failed with status {field_response.status_code}"
 
     if field_response.status_code != 201:
         pytest.skip(f"Cannot create field: {field_response.status_code}")
@@ -83,12 +85,16 @@ async def test_complete_field_workflow(
     # Request NDVI analysis for the field
     ndvi_response = await workflow_client.get(
         f"http://localhost:8107/api/v1/ndvi/fields/{field_id}/analysis",
-        headers=e2e_headers
+        headers=e2e_headers,
     )
 
     # NDVI analysis should be available or being processed
-    assert ndvi_response.status_code in (200, 202, 404, 401), \
-        f"NDVI request failed with status {ndvi_response.status_code}"
+    assert ndvi_response.status_code in (
+        200,
+        202,
+        404,
+        401,
+    ), f"NDVI request failed with status {ndvi_response.status_code}"
 
     if ndvi_response.status_code == 200:
         ndvi_data = ndvi_response.json()
@@ -106,19 +112,23 @@ async def test_complete_field_workflow(
     weather_response = await workflow_client.get(
         "http://localhost:8108/api/v1/weather/current",
         headers=e2e_headers,
-        params=test_location_yemen
+        params=test_location_yemen,
     )
 
-    assert weather_response.status_code in (200, 401, 503), \
-        f"Weather request failed with status {weather_response.status_code}"
+    assert weather_response.status_code in (
+        200,
+        401,
+        503,
+    ), f"Weather request failed with status {weather_response.status_code}"
 
     if weather_response.status_code == 200:
         weather_data = weather_response.json()
         print(f"✓ Weather data retrieved for location")
 
         # Verify weather data structure
-        assert any(key in weather_data for key in ["temperature", "temp", "main", "current"]), \
-            "Weather data should contain temperature information"
+        assert any(
+            key in weather_data for key in ["temperature", "temp", "main", "current"]
+        ), "Weather data should contain temperature information"
     else:
         print(f"⚠ Weather data not available: {weather_response.status_code}")
 
@@ -129,17 +139,22 @@ async def test_complete_field_workflow(
 
     recommendations_response = await workflow_client.get(
         f"http://localhost:8105/api/v1/recommendations/field/{field_id}",
-        headers=e2e_headers
+        headers=e2e_headers,
     )
 
-    assert recommendations_response.status_code in (200, 404, 401), \
-        f"Recommendations request failed with status {recommendations_response.status_code}"
+    assert recommendations_response.status_code in (
+        200,
+        404,
+        401,
+    ), f"Recommendations request failed with status {recommendations_response.status_code}"
 
     if recommendations_response.status_code == 200:
         recommendations = recommendations_response.json()
         print(f"✓ Recommendations retrieved")
     else:
-        print(f"⚠ Recommendations not yet available: {recommendations_response.status_code}")
+        print(
+            f"⚠ Recommendations not yet available: {recommendations_response.status_code}"
+        )
 
     # ───────────────────────────────────────────────────────────────────────────
     # Step 5: Verify Field Data Consistency - التحقق من اتساق بيانات الحقل
@@ -148,28 +163,31 @@ async def test_complete_field_workflow(
 
     # Retrieve field from Field Ops again
     field_verify_response = await workflow_client.get(
-        f"http://localhost:8080/api/v1/fields/{field_id}",
-        headers=e2e_headers
+        f"http://localhost:8080/api/v1/fields/{field_id}", headers=e2e_headers
     )
 
-    assert field_verify_response.status_code in (200, 401), \
-        "Field should still be accessible"
+    assert field_verify_response.status_code in (
+        200,
+        401,
+    ), "Field should still be accessible"
 
     if field_verify_response.status_code == 200:
         verified_field = field_verify_response.json()
         # Verify field name matches
-        assert verified_field.get("name") == test_field_data["name"], \
-            "Field data should be consistent"
+        assert (
+            verified_field.get("name") == test_field_data["name"]
+        ), "Field data should be consistent"
         print("✓ Field data is consistent")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✓ Complete field workflow test PASSED")
-    print("="*80)
+    print("=" * 80)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Field Creation and Validation Workflow - سير عمل إنشاء والتحقق من الحقل
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.e2e
 @pytest.mark.workflow
@@ -177,7 +195,7 @@ async def test_complete_field_workflow(
 async def test_field_creation_validation_workflow(
     workflow_client: httpx.AsyncClient,
     e2e_headers: Dict[str, str],
-    ensure_field_ops_ready
+    ensure_field_ops_ready,
 ):
     """
     Test field creation with validation
@@ -191,14 +209,15 @@ async def test_field_creation_validation_workflow(
     }
 
     response = await workflow_client.post(
-        "http://localhost:8080/api/v1/fields",
-        headers=e2e_headers,
-        json=invalid_field
+        "http://localhost:8080/api/v1/fields", headers=e2e_headers, json=invalid_field
     )
 
     # Should reject invalid data
-    assert response.status_code in (400, 401, 422), \
-        "Invalid field data should be rejected"
+    assert response.status_code in (
+        400,
+        401,
+        422,
+    ), "Invalid field data should be rejected"
 
     print("✓ Field validation working correctly")
 
@@ -207,13 +226,12 @@ async def test_field_creation_validation_workflow(
 # NDVI Analysis Workflow - سير عمل تحليل NDVI
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_ndvi_analysis_workflow(
-    workflow_client: httpx.AsyncClient,
-    e2e_headers: Dict[str, str],
-    ensure_ndvi_ready
+    workflow_client: httpx.AsyncClient, e2e_headers: Dict[str, str], ensure_ndvi_ready
 ):
     """
     Test NDVI analysis workflow
@@ -221,24 +239,25 @@ async def test_ndvi_analysis_workflow(
     """
 
     # Test NDVI calculation endpoint
-    ndvi_input = {
-        "red": 0.5,
-        "nir": 0.8
-    }
+    ndvi_input = {"red": 0.5, "nir": 0.8}
 
     response = await workflow_client.post(
         "http://localhost:8107/api/v1/ndvi/calculate",
         headers=e2e_headers,
-        json=ndvi_input
+        json=ndvi_input,
     )
 
-    assert response.status_code in (200, 401, 422), \
-        f"NDVI calculation failed with status {response.status_code}"
+    assert response.status_code in (
+        200,
+        401,
+        422,
+    ), f"NDVI calculation failed with status {response.status_code}"
 
     if response.status_code == 200:
         ndvi_result = response.json()
-        assert "ndvi" in ndvi_result or "value" in ndvi_result, \
-            "NDVI result should contain calculated value"
+        assert (
+            "ndvi" in ndvi_result or "value" in ndvi_result
+        ), "NDVI result should contain calculated value"
 
         # NDVI value should be between -1 and 1
         ndvi_value = ndvi_result.get("ndvi") or ndvi_result.get("value")
@@ -252,6 +271,7 @@ async def test_ndvi_analysis_workflow(
 # Weather Integration Workflow - سير عمل تكامل الطقس
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
@@ -259,7 +279,7 @@ async def test_weather_forecast_workflow(
     workflow_client: httpx.AsyncClient,
     e2e_headers: Dict[str, str],
     test_location_yemen: Dict[str, float],
-    ensure_weather_ready
+    ensure_weather_ready,
 ):
     """
     Test weather forecast workflow
@@ -270,20 +290,26 @@ async def test_weather_forecast_workflow(
     current_response = await workflow_client.get(
         "http://localhost:8108/api/v1/weather/current",
         headers=e2e_headers,
-        params=test_location_yemen
+        params=test_location_yemen,
     )
 
     # Get weather forecast
     forecast_response = await workflow_client.get(
         "http://localhost:8108/api/v1/weather/forecast",
         headers=e2e_headers,
-        params=test_location_yemen
+        params=test_location_yemen,
     )
 
     # At least one should work
-    assert current_response.status_code in (200, 401, 503) or \
-           forecast_response.status_code in (200, 401, 503), \
-        "Weather service should respond"
+    assert current_response.status_code in (
+        200,
+        401,
+        503,
+    ) or forecast_response.status_code in (
+        200,
+        401,
+        503,
+    ), "Weather service should respond"
 
     if current_response.status_code == 200:
         print("✓ Current weather retrieved successfully")
@@ -296,13 +322,14 @@ async def test_weather_forecast_workflow(
 # Satellite Imagery Workflow - سير عمل صور الأقمار الصناعية
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_satellite_imagery_workflow(
     workflow_client: httpx.AsyncClient,
     e2e_headers: Dict[str, str],
-    test_location_yemen: Dict[str, float]
+    test_location_yemen: Dict[str, float],
 ):
     """
     Test satellite imagery workflow
@@ -319,11 +346,14 @@ async def test_satellite_imagery_workflow(
     imagery_response = await workflow_client.get(
         "http://localhost:8090/api/v1/satellite/imagery",
         headers=e2e_headers,
-        params=test_location_yemen
+        params=test_location_yemen,
     )
 
-    assert imagery_response.status_code in (200, 401, 404), \
-        "Satellite imagery request should be handled"
+    assert imagery_response.status_code in (
+        200,
+        401,
+        404,
+    ), "Satellite imagery request should be handled"
 
     if imagery_response.status_code == 200:
         print("✓ Satellite imagery retrieved successfully")
@@ -333,13 +363,14 @@ async def test_satellite_imagery_workflow(
 # Irrigation Recommendation Workflow - سير عمل توصيات الري
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.asyncio
 async def test_irrigation_recommendation_workflow(
     workflow_client: httpx.AsyncClient,
     e2e_headers: Dict[str, str],
-    test_location_yemen: Dict[str, float]
+    test_location_yemen: Dict[str, float],
 ):
     """
     Test irrigation recommendation workflow
@@ -360,22 +391,26 @@ async def test_irrigation_recommendation_workflow(
         "humidity": 45.0,
         "wind_speed": 2.5,
         "solar_radiation": 25.0,
-        "date": "2024-01-15"
+        "date": "2024-01-15",
     }
 
     et0_response = await workflow_client.post(
         "http://localhost:8094/api/v1/irrigation/et0",
         headers=e2e_headers,
-        json=et0_data
+        json=et0_data,
     )
 
-    assert et0_response.status_code in (200, 401, 422), \
-        "ET0 calculation should be processed"
+    assert et0_response.status_code in (
+        200,
+        401,
+        422,
+    ), "ET0 calculation should be processed"
 
     if et0_response.status_code == 200:
         et0_result = et0_response.json()
-        assert "et0" in et0_result or "value" in et0_result, \
-            "ET0 result should contain calculated value"
+        assert (
+            "et0" in et0_result or "value" in et0_result
+        ), "ET0 result should contain calculated value"
 
         et0_value = et0_result.get("et0") or et0_result.get("value")
         if et0_value is not None:
@@ -388,6 +423,7 @@ async def test_irrigation_recommendation_workflow(
 # Field Operations Complete Workflow - سير عمل عمليات الحقل الكامل
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.e2e
 @pytest.mark.workflow
 @pytest.mark.slow
@@ -396,7 +432,7 @@ async def test_field_operations_complete_workflow(
     workflow_client: httpx.AsyncClient,
     e2e_headers: Dict[str, str],
     test_field_data: Dict[str, Any],
-    ensure_field_ops_ready
+    ensure_field_ops_ready,
 ):
     """
     Test complete field operations workflow
@@ -412,9 +448,7 @@ async def test_field_operations_complete_workflow(
 
     # Step 1: Create field
     create_response = await workflow_client.post(
-        "http://localhost:8080/api/v1/fields",
-        headers=e2e_headers,
-        json=test_field_data
+        "http://localhost:8080/api/v1/fields", headers=e2e_headers, json=test_field_data
     )
 
     if create_response.status_code != 201:
@@ -425,23 +459,22 @@ async def test_field_operations_complete_workflow(
 
     # Step 2: List fields
     list_response = await workflow_client.get(
-        "http://localhost:8080/api/v1/fields",
-        headers=e2e_headers
+        "http://localhost:8080/api/v1/fields", headers=e2e_headers
     )
 
     assert list_response.status_code in (200, 401), "Fields list should be accessible"
 
     # Step 3: Get specific field
     get_response = await workflow_client.get(
-        f"http://localhost:8080/api/v1/fields/{field_id}",
-        headers=e2e_headers
+        f"http://localhost:8080/api/v1/fields/{field_id}", headers=e2e_headers
     )
 
     assert get_response.status_code in (200, 401), "Field should be retrievable"
 
     if get_response.status_code == 200:
         retrieved_field = get_response.json()
-        assert retrieved_field.get("name") == test_field_data["name"], \
-            "Retrieved field should match created field"
+        assert (
+            retrieved_field.get("name") == test_field_data["name"]
+        ), "Retrieved field should match created field"
 
     print("✓ Complete field operations workflow PASSED")

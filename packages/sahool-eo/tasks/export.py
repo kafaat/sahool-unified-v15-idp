@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 # SAHOOL Export Task
 # =============================================================================
 
+
 class SahoolExportTask:
     """
     Export EOPatch data to SAHOOL-compatible format
@@ -82,7 +83,9 @@ class SahoolExportTask:
                 "field_id": self.field_id,
                 "tenant_id": self.tenant_id,
                 "export_timestamp": datetime.utcnow().isoformat(),
-                "data_source": eopatch[FeatureType.META_INFO].get("data_source", "unknown"),
+                "data_source": eopatch[FeatureType.META_INFO].get(
+                    "data_source", "unknown"
+                ),
                 "indices": {},
                 "metadata": {},
             }
@@ -162,7 +165,18 @@ class SahoolExportTask:
 
     def _calculate_band_statistics(self, bands: np.ndarray) -> List[Dict[str, float]]:
         """Calculate statistics for each band"""
-        band_names = ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"]
+        band_names = [
+            "B02",
+            "B03",
+            "B04",
+            "B05",
+            "B06",
+            "B07",
+            "B08",
+            "B8A",
+            "B11",
+            "B12",
+        ]
         stats = []
 
         for i in range(bands.shape[-1]):
@@ -170,11 +184,13 @@ class SahoolExportTask:
             valid_data = band_data[np.isfinite(band_data)]
 
             if len(valid_data) > 0:
-                stats.append({
-                    "band": band_names[i] if i < len(band_names) else f"B{i}",
-                    "mean": round(float(np.mean(valid_data)), 4),
-                    "std": round(float(np.std(valid_data)), 4),
-                })
+                stats.append(
+                    {
+                        "band": band_names[i] if i < len(band_names) else f"B{i}",
+                        "mean": round(float(np.mean(valid_data)), 4),
+                        "std": round(float(np.std(valid_data)), 4),
+                    }
+                )
 
         return stats
 
@@ -208,7 +224,9 @@ class SahoolExportTask:
             else:
                 score -= 20
                 anomalies.append("low_vegetation_cover")
-                recommendations_ar.append("🌱 الغطاء النباتي منخفض - تحقق من صحة المحصول")
+                recommendations_ar.append(
+                    "🌱 الغطاء النباتي منخفض - تحقق من صحة المحصول"
+                )
                 recommendations_en.append("🌱 Low vegetation cover - check crop health")
 
         # Water stress (NDWI)
@@ -227,7 +245,9 @@ class SahoolExportTask:
                 score -= 10
                 anomalies.append("moisture_deficit")
                 recommendations_ar.append("🌡️ نقص الرطوبة - ري تكميلي مطلوب")
-                recommendations_en.append("🌡️ Moisture deficit - supplemental irrigation needed")
+                recommendations_en.append(
+                    "🌡️ Moisture deficit - supplemental irrigation needed"
+                )
 
         # EVI assessment
         if evi is not None:
@@ -237,7 +257,9 @@ class SahoolExportTask:
                 score -= 10
                 anomalies.append("poor_canopy_structure")
                 recommendations_ar.append("🍃 بنية المظلة ضعيفة - تحقق من التسميد")
-                recommendations_en.append("🍃 Poor canopy structure - check fertilization")
+                recommendations_en.append(
+                    "🍃 Poor canopy structure - check fertilization"
+                )
 
         # LAI assessment
         if lai is not None:
@@ -246,8 +268,12 @@ class SahoolExportTask:
             elif lai < 1:
                 score -= 5
                 anomalies.append("sparse_leaf_coverage")
-                recommendations_ar.append("🌿 تغطية الأوراق متناثرة - تسميد نيتروجيني مطلوب")
-                recommendations_en.append("🌿 Sparse leaf coverage - nitrogen fertilization needed")
+                recommendations_ar.append(
+                    "🌿 تغطية الأوراق متناثرة - تسميد نيتروجيني مطلوب"
+                )
+                recommendations_en.append(
+                    "🌿 Sparse leaf coverage - nitrogen fertilization needed"
+                )
 
         # Clamp score
         score = max(0, min(100, score))
@@ -280,6 +306,7 @@ class SahoolExportTask:
 # =============================================================================
 # EOPatch to SAHOOL Event Task
 # =============================================================================
+
 
 class EOPatchToSahoolTask:
     """
@@ -333,11 +360,28 @@ class EOPatchToSahoolTask:
                 "payload": {
                     "scene_id": f"EOPatch_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
                     "field_id": self.field_id,
-                    "satellite": eopatch[FeatureType.META_INFO].get("data_source", "SENTINEL2_L2A"),
+                    "satellite": eopatch[FeatureType.META_INFO].get(
+                        "data_source", "SENTINEL2_L2A"
+                    ),
                     "acquisition_date": datetime.utcnow().isoformat(),
-                    "cloud_cover_percent": eopatch[FeatureType.META_INFO].get("cloud_coverage", 0),
-                    "resolution_m": eopatch[FeatureType.META_INFO].get("resolution", 10),
-                    "bands_available": ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"],
+                    "cloud_cover_percent": eopatch[FeatureType.META_INFO].get(
+                        "cloud_coverage", 0
+                    ),
+                    "resolution_m": eopatch[FeatureType.META_INFO].get(
+                        "resolution", 10
+                    ),
+                    "bands_available": [
+                        "B02",
+                        "B03",
+                        "B04",
+                        "B05",
+                        "B06",
+                        "B07",
+                        "B08",
+                        "B8A",
+                        "B11",
+                        "B12",
+                    ],
                     "processing_level": "L2A",
                 },
             }
@@ -346,9 +390,7 @@ class EOPatchToSahoolTask:
             raise
 
     def create_indicators_computed_event(
-        self,
-        eopatch,
-        indices_summary: Dict[str, Any]
+        self, eopatch, indices_summary: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Create FieldIndicatorsComputed.v1 event
@@ -381,8 +423,7 @@ class EOPatchToSahoolTask:
         }
 
     def create_health_assessed_event(
-        self,
-        health_assessment: Dict[str, Any]
+        self, health_assessment: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
         Create CropHealthAssessed.v1 event
@@ -424,15 +465,14 @@ class EOPatchToSahoolTask:
         events.append(self.create_indicators_computed_event(eopatch, indices_summary))
 
         # Run export to get health assessment
-        export_task = SahoolExportTask(
-            field_id=self.field_id,
-            tenant_id=self.tenant_id
-        )
+        export_task = SahoolExportTask(field_id=self.field_id, tenant_id=self.tenant_id)
         export_result = export_task.execute(eopatch)
 
         # Health assessed event
-        events.append(self.create_health_assessed_event(
-            export_result.get("health_assessment", {})
-        ))
+        events.append(
+            self.create_health_assessed_event(
+                export_result.get("health_assessment", {})
+            )
+        )
 
         return events

@@ -32,7 +32,7 @@ class TestBaseAgent:
             name="test_agent",
             role="Test Agricultural Advisor",
             tools=[],
-            retriever=None
+            retriever=None,
         )
 
         assert agent.name == "test_agent"
@@ -56,11 +56,7 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_retrieve_context_without_retriever(self):
         """Test context retrieval without RAG retriever"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor",
-            retriever=None
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor", retriever=None)
 
         context = agent._retrieve_context("test query")
         assert context == ""
@@ -69,9 +65,7 @@ class TestBaseAgent:
     def test_retrieve_context_with_retriever(self, mock_knowledge_retriever):
         """Test context retrieval with RAG retriever"""
         agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor",
-            retriever=mock_knowledge_retriever
+            name="test_agent", role="Test Advisor", retriever=mock_knowledge_retriever
         )
 
         context = agent._retrieve_context("wheat fertilizer")
@@ -85,9 +79,7 @@ class TestBaseAgent:
         mock_retriever.retrieve.side_effect = Exception("RAG error")
 
         agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor",
-            retriever=mock_retriever
+            name="test_agent", role="Test Advisor", retriever=mock_retriever
         )
 
         context = agent._retrieve_context("test query")
@@ -99,19 +91,15 @@ class TestBaseAgent:
         """Test basic think functionality"""
         with patch("agents.base_agent.ChatAnthropic") as mock_class:
             mock_llm = AsyncMock()
-            mock_llm.ainvoke = AsyncMock(return_value=AIMessage(
-                content="I recommend using nitrogen fertilizer."
-            ))
+            mock_llm.ainvoke = AsyncMock(
+                return_value=AIMessage(content="I recommend using nitrogen fertilizer.")
+            )
             mock_class.return_value = mock_llm
 
-            agent = ConcreteAgent(
-                name="test_agent",
-                role="Test Advisor"
-            )
+            agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
             response = await agent.think(
-                query="What fertilizer for wheat?",
-                use_rag=False
+                query="What fertilizer for wheat?", use_rag=False
             )
 
             assert response["agent"] == "test_agent"
@@ -126,20 +114,21 @@ class TestBaseAgent:
         """Test think with RAG context"""
         with patch("agents.base_agent.ChatAnthropic") as mock_class:
             mock_llm = AsyncMock()
-            mock_llm.ainvoke = AsyncMock(return_value=AIMessage(
-                content="Based on the knowledge base, use NPK fertilizer."
-            ))
+            mock_llm.ainvoke = AsyncMock(
+                return_value=AIMessage(
+                    content="Based on the knowledge base, use NPK fertilizer."
+                )
+            )
             mock_class.return_value = mock_llm
 
             agent = ConcreteAgent(
                 name="test_agent",
                 role="Test Advisor",
-                retriever=mock_knowledge_retriever
+                retriever=mock_knowledge_retriever,
             )
 
             response = await agent.think(
-                query="What fertilizer for wheat?",
-                use_rag=True
+                query="What fertilizer for wheat?", use_rag=True
             )
 
             assert response["agent"] == "test_agent"
@@ -152,26 +141,19 @@ class TestBaseAgent:
         """Test think with additional context"""
         with patch("agents.base_agent.ChatAnthropic") as mock_class:
             mock_llm = AsyncMock()
-            mock_llm.ainvoke = AsyncMock(return_value=AIMessage(
-                content="For clay soil, use slow-release fertilizer."
-            ))
+            mock_llm.ainvoke = AsyncMock(
+                return_value=AIMessage(
+                    content="For clay soil, use slow-release fertilizer."
+                )
+            )
             mock_class.return_value = mock_llm
 
-            agent = ConcreteAgent(
-                name="test_agent",
-                role="Test Advisor"
-            )
+            agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
-            context = {
-                "soil_type": "clay",
-                "crop": "wheat",
-                "stage": "tillering"
-            }
+            context = {"soil_type": "clay", "crop": "wheat", "stage": "tillering"}
 
             response = await agent.think(
-                query="What fertilizer?",
-                context=context,
-                use_rag=False
+                query="What fertilizer?", context=context, use_rag=False
             )
 
             assert response["agent"] == "test_agent"
@@ -186,10 +168,7 @@ class TestBaseAgent:
             mock_llm.ainvoke = AsyncMock(side_effect=Exception("LLM API error"))
             mock_class.return_value = mock_llm
 
-            agent = ConcreteAgent(
-                name="test_agent",
-                role="Test Advisor"
-            )
+            agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
             with pytest.raises(Exception) as exc_info:
                 await agent.think(query="test", use_rag=False)
@@ -199,16 +178,9 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_format_context_simple(self):
         """Test context formatting with simple data"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor"
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
-        context = {
-            "temperature": 25,
-            "humidity": 0.6,
-            "location": "field_001"
-        }
+        context = {"temperature": 25, "humidity": 0.6, "location": "field_001"}
 
         formatted = agent._format_context(context)
         assert "temperature: 25" in formatted
@@ -218,10 +190,7 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_format_context_complex(self):
         """Test context formatting with complex nested data"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor"
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
         context = {
             "weather": {"temp": 25, "humidity": 0.6},
@@ -235,12 +204,11 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_calculate_confidence_high(self):
         """Test confidence calculation for certain response"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor"
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
-        response = AIMessage(content="I recommend using nitrogen fertilizer at 100 kg/ha.")
+        response = AIMessage(
+            content="I recommend using nitrogen fertilizer at 100 kg/ha."
+        )
         confidence = agent._calculate_confidence(response)
 
         assert confidence == 0.8  # Default high confidence
@@ -248,10 +216,7 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_calculate_confidence_low(self):
         """Test confidence calculation for uncertain response"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor"
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
         response = AIMessage(content="I'm not sure, but maybe nitrogen might help.")
         confidence = agent._calculate_confidence(response)
@@ -266,11 +231,7 @@ class TestBaseAgent:
         mock_tool.name = "weather_tool"
         mock_tool.arun = AsyncMock(return_value={"temp": 25})
 
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor",
-            tools=[mock_tool]
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor", tools=[mock_tool])
 
         result = await agent.use_tool("weather_tool", location="field_001")
 
@@ -281,11 +242,7 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     async def test_use_tool_not_found(self):
         """Test tool execution when tool doesn't exist"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor",
-            tools=[]
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor", tools=[])
 
         with pytest.raises(ValueError) as exc_info:
             await agent.use_tool("nonexistent_tool")
@@ -300,11 +257,7 @@ class TestBaseAgent:
         mock_tool.name = "failing_tool"
         mock_tool.arun = AsyncMock(side_effect=Exception("Tool failed"))
 
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor",
-            tools=[mock_tool]
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor", tools=[mock_tool])
 
         with pytest.raises(Exception) as exc_info:
             await agent.use_tool("failing_tool")
@@ -314,15 +267,12 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_reset_conversation(self):
         """Test conversation history reset"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor"
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor")
 
         # Add some history
         agent.conversation_history = [
             HumanMessage(content="Hello"),
-            AIMessage(content="Hi there")
+            AIMessage(content="Hi there"),
         ]
 
         assert len(agent.conversation_history) == 2
@@ -341,7 +291,7 @@ class TestBaseAgent:
             name="test_agent",
             role="Test Advisor",
             tools=[mock_tool],
-            retriever=MagicMock()
+            retriever=MagicMock(),
         )
 
         info = agent.get_info()
@@ -355,11 +305,7 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_get_info_no_retriever(self):
         """Test agent info when no RAG retriever"""
-        agent = ConcreteAgent(
-            name="test_agent",
-            role="Test Advisor",
-            retriever=None
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor", retriever=None)
 
         info = agent.get_info()
 

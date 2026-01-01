@@ -28,7 +28,9 @@ import os
 import sys
 
 # Add shared middleware to path
-shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+shared_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "shared")
+)
 sys.path.insert(0, shared_path)
 
 # Database imports
@@ -165,6 +167,7 @@ CROP_AR = {
 
 class FarmerProfile(BaseModel):
     """ملف المزارع للإشعارات المخصصة"""
+
     farmer_id: str
     name: str
     name_ar: str
@@ -181,6 +184,7 @@ class FarmerProfile(BaseModel):
 
 class NotificationPreferences(BaseModel):
     """تفضيلات الإشعارات"""
+
     farmer_id: str
     weather_alerts: bool = True
     pest_alerts: bool = True
@@ -194,6 +198,7 @@ class NotificationPreferences(BaseModel):
 
 class Notification(BaseModel):
     """إشعار"""
+
     id: str
     type: NotificationType
     type_ar: str
@@ -216,6 +221,7 @@ class Notification(BaseModel):
 
 class CreateNotificationRequest(BaseModel):
     """طلب إنشاء إشعار"""
+
     type: NotificationType
     priority: NotificationPriority = NotificationPriority.MEDIUM
     title: str
@@ -232,6 +238,7 @@ class CreateNotificationRequest(BaseModel):
 
 class WeatherAlertRequest(BaseModel):
     """طلب تنبيه طقس"""
+
     governorates: List[Governorate]
     alert_type: str  # frost, heat_wave, storm, flood, drought
     severity: NotificationPriority
@@ -241,6 +248,7 @@ class WeatherAlertRequest(BaseModel):
 
 class PestAlertRequest(BaseModel):
     """طلب تنبيه آفات"""
+
     governorate: Governorate
     pest_name: str
     pest_name_ar: str
@@ -252,6 +260,7 @@ class PestAlertRequest(BaseModel):
 
 class IrrigationReminderRequest(BaseModel):
     """طلب تذكير ري"""
+
     farmer_id: str
     field_id: str
     field_name: str
@@ -355,11 +364,15 @@ async def create_notification(
         )
 
         if not should_send:
-            logger.debug(f"Skipping notification for user {farmer_id} - event type disabled in preferences")
+            logger.debug(
+                f"Skipping notification for user {farmer_id} - event type disabled in preferences"
+            )
             continue
 
         # Use preferred channels if available, otherwise use provided channels
-        final_channels = preferred_channels if preferred_channels else [ch.value for ch in channels]
+        final_channels = (
+            preferred_channels if preferred_channels else [ch.value for ch in channels]
+        )
 
         # Get primary channel from list
         channel = final_channels[0] if final_channels else "in_app"
@@ -380,7 +393,9 @@ async def create_notification(
                 "priority_ar": PRIORITY_AR[priority],
                 "channels": final_channels,
             },
-            target_governorates=[g.value for g in target_governorates] if target_governorates else None,
+            target_governorates=(
+                [g.value for g in target_governorates] if target_governorates else None
+            ),
             target_crops=[c.value for c in target_crops] if target_crops else None,
             expires_in_hours=expires_in_hours,
         )
@@ -463,7 +478,9 @@ async def send_sms_notification(notification, farmer_id: str):
             return
 
         # Send SMS
-        language = farmer_profile.language if hasattr(farmer_profile, 'language') else "ar"
+        language = (
+            farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
+        )
         message_sid = await sms_client.send_sms(
             to=farmer_profile.phone,
             body=notification.title + "\n" + notification.body,
@@ -521,7 +538,9 @@ async def send_email_notification(notification, farmer_id: str):
             return
 
         # Send Email
-        language = farmer_profile.language if hasattr(farmer_profile, 'language') else "ar"
+        language = (
+            farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
+        )
 
         # Create HTML email body
         html_body = f"""
@@ -592,13 +611,17 @@ async def send_push_notification(notification, farmer_id: str):
 
         # Get Firebase client (assuming it's available from firebase_client.py)
         from .firebase_client import get_firebase_client
+
         firebase_client = get_firebase_client()
         if not firebase_client._initialized:
-            logger.warning("Firebase client not initialized, skipping push notification")
+            logger.warning(
+                "Firebase client not initialized, skipping push notification"
+            )
             return
 
         # Determine priority
         from .notification_types import NotificationPriority as NPriority
+
         priority_map = {
             "low": NPriority.LOW,
             "medium": NPriority.MEDIUM,
@@ -782,6 +805,7 @@ def get_weather_alert_message(alert_type: str, governorate: Governorate) -> tupl
 _nats_subscriber = None
 try:
     from .nats_subscriber import start_subscription, stop_subscription
+
     _nats_available = True
 except ImportError:
     _nats_available = False
@@ -816,8 +840,12 @@ def create_notification_from_nats(notification_data: Dict[str, Any]):
             "in_app": NotificationChannel.IN_APP,
         }
 
-        ntype = type_mapping.get(notification_data.get("type", "system"), NotificationType.SYSTEM)
-        priority = priority_mapping.get(notification_data.get("priority", "medium"), NotificationPriority.MEDIUM)
+        ntype = type_mapping.get(
+            notification_data.get("type", "system"), NotificationType.SYSTEM
+        )
+        priority = priority_mapping.get(
+            notification_data.get("priority", "medium"), NotificationPriority.MEDIUM
+        )
         channels = [
             channel_mapping.get(ch, NotificationChannel.IN_APP)
             for ch in notification_data.get("channels", ["in_app"])
@@ -872,7 +900,9 @@ async def lifespan(app: FastAPI):
         if sms_client._initialized:
             logger.info("✅ SMS client initialized")
         else:
-            logger.info("ℹ️  SMS client not configured (set TWILIO_* env vars to enable)")
+            logger.info(
+                "ℹ️  SMS client not configured (set TWILIO_* env vars to enable)"
+            )
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize SMS client: {e}")
 
@@ -882,7 +912,9 @@ async def lifespan(app: FastAPI):
         if email_client._initialized:
             logger.info("✅ Email client initialized")
         else:
-            logger.info("ℹ️  Email client not configured (set SENDGRID_* env vars to enable)")
+            logger.info(
+                "ℹ️  Email client not configured (set SENDGRID_* env vars to enable)"
+            )
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize Email client: {e}")
 
@@ -929,6 +961,7 @@ app.include_router(preferences_router)
 # Setup rate limiting middleware
 try:
     from middleware.rate_limiter import setup_rate_limiting
+
     setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
     logger.info("Rate limiting enabled")
 except ImportError as e:
@@ -1006,7 +1039,9 @@ async def create_custom_notification(request: CreateNotificationRequest):
 
 
 @app.post("/v1/alerts/weather")
-async def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
+async def create_weather_alert(
+    request: WeatherAlertRequest, background_tasks: BackgroundTasks
+):
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
@@ -1031,9 +1066,7 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
         expires_in_hours=48,
     )
 
-    logger.info(
-        f"🌤️ Weather alert created for {len(request.governorates)} governorates"
-    )
+    logger.info(f"🌤️ Weather alert created for {len(request.governorates)} governorates")
 
     return {
         "id": str(notification.id),
@@ -1183,13 +1216,17 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
             raise HTTPException(status_code=404, detail="Notification not found")
 
         if notification.user_id != farmer_id:
-            raise HTTPException(status_code=403, detail="Not authorized to mark this notification")
+            raise HTTPException(
+                status_code=403, detail="Not authorized to mark this notification"
+            )
 
         # Mark as read
         success = await NotificationRepository.mark_as_read(notif_uuid)
 
         if not success:
-            raise HTTPException(status_code=500, detail="Failed to mark notification as read")
+            raise HTTPException(
+                status_code=500, detail="Failed to mark notification as read"
+            )
 
         return {
             "success": True,
@@ -1277,8 +1314,16 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
             user_id=farmer_id,
             channel=channel,
             enabled=enabled,
-            quiet_hours_start=datetime.strptime(preferences.quiet_hours_start, "%H:%M").time() if preferences.quiet_hours_start else None,
-            quiet_hours_end=datetime.strptime(preferences.quiet_hours_end, "%H:%M").time() if preferences.quiet_hours_end else None,
+            quiet_hours_start=(
+                datetime.strptime(preferences.quiet_hours_start, "%H:%M").time()
+                if preferences.quiet_hours_start
+                else None
+            ),
+            quiet_hours_end=(
+                datetime.strptime(preferences.quiet_hours_end, "%H:%M").time()
+                if preferences.quiet_hours_end
+                else None
+            ),
             min_priority=preferences.min_priority.value,
             notification_types={
                 "weather_alerts": preferences.weather_alerts,

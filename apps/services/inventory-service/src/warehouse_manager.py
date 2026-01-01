@@ -10,20 +10,20 @@ from enum import Enum
 
 
 class WarehouseType(Enum):
-    MAIN = "main"           # Main farm warehouse
-    FIELD = "field"         # Field storage shed
-    COLD = "cold"           # Cold storage
-    CHEMICAL = "chemical"   # Chemical storage (pesticides)
-    SEED = "seed"           # Seed bank
-    FUEL = "fuel"           # Fuel storage
+    MAIN = "main"  # Main farm warehouse
+    FIELD = "field"  # Field storage shed
+    COLD = "cold"  # Cold storage
+    CHEMICAL = "chemical"  # Chemical storage (pesticides)
+    SEED = "seed"  # Seed bank
+    FUEL = "fuel"  # Fuel storage
 
 
 class StorageCondition(Enum):
     AMBIENT = "ambient"
-    COOL = "cool"           # 10-15°C
-    COLD = "cold"           # 2-8°C
-    FROZEN = "frozen"       # Below 0°C
-    DRY = "dry"             # Low humidity
+    COOL = "cool"  # 10-15°C
+    COLD = "cold"  # 2-8°C
+    FROZEN = "frozen"  # Below 0°C
+    DRY = "dry"  # Low humidity
     CONTROLLED = "controlled"  # Temperature + humidity controlled
 
 
@@ -124,9 +124,7 @@ class WarehouseManager:
         return self._warehouse_to_dataclass(warehouse)
 
     async def get_warehouses(
-        self,
-        warehouse_type: Optional[str] = None,
-        is_active: bool = True
+        self, warehouse_type: Optional[str] = None, is_active: bool = True
     ) -> List[Warehouse]:
         """
         Get all warehouses, optionally filtered
@@ -143,8 +141,7 @@ class WarehouseManager:
             where["warehouseType"] = warehouse_type
 
         warehouses = await self.db.warehouse.find_many(
-            where=where,
-            include={"zones": True}
+            where=where, include={"zones": True}
         )
 
         return [self._warehouse_to_dataclass(w) for w in warehouses]
@@ -160,8 +157,7 @@ class WarehouseManager:
             Warehouse object or None
         """
         warehouse = await self.db.warehouse.find_unique(
-            where={"id": warehouse_id},
-            include={"zones": True}
+            where={"id": warehouse_id}, include={"zones": True}
         )
 
         if not warehouse:
@@ -180,8 +176,7 @@ class WarehouseManager:
             Dictionary with utilization metrics
         """
         warehouse = await self.db.warehouse.find_unique(
-            where={"id": warehouse_id},
-            include={"zones": True}
+            where={"id": warehouse_id}, include={"zones": True}
         )
 
         if not warehouse:
@@ -192,32 +187,37 @@ class WarehouseManager:
 
         zones_utilization = []
         for zone in warehouse.zones:
-            zones_utilization.append({
-                "zone_id": zone.id,
-                "zone_name": zone.name,
-                "capacity": zone.capacity,
-                "usage": zone.currentUsage,
-                "utilization_pct": (zone.currentUsage / zone.capacity * 100) if zone.capacity > 0 else 0,
-                "available": zone.capacity - zone.currentUsage
-            })
+            zones_utilization.append(
+                {
+                    "zone_id": zone.id,
+                    "zone_name": zone.name,
+                    "capacity": zone.capacity,
+                    "usage": zone.currentUsage,
+                    "utilization_pct": (
+                        (zone.currentUsage / zone.capacity * 100)
+                        if zone.capacity > 0
+                        else 0
+                    ),
+                    "available": zone.capacity - zone.currentUsage,
+                }
+            )
 
         return {
             "warehouse_id": warehouse_id,
             "warehouse_name": warehouse.name,
             "total_capacity": total_capacity,
             "total_usage": total_usage,
-            "utilization_pct": (total_usage / total_capacity * 100) if total_capacity > 0 else 0,
+            "utilization_pct": (
+                (total_usage / total_capacity * 100) if total_capacity > 0 else 0
+            ),
             "available_capacity": total_capacity - total_usage,
             "capacity_unit": warehouse.capacityUnit,
             "zones": zones_utilization,
-            "zone_count": len(zones_utilization)
+            "zone_count": len(zones_utilization),
         }
 
     async def find_storage_location(
-        self,
-        item_category: str,
-        required_condition: str,
-        quantity: float
+        self, item_category: str, required_condition: str, quantity: float
     ) -> Optional[StorageLocation]:
         """
         Find suitable storage location for item
@@ -238,7 +238,7 @@ class WarehouseManager:
             "HERBICIDE": "CHEMICAL",
             "FUNGICIDE": "CHEMICAL",
             "FUEL": "FUEL",
-            "COLD_STORAGE": "COLD"
+            "COLD_STORAGE": "COLD",
         }
 
         preferred_type = category_warehouse_map.get(item_category, "MAIN")
@@ -248,9 +248,9 @@ class WarehouseManager:
             where={
                 "warehouseType": preferred_type,
                 "storageCondition": required_condition,
-                "isActive": True
+                "isActive": True,
             },
-            include={"zones": {"include": {"locations": True}}}
+            include={"zones": {"include": {"locations": True}}},
         )
 
         # Find available location
@@ -268,9 +268,11 @@ class WarehouseManager:
                             location_code=location.locationCode,
                             capacity=location.capacity,
                             current_items=[],
-                            storage_condition=StorageCondition(warehouse.storageCondition.lower()),
+                            storage_condition=StorageCondition(
+                                warehouse.storageCondition.lower()
+                            ),
                             is_occupied=location.isOccupied,
-                            current_qty=location.currentQty
+                            current_qty=location.currentQty,
                         )
 
         return None
@@ -283,7 +285,7 @@ class WarehouseManager:
         quantity: float,
         requested_by: str,
         transfer_type: str = "INTER_WAREHOUSE",
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
     ) -> Dict:
         """
         Transfer stock between warehouses
@@ -310,7 +312,7 @@ class WarehouseManager:
                 "transferType": transfer_type,
                 "status": "PENDING",
                 "requestedBy": requested_by,
-                "notes": notes
+                "notes": notes,
             }
         )
 
@@ -322,14 +324,10 @@ class WarehouseManager:
             "quantity": quantity,
             "status": transfer.status,
             "requested_at": transfer.requestedAt.isoformat(),
-            "requested_by": requested_by
+            "requested_by": requested_by,
         }
 
-    async def approve_transfer(
-        self,
-        transfer_id: str,
-        approved_by: str
-    ) -> Dict:
+    async def approve_transfer(self, transfer_id: str, approved_by: str) -> Dict:
         """
         Approve a pending transfer
 
@@ -345,22 +343,20 @@ class WarehouseManager:
             data={
                 "status": "APPROVED",
                 "approvedBy": approved_by,
-                "approvedAt": datetime.utcnow()
-            }
+                "approvedAt": datetime.utcnow(),
+            },
         )
 
         return {
             "transfer_id": transfer.id,
             "status": transfer.status,
             "approved_by": approved_by,
-            "approved_at": transfer.approvedAt.isoformat() if transfer.approvedAt else None
+            "approved_at": (
+                transfer.approvedAt.isoformat() if transfer.approvedAt else None
+            ),
         }
 
-    async def complete_transfer(
-        self,
-        transfer_id: str,
-        performed_by: str
-    ) -> Dict:
+    async def complete_transfer(self, transfer_id: str, performed_by: str) -> Dict:
         """
         Mark transfer as completed
 
@@ -376,21 +372,21 @@ class WarehouseManager:
             data={
                 "status": "COMPLETED",
                 "performedBy": performed_by,
-                "completedAt": datetime.utcnow()
-            }
+                "completedAt": datetime.utcnow(),
+            },
         )
 
         return {
             "transfer_id": transfer.id,
             "status": transfer.status,
             "performed_by": performed_by,
-            "completed_at": transfer.completedAt.isoformat() if transfer.completedAt else None
+            "completed_at": (
+                transfer.completedAt.isoformat() if transfer.completedAt else None
+            ),
         }
 
     async def get_warehouse_inventory(
-        self,
-        warehouse_id: str,
-        category: Optional[str] = None
+        self, warehouse_id: str, category: Optional[str] = None
     ) -> List[Dict]:
         """
         Get all inventory in a warehouse
@@ -407,32 +403,32 @@ class WarehouseManager:
             where["category"] = category
 
         items = await self.db.inventoryitem.find_many(
-            where=where,
-            include={"batchLots": True}
+            where=where, include={"batchLots": True}
         )
 
         result = []
         for item in items:
-            result.append({
-                "item_id": item.id,
-                "sku": item.sku,
-                "name_ar": item.name_ar,
-                "name_en": item.name_en,
-                "category": item.category,
-                "quantity": item.currentQuantity,
-                "available": item.availableQuantity,
-                "unit": item.unit,
-                "storage_location": item.storageLocation,
-                "expiry_date": item.expiryDate.isoformat() if item.expiryDate else None,
-                "batch_count": len(item.batchLots) if item.batchLots else 0
-            })
+            result.append(
+                {
+                    "item_id": item.id,
+                    "sku": item.sku,
+                    "name_ar": item.name_ar,
+                    "name_en": item.name_en,
+                    "category": item.category,
+                    "quantity": item.currentQuantity,
+                    "available": item.availableQuantity,
+                    "unit": item.unit,
+                    "storage_location": item.storageLocation,
+                    "expiry_date": (
+                        item.expiryDate.isoformat() if item.expiryDate else None
+                    ),
+                    "batch_count": len(item.batchLots) if item.batchLots else 0,
+                }
+            )
 
         return result
 
-    async def check_storage_conditions(
-        self,
-        warehouse_id: str
-    ) -> Dict:
+    async def check_storage_conditions(self, warehouse_id: str) -> Dict:
         """
         Check if current conditions match required conditions
 
@@ -442,9 +438,7 @@ class WarehouseManager:
         Returns:
             Condition check results
         """
-        warehouse = await self.db.warehouse.find_unique(
-            where={"id": warehouse_id}
-        )
+        warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id})
 
         if not warehouse:
             return {"error": "Warehouse not found"}
@@ -458,22 +452,18 @@ class WarehouseManager:
             "temperature_range": {
                 "min": warehouse.tempMin,
                 "max": warehouse.tempMax,
-                "current": None  # Would come from IoT sensors
+                "current": None,  # Would come from IoT sensors
             },
             "humidity_range": {
                 "min": warehouse.humidityMin,
                 "max": warehouse.humidityMax,
-                "current": None  # Would come from IoT sensors
+                "current": None,  # Would come from IoT sensors
             },
             "status": "OK",  # Would be calculated based on sensor data
-            "alerts": []
+            "alerts": [],
         }
 
-    async def get_expiring_items(
-        self,
-        warehouse_id: str,
-        days: int = 30
-    ) -> List[Dict]:
+    async def get_expiring_items(self, warehouse_id: str, days: int = 30) -> List[Dict]:
         """
         Get items expiring within N days in warehouse
 
@@ -489,29 +479,32 @@ class WarehouseManager:
         items = await self.db.inventoryitem.find_many(
             where={
                 "warehouseId": warehouse_id,
-                "expiryDate": {
-                    "lte": cutoff_date,
-                    "gte": datetime.utcnow()
-                }
+                "expiryDate": {"lte": cutoff_date, "gte": datetime.utcnow()},
             },
-            order_by={"expiryDate": "asc"}
+            order_by={"expiryDate": "asc"},
         )
 
         result = []
         for item in items:
-            days_until_expiry = (item.expiryDate - datetime.utcnow()).days if item.expiryDate else None
-            result.append({
-                "item_id": item.id,
-                "sku": item.sku,
-                "name_ar": item.name_ar,
-                "name_en": item.name_en,
-                "category": item.category,
-                "quantity": item.currentQuantity,
-                "unit": item.unit,
-                "expiry_date": item.expiryDate.isoformat() if item.expiryDate else None,
-                "days_until_expiry": days_until_expiry,
-                "storage_location": item.storageLocation
-            })
+            days_until_expiry = (
+                (item.expiryDate - datetime.utcnow()).days if item.expiryDate else None
+            )
+            result.append(
+                {
+                    "item_id": item.id,
+                    "sku": item.sku,
+                    "name_ar": item.name_ar,
+                    "name_en": item.name_en,
+                    "category": item.category,
+                    "quantity": item.currentQuantity,
+                    "unit": item.unit,
+                    "expiry_date": (
+                        item.expiryDate.isoformat() if item.expiryDate else None
+                    ),
+                    "days_until_expiry": days_until_expiry,
+                    "storage_location": item.storageLocation,
+                }
+            )
 
         return result
 
@@ -521,7 +514,7 @@ class WarehouseManager:
         name: str,
         name_ar: str,
         capacity: float,
-        condition: Optional[str] = None
+        condition: Optional[str] = None,
     ) -> Dict:
         """
         Create a zone within a warehouse
@@ -542,7 +535,7 @@ class WarehouseManager:
                 "name": name,
                 "nameAr": name_ar,
                 "capacity": capacity,
-                "condition": condition
+                "condition": condition,
             }
         )
 
@@ -553,16 +546,11 @@ class WarehouseManager:
             "name_ar": zone.nameAr,
             "capacity": zone.capacity,
             "current_usage": zone.currentUsage,
-            "condition": zone.condition
+            "condition": zone.condition,
         }
 
     async def create_storage_location(
-        self,
-        zone_id: str,
-        aisle: str,
-        shelf: str,
-        bin: str,
-        capacity: float
+        self, zone_id: str, aisle: str, shelf: str, bin: str, capacity: float
     ) -> Dict:
         """
         Create a storage location within a zone
@@ -586,7 +574,7 @@ class WarehouseManager:
                 "shelf": shelf,
                 "bin": bin,
                 "locationCode": location_code,
-                "capacity": capacity
+                "capacity": capacity,
             }
         )
 
@@ -598,14 +586,14 @@ class WarehouseManager:
             "shelf": shelf,
             "bin": bin,
             "capacity": capacity,
-            "is_occupied": location.isOccupied
+            "is_occupied": location.isOccupied,
         }
 
     async def get_transfers(
         self,
         warehouse_id: Optional[str] = None,
         status: Optional[str] = None,
-        limit: int = 50
+        limit: int = 50,
     ) -> List[Dict]:
         """
         Get stock transfers
@@ -622,7 +610,7 @@ class WarehouseManager:
         if warehouse_id:
             where["OR"] = [
                 {"fromWarehouseId": warehouse_id},
-                {"toWarehouseId": warehouse_id}
+                {"toWarehouseId": warehouse_id},
             ]
         if status:
             where["status"] = status
@@ -631,34 +619,35 @@ class WarehouseManager:
             where=where,
             take=limit,
             order_by={"requestedAt": "desc"},
-            include={
-                "fromWarehouse": True,
-                "toWarehouse": True
-            }
+            include={"fromWarehouse": True, "toWarehouse": True},
         )
 
         result = []
         for t in transfers:
-            result.append({
-                "transfer_id": t.id,
-                "item_id": t.itemId,
-                "from_warehouse": {
-                    "id": t.fromWarehouse.id if t.fromWarehouse else None,
-                    "name": t.fromWarehouse.name if t.fromWarehouse else None
-                },
-                "to_warehouse": {
-                    "id": t.toWarehouse.id,
-                    "name": t.toWarehouse.name
-                },
-                "quantity": t.quantity,
-                "transfer_type": t.transferType,
-                "status": t.status,
-                "requested_by": t.requestedBy,
-                "requested_at": t.requestedAt.isoformat(),
-                "approved_by": t.approvedBy,
-                "completed_at": t.completedAt.isoformat() if t.completedAt else None,
-                "notes": t.notes
-            })
+            result.append(
+                {
+                    "transfer_id": t.id,
+                    "item_id": t.itemId,
+                    "from_warehouse": {
+                        "id": t.fromWarehouse.id if t.fromWarehouse else None,
+                        "name": t.fromWarehouse.name if t.fromWarehouse else None,
+                    },
+                    "to_warehouse": {
+                        "id": t.toWarehouse.id,
+                        "name": t.toWarehouse.name,
+                    },
+                    "quantity": t.quantity,
+                    "transfer_type": t.transferType,
+                    "status": t.status,
+                    "requested_by": t.requestedBy,
+                    "requested_at": t.requestedAt.isoformat(),
+                    "approved_by": t.approvedBy,
+                    "completed_at": (
+                        t.completedAt.isoformat() if t.completedAt else None
+                    ),
+                    "notes": t.notes,
+                }
+            )
 
         return result
 
@@ -673,29 +662,34 @@ class WarehouseManager:
                 "lat": warehouse.latitude,
                 "lon": warehouse.longitude,
                 "address": warehouse.address,
-                "governorate": warehouse.governorate
+                "governorate": warehouse.governorate,
             },
             capacity=warehouse.capacityValue,
             capacity_unit=warehouse.capacityUnit,
             current_utilization=warehouse.currentUsage,
             storage_condition=StorageCondition(warehouse.storageCondition.lower()),
-            temperature_range={
-                "min": warehouse.tempMin,
-                "max": warehouse.tempMax
-            } if warehouse.tempMin or warehouse.tempMax else None,
-            humidity_range={
-                "min": warehouse.humidityMin,
-                "max": warehouse.humidityMax
-            } if warehouse.humidityMin or warehouse.humidityMax else None,
-            zones=[{
-                "zone_id": z.id,
-                "name": z.name,
-                "capacity": z.capacity,
-                "usage": z.currentUsage
-            } for z in (warehouse.zones or [])],
+            temperature_range=(
+                {"min": warehouse.tempMin, "max": warehouse.tempMax}
+                if warehouse.tempMin or warehouse.tempMax
+                else None
+            ),
+            humidity_range=(
+                {"min": warehouse.humidityMin, "max": warehouse.humidityMax}
+                if warehouse.humidityMin or warehouse.humidityMax
+                else None
+            ),
+            zones=[
+                {
+                    "zone_id": z.id,
+                    "name": z.name,
+                    "capacity": z.capacity,
+                    "usage": z.currentUsage,
+                }
+                for z in (warehouse.zones or [])
+            ],
             is_active=warehouse.isActive,
             manager_id=warehouse.managerId,
             manager_name=warehouse.managerName,
             created_at=warehouse.createdAt,
-            updated_at=warehouse.updatedAt
+            updated_at=warehouse.updatedAt,
         )

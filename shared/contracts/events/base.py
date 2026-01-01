@@ -15,6 +15,7 @@ import json
 @dataclass
 class EventMetadata:
     """Metadata attached to every event"""
+
     correlation_id: UUID
     causation_id: Optional[UUID] = None
     user_id: Optional[UUID] = None
@@ -34,6 +35,7 @@ class EventMetadata:
 @dataclass
 class EventSource:
     """Source information for the event producer"""
+
     service: str
     version: str
     instance_id: Optional[str] = None
@@ -92,7 +94,9 @@ class BaseEvent:
             "event_version": self.event_version,
             "timestamp": self.timestamp.isoformat(),
             "tenant_id": str(self.tenant_id),
-            "correlation_id": str(self.metadata.correlation_id) if self.metadata else None,
+            "correlation_id": (
+                str(self.metadata.correlation_id) if self.metadata else None
+            ),
             "source": self.source.to_dict() if self.source else None,
             "metadata": self.metadata.to_dict() if self.metadata else None,
             "payload": self._payload_to_dict(),

@@ -66,7 +66,7 @@ class RAGService:
 
         i = 0
         while i < len(words):
-            chunk_words = words[i:i + self.chunk_size]
+            chunk_words = words[i : i + self.chunk_size]
             chunk_content = " ".join(chunk_words)
 
             chunk = DocumentChunk(
@@ -120,11 +120,13 @@ class RAGService:
 
             if overlap > 0:
                 score = overlap / len(query_words)
-                results.append(SearchResult(
-                    chunk=chunk,
-                    document=document,
-                    score=score,
-                ))
+                results.append(
+                    SearchResult(
+                        chunk=chunk,
+                        document=document,
+                        score=score,
+                    )
+                )
 
         # Sort by score and return top-k
         results.sort(key=lambda r: r.score, reverse=True)
@@ -144,8 +146,7 @@ class RAGService:
 
         if tenant_id:
             documents = [
-                d for d in documents
-                if d.tenant_id is None or d.tenant_id == tenant_id
+                d for d in documents if d.tenant_id is None or d.tenant_id == tenant_id
             ]
 
         if category:

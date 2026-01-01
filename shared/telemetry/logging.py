@@ -62,8 +62,8 @@ class TraceContextFilter(logging.Filter):
 
         if span_context.is_valid:
             # Add trace ID and span ID to record
-            record.trace_id = format(span_context.trace_id, '032x')
-            record.span_id = format(span_context.span_id, '016x')
+            record.trace_id = format(span_context.trace_id, "032x")
+            record.span_id = format(span_context.span_id, "016x")
             record.trace_flags = span_context.trace_flags
         else:
             record.trace_id = "0" * 32
@@ -112,7 +112,9 @@ class JSONFormatter(logging.Formatter):
         """
         # Base log structure
         log_data = {
-            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
+            "timestamp": datetime.fromtimestamp(
+                record.created, tz=timezone.utc
+            ).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -155,11 +157,31 @@ class JSONFormatter(logging.Formatter):
         # Add any additional attributes
         for key, value in record.__dict__.items():
             if key not in [
-                "name", "msg", "args", "created", "filename", "funcName",
-                "levelname", "levelno", "lineno", "module", "msecs", "message",
-                "pathname", "process", "processName", "relativeCreated", "thread",
-                "threadName", "exc_info", "exc_text", "stack_info", "trace_id",
-                "span_id", "trace_flags", "extra_fields",
+                "name",
+                "msg",
+                "args",
+                "created",
+                "filename",
+                "funcName",
+                "levelname",
+                "levelno",
+                "lineno",
+                "module",
+                "msecs",
+                "message",
+                "pathname",
+                "process",
+                "processName",
+                "relativeCreated",
+                "thread",
+                "threadName",
+                "exc_info",
+                "exc_text",
+                "stack_info",
+                "trace_id",
+                "span_id",
+                "trace_flags",
+                "extra_fields",
             ]:
                 # Only include serializable values
                 try:
@@ -223,7 +245,9 @@ def setup_logging(
     """
     # Auto-detect configuration from environment
     if not service_name:
-        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv("SERVICE_NAME", "sahool-service")
+        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv(
+            "SERVICE_NAME", "sahool-service"
+        )
 
     if not service_version:
         service_version = os.getenv("SERVICE_VERSION", "1.0.0")
@@ -299,7 +323,7 @@ def log_exception(
     logger: logging.Logger,
     exception: Exception,
     message: str = "Exception occurred",
-    **kwargs
+    **kwargs,
 ) -> None:
     """
     Log exception with trace context and record in current span.
@@ -320,12 +344,7 @@ def log_exception(
         span.set_status(Status(StatusCode.ERROR, str(exception)))
 
 
-def log_with_trace(
-    logger: logging.Logger,
-    level: str,
-    message: str,
-    **kwargs
-) -> None:
+def log_with_trace(logger: logging.Logger, level: str, message: str, **kwargs) -> None:
     """
     Log message with automatic trace context.
 
@@ -371,7 +390,9 @@ class RequestLoggingMiddleware:
         # Extract request info
         method = scope["method"]
         path = scope["path"]
-        client_host = scope.get("client", ["unknown"])[0] if scope.get("client") else "unknown"
+        client_host = (
+            scope.get("client", ["unknown"])[0] if scope.get("client") else "unknown"
+        )
 
         # Log request start
         self.logger.info(
@@ -381,7 +402,7 @@ class RequestLoggingMiddleware:
                 "http_path": path,
                 "client_host": client_host,
                 "event": "request_started",
-            }
+            },
         )
 
         # Process request
@@ -395,7 +416,7 @@ class RequestLoggingMiddleware:
                     "http_method": method,
                     "http_path": path,
                     "event": "request_completed",
-                }
+                },
             )
         except Exception as e:
             # Log request error
@@ -406,7 +427,7 @@ class RequestLoggingMiddleware:
                     "http_method": method,
                     "http_path": path,
                     "event": "request_failed",
-                }
+                },
             )
             raise
 

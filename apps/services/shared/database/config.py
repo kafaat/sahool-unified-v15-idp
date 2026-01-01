@@ -46,11 +46,12 @@ class DatabaseConfig:
         # Enforce password in non-test environments
         if not password and environment not in ("test", "testing", "ci"):
             import warnings
+
             warnings.warn(
                 f"SECURITY WARNING: {prefix}_PASSWORD environment variable is not set. "
                 "This is required for production environments.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
         return cls(
@@ -82,7 +83,9 @@ def get_database_url(async_driver: bool = False) -> str:
         if async_driver and "postgresql://" in database_url:
             return database_url.replace("postgresql://", "postgresql+asyncpg://")
         elif not async_driver and "postgresql+asyncpg://" in database_url:
-            return database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
+            return database_url.replace(
+                "postgresql+asyncpg://", "postgresql+psycopg2://"
+            )
         return database_url
 
     # Build from individual env vars

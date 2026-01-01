@@ -25,14 +25,18 @@ logger = logging.getLogger(__name__)
 try:
     import firebase_admin
     from firebase_admin import credentials, messaging
+
     _FIREBASE_AVAILABLE = True
 except ImportError:
     _FIREBASE_AVAILABLE = False
-    logger.warning("Firebase Admin SDK not installed. Install with: pip install firebase-admin")
+    logger.warning(
+        "Firebase Admin SDK not installed. Install with: pip install firebase-admin"
+    )
 
 
 class NotificationPriority(str, Enum):
     """أولوية الإشعار"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -42,6 +46,7 @@ class NotificationPriority(str, Enum):
 @dataclass
 class FirebaseNotification:
     """نموذج إشعار Firebase"""
+
     title: str
     body: str
     title_ar: Optional[str] = None
@@ -64,6 +69,7 @@ class FirebaseNotification:
 @dataclass
 class FirebaseData:
     """بيانات إضافية للإشعار"""
+
     notification_type: str
     priority: NotificationPriority
     action_url: Optional[str] = None
@@ -122,7 +128,7 @@ class FirebaseClient:
     def initialize(
         self,
         credentials_path: Optional[str] = None,
-        credentials_dict: Optional[Dict[str, Any]] = None
+        credentials_dict: Optional[Dict[str, Any]] = None,
     ) -> bool:
         """
         تهيئة Firebase Admin SDK
@@ -225,19 +231,37 @@ class FirebaseClient:
 
             # Build Android config
             android_config = messaging.AndroidConfig(
-                priority="high" if priority in [NotificationPriority.HIGH, NotificationPriority.CRITICAL] else "normal",
+                priority=(
+                    "high"
+                    if priority
+                    in [NotificationPriority.HIGH, NotificationPriority.CRITICAL]
+                    else "normal"
+                ),
                 ttl=ttl,
                 notification=messaging.AndroidNotification(
                     sound="default",
-                    priority="high" if priority == NotificationPriority.CRITICAL else "default",
-                    channel_id="sahool_alerts" if priority == NotificationPriority.CRITICAL else "sahool_main",
+                    priority=(
+                        "high"
+                        if priority == NotificationPriority.CRITICAL
+                        else "default"
+                    ),
+                    channel_id=(
+                        "sahool_alerts"
+                        if priority == NotificationPriority.CRITICAL
+                        else "sahool_main"
+                    ),
                 ),
             )
 
             # Build iOS config
             apns_config = messaging.APNSConfig(
                 headers={
-                    "apns-priority": "10" if priority in [NotificationPriority.HIGH, NotificationPriority.CRITICAL] else "5",
+                    "apns-priority": (
+                        "10"
+                        if priority
+                        in [NotificationPriority.HIGH, NotificationPriority.CRITICAL]
+                        else "5"
+                    ),
                 },
                 payload=messaging.APNSPayload(
                     aps=messaging.Aps(
@@ -388,7 +412,9 @@ class FirebaseClient:
                 for idx, resp in enumerate(response.responses):
                     if not resp.success:
                         failed_tokens.append(tokens[idx])
-                        logger.warning(f"Failed to send to token {idx}: {resp.exception}")
+                        logger.warning(
+                            f"Failed to send to token {idx}: {resp.exception}"
+                        )
 
                 logger.warning(f"Failed tokens: {failed_tokens}")
 
@@ -414,7 +440,9 @@ class FirebaseClient:
                 "error": str(e),
             }
 
-    def subscribe_to_topic(self, tokens: Union[str, List[str]], topic: str) -> Dict[str, int]:
+    def subscribe_to_topic(
+        self, tokens: Union[str, List[str]], topic: str
+    ) -> Dict[str, int]:
         """
         اشتراك أجهزة في موضوع
 
@@ -433,7 +461,9 @@ class FirebaseClient:
 
         try:
             response = messaging.subscribe_to_topic(tokens, topic)
-            logger.info(f"✅ Subscribed {response.success_count} devices to topic '{topic}'")
+            logger.info(
+                f"✅ Subscribed {response.success_count} devices to topic '{topic}'"
+            )
 
             if response.failure_count > 0:
                 logger.warning(f"Failed to subscribe {response.failure_count} devices")
@@ -447,7 +477,9 @@ class FirebaseClient:
             logger.error(f"Failed to subscribe to topic: {e}")
             return {"success_count": 0, "failure_count": len(tokens)}
 
-    def unsubscribe_from_topic(self, tokens: Union[str, List[str]], topic: str) -> Dict[str, int]:
+    def unsubscribe_from_topic(
+        self, tokens: Union[str, List[str]], topic: str
+    ) -> Dict[str, int]:
         """
         إلغاء اشتراك أجهزة من موضوع
 
@@ -466,10 +498,14 @@ class FirebaseClient:
 
         try:
             response = messaging.unsubscribe_from_topic(tokens, topic)
-            logger.info(f"✅ Unsubscribed {response.success_count} devices from topic '{topic}'")
+            logger.info(
+                f"✅ Unsubscribed {response.success_count} devices from topic '{topic}'"
+            )
 
             if response.failure_count > 0:
-                logger.warning(f"Failed to unsubscribe {response.failure_count} devices")
+                logger.warning(
+                    f"Failed to unsubscribe {response.failure_count} devices"
+                )
 
             return {
                 "success_count": response.success_count,
@@ -481,12 +517,7 @@ class FirebaseClient:
             return {"success_count": 0, "failure_count": len(tokens)}
 
     def send_with_retry(
-        self,
-        token: str,
-        title: str,
-        body: str,
-        max_retries: int = 3,
-        **kwargs
+        self, token: str, title: str, body: str, max_retries: int = 3, **kwargs
     ) -> Optional[str]:
         """
         إرسال إشعار مع إعادة المحاولة
@@ -507,7 +538,9 @@ class FirebaseClient:
                 return result
 
             if attempt < max_retries - 1:
-                logger.warning(f"Retry {attempt + 1}/{max_retries} for token {token[:20]}...")
+                logger.warning(
+                    f"Retry {attempt + 1}/{max_retries} for token {token[:20]}..."
+                )
 
         logger.error(f"Failed to send notification after {max_retries} attempts")
         return None

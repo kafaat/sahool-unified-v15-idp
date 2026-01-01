@@ -29,12 +29,15 @@ class AgentCapability(BaseModel):
     Agent capability definition
     تعريف قدرة الوكيل
     """
+
     capability_id: str = Field(..., description="Unique capability identifier")
     name: str = Field(..., description="Capability name")
     description: str = Field(..., description="Capability description")
     input_schema: Dict[str, Any] = Field(..., description="JSON Schema for inputs")
     output_schema: Dict[str, Any] = Field(..., description="JSON Schema for outputs")
-    examples: List[Dict[str, Any]] = Field(default_factory=list, description="Usage examples")
+    examples: List[Dict[str, Any]] = Field(
+        default_factory=list, description="Usage examples"
+    )
     tags: List[str] = Field(default_factory=list, description="Capability tags")
 
 
@@ -46,6 +49,7 @@ class AgentCard(BaseModel):
     Following Linux Foundation A2A specification for agent discovery.
     وفقاً لمواصفات Linux Foundation A2A لاكتشاف الوكلاء.
     """
+
     agent_id: str = Field(..., description="Unique agent identifier")
     name: str = Field(..., description="Agent name")
     version: str = Field(..., description="Agent version")
@@ -65,32 +69,39 @@ class AgentCard(BaseModel):
     # Endpoints
     # نقاط النهاية
     task_endpoint: HttpUrl = Field(..., description="Task submission endpoint")
-    websocket_endpoint: Optional[HttpUrl] = Field(None, description="WebSocket endpoint for streaming")
+    websocket_endpoint: Optional[HttpUrl] = Field(
+        None, description="WebSocket endpoint for streaming"
+    )
 
     # Protocol support
     # دعم البروتوكول
     protocol_version: str = Field(default="1.0", description="A2A protocol version")
-    supports_streaming: bool = Field(default=False, description="Supports streaming responses")
+    supports_streaming: bool = Field(
+        default=False, description="Supports streaming responses"
+    )
     supports_batch: bool = Field(default=False, description="Supports batch requests")
 
     # Rate limits
     # حدود المعدل
     rate_limit: Optional[Dict[str, Any]] = Field(
-        None,
-        description="Rate limit information (requests_per_minute, etc.)"
+        None, description="Rate limit information (requests_per_minute, etc.)"
     )
 
     # Authentication
     # المصادقة
-    authentication_required: bool = Field(default=False, description="Requires authentication")
+    authentication_required: bool = Field(
+        default=False, description="Requires authentication"
+    )
     authentication_methods: List[str] = Field(
         default_factory=list,
-        description="Supported auth methods (api_key, oauth2, etc.)"
+        description="Supported auth methods (api_key, oauth2, etc.)",
     )
 
     # Status
     # الحالة
-    status: str = Field(default="active", description="Agent status (active, maintenance, deprecated)")
+    status: str = Field(
+        default="active", description="Agent status (active, maintenance, deprecated)"
+    )
     last_updated: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
@@ -177,7 +188,7 @@ class A2AAgent(ABC):
             "a2a_agent_initialized",
             agent_id=self.agent_id,
             name=self.name,
-            version=self.version
+            version=self.version,
         )
 
     @abstractmethod
@@ -218,7 +229,7 @@ class A2AAgent(ABC):
     def register_task_handler(
         self,
         task_type: str,
-        handler: Callable[[TaskMessage], Awaitable[Dict[str, Any]]]
+        handler: Callable[[TaskMessage], Awaitable[Dict[str, Any]]],
     ) -> None:
         """
         Register handler for a specific task type
@@ -230,9 +241,7 @@ class A2AAgent(ABC):
         """
         self.task_handlers[task_type] = handler
         logger.debug(
-            "task_handler_registered",
-            agent_id=self.agent_id,
-            task_type=task_type
+            "task_handler_registered", agent_id=self.agent_id, task_type=task_type
         )
 
     async def handle_task(self, task: TaskMessage) -> TaskResultMessage:
@@ -269,7 +278,9 @@ class A2AAgent(ABC):
             handler = self.task_handlers.get(task.task_type)
 
             if not handler:
-                raise ValueError(f"No handler registered for task type: {task.task_type}")
+                raise ValueError(
+                    f"No handler registered for task type: {task.task_type}"
+                )
 
             # Execute task
             # تنفيذ المهمة
@@ -305,7 +316,7 @@ class A2AAgent(ABC):
                 agent_id=self.agent_id,
                 task_id=task.task_id,
                 task_type=task.task_type,
-                execution_time_ms=int(execution_time)
+                execution_time_ms=int(execution_time),
             )
 
             return result_message
@@ -321,7 +332,7 @@ class A2AAgent(ABC):
                 agent_id=self.agent_id,
                 task_id=task.task_id,
                 task_type=task.task_type,
-                error=str(e)
+                error=str(e),
             )
 
             # Create error message
@@ -354,7 +365,7 @@ class A2AAgent(ABC):
     async def stream_task_progress(
         self,
         task: TaskMessage,
-        progress_callback: Callable[[float, Optional[Dict[str, Any]]], Awaitable[None]]
+        progress_callback: Callable[[float, Optional[Dict[str, Any]]], Awaitable[None]],
     ) -> TaskResultMessage:
         """
         Handle task with streaming progress updates
@@ -447,9 +458,7 @@ class A2AAgent(ABC):
 
         if removed > 0:
             logger.info(
-                "conversations_cleaned",
-                agent_id=self.agent_id,
-                removed=removed
+                "conversations_cleaned", agent_id=self.agent_id, removed=removed
             )
 
         return removed

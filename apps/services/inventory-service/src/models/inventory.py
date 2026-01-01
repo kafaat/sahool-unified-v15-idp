@@ -10,8 +10,19 @@ from typing import Optional
 import uuid
 
 from sqlalchemy import (
-    Column, String, Float, Integer, Boolean, DateTime, Date,
-    ForeignKey, Text, Numeric, Enum as SQLEnum, Index, func
+    Column,
+    String,
+    Float,
+    Integer,
+    Boolean,
+    DateTime,
+    Date,
+    ForeignKey,
+    Text,
+    Numeric,
+    Enum as SQLEnum,
+    Index,
+    func,
 )
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
@@ -22,11 +33,13 @@ from sqlalchemy.ext.declarative import declared_attr
 # Define base classes locally for Docker compatibility
 class Base(DeclarativeBase):
     """Base class for all database models"""
+
     pass
 
 
 class TimestampMixin:
     """Mixin for created_at and updated_at timestamps"""
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -42,6 +55,7 @@ class TimestampMixin:
 
 class TenantMixin:
     """Mixin for multi-tenant support"""
+
     @declared_attr
     def tenant_id(cls) -> Mapped[str]:
         return mapped_column(String(50), nullable=False, index=True)
@@ -49,17 +63,17 @@ class TenantMixin:
 
 class TenantEntity(Base, TimestampMixin, TenantMixin):
     """Base entity with tenant support"""
+
     __abstract__ = True
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
 
 
 class MovementType(str, Enum):
     """Types of inventory movements"""
+
     RECEIPT = "receipt"  # Receiving from supplier
     ISSUE = "issue"  # Issuing to field/operation
     ADJUSTMENT = "adjustment"  # Stock adjustment
@@ -70,6 +84,7 @@ class MovementType(str, Enum):
 
 class TransactionType(str, Enum):
     """Types of inventory transactions"""
+
     PURCHASE = "purchase"
     SALE = "sale"
     USE = "use"  # Used in farming operation
@@ -79,6 +94,7 @@ class TransactionType(str, Enum):
 
 class UnitOfMeasure(str, Enum):
     """Standard units of measure"""
+
     KG = "kg"
     LITER = "liter"
     PIECE = "piece"
@@ -93,9 +109,7 @@ class ItemCategory(Base, TimestampMixin):
     __tablename__ = "inventory_categories"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
 
     name_en: Mapped[str] = mapped_column(String(100), nullable=False)
@@ -121,9 +135,11 @@ class Warehouse(TenantEntity):
 
     # Relationships
     items = relationship("InventoryItem", back_populates="warehouse")
-    movements = relationship("InventoryMovement",
-                           foreign_keys="InventoryMovement.warehouse_id",
-                           back_populates="warehouse")
+    movements = relationship(
+        "InventoryMovement",
+        foreign_keys="InventoryMovement.warehouse_id",
+        back_populates="warehouse",
+    )
 
 
 class Supplier(TenantEntity):
@@ -153,27 +169,23 @@ class InventoryItem(TenantEntity):
     name_en: Mapped[str] = mapped_column(String(200), nullable=False)
     name_ar: Mapped[str] = mapped_column(String(200), nullable=False)
     sku: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    barcode: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, index=True)
+    barcode: Mapped[Optional[str]] = mapped_column(
+        String(100), nullable=True, index=True
+    )
 
     # Category and classification
     category_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("inventory_categories.id"),
-        nullable=False
+        UUID(as_uuid=True), ForeignKey("inventory_categories.id"), nullable=False
     )
 
     # Storage
     warehouse_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("inventory_warehouses.id"),
-        nullable=True
+        UUID(as_uuid=True), ForeignKey("inventory_warehouses.id"), nullable=True
     )
 
     # Supplier
     supplier_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("inventory_suppliers.id"),
-        nullable=True
+        UUID(as_uuid=True), ForeignKey("inventory_suppliers.id"), nullable=True
     )
 
     # Stock levels
@@ -185,22 +197,16 @@ class InventoryItem(TenantEntity):
 
     # Unit and measurement
     unit_of_measure: Mapped[str] = mapped_column(
-        SQLEnum(UnitOfMeasure, name="unit_of_measure"),
-        default=UnitOfMeasure.KG
+        SQLEnum(UnitOfMeasure, name="unit_of_measure"), default=UnitOfMeasure.KG
     )
 
     # Cost and valuation
-    unit_cost: Mapped[Decimal] = mapped_column(
-        Numeric(15, 2),
-        default=Decimal("0.00")
-    )
+    unit_cost: Mapped[Decimal] = mapped_column(Numeric(15, 2), default=Decimal("0.00"))
     average_cost: Mapped[Decimal] = mapped_column(
-        Numeric(15, 2),
-        default=Decimal("0.00")
+        Numeric(15, 2), default=Decimal("0.00")
     )
     total_value: Mapped[Decimal] = mapped_column(
-        Numeric(15, 2),
-        default=Decimal("0.00")
+        Numeric(15, 2), default=Decimal("0.00")
     )
 
     # Expiry tracking
@@ -223,35 +229,32 @@ class InventoryItem(TenantEntity):
     # Indexes for performance
     __table_args__ = (
         # Existing indexes
-        Index('idx_inventory_items_category', 'category_id'),
-        Index('idx_inventory_items_warehouse', 'warehouse_id'),
-
+        Index("idx_inventory_items_category", "category_id"),
+        Index("idx_inventory_items_warehouse", "warehouse_id"),
         # Performance indexes
         # Composite index for SKU lookups within tenant
-        Index('idx_inventory_items_sku_tenant', 'tenant_id', 'sku'),
-
+        Index("idx_inventory_items_sku_tenant", "tenant_id", "sku"),
         # Partial index for low stock items (requires PostgreSQL)
         # WHERE current_stock <= reorder_level
         Index(
-            'idx_inventory_items_low_stock',
-            'tenant_id', 'current_stock',
-            postgresql_where=sa.text('current_stock <= reorder_level')
+            "idx_inventory_items_low_stock",
+            "tenant_id",
+            "current_stock",
+            postgresql_where=sa.text("current_stock <= reorder_level"),
         ),
-
         # Partial index for items with expiry dates
         # WHERE has_expiry = true AND expiry_date IS NOT NULL
         Index(
-            'idx_inventory_items_expiry',
-            'expiry_date',
-            postgresql_where=sa.text('has_expiry = true AND expiry_date IS NOT NULL')
+            "idx_inventory_items_expiry",
+            "expiry_date",
+            postgresql_where=sa.text("has_expiry = true AND expiry_date IS NOT NULL"),
         ),
-
         # Partial index for barcode lookups (only when barcode exists)
         # WHERE barcode IS NOT NULL
         Index(
-            'idx_inventory_items_barcode',
-            'barcode',
-            postgresql_where=sa.text('barcode IS NOT NULL')
+            "idx_inventory_items_barcode",
+            "barcode",
+            postgresql_where=sa.text("barcode IS NOT NULL"),
         ),
     )
 
@@ -266,35 +269,27 @@ class InventoryMovement(TenantEntity):
 
     # Movement details
     movement_type: Mapped[str] = mapped_column(
-        SQLEnum(MovementType, name="movement_type"),
-        nullable=False
+        SQLEnum(MovementType, name="movement_type"), nullable=False
     )
 
     movement_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False
+        DateTime(timezone=True), nullable=False
     )
 
     reference_no: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
     # Item and warehouse
     item_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("inventory_items.id"),
-        nullable=False
+        UUID(as_uuid=True), ForeignKey("inventory_items.id"), nullable=False
     )
 
     warehouse_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("inventory_warehouses.id"),
-        nullable=False
+        UUID(as_uuid=True), ForeignKey("inventory_warehouses.id"), nullable=False
     )
 
     # For transfers
     to_warehouse_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("inventory_warehouses.id"),
-        nullable=True
+        UUID(as_uuid=True), ForeignKey("inventory_warehouses.id"), nullable=True
     )
 
     # Quantity and cost
@@ -313,23 +308,22 @@ class InventoryMovement(TenantEntity):
 
     # Relationships
     item = relationship("InventoryItem", back_populates="movements")
-    warehouse = relationship("Warehouse",
-                           foreign_keys=[warehouse_id],
-                           back_populates="movements")
+    warehouse = relationship(
+        "Warehouse", foreign_keys=[warehouse_id], back_populates="movements"
+    )
     to_warehouse = relationship("Warehouse", foreign_keys=[to_warehouse_id])
 
     # Indexes
     __table_args__ = (
-        Index('idx_inventory_movements_tenant_date', 'tenant_id', 'movement_date'),
-        Index('idx_inventory_movements_item', 'item_id'),
-        Index('idx_inventory_movements_field', 'field_id'),
-
+        Index("idx_inventory_movements_tenant_date", "tenant_id", "movement_date"),
+        Index("idx_inventory_movements_item", "item_id"),
+        Index("idx_inventory_movements_field", "field_id"),
         # Performance index for date range queries with descending order
         # Used for: Movement history, audit trails, recent activity
         Index(
-            'idx_inventory_movements_date_range',
-            'tenant_id',
-            sa.text('movement_date DESC')
+            "idx_inventory_movements_date_range",
+            "tenant_id",
+            sa.text("movement_date DESC"),
         ),
     )
 
@@ -344,22 +338,18 @@ class InventoryTransaction(TenantEntity):
 
     # Transaction details
     transaction_type: Mapped[str] = mapped_column(
-        SQLEnum(TransactionType, name="transaction_type"),
-        nullable=False
+        SQLEnum(TransactionType, name="transaction_type"), nullable=False
     )
 
     transaction_date: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False
+        DateTime(timezone=True), nullable=False
     )
 
     reference_no: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
     # Item
     item_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("inventory_items.id"),
-        nullable=False
+        UUID(as_uuid=True), ForeignKey("inventory_items.id"), nullable=False
     )
 
     # Quantity and amount
@@ -369,8 +359,7 @@ class InventoryTransaction(TenantEntity):
 
     # Additional costs (shipping, tax, etc.)
     additional_costs: Mapped[Decimal] = mapped_column(
-        Numeric(15, 2),
-        default=Decimal("0.00")
+        Numeric(15, 2), default=Decimal("0.00")
     )
 
     # Field/crop reference
@@ -390,16 +379,17 @@ class InventoryTransaction(TenantEntity):
 
     # Indexes
     __table_args__ = (
-        Index('idx_inventory_transactions_tenant_date', 'tenant_id', 'transaction_date'),
-        Index('idx_inventory_transactions_item', 'item_id'),
-        Index('idx_inventory_transactions_field', 'field_id'),
-
+        Index(
+            "idx_inventory_transactions_tenant_date", "tenant_id", "transaction_date"
+        ),
+        Index("idx_inventory_transactions_item", "item_id"),
+        Index("idx_inventory_transactions_field", "field_id"),
         # Performance index for party-related transactions (partial index)
         # WHERE party_id IS NOT NULL
         # Used for: Customer/Supplier transaction history
         Index(
-            'idx_inventory_transactions_party',
-            'party_id',
-            postgresql_where=sa.text('party_id IS NOT NULL')
+            "idx_inventory_transactions_party",
+            "party_id",
+            postgresql_where=sa.text("party_id IS NOT NULL"),
         ),
     )

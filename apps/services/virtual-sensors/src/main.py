@@ -34,8 +34,10 @@ logger = logging.getLogger(__name__)
 _nats_available = False
 try:
     import sys
+
     sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
     from shared.libs.events.nats_publisher import publish_analysis_completed_sync
+
     _nats_available = True
 except ImportError:
     logger.info("NATS publisher not available")
@@ -54,40 +56,45 @@ SERVICE_PORT = 8096
 # Enums and Constants
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class GrowthStage(str, Enum):
     """Crop growth stages for Kc determination"""
-    INITIAL = "initial"          # المرحلة الأولية
+
+    INITIAL = "initial"  # المرحلة الأولية
     DEVELOPMENT = "development"  # مرحلة النمو
-    MID_SEASON = "mid_season"    # منتصف الموسم
+    MID_SEASON = "mid_season"  # منتصف الموسم
     LATE_SEASON = "late_season"  # نهاية الموسم
 
 
 class SoilType(str, Enum):
     """Soil types common in Yemen"""
-    SANDY = "sandy"              # رملي
-    SANDY_LOAM = "sandy_loam"    # رملي طميي
-    LOAM = "loam"                # طميي
-    CLAY_LOAM = "clay_loam"      # طيني طميي
-    CLAY = "clay"                # طيني
-    SILTY_CLAY = "silty_clay"    # طيني غريني
+
+    SANDY = "sandy"  # رملي
+    SANDY_LOAM = "sandy_loam"  # رملي طميي
+    LOAM = "loam"  # طميي
+    CLAY_LOAM = "clay_loam"  # طيني طميي
+    CLAY = "clay"  # طيني
+    SILTY_CLAY = "silty_clay"  # طيني غريني
 
 
 class IrrigationMethod(str, Enum):
     """Irrigation methods"""
-    DRIP = "drip"                # تنقيط
-    SPRINKLER = "sprinkler"      # رش
-    SURFACE = "surface"          # سطحي
-    FLOOD = "flood"              # غمر
-    FURROW = "furrow"            # أخاديد
+
+    DRIP = "drip"  # تنقيط
+    SPRINKLER = "sprinkler"  # رش
+    SURFACE = "surface"  # سطحي
+    FLOOD = "flood"  # غمر
+    FURROW = "furrow"  # أخاديد
 
 
 class UrgencyLevel(str, Enum):
     """Irrigation urgency levels"""
-    NONE = "none"                # لا حاجة
-    LOW = "low"                  # منخفض
-    MEDIUM = "medium"            # متوسط
-    HIGH = "high"                # عالي
-    CRITICAL = "critical"        # حرج
+
+    NONE = "none"  # لا حاجة
+    LOW = "low"  # منخفض
+    MEDIUM = "medium"  # متوسط
+    HIGH = "high"  # عالي
+    CRITICAL = "critical"  # حرج
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -103,7 +110,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.25,
         "root_depth_max": 1.5,  # meters
         "depletion_fraction": 0.55,
-        "stages_days": {"initial": 20, "development": 30, "mid_season": 60, "late_season": 30},
+        "stages_days": {
+            "initial": 20,
+            "development": 30,
+            "mid_season": 60,
+            "late_season": 30,
+        },
         "critical_periods": ["flowering", "grain_filling"],
     },
     "barley": {
@@ -113,7 +125,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.25,
         "root_depth_max": 1.2,
         "depletion_fraction": 0.55,
-        "stages_days": {"initial": 15, "development": 25, "mid_season": 50, "late_season": 30},
+        "stages_days": {
+            "initial": 15,
+            "development": 25,
+            "mid_season": 50,
+            "late_season": 30,
+        },
         "critical_periods": ["flowering"],
     },
     "sorghum": {
@@ -123,7 +140,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.55,
         "root_depth_max": 1.5,
         "depletion_fraction": 0.55,
-        "stages_days": {"initial": 20, "development": 35, "mid_season": 40, "late_season": 30},
+        "stages_days": {
+            "initial": 20,
+            "development": 35,
+            "mid_season": 40,
+            "late_season": 30,
+        },
         "critical_periods": ["flowering", "grain_filling"],
     },
     "maize": {
@@ -133,7 +155,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.35,
         "root_depth_max": 1.5,
         "depletion_fraction": 0.55,
-        "stages_days": {"initial": 20, "development": 35, "mid_season": 40, "late_season": 30},
+        "stages_days": {
+            "initial": 20,
+            "development": 35,
+            "mid_season": 40,
+            "late_season": 30,
+        },
         "critical_periods": ["tasseling", "silking"],
     },
     "tomato": {
@@ -143,7 +170,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.80,
         "root_depth_max": 1.0,
         "depletion_fraction": 0.40,
-        "stages_days": {"initial": 30, "development": 40, "mid_season": 45, "late_season": 30},
+        "stages_days": {
+            "initial": 30,
+            "development": 40,
+            "mid_season": 45,
+            "late_season": 30,
+        },
         "critical_periods": ["flowering", "fruit_set"],
     },
     "potato": {
@@ -153,7 +185,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.75,
         "root_depth_max": 0.6,
         "depletion_fraction": 0.35,
-        "stages_days": {"initial": 25, "development": 30, "mid_season": 45, "late_season": 30},
+        "stages_days": {
+            "initial": 25,
+            "development": 30,
+            "mid_season": 45,
+            "late_season": 30,
+        },
         "critical_periods": ["tuber_initiation", "tuber_bulking"],
     },
     "onion": {
@@ -163,7 +200,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.75,
         "root_depth_max": 0.4,
         "depletion_fraction": 0.30,
-        "stages_days": {"initial": 15, "development": 25, "mid_season": 70, "late_season": 40},
+        "stages_days": {
+            "initial": 15,
+            "development": 25,
+            "mid_season": 70,
+            "late_season": 40,
+        },
         "critical_periods": ["bulb_formation"],
     },
     "coffee": {
@@ -173,7 +215,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.90,
         "root_depth_max": 1.5,
         "depletion_fraction": 0.40,
-        "stages_days": {"initial": 60, "development": 90, "mid_season": 120, "late_season": 95},
+        "stages_days": {
+            "initial": 60,
+            "development": 90,
+            "mid_season": 120,
+            "late_season": 95,
+        },
         "critical_periods": ["flowering", "cherry_development"],
     },
     "date_palm": {
@@ -183,7 +230,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.90,
         "root_depth_max": 2.5,
         "depletion_fraction": 0.50,
-        "stages_days": {"initial": 90, "development": 60, "mid_season": 120, "late_season": 95},
+        "stages_days": {
+            "initial": 90,
+            "development": 60,
+            "mid_season": 120,
+            "late_season": 95,
+        },
         "critical_periods": ["pollination", "fruit_development"],
     },
     "mango": {
@@ -193,7 +245,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.80,
         "root_depth_max": 2.0,
         "depletion_fraction": 0.50,
-        "stages_days": {"initial": 60, "development": 90, "mid_season": 120, "late_season": 95},
+        "stages_days": {
+            "initial": 60,
+            "development": 90,
+            "mid_season": 120,
+            "late_season": 95,
+        },
         "critical_periods": ["flowering", "fruit_set"],
     },
     "grape": {
@@ -203,7 +260,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.45,
         "root_depth_max": 1.5,
         "depletion_fraction": 0.45,
-        "stages_days": {"initial": 20, "development": 40, "mid_season": 120, "late_season": 60},
+        "stages_days": {
+            "initial": 20,
+            "development": 40,
+            "mid_season": 120,
+            "late_season": 60,
+        },
         "critical_periods": ["flowering", "veraison"],
     },
     "alfalfa": {
@@ -213,7 +275,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 1.15,
         "root_depth_max": 1.5,
         "depletion_fraction": 0.55,
-        "stages_days": {"initial": 10, "development": 20, "mid_season": 20, "late_season": 10},
+        "stages_days": {
+            "initial": 10,
+            "development": 20,
+            "mid_season": 20,
+            "late_season": 10,
+        },
         "critical_periods": ["regrowth"],
     },
     "qat": {
@@ -223,7 +290,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.90,
         "root_depth_max": 1.5,
         "depletion_fraction": 0.50,
-        "stages_days": {"initial": 60, "development": 90, "mid_season": 150, "late_season": 65},
+        "stages_days": {
+            "initial": 60,
+            "development": 90,
+            "mid_season": 150,
+            "late_season": 65,
+        },
         "critical_periods": ["harvest_regrowth"],
     },
     "banana": {
@@ -233,7 +305,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 1.00,
         "root_depth_max": 0.6,
         "depletion_fraction": 0.35,
-        "stages_days": {"initial": 120, "development": 60, "mid_season": 180, "late_season": 60},
+        "stages_days": {
+            "initial": 120,
+            "development": 60,
+            "mid_season": 180,
+            "late_season": 60,
+        },
         "critical_periods": ["flowering", "bunch_development"],
     },
     "sesame": {
@@ -243,7 +320,12 @@ CROP_COEFFICIENTS = {
         "kc_end": 0.25,
         "root_depth_max": 1.0,
         "depletion_fraction": 0.60,
-        "stages_days": {"initial": 20, "development": 30, "mid_season": 35, "late_season": 25},
+        "stages_days": {
+            "initial": 20,
+            "development": 30,
+            "mid_season": 35,
+            "late_season": 25,
+        },
         "critical_periods": ["flowering"],
     },
 }
@@ -257,10 +339,10 @@ CROP_COEFFICIENTS = {
 SOIL_PROPERTIES = {
     SoilType.SANDY: {
         "name_ar": "رملي",
-        "field_capacity": 0.12,      # m³/m³
-        "wilting_point": 0.04,       # m³/m³
-        "saturation": 0.38,          # m³/m³
-        "infiltration_rate": 50,     # mm/hour
+        "field_capacity": 0.12,  # m³/m³
+        "wilting_point": 0.04,  # m³/m³
+        "saturation": 0.38,  # m³/m³
+        "infiltration_rate": 50,  # mm/hour
         "hydraulic_conductivity": 200,  # mm/day
     },
     SoilType.SANDY_LOAM: {
@@ -320,21 +402,30 @@ IRRIGATION_EFFICIENCY = {
 # Pydantic Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class WeatherInput(BaseModel):
     """Weather data input for ET0 calculation"""
+
     temperature_max: float = Field(..., description="Maximum temperature (°C)")
     temperature_min: float = Field(..., description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
     wind_speed: float = Field(..., ge=0, description="Wind speed at 2m height (m/s)")
-    solar_radiation: Optional[float] = Field(None, description="Solar radiation (MJ/m²/day)")
-    sunshine_hours: Optional[float] = Field(None, ge=0, le=24, description="Sunshine hours")
+    solar_radiation: Optional[float] = Field(
+        None, description="Solar radiation (MJ/m²/day)"
+    )
+    sunshine_hours: Optional[float] = Field(
+        None, ge=0, le=24, description="Sunshine hours"
+    )
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
     altitude: float = Field(0, description="Altitude above sea level (m)")
-    calculation_date: date = Field(default_factory=lambda: date.today(), description="Date for calculation")
+    calculation_date: date = Field(
+        default_factory=lambda: date.today(), description="Date for calculation"
+    )
 
 
 class ET0Response(BaseModel):
     """Reference evapotranspiration response"""
+
     et0: float = Field(..., description="Reference ET (mm/day)")
     et0_ar: str
     method: str
@@ -344,6 +435,7 @@ class ET0Response(BaseModel):
 
 class CropWaterRequirement(BaseModel):
     """Crop water requirement calculation input"""
+
     crop_type: str
     growth_stage: GrowthStage
     planting_date: Optional[date] = None
@@ -353,6 +445,7 @@ class CropWaterRequirement(BaseModel):
 
 class CropETcResponse(BaseModel):
     """Crop evapotranspiration response"""
+
     crop_type: str
     crop_name_ar: str
     growth_stage: str
@@ -369,23 +462,31 @@ class CropETcResponse(BaseModel):
 
 class SoilMoistureInput(BaseModel):
     """Input for virtual soil moisture calculation"""
+
     soil_type: SoilType
     root_depth: float = Field(0.6, gt=0, le=3.0, description="Root depth (m)")
     last_irrigation_date: date
     last_irrigation_amount: float = Field(..., description="Irrigation amount (mm)")
-    rainfall_since: float = Field(0, ge=0, description="Rainfall since last irrigation (mm)")
+    rainfall_since: float = Field(
+        0, ge=0, description="Rainfall since last irrigation (mm)"
+    )
     daily_etc: float = Field(..., description="Daily crop ET (mm/day)")
 
 
 class VirtualSoilMoistureResponse(BaseModel):
     """Virtual soil moisture estimation response"""
+
     calculation_id: str
-    estimated_moisture: float = Field(..., description="Estimated soil moisture (m³/m³)")
+    estimated_moisture: float = Field(
+        ..., description="Estimated soil moisture (m³/m³)"
+    )
     moisture_percentage: float = Field(..., description="Available water depletion (%)")
     days_since_irrigation: int
     total_et_loss: float = Field(..., description="Total ET loss since irrigation (mm)")
     available_water: float = Field(..., description="Remaining available water (mm)")
-    total_available_water: float = Field(..., description="Total available water capacity (mm)")
+    total_available_water: float = Field(
+        ..., description="Total available water capacity (mm)"
+    )
     status: str
     status_ar: str
     urgency: UrgencyLevel
@@ -393,6 +494,7 @@ class VirtualSoilMoistureResponse(BaseModel):
 
 class IrrigationRecommendationInput(BaseModel):
     """Input for irrigation recommendation"""
+
     crop_type: str
     growth_stage: GrowthStage
     soil_type: SoilType
@@ -400,12 +502,15 @@ class IrrigationRecommendationInput(BaseModel):
     field_area_hectares: float = Field(1.0, gt=0)
     last_irrigation_date: Optional[date] = None
     last_irrigation_amount: Optional[float] = None
-    current_soil_moisture: Optional[float] = Field(None, description="Current moisture if known (m³/m³)")
+    current_soil_moisture: Optional[float] = Field(
+        None, description="Current moisture if known (m³/m³)"
+    )
     weather: WeatherInput
 
 
 class IrrigationRecommendation(BaseModel):
     """Complete irrigation recommendation response"""
+
     recommendation_id: str
     timestamp: datetime
 
@@ -449,6 +554,7 @@ class IrrigationRecommendation(BaseModel):
 
 class WaterBalanceInput(BaseModel):
     """Input for water balance tracking"""
+
     field_id: str
     crop_type: str
     soil_type: SoilType
@@ -461,6 +567,7 @@ class WaterBalanceInput(BaseModel):
 
 class WaterBalanceResponse(BaseModel):
     """Water balance tracking response"""
+
     field_id: str
     period_start: date
     period_end: date
@@ -490,6 +597,7 @@ class WaterBalanceResponse(BaseModel):
 # دوال الحساب
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     """
     Calculate reference evapotranspiration using FAO-56 Penman-Monteith equation.
@@ -514,7 +622,9 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     vpd = es - ea
 
     # Slope of saturation vapor pressure curve (kPa/°C)
-    delta = (4098 * (0.6108 * math.exp((17.27 * T_mean) / (T_mean + 237.3)))) / ((T_mean + 237.3) ** 2)
+    delta = (4098 * (0.6108 * math.exp((17.27 * T_mean) / (T_mean + 237.3)))) / (
+        (T_mean + 237.3) ** 2
+    )
 
     # Atmospheric pressure (kPa)
     P = 101.3 * ((293 - 0.0065 * weather.altitude) / 293) ** 5.26
@@ -539,9 +649,14 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     # Extraterrestrial radiation (MJ/m²/day)
     dr = 1 + 0.033 * math.cos(2 * math.pi * day_of_year / 365)
     Gsc = 0.0820  # Solar constant
-    Ra = (24 * 60 / math.pi) * Gsc * dr * (
-        ws * math.sin(lat_rad) * math.sin(solar_dec) +
-        math.cos(lat_rad) * math.cos(solar_dec) * math.sin(ws)
+    Ra = (
+        (24 * 60 / math.pi)
+        * Gsc
+        * dr
+        * (
+            ws * math.sin(lat_rad) * math.sin(solar_dec)
+            + math.cos(lat_rad) * math.cos(solar_dec) * math.sin(ws)
+        )
     )
 
     # Solar radiation
@@ -567,8 +682,13 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     # Net longwave radiation
     sigma = 4.903e-9  # Stefan-Boltzmann constant
     Rs_Rso = min(Rs / Rso, 1.0) if Rso > 0 else 0.5
-    Rnl = sigma * ((T_max + 273.16) ** 4 + (T_min + 273.16) ** 4) / 2 * \
-          (0.34 - 0.14 * math.sqrt(ea)) * (1.35 * Rs_Rso - 0.35)
+    Rnl = (
+        sigma
+        * ((T_max + 273.16) ** 4 + (T_min + 273.16) ** 4)
+        / 2
+        * (0.34 - 0.14 * math.sqrt(ea))
+        * (1.35 * Rs_Rso - 0.35)
+    )
 
     # Net radiation
     Rn = Rns - Rnl
@@ -588,7 +708,9 @@ def calculate_et0_penman_monteith(weather: WeatherInput) -> float:
     return max(0, ET0)  # ET0 cannot be negative
 
 
-def get_crop_kc(crop_type: str, growth_stage: GrowthStage, days_in_stage: int = None) -> float:
+def get_crop_kc(
+    crop_type: str, growth_stage: GrowthStage, days_in_stage: int = None
+) -> float:
     """Get crop coefficient (Kc) for given crop and growth stage"""
     crop = CROP_COEFFICIENTS.get(crop_type)
     if not crop:
@@ -620,7 +742,9 @@ def get_crop_kc(crop_type: str, growth_stage: GrowthStage, days_in_stage: int = 
     return 1.0
 
 
-def calculate_available_water(soil_type: SoilType, root_depth: float) -> tuple[float, float, float]:
+def calculate_available_water(
+    soil_type: SoilType, root_depth: float
+) -> tuple[float, float, float]:
     """
     Calculate available water capacity.
     Returns: (total_available_water_mm, field_capacity_mm, wilting_point_mm)
@@ -643,7 +767,7 @@ def estimate_soil_moisture(
     last_irrigation_date: date,
     last_irrigation_amount: float,
     rainfall_since: float,
-    daily_etc: float
+    daily_etc: float,
 ) -> dict:
     """
     Estimate current soil moisture using water balance method.
@@ -753,7 +877,9 @@ def calculate_irrigation_recommendation(
         gross_mm = recommended_mm / efficiency
 
         # Convert to volume
-        recommended_liters = recommended_mm * field_area_hectares * 10000  # 1 mm = 10 m³/ha
+        recommended_liters = (
+            recommended_mm * field_area_hectares * 10000
+        )  # 1 mm = 10 m³/ha
         recommended_m3 = recommended_liters / 1000
     else:
         recommended_mm = 0
@@ -795,7 +921,9 @@ def calculate_irrigation_recommendation(
         warnings_ar.append("مرحلة نمو حرجة - تجنب إجهاد الماء")
 
     if soil_type in [SoilType.SANDY, SoilType.SANDY_LOAM] and gross_mm > 30:
-        warnings.append("Sandy soil - consider splitting irrigation into smaller applications")
+        warnings.append(
+            "Sandy soil - consider splitting irrigation into smaller applications"
+        )
         warnings_ar.append("تربة رملية - يُنصح بتقسيم الري إلى دفعات أصغر")
 
     # Urgency in Arabic
@@ -831,6 +959,7 @@ def calculate_irrigation_recommendation(
 # FastAPI Application
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
@@ -857,7 +986,10 @@ app = FastAPI(
 )
 
 # CORS middleware - secure origins from environment
-CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+CORS_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:3001,http://localhost:8080",
+).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -870,6 +1002,7 @@ app.add_middleware(
 # ═══════════════════════════════════════════════════════════════════════════════
 # API Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/healthz")
 async def health_check():
@@ -907,6 +1040,7 @@ async def service_info():
 # ET0 Calculation Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.post("/v1/et0/calculate", response_model=ET0Response)
 async def calculate_et0(weather: WeatherInput):
     """
@@ -936,21 +1070,24 @@ async def calculate_et0(weather: WeatherInput):
 # Crop Water Requirements
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/v1/crops")
 async def get_supported_crops():
     """Get list of supported crops with Kc values"""
     crops = []
     for crop_id, crop_data in CROP_COEFFICIENTS.items():
-        crops.append({
-            "crop_id": crop_id,
-            "name": crop_id.replace("_", " ").title(),
-            "name_ar": crop_data["name_ar"],
-            "kc_initial": crop_data["kc_initial"],
-            "kc_mid": crop_data["kc_mid"],
-            "kc_end": crop_data["kc_end"],
-            "root_depth_max": crop_data["root_depth_max"],
-            "critical_periods": crop_data.get("critical_periods", []),
-        })
+        crops.append(
+            {
+                "crop_id": crop_id,
+                "name": crop_id.replace("_", " ").title(),
+                "name_ar": crop_data["name_ar"],
+                "kc_initial": crop_data["kc_initial"],
+                "kc_mid": crop_data["kc_mid"],
+                "kc_end": crop_data["kc_end"],
+                "root_depth_max": crop_data["root_depth_max"],
+                "critical_periods": crop_data.get("critical_periods", []),
+            }
+        )
     return {"crops": crops, "total": len(crops)}
 
 
@@ -1043,19 +1180,23 @@ async def calculate_crop_etc(
 # Soil Moisture Estimation
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/v1/soils")
 async def get_soil_types():
     """Get list of supported soil types with properties"""
     soils = []
     for soil_type, props in SOIL_PROPERTIES.items():
-        soils.append({
-            "soil_type": soil_type.value,
-            "name_ar": props["name_ar"],
-            "field_capacity": props["field_capacity"],
-            "wilting_point": props["wilting_point"],
-            "available_water_capacity": props["field_capacity"] - props["wilting_point"],
-            "infiltration_rate_mm_hr": props["infiltration_rate"],
-        })
+        soils.append(
+            {
+                "soil_type": soil_type.value,
+                "name_ar": props["name_ar"],
+                "field_capacity": props["field_capacity"],
+                "wilting_point": props["wilting_point"],
+                "available_water_capacity": props["field_capacity"]
+                - props["wilting_point"],
+                "infiltration_rate_mm_hr": props["infiltration_rate"],
+            }
+        )
     return {"soils": soils, "total": len(soils)}
 
 
@@ -1092,16 +1233,19 @@ async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput):
 # Irrigation Recommendation
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/v1/irrigation-methods")
 async def get_irrigation_methods():
     """Get irrigation methods with efficiencies"""
     methods = []
     for method, efficiency in IRRIGATION_EFFICIENCY.items():
-        methods.append({
-            "method": method.value,
-            "efficiency": efficiency,
-            "efficiency_percent": f"{efficiency * 100:.0f}%",
-        })
+        methods.append(
+            {
+                "method": method.value,
+                "efficiency": efficiency,
+                "efficiency_percent": f"{efficiency * 100:.0f}%",
+            }
+        )
     return {"methods": methods}
 
 
@@ -1112,7 +1256,9 @@ async def get_irrigation_recommendation(input_data: IrrigationRecommendationInpu
     الحصول على توصية ري شاملة
     """
     if input_data.crop_type not in CROP_COEFFICIENTS:
-        raise HTTPException(status_code=404, detail=f"Crop '{input_data.crop_type}' not found")
+        raise HTTPException(
+            status_code=404, detail=f"Crop '{input_data.crop_type}' not found"
+        )
 
     crop = CROP_COEFFICIENTS[input_data.crop_type]
     soil = SOIL_PROPERTIES[input_data.soil_type]
@@ -1132,7 +1278,9 @@ async def get_irrigation_recommendation(input_data: IrrigationRecommendationInpu
         root_depth = max_root
 
     # Estimate soil moisture
-    last_irr_date = input_data.last_irrigation_date or (date.today() - timedelta(days=7))
+    last_irr_date = input_data.last_irrigation_date or (
+        date.today() - timedelta(days=7)
+    )
     last_irr_amount = input_data.last_irrigation_amount or 30.0
 
     moisture_status = estimate_soil_moisture(
@@ -1190,12 +1338,15 @@ async def get_irrigation_recommendation(input_data: IrrigationRecommendationInpu
 # Quick Irrigation Check (Simplified)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/v1/irrigation/quick-check")
 async def quick_irrigation_check(
     crop_type: str = Query(..., description="Crop type"),
     growth_stage: GrowthStage = Query(..., description="Growth stage"),
     soil_type: SoilType = Query(SoilType.LOAM, description="Soil type"),
-    days_since_irrigation: int = Query(..., ge=0, description="Days since last irrigation"),
+    days_since_irrigation: int = Query(
+        ..., ge=0, description="Days since last irrigation"
+    ),
     temperature: float = Query(..., description="Average temperature (°C)"),
     humidity: float = Query(50, ge=0, le=100, description="Relative humidity (%)"),
 ):
@@ -1267,16 +1418,21 @@ async def quick_irrigation_check(
 
 class VirtualSensorActionRequest(BaseModel):
     """Request for virtual sensor analysis with ActionTemplate output"""
+
     field_id: str = Field(..., description="معرف الحقل")
     farmer_id: Optional[str] = Field(None, description="معرف المزارع")
     tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
     crop_type: str = Field(..., description="نوع المحصول")
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     soil_type: SoilType = Field(SoilType.LOAM, description="نوع التربة")
-    irrigation_method: IrrigationMethod = Field(IrrigationMethod.DRIP, description="طريقة الري")
+    irrigation_method: IrrigationMethod = Field(
+        IrrigationMethod.DRIP, description="طريقة الري"
+    )
     field_area_hectares: float = Field(1.0, gt=0, description="مساحة الحقل بالهكتار")
     last_irrigation_date: Optional[date] = Field(None, description="تاريخ آخر ري")
-    last_irrigation_amount: Optional[float] = Field(None, description="كمية آخر ري بالمم")
+    last_irrigation_amount: Optional[float] = Field(
+        None, description="كمية آخر ري بالمم"
+    )
     weather: WeatherInput = Field(..., description="بيانات الطقس")
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
 
@@ -1326,7 +1482,11 @@ def _create_virtual_sensor_action(
         "offline_executable": True,
         "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بفحص رطوبة التربة يدوياً بعمق 15 سم",
         "fallback_instructions_en": "If data unavailable, manually check soil moisture at 15cm depth",
-        "estimated_duration_minutes": int(recommendation.gross_irrigation_mm * 2) if recommendation.irrigation_needed else 30,
+        "estimated_duration_minutes": (
+            int(recommendation.gross_irrigation_mm * 2)
+            if recommendation.irrigation_needed
+            else 30
+        ),
         "data": {
             "et0": recommendation.et0,
             "kc": recommendation.kc,
@@ -1387,7 +1547,12 @@ async def get_irrigation_recommendation_with_action(
     )
 
     # Publish to NATS if irrigation is needed
-    if request.publish_event and _nats_available and publish_analysis_completed_sync and recommendation.irrigation_needed:
+    if (
+        request.publish_event
+        and _nats_available
+        and publish_analysis_completed_sync
+        and recommendation.irrigation_needed
+    ):
         try:
             publish_analysis_completed_sync(
                 event_type="virtual_sensor.irrigation_needed",
@@ -1399,7 +1564,9 @@ async def get_irrigation_recommendation_with_action(
                 farmer_id=request.farmer_id,
                 tenant_id=request.tenant_id,
             )
-            logger.info(f"NATS: Published virtual sensor event for field {request.field_id}")
+            logger.info(
+                f"NATS: Published virtual sensor event for field {request.field_id}"
+            )
         except Exception as e:
             logger.error(f"Failed to publish NATS event: {e}")
 
@@ -1449,7 +1616,9 @@ async def get_irrigation_recommendation_with_action(
         "action_template": action_template,
         "task_card": task_card,
         "is_virtual": True,
-        "nats_published": request.publish_event and _nats_available and recommendation.irrigation_needed,
+        "nats_published": request.publish_event
+        and _nats_available
+        and recommendation.irrigation_needed,
     }
 
 
@@ -1526,4 +1695,5 @@ async def quick_check_with_action(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)

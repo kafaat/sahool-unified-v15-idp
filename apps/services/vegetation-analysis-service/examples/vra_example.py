@@ -53,7 +53,7 @@ def generate_fertilizer_prescription(
         "zone_method": "ndvi",
         "product_price_per_unit": 2.5,
         "notes": "Spring nitrogen application",
-        "notes_ar": "تطبيق النيتروجين الربيعي"
+        "notes_ar": "تطبيق النيتروجين الربيعي",
     }
 
     print(f"\nRequest:")
@@ -70,13 +70,15 @@ def generate_fertilizer_prescription(
     print(f"\n✅ Prescription Generated:")
     print(f"  ID: {prescription['id']}")
     print(f"  Total Area: {prescription['total_area_ha']:.2f} ha")
-    print(f"  Total Product: {prescription['total_product_needed']:.2f} {prescription['unit']}")
+    print(
+        f"  Total Product: {prescription['total_product_needed']:.2f} {prescription['unit']}"
+    )
     print(f"  Savings: {prescription['savings_percent']:.1f}%")
-    if prescription.get('cost_savings'):
+    if prescription.get("cost_savings"):
         print(f"  Cost Savings: ${prescription['cost_savings']:.2f}")
 
     print(f"\n  Zones:")
-    for zone in prescription['zones']:
+    for zone in prescription["zones"]:
         print(f"    {zone['zone_id']}. {zone['zone_name']} ({zone['zone_name_ar']}):")
         print(f"       Area: {zone['area_ha']:.2f} ha ({zone['percentage']:.1f}%)")
         print(f"       Rate: {zone['recommended_rate']:.2f} {zone['unit']}")
@@ -119,7 +121,7 @@ def generate_seed_prescription(
         "min_rate": 40000,
         "max_rate": 60000,
         "notes": "Sorghum planting - optimal density",
-        "notes_ar": "زراعة الذرة الرفيعة - الكثافة المثلى"
+        "notes_ar": "زراعة الذرة الرفيعة - الكثافة المثلى",
     }
 
     print(f"\nRequest:")
@@ -139,7 +141,7 @@ def generate_seed_prescription(
     print(f"  Total Seeds: {prescription['total_product_needed']:,.0f}")
 
     print(f"\n  Zones:")
-    for zone in prescription['zones']:
+    for zone in prescription["zones"]:
         print(f"    {zone['zone_id']}. {zone['zone_name']} ({zone['zone_name_ar']}):")
         print(f"       Rate: {zone['recommended_rate']:,.0f} {zone['unit']}")
 
@@ -147,10 +149,7 @@ def generate_seed_prescription(
 
 
 def preview_management_zones(
-    field_id: str,
-    latitude: float,
-    longitude: float,
-    num_zones: int = 3
+    field_id: str, latitude: float, longitude: float, num_zones: int = 3
 ) -> Dict[str, Any]:
     """
     Preview management zones without generating a prescription
@@ -170,11 +169,7 @@ def preview_management_zones(
     print(f"{'='*60}")
 
     url = f"{API_BASE_URL}/v1/vra/zones/{field_id}"
-    params = {
-        "lat": latitude,
-        "lon": longitude,
-        "num_zones": num_zones
-    }
+    params = {"lat": latitude, "lon": longitude, "num_zones": num_zones}
 
     print(f"\nRequest:")
     print(f"  Field: {field_id}")
@@ -190,10 +185,12 @@ def preview_management_zones(
     print(f"  Total Area: {zones_data['total_area_ha']:.2f} ha")
     print(f"  NDVI Statistics:")
     print(f"    Mean: {zones_data['ndvi_statistics']['mean']:.3f}")
-    print(f"    Range: {zones_data['ndvi_statistics']['min']:.3f} - {zones_data['ndvi_statistics']['max']:.3f}")
+    print(
+        f"    Range: {zones_data['ndvi_statistics']['min']:.3f} - {zones_data['ndvi_statistics']['max']:.3f}"
+    )
 
     print(f"\n  Zones:")
-    for zone in zones_data['zones']:
+    for zone in zones_data["zones"]:
         print(f"    {zone['zone_id']}. {zone['zone_name']} ({zone['zone_name_ar']}):")
         print(f"       NDVI: {zone['ndvi_min']:.2f} - {zone['ndvi_max']:.2f}")
         print(f"       Area: {zone['area_ha']:.2f} ha ({zone['percentage']:.1f}%)")
@@ -201,10 +198,7 @@ def preview_management_zones(
     return zones_data
 
 
-def export_prescription(
-    prescription_id: str,
-    format: str = "geojson"
-) -> Any:
+def export_prescription(prescription_id: str, format: str = "geojson") -> Any:
     """
     Export prescription in specified format
 
@@ -240,7 +234,7 @@ def export_prescription(
 
         # Save to file
         filename = f"prescription_{prescription_id}.geojson"
-        with open(filename, 'w') as f:
+        with open(filename, "w") as f:
             json.dump(data, f, indent=2)
         print(f"  Saved to: {filename}")
 
@@ -251,8 +245,8 @@ def export_prescription(
 
         # Save to file
         filename = f"prescription_{prescription_id}.xml"
-        with open(filename, 'w') as f:
-            f.write(data['xml'])
+        with open(filename, "w") as f:
+            f.write(data["xml"])
         print(f"  Saved to: {filename}")
 
     return data
@@ -284,7 +278,7 @@ def get_prescription_history(field_id: str) -> Dict[str, Any]:
     history = response.json()
 
     print(f"\n✅ Found {history['count']} prescriptions:")
-    for i, p in enumerate(history['prescriptions'], 1):
+    for i, p in enumerate(history["prescriptions"], 1):
         print(f"\n  {i}. {p['id']}")
         print(f"     Type: {p['vra_type']}")
         print(f"     Created: {p['created_at']}")
@@ -318,22 +312,22 @@ def get_vra_info() -> Dict[str, Any]:
     print(f"Version: {info['version']}")
 
     print(f"\nSupported VRA Types:")
-    for vra_type in info['capabilities']['vra_types']:
+    for vra_type in info["capabilities"]["vra_types"]:
         print(f"  - {vra_type['type']}: {vra_type['name']} ({vra_type['name_ar']})")
         print(f"    Strategy: {vra_type['strategy']}")
 
     print(f"\nZone Methods:")
-    for method in info['capabilities']['zone_methods']:
+    for method in info["capabilities"]["zone_methods"]:
         print(f"  - {method['method']}: {method['name']} ({method['name_ar']})")
 
     print(f"\nExport Formats: {', '.join(info['capabilities']['export_formats'])}")
 
     print(f"\nBenefits (EN):")
-    for benefit in info['benefits']['en']:
+    for benefit in info["benefits"]["en"]:
         print(f"  - {benefit}")
 
     print(f"\nBenefits (AR):")
-    for benefit in info['benefits']['ar']:
+    for benefit in info["benefits"]["ar"]:
         print(f"  - {benefit}")
 
     return info
@@ -341,10 +335,10 @@ def get_vra_info() -> Dict[str, Any]:
 
 def main():
     """Run VRA examples"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("SAHOOL VRA Prescription Map Examples")
     print("أمثلة خرائط وصفات التطبيق المتغير")
-    print("="*60)
+    print("=" * 60)
 
     # Example field
     field_id = "demo_field_001"
@@ -364,15 +358,13 @@ def main():
         )
 
         # 4. Generate seed prescription
-        seed_prescription = generate_seed_prescription(
-            field_id, latitude, longitude
-        )
+        seed_prescription = generate_seed_prescription(field_id, latitude, longitude)
 
         # 5. Export fertilizer prescription to GeoJSON
-        export_prescription(fertilizer_prescription['id'], format="geojson")
+        export_prescription(fertilizer_prescription["id"], format="geojson")
 
         # 6. Export to ISO-XML
-        export_prescription(fertilizer_prescription['id'], format="isoxml")
+        export_prescription(fertilizer_prescription["id"], format="isoxml")
 
         # 7. Get prescription history
         get_prescription_history(field_id)
@@ -380,12 +372,14 @@ def main():
         print(f"\n{'='*60}")
         print("✅ All examples completed successfully!")
         print("تم إكمال جميع الأمثلة بنجاح!")
-        print("="*60)
+        print("=" * 60)
 
     except requests.exceptions.RequestException as e:
         print(f"\n❌ Error: {e}")
         print(f"\nMake sure the satellite service is running on {API_BASE_URL}")
-        print(f"Start it with: cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service && python -m src.main")
+        print(
+            f"Start it with: cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service && python -m src.main"
+        )
 
 
 if __name__ == "__main__":

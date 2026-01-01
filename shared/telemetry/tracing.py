@@ -41,7 +41,12 @@ from functools import wraps
 from opentelemetry import trace, baggage
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
-from opentelemetry.sdk.resources import Resource, SERVICE_NAME, SERVICE_VERSION, DEPLOYMENT_ENVIRONMENT
+from opentelemetry.sdk.resources import (
+    Resource,
+    SERVICE_NAME,
+    SERVICE_VERSION,
+    DEPLOYMENT_ENVIRONMENT,
+)
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
@@ -87,7 +92,9 @@ def init_tracer(
 
     # Auto-detect service name from environment
     if not service_name:
-        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv("SERVICE_NAME", "sahool-service")
+        service_name = os.getenv("OTEL_SERVICE_NAME") or os.getenv(
+            "SERVICE_NAME", "sahool-service"
+        )
 
     if not service_version:
         service_version = os.getenv("SERVICE_VERSION", "1.0.0")
@@ -96,16 +103,20 @@ def init_tracer(
         environment = os.getenv("ENVIRONMENT", "development")
 
     if not otlp_endpoint:
-        otlp_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317")
+        otlp_endpoint = os.getenv(
+            "OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317"
+        )
 
     # Create resource with service information
-    resource = Resource.create({
-        SERVICE_NAME: service_name,
-        SERVICE_VERSION: service_version,
-        DEPLOYMENT_ENVIRONMENT: environment,
-        "service.namespace": "sahool",
-        "service.instance.id": os.getenv("HOSTNAME", "unknown"),
-    })
+    resource = Resource.create(
+        {
+            SERVICE_NAME: service_name,
+            SERVICE_VERSION: service_version,
+            DEPLOYMENT_ENVIRONMENT: environment,
+            "service.namespace": "sahool",
+            "service.instance.id": os.getenv("HOSTNAME", "unknown"),
+        }
+    )
 
     # Configure sampling - use parent-based with ratio-based sampling
     sampler = ParentBased(root=TraceIdRatioBased(sampling_ratio))
@@ -131,20 +142,18 @@ def init_tracer(
 
     # Add console exporter for debugging
     if console_export or os.getenv("OTEL_CONSOLE_EXPORT", "false").lower() == "true":
-        _tracer_provider.add_span_processor(
-            BatchSpanProcessor(ConsoleSpanExporter())
-        )
+        _tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
         logger.info("Console trace exporter enabled")
 
     # Set global tracer provider
     trace.set_tracer_provider(_tracer_provider)
 
     # Configure context propagation (W3C Trace Context + Baggage)
-    set_global_textmap(
-        TraceContextTextMapPropagator()
-    )
+    set_global_textmap(TraceContextTextMapPropagator())
 
-    logger.info(f"OpenTelemetry tracer initialized: service={service_name}, env={environment}, sampling={sampling_ratio}")
+    logger.info(
+        f"OpenTelemetry tracer initialized: service={service_name}, env={environment}, sampling={sampling_ratio}"
+    )
 
     return _tracer_provider
 
@@ -206,7 +215,7 @@ def instrument_sqlalchemy(engine) -> None:
             commenter_options={
                 "db_driver": True,
                 "db_framework": True,
-            }
+            },
         )
         logger.info("SQLAlchemy instrumentation enabled")
     except Exception as e:
@@ -268,6 +277,7 @@ def trace_method(
         def process_field(field_id: str):
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -294,6 +304,7 @@ def trace_method(
                     raise
 
         return wrapper
+
     return decorator
 
 
@@ -308,6 +319,7 @@ async def trace_async_method(
         name: Span name (defaults to function name)
         attributes: Additional attributes to add to span
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -334,6 +346,7 @@ async def trace_async_method(
                     raise
 
         return wrapper
+
     return decorator
 
 
@@ -383,7 +396,7 @@ def get_current_trace_id() -> Optional[str]:
     """
     span = trace.get_current_span()
     if span and span.get_span_context().is_valid:
-        return format(span.get_span_context().trace_id, '032x')
+        return format(span.get_span_context().trace_id, "032x")
     return None
 
 
@@ -396,7 +409,7 @@ def get_current_span_id() -> Optional[str]:
     """
     span = trace.get_current_span()
     if span and span.get_span_context().is_valid:
-        return format(span.get_span_context().span_id, '016x')
+        return format(span.get_span_context().span_id, "016x")
     return None
 
 
@@ -406,16 +419,13 @@ SAHOOL_SERVICES = {
     "field_core": "Field Core Service",
     "field_ops": "Field Operations Service",
     "field_service": "Field Management Service",
-
     # Weather services
     "weather_core": "Weather Core Service",
     "weather_advanced": "Advanced Weather Service",
-
     # Satellite & imagery
     "satellite_service": "Satellite Imagery Service",
     "ndvi_engine": "NDVI Calculation Engine",
     "ndvi_processor": "NDVI Processor Service",
-
     # Agriculture AI/ML
     "crop_health_ai": "Crop Health AI Service",
     "crop_health": "Crop Health Monitoring",
@@ -423,41 +433,34 @@ SAHOOL_SERVICES = {
     "lai_estimation": "Leaf Area Index Estimation",
     "yield_engine": "Yield Calculation Engine",
     "yield_prediction": "Yield Prediction Service",
-
     # Advisory services
     "ai_advisor": "AI Agricultural Advisor",
     "agro_advisor": "Agronomy Advisor Service",
     "agro_rules": "Agronomy Rules Engine",
     "fertilizer_advisor": "Fertilizer Recommendation",
     "irrigation_smart": "Smart Irrigation Service",
-
     # IoT & sensors
     "iot_gateway": "IoT Gateway Service",
     "iot_service": "IoT Management Service",
     "virtual_sensors": "Virtual Sensors Service",
-
     # Analytics & monitoring
     "indicators_service": "Agricultural Indicators",
     "astronomical_calendar": "Astronomical Calendar",
     "disaster_assessment": "Disaster Assessment",
-
     # Communication
     "notification_service": "Notification Service",
     "alert_service": "Alert Management Service",
     "chat_service": "Chat Service",
     "community_chat": "Community Chat Service",
     "field_chat": "Field Chat Service",
-
     # Business services
     "billing_core": "Billing Core Service",
     "marketplace_service": "Marketplace Service",
     "inventory_service": "Inventory Management",
     "equipment_service": "Equipment Management",
     "task_service": "Task Management Service",
-
     # Research
     "research_core": "Research Core Service",
-
     # Infrastructure
     "ws_gateway": "WebSocket Gateway",
     "kong": "API Gateway (Kong)",

@@ -60,7 +60,9 @@ async def example_verify_certificate():
             print(f"  CB Name / جهة الشهادة: {cert.cb_name}")
             print(f"  Products / المنتجات: {', '.join(cert.product_categories)}")
             print(f"\n  Is Valid? / هل هي صالحة؟ {cert.is_valid()}")
-            print(f"  Days Until Expiry / الأيام حتى الانتهاء: {cert.days_until_expiry()}")
+            print(
+                f"  Days Until Expiry / الأيام حتى الانتهاء: {cert.days_until_expiry()}"
+            )
 
         except CertificateNotFound as e:
             print(f"\n❌ Certificate not found / الشهادة غير موجودة")
@@ -139,7 +141,9 @@ async def example_search_producers():
                 limit=10,
             )
 
-            print(f"\nFound {len(producers)} producers / تم العثور على {len(producers)} منتج")
+            print(
+                f"\nFound {len(producers)} producers / تم العثور على {len(producers)} منتج"
+            )
             print("-" * 80)
 
             for i, producer in enumerate(producers, 1):
@@ -295,7 +299,9 @@ async def example_sahool_integration():
             if cert.is_valid():
                 print(f"\n✅ Certificate is VALID / الشهادة صالحة")
                 print(f"   Valid until / صالحة حتى: {cert.valid_to.date()}")
-                print(f"   Days remaining / الأيام المتبقية: {cert.days_until_expiry()}")
+                print(
+                    f"   Days remaining / الأيام المتبقية: {cert.days_until_expiry()}"
+                )
 
                 # Update farm record in database
                 # تحديث سجل المزرعة في قاعدة البيانات
@@ -307,7 +313,9 @@ async def example_sahool_integration():
                     "certification_body": cert.cb_name,
                     "certified_products": cert.product_categories,
                 }
-                print(f"   Farm record updated successfully / تم تحديث سجل المزرعة بنجاح")
+                print(
+                    f"   Farm record updated successfully / تم تحديث سجل المزرعة بنجاح"
+                )
 
                 # Check expiry warning
                 # فحص تحذير الانتهاء
@@ -418,7 +426,8 @@ async def example_production_usage():
     print("   export GLOBALGAP_API_KEY='your-api-key'")
     print("\n3. Initialize client:")
 
-    print("""
+    print(
+        """
     import os
 
     api_key = os.getenv("GLOBALGAP_API_KEY")
@@ -434,7 +443,8 @@ async def example_production_usage():
     ) as client:
         cert = await client.verify_certificate("4063061891234")
         print(f"Status: {cert.status}")
-    """)
+    """
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════

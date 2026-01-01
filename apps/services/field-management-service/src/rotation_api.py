@@ -27,6 +27,7 @@ from .crop_rotation import (
 
 class SeasonPlanRequest(BaseModel):
     """Request model for season plan"""
+
     season_id: str
     year: int
     season: str
@@ -42,6 +43,7 @@ class SeasonPlanRequest(BaseModel):
 
 class CreateRotationPlanRequest(BaseModel):
     """Request to create rotation plan"""
+
     field_id: str
     field_name: str
     start_year: int
@@ -52,11 +54,13 @@ class CreateRotationPlanRequest(BaseModel):
 
 class EvaluateRotationRequest(BaseModel):
     """Request to evaluate rotation"""
+
     seasons: List[SeasonPlanRequest]
 
 
 class RotationRuleResponse(BaseModel):
     """Response model for rotation rule"""
+
     crop_family: str
     min_years_between: int
     good_predecessors: List[str]
@@ -80,7 +84,7 @@ async def create_rotation_plan_endpoint(
     field_name: str = Query(..., description="Field name"),
     start_year: int = Query(..., description="Starting year"),
     num_years: int = Query(5, ge=1, le=10, description="Number of years to plan"),
-    preferences: Optional[List[str]] = Query(None, description="Crop preferences")
+    preferences: Optional[List[str]] = Query(None, description="Crop preferences"),
 ) -> Dict:
     """
     Create optimal crop rotation plan
@@ -106,15 +110,13 @@ async def create_rotation_plan_endpoint(
         start_year=start_year,
         num_years=num_years,
         history=history,
-        preferences=preferences
+        preferences=preferences,
     )
 
     return to_dict(plan)
 
 
-async def create_rotation_plan_with_history(
-    req: CreateRotationPlanRequest
-) -> Dict:
+async def create_rotation_plan_with_history(req: CreateRotationPlanRequest) -> Dict:
     """
     Create rotation plan with custom history
     إنشاء خطة تدوير مع سجل مخصص
@@ -125,19 +127,25 @@ async def create_rotation_plan_with_history(
     history = []
     if req.history:
         for h in req.history:
-            history.append(SeasonPlan(
-                season_id=h.season_id,
-                year=h.year,
-                season=h.season,
-                crop_code=h.crop_code,
-                crop_name_ar=h.crop_name_ar,
-                crop_name_en=h.crop_name_en,
-                crop_family=CropFamily(h.crop_family),
-                planting_date=date.fromisoformat(h.planting_date) if h.planting_date else None,
-                harvest_date=date.fromisoformat(h.harvest_date) if h.harvest_date else None,
-                expected_yield=h.expected_yield,
-                notes=h.notes
-            ))
+            history.append(
+                SeasonPlan(
+                    season_id=h.season_id,
+                    year=h.year,
+                    season=h.season,
+                    crop_code=h.crop_code,
+                    crop_name_ar=h.crop_name_ar,
+                    crop_name_en=h.crop_name_en,
+                    crop_family=CropFamily(h.crop_family),
+                    planting_date=(
+                        date.fromisoformat(h.planting_date) if h.planting_date else None
+                    ),
+                    harvest_date=(
+                        date.fromisoformat(h.harvest_date) if h.harvest_date else None
+                    ),
+                    expected_yield=h.expected_yield,
+                    notes=h.notes,
+                )
+            )
 
     # Create rotation plan
     plan = await planner.create_rotation_plan(
@@ -146,16 +154,14 @@ async def create_rotation_plan_with_history(
         start_year=req.start_year,
         num_years=req.num_years,
         history=history,
-        preferences=req.preferences
+        preferences=req.preferences,
     )
 
     return to_dict(plan)
 
 
 async def suggest_next_crop_endpoint(
-    field_id: str,
-    season: str = "winter",
-    history_json: Optional[str] = None
+    field_id: str, season: str = "winter", history_json: Optional[str] = None
 ) -> Dict:
     """
     Suggest best crops for next season
@@ -174,16 +180,14 @@ async def suggest_next_crop_endpoint(
 
     # Get suggestions
     suggestions = await planner.suggest_next_crop(
-        field_id=field_id,
-        history=history,
-        season=season
+        field_id=field_id, history=history, season=season
     )
 
     return {
         "field_id": field_id,
         "season": season,
         "suggestions": [to_dict(s) for s in suggestions],
-        "count": len(suggestions)
+        "count": len(suggestions),
     }
 
 
@@ -201,32 +205,35 @@ async def evaluate_rotation_endpoint(req: EvaluateRotationRequest) -> Dict:
     # Convert request seasons to SeasonPlan objects
     seasons = []
     for s in req.seasons:
-        seasons.append(SeasonPlan(
-            season_id=s.season_id,
-            year=s.year,
-            season=s.season,
-            crop_code=s.crop_code,
-            crop_name_ar=s.crop_name_ar,
-            crop_name_en=s.crop_name_en,
-            crop_family=CropFamily(s.crop_family),
-            planting_date=date.fromisoformat(s.planting_date) if s.planting_date else None,
-            harvest_date=date.fromisoformat(s.harvest_date) if s.harvest_date else None,
-            expected_yield=s.expected_yield,
-            notes=s.notes
-        ))
+        seasons.append(
+            SeasonPlan(
+                season_id=s.season_id,
+                year=s.year,
+                season=s.season,
+                crop_code=s.crop_code,
+                crop_name_ar=s.crop_name_ar,
+                crop_name_en=s.crop_name_en,
+                crop_family=CropFamily(s.crop_family),
+                planting_date=(
+                    date.fromisoformat(s.planting_date) if s.planting_date else None
+                ),
+                harvest_date=(
+                    date.fromisoformat(s.harvest_date) if s.harvest_date else None
+                ),
+                expected_yield=s.expected_yield,
+                notes=s.notes,
+            )
+        )
 
     # Evaluate rotation
     evaluation = planner.evaluate_rotation(seasons)
 
-    return {
-        "evaluation": evaluation,
-        "seasons_count": len(seasons)
-    }
+    return {"evaluation": evaluation, "seasons_count": len(seasons)}
 
 
 async def get_rotation_history_endpoint(
     field_id: str,
-    years: int = Query(5, ge=1, le=10, description="Number of years of history")
+    years: int = Query(5, ge=1, le=10, description="Number of years of history"),
 ) -> Dict:
     """
     Get crop rotation history for a field
@@ -245,7 +252,7 @@ async def get_rotation_history_endpoint(
         "field_id": field_id,
         "years": years,
         "history": [to_dict(h) for h in history],
-        "count": len(history)
+        "count": len(history),
     }
 
 
@@ -268,13 +275,10 @@ async def get_rotation_rules_endpoint() -> Dict:
             "nitrogen_effect": rule.nitrogen_effect,
             "disease_risk": rule.disease_risk,
             "root_depth": rule.root_depth,
-            "nutrient_demand": rule.nutrient_demand
+            "nutrient_demand": rule.nutrient_demand,
         }
 
-    return {
-        "rules": rules,
-        "families_count": len(rules)
-    }
+    return {"rules": rules, "families_count": len(rules)}
 
 
 async def get_crop_families_endpoint() -> Dict:
@@ -295,13 +299,13 @@ async def get_crop_families_endpoint() -> Dict:
     return {
         "families": families,
         "total_families": len(families),
-        "total_crops": len(planner.CROP_FAMILY_MAP)
+        "total_crops": len(planner.CROP_FAMILY_MAP),
     }
 
 
 async def check_rotation_compatibility_endpoint(
     crop_family: str,
-    previous_crops: List[str] = Query(..., description="List of previous crop codes")
+    previous_crops: List[str] = Query(..., description="List of previous crop codes"),
 ) -> Dict:
     """
     Check if a crop is compatible with previous crops
@@ -317,7 +321,9 @@ async def check_rotation_compatibility_endpoint(
     try:
         family = CropFamily(crop_family)
     except ValueError:
-        raise HTTPException(status_code=400, detail=f"Invalid crop family: {crop_family}")
+        raise HTTPException(
+            status_code=400, detail=f"Invalid crop family: {crop_family}"
+        )
 
     # Convert previous crops to SeasonPlan objects
     history = []
@@ -325,15 +331,17 @@ async def check_rotation_compatibility_endpoint(
 
     for i, crop_code in enumerate(reversed(previous_crops)):
         crop_family_enum = planner.get_crop_family(crop_code)
-        history.append(SeasonPlan(
-            season_id=f"check_{i}",
-            year=current_year - i - 1,
-            season="winter",
-            crop_code=crop_code,
-            crop_name_ar=planner._get_crop_name_ar(crop_family_enum),
-            crop_name_en=planner._get_crop_name_en(crop_family_enum),
-            crop_family=crop_family_enum
-        ))
+        history.append(
+            SeasonPlan(
+                season_id=f"check_{i}",
+                year=current_year - i - 1,
+                season="winter",
+                crop_code=crop_code,
+                crop_name_ar=planner._get_crop_name_ar(crop_family_enum),
+                crop_name_en=planner._get_crop_name_en(crop_family_enum),
+                crop_family=crop_family_enum,
+            )
+        )
 
     # Reverse to get chronological order
     history = list(reversed(history))
@@ -347,16 +355,21 @@ async def check_rotation_compatibility_endpoint(
         "is_compatible": is_valid,
         "warnings_ar": [m[0] for m in messages],
         "warnings_en": [m[1] for m in messages],
-        "nitrogen_balance": planner.calculate_nitrogen_balance(history + [SeasonPlan(
-            season_id="proposed",
-            year=current_year,
-            season="winter",
-            crop_code=planner._get_crop_for_family(family),
-            crop_name_ar=planner._get_crop_name_ar(family),
-            crop_name_en=planner._get_crop_name_en(family),
-            crop_family=family
-        )]),
-        "disease_risk": planner.get_disease_risk(history)
+        "nitrogen_balance": planner.calculate_nitrogen_balance(
+            history
+            + [
+                SeasonPlan(
+                    season_id="proposed",
+                    year=current_year,
+                    season="winter",
+                    crop_code=planner._get_crop_for_family(family),
+                    crop_name_ar=planner._get_crop_name_ar(family),
+                    crop_name_en=planner._get_crop_name_en(family),
+                    crop_family=family,
+                )
+            ]
+        ),
+        "disease_risk": planner.get_disease_risk(history),
     }
 
 
@@ -370,7 +383,7 @@ if __name__ == "__main__":
     app = FastAPI(
         title="SAHOOL Crop Rotation API",
         description="Crop rotation planning for soil health and disease prevention",
-        version="1.0.0"
+        version="1.0.0",
     )
 
     # Register endpoints

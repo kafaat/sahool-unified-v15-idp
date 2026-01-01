@@ -38,7 +38,7 @@ async def example_1_create_registration():
         certificate_status="ACTIVE",
         valid_from=date.today(),
         valid_to=date.today() + timedelta(days=365),
-        scope="FRUIT_VEGETABLES"
+        scope="FRUIT_VEGETABLES",
     )
 
     print(f"Created registration: {registration['id']}")
@@ -62,7 +62,7 @@ async def example_2_create_compliance_audit(registration_id):
         major_must_score=98.5,
         minor_must_score=95.0,
         overall_compliance=96.5,
-        auditor_notes="Excellent compliance. Minor improvements needed in documentation."
+        auditor_notes="Excellent compliance. Minor improvements needed in documentation.",
     )
 
     print(f"Created compliance record: {compliance['id']}")
@@ -85,7 +85,7 @@ async def example_3_add_checklist_responses(compliance_record_id):
         checklist_item_id="FV.1.1.1",
         response="COMPLIANT",
         evidence_path="/documents/evidence/FV_1_1_1.pdf",
-        notes="All legal compliance certificates verified"
+        notes="All legal compliance certificates verified",
     )
 
     # Batch responses
@@ -94,27 +94,28 @@ async def example_3_add_checklist_responses(compliance_record_id):
             "checklist_item_id": "FV.2.1.1",
             "response": "COMPLIANT",
             "evidence_path": "/documents/evidence/FV_2_1_1.pdf",
-            "notes": "Risk assessment completed"
+            "notes": "Risk assessment completed",
         },
         {
             "checklist_item_id": "FV.3.1.1",
             "response": "NON_COMPLIANT",
-            "notes": "Traceability system needs improvement"
+            "notes": "Traceability system needs improvement",
         },
         {
             "checklist_item_id": "FV.4.1.1",
             "response": "NOT_APPLICABLE",
-            "notes": "No seeds/propagation material used"
-        }
+            "notes": "No seeds/propagation material used",
+        },
     ]
 
     batch_responses = await checklist_repo.create_batch(
-        compliance_record_id=compliance_record_id,
-        responses=responses_data
+        compliance_record_id=compliance_record_id, responses=responses_data
     )
 
     print(f"Created {len(batch_responses) + 1} checklist responses")
-    print(f"Non-compliant items: {sum(1 for r in batch_responses if r['response'] == 'NON_COMPLIANT')}")
+    print(
+        f"Non-compliant items: {sum(1 for r in batch_responses if r['response'] == 'NON_COMPLIANT')}"
+    )
 
     return batch_responses
 
@@ -133,7 +134,7 @@ async def example_4_create_non_conformance(compliance_record_id):
         description="Traceability records incomplete for some products",
         corrective_action="Implement digital traceability system",
         due_date=date.today() + timedelta(days=30),
-        status="IN_PROGRESS"
+        status="IN_PROGRESS",
     )
 
     print(f"Created non-conformance: {nc['id']}")
@@ -183,7 +184,7 @@ async def example_6_update_operations(registration_id, nc_id):
     updated_reg = await registrations_repo.update_status(
         registration_id=registration_id,
         status="ACTIVE",
-        valid_to=date.today() + timedelta(days=730)
+        valid_to=date.today() + timedelta(days=730),
     )
     print(f"Updated registration status: {updated_reg['certificate_status']}")
 
@@ -191,7 +192,7 @@ async def example_6_update_operations(registration_id, nc_id):
     resolved_nc = await non_conformance_repo.resolve(
         nc_id=nc_id,
         corrective_action="Digital traceability system implemented and tested successfully",
-        resolved_date=date.today()
+        resolved_date=date.today(),
     )
     print(f"Resolved non-conformance: {resolved_nc['status']}")
 
@@ -214,8 +215,11 @@ async def example_7_transaction_usage(compliance_record_id):
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
             """,
-            compliance_record_id, "FV.5.1.1", "MAJOR",
-            "Worker health and safety training not documented", "OPEN"
+            compliance_record_id,
+            "FV.5.1.1",
+            "MAJOR",
+            "Worker health and safety training not documented",
+            "OPEN",
         )
 
         nc2 = await conn.fetchrow(
@@ -227,8 +231,11 @@ async def example_7_transaction_usage(compliance_record_id):
             VALUES ($1, $2, $3, $4, $5)
             RETURNING *
             """,
-            compliance_record_id, "FV.6.1.1", "MINOR",
-            "Some irrigation records missing", "OPEN"
+            compliance_record_id,
+            "FV.6.1.1",
+            "MINOR",
+            "Some irrigation records missing",
+            "OPEN",
         )
 
         print(f"Created {2} non-conformances in transaction")
@@ -259,7 +266,8 @@ async def example_9_analytics_queries():
 
     async with get_connection() as conn:
         # Average compliance score by scope
-        results = await conn.fetch("""
+        results = await conn.fetch(
+            """
             SELECT
                 gr.scope,
                 COUNT(DISTINCT cr.id) as audit_count,
@@ -271,15 +279,19 @@ async def example_9_analytics_queries():
             WHERE cr.overall_compliance IS NOT NULL
             GROUP BY gr.scope
             ORDER BY avg_compliance DESC
-        """)
+        """
+        )
 
         print("\nCompliance by Scope:")
         for row in results:
-            print(f"  {row['scope']}: {row['avg_compliance']:.2f}% avg "
-                  f"({row['audit_count']} audits)")
+            print(
+                f"  {row['scope']}: {row['avg_compliance']:.2f}% avg "
+                f"({row['audit_count']} audits)"
+            )
 
         # Most common non-conformances
-        nc_results = await conn.fetch("""
+        nc_results = await conn.fetch(
+            """
             SELECT
                 checklist_item_id,
                 severity,
@@ -289,12 +301,15 @@ async def example_9_analytics_queries():
             GROUP BY checklist_item_id, severity
             ORDER BY occurrence_count DESC
             LIMIT 5
-        """)
+        """
+        )
 
         print("\nTop Non-Conformances:")
         for row in nc_results:
-            print(f"  {row['checklist_item_id']} ({row['severity']}): "
-                  f"{row['occurrence_count']} occurrences")
+            print(
+                f"  {row['checklist_item_id']} ({row['severity']}): "
+                f"{row['occurrence_count']} occurrences"
+            )
 
 
 async def main():
@@ -312,12 +327,12 @@ async def main():
 
         # Run examples
         registration = await example_1_create_registration()
-        compliance = await example_2_create_compliance_audit(registration['id'])
-        await example_3_add_checklist_responses(compliance['id'])
-        nc = await example_4_create_non_conformance(compliance['id'])
+        compliance = await example_2_create_compliance_audit(registration["id"])
+        await example_3_add_checklist_responses(compliance["id"])
+        nc = await example_4_create_non_conformance(compliance["id"])
         await example_5_query_operations()
-        await example_6_update_operations(registration['id'], nc['id'])
-        await example_7_transaction_usage(compliance['id'])
+        await example_6_update_operations(registration["id"], nc["id"])
+        await example_7_transaction_usage(compliance["id"])
         await example_8_health_check()
         await example_9_analytics_queries()
 
@@ -327,6 +342,7 @@ async def main():
     except Exception as e:
         print(f"\n✗ Error: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:

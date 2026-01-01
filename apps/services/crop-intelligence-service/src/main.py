@@ -256,12 +256,17 @@ app = FastAPI(
 
 # CORS - Secure configuration
 import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.cors_config import CORS_SETTINGS
+
     app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
 except ImportError:
-    ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "https://sahool.io,https://admin.sahool.io,http://localhost:3000").split(",")
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,

@@ -49,7 +49,9 @@ def get_cors_origins() -> List[str]:
     # Check for explicit CORS_ORIGINS setting
     cors_origins_env = os.getenv("CORS_ORIGINS", "")
     if cors_origins_env:
-        return [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+        return [
+            origin.strip() for origin in cors_origins_env.split(",") if origin.strip()
+        ]
 
     # Fall back to environment-based defaults
     environment = os.getenv("ENVIRONMENT", "development").lower()
@@ -95,6 +97,7 @@ def setup_cors(
     environment = os.getenv("ENVIRONMENT", "development").lower()
     if "*" in origins and environment == "production":
         import logging
+
         logging.warning(
             "⚠️ SECURITY WARNING: Using wildcard (*) CORS origins in production! "
             "This is a security risk. Please configure CORS_ORIGINS properly."

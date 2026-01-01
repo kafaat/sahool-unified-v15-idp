@@ -75,7 +75,7 @@ class AgentDiscovery:
                     "agent_discovered",
                     agent_id=agent_card.agent_id,
                     name=agent_card.name,
-                    base_url=base_url
+                    base_url=base_url,
                 )
 
                 return agent_card
@@ -85,16 +85,12 @@ class AgentDiscovery:
                 "agent_discovery_http_error",
                 base_url=base_url,
                 status_code=e.response.status_code,
-                error=str(e)
+                error=str(e),
             )
             return None
 
         except Exception as e:
-            logger.error(
-                "agent_discovery_failed",
-                base_url=base_url,
-                error=str(e)
-            )
+            logger.error("agent_discovery_failed", base_url=base_url, error=str(e))
             return None
 
     async def discover_multiple(self, base_urls: List[str]) -> List[AgentCard]:
@@ -113,15 +109,12 @@ class AgentDiscovery:
 
         # Filter out None and exceptions
         # تصفية None والاستثناءات
-        agent_cards = [
-            result for result in results
-            if isinstance(result, AgentCard)
-        ]
+        agent_cards = [result for result in results if isinstance(result, AgentCard)]
 
         logger.info(
             "multiple_agents_discovered",
             total_attempted=len(base_urls),
-            successful=len(agent_cards)
+            successful=len(agent_cards),
         )
 
         return agent_cards
@@ -164,7 +157,7 @@ class AgentDiscovery:
         self,
         name_pattern: Optional[str] = None,
         tags: Optional[List[str]] = None,
-        provider: Optional[str] = None
+        provider: Optional[str] = None,
     ) -> List[AgentCard]:
         """
         Search for agents by various criteria
@@ -215,12 +208,7 @@ class A2AClient:
     يتعامل مع إرسال المهام واسترجاع النتائج والبث.
     """
 
-    def __init__(
-        self,
-        sender_agent_id: str,
-        timeout: int = 300,
-        max_retries: int = 3
-    ):
+    def __init__(self, sender_agent_id: str, timeout: int = 300, max_retries: int = 3):
         """
         Initialize A2A client
         تهيئة عميل A2A
@@ -235,10 +223,7 @@ class A2AClient:
         self.max_retries = max_retries
         self.discovery = AgentDiscovery(timeout=timeout)
 
-        logger.info(
-            "a2a_client_initialized",
-            sender_agent_id=sender_agent_id
-        )
+        logger.info("a2a_client_initialized", sender_agent_id=sender_agent_id)
 
     async def send_task(
         self,
@@ -249,7 +234,7 @@ class A2AClient:
         priority: int = 5,
         timeout_seconds: Optional[int] = None,
         context: Optional[Dict[str, Any]] = None,
-        conversation_id: Optional[str] = None
+        conversation_id: Optional[str] = None,
     ) -> TaskResultMessage:
         """
         Send task to agent and wait for result
@@ -292,7 +277,7 @@ class A2AClient:
                     headers={
                         "Content-Type": "application/json",
                         "X-A2A-Protocol-Version": "1.0",
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -303,7 +288,7 @@ class A2AClient:
                     "task_sent_successfully",
                     task_id=task.task_id,
                     receiver_agent_id=agent_card.agent_id,
-                    state=result.state
+                    state=result.state,
                 )
 
                 return result
@@ -313,7 +298,7 @@ class A2AClient:
                 "task_send_http_error",
                 task_id=task.task_id,
                 status_code=e.response.status_code,
-                error=str(e)
+                error=str(e),
             )
 
             # Create error result
@@ -329,11 +314,7 @@ class A2AClient:
             )
 
         except Exception as e:
-            logger.error(
-                "task_send_failed",
-                task_id=task.task_id,
-                error=str(e)
-            )
+            logger.error("task_send_failed", task_id=task.task_id, error=str(e))
 
             return TaskResultMessage(
                 sender_agent_id=agent_card.agent_id,
@@ -353,7 +334,7 @@ class A2AClient:
         parameters: Dict[str, Any],
         priority: int = 5,
         context: Optional[Dict[str, Any]] = None,
-        conversation_id: Optional[str] = None
+        conversation_id: Optional[str] = None,
     ) -> AsyncIterator[TaskResultMessage]:
         """
         Send task with streaming results via WebSocket
@@ -403,7 +384,7 @@ class A2AClient:
                 logger.info(
                     "streaming_task_sent",
                     task_id=task.task_id,
-                    receiver_agent_id=agent_card.agent_id
+                    receiver_agent_id=agent_card.agent_id,
                 )
 
                 # Receive results
@@ -414,9 +395,13 @@ class A2AClient:
                     # Parse message
                     # تحليل الرسالة
                     import json
+
                     message_dict = json.loads(message_data)
 
-                    if message_dict.get("message_type") == MessageType.TASK_RESULT.value:
+                    if (
+                        message_dict.get("message_type")
+                        == MessageType.TASK_RESULT.value
+                    ):
                         result = TaskResultMessage(**message_dict)
                         yield result
 
@@ -431,7 +416,7 @@ class A2AClient:
                             "streaming_task_error",
                             task_id=task.task_id,
                             error_code=error.error_code,
-                            error_message=error.error_message
+                            error_message=error.error_message,
                         )
 
                         # Yield error as failed result
@@ -448,11 +433,7 @@ class A2AClient:
                         break
 
         except Exception as e:
-            logger.error(
-                "streaming_task_failed",
-                task_id=task.task_id,
-                error=str(e)
-            )
+            logger.error("streaming_task_failed", task_id=task.task_id, error=str(e))
 
             yield TaskResultMessage(
                 sender_agent_id=agent_card.agent_id,
@@ -468,7 +449,7 @@ class A2AClient:
         self,
         tasks: List[Dict[str, Any]],
         agent_card: AgentCard,
-        conversation_id: Optional[str] = None
+        conversation_id: Optional[str] = None,
     ) -> List[TaskResultMessage]:
         """
         Send multiple tasks to the same agent concurrently
@@ -492,7 +473,7 @@ class A2AClient:
                 parameters=task_spec["parameters"],
                 priority=task_spec.get("priority", 5),
                 context=task_spec.get("context"),
-                conversation_id=conversation_id
+                conversation_id=conversation_id,
             )
             for task_spec in tasks
         ]
@@ -504,14 +485,13 @@ class A2AClient:
         # Filter out exceptions
         # تصفية الاستثناءات
         successful_results = [
-            result for result in results
-            if isinstance(result, TaskResultMessage)
+            result for result in results if isinstance(result, TaskResultMessage)
         ]
 
         logger.info(
             "batch_tasks_completed",
             total_tasks=len(tasks),
-            successful=len(successful_results)
+            successful=len(successful_results),
         )
 
         return successful_results
@@ -521,7 +501,7 @@ class A2AClient:
         agent_card: AgentCard,
         task_id: str,
         poll_interval: int = 5,
-        max_attempts: int = 60
+        max_attempts: int = 60,
     ) -> TaskResultMessage:
         """
         Poll for task status until completion
@@ -563,7 +543,7 @@ class A2AClient:
                     "task_status_poll_failed",
                     task_id=task_id,
                     attempt=attempt,
-                    error=str(e)
+                    error=str(e),
                 )
 
                 if attempt == max_attempts - 1:

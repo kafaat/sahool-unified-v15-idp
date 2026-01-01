@@ -10,7 +10,7 @@ import sys
 import os
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from vra_generator import (
     VRAGenerator,
@@ -54,7 +54,9 @@ async def test_generate_fertilizer_prescription():
     print(f"\n✅ Fertilizer Prescription Generated:")
     print(f"   Field: {prescription.field_id}")
     print(f"   Zones: {prescription.num_zones}")
-    print(f"   Total Product: {prescription.total_product_needed:.2f} {prescription.unit}")
+    print(
+        f"   Total Product: {prescription.total_product_needed:.2f} {prescription.unit}"
+    )
     print(f"   Savings: {prescription.savings_percent:.1f}%")
     if prescription.cost_savings is not None:
         print(f"   Cost Savings: ${prescription.cost_savings:.2f}")
@@ -94,7 +96,9 @@ async def test_generate_seed_prescription():
     print(f"   Field: {prescription.field_id}")
     print(f"   Zones: {prescription.num_zones}")
     for zone in prescription.zones:
-        print(f"   {zone.zone_name}: {zone.recommended_rate:.0f} {zone.unit} ({zone.area_ha:.2f} ha)")
+        print(
+            f"   {zone.zone_name}: {zone.recommended_rate:.0f} {zone.unit} ({zone.area_ha:.2f} ha)"
+        )
 
 
 @pytest.mark.asyncio

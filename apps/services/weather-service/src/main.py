@@ -199,7 +199,7 @@ async def get_current_weather(req: LocationRequest):
                     details={
                         "error": result.error,
                         "error_ar": result.error_ar,
-                        "failed_providers": result.failed_providers
+                        "failed_providers": result.failed_providers,
                     }
                 )
             weather = result.data
@@ -242,13 +242,13 @@ async def get_current_weather(req: LocationRequest):
                 "humidity_pct": weather.humidity_pct,
                 "wind_speed_kmh": weather.wind_speed_kmh,
                 "wind_direction_deg": weather.wind_direction_deg,
-                "wind_direction": getattr(weather, 'wind_direction', None),
+                "wind_direction": getattr(weather, "wind_direction", None),
                 "precipitation_mm": weather.precipitation_mm,
                 "cloud_cover_pct": weather.cloud_cover_pct,
                 "pressure_hpa": weather.pressure_hpa,
                 "uv_index": weather.uv_index,
-                "condition": getattr(weather, 'condition', None),
-                "condition_ar": getattr(weather, 'condition_ar', None),
+                "condition": getattr(weather, "condition", None),
+                "condition_ar": getattr(weather, "condition_ar", None),
                 "timestamp": weather.timestamp,
             },
             "alerts": [a.to_dict() for a in alerts],
@@ -280,7 +280,7 @@ async def get_forecast(req: LocationRequest, days: int = 7):
                     details={
                         "error": result.error,
                         "error_ar": result.error_ar,
-                        "failed_providers": result.failed_providers
+                        "failed_providers": result.failed_providers,
                     }
                 )
             forecast = result.data
@@ -304,10 +304,10 @@ async def get_forecast(req: LocationRequest, days: int = 7):
                     "precipitation_probability_pct": f.precipitation_probability_pct,
                     "wind_speed_max_kmh": f.wind_speed_max_kmh,
                     "uv_index_max": f.uv_index_max,
-                    "condition": getattr(f, 'condition', None),
-                    "condition_ar": getattr(f, 'condition_ar', None),
-                    "sunrise": getattr(f, 'sunrise', None),
-                    "sunset": getattr(f, 'sunset', None),
+                    "condition": getattr(f, "condition", None),
+                    "condition_ar": getattr(f, "condition_ar", None),
+                    "sunrise": getattr(f, "sunrise", None),
+                    "sunset": getattr(f, "sunset", None),
                 }
                 for f in forecast
             ],
@@ -385,7 +385,7 @@ async def get_providers():
             "multi_provider_enabled": True,
             "providers": providers,
             "total": len(providers),
-            "configured": len([p for p in providers if p["configured"]])
+            "configured": len([p for p in providers if p["configured"]]),
         }
     else:
         return {
@@ -394,7 +394,7 @@ async def get_providers():
                 {"name": "Open-Meteo", "configured": True, "type": "OpenMeteoProvider"}
             ],
             "total": 1,
-            "configured": 1
+            "configured": 1,
         }
 
 

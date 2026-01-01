@@ -28,7 +28,9 @@ class SensorReadingEvent(BaseEvent):
             "reading_type": self.reading_type,
             "value": self.value,
             "unit": self.unit,
-            "timestamp": self.reading_timestamp.isoformat() if self.reading_timestamp else None,
+            "timestamp": (
+                self.reading_timestamp.isoformat() if self.reading_timestamp else None
+            ),
             "battery_level": self.battery_level,
             "signal_strength": self.signal_strength,
         }
@@ -52,5 +54,7 @@ class SensorAlertEvent(BaseEvent):
             "alert_type": self.alert_type,
             "threshold_value": self.threshold_value,
             "actual_value": self.actual_value,
-            "timestamp": self.alert_timestamp.isoformat() if self.alert_timestamp else None,
+            "timestamp": (
+                self.alert_timestamp.isoformat() if self.alert_timestamp else None
+            ),
         }

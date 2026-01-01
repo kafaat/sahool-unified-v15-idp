@@ -10,7 +10,9 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 
 # Add the src directory to the path to import models
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+)
 
 # Import the Base and models
 from models.inventory import Base
@@ -23,7 +25,9 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Set the SQLAlchemy URL from environment
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/inventory_db")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@localhost/inventory_db"
+)
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 # Add your model's MetaData object here for 'autogenerate' support

@@ -30,43 +30,49 @@ logger = logging.getLogger(__name__)
 # Enums
 # =============================================================================
 
+
 class ChangeType(Enum):
     """Types of agricultural changes that can be detected"""
-    VEGETATION_INCREASE = "vegetation_increase"      # النمو النباتي
-    VEGETATION_DECREASE = "vegetation_decrease"      # التدهور النباتي
-    WATER_STRESS = "water_stress"                    # الإجهاد المائي
-    FLOODING = "flooding"                            # الفيضان
-    HARVEST = "harvest"                              # الحصاد
-    PLANTING = "planting"                            # الزراعة
-    LAND_CLEARING = "land_clearing"                  # تجريف الأرض
-    CROP_DAMAGE = "crop_damage"                      # تلف المحصول
-    DROUGHT_STRESS = "drought_stress"                # إجهاد الجفاف
-    PEST_DISEASE = "pest_disease"                    # الآفات والأمراض
-    NO_CHANGE = "no_change"                          # لا تغيير
+
+    VEGETATION_INCREASE = "vegetation_increase"  # النمو النباتي
+    VEGETATION_DECREASE = "vegetation_decrease"  # التدهور النباتي
+    WATER_STRESS = "water_stress"  # الإجهاد المائي
+    FLOODING = "flooding"  # الفيضان
+    HARVEST = "harvest"  # الحصاد
+    PLANTING = "planting"  # الزراعة
+    LAND_CLEARING = "land_clearing"  # تجريف الأرض
+    CROP_DAMAGE = "crop_damage"  # تلف المحصول
+    DROUGHT_STRESS = "drought_stress"  # إجهاد الجفاف
+    PEST_DISEASE = "pest_disease"  # الآفات والأمراض
+    NO_CHANGE = "no_change"  # لا تغيير
 
 
 class SeverityLevel(str, Enum):
     """Severity levels for detected changes"""
-    LOW = "low"                    # منخفض
-    MEDIUM = "medium"              # متوسط
-    HIGH = "high"                  # مرتفع
-    CRITICAL = "critical"          # حرج
+
+    LOW = "low"  # منخفض
+    MEDIUM = "medium"  # متوسط
+    HIGH = "high"  # مرتفع
+    CRITICAL = "critical"  # حرج
 
 
 class TrendDirection(str, Enum):
     """Overall trend direction"""
-    IMPROVING = "improving"        # تحسن
-    STABLE = "stable"             # مستقر
-    DECLINING = "declining"        # تدهور
+
+    IMPROVING = "improving"  # تحسن
+    STABLE = "stable"  # مستقر
+    DECLINING = "declining"  # تدهور
 
 
 # =============================================================================
 # Data Models
 # =============================================================================
 
+
 @dataclass
 class ChangeEvent:
     """A single detected change event"""
+
     field_id: str
     change_type: ChangeType
     severity: SeverityLevel
@@ -86,15 +92,16 @@ class ChangeEvent:
     def to_dict(self) -> Dict:
         """Convert to dictionary"""
         result = asdict(self)
-        result['change_type'] = self.change_type.value
-        result['severity'] = self.severity.value
-        result['detected_date'] = self.detected_date.isoformat()
+        result["change_type"] = self.change_type.value
+        result["severity"] = self.severity.value
+        result["detected_date"] = self.detected_date.isoformat()
         return result
 
 
 @dataclass
 class ChangeReport:
     """Comprehensive change detection report for a field"""
+
     field_id: str
     analysis_period: Dict[str, str]  # {start_date, end_date}
     events: List[ChangeEvent]
@@ -111,18 +118,18 @@ class ChangeReport:
     def to_dict(self) -> Dict:
         """Convert to dictionary"""
         result = {
-            'field_id': self.field_id,
-            'analysis_period': self.analysis_period,
-            'events': [event.to_dict() for event in self.events],
-            'overall_trend': self.overall_trend.value,
-            'ndvi_trend': self.ndvi_trend,
-            'anomaly_count': self.anomaly_count,
-            'severity_summary': self.severity_summary,
-            'change_type_summary': self.change_type_summary,
-            'summary_ar': self.summary_ar,
-            'summary_en': self.summary_en,
-            'recommendations_ar': self.recommendations_ar,
-            'recommendations_en': self.recommendations_en,
+            "field_id": self.field_id,
+            "analysis_period": self.analysis_period,
+            "events": [event.to_dict() for event in self.events],
+            "overall_trend": self.overall_trend.value,
+            "ndvi_trend": self.ndvi_trend,
+            "anomaly_count": self.anomaly_count,
+            "severity_summary": self.severity_summary,
+            "change_type_summary": self.change_type_summary,
+            "summary_ar": self.summary_ar,
+            "summary_en": self.summary_en,
+            "recommendations_ar": self.recommendations_ar,
+            "recommendations_en": self.recommendations_en,
         }
         return result
 
@@ -130,6 +137,7 @@ class ChangeReport:
 @dataclass
 class NDVIDataPoint:
     """Single NDVI time series data point"""
+
     date: date
     ndvi: float
     ndwi: Optional[float] = None
@@ -141,6 +149,7 @@ class NDVIDataPoint:
 # Change Detection Algorithm
 # =============================================================================
 
+
 class ChangeDetector:
     """
     Detect significant changes in agricultural fields from satellite time series.
@@ -149,33 +158,33 @@ class ChangeDetector:
 
     # Thresholds for change detection
     THRESHOLDS = {
-        "significant_change": 0.10,      # NDVI change > 10%
-        "major_change": 0.20,            # NDVI change > 20%
-        "critical_change": 0.30,         # NDVI change > 30%
-        "rapid_change_days": 14,         # Change within 2 weeks
-        "seasonal_adjustment": True,     # Account for normal seasonal variation
-        "min_ndvi_for_vegetation": 0.15, # Minimum NDVI to consider as vegetation
-        "max_cloud_cover": 30.0,         # Maximum cloud cover to use data point
+        "significant_change": 0.10,  # NDVI change > 10%
+        "major_change": 0.20,  # NDVI change > 20%
+        "critical_change": 0.30,  # NDVI change > 30%
+        "rapid_change_days": 14,  # Change within 2 weeks
+        "seasonal_adjustment": True,  # Account for normal seasonal variation
+        "min_ndvi_for_vegetation": 0.15,  # Minimum NDVI to consider as vegetation
+        "max_cloud_cover": 30.0,  # Maximum cloud cover to use data point
     }
 
     # Z-score thresholds for anomaly detection
     ANOMALY_THRESHOLDS = {
-        "mild": 1.5,      # 1.5 standard deviations
+        "mild": 1.5,  # 1.5 standard deviations
         "moderate": 2.0,  # 2.0 standard deviations
-        "severe": 2.5,    # 2.5 standard deviations
+        "severe": 2.5,  # 2.5 standard deviations
     }
 
     # Crop-specific seasonal patterns (simplified sine wave approximation)
     SEASONAL_PATTERNS = {
         "wheat": {
             "planting_month": 11,  # November
-            "harvest_month": 5,    # May
+            "harvest_month": 5,  # May
             "peak_ndvi": 0.75,
             "base_ndvi": 0.20,
         },
         "sorghum": {
-            "planting_month": 6,   # June
-            "harvest_month": 10,   # October
+            "planting_month": 6,  # June
+            "harvest_month": 10,  # October
             "peak_ndvi": 0.80,
             "base_ndvi": 0.25,
         },
@@ -225,7 +234,9 @@ class ChangeDetector:
         Returns:
             ChangeReport with all detected changes and recommendations
         """
-        logger.info(f"Detecting changes for field {field_id} from {start_date} to {end_date}")
+        logger.info(
+            f"Detecting changes for field {field_id} from {start_date} to {end_date}"
+        )
 
         # If no time series provided, would fetch from satellite service
         # For now, we'll work with provided data or return mock
@@ -236,12 +247,15 @@ class ChangeDetector:
 
         # Filter out cloudy observations
         clean_data = [
-            point for point in ndvi_timeseries
+            point
+            for point in ndvi_timeseries
             if point.cloud_cover <= self.THRESHOLDS["max_cloud_cover"]
         ]
 
         if len(clean_data) < 3:
-            logger.warning(f"Insufficient clean data points ({len(clean_data)}) for field {field_id}")
+            logger.warning(
+                f"Insufficient clean data points ({len(clean_data)}) for field {field_id}"
+            )
             return self._create_empty_report(field_id, start_date, end_date)
 
         # Calculate expected pattern if crop type is known
@@ -366,9 +380,7 @@ class ChangeDetector:
         desc_ar, desc_en = self._generate_change_description(
             change_type, ndvi_change, change_percent, date1, date2
         )
-        rec_ar, rec_en = self.generate_recommendation(
-            change_type, severity, None
-        )
+        rec_ar, rec_en = self.generate_recommendation(change_type, severity, None)
 
         # Additional metrics
         additional_metrics = {}
@@ -402,7 +414,7 @@ class ChangeDetector:
     async def detect_anomalies(
         self,
         ndvi_series: List[NDVIDataPoint],
-        expected_pattern: Optional[List[float]] = None
+        expected_pattern: Optional[List[float]] = None,
     ) -> List[Dict]:
         """
         Detect anomalies in NDVI time series.
@@ -436,35 +448,41 @@ class ChangeDetector:
                 z_score = abs((deviation - mean_dev) / std_dev) if std_dev > 0 else 0
 
                 if z_score >= self.ANOMALY_THRESHOLDS["mild"]:
-                    anomalies.append({
-                        "index": i,
-                        "date": point.date,
-                        "ndvi": point.ndvi,
-                        "expected": expected_pattern[i],
-                        "deviation": deviation,
-                        "z_score": z_score,
-                        "ndwi": point.ndwi,
-                        "ndmi": point.ndmi,
-                    })
+                    anomalies.append(
+                        {
+                            "index": i,
+                            "date": point.date,
+                            "ndvi": point.ndvi,
+                            "expected": expected_pattern[i],
+                            "deviation": deviation,
+                            "z_score": z_score,
+                            "ndwi": point.ndwi,
+                            "ndmi": point.ndmi,
+                        }
+                    )
         else:
             # Z-score based anomaly detection (no expected pattern)
             mean_ndvi = statistics.mean(ndvi_values)
             std_ndvi = statistics.stdev(ndvi_values) if len(ndvi_values) > 1 else 0.01
 
             for i, point in enumerate(ndvi_series):
-                z_score = abs((point.ndvi - mean_ndvi) / std_ndvi) if std_ndvi > 0 else 0
+                z_score = (
+                    abs((point.ndvi - mean_ndvi) / std_ndvi) if std_ndvi > 0 else 0
+                )
 
                 if z_score >= self.ANOMALY_THRESHOLDS["mild"]:
-                    anomalies.append({
-                        "index": i,
-                        "date": point.date,
-                        "ndvi": point.ndvi,
-                        "expected": mean_ndvi,
-                        "deviation": point.ndvi - mean_ndvi,
-                        "z_score": z_score,
-                        "ndwi": point.ndwi,
-                        "ndmi": point.ndmi,
-                    })
+                    anomalies.append(
+                        {
+                            "index": i,
+                            "date": point.date,
+                            "ndvi": point.ndvi,
+                            "expected": mean_ndvi,
+                            "deviation": point.ndvi - mean_ndvi,
+                            "z_score": z_score,
+                            "ndwi": point.ndwi,
+                            "ndmi": point.ndmi,
+                        }
+                    )
 
         logger.info(f"Detected {len(anomalies)} anomalies in time series")
         return anomalies
@@ -523,35 +541,39 @@ class ChangeDetector:
                 return ChangeType.WATER_STRESS
 
         # Harvest detection
-        if (ndvi_before > 0.5 and
-            ndvi_after < 0.3 and
-            ndvi_change < -0.3 and
-            days_between <= 30):
+        if (
+            ndvi_before > 0.5
+            and ndvi_after < 0.3
+            and ndvi_change < -0.3
+            and days_between <= 30
+        ):
             return ChangeType.HARVEST
 
         # Planting detection
-        if (ndvi_before < 0.25 and
-            ndvi_after > 0.35 and
-            ndvi_change > 0.2 and
-            days_between <= 45):
+        if (
+            ndvi_before < 0.25
+            and ndvi_after > 0.35
+            and ndvi_change > 0.2
+            and days_between <= 45
+        ):
             return ChangeType.PLANTING
 
         # Land clearing (very rapid drop to near zero)
-        if (ndvi_before > 0.3 and
-            ndvi_after < 0.15 and
-            change_rate > 0.015):  # >1.5% per day
+        if (
+            ndvi_before > 0.3 and ndvi_after < 0.15 and change_rate > 0.015
+        ):  # >1.5% per day
             return ChangeType.LAND_CLEARING
 
         # Crop damage (moderate rapid decrease)
-        if (ndvi_change < -0.2 and
-            days_between <= self.THRESHOLDS["rapid_change_days"] and
-            ndvi_before > 0.3):
+        if (
+            ndvi_change < -0.2
+            and days_between <= self.THRESHOLDS["rapid_change_days"]
+            and ndvi_before > 0.3
+        ):
             return ChangeType.CROP_DAMAGE
 
         # Pest/disease (gradual decrease from healthy state)
-        if (ndvi_change < -0.15 and
-            days_between > 14 and
-            ndvi_before > 0.5):
+        if ndvi_change < -0.15 and days_between > 14 and ndvi_before > 0.5:
             return ChangeType.PEST_DISEASE
 
         # General vegetation changes
@@ -561,10 +583,7 @@ class ChangeDetector:
             return ChangeType.VEGETATION_DECREASE
 
     def generate_recommendation(
-        self,
-        change_type: ChangeType,
-        severity: SeverityLevel,
-        crop_type: Optional[str]
+        self, change_type: ChangeType, severity: SeverityLevel, crop_type: Optional[str]
     ) -> Tuple[str, str]:
         """
         Generate actionable recommendation in Arabic and English.
@@ -580,61 +599,61 @@ class ChangeDetector:
         recommendations = {
             ChangeType.VEGETATION_INCREASE: (
                 "استمر في نفس نظام الري والتسميد - المحصول ينمو بشكل جيد",
-                "Continue current irrigation and fertilization - crop is growing well"
+                "Continue current irrigation and fertilization - crop is growing well",
             ),
             ChangeType.VEGETATION_DECREASE: (
                 "تحقق من الري والتسميد - قد يحتاج المحصول لعناية إضافية",
-                "Check irrigation and fertilization - crop may need additional care"
+                "Check irrigation and fertilization - crop may need additional care",
             ),
             ChangeType.WATER_STRESS: {
                 SeverityLevel.LOW: (
                     "راقب الري - علامات مبكرة لإجهاد مائي",
-                    "Monitor irrigation - early signs of water stress"
+                    "Monitor irrigation - early signs of water stress",
                 ),
                 SeverityLevel.MEDIUM: (
                     "زد كمية الري بنسبة 20-30٪ - إجهاد مائي واضح",
-                    "Increase irrigation by 20-30% - clear water stress"
+                    "Increase irrigation by 20-30% - clear water stress",
                 ),
                 SeverityLevel.HIGH: (
                     "ري فوري مطلوب - إجهاد مائي شديد يؤثر على الإنتاج",
-                    "Immediate irrigation required - severe water stress affecting yield"
+                    "Immediate irrigation required - severe water stress affecting yield",
                 ),
                 SeverityLevel.CRITICAL: (
                     "ري عاجل وفير - خطر فقدان المحصول",
-                    "Urgent heavy irrigation - risk of crop failure"
+                    "Urgent heavy irrigation - risk of crop failure",
                 ),
             },
             ChangeType.DROUGHT_STRESS: (
                 "ري عاجل وفحص نظام الري - جفاف شديد",
-                "Urgent irrigation and check irrigation system - severe drought"
+                "Urgent irrigation and check irrigation system - severe drought",
             ),
             ChangeType.FLOODING: (
                 "تحسين الصرف وتجنب الري لعدة أيام - مياه زائدة",
-                "Improve drainage and avoid irrigation for several days - excess water"
+                "Improve drainage and avoid irrigation for several days - excess water",
             ),
             ChangeType.HARVEST: (
                 "حصاد تم بنجاح - خطط للزراعة القادمة",
-                "Harvest completed successfully - plan for next planting"
+                "Harvest completed successfully - plan for next planting",
             ),
             ChangeType.PLANTING: (
                 "الزراعة ناجحة - حافظ على رطوبة التربة",
-                "Planting successful - maintain soil moisture"
+                "Planting successful - maintain soil moisture",
             ),
             ChangeType.LAND_CLEARING: (
                 "تم اكتشاف تجريف - تحقق من حالة الحقل",
-                "Land clearing detected - verify field status"
+                "Land clearing detected - verify field status",
             ),
             ChangeType.CROP_DAMAGE: (
                 "فحص الحقل فوراً - احتمال تلف من آفات أو طقس",
-                "Inspect field immediately - possible pest or weather damage"
+                "Inspect field immediately - possible pest or weather damage",
             ),
             ChangeType.PEST_DISEASE: (
                 "فحص المحصول للآفات والأمراض - قد تحتاج مبيدات",
-                "Check crop for pests and diseases - may need pesticides"
+                "Check crop for pests and diseases - may need pesticides",
             ),
             ChangeType.NO_CHANGE: (
                 "الحقل مستقر - استمر في الممارسات الحالية",
-                "Field is stable - continue current practices"
+                "Field is stable - continue current practices",
             ),
         }
 
@@ -647,10 +666,7 @@ class ChangeDetector:
         if rec:
             return rec
         else:
-            return (
-                "مراقبة مستمرة موصى بها",
-                "Continued monitoring recommended"
-            )
+            return ("مراقبة مستمرة موصى بها", "Continued monitoring recommended")
 
     # =========================================================================
     # Helper Methods
@@ -706,18 +722,14 @@ class ChangeDetector:
                 peak_day = 120  # ~4 months after planting
                 if cycle_day < peak_day:
                     progress = cycle_day / peak_day
-                    expected_ndvi = (
-                        pattern_info["base_ndvi"] +
-                        (pattern_info["peak_ndvi"] - pattern_info["base_ndvi"]) *
-                        math.sin(math.pi / 2 * progress)
-                    )
+                    expected_ndvi = pattern_info["base_ndvi"] + (
+                        pattern_info["peak_ndvi"] - pattern_info["base_ndvi"]
+                    ) * math.sin(math.pi / 2 * progress)
                 else:
                     decline = (cycle_day - peak_day) / (240 - peak_day)
-                    expected_ndvi = (
-                        pattern_info["peak_ndvi"] -
-                        (pattern_info["peak_ndvi"] - pattern_info["base_ndvi"]) *
-                        min(decline, 1.0)
-                    )
+                    expected_ndvi = pattern_info["peak_ndvi"] - (
+                        pattern_info["peak_ndvi"] - pattern_info["base_ndvi"]
+                    ) * min(decline, 1.0)
 
             expected.append(round(expected_ndvi, 3))
 
@@ -735,9 +747,9 @@ class ChangeDetector:
         sum_x = sum(x)
         sum_y = sum(values)
         sum_xy = sum(xi * yi for xi, yi in zip(x, values))
-        sum_x2 = sum(xi ** 2 for xi in x)
+        sum_x2 = sum(xi**2 for xi in x)
 
-        denominator = n * sum_x2 - sum_x ** 2
+        denominator = n * sum_x2 - sum_x**2
         if denominator == 0:
             return 0.0
 
@@ -749,9 +761,7 @@ class ChangeDetector:
     ) -> TrendDirection:
         """Determine overall trend direction"""
         # Count negative vs positive anomalies
-        negative_anomalies = sum(
-            1 for a in anomalies if a.get("deviation", 0) < 0
-        )
+        negative_anomalies = sum(1 for a in anomalies if a.get("deviation", 0) < 0)
         positive_anomalies = len(anomalies) - negative_anomalies
 
         # If trend is strongly positive and few negative anomalies
@@ -787,8 +797,7 @@ class ChangeDetector:
 
         ndvi_change = point_after.ndvi - point_before.ndvi
         change_percent = (
-            (ndvi_change / point_before.ndvi * 100)
-            if point_before.ndvi != 0 else 0
+            (ndvi_change / point_before.ndvi * 100) if point_before.ndvi != 0 else 0
         )
         days_between = (point_after.date - point_before.date).days
 
@@ -812,18 +821,21 @@ class ChangeDetector:
 
         # Calculate confidence from z-score
         z_score = anomaly.get("z_score", 0)
-        confidence = min(0.5 + (z_score / 5.0), 0.99)  # Higher z-score = higher confidence
+        confidence = min(
+            0.5 + (z_score / 5.0), 0.99
+        )  # Higher z-score = higher confidence
 
         # Generate descriptions
         desc_ar, desc_en = self._generate_change_description(
-            change_type, ndvi_change, change_percent,
-            point_before.date, point_after.date
+            change_type,
+            ndvi_change,
+            change_percent,
+            point_before.date,
+            point_after.date,
         )
 
         # Generate recommendations
-        rec_ar, rec_en = self.generate_recommendation(
-            change_type, severity, crop_type
-        )
+        rec_ar, rec_en = self.generate_recommendation(change_type, severity, crop_type)
 
         # Additional metrics
         additional_metrics = {
@@ -873,9 +885,7 @@ class ChangeDetector:
         else:
             return SeverityLevel.LOW
 
-    def _calculate_confidence(
-        self, change_percent: float, days_between: int
-    ) -> float:
+    def _calculate_confidence(self, change_percent: float, days_between: int) -> float:
         """Calculate confidence based on change magnitude and time span"""
         # Higher confidence for larger changes over appropriate time spans
         magnitude_factor = min(abs(change_percent) / 30.0, 1.0)
@@ -917,54 +927,57 @@ class ChangeDetector:
         descriptions = {
             ChangeType.VEGETATION_INCREASE: (
                 f"زيادة في الغطاء النباتي بنسبة {abs(change_percent):.1f}٪ خلال {days} يوم",
-                f"Vegetation cover increased by {abs(change_percent):.1f}% over {days} days"
+                f"Vegetation cover increased by {abs(change_percent):.1f}% over {days} days",
             ),
             ChangeType.VEGETATION_DECREASE: (
                 f"انخفاض في الغطاء النباتي بنسبة {abs(change_percent):.1f}٪ خلال {days} يوم",
-                f"Vegetation cover decreased by {abs(change_percent):.1f}% over {days} days"
+                f"Vegetation cover decreased by {abs(change_percent):.1f}% over {days} days",
             ),
             ChangeType.WATER_STRESS: (
                 f"إجهاد مائي مكتشف - انخفاض NDVI بنسبة {abs(change_percent):.1f}٪",
-                f"Water stress detected - NDVI decreased by {abs(change_percent):.1f}%"
+                f"Water stress detected - NDVI decreased by {abs(change_percent):.1f}%",
             ),
             ChangeType.DROUGHT_STRESS: (
                 f"إجهاد جفاف شديد - انخفاض حاد في NDVI وNDWI",
-                f"Severe drought stress - sharp decline in NDVI and NDWI"
+                f"Severe drought stress - sharp decline in NDVI and NDWI",
             ),
             ChangeType.FLOODING: (
                 f"فيضان محتمل - انخفاض NDVI مع زيادة NDWI",
-                f"Potential flooding - NDVI decrease with NDWI increase"
+                f"Potential flooding - NDVI decrease with NDWI increase",
             ),
             ChangeType.HARVEST: (
                 f"حصاد مكتشف - انخفاض سريع في NDVI من {abs(change_percent):.1f}٪",
-                f"Harvest detected - rapid NDVI drop of {abs(change_percent):.1f}%"
+                f"Harvest detected - rapid NDVI drop of {abs(change_percent):.1f}%",
             ),
             ChangeType.PLANTING: (
                 f"زراعة جديدة مكتشفة - زيادة NDVI من {abs(change_percent):.1f}٪",
-                f"New planting detected - NDVI increase of {abs(change_percent):.1f}%"
+                f"New planting detected - NDVI increase of {abs(change_percent):.1f}%",
             ),
             ChangeType.LAND_CLEARING: (
                 f"تجريف أرض محتمل - انخفاض سريع جداً في NDVI",
-                f"Potential land clearing - very rapid NDVI decrease"
+                f"Potential land clearing - very rapid NDVI decrease",
             ),
             ChangeType.CROP_DAMAGE: (
                 f"تلف محتمل في المحصول - انخفاض سريع بنسبة {abs(change_percent):.1f}٪",
-                f"Potential crop damage - rapid decrease of {abs(change_percent):.1f}%"
+                f"Potential crop damage - rapid decrease of {abs(change_percent):.1f}%",
             ),
             ChangeType.PEST_DISEASE: (
                 f"احتمال آفات أو أمراض - انخفاض تدريجي في الصحة النباتية",
-                f"Possible pest/disease - gradual decline in plant health"
+                f"Possible pest/disease - gradual decline in plant health",
             ),
             ChangeType.NO_CHANGE: (
                 "لا توجد تغييرات كبيرة مكتشفة",
-                "No significant changes detected"
+                "No significant changes detected",
             ),
         }
 
-        return descriptions.get(change_type, (
-            f"تغيير بنسبة {change_percent:.1f}٪ في NDVI",
-            f"Change of {change_percent:.1f}% in NDVI"
-        ))
+        return descriptions.get(
+            change_type,
+            (
+                f"تغيير بنسبة {change_percent:.1f}٪ في NDVI",
+                f"Change of {change_percent:.1f}% in NDVI",
+            ),
+        )
 
     def _count_by_severity(self, events: List[ChangeEvent]) -> Dict[str, int]:
         """Count events by severity level"""
@@ -1000,7 +1013,7 @@ class ChangeDetector:
         if not events:
             return (
                 f"لم يتم اكتشاف تغييرات كبيرة خلال {days} يوم. الحقل مستقر.",
-                f"No significant changes detected over {days} days. Field is stable."
+                f"No significant changes detected over {days} days. Field is stable.",
             )
 
         # Trend description
@@ -1013,12 +1026,8 @@ class ChangeDetector:
         trend_en = overall_trend.value
 
         # Count critical events
-        critical_count = sum(
-            1 for e in events if e.severity == SeverityLevel.CRITICAL
-        )
-        high_count = sum(
-            1 for e in events if e.severity == SeverityLevel.HIGH
-        )
+        critical_count = sum(1 for e in events if e.severity == SeverityLevel.CRITICAL)
+        high_count = sum(1 for e in events if e.severity == SeverityLevel.HIGH)
 
         summary_ar = (
             f"تم اكتشاف {len(events)} تغيير خلال {days} يوم. "
@@ -1051,7 +1060,7 @@ class ChangeDetector:
         if not events:
             return (
                 ["استمر في المراقبة المنتظمة للحقل"],
-                ["Continue regular field monitoring"]
+                ["Continue regular field monitoring"],
             )
 
         # Get unique change types
@@ -1074,9 +1083,7 @@ class ChangeDetector:
 
         # Add general recommendations based on trend
         if overall_trend == TrendDirection.DECLINING:
-            recommendations_ar.append(
-                "فحص شامل للحقل لتحديد أسباب التدهور"
-            )
+            recommendations_ar.append("فحص شامل للحقل لتحديد أسباب التدهور")
             recommendations_en.append(
                 "Comprehensive field inspection to identify causes of decline"
             )

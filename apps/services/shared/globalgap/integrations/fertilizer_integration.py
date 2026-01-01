@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class FertilizerType(str, Enum):
     """نوع السماد - Fertilizer Type"""
+
     ORGANIC = "organic"  # عضوي
     INORGANIC = "inorganic"  # غير عضوي
     BIOFERTILIZER = "biofertilizer"  # سماد حيوي
@@ -31,6 +32,7 @@ class FertilizerType(str, Enum):
 
 class ApplicationMethod(str, Enum):
     """طريقة التطبيق - Application Method"""
+
     BROADCAST = "broadcast"  # نثر
     BAND_APPLICATION = "band_application"  # شريطي
     FOLIAR = "foliar"  # ورقي
@@ -41,6 +43,7 @@ class ApplicationMethod(str, Enum):
 
 class NutrientType(str, Enum):
     """نوع المغذي - Nutrient Type"""
+
     NITROGEN = "N"  # نيتروجين
     PHOSPHORUS = "P"  # فوسفور
     POTASSIUM = "K"  # بوتاسيوم
@@ -57,6 +60,7 @@ class NutrientType(str, Enum):
 @dataclass
 class FertilizerApplication:
     """تطبيق السماد - Fertilizer Application"""
+
     application_id: str
     field_id: str
     product_name: str
@@ -77,6 +81,7 @@ class FertilizerApplication:
 @dataclass
 class SoilTest:
     """تحليل التربة - Soil Test"""
+
     test_id: str
     field_id: str
     test_date: datetime
@@ -91,6 +96,7 @@ class SoilTest:
 @dataclass
 class NutrientManagementPlan:
     """خطة إدارة المغذيات - Nutrient Management Plan"""
+
     plan_id: str
     farm_id: str
     field_id: str
@@ -111,6 +117,7 @@ class NutrientManagementPlan:
 @dataclass
 class InputManagementReport:
     """تقرير إدارة المدخلات - Input Management Report"""
+
     farm_id: str
     field_id: str
     period_start: datetime
@@ -142,10 +149,7 @@ class FertilizerIntegration:
         self.logger = logging.getLogger(__name__)
 
     async def track_fertilizer_application(
-        self,
-        application_data: dict,
-        field_id: str,
-        tenant_id: str
+        self, application_data: dict, field_id: str, tenant_id: str
     ) -> Dict[str, Any]:
         """
         تتبع تطبيق الأسمدة لإدارة المدخلات
@@ -178,8 +182,9 @@ class FertilizerIntegration:
                 "application_id": application_data.get("id"),
                 "field_id": field_id,
                 "farm_id": application_data.get("farm_id"),
-                "timestamp": application_data.get("timestamp", datetime.now(timezone.utc).isoformat()),
-
+                "timestamp": application_data.get(
+                    "timestamp", datetime.now(timezone.utc).isoformat()
+                ),
                 # Product details
                 "product": {
                     "name": application_data.get("product_name"),
@@ -188,7 +193,6 @@ class FertilizerIntegration:
                     "batch_number": application_data.get("batch_number"),
                     "registration_number": application_data.get("registration_number"),
                 },
-
                 # Application details
                 "application": {
                     "method": application_method.value,
@@ -198,31 +202,44 @@ class FertilizerIntegration:
                     "date": application_data.get("application_date"),
                     "applicator": application_data.get("applicator_name"),
                 },
-
                 # Nutrient composition (NPK)
                 "nutrients": {
                     "N": application_data.get("nitrogen_percent", 0.0),
                     "P": application_data.get("phosphorus_percent", 0.0),
                     "K": application_data.get("potassium_percent", 0.0),
-                    "total_N_kg": quantity * application_data.get("nitrogen_percent", 0.0) / 100,
-                    "total_P_kg": quantity * application_data.get("phosphorus_percent", 0.0) / 100,
-                    "total_K_kg": quantity * application_data.get("potassium_percent", 0.0) / 100,
+                    "total_N_kg": quantity
+                    * application_data.get("nitrogen_percent", 0.0)
+                    / 100,
+                    "total_P_kg": quantity
+                    * application_data.get("phosphorus_percent", 0.0)
+                    / 100,
+                    "total_K_kg": quantity
+                    * application_data.get("potassium_percent", 0.0)
+                    / 100,
                 },
-
                 # Compliance checks
                 "compliance": {
-                    "equipment_calibrated": application_data.get("equipment_calibrated", False),
-                    "weather_suitable": self._check_weather_suitability(application_data),
-                    "storage_documented": application_data.get("storage_documented", False),
+                    "equipment_calibrated": application_data.get(
+                        "equipment_calibrated", False
+                    ),
+                    "weather_suitable": self._check_weather_suitability(
+                        application_data
+                    ),
+                    "storage_documented": application_data.get(
+                        "storage_documented", False
+                    ),
                     "within_plan": self._check_within_plan(application_data),
                     "mrl_compliant": self._check_fertilizer_mrl(application_data),
                 },
-
                 # Safety and environmental
                 "safety": {
                     "ppe_used": application_data.get("ppe_used", False),
-                    "buffer_zones_respected": application_data.get("buffer_zones_respected", False),
-                    "runoff_prevention": application_data.get("runoff_prevention_measures", []),
+                    "buffer_zones_respected": application_data.get(
+                        "buffer_zones_respected", False
+                    ),
+                    "runoff_prevention": application_data.get(
+                        "runoff_prevention_measures", []
+                    ),
                 },
             }
 
@@ -252,7 +269,7 @@ class FertilizerIntegration:
                 farm_id=application_data.get("farm_id", "unknown"),
                 records_synced=1,
                 sync_status="success",
-                correlation_id=application_data.get("correlation_id")
+                correlation_id=application_data.get("correlation_id"),
             )
 
             self.logger.info(f"Fertilizer application tracked successfully")
@@ -269,7 +286,7 @@ class FertilizerIntegration:
                 records_synced=0,
                 sync_status="failed",
                 error_message=str(e),
-                correlation_id=application_data.get("correlation_id")
+                correlation_id=application_data.get("correlation_id"),
             )
 
             raise
@@ -281,7 +298,7 @@ class FertilizerIntegration:
         tenant_id: str,
         crop_type: str,
         target_yield_kg_per_ha: float,
-        soil_test: Optional[SoilTest] = None
+        soil_test: Optional[SoilTest] = None,
     ) -> NutrientManagementPlan:
         """
         إنشاء خطة إدارة المغذيات
@@ -299,7 +316,9 @@ class FertilizerIntegration:
             Comprehensive nutrient management plan
         """
         try:
-            self.logger.info(f"Generating nutrient management plan for field {field_id}")
+            self.logger.info(
+                f"Generating nutrient management plan for field {field_id}"
+            )
 
             # Calculate nutrient requirements based on crop and yield
             nutrient_requirements = self._calculate_nutrient_requirements(
@@ -308,9 +327,7 @@ class FertilizerIntegration:
 
             # Generate application schedule
             planned_applications = self._generate_application_schedule(
-                crop_type,
-                nutrient_requirements,
-                soil_test
+                crop_type, nutrient_requirements, soil_test
             )
 
             # Check compliance with GlobalGAP requirements
@@ -335,7 +352,7 @@ class FertilizerIntegration:
                 total_potassium_required_kg=nutrient_requirements["K"],
                 planned_applications=planned_applications,
                 compliance_status=compliance_status,
-                created_by="system"
+                created_by="system",
             )
 
             # Publish compliance update
@@ -361,7 +378,7 @@ class FertilizerIntegration:
         tenant_id: str,
         applications: List[FertilizerApplication],
         crop_type: str,
-        harvest_date: Optional[datetime] = None
+        harvest_date: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
         ضمان الامتثال للحد الأقصى من مستويات البقايا (MRL)
@@ -398,14 +415,18 @@ class FertilizerIntegration:
             total_heavy_metals = {}
 
             for app in applications:
-                total_nitrogen += app.npk_composition.get("N", 0.0) * app.quantity_kg / 100
+                total_nitrogen += (
+                    app.npk_composition.get("N", 0.0) * app.quantity_kg / 100
+                )
 
                 # Check for heavy metals (if organic fertilizer)
                 if app.fertilizer_type == FertilizerType.ORGANIC:
                     # Organic fertilizers may contain heavy metals
                     heavy_metal_content = self._estimate_heavy_metal_content(app)
                     for metal, amount in heavy_metal_content.items():
-                        total_heavy_metals[metal] = total_heavy_metals.get(metal, 0.0) + amount
+                        total_heavy_metals[metal] = (
+                            total_heavy_metals.get(metal, 0.0) + amount
+                        )
 
             # Check nitrogen accumulation risk
             if total_nitrogen > 200:  # kg N per hectare (example threshold)
@@ -465,7 +486,7 @@ class FertilizerIntegration:
         tenant_id: str,
         start_date: datetime,
         end_date: datetime,
-        applications: List[FertilizerApplication]
+        applications: List[FertilizerApplication],
     ) -> InputManagementReport:
         """
         إنشاء تقرير إدارة المدخلات
@@ -487,7 +508,9 @@ class FertilizerIntegration:
 
             # Count application types
             organic_count = sum(
-                1 for app in applications if app.fertilizer_type == FertilizerType.ORGANIC
+                1
+                for app in applications
+                if app.fertilizer_type == FertilizerType.ORGANIC
             )
             inorganic_count = len(applications) - organic_count
 
@@ -507,8 +530,7 @@ class FertilizerIntegration:
 
             # Check compliance factors
             records_complete = all(
-                app.applicator_name and app.equipment_calibrated
-                for app in applications
+                app.applicator_name and app.equipment_calibrated for app in applications
             )
 
             # Generate recommendations
@@ -531,7 +553,7 @@ class FertilizerIntegration:
                 mrl_compliant=True,  # Should be checked via ensure_mrl_compliance
                 storage_compliant=True,  # Should be verified separately
                 application_records_complete=records_complete,
-                recommendations=recommendations
+                recommendations=recommendations,
             )
 
             # Publish compliance update
@@ -543,7 +565,9 @@ class FertilizerIntegration:
                 assessment_data=asdict(report),
             )
 
-            self.logger.info(f"Input management report generated: {report.compliance_status}")
+            self.logger.info(
+                f"Input management report generated: {report.compliance_status}"
+            )
             return report
 
         except Exception as e:
@@ -573,7 +597,7 @@ class FertilizerIntegration:
         self,
         crop_type: str,
         target_yield_kg_per_ha: float,
-        soil_test: Optional[SoilTest]
+        soil_test: Optional[SoilTest],
     ) -> Dict[str, float]:
         """حساب احتياجات المغذيات - Calculate nutrient requirements"""
         # Simplified calculation - should use crop-specific coefficients
@@ -598,7 +622,7 @@ class FertilizerIntegration:
         self,
         crop_type: str,
         nutrient_requirements: Dict[str, float],
-        soil_test: Optional[SoilTest]
+        soil_test: Optional[SoilTest],
     ) -> List[Dict[str, Any]]:
         """إنشاء جدول التطبيق - Generate application schedule"""
         # Simplified schedule - split into 3 applications
@@ -630,7 +654,9 @@ class FertilizerIntegration:
             },
         ]
 
-    def _validate_nutrient_balance(self, nutrient_requirements: Dict[str, float]) -> bool:
+    def _validate_nutrient_balance(
+        self, nutrient_requirements: Dict[str, float]
+    ) -> bool:
         """التحقق من توازن المغذيات - Validate nutrient balance"""
         n = nutrient_requirements["N"]
         p = nutrient_requirements["P"]
@@ -646,7 +672,9 @@ class FertilizerIntegration:
         # Reasonable ranges for most crops
         return 2 <= n_p_ratio <= 10 and 0.5 <= n_k_ratio <= 3
 
-    def _estimate_heavy_metal_content(self, application: FertilizerApplication) -> Dict[str, float]:
+    def _estimate_heavy_metal_content(
+        self, application: FertilizerApplication
+    ) -> Dict[str, float]:
         """تقدير محتوى المعادن الثقيلة - Estimate heavy metal content"""
         # This should use actual lab data or regulatory limits
         # Placeholder estimates for organic fertilizers
@@ -675,27 +703,31 @@ class FertilizerIntegration:
         applications: List[FertilizerApplication],
         total_n: float,
         total_p: float,
-        total_k: float
+        total_k: float,
     ) -> List[str]:
         """إنشاء توصيات إدارة المدخلات - Generate input management recommendations"""
         recommendations = []
 
         # Check NPK balance
         if total_n > total_p * 5:
-            recommendations.append("Nitrogen application is high relative to phosphorus - consider balancing")
+            recommendations.append(
+                "Nitrogen application is high relative to phosphorus - consider balancing"
+            )
 
         # Check organic matter
         organic_count = sum(
             1 for app in applications if app.fertilizer_type == FertilizerType.ORGANIC
         )
         if organic_count == 0:
-            recommendations.append("Consider incorporating organic fertilizers to improve soil health")
+            recommendations.append(
+                "Consider incorporating organic fertilizers to improve soil health"
+            )
 
         # Check calibration
-        uncalibrated = sum(
-            1 for app in applications if not app.equipment_calibrated
-        )
+        uncalibrated = sum(1 for app in applications if not app.equipment_calibrated)
         if uncalibrated > 0:
-            recommendations.append(f"Calibrate application equipment - {uncalibrated} applications used uncalibrated equipment")
+            recommendations.append(
+                f"Calibrate application equipment - {uncalibrated} applications used uncalibrated equipment"
+            )
 
         return recommendations

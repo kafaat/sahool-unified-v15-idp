@@ -24,11 +24,20 @@ logger = logging.getLogger(__name__)
 try:
     from sendgrid import SendGridAPIClient
     from sendgrid.helpers.mail import (
-        Mail, Email, To, Content, Subject,
-        Personalization, Attachment, FileContent,
-        FileName, FileType, Disposition
+        Mail,
+        Email,
+        To,
+        Content,
+        Subject,
+        Personalization,
+        Attachment,
+        FileContent,
+        FileName,
+        FileType,
+        Disposition,
     )
     from python_http_client.exceptions import HTTPError
+
     _SENDGRID_AVAILABLE = True
 except ImportError:
     _SENDGRID_AVAILABLE = False
@@ -38,6 +47,7 @@ except ImportError:
 @dataclass
 class EmailMessage:
     """رسالة بريد إلكتروني - Email Message"""
+
     to: str  # Recipient email
     subject: str  # Subject line
     body: str  # Plain text or HTML content
@@ -114,7 +124,9 @@ class EmailClient:
             if not from_email:
                 from_email = os.getenv("SENDGRID_FROM_EMAIL")
             if not from_name:
-                from_name = os.getenv("SENDGRID_FROM_NAME", "SAHOOL Agriculture Platform")
+                from_name = os.getenv(
+                    "SENDGRID_FROM_NAME", "SAHOOL Agriculture Platform"
+                )
 
             # Validate credentials
             if not api_key:
@@ -131,7 +143,9 @@ class EmailClient:
             self._from_name = from_name
             self._initialized = True
 
-            logger.info(f"✅ Email client initialized successfully (from: {from_email})")
+            logger.info(
+                f"✅ Email client initialized successfully (from: {from_email})"
+            )
             return True
 
         except Exception as e:
@@ -192,7 +206,7 @@ class EmailClient:
                 body=body,
                 subject_ar=subject_ar,
                 body_ar=body_ar,
-                is_html=is_html
+                is_html=is_html,
             )
 
             email_subject = message.get_subject(language)
@@ -203,8 +217,10 @@ class EmailClient:
                 from_email=Email(self._from_email, self._from_name),
                 to_emails=To(to),
                 subject=Subject(email_subject),
-                plain_text_content=Content("text/plain", email_body) if not is_html else None,
-                html_content=Content("text/html", email_body) if is_html else None
+                plain_text_content=(
+                    Content("text/plain", email_body) if not is_html else None
+                ),
+                html_content=Content("text/html", email_body) if is_html else None,
             )
 
             # Add CC
@@ -231,16 +247,15 @@ class EmailClient:
                     attachment = Attachment(
                         FileContent(attachment_data.get("content")),
                         FileName(attachment_data.get("filename")),
-                        FileType(attachment_data.get("type", "application/octet-stream")),
-                        Disposition(attachment_data.get("disposition", "attachment"))
+                        FileType(
+                            attachment_data.get("type", "application/octet-stream")
+                        ),
+                        Disposition(attachment_data.get("disposition", "attachment")),
                     )
                     mail.add_attachment(attachment)
 
             # Send email via SendGrid (async wrapper)
-            response = await asyncio.to_thread(
-                self._send_sync,
-                mail=mail
-            )
+            response = await asyncio.to_thread(self._send_sync, mail=mail)
 
             if response:
                 logger.info(f"📧 Email sent successfully to {to}: {response}")
@@ -261,10 +276,12 @@ class EmailClient:
             # Check response status
             if response.status_code >= 200 and response.status_code < 300:
                 # Extract message ID from headers
-                message_id = response.headers.get('X-Message-Id', 'unknown')
+                message_id = response.headers.get("X-Message-Id", "unknown")
                 return message_id
             else:
-                logger.error(f"SendGrid error: {response.status_code} - {response.body}")
+                logger.error(
+                    f"SendGrid error: {response.status_code} - {response.body}"
+                )
                 return None
 
         except HTTPError as e:
@@ -314,7 +331,7 @@ class EmailClient:
                 subject_ar=subject_ar,
                 body_ar=body_ar,
                 language=language,
-                is_html=is_html
+                is_html=is_html,
             )
 
             if result:
@@ -322,7 +339,9 @@ class EmailClient:
                 results.append({"to": recipient, "success": True, "message_id": result})
             else:
                 failure_count += 1
-                results.append({"to": recipient, "success": False, "error": "Failed to send"})
+                results.append(
+                    {"to": recipient, "success": False, "error": "Failed to send"}
+                )
 
         logger.info(
             f"📧 Bulk email sent: {success_count} successful, "
@@ -342,7 +361,7 @@ class EmailClient:
         body: str,
         max_retries: int = 3,
         retry_delay: int = 5,
-        **kwargs
+        **kwargs,
     ) -> Optional[str]:
         """
         إرسال بريد مع إعادة المحاولة
@@ -395,8 +414,7 @@ class EmailClient:
         try:
             # Build email with template
             mail = Mail(
-                from_email=Email(self._from_email, self._from_name),
-                to_emails=To(to)
+                from_email=Email(self._from_email, self._from_name), to_emails=To(to)
             )
 
             # Set template ID
@@ -414,10 +432,7 @@ class EmailClient:
             mail.add_personalization(personalization)
 
             # Send email
-            response = await asyncio.to_thread(
-                self._send_sync,
-                mail=mail
-            )
+            response = await asyncio.to_thread(self._send_sync, mail=mail)
 
             if response:
                 logger.info(f"📧 Template email sent to {to}: {response}")
@@ -441,10 +456,10 @@ class EmailClient:
             True if valid format
         """
         # Basic validation
-        if '@' not in email:
+        if "@" not in email:
             return False
 
-        parts = email.split('@')
+        parts = email.split("@")
         if len(parts) != 2:
             return False
 
@@ -452,7 +467,7 @@ class EmailClient:
         if not local or not domain:
             return False
 
-        if '.' not in domain:
+        if "." not in domain:
             return False
 
         return True

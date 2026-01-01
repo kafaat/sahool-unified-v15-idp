@@ -28,9 +28,9 @@ def sample_observation_data():
             "ndre": 0.25,
             "lci": 0.30,
             "ndwi": -0.05,
-            "savi": 0.65
+            "savi": 0.65,
         },
-        "cloud_pct": 5.0
+        "cloud_pct": 5.0,
     }
 
 
@@ -63,8 +63,8 @@ class TestZoneManagement:
             "area_hectares": 5.5,
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
-            }
+                "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+            },
         }
 
         response = client.post("/api/v1/fields/test_field/zones", json=zone_data)
@@ -95,7 +95,7 @@ class TestObservationsIngest:
         """Test successful observation ingestion"""
         response = client.post(
             "/api/v1/fields/test_field/zones/test_zone/observations",
-            json=sample_observation_data
+            json=sample_observation_data,
         )
 
         assert response.status_code == 200
@@ -117,13 +117,12 @@ class TestObservationsIngest:
                 "ndre": 0.25,
                 "lci": 0.30,
                 "ndwi": -0.05,
-                "savi": 0.65
-            }
+                "savi": 0.65,
+            },
         }
 
         response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations",
-            json=invalid_data
+            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
         )
 
         assert response.status_code == 422  # Validation error
@@ -133,7 +132,7 @@ class TestObservationsIngest:
         # First, create an observation
         client.post(
             "/api/v1/fields/test_field2/zones/test_zone2/observations",
-            json=sample_observation_data
+            json=sample_observation_data,
         )
 
         # Then list observations
@@ -154,8 +153,7 @@ class TestFieldDiagnosis:
     def test_get_field_diagnosis(self, client):
         """Test getting field diagnosis"""
         response = client.get(
-            "/api/v1/fields/field_demo/diagnosis",
-            params={"date": "2025-12-14"}
+            "/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"}
         )
 
         assert response.status_code == 200
@@ -168,8 +166,7 @@ class TestFieldDiagnosis:
     def test_diagnosis_summary_structure(self, client):
         """Test diagnosis summary structure"""
         response = client.get(
-            "/api/v1/fields/field_demo/diagnosis",
-            params={"date": "2025-12-14"}
+            "/api/v1/fields/field_demo/diagnosis", params={"date": "2025-12-14"}
         )
 
         summary = response.json()["summary"]
@@ -181,8 +178,7 @@ class TestFieldDiagnosis:
     def test_diagnosis_invalid_date(self, client):
         """Test diagnosis with invalid date format"""
         response = client.get(
-            "/api/v1/fields/field_demo/diagnosis",
-            params={"date": "invalid-date"}
+            "/api/v1/fields/field_demo/diagnosis", params={"date": "invalid-date"}
         )
 
         assert response.status_code == 400
@@ -190,8 +186,7 @@ class TestFieldDiagnosis:
     def test_diagnosis_nonexistent_field(self, client):
         """Test diagnosis for non-existent field"""
         response = client.get(
-            "/api/v1/fields/nonexistent/diagnosis",
-            params={"date": "2025-12-14"}
+            "/api/v1/fields/nonexistent/diagnosis", params={"date": "2025-12-14"}
         )
 
         assert response.status_code == 404
@@ -204,10 +199,7 @@ class TestTimeline:
         """Test getting zone timeline"""
         response = client.get(
             "/api/v1/fields/field_demo/zones/zone_a/timeline",
-            params={
-                "from": "2025-12-01",
-                "to": "2025-12-31"
-            }
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
 
         assert response.status_code == 200
@@ -220,10 +212,7 @@ class TestTimeline:
         """Test timeline with invalid date range"""
         response = client.get(
             "/api/v1/fields/field_demo/zones/zone_a/timeline",
-            params={
-                "from": "invalid-date",
-                "to": "2025-12-31"
-            }
+            params={"from": "invalid-date", "to": "2025-12-31"},
         )
 
         assert response.status_code == 400
@@ -232,10 +221,7 @@ class TestTimeline:
         """Test timeline for zone with no observations"""
         response = client.get(
             "/api/v1/fields/empty_field/zones/empty_zone/timeline",
-            params={
-                "from": "2025-12-01",
-                "to": "2025-12-31"
-            }
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
 
         assert response.status_code == 200
@@ -249,8 +235,7 @@ class TestVRTExport:
     def test_export_vrt(self, client):
         """Test VRT export"""
         response = client.get(
-            "/api/v1/fields/field_demo/vrt",
-            params={"date": "2025-12-14"}
+            "/api/v1/fields/field_demo/vrt", params={"date": "2025-12-14"}
         )
 
         assert response.status_code == 200
@@ -263,10 +248,7 @@ class TestVRTExport:
         """Test VRT export with action type filter"""
         response = client.get(
             "/api/v1/fields/field_demo/vrt",
-            params={
-                "date": "2025-12-14",
-                "action_type": "irrigation"
-            }
+            params={"date": "2025-12-14", "action_type": "irrigation"},
         )
 
         assert response.status_code == 200
@@ -276,8 +258,7 @@ class TestVRTExport:
     def test_vrt_export_metadata(self, client):
         """Test VRT export metadata structure"""
         response = client.get(
-            "/api/v1/fields/field_demo/vrt",
-            params={"date": "2025-12-14"}
+            "/api/v1/fields/field_demo/vrt", params={"date": "2025-12-14"}
         )
 
         metadata = response.json()["metadata"]
@@ -295,7 +276,7 @@ class TestQuickDiagnose:
         response = client.post(
             "/api/v1/diagnose",
             json=sample_observation_data,
-            params={"zone_id": "temp_zone"}
+            params={"zone_id": "temp_zone"},
         )
 
         assert response.status_code == 200
@@ -317,8 +298,8 @@ class TestQuickDiagnose:
                 "ndre": 0.15,
                 "lci": 0.12,
                 "ndwi": -0.20,  # Very low water
-                "savi": 0.30
-            }
+                "savi": 0.30,
+            },
         }
 
         response = client.post("/api/v1/diagnose", json=critical_data)
@@ -335,21 +316,19 @@ class TestDecisionEngine:
 
     def test_healthy_zone_diagnosis(self):
         """Test diagnosis of healthy zone"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import (
+            Indices,
+            ZoneObservation,
+            GrowthStage,
+            diagnose_zone,
+        )
 
         indices = Indices(
-            ndvi=0.80,
-            evi=0.70,
-            ndre=0.30,
-            lci=0.35,
-            ndwi=0.05,
-            savi=0.70
+            ndvi=0.80, evi=0.70, ndre=0.30, lci=0.35, ndwi=0.05, savi=0.70
         )
 
         obs = ZoneObservation(
-            zone_id="test_zone",
-            growth_stage=GrowthStage.MID,
-            indices=indices
+            zone_id="test_zone", growth_stage=GrowthStage.MID, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -360,7 +339,12 @@ class TestDecisionEngine:
 
     def test_stressed_zone_diagnosis(self):
         """Test diagnosis of stressed zone"""
-        from src.decision_engine import Indices, ZoneObservation, GrowthStage, diagnose_zone
+        from src.decision_engine import (
+            Indices,
+            ZoneObservation,
+            GrowthStage,
+            diagnose_zone,
+        )
 
         indices = Indices(
             ndvi=0.40,  # Low
@@ -368,13 +352,11 @@ class TestDecisionEngine:
             ndre=0.15,
             lci=0.12,
             ndwi=-0.15,  # Water stress
-            savi=0.35
+            savi=0.35,
         )
 
         obs = ZoneObservation(
-            zone_id="stressed_zone",
-            growth_stage=GrowthStage.MID,
-            indices=indices
+            zone_id="stressed_zone", growth_stage=GrowthStage.MID, indices=indices
         )
 
         actions = diagnose_zone(obs)
@@ -414,8 +396,8 @@ class TestCompleteWorkflow:
             json={
                 "name": "Integration Test Zone",
                 "name_ar": "منطقة اختبار التكامل",
-                "area_hectares": 10.0
-            }
+                "area_hectares": 10.0,
+            },
         )
         assert zone_response.status_code == 200
         zone_id = zone_response.json()["zone_id"]
@@ -423,30 +405,25 @@ class TestCompleteWorkflow:
         # Step 2: Ingest observation
         obs_response = client.post(
             f"/api/v1/fields/{field_id}/zones/{zone_id}/observations",
-            json=sample_observation_data
+            json=sample_observation_data,
         )
         assert obs_response.status_code == 200
 
         # Step 3: Get diagnosis
         diagnosis_response = client.get(
-            f"/api/v1/fields/{field_id}/diagnosis",
-            params={"date": "2025-12-27"}
+            f"/api/v1/fields/{field_id}/diagnosis", params={"date": "2025-12-27"}
         )
         assert diagnosis_response.status_code == 200
 
         # Step 4: Get timeline
         timeline_response = client.get(
             f"/api/v1/fields/{field_id}/zones/{zone_id}/timeline",
-            params={
-                "from": "2025-12-01",
-                "to": "2025-12-31"
-            }
+            params={"from": "2025-12-01", "to": "2025-12-31"},
         )
         assert timeline_response.status_code == 200
 
         # Step 5: Export VRT
         vrt_response = client.get(
-            f"/api/v1/fields/{field_id}/vrt",
-            params={"date": "2025-12-27"}
+            f"/api/v1/fields/{field_id}/vrt", params={"date": "2025-12-27"}
         )
         assert vrt_response.status_code == 200

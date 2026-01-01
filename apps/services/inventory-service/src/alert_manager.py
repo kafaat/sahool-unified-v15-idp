@@ -40,6 +40,7 @@ class AlertStatus(Enum):
 @dataclass
 class InventoryAlert:
     """Inventory alert data structure"""
+
     id: str
     alert_type: AlertType
     priority: AlertPriority
@@ -94,12 +95,16 @@ class InventoryAlert:
             "recommended_action_ar": self.recommended_action_ar,
             "action_url": self.action_url,
             "created_at": self.created_at.isoformat(),
-            "acknowledged_at": self.acknowledged_at.isoformat() if self.acknowledged_at else None,
+            "acknowledged_at": (
+                self.acknowledged_at.isoformat() if self.acknowledged_at else None
+            ),
             "acknowledged_by": self.acknowledged_by,
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
             "resolved_by": self.resolved_by,
             "resolution_notes": self.resolution_notes,
-            "snooze_until": self.snooze_until.isoformat() if self.snooze_until else None,
+            "snooze_until": (
+                self.snooze_until.isoformat() if self.snooze_until else None
+            ),
         }
 
 
@@ -170,10 +175,7 @@ class AlertManager:
                     priority_ar = "حرج"
 
                 # Check if alert already exists
-                existing_alert = self._find_existing_alert(
-                    item_id,
-                    AlertType.LOW_STOCK
-                )
+                existing_alert = self._find_existing_alert(item_id, AlertType.LOW_STOCK)
 
                 if existing_alert and existing_alert.status == AlertStatus.ACTIVE:
                     # Update priority if changed
@@ -199,7 +201,7 @@ class AlertManager:
                     threshold_value=reorder_level,
                     recommended_action_en=f"Order at least {int(reorder_level - quantity)} {item.get('unit', 'units')} to reach minimum stock level",
                     recommended_action_ar=f"اطلب على الأقل {int(reorder_level - quantity)} {item.get('unit', 'وحدة')} للوصول إلى الحد الأدنى للمخزون",
-                    action_url=f"/inventory/{item_id}/reorder"
+                    action_url=f"/inventory/{item_id}/reorder",
                 )
 
                 self.alerts_db[alert.id] = alert
@@ -218,8 +220,7 @@ class AlertManager:
             if quantity <= 0:
                 # Check if alert already exists
                 existing_alert = self._find_existing_alert(
-                    item_id,
-                    AlertType.OUT_OF_STOCK
+                    item_id, AlertType.OUT_OF_STOCK
                 )
 
                 if existing_alert and existing_alert.status == AlertStatus.ACTIVE:
@@ -242,7 +243,7 @@ class AlertManager:
                     threshold_value=item.get("reorder_level", 0),
                     recommended_action_en="Place urgent order to restock this item",
                     recommended_action_ar="قم بطلب عاجل لإعادة تخزين هذا الصنف",
-                    action_url=f"/inventory/{item_id}/reorder"
+                    action_url=f"/inventory/{item_id}/reorder",
                 )
 
                 self.alerts_db[alert.id] = alert
@@ -252,9 +253,7 @@ class AlertManager:
         return alerts
 
     async def check_expiring_items(
-        self,
-        warning_days: int = 30,
-        critical_days: int = 7
+        self, warning_days: int = 30, critical_days: int = 7
     ) -> List[InventoryAlert]:
         """
         Check items expiring soon.
@@ -273,7 +272,9 @@ class AlertManager:
 
             # Parse expiry date
             if isinstance(expiry_date_str, str):
-                expiry_date = datetime.fromisoformat(expiry_date_str.replace('Z', '+00:00')).date()
+                expiry_date = datetime.fromisoformat(
+                    expiry_date_str.replace("Z", "+00:00")
+                ).date()
             elif isinstance(expiry_date_str, datetime):
                 expiry_date = expiry_date_str.date()
             elif isinstance(expiry_date_str, date):
@@ -293,7 +294,9 @@ class AlertManager:
                 message_en = f"This item expired {abs(days_until_expiry)} day(s) ago. Remove from inventory immediately."
                 message_ar = f"انتهت صلاحية هذا الصنف منذ {abs(days_until_expiry)} يوم. قم بإزالته من المخزون فوراً."
                 action_en = "Remove expired item from inventory and dispose safely"
-                action_ar = "قم بإزالة الصنف المنتهي الصلاحية من المخزون والتخلص منه بشكل آمن"
+                action_ar = (
+                    "قم بإزالة الصنف المنتهي الصلاحية من المخزون والتخلص منه بشكل آمن"
+                )
             elif days_until_expiry <= critical_days:
                 # Critical warning
                 alert_type = AlertType.EXPIRING_SOON
@@ -302,7 +305,9 @@ class AlertManager:
                 title_ar = f"ينتهي قريبا: {item.get('name_ar', 'غير معروف')}"
                 message_en = f"This item expires in {days_until_expiry} day(s). Use or discount immediately."
                 message_ar = f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. استخدمه أو قدم خصم فوراً."
-                action_en = f"Use item within {days_until_expiry} days or offer discount"
+                action_en = (
+                    f"Use item within {days_until_expiry} days or offer discount"
+                )
                 action_ar = f"استخدم الصنف خلال {days_until_expiry} يوم أو قدم خصم"
             elif days_until_expiry <= warning_days:
                 # Warning
@@ -319,10 +324,7 @@ class AlertManager:
                 continue
 
             # Check if alert already exists
-            existing_alert = self._find_existing_alert(
-                item_id,
-                alert_type
-            )
+            existing_alert = self._find_existing_alert(item_id, alert_type)
 
             if existing_alert and existing_alert.status == AlertStatus.ACTIVE:
                 # Update priority if changed
@@ -350,7 +352,7 @@ class AlertManager:
                 threshold_value=float(critical_days),
                 recommended_action_en=action_en,
                 recommended_action_ar=action_ar,
-                action_url=f"/inventory/{item_id}"
+                action_url=f"/inventory/{item_id}",
             )
 
             self.alerts_db[alert.id] = alert
@@ -378,8 +380,7 @@ class AlertManager:
 
                 # Check if alert already exists
                 existing_alert = self._find_existing_alert(
-                    item_id,
-                    AlertType.REORDER_POINT
+                    item_id, AlertType.REORDER_POINT
                 )
 
                 if existing_alert and existing_alert.status == AlertStatus.ACTIVE:
@@ -402,7 +403,7 @@ class AlertManager:
                     threshold_value=reorder_point,
                     recommended_action_en=f"Order {int(order_quantity)} {item.get('unit', 'units')} to reach optimal stock level",
                     recommended_action_ar=f"اطلب {int(order_quantity)} {item.get('unit', 'وحدة')} للوصول للمستوى الأمثل للمخزون",
-                    action_url=f"/inventory/{item_id}/reorder"
+                    action_url=f"/inventory/{item_id}/reorder",
                 )
 
                 self.alerts_db[alert.id] = alert
@@ -430,24 +431,28 @@ class AlertManager:
 
                 if min_temp is not None and current_temp < min_temp:
                     alert = self._create_storage_alert(
-                        item_id, item,
+                        item_id,
+                        item,
                         "Temperature Too Low",
                         "درجة الحرارة منخفضة جدا",
                         f"Current temperature ({current_temp}°C) is below minimum ({min_temp}°C)",
                         f"درجة الحرارة الحالية ({current_temp}°م) أقل من الحد الأدنى ({min_temp}°م)",
-                        current_temp, min_temp
+                        current_temp,
+                        min_temp,
                     )
                     self.alerts_db[alert.id] = alert
                     alerts.append(alert)
 
                 elif max_temp is not None and current_temp > max_temp:
                     alert = self._create_storage_alert(
-                        item_id, item,
+                        item_id,
+                        item,
                         "Temperature Too High",
                         "درجة الحرارة مرتفعة جدا",
                         f"Current temperature ({current_temp}°C) exceeds maximum ({max_temp}°C)",
                         f"درجة الحرارة الحالية ({current_temp}°م) تتجاوز الحد الأقصى ({max_temp}°م)",
-                        current_temp, max_temp
+                        current_temp,
+                        max_temp,
                     )
                     self.alerts_db[alert.id] = alert
                     alerts.append(alert)
@@ -459,24 +464,28 @@ class AlertManager:
 
                 if min_humidity is not None and current_humidity < min_humidity:
                     alert = self._create_storage_alert(
-                        item_id, item,
+                        item_id,
+                        item,
                         "Humidity Too Low",
                         "الرطوبة منخفضة جدا",
                         f"Current humidity ({current_humidity}%) is below minimum ({min_humidity}%)",
                         f"الرطوبة الحالية ({current_humidity}%) أقل من الحد الأدنى ({min_humidity}%)",
-                        current_humidity, min_humidity
+                        current_humidity,
+                        min_humidity,
                     )
                     self.alerts_db[alert.id] = alert
                     alerts.append(alert)
 
                 elif max_humidity is not None and current_humidity > max_humidity:
                     alert = self._create_storage_alert(
-                        item_id, item,
+                        item_id,
+                        item,
                         "Humidity Too High",
                         "الرطوبة مرتفعة جدا",
                         f"Current humidity ({current_humidity}%) exceeds maximum ({max_humidity}%)",
                         f"الرطوبة الحالية ({current_humidity}%) تتجاوز الحد الأقصى ({max_humidity}%)",
-                        current_humidity, max_humidity
+                        current_humidity,
+                        max_humidity,
                     )
                     self.alerts_db[alert.id] = alert
                     alerts.append(alert)
@@ -493,7 +502,7 @@ class AlertManager:
         message_en: str,
         message_ar: str,
         current_value: float,
-        threshold_value: float
+        threshold_value: float,
     ) -> InventoryAlert:
         """Helper to create storage condition alert"""
         return InventoryAlert(
@@ -512,13 +521,13 @@ class AlertManager:
             threshold_value=threshold_value,
             recommended_action_en="Adjust storage conditions immediately to prevent spoilage",
             recommended_action_ar="اضبط ظروف التخزين فورا لمنع التلف",
-            action_url=f"/inventory/{item_id}/storage"
+            action_url=f"/inventory/{item_id}/storage",
         )
 
     async def get_active_alerts(
         self,
         priority: Optional[AlertPriority] = None,
-        alert_type: Optional[AlertType] = None
+        alert_type: Optional[AlertType] = None,
     ) -> List[InventoryAlert]:
         """Get all active alerts"""
         now = datetime.now(timezone.utc)
@@ -548,16 +557,14 @@ class AlertManager:
             AlertPriority.CRITICAL: 0,
             AlertPriority.HIGH: 1,
             AlertPriority.MEDIUM: 2,
-            AlertPriority.LOW: 3
+            AlertPriority.LOW: 3,
         }
         alerts.sort(key=lambda a: (priority_order.get(a.priority, 99), a.created_at))
 
         return alerts
 
     async def acknowledge_alert(
-        self,
-        alert_id: str,
-        acknowledged_by: str
+        self, alert_id: str, acknowledged_by: str
     ) -> Optional[InventoryAlert]:
         """Acknowledge an alert"""
         alert = self.alerts_db.get(alert_id)
@@ -572,10 +579,7 @@ class AlertManager:
         return alert
 
     async def resolve_alert(
-        self,
-        alert_id: str,
-        resolved_by: str,
-        resolution_notes: Optional[str] = None
+        self, alert_id: str, resolved_by: str, resolution_notes: Optional[str] = None
     ) -> Optional[InventoryAlert]:
         """Mark alert as resolved"""
         alert = self.alerts_db.get(alert_id)
@@ -591,9 +595,7 @@ class AlertManager:
         return alert
 
     async def snooze_alert(
-        self,
-        alert_id: str,
-        snooze_hours: int = 24
+        self, alert_id: str, snooze_hours: int = 24
     ) -> Optional[InventoryAlert]:
         """Snooze alert for N hours"""
         alert = self.alerts_db.get(alert_id)
@@ -616,12 +618,7 @@ class AlertManager:
         active_alerts = await self.get_active_alerts()
 
         # Count by priority
-        by_priority = {
-            "critical": 0,
-            "high": 0,
-            "medium": 0,
-            "low": 0
-        }
+        by_priority = {"critical": 0, "high": 0, "medium": 0, "low": 0}
 
         # Count by type
         by_type = {
@@ -631,7 +628,7 @@ class AlertManager:
             "expired": 0,
             "reorder_point": 0,
             "overstock": 0,
-            "storage_condition": 0
+            "storage_condition": 0,
         }
 
         for alert in active_alerts:
@@ -642,13 +639,11 @@ class AlertManager:
             "total_active": len(active_alerts),
             "by_priority": by_priority,
             "by_type": by_type,
-            "recent_alerts": [alert.to_dict() for alert in active_alerts[:5]]
+            "recent_alerts": [alert.to_dict() for alert in active_alerts[:5]],
         }
 
     async def send_notifications(
-        self,
-        alerts: List[InventoryAlert],
-        nats_client = None
+        self, alerts: List[InventoryAlert], nats_client=None
     ) -> Dict:
         """
         Send notifications via NATS to notification service.
@@ -678,15 +673,12 @@ class AlertManager:
                         "description_en": alert.message_en,
                         "description_ar": alert.message_ar,
                         "urgency": alert.priority.value,
-                        "action_url": alert.action_url
-                    }
+                        "action_url": alert.action_url,
+                    },
                 }
 
                 # Publish to NATS
-                await nats_client.publish(
-                    "sahool.alerts.inventory",
-                    notification_data
-                )
+                await nats_client.publish("sahool.alerts.inventory", notification_data)
 
                 sent += 1
                 logger.info(f"Notification sent for alert {alert.id}")
@@ -698,14 +690,14 @@ class AlertManager:
         return {"sent": sent, "failed": failed}
 
     def _find_existing_alert(
-        self,
-        item_id: str,
-        alert_type: AlertType
+        self, item_id: str, alert_type: AlertType
     ) -> Optional[InventoryAlert]:
         """Find existing active alert for item and type"""
         for alert in self.alerts_db.values():
-            if (alert.item_id == item_id and
-                alert.alert_type == alert_type and
-                alert.status == AlertStatus.ACTIVE):
+            if (
+                alert.item_id == item_id
+                and alert.alert_type == alert_type
+                and alert.status == AlertStatus.ACTIVE
+            ):
                 return alert
         return None

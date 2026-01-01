@@ -26,10 +26,10 @@ async def main():
 
     planner = CropRotationPlanner()
 
-    print("="*80)
+    print("=" * 80)
     print("SAHOOL Crop Rotation Planning - Example Usage")
     print("مثال على تخطيط تدوير المحاصيل في سهول")
-    print("="*80)
+    print("=" * 80)
     print()
 
     # ====================================================================
@@ -43,7 +43,7 @@ async def main():
         field_id="FIELD_001",
         field_name="حقل التجريب - Test Field",
         start_year=2025,
-        num_years=5
+        num_years=5,
     )
 
     print(f"Field: {plan.field_name}")
@@ -56,7 +56,9 @@ async def main():
 
     print("Planned Seasons:")
     for season in plan.seasons:
-        print(f"  {season.year} {season.season}: {season.crop_name_en} ({season.crop_name_ar}) - {season.crop_family.value}")
+        print(
+            f"  {season.year} {season.season}: {season.crop_name_en} ({season.crop_name_ar}) - {season.crop_family.value}"
+        )
     print()
 
     if plan.recommendations_en:
@@ -90,7 +92,7 @@ async def main():
             crop_family=CropFamily.CEREALS,
             planting_date=date(2022, 10, 1),
             harvest_date=date(2023, 3, 1),
-            expected_yield=2.5
+            expected_yield=2.5,
         ),
         SeasonPlan(
             season_id="FIELD_002_2023_winter",
@@ -102,7 +104,7 @@ async def main():
             crop_family=CropFamily.CEREALS,
             planting_date=date(2023, 10, 1),
             harvest_date=date(2024, 3, 1),
-            expected_yield=2.0
+            expected_yield=2.0,
         ),
         SeasonPlan(
             season_id="FIELD_002_2024_winter",
@@ -114,8 +116,8 @@ async def main():
             crop_family=CropFamily.CEREALS,
             planting_date=date(2024, 10, 1),
             harvest_date=date(2025, 3, 1),
-            expected_yield=3.0
-        )
+            expected_yield=3.0,
+        ),
     ]
 
     print("Field History (last 3 years):")
@@ -124,9 +126,7 @@ async def main():
     print()
 
     suggestions = await planner.suggest_next_crop(
-        field_id="FIELD_002",
-        history=history,
-        season="winter"
+        field_id="FIELD_002", history=history, season="winter"
     )
 
     print(f"Top 5 Crop Suggestions for Winter 2025:")
@@ -159,7 +159,7 @@ async def main():
             crop_code="WHEAT",
             crop_name_ar="قمح",
             crop_name_en="Wheat",
-            crop_family=CropFamily.CEREALS
+            crop_family=CropFamily.CEREALS,
         ),
         SeasonPlan(
             season_id="S2",
@@ -168,7 +168,7 @@ async def main():
             crop_code="FABA_BEAN",
             crop_name_ar="فول",
             crop_name_en="Faba Bean",
-            crop_family=CropFamily.LEGUMES
+            crop_family=CropFamily.LEGUMES,
         ),
         SeasonPlan(
             season_id="S3",
@@ -177,7 +177,7 @@ async def main():
             crop_code="TOMATO",
             crop_name_ar="طماطم",
             crop_name_en="Tomato",
-            crop_family=CropFamily.SOLANACEAE
+            crop_family=CropFamily.SOLANACEAE,
         ),
         SeasonPlan(
             season_id="S4",
@@ -186,7 +186,7 @@ async def main():
             crop_code="WHEAT",
             crop_name_ar="قمح",
             crop_name_en="Wheat",
-            crop_family=CropFamily.CEREALS
+            crop_family=CropFamily.CEREALS,
         ),
         SeasonPlan(
             season_id="S5",
@@ -195,8 +195,8 @@ async def main():
             crop_code="FALLOW",
             crop_name_ar="بور",
             crop_name_en="Fallow",
-            crop_family=CropFamily.FALLOW
-        )
+            crop_family=CropFamily.FALLOW,
+        ),
     ]
 
     print("Custom Rotation Plan:")
@@ -213,9 +213,9 @@ async def main():
     print(f"  Nitrogen Balance: {evaluation['nitrogen_balance']}")
     print()
 
-    if evaluation['recommendations_en']:
+    if evaluation["recommendations_en"]:
         print("Recommendations:")
-        for rec in evaluation['recommendations_en']:
+        for rec in evaluation["recommendations_en"]:
             print(f"  • {rec}")
     print()
 
@@ -235,13 +235,12 @@ async def main():
             crop_code="WHEAT",
             crop_name_ar="قمح",
             crop_name_en="Wheat",
-            crop_family=CropFamily.CEREALS
+            crop_family=CropFamily.CEREALS,
         )
     ]
 
     is_valid, messages = planner.check_rotation_rule(
-        CropFamily.SOLANACEAE,
-        test_history
+        CropFamily.SOLANACEAE, test_history
     )
 
     print("Test: Can we plant tomatoes (Solanaceae) after wheat?")
@@ -260,13 +259,12 @@ async def main():
             crop_code="TOMATO",
             crop_name_ar="طماطم",
             crop_name_en="Tomato",
-            crop_family=CropFamily.SOLANACEAE
+            crop_family=CropFamily.SOLANACEAE,
         )
     ]
 
     is_valid2, messages2 = planner.check_rotation_rule(
-        CropFamily.SOLANACEAE,
-        test_history2
+        CropFamily.SOLANACEAE, test_history2
     )
 
     print("Test: Can we plant tomatoes again immediately after tomatoes?")
@@ -290,13 +288,17 @@ async def main():
         print(f"  Nitrogen effect: {rule.nitrogen_effect}")
         print(f"  Root depth: {rule.root_depth}")
         print(f"  Nutrient demand: {rule.nutrient_demand}")
-        print(f"  Good predecessors: {', '.join(f.value for f in rule.good_predecessors)}")
-        print(f"  Bad predecessors: {', '.join(f.value for f in rule.bad_predecessors)}")
+        print(
+            f"  Good predecessors: {', '.join(f.value for f in rule.good_predecessors)}"
+        )
+        print(
+            f"  Bad predecessors: {', '.join(f.value for f in rule.bad_predecessors)}"
+        )
         print()
 
-    print("="*80)
+    print("=" * 80)
     print("Examples completed successfully!")
-    print("="*80)
+    print("=" * 80)
 
 
 if __name__ == "__main__":

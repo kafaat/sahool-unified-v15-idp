@@ -31,14 +31,17 @@ logger = logging.getLogger(__name__)
 # Request/Response Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class LoginRequest(BaseModel):
     """Login request schema"""
+
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., min_length=8, description="User password")
 
 
 class RegisterRequest(BaseModel):
     """Registration request schema"""
+
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., min_length=8, description="User password")
     full_name: str = Field(..., min_length=2, max_length=100, description="Full name")
@@ -47,22 +50,26 @@ class RegisterRequest(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     """Forgot password request schema"""
+
     email: EmailStr = Field(..., description="User email address")
 
 
 class ResetPasswordRequest(BaseModel):
     """Reset password request schema"""
+
     token: str = Field(..., description="Password reset token")
     new_password: str = Field(..., min_length=8, description="New password")
 
 
 class RefreshTokenRequest(BaseModel):
     """Token refresh request schema"""
+
     refresh_token: str = Field(..., description="Refresh token")
 
 
 class AuthResponse(BaseModel):
     """Authentication response schema"""
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
@@ -71,6 +78,7 @@ class AuthResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     """Generic message response"""
+
     message: str
 
 
@@ -84,6 +92,7 @@ router = APIRouter()
 # ═══════════════════════════════════════════════════════════════════════════════
 # Authentication Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @router.post(
     "/login",
@@ -109,9 +118,18 @@ router = APIRouter()
         200: {
             "description": "Login successful",
             "headers": {
-                "X-RateLimit-Limit": {"description": "Request limit", "schema": {"type": "integer"}},
-                "X-RateLimit-Remaining": {"description": "Requests remaining", "schema": {"type": "integer"}},
-                "X-RateLimit-Reset": {"description": "Seconds until reset", "schema": {"type": "integer"}},
+                "X-RateLimit-Limit": {
+                    "description": "Request limit",
+                    "schema": {"type": "integer"},
+                },
+                "X-RateLimit-Remaining": {
+                    "description": "Requests remaining",
+                    "schema": {"type": "integer"},
+                },
+                "X-RateLimit-Reset": {
+                    "description": "Seconds until reset",
+                    "schema": {"type": "integer"},
+                },
             },
         },
         401: {"description": "Invalid credentials"},
@@ -122,10 +140,10 @@ router = APIRouter()
                     "example": {
                         "error": "rate_limit_exceeded",
                         "message": "Too many login attempts. Please try again later.",
-                        "retry_after": 45
+                        "retry_after": 45,
                     }
                 }
-            }
+            },
         },
     },
 )

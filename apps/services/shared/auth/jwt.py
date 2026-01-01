@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TokenData:
     """Decoded token data"""
+
     user_id: str
     email: Optional[str] = None
     tenant_id: Optional[str] = None
@@ -137,7 +138,9 @@ def verify_token(token: str, token_type: str = "access") -> bool:
     try:
         data = decode_token(token)
         if data.token_type != token_type:
-            logger.warning(f"Token type mismatch: expected {token_type}, got {data.token_type}")
+            logger.warning(
+                f"Token type mismatch: expected {token_type}, got {data.token_type}"
+            )
             return False
         return True
     except Exception:
@@ -152,8 +155,8 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
     config = get_auth_config()
 
     # Expected issuer and audience for SAHOOL platform
-    expected_issuer = getattr(config, 'issuer', 'sahool-auth')
-    expected_audience = getattr(config, 'audience', 'sahool-api')
+    expected_issuer = getattr(config, "issuer", "sahool-auth")
+    expected_audience = getattr(config, "audience", "sahool-api")
 
     try:
         # Build decode options with security validations

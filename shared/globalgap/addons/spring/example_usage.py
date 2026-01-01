@@ -52,6 +52,7 @@ from spring_integration import (
 
 # ==================== EXAMPLE 1: Define Water Sources ====================
 
+
 def example_1_water_sources():
     """
     Example 1: Define farm water sources with permits
@@ -100,6 +101,7 @@ def example_1_water_sources():
 
 
 # ==================== EXAMPLE 2: Record Water Usage ====================
+
 
 def example_2_water_usage():
     """
@@ -153,6 +155,7 @@ def example_2_water_usage():
 
 # ==================== EXAMPLE 3: Water Quality Testing ====================
 
+
 def example_3_water_quality():
     """
     Example 3: Record water quality test results
@@ -185,12 +188,15 @@ def example_3_water_quality():
     print(f"  EC: {quality_test.ec_ds_per_m} dS/m")
     print(f"  Salinity: {quality_test.salinity_ppm} ppm")
     print(f"  Status: {quality_test.quality_status.value}")
-    print(f"  Meets Standards: {'✓' if quality_test.meets_irrigation_standards else '✗'}")
+    print(
+        f"  Meets Standards: {'✓' if quality_test.meets_irrigation_standards else '✗'}"
+    )
 
     return [quality_test]
 
 
 # ==================== EXAMPLE 4: Calculate Irrigation Efficiency ====================
+
 
 def example_4_irrigation_efficiency():
     """
@@ -220,7 +226,9 @@ def example_4_irrigation_efficiency():
         notes="High efficiency achieved with drip irrigation and precision scheduling",
     )
 
-    level_en, level_ar = classify_water_efficiency(efficiency.application_efficiency_percent)
+    level_en, level_ar = classify_water_efficiency(
+        efficiency.application_efficiency_percent
+    )
 
     print(f"\nEfficiency Assessment: {efficiency.efficiency_id}")
     print(f"  Application Efficiency: {efficiency.application_efficiency_percent}%")
@@ -232,6 +240,7 @@ def example_4_irrigation_efficiency():
 
 
 # ==================== EXAMPLE 5: Calculate Water Balance ====================
+
 
 def example_5_water_balance():
     """
@@ -285,6 +294,7 @@ def example_5_water_balance():
 
 # ==================== EXAMPLE 6: Calculate Water Footprint ====================
 
+
 def example_6_water_footprint():
     """
     Example 6: Calculate water footprint for tomato production
@@ -321,6 +331,7 @@ def example_6_water_footprint():
 
 # ==================== EXAMPLE 7: Generate Alerts ====================
 
+
 def example_7_generate_alerts(sources, usage_records):
     """
     Example 7: Generate water usage alerts
@@ -354,7 +365,10 @@ def example_7_generate_alerts(sources, usage_records):
 
 # ==================== EXAMPLE 8: Generate SPRING Report ====================
 
-def example_8_generate_report(balance, sources, usage_records, quality_tests, efficiency_records):
+
+def example_8_generate_report(
+    balance, sources, usage_records, quality_tests, efficiency_records
+):
     """
     Example 8: Generate complete SPRING compliance report
     مثال 8: إنشاء تقرير امتثال SPRING كامل
@@ -366,11 +380,22 @@ def example_8_generate_report(balance, sources, usage_records, quality_tests, ef
 
     # Define compliant items (for demo, marking all mandatory as compliant)
     compliant_items = [
-        "WS.01", "WS.02", "WE.01", "WE.02", "WE.03",
-        "IS.01", "IS.02", "IS.03",
-        "WQ.01", "WQ.02", "WQ.03",
-        "LC.01", "LC.02",
-        "MR.01", "MR.02", "MR.03",
+        "WS.01",
+        "WS.02",
+        "WE.01",
+        "WE.02",
+        "WE.03",
+        "IS.01",
+        "IS.02",
+        "IS.03",
+        "WQ.01",
+        "WQ.02",
+        "WQ.03",
+        "LC.01",
+        "LC.02",
+        "MR.01",
+        "MR.02",
+        "MR.03",
     ]
 
     # Create efficiency score
@@ -417,7 +442,9 @@ def example_8_generate_report(balance, sources, usage_records, quality_tests, ef
     print(f"  Farm: {report.farm_name_en} / {report.farm_name_ar}")
     print(f"  Period: {report.report_period_start} to {report.report_period_end}")
     print(f"  Overall Score: {report.efficiency_score.overall_spring_score}")
-    print(f"  Compliance: {report.compliance_summary['overall_compliance_percentage']}%")
+    print(
+        f"  Compliance: {report.compliance_summary['overall_compliance_percentage']}%"
+    )
     print(f"  Sections: {len(report.sections)}")
     print(f"  Recommendations: {len(report.recommendations_en)}")
 
@@ -430,6 +457,7 @@ def example_8_generate_report(balance, sources, usage_records, quality_tests, ef
 
 
 # ==================== MAIN EXECUTION ====================
+
 
 def main():
     """Run all examples"""
@@ -446,7 +474,9 @@ def main():
     balance = example_5_water_balance()
     footprint = example_6_water_footprint()
     alerts = example_7_generate_alerts(sources, usage_records)
-    report = example_8_generate_report(balance, sources, usage_records, quality_tests, efficiency_records)
+    report = example_8_generate_report(
+        balance, sources, usage_records, quality_tests, efficiency_records
+    )
 
     print("\n" + "=" * 80)
     print("ALL EXAMPLES COMPLETED SUCCESSFULLY!")

@@ -18,6 +18,7 @@ class RoomType:
     Room type prefixes
     أنواع الغرف
     """
+
     FIELD = "field"
     FARM = "farm"
     USER = "user"
@@ -84,7 +85,7 @@ class RoomManager:
         websocket: WebSocket,
         user_id: str,
         tenant_id: str,
-        metadata: Optional[Dict] = None
+        metadata: Optional[Dict] = None,
     ):
         """
         Add a new WebSocket connection
@@ -96,7 +97,7 @@ class RoomManager:
             "user_id": user_id,
             "tenant_id": tenant_id,
             "connected_at": datetime.utcnow().isoformat(),
-            **(metadata or {})
+            **(metadata or {}),
         }
 
         # Auto-join tenant room
@@ -177,10 +178,7 @@ class RoomManager:
         return True
 
     async def broadcast_to_room(
-        self,
-        room_id: str,
-        message: Dict,
-        exclude_connection: Optional[str] = None
+        self, room_id: str, message: Dict, exclude_connection: Optional[str] = None
     ) -> int:
         """
         Broadcast message to all connections in a room
@@ -251,9 +249,8 @@ class RoomManager:
     def _is_persistent_room(self, room_id: str) -> bool:
         """Check if room should persist even when empty"""
         # Keep tenant and global rooms
-        return (
-            room_id.startswith(f"{RoomType.TENANT}:") or
-            room_id.startswith(f"{RoomType.GLOBAL}:")
+        return room_id.startswith(f"{RoomType.TENANT}:") or room_id.startswith(
+            f"{RoomType.GLOBAL}:"
         )
 
     def get_connection_metadata(self, connection_id: str) -> Optional[Dict]:

@@ -28,10 +28,8 @@ def upgrade() -> None:
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True),
         sa.Column("tenant_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("field_id", postgresql.UUID(as_uuid=True), nullable=False),
-
         # Observation date
         sa.Column("obs_date", sa.Date(), nullable=False),
-
         # NDVI values
         sa.Column("ndvi_mean", sa.Float(), nullable=False),
         sa.Column("ndvi_min", sa.Float(), nullable=True),
@@ -39,19 +37,17 @@ def upgrade() -> None:
         sa.Column("ndvi_std", sa.Float(), nullable=True),
         sa.Column("ndvi_p10", sa.Float(), nullable=True),
         sa.Column("ndvi_p90", sa.Float(), nullable=True),
-
         # Quality metrics
         sa.Column("cloud_coverage", sa.Float(), nullable=False, server_default="0"),
         sa.Column("confidence", sa.Float(), nullable=False, server_default="0"),
         sa.Column("pixel_count", sa.Integer(), nullable=True),
-
         # Source tracking
-        sa.Column("source", sa.String(length=80), nullable=False, server_default="sentinel2"),
+        sa.Column(
+            "source", sa.String(length=80), nullable=False, server_default="sentinel2"
+        ),
         sa.Column("scene_id", sa.String(length=200), nullable=True),
-
         # Metadata
         sa.Column("metadata_json", postgresql.JSONB(), nullable=True),
-
         # Timestamps
         sa.Column(
             "created_at",
@@ -65,7 +61,9 @@ def upgrade() -> None:
     op.create_index("ix_ndvi_field_date", "ndvi_observations", ["field_id", "obs_date"])
 
     # Tenant-wide queries
-    op.create_index("ix_ndvi_tenant_date", "ndvi_observations", ["tenant_id", "obs_date"])
+    op.create_index(
+        "ix_ndvi_tenant_date", "ndvi_observations", ["tenant_id", "obs_date"]
+    )
 
     # Source filtering
     op.create_index("ix_ndvi_source", "ndvi_observations", ["source"])
@@ -88,22 +86,21 @@ def upgrade() -> None:
         sa.Column("tenant_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("field_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column("observation_id", postgresql.UUID(as_uuid=True), nullable=True),
-
         # Alert details
         sa.Column("alert_type", sa.String(length=40), nullable=False),
-        sa.Column("severity", sa.String(length=20), nullable=False, server_default="medium"),
+        sa.Column(
+            "severity", sa.String(length=20), nullable=False, server_default="medium"
+        ),
         sa.Column("current_value", sa.Float(), nullable=False),
         sa.Column("threshold_value", sa.Float(), nullable=True),
         sa.Column("deviation_pct", sa.Float(), nullable=True),
         sa.Column("z_score", sa.Float(), nullable=True),
         sa.Column("message", sa.Text(), nullable=True),
         sa.Column("message_ar", sa.Text(), nullable=True),
-
         # Status tracking
         sa.Column("acknowledged", sa.Boolean(), nullable=False, server_default="false"),
         sa.Column("acknowledged_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("acknowledged_by", postgresql.UUID(as_uuid=True), nullable=True),
-
         # Timestamps
         sa.Column(
             "created_at",
@@ -120,7 +117,9 @@ def upgrade() -> None:
     op.create_index("ix_ndvi_alerts_tenant", "ndvi_alerts", ["tenant_id", "created_at"])
 
     # Unacknowledged alerts query
-    op.create_index("ix_ndvi_alerts_unacked", "ndvi_alerts", ["tenant_id", "acknowledged"])
+    op.create_index(
+        "ix_ndvi_alerts_unacked", "ndvi_alerts", ["tenant_id", "acknowledged"]
+    )
 
     # Foreign key to observations (optional, soft reference)
     # Not enforced to allow alert retention even if observation is deleted

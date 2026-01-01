@@ -21,15 +21,7 @@ pytest_plugins = []
 
 def pytest_configure(config):
     """Configure pytest with custom markers and settings."""
-    config.addinivalue_line(
-        "markers", "unit: Unit tests (fast, no I/O)"
-    )
-    config.addinivalue_line(
-        "markers", "integration: Integration tests (API, database)"
-    )
-    config.addinivalue_line(
-        "markers", "smoke: Smoke tests (import verification)"
-    )
-    config.addinivalue_line(
-        "markers", "slow: Slow running tests"
-    )
+    config.addinivalue_line("markers", "unit: Unit tests (fast, no I/O)")
+    config.addinivalue_line("markers", "integration: Integration tests (API, database)")
+    config.addinivalue_line("markers", "smoke: Smoke tests (import verification)")
+    config.addinivalue_line("markers", "slow: Slow running tests")

@@ -17,6 +17,7 @@ class ComplianceStatus(str, Enum):
     Compliance status enumeration
     تعداد حالات الامتثال
     """
+
     COMPLIANT = "compliant"  # متوافق
     NON_COMPLIANT = "non_compliant"  # غير متوافق
     PARTIALLY_COMPLIANT = "partially_compliant"  # متوافق جزئيًا
@@ -29,6 +30,7 @@ class SeverityLevel(str, Enum):
     Severity level for non-compliance
     مستوى خطورة عدم الامتثال
     """
+
     CRITICAL = "critical"  # حرج
     MAJOR = "major"  # رئيسي
     MINOR = "minor"  # ثانوي
@@ -40,6 +42,7 @@ class ComplianceRecord(BaseModel):
     Compliance record for a farm
     سجل الامتثال للمزرعة
     """
+
     id: Optional[str] = None
     farm_id: str = Field(..., description="Farm identifier | معرف المزرعة")
     tenant_id: str = Field(..., description="Tenant identifier | معرف المستأجر")
@@ -47,23 +50,35 @@ class ComplianceRecord(BaseModel):
     # Compliance details | تفاصيل الامتثال
     overall_status: ComplianceStatus = Field(
         default=ComplianceStatus.NOT_ASSESSED,
-        description="Overall compliance status | حالة الامتثال الإجمالية"
+        description="Overall compliance status | حالة الامتثال الإجمالية",
     )
     compliance_percentage: float = Field(
         default=0.0,
         ge=0.0,
         le=100.0,
-        description="Compliance percentage | نسبة الامتثال"
+        description="Compliance percentage | نسبة الامتثال",
     )
 
     # Control points | نقاط التحكم
-    total_control_points: int = Field(default=0, description="Total control points | إجمالي نقاط التحكم")
-    compliant_points: int = Field(default=0, description="Compliant control points | نقاط التحكم المتوافقة")
-    non_compliant_points: int = Field(default=0, description="Non-compliant points | نقاط عدم التوافق")
+    total_control_points: int = Field(
+        default=0, description="Total control points | إجمالي نقاط التحكم"
+    )
+    compliant_points: int = Field(
+        default=0, description="Compliant control points | نقاط التحكم المتوافقة"
+    )
+    non_compliant_points: int = Field(
+        default=0, description="Non-compliant points | نقاط عدم التوافق"
+    )
 
     # Critical non-conformities | عدم المطابقات الحرجة
-    major_must_fails: int = Field(default=0, description="Major Must non-conformities | عدم المطابقات الرئيسية الإلزامية")
-    minor_must_fails: int = Field(default=0, description="Minor Must non-conformities | عدم المطابقات الثانوية الإلزامية")
+    major_must_fails: int = Field(
+        default=0,
+        description="Major Must non-conformities | عدم المطابقات الرئيسية الإلزامية",
+    )
+    minor_must_fails: int = Field(
+        default=0,
+        description="Minor Must non-conformities | عدم المطابقات الثانوية الإلزامية",
+    )
 
     # Assessment details | تفاصيل التقييم
     assessed_by: Optional[str] = None
@@ -71,7 +86,9 @@ class ComplianceRecord(BaseModel):
     next_assessment_date: Optional[datetime] = None
 
     # Metadata | بيانات وصفية
-    ifa_version: str = Field(default="6.0", description="IFA version | إصدار معايير IFA")
+    ifa_version: str = Field(
+        default="6.0", description="IFA version | إصدار معايير IFA"
+    )
     notes: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -88,7 +105,7 @@ class ComplianceRecord(BaseModel):
                 "non_compliant_points": 29,
                 "major_must_fails": 2,
                 "minor_must_fails": 5,
-                "ifa_version": "6.0"
+                "ifa_version": "6.0",
             }
         }
 
@@ -98,15 +115,22 @@ class NonConformity(BaseModel):
     Non-conformity finding
     نتيجة عدم المطابقة
     """
+
     id: Optional[str] = None
     compliance_record_id: str
     control_point_id: str
-    control_point_number: str = Field(..., description="CP number e.g., AF.1.1.1 | رقم نقطة التحكم")
+    control_point_number: str = Field(
+        ..., description="CP number e.g., AF.1.1.1 | رقم نقطة التحكم"
+    )
 
     # Non-conformity details | تفاصيل عدم المطابقة
     severity: SeverityLevel
-    description_ar: str = Field(..., description="Description in Arabic | الوصف بالعربية")
-    description_en: str = Field(..., description="Description in English | الوصف بالإنجليزية")
+    description_ar: str = Field(
+        ..., description="Description in Arabic | الوصف بالعربية"
+    )
+    description_en: str = Field(
+        ..., description="Description in English | الوصف بالإنجليزية"
+    )
 
     # Corrective actions | الإجراءات التصحيحية
     corrective_action_required: bool = True
@@ -115,8 +139,12 @@ class NonConformity(BaseModel):
     corrective_action_completed: bool = False
 
     # Evidence | الأدلة
-    evidence_photos: List[str] = Field(default_factory=list, description="Photo URLs | روابط الصور")
-    evidence_documents: List[str] = Field(default_factory=list, description="Document URLs | روابط المستندات")
+    evidence_photos: List[str] = Field(
+        default_factory=list, description="Photo URLs | روابط الصور"
+    )
+    evidence_documents: List[str] = Field(
+        default_factory=list, description="Document URLs | روابط المستندات"
+    )
 
     # Tracking | المتابعة
     identified_date: datetime = Field(default_factory=datetime.utcnow)
@@ -132,7 +160,7 @@ class NonConformity(BaseModel):
                 "severity": "major",
                 "description_ar": "عدم وجود سجلات تطبيق المبيدات الحشرية",
                 "description_en": "Lack of pesticide application records",
-                "corrective_action_required": True
+                "corrective_action_required": True,
             }
         }
 
@@ -142,23 +170,32 @@ class AuditResult(BaseModel):
     Audit result summary
     ملخص نتائج التدقيق
     """
+
     id: Optional[str] = None
     farm_id: str
     tenant_id: str
     compliance_record_id: str
 
     # Audit information | معلومات التدقيق
-    audit_type: str = Field(..., description="internal, external, certification | داخلي، خارجي، إصدار شهادة")
+    audit_type: str = Field(
+        ..., description="internal, external, certification | داخلي، خارجي، إصدار شهادة"
+    )
     auditor_name: str = Field(..., description="Auditor name | اسم المدقق")
     auditor_organization: Optional[str] = None
 
     # Audit dates | تواريخ التدقيق
     audit_date: datetime
-    audit_duration_days: int = Field(default=1, description="Audit duration in days | مدة التدقيق بالأيام")
+    audit_duration_days: int = Field(
+        default=1, description="Audit duration in days | مدة التدقيق بالأيام"
+    )
 
     # Results | النتائج
-    audit_status: str = Field(..., description="passed, failed, conditional | نجح، فشل، مشروط")
-    overall_score: float = Field(ge=0.0, le=100.0, description="Overall audit score | الدرجة الإجمالية للتدقيق")
+    audit_status: str = Field(
+        ..., description="passed, failed, conditional | نجح، فشل، مشروط"
+    )
+    overall_score: float = Field(
+        ge=0.0, le=100.0, description="Overall audit score | الدرجة الإجمالية للتدقيق"
+    )
 
     # Findings | النتائج
     total_findings: int = Field(default=0)
@@ -195,6 +232,6 @@ class AuditResult(BaseModel):
                 "overall_score": 87.5,
                 "total_findings": 12,
                 "major_findings": 3,
-                "minor_findings": 9
+                "minor_findings": 9,
             }
         }

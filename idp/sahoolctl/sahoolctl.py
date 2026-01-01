@@ -239,7 +239,9 @@ def cmd_create(args):
         validate_governance(values)
     except GovernanceError as e:
         print(e)
-        print("\n💡 Usage: sahoolctl create myservice --owner team-x --team kernel --lifecycle production --tier tier-2")
+        print(
+            "\n💡 Usage: sahoolctl create myservice --owner team-x --team kernel --lifecycle production --tier tier-2"
+        )
         sys.exit(1)
 
     print(f"🔍 Governance validation passed")
@@ -337,7 +339,9 @@ Examples:
     subparsers = ap.add_subparsers(dest="command", help="Commands")
 
     # Create command
-    create_parser = subparsers.add_parser("create", help="Create a new governed service")
+    create_parser = subparsers.add_parser(
+        "create", help="Create a new governed service"
+    )
     create_parser.add_argument("name", help="Service name (kebab-case)")
     create_parser.add_argument(
         "--template",

@@ -18,6 +18,7 @@ from typing import Dict, Any
 # NATS Messaging Tests - اختبارات نظام الرسائل NATS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.dataflow
 @pytest.mark.asyncio
@@ -64,7 +65,9 @@ async def test_nats_jetstream():
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get("http://localhost:8222/jsz")
-            assert response.status_code == 200, "JetStream monitoring should be accessible"
+            assert (
+                response.status_code == 200
+            ), "JetStream monitoring should be accessible"
 
             data = response.json()
             # JetStream should be enabled
@@ -76,6 +79,7 @@ async def test_nats_jetstream():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Redis Cache Tests - اختبارات ذاكرة التخزين المؤقت Redis
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.dataflow
@@ -124,6 +128,7 @@ async def test_redis_caching_behavior():
 # Database Connectivity Tests - اختبارات اتصال قاعدة البيانات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.dataflow
 @pytest.mark.asyncio
@@ -171,6 +176,7 @@ async def test_database_operations_through_api(auth_headers: Dict[str, str]):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Qdrant Vector Search Tests - اختبارات البحث المتجه Qdrant
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.dataflow
@@ -224,11 +230,14 @@ async def test_ai_advisor_qdrant_integration():
 # Service-to-Service Communication Tests - اختبارات الاتصال بين الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.dataflow
 @pytest.mark.slow
 @pytest.mark.asyncio
-async def test_field_to_ndvi_data_flow(auth_headers: Dict[str, str], sample_field: Dict[str, Any]):
+async def test_field_to_ndvi_data_flow(
+    auth_headers: Dict[str, str], sample_field: Dict[str, Any]
+):
     """
     Test data flow from Field Ops to NDVI Engine
     اختبار تدفق البيانات من عمليات الحقول إلى محرك NDVI
@@ -242,7 +251,7 @@ async def test_field_to_ndvi_data_flow(auth_headers: Dict[str, str], sample_fiel
         response = await client.post(
             "http://localhost:8080/api/v1/fields",
             headers=auth_headers,
-            json=sample_field
+            json=sample_field,
         )
 
         if response.status_code == 201:
@@ -254,7 +263,7 @@ async def test_field_to_ndvi_data_flow(auth_headers: Dict[str, str], sample_fiel
 
             ndvi_response = await client.get(
                 f"http://localhost:8107/api/v1/ndvi/fields/{field_id}",
-                headers=auth_headers
+                headers=auth_headers,
             )
 
             # Should return 200 (found) or 404 (not yet synced)
@@ -265,7 +274,9 @@ async def test_field_to_ndvi_data_flow(auth_headers: Dict[str, str], sample_fiel
 @pytest.mark.dataflow
 @pytest.mark.slow
 @pytest.mark.asyncio
-async def test_weather_to_irrigation_data_flow(auth_headers: Dict[str, str], sample_location: Dict[str, float]):
+async def test_weather_to_irrigation_data_flow(
+    auth_headers: Dict[str, str], sample_location: Dict[str, float]
+):
     """
     Test data flow from Weather to Irrigation Smart
     اختبار تدفق البيانات من الطقس إلى الري الذكي
@@ -279,7 +290,7 @@ async def test_weather_to_irrigation_data_flow(auth_headers: Dict[str, str], sam
         weather_response = await client.get(
             "http://localhost:8108/api/v1/weather/current",
             headers=auth_headers,
-            params=sample_location
+            params=sample_location,
         )
 
         if weather_response.status_code == 200:
@@ -292,13 +303,13 @@ async def test_weather_to_irrigation_data_flow(auth_headers: Dict[str, str], sam
                 "temperature_min": 20.0,
                 "humidity": 45.0,
                 "wind_speed": 2.5,
-                "solar_radiation": 25.0
+                "solar_radiation": 25.0,
             }
 
             irrigation_response = await client.post(
                 "http://localhost:8094/api/v1/irrigation/et0",
                 headers=auth_headers,
-                json=irrigation_data
+                json=irrigation_data,
             )
 
             # Should calculate or return error
@@ -347,6 +358,7 @@ async def test_ai_advisor_multi_service_integration(auth_headers: Dict[str, str]
 # Event-Driven Communication Tests - اختبارات الاتصال القائم على الأحداث
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.dataflow
 @pytest.mark.asyncio
@@ -391,6 +403,7 @@ async def test_websocket_gateway_nats_integration():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Cross-Service Data Consistency Tests - اختبارات اتساق البيانات عبر الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.dataflow
@@ -456,6 +469,7 @@ async def test_billing_payment_provider_integration():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Pipeline Tests - اختبارات خط أنابيب البيانات
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.dataflow

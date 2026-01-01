@@ -29,6 +29,7 @@ from repository import BillingRepository
 from models import SubscriptionStatus, BillingCycle, Currency
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("init_db")
 

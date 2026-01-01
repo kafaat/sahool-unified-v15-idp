@@ -139,7 +139,9 @@ def write_audit_log(
         details_json=entry.details_json,
         created_at_iso=entry.created_at.isoformat(),
     )
-    entry.entry_hash = compute_entry_hash(prev_hash=entry.prev_hash, canonical=canonical)
+    entry.entry_hash = compute_entry_hash(
+        prev_hash=entry.prev_hash, canonical=canonical
+    )
 
     db.flush()
 

@@ -137,67 +137,63 @@ class AuthErrors:
     INVALID_TOKEN = AuthErrorMessage(
         en="Invalid authentication token",
         ar="رمز المصادقة غير صالح",
-        code="invalid_token"
+        code="invalid_token",
     )
 
     EXPIRED_TOKEN = AuthErrorMessage(
         en="Authentication token has expired",
         ar="انتهت صلاحية رمز المصادقة",
-        code="expired_token"
+        code="expired_token",
     )
 
     MISSING_TOKEN = AuthErrorMessage(
         en="Authentication token is missing",
         ar="رمز المصادقة مفقود",
-        code="missing_token"
+        code="missing_token",
     )
 
     INVALID_CREDENTIALS = AuthErrorMessage(
         en="Invalid credentials provided",
         ar="بيانات الاعتماد المقدمة غير صحيحة",
-        code="invalid_credentials"
+        code="invalid_credentials",
     )
 
     INSUFFICIENT_PERMISSIONS = AuthErrorMessage(
         en="Insufficient permissions to access this resource",
         ar="أذونات غير كافية للوصول إلى هذا المورد",
-        code="insufficient_permissions"
+        code="insufficient_permissions",
     )
 
     ACCOUNT_DISABLED = AuthErrorMessage(
         en="User account has been disabled",
         ar="تم تعطيل حساب المستخدم",
-        code="account_disabled"
+        code="account_disabled",
     )
 
     ACCOUNT_NOT_VERIFIED = AuthErrorMessage(
         en="User account is not verified",
         ar="حساب المستخدم غير موثق",
-        code="account_not_verified"
+        code="account_not_verified",
     )
 
     TOKEN_REVOKED = AuthErrorMessage(
         en="Authentication token has been revoked",
         ar="تم إلغاء رمز المصادقة",
-        code="token_revoked"
+        code="token_revoked",
     )
 
     RATE_LIMIT_EXCEEDED = AuthErrorMessage(
         en="Too many requests. Please try again later",
         ar="طلبات كثيرة جدا. الرجاء المحاولة مرة أخرى لاحقا",
-        code="rate_limit_exceeded"
+        code="rate_limit_exceeded",
     )
 
     INVALID_ISSUER = AuthErrorMessage(
-        en="Invalid token issuer",
-        ar="مصدر الرمز غير صالح",
-        code="invalid_issuer"
+        en="Invalid token issuer", ar="مصدر الرمز غير صالح", code="invalid_issuer"
     )
 
     INVALID_AUDIENCE = AuthErrorMessage(
-        en="Invalid token audience",
-        ar="جمهور الرمز غير صالح",
-        code="invalid_audience"
+        en="Invalid token audience", ar="جمهور الرمز غير صالح", code="invalid_audience"
     )
 
 
@@ -215,5 +211,5 @@ class AuthException(Exception):
         return {
             "error": self.error.code,
             "message": message,
-            "status_code": self.status_code
+            "status_code": self.status_code,
         }

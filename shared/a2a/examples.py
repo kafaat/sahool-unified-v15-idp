@@ -20,6 +20,7 @@ logger = structlog.get_logger()
 # Example 1: Simple Agent Discovery
 # مثال 1: اكتشاف وكيل بسيط
 
+
 async def example_discover_agent():
     """
     Discover a single agent via its well-known endpoint
@@ -47,6 +48,7 @@ async def example_discover_agent():
 
 # Example 2: Send a Task
 # مثال 2: إرسال مهمة
+
 
 async def example_send_task():
     """
@@ -80,11 +82,11 @@ async def example_send_task():
             "symptoms": {
                 "leaf_condition": "yellow spots with brown edges",
                 "color_changes": "progressive yellowing",
-                "growth_issues": "stunted growth"
+                "growth_issues": "stunted growth",
             },
-            "location": "greenhouse-A"
+            "location": "greenhouse-A",
         },
-        priority=8
+        priority=8,
     )
 
     print(f"\n📥 Received Result:")
@@ -101,6 +103,7 @@ async def example_send_task():
 
 # Example 3: Streaming Task
 # مثال 3: مهمة متدفقة
+
 
 async def example_streaming_task():
     """
@@ -130,8 +133,8 @@ async def example_streaming_task():
                 "crop_type": "wheat",
                 "include_disease_check": True,
                 "include_irrigation": True,
-                "include_yield_prediction": True
-            }
+                "include_yield_prediction": True,
+            },
         ):
             if update.is_final:
                 print(f"\n✅ Analysis Complete!")
@@ -147,6 +150,7 @@ async def example_streaming_task():
 
 # Example 4: Batch Tasks
 # مثال 4: مهام دفعية
+
 
 async def example_batch_tasks():
     """
@@ -172,8 +176,8 @@ async def example_batch_tasks():
             "task_description": "Diagnose wheat rust",
             "parameters": {
                 "crop_type": "wheat",
-                "symptoms": {"leaf_condition": "rust-colored pustules"}
-            }
+                "symptoms": {"leaf_condition": "rust-colored pustules"},
+            },
         },
         {
             "task_type": "irrigation-optimization",
@@ -181,8 +185,8 @@ async def example_batch_tasks():
             "parameters": {
                 "crop_type": "corn",
                 "growth_stage": "flowering",
-                "soil_data": {"moisture_level": 0.4}
-            }
+                "soil_data": {"moisture_level": 0.4},
+            },
         },
         {
             "task_type": "yield-prediction",
@@ -190,17 +194,15 @@ async def example_batch_tasks():
             "parameters": {
                 "crop_type": "rice",
                 "area_hectares": 5.0,
-                "growth_stage": "maturity"
-            }
-        }
+                "growth_stage": "maturity",
+            },
+        },
     ]
 
     print(f"📤 Sending {len(tasks)} tasks in batch...")
 
     results = await client.batch_send_tasks(
-        tasks=tasks,
-        agent_card=agent_card,
-        conversation_id="batch-example-123"
+        tasks=tasks, agent_card=agent_card, conversation_id="batch-example-123"
     )
 
     print(f"\n📥 Received {len(results)} results:")
@@ -214,6 +216,7 @@ async def example_batch_tasks():
 
 # Example 5: Multi-Agent Discovery
 # مثال 5: اكتشاف وكلاء متعددة
+
 
 async def example_multi_agent_discovery():
     """
@@ -258,6 +261,7 @@ async def example_multi_agent_discovery():
 # Example 6: Conversation Tracking
 # مثال 6: تتبع المحادثة
 
+
 async def example_conversation_tracking():
     """
     Track a multi-turn conversation with an agent
@@ -286,9 +290,9 @@ async def example_conversation_tracking():
         task_description="How to improve wheat health?",
         parameters={
             "question": "What are the key factors for maintaining wheat crop health?",
-            "language": "en"
+            "language": "en",
         },
-        conversation_id=conversation_id
+        conversation_id=conversation_id,
     )
     print(f"📥 Response: {result1.result.get('answer', '')[:100]}...\n")
 
@@ -302,9 +306,9 @@ async def example_conversation_tracking():
         parameters={
             "crop_type": "wheat",
             "symptoms": {"leaf_condition": "normal"},
-            "location": "field-42"
+            "location": "field-42",
         },
-        conversation_id=conversation_id
+        conversation_id=conversation_id,
     )
     print(f"📥 Risk Assessment: {result2.result}\n")
 
@@ -318,9 +322,9 @@ async def example_conversation_tracking():
         parameters={
             "crop_type": "wheat",
             "growth_stage": "flowering",
-            "soil_data": {"moisture_level": 0.35}
+            "soil_data": {"moisture_level": 0.35},
         },
-        conversation_id=conversation_id
+        conversation_id=conversation_id,
     )
     print(f"📥 Irrigation Plan: {result3.result}\n")
 
@@ -329,6 +333,7 @@ async def example_conversation_tracking():
 
 # Example 7: Error Handling
 # مثال 7: معالجة الأخطاء
+
 
 async def example_error_handling():
     """
@@ -363,7 +368,7 @@ async def example_error_handling():
         agent_card=agent_card,
         task_type="invalid-task-type",
         task_description="This should fail",
-        parameters={}
+        parameters={},
     )
 
     if result.state == TaskState.FAILED:
@@ -375,6 +380,7 @@ async def example_error_handling():
 
 # Main function to run all examples
 # الدالة الرئيسية لتشغيل جميع الأمثلة
+
 
 async def run_all_examples():
     """

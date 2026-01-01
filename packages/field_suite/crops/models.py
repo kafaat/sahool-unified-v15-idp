@@ -103,8 +103,16 @@ class Crop:
             "variety": self.variety,
             "variety_ar": self.variety_ar,
             "planting_date": self.planting_date.isoformat(),
-            "expected_harvest_date": self.expected_harvest_date.isoformat() if self.expected_harvest_date else None,
-            "actual_harvest_date": self.actual_harvest_date.isoformat() if self.actual_harvest_date else None,
+            "expected_harvest_date": (
+                self.expected_harvest_date.isoformat()
+                if self.expected_harvest_date
+                else None
+            ),
+            "actual_harvest_date": (
+                self.actual_harvest_date.isoformat()
+                if self.actual_harvest_date
+                else None
+            ),
             "growth_stage": self.growth_stage.value,
             "yield_estimate_kg": self.yield_estimate_kg,
             "actual_yield_kg": self.actual_yield_kg,

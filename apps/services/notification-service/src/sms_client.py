@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 try:
     from twilio.rest import Client as TwilioClient
     from twilio.base.exceptions import TwilioRestException
+
     _TWILIO_AVAILABLE = True
 except ImportError:
     _TWILIO_AVAILABLE = False
@@ -31,6 +32,7 @@ except ImportError:
 @dataclass
 class SMSMessage:
     """رسالة نصية - SMS Message"""
+
     to: str  # Phone number in E.164 format (e.g., +967771234567)
     body: str  # Message content
     body_ar: Optional[str] = None  # Arabic version
@@ -153,8 +155,10 @@ class SMSClient:
 
         try:
             # Validate phone number format
-            if not to.startswith('+'):
-                logger.warning(f"Phone number {to} should be in E.164 format (+country_code...)")
+            if not to.startswith("+"):
+                logger.warning(
+                    f"Phone number {to} should be in E.164 format (+country_code...)"
+                )
                 to = f"+{to}"  # Try to fix
 
             # Select content based on language
@@ -163,15 +167,11 @@ class SMSClient:
 
             # Truncate if too long
             if len(content) > max_length:
-                content = content[:max_length-3] + "..."
+                content = content[: max_length - 3] + "..."
                 logger.warning(f"SMS content truncated to {max_length} characters")
 
             # Send SMS via Twilio (async wrapper)
-            response = await asyncio.to_thread(
-                self._send_sync,
-                to=to,
-                content=content
-            )
+            response = await asyncio.to_thread(self._send_sync, to=to, content=content)
 
             if response:
                 logger.info(f"📱 SMS sent successfully to {to}: {response}")
@@ -188,9 +188,7 @@ class SMSClient:
         """Synchronous send (for thread executor)"""
         try:
             message = self._client.messages.create(
-                body=content,
-                from_=self._from_number,
-                to=to
+                body=content, from_=self._from_number, to=to
             )
             return message.sid
         except TwilioRestException as e:
@@ -228,10 +226,7 @@ class SMSClient:
 
         for recipient in recipients:
             result = await self.send_sms(
-                to=recipient,
-                body=body,
-                body_ar=body_ar,
-                language=language
+                to=recipient, body=body, body_ar=body_ar, language=language
             )
 
             if result:
@@ -239,7 +234,9 @@ class SMSClient:
                 results.append({"to": recipient, "success": True, "sid": result})
             else:
                 failure_count += 1
-                results.append({"to": recipient, "success": False, "error": "Failed to send"})
+                results.append(
+                    {"to": recipient, "success": False, "error": "Failed to send"}
+                )
 
         logger.info(
             f"📱 Bulk SMS sent: {success_count} successful, "
@@ -253,12 +250,7 @@ class SMSClient:
         }
 
     async def send_sms_with_retry(
-        self,
-        to: str,
-        body: str,
-        max_retries: int = 3,
-        retry_delay: int = 5,
-        **kwargs
+        self, to: str, body: str, max_retries: int = 3, retry_delay: int = 5, **kwargs
     ) -> Optional[str]:
         """
         إرسال رسالة مع إعادة المحاولة
@@ -299,9 +291,7 @@ class SMSClient:
             return None
 
         try:
-            message = await asyncio.to_thread(
-                self._client.messages(message_sid).fetch
-            )
+            message = await asyncio.to_thread(self._client.messages(message_sid).fetch)
 
             return {
                 "sid": message.sid,
@@ -327,7 +317,7 @@ class SMSClient:
             True if valid E.164 format
         """
         # Basic validation for E.164 format
-        if not phone.startswith('+'):
+        if not phone.startswith("+"):
             return False
 
         # Remove + and check if remaining is digits

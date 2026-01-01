@@ -25,9 +25,9 @@ def sample_field_data():
         "crop_type": "wheat",
         "geometry": {
             "type": "Polygon",
-            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
+            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
         },
-        "metadata": {"soil_type": "loamy"}
+        "metadata": {"soil_type": "loamy"},
     }
 
 
@@ -40,7 +40,7 @@ def sample_operation_data():
         "operation_type": "irrigation",
         "scheduled_date": "2025-12-30T10:00:00Z",
         "notes": "Regular irrigation",
-        "metadata": {"water_amount": "20mm"}
+        "metadata": {"water_amount": "20mm"},
     }
 
 
@@ -112,12 +112,7 @@ class TestFieldManagement:
     def test_list_fields_with_pagination(self, client, sample_field_data):
         """Test field listing with pagination"""
         response = client.get(
-            "/fields",
-            params={
-                "tenant_id": "test_tenant",
-                "skip": 0,
-                "limit": 10
-            }
+            "/fields", params={"tenant_id": "test_tenant", "skip": 0, "limit": 10}
         )
 
         assert response.status_code == 200
@@ -135,7 +130,7 @@ class TestFieldManagement:
         update_data = {
             "name": "Updated Field",
             "area_hectares": 15.0,
-            "crop_type": "corn"
+            "crop_type": "corn",
         }
 
         response = client.put(f"/fields/{field_id}", json=update_data)
@@ -214,7 +209,9 @@ class TestOperationsManagement:
         assert "total" in data
         assert data["total"] >= 2
 
-    def test_list_operations_with_status_filter(self, client, sample_field_data, sample_operation_data):
+    def test_list_operations_with_status_filter(
+        self, client, sample_field_data, sample_operation_data
+    ):
         """Test listing operations with status filter"""
         # Create field
         field_response = client.post("/fields", json=sample_field_data)
@@ -226,11 +223,7 @@ class TestOperationsManagement:
 
         # List scheduled operations
         response = client.get(
-            "/operations",
-            params={
-                "field_id": field_id,
-                "status": "scheduled"
-            }
+            "/operations", params={"field_id": field_id, "status": "scheduled"}
         )
 
         assert response.status_code == 200
@@ -267,10 +260,16 @@ class TestTenantStatistics:
         # Create some fields
         field_data = {**sample_field_data, "tenant_id": tenant_id}
         field1 = client.post("/fields", json=field_data).json()
-        field2 = client.post("/fields", json={**field_data, "name": "Field 2", "area_hectares": 8.5}).json()
+        field2 = client.post(
+            "/fields", json={**field_data, "name": "Field 2", "area_hectares": 8.5}
+        ).json()
 
         # Create some operations
-        op_data = {**sample_operation_data, "tenant_id": tenant_id, "field_id": field1["id"]}
+        op_data = {
+            **sample_operation_data,
+            "tenant_id": tenant_id,
+            "field_id": field1["id"],
+        }
         client.post("/operations", json=op_data)
         client.post("/operations", json={**op_data, "operation_type": "harvesting"})
 
@@ -314,7 +313,7 @@ class TestValidation:
         """Test field creation with missing required fields"""
         invalid_data = {
             "tenant_id": "test",
-            "name": "Test"
+            "name": "Test",
             # Missing area_hectares
         }
 
@@ -342,7 +341,7 @@ class TestCompleteWorkflow:
             "field_id": field_id,
             "operation_type": "planting",
             "scheduled_date": "2025-12-30T08:00:00Z",
-            "notes": "Wheat planting season"
+            "notes": "Wheat planting season",
         }
 
         op_response = client.post("/operations", json=op_data)
@@ -368,7 +367,6 @@ class TestCompleteWorkflow:
 
         # Step 6: Update field info
         update_response = client.put(
-            f"/fields/{field_id}",
-            json={"crop_type": "wheat_updated"}
+            f"/fields/{field_id}", json={"crop_type": "wheat_updated"}
         )
         assert update_response.status_code == 200

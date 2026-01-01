@@ -31,6 +31,7 @@ class Document:
     Retrieved document
     مستند مسترجع
     """
+
     content: str
     metadata: Dict[str, Any]
     score: float
@@ -77,7 +78,7 @@ class KnowledgeRetriever:
         logger.info(
             "knowledge_retriever_initialized",
             collection_name=self.collection_name,
-            qdrant_host=settings.qdrant_host
+            qdrant_host=settings.qdrant_host,
         )
 
     def _ensure_collection(self):
@@ -100,20 +101,15 @@ class KnowledgeRetriever:
                     ),
                 )
                 logger.info(
-                    "qdrant_collection_created",
-                    collection_name=self.collection_name
+                    "qdrant_collection_created", collection_name=self.collection_name
                 )
             else:
                 logger.info(
-                    "qdrant_collection_exists",
-                    collection_name=self.collection_name
+                    "qdrant_collection_exists", collection_name=self.collection_name
                 )
 
         except Exception as e:
-            logger.error(
-                "qdrant_collection_check_failed",
-                error=str(e)
-            )
+            logger.error("qdrant_collection_check_failed", error=str(e))
             # Continue without raising - collection might exist
             # المتابعة دون إثارة خطأ - قد تكون المجموعة موجودة
 
@@ -149,6 +145,7 @@ class KnowledgeRetriever:
             # توليد المعرفات إذا لم يتم توفيرها
             if ids is None:
                 import uuid
+
                 ids = [str(uuid.uuid4()) for _ in documents]
 
             # Create points
@@ -160,10 +157,11 @@ class KnowledgeRetriever:
                     payload={
                         "content": document,
                         **metadata,
-                    }
+                    },
                 )
-                for doc_id, document, embedding, metadata
-                in zip(ids, documents, embeddings, metadatas)
+                for doc_id, document, embedding, metadata in zip(
+                    ids, documents, embeddings, metadatas
+                )
             ]
 
             # Upsert to Qdrant
@@ -176,16 +174,14 @@ class KnowledgeRetriever:
             logger.info(
                 "documents_added_to_knowledge_base",
                 num_documents=len(documents),
-                collection_name=self.collection_name
+                collection_name=self.collection_name,
             )
 
             return True
 
         except Exception as e:
             logger.error(
-                "document_addition_failed",
-                error=str(e),
-                num_documents=len(documents)
+                "document_addition_failed", error=str(e), num_documents=len(documents)
             )
             return False
 
@@ -228,10 +224,7 @@ class KnowledgeRetriever:
                 conditions = []
                 for key, value in filters.items():
                     conditions.append(
-                        FieldCondition(
-                            key=key,
-                            match=MatchValue(value=value)
-                        )
+                        FieldCondition(key=key, match=MatchValue(value=value))
                     )
                 if conditions:
                     query_filter = Filter(must=conditions)
@@ -253,8 +246,7 @@ class KnowledgeRetriever:
                 doc = Document(
                     content=result.payload.get("content", ""),
                     metadata={
-                        k: v for k, v in result.payload.items()
-                        if k != "content"
+                        k: v for k, v in result.payload.items() if k != "content"
                     },
                     score=result.score,
                     id=str(result.id),
@@ -265,17 +257,13 @@ class KnowledgeRetriever:
                 "knowledge_retrieved",
                 query_length=len(query),
                 num_results=len(documents),
-                top_score=documents[0].score if documents else 0
+                top_score=documents[0].score if documents else 0,
             )
 
             return documents
 
         except Exception as e:
-            logger.error(
-                "knowledge_retrieval_failed",
-                error=str(e),
-                query=query[:100]
-            )
+            logger.error("knowledge_retrieval_failed", error=str(e), query=query[:100])
             return []
 
     def delete_documents(
@@ -301,17 +289,13 @@ class KnowledgeRetriever:
             logger.info(
                 "documents_deleted",
                 num_documents=len(ids),
-                collection_name=self.collection_name
+                collection_name=self.collection_name,
             )
 
             return True
 
         except Exception as e:
-            logger.error(
-                "document_deletion_failed",
-                error=str(e),
-                num_ids=len(ids)
-            )
+            logger.error("document_deletion_failed", error=str(e), num_ids=len(ids))
             return False
 
     def get_collection_info(self) -> Dict[str, Any]:
@@ -335,11 +319,5 @@ class KnowledgeRetriever:
             }
 
         except Exception as e:
-            logger.error(
-                "collection_info_retrieval_failed",
-                error=str(e)
-            )
-            return {
-                "collection_name": self.collection_name,
-                "error": str(e)
-            }
+            logger.error("collection_info_retrieval_failed", error=str(e))
+            return {"collection_name": self.collection_name, "error": str(e)}

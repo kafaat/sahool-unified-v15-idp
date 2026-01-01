@@ -20,6 +20,7 @@ from typing import Optional
 try:
     import pyotp
     import qrcode
+
     PYOTP_AVAILABLE = True
 except ImportError:
     PYOTP_AVAILABLE = False
@@ -70,10 +71,7 @@ class TwoFactorAuthService:
         return secret
 
     def generate_totp_uri(
-        self,
-        secret: str,
-        account_name: str,
-        issuer: Optional[str] = None
+        self, secret: str, account_name: str, issuer: Optional[str] = None
     ) -> str:
         """
         Generate TOTP provisioning URI for QR code.
@@ -93,17 +91,13 @@ class TwoFactorAuthService:
             interval=TOTP_INTERVAL,
         )
         uri = totp.provisioning_uri(
-            name=account_name,
-            issuer_name=issuer or self.issuer
+            name=account_name, issuer_name=issuer or self.issuer
         )
         logger.debug(f"Generated TOTP URI for account: {account_name}")
         return uri
 
     def generate_qr_code(
-        self,
-        secret: str,
-        account_name: str,
-        issuer: Optional[str] = None
+        self, secret: str, account_name: str, issuer: Optional[str] = None
     ) -> str:
         """
         Generate QR code for TOTP setup.
@@ -135,17 +129,12 @@ class TwoFactorAuthService:
         buffer = io.BytesIO()
         img.save(buffer, format="PNG")
         img_data = buffer.getvalue()
-        img_base64 = base64.b64encode(img_data).decode('utf-8')
+        img_base64 = base64.b64encode(img_data).decode("utf-8")
 
         logger.info(f"Generated QR code for account: {account_name}")
         return f"data:image/png;base64,{img_base64}"
 
-    def verify_totp(
-        self,
-        secret: str,
-        token: str,
-        valid_window: int = 1
-    ) -> bool:
+    def verify_totp(self, secret: str, token: str, valid_window: int = 1) -> bool:
         """
         Verify a TOTP token.
 
@@ -185,9 +174,7 @@ class TwoFactorAuthService:
         return is_valid
 
     def generate_backup_codes(
-        self,
-        count: int = BACKUP_CODE_COUNT,
-        length: int = BACKUP_CODE_LENGTH
+        self, count: int = BACKUP_CODE_COUNT, length: int = BACKUP_CODE_LENGTH
     ) -> list[str]:
         """
         Generate backup codes for account recovery.
@@ -201,10 +188,10 @@ class TwoFactorAuthService:
         """
         codes = []
         alphabet = string.ascii_uppercase + string.digits
-        alphabet = alphabet.replace('O', '').replace('0', '')  # Remove confusing chars
+        alphabet = alphabet.replace("O", "").replace("0", "")  # Remove confusing chars
 
         for _ in range(count):
-            code = ''.join(secrets.choice(alphabet) for _ in range(length))
+            code = "".join(secrets.choice(alphabet) for _ in range(length))
             # Format as XXXX-XXXX for readability
             formatted = f"{code[:4]}-{code[4:]}"
             codes.append(formatted)
@@ -223,16 +210,15 @@ class TwoFactorAuthService:
             Hashed backup code
         """
         # Remove formatting
-        clean_code = code.replace('-', '').strip()
+        clean_code = code.replace("-", "").strip()
 
         # Use simple hash for backup codes (they're single-use anyway)
         import hashlib
+
         return hashlib.sha256(clean_code.encode()).hexdigest()
 
     def verify_backup_code(
-        self,
-        code: str,
-        hashed_codes: list[str]
+        self, code: str, hashed_codes: list[str]
     ) -> tuple[bool, Optional[str]]:
         """
         Verify a backup code against stored hashes.

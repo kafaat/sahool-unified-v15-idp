@@ -109,11 +109,13 @@ class FieldMonitoringWorkflow:
             # Step 1: Fetch satellite data
             logger.info("Step 1: Fetching satellite data...")
             eopatch = self._fetch_data(bbox, time_interval)
-            result["steps"].append({
-                "name": "fetch_data",
-                "status": "completed",
-                "timestamp": datetime.utcnow().isoformat(),
-            })
+            result["steps"].append(
+                {
+                    "name": "fetch_data",
+                    "status": "completed",
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
 
             if eopatch is None:
                 result["status"] = "failed"
@@ -123,29 +125,35 @@ class FieldMonitoringWorkflow:
             # Step 2: Apply cloud masking
             logger.info("Step 2: Applying cloud mask...")
             eopatch = self._apply_cloud_mask(eopatch)
-            result["steps"].append({
-                "name": "cloud_mask",
-                "status": "completed",
-                "timestamp": datetime.utcnow().isoformat(),
-            })
+            result["steps"].append(
+                {
+                    "name": "cloud_mask",
+                    "status": "completed",
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
 
             # Step 3: Calculate vegetation indices
             logger.info("Step 3: Calculating vegetation indices...")
             eopatch = self._calculate_indices(eopatch)
-            result["steps"].append({
-                "name": "calculate_indices",
-                "status": "completed",
-                "timestamp": datetime.utcnow().isoformat(),
-            })
+            result["steps"].append(
+                {
+                    "name": "calculate_indices",
+                    "status": "completed",
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
 
             # Step 4: Export to SAHOOL format
             logger.info("Step 4: Exporting results...")
             export_result = self._export_results(eopatch, field_id, tenant_id)
-            result["steps"].append({
-                "name": "export",
-                "status": "completed",
-                "timestamp": datetime.utcnow().isoformat(),
-            })
+            result["steps"].append(
+                {
+                    "name": "export",
+                    "status": "completed",
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
 
             # Add results
             result["indices"] = export_result.get("indices", {})
@@ -157,12 +165,14 @@ class FieldMonitoringWorkflow:
                 logger.info("Step 5: Generating SAHOOL events...")
                 events = self._generate_events(eopatch, field_id, tenant_id)
                 result["events"] = events
-                result["steps"].append({
-                    "name": "generate_events",
-                    "status": "completed",
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "events_count": len(events),
-                })
+                result["steps"].append(
+                    {
+                        "name": "generate_events",
+                        "status": "completed",
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "events_count": len(events),
+                    }
+                )
 
             result["status"] = "completed"
             result["execution_end"] = datetime.utcnow().isoformat()
@@ -225,7 +235,9 @@ class FieldMonitoringWorkflow:
 
         return export_task.execute(eopatch)
 
-    def _generate_events(self, eopatch, field_id: str, tenant_id: str) -> List[Dict[str, Any]]:
+    def _generate_events(
+        self, eopatch, field_id: str, tenant_id: str
+    ) -> List[Dict[str, Any]]:
         """Generate SAHOOL events"""
         from ..tasks.export import EOPatchToSahoolTask
         from ..tasks.indices import AllIndicesTask
@@ -308,10 +320,7 @@ class BatchFieldMonitoringWorkflow:
                 return {"field_id": field_id, "status": "error", "error": str(e)}
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            futures = {
-                executor.submit(process_field, field): field
-                for field in fields
-            }
+            futures = {executor.submit(process_field, field): field for field in fields}
 
             for future in as_completed(futures):
                 field_result = future.result()

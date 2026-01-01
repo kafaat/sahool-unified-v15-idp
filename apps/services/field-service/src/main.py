@@ -58,8 +58,7 @@ from .events import get_publisher, FieldEventPublisher
 import logging
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -67,7 +66,9 @@ logger = logging.getLogger(__name__)
 # ============== Authentication ==============
 
 
-def get_tenant_id(x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")) -> str:
+def get_tenant_id(
+    x_tenant_id: Optional[str] = Header(None, alias="X-Tenant-Id")
+) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
@@ -137,7 +138,11 @@ if setup_cors_middleware:
 else:
     # Fallback CORS configuration if shared config not available
     from fastapi.middleware.cors import CORSMiddleware
-    CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+
+    CORS_ORIGINS = os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:3000,http://localhost:3001,http://localhost:8080",
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=CORS_ORIGINS,
@@ -159,8 +164,12 @@ def health():
         "version": "16.0.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "dependencies": {
-            "nats": "connected" if (hasattr(app.state, "publisher") and app.state.publisher is not None) else "disconnected"
-        }
+            "nats": (
+                "connected"
+                if (hasattr(app.state, "publisher") and app.state.publisher is not None)
+                else "disconnected"
+            )
+        },
     }
 
 
@@ -213,7 +222,9 @@ async def create_field(field: FieldCreate, tenant_id: str = Depends(get_tenant_i
         "boundary": field.boundary.model_dump() if field.boundary else None,
         "area_hectares": field.area_hectares,
         "soil_type": field.soil_type.value if field.soil_type else None,
-        "irrigation_source": field.irrigation_source.value if field.irrigation_source else None,
+        "irrigation_source": (
+            field.irrigation_source.value if field.irrigation_source else None
+        ),
         "current_crop": field.current_crop,
         "metadata": field.metadata or {},
         "created_at": now,
@@ -319,7 +330,9 @@ async def list_fields(
 
 
 @app.patch("/fields/{field_id}", response_model=FieldResponse)
-async def update_field(field_id: str, update: FieldUpdate, tenant_id: str = Depends(get_tenant_id)):
+async def update_field(
+    field_id: str, update: FieldUpdate, tenant_id: str = Depends(get_tenant_id)
+):
     """تحديث بيانات حقل"""
     if field_id not in _fields:
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
@@ -334,7 +347,9 @@ async def update_field(field_id: str, update: FieldUpdate, tenant_id: str = Depe
     for key, value in update_dict.items():
         if value is not None:
             if key == "location":
-                field_data[key] = value.model_dump() if hasattr(value, "model_dump") else value
+                field_data[key] = (
+                    value.model_dump() if hasattr(value, "model_dump") else value
+                )
             elif key in ["soil_type", "irrigation_source", "status"]:
                 field_data[key] = value.value if hasattr(value, "value") else value
             else:
@@ -377,7 +392,9 @@ async def delete_field(field_id: str, tenant_id: str = Depends(get_tenant_id)):
     for z_id in zones_to_delete:
         del _zones[z_id]
 
-    seasons_to_delete = [s_id for s_id, s in _seasons.items() if s["field_id"] == field_id]
+    seasons_to_delete = [
+        s_id for s_id, s in _seasons.items() if s["field_id"] == field_id
+    ]
     for s_id in seasons_to_delete:
         del _seasons[s_id]
 
@@ -487,16 +504,17 @@ async def check_overlap(request: OverlapCheckRequest):
             continue
 
         has_overlap, overlap_area = check_polygon_overlap(
-            request.boundary.coordinates,
-            field["boundary"]["coordinates"]
+            request.boundary.coordinates, field["boundary"]["coordinates"]
         )
 
         if has_overlap:
-            overlapping.append({
-                "field_id": fid,
-                "field_name": field["name"],
-                "overlap_area_hectares": round(overlap_area, 4),
-            })
+            overlapping.append(
+                {
+                    "field_id": fid,
+                    "field_name": field["name"],
+                    "overlap_area_hectares": round(overlap_area, 4),
+                }
+            )
             total_overlap += overlap_area
 
     return OverlapCheckResponse(
@@ -530,9 +548,7 @@ async def export_field_kml(field_id: str):
     return Response(
         content=kml_content,
         media_type="application/vnd.google-earth.kml+xml",
-        headers={
-            "Content-Disposition": f'attachment; filename="{field_id}.kml"'
-        }
+        headers={"Content-Disposition": f'attachment; filename="{field_id}.kml"'},
     )
 
 
@@ -555,7 +571,7 @@ async def export_field_geojson(field_id: str):
             "area_hectares": field_data["area_hectares"],
             "crop_type": field_data.get("current_crop"),
             "soil_type": field_data.get("soil_type"),
-        }
+        },
     )
 
     return geojson
@@ -564,7 +580,9 @@ async def export_field_geojson(field_id: str):
 # ============== Crop Season Endpoints ==============
 
 
-@app.post("/fields/{field_id}/crops", response_model=CropSeasonResponse, status_code=201)
+@app.post(
+    "/fields/{field_id}/crops", response_model=CropSeasonResponse, status_code=201
+)
 async def start_crop_season(field_id: str, season: CropSeasonCreate):
     """بدء موسم محصول جديد"""
     if field_id not in _fields:
@@ -572,13 +590,13 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
 
     # التحقق من عدم وجود موسم نشط
     active_seasons = [
-        s for s in _seasons.values()
+        s
+        for s in _seasons.values()
         if s["field_id"] == field_id and s["status"] == CropSeasonStatus.ACTIVE.value
     ]
     if active_seasons:
         raise HTTPException(
-            status_code=400,
-            detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً"
+            status_code=400, detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً"
         )
 
     season_id = str(uuid4())
@@ -630,9 +648,7 @@ async def get_crop_history(field_id: str):
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
     field_seasons = [
-        CropSeasonResponse(**s)
-        for s in _seasons.values()
-        if s["field_id"] == field_id
+        CropSeasonResponse(**s) for s in _seasons.values() if s["field_id"] == field_id
     ]
 
     # ترتيب حسب تاريخ الزراعة
@@ -667,7 +683,9 @@ async def close_crop_season(field_id: str, close_data: CropSeasonClose):
     season_data["harvest_date"] = close_data.harvest_date
     season_data["actual_yield_kg"] = close_data.actual_yield_kg
     if close_data.notes:
-        season_data["notes"] = (season_data.get("notes") or "") + f"\n{close_data.notes}"
+        season_data["notes"] = (
+            season_data.get("notes") or ""
+        ) + f"\n{close_data.notes}"
 
     _seasons[season_id] = season_data
 
@@ -748,9 +766,7 @@ async def list_zones(field_id: str):
         raise HTTPException(status_code=404, detail="الحقل غير موجود")
 
     field_zones = [
-        ZoneResponse(**z)
-        for z in _zones.values()
-        if z["field_id"] == field_id
+        ZoneResponse(**z) for z in _zones.values() if z["field_id"] == field_id
     ]
 
     return {
@@ -845,7 +861,7 @@ async def get_field_stats(field_id: str):
     if yields:
         best = max(
             [s for s in field_seasons if s.get("actual_yield_kg")],
-            key=lambda x: x["actual_yield_kg"]
+            key=lambda x: x["actual_yield_kg"],
         )
         best_season = {
             "crop": best["crop_type"],
@@ -898,7 +914,8 @@ async def get_user_fields_stats(user_id: str, tenant_id: str = Query(...)):
     # المواسم النشطة
     field_ids = {f["id"] for f in user_fields}
     active_seasons = [
-        s for s in _seasons.values()
+        s
+        for s in _seasons.values()
         if s["field_id"] in field_ids and s["status"] == CropSeasonStatus.ACTIVE.value
     ]
 

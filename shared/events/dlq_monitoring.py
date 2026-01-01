@@ -47,6 +47,7 @@ _nats_available = False
 try:
     import nats
     from nats.js import JetStreamContext
+
     _nats_available = True
 except ImportError:
     logger.warning("NATS not available for DLQ monitoring")
@@ -211,9 +212,7 @@ class DLQMonitor:
             self._total_checks += 1
             self._last_check_time = datetime.utcnow()
 
-            logger.debug(
-                f"DLQ check: {message_count} messages, {byte_count:,} bytes"
-            )
+            logger.debug(f"DLQ check: {message_count} messages, {byte_count:,} bytes")
 
             # Check threshold
             if message_count >= self.config.alert_threshold:
@@ -327,9 +326,11 @@ async def send_dlq_alert_to_slack(alert: DLQAlert, webhook_url: str):
                     },
                     {
                         "title": "Oldest Message",
-                        "value": f"{alert.oldest_message_age_hours:.1f} hours"
-                        if alert.oldest_message_age_hours
-                        else "N/A",
+                        "value": (
+                            f"{alert.oldest_message_age_hours:.1f} hours"
+                            if alert.oldest_message_age_hours
+                            else "N/A"
+                        ),
                         "short": True,
                     },
                 ],

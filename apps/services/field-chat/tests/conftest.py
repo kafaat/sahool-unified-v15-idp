@@ -98,7 +98,12 @@ def clean_db():
 
     async def _clean():
         try:
-            from src.models import ChatAttachment, ChatMessage, ChatParticipant, ChatThread
+            from src.models import (
+                ChatAttachment,
+                ChatMessage,
+                ChatParticipant,
+                ChatThread,
+            )
 
             await ChatMessage.all().delete()
             await ChatParticipant.all().delete()

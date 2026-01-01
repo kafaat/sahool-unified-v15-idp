@@ -11,6 +11,7 @@ Usage:
 import asyncio
 from datetime import date, timedelta
 import sys
+
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service")
 
 from src.weather_integration import WeatherIntegration
@@ -18,9 +19,9 @@ from src.weather_integration import WeatherIntegration
 
 async def test_forecast():
     """Test weather forecast retrieval"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("1. WEATHER FORECAST TEST - توقعات الطقس")
-    print("="*80)
+    print("=" * 80)
 
     weather = WeatherIntegration()
 
@@ -30,9 +31,7 @@ async def test_forecast():
 
     try:
         forecast = await weather.get_forecast(
-            latitude=15.3694,
-            longitude=44.1910,
-            days=7
+            latitude=15.3694, longitude=44.1910, days=7
         )
 
         print(f"\n✅ Forecast retrieved successfully!")
@@ -43,7 +42,9 @@ async def test_forecast():
         print("\n   First 3 days:")
         for i, day in enumerate(forecast.daily[:3]):
             print(f"\n   Day {i+1}: {day.timestamp.date()}")
-            print(f"   Temperature: {day.temperature_min_c}°C - {day.temperature_max_c}°C")
+            print(
+                f"   Temperature: {day.temperature_min_c}°C - {day.temperature_max_c}°C"
+            )
             print(f"   Precipitation: {day.precipitation_mm} mm")
             if day.et0_mm:
                 print(f"   ET0: {day.et0_mm} mm")
@@ -58,9 +59,9 @@ async def test_forecast():
 
 async def test_historical():
     """Test historical weather retrieval"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("2. HISTORICAL WEATHER TEST - البيانات التاريخية")
-    print("="*80)
+    print("=" * 80)
 
     weather = WeatherIntegration()
 
@@ -79,7 +80,7 @@ async def test_historical():
             latitude=12.7855,
             longitude=45.0187,
             start_date=start_date,
-            end_date=end_date
+            end_date=end_date,
         )
 
         print(f"\n✅ Historical data retrieved successfully!")
@@ -90,9 +91,13 @@ async def test_historical():
         print(f"   Average Temperature: {historical.summary['avg_temp_c']}°C")
         print(f"   Min Temperature: {historical.summary['min_temp_c']}°C")
         print(f"   Max Temperature: {historical.summary['max_temp_c']}°C")
-        print(f"   Total Precipitation: {historical.summary['total_precipitation_mm']} mm")
+        print(
+            f"   Total Precipitation: {historical.summary['total_precipitation_mm']} mm"
+        )
         print(f"   Total ET0: {historical.summary.get('total_et0_mm', 'N/A')} mm")
-        print(f"   Growing Degree Days (base 10°C): {historical.summary['gdd_base_10']}")
+        print(
+            f"   Growing Degree Days (base 10°C): {historical.summary['gdd_base_10']}"
+        )
 
         await weather.close()
         return True
@@ -104,9 +109,9 @@ async def test_historical():
 
 async def test_gdd():
     """Test Growing Degree Days calculation"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("3. GROWING DEGREE DAYS TEST - وحدات الحرارة النامية")
-    print("="*80)
+    print("=" * 80)
 
     weather = WeatherIntegration()
 
@@ -117,7 +122,9 @@ async def test_gdd():
     end_date = date.today() - timedelta(days=10)
     start_date = end_date - timedelta(days=120)  # Growing season
 
-    print(f"\n   Period: {start_date} to {end_date} ({(end_date - start_date).days} days)")
+    print(
+        f"\n   Period: {start_date} to {end_date} ({(end_date - start_date).days} days)"
+    )
 
     try:
         # Test with different base temperatures
@@ -127,7 +134,7 @@ async def test_gdd():
                 longitude=44.1667,
                 start_date=start_date,
                 end_date=end_date,
-                base_temp=base_temp
+                base_temp=base_temp,
             )
 
             print(f"\n   Base Temperature {base_temp}°C:")
@@ -144,9 +151,9 @@ async def test_gdd():
 
 async def test_water_balance():
     """Test water balance calculation"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("4. WATER BALANCE TEST - الميزان المائي")
-    print("="*80)
+    print("=" * 80)
 
     weather = WeatherIntegration()
 
@@ -166,17 +173,21 @@ async def test_water_balance():
             longitude=44.0202,
             start_date=start_date,
             end_date=end_date,
-            kc=1.0
+            kc=1.0,
         )
 
         print(f"\n✅ Water balance calculated successfully!")
         print(f"\n   Summary:")
-        print(f"   Total Precipitation: {balance['summary']['total_precipitation_mm']} mm")
+        print(
+            f"   Total Precipitation: {balance['summary']['total_precipitation_mm']} mm"
+        )
         print(f"   Total ETc (ET0 × Kc): {balance['summary']['total_etc_mm']} mm")
         print(f"   Water Balance: {balance['summary']['total_balance_mm']} mm")
-        print(f"   Status: {balance['summary']['status']} ({balance['summary']['status_ar']})")
+        print(
+            f"   Status: {balance['summary']['status']} ({balance['summary']['status_ar']})"
+        )
 
-        if balance['summary']['total_balance_mm'] < 0:
+        if balance["summary"]["total_balance_mm"] < 0:
             print(f"\n   ⚠️  Water deficit detected! Irrigation needed.")
             print(f"       عجز مائي! الري مطلوب.")
         else:
@@ -193,9 +204,9 @@ async def test_water_balance():
 
 async def test_irrigation_recommendation():
     """Test irrigation recommendation"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("5. IRRIGATION RECOMMENDATION TEST - نصائح الري")
-    print("="*80)
+    print("=" * 80)
 
     weather = WeatherIntegration()
 
@@ -214,16 +225,24 @@ async def test_irrigation_recommendation():
             crop_type="TOMATO",
             growth_stage="mid",
             soil_moisture=0.35,
-            field_id="TEST_FIELD_001"
+            field_id="TEST_FIELD_001",
         )
 
         print(f"\n✅ Irrigation recommendation generated!")
-        print(f"\n   Crop: {recommendation.crop_name_en} ({recommendation.crop_name_ar})")
+        print(
+            f"\n   Crop: {recommendation.crop_name_en} ({recommendation.crop_name_ar})"
+        )
         print(f"   Growth Stage: {recommendation.growth_stage}")
-        print(f"   Water Requirement (next 7 days): {recommendation.water_requirement_mm} mm")
-        print(f"   Expected Precipitation: {recommendation.precipitation_forecast_mm} mm")
+        print(
+            f"   Water Requirement (next 7 days): {recommendation.water_requirement_mm} mm"
+        )
+        print(
+            f"   Expected Precipitation: {recommendation.precipitation_forecast_mm} mm"
+        )
         print(f"   Irrigation Needed: {recommendation.irrigation_needed_mm} mm")
-        print(f"   Recommended Frequency: Every {recommendation.irrigation_frequency_days} days")
+        print(
+            f"   Recommended Frequency: Every {recommendation.irrigation_frequency_days} days"
+        )
         print(f"   Confidence: {recommendation.confidence:.1%}")
 
         print(f"\n   📋 Recommendation (English):")
@@ -241,9 +260,9 @@ async def test_irrigation_recommendation():
 
 async def test_frost_risk():
     """Test frost risk assessment"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("6. FROST RISK ASSESSMENT TEST - مخاطر الصقيع")
-    print("="*80)
+    print("=" * 80)
 
     weather = WeatherIntegration()
 
@@ -255,9 +274,7 @@ async def test_frost_risk():
 
     try:
         frost_risks = await weather.get_frost_risk(
-            latitude=15.3694,
-            longitude=44.1910,
-            days=7
+            latitude=15.3694, longitude=44.1910, days=7
         )
 
         print(f"\n✅ Frost risk assessment completed!")
@@ -283,7 +300,11 @@ async def test_frost_risk():
         # Show all days summary
         print(f"\n   7-Day Frost Risk Summary:")
         for risk in frost_risks:
-            icon = "❄️" if risk.risk_level in ["severe", "high"] else "⚡" if risk.risk_level == "moderate" else "✅"
+            icon = (
+                "❄️"
+                if risk.risk_level in ["severe", "high"]
+                else "⚡" if risk.risk_level == "moderate" else "✅"
+            )
             print(f"   {icon} {risk.date}: {risk.min_temp_c}°C ({risk.risk_level})")
 
         await weather.close()
@@ -296,10 +317,10 @@ async def test_frost_risk():
 
 async def main():
     """Run all tests"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("SAHOOL WEATHER INTEGRATION TEST SUITE")
     print("مجموعة اختبارات تكامل الطقس")
-    print("="*80)
+    print("=" * 80)
     print("\nTesting Open-Meteo API integration for Yemen agriculture")
     print("اختبار تكامل Open-Meteo API للزراعة اليمنية")
 
@@ -326,9 +347,9 @@ async def main():
         await asyncio.sleep(1)
 
     # Print summary
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("TEST SUMMARY - ملخص الاختبارات")
-    print("="*80)
+    print("=" * 80)
 
     passed = sum(1 for _, result in results if result)
     total = len(results)
@@ -340,14 +361,18 @@ async def main():
     print(f"\n{'='*80}")
     print(f"Results: {passed}/{total} tests passed ({passed/total*100:.1f}%)")
     print(f"النتائج: {passed}/{total} اختبار ناجح ({passed/total*100:.1f}%)")
-    print("="*80)
+    print("=" * 80)
 
     if passed == total:
         print("\n🎉 All tests passed! Weather integration is working correctly.")
         print("   جميع الاختبارات نجحت! تكامل الطقس يعمل بشكل صحيح.")
     else:
-        print(f"\n⚠️  {total - passed} test(s) failed. Check the output above for details.")
-        print(f"   {total - passed} اختبار فشل. تحقق من المخرجات أعلاه للحصول على التفاصيل.")
+        print(
+            f"\n⚠️  {total - passed} test(s) failed. Check the output above for details."
+        )
+        print(
+            f"   {total - passed} اختبار فشل. تحقق من المخرجات أعلاه للحصول على التفاصيل."
+        )
 
 
 if __name__ == "__main__":

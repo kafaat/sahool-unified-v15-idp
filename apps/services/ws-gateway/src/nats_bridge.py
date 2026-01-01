@@ -135,9 +135,7 @@ class NATSBridge:
 
                 # Create WebSocket message
                 ws_message = self._create_event_message(
-                    event_type=event_type,
-                    data=data,
-                    subject=msg.subject
+                    event_type=event_type, data=data, subject=msg.subject
                 )
 
                 # Send to field room
@@ -162,9 +160,7 @@ class NATSBridge:
                 event_type = EventType.WEATHER_ALERT
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Broadcast to weather room
@@ -194,9 +190,7 @@ class NATSBridge:
                 event_type = EventType.SATELLITE_FAILED
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to field if field_id present
@@ -222,9 +216,7 @@ class NATSBridge:
                 event_type = EventType.NDVI_ANALYSIS_READY
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to field
@@ -252,9 +244,7 @@ class NATSBridge:
                 event_type = EventType.OUT_OF_STOCK
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to tenant
@@ -281,9 +271,7 @@ class NATSBridge:
                 event_type = EventType.PEST_DETECTED
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to field
@@ -314,9 +302,7 @@ class NATSBridge:
                 event_type = EventType.SPRAY_WARNING
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to field
@@ -344,9 +330,7 @@ class NATSBridge:
                 event_type = EventType.CHAT_READ
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to chat room
@@ -372,9 +356,7 @@ class NATSBridge:
                 event_type = EventType.TASK_OVERDUE
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to assigned user
@@ -402,9 +384,7 @@ class NATSBridge:
                 event_type = EventType.IOT_OFFLINE
 
             ws_message = self._create_event_message(
-                event_type=event_type,
-                data=data,
-                subject=msg.subject
+                event_type=event_type, data=data, subject=msg.subject
             )
 
             # Send to field
@@ -430,9 +410,7 @@ class NATSBridge:
             data = json.loads(msg.data.decode())
 
             ws_message = self._create_event_message(
-                event_type=EventType.SYSTEM_NOTIFICATION,
-                data=data,
-                subject=msg.subject
+                event_type=EventType.SYSTEM_NOTIFICATION, data=data, subject=msg.subject
             )
 
             # Broadcast to alerts room
@@ -452,10 +430,7 @@ class NATSBridge:
             logger.error(f"Error handling alert event: {e}", exc_info=True)
 
     def _create_event_message(
-        self,
-        event_type: EventType,
-        data: Dict[str, Any],
-        subject: str
+        self, event_type: EventType, data: Dict[str, Any], subject: str
     ) -> Dict:
         """
         Create standardized WebSocket event message

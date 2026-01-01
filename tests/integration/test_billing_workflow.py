@@ -46,8 +46,7 @@ async def test_create_subscription_workflow(
 
     # Step 1: List available plans - قائمة الخطط المتاحة
     plans_response = await http_client.get(
-        f"{billing_url}/v1/plans",
-        headers=auth_headers
+        f"{billing_url}/v1/plans", headers=auth_headers
     )
 
     assert plans_response.status_code == 200
@@ -58,8 +57,7 @@ async def test_create_subscription_workflow(
 
     # Get starter plan
     starter_plan = next(
-        (p for p in plans_data["plans"] if p["plan_id"] == "starter"),
-        None
+        (p for p in plans_data["plans"] if p["plan_id"] == "starter"), None
     )
     assert starter_plan is not None
 
@@ -70,13 +68,11 @@ async def test_create_subscription_workflow(
         "email": "test-integration@sahool.io",
         "phone": "+967777123456",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -93,8 +89,7 @@ async def test_create_subscription_workflow(
     # Note: This requires authentication - skipping if auth not available
     try:
         subscription_response = await http_client.get(
-            f"{billing_url}/v1/tenants/{tenant_id}/subscription",
-            headers=auth_headers
+            f"{billing_url}/v1/tenants/{tenant_id}/subscription", headers=auth_headers
         )
 
         if subscription_response.status_code == 200:
@@ -138,13 +133,11 @@ async def test_subscription_upgrade_workflow(
         "email": "upgrade-test@sahool.io",
         "phone": "+967777234567",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -152,15 +145,12 @@ async def test_subscription_upgrade_workflow(
 
     # Step 2: Upgrade subscription - ترقية الاشتراك
     try:
-        upgrade_data = {
-            "plan_id": "professional",
-            "billing_cycle": "monthly"
-        }
+        upgrade_data = {"plan_id": "professional", "billing_cycle": "monthly"}
 
         upgrade_response = await http_client.patch(
             f"{billing_url}/v1/tenants/{tenant_id}/subscription",
             json=upgrade_data,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         if upgrade_response.status_code == 200:
@@ -203,13 +193,11 @@ async def test_invoice_generation_workflow(
         "email": "invoice-test@sahool.io",
         "phone": "+967777345678",
         "plan_id": "professional",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -219,7 +207,7 @@ async def test_invoice_generation_workflow(
     try:
         invoice_response = await http_client.post(
             f"{billing_url}/v1/tenants/{tenant_id}/invoices/generate",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         if invoice_response.status_code == 200:
@@ -248,8 +236,7 @@ async def test_invoice_generation_workflow(
 
             # Step 3: Get invoice details - الحصول على تفاصيل الفاتورة
             invoice_detail_response = await http_client.get(
-                f"{billing_url}/v1/invoices/{invoice_id}",
-                headers=auth_headers
+                f"{billing_url}/v1/invoices/{invoice_id}", headers=auth_headers
             )
 
             if invoice_detail_response.status_code == 200:
@@ -287,13 +274,11 @@ async def test_list_invoices_workflow(
         "email": "invoice-list@sahool.io",
         "phone": "+967777456789",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -302,8 +287,7 @@ async def test_list_invoices_workflow(
     try:
         # Step 2: List invoices - قائمة الفواتير
         list_response = await http_client.get(
-            f"{billing_url}/v1/tenants/{tenant_id}/invoices",
-            headers=auth_headers
+            f"{billing_url}/v1/tenants/{tenant_id}/invoices", headers=auth_headers
         )
 
         if list_response.status_code == 200:
@@ -348,13 +332,11 @@ async def test_payment_processing_workflow(
         "email": "payment-test@sahool.io",
         "phone": "+967777567890",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -364,7 +346,7 @@ async def test_payment_processing_workflow(
         # Generate invoice
         invoice_response = await http_client.post(
             f"{billing_url}/v1/tenants/{tenant_id}/invoices/generate",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         if invoice_response.status_code == 200:
@@ -376,13 +358,11 @@ async def test_payment_processing_workflow(
             payment_data = {
                 "invoice_id": invoice_id,
                 "amount": total_amount,
-                "method": "cash"  # Use cash for testing (no external gateway needed)
+                "method": "cash",  # Use cash for testing (no external gateway needed)
             }
 
             payment_response = await http_client.post(
-                f"{billing_url}/v1/payments",
-                json=payment_data,
-                headers=auth_headers
+                f"{billing_url}/v1/payments", json=payment_data, headers=auth_headers
             )
 
             if payment_response.status_code == 200:
@@ -434,13 +414,11 @@ async def test_tharwatt_payment_workflow(
         "email": "tharwatt-test@sahool.io",
         "phone": "+967771234567",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -450,7 +428,7 @@ async def test_tharwatt_payment_workflow(
         # Generate invoice
         invoice_response = await http_client.post(
             f"{billing_url}/v1/tenants/{tenant_id}/invoices/generate",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         if invoice_response.status_code == 200:
@@ -462,13 +440,11 @@ async def test_tharwatt_payment_workflow(
                 "invoice_id": invoice_id,
                 "amount": invoice["total"],
                 "method": "tharwatt",
-                "phone_number": "+967771234567"  # Tharwatt requires phone number
+                "phone_number": "+967771234567",  # Tharwatt requires phone number
             }
 
             payment_response = await http_client.post(
-                f"{billing_url}/v1/payments",
-                json=payment_data,
-                headers=auth_headers
+                f"{billing_url}/v1/payments", json=payment_data, headers=auth_headers
             )
 
             # Payment may fail if Tharwatt API is not configured
@@ -513,13 +489,11 @@ async def test_usage_tracking_workflow(
         "email": "usage-test@sahool.io",
         "phone": "+967777678901",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -530,13 +504,13 @@ async def test_usage_tracking_workflow(
         usage_data = {
             "metric": "satellite_analyses_per_month",
             "quantity": 5,
-            "metadata": {"test": "integration"}
+            "metadata": {"test": "integration"},
         }
 
         usage_response = await http_client.post(
             f"{billing_url}/v1/tenants/{tenant_id}/usage",
             json=usage_data,
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         if usage_response.status_code == 200:
@@ -548,8 +522,7 @@ async def test_usage_tracking_workflow(
 
         # Step 3: Check quota - فحص الحصة
         quota_response = await http_client.get(
-            f"{billing_url}/v1/tenants/{tenant_id}/quota",
-            headers=auth_headers
+            f"{billing_url}/v1/tenants/{tenant_id}/quota", headers=auth_headers
         )
 
         if quota_response.status_code == 200:
@@ -592,13 +565,11 @@ async def test_quota_enforcement_workflow(
         "email": "quota-test@sahool.io",
         "phone": "+967777789012",
         "plan_id": "free",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -607,8 +578,7 @@ async def test_quota_enforcement_workflow(
     try:
         # Get quota to know the limit
         quota_response = await http_client.get(
-            f"{billing_url}/v1/tenants/{tenant_id}/quota",
-            headers=auth_headers
+            f"{billing_url}/v1/tenants/{tenant_id}/quota", headers=auth_headers
         )
 
         if quota_response.status_code == 200:
@@ -616,17 +586,14 @@ async def test_quota_enforcement_workflow(
 
             # Try to record usage beyond limit
             # Free plan has satellite_analyses_per_month: 10
-            usage_data = {
-                "metric": "satellite_analyses_per_month",
-                "quantity": 1
-            }
+            usage_data = {"metric": "satellite_analyses_per_month", "quantity": 1}
 
             # Record usage multiple times
             for i in range(15):  # Exceeds free plan limit of 10
                 usage_response = await http_client.post(
                     f"{billing_url}/v1/tenants/{tenant_id}/usage",
                     json=usage_data,
-                    headers=auth_headers
+                    headers=auth_headers,
                 )
 
                 # After limit is reached, should get 429
@@ -669,13 +636,11 @@ async def test_subscription_cancellation_workflow(
         "email": "cancel-test@sahool.io",
         "phone": "+967777890123",
         "plan_id": "starter",
-        "billing_cycle": "monthly"
+        "billing_cycle": "monthly",
     }
 
     tenant_response = await http_client.post(
-        f"{billing_url}/v1/tenants",
-        json=tenant_data,
-        headers=auth_headers
+        f"{billing_url}/v1/tenants", json=tenant_data, headers=auth_headers
     )
 
     assert tenant_response.status_code == 200
@@ -685,7 +650,7 @@ async def test_subscription_cancellation_workflow(
         # Cancel subscription - إلغاء الاشتراك
         cancel_response = await http_client.post(
             f"{billing_url}/v1/tenants/{tenant_id}/cancel?immediate=false",
-            headers=auth_headers
+            headers=auth_headers,
         )
 
         if cancel_response.status_code == 200:

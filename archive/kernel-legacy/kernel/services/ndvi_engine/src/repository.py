@@ -219,7 +219,9 @@ def get_field_stats(
         "min_ndvi": float(result.min_ndvi) if result.min_ndvi else None,
         "max_ndvi": float(result.max_ndvi) if result.max_ndvi else None,
         "std_ndvi": float(result.std_ndvi) if result.std_ndvi else None,
-        "avg_confidence": float(result.avg_confidence) if result.avg_confidence else None,
+        "avg_confidence": (
+            float(result.avg_confidence) if result.avg_confidence else None
+        ),
     }
 
 

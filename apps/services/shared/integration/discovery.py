@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class HealthStatus(str, Enum):
     """Service health status"""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
@@ -31,6 +32,7 @@ class HealthStatus(str, Enum):
 @dataclass
 class ServiceHealth:
     """Health status of a service"""
+
     name: str
     status: HealthStatus
     version: Optional[str] = None
@@ -139,10 +141,7 @@ class ServiceDiscovery:
         Check health of all services
         فحص صحة جميع الخدمات
         """
-        tasks = [
-            self.check_service_health(service)
-            for service in SERVICE_PORTS.keys()
-        ]
+        tasks = [self.check_service_health(service) for service in SERVICE_PORTS.keys()]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         health_map = {}
@@ -200,23 +199,39 @@ class ServiceDiscovery:
     def get_healthy_services(self) -> List[str]:
         """Get list of healthy services"""
         return [
-            name for name, health in self._health_cache.items()
+            name
+            for name, health in self._health_cache.items()
             if health.status == HealthStatus.HEALTHY
         ]
 
     def get_unhealthy_services(self) -> List[str]:
         """Get list of unhealthy services"""
         return [
-            name for name, health in self._health_cache.items()
+            name
+            for name, health in self._health_cache.items()
             if health.status in (HealthStatus.UNHEALTHY, HealthStatus.UNKNOWN)
         ]
 
     def get_summary(self) -> Dict:
         """Get health summary"""
         total = len(SERVICE_PORTS)
-        healthy = len([h for h in self._health_cache.values() if h.status == HealthStatus.HEALTHY])
-        degraded = len([h for h in self._health_cache.values() if h.status == HealthStatus.DEGRADED])
-        unhealthy = len([h for h in self._health_cache.values() if h.status == HealthStatus.UNHEALTHY])
+        healthy = len(
+            [h for h in self._health_cache.values() if h.status == HealthStatus.HEALTHY]
+        )
+        degraded = len(
+            [
+                h
+                for h in self._health_cache.values()
+                if h.status == HealthStatus.DEGRADED
+            ]
+        )
+        unhealthy = len(
+            [
+                h
+                for h in self._health_cache.values()
+                if h.status == HealthStatus.UNHEALTHY
+            ]
+        )
 
         return {
             "total_services": total,
@@ -226,7 +241,7 @@ class ServiceDiscovery:
             "unknown": total - healthy - degraded - unhealthy,
             "last_check": max(
                 (h.last_check for h in self._health_cache.values() if h.last_check),
-                default=None
+                default=None,
             ),
         }
 

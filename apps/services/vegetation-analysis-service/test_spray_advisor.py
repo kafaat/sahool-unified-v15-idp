@@ -16,16 +16,21 @@ from src.spray_advisor import (
 
 async def test_spray_forecast():
     """Test 7-day spray forecast for Yemen locations"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🌾 SPRAY TIME FORECAST TEST - توقعات أوقات الرش")
-    print("="*80)
+    print("=" * 80)
 
     advisor = SprayAdvisor()
 
     # Test locations in Yemen
     locations = [
         {"name": "Sanaa (صنعاء)", "lat": 15.3694, "lon": 44.1910, "type": "highland"},
-        {"name": "Hodeidah (الحديدة)", "lat": 14.8022, "lon": 42.9511, "type": "coastal"},
+        {
+            "name": "Hodeidah (الحديدة)",
+            "lat": 14.8022,
+            "lon": 42.9511,
+            "type": "coastal",
+        },
         {"name": "Taiz (تعز)", "lat": 13.5795, "lon": 44.0202, "type": "mid-elevation"},
     ]
 
@@ -38,10 +43,10 @@ async def test_spray_forecast():
         try:
             # Get 7-day forecast for herbicide
             forecast = await advisor.get_spray_forecast(
-                latitude=location['lat'],
-                longitude=location['lon'],
+                latitude=location["lat"],
+                longitude=location["lon"],
                 days=7,
-                product_type=SprayProduct.HERBICIDE
+                product_type=SprayProduct.HERBICIDE,
             )
 
             print(f"\n📅 7-Day Spray Forecast (Herbicide):\n")
@@ -57,11 +62,15 @@ async def test_spray_forecast():
                 if day.best_window:
                     w = day.best_window
                     print(f"\n   ⭐ BEST WINDOW:")
-                    print(f"      Time: {w.start_time.strftime('%H:%M')} - {w.end_time.strftime('%H:%M')}")
+                    print(
+                        f"      Time: {w.start_time.strftime('%H:%M')} - {w.end_time.strftime('%H:%M')}"
+                    )
                     print(f"      Duration: {w.duration_hours:.1f} hours")
                     print(f"      Score: {w.score:.1f}/100")
                     print(f"      Condition: {w.condition.value.upper()}")
-                    print(f"      Weather: {w.temp_avg:.1f}°C, {w.humidity_avg:.0f}% humidity, {w.wind_speed_avg:.1f} km/h wind")
+                    print(
+                        f"      Weather: {w.temp_avg:.1f}°C, {w.humidity_avg:.0f}% humidity, {w.wind_speed_avg:.1f} km/h wind"
+                    )
 
                     if w.risks:
                         print(f"      ⚠️  Risks: {', '.join(w.risks)}")
@@ -87,9 +96,9 @@ async def test_spray_forecast():
 
 async def test_best_spray_time():
     """Test finding the best spray time"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("⭐ BEST SPRAY TIME TEST - أفضل وقت للرش")
-    print("="*80)
+    print("=" * 80)
 
     advisor = SprayAdvisor()
 
@@ -104,12 +113,14 @@ async def test_best_spray_time():
             latitude=lat,
             longitude=lon,
             product_type=SprayProduct.INSECTICIDE,
-            within_days=3
+            within_days=3,
         )
 
         if best_window:
             print(f"✅ BEST SPRAY TIME FOUND:\n")
-            print(f"   🕐 Time: {best_window.start_time.strftime('%Y-%m-%d %H:%M')} - {best_window.end_time.strftime('%H:%M')}")
+            print(
+                f"   🕐 Time: {best_window.start_time.strftime('%Y-%m-%d %H:%M')} - {best_window.end_time.strftime('%H:%M')}"
+            )
             print(f"   ⏱️  Duration: {best_window.duration_hours:.1f} hours")
             print(f"   📊 Score: {best_window.score:.1f}/100")
             print(f"   🎯 Condition: {best_window.condition.value.upper()}")
@@ -143,9 +154,9 @@ async def test_best_spray_time():
 
 async def test_evaluate_specific_time():
     """Test evaluating a specific spray time"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🔍 EVALUATE SPECIFIC TIME TEST - تقييم وقت محدد")
-    print("="*80)
+    print("=" * 80)
 
     advisor = SprayAdvisor()
 
@@ -165,7 +176,7 @@ async def test_evaluate_specific_time():
             latitude=lat,
             longitude=lon,
             target_datetime=target_time,
-            product_type=SprayProduct.FUNGICIDE
+            product_type=SprayProduct.FUNGICIDE,
         )
 
         print(f"📊 EVALUATION RESULTS:\n")
@@ -229,9 +240,9 @@ async def test_evaluate_specific_time():
 
 async def test_product_comparison():
     """Test different product types"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🧪 PRODUCT COMPARISON TEST - مقارنة أنواع المبيدات")
-    print("="*80)
+    print("=" * 80)
 
     advisor = SprayAdvisor()
 
@@ -260,14 +271,16 @@ async def test_product_comparison():
                 latitude=lat,
                 longitude=lon,
                 target_datetime=target_time,
-                product_type=product
+                product_type=product,
             )
 
             risks_str = ", ".join(evaluation.risks[:2]) if evaluation.risks else "None"
             if len(evaluation.risks) > 2:
                 risks_str += f" +{len(evaluation.risks)-2} more"
 
-            print(f"{name:<30} {evaluation.score:>6.1f}/100  {evaluation.condition.value.upper():<15} {risks_str}")
+            print(
+                f"{name:<30} {evaluation.score:>6.1f}/100  {evaluation.condition.value.upper():<15} {risks_str}"
+            )
 
         except Exception as e:
             print(f"{name:<30} Error: {e}")
@@ -278,9 +291,9 @@ async def test_product_comparison():
 
 async def test_delta_t_calculation():
     """Test Delta-T calculation"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("📐 DELTA-T CALCULATION TEST - اختبار حساب دلتا-T")
-    print("="*80)
+    print("=" * 80)
 
     advisor = SprayAdvisor()
 
@@ -295,7 +308,9 @@ async def test_delta_t_calculation():
         (28, 60, "Typical morning"),
     ]
 
-    print(f"{'Temp (°C)':<12} {'Humidity (%)':<15} {'Delta-T (°C)':<15} {'Condition':<20} {'Note'}")
+    print(
+        f"{'Temp (°C)':<12} {'Humidity (%)':<15} {'Delta-T (°C)':<15} {'Condition':<20} {'Note'}"
+    )
     print(f"{'-'*80}")
 
     for temp, humidity, note in test_cases:
@@ -319,10 +334,10 @@ async def test_delta_t_calculation():
 
 async def main():
     """Run all tests"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🌾 SAHOOL SPRAY ADVISOR TEST SUITE")
     print("   مجموعة اختبارات مستشار وقت الرش")
-    print("="*80)
+    print("=" * 80)
     print("\nTesting spray time recommendations with real Open-Meteo weather data")
     print("Testing for Yemen agricultural regions\n")
 
@@ -334,9 +349,9 @@ async def main():
         await test_product_comparison()
         await test_delta_t_calculation()
 
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("✅ ALL TESTS COMPLETED")
-        print("="*80 + "\n")
+        print("=" * 80 + "\n")
 
     except Exception as e:
         print(f"\n❌ Test suite failed: {e}\n")

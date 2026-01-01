@@ -132,7 +132,9 @@ class MCPServer:
 
     # ==================== MCP Protocol Handlers ====================
 
-    async def handle_initialize(self, params: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    async def handle_initialize(
+        self, params: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Handle initialize request"""
         return {
             "protocolVersion": "2024-11-05",
@@ -147,7 +149,9 @@ class MCPServer:
             },
         }
 
-    async def handle_tools_list(self, params: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    async def handle_tools_list(
+        self, params: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Handle tools/list request"""
         return {"tools": self.tools.get_tool_definitions()}
 
@@ -171,7 +175,9 @@ class MCPServer:
             "isError": not result.success,
         }
 
-    async def handle_resources_list(self, params: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    async def handle_resources_list(
+        self, params: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Handle resources/list request"""
         resources = await self.resources.list_all_resources()
         return {
@@ -211,7 +217,9 @@ class MCPServer:
             ]
         }
 
-    async def handle_prompts_list(self, params: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    async def handle_prompts_list(
+        self, params: Optional[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """Handle prompts/list request"""
         return {"prompts": self.prompts}
 
@@ -221,7 +229,9 @@ class MCPServer:
         prompt_args = params.get("arguments", {})
 
         # Find the prompt template
-        prompt_template = next((p for p in self.prompts if p["name"] == prompt_name), None)
+        prompt_template = next(
+            (p for p in self.prompts if p["name"] == prompt_name), None
+        )
 
         if not prompt_template:
             raise ValueError(f"Unknown prompt: {prompt_name}")
@@ -269,7 +279,10 @@ class MCPServer:
             messages = [
                 {
                     "role": "user",
-                    "content": {"type": "text", "text": f"Execute prompt: {prompt_name}"},
+                    "content": {
+                        "type": "text",
+                        "text": f"Execute prompt: {prompt_name}",
+                    },
                 }
             ]
 
@@ -492,8 +505,12 @@ if __name__ == "__main__":
         default="stdio",
         help="Transport type (default: stdio)",
     )
-    parser.add_argument("--host", default="0.0.0.0", help="Host for SSE transport (default: 0.0.0.0)")
-    parser.add_argument("--port", type=int, default=8200, help="Port for SSE transport (default: 8200)")
+    parser.add_argument(
+        "--host", default="0.0.0.0", help="Host for SSE transport (default: 0.0.0.0)"
+    )
+    parser.add_argument(
+        "--port", type=int, default=8200, help="Port for SSE transport (default: 8200)"
+    )
 
     args = parser.parse_args()
 

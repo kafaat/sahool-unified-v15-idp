@@ -37,10 +37,14 @@ class ActionTemplateFactory:
             "drip": "تنقيط",
             "sprinkler": "رش",
             "flood": "غمر",
-            "furrow": "أخاديد"
+            "furrow": "أخاديد",
         }.get(method, method)
 
-        reasoning_ar = f"رطوبة التربة: {soil_moisture_percent}%" if soil_moisture_percent else "بناءً على تحليل احتياجات المحصول"
+        reasoning_ar = (
+            f"رطوبة التربة: {soil_moisture_percent}%"
+            if soil_moisture_percent
+            else "بناءً على تحليل احتياجات المحصول"
+        )
 
         steps = [
             ActionStep(
@@ -49,7 +53,7 @@ class ActionTemplateFactory:
                 title_en="Check irrigation system",
                 description_ar="تأكد من عمل المضخة والأنابيب بشكل صحيح",
                 description_en="Ensure pump and pipes are working correctly",
-                duration_minutes=10
+                duration_minutes=10,
             ),
             ActionStep(
                 step_number=2,
@@ -58,7 +62,7 @@ class ActionTemplateFactory:
                 description_ar=f"شغّل نظام الري بطريقة {method_ar} لمدة {duration_minutes} دقيقة",
                 description_en=f"Run {method} irrigation for {duration_minutes} minutes",
                 duration_minutes=duration_minutes,
-                requires_confirmation=True
+                requires_confirmation=True,
             ),
             ActionStep(
                 step_number=3,
@@ -67,8 +71,8 @@ class ActionTemplateFactory:
                 description_ar="تأكد من وصول المياه لجميع أجزاء الحقل",
                 description_en="Ensure water reaches all field areas",
                 duration_minutes=15,
-                requires_photo=True
-            )
+                requires_photo=True,
+            ),
         ]
 
         resources = [
@@ -78,7 +82,7 @@ class ActionTemplateFactory:
                 name_en="Water",
                 quantity=water_amount_liters,
                 unit="liters",
-                unit_ar="لتر"
+                unit_ar="لتر",
             )
         ]
 
@@ -94,9 +98,14 @@ class ActionTemplateFactory:
             source_analysis_type="irrigation_recommendation",
             confidence=confidence,
             reasoning_ar=reasoning_ar,
-            reasoning_en=f"Soil moisture: {soil_moisture_percent}%" if soil_moisture_percent else "Based on crop water needs analysis",
+            reasoning_en=(
+                f"Soil moisture: {soil_moisture_percent}%"
+                if soil_moisture_percent
+                else "Based on crop water needs analysis"
+            ),
             urgency=urgency,
-            deadline=deadline or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
+            deadline=deadline
+            or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
             steps=steps,
             resources_needed=resources,
@@ -104,7 +113,7 @@ class ActionTemplateFactory:
             offline_executable=True,
             fallback_instructions_ar=f"في حال عدم توفر البيانات: قم بري الحقل لمدة {duration_minutes} دقيقة في الصباح الباكر (قبل الساعة 8)",
             fallback_instructions_en=f"If data unavailable: Irrigate field for {duration_minutes} minutes in early morning (before 8 AM)",
-            tags=["irrigation", method, urgency.value]
+            tags=["irrigation", method, urgency.value],
         )
 
     @staticmethod
@@ -137,8 +146,12 @@ class ActionTemplateFactory:
             "foliar": ("رش ورقي", "Foliar Spray"),
         }
 
-        fert_ar, fert_en = fertilizer_names.get(fertilizer_type, (fertilizer_type, fertilizer_type))
-        method_ar, method_en = method_names.get(application_method, (application_method, application_method))
+        fert_ar, fert_en = fertilizer_names.get(
+            fertilizer_type, (fertilizer_type, fertilizer_type)
+        )
+        method_ar, method_en = method_names.get(
+            application_method, (application_method, application_method)
+        )
 
         steps = [
             ActionStep(
@@ -147,7 +160,7 @@ class ActionTemplateFactory:
                 title_en="Prepare fertilizer",
                 description_ar=f"قم بوزن {quantity_kg:.1f} كجم من {fert_ar}",
                 description_en=f"Weigh {quantity_kg:.1f} kg of {fert_en}",
-                duration_minutes=10
+                duration_minutes=10,
             ),
             ActionStep(
                 step_number=2,
@@ -157,7 +170,7 @@ class ActionTemplateFactory:
                 description_en=f"Distribute fertilizer using {method_en} method",
                 duration_minutes=45,
                 safety_notes_ar="ارتدِ قفازات وكمامة أثناء التطبيق",
-                safety_notes_en="Wear gloves and mask during application"
+                safety_notes_en="Wear gloves and mask during application",
             ),
             ActionStep(
                 step_number=3,
@@ -166,8 +179,8 @@ class ActionTemplateFactory:
                 description_ar="قم بري خفيف لمساعدة امتصاص السماد",
                 description_en="Light irrigation to help fertilizer absorption",
                 duration_minutes=30,
-                requires_confirmation=True
-            )
+                requires_confirmation=True,
+            ),
         ]
 
         resource_type = {
@@ -183,7 +196,7 @@ class ActionTemplateFactory:
                 name_en=fert_en,
                 quantity=quantity_kg,
                 unit="kg",
-                unit_ar="كجم"
+                unit_ar="كجم",
             )
         ]
 
@@ -198,10 +211,19 @@ class ActionTemplateFactory:
             source_analysis_id=source_analysis_id,
             source_analysis_type="npk_recommendation",
             confidence=confidence,
-            reasoning_ar=f"نسبة NPK الموصى بها: {npk_ratio}" if npk_ratio else "بناءً على تحليل التربة",
-            reasoning_en=f"Recommended NPK ratio: {npk_ratio}" if npk_ratio else "Based on soil analysis",
+            reasoning_ar=(
+                f"نسبة NPK الموصى بها: {npk_ratio}"
+                if npk_ratio
+                else "بناءً على تحليل التربة"
+            ),
+            reasoning_en=(
+                f"Recommended NPK ratio: {npk_ratio}"
+                if npk_ratio
+                else "Based on soil analysis"
+            ),
             urgency=urgency,
-            deadline=deadline or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
+            deadline=deadline
+            or datetime.utcnow() + timedelta(hours=urgency.max_delay_hours),
             field_id=field_id,
             steps=steps,
             resources_needed=resources,
@@ -209,7 +231,7 @@ class ActionTemplateFactory:
             offline_executable=True,
             fallback_instructions_ar=f"في حال عدم توفر البيانات: أضف {quantity_kg:.1f} كجم من {fert_ar} في الصباح الباكر، ثم اروِ الحقل",
             fallback_instructions_en=f"If data unavailable: Apply {quantity_kg:.1f} kg of {fert_en} in early morning, then irrigate",
-            tags=["fertilization", fertilizer_type, application_method]
+            tags=["fertilization", fertilizer_type, application_method],
         )
 
     @staticmethod
@@ -234,7 +256,7 @@ class ActionTemplateFactory:
                 description_ar=f"افحص النباتات في المنطقة المحددة بحثاً عن أعراض {disease_name_ar}",
                 description_en=f"Inspect plants in the affected area for {disease_name_en} symptoms",
                 duration_minutes=30,
-                requires_photo=True
+                requires_photo=True,
             ),
             ActionStep(
                 step_number=2,
@@ -243,7 +265,7 @@ class ActionTemplateFactory:
                 description_ar="حدد المناطق المصابة وقدّر نسبة الإصابة",
                 description_en="Mark infected areas and estimate infection percentage",
                 duration_minutes=20,
-                requires_confirmation=True
+                requires_confirmation=True,
             ),
             ActionStep(
                 step_number=3,
@@ -252,8 +274,8 @@ class ActionTemplateFactory:
                 description_ar="اجمع عينات من الأوراق/الثمار المصابة للتحليل",
                 description_en="Collect samples of infected leaves/fruits for analysis",
                 duration_minutes=15,
-                requires_photo=True
-            )
+                requires_photo=True,
+            ),
         ]
 
         return ActionTemplate(
@@ -283,8 +305,8 @@ class ActionTemplateFactory:
             metadata={
                 "disease_name": disease_name_en,
                 "affected_area_percent": affected_area_percent,
-                "recommended_treatment": recommended_treatment
-            }
+                "recommended_treatment": recommended_treatment,
+            },
         )
 
     @staticmethod
@@ -324,7 +346,7 @@ class ActionTemplateFactory:
                 description_en=f"Mix {pesticide_name_en} at {concentration} concentration with water",
                 duration_minutes=15,
                 safety_notes_ar="ارتدِ ملابس واقية وقفازات ونظارات وكمامة",
-                safety_notes_en="Wear protective clothing, gloves, goggles, and mask"
+                safety_notes_en="Wear protective clothing, gloves, goggles, and mask",
             ),
             ActionStep(
                 step_number=2,
@@ -333,7 +355,7 @@ class ActionTemplateFactory:
                 description_ar=f"رش المحلول على مساحة {area_hectares:.2f} هكتار",
                 description_en=f"Spray solution over {area_hectares:.2f} hectares",
                 duration_minutes=int(area_hectares * 60),
-                requires_confirmation=True
+                requires_confirmation=True,
             ),
             ActionStep(
                 step_number=3,
@@ -341,8 +363,8 @@ class ActionTemplateFactory:
                 title_en="Cleanup",
                 description_ar="نظّف المعدات واغسل الملابس الواقية",
                 description_en="Clean equipment and wash protective clothing",
-                duration_minutes=20
-            )
+                duration_minutes=20,
+            ),
         ]
 
         resources = [
@@ -352,7 +374,7 @@ class ActionTemplateFactory:
                 name_en=pesticide_name_en,
                 quantity=area_hectares * 2,  # Approximate liters per hectare
                 unit="liters",
-                unit_ar="لتر"
+                unit_ar="لتر",
             ),
             Resource(
                 resource_type=ResourceType.EQUIPMENT_SPRAYER,
@@ -360,14 +382,16 @@ class ActionTemplateFactory:
                 name_en="Sprayer",
                 quantity=1,
                 unit="unit",
-                unit_ar="وحدة"
-            )
+                unit_ar="وحدة",
+            ),
         ]
 
         return ActionTemplate(
             action_type=action_type,
-            title_ar=f"رش {pesticide_name_ar}" + (f" ضد {target_pest_ar}" if target_pest_ar else ""),
-            title_en=f"Spray {pesticide_name_en}" + (f" against {target_pest_en}" if target_pest_en else ""),
+            title_ar=f"رش {pesticide_name_ar}"
+            + (f" ضد {target_pest_ar}" if target_pest_ar else ""),
+            title_en=f"Spray {pesticide_name_en}"
+            + (f" against {target_pest_en}" if target_pest_en else ""),
             description_ar=f"رش {pesticide_name_ar} بتركيز {concentration} على مساحة {area_hectares:.2f} هكتار",
             description_en=f"Apply {pesticide_name_en} at {concentration} over {area_hectares:.2f} hectares",
             summary_ar=f"رش {pesticide_name_ar} - {area_hectares:.1f} هكتار",
@@ -384,5 +408,5 @@ class ActionTemplateFactory:
             offline_executable=True,
             fallback_instructions_ar=f"في حال عدم توفر البيانات: رش {pesticide_name_ar} بتركيز {concentration} في الصباح الباكر أو المساء، تجنب الرش في الرياح القوية",
             fallback_instructions_en=f"If data unavailable: Spray {pesticide_name_en} at {concentration} in early morning or evening, avoid spraying in strong winds",
-            tags=["spray", pesticide_type, urgency.value]
+            tags=["spray", pesticide_type, urgency.value],
         )

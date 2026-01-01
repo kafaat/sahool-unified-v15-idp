@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 class AlertTopics:
     """موضوعات NATS للتنبيهات"""
+
     # نشر التنبيهات
     ALERT_CREATED = "sahool.alerts.created"
     ALERT_UPDATED = "sahool.alerts.updated"
@@ -85,7 +86,7 @@ class AlertEventPublisher:
             "event_id": event_id,
             "timestamp": datetime.utcnow().isoformat(),
             "topic": topic,
-            **data
+            **data,
         }
 
         try:
@@ -104,18 +105,21 @@ class AlertEventPublisher:
         alert_type: str,
         severity: str,
         title: str,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> Optional[str]:
         """نشر حدث إنشاء تنبيه"""
-        return await self._publish(AlertTopics.ALERT_CREATED, {
-            "alert_id": alert_id,
-            "field_id": field_id,
-            "tenant_id": tenant_id,
-            "type": alert_type,
-            "severity": severity,
-            "title": title,
-            "correlation_id": correlation_id
-        })
+        return await self._publish(
+            AlertTopics.ALERT_CREATED,
+            {
+                "alert_id": alert_id,
+                "field_id": field_id,
+                "tenant_id": tenant_id,
+                "type": alert_type,
+                "severity": severity,
+                "title": title,
+                "correlation_id": correlation_id,
+            },
+        )
 
     async def publish_alert_updated(
         self,
@@ -123,44 +127,50 @@ class AlertEventPublisher:
         field_id: str,
         old_status: str,
         new_status: str,
-        updated_by: Optional[str] = None
+        updated_by: Optional[str] = None,
     ) -> Optional[str]:
         """نشر حدث تحديث تنبيه"""
-        return await self._publish(AlertTopics.ALERT_UPDATED, {
-            "alert_id": alert_id,
-            "field_id": field_id,
-            "old_status": old_status,
-            "new_status": new_status,
-            "updated_by": updated_by
-        })
+        return await self._publish(
+            AlertTopics.ALERT_UPDATED,
+            {
+                "alert_id": alert_id,
+                "field_id": field_id,
+                "old_status": old_status,
+                "new_status": new_status,
+                "updated_by": updated_by,
+            },
+        )
 
     async def publish_alert_acknowledged(
-        self,
-        alert_id: str,
-        field_id: str,
-        acknowledged_by: str
+        self, alert_id: str, field_id: str, acknowledged_by: str
     ) -> Optional[str]:
         """نشر حدث إقرار بتنبيه"""
-        return await self._publish(AlertTopics.ALERT_ACKNOWLEDGED, {
-            "alert_id": alert_id,
-            "field_id": field_id,
-            "acknowledged_by": acknowledged_by
-        })
+        return await self._publish(
+            AlertTopics.ALERT_ACKNOWLEDGED,
+            {
+                "alert_id": alert_id,
+                "field_id": field_id,
+                "acknowledged_by": acknowledged_by,
+            },
+        )
 
     async def publish_alert_resolved(
         self,
         alert_id: str,
         field_id: str,
         resolved_by: str,
-        resolution_note: Optional[str] = None
+        resolution_note: Optional[str] = None,
     ) -> Optional[str]:
         """نشر حدث حل تنبيه"""
-        return await self._publish(AlertTopics.ALERT_RESOLVED, {
-            "alert_id": alert_id,
-            "field_id": field_id,
-            "resolved_by": resolved_by,
-            "resolution_note": resolution_note
-        })
+        return await self._publish(
+            AlertTopics.ALERT_RESOLVED,
+            {
+                "alert_id": alert_id,
+                "field_id": field_id,
+                "resolved_by": resolved_by,
+                "resolution_note": resolution_note,
+            },
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -224,7 +234,9 @@ class AlertEventSubscriber:
             data = json.loads(msg.data.decode())
             topic = msg.subject
 
-            logger.debug(f"Received message on {topic}: {data.get('event_id', 'unknown')}")
+            logger.debug(
+                f"Received message on {topic}: {data.get('event_id', 'unknown')}"
+            )
 
             if topic in self._handlers:
                 await self._handlers[topic](data)

@@ -62,6 +62,7 @@ STAGING_ORIGINS = [
 # Environment-Based Origin Selection
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def get_allowed_origins() -> List[str]:
     """
     Get allowed CORS origins based on the current environment.
@@ -96,7 +97,9 @@ def get_allowed_origins() -> List[str]:
     cors_origins_env = os.getenv("CORS_ORIGINS", "").strip()
     if cors_origins_env:
         # Remove wildcard in production for security
-        origins = [origin.strip() for origin in cors_origins_env.split(",") if origin.strip()]
+        origins = [
+            origin.strip() for origin in cors_origins_env.split(",") if origin.strip()
+        ]
 
         environment = os.getenv("ENVIRONMENT", "development").lower()
         if "*" in origins and environment == "production":
@@ -125,6 +128,7 @@ def get_allowed_origins() -> List[str]:
 # ═══════════════════════════════════════════════════════════════════════════════
 # CORS Middleware Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def setup_cors_middleware(
     app: FastAPI,
@@ -245,6 +249,7 @@ def setup_cors_middleware(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Utility Functions
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def get_cors_config() -> dict:
     """

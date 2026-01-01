@@ -42,26 +42,29 @@ KEY_LENGTH = 32  # 256 bits
 # Key Management
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def get_encryption_key() -> bytes:
     """Get encryption key from environment variables."""
-    key = os.environ.get('ENCRYPTION_KEY')
+    key = os.environ.get("ENCRYPTION_KEY")
     if not key:
-        raise ValueError('ENCRYPTION_KEY environment variable is not set')
+        raise ValueError("ENCRYPTION_KEY environment variable is not set")
 
     if len(key) != 64:
-        raise ValueError('ENCRYPTION_KEY must be 64 hex characters (32 bytes)')
+        raise ValueError("ENCRYPTION_KEY must be 64 hex characters (32 bytes)")
 
     return bytes.fromhex(key)
 
 
 def get_deterministic_key() -> bytes:
     """Get deterministic encryption key from environment variables."""
-    key = os.environ.get('DETERMINISTIC_ENCRYPTION_KEY')
+    key = os.environ.get("DETERMINISTIC_ENCRYPTION_KEY")
     if not key:
-        raise ValueError('DETERMINISTIC_ENCRYPTION_KEY environment variable is not set')
+        raise ValueError("DETERMINISTIC_ENCRYPTION_KEY environment variable is not set")
 
     if len(key) != 64:
-        raise ValueError('DETERMINISTIC_ENCRYPTION_KEY must be 64 hex characters (32 bytes)')
+        raise ValueError(
+            "DETERMINISTIC_ENCRYPTION_KEY must be 64 hex characters (32 bytes)"
+        )
 
     return bytes.fromhex(key)
 
@@ -74,6 +77,7 @@ def generate_encryption_key() -> str:
 # ═══════════════════════════════════════════════════════════════════════════
 # Encryption Functions
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def encrypt_field(plaintext: str) -> str:
     """
@@ -98,14 +102,12 @@ def encrypt_field(plaintext: str) -> str:
         nonce = os.urandom(NONCE_LENGTH)
 
         ciphertext = aesgcm.encrypt(
-            nonce,
-            plaintext.encode('utf-8'),
-            None  # No associated data
+            nonce, plaintext.encode("utf-8"), None  # No associated data
         )
 
         # Format: nonce:ciphertext (both base64 encoded)
-        nonce_b64 = base64.b64encode(nonce).decode('utf-8')
-        ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
+        nonce_b64 = base64.b64encode(nonce).decode("utf-8")
+        ciphertext_b64 = base64.b64encode(ciphertext).decode("utf-8")
 
         return f"{nonce_b64}:{ciphertext_b64}"
     except Exception as e:
@@ -129,9 +131,9 @@ def decrypt_field(encrypted_data: str) -> str:
         return encrypted_data
 
     try:
-        parts = encrypted_data.split(':')
+        parts = encrypted_data.split(":")
         if len(parts) != 2:
-            raise ValueError('Invalid encrypted data format')
+            raise ValueError("Invalid encrypted data format")
 
         nonce_b64, ciphertext_b64 = parts
         nonce = base64.b64decode(nonce_b64)
@@ -141,7 +143,7 @@ def decrypt_field(encrypted_data: str) -> str:
         aesgcm = AESGCM(key)
 
         plaintext_bytes = aesgcm.decrypt(nonce, ciphertext, None)
-        return plaintext_bytes.decode('utf-8')
+        return plaintext_bytes.decode("utf-8")
     except Exception as e:
         raise ValueError(f"Decryption failed: {str(e)}")
 
@@ -171,18 +173,16 @@ def encrypt_searchable(plaintext: str) -> str:
 
         # Derive deterministic nonce using HMAC
         h = hmac.HMAC(key, hashes.SHA256(), backend=default_backend())
-        h.update(plaintext.encode('utf-8'))
+        h.update(plaintext.encode("utf-8"))
         deterministic_nonce = h.finalize()[:NONCE_LENGTH]
 
         aesgcm = AESGCM(key)
         ciphertext = aesgcm.encrypt(
-            deterministic_nonce,
-            plaintext.encode('utf-8'),
-            None
+            deterministic_nonce, plaintext.encode("utf-8"), None
         )
 
         # Return only ciphertext (nonce is deterministic and not stored)
-        return base64.b64encode(ciphertext).decode('utf-8')
+        return base64.b64encode(ciphertext).decode("utf-8")
     except Exception as e:
         raise ValueError(f"Searchable encryption failed: {str(e)}")
 
@@ -190,6 +190,7 @@ def encrypt_searchable(plaintext: str) -> str:
 # ═══════════════════════════════════════════════════════════════════════════
 # SQLAlchemy Custom Column Types
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class EncryptedString(TypeDecorator):
     """
@@ -283,13 +284,16 @@ class EncryptedText(EncryptedString):
     Same as EncryptedString but with longer default length.
     """
 
-    def __init__(self, deterministic: bool = False, length: int = 2048, *args, **kwargs):
+    def __init__(
+        self, deterministic: bool = False, length: int = 2048, *args, **kwargs
+    ):
         super().__init__(deterministic=deterministic, length=length, *args, **kwargs)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Password Hashing Utilities
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def hash_password(password: str, rounds: int = 12) -> str:
     """
@@ -307,10 +311,10 @@ def hash_password(password: str, rounds: int = 12) -> str:
         >>> # Returns: "$2b$12$..."
     """
     if not password:
-        raise ValueError('Password cannot be empty')
+        raise ValueError("Password cannot be empty")
 
     salt = bcrypt.gensalt(rounds=rounds)
-    return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
 
 
 def verify_password(password: str, hashed: str) -> bool:
@@ -333,7 +337,7 @@ def verify_password(password: str, hashed: str) -> bool:
         return False
 
     try:
-        return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
+        return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
     except Exception:
         return False
 
@@ -341,6 +345,7 @@ def verify_password(password: str, hashed: str) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════
 # HMAC and Hashing Utilities
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def create_hmac(data: str, secret: Optional[str] = None) -> str:
     """
@@ -358,16 +363,14 @@ def create_hmac(data: str, secret: Optional[str] = None) -> str:
         >>> # Later, verify:
         >>> is_valid = verify_hmac('important data', signature)
     """
-    hmac_secret = secret or os.environ.get('HMAC_SECRET')
+    hmac_secret = secret or os.environ.get("HMAC_SECRET")
     if not hmac_secret:
-        raise ValueError('HMAC_SECRET not provided and environment variable not set')
+        raise ValueError("HMAC_SECRET not provided and environment variable not set")
 
     h = hmac.HMAC(
-        hmac_secret.encode('utf-8'),
-        hashes.SHA256(),
-        backend=default_backend()
+        hmac_secret.encode("utf-8"), hashes.SHA256(), backend=default_backend()
     )
-    h.update(data.encode('utf-8'))
+    h.update(data.encode("utf-8"))
     return h.finalize().hex()
 
 
@@ -403,12 +406,13 @@ def sha256_hash(data: str) -> str:
     Example:
         >>> hash_val = sha256_hash('my data')
     """
-    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Session Event Listeners (Optional)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def enable_encryption_logging(session: Session):
     """
@@ -422,18 +426,24 @@ def enable_encryption_logging(session: Session):
         >>> session = Session()
         >>> enable_encryption_logging(session)
     """
-    @event.listens_for(session, 'before_flush')
+
+    @event.listens_for(session, "before_flush")
     def receive_before_flush(session, flush_context, instances):
         """Log encryption operations before flush"""
         for instance in session.new:
-            print(f"[SQLAlchemy Encryption] Encrypting new instance: {type(instance).__name__}")
+            print(
+                f"[SQLAlchemy Encryption] Encrypting new instance: {type(instance).__name__}"
+            )
         for instance in session.dirty:
-            print(f"[SQLAlchemy Encryption] Encrypting modified instance: {type(instance).__name__}")
+            print(
+                f"[SQLAlchemy Encryption] Encrypting modified instance: {type(instance).__name__}"
+            )
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Utility Functions
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def is_encrypted(data: str) -> bool:
     """
@@ -451,8 +461,8 @@ def is_encrypted(data: str) -> bool:
     # Check for our encryption format patterns
     # Standard format: nonce:ciphertext (base64)
     # Searchable format: ciphertext (base64)
-    if ':' in data:
-        parts = data.split(':')
+    if ":" in data:
+        parts = data.split(":")
         if len(parts) == 2:
             try:
                 base64.b64decode(parts[0])
@@ -472,11 +482,7 @@ def is_encrypted(data: str) -> bool:
     return False
 
 
-def encrypt_dict_fields(
-    data: dict,
-    fields: list,
-    deterministic: bool = False
-) -> dict:
+def encrypt_dict_fields(data: dict, fields: list, deterministic: bool = False) -> dict:
     """
     Encrypt specific fields in a dictionary.
 

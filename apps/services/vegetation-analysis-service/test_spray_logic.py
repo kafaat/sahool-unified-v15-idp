@@ -12,16 +12,24 @@ from src.spray_advisor import (
 
 def test_calculate_spray_score():
     """Test spray score calculation"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🧪 SPRAY SCORE CALCULATION TEST")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     advisor = SprayAdvisor()
 
     test_cases = [
         # (temp, humidity, wind, rain_prob, product, expected_condition, description)
         (22, 60, 8, 10, None, SprayCondition.EXCELLENT, "Ideal conditions"),
-        (25, 55, 12, 15, SprayProduct.HERBICIDE, SprayCondition.GOOD, "Good herbicide conditions"),
+        (
+            25,
+            55,
+            12,
+            15,
+            SprayProduct.HERBICIDE,
+            SprayCondition.GOOD,
+            "Good herbicide conditions",
+        ),
         (18, 45, 18, 25, None, SprayCondition.MARGINAL, "High wind and rain risk"),
         (8, 85, 5, 5, None, SprayCondition.POOR, "Too cold"),
         (35, 30, 20, 40, None, SprayCondition.DANGEROUS, "Hot, dry, windy, rain"),
@@ -41,14 +49,14 @@ def test_calculate_spray_score():
         if risks:
             print(f"{'  Risks:':<40} {', '.join(risks[:3])}")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 def test_product_specific_conditions():
     """Test product-specific scoring differences"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🌿 PRODUCT-SPECIFIC CONDITIONS TEST")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     advisor = SprayAdvisor()
 
@@ -72,16 +80,18 @@ def test_product_specific_conditions():
             temp, humidity, wind, rain, product
         )
         risks_str = ", ".join(risks[:2]) if risks else "None"
-        print(f"{name:<25} {score:>6.1f}/100  {condition.value.upper():<15} {risks_str}")
+        print(
+            f"{name:<25} {score:>6.1f}/100  {condition.value.upper():<15} {risks_str}"
+        )
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 def test_risk_identification():
     """Test risk identification logic"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("⚠️  RISK IDENTIFICATION TEST")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     advisor = SprayAdvisor()
 
@@ -91,7 +101,15 @@ def test_risk_identification():
         (25, 35, 5, 5, None, ["evaporation", "poor_absorption"], "Low humidity"),
         (25, 60, 20, 5, None, ["spray_drift"], "High wind"),
         (25, 60, 5, 30, None, ["wash_off"], "Rain forecast"),
-        (30, 30, 5, 5, 1.5, ["evaporation", "phytotoxicity", "poor_absorption", "inversion_risk"], "Multiple risks"),
+        (
+            30,
+            30,
+            5,
+            5,
+            1.5,
+            ["evaporation", "phytotoxicity", "poor_absorption", "inversion_risk"],
+            "Multiple risks",
+        ),
     ]
 
     for temp, humidity, wind, rain, delta_t, expected_risks, desc in test_cases:
@@ -103,21 +121,31 @@ def test_risk_identification():
 
         print(f"{status} {desc:<30} Risks: {', '.join(risks) if risks else 'None'}")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 def test_recommendations():
     """Test recommendation generation"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("💡 RECOMMENDATIONS TEST")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     advisor = SprayAdvisor()
 
     test_cases = [
         (SprayCondition.EXCELLENT, [], None, "Perfect conditions"),
-        (SprayCondition.POOR, ["spray_drift", "wash_off"], SprayProduct.HERBICIDE, "Poor with risks"),
-        (SprayCondition.MARGINAL, ["low_humidity"], SprayProduct.INSECTICIDE, "Marginal insecticide"),
+        (
+            SprayCondition.POOR,
+            ["spray_drift", "wash_off"],
+            SprayProduct.HERBICIDE,
+            "Poor with risks",
+        ),
+        (
+            SprayCondition.MARGINAL,
+            ["low_humidity"],
+            SprayProduct.INSECTICIDE,
+            "Marginal insecticide",
+        ),
     ]
 
     for condition, risks, product, desc in test_cases:
@@ -138,14 +166,14 @@ def test_recommendations():
         for rec in recommendations["ar"][:3]:
             print(f"    • {rec}")
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 def test_delta_t_ranges():
     """Test Delta-T calculation ranges"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("📐 DELTA-T RANGES TEST")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     advisor = SprayAdvisor()
 
@@ -162,7 +190,9 @@ def test_delta_t_ranges():
         (28, 60, "2-8°C (ideal)"),
     ]
 
-    print(f"{'Temp':<8} {'Humidity':<12} {'Delta-T':<12} {'Classification':<25} {'Expected'}")
+    print(
+        f"{'Temp':<8} {'Humidity':<12} {'Delta-T':<12} {'Classification':<25} {'Expected'}"
+    )
     print(f"{'-'*80}")
 
     for temp, humidity, expected in test_cases:
@@ -176,29 +206,38 @@ def test_delta_t_ranges():
             else:
                 classification = "⚠️  Too high"
 
-            status = "✅" if expected in classification or (expected == "2-8°C (ideal)" and 2 <= delta_t <= 8) else "⚠️ "
+            status = (
+                "✅"
+                if expected in classification
+                or (expected == "2-8°C (ideal)" and 2 <= delta_t <= 8)
+                else "⚠️ "
+            )
 
-            print(f"{temp}°C    {humidity}%       {delta_t:.1f}°C      {classification:<25} {status}")
+            print(
+                f"{temp}°C    {humidity}%       {delta_t:.1f}°C      {classification:<25} {status}"
+            )
         else:
-            print(f"{temp}°C    {humidity}%       N/A         Error                     ❌")
+            print(
+                f"{temp}°C    {humidity}%       N/A         Error                     ❌"
+            )
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 def test_condition_scoring_boundaries():
     """Test condition level boundaries"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🎯 CONDITION SCORING BOUNDARIES TEST")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
     advisor = SprayAdvisor()
 
     # Test scores at boundaries
     boundary_tests = [
-        (22, 60, 5, 5, 85, SprayCondition.EXCELLENT),    # Should be excellent
-        (20, 55, 10, 12, 70, SprayCondition.GOOD),       # Should be good
-        (18, 50, 14, 18, 50, SprayCondition.MARGINAL),   # Should be marginal
-        (15, 45, 16, 25, 30, SprayCondition.POOR),       # Should be poor
+        (22, 60, 5, 5, 85, SprayCondition.EXCELLENT),  # Should be excellent
+        (20, 55, 10, 12, 70, SprayCondition.GOOD),  # Should be good
+        (18, 50, 14, 18, 50, SprayCondition.MARGINAL),  # Should be marginal
+        (15, 45, 16, 25, 30, SprayCondition.POOR),  # Should be poor
     ]
 
     print(f"{'Weather Conditions':<45} {'Score':<10} {'Expected':<15} {'Result'}")
@@ -209,20 +248,24 @@ def test_condition_scoring_boundaries():
             temp, humidity, wind, rain
         )
 
-        status = "✅" if condition == expected_condition and score >= expected_min else "⚠️ "
+        status = (
+            "✅" if condition == expected_condition and score >= expected_min else "⚠️ "
+        )
         conditions_str = f"{temp}°C, {humidity}%, {wind}km/h, {rain}%"
 
-        print(f"{conditions_str:<45} {score:>6.1f}/100  {expected_condition.value:<15} {status}")
+        print(
+            f"{conditions_str:<45} {score:>6.1f}/100  {expected_condition.value:<15} {status}"
+        )
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
 
 
 def main():
     """Run all logic tests"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🧪 SPRAY ADVISOR LOGIC TESTS (No API calls)")
     print("   اختبارات منطق مستشار الرش (بدون API)")
-    print("="*80)
+    print("=" * 80)
 
     test_calculate_spray_score()
     test_product_specific_conditions()
@@ -231,9 +274,9 @@ def main():
     test_delta_t_ranges()
     test_condition_scoring_boundaries()
 
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("✅ ALL LOGIC TESTS PASSED")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
 
 if __name__ == "__main__":

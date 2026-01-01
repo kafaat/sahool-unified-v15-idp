@@ -45,11 +45,19 @@ class DiseaseService:
                     frequency="Every 14 days if infection persists",
                     frequency_ar="كل 14 يوم إذا استمرت الإصابة",
                     precautions=["Wear protective equipment", "Avoid spraying in wind"],
-                    precautions_ar=["ارتداء معدات الحماية", "تجنب الرش في الرياح"]
+                    precautions_ar=["ارتداء معدات الحماية", "تجنب الرش في الرياح"],
                 )
             ],
-            "prevention": ["Use resistant varieties", "Crop rotation", "Remove crop residues"],
-            "prevention_ar": ["استخدام أصناف مقاومة", "الدورة الزراعية", "إزالة بقايا المحصول"]
+            "prevention": [
+                "Use resistant varieties",
+                "Crop rotation",
+                "Remove crop residues",
+            ],
+            "prevention_ar": [
+                "استخدام أصناف مقاومة",
+                "الدورة الزراعية",
+                "إزالة بقايا المحصول",
+            ],
         },
         "tomato_late_blight": {
             "name": "Tomato Late Blight",
@@ -70,11 +78,19 @@ class DiseaseService:
                     frequency="Every 7-10 days during humid conditions",
                     frequency_ar="كل 7-10 أيام في الظروف الرطبة",
                     precautions=["Apply before rain", "Ensure complete coverage"],
-                    precautions_ar=["التطبيق قبل المطر", "ضمان التغطية الكاملة"]
+                    precautions_ar=["التطبيق قبل المطر", "ضمان التغطية الكاملة"],
                 )
             ],
-            "prevention": ["Avoid overhead irrigation", "Improve air circulation", "Plant resistant varieties"],
-            "prevention_ar": ["تجنب الري العلوي", "تحسين دوران الهواء", "زراعة أصناف مقاومة"]
+            "prevention": [
+                "Avoid overhead irrigation",
+                "Improve air circulation",
+                "Plant resistant varieties",
+            ],
+            "prevention_ar": [
+                "تجنب الري العلوي",
+                "تحسين دوران الهواء",
+                "زراعة أصناف مقاومة",
+            ],
         },
         "coffee_leaf_rust": {
             "name": "Coffee Leaf Rust",
@@ -95,11 +111,15 @@ class DiseaseService:
                     frequency="Monthly during rainy season",
                     frequency_ar="شهرياً خلال موسم الأمطار",
                     precautions=["Test on small area first"],
-                    precautions_ar=["اختبار على منطقة صغيرة أولاً"]
+                    precautions_ar=["اختبار على منطقة صغيرة أولاً"],
                 )
             ],
-            "prevention": ["Shade management", "Proper nutrition", "Resistant varieties"],
-            "prevention_ar": ["إدارة الظل", "التغذية السليمة", "الأصناف المقاومة"]
+            "prevention": [
+                "Shade management",
+                "Proper nutrition",
+                "Resistant varieties",
+            ],
+            "prevention_ar": ["إدارة الظل", "التغذية السليمة", "الأصناف المقاومة"],
         },
         "date_palm_bayoud": {
             "name": "Date Palm Bayoud Disease",
@@ -119,12 +139,26 @@ class DiseaseService:
                     application_method_ar="تطبيق على التربة حول الجذع",
                     frequency="At first signs of infection",
                     frequency_ar="عند أول علامات الإصابة",
-                    precautions=["Remove and burn infected trees", "Quarantine affected area"],
-                    precautions_ar=["إزالة وحرق الأشجار المصابة", "عزل المنطقة المصابة"]
+                    precautions=[
+                        "Remove and burn infected trees",
+                        "Quarantine affected area",
+                    ],
+                    precautions_ar=[
+                        "إزالة وحرق الأشجار المصابة",
+                        "عزل المنطقة المصابة",
+                    ],
                 )
             ],
-            "prevention": ["Use certified disease-free offshoots", "Avoid moving soil", "Monitor regularly"],
-            "prevention_ar": ["استخدام فسائل معتمدة خالية من المرض", "تجنب نقل التربة", "المراقبة المنتظمة"]
+            "prevention": [
+                "Use certified disease-free offshoots",
+                "Avoid moving soil",
+                "Monitor regularly",
+            ],
+            "prevention_ar": [
+                "استخدام فسائل معتمدة خالية من المرض",
+                "تجنب نقل التربة",
+                "المراقبة المنتظمة",
+            ],
         },
         "mango_anthracnose": {
             "name": "Mango Anthracnose",
@@ -145,11 +179,15 @@ class DiseaseService:
                     frequency="Every 15 days during humid season",
                     frequency_ar="كل 15 يوم خلال الموسم الرطب",
                     precautions=["Avoid application during hot midday"],
-                    precautions_ar=["تجنب التطبيق في منتصف النهار الحار"]
+                    precautions_ar=["تجنب التطبيق في منتصف النهار الحار"],
                 )
             ],
-            "prevention": ["Prune dead branches", "Good drainage", "Avoid wetting foliage"],
-            "prevention_ar": ["تقليم الفروع الميتة", "صرف جيد", "تجنب تبليل الأوراق"]
+            "prevention": [
+                "Prune dead branches",
+                "Good drainage",
+                "Avoid wetting foliage",
+            ],
+            "prevention_ar": ["تقليم الفروع الميتة", "صرف جيد", "تجنب تبليل الأوراق"],
         },
         "healthy": {
             "name": "Healthy Plant",
@@ -159,9 +197,12 @@ class DiseaseService:
             "crop": CropType.UNKNOWN,
             "severity_default": DiseaseSeverity.HEALTHY,
             "treatments": [],
-            "prevention": ["Continue good agricultural practices", "Regular monitoring"],
-            "prevention_ar": ["استمرار الممارسات الزراعية الجيدة", "المراقبة المنتظمة"]
-        }
+            "prevention": [
+                "Continue good agricultural practices",
+                "Regular monitoring",
+            ],
+            "prevention_ar": ["استمرار الممارسات الزراعية الجيدة", "المراقبة المنتظمة"],
+        },
     }
 
     # معلومات المحاصيل المدعومة
@@ -184,7 +225,9 @@ class DiseaseService:
         """الحصول على معلومات مرض معين"""
         return self.DISEASE_DATABASE.get(disease_id)
 
-    def get_all_diseases(self, crop_type: Optional[CropType] = None) -> List[Dict[str, Any]]:
+    def get_all_diseases(
+        self, crop_type: Optional[CropType] = None
+    ) -> List[Dict[str, Any]]:
         """الحصول على قائمة جميع الأمراض"""
         diseases = []
         for key, info in self.DISEASE_DATABASE.items():
@@ -192,13 +235,15 @@ class DiseaseService:
                 continue
             if crop_type and info.get("crop") != crop_type:
                 continue
-            diseases.append({
-                "disease_id": key,
-                "name": info["name"],
-                "name_ar": info["name_ar"],
-                "crop": info.get("crop", CropType.UNKNOWN).value,
-                "severity": info["severity_default"].value
-            })
+            diseases.append(
+                {
+                    "disease_id": key,
+                    "name": info["name"],
+                    "name_ar": info["name_ar"],
+                    "crop": info.get("crop", CropType.UNKNOWN).value,
+                    "severity": info["severity_default"].value,
+                }
+            )
         return diseases
 
     def get_treatment_details(self, disease_id: str) -> Optional[Dict[str, Any]]:
@@ -214,7 +259,7 @@ class DiseaseService:
             "treatments": [t.model_dump() for t in disease.get("treatments", [])],
             "prevention": disease.get("prevention", []),
             "prevention_ar": disease.get("prevention_ar", []),
-            "severity": disease["severity_default"].value
+            "severity": disease["severity_default"].value,
         }
 
     def get_supported_crops(self) -> List[Dict[str, Any]]:
@@ -226,9 +271,8 @@ class DiseaseService:
                 "name_ar": info["name_ar"],
                 "icon": info["icon"],
                 "diseases_count": sum(
-                    1 for d in self.DISEASE_DATABASE.values()
-                    if d.get("crop") == crop
-                )
+                    1 for d in self.DISEASE_DATABASE.values() if d.get("crop") == crop
+                ),
             }
             for crop, info in self.CROPS_INFO.items()
         ]

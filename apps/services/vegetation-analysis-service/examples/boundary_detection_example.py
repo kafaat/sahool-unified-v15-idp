@@ -28,8 +28,8 @@ async def example_detect_boundaries():
                 "lat": 15.5527,  # Sana'a latitude
                 "lon": 44.2075,  # Sana'a longitude
                 "radius_m": 500,
-                "date": "2024-01-15"
-            }
+                "date": "2024-01-15",
+            },
         )
 
         if response.status_code == 200:
@@ -39,9 +39,9 @@ async def example_detect_boundaries():
             print(f"✓ Detection date: {data['metadata']['detection_date']}")
 
             # Print first field details
-            if data['features']:
-                first_field = data['features'][0]
-                props = first_field['properties']
+            if data["features"]:
+                first_field = data["features"][0]
+                props = first_field["properties"]
                 print(f"\nFirst field details:")
                 print(f"  - Field ID: {props['field_id']}")
                 print(f"  - Area: {props['area_hectares']} hectares")
@@ -71,20 +71,17 @@ async def example_refine_boundary():
             [44.2070, 15.5520],  # [lon, lat]
             [44.2080, 15.5520],
             [44.2080, 15.5530],
-            [44.2070, 15.5530]
+            [44.2070, 15.5530],
         ]
 
         response = await client.post(
             f"{BASE_URL}/v1/boundaries/refine",
-            params={
-                "coords": json.dumps(rough_coords),
-                "buffer_m": 50
-            }
+            params={"coords": json.dumps(rough_coords), "buffer_m": 50},
         )
 
         if response.status_code == 200:
             data = response.json()
-            stats = data['refinement_stats']
+            stats = data["refinement_stats"]
             print(f"✓ Boundary refined successfully")
             print(f"✓ Initial points: {stats['initial_points']}")
             print(f"✓ Refined points: {stats['refined_points']}")
@@ -95,7 +92,7 @@ async def example_refine_boundary():
 
             # Save to file
             with open("/tmp/refined_boundary.geojson", "w") as f:
-                json.dump(data['refined_boundary'], f, indent=2)
+                json.dump(data["refined_boundary"], f, indent=2)
             print(f"\n✓ Saved to /tmp/refined_boundary.geojson")
         else:
             print(f"✗ Error: {response.status_code}")
@@ -114,20 +111,20 @@ async def example_detect_changes():
             [44.2070, 15.5520],
             [44.2080, 15.5520],
             [44.2080, 15.5530],
-            [44.2070, 15.5530]
+            [44.2070, 15.5530],
         ]
 
         response = await client.get(
             f"{BASE_URL}/v1/boundaries/field_12345/changes",
             params={
                 "since_date": "2023-07-01",
-                "previous_coords": json.dumps(previous_coords)
-            }
+                "previous_coords": json.dumps(previous_coords),
+            },
         )
 
         if response.status_code == 200:
             data = response.json()
-            analysis = data['change_analysis']
+            analysis = data["change_analysis"]
 
             print(f"✓ Field ID: {data['field_id']}")
             print(f"✓ Change type: {analysis['change_type']}")
@@ -162,29 +159,22 @@ async def example_workflow():
         print("\nStep 1: Detecting boundaries...")
         detect_response = await client.post(
             f"{BASE_URL}/v1/boundaries/detect",
-            params={
-                "lat": 15.5527,
-                "lon": 44.2075,
-                "radius_m": 300
-            }
+            params={"lat": 15.5527, "lon": 44.2075, "radius_m": 300},
         )
 
         if detect_response.status_code == 200:
             boundaries = detect_response.json()
             print(f"✓ Found {len(boundaries['features'])} fields")
 
-            if boundaries['features']:
+            if boundaries["features"]:
                 # Step 2: Refine the first boundary
-                first_field = boundaries['features'][0]
-                coords = first_field['geometry']['coordinates'][0]
+                first_field = boundaries["features"][0]
+                coords = first_field["geometry"]["coordinates"][0]
 
                 print(f"\nStep 2: Refining first boundary...")
                 refine_response = await client.post(
                     f"{BASE_URL}/v1/boundaries/refine",
-                    params={
-                        "coords": json.dumps(coords),
-                        "buffer_m": 30
-                    }
+                    params={"coords": json.dumps(coords), "buffer_m": 30},
                 )
 
                 if refine_response.status_code == 200:
@@ -195,9 +185,9 @@ async def example_workflow():
 
                     # Create a complete workflow result
                     workflow_result = {
-                        "detected_fields": len(boundaries['features']),
-                        "refined_field": refined['refined_boundary'],
-                        "timestamp": boundaries['metadata']['detection_date']
+                        "detected_fields": len(boundaries["features"]),
+                        "refined_field": refined["refined_boundary"],
+                        "timestamp": boundaries["metadata"]["detection_date"],
                     }
 
                     with open("/tmp/workflow_result.json", "w") as f:
@@ -218,7 +208,9 @@ async def main():
             health = await client.get(f"{BASE_URL}/healthz", timeout=5.0)
             if health.status_code != 200:
                 print("✗ Service not available. Please start the satellite service:")
-                print("  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service")
+                print(
+                    "  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service"
+                )
                 print("  python -m src.main")
                 return
             print("✓ Service is running\n")

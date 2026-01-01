@@ -45,28 +45,19 @@ class AgroTool:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.get(
                     f"{self.base_url}/api/v1/crops/{crop_type}",
-                    params={"language": language}
+                    params={"language": language},
                 )
                 response.raise_for_status()
 
                 result = response.json()
                 logger.info(
-                    "crop_info_retrieved",
-                    crop_type=crop_type,
-                    language=language
+                    "crop_info_retrieved", crop_type=crop_type, language=language
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "crop_info_failed",
-                error=str(e),
-                crop_type=crop_type
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("crop_info_failed", error=str(e), crop_type=crop_type)
+            return {"error": str(e), "status": "failed"}
 
     async def get_growth_stage_info(
         self,
@@ -95,7 +86,7 @@ class AgroTool:
                 logger.info(
                     "growth_stage_info_retrieved",
                     crop_type=crop_type,
-                    growth_stage=growth_stage
+                    growth_stage=growth_stage,
                 )
                 return result
 
@@ -104,12 +95,9 @@ class AgroTool:
                 "growth_stage_info_failed",
                 error=str(e),
                 crop_type=crop_type,
-                growth_stage=growth_stage
+                growth_stage=growth_stage,
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}
 
     async def get_fertilizer_recommendation(
         self,
@@ -137,7 +125,7 @@ class AgroTool:
                         "crop_type": crop_type,
                         "growth_stage": growth_stage,
                         "soil_analysis": soil_analysis,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -145,20 +133,15 @@ class AgroTool:
                 logger.info(
                     "fertilizer_recommendation_generated",
                     crop_type=crop_type,
-                    growth_stage=growth_stage
+                    growth_stage=growth_stage,
                 )
                 return result
 
         except httpx.HTTPError as e:
             logger.error(
-                "fertilizer_recommendation_failed",
-                error=str(e),
-                crop_type=crop_type
+                "fertilizer_recommendation_failed", error=str(e), crop_type=crop_type
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}
 
     async def get_pest_control_advice(
         self,
@@ -188,8 +171,7 @@ class AgroTool:
                     data["infestation_level"] = infestation_level
 
                 response = await client.post(
-                    f"{self.base_url}/api/v1/pest-control/advise",
-                    json=data
+                    f"{self.base_url}/api/v1/pest-control/advise", json=data
                 )
                 response.raise_for_status()
 
@@ -197,7 +179,7 @@ class AgroTool:
                 logger.info(
                     "pest_control_advice_generated",
                     crop_type=crop_type,
-                    pest_type=pest_type
+                    pest_type=pest_type,
                 )
                 return result
 
@@ -206,12 +188,9 @@ class AgroTool:
                 "pest_control_advice_failed",
                 error=str(e),
                 crop_type=crop_type,
-                pest_type=pest_type
+                pest_type=pest_type,
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}
 
     async def get_best_practices(
         self,
@@ -240,8 +219,7 @@ class AgroTool:
                     params["season"] = season
 
                 response = await client.get(
-                    f"{self.base_url}/api/v1/best-practices",
-                    params=params
+                    f"{self.base_url}/api/v1/best-practices", params=params
                 )
                 response.raise_for_status()
 
@@ -250,20 +228,13 @@ class AgroTool:
                     "best_practices_retrieved",
                     crop_type=crop_type,
                     region=region,
-                    season=season
+                    season=season,
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "best_practices_failed",
-                error=str(e),
-                crop_type=crop_type
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("best_practices_failed", error=str(e), crop_type=crop_type)
+            return {"error": str(e), "status": "failed"}
 
     async def get_market_prices(
         self,
@@ -288,26 +259,16 @@ class AgroTool:
                     params["region"] = region
 
                 response = await client.get(
-                    f"{self.base_url}/api/v1/market/prices",
-                    params=params
+                    f"{self.base_url}/api/v1/market/prices", params=params
                 )
                 response.raise_for_status()
 
                 result = response.json()
                 logger.info(
-                    "market_prices_retrieved",
-                    crop_type=crop_type,
-                    region=region
+                    "market_prices_retrieved", crop_type=crop_type, region=region
                 )
                 return result
 
         except httpx.HTTPError as e:
-            logger.error(
-                "market_prices_failed",
-                error=str(e),
-                crop_type=crop_type
-            )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            logger.error("market_prices_failed", error=str(e), crop_type=crop_type)
+            return {"error": str(e), "status": "failed"}

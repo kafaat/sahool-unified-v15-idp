@@ -26,6 +26,7 @@ _nats_available = False
 try:
     import nats
     from nats.aio.client import Client as NATSClient
+
     _nats_available = True
 except ImportError:
     logger.warning("NATS package not installed. NATS subscription disabled.")
@@ -34,20 +35,24 @@ except ImportError:
 
 class SubscriberConfig(BaseModel):
     """NATS subscriber configuration"""
+
     servers: list[str] = Field(default_factory=lambda: ["nats://localhost:4222"])
     name: str = Field(default="notification-subscriber")
     reconnect_time_wait: int = Field(default=2)
     max_reconnect_attempts: int = Field(default=60)
 
     # Subscription subjects
-    analysis_subjects: list[str] = Field(default_factory=lambda: [
-        "sahool.analysis.*",   # All analysis events
-        "sahool.actions.*",    # All action events
-    ])
+    analysis_subjects: list[str] = Field(
+        default_factory=lambda: [
+            "sahool.analysis.*",  # All analysis events
+            "sahool.actions.*",  # All action events
+        ]
+    )
 
 
 class ReceivedEvent(BaseModel):
     """Event received from NATS"""
+
     event_id: str
     event_type: str
     source_service: str
@@ -72,7 +77,7 @@ class NATSSubscriber:
     def __init__(
         self,
         config: Optional[SubscriberConfig] = None,
-        notification_callback: Optional[Callable] = None
+        notification_callback: Optional[Callable] = None,
     ):
         self.config = config or SubscriberConfig()
         self._nc: Optional[NATSClient] = None
@@ -123,10 +128,7 @@ class NATSSubscriber:
 
         try:
             for subject in self.config.analysis_subjects:
-                sub = await self._nc.subscribe(
-                    subject,
-                    cb=self._message_handler
-                )
+                sub = await self._nc.subscribe(subject, cb=self._message_handler)
                 self._subscriptions.append(sub)
                 logger.info(f"Subscribed to: {subject}")
 
@@ -161,7 +163,7 @@ class NATSSubscriber:
         """Handle incoming NATS message"""
         try:
             subject = msg.subject
-            data = json.loads(msg.data.decode('utf-8'))
+            data = json.loads(msg.data.decode("utf-8"))
 
             logger.info(f"Received message on {subject}")
 
@@ -170,7 +172,9 @@ class NATSSubscriber:
                 event_id=data.get("event_id", ""),
                 event_type=data.get("event_type", ""),
                 source_service=data.get("source_service", ""),
-                timestamp=datetime.fromisoformat(data.get("timestamp", datetime.utcnow().isoformat())),
+                timestamp=datetime.fromisoformat(
+                    data.get("timestamp", datetime.utcnow().isoformat())
+                ),
                 tenant_id=data.get("tenant_id"),
                 field_id=data.get("field_id"),
                 farmer_id=data.get("farmer_id"),
@@ -236,9 +240,15 @@ class NATSSubscriber:
 
         # Extract titles from action_template if available
         if event.action_template:
-            title_ar = event.action_template.get("title_ar", f"توصية جديدة: {event.event_type}")
-            title_en = event.action_template.get("title_en", f"New Recommendation: {event.event_type}")
-            body_ar = event.action_template.get("summary_ar") or event.action_template.get("description_ar", "")
+            title_ar = event.action_template.get(
+                "title_ar", f"توصية جديدة: {event.event_type}"
+            )
+            title_en = event.action_template.get(
+                "title_en", f"New Recommendation: {event.event_type}"
+            )
+            body_ar = event.action_template.get(
+                "summary_ar"
+            ) or event.action_template.get("description_ar", "")
             body_en = event.action_template.get("description_en", "")
             urgency = event.action_template.get("urgency", priority)
         else:
@@ -273,12 +283,16 @@ class NATSSubscriber:
 _subscriber_instance: Optional[NATSSubscriber] = None
 
 
-async def get_subscriber(notification_callback: Optional[Callable] = None) -> NATSSubscriber:
+async def get_subscriber(
+    notification_callback: Optional[Callable] = None,
+) -> NATSSubscriber:
     """Get or create the singleton NATS subscriber"""
     global _subscriber_instance
 
     if _subscriber_instance is None:
-        _subscriber_instance = NATSSubscriber(notification_callback=notification_callback)
+        _subscriber_instance = NATSSubscriber(
+            notification_callback=notification_callback
+        )
         await _subscriber_instance.connect()
         await _subscriber_instance.subscribe()
 

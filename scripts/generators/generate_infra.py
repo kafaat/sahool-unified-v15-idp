@@ -50,10 +50,7 @@ def generate_compose_service(name: str, service: Dict[str, Any]) -> Dict[str, An
     health_endpoint = service.get("health_endpoint", "/health")
 
     compose_service = {
-        "build": {
-            "context": f"./{path}",
-            "dockerfile": "Dockerfile"
-        },
+        "build": {"context": f"./{path}", "dockerfile": "Dockerfile"},
         "container_name": f"sahool-{name}",
         "ports": [f"{port}:{port}"],
         "environment": [
@@ -61,22 +58,22 @@ def generate_compose_service(name: str, service: Dict[str, Any]) -> Dict[str, An
             f"PORT={port}",
             "DATABASE_URL=${DATABASE_URL}",
             "REDIS_URL=${REDIS_URL}",
-            "NATS_URL=${NATS_URL:-nats://nats:4222}"
+            "NATS_URL=${NATS_URL:-nats://nats:4222}",
         ],
         "healthcheck": {
             "test": ["CMD", "curl", "-f", f"http://localhost:{port}{health_endpoint}"],
             "interval": "30s",
             "timeout": "10s",
             "retries": 3,
-            "start_period": "40s"
+            "start_period": "40s",
         },
         "depends_on": {
             "postgres": {"condition": "service_healthy"},
             "redis": {"condition": "service_healthy"},
-            "nats": {"condition": "service_healthy"}
+            "nats": {"condition": "service_healthy"},
         },
         "networks": ["sahool-network"],
-        "restart": "unless-stopped"
+        "restart": "unless-stopped",
     }
 
     # Add database-specific config
@@ -89,7 +86,9 @@ def generate_compose_service(name: str, service: Dict[str, Any]) -> Dict[str, An
     if "message_broker" in service:
         broker = service["message_broker"]
         if broker.get("type") == "mqtt":
-            compose_service["environment"].append("MQTT_URL=${MQTT_URL:-mqtt://mqtt:1883}")
+            compose_service["environment"].append(
+                "MQTT_URL=${MQTT_URL:-mqtt://mqtt:1883}"
+            )
             compose_service["depends_on"]["mqtt"] = {"condition": "service_started"}
 
     # Add labels for service discovery
@@ -98,7 +97,7 @@ def generate_compose_service(name: str, service: Dict[str, Any]) -> Dict[str, An
         f"sahool.port={port}",
         f"sahool.category={service.get('category', 'core')}",
         "traefik.enable=true",
-        f"traefik.http.routers.{name}.rule=PathPrefix(`/api/v1/{name.replace('-', '/')}`)"
+        f"traefik.http.routers.{name}.rule=PathPrefix(`/api/v1/{name.replace('-', '/')}`)",
     ]
 
     return compose_service
@@ -113,7 +112,7 @@ def generate_infrastructure_services() -> Dict[str, Any]:
             "environment": [
                 "POSTGRES_USER=${POSTGRES_USER:-sahool}",
                 "POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-sahool_dev}",
-                "POSTGRES_DB=${POSTGRES_DB:-sahool}"
+                "POSTGRES_DB=${POSTGRES_DB:-sahool}",
             ],
             "volumes": ["postgres_data:/var/lib/postgresql/data"],
             "ports": ["${POSTGRES_PORT:-5432}:5432"],
@@ -122,10 +121,10 @@ def generate_infrastructure_services() -> Dict[str, Any]:
                 "interval": "5s",
                 "timeout": "5s",
                 "retries": 10,
-                "start_period": "30s"
+                "start_period": "30s",
             },
             "networks": ["sahool-network"],
-            "restart": "unless-stopped"
+            "restart": "unless-stopped",
         },
         "redis": {
             "image": "redis:7.4-alpine",
@@ -137,10 +136,10 @@ def generate_infrastructure_services() -> Dict[str, Any]:
                 "test": ["CMD", "redis-cli", "ping"],
                 "interval": "5s",
                 "timeout": "5s",
-                "retries": 10
+                "retries": 10,
             },
             "networks": ["sahool-network"],
-            "restart": "unless-stopped"
+            "restart": "unless-stopped",
         },
         "nats": {
             "image": "nats:2.10-alpine",
@@ -149,13 +148,19 @@ def generate_infrastructure_services() -> Dict[str, Any]:
             "volumes": ["nats_data:/data"],
             "ports": ["${NATS_PORT:-4222}:4222", "8222:8222"],
             "healthcheck": {
-                "test": ["CMD", "wget", "--spider", "-q", "http://localhost:8222/healthz"],
+                "test": [
+                    "CMD",
+                    "wget",
+                    "--spider",
+                    "-q",
+                    "http://localhost:8222/healthz",
+                ],
                 "interval": "5s",
                 "timeout": "5s",
-                "retries": 10
+                "retries": 10,
             },
             "networks": ["sahool-network"],
-            "restart": "unless-stopped"
+            "restart": "unless-stopped",
         },
         "mqtt": {
             "image": "eclipse-mosquitto:2",
@@ -163,8 +168,8 @@ def generate_infrastructure_services() -> Dict[str, Any]:
             "volumes": ["mqtt_data:/mosquitto/data", "mqtt_log:/mosquitto/log"],
             "ports": ["${MQTT_PORT:-1883}:1883", "9001:9001"],
             "networks": ["sahool-network"],
-            "restart": "unless-stopped"
-        }
+            "restart": "unless-stopped",
+        },
     }
 
 
@@ -178,18 +183,14 @@ def generate_docker_compose(data: Dict[str, Any]) -> Dict[str, Any]:
         "# Generated from governance/services.yaml": None,
         "# Run: make generate-infra": None,
         "services": {},
-        "networks": {
-            "sahool-network": {
-                "driver": "bridge"
-            }
-        },
+        "networks": {"sahool-network": {"driver": "bridge"}},
         "volumes": {
             "postgres_data": {},
             "redis_data": {},
             "nats_data": {},
             "mqtt_data": {},
-            "mqtt_log": {}
-        }
+            "mqtt_log": {},
+        },
     }
 
     # Add infrastructure services first
@@ -205,18 +206,15 @@ def generate_docker_compose(data: Dict[str, Any]) -> Dict[str, Any]:
         port = app.get("port", 3000)
 
         compose["services"][name] = {
-            "build": {
-                "context": f"./{path}",
-                "dockerfile": "Dockerfile"
-            },
+            "build": {"context": f"./{path}", "dockerfile": "Dockerfile"},
             "container_name": f"sahool-{name}",
             "ports": [f"{port}:{port}"],
             "environment": [
                 "NODE_ENV=${NODE_ENV:-development}",
-                "NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8000}"
+                "NEXT_PUBLIC_API_URL=${API_URL:-http://localhost:8000}",
             ],
             "networks": ["sahool-network"],
-            "restart": "unless-stopped"
+            "restart": "unless-stopped",
         }
 
     return compose
@@ -232,38 +230,39 @@ def generate_helm_service(name: str, service: Dict[str, Any]) -> Dict[str, Any]:
         "image": {
             "repository": f"ghcr.io/kafaat/sahool-{name}",
             "tag": "latest",
-            "pullPolicy": "IfNotPresent"
+            "pullPolicy": "IfNotPresent",
         },
         "replicaCount": resources.get("replicas", 1),
         "port": service.get("port", 3000),
         "healthCheck": {
             "path": service.get("health_endpoint", "/health"),
             "initialDelaySeconds": 30,
-            "periodSeconds": 10
+            "periodSeconds": 10,
         },
         "resources": {
             "requests": {
                 "cpu": resources.get("cpu", "100m"),
-                "memory": resources.get("memory", "128Mi")
+                "memory": resources.get("memory", "128Mi"),
             },
             "limits": {
-                "cpu": resources.get("cpu", "500m").replace("m", "000m") if "m" in str(resources.get("cpu", "500m")) else "1000m",
-                "memory": resources.get("memory", "512Mi")
-            }
+                "cpu": (
+                    resources.get("cpu", "500m").replace("m", "000m")
+                    if "m" in str(resources.get("cpu", "500m"))
+                    else "1000m"
+                ),
+                "memory": resources.get("memory", "512Mi"),
+            },
         },
         "env": [
             {"name": "NODE_ENV", "value": "production"},
-            {"name": "PORT", "value": str(service.get("port", 3000))}
+            {"name": "PORT", "value": str(service.get("port", 3000))},
         ],
-        "serviceAccount": {
-            "create": True,
-            "name": f"sahool-{name}"
-        },
+        "serviceAccount": {"create": True, "name": f"sahool-{name}"},
         "podAnnotations": {
             "prometheus.io/scrape": "true",
             "prometheus.io/port": str(service.get("port", 3000)),
-            "prometheus.io/path": "/metrics"
-        }
+            "prometheus.io/path": "/metrics",
+        },
     }
 
 
@@ -277,99 +276,61 @@ def generate_helm_values(data: Dict[str, Any]) -> Dict[str, Any]:
         "# AUTO-GENERATED FILE - DO NOT EDIT MANUALLY": None,
         "# Generated from governance/services.yaml": None,
         "# Run: make generate-infra": None,
-
         "global": {
             "environment": "production",
             "imageRegistry": "ghcr.io/kafaat",
             "imagePullSecrets": ["ghcr-secret"],
-            "storageClass": "standard"
+            "storageClass": "standard",
         },
-
         "services": {},
         "applications": {},
-
         "infrastructure": {
             "postgresql": {
                 "enabled": True,
                 "auth": {
                     "postgresPassword": "",  # Set via secrets
-                    "database": "sahool"
+                    "database": "sahool",
                 },
-                "primary": {
-                    "persistence": {
-                        "size": "20Gi"
-                    }
-                }
+                "primary": {"persistence": {"size": "20Gi"}},
             },
             "redis": {
                 "enabled": True,
-                "auth": {
-                    "password": ""  # Set via secrets
-                },
-                "master": {
-                    "persistence": {
-                        "size": "5Gi"
-                    }
-                }
+                "auth": {"password": ""},  # Set via secrets
+                "master": {"persistence": {"size": "5Gi"}},
             },
             "nats": {
                 "enabled": True,
                 "jetstream": {
                     "enabled": True,
-                    "memStorage": {
-                        "size": "1Gi"
-                    },
-                    "fileStorage": {
-                        "size": "10Gi"
-                    }
-                }
-            }
+                    "memStorage": {"size": "1Gi"},
+                    "fileStorage": {"size": "10Gi"},
+                },
+            },
         },
-
         "ingress": {
             "enabled": True,
             "className": "nginx",
             "annotations": {
                 "cert-manager.io/cluster-issuer": "letsencrypt-prod",
-                "nginx.ingress.kubernetes.io/proxy-body-size": "50m"
+                "nginx.ingress.kubernetes.io/proxy-body-size": "50m",
             },
-            "hosts": [
-                {
-                    "host": "api.sahool.app",
-                    "paths": []
-                }
-            ],
-            "tls": [
-                {
-                    "secretName": "sahool-tls",
-                    "hosts": ["api.sahool.app"]
-                }
-            ]
+            "hosts": [{"host": "api.sahool.app", "paths": []}],
+            "tls": [{"secretName": "sahool-tls", "hosts": ["api.sahool.app"]}],
         },
-
         "autoscaling": {
             "enabled": True,
             "minReplicas": 2,
             "maxReplicas": 10,
             "targetCPUUtilizationPercentage": 70,
-            "targetMemoryUtilizationPercentage": 80
+            "targetMemoryUtilizationPercentage": 80,
         },
-
         "monitoring": {
             "prometheus": {
                 "enabled": True,
-                "serviceMonitor": {
-                    "enabled": True,
-                    "interval": "30s"
-                }
+                "serviceMonitor": {"enabled": True, "interval": "30s"},
             },
-            "grafana": {
-                "enabled": True,
-                "dashboards": {
-                    "enabled": True
-                }
-            }
-        }
+            "grafana": {"enabled": True, "dashboards": {"enabled": True}},
+        },
     }
 
     # Generate service values
@@ -377,24 +338,23 @@ def generate_helm_values(data: Dict[str, Any]) -> Dict[str, Any]:
         values["services"][name] = generate_helm_service(name, service)
 
         # Add ingress paths
-        values["ingress"]["hosts"][0]["paths"].append({
-            "path": f"/api/v1/{name.replace('-', '/')}",
-            "pathType": "Prefix",
-            "service": name,
-            "port": service.get("port", 3000)
-        })
+        values["ingress"]["hosts"][0]["paths"].append(
+            {
+                "path": f"/api/v1/{name.replace('-', '/')}",
+                "pathType": "Prefix",
+                "service": name,
+                "port": service.get("port", 3000),
+            }
+        )
 
     # Generate application values
     for name, app in applications.items():
         values["applications"][name] = {
             "enabled": app.get("status") == "active",
             "name": name,
-            "image": {
-                "repository": f"ghcr.io/kafaat/sahool-{name}",
-                "tag": "latest"
-            },
+            "image": {"repository": f"ghcr.io/kafaat/sahool-{name}", "tag": "latest"},
             "replicaCount": 2,
-            "port": app.get("port", 3000)
+            "port": app.get("port", 3000),
         }
 
     return values
@@ -402,7 +362,9 @@ def generate_helm_values(data: Dict[str, Any]) -> Dict[str, Any]:
 
 def clean_yaml_output(data: Dict[str, Any]) -> str:
     """Convert to YAML and clean up comment markers"""
-    yaml_str = yaml.dump(data, default_flow_style=False, allow_unicode=True, sort_keys=False)
+    yaml_str = yaml.dump(
+        data, default_flow_style=False, allow_unicode=True, sort_keys=False
+    )
 
     # Add header (no timestamp to avoid spurious diffs in CI)
     header = """# ═══════════════════════════════════════════════════════════════════════════════
@@ -416,7 +378,11 @@ def clean_yaml_output(data: Dict[str, Any]) -> str:
     # Remove the comment markers we used as dict keys
     lines = []
     for line in yaml_str.split("\n"):
-        if line.startswith("'# AUTO-GENERATED") or line.startswith("'# Generated") or line.startswith("'# Run:"):
+        if (
+            line.startswith("'# AUTO-GENERATED")
+            or line.startswith("'# Generated")
+            or line.startswith("'# Run:")
+        ):
             continue
         if ": null" in line and "#" in line:
             continue
@@ -426,11 +392,17 @@ def clean_yaml_output(data: Dict[str, Any]) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate infrastructure from services.yaml")
-    parser.add_argument("--compose", action="store_true", help="Generate Docker Compose only")
+    parser = argparse.ArgumentParser(
+        description="Generate infrastructure from services.yaml"
+    )
+    parser.add_argument(
+        "--compose", action="store_true", help="Generate Docker Compose only"
+    )
     parser.add_argument("--helm", action="store_true", help="Generate Helm values only")
     parser.add_argument("--all", action="store_true", help="Generate all (default)")
-    parser.add_argument("--dry-run", action="store_true", help="Print without writing files")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Print without writing files"
+    )
     args = parser.parse_args()
 
     # Default to all if no specific option

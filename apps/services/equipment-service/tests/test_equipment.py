@@ -9,6 +9,7 @@ from datetime import datetime
 
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.main import app, equipment_db, EquipmentType, EquipmentStatus
@@ -264,7 +265,17 @@ class TestEquipmentTypes:
 
     def test_all_equipment_types_valid(self, client):
         """Test that all equipment types are accepted"""
-        types = ["tractor", "pump", "drone", "harvester", "sprayer", "pivot", "sensor", "vehicle", "other"]
+        types = [
+            "tractor",
+            "pump",
+            "drone",
+            "harvester",
+            "sprayer",
+            "pivot",
+            "sensor",
+            "vehicle",
+            "other",
+        ]
         for eq_type in types:
             data = {
                 "name": f"Test {eq_type}",
@@ -280,8 +291,14 @@ class TestMaintenanceTypes:
     def test_all_maintenance_types_valid(self, client):
         """Test that all maintenance types are accepted"""
         types = [
-            "oil_change", "filter_change", "tire_check",
-            "battery_check", "calibration", "general_service", "repair", "other"
+            "oil_change",
+            "filter_change",
+            "tire_check",
+            "battery_check",
+            "calibration",
+            "general_service",
+            "repair",
+            "other",
         ]
         for m_type in types:
             response = client.post(

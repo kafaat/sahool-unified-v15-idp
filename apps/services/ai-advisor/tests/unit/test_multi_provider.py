@@ -36,7 +36,9 @@ class TestAnthropicProvider:
         provider = AnthropicProvider()
         assert provider.is_configured is False
 
-    @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key", "CLAUDE_MODEL": "claude-3-opus"})
+    @patch.dict(
+        "os.environ", {"ANTHROPIC_API_KEY": "test_key", "CLAUDE_MODEL": "claude-3-opus"}
+    )
     def test_default_model(self):
         """Test default model configuration"""
         provider = AnthropicProvider()
@@ -52,7 +54,7 @@ class TestAnthropicProvider:
             provider = AnthropicProvider()
             messages = [
                 LLMMessage(role="system", content="You are a helpful assistant"),
-                LLMMessage(role="user", content="Hello")
+                LLMMessage(role="user", content="Hello"),
             ]
 
             response = await provider.chat(messages)
@@ -92,7 +94,9 @@ class TestOpenAIProvider:
         provider = OpenAIProvider()
         assert provider.is_configured is False
 
-    @patch.dict("os.environ", {"OPENAI_API_KEY": "test_key", "OPENAI_MODEL": "gpt-4-turbo"})
+    @patch.dict(
+        "os.environ", {"OPENAI_API_KEY": "test_key", "OPENAI_MODEL": "gpt-4-turbo"}
+    )
     def test_default_model(self):
         """Test default model configuration"""
         provider = OpenAIProvider()
@@ -106,9 +110,7 @@ class TestOpenAIProvider:
             mock_class.return_value = mock_openai_client
 
             provider = OpenAIProvider()
-            messages = [
-                LLMMessage(role="user", content="Hello")
-            ]
+            messages = [LLMMessage(role="user", content="Hello")]
 
             response = await provider.chat(messages)
 
@@ -161,11 +163,14 @@ class TestMultiLLMService:
         if configured_providers:
             assert "OpenAI" in configured_providers[0].name
 
-    @patch.dict("os.environ", {
-        "ANTHROPIC_API_KEY": "test_key1",
-        "OPENAI_API_KEY": "test_key2",
-        "GOOGLE_API_KEY": "test_key3"
-    })
+    @patch.dict(
+        "os.environ",
+        {
+            "ANTHROPIC_API_KEY": "test_key1",
+            "OPENAI_API_KEY": "test_key2",
+            "GOOGLE_API_KEY": "test_key3",
+        },
+    )
     def test_multiple_providers_configured(self):
         """Test service with multiple providers configured"""
         service = MultiLLMService()
@@ -191,10 +196,9 @@ class TestMultiLLMService:
             assert len(result.failed_providers) == 0
 
     @pytest.mark.asyncio
-    @patch.dict("os.environ", {
-        "ANTHROPIC_API_KEY": "test_key",
-        "OPENAI_API_KEY": "test_key2"
-    })
+    @patch.dict(
+        "os.environ", {"ANTHROPIC_API_KEY": "test_key", "OPENAI_API_KEY": "test_key2"}
+    )
     async def test_fallback_mechanism(self, mock_openai_client):
         """Test fallback to secondary provider when primary fails"""
         with patch("llm.multi_provider.AsyncAnthropic") as mock_anthropic_class:
@@ -225,9 +229,7 @@ class TestMultiLLMService:
         """Test behavior when all providers fail"""
         with patch("llm.multi_provider.AsyncAnthropic") as mock_class:
             mock_client = AsyncMock()
-            mock_client.messages.create = AsyncMock(
-                side_effect=Exception("API error")
-            )
+            mock_client.messages.create = AsyncMock(side_effect=Exception("API error"))
             mock_class.return_value = mock_client
 
             service = MultiLLMService()
@@ -241,10 +243,9 @@ class TestMultiLLMService:
             assert len(result.failed_providers) > 0
 
     @pytest.mark.asyncio
-    @patch.dict("os.environ", {
-        "ANTHROPIC_API_KEY": "test_key",
-        "OPENAI_API_KEY": "test_key2"
-    })
+    @patch.dict(
+        "os.environ", {"ANTHROPIC_API_KEY": "test_key", "OPENAI_API_KEY": "test_key2"}
+    )
     async def test_specific_provider_selection(self, mock_openai_client):
         """Test forcing specific provider"""
         with patch("llm.multi_provider.AsyncOpenAI") as mock_class:
@@ -272,10 +273,9 @@ class TestMultiLLMService:
             assert result.success is True
             assert result.data.content == "Test response from Claude"
 
-    @patch.dict("os.environ", {
-        "ANTHROPIC_API_KEY": "test_key1",
-        "OPENAI_API_KEY": "test_key2"
-    })
+    @patch.dict(
+        "os.environ", {"ANTHROPIC_API_KEY": "test_key1", "OPENAI_API_KEY": "test_key2"}
+    )
     def test_get_available_providers(self):
         """Test getting available providers information"""
         service = MultiLLMService()

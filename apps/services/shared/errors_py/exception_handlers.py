@@ -43,7 +43,10 @@ def should_include_stack() -> bool:
     هل يجب تضمين تتبع المكدس في الاستجابة
     """
     env = os.getenv("ENVIRONMENT", os.getenv("NODE_ENV", "production")).lower()
-    return env in ("development", "dev", "local") or os.getenv("INCLUDE_STACK_TRACE", "false").lower() == "true"
+    return (
+        env in ("development", "dev", "local")
+        or os.getenv("INCLUDE_STACK_TRACE", "false").lower() == "true"
+    )
 
 
 def sanitize_error_message(message: str) -> str:
@@ -108,7 +111,8 @@ def create_error_response(
         safe_details = {
             k: v
             for k, v in details.items()
-            if k.lower() not in ("password", "secret", "token", "api_key", "authorization")
+            if k.lower()
+            not in ("password", "secret", "token", "api_key", "authorization")
         }
         if safe_details:
             error_details["details"] = safe_details
@@ -133,7 +137,9 @@ def setup_exception_handlers(app: FastAPI) -> None:
     """
 
     @app.exception_handler(AppException)
-    async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
+    async def app_exception_handler(
+        request: Request, exc: AppException
+    ) -> JSONResponse:
         """Handle custom application errors"""
         request_id = get_request_id(request)
         metadata = ERROR_REGISTRY[exc.error_code]
@@ -177,7 +183,9 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    async def http_exception_handler(
+        request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
         """Handle HTTP exceptions"""
         request_id = get_request_id(request)
 
@@ -195,7 +203,9 @@ def setup_exception_handlers(app: FastAPI) -> None:
             503: ErrorCode.SERVICE_UNAVAILABLE,
         }
 
-        error_code = status_to_code.get(exc.status_code, ErrorCode.INTERNAL_SERVER_ERROR)
+        error_code = status_to_code.get(
+            exc.status_code, ErrorCode.INTERNAL_SERVER_ERROR
+        )
         metadata = ERROR_REGISTRY[error_code]
 
         message = sanitize_error_message(str(exc.detail))
@@ -235,7 +245,9 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
         """Handle request validation errors"""
         request_id = get_request_id(request)
 
@@ -244,12 +256,14 @@ def setup_exception_handlers(app: FastAPI) -> None:
         for error in exc.errors():
             loc = " -> ".join(str(loc) for loc in error.get("loc", []))
             msg = error.get("msg", "Validation error")
-            field_errors.append({
-                "field": loc,
-                "message": msg,
-                "type": error.get("type"),
-                "value": error.get("input"),
-            })
+            field_errors.append(
+                {
+                    "field": loc,
+                    "message": msg,
+                    "type": error.get("type"),
+                    "value": error.get("input"),
+                }
+            )
 
         error_message = "; ".join(f"{e['field']}: {e['message']}" for e in field_errors)
 
@@ -279,7 +293,9 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(Exception)
-    async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    async def unhandled_exception_handler(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
         """
         Handle all unhandled exceptions
         This is the last line of defense - never expose internal details
@@ -310,10 +326,14 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 request=request,
                 category=metadata.category,
                 retryable=True,
-                details={
-                    "error": str(exc),
-                    "type": type(exc).__name__,
-                } if should_include_stack() else None,
+                details=(
+                    {
+                        "error": str(exc),
+                        "type": type(exc).__name__,
+                    }
+                    if should_include_stack()
+                    else None
+                ),
                 stack_trace=traceback.format_exc() if should_include_stack() else None,
             ),
         )

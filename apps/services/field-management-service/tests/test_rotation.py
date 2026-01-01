@@ -32,7 +32,7 @@ def sample_history():
             crop_name_en="Wheat",
             crop_family=CropFamily.CEREALS,
             planting_date=date(2022, 10, 1),
-            harvest_date=date(2023, 3, 1)
+            harvest_date=date(2023, 3, 1),
         ),
         SeasonPlan(
             season_id="S2",
@@ -43,7 +43,7 @@ def sample_history():
             crop_name_en="Faba Bean",
             crop_family=CropFamily.LEGUMES,
             planting_date=date(2023, 10, 1),
-            harvest_date=date(2024, 3, 1)
+            harvest_date=date(2024, 3, 1),
         ),
         SeasonPlan(
             season_id="S3",
@@ -54,8 +54,8 @@ def sample_history():
             crop_name_en="Tomato",
             crop_family=CropFamily.SOLANACEAE,
             planting_date=date(2024, 10, 1),
-            harvest_date=date(2025, 3, 1)
-        )
+            harvest_date=date(2025, 3, 1),
+        ),
     ]
 
 
@@ -73,10 +73,7 @@ class TestCropRotationPlanner:
     async def test_create_rotation_plan(self, planner):
         """Test creating a rotation plan"""
         plan = await planner.create_rotation_plan(
-            field_id="F001",
-            field_name="Test Field",
-            start_year=2025,
-            num_years=5
+            field_id="F001", field_name="Test Field", start_year=2025, num_years=5
         )
 
         assert plan.field_id == "F001"
@@ -93,14 +90,14 @@ class TestCropRotationPlanner:
     async def test_suggest_next_crop(self, planner, sample_history):
         """Test suggesting next crop based on history"""
         suggestions = await planner.suggest_next_crop(
-            field_id="F001",
-            history=sample_history,
-            season="winter"
+            field_id="F001", history=sample_history, season="winter"
         )
 
         assert len(suggestions) > 0
         assert all(0 <= s.suitability_score <= 100 for s in suggestions)
-        assert suggestions[0].suitability_score >= suggestions[-1].suitability_score  # Sorted
+        assert (
+            suggestions[0].suitability_score >= suggestions[-1].suitability_score
+        )  # Sorted
 
     def test_evaluate_rotation(self, planner, sample_history):
         """Test evaluating a rotation plan"""
@@ -124,7 +121,7 @@ class TestCropRotationPlanner:
                 crop_code="WHEAT",
                 crop_name_ar="قمح",
                 crop_name_en="Wheat",
-                crop_family=CropFamily.CEREALS
+                crop_family=CropFamily.CEREALS,
             )
         ]
 
@@ -142,7 +139,7 @@ class TestCropRotationPlanner:
                 crop_code="TOMATO",
                 crop_name_ar="طماطم",
                 crop_name_en="Tomato",
-                crop_family=CropFamily.SOLANACEAE
+                crop_family=CropFamily.SOLANACEAE,
             )
         ]
 
@@ -157,12 +154,12 @@ class TestCropRotationPlanner:
         depleting_rotation = [
             SeasonPlan(
                 season_id=f"S{i}",
-                year=2020+i,
+                year=2020 + i,
                 season="winter",
                 crop_code="WHEAT",
                 crop_name_ar="قمح",
                 crop_name_en="Wheat",
-                crop_family=CropFamily.CEREALS
+                crop_family=CropFamily.CEREALS,
             )
             for i in range(3)
         ]
@@ -174,12 +171,12 @@ class TestCropRotationPlanner:
         fixing_rotation = [
             SeasonPlan(
                 season_id=f"S{i}",
-                year=2020+i,
+                year=2020 + i,
                 season="winter",
                 crop_code="FABA_BEAN",
                 crop_name_ar="فول",
                 crop_name_en="Faba Bean",
-                crop_family=CropFamily.LEGUMES
+                crop_family=CropFamily.LEGUMES,
             )
             for i in range(3)
         ]
@@ -226,7 +223,7 @@ class TestCropRotationPlanner:
             field_id="F002",
             field_name="Diversity Test Field",
             start_year=2025,
-            num_years=5
+            num_years=5,
         )
 
         # Check that not all crops are the same family
@@ -251,14 +248,12 @@ class TestCropRotationPlanner:
         """Test root depth alternation logic"""
         # Shallow vs deep should alternate
         assert planner._check_root_alternation(
-            CropFamily.CUCURBITS,  # shallow
-            CropFamily.ROOT_CROPS  # deep
+            CropFamily.CUCURBITS, CropFamily.ROOT_CROPS  # shallow  # deep
         )
 
         # Same depth should not alternate
         assert not planner._check_root_alternation(
-            CropFamily.CUCURBITS,  # shallow
-            CropFamily.ALLIUMS  # shallow
+            CropFamily.CUCURBITS, CropFamily.ALLIUMS  # shallow  # shallow
         )
 
     def test_intensive_cultivation_detection(self, planner):
@@ -267,12 +262,12 @@ class TestCropRotationPlanner:
         intensive = [
             SeasonPlan(
                 season_id=f"S{i}",
-                year=2020+i,
+                year=2020 + i,
                 season="winter",
                 crop_code="TOMATO",
                 crop_name_ar="طماطم",
                 crop_name_en="Tomato",
-                crop_family=CropFamily.SOLANACEAE
+                crop_family=CropFamily.SOLANACEAE,
             )
             for i in range(4)
         ]
@@ -288,7 +283,7 @@ class TestCropRotationPlanner:
                 crop_code="FALLOW",
                 crop_name_ar="بور",
                 crop_name_en="Fallow",
-                crop_family=CropFamily.FALLOW
+                crop_family=CropFamily.FALLOW,
             )
         ]
 
@@ -309,14 +304,16 @@ class TestRotationRecommendations:
                 crop_code="WHEAT",
                 crop_name_ar="قمح",
                 crop_name_en="Wheat",
-                crop_family=CropFamily.CEREALS
+                crop_family=CropFamily.CEREALS,
             )
         ]
 
         suggestions = await planner.suggest_next_crop("F001", history)
 
         # Legumes should be highly ranked
-        legume_suggestions = [s for s in suggestions if s.crop_family == CropFamily.LEGUMES]
+        legume_suggestions = [
+            s for s in suggestions if s.crop_family == CropFamily.LEGUMES
+        ]
         assert len(legume_suggestions) > 0
         assert any(s.suitability_score > 70 for s in legume_suggestions)
 
@@ -327,12 +324,12 @@ class TestRotationRecommendations:
         history = [
             SeasonPlan(
                 season_id=f"S{i}",
-                year=2020+i,
+                year=2020 + i,
                 season="winter",
                 crop_code="COTTON",
                 crop_name_ar="قطن",
                 crop_name_en="Cotton",
-                crop_family=CropFamily.FIBER
+                crop_family=CropFamily.FIBER,
             )
             for i in range(4)
         ]
@@ -340,7 +337,9 @@ class TestRotationRecommendations:
         suggestions = await planner.suggest_next_crop("F001", history)
 
         # Fallow should be suggested
-        fallow_suggestions = [s for s in suggestions if s.crop_family == CropFamily.FALLOW]
+        fallow_suggestions = [
+            s for s in suggestions if s.crop_family == CropFamily.FALLOW
+        ]
         assert len(fallow_suggestions) > 0
 
 

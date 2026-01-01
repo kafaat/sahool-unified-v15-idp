@@ -52,7 +52,9 @@ class TestSchemaRegistry:
         registry = SchemaRegistry.load()
         field_schemas = registry.list_by_owner("field_suite")
 
-        assert len(field_schemas) >= 3  # field.created, field.updated, farm.created, crop.planted
+        assert (
+            len(field_schemas) >= 3
+        )  # field.created, field.updated, farm.created, crop.planted
         assert all(s.owner == "field_suite" for s in field_schemas)
 
 
@@ -62,6 +64,7 @@ class TestSchemaValidation:
     @pytest.fixture
     def registry(self):
         from shared.libs.events.schema_registry import SchemaRegistry
+
         return SchemaRegistry.load()
 
     def test_valid_field_created_payload(self, registry):

@@ -221,10 +221,10 @@ def get_active_alerts(
     """
     now = datetime.now(timezone.utc)
 
-    query = select(Alert).where(
-        Alert.status.in_(["active", "acknowledged"])
-    ).where(
-        or_(Alert.expires_at.is_(None), Alert.expires_at > now)
+    query = (
+        select(Alert)
+        .where(Alert.status.in_(["active", "acknowledged"]))
+        .where(or_(Alert.expires_at.is_(None), Alert.expires_at > now))
     )
 
     if tenant_id:
@@ -321,7 +321,9 @@ def get_alert_statistics(
         "by_status": by_status,
         "acknowledged_count": by_status.get("acknowledged", 0),
         "resolved_count": by_status.get("resolved", 0),
-        "average_resolution_hours": round(avg_resolution, 2) if avg_resolution else None,
+        "average_resolution_hours": (
+            round(avg_resolution, 2) if avg_resolution else None
+        ),
     }
 
 

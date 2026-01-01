@@ -38,14 +38,16 @@ class LoginRequest(BaseModel):
 
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., description="User password", min_length=6)
-    totp_code: Optional[str] = Field(None, description="6-digit TOTP code if 2FA is enabled")
+    totp_code: Optional[str] = Field(
+        None, description="6-digit TOTP code if 2FA is enabled"
+    )
 
     class Config:
         json_schema_extra = {
             "example": {
                 "email": "admin@sahool.io",
                 "password": "SecurePassword123",
-                "totp_code": "123456"
+                "totp_code": "123456",
             }
         }
 
@@ -57,7 +59,9 @@ class LoginResponse(BaseModel):
     token_type: str = Field(default="bearer", description="Token type")
     user: dict = Field(..., description="User information")
     requires_2fa: bool = Field(default=False, description="Whether 2FA is required")
-    temp_token: Optional[str] = Field(None, description="Temporary token for 2FA verification")
+    temp_token: Optional[str] = Field(
+        None, description="Temporary token for 2FA verification"
+    )
 
     class Config:
         json_schema_extra = {
@@ -68,9 +72,9 @@ class LoginResponse(BaseModel):
                     "id": "user-123",
                     "email": "admin@sahool.io",
                     "name": "Admin User",
-                    "role": "admin"
+                    "role": "admin",
                 },
-                "requires_2fa": False
+                "requires_2fa": False,
             }
         }
 
@@ -83,10 +87,7 @@ class TwoFALoginRequest(BaseModel):
 
     class Config:
         json_schema_extra = {
-            "example": {
-                "temp_token": "temp_token_here",
-                "totp_code": "123456"
-            }
+            "example": {"temp_token": "temp_token_here", "totp_code": "123456"}
         }
 
 
@@ -96,11 +97,7 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str = Field(..., description="Refresh token")
 
     class Config:
-        json_schema_extra = {
-            "example": {
-                "refresh_token": "refresh_token_here"
-            }
-        }
+        json_schema_extra = {"example": {"refresh_token": "refresh_token_here"}}
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -116,7 +113,7 @@ def get_user_service():
     if _user_service is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="User service not configured"
+            detail="User service not configured",
         )
     return _user_service
 
@@ -138,11 +135,12 @@ def create_temp_token(user_id: str, email: str) -> str:
         "user_id": user_id,
         "email": email,
         "temp": True,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=5)
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=5),
     }
     # Use a simple encoding for temp token (or use JWT)
     import json
     import base64
+
     return base64.b64encode(json.dumps(payload).encode()).decode()
 
 
@@ -151,6 +149,7 @@ def verify_temp_token(temp_token: str) -> Optional[dict]:
     try:
         import json
         import base64
+
         payload = json.loads(base64.b64decode(temp_token))
 
         # Check expiration
@@ -197,21 +196,21 @@ async def login(request: LoginRequest):
             logger.warning(f"Failed login attempt for email: {request.email}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=AuthErrors.INVALID_CREDENTIALS.en
+                detail=AuthErrors.INVALID_CREDENTIALS.en,
             )
 
         # Check if user is active
         if not user.is_active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=AuthErrors.ACCOUNT_DISABLED.en
+                detail=AuthErrors.ACCOUNT_DISABLED.en,
             )
 
         # Check if user is verified
         if not user.is_verified:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en
+                detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
             )
 
         # Check if 2FA is enabled
@@ -222,24 +221,24 @@ async def login(request: LoginRequest):
 
                 # Try TOTP verification
                 is_valid_totp = twofa_service.verify_totp(
-                    user.twofa_secret,
-                    request.totp_code
+                    user.twofa_secret, request.totp_code
                 )
 
                 # Try backup code if TOTP fails
                 is_valid_backup = False
                 used_backup_hash = None
                 if not is_valid_totp and user.twofa_backup_codes:
-                    is_valid_backup, used_backup_hash = twofa_service.verify_backup_code(
-                        request.totp_code,
-                        user.twofa_backup_codes
+                    is_valid_backup, used_backup_hash = (
+                        twofa_service.verify_backup_code(
+                            request.totp_code, user.twofa_backup_codes
+                        )
                     )
 
                 if not is_valid_totp and not is_valid_backup:
                     logger.warning(f"Invalid 2FA code for user {user.id}")
                     raise HTTPException(
                         status_code=status.HTTP_401_UNAUTHORIZED,
-                        detail="Invalid two-factor authentication code"
+                        detail="Invalid two-factor authentication code",
                     )
 
                 # Remove used backup code
@@ -259,10 +258,10 @@ async def login(request: LoginRequest):
                         "id": user.id,
                         "email": user.email,
                         "name": user.profile.name,
-                        "role": user.roles[0] if user.roles else "viewer"
+                        "role": user.roles[0] if user.roles else "viewer",
                     },
                     requires_2fa=True,
-                    temp_token=temp_token
+                    temp_token=temp_token,
                 )
 
         # Create access token
@@ -289,7 +288,7 @@ async def login(request: LoginRequest):
                 "role": user.roles[0] if user.roles else "viewer",
                 "tenant_id": user.tenant_id,
             },
-            requires_2fa=False
+            requires_2fa=False,
         )
 
     except HTTPException:
@@ -298,7 +297,7 @@ async def login(request: LoginRequest):
         logger.error(f"Login error: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during login"
+            detail="An error occurred during login",
         )
 
 
@@ -315,7 +314,7 @@ async def login_with_2fa(request: TwoFALoginRequest):
         if not payload:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired temporary token"
+                detail="Invalid or expired temporary token",
             )
 
         user_service = get_user_service()
@@ -326,7 +325,7 @@ async def login_with_2fa(request: TwoFALoginRequest):
         if not user or not user.twofa_enabled:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Two-factor authentication is not enabled"
+                detail="Two-factor authentication is not enabled",
             )
 
         # Verify TOTP code
@@ -337,15 +336,14 @@ async def login_with_2fa(request: TwoFALoginRequest):
         used_backup_hash = None
         if not is_valid_totp and user.twofa_backup_codes:
             is_valid_backup, used_backup_hash = twofa_service.verify_backup_code(
-                request.totp_code,
-                user.twofa_backup_codes
+                request.totp_code, user.twofa_backup_codes
             )
 
         if not is_valid_totp and not is_valid_backup:
             logger.warning(f"Invalid 2FA code for user {user.id}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid two-factor authentication code"
+                detail="Invalid two-factor authentication code",
             )
 
         # Remove used backup code
@@ -377,7 +375,7 @@ async def login_with_2fa(request: TwoFALoginRequest):
                 "role": user.roles[0] if user.roles else "viewer",
                 "tenant_id": user.tenant_id,
             },
-            requires_2fa=False
+            requires_2fa=False,
         )
 
     except HTTPException:
@@ -386,7 +384,7 @@ async def login_with_2fa(request: TwoFALoginRequest):
         logger.error(f"2FA login error: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="An error occurred during 2FA verification"
+            detail="An error occurred during 2FA verification",
         )
 
 
@@ -403,8 +401,7 @@ async def get_current_user_info(user_id: str):
 
         if not user:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
             )
 
         return {
@@ -417,7 +414,7 @@ async def get_current_user_info(user_id: str):
                 "role": user.roles[0] if user.roles else "viewer",
                 "tenant_id": user.tenant_id,
                 "twofa_enabled": user.twofa_enabled,
-            }
+            },
         }
 
     except HTTPException:
@@ -426,5 +423,5 @@ async def get_current_user_info(user_id: str):
         logger.error(f"Error getting user info: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get user information"
+            detail="Failed to get user information",
         )

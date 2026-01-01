@@ -28,6 +28,7 @@ from shared.middleware.rate_limit import (
 # Test TokenBucket
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestTokenBucket:
     """Test token bucket algorithm"""
 
@@ -97,6 +98,7 @@ class TestTokenBucket:
 # Test RateLimiter
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestRateLimiter:
     """Test rate limiter functionality"""
 
@@ -112,10 +114,12 @@ class TestRateLimiter:
         request.client = Mock()
         request.client.host = ip
         request.headers = Mock()
-        request.headers.get = Mock(side_effect=lambda key, default=None: {
-            "X-Tenant-ID": tenant_id,
-            "X-Rate-Limit-Tier": tier,
-        }.get(key, default))
+        request.headers.get = Mock(
+            side_effect=lambda key, default=None: {
+                "X-Tenant-ID": tenant_id,
+                "X-Rate-Limit-Tier": tier,
+            }.get(key, default)
+        )
         request.url = Mock()
         request.url.path = "/test"
 
@@ -213,10 +217,12 @@ class TestRateLimiter:
 
         # Internal service should have higher limits
         request_internal = self.create_mock_request()
-        request_internal.headers.get = Mock(side_effect=lambda key, default=None: {
-            "X-Internal-Service": "true",
-            "X-Tenant-ID": "default",
-        }.get(key, default))
+        request_internal.headers.get = Mock(
+            side_effect=lambda key, default=None: {
+                "X-Internal-Service": "true",
+                "X-Tenant-ID": "default",
+            }.get(key, default)
+        )
 
         allowed, headers = limiter.check_rate_limit(request_internal)
         assert allowed is True
@@ -228,6 +234,7 @@ class TestRateLimiter:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Decorators
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 class TestDecorators:
@@ -295,10 +302,7 @@ class TestDecorators:
             return {"message": "success"}
 
         client = TestClient(app)
-        response = client.get(
-            "/api-endpoint",
-            headers={"X-API-Key": "test-key-123"}
-        )
+        response = client.get("/api-endpoint", headers={"X-API-Key": "test-key-123"})
 
         # Should succeed
         assert response.status_code == 200
@@ -313,10 +317,7 @@ class TestDecorators:
             return {"message": "success"}
 
         client = TestClient(app)
-        response = client.get(
-            "/tenant-endpoint",
-            headers={"X-Tenant-ID": "tenant-abc"}
-        )
+        response = client.get("/tenant-endpoint", headers={"X-Tenant-ID": "tenant-abc"})
 
         # Should succeed
         assert response.status_code == 200
@@ -325,6 +326,7 @@ class TestDecorators:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Middleware Integration
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestMiddlewareIntegration:
     """Test rate limiting middleware integration"""
@@ -344,7 +346,10 @@ class TestMiddlewareIntegration:
         response = client.get("/test")
 
         # Check for rate limit headers
-        assert "x-ratelimit-limit" in response.headers or "X-RateLimit-Limit" in response.headers
+        assert (
+            "x-ratelimit-limit" in response.headers
+            or "X-RateLimit-Limit" in response.headers
+        )
 
     def test_middleware_excludes_health_endpoints(self):
         """Test that health endpoints are excluded from rate limiting"""
@@ -368,6 +373,7 @@ class TestMiddlewareIntegration:
 # Test Auth Middleware Rate Limiting
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestAuthMiddlewareRateLimiting:
     """Test rate limiting in auth middleware"""
 
@@ -390,6 +396,7 @@ class TestAuthMiddlewareRateLimiting:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Performance Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestPerformance:
     """Test rate limiter performance"""

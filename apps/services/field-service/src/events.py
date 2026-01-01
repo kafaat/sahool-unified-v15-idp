@@ -54,7 +54,7 @@ class FieldEventPublisher:
         event_type: str,
         tenant_id: str,
         data: dict,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> dict:
         """إنشاء حدث موحد"""
         return {
@@ -83,7 +83,7 @@ class FieldEventPublisher:
         field_name: str,
         area_hectares: float,
         location: dict,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث إنشاء حقل"""
         event = self._create_event(
@@ -96,7 +96,7 @@ class FieldEventPublisher:
                 "area_hectares": area_hectares,
                 "location": location,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.FIELD_CREATED, event)
 
@@ -105,7 +105,7 @@ class FieldEventPublisher:
         tenant_id: str,
         field_id: str,
         updated_fields: list,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث تحديث حقل"""
         event = self._create_event(
@@ -115,7 +115,7 @@ class FieldEventPublisher:
                 "field_id": field_id,
                 "updated_fields": updated_fields,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.FIELD_UPDATED, event)
 
@@ -124,7 +124,7 @@ class FieldEventPublisher:
         tenant_id: str,
         field_id: str,
         user_id: str,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث حذف حقل"""
         event = self._create_event(
@@ -134,7 +134,7 @@ class FieldEventPublisher:
                 "field_id": field_id,
                 "user_id": user_id,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.FIELD_DELETED, event)
 
@@ -144,7 +144,7 @@ class FieldEventPublisher:
         field_id: str,
         new_area_hectares: float,
         centroid: dict,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث تحديث الحدود"""
         event = self._create_event(
@@ -155,7 +155,7 @@ class FieldEventPublisher:
                 "new_area_hectares": new_area_hectares,
                 "centroid": centroid,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.FIELD_BOUNDARY_UPDATED, event)
 
@@ -168,7 +168,7 @@ class FieldEventPublisher:
         season_id: str,
         crop_type: str,
         planting_date: str,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث بدء موسم"""
         event = self._create_event(
@@ -180,7 +180,7 @@ class FieldEventPublisher:
                 "crop_type": crop_type,
                 "planting_date": planting_date,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.SEASON_STARTED, event)
 
@@ -192,7 +192,7 @@ class FieldEventPublisher:
         crop_type: str,
         harvest_date: str,
         actual_yield_kg: Optional[float],
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث إنهاء موسم"""
         event = self._create_event(
@@ -205,7 +205,7 @@ class FieldEventPublisher:
                 "harvest_date": harvest_date,
                 "actual_yield_kg": actual_yield_kg,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.SEASON_CLOSED, event)
 
@@ -218,7 +218,7 @@ class FieldEventPublisher:
         zone_id: str,
         zone_name: str,
         area_hectares: float,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث إنشاء منطقة"""
         event = self._create_event(
@@ -230,7 +230,7 @@ class FieldEventPublisher:
                 "zone_name": zone_name,
                 "area_hectares": area_hectares,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.ZONE_CREATED, event)
 
@@ -239,7 +239,7 @@ class FieldEventPublisher:
         tenant_id: str,
         field_id: str,
         zone_id: str,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """نشر حدث حذف منطقة"""
         event = self._create_event(
@@ -249,7 +249,7 @@ class FieldEventPublisher:
                 "field_id": field_id,
                 "zone_id": zone_id,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(FieldTopics.ZONE_DELETED, event)
 

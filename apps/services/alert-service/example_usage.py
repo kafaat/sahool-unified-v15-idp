@@ -29,11 +29,19 @@ def example_create_alert():
             title_en="Severe Storm Warning",
             message="متوقع عاصفة قوية خلال الساعات القادمة. يُنصح باتخاذ الاحتياطات اللازمة.",
             message_en="Severe storm expected in the coming hours. Please take necessary precautions.",
-            recommendations=["تأمين المعدات الزراعية", "حماية المحاصيل", "البقاء في مكان آمن"],
-            recommendations_en=["Secure farm equipment", "Protect crops", "Stay in a safe place"],
+            recommendations=[
+                "تأمين المعدات الزراعية",
+                "حماية المحاصيل",
+                "البقاء في مكان آمن",
+            ],
+            recommendations_en=[
+                "Secure farm equipment",
+                "Protect crops",
+                "Stay in a safe place",
+            ],
             metadata={"wind_speed": 80, "precipitation": "heavy"},
             source_service="weather-core",
-            expires_at=datetime.now(timezone.utc) + timedelta(hours=24)
+            expires_at=datetime.now(timezone.utc) + timedelta(hours=24),
         )
 
         created_alert = repository.create_alert(db, alert)
@@ -58,11 +66,7 @@ def example_get_alerts_by_field(field_id: str):
     db = SessionLocal()
     try:
         alerts, total = repository.get_alerts_by_field(
-            db,
-            field_id=field_id,
-            status="active",
-            skip=0,
-            limit=10
+            db, field_id=field_id, status="active", skip=0, limit=10
         )
 
         print(f"\n📋 تنبيهات الحقل {field_id}:")
@@ -86,7 +90,7 @@ def example_update_alert_status(alert_id, new_status: str):
             alert_id=alert_id,
             status=new_status,
             user_id="user_123",
-            note="تم حل المشكلة" if new_status == "resolved" else None
+            note="تم حل المشكلة" if new_status == "resolved" else None,
         )
 
         if updated_alert:
@@ -137,16 +141,16 @@ def example_create_alert_rule():
                 "metric": "soil_moisture",
                 "operator": "lt",
                 "value": 30.0,
-                "duration_minutes": 60
+                "duration_minutes": 60,
             },
             alert_config={
                 "type": "soil_moisture",
                 "severity": "medium",
                 "title": "انخفاض رطوبة التربة",
                 "title_en": "Low Soil Moisture",
-                "message_template": "رطوبة التربة منخفضة: {value}%"
+                "message_template": "رطوبة التربة منخفضة: {value}%",
             },
-            cooldown_hours=12
+            cooldown_hours=12,
         )
 
         created_rule = repository.create_alert_rule(db, rule)
@@ -170,10 +174,7 @@ def example_get_alert_statistics():
     """مثال على جلب إحصائيات التنبيهات"""
     db = SessionLocal()
     try:
-        stats = repository.get_alert_statistics(
-            db,
-            days=30
-        )
+        stats = repository.get_alert_statistics(db, days=30)
 
         print("\n📊 إحصائيات التنبيهات (آخر 30 يوم):")
         print(f"   إجمالي التنبيهات: {stats['total_alerts']}")
@@ -245,6 +246,7 @@ def main():
     except Exception as e:
         print(f"\n❌ حدث خطأ: {e}")
         import traceback
+
         traceback.print_exc()
 
 

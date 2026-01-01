@@ -269,16 +269,18 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
     if not disease:
         raise NotFoundException(
             ErrorCode.RESOURCE_NOT_FOUND,
-            details={"resource": "disease", "disease_id": disease_id}
+            details={"resource": "disease", "disease_id": disease_id},
         )
 
-    return create_success_response({
-        "id": disease_id,
-        **disease,
-        "actions_details": [
-            get_action_details(action, lang) for action in disease["actions"]
-        ],
-    })
+    return create_success_response(
+        {
+            "id": disease_id,
+            **disease,
+            "actions_details": [
+                get_action_details(action, lang) for action in disease["actions"]
+            ],
+        }
+    )
 
 
 # ============== Nutrient Endpoints ==============
@@ -362,7 +364,7 @@ def get_deficiency_info(deficiency_id: str):
     if not deficiency:
         raise NotFoundException(
             ErrorCode.RESOURCE_NOT_FOUND,
-            details={"resource": "deficiency", "deficiency_id": deficiency_id}
+            details={"resource": "deficiency", "deficiency_id": deficiency_id},
         )
 
     return create_success_response({"id": deficiency_id, **deficiency})
@@ -410,7 +412,7 @@ def get_fertilizer_info(fertilizer_id: str):
     if not fert:
         raise NotFoundException(
             ErrorCode.RESOURCE_NOT_FOUND,
-            details={"resource": "fertilizer", "fertilizer_id": fertilizer_id}
+            details={"resource": "fertilizer", "fertilizer_id": fertilizer_id},
         )
 
     return create_success_response({"id": fertilizer_id, **fert})
@@ -432,17 +434,19 @@ def list_categories():
     categories = []
     for category in CropCategory:
         crops_in_category = get_crops_by_category(category)
-        categories.append({
-            "code": category.value,
-            "name_en": category.value.replace("_", " ").title(),
-            "count": len(crops_in_category),
-            "crops": [crop.code for crop in crops_in_category]
-        })
+        categories.append(
+            {
+                "code": category.value,
+                "name_en": category.value.replace("_", " ").title(),
+                "count": len(crops_in_category),
+                "crops": [crop.code for crop in crops_in_category],
+            }
+        )
 
     return {
         "categories": categories,
         "total_categories": len(categories),
-        "total_crops": len(ALL_CROPS)
+        "total_crops": len(ALL_CROPS),
     }
 
 
@@ -452,7 +456,7 @@ def search_crops_endpoint(q: str):
     if not q or len(q) < 2:
         raise ValidationException(
             ErrorCode.INVALID_INPUT,
-            details={"field": "q", "message": "Query must be at least 2 characters"}
+            details={"field": "q", "message": "Query must be at least 2 characters"},
         )
 
     results = search_crops_catalog(q)
@@ -475,7 +479,7 @@ def search_crops_endpoint(q: str):
             }
             for crop in results
         ],
-        "count": len(results)
+        "count": len(results),
     }
 
 
@@ -504,7 +508,7 @@ def list_all_crops():
     return {
         "crops_by_category": crops_by_category,
         "total_crops": len(ALL_CROPS),
-        "category_counts": CATEGORIES_COUNT
+        "category_counts": CATEGORIES_COUNT,
     }
 
 
@@ -548,7 +552,7 @@ def get_crop_details(crop_code: str):
         "economics": {
             "price_usd_per_ton": crop.price_usd_per_ton,
         },
-        "varieties_available": len(varieties)
+        "varieties_available": len(varieties),
     }
 
 
@@ -593,7 +597,7 @@ def get_crop_varieties(crop_code: str):
             }
             for v in varieties
         ],
-        "count": len(varieties)
+        "count": len(varieties),
     }
 
 

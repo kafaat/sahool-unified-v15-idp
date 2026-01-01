@@ -29,6 +29,7 @@ class TestServiceImports:
     def test_field_ops_imports(self):
         """Field ops service should import"""
         import sys
+
         sys.path.insert(0, "kernel/services/field_ops/src")
 
         import main as field_ops_main  # noqa: F401
@@ -39,6 +40,7 @@ class TestServiceImports:
     def test_field_ops_models_exist(self):
         """Field ops models should exist"""
         import sys
+
         sys.path.insert(0, "kernel/services/field_ops/src")
 
         from main import FieldCreate, FieldResponse, OperationCreate

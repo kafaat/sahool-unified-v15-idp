@@ -23,17 +23,13 @@ def client():
         return {
             "field_id": field_id,
             "crop": "wheat",
-            "predicted_yield": {
-                "value": 4.5,
-                "unit": "tons/ha",
-                "confidence": 0.82
-            },
+            "predicted_yield": {"value": 4.5, "unit": "tons/ha", "confidence": 0.82},
             "range": {"min": 3.8, "max": 5.2},
             "factors": {
                 "weather_impact": 0.95,
                 "soil_quality": 0.88,
-                "irrigation_efficiency": 0.92
-            }
+                "irrigation_efficiency": 0.92,
+            },
         }
 
     @app.get("/api/v1/fields/{field_id}/history")
@@ -42,8 +38,8 @@ def client():
             "field_id": field_id,
             "history": [
                 {"year": 2024, "crop": "wheat", "yield": 4.2, "unit": "tons/ha"},
-                {"year": 2023, "crop": "wheat", "yield": 3.9, "unit": "tons/ha"}
-            ]
+                {"year": 2023, "crop": "wheat", "yield": 3.9, "unit": "tons/ha"},
+            ],
         }
 
     @app.get("/api/v1/benchmarks/{crop}")
@@ -53,7 +49,7 @@ def client():
             "regional_average": 3.5,
             "national_average": 3.2,
             "top_performers": 5.0,
-            "unit": "tons/ha"
+            "unit": "tons/ha",
         }
 
     @app.post("/api/v1/simulate")
@@ -62,7 +58,7 @@ def client():
             "scenario": "increased_irrigation",
             "base_yield": 4.0,
             "projected_yield": 4.8,
-            "improvement_pct": 20
+            "improvement_pct": 20,
         }
 
     return TestClient(app)
@@ -76,10 +72,10 @@ class TestHealthEndpoint:
 
 class TestYieldPrediction:
     def test_predict_yield(self, client):
-        response = client.post("/api/v1/fields/field_001/predict", json={
-            "crop": "wheat",
-            "stage": "flowering"
-        })
+        response = client.post(
+            "/api/v1/fields/field_001/predict",
+            json={"crop": "wheat", "stage": "flowering"},
+        )
         assert response.status_code == 200
         data = response.json()
         assert "predicted_yield" in data
@@ -109,9 +105,9 @@ class TestBenchmarks:
 
 class TestSimulation:
     def test_simulate_scenario(self, client):
-        response = client.post("/api/v1/simulate", json={
-            "field_id": "field_001",
-            "scenario": "increased_irrigation"
-        })
+        response = client.post(
+            "/api/v1/simulate",
+            json={"field_id": "field_001", "scenario": "increased_irrigation"},
+        )
         assert response.status_code == 200
         assert "improvement_pct" in response.json()

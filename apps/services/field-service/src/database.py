@@ -11,8 +11,7 @@ from typing import Dict, Any
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise EnvironmentError(
-        "DATABASE_URL environment variable is required. "
-        "See .env.example for format"
+        "DATABASE_URL environment variable is required. " "See .env.example for format"
     )
 
 # Tortoise ORM Configuration

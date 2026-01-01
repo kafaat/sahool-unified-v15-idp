@@ -36,7 +36,9 @@ from prometheus_client import Counter, Histogram, generate_latest
 from pydantic import BaseModel
 
 # Add parent directories to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
+sys.path.insert(
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+)
 
 from shared.mcp.server import MCPServer
 
@@ -49,7 +51,7 @@ SAHOOL_API_URL = os.getenv("SAHOOL_API_URL", "http://localhost:8000")
 # CORS Configuration - environment-based allowed origins
 CORS_ALLOWED_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:8080,https://sahool.com,https://app.sahool.com"
+    "http://localhost:3000,http://localhost:8080,https://sahool.com,https://app.sahool.com",
 ).split(",")
 
 # Logging
@@ -227,7 +229,9 @@ async def handle_mcp_request(request: Request):
             uri = data.get("params", {}).get("uri", "unknown")
             resource_type = uri.split("://")[0] if "://" in uri else "unknown"
             status = "error" if response.error else "success"
-            resource_reads_total.labels(resource_type=resource_type, status=status).inc()
+            resource_reads_total.labels(
+                resource_type=resource_type, status=status
+            ).inc()
 
         logger.info(
             f"MCP Response: {method} (id: {data.get('id')}) - "

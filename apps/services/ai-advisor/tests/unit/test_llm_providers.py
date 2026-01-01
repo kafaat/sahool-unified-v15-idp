@@ -29,12 +29,14 @@ class TestMultiProviderLLM:
     @pytest.mark.asyncio
     async def test_generate_with_anthropic(self, mock_anthropic_client):
         """Test text generation with Anthropic Claude"""
-        with patch("src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_anthropic_client):
+        with patch(
+            "src.llm.multi_provider.anthropic.AsyncAnthropic",
+            return_value=mock_anthropic_client,
+        ):
             llm = MultiProviderLLM(default_provider="anthropic")
 
             response = await llm.generate(
-                prompt="What is the best time to plant wheat?",
-                max_tokens=500
+                prompt="What is the best time to plant wheat?", max_tokens=500
             )
 
             assert response is not None
@@ -45,12 +47,13 @@ class TestMultiProviderLLM:
     @pytest.mark.asyncio
     async def test_generate_with_openai(self, mock_openai_client):
         """Test text generation with OpenAI GPT"""
-        with patch("src.llm.multi_provider.openai.AsyncOpenAI", return_value=mock_openai_client):
+        with patch(
+            "src.llm.multi_provider.openai.AsyncOpenAI", return_value=mock_openai_client
+        ):
             llm = MultiProviderLLM(default_provider="openai")
 
             response = await llm.generate(
-                prompt="What is the best fertilizer for tomatoes?",
-                max_tokens=500
+                prompt="What is the best fertilizer for tomatoes?", max_tokens=500
             )
 
             assert response is not None
@@ -61,18 +64,19 @@ class TestMultiProviderLLM:
     @pytest.mark.asyncio
     async def test_generate_with_context(self, mock_anthropic_client):
         """Test text generation with conversation context"""
-        with patch("src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_anthropic_client):
+        with patch(
+            "src.llm.multi_provider.anthropic.AsyncAnthropic",
+            return_value=mock_anthropic_client,
+        ):
             llm = MultiProviderLLM()
 
             context = [
                 {"role": "user", "content": "Hello"},
-                {"role": "assistant", "content": "Hi, how can I help you?"}
+                {"role": "assistant", "content": "Hi, how can I help you?"},
             ]
 
             response = await llm.generate(
-                prompt="Tell me about wheat diseases",
-                context=context,
-                max_tokens=500
+                prompt="Tell me about wheat diseases", context=context, max_tokens=500
             )
 
             assert response is not None
@@ -81,13 +85,16 @@ class TestMultiProviderLLM:
     @pytest.mark.asyncio
     async def test_generate_with_system_message(self, mock_anthropic_client):
         """Test text generation with custom system message"""
-        with patch("src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_anthropic_client):
+        with patch(
+            "src.llm.multi_provider.anthropic.AsyncAnthropic",
+            return_value=mock_anthropic_client,
+        ):
             llm = MultiProviderLLM()
 
             response = await llm.generate(
                 prompt="What is photosynthesis?",
                 system_message="You are an expert agricultural scientist.",
-                max_tokens=500
+                max_tokens=500,
             )
 
             assert response is not None
@@ -99,30 +106,36 @@ class TestMultiProviderLLM:
         mock_client = AsyncMock()
         mock_client.messages.create.side_effect = Exception("API Error")
 
-        with patch("src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_client):
+        with patch(
+            "src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_client
+        ):
             llm = MultiProviderLLM()
 
             with pytest.raises(Exception):
-                await llm.generate(
-                    prompt="Test prompt",
-                    max_tokens=500
-                )
+                await llm.generate(prompt="Test prompt", max_tokens=500)
 
     @pytest.mark.asyncio
     async def test_fallback_to_secondary_provider(self, mock_openai_client):
         """Test fallback mechanism when primary provider fails"""
         # Mock primary provider failure
         mock_failing_client = AsyncMock()
-        mock_failing_client.messages.create.side_effect = Exception("Anthropic API Error")
+        mock_failing_client.messages.create.side_effect = Exception(
+            "Anthropic API Error"
+        )
 
-        with patch("src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_failing_client):
-            with patch("src.llm.multi_provider.openai.AsyncOpenAI", return_value=mock_openai_client):
-                llm = MultiProviderLLM(default_provider="anthropic", fallback_providers=["openai"])
-
-                response = await llm.generate(
-                    prompt="Test prompt",
-                    max_tokens=500
+        with patch(
+            "src.llm.multi_provider.anthropic.AsyncAnthropic",
+            return_value=mock_failing_client,
+        ):
+            with patch(
+                "src.llm.multi_provider.openai.AsyncOpenAI",
+                return_value=mock_openai_client,
+            ):
+                llm = MultiProviderLLM(
+                    default_provider="anthropic", fallback_providers=["openai"]
                 )
+
+                response = await llm.generate(prompt="Test prompt", max_tokens=500)
 
                 assert response is not None
                 assert response["provider"] == "openai"
@@ -140,6 +153,7 @@ class TestMultiProviderLLM:
     @pytest.mark.asyncio
     async def test_streaming_generation(self, mock_anthropic_client):
         """Test streaming text generation"""
+
         async def mock_stream():
             yield {"text": "Partial "}
             yield {"text": "response "}
@@ -147,13 +161,15 @@ class TestMultiProviderLLM:
 
         mock_anthropic_client.messages.stream = AsyncMock(return_value=mock_stream())
 
-        with patch("src.llm.multi_provider.anthropic.AsyncAnthropic", return_value=mock_anthropic_client):
+        with patch(
+            "src.llm.multi_provider.anthropic.AsyncAnthropic",
+            return_value=mock_anthropic_client,
+        ):
             llm = MultiProviderLLM()
 
             chunks = []
             async for chunk in llm.generate_stream(
-                prompt="Tell me about agriculture",
-                max_tokens=500
+                prompt="Tell me about agriculture", max_tokens=500
             ):
                 chunks.append(chunk)
 

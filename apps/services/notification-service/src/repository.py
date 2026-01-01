@@ -11,7 +11,14 @@ import logging
 from tortoise.expressions import Q
 from tortoise.queryset import QuerySet
 
-from .models import Notification, NotificationTemplate, NotificationPreference, NotificationLog, NotificationChannel, ChannelType
+from .models import (
+    Notification,
+    NotificationTemplate,
+    NotificationPreference,
+    NotificationLog,
+    NotificationChannel,
+    ChannelType,
+)
 
 logger = logging.getLogger("sahool-notifications.repository")
 
@@ -59,14 +66,20 @@ class NotificationRepository:
             action_url=action_url,
             target_governorates=target_governorates,
             target_crops=target_crops,
-            expires_at=datetime.utcnow() + timedelta(hours=expires_in_hours) if expires_in_hours else None,
+            expires_at=(
+                datetime.utcnow() + timedelta(hours=expires_in_hours)
+                if expires_in_hours
+                else None
+            ),
         )
 
         logger.info(f"Created notification {notification.id} for user {user_id}")
         return notification
 
     @staticmethod
-    async def create_bulk(notifications_data: List[Dict[str, Any]]) -> List[Notification]:
+    async def create_bulk(
+        notifications_data: List[Dict[str, Any]],
+    ) -> List[Notification]:
         """
         إنشاء إشعارات متعددة دفعة واحدة
         Create multiple notifications in bulk
@@ -170,7 +183,9 @@ class NotificationRepository:
         return count
 
     @staticmethod
-    async def mark_as_read(notification_id: UUID, read_at: Optional[datetime] = None) -> bool:
+    async def mark_as_read(
+        notification_id: UUID, read_at: Optional[datetime] = None
+    ) -> bool:
         """
         تحديد إشعار كمقروء
         Mark notification as read
@@ -366,7 +381,9 @@ class NotificationTemplateRepository:
         return await NotificationTemplate.filter(name=name, is_active=True).first()
 
     @staticmethod
-    async def get_all_active(tenant_id: Optional[str] = None) -> List[NotificationTemplate]:
+    async def get_all_active(
+        tenant_id: Optional[str] = None,
+    ) -> List[NotificationTemplate]:
         """الحصول على جميع القوالب النشطة"""
         query = NotificationTemplate.filter(is_active=True)
 
@@ -684,7 +701,9 @@ class NotificationPreferenceRepository:
             quiet_hours_end=end_time,
         )
 
-        logger.info(f"Updated quiet hours for user {user_id}: {updated} preferences updated")
+        logger.info(
+            f"Updated quiet hours for user {user_id}: {updated} preferences updated"
+        )
         return updated > 0
 
 
@@ -728,10 +747,15 @@ class NotificationLogRepository:
     @staticmethod
     async def get_failed_logs(limit: int = 100) -> List[NotificationLog]:
         """الحصول على السجلات الفاشلة للمحاولة مرة أخرى"""
-        return await NotificationLog.filter(
-            status="failed",
-            retry_count__lt=3,  # Max 3 retries
-        ).order_by("attempted_at").limit(limit).all()
+        return (
+            await NotificationLog.filter(
+                status="failed",
+                retry_count__lt=3,  # Max 3 retries
+            )
+            .order_by("attempted_at")
+            .limit(limit)
+            .all()
+        )
 
     @staticmethod
     async def increment_retry(log_id: UUID) -> bool:
@@ -739,7 +763,9 @@ class NotificationLogRepository:
         log = await NotificationLog.filter(id=log_id).first()
         if log:
             log.retry_count += 1
-            log.next_retry_at = datetime.utcnow() + timedelta(minutes=5 * (log.retry_count))
+            log.next_retry_at = datetime.utcnow() + timedelta(
+                minutes=5 * (log.retry_count)
+            )
             await log.save()
             return True
         return False

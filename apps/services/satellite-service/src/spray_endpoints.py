@@ -32,7 +32,7 @@ def register_spray_endpoints(app):
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),
         product_type: Optional[str] = Query(
             None,
-            description="Product type: herbicide, insecticide, fungicide, foliar_fertilizer, growth_regulator"
+            description="Product type: herbicide, insecticide, fungicide, foliar_fertilizer, growth_regulator",
         ),
     ):
         """
@@ -100,7 +100,7 @@ def register_spray_endpoints(app):
                     valid_types = [p.value for p in SprayProduct]
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Invalid product_type. Must be one of: {', '.join(valid_types)}"
+                        detail=f"Invalid product_type. Must be one of: {', '.join(valid_types)}",
                     )
 
             spray_advisor = get_spray_advisor()
@@ -113,25 +113,43 @@ def register_spray_endpoints(app):
                 "forecast": [day.to_dict() for day in forecast],
                 "summary": {
                     "total_suitable_hours": sum(day.hours_suitable for day in forecast),
-                    "days_with_good_conditions": len([d for d in forecast if d.overall_condition in [
-                        SprayCondition.EXCELLENT, SprayCondition.GOOD
-                    ]]),
-                    "best_day": max(forecast, key=lambda d: d.best_window.score if d.best_window else 0).date.isoformat() if any(d.best_window for d in forecast) else None,
-                }
+                    "days_with_good_conditions": len(
+                        [
+                            d
+                            for d in forecast
+                            if d.overall_condition
+                            in [SprayCondition.EXCELLENT, SprayCondition.GOOD]
+                        ]
+                    ),
+                    "best_day": (
+                        max(
+                            forecast,
+                            key=lambda d: d.best_window.score if d.best_window else 0,
+                        ).date.isoformat()
+                        if any(d.best_window for d in forecast)
+                        else None
+                    ),
+                },
             }
 
         except HTTPException:
             raise
         except Exception as e:
             logger.error(f"Failed to get spray forecast: {e}")
-            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Spray advisor error: {str(e)}"
+            )
 
     @app.get("/v1/spray/best-time")
     async def get_best_spray_time(
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
-        product_type: str = Query(..., description="Product type (herbicide, insecticide, etc.)"),
-        within_days: int = Query(3, description="Search within next N days", ge=1, le=7),
+        product_type: str = Query(
+            ..., description="Product type (herbicide, insecticide, etc.)"
+        ),
+        within_days: int = Query(
+            3, description="Search within next N days", ge=1, le=7
+        ),
     ):
         """
         أفضل وقت للرش | Find Best Spray Time
@@ -177,17 +195,19 @@ def register_spray_endpoints(app):
                 valid_types = [p.value for p in SprayProduct]
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Invalid product_type. Must be one of: {', '.join(valid_types)}"
+                    detail=f"Invalid product_type. Must be one of: {', '.join(valid_types)}",
                 )
 
             spray_advisor = get_spray_advisor()
-            best_window = await spray_advisor.get_best_spray_time(lat, lon, product, within_days)
+            best_window = await spray_advisor.get_best_spray_time(
+                lat, lon, product, within_days
+            )
 
             if not best_window:
                 raise HTTPException(
                     status_code=404,
                     detail=f"No suitable spray windows found in next {within_days} days. "
-                           f"Try increasing the search period or checking specific conditions."
+                    f"Try increasing the search period or checking specific conditions.",
                 )
 
             return {
@@ -201,14 +221,20 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to find best spray time: {e}")
-            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Spray advisor error: {str(e)}"
+            )
 
     @app.post("/v1/spray/evaluate")
     async def evaluate_spray_time(
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
-        target_datetime: str = Query(..., description="Target spray time (ISO 8601 format)"),
-        product_type: Optional[str] = Query(None, description="Product type (optional)"),
+        target_datetime: str = Query(
+            ..., description="Target spray time (ISO 8601 format)"
+        ),
+        product_type: Optional[str] = Query(
+            None, description="Product type (optional)"
+        ),
     ):
         """
         تقييم وقت محدد للرش | Evaluate Specific Spray Time
@@ -255,11 +281,13 @@ def register_spray_endpoints(app):
         try:
             # Parse target datetime
             try:
-                target_dt = datetime.fromisoformat(target_datetime.replace('Z', '+00:00'))
+                target_dt = datetime.fromisoformat(
+                    target_datetime.replace("Z", "+00:00")
+                )
             except ValueError:
                 raise HTTPException(
                     status_code=400,
-                    detail="Invalid target_datetime format. Use ISO 8601 format (e.g., 2024-12-26T09:00:00)"
+                    detail="Invalid target_datetime format. Use ISO 8601 format (e.g., 2024-12-26T09:00:00)",
                 )
 
             # Check if target is in valid range (next 16 days)
@@ -268,13 +296,12 @@ def register_spray_endpoints(app):
 
             if days_ahead < 0:
                 raise HTTPException(
-                    status_code=400,
-                    detail="target_datetime must be in the future"
+                    status_code=400, detail="target_datetime must be in the future"
                 )
             if days_ahead > 16:
                 raise HTTPException(
                     status_code=400,
-                    detail="target_datetime must be within next 16 days (weather forecast limit)"
+                    detail="target_datetime must be within next 16 days (weather forecast limit)",
                 )
 
             # Validate and convert product type
@@ -286,11 +313,13 @@ def register_spray_endpoints(app):
                     valid_types = [p.value for p in SprayProduct]
                     raise HTTPException(
                         status_code=400,
-                        detail=f"Invalid product_type. Must be one of: {', '.join(valid_types)}"
+                        detail=f"Invalid product_type. Must be one of: {', '.join(valid_types)}",
                     )
 
             spray_advisor = get_spray_advisor()
-            evaluation = await spray_advisor.evaluate_spray_time(lat, lon, target_dt, product)
+            evaluation = await spray_advisor.evaluate_spray_time(
+                lat, lon, target_dt, product
+            )
 
             return {
                 "location": {"lat": lat, "lon": lon},
@@ -303,7 +332,9 @@ def register_spray_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to evaluate spray time: {e}")
-            raise HTTPException(status_code=500, detail=f"Spray advisor error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Spray advisor error: {str(e)}"
+            )
 
     @app.get("/v1/spray/conditions")
     async def get_spray_conditions_info():
@@ -339,60 +370,60 @@ def register_spray_endpoints(app):
                     "humidity_percent": {"min": 50},
                     "rain_free_hours_after": 6,
                     "notes_ar": "درجة حرارة أعلى مطلوبة لامتصاص أفضل",
-                    "notes_en": "Higher temperature needed for better absorption"
+                    "notes_en": "Higher temperature needed for better absorption",
                 },
                 "insecticide": {
                     "wind_speed_kmh": {"max": 10},
                     "temperature_c": {"min": 12, "max": 28},
                     "notes_ar": "رياح أقل مطلوبة للتلامس الجيد",
-                    "notes_en": "Lower wind needed for good contact"
+                    "notes_en": "Lower wind needed for good contact",
                 },
                 "fungicide": {
                     "humidity_percent": {"max": 70},
                     "temperature_c": {"max": 25},
                     "notes_ar": "رطوبة أقل تقلل انتشار الجراثيم",
-                    "notes_en": "Lower humidity reduces spore spread"
+                    "notes_en": "Lower humidity reduces spore spread",
                 },
                 "foliar_fertilizer": {
                     "humidity_percent": {"min": 60},
                     "temperature_c": {"max": 28},
                     "notes_ar": "رطوبة أعلى تحسن الامتصاص",
-                    "notes_en": "Higher humidity improves absorption"
+                    "notes_en": "Higher humidity improves absorption",
                 },
                 "growth_regulator": {
                     "temperature_c": {"min": 15, "max": 25},
                     "humidity_percent": {"min": 50},
                     "wind_speed_kmh": {"max": 12},
                     "notes_ar": "ظروف معتدلة مطلوبة",
-                    "notes_en": "Moderate conditions required"
-                }
+                    "notes_en": "Moderate conditions required",
+                },
             },
             "condition_levels": {
                 "excellent": {
                     "score_range": "85-100",
                     "description_ar": "ظروف ممتازة - المضي قدماً بثقة",
-                    "description_en": "Perfect conditions - proceed with confidence"
+                    "description_en": "Perfect conditions - proceed with confidence",
                 },
                 "good": {
                     "score_range": "70-84",
                     "description_ar": "ظروف جيدة - آمن للمضي قدماً",
-                    "description_en": "Good conditions - safe to proceed"
+                    "description_en": "Good conditions - safe to proceed",
                 },
                 "marginal": {
                     "score_range": "50-69",
                     "description_ar": "ظروف هامشية - توخى الحذر",
-                    "description_en": "Marginal conditions - exercise caution"
+                    "description_en": "Marginal conditions - exercise caution",
                 },
                 "poor": {
                     "score_range": "30-49",
                     "description_ar": "ظروف غير موصى بها - فكر في التأجيل",
-                    "description_en": "Poor conditions - consider postponing"
+                    "description_en": "Poor conditions - consider postponing",
                 },
                 "dangerous": {
                     "score_range": "0-29",
                     "description_ar": "⚠️ لا ترش! ظروف خطيرة",
-                    "description_en": "⚠️ DO NOT SPRAY! Dangerous conditions"
-                }
+                    "description_en": "⚠️ DO NOT SPRAY! Dangerous conditions",
+                },
             },
             "risk_factors": {
                 "spray_drift": {
@@ -401,7 +432,7 @@ def register_spray_endpoints(app):
                     "impact_ar": "انجراف الرذاذ إلى مناطق غير مستهدفة",
                     "impact_en": "Spray drifts to non-target areas",
                     "mitigation_ar": "قلل ضغط الرش، استخدم فوهات أكبر، أو أجّل",
-                    "mitigation_en": "Reduce pressure, use larger nozzles, or postpone"
+                    "mitigation_en": "Reduce pressure, use larger nozzles, or postpone",
                 },
                 "wash_off": {
                     "cause_ar": "أمطار متوقعة (> 20% احتمال)",
@@ -409,7 +440,7 @@ def register_spray_endpoints(app):
                     "impact_ar": "غسل المبيد قبل الامتصاص",
                     "impact_en": "Product washed off before absorption",
                     "mitigation_ar": "انتظر 4-6 ساعات بدون مطر بعد الرش",
-                    "mitigation_en": "Wait for 4-6 hours rain-free after spraying"
+                    "mitigation_en": "Wait for 4-6 hours rain-free after spraying",
                 },
                 "evaporation": {
                     "cause_ar": "رطوبة منخفضة + حرارة مرتفعة",
@@ -417,7 +448,7 @@ def register_spray_endpoints(app):
                     "impact_ar": "تبخر القطرات قبل الوصول للهدف",
                     "impact_en": "Droplets evaporate before reaching target",
                     "mitigation_ar": "ارش في الصباح الباكر أو المساء",
-                    "mitigation_en": "Spray early morning or evening"
+                    "mitigation_en": "Spray early morning or evening",
                 },
                 "phytotoxicity": {
                     "cause_ar": "حرارة مرتفعة (> 30°م)",
@@ -425,7 +456,7 @@ def register_spray_endpoints(app):
                     "impact_ar": "إتلاف النبات من الحرارة + الكيماويات",
                     "impact_en": "Plant damage from heat + chemicals",
                     "mitigation_ar": "ارش في أوقات أبرد، قلل الجرعة",
-                    "mitigation_en": "Spray during cooler times, reduce dosage"
+                    "mitigation_en": "Spray during cooler times, reduce dosage",
                 },
                 "inversion_risk": {
                     "cause_ar": "دلتا-T منخفض (< 2°م)",
@@ -433,8 +464,8 @@ def register_spray_endpoints(app):
                     "impact_ar": "انعكاس حراري - قطرات معلقة في الهواء",
                     "impact_en": "Temperature inversion - droplets suspended",
                     "mitigation_ar": "انتظر حتى تستقر الظروف الجوية",
-                    "mitigation_en": "Wait for atmospheric conditions to stabilize"
-                }
+                    "mitigation_en": "Wait for atmospheric conditions to stabilize",
+                },
             },
             "delta_t_guide": {
                 "description_ar": "الفرق بين درجة الحرارة الجافة والرطبة",
@@ -443,19 +474,19 @@ def register_spray_endpoints(app):
                     "too_low": {
                         "value": "< 2°C",
                         "description_ar": "خطر انعكاس حراري",
-                        "description_en": "Temperature inversion risk"
+                        "description_en": "Temperature inversion risk",
                     },
                     "ideal": {
                         "value": "2-8°C",
                         "description_ar": "ظروف مثالية للرش",
-                        "description_en": "Ideal spraying conditions"
+                        "description_en": "Ideal spraying conditions",
                     },
                     "too_high": {
                         "value": "> 8°C",
                         "description_ar": "تبخر سريع للقطرات",
-                        "description_en": "Rapid droplet evaporation"
-                    }
-                }
+                        "description_en": "Rapid droplet evaporation",
+                    },
+                },
             },
             "yemen_considerations": {
                 "highlands": {
@@ -464,7 +495,7 @@ def register_spray_endpoints(app):
                     "notes_ar": "انتبه لدرجات الحرارة المنخفضة صباحاً، خطر صقيع في الشتاء",
                     "notes_en": "Watch for low morning temps, frost risk in winter",
                     "best_time_ar": "منتصف النهار (10 ص - 3 م)",
-                    "best_time_en": "Mid-day (10 AM - 3 PM)"
+                    "best_time_en": "Mid-day (10 AM - 3 PM)",
                 },
                 "coastal": {
                     "regions_ar": "الحديدة، عدن، المكلا",
@@ -472,7 +503,7 @@ def register_spray_endpoints(app):
                     "notes_ar": "رطوبة عالية، رياح ساحلية، تجنب منتصف النهار في الصيف",
                     "notes_en": "High humidity, coastal winds, avoid midday in summer",
                     "best_time_ar": "الصباح الباكر (6-9 ص) أو المساء (4-6 م)",
-                    "best_time_en": "Early morning (6-9 AM) or evening (4-6 PM)"
+                    "best_time_en": "Early morning (6-9 AM) or evening (4-6 PM)",
                 },
                 "mid_elevation": {
                     "regions_ar": "تعز، ريمة",
@@ -480,23 +511,23 @@ def register_spray_endpoints(app):
                     "notes_ar": "ظروف معتدلة، راقب الرياح الجبلية",
                     "notes_en": "Moderate conditions, watch for mountain winds",
                     "best_time_ar": "الصباح (7-11 ص)",
-                    "best_time_en": "Morning (7-11 AM)"
-                }
+                    "best_time_en": "Morning (7-11 AM)",
+                },
             },
             "safety_reminders_ar": [
                 "ارتدِ معدات الحماية الشخصية دائماً (قفازات، نظارات، قناع)",
                 "اقرأ ملصق المبيد واتبع التعليمات",
                 "احتفظ بسجل للرش (التاريخ، الوقت، المنتج، الظروف)",
                 "تجنب الرش بالقرب من المنازل والمياه",
-                "نظف المعدات بعد الاستخدام"
+                "نظف المعدات بعد الاستخدام",
             ],
             "safety_reminders_en": [
                 "Always wear PPE (gloves, goggles, mask)",
                 "Read product label and follow instructions",
                 "Keep spray records (date, time, product, conditions)",
                 "Avoid spraying near homes and water bodies",
-                "Clean equipment after use"
-            ]
+                "Clean equipment after use",
+            ],
         }
 
     logger.info("Spray advisor API endpoints registered successfully")

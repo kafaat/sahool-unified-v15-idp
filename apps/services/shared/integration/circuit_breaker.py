@@ -17,8 +17,9 @@ logger = logging.getLogger(__name__)
 
 class CircuitState(str, Enum):
     """Circuit breaker states"""
-    CLOSED = "closed"      # Normal operation - requests allowed
-    OPEN = "open"          # Failure state - requests blocked
+
+    CLOSED = "closed"  # Normal operation - requests allowed
+    OPEN = "open"  # Failure state - requests blocked
     HALF_OPEN = "half_open"  # Testing state - limited requests
 
 
@@ -40,11 +41,12 @@ class CircuitBreaker:
             # Handle circuit open
             pass
     """
+
     name: str
-    failure_threshold: int = 5        # Failures before opening
-    success_threshold: int = 2        # Successes before closing
-    timeout_seconds: int = 30         # Time before trying again
-    half_open_max_calls: int = 3      # Max calls in half-open state
+    failure_threshold: int = 5  # Failures before opening
+    success_threshold: int = 2  # Successes before closing
+    timeout_seconds: int = 30  # Time before trying again
+    half_open_max_calls: int = 3  # Max calls in half-open state
 
     # State tracking
     state: CircuitState = field(default=CircuitState.CLOSED)
@@ -140,14 +142,22 @@ class CircuitBreaker:
         if not self._should_try():
             logger.warning(f"Circuit {self.name} is OPEN, rejecting call")
             if fallback:
-                return await fallback(*args, **kwargs) if asyncio.iscoroutinefunction(fallback) else fallback(*args, **kwargs)
+                return (
+                    await fallback(*args, **kwargs)
+                    if asyncio.iscoroutinefunction(fallback)
+                    else fallback(*args, **kwargs)
+                )
             raise CircuitOpenError(f"Circuit {self.name} is open")
 
         if self.state == CircuitState.HALF_OPEN:
             self.half_open_calls += 1
 
         try:
-            result = await func(*args, **kwargs) if asyncio.iscoroutinefunction(func) else func(*args, **kwargs)
+            result = (
+                await func(*args, **kwargs)
+                if asyncio.iscoroutinefunction(func)
+                else func(*args, **kwargs)
+            )
             self.record_success()
             return result
 
@@ -156,7 +166,11 @@ class CircuitBreaker:
             logger.error(f"Circuit {self.name} recorded failure: {e}")
 
             if fallback:
-                return await fallback(*args, **kwargs) if asyncio.iscoroutinefunction(fallback) else fallback(*args, **kwargs)
+                return (
+                    await fallback(*args, **kwargs)
+                    if asyncio.iscoroutinefunction(fallback)
+                    else fallback(*args, **kwargs)
+                )
             raise
 
     def get_status(self) -> dict:
@@ -166,7 +180,9 @@ class CircuitBreaker:
             "state": self.state.value,
             "failure_count": self.failure_count,
             "success_count": self.success_count,
-            "last_failure": self.last_failure_time.isoformat() if self.last_failure_time else None,
+            "last_failure": (
+                self.last_failure_time.isoformat() if self.last_failure_time else None
+            ),
         }
 
     def reset(self):
@@ -177,6 +193,7 @@ class CircuitBreaker:
 
 class CircuitOpenError(Exception):
     """Raised when circuit is open and call is rejected"""
+
     pass
 
 

@@ -16,7 +16,7 @@ import argparse
 import logging
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 
 from src.database import (
     init_db,
@@ -27,8 +27,7 @@ from src.database import (
 )
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("init_db")
 
@@ -39,19 +38,17 @@ async def main():
         description="SAHOOL Notification Service Database Initialization"
     )
     parser.add_argument(
-        '--create-schema',
-        action='store_true',
-        help='Create database schema directly (development only!)'
+        "--create-schema",
+        action="store_true",
+        help="Create database schema directly (development only!)",
     )
     parser.add_argument(
-        '--check',
-        action='store_true',
-        help='Check database health and exit'
+        "--check", action="store_true", help="Check database health and exit"
     )
     parser.add_argument(
-        '--wait',
-        action='store_true',
-        help='Wait for database to be available (useful for Docker)'
+        "--wait",
+        action="store_true",
+        help="Wait for database to be available (useful for Docker)",
     )
 
     args = parser.parse_args()
@@ -88,7 +85,9 @@ async def main():
         logger.info("Initializing database...")
 
         if args.create_schema:
-            logger.warning("⚠️  Creating schema directly - THIS SHOULD ONLY BE USED IN DEVELOPMENT!")
+            logger.warning(
+                "⚠️  Creating schema directly - THIS SHOULD ONLY BE USED IN DEVELOPMENT!"
+            )
             logger.warning("⚠️  In production, use Aerich migrations instead!")
 
             await init_db(create_db=True)

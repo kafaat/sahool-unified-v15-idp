@@ -201,7 +201,7 @@ async def _log_rate_limit_exceeded(request: Request, tier: str):
             "path": str(request.url.path),
             "method": request.method,
             "user_agent": user_agent[:200] if user_agent else None,
-        }
+        },
     )
 
     # Try to log to audit system (non-blocking)

@@ -33,9 +33,7 @@ class ComplianceService:
         self.non_conformities: Dict[str, List[NonConformity]] = {}
 
     async def calculate_compliance_status(
-        self,
-        farm_id: str,
-        assessments: List[ChecklistAssessment]
+        self, farm_id: str, assessments: List[ChecklistAssessment]
     ) -> ComplianceRecord:
         """
         Calculate overall compliance status based on assessments
@@ -52,19 +50,17 @@ class ComplianceService:
             return ComplianceRecord(
                 farm_id=farm_id,
                 tenant_id="",
-                overall_status=ComplianceStatus.NOT_ASSESSED
+                overall_status=ComplianceStatus.NOT_ASSESSED,
             )
 
         # Count control points by status
         # عد نقاط التحكم حسب الحالة
         total_points = len(assessments)
         compliant_points = sum(
-            1 for a in assessments
-            if a.status == ControlPointStatus.COMPLIANT
+            1 for a in assessments if a.status == ControlPointStatus.COMPLIANT
         )
         non_compliant_points = sum(
-            1 for a in assessments
-            if a.status == ControlPointStatus.NON_COMPLIANT
+            1 for a in assessments if a.status == ControlPointStatus.NON_COMPLIANT
         )
 
         # Count Major Must and Minor Must failures
@@ -86,8 +82,7 @@ class ComplianceService:
         # Calculate compliance percentage
         # حساب نسبة الامتثال
         applicable_points = total_points - sum(
-            1 for a in assessments
-            if a.status == ControlPointStatus.NOT_APPLICABLE
+            1 for a in assessments if a.status == ControlPointStatus.NOT_APPLICABLE
         )
         compliance_percentage = (
             (compliant_points / applicable_points * 100)
@@ -99,7 +94,7 @@ class ComplianceService:
         # تحديد الحالة الإجمالية
         overall_status = self._determine_overall_status(
             major_must_fails=major_must_fails,
-            compliance_percentage=compliance_percentage
+            compliance_percentage=compliance_percentage,
         )
 
         # Create compliance record
@@ -121,9 +116,7 @@ class ComplianceService:
         return compliance_record
 
     def _determine_overall_status(
-        self,
-        major_must_fails: int,
-        compliance_percentage: float
+        self, major_must_fails: int, compliance_percentage: float
     ) -> ComplianceStatus:
         """
         Determine overall compliance status based on IFA rules
@@ -156,9 +149,7 @@ class ComplianceService:
         return ComplianceStatus.COMPLIANT
 
     async def get_farm_compliance(
-        self,
-        farm_id: str,
-        tenant_id: str
+        self, farm_id: str, tenant_id: str
     ) -> Optional[ComplianceRecord]:
         """
         Get current compliance record for a farm
@@ -177,8 +168,7 @@ class ComplianceService:
         return self.compliance_records.get(key)
 
     async def save_compliance_record(
-        self,
-        compliance_record: ComplianceRecord
+        self, compliance_record: ComplianceRecord
     ) -> ComplianceRecord:
         """
         Save compliance record to database
@@ -203,7 +193,7 @@ class ComplianceService:
         farm_id: str,
         tenant_id: str,
         severity: Optional[SeverityLevel] = None,
-        resolved: Optional[bool] = None
+        resolved: Optional[bool] = None,
     ) -> List[NonConformity]:
         """
         Get non-conformities for a farm
@@ -225,21 +215,20 @@ class ComplianceService:
         # تطبيق المرشحات
         if severity is not None:
             non_conformities = [
-                nc for nc in non_conformities
-                if nc.severity == severity
+                nc for nc in non_conformities if nc.severity == severity
             ]
 
         if resolved is not None:
             non_conformities = [
-                nc for nc in non_conformities
+                nc
+                for nc in non_conformities
                 if nc.corrective_action_completed == resolved
             ]
 
         return non_conformities
 
     async def create_non_conformity(
-        self,
-        non_conformity: NonConformity
+        self, non_conformity: NonConformity
     ) -> NonConformity:
         """
         Create a new non-conformity record
@@ -272,7 +261,7 @@ class ComplianceService:
         non_conformity_id: str,
         action_plan: str,
         deadline: datetime,
-        status: str = "in_progress"
+        status: str = "in_progress",
     ) -> Optional[NonConformity]:
         """
         Update corrective action for a non-conformity
@@ -303,10 +292,7 @@ class ComplianceService:
         return None
 
     async def get_compliance_trends(
-        self,
-        farm_id: str,
-        tenant_id: str,
-        months: int = 12
+        self, farm_id: str, tenant_id: str, months: int = 12
     ) -> List[Dict[str, Any]]:
         """
         Get compliance trends over time
@@ -328,11 +314,13 @@ class ComplianceService:
         # محاكاة البيانات التاريخية
         for i in range(months):
             date = datetime.utcnow() - timedelta(days=30 * i)
-            trends.append({
-                "date": date.isoformat(),
-                "compliance_percentage": 85.0 + (i * 2),  # Simulated improvement
-                "major_must_fails": max(0, 3 - i),
-                "minor_must_fails": max(0, 10 - i),
-            })
+            trends.append(
+                {
+                    "date": date.isoformat(),
+                    "compliance_percentage": 85.0 + (i * 2),  # Simulated improvement
+                    "major_must_fails": max(0, 3 - i),
+                    "minor_must_fails": max(0, 10 - i),
+                }
+            )
 
         return trends

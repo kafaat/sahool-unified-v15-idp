@@ -74,6 +74,7 @@ def check_models():
 
     try:
         from src.db_models import Alert, AlertRule, Base
+
         print("  ✅ Alert model")
         print("  ✅ AlertRule model")
         print("  ✅ Base metadata")
@@ -172,9 +173,9 @@ def check_alembic():
 
 def print_summary(results):
     """عرض الملخص النهائي"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("📊 ملخص التحقق")
-    print("="*60)
+    print("=" * 60)
 
     total = len(results)
     passed = sum(results.values())
@@ -183,7 +184,7 @@ def print_summary(results):
         icon = "✅" if status else "❌"
         print(f"{icon} {check}")
 
-    print("-"*60)
+    print("-" * 60)
     print(f"النتيجة: {passed}/{total} اختبارات ناجحة")
 
     if passed == total:
@@ -204,10 +205,10 @@ def print_summary(results):
 
 def main():
     """تشغيل جميع الفحوصات"""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("🔧 SAHOOL Alert Service - Setup Verification")
     print("   التحقق من إعداد خدمة التنبيهات")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
 
     results = {}
 

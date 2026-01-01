@@ -28,18 +28,44 @@ class PredictionService:
 
     # PlantVillage dataset class names (38 classes)
     PLANTVILLAGE_CLASSES = [
-        "Apple___Apple_scab", "Apple___Black_rot", "Apple___Cedar_apple_rust", "Apple___healthy",
-        "Blueberry___healthy", "Cherry___Powdery_mildew", "Cherry___healthy",
-        "Corn___Cercospora_leaf_spot", "Corn___Common_rust", "Corn___Northern_Leaf_Blight", "Corn___healthy",
-        "Grape___Black_rot", "Grape___Esca", "Grape___Leaf_blight", "Grape___healthy",
-        "Orange___Citrus_greening", "Peach___Bacterial_spot", "Peach___healthy",
-        "Pepper___Bacterial_spot", "Pepper___healthy",
-        "Potato___Early_blight", "Potato___Late_blight", "Potato___healthy",
-        "Raspberry___healthy", "Soybean___healthy",
-        "Squash___Powdery_mildew", "Strawberry___Leaf_scorch", "Strawberry___healthy",
-        "Tomato___Bacterial_spot", "Tomato___Early_blight", "Tomato___Late_blight",
-        "Tomato___Leaf_Mold", "Tomato___Septoria_leaf_spot", "Tomato___Spider_mites",
-        "Tomato___Target_Spot", "Tomato___Yellow_Leaf_Curl_Virus", "Tomato___mosaic_virus", "Tomato___healthy"
+        "Apple___Apple_scab",
+        "Apple___Black_rot",
+        "Apple___Cedar_apple_rust",
+        "Apple___healthy",
+        "Blueberry___healthy",
+        "Cherry___Powdery_mildew",
+        "Cherry___healthy",
+        "Corn___Cercospora_leaf_spot",
+        "Corn___Common_rust",
+        "Corn___Northern_Leaf_Blight",
+        "Corn___healthy",
+        "Grape___Black_rot",
+        "Grape___Esca",
+        "Grape___Leaf_blight",
+        "Grape___healthy",
+        "Orange___Citrus_greening",
+        "Peach___Bacterial_spot",
+        "Peach___healthy",
+        "Pepper___Bacterial_spot",
+        "Pepper___healthy",
+        "Potato___Early_blight",
+        "Potato___Late_blight",
+        "Potato___healthy",
+        "Raspberry___healthy",
+        "Soybean___healthy",
+        "Squash___Powdery_mildew",
+        "Strawberry___Leaf_scorch",
+        "Strawberry___healthy",
+        "Tomato___Bacterial_spot",
+        "Tomato___Early_blight",
+        "Tomato___Late_blight",
+        "Tomato___Leaf_Mold",
+        "Tomato___Septoria_leaf_spot",
+        "Tomato___Spider_mites",
+        "Tomato___Target_Spot",
+        "Tomato___Yellow_Leaf_Curl_Virus",
+        "Tomato___mosaic_virus",
+        "Tomato___healthy",
     ]
 
     # Map PlantVillage classes to Yemen-focused disease database
@@ -65,7 +91,9 @@ class PredictionService:
     }
 
     def __init__(self, model_path: Optional[str] = None):
-        self.model_path = model_path or os.getenv("MODEL_PATH", "models/plant_disease_model.tflite")
+        self.model_path = model_path or os.getenv(
+            "MODEL_PATH", "models/plant_disease_model.tflite"
+        )
         self.model = None
         self.is_loaded = False
         self.is_real_model = False
@@ -82,25 +110,30 @@ class PredictionService:
             try:
                 logger.info(f"⏳ Loading AI model from {self.model_path}...")
 
-                if self.model_path.endswith('.tflite'):
+                if self.model_path.endswith(".tflite"):
                     import tensorflow as tf
+
                     self.model = tf.lite.Interpreter(model_path=self.model_path)
                     self.model.allocate_tensors()
-                    self.model_type = 'tflite'
+                    self.model_type = "tflite"
                     self.is_real_model = True
                     logger.info("✅ TFLite model loaded successfully!")
 
-                elif self.model_path.endswith('.h5') or self.model_path.endswith('.keras'):
+                elif self.model_path.endswith(".h5") or self.model_path.endswith(
+                    ".keras"
+                ):
                     import tensorflow as tf
+
                     self.model = tf.keras.models.load_model(self.model_path)
-                    self.model_type = 'keras'
+                    self.model_type = "keras"
                     self.is_real_model = True
                     logger.info("✅ Keras model loaded successfully!")
 
                 elif os.path.isdir(self.model_path):
                     import tensorflow as tf
+
                     self.model = tf.keras.models.load_model(self.model_path)
-                    self.model_type = 'savedmodel'
+                    self.model_type = "savedmodel"
                     self.is_real_model = True
                     logger.info("✅ SavedModel loaded successfully!")
 
@@ -132,8 +165,8 @@ class PredictionService:
             image = Image.open(io.BytesIO(image_bytes))
             image = image.resize(self.input_shape, Image.Resampling.LANCZOS)
 
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
+            if image.mode != "RGB":
+                image = image.convert("RGB")
 
             img_array = np.array(image, dtype=np.float32) / 255.0
             img_array = np.expand_dims(img_array, axis=0)
@@ -152,12 +185,12 @@ class PredictionService:
         try:
             import tensorflow as tf
 
-            if self.model_type == 'tflite':
+            if self.model_type == "tflite":
                 input_details = self.model.get_input_details()
                 output_details = self.model.get_output_details()
-                self.model.set_tensor(input_details[0]['index'], img_array)
+                self.model.set_tensor(input_details[0]["index"], img_array)
                 self.model.invoke()
-                predictions = self.model.get_tensor(output_details[0]['index'])[0]
+                predictions = self.model.get_tensor(output_details[0]["index"])[0]
             else:
                 predictions = self.model.predict(img_array, verbose=0)[0]
 
@@ -226,11 +259,13 @@ class PredictionService:
                 for idx in sorted_indices:
                     if idx < len(self.PLANTVILLAGE_CLASSES):
                         pv = self.PLANTVILLAGE_CLASSES[idx]
-                        all_predictions.append({
-                            "disease": pv,
-                            "mapped_to": self._map_plantvillage_to_disease(pv),
-                            "confidence": float(predictions[idx])
-                        })
+                        all_predictions.append(
+                            {
+                                "disease": pv,
+                                "mapped_to": self._map_plantvillage_to_disease(pv),
+                                "confidence": float(predictions[idx]),
+                            }
+                        )
             else:
                 disease_key = "healthy"
                 all_predictions = [{"disease": "unknown", "confidence": confidence}]

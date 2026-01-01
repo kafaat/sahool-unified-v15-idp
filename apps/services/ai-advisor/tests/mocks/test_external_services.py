@@ -23,15 +23,14 @@ class TestCropHealthToolMock:
             "disease_detected": True,
             "disease_name": "Leaf Blight",
             "confidence": 0.87,
-            "affected_area": 0.25
+            "affected_area": 0.25,
         }
 
         with patch("httpx.AsyncClient.post", new=AsyncMock(return_value=mock_response)):
             tool = CropHealthTool()
 
             result = await tool.analyze_image(
-                image_path="/tmp/test_crop.jpg",
-                crop_type="wheat"
+                image_path="/tmp/test_crop.jpg", crop_type="wheat"
             )
 
             assert result["disease_detected"] is True
@@ -48,15 +47,14 @@ class TestCropHealthToolMock:
         mock_response.json.return_value = {
             "disease_detected": False,
             "confidence": 0.92,
-            "status": "healthy"
+            "status": "healthy",
         }
 
         with patch("httpx.AsyncClient.post", new=AsyncMock(return_value=mock_response)):
             tool = CropHealthTool()
 
             result = await tool.analyze_image(
-                image_path="/tmp/healthy_crop.jpg",
-                crop_type="tomato"
+                image_path="/tmp/healthy_crop.jpg", crop_type="tomato"
             )
 
             assert result["disease_detected"] is False
@@ -67,14 +65,14 @@ class TestCropHealthToolMock:
         """Test handling of API failure"""
         from src.tools.crop_health_tool import CropHealthTool
 
-        with patch("httpx.AsyncClient.post", new=AsyncMock(side_effect=httpx.RequestError("API Error"))):
+        with patch(
+            "httpx.AsyncClient.post",
+            new=AsyncMock(side_effect=httpx.RequestError("API Error")),
+        ):
             tool = CropHealthTool()
 
             with pytest.raises(Exception):
-                await tool.analyze_image(
-                    image_path="/tmp/test.jpg",
-                    crop_type="corn"
-                )
+                await tool.analyze_image(image_path="/tmp/test.jpg", crop_type="corn")
 
 
 class TestWeatherToolMock:
@@ -93,15 +91,13 @@ class TestWeatherToolMock:
             "conditions": "partly cloudy",
             "precipitation": 0,
             "wind_speed": 12,
-            "wind_direction": "NW"
+            "wind_direction": "NW",
         }
 
         with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
             tool = WeatherTool()
 
-            result = await tool.get_current_weather(
-                location="Sana'a, Yemen"
-            )
+            result = await tool.get_current_weather(location="Sana'a, Yemen")
 
             assert "temperature" in result
             assert "humidity" in result
@@ -116,19 +112,31 @@ class TestWeatherToolMock:
         mock_response.status_code = 200
         mock_response.json.return_value = {
             "forecast": [
-                {"date": "2024-12-27", "temp_max": 30, "temp_min": 18, "precipitation": 0},
-                {"date": "2024-12-28", "temp_max": 29, "temp_min": 17, "precipitation": 5},
-                {"date": "2024-12-29", "temp_max": 28, "temp_min": 16, "precipitation": 0}
+                {
+                    "date": "2024-12-27",
+                    "temp_max": 30,
+                    "temp_min": 18,
+                    "precipitation": 0,
+                },
+                {
+                    "date": "2024-12-28",
+                    "temp_max": 29,
+                    "temp_min": 17,
+                    "precipitation": 5,
+                },
+                {
+                    "date": "2024-12-29",
+                    "temp_max": 28,
+                    "temp_min": 16,
+                    "precipitation": 0,
+                },
             ]
         }
 
         with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
             tool = WeatherTool()
 
-            result = await tool.get_forecast(
-                location="Sana'a, Yemen",
-                days=3
-            )
+            result = await tool.get_forecast(location="Sana'a, Yemen", days=3)
 
             assert "forecast" in result
             assert len(result["forecast"]) == 3
@@ -138,7 +146,10 @@ class TestWeatherToolMock:
         """Test weather API timeout handling"""
         from src.tools.weather_tool import WeatherTool
 
-        with patch("httpx.AsyncClient.get", new=AsyncMock(side_effect=httpx.TimeoutException("Timeout"))):
+        with patch(
+            "httpx.AsyncClient.get",
+            new=AsyncMock(side_effect=httpx.TimeoutException("Timeout")),
+        ):
             tool = WeatherTool()
 
             with pytest.raises(Exception):
@@ -161,7 +172,7 @@ class TestSatelliteToolMock:
             "ndvi_min": 0.6,
             "ndvi_max": 0.85,
             "date": "2024-12-01",
-            "coverage": 95
+            "coverage": 95,
         }
 
         with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
@@ -186,8 +197,8 @@ class TestSatelliteToolMock:
             "time_series": [
                 {"date": "2024-11-01", "ndvi": 0.65},
                 {"date": "2024-11-15", "ndvi": 0.70},
-                {"date": "2024-12-01", "ndvi": 0.75}
-            ]
+                {"date": "2024-12-01", "ndvi": 0.75},
+            ],
         }
 
         with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
@@ -196,7 +207,7 @@ class TestSatelliteToolMock:
             result = await tool.get_ndvi_time_series(
                 field_id="test-field-123",
                 start_date="2024-11-01",
-                end_date="2024-12-01"
+                end_date="2024-12-01",
             )
 
             assert "time_series" in result
@@ -209,9 +220,7 @@ class TestSatelliteToolMock:
 
         mock_response = Mock()
         mock_response.status_code = 404
-        mock_response.json.return_value = {
-            "error": "No data available for this field"
-        }
+        mock_response.json.return_value = {"error": "No data available for this field"}
 
         with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
             tool = SatelliteTool()
@@ -234,16 +243,13 @@ class TestAgroToolMock:
             "crop": "wheat",
             "planting_season": "November-December",
             "harvest_season": "April-May",
-            "growth_duration_days": 120
+            "growth_duration_days": 120,
         }
 
         with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
             tool = AgroTool()
 
-            result = await tool.get_crop_calendar(
-                crop_type="wheat",
-                location="Yemen"
-            )
+            result = await tool.get_crop_calendar(crop_type="wheat", location="Yemen")
 
             assert result["crop"] == "wheat"
             assert "planting_season" in result
@@ -260,15 +266,13 @@ class TestAgroToolMock:
             "crop": "tomato",
             "soil_type": "loamy",
             "ph_range": {"min": 6.0, "max": 6.8},
-            "amendments": ["organic matter", "lime if acidic"]
+            "amendments": ["organic matter", "lime if acidic"],
         }
 
         with patch("httpx.AsyncClient.get", new=AsyncMock(return_value=mock_response)):
             tool = AgroTool()
 
-            result = await tool.get_soil_recommendations(
-                crop_type="tomato"
-            )
+            result = await tool.get_soil_recommendations(crop_type="tomato")
 
             assert result["crop"] == "tomato"
             assert "ph_range" in result
@@ -285,7 +289,9 @@ class TestEmbeddingsManagerMock:
         mock_model = Mock()
         mock_model.encode.return_value = [[0.1, 0.2, 0.3, 0.4]]  # Mock embedding vector
 
-        with patch("sentence_transformers.SentenceTransformer", return_value=mock_model):
+        with patch(
+            "sentence_transformers.SentenceTransformer", return_value=mock_model
+        ):
             manager = EmbeddingsManager()
 
             result = manager.get_embeddings(["Test agricultural text"])
@@ -301,7 +307,9 @@ class TestEmbeddingsManagerMock:
         mock_model = Mock()
         mock_model.get_sentence_embedding_dimension = Mock(return_value=384)
 
-        with patch("sentence_transformers.SentenceTransformer", return_value=mock_model):
+        with patch(
+            "sentence_transformers.SentenceTransformer", return_value=mock_model
+        ):
             manager = EmbeddingsManager()
 
             info = manager.get_model_info()
@@ -326,14 +334,13 @@ class TestKnowledgeRetrieverMock:
         # Mock vector store
         mock_docs = [
             Mock(page_content="Document 1 about wheat", metadata={"source": "test1"}),
-            Mock(page_content="Document 2 about irrigation", metadata={"source": "test2"})
+            Mock(
+                page_content="Document 2 about irrigation", metadata={"source": "test2"}
+            ),
         ]
 
         with patch.object(retriever, "_search_vector_store", return_value=mock_docs):
-            results = retriever.retrieve(
-                query="Tell me about wheat farming",
-                top_k=2
-            )
+            results = retriever.retrieve(query="Tell me about wheat farming", top_k=2)
 
             assert len(results) == 2
             assert results[0].page_content is not None
@@ -345,10 +352,14 @@ class TestKnowledgeRetrieverMock:
         mock_embeddings = Mock()
         retriever = KnowledgeRetriever(embeddings_manager=mock_embeddings)
 
-        with patch.object(retriever, "_get_collection_stats", return_value={
-            "collection_name": "agricultural-knowledge",
-            "documents_count": 1500
-        }):
+        with patch.object(
+            retriever,
+            "_get_collection_stats",
+            return_value={
+                "collection_name": "agricultural-knowledge",
+                "documents_count": 1500,
+            },
+        ):
             info = retriever.get_collection_info()
 
             assert info["collection_name"] == "agricultural-knowledge"

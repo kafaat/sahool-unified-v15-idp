@@ -68,7 +68,7 @@ class GlobalGAPEventPublisher:
         event_type: str,
         tenant_id: str,
         data: dict,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> dict:
         """إنشاء حدث موحد"""
         return {
@@ -97,7 +97,7 @@ class GlobalGAPEventPublisher:
         compliance_status: str,
         previous_status: Optional[str] = None,
         assessment_data: Optional[dict] = None,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث تحديث الامتثال
@@ -114,7 +114,7 @@ class GlobalGAPEventPublisher:
                 "assessment_data": assessment_data or {},
                 "updated_at": datetime.now(timezone.utc).isoformat(),
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.COMPLIANCE_UPDATED, event)
 
@@ -125,7 +125,7 @@ class GlobalGAPEventPublisher:
         control_point: str,
         reason: str,
         priority: str = "medium",
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث الحاجة لفحص الامتثال
@@ -140,7 +140,7 @@ class GlobalGAPEventPublisher:
                 "reason": reason,
                 "priority": priority,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.COMPLIANCE_CHECK_REQUIRED, event)
 
@@ -154,7 +154,7 @@ class GlobalGAPEventPublisher:
         audit_type: str,
         scheduled_date: str,
         auditor_info: Optional[dict] = None,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث جدولة تدقيق
@@ -170,7 +170,7 @@ class GlobalGAPEventPublisher:
                 "scheduled_date": scheduled_date,
                 "auditor_info": auditor_info or {},
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.AUDIT_SCHEDULED, event)
 
@@ -182,7 +182,7 @@ class GlobalGAPEventPublisher:
         result: str,
         findings: list,
         score: Optional[float] = None,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث اكتمال التدقيق
@@ -199,7 +199,7 @@ class GlobalGAPEventPublisher:
                 "score": score,
                 "completed_at": datetime.now(timezone.utc).isoformat(),
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.AUDIT_COMPLETED, event)
 
@@ -214,7 +214,7 @@ class GlobalGAPEventPublisher:
         description: str,
         field_id: Optional[str] = None,
         detected_at: Optional[str] = None,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث اكتشاف عدم مطابقة
@@ -231,7 +231,7 @@ class GlobalGAPEventPublisher:
                 "description": description,
                 "detected_at": detected_at or datetime.now(timezone.utc).isoformat(),
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.NON_CONFORMANCE_DETECTED, event)
 
@@ -242,7 +242,7 @@ class GlobalGAPEventPublisher:
         non_conformance_id: str,
         resolution_notes: str,
         resolved_by: str,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث حل عدم المطابقة
@@ -258,7 +258,7 @@ class GlobalGAPEventPublisher:
                 "resolved_by": resolved_by,
                 "resolved_at": datetime.now(timezone.utc).isoformat(),
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.NON_CONFORMANCE_RESOLVED, event)
 
@@ -272,7 +272,7 @@ class GlobalGAPEventPublisher:
         certificate_type: str,
         expiry_date: str,
         days_until_expiry: int,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث قرب انتهاء الشهادة
@@ -288,7 +288,7 @@ class GlobalGAPEventPublisher:
                 "expiry_date": expiry_date,
                 "days_until_expiry": days_until_expiry,
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.CERTIFICATE_EXPIRING, event)
 
@@ -299,7 +299,7 @@ class GlobalGAPEventPublisher:
         certificate_id: str,
         certificate_type: str,
         new_expiry_date: str,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث تجديد الشهادة
@@ -315,7 +315,7 @@ class GlobalGAPEventPublisher:
                 "new_expiry_date": new_expiry_date,
                 "renewed_at": datetime.now(timezone.utc).isoformat(),
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(GlobalGAPTopics.CERTIFICATE_RENEWED, event)
 
@@ -329,7 +329,7 @@ class GlobalGAPEventPublisher:
         records_synced: int,
         sync_status: str,
         error_message: Optional[str] = None,
-        correlation_id: Optional[str] = None
+        correlation_id: Optional[str] = None,
     ) -> str:
         """
         نشر حدث مزامنة التكامل
@@ -355,7 +355,7 @@ class GlobalGAPEventPublisher:
                 "error_message": error_message,
                 "synced_at": datetime.now(timezone.utc).isoformat(),
             },
-            correlation_id=correlation_id
+            correlation_id=correlation_id,
         )
         return await self._publish(topic, event)
 

@@ -94,26 +94,30 @@ class TestLegacyCompatibility:
 class TestNoCircularImports:
     """Test for circular import detection"""
 
-    @pytest.mark.parametrize("module_name", [
-        "kernel_domain",
-        "kernel_domain.auth",
-        "kernel_domain.tenancy",
-        "kernel_domain.users",
-        "field_suite",
-        "field_suite.farms",
-        "field_suite.fields",
-        "field_suite.crops",
-        "advisor",
-        "advisor.ai",
-        "advisor.rag",
-        "advisor.context",
-        "advisor.feedback",
-    ])
+    @pytest.mark.parametrize(
+        "module_name",
+        [
+            "kernel_domain",
+            "kernel_domain.auth",
+            "kernel_domain.tenancy",
+            "kernel_domain.users",
+            "field_suite",
+            "field_suite.farms",
+            "field_suite.fields",
+            "field_suite.crops",
+            "advisor",
+            "advisor.ai",
+            "advisor.rag",
+            "advisor.context",
+            "advisor.feedback",
+        ],
+    )
     def test_module_imports_cleanly(self, module_name: str):
         """Each module can be imported independently without circular import errors"""
         # Remove from cache to ensure fresh import
         modules_to_remove = [
-            key for key in sys.modules
+            key
+            for key in sys.modules
             if key == module_name or key.startswith(f"{module_name}.")
         ]
         for mod in modules_to_remove:

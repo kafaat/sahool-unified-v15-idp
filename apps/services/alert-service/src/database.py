@@ -18,8 +18,7 @@ from .db_models import Base
 
 # Get database URL from environment
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/sahool_alerts"
+    "DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/sahool_alerts"
 )
 
 # Create SQLAlchemy engine
@@ -42,6 +41,7 @@ SessionLocal = sessionmaker(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Database Dependency
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def get_db() -> Generator[Session, None, None]:
     """
@@ -67,6 +67,7 @@ def get_db() -> Generator[Session, None, None]:
 # Database Initialization
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def init_db():
     """
     Initialize database tables.
@@ -90,6 +91,7 @@ def drop_all_tables():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Check
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def check_db_connection() -> bool:
     """

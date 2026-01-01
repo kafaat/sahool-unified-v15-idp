@@ -16,6 +16,7 @@ _nats_available = False
 try:
     import nats
     from nats.aio.client import Client as NATSClient
+
     _nats_available = True
 except ImportError:
     logger.warning("NATS package not installed. NATS publishing disabled.")
@@ -90,9 +91,7 @@ class NATSPublisher:
         self._connected = True
 
     async def publish_alert(
-        self,
-        alert: Dict[str, Any],
-        recipients: list[str] = None
+        self, alert: Dict[str, Any], recipients: list[str] = None
     ) -> bool:
         """
         Publish an alert notification to NATS
@@ -118,21 +117,22 @@ class NATSPublisher:
                 "alert": alert,
                 "recipients": recipients or ["farm_manager", "owner"],
                 "notification_priority": alert["priority"],
-                "notification_channels": self._get_channels_for_priority(alert["priority"]),
+                "notification_channels": self._get_channels_for_priority(
+                    alert["priority"]
+                ),
                 "action_template": {
                     "title_en": alert["title_en"],
                     "title_ar": alert["title_ar"],
                     "description_en": alert["message_en"],
                     "description_ar": alert["message_ar"],
                     "urgency": alert["priority"],
-                    "action_url": alert.get("action_url")
-                }
+                    "action_url": alert.get("action_url"),
+                },
             }
 
             # Publish to NATS
             await self._nc.publish(
-                "sahool.alerts.inventory",
-                json.dumps(notification_data).encode()
+                "sahool.alerts.inventory", json.dumps(notification_data).encode()
             )
 
             logger.info(f"Published alert {alert['id']} to NATS")
@@ -143,9 +143,7 @@ class NATSPublisher:
             return False
 
     async def publish_batch(
-        self,
-        alerts: list[Dict[str, Any]],
-        recipients: list[str] = None
+        self, alerts: list[Dict[str, Any]], recipients: list[str] = None
     ) -> Dict[str, int]:
         """
         Publish multiple alerts in batch

@@ -5,7 +5,10 @@ Verifies that all new functionality works correctly
 """
 
 import sys
-sys.path.insert(0, '/home/user/sahool-unified-v15-idp/apps/services/satellite-service/src')
+
+sys.path.insert(
+    0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service/src"
+)
 
 from vegetation_indices import (
     VegetationIndicesCalculator,
@@ -14,8 +17,9 @@ from vegetation_indices import (
     CropType,
     GrowthStage,
     VegetationIndex,
-    HealthStatus
+    HealthStatus,
 )
+
 
 def test_calculator():
     """Test the indices calculator"""
@@ -34,7 +38,7 @@ def test_calculator():
         B08_nir=0.45,
         B8A_nir_narrow=0.42,
         B11_swir1=0.25,
-        B12_swir2=0.18
+        B12_swir2=0.18,
     )
 
     calculator = VegetationIndicesCalculator()
@@ -52,6 +56,7 @@ def test_calculator():
     print("\n✅ Calculator test passed!")
     return indices
 
+
 def test_interpreter():
     """Test the index interpreter"""
     print("\n" + "=" * 60)
@@ -65,7 +70,7 @@ def test_interpreter():
         index_name="ndvi",
         value=0.65,
         crop_type=CropType.WHEAT,
-        growth_stage=GrowthStage.VEGETATIVE
+        growth_stage=GrowthStage.VEGETATIVE,
     )
 
     print(f"\nNDVI Interpretation (Wheat - Vegetative):")
@@ -80,7 +85,7 @@ def test_interpreter():
         index_name="ndre",
         value=0.28,
         crop_type=CropType.WHEAT,
-        growth_stage=GrowthStage.VEGETATIVE
+        growth_stage=GrowthStage.VEGETATIVE,
     )
 
     print(f"\nNDRE Interpretation (Nitrogen Status):")
@@ -94,7 +99,7 @@ def test_interpreter():
         index_name="ndwi",
         value=-0.15,
         crop_type=CropType.WHEAT,
-        growth_stage=GrowthStage.REPRODUCTIVE
+        growth_stage=GrowthStage.REPRODUCTIVE,
     )
 
     print(f"\nNDWI Interpretation (Water Stress):")
@@ -104,6 +109,7 @@ def test_interpreter():
     print(f"  EN:     {ndwi_interp.description_en}")
 
     print("\n✅ Interpreter test passed!")
+
 
 def test_growth_stage_recommendations():
     """Test growth stage recommendations"""
@@ -117,7 +123,7 @@ def test_growth_stage_recommendations():
         GrowthStage.EMERGENCE,
         GrowthStage.VEGETATIVE,
         GrowthStage.REPRODUCTIVE,
-        GrowthStage.MATURATION
+        GrowthStage.MATURATION,
     ]
 
     for stage in stages:
@@ -126,6 +132,7 @@ def test_growth_stage_recommendations():
         print(f"  Recommended: {', '.join(recommended)}")
 
     print("\n✅ Growth stage recommendations test passed!")
+
 
 def test_crop_specific_thresholds():
     """Test crop-specific thresholds"""
@@ -143,13 +150,14 @@ def test_crop_specific_thresholds():
             index_name="ndvi",
             value=ndvi_value,
             crop_type=crop,
-            growth_stage=GrowthStage.VEGETATIVE
+            growth_stage=GrowthStage.VEGETATIVE,
         )
         print(f"\n{crop.value.upper()} (NDVI={ndvi_value}):")
         print(f"  Status: {interp.status.value}")
         print(f"  Description: {interp.description_en}")
 
     print("\n✅ Crop-specific thresholds test passed!")
+
 
 def test_stress_detection():
     """Test stress detection scenarios"""
@@ -161,23 +169,30 @@ def test_stress_detection():
 
     # Scenario 1: Water stress
     print("\nScenario 1: Water Stress (NDWI = -0.25)")
-    water_stress = interpreter.interpret_index("ndwi", -0.25, CropType.WHEAT, GrowthStage.REPRODUCTIVE)
+    water_stress = interpreter.interpret_index(
+        "ndwi", -0.25, CropType.WHEAT, GrowthStage.REPRODUCTIVE
+    )
     print(f"  Status: {water_stress.status.value}")
     print(f"  Action: {water_stress.description_en}")
 
     # Scenario 2: Nitrogen deficiency
     print("\nScenario 2: Nitrogen Deficiency (NDRE = 0.12)")
-    nitrogen_def = interpreter.interpret_index("ndre", 0.12, CropType.WHEAT, GrowthStage.VEGETATIVE)
+    nitrogen_def = interpreter.interpret_index(
+        "ndre", 0.12, CropType.WHEAT, GrowthStage.VEGETATIVE
+    )
     print(f"  Status: {nitrogen_def.status.value}")
     print(f"  Action: {nitrogen_def.description_en}")
 
     # Scenario 3: Early stress (GNDVI)
     print("\nScenario 3: Early Stress Detection (GNDVI = 0.32)")
-    early_stress = interpreter.interpret_index("gndvi", 0.32, CropType.WHEAT, GrowthStage.EMERGENCE)
+    early_stress = interpreter.interpret_index(
+        "gndvi", 0.32, CropType.WHEAT, GrowthStage.EMERGENCE
+    )
     print(f"  Status: {early_stress.status.value}")
     print(f"  Action: {early_stress.description_en}")
 
     print("\n✅ Stress detection test passed!")
+
 
 def test_all_indices():
     """Test calculation of all 18 indices"""
@@ -196,7 +211,7 @@ def test_all_indices():
         B08_nir=0.25,
         B8A_nir_narrow=0.24,
         B11_swir1=0.28,
-        B12_swir2=0.22
+        B12_swir2=0.22,
     )
 
     calculator = VegetationIndicesCalculator()
@@ -230,6 +245,7 @@ def test_all_indices():
     print(f"\n  Total Indices: {len(indices_dict)}")
     print("\n✅ All indices calculation test passed!")
 
+
 def main():
     """Run all tests"""
     print("\n🧪 Testing Advanced Vegetation Indices System")
@@ -260,8 +276,10 @@ def main():
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

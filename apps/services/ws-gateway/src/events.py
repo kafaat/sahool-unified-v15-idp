@@ -14,6 +14,7 @@ class EventType(str, Enum):
     WebSocket event types
     أنواع الأحداث
     """
+
     # Field Events
     FIELD_UPDATED = "field.updated"
     FIELD_CREATED = "field.created"
@@ -77,45 +78,34 @@ EVENT_MESSAGES_AR: Dict[EventType, str] = {
     EventType.FIELD_UPDATED: "تم تحديث بيانات الحقل",
     EventType.FIELD_CREATED: "تم إنشاء حقل جديد",
     EventType.FIELD_DELETED: "تم حذف الحقل",
-
     EventType.WEATHER_ALERT: "تنبيه طقس مهم",
     EventType.WEATHER_UPDATED: "تم تحديث بيانات الطقس",
-
     EventType.SATELLITE_READY: "صور الأقمار الصناعية جاهزة",
     EventType.SATELLITE_PROCESSING: "جاري معالجة صور الأقمار الصناعية",
     EventType.SATELLITE_FAILED: "فشلت معالجة صور الأقمار الصناعية",
-
     EventType.NDVI_UPDATED: "تم تحديث بيانات NDVI",
     EventType.NDVI_ANALYSIS_READY: "تحليل NDVI جاهز",
-
     EventType.LOW_STOCK: "مخزون منخفض",
     EventType.OUT_OF_STOCK: "نفاد المخزون",
     EventType.STOCK_UPDATED: "تم تحديث المخزون",
-
     EventType.DISEASE_DETECTED: "تم اكتشاف مرض في المحصول",
     EventType.PEST_DETECTED: "تم اكتشاف آفة في المحصول",
     EventType.HEALTH_ALERT: "تنبيه صحة المحصول",
-
     EventType.SPRAY_WINDOW: "وقت الرش المثالي",
     EventType.SPRAY_WARNING: "تحذير وقت الرش",
     EventType.SPRAY_SCHEDULED: "تم جدولة الرش",
-
     EventType.CHAT_MESSAGE: "رسالة جديدة",
     EventType.CHAT_TYPING: "يكتب...",
     EventType.CHAT_READ: "تمت القراءة",
-
     EventType.TASK_CREATED: "تم إنشاء مهمة جديدة",
     EventType.TASK_UPDATED: "تم تحديث المهمة",
     EventType.TASK_COMPLETED: "تمت المهمة",
     EventType.TASK_OVERDUE: "مهمة متأخرة",
-
     EventType.IOT_READING: "قراءة من المستشعر",
     EventType.IOT_ALERT: "تنبيه من المستشعر",
     EventType.IOT_OFFLINE: "المستشعر غير متصل",
-
     EventType.SYSTEM_NOTIFICATION: "إشعار النظام",
     EventType.SYNC_REQUIRED: "مطلوب مزامنة",
-
     EventType.USER_ONLINE: "المستخدم متصل",
     EventType.USER_OFFLINE: "المستخدم غير متصل",
 }
@@ -126,45 +116,34 @@ EVENT_MESSAGES_EN: Dict[EventType, str] = {
     EventType.FIELD_UPDATED: "Field data updated",
     EventType.FIELD_CREATED: "New field created",
     EventType.FIELD_DELETED: "Field deleted",
-
     EventType.WEATHER_ALERT: "Important weather alert",
     EventType.WEATHER_UPDATED: "Weather data updated",
-
     EventType.SATELLITE_READY: "Satellite imagery ready",
     EventType.SATELLITE_PROCESSING: "Processing satellite imagery",
     EventType.SATELLITE_FAILED: "Satellite processing failed",
-
     EventType.NDVI_UPDATED: "NDVI data updated",
     EventType.NDVI_ANALYSIS_READY: "NDVI analysis ready",
-
     EventType.LOW_STOCK: "Low stock alert",
     EventType.OUT_OF_STOCK: "Out of stock",
     EventType.STOCK_UPDATED: "Stock updated",
-
     EventType.DISEASE_DETECTED: "Crop disease detected",
     EventType.PEST_DETECTED: "Crop pest detected",
     EventType.HEALTH_ALERT: "Crop health alert",
-
     EventType.SPRAY_WINDOW: "Optimal spray window",
     EventType.SPRAY_WARNING: "Spray window warning",
     EventType.SPRAY_SCHEDULED: "Spray scheduled",
-
     EventType.CHAT_MESSAGE: "New message",
     EventType.CHAT_TYPING: "Typing...",
     EventType.CHAT_READ: "Read",
-
     EventType.TASK_CREATED: "New task created",
     EventType.TASK_UPDATED: "Task updated",
     EventType.TASK_COMPLETED: "Task completed",
     EventType.TASK_OVERDUE: "Task overdue",
-
     EventType.IOT_READING: "Sensor reading",
     EventType.IOT_ALERT: "Sensor alert",
     EventType.IOT_OFFLINE: "Sensor offline",
-
     EventType.SYSTEM_NOTIFICATION: "System notification",
     EventType.SYNC_REQUIRED: "Sync required",
-
     EventType.USER_ONLINE: "User online",
     EventType.USER_OFFLINE: "User offline",
 }
@@ -183,6 +162,7 @@ def get_event_message(event_type: EventType, language: str = "ar") -> str:
 # Priority levels for events
 class EventPriority(str, Enum):
     """Event priority levels"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"

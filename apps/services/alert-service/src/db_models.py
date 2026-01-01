@@ -216,9 +216,13 @@ class Alert(Base):
             "correlation_id": self.correlation_id,
             "created_at": self.created_at.isoformat(),
             "expires_at": self.expires_at.isoformat() if self.expires_at else None,
-            "acknowledged_at": self.acknowledged_at.isoformat() if self.acknowledged_at else None,
+            "acknowledged_at": (
+                self.acknowledged_at.isoformat() if self.acknowledged_at else None
+            ),
             "acknowledged_by": self.acknowledged_by,
-            "dismissed_at": self.dismissed_at.isoformat() if self.dismissed_at else None,
+            "dismissed_at": (
+                self.dismissed_at.isoformat() if self.dismissed_at else None
+            ),
             "dismissed_by": self.dismissed_by,
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,
             "resolved_by": self.resolved_by,
@@ -350,7 +354,9 @@ class AlertRule(Base):
             "condition": self.condition,
             "alert_config": self.alert_config,
             "cooldown_hours": self.cooldown_hours,
-            "last_triggered_at": self.last_triggered_at.isoformat() if self.last_triggered_at else None,
+            "last_triggered_at": (
+                self.last_triggered_at.isoformat() if self.last_triggered_at else None
+            ),
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }

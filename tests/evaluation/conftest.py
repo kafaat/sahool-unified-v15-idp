@@ -20,7 +20,10 @@ from datetime import datetime
 
 # Import from main test conftest
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor"))
+
+sys.path.insert(
+    0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor")
+)
 
 from src.agents.base_agent import BaseAgent
 from src.agents.field_analyst import FieldAnalystAgent
@@ -33,6 +36,7 @@ from src.orchestration.supervisor import Supervisor
 # ============================================================================
 # CONFIGURATION
 # ============================================================================
+
 
 @pytest.fixture(scope="session")
 def evaluation_config() -> Dict[str, Any]:
@@ -111,6 +115,7 @@ def evaluation_metrics_tracker():
     Track evaluation metrics throughout the test session
     تتبع مقاييس التقييم طوال جلسة الاختبار
     """
+
     class MetricsTracker:
         def __init__(self):
             self.results: List[Dict[str, Any]] = []
@@ -148,17 +153,56 @@ def evaluation_metrics_tracker():
                 "passed_tests": passed,
                 "failed_tests": failed,
                 "pass_rate": (passed / total * 100) if total > 0 else 0,
-                "accuracy": sum(accuracy_scores) / len(accuracy_scores) * 100 if accuracy_scores else 0,
-                "latency_score": sum(latency_scores) / len(latency_scores) * 100 if latency_scores else 0,
-                "safety_score": sum(safety_scores) / len(safety_scores) * 100 if safety_scores else 0,
-                "overall_score": sum([
-                    sum(accuracy_scores) / len(accuracy_scores) * 0.5,
-                    sum(latency_scores) / len(latency_scores) * 0.25,
-                    sum(safety_scores) / len(safety_scores) * 0.25,
-                ]) * 100 if accuracy_scores else 0,
-                "avg_latency_ms": sum(r.get("latency_ms", 0) for r in self.results) / total if total > 0 else 0,
-                "arabic_support": (sum(1 for r in arabic_results if r.get("passed", False)) / len(arabic_results) * 100) if arabic_results else 0,
-                "english_support": (sum(1 for r in english_results if r.get("passed", False)) / len(english_results) * 100) if english_results else 0,
+                "accuracy": (
+                    sum(accuracy_scores) / len(accuracy_scores) * 100
+                    if accuracy_scores
+                    else 0
+                ),
+                "latency_score": (
+                    sum(latency_scores) / len(latency_scores) * 100
+                    if latency_scores
+                    else 0
+                ),
+                "safety_score": (
+                    sum(safety_scores) / len(safety_scores) * 100
+                    if safety_scores
+                    else 0
+                ),
+                "overall_score": (
+                    sum(
+                        [
+                            sum(accuracy_scores) / len(accuracy_scores) * 0.5,
+                            sum(latency_scores) / len(latency_scores) * 0.25,
+                            sum(safety_scores) / len(safety_scores) * 0.25,
+                        ]
+                    )
+                    * 100
+                    if accuracy_scores
+                    else 0
+                ),
+                "avg_latency_ms": (
+                    sum(r.get("latency_ms", 0) for r in self.results) / total
+                    if total > 0
+                    else 0
+                ),
+                "arabic_support": (
+                    (
+                        sum(1 for r in arabic_results if r.get("passed", False))
+                        / len(arabic_results)
+                        * 100
+                    )
+                    if arabic_results
+                    else 0
+                ),
+                "english_support": (
+                    (
+                        sum(1 for r in english_results if r.get("passed", False))
+                        / len(english_results)
+                        * 100
+                    )
+                    if english_results
+                    else 0
+                ),
                 "total_duration_seconds": time.time() - self.start_time,
                 "results": self.results,
             }
@@ -176,12 +220,14 @@ def evaluation_metrics_tracker():
 # AGENT FIXTURES
 # ============================================================================
 
+
 @pytest.fixture
 def mock_llm_response():
     """
     Mock LLM response for evaluation
     محاكاة استجابة نموذج اللغة للتقييم
     """
+
     def _create_response(content: str, language: str = "en"):
         mock_response = Mock()
         mock_response.content = content
@@ -191,6 +237,7 @@ def mock_llm_response():
             "stop_reason": "stop",
         }
         return mock_response
+
     return _create_response
 
 
@@ -201,12 +248,14 @@ def mock_retriever():
     محاكاة مسترجع RAG للتقييم
     """
     mock = Mock()
-    mock.retrieve = Mock(return_value=[
-        Mock(
-            page_content="Relevant agricultural knowledge for testing",
-            metadata={"source": "test-doc", "score": 0.85}
-        )
-    ])
+    mock.retrieve = Mock(
+        return_value=[
+            Mock(
+                page_content="Relevant agricultural knowledge for testing",
+                metadata={"source": "test-doc", "score": 0.85},
+            )
+        ]
+    )
     return mock
 
 
@@ -250,12 +299,14 @@ async def test_supervisor(test_agents):
 # EVALUATION HELPERS
 # ============================================================================
 
+
 @pytest.fixture
 def latency_tracker():
     """
     Track latency for each test
     تتبع زمن الاستجابة لكل اختبار
     """
+
     class LatencyTracker:
         def __init__(self):
             self.start_time = None
@@ -282,12 +333,14 @@ def safety_checker():
     التحقق من انتهاكات السلامة في استجابات الوكلاء
     """
     from tests.evaluation.evaluator import SafetyChecker
+
     return SafetyChecker()
 
 
 # ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
+
 
 def _create_default_golden_dataset() -> List[Dict[str, Any]]:
     """
@@ -305,21 +358,21 @@ def _create_default_golden_dataset() -> List[Dict[str, Any]]:
                 "context": {
                     "crop_type": "wheat",
                     "location": "Yemen",
-                    "season": "winter"
-                }
+                    "season": "winter",
+                },
             },
             "expected_output": {
                 "response": "Yellow spots on wheat leaves typically indicate fungal disease such as leaf rust or septoria.",
                 "agents": ["disease_expert"],
                 "key_points": ["yellow spots", "fungal disease", "wheat", "treatment"],
-                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"]
+                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["disease", "wheat", "leaf"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # Arabic: Disease Diagnosis
         {
@@ -331,21 +384,21 @@ def _create_default_golden_dataset() -> List[Dict[str, Any]]:
                 "context": {
                     "crop_type": "wheat",
                     "location": "اليمن",
-                    "season": "شتاء"
-                }
+                    "season": "شتاء",
+                },
             },
             "expected_output": {
                 "response": "البقع الصفراء على أوراق القمح تشير عادة إلى مرض فطري مثل صدأ الأوراق",
                 "agents": ["disease_expert"],
                 "key_points": ["بقع صفراء", "مرض فطري", "القمح", "علاج"],
-                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"]
+                "safety_constraints": ["accurate_diagnosis", "no_harmful_chemicals"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["مرض", "القمح"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # English: Irrigation Advice
         {
@@ -358,21 +411,26 @@ def _create_default_golden_dataset() -> List[Dict[str, Any]]:
                     "crop_type": "tomato",
                     "growth_stage": "flowering",
                     "soil_moisture": 45,
-                    "temperature": 28
-                }
+                    "temperature": 28,
+                },
             },
             "expected_output": {
                 "response": "Tomato plants during flowering stage need consistent moisture. Irrigate when soil moisture drops below 50%.",
                 "agents": ["irrigation_advisor"],
-                "key_points": ["tomato", "flowering", "soil moisture", "irrigation schedule"],
-                "safety_constraints": ["water_conservation", "no_overwatering"]
+                "key_points": [
+                    "tomato",
+                    "flowering",
+                    "soil moisture",
+                    "irrigation schedule",
+                ],
+                "safety_constraints": ["water_conservation", "no_overwatering"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["irrigation", "tomato", "moisture"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # English: Field Analysis
         {
@@ -385,21 +443,21 @@ def _create_default_golden_dataset() -> List[Dict[str, Any]]:
                     "field_id": "field-123",
                     "crop_type": "corn",
                     "ndvi_average": 0.65,
-                    "growth_stage": "vegetative"
-                }
+                    "growth_stage": "vegetative",
+                },
             },
             "expected_output": {
                 "response": "NDVI of 0.65 indicates moderate vegetation health. Corn in vegetative stage should have higher values.",
                 "agents": ["field_analyst"],
                 "key_points": ["NDVI", "corn", "field health", "vegetation"],
-                "safety_constraints": ["accurate_analysis"]
+                "safety_constraints": ["accurate_analysis"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["NDVI", "corn", "health"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # English: Yield Prediction
         {
@@ -412,21 +470,21 @@ def _create_default_golden_dataset() -> List[Dict[str, Any]]:
                     "crop_type": "wheat",
                     "field_size_hectares": 10,
                     "growth_stage": "grain filling",
-                    "weather_conditions": "favorable"
-                }
+                    "weather_conditions": "favorable",
+                },
             },
             "expected_output": {
                 "response": "Based on favorable conditions and grain filling stage, expect 4-5 tons per hectare yield.",
                 "agents": ["yield_predictor"],
                 "key_points": ["yield", "wheat", "prediction", "tons per hectare"],
-                "safety_constraints": ["realistic_expectations"]
+                "safety_constraints": ["realistic_expectations"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.75,
                 "required_keywords": ["yield", "wheat", "tons"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 5000
-            }
+                "max_latency_ms": 5000,
+            },
         },
         # Multi-agent coordination test
         {
@@ -439,21 +497,21 @@ def _create_default_golden_dataset() -> List[Dict[str, Any]]:
                     "crop_type": "wheat",
                     "ndvi_average": 0.45,
                     "soil_moisture": 30,
-                    "growth_stage": "heading"
-                }
+                    "growth_stage": "heading",
+                },
             },
             "expected_output": {
                 "response": "Low NDVI and soil moisture indicate stress. Immediate irrigation recommended to prevent yield loss.",
                 "agents": ["field_analyst", "irrigation_advisor", "yield_predictor"],
                 "key_points": ["NDVI", "irrigation", "yield impact", "coordination"],
-                "safety_constraints": ["holistic_advice"]
+                "safety_constraints": ["holistic_advice"],
             },
             "evaluation_criteria": {
                 "min_similarity": 0.70,
                 "required_keywords": ["NDVI", "irrigation", "yield"],
                 "forbidden_keywords": [],
-                "max_latency_ms": 8000
-            }
+                "max_latency_ms": 8000,
+            },
         },
     ]
 
@@ -476,23 +534,16 @@ def save_evaluation_metrics(request, evaluation_metrics_tracker):
 # PYTEST CONFIGURATION
 # ============================================================================
 
+
 def pytest_configure(config):
     """Configure pytest with custom markers"""
     config.addinivalue_line(
         "markers", "evaluation: mark test as part of agent evaluation suite"
     )
-    config.addinivalue_line(
-        "markers", "golden: mark test as using golden dataset"
-    )
-    config.addinivalue_line(
-        "markers", "arabic: mark test for Arabic language support"
-    )
+    config.addinivalue_line("markers", "golden: mark test as using golden dataset")
+    config.addinivalue_line("markers", "arabic: mark test for Arabic language support")
     config.addinivalue_line(
         "markers", "english: mark test for English language support"
     )
-    config.addinivalue_line(
-        "markers", "latency: mark test for latency measurement"
-    )
-    config.addinivalue_line(
-        "markers", "safety: mark test for safety checking"
-    )
+    config.addinivalue_line("markers", "latency: mark test for latency measurement")
+    config.addinivalue_line("markers", "safety: mark test for safety checking")

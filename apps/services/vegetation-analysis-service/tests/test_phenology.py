@@ -46,10 +46,12 @@ def test_wheat_phenology():
         else:  # Senescence
             ndvi = 0.45 - ((day - 105) / 15) * 0.20
 
-        ndvi_series.append({
-            "date": current_date.isoformat(),
-            "value": round(max(0.1, min(0.85, ndvi)), 4)
-        })
+        ndvi_series.append(
+            {
+                "date": current_date.isoformat(),
+                "value": round(max(0.1, min(0.85, ndvi)), 4),
+            }
+        )
 
     # Test at different points in season
     test_points = [
@@ -57,7 +59,7 @@ def test_wheat_phenology():
         (60, "Stem elongation"),
         (80, "Flowering"),
         (95, "Ripening"),
-        (115, "Senescence")
+        (115, "Senescence"),
     ]
 
     for day_idx, description in test_points:
@@ -68,16 +70,22 @@ def test_wheat_phenology():
             field_id="field_test_001",
             crop_type="wheat",
             ndvi_series=test_series,
-            planting_date=planting_date
+            planting_date=planting_date,
         )
 
-        print(f"Current Stage: {result.current_stage.label_en} ({result.current_stage.label_ar})")
+        print(
+            f"Current Stage: {result.current_stage.label_en} ({result.current_stage.label_ar})"
+        )
         print(f"Days in Stage: {result.days_in_stage}")
-        print(f"Next Stage: {result.expected_next_stage.label_en} in {result.days_to_next_stage} days")
+        print(
+            f"Next Stage: {result.expected_next_stage.label_en} in {result.days_to_next_stage} days"
+        )
         print(f"Season Progress: {result.season_progress_percent:.1f}%")
         print(f"NDVI: {result.ndvi_at_detection}")
         print(f"Confidence: {result.confidence:.2f}")
-        print(f"Recommendations (AR): {result.recommendations_ar[0] if result.recommendations_ar else 'None'}")
+        print(
+            f"Recommendations (AR): {result.recommendations_ar[0] if result.recommendations_ar else 'None'}"
+        )
 
 
 def test_timeline_generation():
@@ -95,9 +103,7 @@ def test_timeline_generation():
         planting_date = date(2024, 11, 1)
 
         timeline = detector.get_phenology_timeline(
-            field_id="field_timeline_001",
-            crop_type=crop,
-            planting_date=planting_date
+            field_id="field_timeline_001", crop_type=crop, planting_date=planting_date
         )
 
         print(f"Planting: {timeline.planting_date}")
@@ -105,7 +111,9 @@ def test_timeline_generation():
         print(f"Season Length: {timeline.season_length_days} days")
         print(f"\nStages:")
         for stage in timeline.stages[:3]:  # Show first 3 stages
-            print(f"  - {stage['stage_en']} ({stage['stage_ar']}): {stage['start_date']} to {stage['end_date']}")
+            print(
+                f"  - {stage['stage_en']} ({stage['stage_ar']}): {stage['start_date']} to {stage['end_date']}"
+            )
 
         if timeline.critical_periods:
             print(f"\nCritical Periods:")
@@ -143,7 +151,9 @@ def test_supported_crops():
         print(f"{category}:")
         for crop_info in crops:
             if crop_info["id"] in crop_list:
-                print(f"  - {crop_info['name_en']} ({crop_info['name_ar']}): {crop_info['season_length_days']} days")
+                print(
+                    f"  - {crop_info['name_en']} ({crop_info['name_ar']}): {crop_info['season_length_days']} days"
+                )
         print()
 
 
@@ -170,7 +180,7 @@ def test_recommendations():
             stage=stage,
             days_to_next=7,
             current_ndvi=0.6,
-            crop_params=crop_params
+            crop_params=crop_params,
         )
 
         print("Recommendations (English):")
@@ -196,25 +206,51 @@ def test_sos_pos_eos_detection():
 
     # Simulate complete season
     ndvi_curve = [
-        0.12, 0.14, 0.16, 0.18, 0.21,  # Pre-SOS
-        0.25, 0.30, 0.38, 0.45, 0.52,  # SOS - green-up
-        0.58, 0.63, 0.68, 0.71, 0.73,  # Vegetative growth
-        0.75, 0.76, 0.75, 0.73, 0.71,  # POS - peak
-        0.68, 0.64, 0.58, 0.52, 0.45,  # Decline
-        0.38, 0.30, 0.23, 0.18, 0.14,  # EOS - senescence
+        0.12,
+        0.14,
+        0.16,
+        0.18,
+        0.21,  # Pre-SOS
+        0.25,
+        0.30,
+        0.38,
+        0.45,
+        0.52,  # SOS - green-up
+        0.58,
+        0.63,
+        0.68,
+        0.71,
+        0.73,  # Vegetative growth
+        0.75,
+        0.76,
+        0.75,
+        0.73,
+        0.71,  # POS - peak
+        0.68,
+        0.64,
+        0.58,
+        0.52,
+        0.45,  # Decline
+        0.38,
+        0.30,
+        0.23,
+        0.18,
+        0.14,  # EOS - senescence
     ]
 
     for i, ndvi in enumerate(ndvi_curve):
-        ndvi_series.append({
-            "date": (base_date + timedelta(days=i * 4)).isoformat(),  # Every 4 days
-            "value": ndvi
-        })
+        ndvi_series.append(
+            {
+                "date": (base_date + timedelta(days=i * 4)).isoformat(),  # Every 4 days
+                "value": ndvi,
+            }
+        )
 
     result = detector.detect_current_stage(
         field_id="field_sos_test",
         crop_type="wheat",
         ndvi_series=ndvi_series,
-        planting_date=base_date
+        planting_date=base_date,
     )
 
     print(f"Start of Season (SOS): {result.sos_date}")
@@ -246,4 +282,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         import traceback
+
         traceback.print_exc()

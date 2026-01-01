@@ -23,12 +23,13 @@ from sqlalchemy.orm import Session, Query, declarative_mixin
 from sqlalchemy.ext.declarative import declared_attr
 
 # Type variable for generic model classes
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Soft Delete Mixin
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 @declarative_mixin
 class SoftDeleteMixin:
@@ -58,23 +59,23 @@ class SoftDeleteMixin:
     def deleted_at(cls) -> Column:
         """Timestamp when the record was deleted (NULL if active)"""
         return Column(
-            'deleted_at',
+            "deleted_at",
             DateTime(timezone=True),
             nullable=True,
             default=None,
             index=True,
-            comment="تاريخ الحذف - Soft delete timestamp"
+            comment="تاريخ الحذف - Soft delete timestamp",
         )
 
     @declared_attr
     def deleted_by(cls) -> Column:
         """User ID or identifier who deleted the record"""
         return Column(
-            'deleted_by',
+            "deleted_by",
             String(255),
             nullable=True,
             default=None,
-            comment="من قام بالحذف - User who deleted the record"
+            comment="من قام بالحذف - User who deleted the record",
         )
 
     def soft_delete(self, deleted_by: Optional[str] = None) -> None:
@@ -187,6 +188,7 @@ class SoftDeleteMixin:
 # Query Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def soft_delete_filter(query: Query) -> Query:
     """
     Apply soft delete filter to a query.
@@ -209,19 +211,15 @@ def soft_delete_filter(query: Query) -> Query:
         ```
     """
     # Get the model class from the query
-    if hasattr(query, 'column_descriptions'):
+    if hasattr(query, "column_descriptions"):
         for desc in query.column_descriptions:
-            model = desc.get('type')
-            if model and hasattr(model, 'deleted_at'):
+            model = desc.get("type")
+            if model and hasattr(model, "deleted_at"):
                 return query.filter(model.deleted_at.is_(None))
     return query
 
 
-def get_active_records(
-    session: Session,
-    model: Type[T],
-    **filters
-) -> List[T]:
+def get_active_records(session: Session, model: Type[T], **filters) -> List[T]:
     """
     Get all active (non-deleted) records for a model.
 
@@ -249,18 +247,14 @@ def get_active_records(
         ```
     """
     query = session.query(model)
-    if hasattr(model, 'deleted_at'):
+    if hasattr(model, "deleted_at"):
         query = query.filter(model.deleted_at.is_(None))
     if filters:
         query = query.filter_by(**filters)
     return query.all()
 
 
-def get_deleted_records(
-    session: Session,
-    model: Type[T],
-    **filters
-) -> List[T]:
+def get_deleted_records(session: Session, model: Type[T], **filters) -> List[T]:
     """
     Get all soft-deleted records for a model.
 
@@ -280,18 +274,14 @@ def get_deleted_records(
         ```
     """
     query = session.query(model)
-    if hasattr(model, 'deleted_at'):
+    if hasattr(model, "deleted_at"):
         query = query.filter(model.deleted_at.isnot(None))
     if filters:
         query = query.filter_by(**filters)
     return query.all()
 
 
-def get_all_records(
-    session: Session,
-    model: Type[T],
-    **filters
-) -> List[T]:
+def get_all_records(session: Session, model: Type[T], **filters) -> List[T]:
     """
     Get all records (including deleted ones) for a model.
 
@@ -320,12 +310,13 @@ def get_all_records(
 # CRUD Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def soft_delete_record(
     session: Session,
     model: Type[T],
     record_id: Any,
     deleted_by: Optional[str] = None,
-    id_field: str = 'id'
+    id_field: str = "id",
 ) -> Optional[T]:
     """
     Soft delete a single record by ID.
@@ -353,11 +344,9 @@ def soft_delete_record(
         session.commit()
         ```
     """
-    record = session.query(model).filter(
-        getattr(model, id_field) == record_id
-    ).first()
+    record = session.query(model).filter(getattr(model, id_field) == record_id).first()
 
-    if record and hasattr(record, 'soft_delete'):
+    if record and hasattr(record, "soft_delete"):
         record.soft_delete(deleted_by=deleted_by)
         return record
 
@@ -365,10 +354,7 @@ def soft_delete_record(
 
 
 def soft_delete_many(
-    session: Session,
-    model: Type[T],
-    deleted_by: Optional[str] = None,
-    **filters
+    session: Session, model: Type[T], deleted_by: Optional[str] = None, **filters
 ) -> int:
     """
     Soft delete multiple records matching filters.
@@ -397,7 +383,7 @@ def soft_delete_many(
         print(f"Deleted {count} products")
         ```
     """
-    if not hasattr(model, 'deleted_at'):
+    if not hasattr(model, "deleted_at"):
         raise AttributeError(f"{model.__name__} does not have soft delete fields")
 
     query = session.query(model)
@@ -407,19 +393,16 @@ def soft_delete_many(
     # Only delete non-deleted records
     query = query.filter(model.deleted_at.is_(None))
 
-    count = query.update({
-        'deleted_at': datetime.utcnow(),
-        'deleted_by': deleted_by
-    }, synchronize_session='fetch')
+    count = query.update(
+        {"deleted_at": datetime.utcnow(), "deleted_by": deleted_by},
+        synchronize_session="fetch",
+    )
 
     return count
 
 
 def restore_record(
-    session: Session,
-    model: Type[T],
-    record_id: Any,
-    id_field: str = 'id'
+    session: Session, model: Type[T], record_id: Any, id_field: str = "id"
 ) -> Optional[T]:
     """
     Restore a soft-deleted record by ID.
@@ -441,22 +424,16 @@ def restore_record(
         session.commit()
         ```
     """
-    record = session.query(model).filter(
-        getattr(model, id_field) == record_id
-    ).first()
+    record = session.query(model).filter(getattr(model, id_field) == record_id).first()
 
-    if record and hasattr(record, 'restore'):
+    if record and hasattr(record, "restore"):
         record.restore()
         return record
 
     return None
 
 
-def restore_many(
-    session: Session,
-    model: Type[T],
-    **filters
-) -> int:
+def restore_many(session: Session, model: Type[T], **filters) -> int:
     """
     Restore multiple soft-deleted records.
 
@@ -477,7 +454,7 @@ def restore_many(
         print(f"Restored {count} products")
         ```
     """
-    if not hasattr(model, 'deleted_at'):
+    if not hasattr(model, "deleted_at"):
         raise AttributeError(f"{model.__name__} does not have soft delete fields")
 
     query = session.query(model)
@@ -487,19 +464,15 @@ def restore_many(
     # Only restore deleted records
     query = query.filter(model.deleted_at.isnot(None))
 
-    count = query.update({
-        'deleted_at': None,
-        'deleted_by': None
-    }, synchronize_session='fetch')
+    count = query.update(
+        {"deleted_at": None, "deleted_by": None}, synchronize_session="fetch"
+    )
 
     return count
 
 
 def hard_delete_record(
-    session: Session,
-    model: Type[T],
-    record_id: Any,
-    id_field: str = 'id'
+    session: Session, model: Type[T], record_id: Any, id_field: str = "id"
 ) -> bool:
     """
     Permanently delete a record (hard delete).
@@ -524,9 +497,7 @@ def hard_delete_record(
         session.commit()
         ```
     """
-    record = session.query(model).filter(
-        getattr(model, id_field) == record_id
-    ).first()
+    record = session.query(model).filter(getattr(model, id_field) == record_id).first()
 
     if record:
         session.delete(record)
@@ -538,6 +509,7 @@ def hard_delete_record(
 # ═══════════════════════════════════════════════════════════════════════════
 # Session Event Listeners (Optional Auto-filtering)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def enable_soft_delete_filter(session: Session) -> None:
     """
@@ -560,10 +532,11 @@ def enable_soft_delete_filter(session: Session) -> None:
         products = session.query(Product).all()  # Only active products
         ```
     """
-    @event.listens_for(session, 'after_attach')
+
+    @event.listens_for(session, "after_attach")
     def receive_after_attach(session, instance):
         """Auto-filter soft-deleted records"""
-        if hasattr(instance.__class__, 'deleted_at'):
+        if hasattr(instance.__class__, "deleted_at"):
             # This is a model with soft delete
             pass  # The filtering happens at query level
 
@@ -583,7 +556,7 @@ def count_active_records(session: Session, model: Type[T]) -> int:
         Count of active records
     """
     query = session.query(model)
-    if hasattr(model, 'deleted_at'):
+    if hasattr(model, "deleted_at"):
         query = query.filter(model.deleted_at.is_(None))
     return query.count()
 
@@ -600,7 +573,7 @@ def count_deleted_records(session: Session, model: Type[T]) -> int:
         Count of deleted records
     """
     query = session.query(model)
-    if hasattr(model, 'deleted_at'):
+    if hasattr(model, "deleted_at"):
         query = query.filter(model.deleted_at.isnot(None))
     return query.count()
 
@@ -608,6 +581,7 @@ def count_deleted_records(session: Session, model: Type[T]) -> int:
 # ═══════════════════════════════════════════════════════════════════════════
 # Utility Functions
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def get_deletion_metadata(record: Any) -> Optional[dict]:
     """
@@ -627,11 +601,8 @@ def get_deletion_metadata(record: Any) -> Optional[dict]:
             print(f"Deleted by: {metadata['deleted_by']}")
         ```
     """
-    if hasattr(record, 'is_deleted') and record.is_deleted():
-        return {
-            'deleted_at': record.deleted_at,
-            'deleted_by': record.deleted_by
-        }
+    if hasattr(record, "is_deleted") and record.is_deleted():
+        return {"deleted_at": record.deleted_at, "deleted_by": record.deleted_by}
     return None
 
 
@@ -645,7 +616,4 @@ def is_soft_deletable(model: Type) -> bool:
     Returns:
         True if the model has soft delete fields
     """
-    return (
-        hasattr(model, 'deleted_at') and
-        hasattr(model, 'deleted_by')
-    )
+    return hasattr(model, "deleted_at") and hasattr(model, "deleted_by")

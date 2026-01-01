@@ -49,15 +49,13 @@ class WeatherTool:
                     params={
                         "latitude": latitude,
                         "longitude": longitude,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
                 result = response.json()
                 logger.info(
-                    "current_weather_retrieved",
-                    latitude=latitude,
-                    longitude=longitude
+                    "current_weather_retrieved", latitude=latitude, longitude=longitude
                 )
                 return result
 
@@ -66,12 +64,9 @@ class WeatherTool:
                 "current_weather_failed",
                 error=str(e),
                 latitude=latitude,
-                longitude=longitude
+                longitude=longitude,
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}
 
     async def get_forecast(
         self,
@@ -99,7 +94,7 @@ class WeatherTool:
                         "latitude": latitude,
                         "longitude": longitude,
                         "days": days,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -108,7 +103,7 @@ class WeatherTool:
                     "weather_forecast_retrieved",
                     latitude=latitude,
                     longitude=longitude,
-                    days=days
+                    days=days,
                 )
                 return result
 
@@ -117,12 +112,9 @@ class WeatherTool:
                 "weather_forecast_failed",
                 error=str(e),
                 latitude=latitude,
-                longitude=longitude
+                longitude=longitude,
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}
 
     async def get_historical_weather(
         self,
@@ -153,7 +145,7 @@ class WeatherTool:
                         "longitude": longitude,
                         "start_date": start_date,
                         "end_date": end_date,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -162,7 +154,7 @@ class WeatherTool:
                     "historical_weather_retrieved",
                     latitude=latitude,
                     longitude=longitude,
-                    period=f"{start_date} to {end_date}"
+                    period=f"{start_date} to {end_date}",
                 )
                 return result
 
@@ -171,12 +163,9 @@ class WeatherTool:
                 "historical_weather_failed",
                 error=str(e),
                 latitude=latitude,
-                longitude=longitude
+                longitude=longitude,
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}
 
     async def get_et0(
         self,
@@ -206,8 +195,7 @@ class WeatherTool:
                     params["date"] = date
 
                 response = await client.get(
-                    f"{self.base_url}/api/v1/weather/et0",
-                    params=params
+                    f"{self.base_url}/api/v1/weather/et0", params=params
                 )
                 response.raise_for_status()
 
@@ -216,7 +204,7 @@ class WeatherTool:
                     "et0_retrieved",
                     latitude=latitude,
                     longitude=longitude,
-                    date=date or "today"
+                    date=date or "today",
                 )
                 return result
 
@@ -225,12 +213,9 @@ class WeatherTool:
                 "et0_retrieval_failed",
                 error=str(e),
                 latitude=latitude,
-                longitude=longitude
+                longitude=longitude,
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}
 
     async def get_alerts(
         self,
@@ -255,7 +240,7 @@ class WeatherTool:
                     params={
                         "latitude": latitude,
                         "longitude": longitude,
-                    }
+                    },
                 )
                 response.raise_for_status()
 
@@ -264,7 +249,7 @@ class WeatherTool:
                     "weather_alerts_retrieved",
                     latitude=latitude,
                     longitude=longitude,
-                    alert_count=len(result.get("alerts", []))
+                    alert_count=len(result.get("alerts", [])),
                 )
                 return result
 
@@ -273,9 +258,6 @@ class WeatherTool:
                 "weather_alerts_failed",
                 error=str(e),
                 latitude=latitude,
-                longitude=longitude
+                longitude=longitude,
             )
-            return {
-                "error": str(e),
-                "status": "failed"
-            }
+            return {"error": str(e), "status": "failed"}

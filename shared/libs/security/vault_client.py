@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 # Optional dependency
 try:
     import hvac
+
     HAS_HVAC = True
 except ImportError:
     hvac = None  # type: ignore
@@ -58,9 +59,7 @@ class VaultClient:
 
     def __init__(self, cfg: VaultConfig):
         if not HAS_HVAC:
-            raise RuntimeError(
-                "hvac is not installed. Install with: pip install hvac"
-            )
+            raise RuntimeError("hvac is not installed. Install with: pip install hvac")
 
         self._cfg = cfg
         self._client = hvac.Client(
@@ -212,9 +211,7 @@ def from_env() -> VaultClient:
     secret_id = os.getenv("VAULT_SECRET_ID")
 
     if not token and not (role_id and secret_id):
-        raise RuntimeError(
-            "VAULT_TOKEN or (VAULT_ROLE_ID + VAULT_SECRET_ID) required"
-        )
+        raise RuntimeError("VAULT_TOKEN or (VAULT_ROLE_ID + VAULT_SECRET_ID) required")
 
     return VaultClient(
         VaultConfig(

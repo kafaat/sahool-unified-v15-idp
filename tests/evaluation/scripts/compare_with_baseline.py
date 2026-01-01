@@ -103,32 +103,38 @@ class BaselineComparator:
 
             if abs(change) < threshold:
                 # Stable (no significant change)
-                stable.append({
-                    "metric": metric,
-                    "current": current_value,
-                    "baseline": baseline_value,
-                    "change": change,
-                    "change_pct": change_pct,
-                })
+                stable.append(
+                    {
+                        "metric": metric,
+                        "current": current_value,
+                        "baseline": baseline_value,
+                        "change": change,
+                        "change_pct": change_pct,
+                    }
+                )
             elif change < -threshold:
                 # Regression (significant drop)
-                regressions.append({
-                    "metric": metric,
-                    "current": current_value,
-                    "baseline": baseline_value,
-                    "change": change,
-                    "change_pct": change_pct,
-                    "threshold": threshold,
-                })
+                regressions.append(
+                    {
+                        "metric": metric,
+                        "current": current_value,
+                        "baseline": baseline_value,
+                        "change": change,
+                        "change_pct": change_pct,
+                        "threshold": threshold,
+                    }
+                )
             else:
                 # Improvement (significant increase)
-                improvements.append({
-                    "metric": metric,
-                    "current": current_value,
-                    "baseline": baseline_value,
-                    "change": change,
-                    "change_pct": change_pct,
-                })
+                improvements.append(
+                    {
+                        "metric": metric,
+                        "current": current_value,
+                        "baseline": baseline_value,
+                        "change": change,
+                        "change_pct": change_pct,
+                    }
+                )
 
         # Compare language support
         language_comparison = self._compare_language_support()
@@ -180,20 +186,28 @@ class BaselineComparator:
 
         comparisons = []
 
-        all_categories = set(current_categories.keys()) | set(baseline_categories.keys())
+        all_categories = set(current_categories.keys()) | set(
+            baseline_categories.keys()
+        )
 
         for category in all_categories:
             current_score = current_categories.get(category, 0.0)
             baseline_score = baseline_categories.get(category, 0.0)
             change = current_score - baseline_score
 
-            comparisons.append({
-                "category": category,
-                "current": current_score,
-                "baseline": baseline_score,
-                "change": change,
-                "status": "regression" if change < -5.0 else "improvement" if change > 5.0 else "stable",
-            })
+            comparisons.append(
+                {
+                    "category": category,
+                    "current": current_score,
+                    "baseline": baseline_score,
+                    "change": change,
+                    "status": (
+                        "regression"
+                        if change < -5.0
+                        else "improvement" if change > 5.0 else "stable"
+                    ),
+                }
+            )
 
         return comparisons
 

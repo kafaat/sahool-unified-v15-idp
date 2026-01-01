@@ -113,7 +113,8 @@ class CropService:
     def get_active_crop_for_field(self, field_id: str) -> Optional[Crop]:
         """Get the currently active crop for a field"""
         active_crops = [
-            c for c in self._crops.values()
+            c
+            for c in self._crops.values()
             if c.field_id == field_id and c.growth_stage != GrowthStage.POST_HARVEST
         ]
         # Return the most recently planted crop if multiple exist

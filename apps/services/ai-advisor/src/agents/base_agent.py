@@ -73,7 +73,7 @@ class BaseAgent(ABC):
             "agent_initialized",
             agent_name=self.name,
             role=self.role,
-            num_tools=len(self.tools)
+            num_tools=len(self.tools),
         )
 
     @abstractmethod
@@ -111,10 +111,7 @@ class BaseAgent(ABC):
             return ""
 
     async def think(
-        self,
-        query: str,
-        context: Optional[Dict[str, Any]] = None,
-        use_rag: bool = True
+        self, query: str, context: Optional[Dict[str, Any]] = None, use_rag: bool = True
     ) -> Dict[str, Any]:
         """
         Process a query and generate a response
@@ -151,16 +148,13 @@ class BaseAgent(ABC):
             response = await self.llm.ainvoke(messages)
 
             # Store in conversation history | تخزين في سجل المحادثة
-            self.conversation_history.extend([
-                HumanMessage(content=query),
-                response
-            ])
+            self.conversation_history.extend([HumanMessage(content=query), response])
 
             logger.info(
                 "agent_response_generated",
                 agent_name=self.name,
                 query_length=len(query),
-                response_length=len(response.content)
+                response_length=len(response.content),
             )
 
             return {
@@ -171,11 +165,7 @@ class BaseAgent(ABC):
             }
 
         except Exception as e:
-            logger.error(
-                "agent_thinking_failed",
-                agent_name=self.name,
-                error=str(e)
-            )
+            logger.error("agent_thinking_failed", agent_name=self.name, error=str(e))
             raise
 
     def _format_context(self, context: Dict[str, Any]) -> str:
@@ -193,6 +183,7 @@ class BaseAgent(ABC):
         for key, value in context.items():
             if isinstance(value, (dict, list)):
                 import json
+
                 value = json.dumps(value, ensure_ascii=False, indent=2)
             lines.append(f"{key}: {value}")
         return "\n".join(lines)
@@ -214,8 +205,15 @@ class BaseAgent(ABC):
 
         # Check for uncertainty markers | التحقق من علامات عدم اليقين
         uncertainty_markers = [
-            "i'm not sure", "maybe", "possibly", "might", "could be",
-            "لست متأكداً", "ربما", "من المحتمل", "قد يكون"
+            "i'm not sure",
+            "maybe",
+            "possibly",
+            "might",
+            "could be",
+            "لست متأكداً",
+            "ربما",
+            "من المحتمل",
+            "قد يكون",
         ]
 
         confidence = 0.8  # Default confidence | الثقة الافتراضية
@@ -243,9 +241,7 @@ class BaseAgent(ABC):
                 try:
                     result = await tool.arun(**kwargs)
                     logger.info(
-                        "tool_executed",
-                        agent_name=self.name,
-                        tool_name=tool_name
+                        "tool_executed", agent_name=self.name, tool_name=tool_name
                     )
                     return result
                 except Exception as e:
@@ -253,7 +249,7 @@ class BaseAgent(ABC):
                         "tool_execution_failed",
                         agent_name=self.name,
                         tool_name=tool_name,
-                        error=str(e)
+                        error=str(e),
                     )
                     raise
 

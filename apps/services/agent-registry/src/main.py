@@ -18,7 +18,8 @@ from .storage import RedisStorage, InMemoryStorage, RegistryStorage
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from registry.agent_card import AgentCard
 from registry.registry import AgentRegistry, RegistryConfig, HealthCheckResult
 
@@ -30,7 +31,7 @@ structlog.configure(
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ]
 )
 
@@ -40,11 +41,13 @@ logger = structlog.get_logger()
 # Request/Response Models
 class RegisterAgentRequest(BaseModel):
     """Request to register an agent / طلب لتسجيل وكيل"""
+
     agent_card: AgentCard = Field(..., description="Agent card to register")
 
 
 class DiscoverByTagsRequest(BaseModel):
     """Request to discover agents by tags / طلب لاكتشاف الوكلاء حسب العلامات"""
+
     tags: List[str] = Field(..., description="Tags to search for")
 
 
@@ -61,13 +64,11 @@ async def verify_api_key(x_api_key: Optional[str] = Header(None)):
     if settings.require_api_key:
         if not x_api_key:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="API key required"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="API key required"
             )
         if settings.api_key and x_api_key != settings.api_key:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid API key"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API key"
             )
     return x_api_key
 
@@ -147,19 +148,26 @@ app = FastAPI(
 )
 
 # Add CORS middleware
-cors_origins = settings.cors_origins.split(',') if settings.cors_origins else []
+cors_origins = settings.cors_origins.split(",") if settings.cors_origins else []
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["Accept", "Authorization", "Content-Type", "X-API-Key", "X-Request-ID"],
+    allow_headers=[
+        "Accept",
+        "Authorization",
+        "Content-Type",
+        "X-API-Key",
+        "X-Request-ID",
+    ],
 )
 
 
 # ============================================================================
 # Health & Status Endpoints
 # ============================================================================
+
 
 @app.get("/healthz", tags=["Health"])
 async def health_check():
@@ -195,7 +203,7 @@ async def get_registry_stats():
     if not registry:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Registry not initialized"
+            detail="Registry not initialized",
         )
 
     stats = registry.get_registry_stats()
@@ -210,7 +218,10 @@ async def get_registry_stats():
 # Agent Management Endpoints
 # ============================================================================
 
-@app.post("/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
+
+@app.post(
+    "/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)]
+)
 async def register_agent(request: RegisterAgentRequest):
     """
     Register a new agent
@@ -226,7 +237,7 @@ async def register_agent(request: RegisterAgentRequest):
         if not registry or not storage:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         # Register in registry (for indexing and discovery)
@@ -235,9 +246,11 @@ async def register_agent(request: RegisterAgentRequest):
         # Persist to storage
         await storage.save_agent(request.agent_card)
 
-        logger.info("agent_registered_successfully",
-                   agent_id=request.agent_card.agent_id,
-                   version=request.agent_card.version)
+        logger.info(
+            "agent_registered_successfully",
+            agent_id=request.agent_card.agent_id,
+            version=request.agent_card.version,
+        )
 
         return {
             "status": "success",
@@ -248,8 +261,7 @@ async def register_agent(request: RegisterAgentRequest):
     except Exception as e:
         logger.error("register_agent_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -264,7 +276,7 @@ async def get_agent(agent_id: str):
         if not storage:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         agent_card = await storage.get_agent(agent_id)
@@ -272,7 +284,7 @@ async def get_agent(agent_id: str):
         if not agent_card:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Agent not found: {agent_id}"
+                detail=f"Agent not found: {agent_id}",
             )
 
         return agent_card.to_dict()
@@ -282,8 +294,7 @@ async def get_agent(agent_id: str):
     except Exception as e:
         logger.error("get_agent_failed", agent_id=agent_id, error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -301,7 +312,7 @@ async def list_agents(
         if not storage:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         # Get all agents from storage
@@ -323,12 +334,15 @@ async def list_agents(
     except Exception as e:
         logger.error("list_agents_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
-@app.delete("/v1/registry/agents/{agent_id}", tags=["Agents"], dependencies=[Depends(verify_api_key)])
+@app.delete(
+    "/v1/registry/agents/{agent_id}",
+    tags=["Agents"],
+    dependencies=[Depends(verify_api_key)],
+)
 async def deregister_agent(agent_id: str):
     """
     Deregister an agent
@@ -344,7 +358,7 @@ async def deregister_agent(agent_id: str):
         if not registry or not storage:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         # Deregister from registry
@@ -356,7 +370,7 @@ async def deregister_agent(agent_id: str):
         if not deleted:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Agent not found: {agent_id}"
+                detail=f"Agent not found: {agent_id}",
             )
 
         logger.info("agent_deregistered_successfully", agent_id=agent_id)
@@ -372,14 +386,14 @@ async def deregister_agent(agent_id: str):
     except Exception as e:
         logger.error("deregister_agent_failed", agent_id=agent_id, error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
 # ============================================================================
 # Discovery Endpoints
 # ============================================================================
+
 
 @app.get("/v1/registry/discover/capability", tags=["Discovery"])
 async def discover_by_capability(capability: str):
@@ -392,7 +406,7 @@ async def discover_by_capability(capability: str):
         if not registry:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Registry not initialized"
+                detail="Registry not initialized",
             )
 
         agents = registry.discover_by_capability(capability)
@@ -405,10 +419,11 @@ async def discover_by_capability(capability: str):
         }
 
     except Exception as e:
-        logger.error("discover_by_capability_failed", capability=capability, error=str(e))
+        logger.error(
+            "discover_by_capability_failed", capability=capability, error=str(e)
+        )
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -423,7 +438,7 @@ async def discover_by_skill(skill: str):
         if not registry:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Registry not initialized"
+                detail="Registry not initialized",
             )
 
         agents = registry.discover_by_skill(skill)
@@ -438,8 +453,7 @@ async def discover_by_skill(skill: str):
     except Exception as e:
         logger.error("discover_by_skill_failed", skill=skill, error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -454,7 +468,7 @@ async def discover_by_tags(request: DiscoverByTagsRequest):
         if not registry:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Registry not initialized"
+                detail="Registry not initialized",
             )
 
         agents = registry.discover_by_tags(request.tags)
@@ -469,14 +483,14 @@ async def discover_by_tags(request: DiscoverByTagsRequest):
     except Exception as e:
         logger.error("discover_by_tags_failed", tags=request.tags, error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
 # ============================================================================
 # Health Check Endpoints
 # ============================================================================
+
 
 @app.get("/v1/registry/agents/{agent_id}/health", tags=["Health"])
 async def check_agent_health(agent_id: str):
@@ -489,7 +503,7 @@ async def check_agent_health(agent_id: str):
         if not registry:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Registry not initialized"
+                detail="Registry not initialized",
             )
 
         health_result = await registry.check_agent_health(agent_id)
@@ -499,8 +513,7 @@ async def check_agent_health(agent_id: str):
     except Exception as e:
         logger.error("check_agent_health_failed", agent_id=agent_id, error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -515,7 +528,7 @@ async def get_all_health_statuses():
         if not registry:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Registry not initialized"
+                detail="Registry not initialized",
             )
 
         health_statuses = registry.get_all_health_statuses()
@@ -532,8 +545,7 @@ async def get_all_health_statuses():
     except Exception as e:
         logger.error("get_all_health_statuses_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 

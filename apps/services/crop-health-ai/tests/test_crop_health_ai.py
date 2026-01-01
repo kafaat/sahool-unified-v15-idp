@@ -27,13 +27,13 @@ def client():
                     "class": "leaf_blight",
                     "class_ar": "لفحة الأوراق",
                     "confidence": 0.89,
-                    "severity": "moderate"
+                    "severity": "moderate",
                 }
             ],
             "recommendations": [
                 "Apply fungicide within 24 hours",
-                "Improve air circulation"
-            ]
+                "Improve air circulation",
+            ],
         }
 
     @app.post("/api/v1/analyze/batch")
@@ -42,7 +42,7 @@ def client():
             "batch_id": "batch_001",
             "total_images": 10,
             "processed": 10,
-            "results_url": "/api/v1/batch/batch_001/results"
+            "results_url": "/api/v1/batch/batch_001/results",
         }
 
     @app.get("/api/v1/diseases")
@@ -50,7 +50,11 @@ def client():
         return {
             "diseases": [
                 {"id": "leaf_blight", "name": "Leaf Blight", "name_ar": "لفحة الأوراق"},
-                {"id": "powdery_mildew", "name": "Powdery Mildew", "name_ar": "البياض الدقيقي"}
+                {
+                    "id": "powdery_mildew",
+                    "name": "Powdery Mildew",
+                    "name_ar": "البياض الدقيقي",
+                },
             ]
         }
 
@@ -62,7 +66,7 @@ def client():
             "name_ar": "لفحة الأوراق",
             "description": "Fungal disease affecting leaves",
             "symptoms": ["brown spots", "wilting"],
-            "treatment": ["fungicide", "remove infected leaves"]
+            "treatment": ["fungicide", "remove infected leaves"],
         }
 
     @app.get("/api/v1/models/info")
@@ -71,7 +75,7 @@ def client():
             "model_version": "v3.2.0",
             "supported_crops": ["tomato", "wheat", "potato"],
             "accuracy": 0.92,
-            "last_updated": "2025-12-01"
+            "last_updated": "2025-12-01",
         }
 
     return TestClient(app)
@@ -85,10 +89,10 @@ class TestHealthEndpoint:
 
 class TestImageAnalysis:
     def test_analyze_image(self, client):
-        response = client.post("/api/v1/analyze/image", json={
-            "image_url": "https://example.com/image.jpg",
-            "crop": "tomato"
-        })
+        response = client.post(
+            "/api/v1/analyze/image",
+            json={"image_url": "https://example.com/image.jpg", "crop": "tomato"},
+        )
         assert response.status_code == 200
         data = response.json()
         assert "predictions" in data
@@ -104,9 +108,9 @@ class TestImageAnalysis:
 
 class TestBatchAnalysis:
     def test_analyze_batch(self, client):
-        response = client.post("/api/v1/analyze/batch", json={
-            "images": ["url1", "url2"]
-        })
+        response = client.post(
+            "/api/v1/analyze/batch", json={"images": ["url1", "url2"]}
+        )
         assert response.status_code == 200
         assert "batch_id" in response.json()
 

@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 class ScheduleFrequency(str, Enum):
     """تكرار الجدولة"""
+
     ONCE = "once"  # مرة واحدة
     DAILY = "daily"  # يومياً
     WEEKLY = "weekly"  # أسبوعياً
@@ -37,9 +38,12 @@ class ScheduleFrequency(str, Enum):
 @dataclass(order=True)
 class ScheduledNotification:
     """إشعار مجدول"""
+
     # Priority queue ordering
     scheduled_time: datetime = field(compare=True)
-    priority: int = field(compare=True, default=2)  # 0=critical, 1=high, 2=medium, 3=low
+    priority: int = field(
+        compare=True, default=2
+    )  # 0=critical, 1=high, 2=medium, 3=low
 
     # Notification data
     notification_id: str = field(compare=False)
@@ -53,7 +57,9 @@ class ScheduledNotification:
     last_attempt: Optional[datetime] = field(compare=False, default=None)
 
     # Status
-    status: str = field(compare=False, default="pending")  # pending, sent, failed, cancelled
+    status: str = field(
+        compare=False, default="pending"
+    )  # pending, sent, failed, cancelled
 
     def should_retry(self) -> bool:
         """هل يجب إعادة المحاولة؟"""
@@ -185,7 +191,9 @@ class NotificationScheduler:
         """
         count = 0
         for i, token in enumerate(recipient_tokens):
-            notification_id = f"{payload.notification_type}_{scheduled_time.timestamp()}_{i}"
+            notification_id = (
+                f"{payload.notification_type}_{scheduled_time.timestamp()}_{i}"
+            )
             if self.schedule_notification(
                 notification_id=notification_id,
                 payload=payload,
@@ -232,7 +240,10 @@ class NotificationScheduler:
 
         # Handle quiet hours that span midnight
         if self.quiet_hours_start > self.quiet_hours_end:
-            return current_time >= self.quiet_hours_start or current_time <= self.quiet_hours_end
+            return (
+                current_time >= self.quiet_hours_start
+                or current_time <= self.quiet_hours_end
+            )
         else:
             return self.quiet_hours_start <= current_time <= self.quiet_hours_end
 
@@ -251,8 +262,7 @@ class NotificationScheduler:
 
         # Clean old timestamps
         self._send_timestamps[recipient_token] = [
-            ts for ts in self._send_timestamps[recipient_token]
-            if ts > one_minute_ago
+            ts for ts in self._send_timestamps[recipient_token] if ts > one_minute_ago
         ]
 
         # Check rate limit
@@ -316,7 +326,9 @@ class NotificationScheduler:
                 raise Exception("Firebase send returned None")
 
         except Exception as e:
-            logger.error(f"❌ Failed to send notification {scheduled_notif.notification_id}: {e}")
+            logger.error(
+                f"❌ Failed to send notification {scheduled_notif.notification_id}: {e}"
+            )
             scheduled_notif.status = "failed"
             scheduled_notif.retry_count += 1
             scheduled_notif.last_attempt = datetime.utcnow()
@@ -324,7 +336,7 @@ class NotificationScheduler:
             # Retry if possible
             if scheduled_notif.should_retry():
                 # Reschedule with exponential backoff
-                retry_delay = timedelta(minutes=2 ** scheduled_notif.retry_count)
+                retry_delay = timedelta(minutes=2**scheduled_notif.retry_count)
                 scheduled_notif.scheduled_time = datetime.utcnow() + retry_delay
                 heapq.heappush(self._queue, scheduled_notif)
                 logger.info(
@@ -334,7 +346,9 @@ class NotificationScheduler:
 
             return False
 
-    async def _process_batch(self, notifications: List[ScheduledNotification]) -> Dict[str, int]:
+    async def _process_batch(
+        self, notifications: List[ScheduledNotification]
+    ) -> Dict[str, int]:
         """
         معالجة دفعة من الإشعارات
 
@@ -356,7 +370,9 @@ class NotificationScheduler:
         # Send each group using multicast
         for group_key, group_notifs in grouped.items():
             # Filter by rate limit
-            sendable = [n for n in group_notifs if self.can_send_to_user(n.recipient_token)]
+            sendable = [
+                n for n in group_notifs if self.can_send_to_user(n.recipient_token)
+            ]
             rate_limited = len(group_notifs) - len(sendable)
             stats["rate_limited"] += rate_limited
 
@@ -477,10 +493,14 @@ class NotificationScheduler:
 
     def get_stats(self) -> Dict[str, Any]:
         """الحصول على إحصائيات الجدولة"""
-        pending = sum(1 for n in self._notification_map.values() if n.status == "pending")
+        pending = sum(
+            1 for n in self._notification_map.values() if n.status == "pending"
+        )
         sent = sum(1 for n in self._notification_map.values() if n.status == "sent")
         failed = sum(1 for n in self._notification_map.values() if n.status == "failed")
-        cancelled = sum(1 for n in self._notification_map.values() if n.status == "cancelled")
+        cancelled = sum(
+            1 for n in self._notification_map.values() if n.status == "cancelled"
+        )
 
         return {
             "total_scheduled": len(self._notification_map),

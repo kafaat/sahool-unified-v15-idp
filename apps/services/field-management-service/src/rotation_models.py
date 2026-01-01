@@ -30,6 +30,7 @@ class RotationPlanModel(Base):
     Rotation plan for a field
     خطة تدوير للحقل
     """
+
     __tablename__ = "rotation_plans"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -63,7 +64,9 @@ class RotationPlanModel(Base):
     status = Column(String(20), default="draft")  # draft, active, completed
 
     # Relationships
-    seasons = relationship("SeasonPlanModel", back_populates="rotation_plan", cascade="all, delete-orphan")
+    seasons = relationship(
+        "SeasonPlanModel", back_populates="rotation_plan", cascade="all, delete-orphan"
+    )
 
     __table_args__ = (
         Index("idx_rotation_tenant_field", "tenant_id", "field_id"),
@@ -76,6 +79,7 @@ class SeasonPlanModel(Base):
     Season plan within a rotation
     خطة موسم ضمن التدوير
     """
+
     __tablename__ = "season_plans"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -106,7 +110,9 @@ class SeasonPlanModel(Base):
     notes = Column(Text, nullable=True)
 
     # Status
-    status = Column(String(20), default="planned")  # planned, planted, growing, harvested
+    status = Column(
+        String(20), default="planned"
+    )  # planned, planted, growing, harvested
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -126,6 +132,7 @@ class FieldHistoryModel(Base):
     Historical crop data for a field
     البيانات التاريخية للمحاصيل في الحقل
     """
+
     __tablename__ = "field_history"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -154,7 +161,7 @@ class FieldHistoryModel(Base):
 
     # Health indicators
     disease_incidents = Column(JSON, default=list)  # List of disease IDs
-    pest_incidents = Column(JSON, default=list)     # List of pest IDs
+    pest_incidents = Column(JSON, default=list)  # List of pest IDs
     soil_quality_score = Column(Float, nullable=True)
 
     # Notes
@@ -176,17 +183,20 @@ class RotationRuleOverrideModel(Base):
     Custom rotation rules for specific tenants/fields
     قواعد تدوير مخصصة للمستأجرين/الحقول
     """
+
     __tablename__ = "rotation_rule_overrides"
 
     id = Column(Integer, primary_key=True, index=True)
 
     # Scope
     tenant_id = Column(String(100), index=True, nullable=True)  # None = global
-    field_id = Column(String(100), index=True, nullable=True)   # None = all fields
+    field_id = Column(String(100), index=True, nullable=True)  # None = all fields
 
     # Rule
     crop_family = Column(String(50), nullable=False)
-    rule_type = Column(String(50), nullable=False)  # min_years, good_predecessor, bad_predecessor
+    rule_type = Column(
+        String(50), nullable=False
+    )  # min_years, good_predecessor, bad_predecessor
     rule_value = Column(JSON, nullable=False)
 
     # Metadata
@@ -205,6 +215,7 @@ class RotationRecommendationModel(Base):
     AI/system generated rotation recommendations
     توصيات التدوير المولدة من النظام
     """
+
     __tablename__ = "rotation_recommendations"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -230,7 +241,9 @@ class RotationRecommendationModel(Base):
     warnings_en = Column(JSON, default=list)
 
     # Status
-    status = Column(String(20), default="pending")  # pending, accepted, rejected, applied
+    status = Column(
+        String(20), default="pending"
+    )  # pending, accepted, rejected, applied
     user_feedback = Column(Text, nullable=True)
 
     # Timestamps

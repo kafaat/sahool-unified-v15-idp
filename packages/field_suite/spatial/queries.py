@@ -39,7 +39,8 @@ def fields_in_bbox(
         List of field dictionaries with id, name, and area
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT id, name, area_hectares, center_latitude, center_longitude
             FROM fields
             WHERE tenant_id = :tenant_id
@@ -47,7 +48,8 @@ def fields_in_bbox(
               AND geom && ST_MakeEnvelope(:xmin, :ymin, :xmax, :ymax, 4326)
             ORDER BY area_hectares DESC
             LIMIT :limit;
-        """),
+        """
+        ),
         {
             "tenant_id": str(tenant_id),
             "xmin": xmin,
@@ -80,13 +82,15 @@ def zones_in_field(
         List of zone dictionaries
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT z.id, z.name, z.zone_type, z.area_hectares, z.properties
             FROM zones z
             WHERE z.tenant_id = :tenant_id
               AND z.field_id = :field_id
             ORDER BY z.name;
-        """),
+        """
+        ),
         {
             "tenant_id": str(tenant_id),
             "field_id": str(field_id),
@@ -113,13 +117,15 @@ def subzones_in_zone(
         List of sub-zone dictionaries
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT sz.id, sz.name, sz.area_hectares, sz.properties
             FROM sub_zones sz
             WHERE sz.tenant_id = :tenant_id
               AND sz.zone_id = :zone_id
             ORDER BY sz.name;
-        """),
+        """
+        ),
         {
             "tenant_id": str(tenant_id),
             "zone_id": str(zone_id),
@@ -150,14 +156,16 @@ def find_containing_field(
         Field dictionary or None if point not in any field
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT id, name, farm_id, area_hectares
             FROM fields
             WHERE tenant_id = :tenant_id
               AND geom IS NOT NULL
               AND ST_Contains(geom, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326))
             LIMIT 1;
-        """),
+        """
+        ),
         {
             "tenant_id": str(tenant_id),
             "lat": latitude,
@@ -188,14 +196,16 @@ def find_containing_zone(
         Zone dictionary or None if point not in any zone
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT id, name, field_id, zone_type, area_hectares
             FROM zones
             WHERE tenant_id = :tenant_id
               AND geom IS NOT NULL
               AND ST_Contains(geom, ST_SetSRID(ST_MakePoint(:lon, :lat), 4326))
             LIMIT 1;
-        """),
+        """
+        ),
         {
             "tenant_id": str(tenant_id),
             "lat": latitude,
@@ -226,7 +236,8 @@ def fields_intersecting_polygon(
         List of field dictionaries with intersection area
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT
                 f.id,
                 f.name,
@@ -240,7 +251,8 @@ def fields_intersecting_polygon(
               AND ST_Intersects(f.geom, ST_GeomFromText(:polygon_wkt, 4326))
             ORDER BY intersection_hectares DESC
             LIMIT :limit;
-        """),
+        """
+        ),
         {
             "tenant_id": str(tenant_id),
             "polygon_wkt": polygon_wkt,
@@ -268,9 +280,11 @@ def calculate_area_hectares(
         Area in hectares
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT ST_Area(ST_GeomFromText(:wkt, 4326)::geography) / 10000 AS hectares;
-        """),
+        """
+        ),
         {"wkt": geometry_wkt},
     )
     row = result.fetchone()
@@ -296,11 +310,13 @@ def get_field_hierarchy(
     """
     # Get field
     field_result = db.execute(
-        text("""
+        text(
+            """
             SELECT id, name, farm_id, area_hectares, status
             FROM fields
             WHERE tenant_id = :tenant_id AND id = :field_id;
-        """),
+        """
+        ),
         {"tenant_id": str(tenant_id), "field_id": str(field_id)},
     )
     field_row = field_result.fetchone()
@@ -311,12 +327,14 @@ def get_field_hierarchy(
 
     # Get zones
     zones_result = db.execute(
-        text("""
+        text(
+            """
             SELECT id, name, zone_type, area_hectares
             FROM zones
             WHERE tenant_id = :tenant_id AND field_id = :field_id
             ORDER BY name;
-        """),
+        """
+        ),
         {"tenant_id": str(tenant_id), "field_id": str(field_id)},
     )
     zones = []
@@ -326,12 +344,14 @@ def get_field_hierarchy(
 
         # Get sub-zones for this zone
         subzones_result = db.execute(
-            text("""
+            text(
+                """
                 SELECT id, name, area_hectares
                 FROM sub_zones
                 WHERE tenant_id = :tenant_id AND zone_id = :zone_id
                 ORDER BY name;
-            """),
+            """
+            ),
             {"tenant_id": str(tenant_id), "zone_id": str(zone_id)},
         )
         zone_data["sub_zones"] = [dict(sz._mapping) for sz in subzones_result]
@@ -357,7 +377,8 @@ def get_spatial_stats(
         Dictionary with counts and total areas
     """
     result = db.execute(
-        text("""
+        text(
+            """
             SELECT
                 (SELECT COUNT(*) FROM farms WHERE tenant_id = :tenant_id) AS farm_count,
                 (SELECT COUNT(*) FROM fields WHERE tenant_id = :tenant_id) AS field_count,
@@ -365,7 +386,8 @@ def get_spatial_stats(
                 (SELECT COUNT(*) FROM sub_zones WHERE tenant_id = :tenant_id) AS subzone_count,
                 (SELECT COALESCE(SUM(total_area_hectares), 0) FROM farms WHERE tenant_id = :tenant_id) AS total_farm_area,
                 (SELECT COALESCE(SUM(area_hectares), 0) FROM fields WHERE tenant_id = :tenant_id) AS total_field_area;
-        """),
+        """
+        ),
         {"tenant_id": str(tenant_id)},
     )
     row = result.fetchone()

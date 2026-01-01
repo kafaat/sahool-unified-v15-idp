@@ -20,6 +20,7 @@ from redis_sentinel import get_redis_client
 # Example 1: Basic Cache Decorator
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def cache_result(key_prefix: str, ttl: int = 3600):
     """
     Cache function results in Redis
@@ -33,6 +34,7 @@ def cache_result(key_prefix: str, ttl: int = 3600):
         def get_user_profile(user_id: int):
             return db.query(f"SELECT * FROM users WHERE id = {user_id}")
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -56,13 +58,16 @@ def cache_result(key_prefix: str, ttl: int = 3600):
             redis.set(cache_key, json.dumps(result), ex=ttl)
 
             return result
+
         return wrapper
+
     return decorator
 
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Example 2: Rate Limiter
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 class RateLimiter:
     """
@@ -141,6 +146,7 @@ class RateLimiter:
 # Example 3: Distributed Lock
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class DistributedLock:
     """
     قفل موزع باستخدام Redis
@@ -165,7 +171,9 @@ class DistributedLock:
         self.timeout = timeout
         self.identifier = str(uuid.uuid4())
 
-    def acquire(self, blocking: bool = True, acquire_timeout: Optional[int] = None) -> bool:
+    def acquire(
+        self, blocking: bool = True, acquire_timeout: Optional[int] = None
+    ) -> bool:
         """
         الحصول على القفل
 
@@ -181,10 +189,7 @@ class DistributedLock:
         while True:
             # محاولة الحصول على القفل
             if self.redis.set(
-                self.lock_name,
-                self.identifier,
-                nx=True,
-                ex=self.timeout
+                self.lock_name, self.identifier, nx=True, ex=self.timeout
             ):
                 return True
 
@@ -226,6 +231,7 @@ class DistributedLock:
 # Example 4: Session Manager
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class SessionManager:
     """
     إدارة جلسات المستخدم باستخدام Redis
@@ -236,7 +242,7 @@ class SessionManager:
         data = session.get('user:1000')
     """
 
-    def __init__(self, prefix: str = 'session'):
+    def __init__(self, prefix: str = "session"):
         """
         Args:
             prefix: بادئة مفاتيح الجلسات
@@ -328,6 +334,7 @@ class SessionManager:
 # Example 5: Pub/Sub Event System
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 class EventPublisher:
     """
     نشر الأحداث باستخدام Redis Pub/Sub
@@ -398,9 +405,9 @@ class EventSubscriber:
 
         print("Listening for events...")
         for message in self.pubsub.listen():
-            if message['type'] == 'message':
-                channel = message['channel']
-                data = message['data']
+            if message["type"] == "message":
+                channel = message["channel"]
+                data = message["data"]
 
                 # محاولة تحويل من JSON
                 try:
@@ -417,12 +424,12 @@ class EventSubscriber:
 # Example Usage
 # ═══════════════════════════════════════════════════════════════════════════
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Example 1: Cache
-    @cache_result('user:profile', ttl=60)
+    @cache_result("user:profile", ttl=60)
     def get_user(user_id: int):
         print(f"Fetching user {user_id} from database...")
-        return {'id': user_id, 'name': f'User {user_id}'}
+        return {"id": user_id, "name": f"User {user_id}"}
 
     print("Example 1: Cache Decorator")
     print(get_user(1000))  # Cache miss
@@ -433,15 +440,17 @@ if __name__ == '__main__':
     print("Example 2: Rate Limiter")
     limiter = RateLimiter(max_requests=5, window=10)
     for i in range(7):
-        if limiter.is_allowed('user:1000'):
-            print(f"  Request {i+1}: Allowed (Remaining: {limiter.get_remaining('user:1000')})")
+        if limiter.is_allowed("user:1000"):
+            print(
+                f"  Request {i+1}: Allowed (Remaining: {limiter.get_remaining('user:1000')})"
+            )
         else:
             print(f"  Request {i+1}: Denied (Rate limit exceeded)")
     print()
 
     # Example 3: Distributed Lock
     print("Example 3: Distributed Lock")
-    with DistributedLock('export:process', timeout=5) as lock:
+    with DistributedLock("export:process", timeout=5) as lock:
         print("  Lock acquired, processing...")
         time.sleep(1)
         print("  Processing completed")
@@ -451,14 +460,14 @@ if __name__ == '__main__':
     # Example 4: Session Manager
     print("Example 4: Session Manager")
     session = SessionManager()
-    session.create('user:1000', {'username': 'ahmed', 'role': 'admin'}, ttl=300)
-    data = session.get('user:1000')
+    session.create("user:1000", {"username": "ahmed", "role": "admin"}, ttl=300)
+    data = session.get("user:1000")
     print(f"  Session data: {data}")
-    session.delete('user:1000')
+    session.delete("user:1000")
     print()
 
     # Example 5: Events
     print("Example 5: Pub/Sub Events")
     publisher = EventPublisher()
-    count = publisher.publish('test', {'message': 'Hello World'})
+    count = publisher.publish("test", {"message": "Hello World"})
     print(f"  Published to {count} subscribers")

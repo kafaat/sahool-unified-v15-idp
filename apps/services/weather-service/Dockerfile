@@ -39,10 +39,10 @@ RUN pip install --upgrade pip || true && \
 USER sahool
 
 # Default port (can be overridden via PORT env var)
-ENV PORT=8108
-EXPOSE 8108
+ENV PORT=8092
+EXPOSE 8092
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')" || exit 1
 
 CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]

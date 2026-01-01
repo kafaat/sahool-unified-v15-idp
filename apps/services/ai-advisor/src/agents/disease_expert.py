@@ -131,7 +131,7 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
             "symptoms": symptoms,
             "image_analysis": image_analysis,
             "environmental_data": environmental_data,
-            "task": "disease_diagnosis"
+            "task": "disease_diagnosis",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -163,7 +163,7 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
             "crop_type": crop_type,
             "severity": severity,
             "constraints": constraints,
-            "task": "treatment_recommendation"
+            "task": "treatment_recommendation",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -195,7 +195,7 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
             "location": location,
             "season": season,
             "environmental_conditions": environmental_conditions,
-            "task": "risk_assessment"
+            "task": "risk_assessment",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -224,7 +224,7 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
             "crop_type": crop_type,
             "common_diseases": common_diseases,
             "farming_practices": farming_practices,
-            "task": "prevention_strategy"
+            "task": "prevention_strategy",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -250,7 +250,7 @@ Communicate clearly in both Arabic and English. Always provide confidence levels
         context = {
             "disease": disease,
             "timeline_data": timeline_data,
-            "task": "progression_analysis"
+            "task": "progression_analysis",
         }
 
         return await self.think(query, context=context, use_rag=False)

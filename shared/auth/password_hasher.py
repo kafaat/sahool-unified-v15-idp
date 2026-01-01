@@ -23,7 +23,12 @@ logger = logging.getLogger(__name__)
 # Import password hashing libraries
 try:
     from argon2 import PasswordHasher
-    from argon2.exceptions import VerifyMismatchError, VerificationError, InvalidHashError
+    from argon2.exceptions import (
+        VerifyMismatchError,
+        VerificationError,
+        InvalidHashError,
+    )
+
     ARGON2_AVAILABLE = True
 except ImportError:
     ARGON2_AVAILABLE = False
@@ -31,6 +36,7 @@ except ImportError:
 
 try:
     import bcrypt
+
     BCRYPT_AVAILABLE = True
 except ImportError:
     BCRYPT_AVAILABLE = False
@@ -39,6 +45,7 @@ except ImportError:
 
 class HashAlgorithm(str, Enum):
     """Supported password hashing algorithms"""
+
     ARGON2ID = "argon2id"
     BCRYPT = "bcrypt"
     PBKDF2_SHA256 = "pbkdf2_sha256"
@@ -62,7 +69,7 @@ class PasswordHasher:
         memory_cost: int = 65536,  # 64 MB
         parallelism: int = 4,
         hash_len: int = 32,
-        salt_len: int = 16
+        salt_len: int = 16,
     ):
         """
         Initialize password hasher
@@ -86,7 +93,7 @@ class PasswordHasher:
                 memory_cost=memory_cost,
                 parallelism=parallelism,
                 hash_len=hash_len,
-                salt_len=salt_len
+                salt_len=salt_len,
             )
         else:
             self.argon2_hasher = None
@@ -112,17 +119,13 @@ class PasswordHasher:
         # Fallback 1: bcrypt
         if BCRYPT_AVAILABLE:
             salt = bcrypt.gensalt(rounds=12)
-            hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-            return hashed.decode('utf-8')
+            hashed = bcrypt.hashpw(password.encode("utf-8"), salt)
+            return hashed.decode("utf-8")
 
         # Fallback 2: PBKDF2-SHA256
         return self._hash_pbkdf2(password)
 
-    def verify_password(
-        self,
-        password: str,
-        hashed_password: str
-    ) -> Tuple[bool, bool]:
+    def verify_password(self, password: str, hashed_password: str) -> Tuple[bool, bool]:
         """
         Verify a password against its hash
 
@@ -167,7 +170,11 @@ class PasswordHasher:
         """
         if hashed_password.startswith("$argon2"):
             return HashAlgorithm.ARGON2ID
-        elif hashed_password.startswith("$2a$") or hashed_password.startswith("$2b$") or hashed_password.startswith("$2y$"):
+        elif (
+            hashed_password.startswith("$2a$")
+            or hashed_password.startswith("$2b$")
+            or hashed_password.startswith("$2y$")
+        ):
             return HashAlgorithm.BCRYPT
         elif "$" in hashed_password and len(hashed_password.split("$")) >= 2:
             # PBKDF2 format: salt$hash
@@ -197,8 +204,7 @@ class PasswordHasher:
 
         try:
             is_valid = bcrypt.checkpw(
-                password.encode('utf-8'),
-                hashed_password.encode('utf-8')
+                password.encode("utf-8"), hashed_password.encode("utf-8")
             )
             # Always migrate bcrypt to Argon2id
             return is_valid, is_valid
@@ -218,11 +224,7 @@ class PasswordHasher:
 
             # Compute hash with same salt
             computed_hash = hashlib.pbkdf2_hmac(
-                "sha256",
-                password.encode("utf-8"),
-                salt,
-                iterations=100_000,
-                dklen=32
+                "sha256", password.encode("utf-8"), salt, iterations=100_000, dklen=32
             )
 
             # Constant-time comparison
@@ -246,11 +248,7 @@ class PasswordHasher:
         """
         salt = secrets.token_bytes(32)
         hashed = hashlib.pbkdf2_hmac(
-            "sha256",
-            password.encode("utf-8"),
-            salt,
-            iterations=100_000,
-            dklen=32
+            "sha256", password.encode("utf-8"), salt, iterations=100_000, dklen=32
         )
         return f"{salt.hex()}${hashed.hex()}"
 
@@ -294,11 +292,11 @@ def get_password_hasher() -> PasswordHasher:
     global _default_hasher
     if _default_hasher is None:
         _default_hasher = PasswordHasher(
-            time_cost=2,        # OWASP recommended minimum
+            time_cost=2,  # OWASP recommended minimum
             memory_cost=65536,  # 64 MB
-            parallelism=4,      # 4 parallel threads
-            hash_len=32,        # 256 bits
-            salt_len=16         # 128 bits
+            parallelism=4,  # 4 parallel threads
+            hash_len=32,  # 256 bits
+            salt_len=16,  # 128 bits
         )
     return _default_hasher
 

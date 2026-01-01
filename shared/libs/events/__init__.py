@@ -20,6 +20,7 @@ try:
         publish_analysis_completed,
         publish_analysis_completed_sync,
     )
+
     NATS_AVAILABLE = True
 except ImportError:
     NATSPublisher = None

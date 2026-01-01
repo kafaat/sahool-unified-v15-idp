@@ -8,8 +8,9 @@
  * - Order processing
  */
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { EventsService } from '../events/events.service';
 
 // Types
 interface YieldData {
@@ -51,7 +52,11 @@ interface CreateOrderDto {
 
 @Injectable()
 export class MarketService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => EventsService))
+    private eventsService: EventsService,
+  ) {}
 
   // ═══════════════════════════════════════════════════════════════════════════
   // المنتجات - Products
@@ -101,7 +106,7 @@ export class MarketService {
       data: {
         name: data.name,
         nameAr: data.nameAr,
-        category: data.category as any,
+        category: data.category as any, // Cast to Prisma enum type
         price: data.price,
         stock: data.stock,
         unit: data.unit,
@@ -109,7 +114,7 @@ export class MarketService {
         descriptionAr: data.descriptionAr,
         imageUrl: data.imageUrl,
         sellerId: data.sellerId,
-        sellerType: data.sellerType as any,
+        sellerType: data.sellerType as any, // Cast to Prisma enum type
         sellerName: data.sellerName,
         cropType: data.cropType,
         governorate: data.governorate,
@@ -176,15 +181,23 @@ export class MarketService {
   async createOrder(data: CreateOrderDto) {
     // Use transaction to ensure atomic stock check and decrement
     return this.prisma.$transaction(async (tx) => {
+      // Batch fetch all products at once to avoid N+1 queries
+      const productIds = data.items.map((item) => item.productId);
+      const products = await tx.product.findMany({
+        where: { id: { in: productIds } },
+      });
+
+      // Create a typed map for quick lookup
+      type ProductType = typeof products[number];
+      const productMap = new Map<string, ProductType>(products.map((p) => [p.id, p]));
+
       // حساب المبالغ
       let subtotal = 0;
       const orderItems: any[] = [];
+      const stockUpdates: any[] = [];
 
       for (const item of data.items) {
-        // Lock the product row during transaction
-        const product = await tx.product.findUnique({
-          where: { id: item.productId },
-        });
+        const product = productMap.get(item.productId);
 
         if (!product) {
           throw new Error(`المنتج غير موجود: ${item.productId}`);
@@ -204,12 +217,41 @@ export class MarketService {
           totalPrice,
         });
 
-        // تحديث المخزون atomically within transaction
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
+        stockUpdates.push({
+          id: item.productId,
+          quantity: item.quantity,
         });
       }
+
+      // Batch update stock atomically within transaction
+      const updatedProducts = await Promise.all(
+        stockUpdates.map((update) =>
+          tx.product.update({
+            where: { id: update.id },
+            data: { stock: { decrement: update.quantity } },
+          }),
+        ),
+      );
+
+      // Check for low stock after update (outside transaction to avoid blocking)
+      // We'll do this in a non-blocking way after the transaction completes
+      Promise.all(
+        updatedProducts.map(async (product) => {
+          const LOW_STOCK_THRESHOLD = 10;
+          if (product.stock <= LOW_STOCK_THRESHOLD && product.stock > 0) {
+            await this.eventsService.publishInventoryLowStock({
+              productId: product.id,
+              productName: product.nameAr || product.name,
+              currentStock: product.stock,
+              threshold: LOW_STOCK_THRESHOLD,
+              unit: product.unit,
+            });
+          }
+        }),
+      ).catch((err) => {
+        // Log error but don't fail the order
+        console.error('Error publishing inventory low stock events:', err);
+      });
 
       const serviceFee = subtotal * 0.02; // 2% رسوم خدمة
       const deliveryFee = 500; // رسوم توصيل ثابتة (ريال يمني)
@@ -236,6 +278,19 @@ export class MarketService {
           },
         },
         include: { items: true },
+      });
+
+      // Publish order.placed event to NATS
+      await this.eventsService.publishOrderPlaced({
+        orderId: order.id,
+        userId: order.buyerId,
+        items: orderItems.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.unitPrice,
+        })),
+        totalAmount: order.totalAmount,
+        currency: 'YER', // Yemeni Rial
       });
 
       return order;

@@ -29,25 +29,29 @@ logger = logging.getLogger(__name__)
 # Enums
 # =============================================================================
 
+
 class VRAType(Enum):
     """Types of variable rate application"""
-    FERTILIZER = "fertilizer"      # تسميد
-    SEED = "seed"                  # بذار
-    LIME = "lime"                  # جير
-    PESTICIDE = "pesticide"        # مبيدات
-    IRRIGATION = "irrigation"      # ري
+
+    FERTILIZER = "fertilizer"  # تسميد
+    SEED = "seed"  # بذار
+    LIME = "lime"  # جير
+    PESTICIDE = "pesticide"  # مبيدات
+    IRRIGATION = "irrigation"  # ري
 
 
 class ZoneMethod(Enum):
     """Methods for creating management zones"""
-    NDVI_BASED = "ndvi"           # Zones from NDVI
-    YIELD_BASED = "yield"         # Zones from yield map
-    SOIL_BASED = "soil"           # Zones from soil analysis
-    COMBINED = "combined"         # Multi-factor
+
+    NDVI_BASED = "ndvi"  # Zones from NDVI
+    YIELD_BASED = "yield"  # Zones from yield map
+    SOIL_BASED = "soil"  # Zones from soil analysis
+    COMBINED = "combined"  # Multi-factor
 
 
 class ZoneLevel(Enum):
     """Zone classification levels"""
+
     VERY_LOW = "very_low"
     LOW = "low"
     MEDIUM = "medium"
@@ -59,21 +63,23 @@ class ZoneLevel(Enum):
 # Data Models
 # =============================================================================
 
+
 @dataclass
 class ManagementZone:
     """
     Management zone for variable rate application
     منطقة إدارة للتطبيق المتغير المعدل
     """
+
     zone_id: int
-    zone_name: str              # "High", "Medium", "Low"
-    zone_name_ar: str           # "عالي", "متوسط", "منخفض"
+    zone_name: str  # "High", "Medium", "Low"
+    zone_name_ar: str  # "عالي", "متوسط", "منخفض"
     zone_level: ZoneLevel
 
     # Zone characteristics
     ndvi_range: Tuple[float, float]
     area_ha: float
-    percentage: float           # % of total field area
+    percentage: float  # % of total field area
 
     # Geometry
     centroid: Tuple[float, float]  # (lon, lat)
@@ -81,11 +87,11 @@ class ManagementZone:
 
     # Application rate
     recommended_rate: float
-    unit: str                   # kg/ha, seeds/ha, L/ha, mm/ha
+    unit: str  # kg/ha, seeds/ha, L/ha, mm/ha
 
     # Additional info
-    total_product: float        # Total product needed for this zone
-    color: str                  # Hex color for visualization
+    total_product: float  # Total product needed for this zone
+    color: str  # Hex color for visualization
 
 
 @dataclass
@@ -94,16 +100,17 @@ class PrescriptionMap:
     Complete prescription map for variable rate application
     خريطة وصفة التطبيق المتغير المعدل
     """
+
     id: str
     field_id: str
     vra_type: VRAType
     created_at: datetime
 
     # Input parameters
-    target_rate: float          # Average target rate
+    target_rate: float  # Average target rate
     min_rate: float
     max_rate: float
-    unit: str                   # kg/ha, seeds/ha, L/ha
+    unit: str  # kg/ha, seeds/ha, L/ha
 
     # Zone configuration
     num_zones: int
@@ -115,9 +122,9 @@ class PrescriptionMap:
     total_product_needed: float
 
     # Savings analysis
-    flat_rate_product: float    # Product needed for flat rate
-    savings_percent: float      # % savings vs. flat rate
-    savings_amount: float       # Actual product saved
+    flat_rate_product: float  # Product needed for flat rate
+    savings_percent: float  # % savings vs. flat rate
+    savings_amount: float  # Actual product saved
     cost_savings: Optional[float] = None  # Cost savings if price provided
 
     # Export URLs
@@ -132,17 +139,18 @@ class PrescriptionMap:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary"""
         data = asdict(self)
-        data['vra_type'] = self.vra_type.value
-        data['zone_method'] = self.zone_method.value
-        data['created_at'] = self.created_at.isoformat()
-        for zone in data['zones']:
-            zone['zone_level'] = zone['zone_level']
+        data["vra_type"] = self.vra_type.value
+        data["zone_method"] = self.zone_method.value
+        data["created_at"] = self.created_at.isoformat()
+        for zone in data["zones"]:
+            zone["zone_level"] = zone["zone_level"]
         return data
 
 
 @dataclass
 class ZoneStatistics:
     """Statistics for a zone classification"""
+
     num_zones: int
     zones: List[ManagementZone]
     total_area_ha: float
@@ -155,6 +163,7 @@ class ZoneStatistics:
 # =============================================================================
 # VRA Generator
 # =============================================================================
+
 
 class VRAGenerator:
     """
@@ -172,18 +181,14 @@ class VRAGenerator:
     # Zone classification thresholds (NDVI-based)
     # Thresholds divide NDVI range into equal or optimal percentiles
     ZONE_THRESHOLDS = {
-        3: {
-            "low": (0.0, 0.4),
-            "medium": (0.4, 0.6),
-            "high": (0.6, 1.0)
-        },
+        3: {"low": (0.0, 0.4), "medium": (0.4, 0.6), "high": (0.6, 1.0)},
         5: {
             "very_low": (0.0, 0.3),
             "low": (0.3, 0.45),
             "medium": (0.45, 0.55),
             "high": (0.55, 0.7),
-            "very_high": (0.7, 1.0)
-        }
+            "very_high": (0.7, 1.0),
+        },
     }
 
     # Rate adjustments by zone (multiplier of target rate)
@@ -234,17 +239,17 @@ class VRAGenerator:
     # Zone colors for visualization
     ZONE_COLORS = {
         3: {
-            "low": "#d62728",      # Red
-            "medium": "#ff7f0e",   # Orange
-            "high": "#2ca02c",     # Green
+            "low": "#d62728",  # Red
+            "medium": "#ff7f0e",  # Orange
+            "high": "#2ca02c",  # Green
         },
         5: {
-            "very_low": "#d62728",    # Red
-            "low": "#ff7f0e",         # Orange
-            "medium": "#ffdd00",      # Yellow
-            "high": "#98df8a",        # Light green
-            "very_high": "#2ca02c",   # Dark green
-        }
+            "very_low": "#d62728",  # Red
+            "low": "#ff7f0e",  # Orange
+            "medium": "#ffdd00",  # Yellow
+            "high": "#98df8a",  # Light green
+            "very_high": "#2ca02c",  # Dark green
+        },
     }
 
     # Arabic zone names
@@ -313,7 +318,9 @@ class VRAGenerator:
         5. Calculate savings vs. flat rate
         6. Generate GeoJSON prescription
         """
-        logger.info(f"Generating VRA prescription for field {field_id}, type={vra_type.value}, zones={num_zones}")
+        logger.info(
+            f"Generating VRA prescription for field {field_id}, type={vra_type.value}, zones={num_zones}"
+        )
 
         # Validate inputs
         if num_zones not in [3, 5]:
@@ -331,7 +338,7 @@ class VRAGenerator:
             latitude=latitude,
             longitude=longitude,
             num_zones=num_zones,
-            date=date
+            date=date,
         )
 
         # Step 2: Calculate application rates for each zone
@@ -342,7 +349,7 @@ class VRAGenerator:
                 target_rate=target_rate,
                 vra_type=vra_type,
                 min_rate=min_rate,
-                max_rate=max_rate
+                max_rate=max_rate,
             )
 
             # Update zone with rate and total product
@@ -358,7 +365,9 @@ class VRAGenerator:
         flat_rate_product = target_rate * total_area_ha
 
         savings_amount = flat_rate_product - total_product_needed
-        savings_percent = (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
+        savings_percent = (
+            (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
+        )
 
         cost_savings = None
         if product_price_per_unit is not None:
@@ -390,7 +399,9 @@ class VRAGenerator:
         # Store prescription
         self._prescription_store[prescription.id] = prescription
 
-        logger.info(f"VRA prescription generated: {prescription.id}, savings={savings_percent:.1f}%")
+        logger.info(
+            f"VRA prescription generated: {prescription.id}, savings={savings_percent:.1f}%"
+        )
 
         return prescription
 
@@ -400,7 +411,7 @@ class VRAGenerator:
         latitude: float,
         longitude: float,
         num_zones: int = 3,
-        date: Optional[datetime] = None
+        date: Optional[datetime] = None,
     ) -> ZoneStatistics:
         """
         Classify field into management zones based on NDVI
@@ -461,13 +472,15 @@ class VRAGenerator:
             # Create simplified polygon (in reality, this would be actual field geometry)
             # For simulation, create a rectangular zone
             offset = zone_id * 0.001
-            polygon = [[
-                [longitude - 0.002 + offset, latitude - 0.002],
-                [longitude + 0.002 + offset, latitude - 0.002],
-                [longitude + 0.002 + offset, latitude + 0.002],
-                [longitude - 0.002 + offset, latitude + 0.002],
-                [longitude - 0.002 + offset, latitude - 0.002],
-            ]]
+            polygon = [
+                [
+                    [longitude - 0.002 + offset, latitude - 0.002],
+                    [longitude + 0.002 + offset, latitude - 0.002],
+                    [longitude + 0.002 + offset, latitude + 0.002],
+                    [longitude - 0.002 + offset, latitude + 0.002],
+                    [longitude - 0.002 + offset, latitude - 0.002],
+                ]
+            ]
 
             centroid = (longitude + offset, latitude)
 
@@ -506,7 +519,7 @@ class VRAGenerator:
         target_rate: float,
         vra_type: VRAType,
         min_rate: float,
-        max_rate: float
+        max_rate: float,
     ) -> float:
         """
         Calculate application rate for a zone
@@ -533,10 +546,7 @@ class VRAGenerator:
         return round(rate, 2)
 
     def calculate_savings(
-        self,
-        zones: List[ManagementZone],
-        target_rate: float,
-        total_area: float
+        self, zones: List[ManagementZone], target_rate: float, total_area: float
     ) -> Tuple[float, float, float]:
         """
         Calculate savings vs. flat rate application
@@ -553,14 +563,13 @@ class VRAGenerator:
         flat_rate_product = target_rate * total_area
 
         savings_amount = flat_rate_product - total_vra_product
-        savings_percent = (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
+        savings_percent = (
+            (savings_amount / flat_rate_product * 100) if flat_rate_product > 0 else 0
+        )
 
         return total_vra_product, flat_rate_product, savings_percent
 
-    def to_geojson(
-        self,
-        prescription: PrescriptionMap
-    ) -> Dict[str, Any]:
+    def to_geojson(self, prescription: PrescriptionMap) -> Dict[str, Any]:
         """
         Convert prescription to GeoJSON FeatureCollection
 
@@ -575,10 +584,7 @@ class VRAGenerator:
         for zone in prescription.zones:
             feature = {
                 "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": zone.polygon
-                },
+                "geometry": {"type": "Polygon", "coordinates": zone.polygon},
                 "properties": {
                     "zone_id": zone.zone_id,
                     "zone_name": zone.zone_name,
@@ -592,7 +598,7 @@ class VRAGenerator:
                     "unit": zone.unit,
                     "total_product": zone.total_product,
                     "color": zone.color,
-                }
+                },
             }
             features.append(feature)
 
@@ -609,15 +615,12 @@ class VRAGenerator:
                 "total_area_ha": prescription.total_area_ha,
                 "total_product": prescription.total_product_needed,
                 "savings_percent": prescription.savings_percent,
-            }
+            },
         }
 
         return geojson
 
-    def to_shapefile_data(
-        self,
-        prescription: PrescriptionMap
-    ) -> Dict[str, Any]:
+    def to_shapefile_data(self, prescription: PrescriptionMap) -> Dict[str, Any]:
         """
         Convert prescription to Shapefile-compatible data structure
 
@@ -633,21 +636,20 @@ class VRAGenerator:
 
         features = []
         for zone in prescription.zones:
-            features.append({
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": zone.polygon
-                },
-                "properties": {
-                    "ZONE_ID": zone.zone_id,
-                    "ZONE_NAME": zone.zone_name,
-                    "ZONE_AR": zone.zone_name_ar,
-                    "RATE": zone.recommended_rate,
-                    "UNIT": zone.unit,
-                    "AREA_HA": zone.area_ha,
-                    "TOTAL_PROD": zone.total_product,
+            features.append(
+                {
+                    "geometry": {"type": "Polygon", "coordinates": zone.polygon},
+                    "properties": {
+                        "ZONE_ID": zone.zone_id,
+                        "ZONE_NAME": zone.zone_name,
+                        "ZONE_AR": zone.zone_name_ar,
+                        "RATE": zone.recommended_rate,
+                        "UNIT": zone.unit,
+                        "AREA_HA": zone.area_ha,
+                        "TOTAL_PROD": zone.total_product,
+                    },
                 }
-            })
+            )
 
         return {
             "type": "shapefile",
@@ -658,13 +660,10 @@ class VRAGenerator:
                 "field_id": prescription.field_id,
                 "vra_type": prescription.vra_type.value,
                 "created": prescription.created_at.isoformat(),
-            }
+            },
         }
 
-    def to_isoxml(
-        self,
-        prescription: PrescriptionMap
-    ) -> str:
+    def to_isoxml(self, prescription: PrescriptionMap) -> str:
         """
         Convert prescription to ISO-XML format (ISOBUS Task Data)
 
@@ -677,38 +676,37 @@ class VRAGenerator:
         # Simplified ISO-XML structure
         # Full implementation would follow ISO 11783-10 standard
 
-        xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+        xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <ISO11783_TaskData VersionMajor="4" VersionMinor="0" ManagementSoftwareManufacturer="SAHOOL" ManagementSoftwareVersion="1.0">
   <Task TaskDesignator="{prescription.vra_type.value}_{prescription.field_id}" TaskStatus="1">
     <TreatmentZone TreatmentZoneCode="1" TreatmentZoneDesignator="VRA Prescription">
-'''
+"""
 
         for zone in prescription.zones:
-            xml += f'''      <ProcessDataVariable ProcessDataValue="{zone.recommended_rate}" ProcessDataDDI="0006">
+            xml += f"""      <ProcessDataVariable ProcessDataValue="{zone.recommended_rate}" ProcessDataDDI="0006">
         <Polygon PolygonType="1">
-'''
+"""
             # Add polygon points
             if zone.polygon:
                 for ring in zone.polygon:
                     for point in ring:
                         lon, lat = point
-                        xml += f'          <Point PointEast="{lon}" PointNorth="{lat}"/>\n'
+                        xml += (
+                            f'          <Point PointEast="{lon}" PointNorth="{lat}"/>\n'
+                        )
 
-            xml += '''        </Polygon>
+            xml += """        </Polygon>
       </ProcessDataVariable>
-'''
+"""
 
-        xml += '''    </TreatmentZone>
+        xml += """    </TreatmentZone>
   </Task>
 </ISO11783_TaskData>
-'''
+"""
 
         return xml
 
-    async def get_prescription(
-        self,
-        prescription_id: str
-    ) -> Optional[PrescriptionMap]:
+    async def get_prescription(self, prescription_id: str) -> Optional[PrescriptionMap]:
         """
         Get a prescription by ID
 
@@ -721,9 +719,7 @@ class VRAGenerator:
         return self._prescription_store.get(prescription_id)
 
     async def get_field_prescriptions(
-        self,
-        field_id: str,
-        limit: int = 10
+        self, field_id: str, limit: int = 10
     ) -> List[PrescriptionMap]:
         """
         Get all prescriptions for a field
@@ -736,8 +732,7 @@ class VRAGenerator:
             List of PrescriptionMaps for the field
         """
         prescriptions = [
-            p for p in self._prescription_store.values()
-            if p.field_id == field_id
+            p for p in self._prescription_store.values() if p.field_id == field_id
         ]
 
         # Sort by creation date (newest first)
@@ -745,10 +740,7 @@ class VRAGenerator:
 
         return prescriptions[:limit]
 
-    async def delete_prescription(
-        self,
-        prescription_id: str
-    ) -> bool:
+    async def delete_prescription(self, prescription_id: str) -> bool:
         """
         Delete a prescription
 

@@ -44,7 +44,12 @@ class AppError(Exception):
 class ValidationError(AppError):
     """Validation error"""
 
-    def __init__(self, message: str, message_ar: Optional[str] = None, details: Optional[Dict] = None):
+    def __init__(
+        self,
+        message: str,
+        message_ar: Optional[str] = None,
+        details: Optional[Dict] = None,
+    ):
         super().__init__(
             status_code=status.HTTP_400_BAD_REQUEST,
             error_code="VALIDATION_ERROR",
@@ -57,7 +62,11 @@ class ValidationError(AppError):
 class AuthenticationError(AppError):
     """Authentication error"""
 
-    def __init__(self, message: str = "Authentication required", message_ar: str = "المصادقة مطلوبة"):
+    def __init__(
+        self,
+        message: str = "Authentication required",
+        message_ar: str = "المصادقة مطلوبة",
+    ):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
             error_code="AUTHENTICATION_ERROR",
@@ -69,7 +78,9 @@ class AuthenticationError(AppError):
 class AuthorizationError(AppError):
     """Authorization error"""
 
-    def __init__(self, message: str = "Permission denied", message_ar: str = "الإذن مرفوض"):
+    def __init__(
+        self, message: str = "Permission denied", message_ar: str = "الإذن مرفوض"
+    ):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
             error_code="AUTHORIZATION_ERROR",
@@ -93,7 +104,12 @@ class NotFoundError(AppError):
 class ConflictError(AppError):
     """Conflict error (e.g., optimistic locking failure)"""
 
-    def __init__(self, message: str, message_ar: Optional[str] = None, details: Optional[Dict] = None):
+    def __init__(
+        self,
+        message: str,
+        message_ar: Optional[str] = None,
+        details: Optional[Dict] = None,
+    ):
         super().__init__(
             status_code=status.HTTP_409_CONFLICT,
             error_code="CONFLICT",
@@ -184,8 +200,10 @@ def create_error_response(
     if details:
         # Filter out sensitive keys from details
         safe_details = {
-            k: v for k, v in details.items()
-            if k.lower() not in ("password", "secret", "token", "api_key", "authorization")
+            k: v
+            for k, v in details.items()
+            if k.lower()
+            not in ("password", "secret", "token", "api_key", "authorization")
         }
         if safe_details:
             response["error"]["details"] = safe_details
@@ -231,7 +249,9 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(StarletteHTTPException)
-    async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    async def http_exception_handler(
+        request: Request, exc: StarletteHTTPException
+    ) -> JSONResponse:
         """Handle HTTP exceptions"""
         error_id = str(uuid.uuid4())[:8]
 
@@ -274,7 +294,9 @@ def setup_exception_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ) -> JSONResponse:
         """Handle request validation errors"""
         error_id = str(uuid.uuid4())[:8]
 
@@ -304,15 +326,22 @@ def setup_exception_handlers(app: FastAPI) -> None:
                 message_ar="خطأ في التحقق من البيانات",
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 error_id=error_id,
-                details={"validation_errors": [
-                    {"field": " -> ".join(str(l) for l in e.get("loc", [])), "message": e.get("msg")}
-                    for e in exc.errors()
-                ]},
+                details={
+                    "validation_errors": [
+                        {
+                            "field": " -> ".join(str(l) for l in e.get("loc", [])),
+                            "message": e.get("msg"),
+                        }
+                        for e in exc.errors()
+                    ]
+                },
             ),
         )
 
     @app.exception_handler(Exception)
-    async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    async def unhandled_exception_handler(
+        request: Request, exc: Exception
+    ) -> JSONResponse:
         """
         Handle all unhandled exceptions.
         This is the last line of defense - never expose internal details.

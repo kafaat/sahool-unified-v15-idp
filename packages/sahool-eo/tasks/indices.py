@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 # Base Index Task
 # =============================================================================
 
+
 class BaseIndexTask:
     """Base class for index calculation tasks"""
 
@@ -72,13 +73,10 @@ class BaseIndexTask:
         return data[..., idx]
 
     def _safe_divide(
-        self,
-        numerator: np.ndarray,
-        denominator: np.ndarray,
-        fill_value: float = 0.0
+        self, numerator: np.ndarray, denominator: np.ndarray, fill_value: float = 0.0
     ) -> np.ndarray:
         """Safe division handling zeros"""
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide="ignore", invalid="ignore"):
             result = np.divide(numerator, denominator)
             result[~np.isfinite(result)] = fill_value
         return result
@@ -90,6 +88,7 @@ class BaseIndexTask:
 
         try:
             from eolearn.core import FeatureType
+
             mask = eopatch[FeatureType.MASK].get(self.mask_feature)
             if mask is not None:
                 index = np.where(mask, index, np.nan)
@@ -134,6 +133,7 @@ class BaseIndexTask:
 # NDVI Task
 # =============================================================================
 
+
 class SahoolNDVITask(BaseIndexTask):
     """
     Normalized Difference Vegetation Index (NDVI)
@@ -164,6 +164,7 @@ class SahoolNDVITask(BaseIndexTask):
 # EVI Task
 # =============================================================================
 
+
 class SahoolEVITask(BaseIndexTask):
     """
     Enhanced Vegetation Index (EVI)
@@ -177,12 +178,7 @@ class SahoolEVITask(BaseIndexTask):
     """
 
     def __init__(
-        self,
-        G: float = 2.5,
-        C1: float = 6.0,
-        C2: float = 7.5,
-        L: float = 1.0,
-        **kwargs
+        self, G: float = 2.5, C1: float = 6.0, C2: float = 7.5, L: float = 1.0, **kwargs
     ):
         super().__init__(output_feature="EVI", **kwargs)
         self.G = G
@@ -207,6 +203,7 @@ class SahoolEVITask(BaseIndexTask):
 # LAI Task
 # =============================================================================
 
+
 class SahoolLAITask(BaseIndexTask):
     """
     Leaf Area Index (LAI) estimation
@@ -219,11 +216,7 @@ class SahoolLAITask(BaseIndexTask):
     - From Red Edge bands for more accuracy
     """
 
-    def __init__(
-        self,
-        method: str = "ndvi",  # "ndvi", "evi", "red_edge"
-        **kwargs
-    ):
+    def __init__(self, method: str = "ndvi", **kwargs):  # "ndvi", "evi", "red_edge"
         super().__init__(output_feature="LAI", **kwargs)
         self.method = method
 
@@ -247,7 +240,7 @@ class SahoolLAITask(BaseIndexTask):
         # Clamp NDVI to valid range for LAI calculation
         ndvi_clamped = np.clip(ndvi, 0.01, 0.68)
 
-        with np.errstate(divide='ignore', invalid='ignore'):
+        with np.errstate(divide="ignore", invalid="ignore"):
             lai = -np.log((0.69 - ndvi_clamped) / 0.59) / 0.91
             lai[~np.isfinite(lai)] = 0
 
@@ -283,6 +276,7 @@ class SahoolLAITask(BaseIndexTask):
 # NDWI Task
 # =============================================================================
 
+
 class SahoolNDWITask(BaseIndexTask):
     """
     Normalized Difference Water Index (NDWI)
@@ -309,6 +303,7 @@ class SahoolNDWITask(BaseIndexTask):
 # SAVI Task
 # =============================================================================
 
+
 class SahoolSAVITask(BaseIndexTask):
     """
     Soil Adjusted Vegetation Index (SAVI)
@@ -329,16 +324,14 @@ class SahoolSAVITask(BaseIndexTask):
         nir = self._get_band(data, "NIR")
         red = self._get_band(data, "RED")
 
-        savi = self._safe_divide(
-            (nir - red) * (1 + self.L),
-            nir + red + self.L
-        )
+        savi = self._safe_divide((nir - red) * (1 + self.L), nir + red + self.L)
         return np.clip(savi, -1, 1)
 
 
 # =============================================================================
 # NDMI Task
 # =============================================================================
+
 
 class SahoolNDMITask(BaseIndexTask):
     """
@@ -365,6 +358,7 @@ class SahoolNDMITask(BaseIndexTask):
 # =============================================================================
 # Additional Indices
 # =============================================================================
+
 
 class SahoolGNDVITask(BaseIndexTask):
     """Green Normalized Difference Vegetation Index"""
@@ -393,6 +387,7 @@ class SahoolNDRETask(BaseIndexTask):
 # =============================================================================
 # All Indices Task
 # =============================================================================
+
 
 class AllIndicesTask:
     """

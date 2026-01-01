@@ -31,7 +31,7 @@ async def test_change_detector():
 
     ndvi_series = []
     for i in range(15):
-        obs_date = start_date + timedelta(days=i*6)
+        obs_date = start_date + timedelta(days=i * 6)
 
         # Simulate declining NDVI (stress event)
         if i < 5:
@@ -60,7 +60,9 @@ async def test_change_detector():
         ndvi_timeseries=ndvi_series,
     )
 
-    print(f"✓ Analysis Period: {report.analysis_period['start_date']} to {report.analysis_period['end_date']}")
+    print(
+        f"✓ Analysis Period: {report.analysis_period['start_date']} to {report.analysis_period['end_date']}"
+    )
     print(f"✓ Events Detected: {len(report.events)}")
     print(f"✓ Overall Trend: {report.overall_trend.value}")
     print(f"✓ NDVI Trend Slope: {report.ndvi_trend:.6f}")
@@ -76,7 +78,9 @@ async def test_change_detector():
             print(f"    - Type: {event.change_type.value}")
             print(f"    - Severity: {event.severity.value}")
             print(f"    - Date: {event.detected_date}")
-            print(f"    - NDVI Change: {event.ndvi_change:.3f} ({event.change_percent:.1f}%)")
+            print(
+                f"    - NDVI Change: {event.ndvi_change:.3f} ({event.change_percent:.1f}%)"
+            )
             print(f"    - Confidence: {event.confidence:.2f}")
             print(f"    - Description (AR): {event.description_ar}")
             print(f"    - Recommendation (AR): {event.recommended_action_ar}")
@@ -125,7 +129,7 @@ async def test_change_detector():
     series_with_anomaly = []
 
     for i in range(12):
-        obs_date = start_date + timedelta(days=i*7)
+        obs_date = start_date + timedelta(days=i * 7)
 
         # Insert anomaly at index 6
         if i == 6:
@@ -151,7 +155,9 @@ async def test_change_detector():
         print("\n[Anomaly Details]")
         for anomaly in anomalies[:3]:
             print(f"  - Date: {anomaly['date']}")
-            print(f"    NDVI: {anomaly['ndvi']:.3f} (Expected: {anomaly['expected']:.3f})")
+            print(
+                f"    NDVI: {anomaly['ndvi']:.3f} (Expected: {anomaly['expected']:.3f})"
+            )
             print(f"    Deviation: {anomaly['deviation']:.3f}")
             print(f"    Z-Score: {anomaly['z_score']:.2f}")
 

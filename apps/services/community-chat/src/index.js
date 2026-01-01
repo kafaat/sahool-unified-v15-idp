@@ -26,6 +26,10 @@ const SERVICE_VERSION = '1.0.0';
 // ═══════════════════════════════════════════════════════════════════════════════
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
+// SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+// Never trust algorithm from environment variables or token header
+const ALLOWED_ALGORITHMS = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+
 if (!JWT_SECRET_KEY || JWT_SECRET_KEY.trim().length === 0) {
   console.error('❌ FATAL: JWT_SECRET_KEY environment variable is required');
   console.error('❌ خطأ فادح: متغير JWT_SECRET_KEY مطلوب');
@@ -74,7 +78,26 @@ const verifyToken = (token) => {
   // SECURITY: JWT_SECRET_KEY is guaranteed to exist (checked at startup)
   // Verify token signature and expiration
   try {
-    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+    // SECURITY FIX: Decode header to validate algorithm before verification
+    const decodedHeader = jwt.decode(token, { complete: true });
+    if (!decodedHeader || !decodedHeader.header || !decodedHeader.header.alg) {
+      throw new Error('Invalid token: missing algorithm');
+    }
+
+    // Reject 'none' algorithm explicitly
+    if (decodedHeader.header.alg.toLowerCase() === 'none') {
+      throw new Error('Invalid token: none algorithm not allowed');
+    }
+
+    // Verify algorithm is in whitelist
+    if (!ALLOWED_ALGORITHMS.includes(decodedHeader.header.alg)) {
+      throw new Error(`Invalid token: unsupported algorithm ${decodedHeader.header.alg}`);
+    }
+
+    // SECURITY FIX: Use hardcoded whitelist instead of environment variable
+    const decoded = jwt.verify(token, JWT_SECRET_KEY, {
+      algorithms: ALLOWED_ALGORITHMS,
+    });
 
     // SECURITY: Additional validation of decoded token
     if (!decoded.sub) {

@@ -170,24 +170,20 @@ class PIIDetector:
     def __init__(self):
         # PII patterns
         self.patterns = {
-            "email": re.compile(
-                r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-            ),
+            "email": re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
             "phone": re.compile(
                 r"(\+?966|00966|0)?[-\s]?5\d{8}"  # Saudi phone
                 r"|\+?\d{1,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}"  # International
             ),
             "ssn": re.compile(r"\b\d{3}-\d{2}-\d{4}\b"),  # US SSN
-            "iqama": re.compile(r"\b[12]\d{9}\b"),  # Saudi Iqama (10 digits starting with 1 or 2)
+            "iqama": re.compile(
+                r"\b[12]\d{9}\b"
+            ),  # Saudi Iqama (10 digits starting with 1 or 2)
             "national_id": re.compile(r"\b1\d{9}\b"),  # Saudi National ID
             "cr_number": re.compile(r"\b[47]\d{9}\b"),  # Saudi CR number
-            "credit_card": re.compile(
-                r"\b(?:\d{4}[-\s]?){3}\d{4}\b"  # 16-digit card
-            ),
+            "credit_card": re.compile(r"\b(?:\d{4}[-\s]?){3}\d{4}\b"),  # 16-digit card
             "ipv4": re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
-            "ipv6": re.compile(
-                r"\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b"
-            ),
+            "ipv6": re.compile(r"\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b"),
         }
 
     def detect_and_mask(
@@ -259,22 +255,41 @@ class ToxicityFilter:
         self.toxic_keywords = {
             # Profanity
             "profanity": {
-                "fuck", "shit", "damn", "ass", "bitch",
-                "كلب", "حمار", "غبي",
+                "fuck",
+                "shit",
+                "damn",
+                "ass",
+                "bitch",
+                "كلب",
+                "حمار",
+                "غبي",
             },
             # Hate speech
             "hate": {
-                "hate", "kill", "die", "death",
-                "اقتل", "موت", "كراهية",
+                "hate",
+                "kill",
+                "die",
+                "death",
+                "اقتل",
+                "موت",
+                "كراهية",
             },
             # Threats
             "threats": {
-                "threat", "attack", "bomb", "weapon",
-                "تهديد", "هجوم", "قنبلة",
+                "threat",
+                "attack",
+                "bomb",
+                "weapon",
+                "تهديد",
+                "هجوم",
+                "قنبلة",
             },
             # Sexual content
             "sexual": {
-                "sex", "porn", "nude", "xxx",
+                "sex",
+                "porn",
+                "nude",
+                "xxx",
             },
         }
 
@@ -405,7 +420,9 @@ class InputFilter:
                 if mask_pii:
                     filtered_text, pii_counts = self.pii_detector.detect_and_mask(text)
                     warnings.append(f"PII detected and masked: {pii_counts}")
-                    warnings_ar.append(f"تم اكتشاف وإخفاء المعلومات الشخصية: {pii_counts}")
+                    warnings_ar.append(
+                        f"تم اكتشاف وإخفاء المعلومات الشخصية: {pii_counts}"
+                    )
                     metadata["pii_masked"] = pii_counts
                 else:
                     violations.append("PII detected in input")
@@ -459,10 +476,10 @@ class InputFilter:
             has_prompt_injection=bool(metadata.get("injection_patterns")),
         )
 
-        is_safe = (
-            len(violations) == 0
-            and safety_level not in [ContentSafetyLevel.CRITICAL, ContentSafetyLevel.HIGH_RISK]
-        )
+        is_safe = len(violations) == 0 and safety_level not in [
+            ContentSafetyLevel.CRITICAL,
+            ContentSafetyLevel.HIGH_RISK,
+        ]
 
         return InputFilterResult(
             is_safe=is_safe,
@@ -518,8 +535,7 @@ def sanitize_input(text: str) -> str:
 
     # Remove control characters (except newline, tab, carriage return)
     text = "".join(
-        char for char in text
-        if char.isprintable() or char in ["\n", "\t", "\r"]
+        char for char in text if char.isprintable() or char in ["\n", "\t", "\r"]
     )
 
     return text.strip()

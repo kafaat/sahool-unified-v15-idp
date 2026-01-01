@@ -11,7 +11,14 @@ import logging
 from tortoise.expressions import Q
 from tortoise.queryset import QuerySet
 
-from .models import Notification, NotificationTemplate, NotificationPreference, NotificationLog
+from .models import (
+    Notification,
+    NotificationTemplate,
+    NotificationPreference,
+    NotificationLog,
+    NotificationChannel,
+    ChannelType,
+)
 
 logger = logging.getLogger("sahool-notifications.repository")
 
@@ -59,14 +66,20 @@ class NotificationRepository:
             action_url=action_url,
             target_governorates=target_governorates,
             target_crops=target_crops,
-            expires_at=datetime.utcnow() + timedelta(hours=expires_in_hours) if expires_in_hours else None,
+            expires_at=(
+                datetime.utcnow() + timedelta(hours=expires_in_hours)
+                if expires_in_hours
+                else None
+            ),
         )
 
         logger.info(f"Created notification {notification.id} for user {user_id}")
         return notification
 
     @staticmethod
-    async def create_bulk(notifications_data: List[Dict[str, Any]]) -> List[Notification]:
+    async def create_bulk(
+        notifications_data: List[Dict[str, Any]],
+    ) -> List[Notification]:
         """
         إنشاء إشعارات متعددة دفعة واحدة
         Create multiple notifications in bulk
@@ -170,7 +183,9 @@ class NotificationRepository:
         return count
 
     @staticmethod
-    async def mark_as_read(notification_id: UUID, read_at: Optional[datetime] = None) -> bool:
+    async def mark_as_read(
+        notification_id: UUID, read_at: Optional[datetime] = None
+    ) -> bool:
         """
         تحديد إشعار كمقروء
         Mark notification as read
@@ -366,7 +381,9 @@ class NotificationTemplateRepository:
         return await NotificationTemplate.filter(name=name, is_active=True).first()
 
     @staticmethod
-    async def get_all_active(tenant_id: Optional[str] = None) -> List[NotificationTemplate]:
+    async def get_all_active(
+        tenant_id: Optional[str] = None,
+    ) -> List[NotificationTemplate]:
         """الحصول على جميع القوالب النشطة"""
         query = NotificationTemplate.filter(is_active=True)
 
@@ -387,6 +404,165 @@ class NotificationTemplateRepository:
         return await NotificationTemplateRepository.update(template_id, is_active=False)
 
 
+class NotificationChannelRepository:
+    """
+    مستودع قنوات الإشعارات
+    Repository for user notification channels
+    """
+
+    @staticmethod
+    async def create(
+        user_id: str,
+        channel: ChannelType,
+        address: str,
+        tenant_id: Optional[str] = None,
+        verified: bool = False,
+        enabled: bool = True,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> NotificationChannel:
+        """
+        إنشاء قناة إشعار جديدة
+        Create a new notification channel
+        """
+        # Check if channel already exists
+        existing = await NotificationChannel.filter(
+            user_id=user_id,
+            channel=channel,
+            address=address,
+        ).first()
+
+        if existing:
+            # Update existing channel
+            existing.enabled = enabled
+            existing.verified = verified
+            existing.tenant_id = tenant_id
+            if metadata:
+                existing.metadata = metadata
+            await existing.save()
+            logger.info(f"Updated existing channel {channel} for user {user_id}")
+            return existing
+
+        channel_obj = await NotificationChannel.create(
+            id=uuid4(),
+            tenant_id=tenant_id,
+            user_id=user_id,
+            channel=channel,
+            address=address,
+            verified=verified,
+            enabled=enabled,
+            metadata=metadata or {},
+        )
+
+        logger.info(f"Created notification channel {channel} for user {user_id}")
+        return channel_obj
+
+    @staticmethod
+    async def get_user_channels(
+        user_id: str,
+        tenant_id: Optional[str] = None,
+        channel_type: Optional[ChannelType] = None,
+        enabled_only: bool = False,
+    ) -> List[NotificationChannel]:
+        """
+        الحصول على قنوات المستخدم
+        Get user's notification channels
+        """
+        query = NotificationChannel.filter(user_id=user_id)
+
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        if channel_type:
+            query = query.filter(channel=channel_type)
+
+        if enabled_only:
+            query = query.filter(enabled=True)
+
+        return await query.all()
+
+    @staticmethod
+    async def get_by_id(channel_id: UUID) -> Optional[NotificationChannel]:
+        """الحصول على قناة بواسطة المعرف"""
+        return await NotificationChannel.filter(id=channel_id).first()
+
+    @staticmethod
+    async def verify_channel(
+        channel_id: UUID,
+        verification_code: Optional[str] = None,
+    ) -> bool:
+        """
+        تحقق من قناة
+        Verify a notification channel
+        """
+        channel = await NotificationChannel.filter(id=channel_id).first()
+
+        if not channel:
+            return False
+
+        # If verification code is provided, check it
+        if verification_code and channel.verification_code != verification_code:
+            return False
+
+        channel.verified = True
+        channel.verified_at = datetime.utcnow()
+        channel.verification_code = None
+        await channel.save()
+
+        logger.info(f"Verified channel {channel.channel} for user {channel.user_id}")
+        return True
+
+    @staticmethod
+    async def update_channel(
+        channel_id: UUID,
+        **kwargs,
+    ) -> bool:
+        """
+        تحديث قناة
+        Update a notification channel
+        """
+        updated = await NotificationChannel.filter(id=channel_id).update(**kwargs)
+
+        if updated:
+            logger.info(f"Updated notification channel {channel_id}")
+            return True
+        return False
+
+    @staticmethod
+    async def delete_channel(channel_id: UUID) -> bool:
+        """
+        حذف قناة
+        Delete a notification channel
+        """
+        deleted = await NotificationChannel.filter(id=channel_id).delete()
+
+        if deleted:
+            logger.info(f"Deleted notification channel {channel_id}")
+            return True
+        return False
+
+    @staticmethod
+    async def get_verified_channels(
+        user_id: str,
+        channel_type: ChannelType,
+        tenant_id: Optional[str] = None,
+    ) -> List[NotificationChannel]:
+        """
+        الحصول على القنوات المحققة
+        Get verified channels for a user
+        """
+        query = NotificationChannel.filter(
+            user_id=user_id,
+            channel=channel_type,
+            verified=True,
+            enabled=True,
+        )
+
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        return await query.all()
+
+
 class NotificationPreferenceRepository:
     """
     مستودع تفضيلات الإشعارات
@@ -396,22 +572,24 @@ class NotificationPreferenceRepository:
     @staticmethod
     async def create_or_update(
         user_id: str,
-        channel: str,
+        event_type: str,
+        channels: List[str],
         enabled: bool = True,
         tenant_id: Optional[str] = None,
         **kwargs,
     ) -> NotificationPreference:
         """
         إنشاء أو تحديث تفضيلات
-        Create or update notification preferences
+        Create or update notification preferences for an event type
         """
         preference, created = await NotificationPreference.get_or_create(
             user_id=user_id,
-            channel=channel,
+            event_type=event_type,
             defaults={
                 "id": uuid4(),
                 "tenant_id": tenant_id,
                 "enabled": enabled,
+                "channels": channels,
                 **kwargs,
             },
         )
@@ -421,10 +599,11 @@ class NotificationPreferenceRepository:
             for key, value in kwargs.items():
                 setattr(preference, key, value)
             preference.enabled = enabled
+            preference.channels = channels
             await preference.save()
 
         action = "Created" if created else "Updated"
-        logger.info(f"{action} preferences for user {user_id}, channel {channel}")
+        logger.info(f"{action} preferences for user {user_id}, event {event_type}")
 
         return preference
 
@@ -444,11 +623,11 @@ class NotificationPreferenceRepository:
         return await query.all()
 
     @staticmethod
-    async def get_channel_preference(
-        user_id: str, channel: str, tenant_id: Optional[str] = None
+    async def get_event_preference(
+        user_id: str, event_type: str, tenant_id: Optional[str] = None
     ) -> Optional[NotificationPreference]:
-        """الحصول على تفضيلات قناة معينة"""
-        query = NotificationPreference.filter(user_id=user_id, channel=channel)
+        """الحصول على تفضيلات نوع حدث معين"""
+        query = NotificationPreference.filter(user_id=user_id, event_type=event_type)
 
         if tenant_id:
             query = query.filter(tenant_id=tenant_id)
@@ -456,12 +635,12 @@ class NotificationPreferenceRepository:
         return await query.first()
 
     @staticmethod
-    async def is_channel_enabled(
-        user_id: str, channel: str, tenant_id: Optional[str] = None
+    async def is_event_enabled(
+        user_id: str, event_type: str, tenant_id: Optional[str] = None
     ) -> bool:
-        """التحقق من تفعيل قناة معينة"""
-        preference = await NotificationPreferenceRepository.get_channel_preference(
-            user_id, channel, tenant_id
+        """التحقق من تفعيل نوع حدث معين"""
+        preference = await NotificationPreferenceRepository.get_event_preference(
+            user_id, event_type, tenant_id
         )
 
         if not preference:
@@ -471,24 +650,61 @@ class NotificationPreferenceRepository:
         return preference.enabled
 
     @staticmethod
-    async def update_device_tokens(
-        user_id: str, channel: str, tokens: List[str], tenant_id: Optional[str] = None
-    ) -> bool:
+    async def get_preferred_channels(
+        user_id: str, event_type: str, tenant_id: Optional[str] = None
+    ) -> List[str]:
         """
-        تحديث رموز الأجهزة لدفع الإشعارات
-        Update device tokens for push notifications
+        الحصول على القنوات المفضلة لنوع حدث
+        Get preferred channels for an event type
         """
-        preference = await NotificationPreferenceRepository.get_channel_preference(
-            user_id, channel, tenant_id
+        preference = await NotificationPreferenceRepository.get_event_preference(
+            user_id, event_type, tenant_id
         )
 
-        if preference:
-            preference.device_tokens = tokens
-            await preference.save()
-            logger.info(f"Updated device tokens for user {user_id}")
-            return True
+        if not preference or not preference.enabled:
+            return []
 
-        return False
+        return preference.channels or []
+
+    @staticmethod
+    async def update_quiet_hours(
+        user_id: str,
+        quiet_hours_start: Optional[str] = None,
+        quiet_hours_end: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+    ) -> bool:
+        """
+        تحديث ساعات الهدوء
+        Update quiet hours for all user preferences
+        """
+        from datetime import time
+
+        # Parse time strings
+        start_time = None
+        end_time = None
+
+        if quiet_hours_start:
+            hour, minute = map(int, quiet_hours_start.split(":"))
+            start_time = time(hour, minute)
+
+        if quiet_hours_end:
+            hour, minute = map(int, quiet_hours_end.split(":"))
+            end_time = time(hour, minute)
+
+        # Update all user preferences
+        query = NotificationPreference.filter(user_id=user_id)
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        updated = await query.update(
+            quiet_hours_start=start_time,
+            quiet_hours_end=end_time,
+        )
+
+        logger.info(
+            f"Updated quiet hours for user {user_id}: {updated} preferences updated"
+        )
+        return updated > 0
 
 
 class NotificationLogRepository:
@@ -531,10 +747,15 @@ class NotificationLogRepository:
     @staticmethod
     async def get_failed_logs(limit: int = 100) -> List[NotificationLog]:
         """الحصول على السجلات الفاشلة للمحاولة مرة أخرى"""
-        return await NotificationLog.filter(
-            status="failed",
-            retry_count__lt=3,  # Max 3 retries
-        ).order_by("attempted_at").limit(limit).all()
+        return (
+            await NotificationLog.filter(
+                status="failed",
+                retry_count__lt=3,  # Max 3 retries
+            )
+            .order_by("attempted_at")
+            .limit(limit)
+            .all()
+        )
 
     @staticmethod
     async def increment_retry(log_id: UUID) -> bool:
@@ -542,7 +763,9 @@ class NotificationLogRepository:
         log = await NotificationLog.filter(id=log_id).first()
         if log:
             log.retry_count += 1
-            log.next_retry_at = datetime.utcnow() + timedelta(minutes=5 * (log.retry_count))
+            log.next_retry_at = datetime.utcnow() + timedelta(
+                minutes=5 * (log.retry_count)
+            )
             await log.save()
             return True
         return False

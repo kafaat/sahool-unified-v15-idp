@@ -17,6 +17,7 @@ from typing import Dict, Any
 # Kong API Gateway Tests - اختبارات بوابة Kong API
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
@@ -52,20 +53,28 @@ async def test_kong_admin_api():
 # Field Operations API Tests - اختبارات API عمليات الحقول
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_field_ops_list_fields(field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_field_ops_list_fields(
+    field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test listing fields endpoint
     اختبار نقطة نهاية قائمة الحقول
     """
     response = await field_ops_client.get("/api/v1/fields", headers=auth_headers)
-    assert response.status_code in (200, 401), "Should return fields or require authentication"
+    assert response.status_code in (
+        200,
+        401,
+    ), "Should return fields or require authentication"
 
     if response.status_code == 200:
         data = response.json()
-        assert isinstance(data, (list, dict)), "Response should be a list or paginated object"
+        assert isinstance(
+            data, (list, dict)
+        ), "Response should be a list or paginated object"
 
 
 @pytest.mark.integration
@@ -74,19 +83,21 @@ async def test_field_ops_list_fields(field_ops_client: httpx.AsyncClient, auth_h
 async def test_field_ops_create_field(
     field_ops_client: httpx.AsyncClient,
     auth_headers: Dict[str, str],
-    sample_field: Dict[str, Any]
+    sample_field: Dict[str, Any],
 ):
     """
     Test creating a field
     اختبار إنشاء حقل
     """
     response = await field_ops_client.post(
-        "/api/v1/fields",
-        headers=auth_headers,
-        json=sample_field
+        "/api/v1/fields", headers=auth_headers, json=sample_field
     )
     # Should return 201 (created), 401 (unauthorized), or 422 (validation error)
-    assert response.status_code in (201, 401, 422), f"Unexpected status: {response.status_code}"
+    assert response.status_code in (
+        201,
+        401,
+        422,
+    ), f"Unexpected status: {response.status_code}"
 
     if response.status_code == 201:
         data = response.json()
@@ -96,21 +107,31 @@ async def test_field_ops_create_field(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_field_ops_get_field(field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_field_ops_get_field(
+    field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test getting a specific field
     اختبار الحصول على حقل محدد
     """
     # Try to get a field (may not exist)
     field_id = "test-field-123"
-    response = await field_ops_client.get(f"/api/v1/fields/{field_id}", headers=auth_headers)
-    assert response.status_code in (200, 401, 404), "Should return field, unauthorized, or not found"
+    response = await field_ops_client.get(
+        f"/api/v1/fields/{field_id}", headers=auth_headers
+    )
+    assert response.status_code in (
+        200,
+        401,
+        404,
+    ), "Should return field, unauthorized, or not found"
 
 
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_field_ops_invalid_field_data(field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_field_ops_invalid_field_data(
+    field_ops_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test validation with invalid field data
     اختبار التحقق من صحة البيانات مع بيانات حقل غير صالحة
@@ -121,9 +142,7 @@ async def test_field_ops_invalid_field_data(field_ops_client: httpx.AsyncClient,
     }
 
     response = await field_ops_client.post(
-        "/api/v1/fields",
-        headers=auth_headers,
-        json=invalid_field
+        "/api/v1/fields", headers=auth_headers, json=invalid_field
     )
     # Should return validation error or unauthorized
     assert response.status_code in (400, 401, 422), "Invalid data should be rejected"
@@ -133,24 +152,27 @@ async def test_field_ops_invalid_field_data(field_ops_client: httpx.AsyncClient,
 # Weather Service API Tests - اختبارات API خدمة الطقس
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_weather_get_current(
     weather_client: httpx.AsyncClient,
     auth_headers: Dict[str, str],
-    sample_location: Dict[str, float]
+    sample_location: Dict[str, float],
 ):
     """
     Test getting current weather
     اختبار الحصول على الطقس الحالي
     """
     response = await weather_client.get(
-        "/api/v1/weather/current",
-        headers=auth_headers,
-        params=sample_location
+        "/api/v1/weather/current", headers=auth_headers, params=sample_location
     )
-    assert response.status_code in (200, 401, 400), "Should return weather data or error"
+    assert response.status_code in (
+        200,
+        401,
+        400,
+    ), "Should return weather data or error"
 
     if response.status_code == 200:
         data = response.json()
@@ -164,16 +186,14 @@ async def test_weather_get_current(
 async def test_weather_get_forecast(
     weather_client: httpx.AsyncClient,
     auth_headers: Dict[str, str],
-    sample_location: Dict[str, float]
+    sample_location: Dict[str, float],
 ):
     """
     Test getting weather forecast
     اختبار الحصول على توقعات الطقس
     """
     response = await weather_client.get(
-        "/api/v1/weather/forecast",
-        headers=auth_headers,
-        params=sample_location
+        "/api/v1/weather/forecast", headers=auth_headers, params=sample_location
     )
     assert response.status_code in (200, 401, 400), "Should return forecast or error"
 
@@ -182,18 +202,20 @@ async def test_weather_get_forecast(
 # NDVI Engine API Tests - اختبارات API محرك NDVI
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_ndvi_get_field_analysis(ndvi_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_ndvi_get_field_analysis(
+    ndvi_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test getting NDVI analysis for a field
     اختبار الحصول على تحليل NDVI للحقل
     """
     field_id = "test-field-123"
     response = await ndvi_client.get(
-        f"/api/v1/ndvi/fields/{field_id}/analysis",
-        headers=auth_headers
+        f"/api/v1/ndvi/fields/{field_id}/analysis", headers=auth_headers
     )
     assert response.status_code in (200, 401, 404), "Should return NDVI data or error"
 
@@ -201,22 +223,23 @@ async def test_ndvi_get_field_analysis(ndvi_client: httpx.AsyncClient, auth_head
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_ndvi_calculate_index(ndvi_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_ndvi_calculate_index(
+    ndvi_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test calculating NDVI index
     اختبار حساب مؤشر NDVI
     """
-    ndvi_data = {
-        "red": 0.5,
-        "nir": 0.8
-    }
+    ndvi_data = {"red": 0.5, "nir": 0.8}
 
     response = await ndvi_client.post(
-        "/api/v1/ndvi/calculate",
-        headers=auth_headers,
-        json=ndvi_data
+        "/api/v1/ndvi/calculate", headers=auth_headers, json=ndvi_data
     )
-    assert response.status_code in (200, 401, 422), "Should calculate NDVI or return error"
+    assert response.status_code in (
+        200,
+        401,
+        422,
+    ), "Should calculate NDVI or return error"
 
     if response.status_code == 200:
         data = response.json()
@@ -227,22 +250,21 @@ async def test_ndvi_calculate_index(ndvi_client: httpx.AsyncClient, auth_headers
 # AI Advisor API Tests - اختبارات API المستشار الذكي
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
 async def test_ai_advisor_ask_question(
     ai_advisor_client: httpx.AsyncClient,
     auth_headers: Dict[str, str],
-    sample_ai_question: Dict[str, Any]
+    sample_ai_question: Dict[str, Any],
 ):
     """
     Test asking AI advisor a question
     اختبار طرح سؤال على المستشار الذكي
     """
     response = await ai_advisor_client.post(
-        "/api/v1/advisor/ask",
-        headers=auth_headers,
-        json=sample_ai_question
+        "/api/v1/advisor/ask", headers=auth_headers, json=sample_ai_question
     )
     assert response.status_code in (200, 401, 422, 503), "Should return answer or error"
 
@@ -254,16 +276,20 @@ async def test_ai_advisor_ask_question(
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_ai_advisor_get_agents(ai_advisor_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_ai_advisor_get_agents(
+    ai_advisor_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test getting available AI agents
     اختبار الحصول على الوكلاء الذكيين المتاحين
     """
     response = await ai_advisor_client.get(
-        "/api/v1/advisor/agents",
-        headers=auth_headers
+        "/api/v1/advisor/agents", headers=auth_headers
     )
-    assert response.status_code in (200, 401), "Should return agents list or require auth"
+    assert response.status_code in (
+        200,
+        401,
+    ), "Should return agents list or require auth"
 
     if response.status_code == 200:
         data = response.json()
@@ -274,19 +300,22 @@ async def test_ai_advisor_get_agents(ai_advisor_client: httpx.AsyncClient, auth_
 # Billing Core API Tests - اختبارات API الفوترة
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_billing_get_subscriptions(billing_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_billing_get_subscriptions(
+    billing_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test getting user subscriptions
     اختبار الحصول على اشتراكات المستخدم
     """
-    response = await billing_client.get(
-        "/api/v1/subscriptions",
-        headers=auth_headers
-    )
-    assert response.status_code in (200, 401), "Should return subscriptions or require auth"
+    response = await billing_client.get("/api/v1/subscriptions", headers=auth_headers)
+    assert response.status_code in (
+        200,
+        401,
+    ), "Should return subscriptions or require auth"
 
 
 @pytest.mark.integration
@@ -295,38 +324,41 @@ async def test_billing_get_subscriptions(billing_client: httpx.AsyncClient, auth
 async def test_billing_create_payment_intent(
     billing_client: httpx.AsyncClient,
     auth_headers: Dict[str, str],
-    sample_payment: Dict[str, Any]
+    sample_payment: Dict[str, Any],
 ):
     """
     Test creating payment intent
     اختبار إنشاء نية الدفع
     """
     response = await billing_client.post(
-        "/api/v1/payments/intent",
-        headers=auth_headers,
-        json=sample_payment
+        "/api/v1/payments/intent", headers=auth_headers, json=sample_payment
     )
-    assert response.status_code in (200, 201, 401, 422), "Should create intent or return error"
+    assert response.status_code in (
+        200,
+        201,
+        401,
+        422,
+    ), "Should create intent or return error"
 
 
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_billing_get_invoices(billing_client: httpx.AsyncClient, auth_headers: Dict[str, str]):
+async def test_billing_get_invoices(
+    billing_client: httpx.AsyncClient, auth_headers: Dict[str, str]
+):
     """
     Test getting user invoices
     اختبار الحصول على فواتير المستخدم
     """
-    response = await billing_client.get(
-        "/api/v1/invoices",
-        headers=auth_headers
-    )
+    response = await billing_client.get("/api/v1/invoices", headers=auth_headers)
     assert response.status_code in (200, 401), "Should return invoices or require auth"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Satellite Service API Tests - اختبارات API خدمة الأقمار الصناعية
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -338,12 +370,17 @@ async def test_satellite_get_imagery():
     """
     async with httpx.AsyncClient(base_url="http://localhost:8090") as client:
         response = await client.get("/api/v1/satellite/imagery")
-        assert response.status_code in (200, 400, 401), "Should return imagery list or error"
+        assert response.status_code in (
+            200,
+            400,
+            401,
+        ), "Should return imagery list or error"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Task Service API Tests - اختبارات API خدمة المهام
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -371,17 +408,24 @@ async def test_task_service_create_task(auth_headers: Dict[str, str]):
         "title_ar": "مهمة الري",
         "description": "Water the wheat field",
         "task_type": "irrigation",
-        "priority": "high"
+        "priority": "high",
     }
 
     async with httpx.AsyncClient(base_url="http://localhost:8103") as client:
-        response = await client.post("/api/v1/tasks", headers=auth_headers, json=task_data)
-        assert response.status_code in (201, 401, 422), "Should create task or return error"
+        response = await client.post(
+            "/api/v1/tasks", headers=auth_headers, json=task_data
+        )
+        assert response.status_code in (
+            201,
+            401,
+            422,
+        ), "Should create task or return error"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Equipment Service API Tests - اختبارات API خدمة المعدات
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -393,17 +437,23 @@ async def test_equipment_service_list_equipment(auth_headers: Dict[str, str]):
     """
     async with httpx.AsyncClient(base_url="http://localhost:8101") as client:
         response = await client.get("/api/v1/equipment", headers=auth_headers)
-        assert response.status_code in (200, 401), "Should return equipment or require auth"
+        assert response.status_code in (
+            200,
+            401,
+        ), "Should return equipment or require auth"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Irrigation Smart API Tests - اختبارات API الري الذكي
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.integration
 @pytest.mark.api
 @pytest.mark.asyncio
-async def test_irrigation_smart_calculate_et0(auth_headers: Dict[str, str], sample_location: Dict[str, float]):
+async def test_irrigation_smart_calculate_et0(
+    auth_headers: Dict[str, str], sample_location: Dict[str, float]
+):
     """
     Test calculating ET0 (reference evapotranspiration)
     اختبار حساب ET0 (التبخر المرجعي)
@@ -414,12 +464,18 @@ async def test_irrigation_smart_calculate_et0(auth_headers: Dict[str, str], samp
         "temperature_min": 20.0,
         "humidity": 45.0,
         "wind_speed": 2.5,
-        "solar_radiation": 25.0
+        "solar_radiation": 25.0,
     }
 
     async with httpx.AsyncClient(base_url="http://localhost:8094") as client:
-        response = await client.post("/api/v1/irrigation/et0", headers=auth_headers, json=et0_data)
-        assert response.status_code in (200, 401, 422), "Should calculate ET0 or return error"
+        response = await client.post(
+            "/api/v1/irrigation/et0", headers=auth_headers, json=et0_data
+        )
+        assert response.status_code in (
+            200,
+            401,
+            422,
+        ), "Should calculate ET0 or return error"
 
         if response.status_code == 200:
             data = response.json()
@@ -429,6 +485,7 @@ async def test_irrigation_smart_calculate_et0(auth_headers: Dict[str, str], samp
 # ═══════════════════════════════════════════════════════════════════════════════
 # Marketplace Service API Tests - اختبارات API خدمة السوق
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -440,12 +497,16 @@ async def test_marketplace_list_products(auth_headers: Dict[str, str]):
     """
     async with httpx.AsyncClient(base_url="http://localhost:3010") as client:
         response = await client.get("/api/v1/products", headers=auth_headers)
-        assert response.status_code in (200, 401), "Should return products or require auth"
+        assert response.status_code in (
+            200,
+            401,
+        ), "Should return products or require auth"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Error Handling Tests - اختبارات معالجة الأخطاء
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.api
@@ -487,6 +548,7 @@ async def test_method_not_allowed(field_ops_client: httpx.AsyncClient):
 # ═══════════════════════════════════════════════════════════════════════════════
 # CORS and Headers Tests - اختبارات CORS والرؤوس
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.integration
 @pytest.mark.api

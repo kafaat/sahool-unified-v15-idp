@@ -51,7 +51,13 @@ class ObservabilityMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.service_name = service_name
         self.metrics_collector = metrics_collector
-        self.exclude_paths = exclude_paths or ["/health", "/metrics", "/docs", "/redoc", "/openapi.json"]
+        self.exclude_paths = exclude_paths or [
+            "/health",
+            "/metrics",
+            "/docs",
+            "/redoc",
+            "/openapi.json",
+        ]
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """Process each request with observability instrumentation."""

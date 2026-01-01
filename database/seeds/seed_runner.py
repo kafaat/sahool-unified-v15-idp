@@ -70,7 +70,7 @@ class SeedRunner:
             return False
 
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 sql_content = f.read()
 
             # Execute the SQL
@@ -136,12 +136,12 @@ class SeedRunner:
 def get_db_url_from_env(env: str) -> str:
     """Get database URL from environment variables"""
     env_map = {
-        'development': 'DATABASE_URL_DEV',
-        'staging': 'DATABASE_URL_STAGING',
-        'production': 'DATABASE_URL_PROD',
+        "development": "DATABASE_URL_DEV",
+        "staging": "DATABASE_URL_STAGING",
+        "production": "DATABASE_URL_PROD",
     }
 
-    env_var = env_map.get(env.lower(), 'DATABASE_URL')
+    env_var = env_map.get(env.lower(), "DATABASE_URL")
     db_url = os.getenv(env_var)
 
     if not db_url:
@@ -152,25 +152,24 @@ def get_db_url_from_env(env: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='SAHOOL Database Seed Runner')
+    parser = argparse.ArgumentParser(description="SAHOOL Database Seed Runner")
     parser.add_argument(
-        '--db-url',
-        help='Database URL (postgresql://user:pass@host:port/dbname)'
+        "--db-url", help="Database URL (postgresql://user:pass@host:port/dbname)"
     )
     parser.add_argument(
-        '--env',
-        choices=['development', 'staging', 'production'],
-        help='Environment (uses DATABASE_URL_* env var)'
+        "--env",
+        choices=["development", "staging", "production"],
+        help="Environment (uses DATABASE_URL_* env var)",
     )
     parser.add_argument(
-        '--continue-on-error',
-        action='store_true',
-        help='Continue running seeds even if one fails'
+        "--continue-on-error",
+        action="store_true",
+        help="Continue running seeds even if one fails",
     )
     parser.add_argument(
-        '--verify-only',
-        action='store_true',
-        help='Only verify database, do not run seeds'
+        "--verify-only",
+        action="store_true",
+        help="Only verify database, do not run seeds",
     )
 
     args = parser.parse_args()
@@ -181,7 +180,7 @@ def main():
     elif args.env:
         db_url = get_db_url_from_env(args.env)
     else:
-        db_url = os.getenv('DATABASE_URL')
+        db_url = os.getenv("DATABASE_URL")
         if not db_url:
             print("Error: Must provide --db-url or --env or set DATABASE_URL")
             parser.print_help()
@@ -211,5 +210,5 @@ def main():
     print("\n✓ All done!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -13,6 +13,9 @@ from jwt import PyJWTError
 from .config import config
 from .models import AuthErrors, AuthException
 
+# SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+# Never trust algorithm from environment variables or token header
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
 
 # List of services allowed to communicate with each other
 ALLOWED_SERVICES = [
@@ -166,22 +169,24 @@ class ServiceToken:
         # Validate service names
         if service_name not in ALLOWED_SERVICES:
             raise AuthException(
-                error=type('obj', (object,), ServiceAuthErrors.INVALID_SERVICE)(),
-                status_code=403
+                error=type("obj", (object,), ServiceAuthErrors.INVALID_SERVICE)(),
+                status_code=403,
             )
 
         if target_service not in ALLOWED_SERVICES:
             raise AuthException(
-                error=type('obj', (object,), ServiceAuthErrors.INVALID_SERVICE)(),
-                status_code=403
+                error=type("obj", (object,), ServiceAuthErrors.INVALID_SERVICE)(),
+                status_code=403,
             )
 
         # Check if service is allowed to call target service
         allowed_targets = SERVICE_COMMUNICATION_MATRIX.get(service_name, [])
         if target_service not in allowed_targets:
             raise AuthException(
-                error=type('obj', (object,), ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL)(),
-                status_code=403
+                error=type(
+                    "obj", (object,), ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL
+                )(),
+                status_code=403,
             )
 
         now = datetime.now(timezone.utc)
@@ -206,9 +211,7 @@ class ServiceToken:
             payload.update(extra_claims)
 
         return jwt.encode(
-            payload,
-            config.get_signing_key(),
-            algorithm=config.JWT_ALGORITHM
+            payload, config.get_signing_key(), algorithm=config.JWT_ALGORITHM
         )
 
     @staticmethod
@@ -229,24 +232,60 @@ class ServiceToken:
             >>> payload = ServiceToken.verify(token)
             >>> service = payload["service_name"]
             >>> target = payload["target_service"]
+
+        Security: Uses hardcoded algorithm whitelist to prevent algorithm confusion attacks
         """
         try:
+            # SECURITY FIX: Decode header to validate algorithm before verification
+            unverified_header = jwt.get_unverified_header(token)
+
+            if not unverified_header or "alg" not in unverified_header:
+                raise AuthException(
+                    error=type(
+                        "obj", (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN
+                    )(),
+                    status_code=401,
+                )
+
+            algorithm = unverified_header["alg"]
+
+            # Reject 'none' algorithm explicitly
+            if algorithm.lower() == "none":
+                raise AuthException(
+                    error=type(
+                        "obj", (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN
+                    )(),
+                    status_code=401,
+                )
+
+            # Verify algorithm is in whitelist
+            if algorithm not in ALLOWED_ALGORITHMS:
+                raise AuthException(
+                    error=type(
+                        "obj", (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN
+                    )(),
+                    status_code=401,
+                )
+
+            # SECURITY FIX: Use hardcoded whitelist instead of environment variable
             payload = jwt.decode(
                 token,
                 config.get_verification_key(),
-                algorithms=[config.JWT_ALGORITHM],
+                algorithms=ALLOWED_ALGORITHMS,
                 issuer=config.JWT_ISSUER,
                 audience=config.JWT_AUDIENCE,
                 options={
                     "require": ["sub", "exp", "iat", "type"],
-                }
+                },
             )
 
             # Verify it's a service token
             if payload.get("type") != "service":
                 raise AuthException(
-                    error=type('obj', (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN)(),
-                    status_code=401
+                    error=type(
+                        "obj", (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN
+                    )(),
+                    status_code=401,
                 )
 
             # Verify required fields
@@ -255,15 +294,20 @@ class ServiceToken:
 
             if not service_name or not target_service:
                 raise AuthException(
-                    error=type('obj', (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN)(),
-                    status_code=401
+                    error=type(
+                        "obj", (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN
+                    )(),
+                    status_code=401,
                 )
 
             # Verify service names are valid
-            if service_name not in ALLOWED_SERVICES or target_service not in ALLOWED_SERVICES:
+            if (
+                service_name not in ALLOWED_SERVICES
+                or target_service not in ALLOWED_SERVICES
+            ):
                 raise AuthException(
-                    error=type('obj', (object,), ServiceAuthErrors.INVALID_SERVICE)(),
-                    status_code=403
+                    error=type("obj", (object,), ServiceAuthErrors.INVALID_SERVICE)(),
+                    status_code=403,
                 )
 
             return {
@@ -282,8 +326,8 @@ class ServiceToken:
             raise AuthException(AuthErrors.INVALID_AUDIENCE)
         except PyJWTError:
             raise AuthException(
-                error=type('obj', (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN)(),
-                status_code=401
+                error=type("obj", (object,), ServiceAuthErrors.INVALID_SERVICE_TOKEN)(),
+                status_code=401,
             )
 
 

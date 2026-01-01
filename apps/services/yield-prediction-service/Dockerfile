@@ -37,7 +37,7 @@ RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fe
 COPY --from=builder /app/dist ./dist
 
 # Expose port
-EXPOSE 3021
+EXPOSE 8098
 
 # Set ownership and switch to non-root user (use existing node user)
 RUN chown -R node:node /app
@@ -45,7 +45,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3021/api/v1/yield/health || exit 1
+    CMD curl -f http://localhost:8098/api/v1/yield/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

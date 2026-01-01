@@ -22,7 +22,13 @@ class RBACManager:
         self._roles: Dict[str, Role] = dict(SYSTEM_ROLES)
         self._permissions: Dict[str, Permission] = {}
         self._role_hierarchy: Dict[str, List[str]] = {
-            "super_admin": ["tenant_admin", "farm_manager", "field_operator", "agronomist", "viewer"],
+            "super_admin": [
+                "tenant_admin",
+                "farm_manager",
+                "field_operator",
+                "agronomist",
+                "viewer",
+            ],
             "tenant_admin": ["farm_manager", "field_operator", "agronomist", "viewer"],
             "farm_manager": ["field_operator", "viewer"],
             "agronomist": ["viewer"],
@@ -176,11 +182,12 @@ def requires_permission(permission_id: str) -> Callable:
     Decorator to require a specific permission
     ديكوراتور لطلب صلاحية محددة
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
             # User should be in kwargs or first arg
-            user = kwargs.get('user') or (args[0] if args else None)
+            user = kwargs.get("user") or (args[0] if args else None)
             if user is None:
                 raise ValueError("User not found in function arguments")
 
@@ -188,7 +195,9 @@ def requires_permission(permission_id: str) -> Callable:
             checker.assert_permission(user, permission_id)
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -197,18 +206,19 @@ def requires_role(role_name: str) -> Callable:
     Decorator to require a specific role
     ديكوراتور لطلب دور محدد
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
-            user = kwargs.get('user') or (args[0] if args else None)
+            user = kwargs.get("user") or (args[0] if args else None)
             if user is None:
                 raise ValueError("User not found in function arguments")
 
             if not user.has_role(role_name):
-                raise PermissionError(
-                    f"User {user.id} does not have role: {role_name}"
-                )
+                raise PermissionError(f"User {user.id} does not have role: {role_name}")
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator

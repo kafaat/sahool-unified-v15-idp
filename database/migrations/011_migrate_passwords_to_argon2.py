@@ -29,16 +29,17 @@ try:
     from shared.auth.password_hasher import (
         get_password_hasher,
         HashAlgorithm,
-        PasswordHasher
+        PasswordHasher,
     )
 except ImportError:
-    print("ERROR: Could not import password_hasher. Make sure argon2-cffi is installed.")
+    print(
+        "ERROR: Could not import password_hasher. Make sure argon2-cffi is installed."
+    )
     print("Run: pip install argon2-cffi")
     sys.exit(1)
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -65,13 +66,13 @@ class PasswordMigrator:
         self.force = force
         self.hasher = get_password_hasher()
         self.stats = {
-            'total': 0,
-            'argon2id': 0,
-            'bcrypt': 0,
-            'pbkdf2': 0,
-            'unknown': 0,
-            'flagged_for_migration': 0,
-            'errors': 0
+            "total": 0,
+            "argon2id": 0,
+            "bcrypt": 0,
+            "pbkdf2": 0,
+            "unknown": 0,
+            "flagged_for_migration": 0,
+            "errors": 0,
         }
 
     def analyze_hash(self, password_hash: str) -> HashAlgorithm:
@@ -86,14 +87,20 @@ class PasswordMigrator:
         """
         if password_hash.startswith("$argon2"):
             return HashAlgorithm.ARGON2ID
-        elif password_hash.startswith("$2a$") or password_hash.startswith("$2b$") or password_hash.startswith("$2y$"):
+        elif (
+            password_hash.startswith("$2a$")
+            or password_hash.startswith("$2b$")
+            or password_hash.startswith("$2y$")
+        ):
             return HashAlgorithm.BCRYPT
         elif "$" in password_hash and len(password_hash.split("$")) >= 2:
             return HashAlgorithm.PBKDF2_SHA256
         else:
             return HashAlgorithm.UNKNOWN
 
-    def get_users_to_migrate(self, batch_size: int = 1000, offset: int = 0) -> List[Tuple]:
+    def get_users_to_migrate(
+        self, batch_size: int = 1000, offset: int = 0
+    ) -> List[Tuple]:
         """
         Get batch of users with passwords to potentially migrate
 
@@ -140,7 +147,8 @@ class PasswordMigrator:
             cursor = self.conn.cursor()
 
             # Add a column to track migration if it doesn't exist
-            cursor.execute("""
+            cursor.execute(
+                """
                 DO $$
                 BEGIN
                     IF NOT EXISTS (
@@ -150,15 +158,19 @@ class PasswordMigrator:
                         ALTER TABLE users ADD COLUMN password_needs_migration BOOLEAN DEFAULT FALSE;
                     END IF;
                 END $$;
-            """)
+            """
+            )
 
             # Flag the user for migration
-            cursor.execute("""
+            cursor.execute(
+                """
                 UPDATE users
                 SET password_needs_migration = TRUE,
                     updated_at = NOW()
                 WHERE id = %s
-            """, (user_id,))
+            """,
+                (user_id,),
+            )
 
             self.conn.commit()
             cursor.close()
@@ -186,35 +198,37 @@ class PasswordMigrator:
             return 0
 
         for user_id, password_hash in users:
-            self.stats['total'] += 1
+            self.stats["total"] += 1
 
             try:
                 algorithm = self.analyze_hash(password_hash)
 
                 # Count by algorithm
                 if algorithm == HashAlgorithm.ARGON2ID:
-                    self.stats['argon2id'] += 1
+                    self.stats["argon2id"] += 1
                     # Check if it needs rehashing due to parameter changes
                     if self.force and self.hasher.needs_rehash(password_hash):
                         self.flag_for_migration(user_id)
-                        self.stats['flagged_for_migration'] += 1
-                        logger.info(f"User {user_id}: Argon2id hash needs parameter update")
+                        self.stats["flagged_for_migration"] += 1
+                        logger.info(
+                            f"User {user_id}: Argon2id hash needs parameter update"
+                        )
                 elif algorithm == HashAlgorithm.BCRYPT:
-                    self.stats['bcrypt'] += 1
+                    self.stats["bcrypt"] += 1
                     self.flag_for_migration(user_id)
-                    self.stats['flagged_for_migration'] += 1
+                    self.stats["flagged_for_migration"] += 1
                     logger.info(f"User {user_id}: bcrypt hash flagged for migration")
                 elif algorithm == HashAlgorithm.PBKDF2_SHA256:
-                    self.stats['pbkdf2'] += 1
+                    self.stats["pbkdf2"] += 1
                     self.flag_for_migration(user_id)
-                    self.stats['flagged_for_migration'] += 1
+                    self.stats["flagged_for_migration"] += 1
                     logger.info(f"User {user_id}: PBKDF2 hash flagged for migration")
                 else:
-                    self.stats['unknown'] += 1
+                    self.stats["unknown"] += 1
                     logger.warning(f"User {user_id}: Unknown hash format")
 
             except Exception as e:
-                self.stats['errors'] += 1
+                self.stats["errors"] += 1
                 logger.error(f"Error processing user {user_id}: {e}")
 
         return len(users)
@@ -256,16 +270,22 @@ class PasswordMigrator:
         logger.info("Migration Summary")
         logger.info("=" * 80)
         logger.info(f"Total users processed:       {self.stats['total']}")
-        logger.info(f"  - Argon2id (up to date):   {self.stats['argon2id'] - self.stats.get('argon2id_updated', 0)}")
+        logger.info(
+            f"  - Argon2id (up to date):   {self.stats['argon2id'] - self.stats.get('argon2id_updated', 0)}"
+        )
         logger.info(f"  - bcrypt (legacy):         {self.stats['bcrypt']}")
         logger.info(f"  - PBKDF2 (legacy):         {self.stats['pbkdf2']}")
         logger.info(f"  - Unknown format:          {self.stats['unknown']}")
-        logger.info(f"\nFlagged for migration:       {self.stats['flagged_for_migration']}")
+        logger.info(
+            f"\nFlagged for migration:       {self.stats['flagged_for_migration']}"
+        )
         logger.info(f"Errors:                      {self.stats['errors']}")
         logger.info("=" * 80)
 
-        if self.stats['flagged_for_migration'] > 0:
-            logger.info("\nNOTE: Flagged users will have their passwords migrated to Argon2id")
+        if self.stats["flagged_for_migration"] > 0:
+            logger.info(
+                "\nNOTE: Flagged users will have their passwords migrated to Argon2id"
+            )
             logger.info("      automatically on their next successful login.")
 
 
@@ -281,17 +301,19 @@ def get_database_connection():
         import os
 
         # Get database URL from environment
-        database_url = os.getenv('DATABASE_URL')
+        database_url = os.getenv("DATABASE_URL")
 
         if not database_url:
             # Try to construct from individual variables
-            db_host = os.getenv('DB_HOST', 'localhost')
-            db_port = os.getenv('DB_PORT', '5432')
-            db_name = os.getenv('DB_NAME', 'sahool')
-            db_user = os.getenv('DB_USER', 'postgres')
-            db_password = os.getenv('DB_PASSWORD', '')
+            db_host = os.getenv("DB_HOST", "localhost")
+            db_port = os.getenv("DB_PORT", "5432")
+            db_name = os.getenv("DB_NAME", "sahool")
+            db_user = os.getenv("DB_USER", "postgres")
+            db_password = os.getenv("DB_PASSWORD", "")
 
-            database_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+            database_url = (
+                f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
+            )
 
         conn = psycopg2.connect(database_url)
         return conn
@@ -306,24 +328,22 @@ def get_database_connection():
 
 def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(
-        description='Migrate password hashes to Argon2id'
+    parser = argparse.ArgumentParser(description="Migrate password hashes to Argon2id")
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be done without making changes",
     )
     parser.add_argument(
-        '--dry-run',
-        action='store_true',
-        help='Show what would be done without making changes'
-    )
-    parser.add_argument(
-        '--batch-size',
+        "--batch-size",
         type=int,
         default=1000,
-        help='Number of records to process per batch (default: 1000)'
+        help="Number of records to process per batch (default: 1000)",
     )
     parser.add_argument(
-        '--force',
-        action='store_true',
-        help='Force rehashing even for Argon2id hashes (parameter updates)'
+        "--force",
+        action="store_true",
+        help="Force rehashing even for Argon2id hashes (parameter updates)",
     )
 
     args = parser.parse_args()
@@ -333,16 +353,12 @@ def main():
 
     try:
         # Run migration
-        migrator = PasswordMigrator(
-            conn,
-            dry_run=args.dry_run,
-            force=args.force
-        )
+        migrator = PasswordMigrator(conn, dry_run=args.dry_run, force=args.force)
         migrator.migrate_all(batch_size=args.batch_size)
 
     finally:
         conn.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

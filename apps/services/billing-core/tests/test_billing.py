@@ -25,16 +25,36 @@ def client():
         return {
             "plans": [
                 {"id": "free", "name": "Free", "price_usd": 0, "fields_limit": 2},
-                {"id": "starter", "name": "Starter", "price_usd": 29, "fields_limit": 10},
-                {"id": "professional", "name": "Professional", "price_usd": 99, "fields_limit": 50},
-                {"id": "enterprise", "name": "Enterprise", "price_usd": 299, "fields_limit": -1}
+                {
+                    "id": "starter",
+                    "name": "Starter",
+                    "price_usd": 29,
+                    "fields_limit": 10,
+                },
+                {
+                    "id": "professional",
+                    "name": "Professional",
+                    "price_usd": 99,
+                    "fields_limit": 50,
+                },
+                {
+                    "id": "enterprise",
+                    "name": "Enterprise",
+                    "price_usd": 299,
+                    "fields_limit": -1,
+                },
             ]
         }
 
     @app.get("/api/v1/plans/{plan_id}")
     def get_plan(plan_id: str):
         plans = {
-            "starter": {"id": "starter", "name": "Starter", "price_usd": 29, "fields_limit": 10}
+            "starter": {
+                "id": "starter",
+                "name": "Starter",
+                "price_usd": 29,
+                "fields_limit": 10,
+            }
         }
         if plan_id not in plans:
             return {"error": "Plan not found"}, 404
@@ -48,7 +68,7 @@ def client():
             "status": "active",
             "current_period_start": "2025-12-01",
             "current_period_end": "2026-01-01",
-            "billing_cycle": "monthly"
+            "billing_cycle": "monthly",
         }
 
     @app.post("/api/v1/tenants/{tenant_id}/subscription")
@@ -57,7 +77,7 @@ def client():
             "tenant_id": tenant_id,
             "plan_id": "starter",
             "status": "active",
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }
 
     @app.put("/api/v1/tenants/{tenant_id}/subscription")
@@ -66,7 +86,7 @@ def client():
             "tenant_id": tenant_id,
             "plan_id": "professional",
             "status": "active",
-            "upgraded_at": datetime.now().isoformat()
+            "upgraded_at": datetime.now().isoformat(),
         }
 
     @app.delete("/api/v1/tenants/{tenant_id}/subscription")
@@ -74,15 +94,25 @@ def client():
         return {
             "tenant_id": tenant_id,
             "status": "canceled",
-            "canceled_at": datetime.now().isoformat()
+            "canceled_at": datetime.now().isoformat(),
         }
 
     @app.get("/api/v1/tenants/{tenant_id}/invoices")
     def list_invoices(tenant_id: str):
         return {
             "invoices": [
-                {"id": "inv_001", "amount": 99.00, "status": "paid", "date": "2025-12-01"},
-                {"id": "inv_002", "amount": 99.00, "status": "pending", "date": "2026-01-01"}
+                {
+                    "id": "inv_001",
+                    "amount": 99.00,
+                    "status": "paid",
+                    "date": "2025-12-01",
+                },
+                {
+                    "id": "inv_002",
+                    "amount": 99.00,
+                    "status": "pending",
+                    "date": "2026-01-01",
+                },
             ]
         }
 
@@ -94,10 +124,8 @@ def client():
             "amount": 99.00,
             "currency": "USD",
             "status": "paid",
-            "items": [
-                {"description": "Professional Plan - Monthly", "amount": 99.00}
-            ],
-            "created_at": "2025-12-01T00:00:00Z"
+            "items": [{"description": "Professional Plan - Monthly", "amount": 99.00}],
+            "created_at": "2025-12-01T00:00:00Z",
         }
 
     @app.post("/api/v1/invoices/{invoice_id}/pay")
@@ -106,7 +134,7 @@ def client():
             "id": invoice_id,
             "status": "paid",
             "paid_at": datetime.now().isoformat(),
-            "payment_method": "card"
+            "payment_method": "card",
         }
 
     @app.get("/api/v1/tenants/{tenant_id}/usage")
@@ -117,7 +145,7 @@ def client():
             "fields_used": 15,
             "fields_limit": 50,
             "api_calls": 12500,
-            "storage_mb": 256
+            "storage_mb": 256,
         }
 
     @app.post("/api/v1/tenants/{tenant_id}/usage/record")
@@ -126,13 +154,13 @@ def client():
 
     @app.get("/api/v1/currency/convert")
     def convert_currency(amount: float, from_currency: str, to_currency: str):
-        rate = 250 if to_currency == "YER" else 1/250
+        rate = 250 if to_currency == "YER" else 1 / 250
         return {
             "amount": amount,
             "from": from_currency,
             "to": to_currency,
             "converted": amount * rate,
-            "rate": rate
+            "rate": rate,
         }
 
     return TestClient(app)
@@ -185,8 +213,7 @@ class TestSubscriptions:
 
     def test_create_subscription(self, client):
         response = client.post(
-            "/api/v1/tenants/tenant_002/subscription",
-            json={"plan_id": "starter"}
+            "/api/v1/tenants/tenant_002/subscription", json={"plan_id": "starter"}
         )
         assert response.status_code == 200
         data = response.json()
@@ -194,8 +221,7 @@ class TestSubscriptions:
 
     def test_update_subscription(self, client):
         response = client.put(
-            "/api/v1/tenants/tenant_001/subscription",
-            json={"plan_id": "professional"}
+            "/api/v1/tenants/tenant_001/subscription", json={"plan_id": "professional"}
         )
         assert response.status_code == 200
         data = response.json()
@@ -233,7 +259,9 @@ class TestInvoices:
         assert len(data["items"]) > 0
 
     def test_pay_invoice(self, client):
-        response = client.post("/api/v1/invoices/inv_002/pay", json={"payment_method": "card"})
+        response = client.post(
+            "/api/v1/invoices/inv_002/pay", json={"payment_method": "card"}
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "paid"
@@ -253,7 +281,7 @@ class TestUsage:
     def test_record_usage(self, client):
         response = client.post(
             "/api/v1/tenants/tenant_001/usage/record",
-            json={"type": "api_call", "count": 1}
+            json={"type": "api_call", "count": 1},
         )
         assert response.status_code == 200
         assert response.json()["recorded"] == True
@@ -263,7 +291,9 @@ class TestCurrency:
     """Test currency conversion"""
 
     def test_convert_usd_to_yer(self, client):
-        response = client.get("/api/v1/currency/convert?amount=100&from_currency=USD&to_currency=YER")
+        response = client.get(
+            "/api/v1/currency/convert?amount=100&from_currency=USD&to_currency=YER"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["from"] == "USD"
@@ -271,7 +301,9 @@ class TestCurrency:
         assert data["converted"] == 25000  # 100 * 250
 
     def test_convert_yer_to_usd(self, client):
-        response = client.get("/api/v1/currency/convert?amount=25000&from_currency=YER&to_currency=USD")
+        response = client.get(
+            "/api/v1/currency/convert?amount=25000&from_currency=YER&to_currency=USD"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["converted"] == 100  # 25000 / 250

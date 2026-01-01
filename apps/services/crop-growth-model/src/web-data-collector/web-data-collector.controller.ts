@@ -40,7 +40,15 @@ export class WebDataCollectorController {
     let sources = this.collectorService.getAllDataSources();
 
     if (type) {
-      sources = this.collectorService.getDataSourcesByType(type as any);
+      // Type guard to ensure type is valid
+      const validTypes = ['weather', 'market', 'research', 'satellite', 'commodity', 'news', 'government'];
+      const isValidType = (t: string): t is 'weather' | 'market' | 'research' | 'satellite' | 'commodity' | 'news' | 'government' => {
+        return validTypes.includes(t);
+      };
+
+      if (isValidType(type)) {
+        sources = this.collectorService.getDataSourcesByType(type);
+      }
     }
 
     if (region) {
@@ -197,8 +205,15 @@ export class WebDataCollectorController {
     @Query('category') category?: string,
     @Query('limit') limit?: string,
   ) {
+    // Type guard for news category
+    type NewsCategory = 'policy' | 'market' | 'technology' | 'weather' | 'research' | 'pest';
+    const validCategories: NewsCategory[] = ['policy', 'market', 'technology', 'weather', 'research', 'pest'];
+    const isValidCategory = (c: string | undefined): c is NewsCategory | undefined => {
+      return c === undefined || validCategories.includes(c as NewsCategory);
+    };
+
     const news = this.collectorService.getAgriculturalNews(
-      category as any,
+      isValidCategory(category) ? category : undefined,
       limit ? parseInt(limit, 10) : undefined,
     );
 

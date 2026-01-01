@@ -19,10 +19,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from .models import (
+    Plan,
+    Tenant,
     Subscription,
     Invoice,
     Payment,
     UsageRecord,
+    PlanTier,
     SubscriptionStatus,
     InvoiceStatus,
     PaymentStatus,
@@ -33,8 +36,265 @@ from .models import (
 
 
 # =============================================================================
+# Plan Repository
+# =============================================================================
+
+
+class PlanRepository:
+    """
+    Repository for Plan operations
+    مستودع عمليات الخطط
+    """
+
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create(
+        self,
+        plan_id: str,
+        name: str,
+        name_ar: str,
+        description: str,
+        description_ar: str,
+        tier: PlanTier,
+        pricing: Dict[str, Any],
+        features: Dict[str, Any],
+        limits: Dict[str, Any],
+        trial_days: int = 14,
+        is_active: bool = True,
+    ) -> Plan:
+        """Create a new plan - إنشاء خطة جديدة"""
+        plan = Plan(
+            plan_id=plan_id,
+            name=name,
+            name_ar=name_ar,
+            description=description,
+            description_ar=description_ar,
+            tier=tier,
+            pricing=pricing,
+            features=features,
+            limits=limits,
+            trial_days=trial_days,
+            is_active=is_active,
+        )
+
+        self.db.add(plan)
+        await self.db.commit()
+        await self.db.refresh(plan)
+
+        return plan
+
+    async def get_by_id(self, plan_id: uuid.UUID) -> Optional[Plan]:
+        """Get plan by UUID - الحصول على خطة بواسطة المعرف UUID"""
+        result = await self.db.execute(select(Plan).where(Plan.id == plan_id))
+        return result.scalar_one_or_none()
+
+    async def get_by_plan_id(self, plan_id: str) -> Optional[Plan]:
+        """Get plan by plan_id - الحصول على خطة بواسطة معرف الخطة"""
+        result = await self.db.execute(select(Plan).where(Plan.plan_id == plan_id))
+        return result.scalar_one_or_none()
+
+    async def list_all(
+        self,
+        active_only: bool = True,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> List[Plan]:
+        """List all plans - قائمة جميع الخطط"""
+        query = select(Plan)
+
+        if active_only:
+            query = query.where(Plan.is_active == True)
+
+        query = query.order_by(asc(Plan.tier)).limit(limit).offset(offset)
+
+        result = await self.db.execute(query)
+        return list(result.scalars().all())
+
+    async def update(
+        self,
+        plan_id: str,
+        **kwargs,
+    ) -> Optional[Plan]:
+        """Update plan - تحديث الخطة"""
+        kwargs["updated_at"] = datetime.utcnow()
+
+        await self.db.execute(
+            update(Plan).where(Plan.plan_id == plan_id).values(**kwargs)
+        )
+        await self.db.commit()
+
+        return await self.get_by_plan_id(plan_id)
+
+    async def delete(self, plan_id: str) -> bool:
+        """Delete plan (soft delete by setting is_active=False) - حذف خطة"""
+        result = await self.db.execute(
+            update(Plan)
+            .where(Plan.plan_id == plan_id)
+            .values(is_active=False, updated_at=datetime.utcnow())
+        )
+        await self.db.commit()
+
+        return result.rowcount > 0
+
+    async def upsert(
+        self,
+        plan_id: str,
+        name: str,
+        name_ar: str,
+        description: str,
+        description_ar: str,
+        tier: PlanTier,
+        pricing: Dict[str, Any],
+        features: Dict[str, Any],
+        limits: Dict[str, Any],
+        trial_days: int = 14,
+        is_active: bool = True,
+    ) -> Plan:
+        """Create or update plan - إنشاء أو تحديث خطة"""
+        existing = await self.get_by_plan_id(plan_id)
+
+        if existing:
+            return await self.update(
+                plan_id=plan_id,
+                name=name,
+                name_ar=name_ar,
+                description=description,
+                description_ar=description_ar,
+                tier=tier,
+                pricing=pricing,
+                features=features,
+                limits=limits,
+                trial_days=trial_days,
+                is_active=is_active,
+            )
+        else:
+            return await self.create(
+                plan_id=plan_id,
+                name=name,
+                name_ar=name_ar,
+                description=description,
+                description_ar=description_ar,
+                tier=tier,
+                pricing=pricing,
+                features=features,
+                limits=limits,
+                trial_days=trial_days,
+                is_active=is_active,
+            )
+
+
+# =============================================================================
+# Tenant Repository
+# =============================================================================
+
+
+class TenantRepository:
+    """
+    Repository for Tenant operations
+    مستودع عمليات المستأجرين
+    """
+
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create(
+        self,
+        tenant_id: str,
+        name: str,
+        name_ar: str,
+        contact: Dict[str, Any],
+        tax_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        is_active: bool = True,
+    ) -> Tenant:
+        """Create a new tenant - إنشاء مستأجر جديد"""
+        tenant = Tenant(
+            tenant_id=tenant_id,
+            name=name,
+            name_ar=name_ar,
+            contact=contact,
+            tax_id=tax_id,
+            extra_metadata=metadata or {},
+            is_active=is_active,
+        )
+
+        self.db.add(tenant)
+        await self.db.commit()
+        await self.db.refresh(tenant)
+
+        return tenant
+
+    async def get_by_id(self, tenant_id: uuid.UUID) -> Optional[Tenant]:
+        """Get tenant by UUID - الحصول على مستأجر بواسطة المعرف UUID"""
+        result = await self.db.execute(select(Tenant).where(Tenant.id == tenant_id))
+        return result.scalar_one_or_none()
+
+    async def get_by_tenant_id(self, tenant_id: str) -> Optional[Tenant]:
+        """Get tenant by tenant_id - الحصول على مستأجر بواسطة معرف المستأجر"""
+        result = await self.db.execute(
+            select(Tenant).where(Tenant.tenant_id == tenant_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def list_all(
+        self,
+        active_only: bool = True,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> List[Tenant]:
+        """List all tenants - قائمة جميع المستأجرين"""
+        query = select(Tenant)
+
+        if active_only:
+            query = query.where(Tenant.is_active == True)
+
+        query = query.order_by(desc(Tenant.created_at)).limit(limit).offset(offset)
+
+        result = await self.db.execute(query)
+        return list(result.scalars().all())
+
+    async def update(
+        self,
+        tenant_id: str,
+        **kwargs,
+    ) -> Optional[Tenant]:
+        """Update tenant - تحديث المستأجر"""
+        kwargs["updated_at"] = datetime.utcnow()
+
+        await self.db.execute(
+            update(Tenant).where(Tenant.tenant_id == tenant_id).values(**kwargs)
+        )
+        await self.db.commit()
+
+        return await self.get_by_tenant_id(tenant_id)
+
+    async def delete(self, tenant_id: str) -> bool:
+        """Delete tenant (soft delete by setting is_active=False) - حذف مستأجر"""
+        result = await self.db.execute(
+            update(Tenant)
+            .where(Tenant.tenant_id == tenant_id)
+            .values(is_active=False, updated_at=datetime.utcnow())
+        )
+        await self.db.commit()
+
+        return result.rowcount > 0
+
+    async def count_total(self, active_only: bool = True) -> int:
+        """Count total tenants - عد إجمالي المستأجرين"""
+        query = select(func.count(Tenant.id))
+
+        if active_only:
+            query = query.where(Tenant.is_active == True)
+
+        result = await self.db.execute(query)
+        return result.scalar_one()
+
+
+# =============================================================================
 # Subscription Repository
 # =============================================================================
+
 
 class SubscriptionRepository:
     """
@@ -99,7 +359,9 @@ class SubscriptionRepository:
         else:
             # Get active or trial subscriptions
             query = query.where(
-                Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL])
+                Subscription.status.in_(
+                    [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]
+                )
             )
 
         query = query.order_by(desc(Subscription.created_at))
@@ -178,11 +440,12 @@ class SubscriptionRepository:
             billing_date = date.today()
 
         result = await self.db.execute(
-            select(Subscription)
-            .where(
+            select(Subscription).where(
                 and_(
                     Subscription.next_billing_date <= billing_date,
-                    Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL])
+                    Subscription.status.in_(
+                        [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIAL]
+                    ),
                 )
             )
         )
@@ -191,8 +454,9 @@ class SubscriptionRepository:
     async def count_by_status(self) -> Dict[str, int]:
         """Count subscriptions by status - عد الاشتراكات حسب الحالة"""
         result = await self.db.execute(
-            select(Subscription.status, func.count(Subscription.id))
-            .group_by(Subscription.status)
+            select(Subscription.status, func.count(Subscription.id)).group_by(
+                Subscription.status
+            )
         )
 
         return {status.value: count for status, count in result.all()}
@@ -200,8 +464,9 @@ class SubscriptionRepository:
     async def count_by_plan(self) -> Dict[str, int]:
         """Count subscriptions by plan - عد الاشتراكات حسب الخطة"""
         result = await self.db.execute(
-            select(Subscription.plan_id, func.count(Subscription.id))
-            .group_by(Subscription.plan_id)
+            select(Subscription.plan_id, func.count(Subscription.id)).group_by(
+                Subscription.plan_id
+            )
         )
 
         return {plan_id: count for plan_id, count in result.all()}
@@ -210,6 +475,7 @@ class SubscriptionRepository:
 # =============================================================================
 # Invoice Repository
 # =============================================================================
+
 
 class InvoiceRepository:
     """
@@ -329,9 +595,7 @@ class InvoiceRepository:
     ) -> Optional[Invoice]:
         """Update invoice - تحديث الفاتورة"""
         await self.db.execute(
-            update(Invoice)
-            .where(Invoice.id == invoice_id)
-            .values(**kwargs)
+            update(Invoice).where(Invoice.id == invoice_id).values(**kwargs)
         )
         await self.db.commit()
 
@@ -361,9 +625,7 @@ class InvoiceRepository:
             update_data["paid_date"] = date.today()
 
         await self.db.execute(
-            update(Invoice)
-            .where(Invoice.id == invoice_id)
-            .values(**update_data)
+            update(Invoice).where(Invoice.id == invoice_id).values(**update_data)
         )
         await self.db.commit()
 
@@ -378,12 +640,11 @@ class InvoiceRepository:
             as_of_date = date.today()
 
         result = await self.db.execute(
-            select(Invoice)
-            .where(
+            select(Invoice).where(
                 and_(
                     Invoice.due_date < as_of_date,
                     Invoice.status.in_([InvoiceStatus.PENDING, InvoiceStatus.OVERDUE]),
-                    Invoice.amount_due > 0
+                    Invoice.amount_due > 0,
                 )
             )
         )
@@ -396,7 +657,9 @@ class InvoiceRepository:
         currency: Optional[Currency] = None,
     ) -> Decimal:
         """Calculate total revenue - حساب إجمالي الإيرادات"""
-        query = select(func.sum(Invoice.total)).where(Invoice.status == InvoiceStatus.PAID)
+        query = select(func.sum(Invoice.total)).where(
+            Invoice.status == InvoiceStatus.PAID
+        )
 
         if start_date:
             query = query.where(Invoice.paid_date >= start_date)
@@ -416,6 +679,7 @@ class InvoiceRepository:
 # =============================================================================
 # Payment Repository
 # =============================================================================
+
 
 class PaymentRepository:
     """
@@ -455,9 +719,7 @@ class PaymentRepository:
 
     async def get_by_id(self, payment_id: uuid.UUID) -> Optional[Payment]:
         """Get payment by ID - الحصول على دفعة بواسطة المعرف"""
-        result = await self.db.execute(
-            select(Payment).where(Payment.id == payment_id)
-        )
+        result = await self.db.execute(select(Payment).where(Payment.id == payment_id))
         return result.scalar_one_or_none()
 
     async def list_by_invoice(
@@ -501,9 +763,7 @@ class PaymentRepository:
     ) -> Optional[Payment]:
         """Update payment - تحديث الدفعة"""
         await self.db.execute(
-            update(Payment)
-            .where(Payment.id == payment_id)
-            .values(**kwargs)
+            update(Payment).where(Payment.id == payment_id).values(**kwargs)
         )
         await self.db.commit()
 
@@ -526,9 +786,7 @@ class PaymentRepository:
             update_data["stripe_payment_id"] = external_id
 
         await self.db.execute(
-            update(Payment)
-            .where(Payment.id == payment_id)
-            .values(**update_data)
+            update(Payment).where(Payment.id == payment_id).values(**update_data)
         )
         await self.db.commit()
 
@@ -558,10 +816,9 @@ class PaymentRepository:
         end_date: Optional[date] = None,
     ) -> Dict[str, Decimal]:
         """Get total payments by method - إجمالي المدفوعات حسب الطريقة"""
-        query = select(
-            Payment.method,
-            func.sum(Payment.amount)
-        ).where(Payment.status == PaymentStatus.SUCCEEDED)
+        query = select(Payment.method, func.sum(Payment.amount)).where(
+            Payment.status == PaymentStatus.SUCCEEDED
+        )
 
         if start_date:
             query = query.where(Payment.paid_at >= start_date)
@@ -578,6 +835,7 @@ class PaymentRepository:
 # =============================================================================
 # Usage Record Repository
 # =============================================================================
+
 
 class UsageRecordRepository:
     """
@@ -628,7 +886,9 @@ class UsageRecordRepository:
         offset: int = 0,
     ) -> List[UsageRecord]:
         """List usage records for subscription - قائمة سجلات استخدام الاشتراك"""
-        query = select(UsageRecord).where(UsageRecord.subscription_id == subscription_id)
+        query = select(UsageRecord).where(
+            UsageRecord.subscription_id == subscription_id
+        )
 
         if metric_type:
             query = query.where(UsageRecord.metric_type == metric_type)
@@ -639,7 +899,9 @@ class UsageRecordRepository:
         if end_date:
             query = query.where(UsageRecord.recorded_at <= end_date)
 
-        query = query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
+        query = (
+            query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
+        )
 
         result = await self.db.execute(query)
         return list(result.scalars().all())
@@ -665,7 +927,9 @@ class UsageRecordRepository:
         if end_date:
             query = query.where(UsageRecord.recorded_at <= end_date)
 
-        query = query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
+        query = (
+            query.order_by(desc(UsageRecord.recorded_at)).limit(limit).offset(offset)
+        )
 
         result = await self.db.execute(query)
         return list(result.scalars().all())
@@ -677,10 +941,9 @@ class UsageRecordRepository:
         end_date: Optional[datetime] = None,
     ) -> Dict[str, int]:
         """Get usage summary by metric - ملخص الاستخدام حسب المقياس"""
-        query = select(
-            UsageRecord.metric_type,
-            func.sum(UsageRecord.quantity)
-        ).where(UsageRecord.tenant_id == tenant_id)
+        query = select(UsageRecord.metric_type, func.sum(UsageRecord.quantity)).where(
+            UsageRecord.tenant_id == tenant_id
+        )
 
         if start_date:
             query = query.where(UsageRecord.recorded_at >= start_date)
@@ -724,6 +987,7 @@ class UsageRecordRepository:
 # Combined Repository (Facade Pattern)
 # =============================================================================
 
+
 class BillingRepository:
     """
     Combined repository providing access to all billing operations
@@ -735,6 +999,8 @@ class BillingRepository:
 
     def __init__(self, db: AsyncSession):
         self.db = db
+        self.plans = PlanRepository(db)
+        self.tenants = TenantRepository(db)
         self.subscriptions = SubscriptionRepository(db)
         self.invoices = InvoiceRepository(db)
         self.payments = PaymentRepository(db)

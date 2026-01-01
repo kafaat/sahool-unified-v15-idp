@@ -59,7 +59,9 @@ class GeometryValidationReport:
     def to_dict(self) -> dict[str, Any]:
         return {
             "started_at": self.started_at.isoformat(),
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": (
+                self.completed_at.isoformat() if self.completed_at else None
+            ),
             "fields": {
                 "checked": self.fields_checked,
                 "invalid": self.fields_invalid,
@@ -185,10 +187,12 @@ def _validate_table(
 
     # Count invalid
     invalid_result = db.execute(
-        text(f"""
+        text(
+            f"""
             SELECT COUNT(*) FROM {table}
             WHERE geom IS NOT NULL AND ST_IsValid(geom) = false;
-        """)
+        """
+        )
     )
     invalid_count = invalid_result.scalar() or 0
     setattr(report, invalid_attr, invalid_count)
@@ -198,7 +202,9 @@ def _validate_table(
         return
 
     if dry_run:
-        logger.info(f"[DRY RUN] Would fix {invalid_count} invalid geometries in {table}")
+        logger.info(
+            f"[DRY RUN] Would fix {invalid_count} invalid geometries in {table}"
+        )
         return
 
     # Fix invalid geometries
@@ -206,7 +212,8 @@ def _validate_table(
     # ST_MakeValid attempts to repair invalid geometries
     # ST_Force2D ensures 2D geometry (removes Z/M)
     fix_result = db.execute(
-        text(f"""
+        text(
+            f"""
             WITH invalid AS (
                 SELECT id FROM {table}
                 WHERE geom IS NOT NULL AND ST_IsValid(geom) = false
@@ -215,7 +222,8 @@ def _validate_table(
             SET geom = ST_CollectionExtract(ST_MakeValid(ST_Force2D(geom)), 3)
             WHERE id IN (SELECT id FROM invalid)
             RETURNING id;
-        """)
+        """
+        )
     )
     fixed_ids = list(fix_result)
     setattr(report, fixed_attr, len(fixed_ids))
@@ -236,12 +244,14 @@ def sync_wkt_to_geom(db: Session) -> dict[str, int]:
 
     for table in ["fields", "zones", "sub_zones"]:
         result = db.execute(
-            text(f"""
+            text(
+                f"""
                 UPDATE {table}
                 SET geom = ST_GeomFromText(geometry_wkt, 4326)
                 WHERE geom IS NULL AND geometry_wkt IS NOT NULL
                 RETURNING id;
-            """)
+            """
+            )
         )
         results[table] = len(list(result))
 
@@ -268,7 +278,8 @@ def check_geometry_validity(
         Dictionary with validity info and reason if invalid
     """
     result = db.execute(
-        text(f"""
+        text(
+            f"""
             SELECT
                 id,
                 ST_IsValid(geom) AS is_valid,
@@ -278,7 +289,8 @@ def check_geometry_validity(
                 ST_Area(geom::geography) / 10000 AS area_hectares
             FROM {table}
             WHERE id = :id AND geom IS NOT NULL;
-        """),
+        """
+        ),
         {"id": record_id},
     )
     row = result.fetchone()
@@ -307,7 +319,8 @@ def get_invalid_geometries(
         List of invalid geometry records with reasons
     """
     result = db.execute(
-        text(f"""
+        text(
+            f"""
             SELECT
                 id,
                 name,
@@ -316,7 +329,8 @@ def get_invalid_geometries(
             FROM {table}
             WHERE geom IS NOT NULL AND ST_IsValid(geom) = false
             LIMIT :limit;
-        """),
+        """
+        ),
         {"limit": limit},
     )
     return [dict(row._mapping) for row in result]

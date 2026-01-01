@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 class SatelliteSource(str, Enum):
     """مصادر الأقمار الصناعية"""
+
     SENTINEL_2 = "sentinel-2"
     LANDSAT_8 = "landsat-8"
     LANDSAT_9 = "landsat-9"
@@ -23,6 +24,7 @@ class SatelliteSource(str, Enum):
 
 class JobStatus(str, Enum):
     """حالة المهمة"""
+
     QUEUED = "queued"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -32,6 +34,7 @@ class JobStatus(str, Enum):
 
 class CompositeMethod(str, Enum):
     """طريقة التركيب"""
+
     MAX_NDVI = "max_ndvi"
     MEAN_NDVI = "mean_ndvi"
     MEDIAN_NDVI = "median_ndvi"
@@ -40,6 +43,7 @@ class CompositeMethod(str, Enum):
 
 class ExportFormat(str, Enum):
     """صيغة التصدير"""
+
     GEOTIFF = "geotiff"
     PNG = "png"
     CSV = "csv"
@@ -48,6 +52,7 @@ class ExportFormat(str, Enum):
 
 class TrendDirection(str, Enum):
     """اتجاه التغير"""
+
     IMPROVING = "improving"
     DECLINING = "declining"
     STABLE = "stable"
@@ -58,6 +63,7 @@ class TrendDirection(str, Enum):
 
 class ProcessingOptions(BaseModel):
     """خيارات المعالجة"""
+
     cloud_threshold_percent: int = Field(default=20, ge=0, le=100)
     atmospheric_correction: bool = Field(default=True)
     cloud_masking: bool = Field(default=True)
@@ -67,6 +73,7 @@ class ProcessingOptions(BaseModel):
 
 class DateRange(BaseModel):
     """نطاق التاريخ"""
+
     start: str = Field(..., description="تاريخ البداية YYYY-MM-DD")
     end: str = Field(..., description="تاريخ النهاية YYYY-MM-DD")
 
@@ -76,6 +83,7 @@ class DateRange(BaseModel):
 
 class ProcessRequest(BaseModel):
     """طلب معالجة صورة"""
+
     tenant_id: str
     field_id: str
     source: SatelliteSource = Field(default=SatelliteSource.SENTINEL_2)
@@ -87,6 +95,7 @@ class ProcessRequest(BaseModel):
 
 class CompositeRequest(BaseModel):
     """طلب إنشاء مركب"""
+
     tenant_id: str
     field_id: str
     year: int = Field(..., ge=2000, le=2100)
@@ -97,6 +106,7 @@ class CompositeRequest(BaseModel):
 
 class ChangeAnalysisRequest(BaseModel):
     """طلب تحليل التغير"""
+
     tenant_id: str
     field_id: str
     date1: str
@@ -106,6 +116,7 @@ class ChangeAnalysisRequest(BaseModel):
 
 class SeasonalAnalysisRequest(BaseModel):
     """طلب تحليل موسمي"""
+
     tenant_id: str
     field_id: str
     year: int = Field(..., ge=2000, le=2100)
@@ -116,6 +127,7 @@ class SeasonalAnalysisRequest(BaseModel):
 
 class NDVIStatistics(BaseModel):
     """إحصائيات NDVI"""
+
     mean: float = Field(..., ge=-1, le=1)
     median: Optional[float] = Field(None, ge=-1, le=1)
     std: float = Field(..., ge=0)
@@ -126,6 +138,7 @@ class NDVIStatistics(BaseModel):
 
 class QualityMetrics(BaseModel):
     """مقاييس الجودة"""
+
     cloud_cover_percent: float = Field(..., ge=0, le=100)
     shadow_percent: Optional[float] = Field(None, ge=0, le=100)
     valid_pixels_percent: float = Field(..., ge=0, le=100)
@@ -133,6 +146,7 @@ class QualityMetrics(BaseModel):
 
 class SourceInfo(BaseModel):
     """معلومات المصدر"""
+
     satellite: str
     scene_id: str
     acquisition_time: str
@@ -141,6 +155,7 @@ class SourceInfo(BaseModel):
 
 class ProcessingInfo(BaseModel):
     """معلومات المعالجة"""
+
     atmospheric_correction: Optional[str]
     cloud_mask: Optional[str]
     processed_at: str
@@ -148,6 +163,7 @@ class ProcessingInfo(BaseModel):
 
 class FileUrls(BaseModel):
     """روابط الملفات"""
+
     geotiff: Optional[str] = None
     png: Optional[str] = None
     thumbnail: Optional[str] = None
@@ -155,6 +171,7 @@ class FileUrls(BaseModel):
 
 class NDVIResult(BaseModel):
     """نتيجة NDVI"""
+
     id: str
     field_id: str
     date: str
@@ -167,6 +184,7 @@ class NDVIResult(BaseModel):
 
 class TimeseriesPoint(BaseModel):
     """نقطة في السلسلة الزمنية"""
+
     date: str
     ndvi_mean: float
     ndvi_min: float
@@ -177,6 +195,7 @@ class TimeseriesPoint(BaseModel):
 
 class TimeseriesResponse(BaseModel):
     """استجابة السلسلة الزمنية"""
+
     field_id: str
     start_date: str
     end_date: str
@@ -187,6 +206,7 @@ class TimeseriesResponse(BaseModel):
 
 class ZoneChange(BaseModel):
     """تغير منطقة"""
+
     zone: str
     zone_name_ar: Optional[str]
     ndvi_date1: float
@@ -198,6 +218,7 @@ class ZoneChange(BaseModel):
 
 class ChangeAnalysisResponse(BaseModel):
     """استجابة تحليل التغير"""
+
     field_id: str
     date1: str
     date2: str
@@ -208,6 +229,7 @@ class ChangeAnalysisResponse(BaseModel):
 
 class SeasonalStats(BaseModel):
     """إحصائيات موسمية"""
+
     season: str
     season_ar: str
     months: List[int]
@@ -219,6 +241,7 @@ class SeasonalStats(BaseModel):
 
 class SeasonalAnalysisResponse(BaseModel):
     """استجابة التحليل الموسمي"""
+
     field_id: str
     year: int
     seasons: List[SeasonalStats]
@@ -229,6 +252,7 @@ class SeasonalAnalysisResponse(BaseModel):
 
 class AnomalyResponse(BaseModel):
     """استجابة الشذوذ"""
+
     field_id: str
     date: str
     current_ndvi: float
@@ -245,6 +269,7 @@ class AnomalyResponse(BaseModel):
 
 class JobResponse(BaseModel):
     """استجابة المهمة"""
+
     job_id: str
     field_id: str
     tenant_id: str
@@ -261,6 +286,7 @@ class JobResponse(BaseModel):
 
 class JobListResponse(BaseModel):
     """قائمة المهام"""
+
     jobs: List[JobResponse]
     total: int
     active_count: int
@@ -271,6 +297,7 @@ class JobListResponse(BaseModel):
 
 class CompositeResponse(BaseModel):
     """استجابة المركب"""
+
     composite_id: str
     field_id: str
     year: int
@@ -285,6 +312,7 @@ class CompositeResponse(BaseModel):
 
 class CompositeListResponse(BaseModel):
     """قائمة المركبات"""
+
     field_id: str
     composites: List[CompositeResponse]
     total: int

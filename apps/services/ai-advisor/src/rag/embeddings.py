@@ -42,24 +42,19 @@ class EmbeddingsManager:
         self.device = device or settings.embeddings_device
 
         logger.info(
-            "loading_embeddings_model",
-            model_name=self.model_name,
-            device=self.device
+            "loading_embeddings_model", model_name=self.model_name, device=self.device
         )
 
         # Load the model
         # تحميل النموذج
-        self.model = SentenceTransformer(
-            self.model_name,
-            device=self.device
-        )
+        self.model = SentenceTransformer(self.model_name, device=self.device)
 
         self.embedding_dimension = self.model.get_sentence_embedding_dimension()
 
         logger.info(
             "embeddings_model_loaded",
             model_name=self.model_name,
-            dimension=self.embedding_dimension
+            dimension=self.embedding_dimension,
         )
 
     def encode(
@@ -98,7 +93,7 @@ class EmbeddingsManager:
             logger.debug(
                 "embeddings_generated",
                 num_texts=len(texts),
-                embedding_shape=embeddings.shape
+                embedding_shape=embeddings.shape,
             )
 
             return embeddings
@@ -136,11 +131,7 @@ class EmbeddingsManager:
         Returns:
             Document embeddings | تضمينات المستندات
         """
-        return self.encode(
-            documents,
-            batch_size=batch_size,
-            show_progress=True
-        )
+        return self.encode(documents, batch_size=batch_size, show_progress=True)
 
     def similarity(
         self,

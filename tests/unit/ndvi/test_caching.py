@@ -6,6 +6,7 @@ Sprint 8: Unit tests for caching strategy
 import pytest
 import time
 import sys
+
 sys.path.insert(0, "archive/kernel-legacy/kernel/services/ndvi_engine/src")
 
 from caching import (

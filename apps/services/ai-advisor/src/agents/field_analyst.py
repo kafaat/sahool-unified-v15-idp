@@ -117,7 +117,7 @@ Always base your analysis on data and provide confidence levels for your assessm
             "field_id": field_id,
             "satellite_data": satellite_data,
             "historical_data": historical_data,
-            "analysis_type": "comprehensive_field_analysis"
+            "analysis_type": "comprehensive_field_analysis",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -175,7 +175,7 @@ Always base your analysis on data and provide confidence levels for your assessm
         context = {
             "current_data": current_data,
             "baseline_data": baseline_data,
-            "analysis_type": "anomaly_detection"
+            "analysis_type": "anomaly_detection",
         }
 
         return await self.think(query, context=context, use_rag=False)
@@ -196,9 +196,6 @@ Always base your analysis on data and provide confidence levels for your assessm
         """
         query = "Based on the current field status, recommend an optimal monitoring strategy."
 
-        context = {
-            "field_status": field_status,
-            "analysis_type": "monitoring_strategy"
-        }
+        context = {"field_status": field_status, "analysis_type": "monitoring_strategy"}
 
         return await self.think(query, context=context, use_rag=True)

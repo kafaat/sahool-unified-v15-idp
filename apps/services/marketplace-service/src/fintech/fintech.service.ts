@@ -143,94 +143,258 @@ export class FintechService {
   }
 
   /**
-   * إيداع مبلغ في المحفظة
+   * إيداع مبلغ في المحفظة (مع حماية من التكرار والتدقيق)
+   * Deposit to wallet with idempotency protection and audit logging
    */
-  async deposit(walletId: string, amount: number, description?: string) {
+  async deposit(
+    walletId: string,
+    amount: number,
+    description?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
     if (amount <= 0) {
       throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
     }
 
-    const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
-    });
-
-    if (!wallet) {
-      throw new NotFoundException('المحفظة غير موجودة');
+    // Check for duplicate transaction using idempotency key
+    if (idempotencyKey) {
+      const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existingTransaction) {
+        // Return existing transaction instead of creating duplicate
+        const wallet = await this.prisma.wallet.findUnique({
+          where: { id: walletId },
+        });
+        return { wallet, transaction: existingTransaction, duplicate: true };
+      }
     }
 
-    const newBalance = wallet.balance + amount;
+    // Use SERIALIZABLE isolation level for critical financial transactions
+    return await this.prisma.$transaction(
+      async (tx) => {
+        // Lock wallet row with SELECT FOR UPDATE
+        const wallet = await tx.$queryRaw<any[]>`
+          SELECT * FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE
+        `;
 
-    // تحديث الرصيد وإنشاء معاملة
-    const [updatedWallet, transaction] = await this.prisma.$transaction([
-      this.prisma.wallet.update({
-        where: { id: walletId },
-        data: { balance: newBalance },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId,
-          type: 'DEPOSIT',
-          amount,
-          balanceAfter: newBalance,
-          description: description || 'إيداع',
-          descriptionAr: description || 'إيداع في المحفظة',
-          status: 'COMPLETED',
-        },
-      }),
-    ]);
+        if (!wallet || wallet.length === 0) {
+          throw new NotFoundException('المحفظة غير موجودة');
+        }
 
-    return { wallet: updatedWallet, transaction };
+        const currentWallet = wallet[0];
+        const balanceBefore = currentWallet.balance;
+        const versionBefore = currentWallet.version;
+        const newBalance = balanceBefore + amount;
+        const newVersion = versionBefore + 1;
+
+        // Update wallet balance and version atomically
+        const updatedWallet = await tx.wallet.update({
+          where: {
+            id: walletId,
+            version: versionBefore, // Optimistic locking check
+          },
+          data: {
+            balance: newBalance,
+            version: newVersion,
+          },
+        });
+
+        // Create transaction record with idempotency key
+        const transaction = await tx.transaction.create({
+          data: {
+            walletId,
+            type: 'DEPOSIT',
+            amount,
+            balanceAfter: newBalance,
+            balanceBefore,
+            description: description || 'Deposit',
+            descriptionAr: description || 'إيداع في المحفظة',
+            status: 'COMPLETED',
+            idempotencyKey,
+            userId,
+            ipAddress,
+          },
+        });
+
+        // Create audit log entry
+        await tx.walletAuditLog.create({
+          data: {
+            walletId,
+            transactionId: transaction.id,
+            userId,
+            operation: 'DEPOSIT',
+            balanceBefore,
+            balanceAfter: newBalance,
+            amount,
+            versionBefore,
+            versionAfter: newVersion,
+            idempotencyKey,
+            ipAddress,
+          },
+        });
+
+        return { wallet: updatedWallet, transaction, duplicate: false };
+      },
+      {
+        isolationLevel: 'Serializable', // Highest isolation level
+        maxWait: 5000, // Maximum time to wait for transaction
+        timeout: 10000, // Transaction timeout
+      },
+    );
   }
 
   /**
-   * سحب مبلغ من المحفظة
+   * سحب مبلغ من المحفظة (مع حماية مزدوجة من الصرف المزدوج)
+   * Withdraw from wallet with double-spend protection
    */
-  async withdraw(walletId: string, amount: number, description?: string) {
+  async withdraw(
+    walletId: string,
+    amount: number,
+    description?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
     if (amount <= 0) {
       throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
     }
 
-    const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
-    });
-
-    if (!wallet) {
-      throw new NotFoundException('المحفظة غير موجودة');
+    // Check for duplicate transaction using idempotency key
+    if (idempotencyKey) {
+      const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existingTransaction) {
+        // Return existing transaction instead of creating duplicate
+        const wallet = await this.prisma.wallet.findUnique({
+          where: { id: walletId },
+        });
+        return { wallet, transaction: existingTransaction, duplicate: true };
+      }
     }
 
-    if (wallet.balance < amount) {
-      throw new BadRequestException('الرصيد غير كافي');
+    // Use SERIALIZABLE isolation level to prevent race conditions
+    return await this.prisma.$transaction(
+      async (tx) => {
+        // CRITICAL: Lock wallet row with SELECT FOR UPDATE
+        // This prevents concurrent transactions from reading the same balance
+        const walletRows = await tx.$queryRaw<any[]>`
+          SELECT * FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE
+        `;
+
+        if (!walletRows || walletRows.length === 0) {
+          throw new NotFoundException('المحفظة غير موجودة');
+        }
+
+        const wallet = walletRows[0];
+        const balanceBefore = wallet.balance;
+        const versionBefore = wallet.version;
+
+        // CRITICAL: Check balance WITHIN the transaction after locking
+        if (balanceBefore < amount) {
+          throw new BadRequestException(
+            `الرصيد غير كافي. الرصيد الحالي: ${balanceBefore}, المبلغ المطلوب: ${amount}`,
+          );
+        }
+
+        // Check wallet limits
+        await this.checkWithdrawLimitsInTransaction(wallet, amount);
+
+        const newBalance = balanceBefore - amount;
+        const newVersion = versionBefore + 1;
+        const newDailyWithdrawn = this.updateDailyWithdrawn(wallet, amount);
+
+        // Update wallet with optimistic locking check
+        const updatedWallet = await tx.wallet.update({
+          where: {
+            id: walletId,
+            version: versionBefore, // Optimistic locking - fails if version changed
+          },
+          data: {
+            balance: newBalance,
+            version: newVersion,
+            dailyWithdrawnToday: newDailyWithdrawn.dailyWithdrawnToday,
+            lastWithdrawReset: newDailyWithdrawn.lastWithdrawReset,
+          },
+        });
+
+        // Create transaction record with audit trail
+        const transaction = await tx.transaction.create({
+          data: {
+            walletId,
+            type: 'WITHDRAWAL',
+            amount: -amount,
+            balanceAfter: newBalance,
+            balanceBefore,
+            description: description || 'Withdrawal',
+            descriptionAr: description || 'سحب من المحفظة',
+            status: 'COMPLETED',
+            idempotencyKey,
+            userId,
+            ipAddress,
+          },
+        });
+
+        // Create audit log entry
+        await tx.walletAuditLog.create({
+          data: {
+            walletId,
+            transactionId: transaction.id,
+            userId,
+            operation: 'WITHDRAWAL',
+            balanceBefore,
+            balanceAfter: newBalance,
+            amount: -amount,
+            versionBefore,
+            versionAfter: newVersion,
+            idempotencyKey,
+            ipAddress,
+            metadata: {
+              dailyWithdrawnBefore: wallet.dailyWithdrawnToday,
+              dailyWithdrawnAfter: newDailyWithdrawn.dailyWithdrawnToday,
+            },
+          },
+        });
+
+        return { wallet: updatedWallet, transaction, duplicate: false };
+      },
+      {
+        isolationLevel: 'Serializable', // Highest isolation level
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
+  }
+
+  /**
+   * Check withdraw limits (transaction-safe version)
+   */
+  private async checkWithdrawLimitsInTransaction(wallet: any, amount: number) {
+    // Check single transaction limit
+    if (amount > wallet.singleTransactionLimit) {
+      throw new BadRequestException(
+        `المبلغ يتجاوز حد المعاملة الواحدة (${wallet.singleTransactionLimit} ر.ي)`,
+      );
     }
 
-    // Check wallet limits
-    await this.checkWithdrawLimits(wallet, amount);
+    // Check and reset daily limit if needed
+    const now = new Date();
+    const lastReset = wallet.lastWithdrawReset
+      ? new Date(wallet.lastWithdrawReset)
+      : null;
+    const needsReset = !lastReset || this.isNewDay(lastReset, now);
 
-    const newBalance = wallet.balance - amount;
-    const newDailyWithdrawn = this.updateDailyWithdrawn(wallet, amount);
+    const currentDailyWithdrawn = needsReset ? 0 : wallet.dailyWithdrawnToday;
+    const newDailyTotal = currentDailyWithdrawn + amount;
 
-    const [updatedWallet, transaction] = await this.prisma.$transaction([
-      this.prisma.wallet.update({
-        where: { id: walletId },
-        data: {
-          balance: newBalance,
-          dailyWithdrawnToday: newDailyWithdrawn.dailyWithdrawnToday,
-          lastWithdrawReset: newDailyWithdrawn.lastWithdrawReset,
-        },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId,
-          type: 'WITHDRAWAL',
-          amount: -amount,
-          balanceAfter: newBalance,
-          description: description || 'سحب',
-          descriptionAr: description || 'سحب من المحفظة',
-          status: 'COMPLETED',
-        },
-      }),
-    ]);
-
-    return { wallet: updatedWallet, transaction };
+    if (newDailyTotal > wallet.dailyWithdrawLimit) {
+      throw new BadRequestException(
+        `تجاوزت حد السحب اليومي (${wallet.dailyWithdrawLimit} ر.ي). المتبقي: ${wallet.dailyWithdrawLimit - currentDailyWithdrawn} ر.ي`,
+      );
+    }
   }
 
   /**
@@ -423,7 +587,7 @@ export class FintechService {
         termMonths: data.termMonths,
         startDate,
         dueDate,
-        purpose: data.purpose as any,
+        purpose: data.purpose as any, // Cast to Prisma enum type
         purposeDetails: data.purposeDetails,
         collateralType: data.collateralType,
         collateralValue: data.collateralValue,
@@ -492,71 +656,183 @@ export class FintechService {
   }
 
   /**
-   * سداد القرض
+   * سداد القرض (مع حماية من الصرف المزدوج)
+   * Loan repayment with double-spend protection
    */
-  async repayLoan(loanId: string, amount: number) {
-    const loan = await this.prisma.loan.findUnique({
-      where: { id: loanId },
-      include: { wallet: true },
-    });
-
-    if (!loan) {
-      throw new NotFoundException('القرض غير موجود');
+  async repayLoan(
+    loanId: string,
+    amount: number,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
+    if (amount <= 0) {
+      throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
     }
 
-    if (loan.status !== 'ACTIVE') {
-      throw new BadRequestException('القرض غير نشط');
+    // Check for duplicate transaction using idempotency key
+    if (idempotencyKey) {
+      const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existingTransaction) {
+        const loan = await this.prisma.loan.findUnique({
+          where: { id: loanId },
+          include: { wallet: true },
+        });
+        return {
+          loan,
+          wallet: loan?.wallet,
+          transaction: existingTransaction,
+          duplicate: true,
+        };
+      }
     }
 
-    if (loan.wallet.balance < amount) {
-      throw new BadRequestException('الرصيد غير كافي للسداد');
-    }
+    return await this.prisma.$transaction(
+      async (tx) => {
+        // Lock loan record
+        const loan = await tx.loan.findUnique({
+          where: { id: loanId },
+          include: { wallet: true },
+        });
 
-    const remainingDue = loan.totalDue - loan.paidAmount;
-    const paymentAmount = Math.min(amount, remainingDue);
-    const newPaidAmount = loan.paidAmount + paymentAmount;
-    const isFullyPaid = newPaidAmount >= loan.totalDue;
+        if (!loan) {
+          throw new NotFoundException('القرض غير موجود');
+        }
 
-    const [updatedLoan, updatedWallet, transaction] =
-      await this.prisma.$transaction([
-        this.prisma.loan.update({
+        if (loan.status !== 'ACTIVE') {
+          throw new BadRequestException('القرض غير نشط');
+        }
+
+        // CRITICAL: Lock wallet row with SELECT FOR UPDATE
+        const walletRows = await tx.$queryRaw<any[]>`
+          SELECT * FROM wallets WHERE id = ${loan.walletId}::uuid FOR UPDATE
+        `;
+
+        if (!walletRows || walletRows.length === 0) {
+          throw new NotFoundException('المحفظة غير موجودة');
+        }
+
+        const wallet = walletRows[0];
+        const balanceBefore = wallet.balance;
+        const versionBefore = wallet.version;
+
+        const remainingDue = loan.totalDue - loan.paidAmount;
+        const paymentAmount = Math.min(amount, remainingDue);
+
+        // CRITICAL: Check balance WITHIN transaction
+        if (balanceBefore < paymentAmount) {
+          throw new BadRequestException(
+            `الرصيد غير كافي للسداد. الرصيد: ${balanceBefore}, المطلوب: ${paymentAmount}`,
+          );
+        }
+
+        const newPaidAmount = loan.paidAmount + paymentAmount;
+        const isFullyPaid = newPaidAmount >= loan.totalDue;
+        const newBalance = balanceBefore - paymentAmount;
+        const newVersion = versionBefore + 1;
+
+        // Update loan status
+        const updatedLoan = await tx.loan.update({
           where: { id: loanId },
           data: {
             paidAmount: newPaidAmount,
             status: isFullyPaid ? 'PAID' : 'ACTIVE',
           },
-        }),
-        this.prisma.wallet.update({
-          where: { id: loan.walletId },
-          data: {
-            balance: { decrement: paymentAmount },
-            currentLoan: { decrement: paymentAmount },
+        });
+
+        // Update wallet with optimistic locking
+        const updatedWallet = await tx.wallet.update({
+          where: {
+            id: loan.walletId,
+            version: versionBefore,
           },
-        }),
-        this.prisma.transaction.create({
+          data: {
+            balance: newBalance,
+            currentLoan: { decrement: paymentAmount },
+            version: newVersion,
+          },
+        });
+
+        // Create transaction record
+        const transaction = await tx.transaction.create({
           data: {
             walletId: loan.walletId,
             type: 'REPAYMENT',
             amount: -paymentAmount,
-            balanceAfter: loan.wallet.balance - paymentAmount,
+            balanceAfter: newBalance,
+            balanceBefore,
             referenceId: loanId,
             referenceType: 'loan',
             description: `Loan repayment`,
             descriptionAr: isFullyPaid ? 'سداد كامل للقرض' : 'سداد جزئي للقرض',
             status: 'COMPLETED',
+            idempotencyKey,
+            userId,
+            ipAddress,
           },
-        }),
-      ]);
+        });
 
-    return {
-      loan: updatedLoan,
-      wallet: updatedWallet,
-      transaction,
-      remainingAmount: loan.totalDue - newPaidAmount,
-      message: isFullyPaid
-        ? 'تهانينا! تم سداد القرض بالكامل. تم رفع تصنيفك الائتماني.'
-        : `تم السداد بنجاح. المتبقي: ${loan.totalDue - newPaidAmount} ر.ي`,
-    };
+        // Create audit log
+        await tx.walletAuditLog.create({
+          data: {
+            walletId: loan.walletId,
+            transactionId: transaction.id,
+            userId,
+            operation: 'LOAN_REPAYMENT',
+            balanceBefore,
+            balanceAfter: newBalance,
+            amount: -paymentAmount,
+            versionBefore,
+            versionAfter: newVersion,
+            idempotencyKey,
+            ipAddress,
+            metadata: {
+              loanId,
+              paidAmount: paymentAmount,
+              totalPaid: newPaidAmount,
+              remainingDue: loan.totalDue - newPaidAmount,
+              isFullyPaid,
+            },
+          },
+        });
+
+        // Record credit event for on-time payment
+        if (isFullyPaid) {
+          const dueDate = new Date(loan.dueDate);
+          const isOnTime = new Date() <= dueDate;
+
+          await tx.creditEvent.create({
+            data: {
+              walletId: loan.walletId,
+              eventType: isOnTime ? 'LOAN_REPAID_ONTIME' : 'LOAN_REPAID_LATE',
+              amount: loan.totalDue,
+              impact: isOnTime ? 15 : -10,
+              description: isOnTime
+                ? 'قرض مسدد في الوقت المحدد'
+                : 'قرض مسدد متأخر',
+            },
+          });
+        }
+
+        return {
+          loan: updatedLoan,
+          wallet: updatedWallet,
+          transaction,
+          remainingAmount: loan.totalDue - newPaidAmount,
+          message: isFullyPaid
+            ? 'تهانينا! تم سداد القرض بالكامل. تم رفع تصنيفك الائتماني.'
+            : `تم السداد بنجاح. المتبقي: ${loan.totalDue - newPaidAmount} ر.ي`,
+          duplicate: false,
+        };
+      },
+      {
+        isolationLevel: 'Serializable',
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
   }
 
   /**
@@ -882,7 +1158,7 @@ export class FintechService {
     const event = await this.prisma.creditEvent.create({
       data: {
         walletId: data.walletId,
-        eventType: data.eventType as any,
+        eventType: data.eventType as any, // Cast to Prisma enum type
         amount: data.amount,
         impact,
         description: data.description,
@@ -893,8 +1169,9 @@ export class FintechService {
     // Update credit score
     const newScore = Math.min(850, Math.max(300, wallet.creditScore + impact));
 
-    // Recalculate tier
-    let newTier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' = wallet.creditTier as any;
+    // Recalculate tier - wallet.creditTier should already be of the correct enum type
+    type CreditTier = 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM';
+    let newTier: CreditTier = wallet.creditTier as CreditTier;
     if (newScore >= 750) newTier = 'PLATINUM';
     else if (newScore >= 650) newTier = 'GOLD';
     else if (newScore >= 500) newTier = 'SILVER';
@@ -1216,7 +1493,8 @@ export class FintechService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * إنشاء إسكرو جديد للطلب
+   * إنشاء إسكرو جديد للطلب (مع حماية من الصرف المزدوج)
+   * Create escrow with double-spend protection
    */
   async createEscrow(
     orderId: string,
@@ -1224,198 +1502,536 @@ export class FintechService {
     sellerWalletId: string,
     amount: number,
     notes?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
   ) {
-    const buyerWallet = await this.prisma.wallet.findUnique({
-      where: { id: buyerWalletId },
-    });
-
-    if (!buyerWallet) {
-      throw new NotFoundException('محفظة المشتري غير موجودة');
+    if (amount <= 0) {
+      throw new BadRequestException('المبلغ يجب أن يكون أكبر من صفر');
     }
 
-    if (buyerWallet.balance < amount) {
-      throw new BadRequestException('رصيد المشتري غير كافي');
+    // Check for duplicate escrow creation using idempotency key
+    if (idempotencyKey) {
+      const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existingTransaction) {
+        const escrow = await this.prisma.escrow.findUnique({
+          where: { orderId },
+        });
+        return { escrow, duplicate: true, transaction: existingTransaction };
+      }
     }
 
-    // Check if escrow already exists for this order
-    const existingEscrow = await this.prisma.escrow.findUnique({
-      where: { orderId },
-    });
+    return await this.prisma.$transaction(
+      async (tx) => {
+        // Check if escrow already exists for this order
+        const existingEscrow = await tx.escrow.findUnique({
+          where: { orderId },
+        });
 
-    if (existingEscrow) {
-      throw new BadRequestException('يوجد إسكرو لهذا الطلب بالفعل');
-    }
+        if (existingEscrow) {
+          throw new BadRequestException('يوجد إسكرو لهذا الطلب بالفعل');
+        }
 
-    // Create escrow and update wallet balances in a transaction
-    const [escrow, updatedBuyerWallet, transaction] = await this.prisma.$transaction([
-      this.prisma.escrow.create({
-        data: {
-          orderId,
-          buyerWalletId,
-          sellerWalletId,
-          amount,
-          status: 'HELD',
-          notes,
-        },
-      }),
-      this.prisma.wallet.update({
-        where: { id: buyerWalletId },
-        data: {
-          balance: { decrement: amount },
-          escrowBalance: { increment: amount },
-        },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId: buyerWalletId,
-          type: 'ESCROW_HOLD',
-          amount: -amount,
-          balanceAfter: buyerWallet.balance - amount,
-          referenceId: orderId,
-          referenceType: 'order',
-          description: 'Funds held in escrow for order',
-          descriptionAr: 'مبلغ محجوز في الإسكرو للطلب',
-          status: 'COMPLETED',
-        },
-      }),
-    ]);
+        // CRITICAL: Lock buyer wallet with SELECT FOR UPDATE
+        const buyerWalletRows = await tx.$queryRaw<any[]>`
+          SELECT * FROM wallets WHERE id = ${buyerWalletId}::uuid FOR UPDATE
+        `;
 
-    return { escrow, wallet: updatedBuyerWallet, transaction };
+        if (!buyerWalletRows || buyerWalletRows.length === 0) {
+          throw new NotFoundException('محفظة المشتري غير موجودة');
+        }
+
+        const buyerWallet = buyerWalletRows[0];
+        const balanceBefore = buyerWallet.balance;
+        const escrowBalanceBefore = buyerWallet.escrowBalance || 0;
+        const versionBefore = buyerWallet.version;
+
+        // CRITICAL: Check balance WITHIN transaction after locking
+        if (balanceBefore < amount) {
+          throw new BadRequestException(
+            `رصيد المشتري غير كافي. الرصيد: ${balanceBefore}, المطلوب: ${amount}`,
+          );
+        }
+
+        const newBalance = balanceBefore - amount;
+        const newEscrowBalance = escrowBalanceBefore + amount;
+        const newVersion = versionBefore + 1;
+
+        // Verify seller wallet exists
+        const sellerWalletExists = await tx.wallet.findUnique({
+          where: { id: sellerWalletId },
+        });
+        if (!sellerWalletExists) {
+          throw new NotFoundException('محفظة البائع غير موجودة');
+        }
+
+        // Create escrow record
+        const escrow = await tx.escrow.create({
+          data: {
+            orderId,
+            buyerWalletId,
+            sellerWalletId,
+            amount,
+            status: 'HELD',
+            notes,
+          },
+        });
+
+        // Update buyer wallet with optimistic locking
+        const updatedBuyerWallet = await tx.wallet.update({
+          where: {
+            id: buyerWalletId,
+            version: versionBefore,
+          },
+          data: {
+            balance: newBalance,
+            escrowBalance: newEscrowBalance,
+            version: newVersion,
+          },
+        });
+
+        // Create transaction record
+        const transaction = await tx.transaction.create({
+          data: {
+            walletId: buyerWalletId,
+            type: 'ESCROW_HOLD',
+            amount: -amount,
+            balanceAfter: newBalance,
+            balanceBefore,
+            referenceId: orderId,
+            referenceType: 'order',
+            description: 'Funds held in escrow for order',
+            descriptionAr: 'مبلغ محجوز في الإسكرو للطلب',
+            status: 'COMPLETED',
+            idempotencyKey,
+            userId,
+            ipAddress,
+          },
+        });
+
+        // Create audit log
+        await tx.walletAuditLog.create({
+          data: {
+            walletId: buyerWalletId,
+            transactionId: transaction.id,
+            userId,
+            operation: 'ESCROW_HOLD',
+            balanceBefore,
+            balanceAfter: newBalance,
+            amount: -amount,
+            escrowBalanceBefore,
+            escrowBalanceAfter: newEscrowBalance,
+            versionBefore,
+            versionAfter: newVersion,
+            idempotencyKey,
+            ipAddress,
+            metadata: {
+              orderId,
+              escrowId: escrow.id,
+              sellerWalletId,
+            },
+          },
+        });
+
+        return {
+          escrow,
+          wallet: updatedBuyerWallet,
+          transaction,
+          duplicate: false,
+        };
+      },
+      {
+        isolationLevel: 'Serializable',
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
   }
 
   /**
-   * إطلاق الإسكرو للبائع (عند التسليم)
+   * إطلاق الإسكرو للبائع (عند التسليم - مع حماية من الصرف المزدوج)
+   * Release escrow to seller with double-spend protection
    */
-  async releaseEscrow(escrowId: string, notes?: string) {
-    const escrow = await this.prisma.escrow.findUnique({
-      where: { id: escrowId },
-      include: {
-        buyerWallet: true,
-        sellerWallet: true,
-      },
-    });
-
-    if (!escrow) {
-      throw new NotFoundException('الإسكرو غير موجود');
+  async releaseEscrow(
+    escrowId: string,
+    notes?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
+    // Check for duplicate release using idempotency key
+    if (idempotencyKey) {
+      const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existingTransaction) {
+        const escrow = await this.prisma.escrow.findUnique({
+          where: { id: escrowId },
+          include: {
+            buyerWallet: true,
+            sellerWallet: true,
+          },
+        });
+        return { escrow, duplicate: true, transaction: existingTransaction };
+      }
     }
 
-    if (escrow.status !== 'HELD') {
-      throw new BadRequestException('الإسكرو ليس في حالة محجوز');
-    }
+    return await this.prisma.$transaction(
+      async (tx) => {
+        const escrow = await tx.escrow.findUnique({
+          where: { id: escrowId },
+        });
 
-    const now = new Date();
+        if (!escrow) {
+          throw new NotFoundException('الإسكرو غير موجود');
+        }
 
-    const [updatedEscrow, updatedBuyerWallet, updatedSellerWallet, buyerTx, sellerTx] =
-      await this.prisma.$transaction([
-        this.prisma.escrow.update({
+        if (escrow.status !== 'HELD') {
+          throw new BadRequestException(
+            `الإسكرو ليس في حالة محجوز. الحالة الحالية: ${escrow.status}`,
+          );
+        }
+
+        // CRITICAL: Lock both buyer and seller wallets
+        const [buyerWalletRows, sellerWalletRows] = await Promise.all([
+          tx.$queryRaw<any[]>`
+            SELECT * FROM wallets WHERE id = ${escrow.buyerWalletId}::uuid FOR UPDATE
+          `,
+          tx.$queryRaw<any[]>`
+            SELECT * FROM wallets WHERE id = ${escrow.sellerWalletId}::uuid FOR UPDATE
+          `,
+        ]);
+
+        if (!buyerWalletRows || buyerWalletRows.length === 0) {
+          throw new NotFoundException('محفظة المشتري غير موجودة');
+        }
+
+        if (!sellerWalletRows || sellerWalletRows.length === 0) {
+          throw new NotFoundException('محفظة البائع غير موجودة');
+        }
+
+        const buyerWallet = buyerWalletRows[0];
+        const sellerWallet = sellerWalletRows[0];
+
+        const buyerEscrowBefore = buyerWallet.escrowBalance || 0;
+        const sellerBalanceBefore = sellerWallet.balance;
+        const buyerVersionBefore = buyerWallet.version;
+        const sellerVersionBefore = sellerWallet.version;
+
+        // Validate escrow balance
+        if (buyerEscrowBefore < escrow.amount) {
+          throw new BadRequestException(
+            'رصيد الإسكرو غير كافي - قد يكون تم إطلاقه مسبقاً',
+          );
+        }
+
+        const now = new Date();
+        const buyerEscrowAfter = buyerEscrowBefore - escrow.amount;
+        const sellerBalanceAfter = sellerBalanceBefore + escrow.amount;
+
+        // Update escrow status
+        const updatedEscrow = await tx.escrow.update({
           where: { id: escrowId },
           data: {
             status: 'RELEASED',
             releasedAt: now,
             notes: notes || escrow.notes,
           },
-        }),
-        this.prisma.wallet.update({
-          where: { id: escrow.buyerWalletId },
-          data: {
-            escrowBalance: { decrement: escrow.amount },
+        });
+
+        // Update buyer wallet (remove from escrow)
+        const updatedBuyerWallet = await tx.wallet.update({
+          where: {
+            id: escrow.buyerWalletId,
+            version: buyerVersionBefore,
           },
-        }),
-        this.prisma.wallet.update({
-          where: { id: escrow.sellerWalletId },
           data: {
-            balance: { increment: escrow.amount },
+            escrowBalance: buyerEscrowAfter,
+            version: buyerVersionBefore + 1,
           },
-        }),
-        this.prisma.transaction.create({
+        });
+
+        // Update seller wallet (add to balance)
+        const updatedSellerWallet = await tx.wallet.update({
+          where: {
+            id: escrow.sellerWalletId,
+            version: sellerVersionBefore,
+          },
+          data: {
+            balance: sellerBalanceAfter,
+            version: sellerVersionBefore + 1,
+          },
+        });
+
+        // Create buyer transaction record (escrow release)
+        const buyerTx = await tx.transaction.create({
           data: {
             walletId: escrow.buyerWalletId,
             type: 'ESCROW_RELEASE',
             amount: 0,
-            balanceAfter: escrow.buyerWallet.balance,
+            balanceAfter: buyerWallet.balance,
+            balanceBefore: buyerWallet.balance,
             referenceId: escrow.orderId,
             referenceType: 'order',
             description: 'Escrow released to seller',
             descriptionAr: 'تم إطلاق الإسكرو للبائع',
             status: 'COMPLETED',
+            idempotencyKey: idempotencyKey ? `${idempotencyKey}-buyer` : undefined,
+            userId,
+            ipAddress,
           },
-        }),
-        this.prisma.transaction.create({
+        });
+
+        // Create seller transaction record (payment received)
+        const sellerTx = await tx.transaction.create({
           data: {
             walletId: escrow.sellerWalletId,
             type: 'MARKETPLACE_SALE',
             amount: escrow.amount,
-            balanceAfter: escrow.sellerWallet.balance + escrow.amount,
+            balanceAfter: sellerBalanceAfter,
+            balanceBefore: sellerBalanceBefore,
             referenceId: escrow.orderId,
             referenceType: 'order',
             description: 'Payment received from escrow',
             descriptionAr: 'استلام دفعة من الإسكرو',
             status: 'COMPLETED',
+            idempotencyKey,
+            userId,
+            ipAddress,
           },
-        }),
-      ]);
+        });
 
-    return {
-      escrow: updatedEscrow,
-      buyerWallet: updatedBuyerWallet,
-      sellerWallet: updatedSellerWallet,
-      transactions: [buyerTx, sellerTx],
-    };
+        // Create audit logs for both wallets
+        await Promise.all([
+          tx.walletAuditLog.create({
+            data: {
+              walletId: escrow.buyerWalletId,
+              transactionId: buyerTx.id,
+              userId,
+              operation: 'ESCROW_RELEASE_BUYER',
+              balanceBefore: buyerWallet.balance,
+              balanceAfter: buyerWallet.balance,
+              amount: 0,
+              escrowBalanceBefore: buyerEscrowBefore,
+              escrowBalanceAfter: buyerEscrowAfter,
+              versionBefore: buyerVersionBefore,
+              versionAfter: buyerVersionBefore + 1,
+              ipAddress,
+              metadata: {
+                escrowId,
+                orderId: escrow.orderId,
+                releasedAmount: escrow.amount,
+              },
+            },
+          }),
+          tx.walletAuditLog.create({
+            data: {
+              walletId: escrow.sellerWalletId,
+              transactionId: sellerTx.id,
+              userId,
+              operation: 'ESCROW_RELEASE_SELLER',
+              balanceBefore: sellerBalanceBefore,
+              balanceAfter: sellerBalanceAfter,
+              amount: escrow.amount,
+              versionBefore: sellerVersionBefore,
+              versionAfter: sellerVersionBefore + 1,
+              ipAddress,
+              metadata: {
+                escrowId,
+                orderId: escrow.orderId,
+              },
+            },
+          }),
+        ]);
+
+        // Record credit event for successful marketplace sale
+        await tx.creditEvent.create({
+          data: {
+            walletId: escrow.sellerWalletId,
+            eventType: 'ORDER_COMPLETED',
+            amount: escrow.amount,
+            impact: 5,
+            description: 'طلب مكتمل بنجاح في السوق',
+            metadata: { orderId: escrow.orderId, escrowId },
+          },
+        });
+
+        return {
+          escrow: updatedEscrow,
+          buyerWallet: updatedBuyerWallet,
+          sellerWallet: updatedSellerWallet,
+          transactions: [buyerTx, sellerTx],
+          duplicate: false,
+        };
+      },
+      {
+        isolationLevel: 'Serializable',
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
   }
 
   /**
-   * استرداد الإسكرو للمشتري (في حالة الإلغاء)
+   * استرداد الإسكرو للمشتري (في حالة الإلغاء - مع حماية من الصرف المزدوج)
+   * Refund escrow to buyer with double-spend protection
    */
-  async refundEscrow(escrowId: string, reason?: string) {
-    const escrow = await this.prisma.escrow.findUnique({
-      where: { id: escrowId },
-      include: {
-        buyerWallet: true,
+  async refundEscrow(
+    escrowId: string,
+    reason?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
+    // Check for duplicate refund using idempotency key
+    if (idempotencyKey) {
+      const existingTransaction = await this.prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existingTransaction) {
+        const escrow = await this.prisma.escrow.findUnique({
+          where: { id: escrowId },
+          include: { buyerWallet: true },
+        });
+        return { escrow, duplicate: true, transaction: existingTransaction };
+      }
+    }
+
+    return await this.prisma.$transaction(
+      async (tx) => {
+        const escrow = await tx.escrow.findUnique({
+          where: { id: escrowId },
+        });
+
+        if (!escrow) {
+          throw new NotFoundException('الإسكرو غير موجود');
+        }
+
+        if (escrow.status !== 'HELD' && escrow.status !== 'DISPUTED') {
+          throw new BadRequestException(
+            `لا يمكن استرداد هذا الإسكرو. الحالة الحالية: ${escrow.status}`,
+          );
+        }
+
+        // CRITICAL: Lock buyer wallet with SELECT FOR UPDATE
+        const buyerWalletRows = await tx.$queryRaw<any[]>`
+          SELECT * FROM wallets WHERE id = ${escrow.buyerWalletId}::uuid FOR UPDATE
+        `;
+
+        if (!buyerWalletRows || buyerWalletRows.length === 0) {
+          throw new NotFoundException('محفظة المشتري غير موجودة');
+        }
+
+        const buyerWallet = buyerWalletRows[0];
+        const balanceBefore = buyerWallet.balance;
+        const escrowBalanceBefore = buyerWallet.escrowBalance || 0;
+        const versionBefore = buyerWallet.version;
+
+        // Validate escrow balance
+        if (escrowBalanceBefore < escrow.amount) {
+          throw new BadRequestException(
+            'رصيد الإسكرو غير كافي - قد يكون تم استرداده مسبقاً',
+          );
+        }
+
+        const now = new Date();
+        const newBalance = balanceBefore + escrow.amount;
+        const newEscrowBalance = escrowBalanceBefore - escrow.amount;
+        const newVersion = versionBefore + 1;
+
+        // Update escrow status
+        const updatedEscrow = await tx.escrow.update({
+          where: { id: escrowId },
+          data: {
+            status: 'REFUNDED',
+            refundedAt: now,
+            disputeReason: reason,
+          },
+        });
+
+        // Update buyer wallet with optimistic locking
+        const updatedBuyerWallet = await tx.wallet.update({
+          where: {
+            id: escrow.buyerWalletId,
+            version: versionBefore,
+          },
+          data: {
+            balance: newBalance,
+            escrowBalance: newEscrowBalance,
+            version: newVersion,
+          },
+        });
+
+        // Create transaction record
+        const transaction = await tx.transaction.create({
+          data: {
+            walletId: escrow.buyerWalletId,
+            type: 'ESCROW_REFUND',
+            amount: escrow.amount,
+            balanceAfter: newBalance,
+            balanceBefore,
+            referenceId: escrow.orderId,
+            referenceType: 'order',
+            description: `Escrow refunded: ${reason || 'Order cancelled'}`,
+            descriptionAr: `استرداد الإسكرو: ${reason || 'تم إلغاء الطلب'}`,
+            status: 'COMPLETED',
+            idempotencyKey,
+            userId,
+            ipAddress,
+          },
+        });
+
+        // Create audit log
+        await tx.walletAuditLog.create({
+          data: {
+            walletId: escrow.buyerWalletId,
+            transactionId: transaction.id,
+            userId,
+            operation: 'ESCROW_REFUND',
+            balanceBefore,
+            balanceAfter: newBalance,
+            amount: escrow.amount,
+            escrowBalanceBefore,
+            escrowBalanceAfter: newEscrowBalance,
+            versionBefore,
+            versionAfter: newVersion,
+            idempotencyKey,
+            ipAddress,
+            metadata: {
+              escrowId,
+              orderId: escrow.orderId,
+              refundReason: reason,
+            },
+          },
+        });
+
+        // Record credit event for order cancellation
+        await tx.creditEvent.create({
+          data: {
+            walletId: escrow.sellerWalletId,
+            eventType: 'ORDER_CANCELLED',
+            amount: escrow.amount,
+            impact: -5,
+            description: 'طلب ملغي - تم استرداد المبلغ للمشتري',
+            metadata: { orderId: escrow.orderId, escrowId, reason },
+          },
+        });
+
+        return {
+          escrow: updatedEscrow,
+          wallet: updatedBuyerWallet,
+          transaction,
+          duplicate: false,
+        };
       },
-    });
-
-    if (!escrow) {
-      throw new NotFoundException('الإسكرو غير موجود');
-    }
-
-    if (escrow.status !== 'HELD' && escrow.status !== 'DISPUTED') {
-      throw new BadRequestException('لا يمكن استرداد هذا الإسكرو');
-    }
-
-    const now = new Date();
-
-    const [updatedEscrow, updatedBuyerWallet, transaction] = await this.prisma.$transaction([
-      this.prisma.escrow.update({
-        where: { id: escrowId },
-        data: {
-          status: 'REFUNDED',
-          refundedAt: now,
-          disputeReason: reason,
-        },
-      }),
-      this.prisma.wallet.update({
-        where: { id: escrow.buyerWalletId },
-        data: {
-          balance: { increment: escrow.amount },
-          escrowBalance: { decrement: escrow.amount },
-        },
-      }),
-      this.prisma.transaction.create({
-        data: {
-          walletId: escrow.buyerWalletId,
-          type: 'ESCROW_REFUND',
-          amount: escrow.amount,
-          balanceAfter: escrow.buyerWallet.balance + escrow.amount,
-          referenceId: escrow.orderId,
-          referenceType: 'order',
-          description: `Escrow refunded: ${reason || 'Order cancelled'}`,
-          descriptionAr: `استرداد الإسكرو: ${reason || 'تم إلغاء الطلب'}`,
-          status: 'COMPLETED',
-        },
-      }),
-    ]);
-
-    return { escrow: updatedEscrow, wallet: updatedBuyerWallet, transaction };
+      {
+        isolationLevel: 'Serializable',
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
   }
 
   /**
@@ -1477,7 +2093,7 @@ export class FintechService {
       data: {
         walletId,
         amount,
-        frequency: frequency as any,
+        frequency: frequency as any, // Cast to Prisma enum type
         nextPaymentDate,
         loanId,
         description,

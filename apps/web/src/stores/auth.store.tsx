@@ -39,7 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sameSite: 'strict' // CSRF protection
       });
       apiClient.setToken(access_token);
-      setUser(user as any);
+      // User type from API matches our User interface
+      setUser(user);
     } else {
       throw new Error(response.error || 'Login failed');
     }
@@ -61,7 +62,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       apiClient.setToken(token);
       const response = await apiClient.getCurrentUser();
       if (response.success && response.data) {
-        setUser(response.data as unknown as User);
+        // User type from API matches our User interface
+        setUser(response.data);
       } else {
         setUser(null);
         Cookies.remove('access_token');

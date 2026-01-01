@@ -24,9 +24,11 @@ logger = logging.getLogger(__name__)
 # Data Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class SoilMoistureResult:
     """Soil moisture estimation from SAR backscatter"""
+
     field_id: str
     timestamp: datetime
     soil_moisture_percent: float  # 0-100 (%)
@@ -41,6 +43,7 @@ class SoilMoistureResult:
 @dataclass
 class IrrigationEvent:
     """Detected irrigation event from sudden moisture increase"""
+
     field_id: str
     detected_date: datetime
     moisture_before: float  # % before event
@@ -53,6 +56,7 @@ class IrrigationEvent:
 @dataclass
 class SARDataPoint:
     """Single SAR acquisition data point"""
+
     acquisition_date: datetime
     orbit_direction: str  # "ASCENDING" or "DESCENDING"
     vv_backscatter: float  # dB
@@ -66,6 +70,7 @@ class SARDataPoint:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Sentinel-1 SAR Processor
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class SARProcessor:
     """
@@ -86,17 +91,17 @@ class SARProcessor:
 
     # Soil moisture calibration for Yemen (arid/semi-arid agricultural soils)
     CALIB_A = 15.0  # Baseline
-    CALIB_B = 8.5   # VV/VH sensitivity
+    CALIB_B = 8.5  # VV/VH sensitivity
     CALIB_C = -0.3  # Incidence angle correction
 
     # Soil parameters for Yemen
     SOIL_POROSITY = 0.45  # Average for sandy-loam soils
     FIELD_CAPACITY = 0.35  # Maximum water holding capacity
-    WILTING_POINT = 0.15   # Minimum for plant survival
+    WILTING_POINT = 0.15  # Minimum for plant survival
 
     # Irrigation detection thresholds
     IRRIGATION_THRESHOLD_PCT = 10.0  # Minimum moisture increase (%)
-    IRRIGATION_THRESHOLD_DAYS = 1    # Maximum days between observations
+    IRRIGATION_THRESHOLD_DAYS = 1  # Maximum days between observations
 
     def __init__(self):
         """Initialize SAR processor"""
@@ -149,13 +154,17 @@ class SARProcessor:
             response = await client.post(
                 self.SEARCH_URL,
                 json={
-                    "bbox": [longitude - buffer, latitude - buffer,
-                            longitude + buffer, latitude + buffer],
+                    "bbox": [
+                        longitude - buffer,
+                        latitude - buffer,
+                        longitude + buffer,
+                        latitude + buffer,
+                    ],
                     "datetime": f"{start_date.isoformat()}T00:00:00Z/{end_date.isoformat()}T23:59:59Z",
                     "collections": ["SENTINEL-1"],
                     "limit": 50,
                 },
-                timeout=30.0
+                timeout=30.0,
             )
 
             if response.status_code == 200:
@@ -176,10 +185,15 @@ class SARProcessor:
                     }
 
                     # Only include scenes with both VV and VH polarization
-                    if "VV" in scene["polarizations"] and "VH" in scene["polarizations"]:
+                    if (
+                        "VV" in scene["polarizations"]
+                        and "VH" in scene["polarizations"]
+                    ):
                         scenes.append(scene)
 
-                logger.info(f"Found {len(scenes)} Sentinel-1 scenes with VV+VH polarization")
+                logger.info(
+                    f"Found {len(scenes)} Sentinel-1 scenes with VV+VH polarization"
+                )
                 return scenes
             else:
                 logger.warning(f"STAC search returned status {response.status_code}")
@@ -219,9 +233,9 @@ class SARProcessor:
         # Empirical soil moisture model calibrated for Yemen
         # SM = A + B * log10(VV/VH) + C * incidence_angle
         sm_percent = (
-            self.CALIB_A +
-            self.CALIB_B * math.log10(max(ratio, 0.1)) +
-            self.CALIB_C * incidence_angle
+            self.CALIB_A
+            + self.CALIB_B * math.log10(max(ratio, 0.1))
+            + self.CALIB_C * incidence_angle
         )
 
         # Clamp to realistic range (0-100%)
@@ -400,7 +414,9 @@ class SARProcessor:
         num_events = random.randint(0, 2)
 
         for i in range(num_events):
-            event_date = datetime.utcnow() - timedelta(days=random.randint(2, days_back))
+            event_date = datetime.utcnow() - timedelta(
+                days=random.randint(2, days_back)
+            )
 
             moisture_before = random.uniform(15.0, 30.0)
             moisture_after = moisture_before + random.uniform(12.0, 25.0)
@@ -411,15 +427,17 @@ class SARProcessor:
             moisture_increase = (moisture_after - moisture_before) / 100.0
             estimated_water_mm = moisture_increase * root_depth_mm
 
-            events.append(IrrigationEvent(
-                field_id=field_id,
-                detected_date=event_date,
-                moisture_before=round(moisture_before, 2),
-                moisture_after=round(moisture_after, 2),
-                estimated_water_mm=round(estimated_water_mm, 1),
-                confidence=round(random.uniform(0.7, 0.95), 2),
-                detection_method="sar_moisture_spike"
-            ))
+            events.append(
+                IrrigationEvent(
+                    field_id=field_id,
+                    detected_date=event_date,
+                    moisture_before=round(moisture_before, 2),
+                    moisture_after=round(moisture_after, 2),
+                    estimated_water_mm=round(estimated_water_mm, 1),
+                    confidence=round(random.uniform(0.7, 0.95), 2),
+                    detection_method="sar_moisture_spike",
+                )
+            )
 
         logger.info(f"Detected {len(events)} irrigation events for field {field_id}")
         return events
@@ -460,11 +478,14 @@ class SARProcessor:
             else:
                 # Default values if no coordinates
                 import random
+
                 vv_db = random.uniform(-14.0, -8.0)
                 vh_db = random.uniform(-22.0, -16.0)
                 incidence_angle = random.uniform(29.0, 46.0)
 
-            sm_percent, _, _ = self._calculate_soil_moisture(vv_db, vh_db, incidence_angle)
+            sm_percent, _, _ = self._calculate_soil_moisture(
+                vv_db, vh_db, incidence_angle
+            )
 
             # Calculate VV/VH ratio
             vv_linear = 10 ** (vv_db / 10)
@@ -474,23 +495,27 @@ class SARProcessor:
             # Alternate orbit direction
             orbit = "ASCENDING" if len(timeseries) % 2 == 0 else "DESCENDING"
 
-            timeseries.append(SARDataPoint(
-                acquisition_date=current,
-                orbit_direction=orbit,
-                vv_backscatter=round(vv_db, 2),
-                vh_backscatter=round(vh_db, 2),
-                vv_vh_ratio=round(ratio, 2),
-                incidence_angle=round(incidence_angle, 2),
-                soil_moisture_percent=round(sm_percent, 2),
-                scene_id=f"S1_{current.strftime('%Y%m%d')}_{orbit[0]}"
-            ))
+            timeseries.append(
+                SARDataPoint(
+                    acquisition_date=current,
+                    orbit_direction=orbit,
+                    vv_backscatter=round(vv_db, 2),
+                    vh_backscatter=round(vh_db, 2),
+                    vv_vh_ratio=round(ratio, 2),
+                    incidence_angle=round(incidence_angle, 2),
+                    soil_moisture_percent=round(sm_percent, 2),
+                    scene_id=f"S1_{current.strftime('%Y%m%d')}_{orbit[0]}",
+                )
+            )
 
             current += timedelta(days=revisit_days)
 
         logger.info(f"Generated SAR timeseries with {len(timeseries)} acquisitions")
         return timeseries
 
-    def get_moisture_interpretation(self, soil_moisture_percent: float) -> Dict[str, str]:
+    def get_moisture_interpretation(
+        self, soil_moisture_percent: float
+    ) -> Dict[str, str]:
         """
         Get interpretation of soil moisture level
 

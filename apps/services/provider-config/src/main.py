@@ -24,12 +24,17 @@ app = FastAPI(
 # CORS - Secure configuration
 import os
 import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
     from shared.cors_config import CORS_SETTINGS
+
     app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
 except ImportError:
-    ALLOWED_ORIGINS = os.getenv("CORS_ORIGINS", "https://sahool.io,https://admin.sahool.io,http://localhost:3000").split(",")
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ALLOWED_ORIGINS,
@@ -41,6 +46,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════════
 # ENUMS & MODELS
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class ProviderType(str, Enum):
     MAP = "map"
@@ -426,7 +432,16 @@ PAYMENT_PROVIDERS = {
         "name_ar": "تاب للمدفوعات",
         "base_url": "https://api.tap.company/v2",
         "requires_api_key": True,
-        "supported_currencies": ["SAR", "AED", "BHD", "KWD", "OMR", "QAR", "EGP", "JOD"],
+        "supported_currencies": [
+            "SAR",
+            "AED",
+            "BHD",
+            "KWD",
+            "OMR",
+            "QAR",
+            "EGP",
+            "JOD",
+        ],
         "supported_countries": ["SA", "AE", "BH", "KW", "OM", "QA", "EG", "JO"],
         "supports_subscriptions": True,
         "supports_refunds": True,
@@ -583,6 +598,7 @@ NOTIFICATION_PROVIDERS = {
 # REQUEST/RESPONSE MODELS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ProviderConfig(BaseModel):
     provider_name: str
     api_key: Optional[str] = None
@@ -629,7 +645,10 @@ provider_status_cache: Dict[str, ProviderStatusResponse] = {}
 # HEALTH CHECK FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-async def check_map_provider_health(provider_name: MapProviderName, api_key: Optional[str] = None) -> ProviderStatusResponse:
+
+async def check_map_provider_health(
+    provider_name: MapProviderName, api_key: Optional[str] = None
+) -> ProviderStatusResponse:
     """Check if a map provider is available"""
     provider = MAP_PROVIDERS.get(provider_name)
     if not provider:
@@ -637,12 +656,14 @@ async def check_map_provider_health(provider_name: MapProviderName, api_key: Opt
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.utcnow(),
-            error_message="Unknown provider"
+            error_message="Unknown provider",
         )
 
     # Build test URL
     url_template = provider["url_template"]
-    test_url = url_template.replace("{z}", "10").replace("{x}", "512").replace("{y}", "512")
+    test_url = (
+        url_template.replace("{z}", "10").replace("{x}", "512").replace("{y}", "512")
+    )
     if api_key:
         test_url = test_url.replace("{api_key}", api_key)
 
@@ -657,32 +678,34 @@ async def check_map_provider_health(provider_name: MapProviderName, api_key: Opt
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
                     last_check=datetime.utcnow(),
-                    response_time_ms=response_time
+                    response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
                     last_check=datetime.utcnow(),
-                    response_time_ms=response_time
+                    response_time_ms=response_time,
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
                     last_check=datetime.utcnow(),
-                    error_message=f"HTTP {response.status_code}"
+                    error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.utcnow(),
-            error_message=str(e)
+            error_message=str(e),
         )
 
 
-async def check_weather_provider_health(provider_name: WeatherProviderName, api_key: Optional[str] = None) -> ProviderStatusResponse:
+async def check_weather_provider_health(
+    provider_name: WeatherProviderName, api_key: Optional[str] = None
+) -> ProviderStatusResponse:
     """Check if a weather provider is available"""
     provider = WEATHER_PROVIDERS.get(provider_name)
     if not provider:
@@ -690,7 +713,7 @@ async def check_weather_provider_health(provider_name: WeatherProviderName, api_
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.utcnow(),
-            error_message="Unknown provider"
+            error_message="Unknown provider",
         )
 
     # Build test URL based on provider
@@ -703,7 +726,7 @@ async def check_weather_provider_health(provider_name: WeatherProviderName, api_
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
                 last_check=datetime.utcnow(),
-                error_message="API key required"
+                error_message="API key required",
             )
         test_url = f"{provider['base_url']}/weather?lat=15.37&lon=44.19&appid={api_key}"
     elif provider_name == WeatherProviderName.WEATHER_API:
@@ -712,7 +735,7 @@ async def check_weather_provider_health(provider_name: WeatherProviderName, api_
                 provider_name=provider_name.value,
                 status=ProviderStatus.ERROR,
                 last_check=datetime.utcnow(),
-                error_message="API key required"
+                error_message="API key required",
             )
         test_url = f"{provider['base_url']}/current.json?key={api_key}&q=15.37,44.19"
 
@@ -727,33 +750,34 @@ async def check_weather_provider_health(provider_name: WeatherProviderName, api_
                     provider_name=provider_name.value,
                     status=ProviderStatus.AVAILABLE,
                     last_check=datetime.utcnow(),
-                    response_time_ms=response_time
+                    response_time_ms=response_time,
                 )
             elif response.status_code == 429:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.RATE_LIMITED,
-                    last_check=datetime.utcnow()
+                    last_check=datetime.utcnow(),
                 )
             else:
                 return ProviderStatusResponse(
                     provider_name=provider_name.value,
                     status=ProviderStatus.UNAVAILABLE,
                     last_check=datetime.utcnow(),
-                    error_message=f"HTTP {response.status_code}"
+                    error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.utcnow(),
-            error_message=str(e)
+            error_message=str(e),
         )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # API ENDPOINTS
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/")
 async def root():
@@ -776,13 +800,13 @@ async def health_check():
 # PROVIDER LISTING
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/providers", response_model=ProvidersListResponse)
 async def list_all_providers():
     """List all available providers"""
     return ProvidersListResponse(
         map_providers=[
-            {**v, "id": k.value, "type": "map"}
-            for k, v in MAP_PROVIDERS.items()
+            {**v, "id": k.value, "type": "map"} for k, v in MAP_PROVIDERS.items()
         ],
         weather_providers=[
             {**v, "id": k.value, "type": "weather"}
@@ -799,13 +823,9 @@ async def list_all_providers():
 async def list_map_providers():
     """List all map providers"""
     return {
-        "providers": [
-            {**v, "id": k.value}
-            for k, v in MAP_PROVIDERS.items()
-        ],
+        "providers": [{**v, "id": k.value} for k, v in MAP_PROVIDERS.items()],
         "free_providers": [
-            k.value for k, v in MAP_PROVIDERS.items()
-            if not v["requires_api_key"]
+            k.value for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]
         ],
     }
 
@@ -814,13 +834,9 @@ async def list_map_providers():
 async def list_weather_providers():
     """List all weather providers"""
     return {
-        "providers": [
-            {**v, "id": k.value}
-            for k, v in WEATHER_PROVIDERS.items()
-        ],
+        "providers": [{**v, "id": k.value} for k, v in WEATHER_PROVIDERS.items()],
         "free_providers": [
-            k.value for k, v in WEATHER_PROVIDERS.items()
-            if not v["requires_api_key"]
+            k.value for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]
         ],
     }
 
@@ -829,13 +845,9 @@ async def list_weather_providers():
 async def list_satellite_providers():
     """List all satellite providers"""
     return {
-        "providers": [
-            {**v, "id": k.value}
-            for k, v in SATELLITE_PROVIDERS.items()
-        ],
+        "providers": [{**v, "id": k.value} for k, v in SATELLITE_PROVIDERS.items()],
         "free_providers": [
-            k.value for k, v in SATELLITE_PROVIDERS.items()
-            if not v["requires_api_key"]
+            k.value for k, v in SATELLITE_PROVIDERS.items() if not v["requires_api_key"]
         ],
     }
 
@@ -844,10 +856,7 @@ async def list_satellite_providers():
 async def list_payment_providers():
     """List all payment providers - قائمة مزودي الدفع"""
     return {
-        "providers": [
-            {**v, "id": k.value}
-            for k, v in PAYMENT_PROVIDERS.items()
-        ],
+        "providers": [{**v, "id": k.value} for k, v in PAYMENT_PROVIDERS.items()],
         "by_country": {
             "SA": ["moyasar", "hyperpay", "tap", "payfort", "stripe"],
             "AE": ["hyperpay", "tap", "payfort", "stripe", "paypal"],
@@ -855,7 +864,8 @@ async def list_payment_providers():
             "global": ["stripe", "paypal"],
         },
         "supports_mada": [
-            k.value for k, v in PAYMENT_PROVIDERS.items()
+            k.value
+            for k, v in PAYMENT_PROVIDERS.items()
             if v.get("supports_mada", False)
         ],
     }
@@ -865,16 +875,14 @@ async def list_payment_providers():
 async def list_sms_providers():
     """List all SMS providers - قائمة مزودي الرسائل النصية"""
     return {
-        "providers": [
-            {**v, "id": k.value}
-            for k, v in SMS_PROVIDERS.items()
-        ],
+        "providers": [{**v, "id": k.value} for k, v in SMS_PROVIDERS.items()],
         "by_region": {
             "middle_east": ["unifonic", "yamamah"],
             "global": ["twilio", "vonage"],
         },
         "supports_arabic_sender": [
-            k.value for k, v in SMS_PROVIDERS.items()
+            k.value
+            for k, v in SMS_PROVIDERS.items()
             if v.get("supports_arabic_sender", False)
         ],
     }
@@ -884,12 +892,10 @@ async def list_sms_providers():
 async def list_notification_providers():
     """List all notification providers - قائمة مزودي الإشعارات"""
     return {
-        "providers": [
-            {**v, "id": k.value}
-            for k, v in NOTIFICATION_PROVIDERS.items()
-        ],
+        "providers": [{**v, "id": k.value} for k, v in NOTIFICATION_PROVIDERS.items()],
         "free_providers": [
-            k.value for k, v in NOTIFICATION_PROVIDERS.items()
+            k.value
+            for k, v in NOTIFICATION_PROVIDERS.items()
             if v.get("cost_per_1k_notifications", 1) == 0
         ],
     }
@@ -898,6 +904,7 @@ async def list_notification_providers():
 # ─────────────────────────────────────────────────────────────────────────────
 # SMART PROVIDER SELECTION - اختيار المزود الذكي
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @app.get("/providers/select/{provider_type}")
 async def select_provider(
@@ -991,47 +998,65 @@ async def get_failover_chain(
 
     if provider_type == ProviderType.PAYMENT:
         # Build payment failover chain
-        for priority in [ProviderPriority.PRIMARY, ProviderPriority.SECONDARY, ProviderPriority.TERTIARY]:
+        for priority in [
+            ProviderPriority.PRIMARY,
+            ProviderPriority.SECONDARY,
+            ProviderPriority.TERTIARY,
+        ]:
             for name, provider in PAYMENT_PROVIDERS.items():
                 if provider["default_priority"] == priority:
                     if country in provider.get("supported_countries", []):
-                        chain.append({
-                            "order": len(chain) + 1,
-                            "provider_id": name.value,
-                            "name": provider["name"],
-                            "name_ar": provider["name_ar"],
-                            "priority": priority.value,
-                            "fee_percent": provider.get("transaction_fee_percent"),
-                        })
+                        chain.append(
+                            {
+                                "order": len(chain) + 1,
+                                "provider_id": name.value,
+                                "name": provider["name"],
+                                "name_ar": provider["name_ar"],
+                                "priority": priority.value,
+                                "fee_percent": provider.get("transaction_fee_percent"),
+                            }
+                        )
 
     elif provider_type == ProviderType.SMS:
-        for priority in [ProviderPriority.PRIMARY, ProviderPriority.SECONDARY, ProviderPriority.TERTIARY]:
+        for priority in [
+            ProviderPriority.PRIMARY,
+            ProviderPriority.SECONDARY,
+            ProviderPriority.TERTIARY,
+        ]:
             for name, provider in SMS_PROVIDERS.items():
                 if provider["default_priority"] == priority:
                     countries = provider.get("supported_countries", [])
                     if "*" in countries or country in countries:
-                        chain.append({
+                        chain.append(
+                            {
+                                "order": len(chain) + 1,
+                                "provider_id": name.value,
+                                "name": provider["name"],
+                                "name_ar": provider["name_ar"],
+                                "priority": priority.value,
+                                "cost_per_sms": provider.get("cost_per_sms_usd"),
+                            }
+                        )
+
+    elif provider_type == ProviderType.SATELLITE:
+        for priority in [
+            ProviderPriority.PRIMARY,
+            ProviderPriority.SECONDARY,
+            ProviderPriority.TERTIARY,
+        ]:
+            for name, provider in SATELLITE_PROVIDERS.items():
+                if provider["default_priority"] == priority:
+                    chain.append(
+                        {
                             "order": len(chain) + 1,
                             "provider_id": name.value,
                             "name": provider["name"],
                             "name_ar": provider["name_ar"],
                             "priority": priority.value,
-                            "cost_per_sms": provider.get("cost_per_sms_usd"),
-                        })
-
-    elif provider_type == ProviderType.SATELLITE:
-        for priority in [ProviderPriority.PRIMARY, ProviderPriority.SECONDARY, ProviderPriority.TERTIARY]:
-            for name, provider in SATELLITE_PROVIDERS.items():
-                if provider["default_priority"] == priority:
-                    chain.append({
-                        "order": len(chain) + 1,
-                        "provider_id": name.value,
-                        "name": provider["name"],
-                        "name_ar": provider["name_ar"],
-                        "priority": priority.value,
-                        "resolution_meters": provider.get("resolution_meters"),
-                        "cost_per_km2": provider.get("cost_per_km2"),
-                    })
+                            "resolution_meters": provider.get("resolution_meters"),
+                            "cost_per_km2": provider.get("cost_per_km2"),
+                        }
+                    )
 
     return {
         "provider_type": provider_type.value,
@@ -1045,6 +1070,7 @@ async def get_failover_chain(
 # PROVIDER HEALTH CHECKS
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.post("/providers/check", response_model=ProviderStatusResponse)
 async def check_provider_health(request: HealthCheckRequest):
     """Check health of a specific provider"""
@@ -1053,16 +1079,23 @@ async def check_provider_health(request: HealthCheckRequest):
             provider_name = MapProviderName(request.provider_name)
             return await check_map_provider_health(provider_name, request.api_key)
         except ValueError:
-            raise HTTPException(status_code=400, detail=f"Unknown map provider: {request.provider_name}")
+            raise HTTPException(
+                status_code=400, detail=f"Unknown map provider: {request.provider_name}"
+            )
 
     elif request.provider_type == ProviderType.WEATHER:
         try:
             provider_name = WeatherProviderName(request.provider_name)
             return await check_weather_provider_health(provider_name, request.api_key)
         except ValueError:
-            raise HTTPException(status_code=400, detail=f"Unknown weather provider: {request.provider_name}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unknown weather provider: {request.provider_name}",
+            )
 
-    raise HTTPException(status_code=400, detail=f"Unsupported provider type: {request.provider_type}")
+    raise HTTPException(
+        status_code=400, detail=f"Unsupported provider type: {request.provider_type}"
+    )
 
 
 @app.get("/providers/check/all")
@@ -1075,13 +1108,17 @@ async def check_all_free_providers():
     }
 
     # Check free map providers
-    free_map_providers = [k for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]]
+    free_map_providers = [
+        k for k, v in MAP_PROVIDERS.items() if not v["requires_api_key"]
+    ]
     for provider_name in free_map_providers:
         status = await check_map_provider_health(provider_name)
         results["map_providers"].append(status.dict())
 
     # Check free weather providers
-    free_weather_providers = [k for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]]
+    free_weather_providers = [
+        k for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]
+    ]
     for provider_name in free_weather_providers:
         status = await check_weather_provider_health(provider_name)
         results["weather_providers"].append(status.dict())
@@ -1093,6 +1130,7 @@ async def check_all_free_providers():
 # TENANT CONFIGURATION
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/config/{tenant_id}")
 async def get_tenant_config(tenant_id: str):
     """Get provider configuration for a tenant"""
@@ -1101,8 +1139,16 @@ async def get_tenant_config(tenant_id: str):
         return {
             "tenant_id": tenant_id,
             "map_providers": [
-                {"provider_name": "openstreetmap", "priority": "primary", "enabled": True},
-                {"provider_name": "esri_satellite", "priority": "secondary", "enabled": True},
+                {
+                    "provider_name": "openstreetmap",
+                    "priority": "primary",
+                    "enabled": True,
+                },
+                {
+                    "provider_name": "esri_satellite",
+                    "priority": "secondary",
+                    "enabled": True,
+                },
             ],
             "weather_providers": [
                 {"provider_name": "open_meteo", "priority": "primary", "enabled": True},
@@ -1134,6 +1180,7 @@ async def reset_tenant_config(tenant_id: str):
 # PROVIDER RECOMMENDATIONS
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 @app.get("/providers/recommend")
 async def recommend_providers(
     use_case: str = "agricultural",
@@ -1154,30 +1201,70 @@ async def recommend_providers(
     # Map recommendations
     if budget == "free":
         recommendations["map"] = [
-            {"provider": "openstreetmap", "reason": "مجاني، يدعم الاستخدام غير المتصل", "reason_en": "Free, supports offline"},
-            {"provider": "esri_satellite", "reason": "صور أقمار صناعية مجانية", "reason_en": "Free satellite imagery"},
+            {
+                "provider": "openstreetmap",
+                "reason": "مجاني، يدعم الاستخدام غير المتصل",
+                "reason_en": "Free, supports offline",
+            },
+            {
+                "provider": "esri_satellite",
+                "reason": "صور أقمار صناعية مجانية",
+                "reason_en": "Free satellite imagery",
+            },
         ]
         recommendations["weather"] = [
-            {"provider": "open_meteo", "reason": "مجاني، 16 يوم توقعات", "reason_en": "Free, 16-day forecast"},
+            {
+                "provider": "open_meteo",
+                "reason": "مجاني، 16 يوم توقعات",
+                "reason_en": "Free, 16-day forecast",
+            },
         ]
     elif budget in ["low", "medium"]:
         recommendations["map"] = [
-            {"provider": "mapbox_streets", "reason": "جودة عالية، تكلفة منخفضة", "reason_en": "High quality, low cost"},
-            {"provider": "mapbox_satellite", "reason": "صور أقمار صناعية عالية الجودة", "reason_en": "High quality satellite"},
+            {
+                "provider": "mapbox_streets",
+                "reason": "جودة عالية، تكلفة منخفضة",
+                "reason_en": "High quality, low cost",
+            },
+            {
+                "provider": "mapbox_satellite",
+                "reason": "صور أقمار صناعية عالية الجودة",
+                "reason_en": "High quality satellite",
+            },
         ]
         recommendations["weather"] = [
-            {"provider": "open_meteo", "reason": "مجاني كمصدر أساسي", "reason_en": "Free as primary"},
-            {"provider": "openweathermap", "reason": "تنبيهات جوية", "reason_en": "Weather alerts"},
+            {
+                "provider": "open_meteo",
+                "reason": "مجاني كمصدر أساسي",
+                "reason_en": "Free as primary",
+            },
+            {
+                "provider": "openweathermap",
+                "reason": "تنبيهات جوية",
+                "reason_en": "Weather alerts",
+            },
         ]
         recommendations["satellite"] = [
-            {"provider": "sentinel_hub", "reason": "أفضل قيمة للزراعة", "reason_en": "Best value for agriculture"},
+            {
+                "provider": "sentinel_hub",
+                "reason": "أفضل قيمة للزراعة",
+                "reason_en": "Best value for agriculture",
+            },
         ]
     else:  # high budget
         recommendations["map"] = [
-            {"provider": "google_hybrid", "reason": "أفضل جودة وتفاصيل", "reason_en": "Best quality and detail"},
+            {
+                "provider": "google_hybrid",
+                "reason": "أفضل جودة وتفاصيل",
+                "reason_en": "Best quality and detail",
+            },
         ]
         recommendations["satellite"] = [
-            {"provider": "planet_labs", "reason": "صور يومية، دقة 3 متر", "reason_en": "Daily imagery, 3m resolution"},
+            {
+                "provider": "planet_labs",
+                "reason": "صور يومية، دقة 3 متر",
+                "reason_en": "Daily imagery, 3m resolution",
+            },
         ]
 
     return recommendations
@@ -1189,4 +1276,5 @@ async def recommend_providers(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8104)

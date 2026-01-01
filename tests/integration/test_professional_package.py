@@ -22,6 +22,7 @@ from typing import Dict, Any
 # Satellite Imagery Tests - اختبارات صور الأقمار الصناعية
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 class TestSatelliteImagery:
@@ -31,7 +32,7 @@ class TestSatelliteImagery:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test retrieving satellite imagery for a field
@@ -43,14 +44,18 @@ class TestSatelliteImagery:
             "bbox": [44.0, 15.0, 44.1, 15.1],  # Bounding box for Yemen
             "start_date": "2024-01-01",
             "end_date": "2024-12-31",
-            "cloud_cover_max": 20
+            "cloud_cover_max": 20,
         }
 
         # Act
         response = await http_client.post(url, json=query, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201, 202), f"Failed to get satellite imagery: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+            202,
+        ), f"Failed to get satellite imagery: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -58,7 +63,7 @@ class TestSatelliteImagery:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test retrieving available imagery dates
@@ -69,14 +74,16 @@ class TestSatelliteImagery:
         params = {
             "bbox": "44.0,15.0,44.1,15.1",
             "start_date": "2024-01-01",
-            "end_date": "2024-12-31"
+            "end_date": "2024-12-31",
         }
 
         # Act
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get imagery dates: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get imagery dates: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -84,6 +91,7 @@ class TestSatelliteImagery:
 # ═══════════════════════════════════════════════════════════════════════════════
 # NDVI Analysis Tests - اختبارات تحليل NDVI
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -94,7 +102,7 @@ class TestNDVIAnalysis:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test calculating NDVI for a field
@@ -105,14 +113,18 @@ class TestNDVIAnalysis:
         query = {
             "field_id": "test-field-123",
             "date": "2024-06-15",
-            "bbox": [44.0, 15.0, 44.1, 15.1]
+            "bbox": [44.0, 15.0, 44.1, 15.1],
         }
 
         # Act
         response = await http_client.post(url, json=query, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201, 202), f"Failed to calculate NDVI: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+            202,
+        ), f"Failed to calculate NDVI: {response.text}"
         data = response.json()
         assert "ndvi" in data or "value" in data or "status" in data
 
@@ -120,7 +132,7 @@ class TestNDVIAnalysis:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting NDVI time series data
@@ -131,14 +143,16 @@ class TestNDVIAnalysis:
         params = {
             "field_id": "test-field-123",
             "start_date": "2024-01-01",
-            "end_date": "2024-12-31"
+            "end_date": "2024-12-31",
         }
 
         # Act
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get NDVI timeseries: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get NDVI timeseries: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -146,7 +160,7 @@ class TestNDVIAnalysis:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting vegetation health score
@@ -160,7 +174,9 @@ class TestNDVIAnalysis:
         response = await http_client.get(url, params=params, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get health score: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get health score: {response.text}"
         data = response.json()
         assert "health_score" in data or "score" in data or "status" in data
 
@@ -168,6 +184,7 @@ class TestNDVIAnalysis:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Crop Health AI Tests - اختبارات الذكاء الاصطناعي لصحة المحاصيل
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -178,7 +195,7 @@ class TestCropHealthAI:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test detecting disease from crop image
@@ -188,27 +205,30 @@ class TestCropHealthAI:
         import io
         from PIL import Image
 
-        img = Image.new('RGB', (100, 100), color='green')
+        img = Image.new("RGB", (100, 100), color="green")
         img_buffer = io.BytesIO()
-        img.save(img_buffer, format='JPEG')
+        img.save(img_buffer, format="JPEG")
         img_bytes = img_buffer.getvalue()
 
         url = f"{service_urls['crop_health_ai']}/api/v1/detect"
 
         # Prepare multipart/form-data
-        files = {
-            'image': ('test_crop.jpg', img_bytes, 'image/jpeg')
-        }
+        files = {"image": ("test_crop.jpg", img_bytes, "image/jpeg")}
 
         # Act
         response = await http_client.post(
             url,
             files=files,
-            headers={"Authorization": auth_headers["Authorization"]}  # Don't include Content-Type for multipart
+            headers={
+                "Authorization": auth_headers["Authorization"]
+            },  # Don't include Content-Type for multipart
         )
 
         # Assert
-        assert response.status_code in (200, 201), f"Failed to detect disease: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to detect disease: {response.text}"
         data = response.json()
         assert "disease" in data or "prediction" in data or "class" in data
 
@@ -216,7 +236,7 @@ class TestCropHealthAI:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting disease treatment recommendations
@@ -224,17 +244,16 @@ class TestCropHealthAI:
         """
         # Arrange
         url = f"{service_urls['crop_health_ai']}/api/v1/treatment"
-        query = {
-            "disease": "leaf_spot",
-            "crop_type": "wheat",
-            "severity": "moderate"
-        }
+        query = {"disease": "leaf_spot", "crop_type": "wheat", "severity": "moderate"}
 
         # Act
         response = await http_client.post(url, json=query, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201), f"Failed to get treatment: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to get treatment: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -242,6 +261,7 @@ class TestCropHealthAI:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Irrigation Smart Tests - اختبارات الري الذكي
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -252,7 +272,7 @@ class TestIrrigationSmart:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test getting irrigation recommendations
@@ -267,15 +287,18 @@ class TestIrrigationSmart:
             "weather_forecast": {
                 "temperature": 28.0,
                 "humidity": 60.0,
-                "rainfall_probability": 20.0
-            }
+                "rainfall_probability": 20.0,
+            },
         }
 
         # Act
         response = await http_client.post(url, json=query, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201), f"Failed to get irrigation recommendation: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to get irrigation recommendation: {response.text}"
         data = response.json()
         assert "recommendation" in data or "should_irrigate" in data or "amount" in data
 
@@ -283,7 +306,7 @@ class TestIrrigationSmart:
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test calculating water requirement
@@ -295,14 +318,17 @@ class TestIrrigationSmart:
             "crop_type": "wheat",
             "growth_stage": "flowering",
             "area_hectares": 10.5,
-            "soil_type": "loamy"
+            "soil_type": "loamy",
         }
 
         # Act
         response = await http_client.post(url, json=query, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201), f"Failed to calculate water requirement: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to calculate water requirement: {response.text}"
         data = response.json()
         assert "water_requirement" in data or "liters" in data or "amount" in data
 
@@ -310,6 +336,7 @@ class TestIrrigationSmart:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Inventory Management Tests - اختبارات إدارة المخزون
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -321,7 +348,7 @@ class TestInventoryManagement:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         inventory_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test creating an inventory item
@@ -335,7 +362,10 @@ class TestInventoryManagement:
         response = await http_client.post(url, json=item_data, headers=auth_headers)
 
         # Assert
-        assert response.status_code in (200, 201), f"Failed to create inventory item: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+        ), f"Failed to create inventory item: {response.text}"
         data = response.json()
         assert "id" in data or "item_id" in data
 
@@ -344,7 +374,7 @@ class TestInventoryManagement:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         inventory_factory,
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test updating inventory quantity
@@ -353,7 +383,9 @@ class TestInventoryManagement:
         # Arrange - Create item first
         item_data = inventory_factory.create()
         create_url = f"{service_urls['inventory_service']}/api/v1/inventory"
-        create_response = await http_client.post(create_url, json=item_data, headers=auth_headers)
+        create_response = await http_client.post(
+            create_url, json=item_data, headers=auth_headers
+        )
 
         if create_response.status_code not in (200, 201):
             pytest.skip("Inventory item creation failed")
@@ -362,18 +394,25 @@ class TestInventoryManagement:
         item_id = created_item.get("id") or created_item.get("item_id")
 
         # Act - Update quantity
-        update_url = f"{service_urls['inventory_service']}/api/v1/inventory/{item_id}/quantity"
+        update_url = (
+            f"{service_urls['inventory_service']}/api/v1/inventory/{item_id}/quantity"
+        )
         update_data = {"quantity": 500, "reason": "restock"}
-        response = await http_client.put(update_url, json=update_data, headers=auth_headers)
+        response = await http_client.put(
+            update_url, json=update_data, headers=auth_headers
+        )
 
         # Assert
-        assert response.status_code in (200, 204), f"Failed to update inventory: {response.text}"
+        assert response.status_code in (
+            200,
+            204,
+        ), f"Failed to update inventory: {response.text}"
 
     async def test_get_low_stock_items(
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        auth_headers: Dict[str, str]
+        auth_headers: Dict[str, str],
     ):
         """
         Test retrieving low stock items
@@ -386,7 +425,9 @@ class TestInventoryManagement:
         response = await http_client.get(url, headers=auth_headers)
 
         # Assert
-        assert response.status_code == 200, f"Failed to get low stock items: {response.text}"
+        assert (
+            response.status_code == 200
+        ), f"Failed to get low stock items: {response.text}"
         data = response.json()
         assert isinstance(data, (list, dict))
 
@@ -395,23 +436,27 @@ class TestInventoryManagement:
 # Service Health Tests - اختبارات صحة الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 class TestProfessionalPackageHealth:
     """Test health endpoints of professional package services - اختبار نقاط صحة خدمات الحزمة الاحترافية"""
 
-    @pytest.mark.parametrize("service_name", [
-        "satellite_service",
-        "ndvi_engine",
-        "crop_health_ai",
-        "irrigation_smart",
-        "inventory_service"
-    ])
+    @pytest.mark.parametrize(
+        "service_name",
+        [
+            "satellite_service",
+            "ndvi_engine",
+            "crop_health_ai",
+            "irrigation_smart",
+            "inventory_service",
+        ],
+    )
     async def test_service_health(
         self,
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
-        service_name: str
+        service_name: str,
     ):
         """
         Test service health endpoint
@@ -428,4 +473,7 @@ class TestProfessionalPackageHealth:
         response = await http_client.get(url, timeout=10)
 
         # Assert
-        assert response.status_code in (200, 204), f"Service {service_name} is not healthy: {response.text}"
+        assert response.status_code in (
+            200,
+            204,
+        ), f"Service {service_name} is not healthy: {response.text}"

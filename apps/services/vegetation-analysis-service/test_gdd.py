@@ -5,9 +5,11 @@ Tests the core GDD calculation methods and crop data.
 """
 
 import sys
-sys.path.insert(0, 'src')
+
+sys.path.insert(0, "src")
 
 from src.gdd_tracker import GDDTracker, GDDMethod
+
 
 def test_gdd_calculations():
     """Test GDD calculation methods"""
@@ -80,7 +82,9 @@ def test_crop_data():
     # Show first 10 crops
     print("Sample Crops:")
     for crop in crops[:10]:
-        print(f"  {crop['crop_code']:15} | {crop['crop_name_en']:20} | {crop['crop_name_ar']:15} | Base: {crop['base_temp_c']:4.1f}°C | Total: {crop['total_gdd_required']:5.0f} GDD")
+        print(
+            f"  {crop['crop_code']:15} | {crop['crop_name_en']:20} | {crop['crop_name_ar']:15} | Base: {crop['base_temp_c']:4.1f}°C | Total: {crop['total_gdd_required']:5.0f} GDD"
+        )
 
     print()
 
@@ -93,8 +97,10 @@ def test_crop_data():
     print(f"Total GDD Required: {wheat_params['total']}")
     print(f"\nGrowth Stages:")
 
-    for i, stage in enumerate(wheat_params['stages'], 1):
-        print(f"  {i}. {stage['name_en']:20} ({stage['name_ar']:20}) - {stage['gdd']:5.0f} GDD")
+    for i, stage in enumerate(wheat_params["stages"], 1):
+        print(
+            f"  {i}. {stage['name_en']:20} ({stage['name_ar']:20}) - {stage['gdd']:5.0f} GDD"
+        )
 
     print()
 
@@ -113,8 +119,12 @@ def test_growth_stages():
     print(f"GDD → Stage\n")
 
     for gdd in test_gdds:
-        current_en, current_ar, next_en, next_ar, gdd_to_next = tracker.get_current_stage(crop, gdd)
-        print(f"  {gdd:5.0f} GDD → {current_en:20} ({current_ar:20}) | Next: {next_en:20} in {gdd_to_next:5.1f} GDD")
+        current_en, current_ar, next_en, next_ar, gdd_to_next = (
+            tracker.get_current_stage(crop, gdd)
+        )
+        print(
+            f"  {gdd:5.0f} GDD → {current_en:20} ({current_ar:20}) | Next: {next_en:20} in {gdd_to_next:5.1f} GDD"
+        )
 
     print()
 
@@ -139,24 +149,26 @@ def test_all_crops_valid():
             req = tracker.CROP_GDD_REQUIREMENTS[crop_code]
 
             # Validate stages
-            if not req.get('stages'):
+            if not req.get("stages"):
                 errors.append(f"{crop_code}: No stages defined")
 
             # Check stage GDDs are increasing
             prev_gdd = 0
-            for stage in req['stages']:
-                if stage['gdd'] <= prev_gdd:
+            for stage in req["stages"]:
+                if stage["gdd"] <= prev_gdd:
                     errors.append(f"{crop_code}: Stage GDDs not increasing")
-                prev_gdd = stage['gdd']
+                prev_gdd = stage["gdd"]
 
             # Check total GDD
-            if req['total'] <= 0:
+            if req["total"] <= 0:
                 errors.append(f"{crop_code}: Invalid total GDD")
 
             # Check last stage matches total
-            last_stage_gdd = req['stages'][-1]['gdd'] if req['stages'] else 0
-            if last_stage_gdd != req['total']:
-                errors.append(f"{crop_code}: Last stage GDD ({last_stage_gdd}) != total ({req['total']})")
+            last_stage_gdd = req["stages"][-1]["gdd"] if req["stages"] else 0
+            if last_stage_gdd != req["total"]:
+                errors.append(
+                    f"{crop_code}: Last stage GDD ({last_stage_gdd}) != total ({req['total']})"
+                )
 
         except Exception as e:
             errors.append(f"{crop_code}: {str(e)}")
@@ -190,5 +202,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n❌ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

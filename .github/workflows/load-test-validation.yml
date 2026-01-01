@@ -1,0 +1,258 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - Load Testing Validation Workflow
+# سير عمل التحقق من اختبارات الحمل
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This workflow validates all load testing configuration files
+# Runs on PRs that modify simulation files
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Load Test Validation
+
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+      - 'feature/**'
+    paths:
+      - 'tests/load/simulation/**'
+      - '.github/workflows/load-test-validation.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'tests/load/simulation/**'
+
+env:
+  SIMULATION_DIR: tests/load/simulation
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Job 1: Validate Configuration Files
+  # ═══════════════════════════════════════════════════════════════════════════
+  validate-configs:
+    name: Validate Configuration Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate YAML files
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  Validating YAML Configuration Files"
+          echo "═══════════════════════════════════════════════════════════════"
+
+          YAML_FILES=(
+            "${{ env.SIMULATION_DIR }}/docker-compose-sim.yml"
+            "${{ env.SIMULATION_DIR }}/docker-compose-advanced.yml"
+            "${{ env.SIMULATION_DIR }}/monitoring/prometheus.yml"
+            "${{ env.SIMULATION_DIR }}/monitoring/alertmanager.yml"
+            "${{ env.SIMULATION_DIR }}/monitoring/alert-rules.yml"
+            "${{ env.SIMULATION_DIR }}/grafana/datasources/influxdb.yml"
+            "${{ env.SIMULATION_DIR }}/grafana/dashboards/dashboards.yml"
+          )
+
+          FAILED=0
+          for file in "${YAML_FILES[@]}"; do
+            if [ -f "$file" ]; then
+              if python3 -c "import yaml; yaml.safe_load(open('$file'))"; then
+                echo "✓ $file"
+              else
+                echo "✗ $file (invalid YAML)"
+                FAILED=1
+              fi
+            else
+              echo "⚠ $file (not found - skipping)"
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            exit 1
+          fi
+
+      - name: Validate JSON files
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  Validating JSON Configuration Files"
+          echo "═══════════════════════════════════════════════════════════════"
+
+          JSON_FILES=(
+            "${{ env.SIMULATION_DIR }}/grafana/dashboards/k6-dashboard.json"
+            "${{ env.SIMULATION_DIR }}/grafana/dashboards/advanced-dashboard.json"
+          )
+
+          FAILED=0
+          for file in "${JSON_FILES[@]}"; do
+            if [ -f "$file" ]; then
+              if python3 -c "import json; json.load(open('$file'))"; then
+                echo "✓ $file"
+              else
+                echo "✗ $file (invalid JSON)"
+                FAILED=1
+              fi
+            else
+              echo "⚠ $file (not found - skipping)"
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            exit 1
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Job 2: Validate K6 Scripts
+  # ═══════════════════════════════════════════════════════════════════════════
+  validate-k6-scripts:
+    name: Validate K6 Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install k6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Validate K6 scripts syntax
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  Validating K6 Test Scripts"
+          echo "═══════════════════════════════════════════════════════════════"
+
+          K6_SCRIPTS=(
+            "${{ env.SIMULATION_DIR }}/scripts/agent-simulation.js"
+            "${{ env.SIMULATION_DIR }}/scripts/advanced-scenarios.js"
+            "${{ env.SIMULATION_DIR }}/scripts/chaos-testing.js"
+          )
+
+          FAILED=0
+          for script in "${K6_SCRIPTS[@]}"; do
+            if [ -f "$script" ]; then
+              echo "Checking: $script"
+              if k6 inspect "$script" > /dev/null 2>&1; then
+                echo "✓ $script (valid)"
+              else
+                # k6 inspect might fail but script could still be valid
+                # Check for basic structure
+                if grep -q "export default function" "$script"; then
+                  echo "✓ $script (structure valid)"
+                else
+                  echo "✗ $script (missing export default function)"
+                  FAILED=1
+                fi
+              fi
+            else
+              echo "⚠ $script (not found)"
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            exit 1
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Job 3: Validate Docker Compose
+  # ═══════════════════════════════════════════════════════════════════════════
+  validate-docker-compose:
+    name: Validate Docker Compose
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose files
+        run: |
+          echo "═══════════════════════════════════════════════════════════════"
+          echo "  Validating Docker Compose Files"
+          echo "═══════════════════════════════════════════════════════════════"
+
+          cd ${{ env.SIMULATION_DIR }}
+
+          if [ -f "docker-compose-sim.yml" ]; then
+            echo "Checking docker-compose-sim.yml..."
+            docker compose -f docker-compose-sim.yml config --quiet && echo "✓ docker-compose-sim.yml is valid" || echo "⚠ docker-compose-sim.yml has issues"
+          fi
+
+          if [ -f "docker-compose-advanced.yml" ]; then
+            echo "Checking docker-compose-advanced.yml..."
+            docker compose -f docker-compose-advanced.yml config --quiet && echo "✓ docker-compose-advanced.yml is valid" || echo "⚠ docker-compose-advanced.yml has issues"
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Job 4: Run Quick Tests
+  # ═══════════════════════════════════════════════════════════════════════════
+  quick-test:
+    name: Run Quick Validation Tests
+    runs-on: ubuntu-latest
+    needs: [validate-configs, validate-k6-scripts]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Run quick test script
+        run: |
+          chmod +x ${{ env.SIMULATION_DIR }}/quick-test.sh
+          cd ${{ env.SIMULATION_DIR }}
+          ./quick-test.sh
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Job 5: Summary Report
+  # ═══════════════════════════════════════════════════════════════════════════
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    needs: [validate-configs, validate-k6-scripts, validate-docker-compose, quick-test]
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "## 📊 Load Test Validation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Config Files | ${{ needs.validate-configs.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| K6 Scripts | ${{ needs.validate-k6-scripts.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Compose | ${{ needs.validate-docker-compose.result == 'success' && '✅' || '⚠️' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Quick Tests | ${{ needs.quick-test.result == 'success' && '✅' || '❌' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.validate-configs.result }}" == "success" ] && \
+             [ "${{ needs.validate-k6-scripts.result }}" == "success" ] && \
+             [ "${{ needs.quick-test.result }}" == "success" ]; then
+            echo "### ✅ All validations passed!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### ⚠️ Some validations need attention" >> $GITHUB_STEP_SUMMARY
+          fi

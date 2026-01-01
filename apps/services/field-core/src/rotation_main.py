@@ -62,7 +62,10 @@ app = FastAPI(
 )
 
 # Add CORS middleware - secure origins from environment
-CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+CORS_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:3001,http://localhost:8080",
+).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -83,7 +86,7 @@ def health():
         "status": "ok",
         "service": "crop_rotation",
         "version": "1.0.0",
-        "port": 8099
+        "port": 8099,
     }
 
 
@@ -111,7 +114,7 @@ async def create_rotation_plan(
         field_id=field_id,
         field_name=field_name,
         start_year=start_year,
-        num_years=num_years
+        num_years=num_years,
     )
 
 
@@ -142,6 +145,7 @@ async def create_rotation_plan_post(req: dict):
     }
     """
     from .rotation_api import CreateRotationPlanRequest
+
     request = CreateRotationPlanRequest(**req)
     return await create_rotation_plan_with_history(request)
 
@@ -150,10 +154,7 @@ async def create_rotation_plan_post(req: dict):
 
 
 @app.get("/v1/rotation/suggest/{field_id}")
-async def suggest_next_crop(
-    field_id: str,
-    season: str = "winter"
-):
+async def suggest_next_crop(field_id: str, season: str = "winter"):
     """
     Suggest best crops for next season based on field history
 
@@ -165,10 +166,7 @@ async def suggest_next_crop(
 
     Returns ranked list of crop suggestions with suitability scores
     """
-    return await suggest_next_crop_endpoint(
-        field_id=field_id,
-        season=season
-    )
+    return await suggest_next_crop_endpoint(field_id=field_id, season=season)
 
 
 # ============== Rotation Evaluation ==============
@@ -203,6 +201,7 @@ async def evaluate_rotation(req: dict):
     - warnings: List of warnings
     """
     from .rotation_api import EvaluateRotationRequest
+
     request = EvaluateRotationRequest(**req)
     return await evaluate_rotation_endpoint(request)
 
@@ -211,10 +210,7 @@ async def evaluate_rotation(req: dict):
 
 
 @app.get("/v1/rotation/history/{field_id}")
-async def get_rotation_history(
-    field_id: str,
-    years: int = 5
-):
+async def get_rotation_history(field_id: str, years: int = 5):
     """
     Get crop rotation history for a field
 
@@ -224,10 +220,7 @@ async def get_rotation_history(
     Query Parameters:
     - years: Number of years of history to retrieve (1-10, default: 5)
     """
-    return await get_rotation_history_endpoint(
-        field_id=field_id,
-        years=years
-    )
+    return await get_rotation_history_endpoint(field_id=field_id, years=years)
 
 
 # ============== Rotation Rules ==============
@@ -266,10 +259,7 @@ async def get_crop_families():
 
 
 @app.get("/v1/rotation/check")
-async def check_rotation_compatibility(
-    crop_family: str,
-    previous_crops: str
-):
+async def check_rotation_compatibility(crop_family: str, previous_crops: str):
     """
     Check if a crop family is compatible with previous crops
 
@@ -285,8 +275,7 @@ async def check_rotation_compatibility(
     """
     crops_list = [c.strip() for c in previous_crops.split(",")]
     return await check_rotation_compatibility_endpoint(
-        crop_family=crop_family,
-        previous_crops=crops_list
+        crop_family=crop_family, previous_crops=crops_list
     )
 
 
@@ -310,7 +299,7 @@ def root():
             "field_history": "/v1/rotation/history/{field_id}?years=5",
             "rotation_rules": "/v1/rotation/rules",
             "crop_families": "/v1/rotation/families",
-            "check_compatibility": "/v1/rotation/check?crop_family=cereals&previous_crops=WHEAT,TOMATO"
+            "check_compatibility": "/v1/rotation/check?crop_family=cereals&previous_crops=WHEAT,TOMATO",
         },
         "features": [
             "5-year rotation planning",
@@ -318,15 +307,15 @@ def root():
             "Disease risk assessment",
             "Nitrogen balance tracking",
             "Soil health scoring",
-            "Yemen-specific crop recommendations"
+            "Yemen-specific crop recommendations",
         ],
         "principles": [
             "No monoculture - avoid same crop family repeatedly",
             "Legume inclusion - every 3-4 years for nitrogen",
             "Deep vs shallow roots - alternate for soil structure",
             "Disease break - 4+ years for solanaceae",
-            "Nutrient balance - heavy feeders after nitrogen fixers"
-        ]
+            "Nutrient balance - heavy feeders after nitrogen fixers",
+        ],
     }
 
 
@@ -337,9 +326,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8099))
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=port,
-        log_level="info"
-    )
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

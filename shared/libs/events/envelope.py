@@ -41,11 +41,16 @@ class EventEnvelope(BaseModel):
     )
 
     # Schema validation
-    schema_ref: str = Field(..., description="Reference to schema in registry (e.g., 'events.field.created:v1')")
+    schema_ref: str = Field(
+        ...,
+        description="Reference to schema in registry (e.g., 'events.field.created:v1')",
+    )
     producer: str = Field(..., description="Service/domain that produced this event")
 
     # Payload
-    payload: dict[str, Any] = Field(..., description="Event payload matching schema_ref")
+    payload: dict[str, Any] = Field(
+        ..., description="Event payload matching schema_ref"
+    )
 
     def to_json_dict(self) -> dict[str, Any]:
         """Convert to JSON-serializable dictionary"""

@@ -27,7 +27,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Weather API Configuration
-WEATHER_API_PROVIDER = os.getenv("WEATHER_API_PROVIDER", "open-meteo")  # open-meteo, openweathermap
+WEATHER_API_PROVIDER = os.getenv(
+    "WEATHER_API_PROVIDER", "open-meteo"
+)  # open-meteo, openweathermap
 OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY", "")
 WEATHER_CACHE_TTL_MINUTES = int(os.getenv("WEATHER_CACHE_TTL_MINUTES", "30"))
 
@@ -47,7 +49,9 @@ async def startup_event():
     logger.warning("=" * 80)
     logger.warning("⚠️  DEPRECATION WARNING")
     logger.warning("=" * 80)
-    logger.warning("This service (weather-advanced) is DEPRECATED and will be removed in a future release.")
+    logger.warning(
+        "This service (weather-advanced) is DEPRECATED and will be removed in a future release."
+    )
     logger.warning("Please migrate to 'weather-service' instead.")
     logger.warning("Replacement service: weather-service")
     logger.warning("Deprecation date: 2025-01-01")
@@ -60,7 +64,9 @@ async def add_deprecation_header(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-API-Deprecated"] = "true"
     response.headers["X-API-Deprecation-Date"] = "2025-01-01"
-    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use weather-service instead."
+    response.headers["X-API-Deprecation-Info"] = (
+        "This service is deprecated. Use weather-service instead."
+    )
     response.headers["X-API-Sunset"] = "2025-06-01"
     response.headers["Link"] = '<http://weather-service:8108>; rel="successor-version"'
     response.headers["Deprecation"] = "true"
@@ -192,38 +198,165 @@ class AgriculturalWeatherReport(BaseModel):
 # جميع محافظات اليمن الـ 22 - All 22 Yemen Governorates
 YEMEN_LOCATIONS = {
     # المنطقة الشمالية - Northern Region
-    "sanaa": {"lat": 15.3694, "lon": 44.1910, "name_ar": "صنعاء", "elevation": 2250, "region": "highland"},
-    "amanat_al_asimah": {"lat": 15.3556, "lon": 44.2067, "name_ar": "أمانة العاصمة", "elevation": 2200, "region": "highland"},
-    "amran": {"lat": 15.6594, "lon": 43.9439, "name_ar": "عمران", "elevation": 2300, "region": "highland"},
-    "saadah": {"lat": 16.9400, "lon": 43.7614, "name_ar": "صعدة", "elevation": 1850, "region": "highland"},
-    "al_jawf": {"lat": 16.5833, "lon": 45.5000, "name_ar": "الجوف", "elevation": 1200, "region": "desert"},
-    "hajjah": {"lat": 15.6917, "lon": 43.6028, "name_ar": "حجة", "elevation": 1800, "region": "highland"},
-    "al_mahwit": {"lat": 15.4700, "lon": 43.5447, "name_ar": "المحويت", "elevation": 2100, "region": "highland"},
-
+    "sanaa": {
+        "lat": 15.3694,
+        "lon": 44.1910,
+        "name_ar": "صنعاء",
+        "elevation": 2250,
+        "region": "highland",
+    },
+    "amanat_al_asimah": {
+        "lat": 15.3556,
+        "lon": 44.2067,
+        "name_ar": "أمانة العاصمة",
+        "elevation": 2200,
+        "region": "highland",
+    },
+    "amran": {
+        "lat": 15.6594,
+        "lon": 43.9439,
+        "name_ar": "عمران",
+        "elevation": 2300,
+        "region": "highland",
+    },
+    "saadah": {
+        "lat": 16.9400,
+        "lon": 43.7614,
+        "name_ar": "صعدة",
+        "elevation": 1850,
+        "region": "highland",
+    },
+    "al_jawf": {
+        "lat": 16.5833,
+        "lon": 45.5000,
+        "name_ar": "الجوف",
+        "elevation": 1200,
+        "region": "desert",
+    },
+    "hajjah": {
+        "lat": 15.6917,
+        "lon": 43.6028,
+        "name_ar": "حجة",
+        "elevation": 1800,
+        "region": "highland",
+    },
+    "al_mahwit": {
+        "lat": 15.4700,
+        "lon": 43.5447,
+        "name_ar": "المحويت",
+        "elevation": 2100,
+        "region": "highland",
+    },
     # المنطقة الوسطى - Central Region
-    "dhamar": {"lat": 14.5500, "lon": 44.4000, "name_ar": "ذمار", "elevation": 2400, "region": "highland"},
-    "ibb": {"lat": 13.9667, "lon": 44.1667, "name_ar": "إب", "elevation": 2050, "region": "highland"},
-    "taiz": {"lat": 13.5789, "lon": 44.0219, "name_ar": "تعز", "elevation": 1400, "region": "highland"},
-    "al_bayda": {"lat": 13.9833, "lon": 45.5667, "name_ar": "البيضاء", "elevation": 2250, "region": "highland"},
-    "raymah": {"lat": 14.6333, "lon": 43.7167, "name_ar": "ريمة", "elevation": 2600, "region": "highland"},
-    "marib": {"lat": 15.4667, "lon": 45.3500, "name_ar": "مأرب", "elevation": 1100, "region": "desert"},
-
+    "dhamar": {
+        "lat": 14.5500,
+        "lon": 44.4000,
+        "name_ar": "ذمار",
+        "elevation": 2400,
+        "region": "highland",
+    },
+    "ibb": {
+        "lat": 13.9667,
+        "lon": 44.1667,
+        "name_ar": "إب",
+        "elevation": 2050,
+        "region": "highland",
+    },
+    "taiz": {
+        "lat": 13.5789,
+        "lon": 44.0219,
+        "name_ar": "تعز",
+        "elevation": 1400,
+        "region": "highland",
+    },
+    "al_bayda": {
+        "lat": 13.9833,
+        "lon": 45.5667,
+        "name_ar": "البيضاء",
+        "elevation": 2250,
+        "region": "highland",
+    },
+    "raymah": {
+        "lat": 14.6333,
+        "lon": 43.7167,
+        "name_ar": "ريمة",
+        "elevation": 2600,
+        "region": "highland",
+    },
+    "marib": {
+        "lat": 15.4667,
+        "lon": 45.3500,
+        "name_ar": "مأرب",
+        "elevation": 1100,
+        "region": "desert",
+    },
     # المنطقة الساحلية الغربية - Western Coastal Region
-    "hodeidah": {"lat": 14.7979, "lon": 42.9540, "name_ar": "الحديدة", "elevation": 12, "region": "coastal"},
-
+    "hodeidah": {
+        "lat": 14.7979,
+        "lon": 42.9540,
+        "name_ar": "الحديدة",
+        "elevation": 12,
+        "region": "coastal",
+    },
     # المنطقة الجنوبية - Southern Region
-    "aden": {"lat": 12.7855, "lon": 45.0187, "name_ar": "عدن", "elevation": 6, "region": "coastal"},
-    "lahij": {"lat": 13.0500, "lon": 44.8833, "name_ar": "لحج", "elevation": 150, "region": "highland"},
-    "ad_dali": {"lat": 13.7000, "lon": 44.7333, "name_ar": "الضالع", "elevation": 1500, "region": "highland"},
-    "abyan": {"lat": 13.0167, "lon": 45.3667, "name_ar": "أبين", "elevation": 50, "region": "coastal"},
-
+    "aden": {
+        "lat": 12.7855,
+        "lon": 45.0187,
+        "name_ar": "عدن",
+        "elevation": 6,
+        "region": "coastal",
+    },
+    "lahij": {
+        "lat": 13.0500,
+        "lon": 44.8833,
+        "name_ar": "لحج",
+        "elevation": 150,
+        "region": "highland",
+    },
+    "ad_dali": {
+        "lat": 13.7000,
+        "lon": 44.7333,
+        "name_ar": "الضالع",
+        "elevation": 1500,
+        "region": "highland",
+    },
+    "abyan": {
+        "lat": 13.0167,
+        "lon": 45.3667,
+        "name_ar": "أبين",
+        "elevation": 50,
+        "region": "coastal",
+    },
     # المنطقة الشرقية - Eastern Region
-    "hadramaut": {"lat": 15.9500, "lon": 48.7833, "name_ar": "حضرموت", "elevation": 650, "region": "desert"},
-    "shabwah": {"lat": 14.5333, "lon": 46.8333, "name_ar": "شبوة", "elevation": 900, "region": "desert"},
-    "al_mahrah": {"lat": 16.0667, "lon": 52.2333, "name_ar": "المهرة", "elevation": 200, "region": "coastal"},
-
+    "hadramaut": {
+        "lat": 15.9500,
+        "lon": 48.7833,
+        "name_ar": "حضرموت",
+        "elevation": 650,
+        "region": "desert",
+    },
+    "shabwah": {
+        "lat": 14.5333,
+        "lon": 46.8333,
+        "name_ar": "شبوة",
+        "elevation": 900,
+        "region": "desert",
+    },
+    "al_mahrah": {
+        "lat": 16.0667,
+        "lon": 52.2333,
+        "name_ar": "المهرة",
+        "elevation": 200,
+        "region": "coastal",
+    },
     # الجزر - Islands
-    "socotra": {"lat": 12.4634, "lon": 53.8237, "name_ar": "سقطرى", "elevation": 250, "region": "island"},
+    "socotra": {
+        "lat": 12.4634,
+        "lon": 53.8237,
+        "name_ar": "سقطرى",
+        "elevation": 250,
+        "region": "island",
+    },
 }
 
 CONDITION_TRANSLATIONS = {
@@ -257,24 +390,24 @@ WIND_DIRECTIONS_AR = {
 
 # Open-Meteo WMO weather code mapping
 WMO_CODE_TO_CONDITION = {
-    0: WeatherCondition.CLEAR,           # Clear sky
-    1: WeatherCondition.CLEAR,           # Mainly clear
-    2: WeatherCondition.PARTLY_CLOUDY,   # Partly cloudy
-    3: WeatherCondition.CLOUDY,          # Overcast
-    45: WeatherCondition.FOG,            # Fog
-    48: WeatherCondition.FOG,            # Depositing rime fog
-    51: WeatherCondition.RAIN,           # Light drizzle
-    53: WeatherCondition.RAIN,           # Moderate drizzle
-    55: WeatherCondition.RAIN,           # Dense drizzle
-    61: WeatherCondition.RAIN,           # Slight rain
-    63: WeatherCondition.RAIN,           # Moderate rain
-    65: WeatherCondition.HEAVY_RAIN,     # Heavy rain
-    80: WeatherCondition.RAIN,           # Slight rain showers
-    81: WeatherCondition.RAIN,           # Moderate rain showers
-    82: WeatherCondition.HEAVY_RAIN,     # Violent rain showers
-    95: WeatherCondition.THUNDERSTORM,   # Thunderstorm
-    96: WeatherCondition.THUNDERSTORM,   # Thunderstorm with slight hail
-    99: WeatherCondition.THUNDERSTORM,   # Thunderstorm with heavy hail
+    0: WeatherCondition.CLEAR,  # Clear sky
+    1: WeatherCondition.CLEAR,  # Mainly clear
+    2: WeatherCondition.PARTLY_CLOUDY,  # Partly cloudy
+    3: WeatherCondition.CLOUDY,  # Overcast
+    45: WeatherCondition.FOG,  # Fog
+    48: WeatherCondition.FOG,  # Depositing rime fog
+    51: WeatherCondition.RAIN,  # Light drizzle
+    53: WeatherCondition.RAIN,  # Moderate drizzle
+    55: WeatherCondition.RAIN,  # Dense drizzle
+    61: WeatherCondition.RAIN,  # Slight rain
+    63: WeatherCondition.RAIN,  # Moderate rain
+    65: WeatherCondition.HEAVY_RAIN,  # Heavy rain
+    80: WeatherCondition.RAIN,  # Slight rain showers
+    81: WeatherCondition.RAIN,  # Moderate rain showers
+    82: WeatherCondition.HEAVY_RAIN,  # Violent rain showers
+    95: WeatherCondition.THUNDERSTORM,  # Thunderstorm
+    96: WeatherCondition.THUNDERSTORM,  # Thunderstorm with slight hail
+    99: WeatherCondition.THUNDERSTORM,  # Thunderstorm with heavy hail
 }
 
 # OpenWeatherMap condition mapping
@@ -344,7 +477,9 @@ async def fetch_open_meteo_current(lat: float, lon: float) -> Optional[Dict[str,
         return None
 
 
-async def fetch_open_meteo_forecast(lat: float, lon: float, days: int = 7) -> Optional[Dict[str, Any]]:
+async def fetch_open_meteo_forecast(
+    lat: float, lon: float, days: int = 7
+) -> Optional[Dict[str, Any]]:
     """
     Fetch weather forecast from Open-Meteo API
     جلب توقعات الطقس من Open-Meteo API
@@ -392,7 +527,9 @@ async def fetch_open_meteo_forecast(lat: float, lon: float, days: int = 7) -> Op
         return None
 
 
-async def fetch_openweathermap_current(lat: float, lon: float) -> Optional[Dict[str, Any]]:
+async def fetch_openweathermap_current(
+    lat: float, lon: float
+) -> Optional[Dict[str, Any]]:
     """
     Fetch current weather from OpenWeatherMap API
     جلب الطقس الحالي من OpenWeatherMap API
@@ -421,7 +558,9 @@ async def fetch_openweathermap_current(lat: float, lon: float) -> Optional[Dict[
         return None
 
 
-async def fetch_openweathermap_forecast(lat: float, lon: float) -> Optional[Dict[str, Any]]:
+async def fetch_openweathermap_forecast(
+    lat: float, lon: float
+) -> Optional[Dict[str, Any]]:
     """
     Fetch 5-day forecast from OpenWeatherMap API (free tier)
     جلب توقعات 5 أيام من OpenWeatherMap API
@@ -509,13 +648,25 @@ def parse_open_meteo_forecast(
             HourlyForecast(
                 datetime=datetime.fromisoformat(time_str),
                 temperature_c=round(hourly_data.get("temperature_2m", [25] * 48)[i], 1),
-                feels_like_c=round(hourly_data.get("apparent_temperature", [25] * 48)[i], 1),
-                humidity_percent=round(hourly_data.get("relative_humidity_2m", [50] * 48)[i], 0),
-                wind_speed_kmh=round(hourly_data.get("wind_speed_10m", [10] * 48)[i], 1),
+                feels_like_c=round(
+                    hourly_data.get("apparent_temperature", [25] * 48)[i], 1
+                ),
+                humidity_percent=round(
+                    hourly_data.get("relative_humidity_2m", [50] * 48)[i], 0
+                ),
+                wind_speed_kmh=round(
+                    hourly_data.get("wind_speed_10m", [10] * 48)[i], 1
+                ),
                 wind_direction=wind_dir,
-                precipitation_mm=round(hourly_data.get("precipitation", [0] * 48)[i], 1),
-                precipitation_probability=round(hourly_data.get("precipitation_probability", [0] * 48)[i], 0),
-                cloud_cover_percent=round(hourly_data.get("cloud_cover", [0] * 48)[i], 0),
+                precipitation_mm=round(
+                    hourly_data.get("precipitation", [0] * 48)[i], 1
+                ),
+                precipitation_probability=round(
+                    hourly_data.get("precipitation_probability", [0] * 48)[i], 0
+                ),
+                cloud_cover_percent=round(
+                    hourly_data.get("cloud_cover", [0] * 48)[i], 0
+                ),
                 uv_index=round(hourly_data.get("uv_index", [5] * 48)[i], 1),
                 condition=condition,
                 condition_ar=CONDITION_TRANSLATIONS[condition],
@@ -537,7 +688,9 @@ def parse_open_meteo_forecast(
         # Agricultural summary based on conditions
         if temp_max > 38:
             summary_ar = "⚠️ حرارة مرتفعة - ري إضافي مطلوب وتجنب العمل وقت الذروة"
-            summary_en = "⚠️ High heat - extra irrigation needed, avoid work during peak hours"
+            summary_en = (
+                "⚠️ High heat - extra irrigation needed, avoid work during peak hours"
+            )
         elif precip > 20:
             summary_ar = "🌧️ أمطار متوقعة - تأجيل الرش والتسميد"
             summary_en = "🌧️ Rain expected - postpone spraying and fertilization"
@@ -558,9 +711,13 @@ def parse_open_meteo_forecast(
                 temp_max_c=round(temp_max, 1),
                 temp_min_c=round(temp_min, 1),
                 humidity_avg=50,  # Average not directly available
-                wind_speed_avg_kmh=round(daily_data.get("wind_speed_10m_max", [15] * 14)[i] * 0.7, 1),
+                wind_speed_avg_kmh=round(
+                    daily_data.get("wind_speed_10m_max", [15] * 14)[i] * 0.7, 1
+                ),
                 precipitation_total_mm=round(precip, 1),
-                precipitation_probability=round(daily_data.get("precipitation_probability_max", [0] * 14)[i], 0),
+                precipitation_probability=round(
+                    daily_data.get("precipitation_probability_max", [0] * 14)[i], 0
+                ),
                 sunrise=sunrise,
                 sunset=sunset,
                 uv_index_max=round(daily_data.get("uv_index_max", [8] * 14)[i], 1),
@@ -631,7 +788,9 @@ async def get_real_current_weather(location_id: str) -> Optional[CurrentWeather]
                 visibility_km=round(data.get("visibility", 10000) / 1000, 1),
                 cloud_cover_percent=round(clouds.get("all", 0), 0),
                 uv_index=5.0,  # Not in basic OWM API
-                dew_point_c=round(main.get("temp", 25) - (100 - main.get("humidity", 50)) / 5, 1),
+                dew_point_c=round(
+                    main.get("temp", 25) - (100 - main.get("humidity", 50)) / 5, 1
+                ),
                 condition=condition,
                 condition_ar=CONDITION_TRANSLATIONS[condition],
             )
@@ -641,7 +800,9 @@ async def get_real_current_weather(location_id: str) -> Optional[CurrentWeather]
     return None
 
 
-async def get_real_forecast(location_id: str, days: int = 7) -> Optional[tuple[List[HourlyForecast], List[DailyForecast]]]:
+async def get_real_forecast(
+    location_id: str, days: int = 7
+) -> Optional[tuple[List[HourlyForecast], List[DailyForecast]]]:
     """
     Get real weather forecast from configured API provider
     جلب توقعات الطقس الحقيقية من مزود API المكون
@@ -1041,10 +1202,14 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
             irrig_en = f"💧 High irrigation need today ({et0} mm) - morning and evening irrigation required"
         elif et0 > 4:
             irrig_ar = f"💧 احتياج ري متوسط ({et0} ملم) - ري واحد كافي"
-            irrig_en = f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
+            irrig_en = (
+                f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
+            )
         else:
             irrig_ar = f"💧 احتياج ري منخفض ({et0} ملم) - تقليل الري ممكن"
-            irrig_en = f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
+            irrig_en = (
+                f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
+            )
 
         return AgriculturalWeatherReport(
             location_id=location_id,

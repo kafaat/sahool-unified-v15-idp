@@ -28,7 +28,9 @@ import os
 import sys
 
 # Add shared middleware to path
-shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+shared_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "shared")
+)
 sys.path.insert(0, shared_path)
 
 # Database imports
@@ -43,6 +45,11 @@ from .repository import (
 # Notification clients
 from .sms_client import get_sms_client
 from .email_client import get_email_client
+
+# Multi-channel support
+from .channels_controller import router as channels_router
+from .preferences_controller import router as preferences_router
+from .preferences_service import PreferencesService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -74,6 +81,7 @@ class NotificationChannel(str, Enum):
     PUSH = "push"
     SMS = "sms"
     EMAIL = "email"
+    WHATSAPP = "whatsapp"
     IN_APP = "in_app"
 
 
@@ -159,6 +167,7 @@ CROP_AR = {
 
 class FarmerProfile(BaseModel):
     """ملف المزارع للإشعارات المخصصة"""
+
     farmer_id: str
     name: str
     name_ar: str
@@ -175,6 +184,7 @@ class FarmerProfile(BaseModel):
 
 class NotificationPreferences(BaseModel):
     """تفضيلات الإشعارات"""
+
     farmer_id: str
     weather_alerts: bool = True
     pest_alerts: bool = True
@@ -188,6 +198,7 @@ class NotificationPreferences(BaseModel):
 
 class Notification(BaseModel):
     """إشعار"""
+
     id: str
     type: NotificationType
     type_ar: str
@@ -210,6 +221,7 @@ class Notification(BaseModel):
 
 class CreateNotificationRequest(BaseModel):
     """طلب إنشاء إشعار"""
+
     type: NotificationType
     priority: NotificationPriority = NotificationPriority.MEDIUM
     title: str
@@ -226,6 +238,7 @@ class CreateNotificationRequest(BaseModel):
 
 class WeatherAlertRequest(BaseModel):
     """طلب تنبيه طقس"""
+
     governorates: List[Governorate]
     alert_type: str  # frost, heat_wave, storm, flood, drought
     severity: NotificationPriority
@@ -235,6 +248,7 @@ class WeatherAlertRequest(BaseModel):
 
 class PestAlertRequest(BaseModel):
     """طلب تنبيه آفات"""
+
     governorate: Governorate
     pest_name: str
     pest_name_ar: str
@@ -246,6 +260,7 @@ class PestAlertRequest(BaseModel):
 
 class IrrigationReminderRequest(BaseModel):
     """طلب تذكير ري"""
+
     farmer_id: str
     field_id: str
     field_name: str
@@ -329,7 +344,7 @@ async def create_notification(
     expires_in_hours: Optional[int] = 24,
     tenant_id: Optional[str] = None,
 ):
-    """إنشاء إشعار جديد - Database version"""
+    """إنشاء إشعار جديد - Database version with preference checking"""
 
     # Determine target farmers based on criteria
     recipients = determine_recipients_by_criteria(
@@ -341,8 +356,26 @@ async def create_notification(
     # Create notification for each recipient
     notifications = []
     for farmer_id in recipients:
+        # Check user preferences for this event type
+        should_send, preferred_channels = await PreferencesService.check_if_should_send(
+            user_id=farmer_id,
+            event_type=type.value,
+            tenant_id=tenant_id,
+        )
+
+        if not should_send:
+            logger.debug(
+                f"Skipping notification for user {farmer_id} - event type disabled in preferences"
+            )
+            continue
+
+        # Use preferred channels if available, otherwise use provided channels
+        final_channels = (
+            preferred_channels if preferred_channels else [ch.value for ch in channels]
+        )
+
         # Get primary channel from list
-        channel = channels[0].value if channels else "in_app"
+        channel = final_channels[0] if final_channels else "in_app"
 
         notification = await NotificationRepository.create(
             user_id=farmer_id,
@@ -358,28 +391,35 @@ async def create_notification(
                 **data,
                 "type_ar": NOTIFICATION_TYPE_AR[type],
                 "priority_ar": PRIORITY_AR[priority],
-                "channels": [ch.value for ch in channels],
+                "channels": final_channels,
             },
-            target_governorates=[g.value for g in target_governorates] if target_governorates else None,
+            target_governorates=(
+                [g.value for g in target_governorates] if target_governorates else None
+            ),
             target_crops=[c.value for c in target_crops] if target_crops else None,
             expires_in_hours=expires_in_hours,
         )
         notifications.append(notification)
 
+        # Send notifications via appropriate channels (async background task)
+        for channel_name in final_channels:
+            try:
+                # Convert channel name string to enum
+                channel_enum = NotificationChannel(channel_name)
+                asyncio.create_task(
+                    send_notification_via_channel(
+                        notification=notification,
+                        channel=channel_enum,
+                        farmer_id=notification.user_id,
+                    )
+                )
+            except ValueError:
+                logger.warning(f"Invalid channel type: {channel_name}")
+                continue
+
     logger.info(
         f"📬 Created {len(notifications)} notification(s) for {len(recipients)} farmer(s)"
     )
-
-    # Send notifications via appropriate channels (async background task)
-    for notification in notifications:
-        for channel in channels:
-            asyncio.create_task(
-                send_notification_via_channel(
-                    notification=notification,
-                    channel=channel,
-                    farmer_id=notification.user_id,
-                )
-            )
 
     # Return first notification for API response compatibility
     return notifications[0] if notifications else None
@@ -392,7 +432,7 @@ async def send_notification_via_channel(
 ):
     """
     إرسال إشعار عبر قناة معينة
-    Send notification via specific channel (SMS, Email, or Push)
+    Send notification via specific channel (SMS, Email, Push, or WhatsApp)
     """
     try:
         if channel == NotificationChannel.SMS:
@@ -401,6 +441,8 @@ async def send_notification_via_channel(
             await send_email_notification(notification, farmer_id)
         elif channel == NotificationChannel.PUSH:
             await send_push_notification(notification, farmer_id)
+        elif channel == NotificationChannel.WHATSAPP:
+            await send_whatsapp_notification(notification, farmer_id)
         # IN_APP notifications are already stored in database, no action needed
 
     except Exception as e:
@@ -436,7 +478,9 @@ async def send_sms_notification(notification, farmer_id: str):
             return
 
         # Send SMS
-        language = farmer_profile.language if hasattr(farmer_profile, 'language') else "ar"
+        language = (
+            farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
+        )
         message_sid = await sms_client.send_sms(
             to=farmer_profile.phone,
             body=notification.title + "\n" + notification.body,
@@ -494,7 +538,9 @@ async def send_email_notification(notification, farmer_id: str):
             return
 
         # Send Email
-        language = farmer_profile.language if hasattr(farmer_profile, 'language') else "ar"
+        language = (
+            farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
+        )
 
         # Create HTML email body
         html_body = f"""
@@ -565,13 +611,17 @@ async def send_push_notification(notification, farmer_id: str):
 
         # Get Firebase client (assuming it's available from firebase_client.py)
         from .firebase_client import get_firebase_client
+
         firebase_client = get_firebase_client()
         if not firebase_client._initialized:
-            logger.warning("Firebase client not initialized, skipping push notification")
+            logger.warning(
+                "Firebase client not initialized, skipping push notification"
+            )
             return
 
         # Determine priority
         from .notification_types import NotificationPriority as NPriority
+
         priority_map = {
             "low": NPriority.LOW,
             "medium": NPriority.MEDIUM,
@@ -614,6 +664,53 @@ async def send_push_notification(notification, farmer_id: str):
         await NotificationLogRepository.create_log(
             notification_id=notification.id,
             channel="push",
+            status="failed",
+            error_message=str(e),
+        )
+
+
+async def send_whatsapp_notification(notification, farmer_id: str):
+    """إرسال إشعار عبر WhatsApp"""
+    try:
+        # Get farmer profile to get WhatsApp number
+        farmer_profile = FARMER_PROFILES.get(farmer_id)
+        if not farmer_profile or not farmer_profile.phone:
+            logger.warning(f"No WhatsApp number for farmer {farmer_id}")
+            await NotificationLogRepository.create_log(
+                notification_id=notification.id,
+                channel="whatsapp",
+                status="failed",
+                error_message="No WhatsApp number available",
+            )
+            return
+
+        # For now, WhatsApp integration is a placeholder
+        # In production, you would integrate with WhatsApp Business API or Twilio WhatsApp
+        logger.info(f"WhatsApp notification placeholder for {farmer_profile.phone}")
+
+        # Placeholder: Log as pending until WhatsApp client is implemented
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel="whatsapp",
+            status="pending",
+            error_message="WhatsApp client not yet implemented",
+        )
+
+        # TODO: Implement WhatsApp Business API integration
+        # Example using Twilio:
+        # from twilio.rest import Client
+        # client = Client(account_sid, auth_token)
+        # message = client.messages.create(
+        #     from_='whatsapp:+14155238886',
+        #     body=notification.title + "\n" + notification.body,
+        #     to=f'whatsapp:{farmer_profile.phone}'
+        # )
+
+    except Exception as e:
+        logger.error(f"Error sending WhatsApp notification: {e}")
+        await NotificationLogRepository.create_log(
+            notification_id=notification.id,
+            channel="whatsapp",
             status="failed",
             error_message=str(e),
         )
@@ -708,6 +805,7 @@ def get_weather_alert_message(alert_type: str, governorate: Governorate) -> tupl
 _nats_subscriber = None
 try:
     from .nats_subscriber import start_subscription, stop_subscription
+
     _nats_available = True
 except ImportError:
     _nats_available = False
@@ -742,8 +840,12 @@ def create_notification_from_nats(notification_data: Dict[str, Any]):
             "in_app": NotificationChannel.IN_APP,
         }
 
-        ntype = type_mapping.get(notification_data.get("type", "system"), NotificationType.SYSTEM)
-        priority = priority_mapping.get(notification_data.get("priority", "medium"), NotificationPriority.MEDIUM)
+        ntype = type_mapping.get(
+            notification_data.get("type", "system"), NotificationType.SYSTEM
+        )
+        priority = priority_mapping.get(
+            notification_data.get("priority", "medium"), NotificationPriority.MEDIUM
+        )
         channels = [
             channel_mapping.get(ch, NotificationChannel.IN_APP)
             for ch in notification_data.get("channels", ["in_app"])
@@ -774,15 +876,15 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 Starting Notification Service...")
 
-    # Initialize database
+    # Initialize database (non-blocking - service can still start)
     try:
         # In production, set create_db=False and use migrations
         create_db = os.getenv("CREATE_DB_SCHEMA", "false").lower() == "true"
         await init_db(create_db=create_db)
         logger.info("✅ Database initialized")
     except Exception as e:
-        logger.error(f"❌ Failed to initialize database: {e}")
-        raise
+        logger.warning(f"⚠️ Database initialization failed (service will continue): {e}")
+        # Don't raise - allow service to start in degraded mode
 
     # Start NATS subscriber (optional)
     if _nats_available:
@@ -798,7 +900,9 @@ async def lifespan(app: FastAPI):
         if sms_client._initialized:
             logger.info("✅ SMS client initialized")
         else:
-            logger.info("ℹ️  SMS client not configured (set TWILIO_* env vars to enable)")
+            logger.info(
+                "ℹ️  SMS client not configured (set TWILIO_* env vars to enable)"
+            )
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize SMS client: {e}")
 
@@ -808,7 +912,9 @@ async def lifespan(app: FastAPI):
         if email_client._initialized:
             logger.info("✅ Email client initialized")
         else:
-            logger.info("ℹ️  Email client not configured (set SENDGRID_* env vars to enable)")
+            logger.info(
+                "ℹ️  Email client not configured (set SENDGRID_* env vars to enable)"
+            )
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize Email client: {e}")
 
@@ -848,9 +954,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Include routers for multi-channel support
+app.include_router(channels_router)
+app.include_router(preferences_router)
+
 # Setup rate limiting middleware
 try:
     from middleware.rate_limiter import setup_rate_limiting
+
     setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
     logger.info("Rate limiting enabled")
 except ImportError as e:
@@ -867,13 +978,20 @@ except Exception as e:
 @app.get("/healthz")
 async def health_check():
     """Health check endpoint with database status"""
-    db_health = await check_db_health()
-    db_stats = await get_db_stats() if db_health.get("connected") else {}
+    try:
+        db_health = await check_db_health()
+        db_stats = await get_db_stats() if db_health.get("connected") else {}
+    except Exception as e:
+        logger.warning(f"Health check - database error: {e}")
+        db_health = {"status": "unavailable", "connected": False, "error": str(e)}
+        db_stats = {}
 
+    # Always return "ok" for container health - report degraded status in response body
     return {
-        "status": "ok" if db_health.get("connected") else "degraded",
+        "status": "ok",  # Container is healthy even if DB is down
         "service": "notification-service",
         "version": "15.4.0",
+        "mode": "normal" if db_health.get("connected") else "degraded",
         "nats_connected": _nats_available and _nats_subscriber is not None,
         "database": db_health,
         "stats": db_stats,
@@ -921,7 +1039,9 @@ async def create_custom_notification(request: CreateNotificationRequest):
 
 
 @app.post("/v1/alerts/weather")
-async def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
+async def create_weather_alert(
+    request: WeatherAlertRequest, background_tasks: BackgroundTasks
+):
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
@@ -946,9 +1066,7 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
         expires_in_hours=48,
     )
 
-    logger.info(
-        f"🌤️ Weather alert created for {len(request.governorates)} governorates"
-    )
+    logger.info(f"🌤️ Weather alert created for {len(request.governorates)} governorates")
 
     return {
         "id": str(notification.id),
@@ -1098,13 +1216,17 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
             raise HTTPException(status_code=404, detail="Notification not found")
 
         if notification.user_id != farmer_id:
-            raise HTTPException(status_code=403, detail="Not authorized to mark this notification")
+            raise HTTPException(
+                status_code=403, detail="Not authorized to mark this notification"
+            )
 
         # Mark as read
         success = await NotificationRepository.mark_as_read(notif_uuid)
 
         if not success:
-            raise HTTPException(status_code=500, detail="Failed to mark notification as read")
+            raise HTTPException(
+                status_code=500, detail="Failed to mark notification as read"
+            )
 
         return {
             "success": True,
@@ -1192,8 +1314,16 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
             user_id=farmer_id,
             channel=channel,
             enabled=enabled,
-            quiet_hours_start=datetime.strptime(preferences.quiet_hours_start, "%H:%M").time() if preferences.quiet_hours_start else None,
-            quiet_hours_end=datetime.strptime(preferences.quiet_hours_end, "%H:%M").time() if preferences.quiet_hours_end else None,
+            quiet_hours_start=(
+                datetime.strptime(preferences.quiet_hours_start, "%H:%M").time()
+                if preferences.quiet_hours_start
+                else None
+            ),
+            quiet_hours_end=(
+                datetime.strptime(preferences.quiet_hours_end, "%H:%M").time()
+                if preferences.quiet_hours_end
+                else None
+            ),
             min_priority=preferences.min_priority.value,
             notification_types={
                 "weather_alerts": preferences.weather_alerts,

@@ -42,6 +42,7 @@ try:
         ActionTemplateFactory,
         UrgencyLevel as ActionUrgency,
     )
+
     ACTION_TEMPLATE_AVAILABLE = True
 except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False
@@ -81,7 +82,7 @@ app = FastAPI(
     description="⚠️ DEPRECATED - Use crop-intelligence-service instead. خدمة الذكاء الاصطناعي لتشخيص أمراض النباتات | AI-powered Plant Disease Diagnosis",
     version=SERVICE_VERSION,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # CORS - Use centralized secure configuration
@@ -99,7 +100,9 @@ async def startup_event():
     logger.warning("=" * 80)
     logger.warning("⚠️  DEPRECATION WARNING")
     logger.warning("=" * 80)
-    logger.warning("This service (crop-health-ai) is DEPRECATED and will be removed in a future release.")
+    logger.warning(
+        "This service (crop-health-ai) is DEPRECATED and will be removed in a future release."
+    )
     logger.warning("Please migrate to 'crop-intelligence-service' instead.")
     logger.warning("Replacement service: crop-intelligence-service")
     logger.warning("Deprecation date: 2025-01-01")
@@ -113,9 +116,13 @@ async def add_deprecation_header(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-API-Deprecated"] = "true"
     response.headers["X-API-Deprecation-Date"] = "2025-01-01"
-    response.headers["X-API-Deprecation-Info"] = "This service is deprecated. Use crop-intelligence-service instead."
+    response.headers["X-API-Deprecation-Info"] = (
+        "This service is deprecated. Use crop-intelligence-service instead."
+    )
     response.headers["X-API-Sunset"] = "2025-06-01"
-    response.headers["Link"] = '<http://crop-intelligence-service:8095>; rel="successor-version"'
+    response.headers["Link"] = (
+        '<http://crop-intelligence-service:8095>; rel="successor-version"'
+    )
     response.headers["Deprecation"] = "true"
     return response
 
@@ -123,6 +130,7 @@ async def add_deprecation_header(request: Request, call_next):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Check
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/healthz", response_model=HealthCheckResponse)
 async def health_check():
@@ -132,15 +140,20 @@ async def health_check():
         service=SERVICE_NAME,
         version=SERVICE_VERSION,
         model_loaded=prediction_service.is_loaded,
-        model_type=prediction_service.model_type if prediction_service.is_real_model else "mock",
+        model_type=(
+            prediction_service.model_type
+            if prediction_service.is_real_model
+            else "mock"
+        ),
         is_real_model=prediction_service.is_real_model,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Diagnosis Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.post("/v1/diagnose", response_model=DiagnosisResult)
 async def diagnose_plant_disease(
@@ -151,7 +164,7 @@ async def diagnose_plant_disease(
     governorate: Optional[str] = Query(None, description="المحافظة"),
     lat: Optional[float] = Query(None, description="خط العرض"),
     lng: Optional[float] = Query(None, description="خط الطول"),
-    farmer_id: Optional[str] = Query(None, description="معرف المزارع")
+    farmer_id: Optional[str] = Query(None, description="معرف المزارع"),
 ):
     """
     🔬 تشخيص أمراض النباتات بالذكاء الاصطناعي
@@ -159,13 +172,15 @@ async def diagnose_plant_disease(
     AI-powered plant disease diagnosis from image.
     """
     # Validate image
-    if not image.content_type.startswith('image/'):
+    if not image.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="الملف المرفوع ليس صورة صالحة")
 
     image_bytes = await image.read()
 
     if len(image_bytes) > 10 * 1024 * 1024:  # 10MB limit
-        raise HTTPException(status_code=400, detail="حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت)")
+        raise HTTPException(
+            status_code=400, detail="حجم الصورة كبير جداً (الحد الأقصى 10 ميجابايت)"
+        )
 
     # Delegate to service
     return diagnosis_service.diagnose(
@@ -188,11 +203,13 @@ async def batch_diagnose(
 ):
     """📦 تشخيص دفعة من الصور"""
     if len(images) > 20:
-        raise HTTPException(status_code=400, detail="الحد الأقصى 20 صورة في الدفعة الواحدة")
+        raise HTTPException(
+            status_code=400, detail="الحد الأقصى 20 صورة في الدفعة الواحدة"
+        )
 
     image_data = []
     for img in images:
-        if img.content_type.startswith('image/'):
+        if img.content_type.startswith("image/"):
             image_bytes = await img.read()
             image_data.append((image_bytes, img.filename))
 
@@ -202,6 +219,7 @@ async def batch_diagnose(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Disease Information Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/v1/diseases", response_model=List[dict])
 async def list_diseases(
@@ -230,12 +248,13 @@ async def get_treatment_details(disease_id: str):
 # Expert Review Endpoint
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.post("/v1/expert-review")
 async def request_expert_review(
     diagnosis_id: str = Query(..., description="معرف التشخيص"),
     image: UploadFile = File(...),
     farmer_notes: Optional[str] = Query(None, description="ملاحظات المزارع"),
-    urgency: str = Query("normal", enum=["low", "normal", "high", "urgent"])
+    urgency: str = Query("normal", enum=["low", "normal", "high", "urgent"]),
 ):
     """👨‍🔬 طلب مراجعة خبير"""
     import uuid
@@ -244,9 +263,11 @@ async def request_expert_review(
         "review_id": str(uuid.uuid4()),
         "diagnosis_id": diagnosis_id,
         "status": "pending",
-        "estimated_response_time": "24-48 hours" if urgency != "urgent" else "2-4 hours",
+        "estimated_response_time": (
+            "24-48 hours" if urgency != "urgent" else "2-4 hours"
+        ),
         "message": "تم إرسال طلب المراجعة. سيتواصل معك خبير قريباً.",
-        "message_en": "Review request submitted. An expert will contact you soon."
+        "message_en": "Review request submitted. An expert will contact you soon.",
     }
 
 
@@ -254,13 +275,14 @@ async def request_expert_review(
 # Admin Dashboard Endpoints (Epidemic Monitoring Center)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.get("/v1/diagnoses", response_model=List[dict])
 async def get_diagnosis_history(
     status: Optional[str] = Query(None, description="فلترة حسب الحالة"),
     severity: Optional[str] = Query(None, description="فلترة حسب الخطورة"),
     governorate: Optional[str] = Query(None, description="فلترة حسب المحافظة"),
     limit: int = Query(50, ge=1, le=200, description="عدد النتائج"),
-    offset: int = Query(0, ge=0, description="بداية النتائج")
+    offset: int = Query(0, ge=0, description="بداية النتائج"),
 ):
     """📋 سجل التشخيصات للوحة التحكم"""
     return diagnosis_service.get_history(status, severity, governorate, limit, offset)
@@ -284,11 +306,17 @@ async def get_diagnosis_by_id(diagnosis_id: str):
 @app.patch("/v1/diagnoses/{diagnosis_id}")
 async def update_diagnosis_status(
     diagnosis_id: str,
-    status: str = Query(..., description="الحالة الجديدة", enum=["pending", "confirmed", "rejected", "treated"]),
-    expert_notes: Optional[str] = Query(None, description="ملاحظات الخبير")
+    status: str = Query(
+        ...,
+        description="الحالة الجديدة",
+        enum=["pending", "confirmed", "rejected", "treated"],
+    ),
+    expert_notes: Optional[str] = Query(None, description="ملاحظات الخبير"),
 ):
     """✏️ تحديث حالة التشخيص"""
-    result = diagnosis_service.update_diagnosis_status(diagnosis_id, status, expert_notes)
+    result = diagnosis_service.update_diagnosis_status(
+        diagnosis_id, status, expert_notes
+    )
     if not result:
         raise HTTPException(status_code=404, detail="التشخيص غير موجود")
     return result
@@ -308,7 +336,7 @@ async def diagnose_with_action(
     governorate: Optional[str] = Query(None, description="المحافظة"),
     lat: Optional[float] = Query(None, description="خط العرض"),
     lng: Optional[float] = Query(None, description="خط الطول"),
-    farmer_id: Optional[str] = Query(None, description="معرف المزارع")
+    farmer_id: Optional[str] = Query(None, description="معرف المزارع"),
 ):
     """
     🔬 تشخيص أمراض النباتات مع ActionTemplate
@@ -324,7 +352,7 @@ async def diagnose_with_action(
         governorate=governorate,
         lat=lat,
         lng=lng,
-        farmer_id=farmer_id
+        farmer_id=farmer_id,
     )
 
     # If ActionTemplate not available, return diagnosis only
@@ -336,8 +364,8 @@ async def diagnose_with_action(
         }
 
     # Determine urgency based on severity
-    severity = getattr(diagnosis, 'severity', 'medium')
-    confidence = getattr(diagnosis, 'confidence', 0.7)
+    severity = getattr(diagnosis, "severity", "medium")
+    confidence = getattr(diagnosis, "confidence", 0.7)
 
     urgency_map = {
         "critical": ActionUrgency.CRITICAL,
@@ -348,9 +376,9 @@ async def diagnose_with_action(
     urgency = urgency_map.get(severity, ActionUrgency.MEDIUM)
 
     # Get disease info
-    disease_name_ar = getattr(diagnosis, 'disease_name_ar', 'مرض غير محدد')
-    disease_name_en = getattr(diagnosis, 'disease_name_en', 'Unknown disease')
-    diagnosis_id = getattr(diagnosis, 'diagnosis_id', None)
+    disease_name_ar = getattr(diagnosis, "disease_name_ar", "مرض غير محدد")
+    disease_name_en = getattr(diagnosis, "disease_name_en", "Unknown disease")
+    diagnosis_id = getattr(diagnosis, "diagnosis_id", None)
 
     # Create inspection action first
     action = ActionTemplateFactory.create_disease_inspection_action(
@@ -358,26 +386,26 @@ async def diagnose_with_action(
         disease_name_ar=disease_name_ar,
         disease_name_en=disease_name_en,
         confidence=confidence,
-        affected_area_percent=getattr(diagnosis, 'affected_area_percent', 10.0),
+        affected_area_percent=getattr(diagnosis, "affected_area_percent", 10.0),
         urgency=urgency,
         source_analysis_id=diagnosis_id,
-        recommended_treatment=getattr(diagnosis, 'treatment_ar', None),
+        recommended_treatment=getattr(diagnosis, "treatment_ar", None),
     )
 
     action.calculate_priority_score()
 
     # If treatment is recommended, also create spray action
     spray_action = None
-    treatment = getattr(diagnosis, 'treatment', None)
+    treatment = getattr(diagnosis, "treatment", None)
     if treatment and severity in ["critical", "high"]:
         pesticide_type = "fungicide"  # Default for diseases
 
         spray_action = ActionTemplateFactory.create_spray_action(
             field_id=field_id or "unknown",
             pesticide_type=pesticide_type,
-            pesticide_name_ar=getattr(treatment, 'pesticide_name_ar', 'مبيد فطري'),
-            pesticide_name_en=getattr(treatment, 'pesticide_name_en', 'Fungicide'),
-            concentration=getattr(treatment, 'concentration', '0.2%'),
+            pesticide_name_ar=getattr(treatment, "pesticide_name_ar", "مبيد فطري"),
+            pesticide_name_en=getattr(treatment, "pesticide_name_en", "Fungicide"),
+            concentration=getattr(treatment, "concentration", "0.2%"),
             area_hectares=1.0,  # Default
             urgency=urgency,
             confidence=confidence,
@@ -403,10 +431,7 @@ async def diagnose_with_action(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=SERVICE_PORT,
-        reload=True,
-        log_level="info"
+        "main:app", host="0.0.0.0", port=SERVICE_PORT, reload=True, log_level="info"
     )

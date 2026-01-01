@@ -19,54 +19,58 @@ from enum import Enum
 
 class YemenRegion(str, Enum):
     """مناطق اليمن الزراعية"""
-    TIHAMA = "تهامة"                    # السهل الساحلي الغربي
+
+    TIHAMA = "تهامة"  # السهل الساحلي الغربي
     HIGHLANDS_NORTH = "المرتفعات الشمالية"  # صنعاء، صعدة، عمران
     HIGHLANDS_CENTRAL = "المرتفعات الوسطى"  # ذمار، إب، البيضاء
     HIGHLANDS_SOUTH = "المرتفعات الجنوبية"  # تعز، لحج
-    HADRAMAWT = "حضرموت"                # وادي حضرموت
-    MARIB = "مأرب"                      # الجوف، مأرب
-    SHABWA = "شبوة"                     # شبوة، المهرة
-    ADEN = "عدن"                        # عدن، أبين
+    HADRAMAWT = "حضرموت"  # وادي حضرموت
+    MARIB = "مأرب"  # الجوف، مأرب
+    SHABWA = "شبوة"  # شبوة، المهرة
+    ADEN = "عدن"  # عدن، أبين
 
 
 class VarietyOrigin(str, Enum):
     """أصل الصنف"""
-    LOCAL = "local"              # صنف محلي بلدي
-    IMPROVED_LOCAL = "improved"   # صنف محلي محسن
-    INTRODUCED = "introduced"     # صنف مدخل
-    HYBRID = "hybrid"            # هجين
+
+    LOCAL = "local"  # صنف محلي بلدي
+    IMPROVED_LOCAL = "improved"  # صنف محلي محسن
+    INTRODUCED = "introduced"  # صنف مدخل
+    HYBRID = "hybrid"  # هجين
 
 
 class MaturityClass(str, Enum):
     """فئة النضج"""
-    VERY_EARLY = "very_early"    # مبكر جداً
-    EARLY = "early"              # مبكر
-    MEDIUM = "medium"            # متوسط
-    LATE = "late"                # متأخر
-    VERY_LATE = "very_late"      # متأخر جداً
+
+    VERY_EARLY = "very_early"  # مبكر جداً
+    EARLY = "early"  # مبكر
+    MEDIUM = "medium"  # متوسط
+    LATE = "late"  # متأخر
+    VERY_LATE = "very_late"  # متأخر جداً
 
 
 @dataclass
 class Variety:
     """معلومات الصنف"""
-    code: str                           # رمز الصنف
-    crop_code: str                      # رمز المحصول
-    name_ar: str                        # الاسم بالعربية
-    name_en: str                        # الاسم بالإنجليزية
-    name_local: Optional[str]           # الاسم المحلي
-    origin: VarietyOrigin               # أصل الصنف
-    maturity: MaturityClass             # فئة النضج
-    days_to_maturity: int               # أيام حتى النضج
-    yield_potential_ton_ha: float       # إمكانية الإنتاج (طن/هكتار)
-    suitable_regions: List[YemenRegion] # المناطق المناسبة
-    altitude_min_m: Optional[int]       # الارتفاع الأدنى (متر)
-    altitude_max_m: Optional[int]       # الارتفاع الأقصى (متر)
-    drought_tolerance: str              # تحمل الجفاف (منخفض/متوسط/عالي)
-    heat_tolerance: str                 # تحمل الحرارة
-    disease_resistance: List[str]       # مقاومة الأمراض
-    special_traits: List[str]           # سمات خاصة
-    seed_source: str                    # مصدر البذور
-    description_ar: str                 # وصف بالعربية
+
+    code: str  # رمز الصنف
+    crop_code: str  # رمز المحصول
+    name_ar: str  # الاسم بالعربية
+    name_en: str  # الاسم بالإنجليزية
+    name_local: Optional[str]  # الاسم المحلي
+    origin: VarietyOrigin  # أصل الصنف
+    maturity: MaturityClass  # فئة النضج
+    days_to_maturity: int  # أيام حتى النضج
+    yield_potential_ton_ha: float  # إمكانية الإنتاج (طن/هكتار)
+    suitable_regions: List[YemenRegion]  # المناطق المناسبة
+    altitude_min_m: Optional[int]  # الارتفاع الأدنى (متر)
+    altitude_max_m: Optional[int]  # الارتفاع الأقصى (متر)
+    drought_tolerance: str  # تحمل الجفاف (منخفض/متوسط/عالي)
+    heat_tolerance: str  # تحمل الحرارة
+    disease_resistance: List[str]  # مقاومة الأمراض
+    special_traits: List[str]  # سمات خاصة
+    seed_source: str  # مصدر البذور
+    description_ar: str  # وصف بالعربية
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -92,7 +96,7 @@ WHEAT_VARIETIES = [
         disease_resistance=["صدأ الساق", "البياض الدقيقي"],
         special_traits=["جودة خبز ممتازة", "متأقلم محلياً"],
         seed_source="AREA اليمن",
-        description_ar="صنف محلي متأقلم مع ظروف المرتفعات اليمنية، ذو جودة خبز ممتازة"
+        description_ar="صنف محلي متأقلم مع ظروف المرتفعات اليمنية، ذو جودة خبز ممتازة",
     ),
     Variety(
         code="WHT-YEM-002",
@@ -112,7 +116,7 @@ WHEAT_VARIETIES = [
         disease_resistance=["صدأ الأوراق"],
         special_traits=["إنتاجية عالية", "مقاوم للحرارة"],
         seed_source="مصر - ICARDA",
-        description_ar="صنف مدخل من مصر، مناسب للمناطق الحارة والمنخفضة"
+        description_ar="صنف مدخل من مصر، مناسب للمناطق الحارة والمنخفضة",
     ),
     Variety(
         code="WHT-YEM-003",
@@ -132,7 +136,7 @@ WHEAT_VARIETIES = [
         disease_resistance=["صدأ الساق", "صدأ الأوراق"],
         special_traits=["إنتاجية عالية جداً", "تحمل الإجهاد"],
         seed_source="مصر",
-        description_ar="من أفضل الأصناف المصرية، يعطي إنتاجية ممتازة في الظروف اليمنية"
+        description_ar="من أفضل الأصناف المصرية، يعطي إنتاجية ممتازة في الظروف اليمنية",
     ),
     Variety(
         code="WHT-YEM-004",
@@ -152,7 +156,7 @@ WHEAT_VARIETIES = [
         disease_resistance=["البياض الدقيقي", "التفحم"],
         special_traits=["مقاوم للجفاف", "جودة حبوب عالية"],
         seed_source="سوريا - ICARDA",
-        description_ar="صنف سوري ممتاز لتحمل الجفاف، مناسب للزراعة البعلية"
+        description_ar="صنف سوري ممتاز لتحمل الجفاف، مناسب للزراعة البعلية",
     ),
     Variety(
         code="WHT-YEM-005",
@@ -172,7 +176,7 @@ WHEAT_VARIETIES = [
         disease_resistance=["صدأ الساق"],
         special_traits=["تأقلم عالي للمرتفعات", "طعم مميز"],
         seed_source="مزارعو صعدة",
-        description_ar="صنف محلي من صعدة، متأقلم مع المرتفعات الباردة"
+        description_ar="صنف محلي من صعدة، متأقلم مع المرتفعات الباردة",
     ),
 ]
 
@@ -199,7 +203,7 @@ COFFEE_VARIETIES = [
         disease_resistance=["صدأ البن"],
         special_traits=["نكهة فريدة", "شهرة عالمية", "سعر عالي"],
         seed_source="مزارعو اليمن",
-        description_ar="أشهر بن يمني في العالم، نكهة شوكولاتة مميزة"
+        description_ar="أشهر بن يمني في العالم، نكهة شوكولاتة مميزة",
     ),
     Variety(
         code="COF-YEM-002",
@@ -219,7 +223,7 @@ COFFEE_VARIETIES = [
         disease_resistance=["صدأ البن"],
         special_traits=["نكهة حادة", "حموضة عالية"],
         seed_source="بني مطر",
-        description_ar="من أفضل أنواع البن اليمني، يزرع في منطقة بني مطر"
+        description_ar="من أفضل أنواع البن اليمني، يزرع في منطقة بني مطر",
     ),
     Variety(
         code="COF-YEM-003",
@@ -239,7 +243,7 @@ COFFEE_VARIETIES = [
         disease_resistance=["صدأ البن", "اللفحة"],
         special_traits=["حبوب كبيرة", "إنتاجية أعلى"],
         seed_source="حراز",
-        description_ar="صنف ممتاز من حراز، معروف بحبوبه الكبيرة"
+        description_ar="صنف ممتاز من حراز، معروف بحبوبه الكبيرة",
     ),
     Variety(
         code="COF-YEM-004",
@@ -259,7 +263,7 @@ COFFEE_VARIETIES = [
         disease_resistance=["صدأ البن"],
         special_traits=["نكهة متوازنة", "جودة عالية"],
         seed_source="يافع",
-        description_ar="من أصناف البن اليمني المميزة من منطقة يافع"
+        description_ar="من أصناف البن اليمني المميزة من منطقة يافع",
     ),
     Variety(
         code="COF-YEM-005",
@@ -279,7 +283,7 @@ COFFEE_VARIETIES = [
         disease_resistance=["صدأ البن"],
         special_traits=["نكهة فاكهية", "رائحة قوية"],
         seed_source="برع",
-        description_ar="صنف نادر من منطقة برع، نكهة فاكهية مميزة"
+        description_ar="صنف نادر من منطقة برع، نكهة فاكهية مميزة",
     ),
     Variety(
         code="COF-YEM-006",
@@ -299,7 +303,7 @@ COFFEE_VARIETIES = [
         disease_resistance=["صدأ البن", "البياض"],
         special_traits=["إنتاجية عالية", "تحمل الجفاف"],
         seed_source="ذمار",
-        description_ar="صنف منتج من ذمار، يتحمل الجفاف بشكل جيد"
+        description_ar="صنف منتج من ذمار، يتحمل الجفاف بشكل جيد",
     ),
     Variety(
         code="COF-YEM-007",
@@ -319,7 +323,7 @@ COFFEE_VARIETIES = [
         disease_resistance=["صدأ البن"],
         special_traits=["نكهة غنية", "حموضة متوازنة"],
         seed_source="حيمة",
-        description_ar="من أرقى أصناف البن اليمني من منطقة حيمة"
+        description_ar="من أرقى أصناف البن اليمني من منطقة حيمة",
     ),
 ]
 
@@ -346,7 +350,7 @@ SORGHUM_VARIETIES = [
         disease_resistance=["الذبول", "التفحم"],
         special_traits=["تحمل الملوحة", "غذاء رئيسي في تهامة"],
         seed_source="مزارعو تهامة",
-        description_ar="صنف رئيسي في سهل تهامة، يتحمل الحرارة والجفاف"
+        description_ar="صنف رئيسي في سهل تهامة، يتحمل الحرارة والجفاف",
     ),
     Variety(
         code="SOR-YEM-002",
@@ -366,7 +370,7 @@ SORGHUM_VARIETIES = [
         disease_resistance=["البياض الزغبي"],
         special_traits=["لون أحمر مميز", "قيمة غذائية عالية"],
         seed_source="مزارعو لحج",
-        description_ar="صنف محلي ذو لون أحمر، قيمة غذائية عالية"
+        description_ar="صنف محلي ذو لون أحمر، قيمة غذائية عالية",
     ),
     Variety(
         code="SOR-YEM-003",
@@ -386,7 +390,7 @@ SORGHUM_VARIETIES = [
         disease_resistance=["التفحم", "الذبول"],
         special_traits=["إنتاجية عالية", "حبوب كبيرة"],
         seed_source="وادي حضرموت",
-        description_ar="صنف ممتاز من وادي حضرموت، إنتاجية عالية"
+        description_ar="صنف ممتاز من وادي حضرموت، إنتاجية عالية",
     ),
 ]
 
@@ -413,7 +417,7 @@ DATE_VARIETIES = [
         disease_resistance=["سوسة النخيل"],
         special_traits=["حجم كبير", "سعر عالي", "تصدير"],
         seed_source="وادي حضرموت",
-        description_ar="أفخر أنواع التمور، حجم كبير وطعم ممتاز"
+        description_ar="أفخر أنواع التمور، حجم كبير وطعم ممتاز",
     ),
     Variety(
         code="DAT-YEM-002",
@@ -433,7 +437,7 @@ DATE_VARIETIES = [
         disease_resistance=["العفن", "سوسة النخيل"],
         special_traits=["يؤكل رطباً", "طعم عسلي"],
         seed_source="حضرموت",
-        description_ar="من أطيب أنواع الرطب، طعم عسلي مميز"
+        description_ar="من أطيب أنواع الرطب، طعم عسلي مميز",
     ),
     Variety(
         code="DAT-YEM-003",
@@ -453,7 +457,7 @@ DATE_VARIETIES = [
         disease_resistance=["سوسة النخيل"],
         special_traits=["طعم كراميل", "تخزين طويل"],
         seed_source="شبوة",
-        description_ar="صنف ممتاز، طعم كراميل، يتحمل التخزين"
+        description_ar="صنف ممتاز، طعم كراميل، يتحمل التخزين",
     ),
     Variety(
         code="DAT-YEM-004",
@@ -473,7 +477,7 @@ DATE_VARIETIES = [
         disease_resistance=["العفن"],
         special_traits=["حلاوة عالية", "قوام هش"],
         seed_source="حضرموت",
-        description_ar="من أحلى أنواع التمور، قوام هش ومميز"
+        description_ar="من أحلى أنواع التمور، قوام هش ومميز",
     ),
     Variety(
         code="DAT-YEM-005",
@@ -493,7 +497,7 @@ DATE_VARIETIES = [
         disease_resistance=["سوسة النخيل", "العفن"],
         special_traits=["حجم كبير جداً", "نادر"],
         seed_source="وادي دوعن",
-        description_ar="من أكبر أنواع التمور حجماً، صنف نادر وثمين"
+        description_ar="من أكبر أنواع التمور حجماً، صنف نادر وثمين",
     ),
 ]
 
@@ -520,7 +524,7 @@ TOMATO_VARIETIES = [
         disease_resistance=["الذبول الفيوزاريومي"],
         special_traits=["طعم ممتاز", "متأقلم محلياً"],
         seed_source="مزارعو اليمن",
-        description_ar="صنف محلي ذو طعم ممتاز، متأقلم مع الظروف المحلية"
+        description_ar="صنف محلي ذو طعم ممتاز، متأقلم مع الظروف المحلية",
     ),
     Variety(
         code="TOM-YEM-002",
@@ -540,7 +544,7 @@ TOMATO_VARIETIES = [
         disease_resistance=["الذبول", "الفيروسات", "النيماتودا"],
         special_traits=["إنتاجية عالية جداً", "ثمار متجانسة"],
         seed_source="شركات البذور",
-        description_ar="هجين تجاري عالي الإنتاجية، مناسب للإنتاج المكثف"
+        description_ar="هجين تجاري عالي الإنتاجية، مناسب للإنتاج المكثف",
     ),
     Variety(
         code="TOM-YEM-003",
@@ -560,7 +564,7 @@ TOMATO_VARIETIES = [
         disease_resistance=["الذبول", "البياض الدقيقي"],
         special_traits=["تحمل الحرارة", "صلابة عالية"],
         seed_source="شركات البذور",
-        description_ar="هجين متحمل للحرارة، مناسب لتهامة"
+        description_ar="هجين متحمل للحرارة، مناسب لتهامة",
     ),
     Variety(
         code="TOM-YEM-004",
@@ -580,7 +584,7 @@ TOMATO_VARIETIES = [
         disease_resistance=["الفيروسات"],
         special_traits=["ثمار صغيرة", "طعم حلو"],
         seed_source="شركات البذور",
-        description_ar="طماطم صغيرة الحجم، طعم حلو، للسلطات"
+        description_ar="طماطم صغيرة الحجم، طعم حلو، للسلطات",
     ),
 ]
 
@@ -607,7 +611,7 @@ MANGO_VARIETIES = [
         disease_resistance=["البياض الدقيقي", "الأنثراكنوز"],
         special_traits=["طعم ممتاز", "ثمار كبيرة", "قليل الألياف"],
         seed_source="لحج",
-        description_ar="أفضل صنف مانجو يمني، طعم ممتاز وقليل الألياف"
+        description_ar="أفضل صنف مانجو يمني، طعم ممتاز وقليل الألياف",
     ),
     Variety(
         code="MAN-YEM-002",
@@ -627,7 +631,7 @@ MANGO_VARIETIES = [
         disease_resistance=["البياض"],
         special_traits=["قوام زبدي", "حلاوة عالية"],
         seed_source="تهامة",
-        description_ar="صنف ذو قوام زبدي ناعم، حلاوة عالية"
+        description_ar="صنف ذو قوام زبدي ناعم، حلاوة عالية",
     ),
     Variety(
         code="MAN-YEM-003",
@@ -647,7 +651,7 @@ MANGO_VARIETIES = [
         disease_resistance=["الأنثراكنوز"],
         special_traits=["إنتاجية عالية", "ثمار كثيرة"],
         seed_source="الهند",
-        description_ar="صنف مدخل من الهند، إنتاجية عالية"
+        description_ar="صنف مدخل من الهند، إنتاجية عالية",
     ),
     Variety(
         code="MAN-YEM-004",
@@ -667,7 +671,7 @@ MANGO_VARIETIES = [
         disease_resistance=["البياض الدقيقي"],
         special_traits=["حلاوة عالية جداً", "مبكر"],
         seed_source="لحج",
-        description_ar="صنف محلي شديد الحلاوة، نضج مبكر"
+        description_ar="صنف محلي شديد الحلاوة، نضج مبكر",
     ),
 ]
 
@@ -694,7 +698,7 @@ GRAPE_VARIETIES = [
         disease_resistance=["البياض الدقيقي"],
         special_traits=["بدون بذور", "طعم ممتاز"],
         seed_source="صعدة، عمران",
-        description_ar="أشهر عنب يمني، بدون بذور، طعم حلو ممتاز"
+        description_ar="أشهر عنب يمني، بدون بذور، طعم حلو ممتاز",
     ),
     Variety(
         code="GRP-YEM-002",
@@ -714,7 +718,7 @@ GRAPE_VARIETIES = [
         disease_resistance=["الأمراض الفطرية"],
         special_traits=["لون ذهبي", "حلاوة عسلية"],
         seed_source="صعدة",
-        description_ar="صنف محلي ذو لون ذهبي وطعم عسلي مميز"
+        description_ar="صنف محلي ذو لون ذهبي وطعم عسلي مميز",
     ),
     Variety(
         code="GRP-YEM-003",
@@ -734,7 +738,7 @@ GRAPE_VARIETIES = [
         disease_resistance=["العفن الرمادي"],
         special_traits=["لون أسود داكن", "مضادات أكسدة عالية"],
         seed_source="عمران",
-        description_ar="عنب أسود غني بمضادات الأكسدة"
+        description_ar="عنب أسود غني بمضادات الأكسدة",
     ),
 ]
 
@@ -761,7 +765,7 @@ BANANA_VARIETIES = [
         disease_resistance=["البنما"],
         special_traits=["طعم مميز", "حجم متوسط"],
         seed_source="تهامة",
-        description_ar="صنف محلي متأقلم، طعم مميز"
+        description_ar="صنف محلي متأقلم، طعم مميز",
     ),
     Variety(
         code="BAN-YEM-002",
@@ -781,7 +785,7 @@ BANANA_VARIETIES = [
         disease_resistance=["السيجاتوكا"],
         special_traits=["إنتاجية عالية", "للتصدير"],
         seed_source="شركات",
-        description_ar="الصنف التجاري الأكثر انتشاراً، إنتاجية عالية"
+        description_ar="الصنف التجاري الأكثر انتشاراً، إنتاجية عالية",
     ),
 ]
 
@@ -808,7 +812,7 @@ ONION_VARIETIES = [
         disease_resistance=["البياض الزغبي", "العفن"],
         special_traits=["لون أحمر داكن", "نكهة قوية", "تخزين جيد"],
         seed_source="مزارعو اليمن",
-        description_ar="الصنف المحلي الأكثر انتشاراً، نكهة قوية ممتازة"
+        description_ar="الصنف المحلي الأكثر انتشاراً، نكهة قوية ممتازة",
     ),
     Variety(
         code="ONI-YEM-002",
@@ -828,7 +832,7 @@ ONION_VARIETIES = [
         disease_resistance=["العفن الأبيض"],
         special_traits=["نكهة حلوة", "مناسب للطبخ"],
         seed_source="صعدة",
-        description_ar="صنف محلي أبيض، نكهة حلوة للطبخ"
+        description_ar="صنف محلي أبيض، نكهة حلوة للطبخ",
     ),
 ]
 
@@ -855,7 +859,7 @@ POTATO_VARIETIES = [
         disease_resistance=["اللفحة المتأخرة"],
         special_traits=["درنات كبيرة", "الأكثر انتشاراً"],
         seed_source="هولندا",
-        description_ar="الصنف الأكثر زراعة في اليمن، درنات كبيرة"
+        description_ar="الصنف الأكثر زراعة في اليمن، درنات كبيرة",
     ),
     Variety(
         code="POT-YEM-002",
@@ -875,7 +879,7 @@ POTATO_VARIETIES = [
         disease_resistance=["الجرب", "اللفحة"],
         special_traits=["إنتاجية عالية", "جودة طبخ ممتازة"],
         seed_source="هولندا",
-        description_ar="صنف عالي الإنتاجية، جودة طبخ ممتازة"
+        description_ar="صنف عالي الإنتاجية، جودة طبخ ممتازة",
     ),
 ]
 
@@ -902,7 +906,7 @@ ALFALFA_VARIETIES = [
         disease_resistance=["الذبول البكتيري"],
         special_traits=["متأقلم محلياً", "7-10 حشات/سنة"],
         seed_source="مزارعو حضرموت",
-        description_ar="صنف محلي متأقلم، يعطي 7-10 حشات سنوياً"
+        description_ar="صنف محلي متأقلم، يعطي 7-10 حشات سنوياً",
     ),
     Variety(
         code="ALF-YEM-002",
@@ -922,7 +926,7 @@ ALFALFA_VARIETIES = [
         disease_resistance=["الذبول", "البياض"],
         special_traits=["تحمل الملوحة", "إنتاجية عالية"],
         seed_source="مصر",
-        description_ar="صنف مصري متحمل للملوحة والحرارة"
+        description_ar="صنف مصري متحمل للملوحة والحرارة",
     ),
 ]
 
@@ -949,7 +953,7 @@ SESAME_VARIETIES = [
         disease_resistance=["الذبول"],
         special_traits=["زيت عالي الجودة", "لون أبيض"],
         seed_source="تهامة",
-        description_ar="الصنف الأكثر انتشاراً، زيت عالي الجودة"
+        description_ar="الصنف الأكثر انتشاراً، زيت عالي الجودة",
     ),
     Variety(
         code="SES-YEM-002",
@@ -969,7 +973,7 @@ SESAME_VARIETIES = [
         disease_resistance=["الذبول", "العفن"],
         special_traits=["نكهة قوية", "مضادات أكسدة"],
         seed_source="لحج",
-        description_ar="صنف ذو نكهة قوية ومضادات أكسدة عالية"
+        description_ar="صنف ذو نكهة قوية ومضادات أكسدة عالية",
     ),
 ]
 
@@ -996,7 +1000,7 @@ FENUGREEK_VARIETIES = [
         disease_resistance=["البياض الدقيقي"],
         special_traits=["رائحة قوية", "استخدامات طبية"],
         seed_source="ذمار، صنعاء",
-        description_ar="صنف محلي مشهور، يستخدم في الطب الشعبي والطعام"
+        description_ar="صنف محلي مشهور، يستخدم في الطب الشعبي والطعام",
     ),
 ]
 
@@ -1005,25 +1009,26 @@ FENUGREEK_VARIETIES = [
 # ═══════════════════════════════════════════════════════════════════════════════
 
 ALL_VARIETIES: list[Variety] = (
-    WHEAT_VARIETIES +
-    COFFEE_VARIETIES +
-    SORGHUM_VARIETIES +
-    DATE_VARIETIES +
-    TOMATO_VARIETIES +
-    MANGO_VARIETIES +
-    GRAPE_VARIETIES +
-    BANANA_VARIETIES +
-    ONION_VARIETIES +
-    POTATO_VARIETIES +
-    ALFALFA_VARIETIES +
-    SESAME_VARIETIES +
-    FENUGREEK_VARIETIES
+    WHEAT_VARIETIES
+    + COFFEE_VARIETIES
+    + SORGHUM_VARIETIES
+    + DATE_VARIETIES
+    + TOMATO_VARIETIES
+    + MANGO_VARIETIES
+    + GRAPE_VARIETIES
+    + BANANA_VARIETIES
+    + ONION_VARIETIES
+    + POTATO_VARIETIES
+    + ALFALFA_VARIETIES
+    + SESAME_VARIETIES
+    + FENUGREEK_VARIETIES
 )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # HELPER FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def get_variety(code: str) -> Optional[Variety]:
     """Get variety by code"""
@@ -1062,9 +1067,11 @@ def search_varieties(query: str) -> List[Variety]:
     """Search varieties by name"""
     query_lower = query.lower()
     return [
-        v for v in ALL_VARIETIES
-        if query_lower in v.name_en.lower() or query in v.name_ar or
-           (v.name_local and query in v.name_local)
+        v
+        for v in ALL_VARIETIES
+        if query_lower in v.name_en.lower()
+        or query in v.name_ar
+        or (v.name_local and query in v.name_local)
     ]
 
 

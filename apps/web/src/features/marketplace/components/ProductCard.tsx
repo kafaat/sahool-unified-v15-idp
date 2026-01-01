@@ -1,11 +1,16 @@
 /**
  * ProductCard Component
  * بطاقة المنتج
+ *
+ * Enhanced with:
+ * - React.memo for performance optimization
+ * - Full keyboard accessibility
+ * - ARIA labels for screen readers
  */
 
 'use client';
 
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { ShoppingCart, Star, MapPin, Tag } from 'lucide-react';
 import type { Product } from '../types';
 import { useCart } from '../hooks/useCart';
@@ -15,13 +20,20 @@ interface ProductCardProps {
   onClick?: () => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
+const ProductCardComponent: React.FC<ProductCardProps> = ({ product, onClick }) => {
   const { addItem } = useCart();
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     addItem(product, 1);
-  };
+  }, [addItem, product]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onClick();
+    }
+  }, [onClick]);
 
   const discountedPrice = product.discount
     ? product.price * (1 - product.discount.percentage / 100)
@@ -29,10 +41,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
 
   const isOutOfStock = product.status === 'out_of_stock';
 
+  // Memoize ARIA label
+  const ariaLabel = useMemo(() => {
+    const price = discountedPrice || product.price;
+    return `${product.nameAr}, السعر ${price.toFixed(2)} ${product.currency}, ${getCategoryLabel(product.category)}`;
+  }, [product.nameAr, product.price, product.currency, product.category, discountedPrice]);
+
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-xl border-2 border-gray-200 hover:border-blue-400 transition-all cursor-pointer overflow-hidden group"
+      onKeyDown={handleKeyDown}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      aria-label={ariaLabel}
+      className="bg-white rounded-xl border-2 border-gray-200 hover:border-blue-400 transition-all cursor-pointer overflow-hidden group focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
     >
       {/* Image */}
       <div className="relative h-48 overflow-hidden bg-gray-100">
@@ -152,3 +174,9 @@ function getCategoryLabel(category: Product['category']): string {
   };
   return labels[category] || category;
 }
+
+// Memoize component for performance
+export const ProductCard = React.memo(ProductCardComponent);
+ProductCard.displayName = 'ProductCard';
+
+export default ProductCard;

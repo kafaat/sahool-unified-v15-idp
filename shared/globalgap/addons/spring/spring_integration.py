@@ -26,8 +26,10 @@ from .water_metrics import (
 
 # ==================== Alert Models ====================
 
+
 class AlertSeverity(str, Enum):
     """Alert severity level / مستوى خطورة التنبيه"""
+
     INFO = "INFO"  # معلومات
     WARNING = "WARNING"  # تحذير
     CRITICAL = "CRITICAL"  # حرج
@@ -35,6 +37,7 @@ class AlertSeverity(str, Enum):
 
 class AlertType(str, Enum):
     """Alert type / نوع التنبيه"""
+
     EXCESSIVE_USAGE = "EXCESSIVE_USAGE"  # استخدام مفرط
     PERMIT_LIMIT_APPROACHING = "PERMIT_LIMIT_APPROACHING"  # الاقتراب من حد التصريح
     PERMIT_LIMIT_EXCEEDED = "PERMIT_LIMIT_EXCEEDED"  # تجاوز حد التصريح
@@ -51,14 +54,19 @@ class WaterUsageAlert(BaseModel):
     Water usage alert
     تنبيه استخدام المياه
     """
+
     alert_id: str = Field(..., description="Alert identifier / معرف التنبيه")
     alert_type: AlertType = Field(..., description="Alert type / نوع التنبيه")
     severity: AlertSeverity = Field(..., description="Severity level / مستوى الخطورة")
 
     farm_id: str = Field(..., description="Farm identifier / معرف المزرعة")
-    source_id: Optional[str] = Field(None, description="Water source ID / معرف مصدر المياه")
+    source_id: Optional[str] = Field(
+        None, description="Water source ID / معرف مصدر المياه"
+    )
 
-    triggered_date: datetime = Field(default_factory=datetime.utcnow, description="Trigger date / تاريخ التفعيل")
+    triggered_date: datetime = Field(
+        default_factory=datetime.utcnow, description="Trigger date / تاريخ التفعيل"
+    )
 
     title_en: str = Field(..., description="Alert title (English) / عنوان التنبيه")
     title_ar: str = Field(..., description="Alert title (Arabic) / عنوان التنبيه")
@@ -66,17 +74,31 @@ class WaterUsageAlert(BaseModel):
     message_en: str = Field(..., description="Alert message (English) / رسالة التنبيه")
     message_ar: str = Field(..., description="Alert message (Arabic) / رسالة التنبيه")
 
-    threshold_value: Optional[float] = Field(None, description="Threshold value / قيمة العتبة")
-    actual_value: Optional[float] = Field(None, description="Actual value / القيمة الفعلية")
+    threshold_value: Optional[float] = Field(
+        None, description="Threshold value / قيمة العتبة"
+    )
+    actual_value: Optional[float] = Field(
+        None, description="Actual value / القيمة الفعلية"
+    )
 
-    recommended_action_en: Optional[str] = Field(None, description="Recommended action (EN) / الإجراء الموصى به")
-    recommended_action_ar: Optional[str] = Field(None, description="Recommended action (AR) / الإجراء الموصى به")
+    recommended_action_en: Optional[str] = Field(
+        None, description="Recommended action (EN) / الإجراء الموصى به"
+    )
+    recommended_action_ar: Optional[str] = Field(
+        None, description="Recommended action (AR) / الإجراء الموصى به"
+    )
 
-    is_acknowledged: bool = Field(False, description="Alert acknowledged / تم الإقرار بالتنبيه")
-    acknowledged_date: Optional[datetime] = Field(None, description="Acknowledgement date / تاريخ الإقرار")
+    is_acknowledged: bool = Field(
+        False, description="Alert acknowledged / تم الإقرار بالتنبيه"
+    )
+    acknowledged_date: Optional[datetime] = Field(
+        None, description="Acknowledgement date / تاريخ الإقرار"
+    )
 
     is_resolved: bool = Field(False, description="Alert resolved / تم حل التنبيه")
-    resolved_date: Optional[datetime] = Field(None, description="Resolution date / تاريخ الحل")
+    resolved_date: Optional[datetime] = Field(
+        None, description="Resolution date / تاريخ الحل"
+    )
 
     class Config:
         json_encoders = {
@@ -86,26 +108,42 @@ class WaterUsageAlert(BaseModel):
 
 # ==================== Water Footprint Models ====================
 
+
 class CropWaterFootprint(BaseModel):
     """
     Water footprint for a specific crop
     البصمة المائية لمحصول معين
     """
+
     crop_type: str = Field(..., description="Crop type / نوع المحصول")
     production_kg: float = Field(..., gt=0, description="Production (kg) / الإنتاج")
 
     # Water footprint components (m³/kg)
-    green_water_m3_per_kg: float = Field(0, ge=0, description="Green water (rainfall) / المياه الخضراء")
-    blue_water_m3_per_kg: float = Field(0, ge=0, description="Blue water (irrigation) / المياه الزرقاء")
-    grey_water_m3_per_kg: float = Field(0, ge=0, description="Grey water (pollution) / المياه الرمادية")
+    green_water_m3_per_kg: float = Field(
+        0, ge=0, description="Green water (rainfall) / المياه الخضراء"
+    )
+    blue_water_m3_per_kg: float = Field(
+        0, ge=0, description="Blue water (irrigation) / المياه الزرقاء"
+    )
+    grey_water_m3_per_kg: float = Field(
+        0, ge=0, description="Grey water (pollution) / المياه الرمادية"
+    )
 
-    total_water_footprint_m3_per_kg: float = Field(..., ge=0, description="Total footprint (m³/kg) / البصمة الكلية")
+    total_water_footprint_m3_per_kg: float = Field(
+        ..., ge=0, description="Total footprint (m³/kg) / البصمة الكلية"
+    )
 
     # Benchmarks
-    regional_benchmark_m3_per_kg: Optional[float] = Field(None, description="Regional benchmark / المعيار الإقليمي")
-    global_benchmark_m3_per_kg: Optional[float] = Field(None, description="Global benchmark / المعيار العالمي")
+    regional_benchmark_m3_per_kg: Optional[float] = Field(
+        None, description="Regional benchmark / المعيار الإقليمي"
+    )
+    global_benchmark_m3_per_kg: Optional[float] = Field(
+        None, description="Global benchmark / المعيار العالمي"
+    )
 
-    performance_vs_benchmark: Optional[str] = Field(None, description="Performance rating / تقييم الأداء")
+    performance_vs_benchmark: Optional[str] = Field(
+        None, description="Performance rating / تقييم الأداء"
+    )
 
     class Config:
         json_schema_extra = {
@@ -118,7 +156,7 @@ class CropWaterFootprint(BaseModel):
                 "total_water_footprint_m3_per_kg": 0.22,
                 "regional_benchmark_m3_per_kg": 0.25,
                 "global_benchmark_m3_per_kg": 0.20,
-                "performance_vs_benchmark": "Better than regional, close to global"
+                "performance_vs_benchmark": "Better than regional, close to global",
             }
         }
 
@@ -128,21 +166,38 @@ class SeasonalPattern(BaseModel):
     Seasonal water usage pattern
     نمط استخدام المياه الموسمي
     """
+
     season: str = Field(..., description="Season name / اسم الموسم")
     start_date: date = Field(..., description="Season start / بداية الموسم")
     end_date: date = Field(..., description="Season end / نهاية الموسم")
 
-    total_water_use_m3: float = Field(..., ge=0, description="Total water use (m³) / استخدام المياه الكلي")
-    average_daily_use_m3: float = Field(..., ge=0, description="Avg daily use (m³) / الاستخدام اليومي المتوسط")
-    peak_daily_use_m3: float = Field(..., ge=0, description="Peak daily use (m³) / الاستخدام اليومي الأقصى")
+    total_water_use_m3: float = Field(
+        ..., ge=0, description="Total water use (m³) / استخدام المياه الكلي"
+    )
+    average_daily_use_m3: float = Field(
+        ..., ge=0, description="Avg daily use (m³) / الاستخدام اليومي المتوسط"
+    )
+    peak_daily_use_m3: float = Field(
+        ..., ge=0, description="Peak daily use (m³) / الاستخدام اليومي الأقصى"
+    )
 
-    rainfall_contribution_m3: float = Field(0, ge=0, description="Rainfall (m³) / الأمطار")
-    rainfall_percentage: float = Field(0, ge=0, le=100, description="Rainfall % / نسبة الأمطار")
+    rainfall_contribution_m3: float = Field(
+        0, ge=0, description="Rainfall (m³) / الأمطار"
+    )
+    rainfall_percentage: float = Field(
+        0, ge=0, le=100, description="Rainfall % / نسبة الأمطار"
+    )
 
-    dominant_crops: List[str] = Field(default_factory=list, description="Dominant crops / المحاصيل السائدة")
-    irrigation_methods_used: List[str] = Field(default_factory=list, description="Irrigation methods / طرق الري")
+    dominant_crops: List[str] = Field(
+        default_factory=list, description="Dominant crops / المحاصيل السائدة"
+    )
+    irrigation_methods_used: List[str] = Field(
+        default_factory=list, description="Irrigation methods / طرق الري"
+    )
 
-    average_efficiency_percent: Optional[float] = Field(None, description="Avg efficiency % / الكفاءة المتوسطة")
+    average_efficiency_percent: Optional[float] = Field(
+        None, description="Avg efficiency % / الكفاءة المتوسطة"
+    )
 
     notes: Optional[str] = Field(None, description="Season notes / ملاحظات الموسم")
 
@@ -160,12 +215,13 @@ class SeasonalPattern(BaseModel):
                 "dominant_crops": ["Tomatoes", "Cucumbers", "Lettuce"],
                 "irrigation_methods_used": ["DRIP", "SPRINKLER"],
                 "average_efficiency_percent": 82.0,
-                "notes": "Good rainfall in November reduced irrigation needs"
+                "notes": "Good rainfall in November reduced irrigation needs",
             }
         }
 
 
 # ==================== Integration Class ====================
+
 
 class SpringIntegration:
     """
@@ -188,7 +244,9 @@ class SpringIntegration:
             api_key: API key for authentication
         """
         self.farm_id = farm_id
-        self.irrigation_service_url = irrigation_service_url or "http://irrigation-smart:8080/api/v1"
+        self.irrigation_service_url = (
+            irrigation_service_url or "http://irrigation-smart:8080/api/v1"
+        )
         self.api_key = api_key
 
     def pull_irrigation_data(
@@ -255,10 +313,14 @@ class SpringIntegration:
             Crop water footprint
         """
         # Blue water (irrigation)
-        blue_water_per_kg = irrigation_water_m3 / production_kg if production_kg > 0 else 0
+        blue_water_per_kg = (
+            irrigation_water_m3 / production_kg if production_kg > 0 else 0
+        )
 
         # Green water (rainfall)
-        green_water_per_kg = rainfall_water_m3 / production_kg if production_kg > 0 else 0
+        green_water_per_kg = (
+            rainfall_water_m3 / production_kg if production_kg > 0 else 0
+        )
 
         # Grey water (pollution - simplified calculation)
         # Grey water = (fertilizer load) / (max concentration - natural concentration)
@@ -319,35 +381,51 @@ class SpringIntegration:
         for source in water_sources:
             if source.max_daily_extraction_m3:
                 # Calculate recent daily usage from this source
-                source_usage = [u for u in usage_records if u.source_id == source.source_id]
+                source_usage = [
+                    u for u in usage_records if u.source_id == source.source_id
+                ]
                 if source_usage:
-                    daily_avg = sum(u.volume_cubic_meters for u in source_usage) / len(source_usage)
+                    daily_avg = sum(u.volume_cubic_meters for u in source_usage) / len(
+                        source_usage
+                    )
 
                     # Alert if approaching limit (>90%)
                     if daily_avg > source.max_daily_extraction_m3 * 0.9:
-                        alerts.append(self._create_permit_limit_alert(
-                            source, daily_avg, AlertSeverity.WARNING
-                        ))
+                        alerts.append(
+                            self._create_permit_limit_alert(
+                                source, daily_avg, AlertSeverity.WARNING
+                            )
+                        )
 
                     # Critical alert if exceeding limit
                     if daily_avg > source.max_daily_extraction_m3:
-                        alerts.append(self._create_permit_limit_alert(
-                            source, daily_avg, AlertSeverity.CRITICAL
-                        ))
+                        alerts.append(
+                            self._create_permit_limit_alert(
+                                source, daily_avg, AlertSeverity.CRITICAL
+                            )
+                        )
 
         # Check for excessive usage increase
-        if previous_month_usage_m3 and current_month_usage_m3 > previous_month_usage_m3 * 1.3:
-            alerts.append(self._create_excessive_usage_alert(
-                current_month_usage_m3, previous_month_usage_m3
-            ))
+        if (
+            previous_month_usage_m3
+            and current_month_usage_m3 > previous_month_usage_m3 * 1.3
+        ):
+            alerts.append(
+                self._create_excessive_usage_alert(
+                    current_month_usage_m3, previous_month_usage_m3
+                )
+            )
 
         # Check groundwater depletion (critical for Yemen)
         if groundwater_level_change_m and groundwater_level_change_m < -1.0:
-            alerts.append(self._create_groundwater_depletion_alert(groundwater_level_change_m))
+            alerts.append(
+                self._create_groundwater_depletion_alert(groundwater_level_change_m)
+            )
 
         # Check for qat vs food crops water use (Yemen-specific)
         qat_usage = sum(
-            u.volume_cubic_meters for u in usage_records
+            u.volume_cubic_meters
+            for u in usage_records
             if u.crop_type and "qat" in u.crop_type.lower()
         )
         if qat_usage > 0:
@@ -384,7 +462,8 @@ class SpringIntegration:
 
         for season in seasons:
             season_records = [
-                r for r in usage_records
+                r
+                for r in usage_records
                 if season["start"] <= r.measurement_date <= season["end"]
             ]
 
@@ -402,10 +481,18 @@ class SpringIntegration:
             for r in season_records:
                 if r.crop_type:
                     crop_counts[r.crop_type] = crop_counts.get(r.crop_type, 0) + 1
-            dominant_crops = sorted(crop_counts.keys(), key=lambda k: crop_counts[k], reverse=True)[:5]
+            dominant_crops = sorted(
+                crop_counts.keys(), key=lambda k: crop_counts[k], reverse=True
+            )[:5]
 
             # Irrigation methods
-            methods = list(set(r.irrigation_method.value for r in season_records if r.irrigation_method))
+            methods = list(
+                set(
+                    r.irrigation_method.value
+                    for r in season_records
+                    if r.irrigation_method
+                )
+            )
 
             pattern = SeasonalPattern(
                 season=season["name"],
@@ -471,7 +558,11 @@ class SpringIntegration:
         severity: AlertSeverity,
     ) -> WaterUsageAlert:
         """Create permit limit alert"""
-        percentage = (actual_usage / source.max_daily_extraction_m3 * 100) if source.max_daily_extraction_m3 else 0
+        percentage = (
+            (actual_usage / source.max_daily_extraction_m3 * 100)
+            if source.max_daily_extraction_m3
+            else 0
+        )
 
         if severity == AlertSeverity.CRITICAL:
             title_en = f"Permit Limit Exceeded - {source.name_en}"
@@ -486,7 +577,9 @@ class SpringIntegration:
             title_ar = f"الاقتراب من حد التصريح - {source.name_ar}"
             message_en = f"Water extraction from {source.name_en} at {percentage:.1f}% of permitted daily limit"
             message_ar = f"استخراج المياه من {source.name_ar} عند {percentage:.1f}% من الحد اليومي المسموح به"
-            action_en = "Monitor usage closely and implement water conservation measures"
+            action_en = (
+                "Monitor usage closely and implement water conservation measures"
+            )
             action_ar = "مراقبة الاستخدام عن كثب وتنفيذ تدابير الحفاظ على المياه"
             alert_type = AlertType.PERMIT_LIMIT_APPROACHING
 
@@ -512,7 +605,7 @@ class SpringIntegration:
         previous_usage: float,
     ) -> WaterUsageAlert:
         """Create excessive usage alert"""
-        increase_pct = ((current_usage - previous_usage) / previous_usage * 100)
+        increase_pct = (current_usage - previous_usage) / previous_usage * 100
 
         return WaterUsageAlert(
             alert_id=f"ALERT-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
@@ -534,7 +627,9 @@ class SpringIntegration:
         level_change_m: float,
     ) -> WaterUsageAlert:
         """Create groundwater depletion alert (critical for Yemen)"""
-        severity = AlertSeverity.CRITICAL if level_change_m < -3.0 else AlertSeverity.WARNING
+        severity = (
+            AlertSeverity.CRITICAL if level_change_m < -3.0 else AlertSeverity.WARNING
+        )
 
         return WaterUsageAlert(
             alert_id=f"ALERT-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
@@ -544,15 +639,15 @@ class SpringIntegration:
             title_en="Groundwater Level Declining",
             title_ar="انخفاض مستوى المياه الجوفية",
             message_en=f"Groundwater level declined by {abs(level_change_m):.1f} meters. "
-                      f"This is critical for Yemen's water sustainability.",
+            f"This is critical for Yemen's water sustainability.",
             message_ar=f"انخفض مستوى المياه الجوفية بمقدار {abs(level_change_m):.1f} متر. "
-                      f"هذا أمر بالغ الأهمية لاستدامة المياه في اليمن.",
+            f"هذا أمر بالغ الأهمية لاستدامة المياه في اليمن.",
             threshold_value=-1.0,
             actual_value=level_change_m,
             recommended_action_en="Implement urgent water conservation measures: increase drip irrigation, "
-                                "reduce water-intensive crops, explore rainwater harvesting",
+            "reduce water-intensive crops, explore rainwater harvesting",
             recommended_action_ar="تنفيذ تدابير عاجلة للحفاظ على المياه: زيادة الري بالتنقيط، "
-                                "تقليل المحاصيل كثيفة الاستهلاك للمياه، استكشاف حصاد مياه الأمطار",
+            "تقليل المحاصيل كثيفة الاستهلاك للمياه، استكشاف حصاد مياه الأمطار",
         )
 
     def _create_qat_water_use_alert(self, qat_percentage: float) -> WaterUsageAlert:
@@ -565,15 +660,15 @@ class SpringIntegration:
             title_en="High Water Use for Qat Cultivation",
             title_ar="استخدام عالي للمياه لزراعة القات",
             message_en=f"Qat cultivation accounts for {qat_percentage:.1f}% of water use. "
-                      f"Consider shifting to food crops for better water sustainability and food security.",
+            f"Consider shifting to food crops for better water sustainability and food security.",
             message_ar=f"زراعة القات تمثل {qat_percentage:.1f}% من استخدام المياه. "
-                      f"النظر في التحول إلى محاصيل غذائية لاستدامة أفضل للمياه والأمن الغذائي.",
+            f"النظر في التحول إلى محاصيل غذائية لاستدامة أفضل للمياه والأمن الغذائي.",
             threshold_value=30.0,
             actual_value=qat_percentage,
             recommended_action_en="Gradually transition water allocation from qat to high-value food crops "
-                                "(vegetables, fruits) which provide better nutrition and export potential",
+            "(vegetables, fruits) which provide better nutrition and export potential",
             recommended_action_ar="التحول التدريجي لتخصيص المياه من القات إلى محاصيل غذائية ذات قيمة عالية "
-                                "(الخضروات، الفواكه) والتي توفر تغذية أفضل وإمكانات تصدير",
+            "(الخضروات، الفواكه) والتي توفر تغذية أفضل وإمكانات تصدير",
         )
 
     def _define_yemen_seasons(self, year: int) -> List[Dict[str, Any]]:
@@ -607,6 +702,7 @@ class SpringIntegration:
 
 
 # ==================== Convenience Functions ====================
+
 
 def pull_irrigation_data(
     farm_id: str,
@@ -656,7 +752,11 @@ def calculate_water_footprint(
     """
     integration = SpringIntegration("temp")
     return integration.calculate_water_footprint(
-        crop_type, production_kg, irrigation_water_m3, rainfall_water_m3, fertilizer_use_kg
+        crop_type,
+        production_kg,
+        irrigation_water_m3,
+        rainfall_water_m3,
+        fertilizer_use_kg,
     )
 
 

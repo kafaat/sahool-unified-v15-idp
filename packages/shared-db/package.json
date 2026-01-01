@@ -1,0 +1,30 @@
+{
+  "name": "@sahool/shared-db",
+  "version": "1.0.0",
+  "description": "Shared database utilities including soft delete pattern for Prisma and SQLAlchemy",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "sahool",
+    "database",
+    "soft-delete",
+    "prisma",
+    "sqlalchemy"
+  ],
+  "author": "SAHOOL Team",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@prisma/client": "^5.0.0"
+  }
+}

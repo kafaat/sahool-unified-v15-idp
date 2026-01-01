@@ -61,11 +61,13 @@ def generate_catalog() -> str:
         policy = s.get("breaking_policy", "new_version")
         lines.append(f"| `{ref}` | `{topic}` | {version} | {owner} | {policy} |")
 
-    lines.extend([
-        "",
-        "## Event Details",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Event Details",
+            "",
+        ]
+    )
 
     # Group by owner
     by_owner: dict[str, list] = {}
@@ -125,7 +127,9 @@ def generate_catalog() -> str:
                             field_type = f"{field_type} ({field_def['format']})"
                         field_desc = field_def.get("description", "")
                         is_required = "✓" if field_name in required else ""
-                        lines.append(f"| `{field_name}` {is_required} | {field_type} | {field_desc} |")
+                        lines.append(
+                            f"| `{field_name}` {is_required} | {field_type} | {field_desc} |"
+                        )
                     lines.append("")
 
             except Exception as e:
@@ -133,43 +137,45 @@ def generate_catalog() -> str:
                 lines.append("")
 
     # Footer
-    lines.extend([
-        "---",
-        "",
-        "## Usage",
-        "",
-        "### Producing Events",
-        "",
-        "```python",
-        "from shared.libs.events.producer import enqueue_event",
-        "",
-        "enqueue_event(",
-        "    db=session,",
-        "    event_type='field.created',",
-        "    schema_ref='events.field.created:v1',",
-        "    tenant_id=tenant_id,",
-        "    correlation_id=correlation_id,",
-        "    producer='field_suite',",
-        "    payload={",
-        "        'field_id': str(field.id),",
-        "        'farm_id': str(field.farm_id),",
-        "        'name': field.name,",
-        "        'geometry_wkt': field.boundary_wkt,",
-        "        'created_at': field.created_at.isoformat(),",
-        "    },",
-        ")",
-        "```",
-        "",
-        "### Validating Payloads",
-        "",
-        "```python",
-        "from shared.libs.events.schema_registry import SchemaRegistry",
-        "",
-        "registry = SchemaRegistry.load()",
-        "registry.validate('events.field.created:v1', payload)",
-        "```",
-        "",
-    ])
+    lines.extend(
+        [
+            "---",
+            "",
+            "## Usage",
+            "",
+            "### Producing Events",
+            "",
+            "```python",
+            "from shared.libs.events.producer import enqueue_event",
+            "",
+            "enqueue_event(",
+            "    db=session,",
+            "    event_type='field.created',",
+            "    schema_ref='events.field.created:v1',",
+            "    tenant_id=tenant_id,",
+            "    correlation_id=correlation_id,",
+            "    producer='field_suite',",
+            "    payload={",
+            "        'field_id': str(field.id),",
+            "        'farm_id': str(field.farm_id),",
+            "        'name': field.name,",
+            "        'geometry_wkt': field.boundary_wkt,",
+            "        'created_at': field.created_at.isoformat(),",
+            "    },",
+            ")",
+            "```",
+            "",
+            "### Validating Payloads",
+            "",
+            "```python",
+            "from shared.libs.events.schema_registry import SchemaRegistry",
+            "",
+            "registry = SchemaRegistry.load()",
+            "registry.validate('events.field.created:v1', payload)",
+            "```",
+            "",
+        ]
+    )
 
     return "\n".join(lines)
 

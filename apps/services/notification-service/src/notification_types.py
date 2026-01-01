@@ -13,6 +13,7 @@ from datetime import datetime
 
 class NotificationType(str, Enum):
     """نوع الإشعار - Notification Type"""
+
     WEATHER_ALERT = "weather_alert"  # تنبيه طقس
     LOW_STOCK = "low_stock"  # نقص مخزون
     DISEASE_DETECTED = "disease_detected"  # مرض مكتشف
@@ -31,6 +32,7 @@ class NotificationType(str, Enum):
 
 class NotificationPriority(str, Enum):
     """أولوية الإشعار"""
+
     LOW = "low"  # منخفضة
     MEDIUM = "medium"  # متوسطة
     HIGH = "high"  # عالية
@@ -42,8 +44,11 @@ class NotificationPayload(BaseModel):
     حمولة الإشعار - Notification Payload
     Base model for all notifications
     """
+
     notification_type: NotificationType = Field(..., description="نوع الإشعار")
-    priority: NotificationPriority = Field(default=NotificationPriority.MEDIUM, description="الأولوية")
+    priority: NotificationPriority = Field(
+        default=NotificationPriority.MEDIUM, description="الأولوية"
+    )
     title: str = Field(..., description="العنوان (English)")
     title_ar: str = Field(..., description="العنوان (العربية)")
     body: str = Field(..., description="النص (English)")
@@ -60,7 +65,9 @@ class NotificationPayload(BaseModel):
     data: Dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية")
 
     # Metadata
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="وقت الإنشاء")
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="وقت الإنشاء"
+    )
     expires_at: Optional[datetime] = Field(None, description="وقت الانتهاء")
 
     class Config:
@@ -72,7 +79,7 @@ class NotificationPayload(BaseModel):
                 "title_ar": "تحذير من الصقيع",
                 "body": "Frost expected tonight in Sana'a",
                 "body_ar": "صقيع متوقع الليلة في صنعاء",
-                "data": {"governorate": "sanaa", "min_temp": -2}
+                "data": {"governorate": "sanaa", "min_temp": -2},
             }
         }
 
@@ -80,6 +87,7 @@ class NotificationPayload(BaseModel):
 # =============================================================================
 # Notification Templates for Each Type
 # =============================================================================
+
 
 class NotificationTemplate:
     """
@@ -301,9 +309,7 @@ class NotificationTemplate:
 
     @staticmethod
     def format_template(
-        notification_type: NotificationType,
-        language: str = "ar",
-        **kwargs
+        notification_type: NotificationType, language: str = "ar", **kwargs
     ) -> Dict[str, str]:
         """
         تنسيق قالب الإشعار
@@ -335,7 +341,10 @@ class NotificationTemplate:
         }
 
         # Get weather subtype if provided
-        if notification_type == NotificationType.WEATHER_ALERT and "weather_type" in kwargs:
+        if (
+            notification_type == NotificationType.WEATHER_ALERT
+            and "weather_type" in kwargs
+        ):
             weather_type = kwargs["weather_type"]
             weather_templates = {
                 "frost": NotificationTemplate.WEATHER_FROST,
@@ -344,7 +353,9 @@ class NotificationTemplate:
                 "flood": NotificationTemplate.WEATHER_FLOOD,
                 "drought": NotificationTemplate.WEATHER_DROUGHT,
             }
-            template = weather_templates.get(weather_type, NotificationTemplate.WEATHER_STORM)
+            template = weather_templates.get(
+                weather_type, NotificationTemplate.WEATHER_STORM
+            )
         else:
             template = template_map.get(notification_type, NotificationTemplate.SYSTEM)
 
@@ -367,10 +378,9 @@ class NotificationTemplate:
 # Helper Functions
 # =============================================================================
 
+
 def create_weather_notification(
-    weather_type: str,
-    governorate: str,
-    **extra_data
+    weather_type: str, governorate: str, **extra_data
 ) -> NotificationPayload:
     """
     إنشاء إشعار طقس
@@ -388,7 +398,7 @@ def create_weather_notification(
         language="en",
         weather_type=weather_type,
         governorate=governorate,
-        **extra_data
+        **extra_data,
     )
 
     ar_template = NotificationTemplate.format_template(
@@ -396,21 +406,21 @@ def create_weather_notification(
         language="ar",
         weather_type=weather_type,
         governorate=governorate,
-        **extra_data
+        **extra_data,
     )
 
     return NotificationPayload(
         notification_type=NotificationType.WEATHER_ALERT,
-        priority=NotificationPriority.HIGH if weather_type in ["frost", "storm", "flood"] else NotificationPriority.MEDIUM,
+        priority=(
+            NotificationPriority.HIGH
+            if weather_type in ["frost", "storm", "flood"]
+            else NotificationPriority.MEDIUM
+        ),
         title=en_template["title"],
         title_ar=ar_template["title"],
         body=en_template["body"],
         body_ar=ar_template["body"],
-        data={
-            "weather_type": weather_type,
-            "governorate": governorate,
-            **extra_data
-        }
+        data={"weather_type": weather_type, "governorate": governorate, **extra_data},
     )
 
 
@@ -456,7 +466,11 @@ def create_harvest_notification(
 
     return NotificationPayload(
         notification_type=NotificationType.HARVEST_REMINDER,
-        priority=NotificationPriority.HIGH if days_until <= 2 else NotificationPriority.MEDIUM,
+        priority=(
+            NotificationPriority.HIGH
+            if days_until <= 2
+            else NotificationPriority.MEDIUM
+        ),
         title=en_template["title"],
         title_ar=ar_template["title"],
         body=en_template["body"],
@@ -469,7 +483,7 @@ def create_harvest_notification(
             "field_name": field_name,
             "yield_kg": yield_kg,
             "days_until": days_until,
-        }
+        },
     )
 
 
@@ -505,7 +519,11 @@ def create_satellite_notification(
         ndvi_value=f"{ndvi_value:.2f}",
     )
 
-    priority = NotificationPriority.HIGH if change_percentage < -10 else NotificationPriority.MEDIUM
+    priority = (
+        NotificationPriority.HIGH
+        if change_percentage < -10
+        else NotificationPriority.MEDIUM
+    )
 
     return NotificationPayload(
         notification_type=NotificationType.SATELLITE_READY,
@@ -520,5 +538,5 @@ def create_satellite_notification(
             "field_name": field_name,
             "ndvi_value": ndvi_value,
             "change_percentage": change_percentage,
-        }
+        },
     )

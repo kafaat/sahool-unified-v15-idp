@@ -5,6 +5,7 @@ Sprint 9: Unit tests for deterministic ranking
 
 import pytest
 import sys
+
 sys.path.insert(0, "packages")
 
 from advisor.ai.rag_models import RetrievedChunk

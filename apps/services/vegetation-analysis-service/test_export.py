@@ -33,7 +33,7 @@ def test_field_analysis_export():
             "evi": 0.68,
             "savi": 0.62,
             "lai": 3.5,
-            "ndmi": 0.42
+            "ndmi": 0.42,
         },
         "health_score": 85.5,
         "health_status": "excellent",
@@ -45,8 +45,8 @@ def test_field_analysis_export():
             "cloud_cover_percent": 5.2,
             "scene_id": "S2A_MSIL2A_20231215",
             "latitude": 15.3694,
-            "longitude": 44.1910
-        }
+            "longitude": 44.1910,
+        },
     }
 
     exporter = DataExporter()
@@ -57,9 +57,7 @@ def test_field_analysis_export():
         print("-" * 40)
 
         result = exporter.export_field_analysis(
-            field_id="FIELD_001",
-            analysis_data=analysis_data,
-            format=export_format
+            field_id="FIELD_001", analysis_data=analysis_data, format=export_format
         )
 
         print(f"Filename: {result.filename}")
@@ -90,7 +88,7 @@ def test_timeseries_export():
             "evi": 0.58,
             "health_score": 75.0,
             "health_status": "good",
-            "cloud_cover": 8.5
+            "cloud_cover": 8.5,
         },
         {
             "date": "2023-12-08",
@@ -101,7 +99,7 @@ def test_timeseries_export():
             "evi": 0.63,
             "health_score": 80.0,
             "health_status": "excellent",
-            "cloud_cover": 5.2
+            "cloud_cover": 5.2,
         },
         {
             "date": "2023-12-15",
@@ -112,17 +110,15 @@ def test_timeseries_export():
             "evi": 0.68,
             "health_score": 85.0,
             "health_status": "excellent",
-            "cloud_cover": 3.1
-        }
+            "cloud_cover": 3.1,
+        },
     ]
 
     exporter = DataExporter()
 
     # Test CSV format (most common for timeseries)
     result = exporter.export_timeseries(
-        field_id="FIELD_001",
-        timeseries_data=timeseries_data,
-        format=ExportFormat.CSV
+        field_id="FIELD_001", timeseries_data=timeseries_data, format=ExportFormat.CSV
     )
 
     print(f"\nCSV Export:")
@@ -145,14 +141,16 @@ def test_boundaries_export():
             "area_hectares": 5.2,
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[
-                    [44.0, 15.0],
-                    [44.01, 15.0],
-                    [44.01, 15.01],
-                    [44.0, 15.01],
-                    [44.0, 15.0]
-                ]]
-            }
+                "coordinates": [
+                    [
+                        [44.0, 15.0],
+                        [44.01, 15.0],
+                        [44.01, 15.01],
+                        [44.0, 15.01],
+                        [44.0, 15.0],
+                    ]
+                ],
+            },
         },
         {
             "field_id": "FIELD_002",
@@ -160,23 +158,24 @@ def test_boundaries_export():
             "area_hectares": 3.8,
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[
-                    [44.02, 15.0],
-                    [44.03, 15.0],
-                    [44.03, 15.01],
-                    [44.02, 15.01],
-                    [44.02, 15.0]
-                ]]
-            }
-        }
+                "coordinates": [
+                    [
+                        [44.02, 15.0],
+                        [44.03, 15.0],
+                        [44.03, 15.01],
+                        [44.02, 15.01],
+                        [44.02, 15.0],
+                    ]
+                ],
+            },
+        },
     ]
 
     exporter = DataExporter()
 
     # Test GeoJSON format
     result = exporter.export_boundaries(
-        boundaries=boundaries,
-        format=ExportFormat.GEOJSON
+        boundaries=boundaries, format=ExportFormat.GEOJSON
     )
 
     print(f"\nGeoJSON Export:")
@@ -202,17 +201,16 @@ def test_yield_prediction_export():
         "factors": {
             "vegetation_health": 0.88,
             "soil_moisture": 0.75,
-            "weather_impact": 0.82
+            "weather_impact": 0.82,
         },
-        "risks": ["Late season drought possible", "Monitor for pest activity"]
+        "risks": ["Late season drought possible", "Monitor for pest activity"],
     }
 
     exporter = DataExporter()
 
     # Test JSON format
     result = exporter.export_yield_prediction(
-        prediction_data=prediction_data,
-        format=ExportFormat.JSON
+        prediction_data=prediction_data, format=ExportFormat.JSON
     )
 
     print(f"\nJSON Export:")
@@ -238,7 +236,7 @@ def test_changes_report():
             "change_percent": -20.0,
             "detected_date": "2023-12-15",
             "severity": "moderate",
-            "possible_causes": ["water stress", "disease"]
+            "possible_causes": ["water stress", "disease"],
         },
         {
             "field_id": "FIELD_001",
@@ -248,17 +246,14 @@ def test_changes_report():
             "moisture_change": -12.5,
             "detected_date": "2023-12-15",
             "severity": "high",
-            "possible_causes": ["drought", "irrigation failure"]
-        }
+            "possible_causes": ["drought", "irrigation failure"],
+        },
     ]
 
     exporter = DataExporter()
 
     # Test CSV format
-    result = exporter.export_changes_report(
-        changes=changes,
-        format=ExportFormat.CSV
-    )
+    result = exporter.export_changes_report(changes=changes, format=ExportFormat.CSV)
 
     print(f"\nCSV Export:")
     print(f"Filename: {result.filename}")
@@ -276,9 +271,7 @@ def test_filename_generation():
 
     for export_format in ExportFormat:
         filename = exporter.generate_filename(
-            prefix="test_export",
-            field_id="FIELD_ABC_123",
-            format=export_format
+            prefix="test_export", field_id="FIELD_ABC_123", format=export_format
         )
         print(f"{export_format.value}: {filename}")
 
@@ -303,5 +296,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nERROR: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

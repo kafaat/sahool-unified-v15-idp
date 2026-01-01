@@ -80,7 +80,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return null;
       }
 
-      const decoded = jwt.verify(token, jwtSecret) as { userId: string; sub?: string };
+      // SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+      // Never trust algorithm from environment variables or token header
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ['HS256', 'HS384', 'HS512', 'RS256', 'RS384', 'RS512'];
+
+      // Decode header without verification to check algorithm
+      const header = jwt.decode(token, { complete: true })?.header;
+      if (!header || !header.alg) {
+        this.logger.warn('Invalid token: missing algorithm');
+        return null;
+      }
+
+      // Reject 'none' algorithm explicitly
+      if (header.alg.toLowerCase() === 'none') {
+        this.logger.warn('Invalid token: none algorithm not allowed');
+        return null;
+      }
+
+      // Verify algorithm is in whitelist
+      if (!ALLOWED_ALGORITHMS.includes(header.alg as jwt.Algorithm)) {
+        this.logger.warn(`Invalid token: unsupported algorithm ${header.alg}`);
+        return null;
+      }
+
+      const decoded = jwt.verify(token, jwtSecret, {
+        algorithms: ALLOWED_ALGORITHMS,
+      }) as { userId: string; sub?: string };
       const userId = decoded.userId || decoded.sub;
 
       if (!userId) {

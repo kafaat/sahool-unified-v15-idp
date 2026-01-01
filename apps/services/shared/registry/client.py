@@ -23,10 +23,15 @@ class AgentInvocationRequest(BaseModel):
     Request to invoke an agent
     طلب لاستدعاء وكيل
     """
+
     capability: str = Field(..., description="Capability to invoke")
     input_data: Dict[str, Any] = Field(..., description="Input data for the agent")
-    context: Optional[Dict[str, Any]] = Field(default=None, description="Additional context")
-    timeout_seconds: int = Field(default=30, description="Request timeout", ge=1, le=300)
+    context: Optional[Dict[str, Any]] = Field(
+        default=None, description="Additional context"
+    )
+    timeout_seconds: int = Field(
+        default=30, description="Request timeout", ge=1, le=300
+    )
 
     class Config:
         json_schema_extra = {
@@ -34,16 +39,10 @@ class AgentInvocationRequest(BaseModel):
                 "capability": "diagnose_disease",
                 "input_data": {
                     "crop_type": "wheat",
-                    "symptoms": {
-                        "leaf_spots": True,
-                        "wilting": False
-                    }
+                    "symptoms": {"leaf_spots": True, "wilting": False},
                 },
-                "context": {
-                    "tenant_id": "tenant_123",
-                    "field_id": "field_456"
-                },
-                "timeout_seconds": 30
+                "context": {"tenant_id": "tenant_123", "field_id": "field_456"},
+                "timeout_seconds": 30,
             }
         }
 
@@ -53,14 +52,23 @@ class AgentInvocationResponse(BaseModel):
     Response from agent invocation
     استجابة من استدعاء الوكيل
     """
+
     status: str = Field(..., description="Response status (success/error)")
     agent_id: str = Field(..., description="ID of the agent that processed the request")
     capability: str = Field(..., description="Capability that was invoked")
-    output_data: Optional[Dict[str, Any]] = Field(None, description="Output data from the agent")
+    output_data: Optional[Dict[str, Any]] = Field(
+        None, description="Output data from the agent"
+    )
     error: Optional[str] = Field(None, description="Error message if failed")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Response metadata")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
-    response_time_ms: Optional[float] = Field(None, description="Response time in milliseconds")
+    metadata: Dict[str, Any] = Field(
+        default_factory=dict, description="Response metadata"
+    )
+    timestamp: datetime = Field(
+        default_factory=datetime.utcnow, description="Response timestamp"
+    )
+    response_time_ms: Optional[float] = Field(
+        None, description="Response time in milliseconds"
+    )
 
     class Config:
         json_schema_extra = {
@@ -71,9 +79,9 @@ class AgentInvocationResponse(BaseModel):
                 "output_data": {
                     "disease": "leaf_rust",
                     "confidence": 0.92,
-                    "recommendations": ["Apply fungicide", "Monitor moisture levels"]
+                    "recommendations": ["Apply fungicide", "Monitor moisture levels"],
                 },
-                "response_time_ms": 234.5
+                "response_time_ms": 234.5,
             }
         }
 
@@ -111,7 +119,7 @@ class RegistryClient:
             api_key: Optional API key for authentication
             timeout_seconds: Default request timeout
         """
-        self.registry_url = registry_url.rstrip('/')
+        self.registry_url = registry_url.rstrip("/")
         self.api_key = api_key
         self.timeout_seconds = timeout_seconds
         self._logger = logger.bind(component="registry_client")
@@ -160,9 +168,11 @@ class RegistryClient:
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 404:
                 return None
-            self._logger.error("get_agent_failed",
-                             agent_id=agent_id,
-                             status_code=e.response.status_code)
+            self._logger.error(
+                "get_agent_failed",
+                agent_id=agent_id,
+                status_code=e.response.status_code,
+            )
             raise
         except Exception as e:
             self._logger.error("get_agent_error", agent_id=agent_id, error=str(e))
@@ -215,7 +225,7 @@ class RegistryClient:
         try:
             response = await self._client.get(
                 "/v1/registry/discover/capability",
-                params={"capability": capability_name}
+                params={"capability": capability_name},
             )
             response.raise_for_status()
 
@@ -223,9 +233,9 @@ class RegistryClient:
             return [AgentCard.from_dict(agent) for agent in data.get("agents", [])]
 
         except Exception as e:
-            self._logger.error("discover_by_capability_error",
-                             capability=capability_name,
-                             error=str(e))
+            self._logger.error(
+                "discover_by_capability_error", capability=capability_name, error=str(e)
+            )
             raise
 
     async def discover_by_skill(self, skill_id: str) -> List[AgentCard]:
@@ -241,8 +251,7 @@ class RegistryClient:
         """
         try:
             response = await self._client.get(
-                "/v1/registry/discover/skill",
-                params={"skill": skill_id}
+                "/v1/registry/discover/skill", params={"skill": skill_id}
             )
             response.raise_for_status()
 
@@ -266,8 +275,7 @@ class RegistryClient:
         """
         try:
             response = await self._client.post(
-                "/v1/registry/discover/tags",
-                json={"tags": tags}
+                "/v1/registry/discover/tags", json={"tags": tags}
             )
             response.raise_for_status()
 
@@ -297,9 +305,9 @@ class RegistryClient:
             return HealthCheckResult(**data)
 
         except Exception as e:
-            self._logger.error("check_agent_health_error",
-                             agent_id=agent_id,
-                             error=str(e))
+            self._logger.error(
+                "check_agent_health_error", agent_id=agent_id, error=str(e)
+            )
             raise
 
     async def invoke_agent(
@@ -341,7 +349,9 @@ class RegistryClient:
             # Add authentication if required
             if agent_card.requires_authentication:
                 if not auth_token and not self.api_key:
-                    raise ValueError(f"Agent {agent_id} requires authentication but no token provided")
+                    raise ValueError(
+                        f"Agent {agent_id} requires authentication but no token provided"
+                    )
 
                 token = auth_token or self.api_key
                 if agent_card.security_scheme == SecurityScheme.BEARER:
@@ -391,10 +401,12 @@ class RegistryClient:
             )
 
         except Exception as e:
-            self._logger.error("invoke_agent_error",
-                             agent_id=agent_id,
-                             capability=request.capability,
-                             error=str(e))
+            self._logger.error(
+                "invoke_agent_error",
+                agent_id=agent_id,
+                capability=request.capability,
+                error=str(e),
+            )
 
             response_time = (datetime.utcnow() - start_time).total_seconds() * 1000
 

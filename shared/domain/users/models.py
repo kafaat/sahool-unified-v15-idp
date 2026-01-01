@@ -48,6 +48,10 @@ class User:
     last_login: Optional[datetime]
     created_at: datetime
     updated_at: datetime
+    # Two-Factor Authentication fields
+    twofa_secret: Optional[str] = None
+    twofa_enabled: bool = False
+    twofa_backup_codes: Optional[list[str]] = None
 
     @classmethod
     def create(
@@ -92,7 +96,10 @@ class User:
             "last_login": self.last_login.isoformat() if self.last_login else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
+            "twofa_enabled": self.twofa_enabled,
         }
         if include_sensitive:
             data["password_hash"] = self.password_hash
+            data["twofa_secret"] = self.twofa_secret
+            data["twofa_backup_codes"] = self.twofa_backup_codes
         return data

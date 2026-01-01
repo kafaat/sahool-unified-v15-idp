@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AuthenticationResult:
     """Result of authentication attempt"""
+
     success: bool
     user_id: Optional[str] = None
     needs_password_update: bool = False
@@ -74,9 +75,7 @@ class PasswordMigrationHelper:
         self.hasher = get_password_hasher()
 
     async def authenticate_and_migrate(
-        self,
-        email: str,
-        password: str
+        self, email: str, password: str
     ) -> AuthenticationResult:
         """
         Authenticate user and migrate password if needed
@@ -99,30 +98,31 @@ class PasswordMigrationHelper:
             # Get user from database
             user = self.user_repo.get_user_by_email(email)
             if not user:
-                logger.warning(f"Authentication failed: User not found for email {email}")
+                logger.warning(
+                    f"Authentication failed: User not found for email {email}"
+                )
                 return AuthenticationResult(
-                    success=False,
-                    error_message="Invalid credentials"
+                    success=False, error_message="Invalid credentials"
                 )
 
-            user_id = user.get('id')
-            stored_hash = user.get('password_hash')
+            user_id = user.get("id")
+            stored_hash = user.get("password_hash")
 
             if not stored_hash:
                 logger.error(f"User {user_id} has no password hash")
                 return AuthenticationResult(
-                    success=False,
-                    error_message="Invalid credentials"
+                    success=False, error_message="Invalid credentials"
                 )
 
             # Verify password and check if rehash is needed
             is_valid, needs_rehash = self.hasher.verify_password(password, stored_hash)
 
             if not is_valid:
-                logger.warning(f"Authentication failed: Invalid password for user {user_id}")
+                logger.warning(
+                    f"Authentication failed: Invalid password for user {user_id}"
+                )
                 return AuthenticationResult(
-                    success=False,
-                    error_message="Invalid credentials"
+                    success=False, error_message="Invalid credentials"
                 )
 
             # Password is valid
@@ -139,36 +139,27 @@ class PasswordMigrationHelper:
                         success=True,
                         user_id=user_id,
                         needs_password_update=True,
-                        new_password_hash=new_hash
+                        new_password_hash=new_hash,
                     )
                 except Exception as e:
                     logger.error(f"Error generating new hash for user {user_id}: {e}")
                     # Still allow login, but don't migrate
                     return AuthenticationResult(
-                        success=True,
-                        user_id=user_id,
-                        needs_password_update=False
+                        success=True, user_id=user_id, needs_password_update=False
                     )
             else:
                 # Password is valid and already using current algorithm
                 return AuthenticationResult(
-                    success=True,
-                    user_id=user_id,
-                    needs_password_update=False
+                    success=True, user_id=user_id, needs_password_update=False
                 )
 
         except Exception as e:
             logger.error(f"Authentication error for email {email}: {e}")
             return AuthenticationResult(
-                success=False,
-                error_message="Authentication error"
+                success=False, error_message="Authentication error"
             )
 
-    async def complete_migration(
-        self,
-        user_id: str,
-        new_password_hash: str
-    ) -> bool:
+    async def complete_migration(self, user_id: str, new_password_hash: str) -> bool:
         """
         Complete password migration by updating database
 

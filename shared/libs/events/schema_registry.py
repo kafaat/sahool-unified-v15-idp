@@ -13,6 +13,7 @@ from typing import Any
 # Optional dependency for validation
 try:
     import jsonschema
+
     HAS_JSONSCHEMA = True
 except ImportError:
     jsonschema = None  # type: ignore
@@ -149,8 +150,7 @@ class SchemaRegistry:
         schema = self.get_schema(schema_ref)
         # Enable format validation for UUIDs, dates, etc.
         validator = jsonschema.Draft202012Validator(
-            schema,
-            format_checker=jsonschema.FormatChecker()
+            schema, format_checker=jsonschema.FormatChecker()
         )
         validator.validate(payload)
 

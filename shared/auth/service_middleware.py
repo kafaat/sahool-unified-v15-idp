@@ -69,11 +69,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
         ]
         self.require_service_auth = require_service_auth
 
-    async def dispatch(
-        self,
-        request: Request,
-        call_next: Callable
-    ) -> Response:
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         """
         Process the request and validate service token.
 
@@ -105,9 +101,13 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
                     return JSONResponse(
                         status_code=403,
                         content={
-                            "error": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["code"],
-                            "message": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["en"],
-                        }
+                            "error": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL[
+                                "code"
+                            ],
+                            "message": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL[
+                                "en"
+                            ],
+                        },
                     )
 
                 # Add calling service to request state
@@ -127,7 +127,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
                         content={
                             "error": ServiceAuthErrors.INVALID_SERVICE_TOKEN["code"],
                             "message": ServiceAuthErrors.INVALID_SERVICE_TOKEN["en"],
-                        }
+                        },
                     )
 
         elif self.require_service_auth:
@@ -136,7 +136,7 @@ class ServiceAuthMiddleware(BaseHTTPMiddleware):
                 content={
                     "error": "missing_service_token",
                     "message": "Service authentication token is required",
-                }
+                },
             )
 
         # Continue to next middleware or route handler
@@ -191,7 +191,7 @@ async def verify_service_request(
             detail={
                 "error": "missing_service_token",
                 "message": "Service authentication token is required",
-            }
+            },
         )
 
     try:
@@ -211,7 +211,7 @@ async def verify_service_request(
             detail={
                 "error": ServiceAuthErrors.INVALID_SERVICE_TOKEN["code"],
                 "message": ServiceAuthErrors.INVALID_SERVICE_TOKEN["en"],
-            }
+            },
         )
 
 
@@ -246,8 +246,9 @@ def require_service_auth(allowed_services: Optional[list[str]] = None):
             return {"status": "processed"}
         ```
     """
+
     async def _verify_service(
-        service_info: dict = Depends(verify_service_request)
+        service_info: dict = Depends(verify_service_request),
     ) -> dict:
         from fastapi import HTTPException
 
@@ -261,7 +262,7 @@ def require_service_auth(allowed_services: Optional[list[str]] = None):
                     detail={
                         "error": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["code"],
                         "message": ServiceAuthErrors.UNAUTHORIZED_SERVICE_CALL["en"],
-                    }
+                    },
                 )
 
         return service_info

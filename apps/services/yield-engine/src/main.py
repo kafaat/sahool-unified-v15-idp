@@ -38,64 +38,70 @@ SERVICE_PORT = int(os.getenv("PORT", 8098))
 # Data Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class CropType(str, Enum):
     """المحاصيل المدعومة للتنبؤ"""
+
     # Cereals - الحبوب
-    WHEAT = "wheat"          # قمح
-    BARLEY = "barley"        # شعير
-    CORN = "corn"            # ذرة
-    SORGHUM = "sorghum"      # ذرة رفيعة
-    MILLET = "millet"        # دخن
+    WHEAT = "wheat"  # قمح
+    BARLEY = "barley"  # شعير
+    CORN = "corn"  # ذرة
+    SORGHUM = "sorghum"  # ذرة رفيعة
+    MILLET = "millet"  # دخن
 
     # Legumes - البقوليات
     FABA_BEAN = "faba_bean"  # فول
-    LENTIL = "lentil"        # عدس
-    CHICKPEA = "chickpea"    # حمص
+    LENTIL = "lentil"  # عدس
+    CHICKPEA = "chickpea"  # حمص
 
     # Vegetables - الخضروات
-    TOMATO = "tomato"        # طماطم
-    POTATO = "potato"        # بطاطس
-    ONION = "onion"          # بصل
-    GARLIC = "garlic"        # ثوم
-    PEPPER = "pepper"        # فلفل حلو
-    EGGPLANT = "eggplant"    # باذنجان
-    CUCUMBER = "cucumber"    # خيار
-    OKRA = "okra"            # بامية
+    TOMATO = "tomato"  # طماطم
+    POTATO = "potato"  # بطاطس
+    ONION = "onion"  # بصل
+    GARLIC = "garlic"  # ثوم
+    PEPPER = "pepper"  # فلفل حلو
+    EGGPLANT = "eggplant"  # باذنجان
+    CUCUMBER = "cucumber"  # خيار
+    OKRA = "okra"  # بامية
 
     # Fruits - الفواكه
     DATE_PALM = "date_palm"  # نخيل
-    MANGO = "mango"          # مانجو
-    BANANA = "banana"        # موز
-    GRAPE = "grape"          # عنب
+    MANGO = "mango"  # مانجو
+    BANANA = "banana"  # موز
+    GRAPE = "grape"  # عنب
     CITRUS_ORANGE = "citrus_orange"  # برتقال
-    CITRUS_LEMON = "citrus_lemon"    # ليمون
-    POMEGRANATE = "pomegranate"      # رمان
-    FIG = "fig"              # تين
-    GUAVA = "guava"          # جوافة
+    CITRUS_LEMON = "citrus_lemon"  # ليمون
+    POMEGRANATE = "pomegranate"  # رمان
+    FIG = "fig"  # تين
+    GUAVA = "guava"  # جوافة
 
     # Cash Crops - محاصيل نقدية
-    COFFEE = "coffee"        # بن يمني
-    SESAME = "sesame"        # سمسم
-    COTTON = "cotton"        # قطن
+    COFFEE = "coffee"  # بن يمني
+    SESAME = "sesame"  # سمسم
+    COTTON = "cotton"  # قطن
 
     # Fodder - الأعلاف
-    ALFALFA = "alfalfa"      # برسيم حجازي
+    ALFALFA = "alfalfa"  # برسيم حجازي
 
 
 class YieldRequest(BaseModel):
     """طلب التنبؤ بالإنتاجية"""
+
     field_id: Optional[str] = Field(None, description="معرف الحقل")
     area_hectares: float = Field(..., gt=0, description="المساحة بالهكتار")
     crop_type: CropType = Field(..., description="نوع المحصول")
     avg_rainfall: Optional[float] = Field(None, ge=0, description="متوسط الأمطار (مم)")
     avg_temperature: Optional[float] = Field(None, description="متوسط درجة الحرارة")
-    soil_quality: Optional[str] = Field("medium", description="جودة التربة: poor/medium/good")
+    soil_quality: Optional[str] = Field(
+        "medium", description="جودة التربة: poor/medium/good"
+    )
     irrigation_type: Optional[str] = Field("rain-fed", description="نوع الري")
     governorate: Optional[str] = Field(None, description="المحافظة")
 
 
 class YieldPrediction(BaseModel):
     """نتيجة التنبؤ"""
+
     prediction_id: str
     field_id: Optional[str]
     crop_type: str
@@ -115,6 +121,7 @@ class YieldPrediction(BaseModel):
 
 class HealthCheckResponse(BaseModel):
     """استجابة فحص الصحة"""
+
     status: str
     service: str
     version: str
@@ -135,7 +142,7 @@ CROP_DATA = {
         "growing_season_days": 120,
         "optimal_rainfall": 450,  # مم
         "optimal_temp": 20,  # درجة مئوية
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     CropType.CORN: {
         "name_ar": "ذرة",
@@ -144,7 +151,7 @@ CROP_DATA = {
         "growing_season_days": 100,
         "optimal_rainfall": 500,
         "optimal_temp": 25,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
     CropType.TOMATO: {
         "name_ar": "طماطم",
@@ -153,7 +160,7 @@ CROP_DATA = {
         "growing_season_days": 90,
         "optimal_rainfall": 600,
         "optimal_temp": 24,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
     CropType.POTATO: {
         "name_ar": "بطاطس",
@@ -162,7 +169,7 @@ CROP_DATA = {
         "growing_season_days": 100,
         "optimal_rainfall": 500,
         "optimal_temp": 18,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     CropType.COFFEE: {
         "name_ar": "بن يمني",
@@ -171,7 +178,7 @@ CROP_DATA = {
         "growing_season_days": 270,
         "optimal_rainfall": 1200,
         "optimal_temp": 20,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
     CropType.DATE_PALM: {
         "name_ar": "نخيل (تمر)",
@@ -180,7 +187,7 @@ CROP_DATA = {
         "growing_season_days": 180,
         "optimal_rainfall": 200,
         "optimal_temp": 30,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.MANGO: {
         "name_ar": "مانجو",
@@ -189,7 +196,7 @@ CROP_DATA = {
         "growing_season_days": 150,
         "optimal_rainfall": 800,
         "optimal_temp": 28,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     CropType.SORGHUM: {
         "name_ar": "ذرة رفيعة",
@@ -198,7 +205,7 @@ CROP_DATA = {
         "growing_season_days": 110,
         "optimal_rainfall": 400,
         "optimal_temp": 27,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.BANANA: {
         "name_ar": "موز",
@@ -207,7 +214,7 @@ CROP_DATA = {
         "growing_season_days": 300,
         "optimal_rainfall": 1500,
         "optimal_temp": 27,
-        "water_requirement": "very_high"
+        "water_requirement": "very_high",
     },
     CropType.GRAPE: {
         "name_ar": "عنب",
@@ -216,7 +223,7 @@ CROP_DATA = {
         "growing_season_days": 170,
         "optimal_rainfall": 600,
         "optimal_temp": 22,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     # ═══ Additional Cereals ═══
     CropType.BARLEY: {
@@ -226,7 +233,7 @@ CROP_DATA = {
         "growing_season_days": 100,
         "optimal_rainfall": 400,
         "optimal_temp": 17,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.MILLET: {
         "name_ar": "دخن",
@@ -235,7 +242,7 @@ CROP_DATA = {
         "growing_season_days": 90,
         "optimal_rainfall": 250,
         "optimal_temp": 30,
-        "water_requirement": "very_low"
+        "water_requirement": "very_low",
     },
     # ═══ Legumes ═══
     CropType.FABA_BEAN: {
@@ -245,7 +252,7 @@ CROP_DATA = {
         "growing_season_days": 120,
         "optimal_rainfall": 650,
         "optimal_temp": 18,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     CropType.LENTIL: {
         "name_ar": "عدس",
@@ -254,7 +261,7 @@ CROP_DATA = {
         "growing_season_days": 100,
         "optimal_rainfall": 400,
         "optimal_temp": 15,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.CHICKPEA: {
         "name_ar": "حمص",
@@ -263,7 +270,7 @@ CROP_DATA = {
         "growing_season_days": 100,
         "optimal_rainfall": 400,
         "optimal_temp": 20,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     # ═══ Additional Vegetables ═══
     CropType.ONION: {
@@ -273,7 +280,7 @@ CROP_DATA = {
         "growing_season_days": 120,
         "optimal_rainfall": 650,
         "optimal_temp": 19,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     CropType.GARLIC: {
         "name_ar": "ثوم",
@@ -282,7 +289,7 @@ CROP_DATA = {
         "growing_season_days": 150,
         "optimal_rainfall": 400,
         "optimal_temp": 15,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.PEPPER: {
         "name_ar": "فلفل حلو",
@@ -291,7 +298,7 @@ CROP_DATA = {
         "growing_season_days": 90,
         "optimal_rainfall": 900,
         "optimal_temp": 23,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
     CropType.EGGPLANT: {
         "name_ar": "باذنجان",
@@ -300,7 +307,7 @@ CROP_DATA = {
         "growing_season_days": 100,
         "optimal_rainfall": 900,
         "optimal_temp": 26,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
     CropType.CUCUMBER: {
         "name_ar": "خيار",
@@ -309,7 +316,7 @@ CROP_DATA = {
         "growing_season_days": 60,
         "optimal_rainfall": 900,
         "optimal_temp": 25,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
     CropType.OKRA: {
         "name_ar": "بامية",
@@ -318,7 +325,7 @@ CROP_DATA = {
         "growing_season_days": 90,
         "optimal_rainfall": 650,
         "optimal_temp": 30,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     # ═══ Additional Fruits ═══
     CropType.CITRUS_ORANGE: {
@@ -328,7 +335,7 @@ CROP_DATA = {
         "growing_season_days": 300,
         "optimal_rainfall": 650,
         "optimal_temp": 24,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     CropType.CITRUS_LEMON: {
         "name_ar": "ليمون",
@@ -337,7 +344,7 @@ CROP_DATA = {
         "growing_season_days": 300,
         "optimal_rainfall": 650,
         "optimal_temp": 24,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     CropType.POMEGRANATE: {
         "name_ar": "رمان",
@@ -346,7 +353,7 @@ CROP_DATA = {
         "growing_season_days": 180,
         "optimal_rainfall": 400,
         "optimal_temp": 25,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.FIG: {
         "name_ar": "تين",
@@ -355,7 +362,7 @@ CROP_DATA = {
         "growing_season_days": 150,
         "optimal_rainfall": 400,
         "optimal_temp": 24,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.GUAVA: {
         "name_ar": "جوافة",
@@ -364,7 +371,7 @@ CROP_DATA = {
         "growing_season_days": 180,
         "optimal_rainfall": 650,
         "optimal_temp": 26,
-        "water_requirement": "medium"
+        "water_requirement": "medium",
     },
     # ═══ Cash Crops ═══
     CropType.SESAME: {
@@ -374,7 +381,7 @@ CROP_DATA = {
         "growing_season_days": 100,
         "optimal_rainfall": 400,
         "optimal_temp": 30,
-        "water_requirement": "low"
+        "water_requirement": "low",
     },
     CropType.COTTON: {
         "name_ar": "قطن",
@@ -383,7 +390,7 @@ CROP_DATA = {
         "growing_season_days": 150,
         "optimal_rainfall": 900,
         "optimal_temp": 27,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
     # ═══ Fodder ═══
     CropType.ALFALFA: {
@@ -393,7 +400,7 @@ CROP_DATA = {
         "growing_season_days": 365,
         "optimal_rainfall": 900,
         "optimal_temp": 22,
-        "water_requirement": "high"
+        "water_requirement": "high",
     },
 }
 
@@ -405,6 +412,7 @@ USD_TO_YER = 535
 # ML Yield Prediction Model
 # نموذج التنبؤ بالإنتاجية
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class YieldPredictor:
     """
@@ -425,7 +433,7 @@ class YieldPredictor:
         self,
         crop_type: CropType,
         rainfall: Optional[float],
-        temperature: Optional[float]
+        temperature: Optional[float],
     ) -> tuple:
         """حساب معامل الطقس"""
         crop_info = CROP_DATA[crop_type]
@@ -475,7 +483,9 @@ class YieldPredictor:
         factor, desc = soil_factors.get(soil_quality, (1.0, ""))
         return factor, [desc] if desc else []
 
-    def _calculate_irrigation_factor(self, irrigation_type: str, crop_type: CropType) -> tuple:
+    def _calculate_irrigation_factor(
+        self, irrigation_type: str, crop_type: CropType
+    ) -> tuple:
         """حساب معامل الري"""
         water_req = CROP_DATA[crop_type]["water_requirement"]
 
@@ -514,22 +524,21 @@ class YieldPredictor:
 
         # معامل الطقس
         weather_factor, weather_desc = self._calculate_weather_factor(
-            request.crop_type,
-            request.avg_rainfall,
-            request.avg_temperature
+            request.crop_type, request.avg_rainfall, request.avg_temperature
         )
         total_factor *= weather_factor
         all_factors.extend(weather_desc)
 
         # معامل التربة
-        soil_factor, soil_desc = self._calculate_soil_factor(request.soil_quality or "medium")
+        soil_factor, soil_desc = self._calculate_soil_factor(
+            request.soil_quality or "medium"
+        )
         total_factor *= soil_factor
         all_factors.extend(soil_desc)
 
         # معامل الري
         irrigation_factor, irrigation_desc = self._calculate_irrigation_factor(
-            request.irrigation_type or "rain-fed",
-            request.crop_type
+            request.irrigation_type or "rain-fed", request.crop_type
         )
         total_factor *= irrigation_factor
         all_factors.extend(irrigation_desc)
@@ -563,7 +572,7 @@ class YieldPredictor:
             request.crop_type,
             total_factor,
             request.irrigation_type,
-            request.soil_quality
+            request.soil_quality,
         )
 
         return YieldPrediction(
@@ -581,7 +590,7 @@ class YieldPredictor:
             confidence_percent=min(confidence, 95),
             factors_applied=all_factors if all_factors else ["لا توجد عوامل إضافية"],
             recommendations=recommendations,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.utcnow(),
         )
 
     def _generate_recommendations(
@@ -589,7 +598,7 @@ class YieldPredictor:
         crop_type: CropType,
         yield_factor: float,
         irrigation_type: Optional[str],
-        soil_quality: Optional[str]
+        soil_quality: Optional[str],
     ) -> List[str]:
         """توليد التوصيات"""
         recommendations = []
@@ -598,7 +607,9 @@ class YieldPredictor:
             recommendations.append("الإنتاجية المتوقعة منخفضة - راجع ظروف الزراعة")
 
         if irrigation_type == "rain-fed":
-            recommendations.append("فكر في تركيب نظام ري بالتنقيط لزيادة الإنتاج 15-20%")
+            recommendations.append(
+                "فكر في تركيب نظام ري بالتنقيط لزيادة الإنتاج 15-20%"
+            )
 
         if soil_quality == "poor":
             recommendations.append("أضف سماد عضوي لتحسين جودة التربة")
@@ -629,11 +640,14 @@ app = FastAPI(
     description="خدمة التنبؤ بالإنتاجية الزراعية باستخدام الذكاء الاصطناعي",
     version=SERVICE_VERSION,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
 # CORS middleware - secure origins from environment
-CORS_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+CORS_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://localhost:3001,http://localhost:8080",
+).split(",")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
@@ -657,7 +671,7 @@ async def health_check():
         service=SERVICE_NAME,
         version=SERVICE_VERSION,
         model_ready=yield_predictor.is_ready,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
 
 
@@ -695,14 +709,16 @@ async def list_supported_crops():
     """
     crops = []
     for crop_type, info in CROP_DATA.items():
-        crops.append({
-            "crop_id": crop_type.value,
-            "name_ar": info["name_ar"],
-            "base_yield_per_hectare": info["base_yield_per_hectare"],
-            "price_usd_per_ton": info["price_usd_per_ton"],
-            "growing_season_days": info["growing_season_days"],
-            "water_requirement": info["water_requirement"]
-        })
+        crops.append(
+            {
+                "crop_id": crop_type.value,
+                "name_ar": info["name_ar"],
+                "base_yield_per_hectare": info["base_yield_per_hectare"],
+                "price_usd_per_ton": info["price_usd_per_ton"],
+                "growing_season_days": info["growing_season_days"],
+                "water_requirement": info["water_requirement"],
+            }
+        )
     return crops
 
 
@@ -717,7 +733,7 @@ async def get_crop_price(crop_type: CropType):
         "name_ar": info["name_ar"],
         "price_usd_per_ton": info["price_usd_per_ton"],
         "price_yer_per_ton": info["price_usd_per_ton"] * USD_TO_YER,
-        "last_updated": datetime.utcnow().isoformat()
+        "last_updated": datetime.utcnow().isoformat(),
     }
 
 
@@ -727,10 +743,7 @@ async def get_crop_price(crop_type: CropType):
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=SERVICE_PORT,
-        reload=True,
-        log_level="info"
+        "main:app", host="0.0.0.0", port=SERVICE_PORT, reload=True, log_level="info"
     )

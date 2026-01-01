@@ -17,13 +17,14 @@ try:
         multiprocess,
         CollectorRegistry as PrometheusRegistry,
     )
+
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
 
 
 def create_metrics_router(
-    registry: Optional['PrometheusRegistry'] = None,
+    registry: Optional["PrometheusRegistry"] = None,
     include_default_metrics: bool = True,
 ) -> APIRouter:
     """
@@ -40,6 +41,7 @@ def create_metrics_router(
     router = APIRouter(tags=["Observability"])
 
     if not PROMETHEUS_AVAILABLE:
+
         @router.get("/metrics", summary="Metrics endpoint (unavailable)")
         async def metrics_unavailable():
             """Prometheus client not installed"""
@@ -48,6 +50,7 @@ def create_metrics_router(
                 "# Install with: pip install prometheus-client\n",
                 status_code=200,
             )
+
         return router
 
     @router.get("/metrics", summary="Prometheus metrics")
@@ -63,6 +66,7 @@ def create_metrics_router(
         else:
             # Use default registry
             from prometheus_client import REGISTRY
+
             metrics_output = generate_latest(REGISTRY)
 
         return Response(
@@ -74,7 +78,7 @@ def create_metrics_router(
 
 
 def create_observability_router(
-    metrics_registry: Optional['PrometheusRegistry'] = None,
+    metrics_registry: Optional["PrometheusRegistry"] = None,
 ) -> APIRouter:
     """
     Create a combined observability router with multiple endpoints.
@@ -89,7 +93,7 @@ def create_observability_router(
 
     # Add metrics endpoint
     metrics_router = create_metrics_router(metrics_registry)
-    
+
     # Mount metrics at /metrics (not under /debug)
     standalone_router = APIRouter()
     standalone_router.include_router(metrics_router)
@@ -115,7 +119,7 @@ def create_observability_router(
                 "log_level": os.getenv("LOG_LEVEL", "INFO"),
             },
             "runtime": {
-                "timestamp": datetime.utcnow().isoformat() + 'Z',
+                "timestamp": datetime.utcnow().isoformat() + "Z",
                 "pid": os.getpid(),
             },
             "config": {
@@ -138,7 +142,7 @@ try:
     from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-    
+
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
@@ -175,19 +179,21 @@ def setup_opentelemetry(
         return None
 
     # Create resource with service information
-    resource = Resource.create({
-        "service.name": service_name,
-        "service.version": service_version,
-        "deployment.environment": os.getenv("ENVIRONMENT", "development"),
-    })
+    resource = Resource.create(
+        {
+            "service.name": service_name,
+            "service.version": service_version,
+            "deployment.environment": os.getenv("ENVIRONMENT", "development"),
+        }
+    )
 
     # Setup trace provider
     provider = TracerProvider(resource=resource)
-    
+
     # Add OTLP exporter
     otlp_exporter = OTLPSpanExporter(endpoint=otlp_endpoint)
     provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
-    
+
     # Set as global tracer provider
     trace.set_tracer_provider(provider)
 
@@ -236,9 +242,9 @@ def get_trace_context() -> dict:
 
     ctx = span.get_span_context()
     return {
-        "trace_id": format(ctx.trace_id, '032x'),
-        "span_id": format(ctx.span_id, '016x'),
-        "trace_flags": format(ctx.trace_flags, '02x'),
+        "trace_id": format(ctx.trace_id, "032x"),
+        "span_id": format(ctx.span_id, "016x"),
+        "trace_flags": format(ctx.trace_flags, "02x"),
     }
 
 
@@ -260,10 +266,10 @@ def inject_trace_headers(headers: dict) -> dict:
 
     # Create a mutable dict
     carrier = dict(headers)
-    
+
     # Inject trace context
     inject(carrier)
-    
+
     return carrier
 
 
@@ -286,8 +292,8 @@ def extract_trace_from_headers(headers: dict) -> Optional[trace.SpanContext]:
 
     # Extract context from headers
     ctx = extract(headers)
-    
+
     # Attach to current context
     attach(ctx)
-    
+
     return trace.get_current_span().get_span_context()

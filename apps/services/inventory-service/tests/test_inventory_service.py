@@ -82,7 +82,7 @@ class TestCategoryManagement:
             "name_en": "Fertilizers",
             "name_ar": "الأسمدة",
             "code": "FERT",
-            "description": "All types of fertilizers"
+            "description": "All types of fertilizers",
         }
 
         response = client.post("/v1/categories", json=category_data)
@@ -96,11 +96,7 @@ class TestCategoryManagement:
 
     def test_create_category_duplicate_code(self, client):
         """Test creating category with duplicate code"""
-        category_data = {
-            "name_en": "Category 1",
-            "name_ar": "فئة 1",
-            "code": "CAT1"
-        }
+        category_data = {"name_en": "Category 1", "name_ar": "فئة 1", "code": "CAT1"}
 
         # Create first category
         client.post("/v1/categories", json=category_data)
@@ -119,7 +115,7 @@ class TestAnalyticsForecasting:
         """Test getting consumption forecast for an item"""
         response = client.get(
             "/v1/analytics/forecast/item_123",
-            params={"tenant_id": "tenant_123", "forecast_days": 90}
+            params={"tenant_id": "tenant_123", "forecast_days": 90},
         )
 
         # May return 404 if item doesn't exist, or 200 with forecast
@@ -128,8 +124,7 @@ class TestAnalyticsForecasting:
     def test_get_all_forecasts(self, client):
         """Test getting forecasts for all items"""
         response = client.get(
-            "/v1/analytics/forecasts",
-            params={"tenant_id": "tenant_123"}
+            "/v1/analytics/forecasts", params={"tenant_id": "tenant_123"}
         )
 
         assert response.status_code == 200
@@ -143,8 +138,8 @@ class TestAnalyticsForecasting:
             params={
                 "tenant_id": "tenant_123",
                 "category": "fertilizers",
-                "low_stock_only": True
-            }
+                "low_stock_only": True,
+            },
         )
 
         assert response.status_code == 200
@@ -156,8 +151,7 @@ class TestReorderRecommendations:
     def test_get_reorder_recommendations(self, client):
         """Test getting reorder recommendations"""
         response = client.get(
-            "/v1/analytics/reorder-recommendations",
-            params={"tenant_id": "tenant_123"}
+            "/v1/analytics/reorder-recommendations", params={"tenant_id": "tenant_123"}
         )
 
         assert response.status_code == 200
@@ -173,8 +167,7 @@ class TestInventoryValuation:
     def test_get_total_valuation(self, client):
         """Test getting total inventory valuation"""
         response = client.get(
-            "/v1/analytics/valuation",
-            params={"tenant_id": "tenant_123"}
+            "/v1/analytics/valuation", params={"tenant_id": "tenant_123"}
         )
 
         assert response.status_code == 200
@@ -183,10 +176,7 @@ class TestInventoryValuation:
         """Test getting valuation for specific warehouse"""
         response = client.get(
             "/v1/analytics/valuation",
-            params={
-                "tenant_id": "tenant_123",
-                "warehouse_id": "warehouse_456"
-            }
+            params={"tenant_id": "tenant_123", "warehouse_id": "warehouse_456"},
         )
 
         assert response.status_code == 200
@@ -199,10 +189,7 @@ class TestTurnoverAnalysis:
         """Test getting turnover analysis"""
         response = client.get(
             "/v1/analytics/turnover",
-            params={
-                "tenant_id": "tenant_123",
-                "period_days": 365
-            }
+            params={"tenant_id": "tenant_123", "period_days": 365},
         )
 
         assert response.status_code == 200
@@ -218,10 +205,7 @@ class TestTurnoverAnalysis:
         for period in periods:
             response = client.get(
                 "/v1/analytics/turnover",
-                params={
-                    "tenant_id": "tenant_123",
-                    "period_days": period
-                }
+                params={"tenant_id": "tenant_123", "period_days": period},
             )
 
             assert response.status_code == 200
@@ -234,10 +218,7 @@ class TestSlowMovingItems:
         """Test identifying slow-moving inventory"""
         response = client.get(
             "/v1/analytics/slow-moving",
-            params={
-                "tenant_id": "tenant_123",
-                "days_threshold": 90
-            }
+            params={"tenant_id": "tenant_123", "days_threshold": 90},
         )
 
         assert response.status_code == 200
@@ -251,10 +232,7 @@ class TestSlowMovingItems:
         # Test minimum threshold
         response = client.get(
             "/v1/analytics/slow-moving",
-            params={
-                "tenant_id": "tenant_123",
-                "days_threshold": 20  # Below minimum
-            }
+            params={"tenant_id": "tenant_123", "days_threshold": 20},  # Below minimum
         )
 
         assert response.status_code in [200, 422]
@@ -267,10 +245,7 @@ class TestDeadStock:
         """Test identifying dead stock"""
         response = client.get(
             "/v1/analytics/dead-stock",
-            params={
-                "tenant_id": "tenant_123",
-                "days_threshold": 180
-            }
+            params={"tenant_id": "tenant_123", "days_threshold": 180},
         )
 
         assert response.status_code == 200
@@ -286,8 +261,7 @@ class TestABCAnalysis:
     def test_get_abc_analysis(self, client):
         """Test getting ABC analysis"""
         response = client.get(
-            "/v1/analytics/abc-analysis",
-            params={"tenant_id": "tenant_123"}
+            "/v1/analytics/abc-analysis", params={"tenant_id": "tenant_123"}
         )
 
         assert response.status_code == 200
@@ -302,7 +276,7 @@ class TestSeasonalPatterns:
         """Test getting seasonal patterns for an item"""
         response = client.get(
             "/v1/analytics/seasonal-patterns/item_123",
-            params={"tenant_id": "tenant_123"}
+            params={"tenant_id": "tenant_123"},
         )
 
         # May return 404 if item doesn't exist or insufficient data
@@ -315,8 +289,7 @@ class TestCostAnalysis:
     def test_get_cost_analysis(self, client):
         """Test getting cost analysis"""
         response = client.get(
-            "/v1/analytics/cost-analysis",
-            params={"tenant_id": "tenant_123"}
+            "/v1/analytics/cost-analysis", params={"tenant_id": "tenant_123"}
         )
 
         assert response.status_code == 200
@@ -328,8 +301,8 @@ class TestCostAnalysis:
             params={
                 "tenant_id": "tenant_123",
                 "field_id": "field_456",
-                "crop_season_id": "season_789"
-            }
+                "crop_season_id": "season_789",
+            },
         )
 
         assert response.status_code == 200
@@ -341,8 +314,8 @@ class TestCostAnalysis:
             params={
                 "tenant_id": "tenant_123",
                 "start_date": "2025-01-01",
-                "end_date": "2025-12-31"
-            }
+                "end_date": "2025-12-31",
+            },
         )
 
         assert response.status_code == 200
@@ -355,10 +328,7 @@ class TestWasteAnalysis:
         """Test getting waste analysis"""
         response = client.get(
             "/v1/analytics/waste-analysis",
-            params={
-                "tenant_id": "tenant_123",
-                "period_days": 365
-            }
+            params={"tenant_id": "tenant_123", "period_days": 365},
         )
 
         assert response.status_code == 200
@@ -370,10 +340,7 @@ class TestWasteAnalysis:
         for period in periods:
             response = client.get(
                 "/v1/analytics/waste-analysis",
-                params={
-                    "tenant_id": "tenant_123",
-                    "period_days": period
-                }
+                params={"tenant_id": "tenant_123", "period_days": period},
             )
 
             assert response.status_code == 200
@@ -385,8 +352,7 @@ class TestDashboardMetrics:
     def test_get_dashboard_metrics(self, client):
         """Test getting comprehensive dashboard metrics"""
         response = client.get(
-            "/v1/analytics/dashboard",
-            params={"tenant_id": "tenant_123"}
+            "/v1/analytics/dashboard", params={"tenant_id": "tenant_123"}
         )
 
         assert response.status_code == 200
@@ -407,10 +373,7 @@ class TestValidation:
         """Test with invalid period_days"""
         response = client.get(
             "/v1/analytics/turnover",
-            params={
-                "tenant_id": "tenant_123",
-                "period_days": 1000  # Exceeds maximum
-            }
+            params={"tenant_id": "tenant_123", "period_days": 1000},  # Exceeds maximum
         )
 
         assert response.status_code == 422
@@ -419,10 +382,7 @@ class TestValidation:
         """Test with invalid forecast_days"""
         response = client.get(
             "/v1/analytics/forecast/item_123",
-            params={
-                "tenant_id": "tenant_123",
-                "forecast_days": 500  # Exceeds maximum
-            }
+            params={"tenant_id": "tenant_123", "forecast_days": 500},  # Exceeds maximum
         )
 
         assert response.status_code == 422
@@ -439,38 +399,30 @@ class TestCompleteWorkflow:
         # Step 1: Create category
         category_response = client.post(
             "/v1/categories",
-            json={
-                "name_en": "Test Category",
-                "name_ar": "فئة اختبار",
-                "code": "TEST"
-            }
+            json={"name_en": "Test Category", "name_ar": "فئة اختبار", "code": "TEST"},
         )
         assert category_response.status_code == 200
 
         # Step 2: Get forecasts
         forecast_response = client.get(
-            "/v1/analytics/forecasts",
-            params={"tenant_id": tenant_id}
+            "/v1/analytics/forecasts", params={"tenant_id": tenant_id}
         )
         assert forecast_response.status_code == 200
 
         # Step 3: Get reorder recommendations
         reorder_response = client.get(
-            "/v1/analytics/reorder-recommendations",
-            params={"tenant_id": tenant_id}
+            "/v1/analytics/reorder-recommendations", params={"tenant_id": tenant_id}
         )
         assert reorder_response.status_code == 200
 
         # Step 4: Get valuation
         valuation_response = client.get(
-            "/v1/analytics/valuation",
-            params={"tenant_id": tenant_id}
+            "/v1/analytics/valuation", params={"tenant_id": tenant_id}
         )
         assert valuation_response.status_code == 200
 
         # Step 5: Get dashboard metrics
         dashboard_response = client.get(
-            "/v1/analytics/dashboard",
-            params={"tenant_id": tenant_id}
+            "/v1/analytics/dashboard", params={"tenant_id": tenant_id}
         )
         assert dashboard_response.status_code == 200

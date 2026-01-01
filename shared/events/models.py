@@ -145,7 +145,9 @@ class AdvisorRecommendationEvent(BaseEvent):
     recommendation_id: UUID
     field_id: UUID
     tenant_id: UUID
-    recommendation_type: str = Field(..., pattern="^(irrigation|fertilizer|pest|harvest)$")
+    recommendation_type: str = Field(
+        ..., pattern="^(irrigation|fertilizer|pest|harvest)$"
+    )
     title: str
     title_ar: Optional[str] = None
     description: str

@@ -54,8 +54,7 @@ def render_prompt(
     """
     template = get_template(template_name)
     return (
-        template
-        .replace("{{question}}", question)
+        template.replace("{{question}}", question)
         .replace("{{field_context}}", field_context)
         .replace("{{retrieved_chunks}}", retrieved_chunks)
     )

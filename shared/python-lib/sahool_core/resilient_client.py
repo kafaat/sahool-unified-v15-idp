@@ -231,8 +231,7 @@ class CircuitBreaker:
                     "last_failure": str(self._last_failure_time.get(service, "N/A")),
                 }
                 for service in set(
-                    list(self._states.keys())
-                    + list(self._failure_counts.keys())
+                    list(self._states.keys()) + list(self._failure_counts.keys())
                 )
             },
             "endpoints": self._endpoints,

@@ -36,14 +36,9 @@ class TestWebSocketMessageHandler:
         ws = AsyncMock()
 
         # Add connection first
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
-        message = {
-            "type": "subscribe",
-            "topics": ["alerts", "weather"]
-        }
+        message = {"type": "subscribe", "topics": ["alerts", "weather"]}
 
         response = await handler.handle_subscribe("conn_001", message)
 
@@ -57,14 +52,9 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
-        message = {
-            "type": "subscribe",
-            "topics": "alerts"  # Single string, not list
-        }
+        message = {"type": "subscribe", "topics": "alerts"}  # Single string, not list
 
         response = await handler.handle_subscribe("conn_001", message)
 
@@ -76,18 +66,13 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Subscribe first
         await room_manager.join_room("conn_001", "alerts")
 
         # Unsubscribe
-        message = {
-            "type": "unsubscribe",
-            "topics": ["alerts"]
-        }
+        message = {"type": "unsubscribe", "topics": ["alerts"]}
 
         response = await handler.handle_unsubscribe("conn_001", message)
 
@@ -100,14 +85,9 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
-        message = {
-            "type": "join_room",
-            "room": "field:field_123"
-        }
+        message = {"type": "join_room", "room": "field:field_123"}
 
         response = await handler.handle_join_room("conn_001", message)
 
@@ -136,15 +116,10 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
         await room_manager.join_room("conn_001", "field:field_123")
 
-        message = {
-            "type": "leave_room",
-            "room": "field:field_123"
-        }
+        message = {"type": "leave_room", "room": "field:field_123"}
 
         response = await handler.handle_leave_room("conn_001", message)
 
@@ -158,12 +133,8 @@ class TestWebSocketMessageHandler:
         ws1 = AsyncMock()
         ws2 = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws1, "user_1", "tenant_001"
-        )
-        await room_manager.add_connection(
-            "conn_002", ws2, "user_2", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws1, "user_1", "tenant_001")
+        await room_manager.add_connection("conn_002", ws2, "user_2", "tenant_001")
 
         await room_manager.join_room("conn_001", "field:field_123")
         await room_manager.join_room("conn_002", "field:field_123")
@@ -171,7 +142,7 @@ class TestWebSocketMessageHandler:
         message = {
             "type": "broadcast",
             "room": "field:field_123",
-            "message": {"content": "Hello room"}
+            "message": {"content": "Hello room"},
         }
 
         response = await handler.handle_broadcast("conn_001", message)
@@ -187,7 +158,7 @@ class TestWebSocketMessageHandler:
 
         message = {
             "type": "broadcast",
-            "message": {"content": "Hello"}
+            "message": {"content": "Hello"},
             # Missing room
         }
 
@@ -203,21 +174,13 @@ class TestWebSocketMessageHandler:
         ws1 = AsyncMock()
         ws2 = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws1, "user_1", "tenant_001"
-        )
-        await room_manager.add_connection(
-            "conn_002", ws2, "user_2", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws1, "user_1", "tenant_001")
+        await room_manager.add_connection("conn_002", ws2, "user_2", "tenant_001")
 
         await room_manager.join_room("conn_001", "chat:chat_123")
         await room_manager.join_room("conn_002", "chat:chat_123")
 
-        message = {
-            "type": "typing",
-            "room": "chat:chat_123",
-            "typing": True
-        }
+        message = {"type": "typing", "room": "chat:chat_123", "typing": True}
 
         response = await handler.handle_typing("conn_001", message)
 
@@ -233,21 +196,13 @@ class TestWebSocketMessageHandler:
         ws1 = AsyncMock()
         ws2 = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws1, "user_1", "tenant_001"
-        )
-        await room_manager.add_connection(
-            "conn_002", ws2, "user_2", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws1, "user_1", "tenant_001")
+        await room_manager.add_connection("conn_002", ws2, "user_2", "tenant_001")
 
         await room_manager.join_room("conn_001", "chat:chat_123")
         await room_manager.join_room("conn_002", "chat:chat_123")
 
-        message = {
-            "type": "read",
-            "room": "chat:chat_123",
-            "message_id": "msg_456"
-        }
+        message = {"type": "read", "room": "chat:chat_123", "message_id": "msg_456"}
 
         response = await handler.handle_read("conn_001", message)
 
@@ -261,10 +216,7 @@ class TestWebSocketMessageHandler:
         """Test handling unknown message type"""
         handler, _ = setup_handler
 
-        message = {
-            "type": "unknown_type",
-            "data": "test"
-        }
+        message = {"type": "unknown_type", "data": "test"}
 
         response = await handler.handle_message("conn_001", message)
 
@@ -292,9 +244,7 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Global topics should be accessible
         assert handler._validate_topic_access("conn_001", "alerts")
@@ -307,9 +257,7 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Own tenant - should be accessible
         assert handler._validate_topic_access("conn_001", "tenant:tenant_001")
@@ -323,9 +271,7 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Own user - should be accessible
         assert handler._validate_topic_access("conn_001", "user:user_123")
@@ -339,13 +285,13 @@ class TestWebSocketMessageHandler:
         handler, room_manager = setup_handler
         ws = AsyncMock()
 
-        await room_manager.add_connection(
-            "conn_001", ws, "user_123", "tenant_001"
-        )
+        await room_manager.add_connection("conn_001", ws, "user_123", "tenant_001")
 
         # Should be able to broadcast to accessible rooms
         assert handler._validate_broadcast_permission("conn_001", "alerts")
         assert handler._validate_broadcast_permission("conn_001", "tenant:tenant_001")
 
         # Should not broadcast to inaccessible rooms
-        assert not handler._validate_broadcast_permission("conn_001", "tenant:tenant_999")
+        assert not handler._validate_broadcast_permission(
+            "conn_001", "tenant:tenant_999"
+        )

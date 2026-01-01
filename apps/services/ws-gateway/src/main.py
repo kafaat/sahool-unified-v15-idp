@@ -11,7 +11,14 @@ from datetime import datetime
 from typing import Optional
 from uuid import uuid4
 
-from fastapi import FastAPI, Query, WebSocket, WebSocketDisconnect, HTTPException, Header
+from fastapi import (
+    FastAPI,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+    HTTPException,
+    Header,
+)
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
@@ -22,20 +29,24 @@ from .events import EventType
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("ws-gateway")
 
 # JWT Configuration - Always required in production
 JWT_SECRET = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+
+# SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
+# Never trust algorithm from environment variables or token header
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
 
 
 async def validate_jwt_token(token: str) -> dict:
     """
     Validate JWT token and return payload
     التحقق من صحة التوكن وإرجاع البيانات
+
+    Security: Uses hardcoded algorithm whitelist to prevent algorithm confusion attacks
     """
     if not token:
         raise ValueError("Token is required")
@@ -44,7 +55,24 @@ async def validate_jwt_token(token: str) -> dict:
         raise ValueError("JWT_SECRET not configured")
 
     try:
-        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        # SECURITY FIX: Decode header to validate algorithm before verification
+        unverified_header = jwt.get_unverified_header(token)
+
+        if not unverified_header or "alg" not in unverified_header:
+            raise ValueError("Invalid token: missing algorithm")
+
+        algorithm = unverified_header["alg"]
+
+        # Reject 'none' algorithm explicitly
+        if algorithm.lower() == "none":
+            raise ValueError("Invalid token: none algorithm not allowed")
+
+        # Verify algorithm is in whitelist
+        if algorithm not in ALLOWED_ALGORITHMS:
+            raise ValueError(f"Invalid token: unsupported algorithm {algorithm}")
+
+        # SECURITY FIX: Use hardcoded whitelist instead of environment variable
+        payload = jwt.decode(token, JWT_SECRET, algorithms=ALLOWED_ALGORITHMS)
         return payload
     except JWTError as e:
         raise ValueError(f"Invalid token: {str(e)}")
@@ -194,7 +222,7 @@ async def websocket_endpoint(
         connection_id=connection_id,
         websocket=websocket,
         user_id=user_id,
-        tenant_id=tenant_id
+        tenant_id=tenant_id,
     )
 
     # Send connection confirmation
@@ -229,6 +257,7 @@ async def websocket_endpoint(
 
 class BroadcastRequest(BaseModel):
     """Request model for broadcasting messages"""
+
     tenant_id: Optional[str] = None
     user_id: Optional[str] = None
     field_id: Optional[str] = None
@@ -258,8 +287,7 @@ async def broadcast_message(
 
     if not token:
         raise HTTPException(
-            status_code=401,
-            detail="Authorization token required for broadcast"
+            status_code=401, detail="Authorization token required for broadcast"
         )
 
     try:
@@ -273,8 +301,7 @@ async def broadcast_message(
             roles = payload.get("roles", [])
             if "super_admin" not in roles:
                 raise HTTPException(
-                    status_code=403,
-                    detail="Cannot broadcast to a different tenant"
+                    status_code=403, detail="Cannot broadcast to a different tenant"
                 )
 
         logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")

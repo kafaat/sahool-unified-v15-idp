@@ -85,7 +85,11 @@ def main() -> int:
                 for err in errors:
                     print(f"    {err}")
             else:
-                display = "***" if "secret" in name.lower() or "key" in name.lower() else value
+                display = (
+                    "***"
+                    if "secret" in name.lower() or "key" in name.lower()
+                    else value
+                )
                 print(f"    ✅ {name}: {display}")
 
     # Check optional variables (just informational)
@@ -98,7 +102,11 @@ def main() -> int:
             default = var_spec.get("default")
 
             if value:
-                display = "***" if "secret" in name.lower() or "key" in name.lower() else value
+                display = (
+                    "***"
+                    if "secret" in name.lower() or "key" in name.lower()
+                    else value
+                )
                 print(f"    ✅ {name}: {display}")
             elif default:
                 print(f"    ⚪ {name}: (using default: {default})")

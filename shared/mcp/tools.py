@@ -165,7 +165,12 @@ class SAHOOLTools:
                             ],
                         },
                     },
-                    "required": ["field_id", "crop_type", "soil_moisture", "growth_stage"],
+                    "required": [
+                        "field_id",
+                        "crop_type",
+                        "soil_moisture",
+                        "growth_stage",
+                    ],
                 },
             },
             {
@@ -453,7 +458,9 @@ class SAHOOLTools:
         except Exception as e:
             return ToolResult(success=False, error=f"Unexpected error: {str(e)}")
 
-    async def invoke_tool(self, tool_name: str, arguments: Dict[str, Any]) -> ToolResult:
+    async def invoke_tool(
+        self, tool_name: str, arguments: Dict[str, Any]
+    ) -> ToolResult:
         """
         Invoke a tool by name with arguments
 

@@ -118,23 +118,18 @@ Usage:
 from .events import (
     # Subject constants
     GlobalGAPSubjects,
-
     # Compliance events
     ComplianceUpdatedEvent,
     ComplianceRequirementFailedEvent,
-
     # Audit events
     AuditScheduledEvent,
     AuditCompletedEvent,
-
     # Non-conformance events
     NonConformanceDetectedEvent,
     CorrectiveActionCompletedEvent,
-
     # Certificate events
     CertificateExpiringEvent,
     CertificateIssuedEvent,
-
     # Integration-specific events
     WaterUsageRecordedEvent,
     IPMActivityRecordedEvent,
@@ -151,12 +146,10 @@ from .irrigation_integration import (
     WaterSource,
     IrrigationMethod,
     WaterQualityStatus,
-
     # Models
     WaterUsageRecord,
     WaterUsageReport,
     SPRINGCompliance,
-
     # Integration
     IrrigationIntegration,
 )
@@ -172,12 +165,10 @@ from .crop_health_integration import (
     DetectionMethod,
     SeverityLevel,
     PPPType,
-
     # Models
     PestDetectionRecord,
     PPPApplicationRecord,
     IPMReport,
-
     # Integration
     CropHealthIntegration,
 )
@@ -191,13 +182,11 @@ from .fertilizer_integration import (
     FertilizerType,
     ApplicationMethod,
     NutrientType,
-
     # Models
     FertilizerApplicationRecord,
     NutrientRequirement,
     NutrientManagementPlan,
     MRLComplianceCheck,
-
     # Integration
     FertilizerIntegration,
 )
@@ -211,13 +200,11 @@ from .field_ops_integration import (
     ActivityType,
     HarvestMethod,
     PackagingType,
-
     # Models
     FieldActivity,
     HarvestBatch,
     TraceabilityRecord,
     ActivityComplianceMapping,
-
     # Integration
     FieldOpsIntegration,
 )
@@ -229,29 +216,23 @@ from .field_ops_integration import (
 __all__ = [
     # ─── Event definitions ───
     "GlobalGAPSubjects",
-
     # Compliance events
     "ComplianceUpdatedEvent",
     "ComplianceRequirementFailedEvent",
-
     # Audit events
     "AuditScheduledEvent",
     "AuditCompletedEvent",
-
     # Non-conformance events
     "NonConformanceDetectedEvent",
     "CorrectiveActionCompletedEvent",
-
     # Certificate events
     "CertificateExpiringEvent",
     "CertificateIssuedEvent",
-
     # Integration events
     "WaterUsageRecordedEvent",
     "IPMActivityRecordedEvent",
     "FertilizerApplicationRecordedEvent",
     "TraceabilityRecordCreatedEvent",
-
     # ─── Irrigation Integration ───
     "IrrigationIntegration",
     "WaterSource",
@@ -260,7 +241,6 @@ __all__ = [
     "WaterUsageRecord",
     "WaterUsageReport",
     "SPRINGCompliance",
-
     # ─── Crop Health Integration ───
     "CropHealthIntegration",
     "PestCategory",
@@ -271,7 +251,6 @@ __all__ = [
     "PestDetectionRecord",
     "PPPApplicationRecord",
     "IPMReport",
-
     # ─── Fertilizer Integration ───
     "FertilizerIntegration",
     "FertilizerType",
@@ -281,7 +260,6 @@ __all__ = [
     "NutrientRequirement",
     "NutrientManagementPlan",
     "MRLComplianceCheck",
-
     # ─── Field Operations Integration ───
     "FieldOpsIntegration",
     "ActivityType",

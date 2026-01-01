@@ -11,18 +11,18 @@ import uuid
 
 
 class ApplicationMethod(Enum):
-    BROADCAST = "broadcast"       # Even spreading
-    BAND = "band"                 # In rows
-    FOLIAR = "foliar"             # Spray on leaves
-    DRIP = "drip"                 # Through irrigation
+    BROADCAST = "broadcast"  # Even spreading
+    BAND = "band"  # In rows
+    FOLIAR = "foliar"  # Spray on leaves
+    DRIP = "drip"  # Through irrigation
     SOIL_INJECTION = "soil_injection"
     SEED_TREATMENT = "seed_treatment"
-    AERIAL = "aerial"             # Drone/plane spray
+    AERIAL = "aerial"  # Drone/plane spray
 
 
 class ApplicationPurpose(Enum):
-    BASAL = "basal"              # At planting
-    TOP_DRESSING = "top_dressing" # During growth
+    BASAL = "basal"  # At planting
+    TOP_DRESSING = "top_dressing"  # During growth
     PEST_CONTROL = "pest_control"
     DISEASE_CONTROL = "disease_control"
     WEED_CONTROL = "weed_control"
@@ -92,7 +92,9 @@ class InputApplication:
             "applied_by": self.applied_by,
             "equipment_used": self.equipment_used,
             "withholding_period_days": self.withholding_period_days,
-            "safe_harvest_date": self.safe_harvest_date.isoformat() if self.safe_harvest_date else None,
+            "safe_harvest_date": (
+                self.safe_harvest_date.isoformat() if self.safe_harvest_date else None
+            ),
             "ppe_used": self.ppe_used,
             "unit_cost": self.unit_cost,
             "total_cost": self.total_cost,
@@ -112,7 +114,9 @@ class ApplicationPlan:
     crop_type: str
 
     # Schedule
-    planned_applications: List[Dict] = field(default_factory=list)  # [{date, item_id, quantity, purpose}]
+    planned_applications: List[Dict] = field(
+        default_factory=list
+    )  # [{date, item_id, quantity, purpose}]
     total_fertilizer_kg: float = 0.0
     total_pesticide_l: float = 0.0
     estimated_cost: float = 0.0
@@ -175,7 +179,7 @@ class ApplicationTracker:
         applied_by: str,
         area_ha: float,
         application_date: Optional[datetime] = None,
-        **kwargs
+        **kwargs,
     ) -> InputApplication:
         """
         Record an input application and deduct from inventory.
@@ -248,7 +252,7 @@ class ApplicationTracker:
             data={
                 "currentQuantity": item.currentQuantity - quantity,
                 "availableQuantity": item.availableQuantity - quantity,
-            }
+            },
         )
 
         # Step 5: Calculate safe harvest date
@@ -269,7 +273,9 @@ class ApplicationTracker:
             "wind_speed": kwargs.get("wind_speed"),
         }
         # Remove None values
-        weather_conditions = {k: v for k, v in weather_conditions.items() if v is not None}
+        weather_conditions = {
+            k: v for k, v in weather_conditions.items() if v is not None
+        }
 
         # Step 6: Create application record
         application_data = {
@@ -300,12 +306,16 @@ class ApplicationTracker:
             "notes": kwargs.get("notes"),
         }
 
-        application_record = await self.db.inputapplication.create(data=application_data)
+        application_record = await self.db.inputapplication.create(
+            data=application_data
+        )
 
         # Convert to dataclass
         return self._db_to_dataclass(application_record)
 
-    async def _deduct_from_batches(self, item_id: str, quantity: float) -> Optional[str]:
+    async def _deduct_from_batches(
+        self, item_id: str, quantity: float
+    ) -> Optional[str]:
         """
         Deduct quantity from batches using FIFO (First In, First Out)
 
@@ -319,7 +329,7 @@ class ApplicationTracker:
         # Get batches ordered by received date (FIFO)
         batches = await self.db.batchlot.find_many(
             where={"itemId": item_id, "remainingQty": {"gt": 0}},
-            order_by={"receivedDate": "asc"}
+            order_by={"receivedDate": "asc"},
         )
 
         if not batches:
@@ -337,8 +347,7 @@ class ApplicationTracker:
             new_remaining = batch.remainingQty - deduct
 
             await self.db.batchlot.update(
-                where={"id": batch.id},
-                data={"remainingQty": new_remaining}
+                where={"id": batch.id}, data={"remainingQty": new_remaining}
             )
 
             remaining -= deduct
@@ -354,7 +363,7 @@ class ApplicationTracker:
         crop_season_id: Optional[str] = None,
         category: Optional[str] = None,  # fertilizer, pesticide
         start_date: Optional[date] = None,
-        end_date: Optional[date] = None
+        end_date: Optional[date] = None,
     ) -> List[InputApplication]:
         """
         Get all applications for a field
@@ -383,8 +392,7 @@ class ApplicationTracker:
             where_clause["applicationDate"] = date_filter
 
         applications = await self.db.inputapplication.find_many(
-            where=where_clause,
-            order_by={"applicationDate": "desc"}
+            where=where_clause, order_by={"applicationDate": "desc"}
         )
 
         # Filter by category if specified (requires joining with inventory items)
@@ -398,11 +406,7 @@ class ApplicationTracker:
 
         return [self._db_to_dataclass(app) for app in applications]
 
-    async def get_application_summary(
-        self,
-        field_id: str,
-        crop_season_id: str
-    ) -> Dict:
+    async def get_application_summary(self, field_id: str, crop_season_id: str) -> Dict:
         """
         Get summary of all inputs applied to a crop season.
 
@@ -424,14 +428,8 @@ class ApplicationTracker:
             "by_purpose": {},
             "by_method": {},
             "timeline": [],
-            "fertilizer_details": {
-                "total_kg": 0.0,
-                "by_type": {}
-            },
-            "pesticide_details": {
-                "total_l": 0.0,
-                "by_type": {}
-            }
+            "fertilizer_details": {"total_kg": 0.0, "by_type": {}},
+            "pesticide_details": {"total_l": 0.0, "by_type": {}},
         }
 
         for app in applications:
@@ -450,34 +448,44 @@ class ApplicationTracker:
                 summary["by_category"][category] = {
                     "count": 0,
                     "total_quantity": 0.0,
-                    "total_cost": 0.0
+                    "total_cost": 0.0,
                 }
             summary["by_category"][category]["count"] += 1
             summary["by_category"][category]["total_quantity"] += app.quantity_applied
             summary["by_category"][category]["total_cost"] += app.total_cost
 
             # By purpose
-            purpose = app.purpose.value if isinstance(app.purpose, ApplicationPurpose) else app.purpose
+            purpose = (
+                app.purpose.value
+                if isinstance(app.purpose, ApplicationPurpose)
+                else app.purpose
+            )
             if purpose not in summary["by_purpose"]:
                 summary["by_purpose"][purpose] = {"count": 0, "total_cost": 0.0}
             summary["by_purpose"][purpose]["count"] += 1
             summary["by_purpose"][purpose]["total_cost"] += app.total_cost
 
             # By method
-            method = app.method.value if isinstance(app.method, ApplicationMethod) else app.method
+            method = (
+                app.method.value
+                if isinstance(app.method, ApplicationMethod)
+                else app.method
+            )
             if method not in summary["by_method"]:
                 summary["by_method"][method] = {"count": 0}
             summary["by_method"][method]["count"] += 1
 
             # Timeline
-            summary["timeline"].append({
-                "date": app.application_date.isoformat(),
-                "item_name": item.name_en,
-                "quantity": app.quantity_applied,
-                "unit": app.unit,
-                "purpose": purpose,
-                "cost": app.total_cost
-            })
+            summary["timeline"].append(
+                {
+                    "date": app.application_date.isoformat(),
+                    "item_name": item.name_en,
+                    "quantity": app.quantity_applied,
+                    "unit": app.unit,
+                    "purpose": purpose,
+                    "cost": app.total_cost,
+                }
+            )
 
             # Fertilizer details
             if category == "FERTILIZER":
@@ -485,7 +493,9 @@ class ApplicationTracker:
                 item_name = item.name_en
                 if item_name not in summary["fertilizer_details"]["by_type"]:
                     summary["fertilizer_details"]["by_type"][item_name] = 0.0
-                summary["fertilizer_details"]["by_type"][item_name] += app.quantity_applied
+                summary["fertilizer_details"]["by_type"][
+                    item_name
+                ] += app.quantity_applied
 
             # Pesticide details
             if category in ["PESTICIDE", "HERBICIDE", "FUNGICIDE"]:
@@ -493,7 +503,9 @@ class ApplicationTracker:
                 item_name = item.name_en
                 if item_name not in summary["pesticide_details"]["by_type"]:
                     summary["pesticide_details"]["by_type"][item_name] = 0.0
-                summary["pesticide_details"]["by_type"][item_name] += app.quantity_applied
+                summary["pesticide_details"]["by_type"][
+                    item_name
+                ] += app.quantity_applied
 
         # Sort timeline by date
         summary["timeline"].sort(key=lambda x: x["date"])
@@ -505,7 +517,7 @@ class ApplicationTracker:
         field_id: str,
         crop_season_id: str,
         crop_type: str,
-        custom_applications: Optional[List[Dict]] = None
+        custom_applications: Optional[List[Dict]] = None,
     ) -> ApplicationPlan:
         """
         Generate recommended application plan based on:
@@ -582,24 +594,51 @@ class ApplicationTracker:
         # Simple templates - in production, fetch from agro-advisor
         templates = {
             "wheat": [
-                {"stage": "basal", "days_after_planting": 0, "purpose": "BASAL", "notes": "NPK at planting"},
-                {"stage": "tillering", "days_after_planting": 30, "purpose": "TOP_DRESSING", "notes": "Nitrogen boost"},
-                {"stage": "heading", "days_after_planting": 60, "purpose": "TOP_DRESSING", "notes": "Final nitrogen"},
+                {
+                    "stage": "basal",
+                    "days_after_planting": 0,
+                    "purpose": "BASAL",
+                    "notes": "NPK at planting",
+                },
+                {
+                    "stage": "tillering",
+                    "days_after_planting": 30,
+                    "purpose": "TOP_DRESSING",
+                    "notes": "Nitrogen boost",
+                },
+                {
+                    "stage": "heading",
+                    "days_after_planting": 60,
+                    "purpose": "TOP_DRESSING",
+                    "notes": "Final nitrogen",
+                },
             ],
             "tomato": [
-                {"stage": "transplant", "days_after_planting": 0, "purpose": "BASAL", "notes": "Starter fertilizer"},
-                {"stage": "flowering", "days_after_planting": 21, "purpose": "TOP_DRESSING", "notes": "Calcium + NPK"},
-                {"stage": "fruiting", "days_after_planting": 45, "purpose": "TOP_DRESSING", "notes": "Potassium boost"},
+                {
+                    "stage": "transplant",
+                    "days_after_planting": 0,
+                    "purpose": "BASAL",
+                    "notes": "Starter fertilizer",
+                },
+                {
+                    "stage": "flowering",
+                    "days_after_planting": 21,
+                    "purpose": "TOP_DRESSING",
+                    "notes": "Calcium + NPK",
+                },
+                {
+                    "stage": "fruiting",
+                    "days_after_planting": 45,
+                    "purpose": "TOP_DRESSING",
+                    "notes": "Potassium boost",
+                },
             ],
         }
 
         return templates.get(crop_type.lower(), [])
 
     async def check_withholding_period(
-        self,
-        field_id: str,
-        crop_season_id: str,
-        harvest_date: Optional[date] = None
+        self, field_id: str, crop_season_id: str, harvest_date: Optional[date] = None
     ) -> Dict:
         """
         Check if harvest is safe based on pesticide withholding periods.
@@ -629,28 +668,32 @@ class ApplicationTracker:
                 max_wait_days = max(max_wait_days, days_remaining)
 
                 # Get item details
-                item = await self.db.inventoryitem.find_unique(where={"id": app.item_id})
+                item = await self.db.inventoryitem.find_unique(
+                    where={"id": app.item_id}
+                )
 
-                blocking.append({
-                    "application_id": app.id,
-                    "application_date": app.application_date.isoformat(),
-                    "item_name": item.name_en if item else "Unknown",
-                    "safe_harvest_date": app.safe_harvest_date.isoformat(),
-                    "days_remaining": days_remaining,
-                })
+                blocking.append(
+                    {
+                        "application_id": app.id,
+                        "application_date": app.application_date.isoformat(),
+                        "item_name": item.name_en if item else "Unknown",
+                        "safe_harvest_date": app.safe_harvest_date.isoformat(),
+                        "days_remaining": days_remaining,
+                    }
+                )
 
         return {
             "is_safe": len(blocking) == 0,
             "days_remaining": max_wait_days,
             "blocking_applications": blocking,
-            "earliest_safe_date": (harvest_date + timedelta(days=max_wait_days)).isoformat() if max_wait_days > 0 else harvest_date.isoformat(),
+            "earliest_safe_date": (
+                (harvest_date + timedelta(days=max_wait_days)).isoformat()
+                if max_wait_days > 0
+                else harvest_date.isoformat()
+            ),
         }
 
-    async def calculate_input_costs(
-        self,
-        field_id: str,
-        crop_season_id: str
-    ) -> Dict:
+    async def calculate_input_costs(self, field_id: str, crop_season_id: str) -> Dict:
         """
         Calculate total input costs for a crop season
 
@@ -663,10 +706,16 @@ class ApplicationTracker:
             "crop_season_id": crop_season_id,
             "total_cost": summary["total_cost"],
             "by_category": summary["by_category"],
-            "cost_per_application": summary["total_cost"] / summary["total_applications"] if summary["total_applications"] > 0 else 0,
+            "cost_per_application": (
+                summary["total_cost"] / summary["total_applications"]
+                if summary["total_applications"] > 0
+                else 0
+            ),
         }
 
-    async def get_application_by_id(self, application_id: str) -> Optional[InputApplication]:
+    async def get_application_by_id(
+        self, application_id: str
+    ) -> Optional[InputApplication]:
         """Get a single application by ID"""
         app = await self.db.inputapplication.find_unique(where={"id": application_id})
         if not app:

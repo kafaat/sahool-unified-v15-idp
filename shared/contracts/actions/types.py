@@ -51,40 +51,35 @@ class ActionType(str, Enum):
 class ActionStatus(str, Enum):
     """حالات الإجراء"""
 
-    PENDING = "pending"           # في الانتظار
-    SCHEDULED = "scheduled"       # مجدول
-    IN_PROGRESS = "in_progress"   # قيد التنفيذ
-    COMPLETED = "completed"       # مكتمل
-    SKIPPED = "skipped"           # تم تخطيه
-    FAILED = "failed"             # فشل
-    EXPIRED = "expired"           # انتهت صلاحيته
+    PENDING = "pending"  # في الانتظار
+    SCHEDULED = "scheduled"  # مجدول
+    IN_PROGRESS = "in_progress"  # قيد التنفيذ
+    COMPLETED = "completed"  # مكتمل
+    SKIPPED = "skipped"  # تم تخطيه
+    FAILED = "failed"  # فشل
+    EXPIRED = "expired"  # انتهت صلاحيته
 
 
 class UrgencyLevel(str, Enum):
     """مستويات الاستعجال"""
 
-    LOW = "low"           # منخفض - يمكن الانتظار
-    MEDIUM = "medium"     # متوسط - خلال أيام
-    HIGH = "high"         # عالي - خلال 24 ساعة
-    CRITICAL = "critical" # حرج - فوري
+    LOW = "low"  # منخفض - يمكن الانتظار
+    MEDIUM = "medium"  # متوسط - خلال أيام
+    HIGH = "high"  # عالي - خلال 24 ساعة
+    CRITICAL = "critical"  # حرج - فوري
 
     @property
     def label_ar(self) -> str:
-        labels = {
-            "low": "منخفض",
-            "medium": "متوسط",
-            "high": "عالي",
-            "critical": "حرج"
-        }
+        labels = {"low": "منخفض", "medium": "متوسط", "high": "عالي", "critical": "حرج"}
         return labels[self.value]
 
     @property
     def max_delay_hours(self) -> int:
         delays = {
-            "low": 168,      # أسبوع
-            "medium": 72,    # 3 أيام
-            "high": 24,      # يوم
-            "critical": 4    # 4 ساعات
+            "low": 168,  # أسبوع
+            "medium": 72,  # 3 أيام
+            "high": 24,  # يوم
+            "critical": 4,  # 4 ساعات
         }
         return delays[self.value]
 

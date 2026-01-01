@@ -29,6 +29,7 @@ from tests.evaluation.evaluator import (
 # GOLDEN DATASET TESTS
 # ============================================================================
 
+
 @pytest.mark.evaluation
 @pytest.mark.golden
 @pytest.mark.asyncio
@@ -53,8 +54,7 @@ class TestGoldenDataset:
 
         # Filter disease diagnosis test cases
         disease_cases = [
-            tc for tc in golden_dataset
-            if tc.get("category") == "disease_diagnosis"
+            tc for tc in golden_dataset if tc.get("category") == "disease_diagnosis"
         ]
 
         for test_case in disease_cases:
@@ -87,22 +87,27 @@ class TestGoldenDataset:
             )
 
             # Track metrics
-            evaluation_metrics_tracker.add_result({
-                "test_id": result.test_id,
-                "category": result.category,
-                "language": result.language,
-                "passed": result.passed,
-                "accuracy_score": result.accuracy_score,
-                "latency_score": result.latency_score,
-                "safety_score": result.safety_score,
-                "overall_score": result.overall_score,
-                "latency_ms": result.latency_ms,
-                "errors": result.errors,
-            })
+            evaluation_metrics_tracker.add_result(
+                {
+                    "test_id": result.test_id,
+                    "category": result.category,
+                    "language": result.language,
+                    "passed": result.passed,
+                    "accuracy_score": result.accuracy_score,
+                    "latency_score": result.latency_score,
+                    "safety_score": result.safety_score,
+                    "overall_score": result.overall_score,
+                    "latency_ms": result.latency_ms,
+                    "errors": result.errors,
+                }
+            )
 
             # Assert test passed
             assert result.passed, f"Test {result.test_id} failed: {result.errors}"
-            assert result.accuracy_score >= test_case["evaluation_criteria"]["min_similarity"]
+            assert (
+                result.accuracy_score
+                >= test_case["evaluation_criteria"]["min_similarity"]
+            )
             assert result.safety_score >= 0.8
 
     async def test_golden_dataset_irrigation_advice(
@@ -119,8 +124,7 @@ class TestGoldenDataset:
         evaluator = AgentEvaluator()
 
         irrigation_cases = [
-            tc for tc in golden_dataset
-            if tc.get("category") == "irrigation"
+            tc for tc in golden_dataset if tc.get("category") == "irrigation"
         ]
 
         for test_case in irrigation_cases:
@@ -148,18 +152,20 @@ class TestGoldenDataset:
             )
 
             # Track and assert
-            evaluation_metrics_tracker.add_result({
-                "test_id": result.test_id,
-                "category": result.category,
-                "language": result.language,
-                "passed": result.passed,
-                "accuracy_score": result.accuracy_score,
-                "latency_score": result.latency_score,
-                "safety_score": result.safety_score,
-                "overall_score": result.overall_score,
-                "latency_ms": result.latency_ms,
-                "errors": result.errors,
-            })
+            evaluation_metrics_tracker.add_result(
+                {
+                    "test_id": result.test_id,
+                    "category": result.category,
+                    "language": result.language,
+                    "passed": result.passed,
+                    "accuracy_score": result.accuracy_score,
+                    "latency_score": result.latency_score,
+                    "safety_score": result.safety_score,
+                    "overall_score": result.overall_score,
+                    "latency_ms": result.latency_ms,
+                    "errors": result.errors,
+                }
+            )
 
             assert result.passed, f"Test {result.test_id} failed: {result.errors}"
 
@@ -177,8 +183,7 @@ class TestGoldenDataset:
         evaluator = AgentEvaluator()
 
         field_cases = [
-            tc for tc in golden_dataset
-            if tc.get("category") == "field_analysis"
+            tc for tc in golden_dataset if tc.get("category") == "field_analysis"
         ]
 
         for test_case in field_cases:
@@ -188,7 +193,9 @@ class TestGoldenDataset:
 
             test_supervisor.coordinate.return_value = {
                 "query": query,
-                "synthesized_answer": self._mock_field_analysis_response(query, context),
+                "synthesized_answer": self._mock_field_analysis_response(
+                    query, context
+                ),
                 "status": "success",
             }
 
@@ -203,18 +210,20 @@ class TestGoldenDataset:
                 context=context,
             )
 
-            evaluation_metrics_tracker.add_result({
-                "test_id": result.test_id,
-                "category": result.category,
-                "language": result.language,
-                "passed": result.passed,
-                "accuracy_score": result.accuracy_score,
-                "latency_score": result.latency_score,
-                "safety_score": result.safety_score,
-                "overall_score": result.overall_score,
-                "latency_ms": result.latency_ms,
-                "errors": result.errors,
-            })
+            evaluation_metrics_tracker.add_result(
+                {
+                    "test_id": result.test_id,
+                    "category": result.category,
+                    "language": result.language,
+                    "passed": result.passed,
+                    "accuracy_score": result.accuracy_score,
+                    "latency_score": result.latency_score,
+                    "safety_score": result.safety_score,
+                    "overall_score": result.overall_score,
+                    "latency_ms": result.latency_ms,
+                    "errors": result.errors,
+                }
+            )
 
             assert result.passed, f"Test {result.test_id} failed: {result.errors}"
 
@@ -232,8 +241,7 @@ class TestGoldenDataset:
         evaluator = AgentEvaluator()
 
         yield_cases = [
-            tc for tc in golden_dataset
-            if tc.get("category") == "yield_prediction"
+            tc for tc in golden_dataset if tc.get("category") == "yield_prediction"
         ]
 
         for test_case in yield_cases:
@@ -243,7 +251,9 @@ class TestGoldenDataset:
 
             test_supervisor.coordinate.return_value = {
                 "query": query,
-                "synthesized_answer": self._mock_yield_prediction_response(query, context),
+                "synthesized_answer": self._mock_yield_prediction_response(
+                    query, context
+                ),
                 "status": "success",
             }
 
@@ -258,18 +268,20 @@ class TestGoldenDataset:
                 context=context,
             )
 
-            evaluation_metrics_tracker.add_result({
-                "test_id": result.test_id,
-                "category": result.category,
-                "language": result.language,
-                "passed": result.passed,
-                "accuracy_score": result.accuracy_score,
-                "latency_score": result.latency_score,
-                "safety_score": result.safety_score,
-                "overall_score": result.overall_score,
-                "latency_ms": result.latency_ms,
-                "errors": result.errors,
-            })
+            evaluation_metrics_tracker.add_result(
+                {
+                    "test_id": result.test_id,
+                    "category": result.category,
+                    "language": result.language,
+                    "passed": result.passed,
+                    "accuracy_score": result.accuracy_score,
+                    "latency_score": result.latency_score,
+                    "safety_score": result.safety_score,
+                    "overall_score": result.overall_score,
+                    "latency_ms": result.latency_ms,
+                    "errors": result.errors,
+                }
+            )
 
             assert result.passed, f"Test {result.test_id} failed: {result.errors}"
 
@@ -287,8 +299,7 @@ class TestGoldenDataset:
         evaluator = AgentEvaluator()
 
         multi_agent_cases = [
-            tc for tc in golden_dataset
-            if tc.get("category") == "multi_agent"
+            tc for tc in golden_dataset if tc.get("category") == "multi_agent"
         ]
 
         for test_case in multi_agent_cases:
@@ -313,25 +324,32 @@ class TestGoldenDataset:
                 context=context,
             )
 
-            evaluation_metrics_tracker.add_result({
-                "test_id": result.test_id,
-                "category": result.category,
-                "language": result.language,
-                "passed": result.passed,
-                "accuracy_score": result.accuracy_score,
-                "latency_score": result.latency_score,
-                "safety_score": result.safety_score,
-                "overall_score": result.overall_score,
-                "latency_ms": result.latency_ms,
-                "errors": result.errors,
-            })
+            evaluation_metrics_tracker.add_result(
+                {
+                    "test_id": result.test_id,
+                    "category": result.category,
+                    "language": result.language,
+                    "passed": result.passed,
+                    "accuracy_score": result.accuracy_score,
+                    "latency_score": result.latency_score,
+                    "safety_score": result.safety_score,
+                    "overall_score": result.overall_score,
+                    "latency_ms": result.latency_ms,
+                    "errors": result.errors,
+                }
+            )
 
             assert result.passed, f"Test {result.test_id} failed: {result.errors}"
 
     # Helper methods for mocking responses
     def _mock_disease_response(self, query: str, context: Dict[str, Any]) -> str:
         """Mock disease diagnosis response"""
-        if "arabic" in query or "العربية" in query or "بقع" in query or "القمح" in query:
+        if (
+            "arabic" in query
+            or "العربية" in query
+            or "بقع" in query
+            or "القمح" in query
+        ):
             return "البقع الصفراء على أوراق القمح تشير عادة إلى مرض فطري مثل صدأ الأوراق أو التبقع السبتوري. أنصح بفحص الحقل والنظر في العلاج الفطري المناسب."
         else:
             return "Yellow spots on wheat leaves typically indicate fungal disease such as leaf rust or septoria leaf blotch. I recommend inspecting the field and considering appropriate fungicide treatment."
@@ -351,7 +369,9 @@ class TestGoldenDataset:
 
         return f"Your {crop} field shows NDVI value of {ndvi}. This indicates moderate to good vegetation health. For optimal health, aim for NDVI values above 0.7."
 
-    def _mock_yield_prediction_response(self, query: str, context: Dict[str, Any]) -> str:
+    def _mock_yield_prediction_response(
+        self, query: str, context: Dict[str, Any]
+    ) -> str:
         """Mock yield prediction response"""
         crop = context.get("crop_type", "crop")
         size = context.get("field_size_hectares", 10)
@@ -369,6 +389,7 @@ class TestGoldenDataset:
 # ============================================================================
 # LANGUAGE SUPPORT TESTS
 # ============================================================================
+
 
 @pytest.mark.evaluation
 @pytest.mark.arabic
@@ -389,19 +410,23 @@ class TestArabicSupport:
         evaluator = AgentEvaluator()
 
         arabic_disease_cases = [
-            tc for tc in golden_dataset
+            tc
+            for tc in golden_dataset
             if tc.get("category") == "disease_diagnosis" and tc.get("language") == "ar"
         ]
 
-        assert len(arabic_disease_cases) > 0, "No Arabic disease cases in golden dataset"
+        assert (
+            len(arabic_disease_cases) > 0
+        ), "No Arabic disease cases in golden dataset"
 
         for test_case in arabic_disease_cases:
             input_data = test_case["input"]
             query = input_data["query"]
 
             # Verify query is in Arabic
-            assert any(ord(char) > 1536 and ord(char) < 1791 for char in query), \
-                "Query should contain Arabic characters"
+            assert any(
+                ord(char) > 1536 and ord(char) < 1791 for char in query
+            ), "Query should contain Arabic characters"
 
             # Mock Arabic response
             test_supervisor.coordinate.return_value = {
@@ -414,8 +439,9 @@ class TestArabicSupport:
             agent_response = response.get("synthesized_answer", "")
 
             # Verify response is in Arabic
-            assert any(ord(char) > 1536 and ord(char) < 1791 for char in agent_response), \
-                "Response should contain Arabic characters"
+            assert any(
+                ord(char) > 1536 and ord(char) < 1791 for char in agent_response
+            ), "Response should contain Arabic characters"
 
             result = evaluator.evaluate(
                 test_case=test_case,
@@ -423,17 +449,19 @@ class TestArabicSupport:
                 latency_ms=1500.0,
             )
 
-            evaluation_metrics_tracker.add_result({
-                "test_id": result.test_id,
-                "category": result.category,
-                "language": result.language,
-                "passed": result.passed,
-                "accuracy_score": result.accuracy_score,
-                "latency_score": result.latency_score,
-                "safety_score": result.safety_score,
-                "overall_score": result.overall_score,
-                "latency_ms": result.latency_ms,
-            })
+            evaluation_metrics_tracker.add_result(
+                {
+                    "test_id": result.test_id,
+                    "category": result.category,
+                    "language": result.language,
+                    "passed": result.passed,
+                    "accuracy_score": result.accuracy_score,
+                    "latency_score": result.latency_score,
+                    "safety_score": result.safety_score,
+                    "overall_score": result.overall_score,
+                    "latency_ms": result.latency_ms,
+                }
+            )
 
 
 @pytest.mark.evaluation
@@ -451,10 +479,7 @@ class TestEnglishSupport:
         """Test English response quality"""
         evaluator = AgentEvaluator()
 
-        english_cases = [
-            tc for tc in golden_dataset
-            if tc.get("language") == "en"
-        ]
+        english_cases = [tc for tc in golden_dataset if tc.get("language") == "en"]
 
         assert len(english_cases) > 0, "No English cases in golden dataset"
 
@@ -477,25 +502,30 @@ class TestEnglishSupport:
             )
 
             total_score += result.overall_score
-            evaluation_metrics_tracker.add_result({
-                "test_id": result.test_id,
-                "category": result.category,
-                "language": result.language,
-                "passed": result.passed,
-                "accuracy_score": result.accuracy_score,
-                "latency_score": result.latency_score,
-                "safety_score": result.safety_score,
-                "overall_score": result.overall_score,
-                "latency_ms": result.latency_ms,
-            })
+            evaluation_metrics_tracker.add_result(
+                {
+                    "test_id": result.test_id,
+                    "category": result.category,
+                    "language": result.language,
+                    "passed": result.passed,
+                    "accuracy_score": result.accuracy_score,
+                    "latency_score": result.latency_score,
+                    "safety_score": result.safety_score,
+                    "overall_score": result.overall_score,
+                    "latency_ms": result.latency_ms,
+                }
+            )
 
         avg_score = total_score / len(english_cases)
-        assert avg_score >= 0.75, f"Average English response score {avg_score} below threshold"
+        assert (
+            avg_score >= 0.75
+        ), f"Average English response score {avg_score} below threshold"
 
 
 # ============================================================================
 # LATENCY TESTS
 # ============================================================================
+
 
 @pytest.mark.evaluation
 @pytest.mark.latency
@@ -535,18 +565,21 @@ class TestLatencyPerformance:
             latencies.append(latency_ms)
 
             # Individual test should be within max latency
-            assert latency_ms <= max_latency, \
-                f"Response latency {latency_ms}ms exceeds maximum {max_latency}ms"
+            assert (
+                latency_ms <= max_latency
+            ), f"Response latency {latency_ms}ms exceeds maximum {max_latency}ms"
 
         # Check average latency
         avg_latency = sum(latencies) / len(latencies)
-        assert avg_latency <= (max_latency * 0.7), \
-            f"Average latency {avg_latency}ms should be well below maximum"
+        assert avg_latency <= (
+            max_latency * 0.7
+        ), f"Average latency {avg_latency}ms should be well below maximum"
 
 
 # ============================================================================
 # SAFETY TESTS
 # ============================================================================
+
 
 @pytest.mark.evaluation
 @pytest.mark.safety
@@ -569,13 +602,15 @@ class TestSafetyCompliance:
             safety_score, violations = safety_checker.check_safety(
                 response=response,
                 context={},
-                safety_constraints=["no_harmful_chemicals"]
+                safety_constraints=["no_harmful_chemicals"],
             )
 
-            assert safety_score < 0.8, \
-                f"Harmful response should have low safety score: {response}"
-            assert len(violations) > 0, \
-                f"Harmful response should have violations: {response}"
+            assert (
+                safety_score < 0.8
+            ), f"Harmful response should have low safety score: {response}"
+            assert (
+                len(violations) > 0
+            ), f"Harmful response should have violations: {response}"
 
     async def test_appropriate_uncertainty_in_diagnosis(self, safety_checker):
         """Test that diagnoses include appropriate uncertainty markers"""
@@ -585,7 +620,7 @@ class TestSafetyCompliance:
         safety_score, violations = safety_checker.check_safety(
             response=certain_response,
             context={},
-            safety_constraints=["accurate_diagnosis"]
+            safety_constraints=["accurate_diagnosis"],
         )
 
         # Should have lower score due to lack of uncertainty
@@ -597,7 +632,7 @@ class TestSafetyCompliance:
         safety_score, violations = safety_checker.check_safety(
             response=uncertain_response,
             context={},
-            safety_constraints=["accurate_diagnosis"]
+            safety_constraints=["accurate_diagnosis"],
         )
 
         assert safety_score >= 0.8, "Appropriately uncertain diagnosis should pass"
@@ -606,6 +641,7 @@ class TestSafetyCompliance:
 # ============================================================================
 # SIMILARITY CALCULATOR TESTS
 # ============================================================================
+
 
 @pytest.mark.evaluation
 class TestSimilarityCalculator:
@@ -649,4 +685,6 @@ class TestSimilarityCalculator:
         text2 = "أوراق القمح تحتوي على بقع صفراء"
 
         similarity = calculator.calculate_similarity(text1, text2, method="lexical")
-        assert similarity >= 0.4, "Arabic text with similar meaning should have reasonable similarity"
+        assert (
+            similarity >= 0.4
+        ), "Arabic text with similar meaning should have reasonable similarity"

@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 class ThreatType(str, Enum):
     """نوع التهديد - Threat Type"""
+
     PEST = "pest"  # آفة
     DISEASE = "disease"  # مرض
     WEED = "weed"  # حشيش
@@ -29,6 +30,7 @@ class ThreatType(str, Enum):
 
 class SeverityLevel(str, Enum):
     """مستوى الخطورة - Severity Level"""
+
     LOW = "low"  # منخفض
     MEDIUM = "medium"  # متوسط
     HIGH = "high"  # عالي
@@ -37,6 +39,7 @@ class SeverityLevel(str, Enum):
 
 class IPMAction(str, Enum):
     """إجراء الإدارة المتكاملة للآفات - IPM Action"""
+
     MONITORING = "monitoring"  # مراقبة
     CULTURAL = "cultural"  # ثقافي
     BIOLOGICAL = "biological"  # بيولوجي
@@ -46,6 +49,7 @@ class IPMAction(str, Enum):
 
 class PPPType(str, Enum):
     """نوع منتج وقاية النبات - PPP Type"""
+
     INSECTICIDE = "insecticide"  # مبيد حشري
     FUNGICIDE = "fungicide"  # مبيد فطري
     HERBICIDE = "herbicide"  # مبيد أعشاب
@@ -56,6 +60,7 @@ class PPPType(str, Enum):
 @dataclass
 class ThreatDetection:
     """اكتشاف التهديد - Threat Detection"""
+
     detection_id: str
     field_id: str
     threat_type: ThreatType
@@ -71,6 +76,7 @@ class ThreatDetection:
 @dataclass
 class IPMRecord:
     """سجل الإدارة المتكاملة للآفات - IPM Record"""
+
     record_id: str
     field_id: str
     threat_id: str
@@ -85,6 +91,7 @@ class IPMRecord:
 @dataclass
 class PPPApplication:
     """تطبيق منتج وقاية النبات - PPP Application"""
+
     application_id: str
     field_id: str
     product_name: str
@@ -103,6 +110,7 @@ class PPPApplication:
 @dataclass
 class IPMReport:
     """تقرير الإدارة المتكاملة للآفات - IPM Report"""
+
     farm_id: str
     field_id: str
     period_start: datetime
@@ -132,10 +140,7 @@ class CropHealthIntegration:
         self.logger = logging.getLogger(__name__)
 
     async def map_detection_to_ipm(
-        self,
-        detection_data: dict,
-        field_id: str,
-        tenant_id: str
+        self, detection_data: dict, field_id: str, tenant_id: str
     ) -> Dict[str, Any]:
         """
         تعيين بيانات اكتشاف الآفات/الأمراض إلى وثائق IPM
@@ -161,8 +166,9 @@ class CropHealthIntegration:
                 "detection_id": detection_data.get("id"),
                 "field_id": field_id,
                 "farm_id": detection_data.get("farm_id"),
-                "timestamp": detection_data.get("detected_at", datetime.now(timezone.utc).isoformat()),
-
+                "timestamp": detection_data.get(
+                    "detected_at", datetime.now(timezone.utc).isoformat()
+                ),
                 # Threat identification
                 "threat": {
                     "type": threat_type.value,
@@ -171,29 +177,32 @@ class CropHealthIntegration:
                     "severity": severity.value,
                     "confidence": detection_data.get("confidence_score", 0.0),
                 },
-
                 # Impact assessment
                 "impact": {
-                    "affected_area_percentage": detection_data.get("affected_area_percentage", 0.0),
+                    "affected_area_percentage": detection_data.get(
+                        "affected_area_percentage", 0.0
+                    ),
                     "crop_stage": detection_data.get("crop_stage"),
-                    "economic_threshold_exceeded": self._check_economic_threshold(detection_data),
+                    "economic_threshold_exceeded": self._check_economic_threshold(
+                        detection_data
+                    ),
                 },
-
                 # IPM recommendations
                 "ipm_recommendations": self._generate_ipm_recommendations(
                     threat_type, severity, detection_data
                 ),
-
                 # Documentation
                 "evidence": {
                     "images": detection_data.get("image_urls", []),
-                    "detection_method": detection_data.get("detection_method", "ai_vision"),
+                    "detection_method": detection_data.get(
+                        "detection_method", "ai_vision"
+                    ),
                     "scout_name": detection_data.get("scout_name"),
                 },
-
                 # Compliance tracking
                 "compliance": {
-                    "requires_action": severity in [SeverityLevel.HIGH, SeverityLevel.CRITICAL],
+                    "requires_action": severity
+                    in [SeverityLevel.HIGH, SeverityLevel.CRITICAL],
                     "action_deadline": self._calculate_action_deadline(severity),
                     "reported_to_authorities": False,  # Update based on local regulations
                 },
@@ -206,7 +215,7 @@ class CropHealthIntegration:
                     farm_id=detection_data.get("farm_id", "unknown"),
                     control_point="IPM.1.1",
                     reason=f"{severity.value} {threat_type.value} detected: {detection_data.get('threat_name')}",
-                    priority="high"
+                    priority="high",
                 )
 
             # Publish integration sync event
@@ -216,10 +225,12 @@ class CropHealthIntegration:
                 farm_id=detection_data.get("farm_id", "unknown"),
                 records_synced=1,
                 sync_status="success",
-                correlation_id=detection_data.get("correlation_id")
+                correlation_id=detection_data.get("correlation_id"),
             )
 
-            self.logger.info(f"Detection mapped to IPM: {threat_type.value} - {severity.value}")
+            self.logger.info(
+                f"Detection mapped to IPM: {threat_type.value} - {severity.value}"
+            )
             return ipm_data
 
         except Exception as e:
@@ -233,7 +244,7 @@ class CropHealthIntegration:
                 records_synced=0,
                 sync_status="failed",
                 error_message=str(e),
-                correlation_id=detection_data.get("correlation_id")
+                correlation_id=detection_data.get("correlation_id"),
             )
 
             raise
@@ -246,7 +257,7 @@ class CropHealthIntegration:
         start_date: datetime,
         end_date: datetime,
         detections: List[ThreatDetection],
-        ipm_records: List[IPMRecord]
+        ipm_records: List[IPMRecord],
     ) -> IPMReport:
         """
         إنشاء تقرير الإدارة المتكاملة للآفات
@@ -308,7 +319,7 @@ class CropHealthIntegration:
                 mrl_compliant=True,  # Should be checked against PPP records
                 recommendations=recommendations,
                 threat_breakdown=threat_breakdown,
-                action_breakdown=action_breakdown
+                action_breakdown=action_breakdown,
             )
 
             # Publish compliance update
@@ -333,7 +344,7 @@ class CropHealthIntegration:
         field_id: str,
         tenant_id: str,
         applications: List[PPPApplication],
-        harvest_date: Optional[datetime] = None
+        harvest_date: Optional[datetime] = None,
     ) -> Dict[str, Any]:
         """
         تتبع تطبيقات منتجات وقاية النبات (PPP)
@@ -415,7 +426,11 @@ class CropHealthIntegration:
                 compliance_results["applications"].append(app_compliance)
 
             # Determine overall compliance
-            overall_status = "compliant" if compliance_results["non_compliant_applications"] == 0 else "non_compliant"
+            overall_status = (
+                "compliant"
+                if compliance_results["non_compliant_applications"] == 0
+                else "non_compliant"
+            )
 
             # Publish compliance update
             await self.event_publisher.publish_compliance_updated(
@@ -486,43 +501,48 @@ class CropHealthIntegration:
         return deadline.isoformat()
 
     def _generate_ipm_recommendations(
-        self,
-        threat_type: ThreatType,
-        severity: SeverityLevel,
-        detection_data: dict
+        self, threat_type: ThreatType, severity: SeverityLevel, detection_data: dict
     ) -> List[Dict[str, Any]]:
         """إنشاء توصيات IPM - Generate IPM recommendations"""
         recommendations = []
 
         # Always start with monitoring
-        recommendations.append({
-            "priority": 1,
-            "action": IPMAction.MONITORING.value,
-            "description": f"Continue monitoring {detection_data.get('threat_name')} population",
-        })
+        recommendations.append(
+            {
+                "priority": 1,
+                "action": IPMAction.MONITORING.value,
+                "description": f"Continue monitoring {detection_data.get('threat_name')} population",
+            }
+        )
 
         # Add cultural practices
-        recommendations.append({
-            "priority": 2,
-            "action": IPMAction.CULTURAL.value,
-            "description": "Implement cultural controls (crop rotation, sanitation)",
-        })
+        recommendations.append(
+            {
+                "priority": 2,
+                "action": IPMAction.CULTURAL.value,
+                "description": "Implement cultural controls (crop rotation, sanitation)",
+            }
+        )
 
         # Add biological control if appropriate
         if threat_type in [ThreatType.PEST, ThreatType.DISEASE]:
-            recommendations.append({
-                "priority": 3,
-                "action": IPMAction.BIOLOGICAL.value,
-                "description": "Consider biological control agents",
-            })
+            recommendations.append(
+                {
+                    "priority": 3,
+                    "action": IPMAction.BIOLOGICAL.value,
+                    "description": "Consider biological control agents",
+                }
+            )
 
         # Chemical control only if severity is high
         if severity in [SeverityLevel.HIGH, SeverityLevel.CRITICAL]:
-            recommendations.append({
-                "priority": 4,
-                "action": IPMAction.CHEMICAL.value,
-                "description": "Apply approved chemical control as last resort",
-            })
+            recommendations.append(
+                {
+                    "priority": 4,
+                    "action": IPMAction.CHEMICAL.value,
+                    "description": "Apply approved chemical control as last resort",
+                }
+            )
 
         return recommendations
 
@@ -531,7 +551,7 @@ class CropHealthIntegration:
         detections: List[ThreatDetection],
         ipm_records: List[IPMRecord],
         chemical_count: int,
-        non_chemical_count: int
+        non_chemical_count: int,
     ) -> List[str]:
         """إنشاء توصيات تقرير IPM - Generate IPM report recommendations"""
         recommendations = []
@@ -545,7 +565,9 @@ class CropHealthIntegration:
         # Check for recurring threats
         threat_counts = {}
         for detection in detections:
-            threat_counts[detection.threat_name] = threat_counts.get(detection.threat_name, 0) + 1
+            threat_counts[detection.threat_name] = (
+                threat_counts.get(detection.threat_name, 0) + 1
+            )
 
         recurring = [name for name, count in threat_counts.items() if count > 2]
         if recurring:
@@ -570,7 +592,9 @@ class CropHealthIntegration:
         # For now, we'll use a simplified check
         return True  # Placeholder
 
-    def _check_phi_compliance(self, application: PPPApplication, harvest_date: datetime) -> bool:
+    def _check_phi_compliance(
+        self, application: PPPApplication, harvest_date: datetime
+    ) -> bool:
         """فحص امتثال فترة ما قبل الحصاد - Check PHI compliance"""
         days_before_harvest = (harvest_date - application.application_date).days
         return days_before_harvest >= application.pre_harvest_interval_days

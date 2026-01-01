@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.main import app, MAP_PROVIDERS, WEATHER_PROVIDERS, SATELLITE_PROVIDERS
@@ -170,10 +171,13 @@ class TestProviderHealthCheck:
 
     def test_check_map_provider(self, client):
         """Test checking a map provider health"""
-        response = client.post("/providers/check", json={
-            "provider_type": "map",
-            "provider_name": "openstreetmap",
-        })
+        response = client.post(
+            "/providers/check",
+            json={
+                "provider_type": "map",
+                "provider_name": "openstreetmap",
+            },
+        )
         assert response.status_code == 200
         data = response.json()
         assert "provider_name" in data
@@ -182,18 +186,24 @@ class TestProviderHealthCheck:
 
     def test_check_unknown_provider(self, client):
         """Test checking unknown provider returns error"""
-        response = client.post("/providers/check", json={
-            "provider_type": "map",
-            "provider_name": "unknown_provider",
-        })
+        response = client.post(
+            "/providers/check",
+            json={
+                "provider_type": "map",
+                "provider_name": "unknown_provider",
+            },
+        )
         assert response.status_code == 400
 
     def test_check_weather_provider_without_key(self, client):
         """Test checking weather provider that requires API key"""
-        response = client.post("/providers/check", json={
-            "provider_type": "weather",
-            "provider_name": "openweathermap",
-        })
+        response = client.post(
+            "/providers/check",
+            json={
+                "provider_type": "weather",
+                "provider_name": "openweathermap",
+            },
+        )
         assert response.status_code == 200
         data = response.json()
         # Should report error because API key is required
@@ -222,7 +232,12 @@ class TestTenantConfiguration:
         config = {
             "tenant_id": "test_tenant",
             "map_providers": [
-                {"provider_name": "mapbox_streets", "api_key": "test_key", "priority": "primary", "enabled": True}
+                {
+                    "provider_name": "mapbox_streets",
+                    "api_key": "test_key",
+                    "priority": "primary",
+                    "enabled": True,
+                }
             ],
             "weather_providers": [],
             "satellite_providers": [],
@@ -301,9 +316,16 @@ class TestProviderEnums:
         data = response.json()
 
         valid_ids = [
-            "openstreetmap", "google_maps", "google_satellite", "google_hybrid",
-            "mapbox_streets", "mapbox_satellite", "mapbox_hybrid",
-            "esri_satellite", "esri_streets", "opentopomap"
+            "openstreetmap",
+            "google_maps",
+            "google_satellite",
+            "google_hybrid",
+            "mapbox_streets",
+            "mapbox_satellite",
+            "mapbox_hybrid",
+            "esri_satellite",
+            "esri_streets",
+            "opentopomap",
         ]
         for provider in data["providers"]:
             assert provider["id"] in valid_ids

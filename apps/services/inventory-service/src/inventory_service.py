@@ -1,6 +1,7 @@
 """
 Inventory Service - Main business logic layer
 """
+
 from datetime import datetime, timedelta
 from typing import List, Optional
 from prisma import Prisma
@@ -48,7 +49,7 @@ class InventoryService:
                     **item_data.model_dump(),
                     "currentQuantity": 0,
                     "reservedQuantity": 0,
-                    "availableQuantity": 0
+                    "availableQuantity": 0,
                 }
             )
 
@@ -57,8 +58,7 @@ class InventoryService:
     async def get_item(self, item_id: str) -> Optional[InventoryItem]:
         """Get item by ID"""
         item = await self.db.inventoryitem.find_unique(
-            where={"id": item_id},
-            include={"supplier": True}
+            where={"id": item_id}, include={"supplier": True}
         )
         return item
 
@@ -67,7 +67,7 @@ class InventoryService:
         skip: int = 0,
         limit: int = 100,
         category: Optional[str] = None,
-        search: Optional[str] = None
+        search: Optional[str] = None,
     ) -> tuple[List[InventoryItem], int]:
         """List items with pagination and filters"""
         where_clause = {}
@@ -87,7 +87,7 @@ class InventoryService:
             skip=skip,
             take=limit,
             include={"supplier": True},
-            order={"createdAt": "desc"}
+            order={"createdAt": "desc"},
         )
 
         total = await self.db.inventoryitem.count(where=where_clause)
@@ -95,9 +95,7 @@ class InventoryService:
         return items, total
 
     async def update_item(
-        self,
-        item_id: str,
-        item_data: InventoryItemUpdate
+        self, item_id: str, item_data: InventoryItemUpdate
     ) -> InventoryItem:
         """Update an inventory item"""
         # Get existing item
@@ -116,8 +114,7 @@ class InventoryService:
         # Update item
         update_data = item_data.model_dump(exclude_unset=True)
         item = await self.db.inventoryitem.update(
-            where={"id": item_id},
-            data=update_data
+            where={"id": item_id}, data=update_data
         )
 
         return item
@@ -173,14 +170,12 @@ class InventoryService:
             invoice_number=request.invoiceNumber,
             unit_cost=request.unitCost,
             quality_grade=request.qualityGrade,
-            certifications=request.certifications
+            certifications=request.certifications,
         )
 
         # Update item quantities
         updated_item = await self.stock_manager.update_item_quantities(
-            item_id=request.itemId,
-            quantity_change=request.quantity,
-            is_addition=True
+            item_id=request.itemId, quantity_change=request.quantity, is_addition=True
         )
 
         # Create movement record
@@ -194,14 +189,14 @@ class InventoryService:
             reference_type="batch",
             reference_id=batch.id,
             performed_by=request.performedBy,
-            notes=request.notes
+            notes=request.notes,
         )
 
         return {
             "success": True,
             "batch": batch,
             "item": updated_item,
-            "movement": movement
+            "movement": movement,
         }
 
     async def stock_out(self, request: StockOutRequest) -> dict:
@@ -218,8 +213,7 @@ class InventoryService:
 
         # Consume stock using FIFO
         consumed_batches, total_consumed = await self.stock_manager.consume_stock_fifo(
-            item_id=request.itemId,
-            quantity=request.quantity
+            item_id=request.itemId, quantity=request.quantity
         )
 
         # Calculate average cost
@@ -228,9 +222,7 @@ class InventoryService:
 
         # Update item quantities
         updated_item = await self.stock_manager.update_item_quantities(
-            item_id=request.itemId,
-            quantity_change=request.quantity,
-            is_addition=False
+            item_id=request.itemId, quantity_change=request.quantity, is_addition=False
         )
 
         # Create movement record
@@ -244,14 +236,14 @@ class InventoryService:
             reference_type=request.referenceType,
             reference_id=request.referenceId,
             performed_by=request.performedBy,
-            notes=request.notes
+            notes=request.notes,
         )
 
         return {
             "success": True,
             "consumed_batches": consumed_batches,
             "item": updated_item,
-            "movement": movement
+            "movement": movement,
         }
 
     async def stock_apply(self, request: StockApplyRequest) -> dict:
@@ -268,8 +260,7 @@ class InventoryService:
 
         # Consume stock using FIFO
         consumed_batches, total_consumed = await self.stock_manager.consume_stock_fifo(
-            item_id=request.itemId,
-            quantity=request.quantity
+            item_id=request.itemId, quantity=request.quantity
         )
 
         # Calculate average cost
@@ -278,9 +269,7 @@ class InventoryService:
 
         # Update item quantities
         updated_item = await self.stock_manager.update_item_quantities(
-            item_id=request.itemId,
-            quantity_change=request.quantity,
-            is_addition=False
+            item_id=request.itemId, quantity_change=request.quantity, is_addition=False
         )
 
         # Create movement record with field reference
@@ -295,14 +284,14 @@ class InventoryService:
             field_id=request.fieldId,
             crop_season_id=request.cropSeasonId,
             performed_by=request.performedBy,
-            notes=request.notes
+            notes=request.notes,
         )
 
         return {
             "success": True,
             "consumed_batches": consumed_batches,
             "item": updated_item,
-            "movement": movement
+            "movement": movement,
         }
 
     async def stock_adjust(self, request: StockAdjustRequest) -> dict:
@@ -323,8 +312,8 @@ class InventoryService:
             where={"id": request.itemId},
             data={
                 "currentQuantity": request.newQuantity,
-                "availableQuantity": request.newQuantity - item.reservedQuantity
-            }
+                "availableQuantity": request.newQuantity - item.reservedQuantity,
+            },
         )
 
         # Create movement record
@@ -335,28 +324,25 @@ class InventoryService:
             previous_qty=previous_qty,
             new_qty=updated_item.currentQuantity,
             performed_by=request.performedBy,
-            notes=f"Adjustment: {request.reason}"
+            notes=f"Adjustment: {request.reason}",
         )
 
         return {
             "success": True,
             "item": updated_item,
             "movement": movement,
-            "adjustment": quantity_diff
+            "adjustment": quantity_diff,
         }
 
     async def get_item_movements(
-        self,
-        item_id: str,
-        skip: int = 0,
-        limit: int = 100
+        self, item_id: str, skip: int = 0, limit: int = 100
     ) -> tuple[List[StockMovement], int]:
         """Get movement history for an item"""
         movements = await self.db.stockmovement.find_many(
             where={"itemId": item_id},
             skip=skip,
             take=limit,
-            order={"createdAt": "desc"}
+            order={"createdAt": "desc"},
         )
 
         total = await self.db.stockmovement.count(where={"itemId": item_id})
@@ -366,9 +352,7 @@ class InventoryService:
     # ========== Batch Operations ==========
 
     async def get_item_batches(
-        self,
-        item_id: str,
-        include_empty: bool = False
+        self, item_id: str, include_empty: bool = False
     ) -> List[BatchLot]:
         """Get batches for an item"""
         return await self.stock_manager.get_batches_for_item(item_id, include_empty)
@@ -377,29 +361,22 @@ class InventoryService:
 
     async def create_supplier(self, supplier_data: SupplierCreate) -> Supplier:
         """Create a new supplier"""
-        supplier = await self.db.supplier.create(
-            data=supplier_data.model_dump()
-        )
+        supplier = await self.db.supplier.create(data=supplier_data.model_dump())
         return supplier
 
     async def get_supplier(self, supplier_id: str) -> Optional[Supplier]:
         """Get supplier by ID"""
         supplier = await self.db.supplier.find_unique(
-            where={"id": supplier_id},
-            include={"items": True}
+            where={"id": supplier_id}, include={"items": True}
         )
         return supplier
 
     async def list_suppliers(
-        self,
-        skip: int = 0,
-        limit: int = 100
+        self, skip: int = 0, limit: int = 100
     ) -> tuple[List[Supplier], int]:
         """List suppliers with pagination"""
         suppliers = await self.db.supplier.find_many(
-            skip=skip,
-            take=limit,
-            order={"createdAt": "desc"}
+            skip=skip, take=limit, order={"createdAt": "desc"}
         )
 
         total = await self.db.supplier.count()
@@ -407,9 +384,7 @@ class InventoryService:
         return suppliers, total
 
     async def update_supplier(
-        self,
-        supplier_id: str,
-        supplier_data: SupplierUpdate
+        self, supplier_id: str, supplier_data: SupplierUpdate
     ) -> Supplier:
         """Update a supplier"""
         existing = await self.db.supplier.find_unique(where={"id": supplier_id})
@@ -418,8 +393,7 @@ class InventoryService:
 
         update_data = supplier_data.model_dump(exclude_unset=True)
         supplier = await self.db.supplier.update(
-            where={"id": supplier_id},
-            data=update_data
+            where={"id": supplier_id}, data=update_data
         )
 
         return supplier
@@ -452,7 +426,7 @@ class InventoryService:
             totalValue=valuation["total_value"],
             lowStockItems=low_stock_count,
             expiringItems=expiring_count,
-            outOfStockItems=out_of_stock
+            outOfStockItems=out_of_stock,
         )
 
     async def get_inventory_valuation(self) -> dict:
@@ -462,13 +436,11 @@ class InventoryService:
             "totalValue": valuation["total_value"],
             "currency": "YER",
             "itemCount": valuation["item_count"],
-            "byCategory": valuation["by_category"]
+            "byCategory": valuation["by_category"],
         }
 
     async def get_consumption_report(
-        self,
-        item_id: str,
-        days: int = 30
+        self, item_id: str, days: int = 30
     ) -> ConsumptionReport:
         """Get consumption report for an item"""
         item = await self.db.inventoryitem.find_unique(where={"id": item_id})
@@ -486,11 +458,11 @@ class InventoryService:
                         MovementType.SALE,
                         MovementType.FIELD_APPLICATION,
                         MovementType.DAMAGE,
-                        MovementType.EXPIRED
+                        MovementType.EXPIRED,
                     ]
-                }
+                },
             },
-            order={"createdAt": "desc"}
+            order={"createdAt": "desc"},
         )
 
         # Calculate total consumed
@@ -503,5 +475,5 @@ class InventoryService:
             period=f"Last {days} days",
             totalConsumed=total_consumed,
             averageDaily=average_daily,
-            movements=[m for m in movements]
+            movements=[m for m in movements],
         )

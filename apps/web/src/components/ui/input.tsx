@@ -24,7 +24,13 @@ export function Input({
   ref,
   ...props
 }: InputProps) {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  const generatedId = React.useId();
+  const inputId = id || generatedId;
+  const errorId = `${inputId}-error`;
+  const helperId = `${inputId}-helper`;
+
+  // Build aria-describedby based on what's shown
+  const describedBy = error ? errorId : helperText ? helperId : undefined;
 
   return (
     <div className="w-full">
@@ -48,6 +54,8 @@ export function Input({
           ref={ref}
           id={inputId}
           type={type}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
           className={clsx(
             'block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900',
             'placeholder:text-gray-400',
@@ -68,10 +76,10 @@ export function Input({
         )}
       </div>
       {error && (
-        <p className="mt-1.5 text-sm text-red-600">{error}</p>
+        <p id={errorId} className="mt-1.5 text-sm text-red-600" role="alert">{error}</p>
       )}
       {helperText && !error && (
-        <p className="mt-1.5 text-sm text-gray-500">{helperText}</p>
+        <p id={helperId} className="mt-1.5 text-sm text-gray-500">{helperText}</p>
       )}
     </div>
   );

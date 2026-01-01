@@ -54,104 +54,186 @@ class TopicPolicy:
     """
 
     # Allowed topics - SAHOOL's core domains
-    allowed_topics: Set[str] = field(default_factory=lambda: {
-        # Agriculture & Farming
-        "agriculture", "farming", "زراعة", "فلاحة",
-        "crops", "محاصيل", "زرع",
-        "irrigation", "ري", "سقي",
-        "fertilizer", "سماد", "تسميد",
-        "pesticides", "مبيدات",
-        "harvest", "حصاد", "جني",
-        "planting", "زراعة", "بذر",
-        "soil", "تربة",
-
-        # Weather & Climate
-        "weather", "طقس", "جو",
-        "climate", "مناخ",
-        "temperature", "حرارة", "درجة حرارة",
-        "rainfall", "أمطار", "مطر",
-        "humidity", "رطوبة",
-        "drought", "جفاف",
-        "season", "موسم", "فصل",
-
-        # Crops & Plants
-        "wheat", "قمح",
-        "corn", "ذرة",
-        "rice", "أرز",
-        "barley", "شعير",
-        "vegetables", "خضروات",
-        "fruits", "فواكه",
-        "dates", "تمر", "نخيل",
-        "olives", "زيتون",
-
-        # Livestock & Animals
-        "livestock", "ماشية", "مواشي",
-        "cattle", "أبقار", "بقر",
-        "sheep", "أغنام", "خراف",
-        "goats", "ماعز",
-        "poultry", "دواجن",
-        "chickens", "دجاج",
-
-        # Technology & Equipment
-        "tractor", "جرار", "تراكتور",
-        "equipment", "معدات",
-        "machinery", "آلات",
-        "sensors", "مستشعرات", "حساسات",
-        "iot", "إنترنت الأشياء",
-        "precision agriculture", "زراعة دقيقة",
-        "smart farming", "زراعة ذكية",
-
-        # Business & Economics
-        "market", "سوق",
-        "price", "سعر",
-        "subsidy", "دعم",
-        "loan", "قرض",
-        "insurance", "تأمين",
-        "cooperative", "تعاونية",
-
-        # General agricultural knowledge
-        "agronomy", "علم المحاصيل",
-        "horticulture", "بستنة",
-        "organic farming", "زراعة عضوية",
-        "sustainable agriculture", "زراعة مستدامة",
-    })
+    allowed_topics: Set[str] = field(
+        default_factory=lambda: {
+            # Agriculture & Farming
+            "agriculture",
+            "farming",
+            "زراعة",
+            "فلاحة",
+            "crops",
+            "محاصيل",
+            "زرع",
+            "irrigation",
+            "ري",
+            "سقي",
+            "fertilizer",
+            "سماد",
+            "تسميد",
+            "pesticides",
+            "مبيدات",
+            "harvest",
+            "حصاد",
+            "جني",
+            "planting",
+            "زراعة",
+            "بذر",
+            "soil",
+            "تربة",
+            # Weather & Climate
+            "weather",
+            "طقس",
+            "جو",
+            "climate",
+            "مناخ",
+            "temperature",
+            "حرارة",
+            "درجة حرارة",
+            "rainfall",
+            "أمطار",
+            "مطر",
+            "humidity",
+            "رطوبة",
+            "drought",
+            "جفاف",
+            "season",
+            "موسم",
+            "فصل",
+            # Crops & Plants
+            "wheat",
+            "قمح",
+            "corn",
+            "ذرة",
+            "rice",
+            "أرز",
+            "barley",
+            "شعير",
+            "vegetables",
+            "خضروات",
+            "fruits",
+            "فواكه",
+            "dates",
+            "تمر",
+            "نخيل",
+            "olives",
+            "زيتون",
+            # Livestock & Animals
+            "livestock",
+            "ماشية",
+            "مواشي",
+            "cattle",
+            "أبقار",
+            "بقر",
+            "sheep",
+            "أغنام",
+            "خراف",
+            "goats",
+            "ماعز",
+            "poultry",
+            "دواجن",
+            "chickens",
+            "دجاج",
+            # Technology & Equipment
+            "tractor",
+            "جرار",
+            "تراكتور",
+            "equipment",
+            "معدات",
+            "machinery",
+            "آلات",
+            "sensors",
+            "مستشعرات",
+            "حساسات",
+            "iot",
+            "إنترنت الأشياء",
+            "precision agriculture",
+            "زراعة دقيقة",
+            "smart farming",
+            "زراعة ذكية",
+            # Business & Economics
+            "market",
+            "سوق",
+            "price",
+            "سعر",
+            "subsidy",
+            "دعم",
+            "loan",
+            "قرض",
+            "insurance",
+            "تأمين",
+            "cooperative",
+            "تعاونية",
+            # General agricultural knowledge
+            "agronomy",
+            "علم المحاصيل",
+            "horticulture",
+            "بستنة",
+            "organic farming",
+            "زراعة عضوية",
+            "sustainable agriculture",
+            "زراعة مستدامة",
+        }
+    )
 
     # Blocked topics - out of scope or dangerous
-    blocked_topics: Set[str] = field(default_factory=lambda: {
-        # Illegal content
-        "terrorism", "إرهاب",
-        "weapons", "أسلحة",
-        "drugs", "مخدرات",
-        "violence", "عنف",
-        "illegal", "غير قانوني",
-
-        # Harmful content
-        "self-harm", "إيذاء النفس",
-        "suicide", "انتحار",
-        "hate speech", "خطاب الكراهية",
-        "discrimination", "تمييز",
-
-        # Misinformation vectors
-        "medical advice", "نصائح طبية",
-        "legal advice", "نصائح قانونية",
-        "financial advice", "نصائح مالية",
-
-        # Off-topic domains
-        "politics", "سياسة",
-        "religion", "دين",
-        "gambling", "مقامرة",
-        "adult content", "محتوى للبالغين",
-    })
+    blocked_topics: Set[str] = field(
+        default_factory=lambda: {
+            # Illegal content
+            "terrorism",
+            "إرهاب",
+            "weapons",
+            "أسلحة",
+            "drugs",
+            "مخدرات",
+            "violence",
+            "عنف",
+            "illegal",
+            "غير قانوني",
+            # Harmful content
+            "self-harm",
+            "إيذاء النفس",
+            "suicide",
+            "انتحار",
+            "hate speech",
+            "خطاب الكراهية",
+            "discrimination",
+            "تمييز",
+            # Misinformation vectors
+            "medical advice",
+            "نصائح طبية",
+            "legal advice",
+            "نصائح قانونية",
+            "financial advice",
+            "نصائح مالية",
+            # Off-topic domains
+            "politics",
+            "سياسة",
+            "religion",
+            "دين",
+            "gambling",
+            "مقامرة",
+            "adult content",
+            "محتوى للبالغين",
+        }
+    )
 
     # Sensitive topics - allow but log and monitor
-    sensitive_topics: Set[str] = field(default_factory=lambda: {
-        "pesticide toxicity", "سمية المبيدات",
-        "chemical safety", "السلامة الكيميائية",
-        "water scarcity", "ندرة المياه",
-        "land disputes", "نزاعات الأراضي",
-        "debt", "ديون",
-        "bankruptcy", "إفلاس",
-    })
+    sensitive_topics: Set[str] = field(
+        default_factory=lambda: {
+            "pesticide toxicity",
+            "سمية المبيدات",
+            "chemical safety",
+            "السلامة الكيميائية",
+            "water scarcity",
+            "ندرة المياه",
+            "land disputes",
+            "نزاعات الأراضي",
+            "debt",
+            "ديون",
+            "bankruptcy",
+            "إفلاس",
+        }
+    )
 
     def is_allowed(self, text: str) -> bool:
         """Check if text contains allowed topics"""

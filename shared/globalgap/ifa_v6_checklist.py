@@ -37,7 +37,7 @@ SITE_HISTORY_ITEMS = [
         guidance_ar="احتفظ بسجلات الاستخدام السابق للأرض، وحدد مصادر التلوث المحتملة (المواقع الصناعية، مناطق الفيضانات، مكبات النفايات)",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.1.1.2",
@@ -53,7 +53,7 @@ SITE_HISTORY_ITEMS = [
         guidance_ar="اختبر المعادن الثقيلة (الكادميوم، الرصاص، الزئبق، الزرنيخ) والملوثات العضوية الثابتة إذا تم تحديد المخاطر",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.1.2.1",
@@ -69,7 +69,7 @@ SITE_HISTORY_ITEMS = [
         guidance_ar="يجب أن تتضمن الخطة مناطق الإنتاج والمحاصيل المزروعة وخطط الدورة الزراعية والعمليات الرئيسية",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=3
+        order=3,
     ),
 ]
 
@@ -92,7 +92,7 @@ RECORD_KEEPING_ITEMS = [
         guidance_ar="يجب أن تكون السجلات متاحة ومنظمة وتشمل الإنتاج والحصاد والمدخلات والتدريب وسجلات التدقيق",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.2.1.2",
@@ -108,7 +108,7 @@ RECORD_KEEPING_ITEMS = [
         guidance_ar="استخدم أرقام الإصدارات والتواريخ وتوقيعات الموافقة؛ احتفظ بالإصدارات القديمة بشكل منفصل",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.2.2.1",
@@ -124,7 +124,7 @@ RECORD_KEEPING_ITEMS = [
         guidance_ar="وثق النتائج والإجراءات التصحيحية وأدلة التنفيذ",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.2.3.1",
@@ -140,7 +140,7 @@ RECORD_KEEPING_ITEMS = [
         guidance_ar="تضمين تسجيل الشكاوى والتحقيق والإجراءات التصحيحية والتواصل مع العملاء",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=4
+        order=4,
     ),
 ]
 
@@ -163,7 +163,7 @@ WORKERS_HEALTH_ITEMS = [
         guidance_ar="حدد المخاطر الكيميائية والفيزيائية والبيولوجية؛ قيّم الاحتمالية والخطورة؛ نفذ الضوابط",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.3.2.1",
@@ -179,7 +179,7 @@ WORKERS_HEALTH_ITEMS = [
         guidance_ar="احتفظ بسجلات التدريب مع التواريخ والموضوعات والمدرب والحضور؛ تحقق من الفهم من خلال تقييم الكفاءة",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.3.3.1",
@@ -195,7 +195,7 @@ WORKERS_HEALTH_ITEMS = [
         guidance_ar="يجب أن تشمل معدات الحماية القفازات والأقنعة والنظارات والأحذية حسب الحاجة؛ احتفظ بسجلات التوزيع",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.3.4.1",
@@ -211,7 +211,7 @@ WORKERS_HEALTH_ITEMS = [
         guidance_ar="وفر المياه الصالحة للشرب بكمية كافية؛ احمها من التلوث؛ متاحة في جميع مناطق العمل",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=4
+        order=4,
     ),
     ChecklistItem(
         id="AF.3.4.2",
@@ -227,7 +227,7 @@ WORKERS_HEALTH_ITEMS = [
         guidance_ar="النسبة 1:20 عامل؛ وفر الصابون ومرافق التجفيف؛ حافظ على النظافة؛ ضمن الخصوصية",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=5
+        order=5,
     ),
     ChecklistItem(
         id="AF.3.5.1",
@@ -243,7 +243,7 @@ WORKERS_HEALTH_ITEMS = [
         guidance_ar="احتفظ بمجموعة إسعافات أولية مجهزة؛ درب الموظفين على الإسعافات الأولية؛ اعرض أرقام الاتصال الطارئة",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=6
+        order=6,
     ),
     ChecklistItem(
         id="AF.3.6.1",
@@ -259,7 +259,7 @@ WORKERS_HEALTH_ITEMS = [
         guidance_ar="تحقق من العمر من خلال الوثائق؛ الحد الأدنى للسن 15 سنة (أو حسب القانون المحلي إذا كان أعلى)",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=7
+        order=7,
     ),
 ]
 
@@ -282,7 +282,7 @@ TRACEABILITY_ITEMS = [
         guidance_ar="ربط المنتجات بدفعات الإنتاج والحقول وتواريخ الحصاد وتواريخ التعبئة والعملاء",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.4.1.2",
@@ -298,7 +298,7 @@ TRACEABILITY_ITEMS = [
         guidance_ar="اختر دفعة منتج، تتبع للأمام والخلف، تحقق من تطابق الكميات ضمن التفاوت (±5%)",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.4.2.1",
@@ -314,7 +314,7 @@ TRACEABILITY_ITEMS = [
         guidance_ar="فصل فيزيائي أو زمني؛ تحديد واضح؛ سجلات منفصلة؛ منع الاختلاط",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.4.3.1",
@@ -330,7 +330,7 @@ TRACEABILITY_ITEMS = [
         guidance_ar="طبق رقم GGN على التعبئة أو الفواتير أو مستندات التسليم لتسهيل التحقق من العملاء",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=4
+        order=4,
     ),
 ]
 
@@ -353,7 +353,7 @@ PLANT_PROPAGATION_ITEMS = [
         guidance_ar="سجل الصنف والمورد ورقم الدفعة/اللوت وتاريخ الشراء والشهادات إن وجدت",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.5.2.1",
@@ -369,7 +369,7 @@ PLANT_PROPAGATION_ITEMS = [
         guidance_ar="احصل على إقرارات الموردين؛ وثق حالة الكائنات المعدلة وراثياً أو غير المعدلة؛ الامتثال للوائح المحلية",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
 ]
 
@@ -392,7 +392,7 @@ SOIL_MANAGEMENT_ITEMS = [
         guidance_ar="نفذ المدرجات أو الحراثة الكنتورية أو المحاصيل الغطائية أو التغطية أو غيرها من تدابير مكافحة التآكل",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.6.2.1",
@@ -408,7 +408,7 @@ SOIL_MANAGEMENT_ITEMS = [
         guidance_ar="اختبر الرقم الهيدروجيني والمادة العضوية وN-P-K والعناصر الدقيقة؛ استخدم النتائج لتخطيط التسميد",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.6.3.1",
@@ -424,7 +424,7 @@ SOIL_MANAGEMENT_ITEMS = [
         guidance_ar="سجل مصدر الركيزة والتركيب؛ تأكد من عدم استخدام حمأة الصرف الصحي أو المواد الملوثة",
         applicable_to=["FV"],
         not_applicable_allowed=True,
-        order=3
+        order=3,
     ),
 ]
 
@@ -447,7 +447,7 @@ FERTILIZER_ITEMS = [
         guidance_ar="سجل لكل تطبيق: الحقل/القطعة، المحصول، نوع السماد، المعدل (كجم/هكتار)، التاريخ، المشغل",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.7.2.1",
@@ -463,7 +463,7 @@ FERTILIZER_ITEMS = [
         guidance_ar="قيّم المخاطر الميكروبية ومصادر التلوث؛ نفذ التحويل إلى سماد أو قيود التوقيت أو الدمج",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.7.2.2",
@@ -479,7 +479,7 @@ FERTILIZER_ITEMS = [
         guidance_ar="وثق المنشأ؛ حوّل إلى سماد للوصول إلى 55 درجة مئوية لمدة 15 يوماً أو معالجة مكافئة؛ اختبر الممرضات إذا كان هناك خطر",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.7.3.1",
@@ -495,7 +495,7 @@ FERTILIZER_ITEMS = [
         guidance_ar="خزن في منطقة جافة ومهواة؛ احتفظ في التعبئة الأصلية أو حاويات موسومة؛ افصل عن المبيدات والطعام",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=4
+        order=4,
     ),
 ]
 
@@ -518,7 +518,7 @@ IRRIGATION_ITEMS = [
         guidance_ar="حدد أنواع المصادر (بئر، نهر، بلدي)؛ قيّم الأنشطة المنبعية والفيضانات ووصول الحيوانات والتوصيلات المتقاطعة",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.8.2.1",
@@ -534,7 +534,7 @@ IRRIGATION_ITEMS = [
         guidance_ar="اختبر الإيكولاي والمعادن الثقيلة إذا تم تحديد المخاطر؛ زد التكرار إذا كان المصدر عالي المخاطر أو ملامس للمنتج",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.8.3.1",
@@ -550,7 +550,7 @@ IRRIGATION_ITEMS = [
         guidance_ar="نفذ الترشيح أو معالجة الأشعة فوق البنفسجية أو الكلورة أو طرق أخرى؛ تحقق من الفعالية من خلال الاختبار",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.8.4.1",
@@ -566,7 +566,7 @@ IRRIGATION_ITEMS = [
         guidance_ar="استخدم الري بالتنقيط أو مراقبة رطوبة التربة أو جدولة الري أو التغطية أو جمع مياه الأمطار",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=4
+        order=4,
     ),
 ]
 
@@ -589,7 +589,7 @@ IPM_ITEMS = [
         guidance_ar="وثق مراقبة الآفات والعتبات والتدابير الوقائية والضوابط البيولوجية والاستخدام الكيميائي كملاذ أخير",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.9.2.1",
@@ -605,7 +605,7 @@ IPM_ITEMS = [
         guidance_ar="سجل تاريخ الفحص والموقع وأنواع الآفات والخطورة والإجراء المتخذ؛ استخدم المصائد أو الفحص البصري",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.9.3.1",
@@ -621,7 +621,7 @@ IPM_ITEMS = [
         guidance_ar="نفذ دورة المحاصيل أو الأصناف المقاومة أو الحشرات المفيدة أو المصائد أو الحواجز أو الإزالة الميكانيكية",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=3
+        order=3,
     ),
 ]
 
@@ -644,7 +644,7 @@ PLANT_PROTECTION_ITEMS = [
         guidance_ar="تحقق من حالة التسجيل؛ تحقق من المحصول المعتمد على الملصق؛ احتفظ بقائمة المنتجات المصرح بها",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.10.2.1",
@@ -660,7 +660,7 @@ PLANT_PROTECTION_ITEMS = [
         guidance_ar="سجل: الحقل، المحصول، الآفة، اسم المنتج، المادة الفعالة، المعدل، حجم الماء، التاريخ، المشغل، فترة ما قبل الحصاد، تاريخ الحصاد",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.10.3.1",
@@ -676,7 +676,7 @@ PLANT_PROTECTION_ITEMS = [
         guidance_ar="غرفة/خزانة قابلة للقفل؛ أرضية صلبة؛ تهوية؛ علامات تحذير؛ طفاية حريق؛ مجموعة للانسكابات؛ بعيداً عن الطعام/العلف",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.10.4.1",
@@ -692,7 +692,7 @@ PLANT_PROTECTION_ITEMS = [
         guidance_ar="عاير الرشاشات لضمان معدلات تطبيق دقيقة؛ سجل تاريخ المعايرة والطريقة والنتائج",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=4
+        order=4,
     ),
     ChecklistItem(
         id="AF.10.5.1",
@@ -708,7 +708,7 @@ PLANT_PROTECTION_ITEMS = [
         guidance_ar="درب على قراءة الملصقات واستخدام معدات الحماية والخلط والتطبيق والتخلص والإسعافات الأولية؛ احتفظ بسجلات التدريب",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=5
+        order=5,
     ),
     ChecklistItem(
         id="AF.10.6.1",
@@ -724,7 +724,7 @@ PLANT_PROTECTION_ITEMS = [
         guidance_ar="تحقق من فترة ما قبل الحصاد على الملصق؛ احسب تاريخ أهلية الحصاد؛ لا تحصد قبل انتهاء فترة ما قبل الحصاد",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=6
+        order=6,
     ),
 ]
 
@@ -747,7 +747,7 @@ HARVEST_ITEMS = [
         guidance_ar="وثق توقيت الحصاد ومتطلبات النظافة ونظافة الحاويات والفرز الميداني والنقل إلى محطة التعبئة",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.11.2.1",
@@ -763,7 +763,7 @@ HARVEST_ITEMS = [
         guidance_ar="درب على غسل اليدين والإبلاغ عن المرض والملابس النظيفة وعدم التدخين/الأكل في الحقول وتغطية الجروح",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.11.3.1",
@@ -779,7 +779,7 @@ HARVEST_ITEMS = [
         guidance_ar="نظف صناديق الحصاد والسكاكين والأدوات قبل الاستخدام؛ افحص الأضرار؛ عقم حيثما كان ذلك مناسباً",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.11.4.1",
@@ -795,7 +795,7 @@ HARVEST_ITEMS = [
         guidance_ar="سجل لكل حصاد: معرف الحقل/القطعة، المحصول/الصنف، تاريخ الحصاد، الكمية، الفريق/المشغل",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=4
+        order=4,
     ),
 ]
 
@@ -818,7 +818,7 @@ PRODUCE_HANDLING_ITEMS = [
         guidance_ar="احتفظ بجدول التنظيف والإجراءات والأشخاص المسؤولين؛ تحقق من الفعالية؛ سجل الإنجاز",
         applicable_to=["FV"],
         not_applicable_allowed=True,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.12.2.1",
@@ -834,7 +834,7 @@ PRODUCE_HANDLING_ITEMS = [
         guidance_ar="اختبر الإيكولاي والقولونيات الكلية؛ عقم مياه الغسيل؛ غيّر الماء بانتظام؛ راقب مستويات المعقم",
         applicable_to=["FV"],
         not_applicable_allowed=True,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.12.3.1",
@@ -850,7 +850,7 @@ PRODUCE_HANDLING_ITEMS = [
         guidance_ar="راقب وسجل درجات الحرارة؛ اضبط التنبيهات؛ اتخذ إجراءات تصحيحية إذا كانت خارج النطاق",
         applicable_to=["FV"],
         not_applicable_allowed=True,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.12.4.1",
@@ -866,7 +866,7 @@ PRODUCE_HANDLING_ITEMS = [
         guidance_ar="احصل على إقرارات الموردين؛ خزن التعبئة عن الأرض، محمية من الآفات، بعيداً عن المواد الكيميائية",
         applicable_to=["FV"],
         not_applicable_allowed=True,
-        order=4
+        order=4,
     ),
 ]
 
@@ -889,7 +889,7 @@ ENVIRONMENT_ITEMS = [
         guidance_ar="افصل النفايات العضوية والقابلة لإعادة التدوير والخطرة؛ استخدم طرق التخلص المصرح بها؛ امنع التلوث البيئي",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=1
+        order=1,
     ),
     ChecklistItem(
         id="AF.13.2.1",
@@ -905,7 +905,7 @@ ENVIRONMENT_ITEMS = [
         guidance_ar="استخدم الإضاءة الفعالة وصيانة المعدات والطاقة المتجددة والعزل أو مراقبة الطاقة",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=2
+        order=2,
     ),
     ChecklistItem(
         id="AF.13.3.1",
@@ -921,7 +921,7 @@ ENVIRONMENT_ITEMS = [
         guidance_ar="ارسم خريطة للمناطق الحساسة؛ نفذ مناطق عازلة؛ تجنب انجراف المبيدات؛ احفظ النباتات الطبيعية",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=True,
-        order=3
+        order=3,
     ),
     ChecklistItem(
         id="AF.13.4.1",
@@ -937,7 +937,7 @@ ENVIRONMENT_ITEMS = [
         guidance_ar="امنع انسكاب المواد الكيميائية، أدر الجريان السطحي، تخلص صحيح من النفايات، تحكم في الانبعاثات، احتواء ثانوي",
         applicable_to=["FV", "CROPS_BASE"],
         not_applicable_allowed=False,
-        order=4
+        order=4,
     ),
 ]
 
@@ -954,7 +954,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Site history risk assessment and farm management planning",
         description_ar="تقييم مخاطر تاريخ الموقع وتخطيط إدارة المزرعة",
         items=SITE_HISTORY_ITEMS,
-        order=1
+        order=1,
     ),
     ChecklistCategory(
         code="RECORD_KEEPING",
@@ -963,7 +963,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Documentation requirements, internal audits, and complaints handling",
         description_ar="متطلبات التوثيق والتدقيق الداخلي ومعالجة الشكاوى",
         items=RECORD_KEEPING_ITEMS,
-        order=2
+        order=2,
     ),
     ChecklistCategory(
         code="WORKERS_HEALTH",
@@ -972,7 +972,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Occupational health and safety, training, welfare facilities (GRASP compliance)",
         description_ar="الصحة والسلامة المهنية، التدريب، مرافق الرفاهية (امتثال GRASP)",
         items=WORKERS_HEALTH_ITEMS,
-        order=3
+        order=3,
     ),
     ChecklistCategory(
         code="TRACEABILITY",
@@ -981,7 +981,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Traceability systems, mass balance, and product segregation",
         description_ar="أنظمة التتبع، التوازن الكتلي، وفصل المنتجات",
         items=TRACEABILITY_ITEMS,
-        order=4
+        order=4,
     ),
     ChecklistCategory(
         code="PLANT_PROPAGATION",
@@ -990,7 +990,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Seeds and planting material sourcing and documentation",
         description_ar="مصادر البذور ومواد الزراعة والتوثيق",
         items=PLANT_PROPAGATION_ITEMS,
-        order=5
+        order=5,
     ),
     ChecklistCategory(
         code="SOIL_MANAGEMENT",
@@ -999,7 +999,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Soil conservation, fertility analysis, and substrate quality",
         description_ar="حفظ التربة، تحليل الخصوبة، وجودة الركيزة",
         items=SOIL_MANAGEMENT_ITEMS,
-        order=6
+        order=6,
     ),
     ChecklistCategory(
         code="FERTILIZER",
@@ -1008,7 +1008,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Fertilizer records, organic fertilizer management, and storage",
         description_ar="سجلات الأسمدة، إدارة الأسمدة العضوية، والتخزين",
         items=FERTILIZER_ITEMS,
-        order=7
+        order=7,
     ),
     ChecklistCategory(
         code="IRRIGATION",
@@ -1017,7 +1017,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Water source assessment, quality testing, and conservation (SPRING module)",
         description_ar="تقييم مصدر المياه، اختبار الجودة، والحفظ (وحدة SPRING)",
         items=IRRIGATION_ITEMS,
-        order=8
+        order=8,
     ),
     ChecklistCategory(
         code="IPM",
@@ -1026,7 +1026,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="IPM strategy, pest monitoring, and non-chemical control methods",
         description_ar="استراتيجية الإدارة المتكاملة للآفات، مراقبة الآفات، وطرق المكافحة غير الكيميائية",
         items=IPM_ITEMS,
-        order=9
+        order=9,
     ),
     ChecklistCategory(
         code="PLANT_PROTECTION",
@@ -1035,7 +1035,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="PPP authorization, records, storage, application, and safety",
         description_ar="ترخيص منتجات وقاية النباتات، السجلات، التخزين، التطبيق، والسلامة",
         items=PLANT_PROTECTION_ITEMS,
-        order=10
+        order=10,
     ),
     ChecklistCategory(
         code="HARVEST",
@@ -1044,7 +1044,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Harvest procedures, hygiene, equipment, and traceability",
         description_ar="إجراءات الحصاد، النظافة، المعدات، والتتبع",
         items=HARVEST_ITEMS,
-        order=11
+        order=11,
     ),
     ChecklistCategory(
         code="PRODUCE_HANDLING",
@@ -1053,7 +1053,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Packhouse operations, water quality, temperature control, and packaging",
         description_ar="عمليات محطة التعبئة، جودة المياه، التحكم في درجة الحرارة، والتعبئة",
         items=PRODUCE_HANDLING_ITEMS,
-        order=12
+        order=12,
     ),
     ChecklistCategory(
         code="ENVIRONMENT",
@@ -1062,7 +1062,7 @@ CHECKLIST_CATEGORIES_DETAIL = [
         description_en="Waste management, energy conservation, biodiversity, and pollution prevention",
         description_ar="إدارة النفايات، حفظ الطاقة، التنوع البيولوجي، ومنع التلوث",
         items=ENVIRONMENT_ITEMS,
-        order=13
+        order=13,
     ),
 ]
 
@@ -1079,6 +1079,7 @@ IFA_V6_CHECKLIST: Dict[str, ChecklistCategory] = {
 # HELPER FUNCTIONS
 # الدوال المساعدة
 # =============================================================================
+
 
 def get_category(category_code: str) -> Optional[ChecklistCategory]:
     """
@@ -1113,8 +1114,7 @@ def get_checklist_item(item_id: str) -> Optional[ChecklistItem]:
 
 
 def get_items_by_compliance_level(
-    compliance_level: ComplianceLevel,
-    category_code: Optional[str] = None
+    compliance_level: ComplianceLevel, category_code: Optional[str] = None
 ) -> List[ChecklistItem]:
     """
     Get all checklist items by compliance level
@@ -1130,7 +1130,8 @@ def get_items_by_compliance_level(
     items = []
 
     categories_to_search = (
-        [IFA_V6_CHECKLIST[category_code]] if category_code
+        [IFA_V6_CHECKLIST[category_code]]
+        if category_code
         else IFA_V6_CHECKLIST.values()
     )
 
@@ -1142,9 +1143,7 @@ def get_items_by_compliance_level(
     return items
 
 
-def calculate_compliance_score(
-    findings: List[Dict[str, any]]
-) -> Dict[str, any]:
+def calculate_compliance_score(findings: List[Dict[str, any]]) -> Dict[str, any]:
     """
     Calculate compliance score from audit findings
     احسب درجة الامتثال من نتائج التدقيق
@@ -1188,8 +1187,7 @@ def calculate_compliance_score(
     for level, counts in stats.items():
         applicable = counts["total"] - counts["na"]
         percentage = (
-            (counts["compliant"] / applicable * 100)
-            if applicable > 0 else 100.0
+            (counts["compliant"] / applicable * 100) if applicable > 0 else 100.0
         )
 
         results[level.value] = {
@@ -1201,15 +1199,18 @@ def calculate_compliance_score(
             "threshold": COMPLIANCE_THRESHOLDS.get(
                 level.value.lower().replace("_", "_"), 0
             ),
-            "passes": percentage >= COMPLIANCE_THRESHOLDS.get(
-                level.value.lower().replace("_", "_"), 0
-            ) if level != ComplianceLevel.RECOMMENDATION else True
+            "passes": (
+                percentage
+                >= COMPLIANCE_THRESHOLDS.get(level.value.lower().replace("_", "_"), 0)
+                if level != ComplianceLevel.RECOMMENDATION
+                else True
+            ),
         }
 
     # Overall pass/fail
     overall_pass = (
-        results[ComplianceLevel.MAJOR_MUST.value]["passes"] and
-        results[ComplianceLevel.MINOR_MUST.value]["passes"]
+        results[ComplianceLevel.MAJOR_MUST.value]["passes"]
+        and results[ComplianceLevel.MINOR_MUST.value]["passes"]
     )
 
     return {
@@ -1264,8 +1265,8 @@ def get_statistics() -> Dict[str, any]:
                 "code": cat.code,
                 "name_en": cat.name_en,
                 "name_ar": cat.name_ar,
-                "item_count": len(cat.items)
+                "item_count": len(cat.items),
             }
             for cat in sorted(IFA_V6_CHECKLIST.values(), key=lambda c: c.order)
-        ]
+        ],
     }

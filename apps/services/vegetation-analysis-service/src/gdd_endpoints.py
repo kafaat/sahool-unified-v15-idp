@@ -34,7 +34,9 @@ def register_gdd_endpoints(app):
         lat: float = Query(..., description="Field latitude", ge=-90, le=90),
         lon: float = Query(..., description="Field longitude", ge=-180, le=180),
         end_date: Optional[str] = Query(None, description="End date (default: today)"),
-        method: str = Query("simple", description="Calculation method: simple, modified, sine"),
+        method: str = Query(
+            "simple", description="Calculation method: simple, modified, sine"
+        ),
     ):
         """
         مخطط وحدات الحرارة النامية | Get GDD Accumulation Chart
@@ -112,19 +114,19 @@ def register_gdd_endpoints(app):
         try:
             # Parse dates
             plant_date = date_class.fromisoformat(planting_date)
-            end_dt = date_class.fromisoformat(end_date) if end_date else date_class.today()
+            end_dt = (
+                date_class.fromisoformat(end_date) if end_date else date_class.today()
+            )
 
             # Validate dates
             if plant_date > end_dt:
                 raise HTTPException(
-                    status_code=400,
-                    detail="planting_date must be before end_date"
+                    status_code=400, detail="planting_date must be before end_date"
                 )
 
             if plant_date > date_class.today():
                 raise HTTPException(
-                    status_code=400,
-                    detail="planting_date cannot be in the future"
+                    status_code=400, detail="planting_date cannot be in the future"
                 )
 
             # Validate method
@@ -132,7 +134,7 @@ def register_gdd_endpoints(app):
             if method not in valid_methods:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Invalid method. Must be one of: {', '.join(valid_methods)}"
+                    detail=f"Invalid method. Must be one of: {', '.join(valid_methods)}",
                 )
 
             # Get GDD tracker
@@ -146,7 +148,7 @@ def register_gdd_endpoints(app):
                 latitude=lat,
                 longitude=lon,
                 end_date=end_dt,
-                method=method
+                method=method,
             )
 
             return chart.to_dict()
@@ -158,12 +160,14 @@ def register_gdd_endpoints(app):
                 crop_codes = [c["crop_code"] for c in available_crops]
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Unknown crop: {crop_code}. Available crops: {', '.join(crop_codes[:10])}..."
+                    detail=f"Unknown crop: {crop_code}. Available crops: {', '.join(crop_codes[:10])}...",
                 )
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
             logger.error(f"Failed to generate GDD chart: {e}")
-            raise HTTPException(status_code=500, detail=f"GDD calculation error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"GDD calculation error: {str(e)}"
+            )
 
     @app.get("/v1/gdd/forecast")
     async def get_gdd_forecast(
@@ -171,9 +175,15 @@ def register_gdd_endpoints(app):
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         current_gdd: float = Query(..., description="Current accumulated GDD", ge=0),
         target_gdd: float = Query(..., description="Target GDD to reach", ge=0),
-        base_temp: float = Query(10.0, description="Base temperature (°C)", ge=0, le=20),
-        upper_temp: Optional[float] = Query(None, description="Upper cutoff temp (°C)", ge=20, le=45),
-        method: str = Query("simple", description="Calculation method: simple, modified, sine"),
+        base_temp: float = Query(
+            10.0, description="Base temperature (°C)", ge=0, le=20
+        ),
+        upper_temp: Optional[float] = Query(
+            None, description="Upper cutoff temp (°C)", ge=20, le=45
+        ),
+        method: str = Query(
+            "simple", description="Calculation method: simple, modified, sine"
+        ),
     ):
         """
         توقع وحدات الحرارة النامية | Forecast GDD Accumulation
@@ -228,15 +238,14 @@ def register_gdd_endpoints(app):
             # Validate
             if current_gdd >= target_gdd:
                 raise HTTPException(
-                    status_code=400,
-                    detail="current_gdd must be less than target_gdd"
+                    status_code=400, detail="current_gdd must be less than target_gdd"
                 )
 
             valid_methods = ["simple", "modified", "sine"]
             if method not in valid_methods:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Invalid method. Must be one of: {', '.join(valid_methods)}"
+                    detail=f"Invalid method. Must be one of: {', '.join(valid_methods)}",
                 )
 
             # Get tracker
@@ -250,7 +259,7 @@ def register_gdd_endpoints(app):
                 target_gdd=target_gdd,
                 base_temp=base_temp,
                 upper_temp=upper_temp,
-                method=method
+                method=method,
             )
 
             return forecast
@@ -338,7 +347,7 @@ def register_gdd_endpoints(app):
             crop_codes = [c["crop_code"] for c in available_crops]
             raise HTTPException(
                 status_code=404,
-                detail=f"Crop '{crop_code}' not found. Available crops: {', '.join(crop_codes[:15])}..."
+                detail=f"Crop '{crop_code}' not found. Available crops: {', '.join(crop_codes[:15])}...",
             )
         except Exception as e:
             logger.error(f"Failed to get crop requirements: {e}")
@@ -402,8 +411,8 @@ def register_gdd_endpoints(app):
             requirements = await tracker.get_crop_requirements(crop_code_upper)
 
             # Get current stage
-            current_en, current_ar, next_en, next_ar, gdd_to_next = tracker.get_current_stage(
-                crop_code_upper, gdd
+            current_en, current_ar, next_en, next_ar, gdd_to_next = (
+                tracker.get_current_stage(crop_code_upper, gdd)
             )
 
             # Find stage details
@@ -426,22 +435,48 @@ def register_gdd_endpoints(app):
                 "crop_name_ar": requirements.crop_name_ar,
                 "crop_name_en": requirements.crop_name_en,
                 "accumulated_gdd": round(gdd, 1),
-                "current_stage": {
-                    "name_en": current_en,
-                    "name_ar": current_ar,
-                    "gdd_start": current_stage_info["gdd_start"] if current_stage_info else 0,
-                    "gdd_end": current_stage_info["gdd_end"] if current_stage_info else 0,
-                    "description_ar": current_stage_info["description_ar"] if current_stage_info else "",
-                    "description_en": current_stage_info["description_en"] if current_stage_info else "",
-                } if current_stage_info else None,
-                "next_stage": {
-                    "name_en": next_en,
-                    "name_ar": next_ar,
-                    "gdd_start": next_stage_info["gdd_start"] if next_stage_info else 0,
-                    "gdd_end": next_stage_info["gdd_end"] if next_stage_info else 0,
-                    "description_ar": next_stage_info["description_ar"] if next_stage_info else "",
-                    "description_en": next_stage_info["description_en"] if next_stage_info else "",
-                } if next_stage_info else None,
+                "current_stage": (
+                    {
+                        "name_en": current_en,
+                        "name_ar": current_ar,
+                        "gdd_start": (
+                            current_stage_info["gdd_start"] if current_stage_info else 0
+                        ),
+                        "gdd_end": (
+                            current_stage_info["gdd_end"] if current_stage_info else 0
+                        ),
+                        "description_ar": (
+                            current_stage_info["description_ar"]
+                            if current_stage_info
+                            else ""
+                        ),
+                        "description_en": (
+                            current_stage_info["description_en"]
+                            if current_stage_info
+                            else ""
+                        ),
+                    }
+                    if current_stage_info
+                    else None
+                ),
+                "next_stage": (
+                    {
+                        "name_en": next_en,
+                        "name_ar": next_ar,
+                        "gdd_start": (
+                            next_stage_info["gdd_start"] if next_stage_info else 0
+                        ),
+                        "gdd_end": next_stage_info["gdd_end"] if next_stage_info else 0,
+                        "description_ar": (
+                            next_stage_info["description_ar"] if next_stage_info else ""
+                        ),
+                        "description_en": (
+                            next_stage_info["description_en"] if next_stage_info else ""
+                        ),
+                    }
+                    if next_stage_info
+                    else None
+                ),
                 "gdd_to_next_stage": round(gdd_to_next, 1),
                 "progress_percent": round(progress_percent, 1),
                 "total_gdd_required": round(total_gdd, 1),
@@ -453,7 +488,7 @@ def register_gdd_endpoints(app):
             crop_codes = [c["crop_code"] for c in available_crops]
             raise HTTPException(
                 status_code=404,
-                detail=f"Crop '{crop_code}' not found. Available: {', '.join(crop_codes[:10])}..."
+                detail=f"Crop '{crop_code}' not found. Available: {', '.join(crop_codes[:10])}...",
             )
         except Exception as e:
             logger.error(f"Failed to get growth stage: {e}")
@@ -507,10 +542,7 @@ def register_gdd_endpoints(app):
         try:
             tracker = get_gdd_tracker()
             crops = tracker.get_all_crops()
-            return {
-                "total_crops": len(crops),
-                "crops": crops
-            }
+            return {"total_crops": len(crops), "crops": crops}
         except Exception as e:
             logger.error(f"Failed to list crops: {e}")
             raise HTTPException(status_code=500, detail=f"Error: {str(e)}")

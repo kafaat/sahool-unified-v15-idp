@@ -16,6 +16,7 @@ logger = structlog.get_logger()
 
 class WorkflowStatus(str, Enum):
     """Workflow execution status | حالة تنفيذ سير العمل"""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -125,7 +126,7 @@ class Workflow:
             "workflow_step_added",
             workflow_name=self.name,
             step_name=name,
-            depends_on=depends_on
+            depends_on=depends_on,
         )
 
         return self
@@ -151,7 +152,7 @@ class Workflow:
         logger.info(
             "workflow_execution_started",
             workflow_name=self.name,
-            num_steps=len(self.steps)
+            num_steps=len(self.steps),
         )
 
         try:
@@ -163,7 +164,8 @@ class Workflow:
                 # Find steps that can be executed now
                 # العثور على الخطوات القابلة للتنفيذ الآن
                 ready_steps = [
-                    step for step_name, step in self.steps.items()
+                    step
+                    for step_name, step in self.steps.items()
                     if step_name not in executed_steps
                     and all(dep in executed_steps for dep in step.depends_on)
                 ]
@@ -188,7 +190,7 @@ class Workflow:
             logger.info(
                 "workflow_execution_completed",
                 workflow_name=self.name,
-                duration_seconds=(self.completed_at - self.started_at).total_seconds()
+                duration_seconds=(self.completed_at - self.started_at).total_seconds(),
             )
 
             return {
@@ -203,9 +205,7 @@ class Workflow:
             self.completed_at = datetime.utcnow()
 
             logger.error(
-                "workflow_execution_failed",
-                workflow_name=self.name,
-                error=str(e)
+                "workflow_execution_failed", workflow_name=self.name, error=str(e)
             )
 
             return {
@@ -232,9 +232,7 @@ class Workflow:
         step.started_at = datetime.utcnow()
 
         logger.debug(
-            "workflow_step_started",
-            workflow_name=self.name,
-            step_name=step.name
+            "workflow_step_started", workflow_name=self.name, step_name=step.name
         )
 
         try:
@@ -261,7 +259,7 @@ class Workflow:
                 "workflow_step_completed",
                 workflow_name=self.name,
                 step_name=step.name,
-                duration_seconds=(step.completed_at - step.started_at).total_seconds()
+                duration_seconds=(step.completed_at - step.started_at).total_seconds(),
             )
 
         except Exception as e:
@@ -273,7 +271,7 @@ class Workflow:
                 "workflow_step_failed",
                 workflow_name=self.name,
                 step_name=step.name,
-                error=str(e)
+                error=str(e),
             )
 
             raise
@@ -292,11 +290,13 @@ class Workflow:
             "status": self.status.value,
             "total_steps": len(self.steps),
             "completed_steps": sum(
-                1 for step in self.steps.values()
+                1
+                for step in self.steps.values()
                 if step.status == WorkflowStatus.COMPLETED
             ),
             "failed_steps": sum(
-                1 for step in self.steps.values()
+                1
+                for step in self.steps.values()
                 if step.status == WorkflowStatus.FAILED
             ),
             "steps": [
@@ -336,7 +336,7 @@ async def create_field_analysis_workflow(
     """
     workflow = Workflow(
         name="comprehensive_field_analysis",
-        description=f"Complete analysis for field {field_id}"
+        description=f"Complete analysis for field {field_id}",
     )
 
     # Step 1: Gather satellite data
@@ -348,12 +348,13 @@ async def create_field_analysis_workflow(
     workflow.add_step(
         name="satellite_analysis",
         action=gather_satellite_data,
-        description="Gather and analyze satellite imagery and NDVI data"
+        description="Gather and analyze satellite imagery and NDVI data",
     )
 
     # Step 2: Analyze field health (depends on satellite data)
     # الخطوة 2: تحليل صحة الحقل (يعتمد على بيانات الأقمار الصناعية)
     if include_disease_check:
+
         async def check_diseases(input_data):
             disease_expert = supervisor.agents.get("disease_expert")
             satellite_result = input_data["previous_results"]["satellite_analysis"]
@@ -361,19 +362,20 @@ async def create_field_analysis_workflow(
                 crop_type=input_data["context"].get("crop_type", "wheat"),
                 location=field_id,
                 season="current",
-                environmental_conditions=satellite_result
+                environmental_conditions=satellite_result,
             )
 
         workflow.add_step(
             name="disease_assessment",
             action=check_diseases,
             description="Assess disease risks based on field conditions",
-            depends_on=["satellite_analysis"]
+            depends_on=["satellite_analysis"],
         )
 
     # Step 3: Irrigation recommendations
     # الخطوة 3: توصيات الري
     if include_irrigation_advice:
+
         async def irrigation_recommendations(input_data):
             irrigation_advisor = supervisor.agents.get("irrigation_advisor")
             satellite_result = input_data["previous_results"]["satellite_analysis"]
@@ -381,14 +383,14 @@ async def create_field_analysis_workflow(
                 crop_type=input_data["context"].get("crop_type", "wheat"),
                 growth_stage=input_data["context"].get("growth_stage", "vegetative"),
                 soil_data={},
-                weather_data={}
+                weather_data={},
             )
 
         workflow.add_step(
             name="irrigation_recommendation",
             action=irrigation_recommendations,
             description="Generate irrigation recommendations",
-            depends_on=["satellite_analysis"]
+            depends_on=["satellite_analysis"],
         )
 
     return workflow

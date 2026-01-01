@@ -37,11 +37,7 @@ _composites: Dict[str, dict] = {}
 
 
 def create_job(
-    tenant_id: str,
-    field_id: str,
-    job_type: str,
-    parameters: dict,
-    priority: int = 5
+    tenant_id: str, field_id: str, job_type: str, parameters: dict, priority: int = 5
 ) -> str:
     """إنشاء مهمة معالجة"""
     job_id = str(uuid4())
@@ -84,7 +80,7 @@ def update_job_status(
     status: JobStatus,
     progress: int = None,
     result: dict = None,
-    error: str = None
+    error: str = None,
 ) -> Optional[dict]:
     """تحديث حالة المهمة"""
     if job_id not in _jobs:
@@ -101,7 +97,9 @@ def update_job_status(
 
     if status in [JobStatus.COMPLETED, JobStatus.FAILED]:
         job["completed_at"] = datetime.now(timezone.utc).isoformat()
-        job["progress_percent"] = 100 if status == JobStatus.COMPLETED else job["progress_percent"]
+        job["progress_percent"] = (
+            100 if status == JobStatus.COMPLETED else job["progress_percent"]
+        )
 
     if result:
         job["result"] = result
@@ -129,9 +127,7 @@ def cancel_job(job_id: str) -> bool:
 
 
 def list_jobs(
-    tenant_id: str = None,
-    field_id: str = None,
-    status: str = None
+    tenant_id: str = None, field_id: str = None, status: str = None
 ) -> List[dict]:
     """قائمة المهام"""
     jobs = list(_jobs.values())
@@ -153,7 +149,7 @@ def process_ndvi_mock(
     field_id: str,
     source: SatelliteSource,
     date_range: Tuple[str, str],
-    options: dict = None
+    options: dict = None,
 ) -> NDVIResult:
     """معالجة NDVI (محاكاة)"""
     options = options or {}
@@ -186,7 +182,9 @@ def process_ndvi_mock(
 
     # معلومات المعالجة
     processing_info = ProcessingInfo(
-        atmospheric_correction="sen2cor" if options.get("atmospheric_correction", True) else None,
+        atmospheric_correction=(
+            "sen2cor" if options.get("atmospheric_correction", True) else None
+        ),
         cloud_mask="s2cloudless" if options.get("cloud_masking", True) else None,
         processed_at=now.isoformat(),
     )
@@ -211,7 +209,7 @@ def process_ndvi_mock(
             "p25": round(ndvi_min + 0.1, 3),
             "p75": round(ndvi_max - 0.1, 3),
             "p90": round(ndvi_max - 0.05, 3),
-        }
+        },
     )
 
     # روابط الملفات (محاكاة)
@@ -262,9 +260,7 @@ def get_field_ndvi(field_id: str, date: str = None) -> Optional[dict]:
 
 
 def get_ndvi_timeseries(
-    field_id: str,
-    start_date: str,
-    end_date: str
+    field_id: str, start_date: str, end_date: str
 ) -> List[TimeseriesPoint]:
     """جلب السلسلة الزمنية"""
     if field_id not in _results:
@@ -272,29 +268,26 @@ def get_ndvi_timeseries(
         return _generate_mock_timeseries(field_id, start_date, end_date)
 
     results = _results[field_id]
-    filtered = [
-        r for r in results
-        if start_date <= r["date"] <= end_date
-    ]
+    filtered = [r for r in results if start_date <= r["date"] <= end_date]
 
     points = []
     for r in sorted(filtered, key=lambda x: x["date"]):
-        points.append(TimeseriesPoint(
-            date=r["date"],
-            ndvi_mean=r["statistics"]["mean"],
-            ndvi_min=r["statistics"]["min"],
-            ndvi_max=r["statistics"]["max"],
-            cloud_cover_percent=r["quality"]["cloud_cover_percent"],
-            source=r["source"]["satellite"],
-        ))
+        points.append(
+            TimeseriesPoint(
+                date=r["date"],
+                ndvi_mean=r["statistics"]["mean"],
+                ndvi_min=r["statistics"]["min"],
+                ndvi_max=r["statistics"]["max"],
+                cloud_cover_percent=r["quality"]["cloud_cover_percent"],
+                source=r["source"]["satellite"],
+            )
+        )
 
     return points
 
 
 def _generate_mock_timeseries(
-    field_id: str,
-    start_date: str,
-    end_date: str
+    field_id: str, start_date: str, end_date: str
 ) -> List[TimeseriesPoint]:
     """توليد سلسلة زمنية محاكاة"""
     from datetime import datetime
@@ -314,14 +307,16 @@ def _generate_mock_timeseries(
         ndvi = base_ndvi + seasonal + random.uniform(-0.05, 0.05)
         ndvi = max(-1, min(1, ndvi))
 
-        points.append(TimeseriesPoint(
-            date=current.strftime("%Y-%m-%d"),
-            ndvi_mean=round(ndvi, 3),
-            ndvi_min=round(ndvi - 0.1, 3),
-            ndvi_max=round(ndvi + 0.1, 3),
-            cloud_cover_percent=round(random.uniform(0, 30), 1),
-            source="sentinel-2",
-        ))
+        points.append(
+            TimeseriesPoint(
+                date=current.strftime("%Y-%m-%d"),
+                ndvi_mean=round(ndvi, 3),
+                ndvi_min=round(ndvi - 0.1, 3),
+                ndvi_max=round(ndvi + 0.1, 3),
+                cloud_cover_percent=round(random.uniform(0, 30), 1),
+                source="sentinel-2",
+            )
+        )
 
         current += timedelta(days=5)  # تردد Sentinel-2
 
@@ -332,10 +327,7 @@ def _generate_mock_timeseries(
 
 
 def analyze_change(
-    field_id: str,
-    date1: str,
-    date2: str,
-    include_zones: bool = True
+    field_id: str, date1: str, date2: str, include_zones: bool = True
 ) -> dict:
     """تحليل التغير بين تاريخين"""
     from datetime import datetime
@@ -388,7 +380,11 @@ def analyze_change(
                 ndvi_date2=round(ndvi2 + random.uniform(-0.1, 0.05), 3),
                 change=round(random.uniform(-0.15, 0.05), 3),
                 change_percent=round(random.uniform(-20, 10), 1),
-                trend=TrendDirection.DECLINING if random.random() > 0.5 else TrendDirection.STABLE,
+                trend=(
+                    TrendDirection.DECLINING
+                    if random.random() > 0.5
+                    else TrendDirection.STABLE
+                ),
             ),
             ZoneChange(
                 zone="center",
@@ -475,11 +471,7 @@ def analyze_seasonal(field_id: str, year: int) -> dict:
 # ============== Anomaly Detection ==============
 
 
-def detect_anomaly(
-    field_id: str,
-    date: str,
-    current_ndvi: float = None
-) -> dict:
+def detect_anomaly(field_id: str, date: str, current_ndvi: float = None) -> dict:
     """كشف الشذوذ"""
     if current_ndvi is None:
         current_ndvi = random.uniform(0.3, 0.8)
@@ -488,7 +480,9 @@ def detect_anomaly(
     historical_mean = random.uniform(0.5, 0.7)
     historical_std = random.uniform(0.05, 0.1)
 
-    z_score = (current_ndvi - historical_mean) / historical_std if historical_std > 0 else 0
+    z_score = (
+        (current_ndvi - historical_mean) / historical_std if historical_std > 0 else 0
+    )
     is_anomaly = abs(z_score) > 2.0
 
     anomaly_type = None
@@ -523,7 +517,7 @@ def create_composite(
     year: int,
     month: int,
     method: CompositeMethod,
-    source: SatelliteSource
+    source: SatelliteSource,
 ) -> dict:
     """إنشاء مركب شهري"""
     composite_id = str(uuid4())

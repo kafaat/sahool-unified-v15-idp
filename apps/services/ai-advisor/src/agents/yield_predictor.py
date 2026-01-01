@@ -143,7 +143,9 @@ Communicate clearly in both Arabic and English.
         Returns:
             Yield prediction | التنبؤ بالمحصول
         """
-        query = f"Predict yield for {area} hectares of {crop_type} at {growth_stage} stage."
+        query = (
+            f"Predict yield for {area} hectares of {crop_type} at {growth_stage} stage."
+        )
 
         context = {
             "crop_type": crop_type,
@@ -152,7 +154,7 @@ Communicate clearly in both Arabic and English.
             "field_data": field_data,
             "weather_data": weather_data,
             "historical_yields": historical_yields,
-            "task": "yield_prediction"
+            "task": "yield_prediction",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -181,7 +183,7 @@ Communicate clearly in both Arabic and English.
             "crop_type": crop_type,
             "growth_conditions": growth_conditions,
             "stress_events": stress_events,
-            "task": "quality_assessment"
+            "task": "quality_assessment",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -216,7 +218,7 @@ Communicate clearly in both Arabic and English.
             "maturity_indicators": maturity_indicators,
             "weather_forecast": weather_forecast,
             "market_conditions": market_conditions,
-            "task": "harvest_timing"
+            "task": "harvest_timing",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -241,14 +243,16 @@ Communicate clearly in both Arabic and English.
         Returns:
             Yield gap analysis | تحليل فجوة المحصول
         """
-        query = f"Analyze yield gap for {crop_type} and identify improvement opportunities."
+        query = (
+            f"Analyze yield gap for {crop_type} and identify improvement opportunities."
+        )
 
         context = {
             "crop_type": crop_type,
             "actual_yield": actual_yield,
             "potential_yield": potential_yield,
             "management_practices": management_practices,
-            "task": "yield_gap_analysis"
+            "task": "yield_gap_analysis",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -280,7 +284,7 @@ Communicate clearly in both Arabic and English.
             "current_conditions": current_conditions,
             "threats": threats,
             "remaining_growth_period": remaining_growth_period,
-            "task": "risk_assessment"
+            "task": "risk_assessment",
         }
 
         return await self.think(query, context=context, use_rag=True)
@@ -309,7 +313,7 @@ Communicate clearly in both Arabic and English.
             "farm_data": farm_data,
             "season": season,
             "regional_factors": regional_factors,
-            "task": "production_forecast"
+            "task": "production_forecast",
         }
 
         return await self.think(query, context=context, use_rag=True)

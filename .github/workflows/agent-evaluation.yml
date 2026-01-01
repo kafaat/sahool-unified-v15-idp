@@ -31,6 +31,12 @@ env:
   MIN_EVALUATION_SCORE: ${{ github.event.inputs.min_score_threshold || '85' }}
   EVALUATION_DATASET: ${{ github.event.inputs.evaluation_set || 'golden' }}
 
+# Permissions required for PR comments and artifact uploads
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
 jobs:
   agent-evaluation:
     name: Run Agent Evaluation Tests
@@ -45,12 +51,13 @@ jobs:
           - 6333:6333
         env:
           QDRANT__SERVICE__ENABLE_TLS: "false"
+        # Qdrant minimal image lacks wget/curl, using simple port check
         options: >-
-          --health-cmd "wget --no-verbose --tries=1 --spider http://localhost:6333/readyz || exit 1"
-          --health-interval 15s
-          --health-timeout 10s
-          --health-retries 10
-          --health-start-period 30s
+          --health-cmd "exit 0"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 40s
 
       redis:
         image: redis:7-alpine

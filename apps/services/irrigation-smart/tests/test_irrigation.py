@@ -30,14 +30,14 @@ def client():
                 "duration_minutes": 45,
                 "priority": "high",
                 "reason": "Soil moisture below threshold",
-                "reason_ar": "رطوبة التربة أقل من الحد"
+                "reason_ar": "رطوبة التربة أقل من الحد",
             },
             "conditions": {
                 "soil_moisture": 28,
                 "et0": 5.2,
                 "crop_kc": 1.05,
-                "temperature": 32
-            }
+                "temperature": 32,
+            },
         }
 
     @app.post("/api/v1/fields/{field_id}/calculate-et")
@@ -48,7 +48,7 @@ def client():
             "et0": 5.2,
             "etc": 5.46,
             "crop_coefficient": 1.05,
-            "method": "penman_monteith"
+            "method": "penman_monteith",
         }
 
     @app.get("/api/v1/fields/{field_id}/schedule")
@@ -56,11 +56,26 @@ def client():
         return {
             "field_id": field_id,
             "schedule": [
-                {"day": "sunday", "time": "06:00", "duration_min": 45, "zone": "zone_a"},
-                {"day": "tuesday", "time": "06:00", "duration_min": 45, "zone": "zone_a"},
-                {"day": "thursday", "time": "06:00", "duration_min": 45, "zone": "zone_a"}
+                {
+                    "day": "sunday",
+                    "time": "06:00",
+                    "duration_min": 45,
+                    "zone": "zone_a",
+                },
+                {
+                    "day": "tuesday",
+                    "time": "06:00",
+                    "duration_min": 45,
+                    "zone": "zone_a",
+                },
+                {
+                    "day": "thursday",
+                    "time": "06:00",
+                    "duration_min": 45,
+                    "zone": "zone_a",
+                },
             ],
-            "total_weekly_mm": 75
+            "total_weekly_mm": 75,
         }
 
     @app.post("/api/v1/fields/{field_id}/schedule")
@@ -68,7 +83,7 @@ def client():
         return {
             "field_id": field_id,
             "status": "updated",
-            "message": "تم تحديث جدول الري"
+            "message": "تم تحديث جدول الري",
         }
 
     @app.get("/api/v1/fields/{field_id}/water-balance")
@@ -81,9 +96,9 @@ def client():
                 "irrigation_mm": 25,
                 "et_mm": 5.5,
                 "drainage_mm": 2,
-                "net_change_mm": 17.5
+                "net_change_mm": 17.5,
             },
-            "soil_moisture_pct": 45
+            "soil_moisture_pct": 45,
         }
 
     @app.get("/api/v1/fields/{field_id}/forecast")
@@ -93,8 +108,8 @@ def client():
             "forecast": [
                 {"date": "2025-12-24", "need_irrigation": True, "amount_mm": 25},
                 {"date": "2025-12-25", "need_irrigation": False, "amount_mm": 0},
-                {"date": "2025-12-26", "need_irrigation": True, "amount_mm": 20}
-            ]
+                {"date": "2025-12-26", "need_irrigation": True, "amount_mm": 20},
+            ],
         }
 
     @app.post("/api/v1/fields/{field_id}/trigger")
@@ -104,7 +119,7 @@ def client():
             "status": "triggered",
             "duration_minutes": 45,
             "started_at": "2025-12-23T10:00:00Z",
-            "message": "تم بدء الري"
+            "message": "تم بدء الري",
         }
 
     @app.get("/api/v1/crops/{crop}/water-requirements")
@@ -116,9 +131,9 @@ def client():
                 "initial": {"kc": 0.35, "daily_mm": 3},
                 "development": {"kc": 0.75, "daily_mm": 5},
                 "mid": {"kc": 1.15, "daily_mm": 7},
-                "late": {"kc": 0.45, "daily_mm": 4}
+                "late": {"kc": 0.45, "daily_mm": 4},
             },
-            "total_season_mm": 450
+            "total_season_mm": 450,
         }
 
     return TestClient(app)
@@ -156,11 +171,10 @@ class TestETCalculation:
     """Test evapotranspiration calculation"""
 
     def test_calculate_et(self, client):
-        response = client.post("/api/v1/fields/field_001/calculate-et", json={
-            "date": "2025-12-23",
-            "crop": "wheat",
-            "stage": "mid"
-        })
+        response = client.post(
+            "/api/v1/fields/field_001/calculate-et",
+            json={"date": "2025-12-23", "crop": "wheat", "stage": "mid"},
+        )
         assert response.status_code == 200
         data = response.json()
         assert "et0" in data
@@ -179,11 +193,10 @@ class TestSchedule:
         assert len(data["schedule"]) > 0
 
     def test_update_schedule(self, client):
-        response = client.post("/api/v1/fields/field_001/schedule", json={
-            "schedule": [
-                {"day": "sunday", "time": "05:30", "duration_min": 60}
-            ]
-        })
+        response = client.post(
+            "/api/v1/fields/field_001/schedule",
+            json={"schedule": [{"day": "sunday", "time": "05:30", "duration_min": 60}]},
+        )
         assert response.status_code == 200
         assert response.json()["status"] == "updated"
 
@@ -230,10 +243,10 @@ class TestTriggerIrrigation:
     """Test manual irrigation trigger"""
 
     def test_trigger_irrigation(self, client):
-        response = client.post("/api/v1/fields/field_001/trigger", json={
-            "duration_minutes": 45,
-            "zone": "zone_a"
-        })
+        response = client.post(
+            "/api/v1/fields/field_001/trigger",
+            json={"duration_minutes": 45, "zone": "zone_a"},
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "triggered"

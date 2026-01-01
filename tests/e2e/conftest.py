@@ -21,6 +21,7 @@ import uuid
 # E2E Test Configuration - تكوين اختبارات E2E
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.fixture(scope="session")
 def e2e_timeout() -> int:
     """Timeout for E2E tests in seconds"""
@@ -36,6 +37,7 @@ def e2e_retry_count() -> int:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Data Generators - مولدات بيانات الاختبار
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture
 def unique_field_name() -> str:
@@ -70,14 +72,11 @@ def test_field_data(unique_field_name: str) -> Dict[str, Any]:
                     [44.01, 15.0],
                     [44.01, 15.01],
                     [44.0, 15.01],
-                    [44.0, 15.0]
+                    [44.0, 15.0],
                 ]
-            ]
+            ],
         },
-        "location": {
-            "latitude": 15.005,
-            "longitude": 44.005
-        }
+        "location": {"latitude": 15.005, "longitude": 44.005},
     }
 
 
@@ -87,11 +86,7 @@ def test_location_yemen() -> Dict[str, float]:
     Test location in Yemen (Sana'a)
     موقع اختبار في اليمن (صنعاء)
     """
-    return {
-        "latitude": 15.3694,
-        "longitude": 44.1910,
-        "altitude": 2250
-    }
+    return {"latitude": 15.3694, "longitude": 44.1910, "altitude": 2250}
 
 
 @pytest.fixture
@@ -104,7 +99,7 @@ def test_subscription_data() -> Dict[str, Any]:
         "plan": "premium",
         "billing_cycle": "monthly",
         "currency": "YER",
-        "auto_renew": True
+        "auto_renew": True,
     }
 
 
@@ -121,7 +116,7 @@ def test_payment_data() -> Dict[str, Any]:
         "description": "SAHOOL Premium Subscription - Monthly",
         "customer_name": "E2E Test User",
         "customer_email": "e2e-test@sahool.io",
-        "customer_phone": "+967777123456"
+        "customer_phone": "+967777123456",
     }
 
 
@@ -129,13 +124,14 @@ def test_payment_data() -> Dict[str, Any]:
 # Workflow Helper Functions - دوال مساعدة لسير العمل
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 async def wait_for_async_operation(
     client: httpx.AsyncClient,
     check_url: str,
     headers: Dict[str, str],
     expected_status: str = "completed",
     max_attempts: int = 30,
-    delay: float = 2.0
+    delay: float = 2.0,
 ) -> Optional[Dict[str, Any]]:
     """
     Wait for an async operation to complete
@@ -199,6 +195,7 @@ def e2e_headers(test_token: str) -> Dict[str, str]:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Service Availability Checks - فحوصات توفر الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture(scope="session")
 async def ensure_field_ops_ready():
@@ -279,17 +276,14 @@ async def ensure_ai_advisor_ready():
 # Cleanup Fixtures - تنظيف بعد الاختبار
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.fixture
 async def cleanup_test_data():
     """
     Cleanup test data after E2E tests
     تنظيف بيانات الاختبار بعد اختبارات E2E
     """
-    created_resources = {
-        "fields": [],
-        "subscriptions": [],
-        "tasks": []
-    }
+    created_resources = {"fields": [], "subscriptions": [], "tasks": []}
 
     yield created_resources
 

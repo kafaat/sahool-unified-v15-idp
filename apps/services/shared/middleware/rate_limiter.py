@@ -32,8 +32,10 @@ logger = logging.getLogger(__name__)
 # Rate Limit Tiers
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class RateLimitTier(str, Enum):
     """Rate limit tiers for different user/service types."""
+
     FREE = "free"
     STANDARD = "standard"
     PREMIUM = "premium"
@@ -51,6 +53,7 @@ class RateLimitConfig:
         burst_limit: Maximum burst requests (short-term spike)
         enabled: Whether rate limiting is active
     """
+
     requests_per_minute: int = 60
     requests_per_hour: int = 2000
     burst_limit: int = 10
@@ -92,9 +95,11 @@ DEFAULT_TIER_CONFIGS: Dict[RateLimitTier, RateLimitConfig] = {
 # In-Memory Rate Limiter (Development/Fallback)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class RateLimitState:
     """State for a single rate limit window."""
+
     requests: int = 0
     window_start: float = field(default_factory=time.time)
 
@@ -119,23 +124,23 @@ class InMemoryRateLimiter:
             return
 
         # Cleanup minute windows older than 2 minutes
-        expired_minute = [k for k, v in self._minute_windows.items()
-                         if now - v.window_start > 120]
+        expired_minute = [
+            k for k, v in self._minute_windows.items() if now - v.window_start > 120
+        ]
         for key in expired_minute:
             del self._minute_windows[key]
 
         # Cleanup hour windows older than 2 hours
-        expired_hour = [k for k, v in self._hour_windows.items()
-                       if now - v.window_start > 7200]
+        expired_hour = [
+            k for k, v in self._hour_windows.items() if now - v.window_start > 7200
+        ]
         for key in expired_hour:
             del self._hour_windows[key]
 
         self._last_cleanup = now
 
     def check_rate_limit(
-        self,
-        key: str,
-        config: RateLimitConfig
+        self, key: str, config: RateLimitConfig
     ) -> tuple[bool, int, int, int]:
         """Check if request is within rate limits.
 
@@ -191,6 +196,7 @@ class InMemoryRateLimiter:
 # Redis Rate Limiter (Distributed)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class RedisRateLimiter:
     """Redis-backed rate limiter for distributed deployments.
 
@@ -214,6 +220,7 @@ class RedisRateLimiter:
 
         try:
             import redis.asyncio as redis
+
             self._redis = redis.from_url(self._redis_url, decode_responses=True)
             await self._redis.ping()
             self._initialized = True
@@ -224,9 +231,7 @@ class RedisRateLimiter:
             logger.warning(f"Redis connection failed: {e}, falling back to in-memory")
 
     async def check_rate_limit(
-        self,
-        key: str,
-        config: RateLimitConfig
+        self, key: str, config: RateLimitConfig
     ) -> tuple[bool, int, int, int]:
         """Check if request is within rate limits using Redis.
 
@@ -286,6 +291,7 @@ class RedisRateLimiter:
 # Rate Limiter Facade
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class RateLimiter:
     """Unified rate limiter that uses Redis when available, else in-memory.
 
@@ -317,9 +323,7 @@ class RateLimiter:
         return self._tier_configs.get(tier, self._tier_configs[RateLimitTier.STANDARD])
 
     async def check(
-        self,
-        key: str,
-        tier: RateLimitTier = RateLimitTier.STANDARD
+        self, key: str, tier: RateLimitTier = RateLimitTier.STANDARD
     ) -> tuple[bool, int, int, int]:
         """Check rate limit for a key.
 
@@ -345,6 +349,7 @@ class RateLimiter:
 # FastAPI Middleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """FastAPI middleware for automatic rate limiting."""
 
@@ -360,7 +365,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.limiter = limiter
         self.key_func = key_func or self._default_key_func
         self.tier_func = tier_func or self._default_tier_func
-        self.exclude_paths = exclude_paths or ["/healthz", "/readyz", "/livez", "/metrics"]
+        self.exclude_paths = exclude_paths or [
+            "/healthz",
+            "/readyz",
+            "/livez",
+            "/metrics",
+        ]
 
     def _default_key_func(self, request: Request) -> str:
         """Default: Use client IP as rate limit key."""
@@ -419,6 +429,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def get_rate_limit_headers(remaining: int, limit: int, reset: int) -> Dict[str, str]:
     """Generate rate limit headers for HTTP response."""

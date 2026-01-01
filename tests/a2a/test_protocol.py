@@ -15,7 +15,7 @@ import sys
 import os
 
 # Add shared path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 
 from a2a.protocol import (
     TaskMessage,

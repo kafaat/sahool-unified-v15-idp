@@ -18,7 +18,7 @@ class TestAlertCreation:
             type="ndvi_low",
             severity="warning",
             field_id="field-123",
-            message="NDVI dropped below threshold"
+            message="NDVI dropped below threshold",
         )
 
         assert alert["id"] is not None
@@ -29,18 +29,14 @@ class TestAlertCreation:
 
     def test_create_alert_with_metadata(self):
         """Test creating alert with additional metadata."""
-        metadata = {
-            "current_ndvi": 0.15,
-            "threshold": 0.25,
-            "zone": "Zone A"
-        }
+        metadata = {"current_ndvi": 0.15, "threshold": 0.25, "zone": "Zone A"}
 
         alert = self._create_alert(
             type="ndvi_low",
             severity="warning",
             field_id="field-123",
             message="Low NDVI detected",
-            metadata=metadata
+            metadata=metadata,
         )
 
         assert alert["metadata"] == metadata
@@ -52,44 +48,37 @@ class TestAlertCreation:
             type="weather_alert",
             severity="info",
             field_id="field-456",
-            message="Rain expected"
+            message="Rain expected",
         )
 
         assert "created_at" in alert
         assert isinstance(alert["created_at"], datetime)
 
-    @pytest.mark.parametrize("severity,is_valid", [
-        ("info", True),
-        ("warning", True),
-        ("critical", True),
-        ("invalid", False),
-    ])
+    @pytest.mark.parametrize(
+        "severity,is_valid",
+        [
+            ("info", True),
+            ("warning", True),
+            ("critical", True),
+            ("invalid", False),
+        ],
+    )
     def test_validate_severity(self, severity: str, is_valid: bool):
         """Test severity validation."""
         if is_valid:
             alert = self._create_alert(
-                type="test",
-                severity=severity,
-                field_id="field-1",
-                message="Test"
+                type="test", severity=severity, field_id="field-1", message="Test"
             )
             assert alert["severity"] == severity
         else:
             with pytest.raises(ValueError):
                 self._create_alert(
-                    type="test",
-                    severity=severity,
-                    field_id="field-1",
-                    message="Test"
+                    type="test", severity=severity, field_id="field-1", message="Test"
                 )
 
     @staticmethod
     def _create_alert(
-        type: str,
-        severity: str,
-        field_id: str,
-        message: str,
-        metadata: dict = None
+        type: str, severity: str, field_id: str, message: str, metadata: dict = None
     ) -> dict:
         """Create a new alert."""
         valid_severities = ["info", "warning", "critical"]
@@ -179,11 +168,7 @@ class TestAlertFiltering:
 
     def test_filter_multiple_criteria(self, sample_alerts):
         """Test filtering with multiple criteria."""
-        result = self._filter_alerts(
-            sample_alerts,
-            field_id="field-1",
-            status="active"
-        )
+        result = self._filter_alerts(sample_alerts, field_id="field-1", status="active")
 
         assert len(result) == 2
 
@@ -193,7 +178,7 @@ class TestAlertFiltering:
         severity: str = None,
         field_id: str = None,
         status: str = None,
-        type: str = None
+        type: str = None,
     ) -> list:
         """Filter alerts based on criteria."""
         result = alerts
@@ -262,9 +247,7 @@ class TestAlertActions:
         }
 
         result = self._resolve_alert(
-            alert,
-            user_id="user-789",
-            note="Issue fixed by irrigation"
+            alert, user_id="user-789", note="Issue fixed by irrigation"
         )
 
         assert result["status"] == "resolved"

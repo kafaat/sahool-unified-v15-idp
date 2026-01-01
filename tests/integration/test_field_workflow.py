@@ -54,9 +54,7 @@ async def test_create_field_workflow(
 
     # Act - تنفيذ عملية إنشاء الحقل
     response = await http_client.post(
-        f"{field_service_url}/fields",
-        json=field_data,
-        headers=headers
+        f"{field_service_url}/fields", json=field_data, headers=headers
     )
 
     # Assert - التحقق من النتائج
@@ -75,8 +73,7 @@ async def test_create_field_workflow(
 
     # Step 2: Retrieve field details - استرجاع تفاصيل الحقل
     get_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}",
-        headers=headers
+        f"{field_service_url}/fields/{field_id}", headers=headers
     )
 
     assert get_response.status_code == 200
@@ -90,8 +87,7 @@ async def test_create_field_workflow(
     # Step 3: Calculate field area from boundary - حساب مساحة الحقل
     if field_data.get("boundary"):
         area_response = await http_client.get(
-            f"{field_service_url}/fields/{field_id}/area",
-            headers=headers
+            f"{field_service_url}/fields/{field_id}/area", headers=headers
         )
 
         assert area_response.status_code == 200
@@ -129,22 +125,16 @@ async def test_link_field_to_satellite_data(
     # Add boundary coordinates for satellite analysis
     field_data["boundary"] = {
         "type": "Polygon",
-        "coordinates": [[
-            [44.0, 15.0],
-            [44.01, 15.0],
-            [44.01, 15.01],
-            [44.0, 15.01],
-            [44.0, 15.0]
-        ]]
+        "coordinates": [
+            [[44.0, 15.0], [44.01, 15.0], [44.01, 15.01], [44.0, 15.01], [44.0, 15.0]]
+        ],
     }
 
     headers = {**auth_headers, "X-Tenant-Id": "test-tenant-123"}
 
     # Step 1: Create field - إنشاء الحقل
     field_response = await http_client.post(
-        f"{field_service_url}/fields",
-        json=field_data,
-        headers=headers
+        f"{field_service_url}/fields", json=field_data, headers=headers
     )
 
     assert field_response.status_code == 201
@@ -157,7 +147,7 @@ async def test_link_field_to_satellite_data(
         "geometry": field_data["boundary"],
         "start_date": (date.today() - timedelta(days=30)).isoformat(),
         "end_date": date.today().isoformat(),
-        "analysis_type": "ndvi"
+        "analysis_type": "ndvi",
     }
 
     try:
@@ -165,7 +155,7 @@ async def test_link_field_to_satellite_data(
             f"{satellite_url}/v1/analysis",
             json=satellite_request,
             headers=headers,
-            timeout=30.0
+            timeout=30.0,
         )
 
         # Satellite service may not be running in all test environments
@@ -209,9 +199,7 @@ async def test_calculate_ndvi_for_field(
 
     # Step 1: Create field - إنشاء الحقل
     field_response = await http_client.post(
-        f"{field_service_url}/fields",
-        json=field_data,
-        headers=headers
+        f"{field_service_url}/fields", json=field_data, headers=headers
     )
 
     assert field_response.status_code == 201
@@ -228,13 +216,13 @@ async def test_calculate_ndvi_for_field(
             "min": 0.45,
             "max": 0.85,
             "std": 0.08,
-            "cloud_cover": 5.0 + (i * 2)
+            "cloud_cover": 5.0 + (i * 2),
         }
 
         add_response = await http_client.post(
             f"{field_service_url}/fields/{field_id}/ndvi",
             json=ndvi_record,
-            headers=headers
+            headers=headers,
         )
 
         assert add_response.status_code == 201
@@ -242,8 +230,7 @@ async def test_calculate_ndvi_for_field(
 
     # Step 3: Retrieve NDVI history - استرجاع سجل NDVI
     history_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/ndvi/history",
-        headers=headers
+        f"{field_service_url}/fields/{field_id}/ndvi/history", headers=headers
     )
 
     assert history_response.status_code == 200
@@ -256,8 +243,7 @@ async def test_calculate_ndvi_for_field(
 
     # Step 4: Get field details with NDVI trend - الحصول على تفاصيل الحقل مع اتجاه NDVI
     field_details_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}",
-        headers=headers
+        f"{field_service_url}/fields/{field_id}", headers=headers
     )
 
     assert field_details_response.status_code == 200
@@ -308,9 +294,7 @@ async def test_crop_season_workflow(
 
     # Step 1: Create field
     field_response = await http_client.post(
-        f"{field_service_url}/fields",
-        json=field_data,
-        headers=headers
+        f"{field_service_url}/fields", json=field_data, headers=headers
     )
 
     assert field_response.status_code == 201
@@ -323,13 +307,13 @@ async def test_crop_season_workflow(
         "planting_date": (date.today() - timedelta(days=60)).isoformat(),
         "expected_harvest": (date.today() + timedelta(days=30)).isoformat(),
         "seed_source": "Local supplier",
-        "notes": "Integration test season"
+        "notes": "Integration test season",
     }
 
     season_response = await http_client.post(
         f"{field_service_url}/fields/{field_id}/crops",
         json=season_data,
-        headers=headers
+        headers=headers,
     )
 
     assert season_response.status_code == 201
@@ -341,8 +325,7 @@ async def test_crop_season_workflow(
 
     # Step 3: Get crop history - الحصول على سجل المحاصيل
     history_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/crops/history",
-        headers=headers
+        f"{field_service_url}/fields/{field_id}/crops/history", headers=headers
     )
 
     assert history_response.status_code == 200
@@ -356,13 +339,13 @@ async def test_crop_season_workflow(
     close_data = {
         "harvest_date": date.today().isoformat(),
         "actual_yield_kg": 2500.0,
-        "notes": "Good harvest season"
+        "notes": "Good harvest season",
     }
 
     close_response = await http_client.post(
         f"{field_service_url}/fields/{field_id}/crops/current/close",
         json=close_data,
-        headers=headers
+        headers=headers,
     )
 
     assert close_response.status_code == 200
@@ -406,9 +389,7 @@ async def test_field_zone_workflow(
 
     # Step 1: Create field
     field_response = await http_client.post(
-        f"{field_service_url}/fields",
-        json=field_data,
-        headers=headers
+        f"{field_service_url}/fields", json=field_data, headers=headers
     )
 
     assert field_response.status_code == 201
@@ -420,22 +401,22 @@ async def test_field_zone_workflow(
         "name_ar": "المنطقة الشمالية",
         "boundary": {
             "type": "Polygon",
-            "coordinates": [[
-                [44.0, 15.0],
-                [44.005, 15.0],
-                [44.005, 15.005],
-                [44.0, 15.005],
-                [44.0, 15.0]
-            ]]
+            "coordinates": [
+                [
+                    [44.0, 15.0],
+                    [44.005, 15.0],
+                    [44.005, 15.005],
+                    [44.0, 15.005],
+                    [44.0, 15.0],
+                ]
+            ],
         },
         "purpose": "irrigation",
-        "notes": "Test zone for irrigation management"
+        "notes": "Test zone for irrigation management",
     }
 
     zone_response = await http_client.post(
-        f"{field_service_url}/fields/{field_id}/zones",
-        json=zone_data,
-        headers=headers
+        f"{field_service_url}/fields/{field_id}/zones", json=zone_data, headers=headers
     )
 
     assert zone_response.status_code == 201
@@ -448,8 +429,7 @@ async def test_field_zone_workflow(
 
     # Step 3: List zones - قائمة المناطق
     list_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/zones",
-        headers=headers
+        f"{field_service_url}/fields/{field_id}/zones", headers=headers
     )
 
     assert list_response.status_code == 200
@@ -461,8 +441,7 @@ async def test_field_zone_workflow(
 
     # Step 4: Delete zone - حذف المنطقة
     delete_response = await http_client.delete(
-        f"{field_service_url}/zones/{zone_id}",
-        headers=headers
+        f"{field_service_url}/zones/{zone_id}", headers=headers
     )
 
     assert delete_response.status_code == 200
@@ -504,9 +483,7 @@ async def test_field_statistics(
 
     # Create field
     field_response = await http_client.post(
-        f"{field_service_url}/fields",
-        json=field_data,
-        headers=headers
+        f"{field_service_url}/fields", json=field_data, headers=headers
     )
 
     assert field_response.status_code == 201
@@ -514,8 +491,7 @@ async def test_field_statistics(
 
     # Get field statistics - الحصول على إحصائيات الحقل
     stats_response = await http_client.get(
-        f"{field_service_url}/fields/{field_id}/stats",
-        headers=headers
+        f"{field_service_url}/fields/{field_id}/stats", headers=headers
     )
 
     assert stats_response.status_code == 200

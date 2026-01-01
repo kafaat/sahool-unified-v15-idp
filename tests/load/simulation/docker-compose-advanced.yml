@@ -1,0 +1,641 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - Advanced Load Testing Environment
+# بيئة اختبار الحمل المتقدمة لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Features:
+# - Scalable application instances (5 replicas)
+# - Prometheus + Alertmanager for monitoring & alerts
+# - Advanced k6 scenarios (stress, spike, chaos)
+# - Auto-scaling simulation
+# - Support for 15-100+ virtual agents
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: '3.8'
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# YAML ANCHORS - Common configurations
+# ═══════════════════════════════════════════════════════════════════════════════
+
+x-app-common: &app-common
+  build:
+    context: ../../..
+    dockerfile: apps/services/field-ops/Dockerfile
+  restart: unless-stopped
+  networks:
+    - sahool-advanced-network
+  depends_on:
+    sahool-db:
+      condition: service_healthy
+    sahool-redis:
+      condition: service_healthy
+
+x-app-env: &app-env
+  NODE_ENV: production
+  LOG_LEVEL: info
+  DATABASE_URL: postgresql://${POSTGRES_USER:-sahool_admin}:${POSTGRES_PASSWORD:-advanced_pass_123}@sahool-pgbouncer:6432/${POSTGRES_DB:-sahool_advanced}
+  DB_HOST: sahool-pgbouncer
+  DB_PORT: "6432"
+  DB_USER: ${POSTGRES_USER:-sahool_admin}
+  DB_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+  DB_NAME: ${POSTGRES_DB:-sahool_advanced}
+  REDIS_URL: redis://:${REDIS_PASSWORD:-advanced_redis_123}@sahool-redis:6379
+  REDIS_HOST: sahool-redis
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-advanced_redis_123}
+  SESSION_STORE_TYPE: redis
+  SESSION_SECRET: advanced_session_secret_key_456
+  DB_POOL_MIN: "10"
+  DB_POOL_MAX: "50"
+  SERVER_MAX_THREADS: "400"
+  SERVER_MAX_CONNECTIONS: "20000"
+  JWT_SECRET: advanced_jwt_secret_key_789
+  JWT_EXPIRY: "7200"
+  DEFAULT_TENANT_ID: tenant_advanced
+
+x-deploy-limits: &deploy-limits
+  resources:
+    limits:
+      cpus: '2'
+      memory: 2G
+    reservations:
+      cpus: '0.5'
+      memory: 512M
+
+networks:
+  sahool-advanced-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+
+volumes:
+  adv_postgres_data:
+  adv_redis_data:
+  adv_influxdb_data:
+  adv_grafana_data:
+  adv_prometheus_data:
+  adv_alertmanager_data:
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DATABASE LAYER - قاعدة البيانات
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-db:
+    image: postgis/postgis:16-3.4
+    container_name: sahool_db_advanced
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sahool_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+      POSTGRES_DB: ${POSTGRES_DB:-sahool_advanced}
+    command: >
+      postgres
+      -c max_connections=500
+      -c shared_buffers=512MB
+      -c effective_cache_size=1536MB
+      -c maintenance_work_mem=128MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=32MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=8MB
+      -c min_wal_size=2GB
+      -c max_wal_size=8GB
+      -c log_statement=none
+      -c log_min_duration_statement=500
+    volumes:
+      - adv_postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:5434:5432"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sahool_admin}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    deploy:
+      <<: *deploy-limits
+    restart: unless-stopped
+
+  sahool-pgbouncer:
+    image: edoburu/pgbouncer:1.21.0
+    container_name: sahool_pgbouncer_advanced
+    environment:
+      DB_HOST: sahool-db
+      DB_PORT: "5432"
+      DB_USER: ${POSTGRES_USER:-sahool_admin}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-advanced_pass_123}
+      DB_NAME: ${POSTGRES_DB:-sahool_advanced}
+      POOL_MODE: transaction
+      MAX_DB_CONNECTIONS: 300
+      DEFAULT_POOL_SIZE: 50
+      MIN_POOL_SIZE: 20
+      MAX_CLIENT_CONN: 2000
+      QUERY_TIMEOUT: 180
+      AUTH_TYPE: md5
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.11
+    depends_on:
+      sahool-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CACHE LAYER - طبقة التخزين المؤقت
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-redis:
+    image: redis:7-alpine
+    container_name: sahool_redis_advanced
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD:-advanced_redis_123}
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 60
+      --maxclients 20000
+    volumes:
+      - adv_redis_data:/data
+    ports:
+      - "127.0.0.1:6381:6379"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.12
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-advanced_redis_123}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # LOAD BALANCER - موازن الحمل
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-nginx:
+    image: nginx:1.25-alpine
+    container_name: sahool_nginx_advanced
+    ports:
+      - "8081:80"
+      - "8444:443"
+    volumes:
+      - ./config/nginx-advanced.conf:/etc/nginx/nginx.conf:ro
+      - ./config/proxy-params.conf:/etc/nginx/conf.d/proxy-params.conf:ro
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.20
+    depends_on:
+      - sahool-app-1
+      - sahool-app-2
+      - sahool-app-3
+      - sahool-app-4
+      - sahool-app-5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 512M
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # APPLICATION INSTANCES (5 replicas) - نسخ التطبيق
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-app-1:
+    <<: *app-common
+    container_name: sahool_app_1_advanced
+    environment:
+      <<: *app-env
+      INSTANCE_ID: "1"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.100
+    deploy:
+      <<: *deploy-limits
+
+  sahool-app-2:
+    <<: *app-common
+    container_name: sahool_app_2_advanced
+    environment:
+      <<: *app-env
+      INSTANCE_ID: "2"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.101
+    deploy:
+      <<: *deploy-limits
+
+  sahool-app-3:
+    <<: *app-common
+    container_name: sahool_app_3_advanced
+    environment:
+      <<: *app-env
+      INSTANCE_ID: "3"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.102
+    deploy:
+      <<: *deploy-limits
+
+  sahool-app-4:
+    <<: *app-common
+    container_name: sahool_app_4_advanced
+    environment:
+      <<: *app-env
+      INSTANCE_ID: "4"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.103
+    deploy:
+      <<: *deploy-limits
+
+  sahool-app-5:
+    <<: *app-common
+    container_name: sahool_app_5_advanced
+    environment:
+      <<: *app-env
+      INSTANCE_ID: "5"
+      SERVER_PORT: "8080"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.104
+    deploy:
+      <<: *deploy-limits
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # MONITORING - المراقبة
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: sahool_prometheus_advanced
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alert-rules.yml:/etc/prometheus/alert-rules.yml:ro
+      - adv_prometheus_data:/prometheus
+    ports:
+      - "9091:9090"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.30
+    restart: unless-stopped
+
+  sahool-alertmanager:
+    image: prom/alertmanager:v0.26.0
+    container_name: sahool_alertmanager_advanced
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - adv_alertmanager_data:/alertmanager
+    ports:
+      - "9094:9093"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.31
+    restart: unless-stopped
+
+  sahool-influxdb:
+    image: influxdb:2.7-alpine
+    container_name: sahool_influxdb_advanced
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: advancedpassword123
+      DOCKER_INFLUXDB_INIT_ORG: sahool
+      DOCKER_INFLUXDB_INIT_BUCKET: k6
+      DOCKER_INFLUXDB_INIT_RETENTION: 14d
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: sahool-advanced-k6-token
+    volumes:
+      - adv_influxdb_data:/var/lib/influxdb2
+    ports:
+      - "127.0.0.1:8088:8086"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.32
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  sahool-grafana:
+    image: grafana/grafana:10.2.0
+    container_name: sahool_grafana_advanced
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-piechart-panel
+    volumes:
+      - adv_grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3032:3000"
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.33
+    depends_on:
+      - sahool-influxdb
+      - sahool-prometheus
+    restart: unless-stopped
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # K6 LOAD TESTING - اختبار الحمل
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # Standard Test (20 agents)
+  sahool-k6-standard:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_standard
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      AGENT_COUNT: "20"
+      TEST_TYPE: "standard"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.40
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/advanced-scenarios.js"]
+    profiles:
+      - standard-test
+
+  # Stress Test (50+ agents)
+  sahool-k6-stress:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_stress
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      AGENT_COUNT: "50"
+      TEST_TYPE: "stress"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.41
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/advanced-scenarios.js"]
+    profiles:
+      - stress-test
+
+  # Spike Test (sudden load)
+  sahool-k6-spike:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_spike
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      AGENT_COUNT: "30"
+      TEST_TYPE: "spike"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.42
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/advanced-scenarios.js"]
+    profiles:
+      - spike-test
+
+  # Chaos Test
+  sahool-k6-chaos:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_chaos
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      AGENT_COUNT: "30"
+      CHAOS_LEVEL: "medium"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.43
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/chaos-testing.js"]
+    profiles:
+      - chaos-test
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Mobile App Simulation (15-50+ agents)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-mobile:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_mobile
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      MOBILE_VUS: "${MOBILE_VUS:-20}"
+      TEST_DURATION: "${TEST_DURATION:-5m}"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.44
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/mobile-app-simulation.js"]
+    profiles:
+      - mobile-test
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Web Dashboard Simulation (15-30+ agents)
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-web:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_web
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      WEB_VUS: "${WEB_VUS:-15}"
+      TEST_DURATION: "${TEST_DURATION:-5m}"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.45
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/web-dashboard-simulation.js"]
+    profiles:
+      - web-test
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Multi-Client Realistic Simulation (20-100+ agents)
+  # 60% Mobile + 30% Web + 10% API
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-multiclient:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_multiclient
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      TOTAL_VUS: "${TOTAL_VUS:-20}"
+      TEST_DURATION: "${TEST_DURATION:-5m}"
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.46
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/multi-client-simulation.js"]
+    profiles:
+      - multiclient-test
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: Full Production Simulation (50-100+ agents)
+  # Combined stress + multi-client
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-production:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_production
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      TOTAL_VUS: "${TOTAL_VUS:-50}"
+      TEST_DURATION: "${TEST_DURATION:-10m}"
+      ENVIRONMENT: "production-sim"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.47
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/multi-client-simulation.js"]
+    profiles:
+      - production-test
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# USAGE:
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Start infrastructure:
+#   docker-compose -f docker-compose-advanced.yml up -d sahool-db sahool-pgbouncer sahool-redis sahool-prometheus sahool-alertmanager sahool-influxdb sahool-grafana
+#
+# Start with all 5 app instances:
+#   docker-compose -f docker-compose-advanced.yml up -d
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# STANDARD TESTS:
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# Run Standard Test (20 agents):
+#   docker-compose -f docker-compose-advanced.yml --profile standard-test run --rm sahool-k6-standard
+#
+# Run Stress Test (50+ agents):
+#   docker-compose -f docker-compose-advanced.yml --profile stress-test run --rm sahool-k6-stress
+#
+# Run Spike Test:
+#   docker-compose -f docker-compose-advanced.yml --profile spike-test run --rm sahool-k6-spike
+#
+# Run Chaos Test:
+#   docker-compose -f docker-compose-advanced.yml --profile chaos-test run --rm sahool-k6-chaos
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# NEW CLIENT-SPECIFIC TESTS:
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# Run Mobile App Simulation (iOS + Android, 15-50+ agents):
+#   MOBILE_VUS=20 docker-compose -f docker-compose-advanced.yml --profile mobile-test run --rm sahool-k6-mobile
+#
+# Run Web Dashboard Simulation (Admin + Manager + Analyst, 15-30+ agents):
+#   WEB_VUS=15 docker-compose -f docker-compose-advanced.yml --profile web-test run --rm sahool-k6-web
+#
+# Run Multi-Client Realistic Simulation (60% Mobile + 30% Web + 10% API):
+#   TOTAL_VUS=20 docker-compose -f docker-compose-advanced.yml --profile multiclient-test run --rm sahool-k6-multiclient
+#
+# Run Full Production Simulation (50-100+ agents):
+#   TOTAL_VUS=50 docker-compose -f docker-compose-advanced.yml --profile production-test run --rm sahool-k6-production
+#
+# ═════════════════════════════════════════════════════════════════════════════
+# ACCESS POINTS:
+# ═════════════════════════════════════════════════════════════════════════════
+#
+#   - Grafana: http://localhost:3032 (admin/admin)
+#   - Prometheus: http://localhost:9091
+#   - Alertmanager: http://localhost:9094
+#   - App Load Balancer: http://localhost:8081
+#   - InfluxDB: http://localhost:8088
+#
+# ═══════════════════════════════════════════════════════════════════════════════

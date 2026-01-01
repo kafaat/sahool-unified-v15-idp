@@ -74,13 +74,13 @@ class CropProfitability:
     profit_per_ha: float
 
     # Ratios
-    break_even_yield: float       # kg/ha needed to break even
-    actual_yield: float           # kg/ha achieved
-    return_on_investment: float   # ROI %
+    break_even_yield: float  # kg/ha needed to break even
+    actual_yield: float  # kg/ha achieved
+    return_on_investment: float  # ROI %
 
     # Comparison
-    vs_regional_average: float    # % above/below average
-    rank_in_portfolio: int        # Rank among farmer's crops
+    vs_regional_average: float  # % above/below average
+    rank_in_portfolio: int  # Rank among farmer's crops
 
 
 @dataclass
@@ -107,40 +107,40 @@ class ProfitabilityAnalyzer:
     # Updated for 2025 Yemen market conditions
     REGIONAL_COSTS = {
         "wheat": {
-            "seeds": 75000,       # ~30 kg/ha @ 2500 YER/kg
+            "seeds": 75000,  # ~30 kg/ha @ 2500 YER/kg
             "fertilizer": 120000,  # NPK and urea
             "pesticides": 45000,
             "irrigation": 80000,
-            "labor": 150000,      # Planting, weeding, harvesting
+            "labor": 150000,  # Planting, weeding, harvesting
             "machinery": 100000,  # Tractor rental, threshing
-            "land": 50000,        # Rental if applicable
+            "land": 50000,  # Rental if applicable
             "marketing": 30000,
-            "other": 20000
+            "other": 20000,
         },
         "tomato": {
-            "seeds": 45000,       # Seedlings
+            "seeds": 45000,  # Seedlings
             "fertilizer": 200000,  # High nutrient demand
             "pesticides": 120000,  # Disease prone
             "irrigation": 180000,  # High water needs
-            "labor": 300000,      # Labor intensive
+            "labor": 300000,  # Labor intensive
             "machinery": 80000,
             "land": 60000,
             "marketing": 50000,
-            "other": 30000
+            "other": 30000,
         },
         "sorghum": {
             "seeds": 30000,
             "fertilizer": 60000,
             "pesticides": 20000,
-            "irrigation": 40000,   # Drought tolerant
+            "irrigation": 40000,  # Drought tolerant
             "labor": 120000,
             "machinery": 70000,
             "land": 40000,
             "marketing": 25000,
-            "other": 15000
+            "other": 15000,
         },
         "potato": {
-            "seeds": 180000,      # Seed tubers expensive
+            "seeds": 180000,  # Seed tubers expensive
             "fertilizer": 150000,
             "pesticides": 100000,
             "irrigation": 140000,
@@ -148,7 +148,7 @@ class ProfitabilityAnalyzer:
             "machinery": 90000,
             "land": 55000,
             "marketing": 45000,
-            "other": 25000
+            "other": 25000,
         },
         "onion": {
             "seeds": 50000,
@@ -159,29 +159,29 @@ class ProfitabilityAnalyzer:
             "machinery": 60000,
             "land": 50000,
             "marketing": 40000,
-            "other": 20000
+            "other": 20000,
         },
         "coffee": {
-            "seeds": 100000,      # Or seedlings for new plants
+            "seeds": 100000,  # Or seedlings for new plants
             "fertilizer": 180000,
             "pesticides": 90000,
             "irrigation": 100000,
-            "labor": 350000,      # Very labor intensive
-            "machinery": 50000,   # Minimal machinery
+            "labor": 350000,  # Very labor intensive
+            "machinery": 50000,  # Minimal machinery
             "land": 80000,
             "marketing": 70000,
-            "other": 40000
+            "other": 40000,
         },
         "qat": {
             "seeds": 120000,
             "fertilizer": 200000,
             "pesticides": 100000,
             "irrigation": 150000,
-            "labor": 400000,      # Extremely labor intensive
+            "labor": 400000,  # Extremely labor intensive
             "machinery": 40000,
             "land": 100000,
             "marketing": 60000,
-            "other": 50000
+            "other": 50000,
         },
         "barley": {
             "seeds": 70000,
@@ -192,7 +192,7 @@ class ProfitabilityAnalyzer:
             "machinery": 90000,
             "land": 45000,
             "marketing": 28000,
-            "other": 18000
+            "other": 18000,
         },
         "maize": {
             "seeds": 55000,
@@ -203,7 +203,7 @@ class ProfitabilityAnalyzer:
             "machinery": 85000,
             "land": 50000,
             "marketing": 35000,
-            "other": 22000
+            "other": 22000,
         },
         "cucumber": {
             "seeds": 40000,
@@ -214,7 +214,7 @@ class ProfitabilityAnalyzer:
             "machinery": 50000,
             "land": 55000,
             "marketing": 45000,
-            "other": 28000
+            "other": 28000,
         },
         "watermelon": {
             "seeds": 35000,
@@ -225,10 +225,10 @@ class ProfitabilityAnalyzer:
             "machinery": 60000,
             "land": 50000,
             "marketing": 50000,
-            "other": 25000
+            "other": 25000,
         },
         "mango": {
-            "seeds": 150000,      # For new orchards
+            "seeds": 150000,  # For new orchards
             "fertilizer": 160000,
             "pesticides": 95000,
             "irrigation": 130000,
@@ -236,40 +236,40 @@ class ProfitabilityAnalyzer:
             "machinery": 55000,
             "land": 90000,
             "marketing": 65000,
-            "other": 35000
-        }
+            "other": 35000,
+        },
     }
 
     # Regional average prices (YER/kg) - 2025 market prices
     REGIONAL_PRICES = {
-        "wheat": 550,          # Staple grain
-        "tomato": 280,         # Fresh vegetable
-        "sorghum": 400,        # Feed grain
+        "wheat": 550,  # Staple grain
+        "tomato": 280,  # Fresh vegetable
+        "sorghum": 400,  # Feed grain
         "potato": 350,
         "onion": 300,
-        "coffee": 8500,        # Premium Yemen coffee
-        "qat": 3500,          # High value cash crop
+        "coffee": 8500,  # Premium Yemen coffee
+        "qat": 3500,  # High value cash crop
         "barley": 480,
         "maize": 520,
         "cucumber": 250,
         "watermelon": 180,
-        "mango": 800
+        "mango": 800,
     }
 
     # Regional average yields (kg/ha) - Yemen conditions
     REGIONAL_YIELDS = {
         "wheat": 2800,
-        "tomato": 25000,      # Greenhouse can be much higher
+        "tomato": 25000,  # Greenhouse can be much higher
         "sorghum": 2200,
         "potato": 18000,
         "onion": 22000,
-        "coffee": 800,        # Mature trees
+        "coffee": 800,  # Mature trees
         "qat": 3500,
         "barley": 2500,
         "maize": 3200,
         "cucumber": 20000,
         "watermelon": 30000,
-        "mango": 12000        # Mature trees
+        "mango": 12000,  # Mature trees
     }
 
     # Crop names in Arabic
@@ -285,7 +285,7 @@ class ProfitabilityAnalyzer:
         "maize": "ذرة شامية",
         "cucumber": "خيار",
         "watermelon": "بطيخ",
-        "mango": "مانجو"
+        "mango": "مانجو",
     }
 
     # Crop names in English
@@ -301,7 +301,7 @@ class ProfitabilityAnalyzer:
         "maize": "Maize",
         "cucumber": "Cucumber",
         "watermelon": "Watermelon",
-        "mango": "Mango"
+        "mango": "Mango",
     }
 
     def __init__(self, db_pool=None):
@@ -314,7 +314,7 @@ class ProfitabilityAnalyzer:
         crop_code: str,
         area_ha: float,
         costs: Optional[List[Dict]] = None,
-        revenues: Optional[List[Dict]] = None
+        revenues: Optional[List[Dict]] = None,
     ) -> CropProfitability:
         """
         Analyze profitability of a single crop season.
@@ -330,44 +330,52 @@ class ProfitabilityAnalyzer:
         cost_items = []
         if costs:
             for cost_dict in costs:
-                cost_items.append(CostItem(
-                    category=CostCategory(cost_dict.get("category", "other")),
-                    description=cost_dict["description"],
-                    amount=cost_dict["amount"],
-                    unit=cost_dict.get("unit", "unit"),
-                    quantity=cost_dict.get("quantity", 1.0),
-                    unit_cost=cost_dict.get("unit_cost", cost_dict["amount"]),
-                    total_cost=cost_dict["amount"]
-                ))
+                cost_items.append(
+                    CostItem(
+                        category=CostCategory(cost_dict.get("category", "other")),
+                        description=cost_dict["description"],
+                        amount=cost_dict["amount"],
+                        unit=cost_dict.get("unit", "unit"),
+                        quantity=cost_dict.get("quantity", 1.0),
+                        unit_cost=cost_dict.get("unit_cost", cost_dict["amount"]),
+                        total_cost=cost_dict["amount"],
+                    )
+                )
             total_costs = sum(item.total_cost for item in cost_items)
         else:
             # Use regional estimates
-            regional_costs = self.REGIONAL_COSTS.get(crop_code, self.REGIONAL_COSTS["wheat"])
+            regional_costs = self.REGIONAL_COSTS.get(
+                crop_code, self.REGIONAL_COSTS["wheat"]
+            )
             for category, cost_per_ha in regional_costs.items():
                 cost = cost_per_ha * area_ha
-                cost_items.append(CostItem(
-                    category=CostCategory(category),
-                    description=f"{category.title()} costs",
-                    amount=cost,
-                    unit="YER",
-                    quantity=area_ha,
-                    unit_cost=cost_per_ha,
-                    total_cost=cost
-                ))
+                cost_items.append(
+                    CostItem(
+                        category=CostCategory(category),
+                        description=f"{category.title()} costs",
+                        amount=cost,
+                        unit="YER",
+                        quantity=area_ha,
+                        unit_cost=cost_per_ha,
+                        total_cost=cost,
+                    )
+                )
             total_costs = sum(item.total_cost for item in cost_items)
 
         # Process revenues
         revenue_items = []
         if revenues:
             for rev_dict in revenues:
-                revenue_items.append(RevenueItem(
-                    description=rev_dict["description"],
-                    quantity=rev_dict["quantity"],
-                    unit=rev_dict.get("unit", "kg"),
-                    unit_price=rev_dict["unit_price"],
-                    total_revenue=rev_dict["quantity"] * rev_dict["unit_price"],
-                    grade=rev_dict.get("grade")
-                ))
+                revenue_items.append(
+                    RevenueItem(
+                        description=rev_dict["description"],
+                        quantity=rev_dict["quantity"],
+                        unit=rev_dict.get("unit", "kg"),
+                        unit_price=rev_dict["unit_price"],
+                        total_revenue=rev_dict["quantity"] * rev_dict["unit_price"],
+                        grade=rev_dict.get("grade"),
+                    )
+                )
             total_revenue = sum(item.total_revenue for item in revenue_items)
             actual_yield = sum(item.quantity for item in revenue_items) / area_ha
         else:
@@ -379,21 +387,25 @@ class ProfitabilityAnalyzer:
             total_revenue = total_yield * regional_price
             actual_yield = regional_yield
 
-            revenue_items.append(RevenueItem(
-                description=f"{crop_name_en} harvest",
-                quantity=total_yield,
-                unit="kg",
-                unit_price=regional_price,
-                total_revenue=total_revenue,
-                grade="standard"
-            ))
+            revenue_items.append(
+                RevenueItem(
+                    description=f"{crop_name_en} harvest",
+                    quantity=total_yield,
+                    unit="kg",
+                    unit_price=regional_price,
+                    total_revenue=total_revenue,
+                    grade="standard",
+                )
+            )
 
         # Calculate profitability metrics
         cost_per_ha = total_costs / area_ha if area_ha > 0 else 0
         revenue_per_ha = total_revenue / area_ha if area_ha > 0 else 0
 
         gross_profit = total_revenue - total_costs
-        gross_margin_percent = (gross_profit / total_revenue * 100) if total_revenue > 0 else 0
+        gross_margin_percent = (
+            (gross_profit / total_revenue * 100) if total_revenue > 0 else 0
+        )
 
         # For this simple model, net profit = gross profit (no separate overhead)
         net_profit = gross_profit
@@ -401,18 +413,30 @@ class ProfitabilityAnalyzer:
         profit_per_ha = net_profit / area_ha if area_ha > 0 else 0
 
         # Calculate break-even yield
-        avg_price = total_revenue / sum(item.quantity for item in revenue_items) if revenue_items else self.REGIONAL_PRICES.get(crop_code, 400)
-        break_even_yield = (total_costs / avg_price) / area_ha if area_ha > 0 and avg_price > 0 else 0
+        avg_price = (
+            total_revenue / sum(item.quantity for item in revenue_items)
+            if revenue_items
+            else self.REGIONAL_PRICES.get(crop_code, 400)
+        )
+        break_even_yield = (
+            (total_costs / avg_price) / area_ha if area_ha > 0 and avg_price > 0 else 0
+        )
 
         # Calculate ROI
         roi = (net_profit / total_costs * 100) if total_costs > 0 else 0
 
         # Compare to regional average
-        regional_revenue = self.REGIONAL_YIELDS.get(crop_code, 2000) * self.REGIONAL_PRICES.get(crop_code, 400)
+        regional_revenue = self.REGIONAL_YIELDS.get(
+            crop_code, 2000
+        ) * self.REGIONAL_PRICES.get(crop_code, 400)
         regional_costs_total = sum(self.REGIONAL_COSTS.get(crop_code, {}).values())
         regional_profit = regional_revenue - regional_costs_total
 
-        vs_regional_avg = ((profit_per_ha - regional_profit) / regional_profit * 100) if regional_profit != 0 else 0
+        vs_regional_avg = (
+            ((profit_per_ha - regional_profit) / regional_profit * 100)
+            if regional_profit != 0
+            else 0
+        )
 
         return CropProfitability(
             field_id=field_id,
@@ -436,14 +460,11 @@ class ProfitabilityAnalyzer:
             actual_yield=actual_yield,
             return_on_investment=roi,
             vs_regional_average=vs_regional_avg,
-            rank_in_portfolio=1  # Will be set by season analysis
+            rank_in_portfolio=1,  # Will be set by season analysis
         )
 
     async def analyze_season(
-        self,
-        farmer_id: str,
-        season_year: str,
-        crops_data: List[Dict]
+        self, farmer_id: str, season_year: str, crops_data: List[Dict]
     ) -> SeasonSummary:
         """Analyze all crops for a farmer in a season"""
         logger.info(f"Analyzing season {season_year} for farmer {farmer_id}")
@@ -452,16 +473,20 @@ class ProfitabilityAnalyzer:
         for crop_data in crops_data:
             analysis = await self.analyze_crop(
                 field_id=crop_data["field_id"],
-                crop_season_id=crop_data.get("crop_season_id", f"{crop_data['field_id']}-{season_year}"),
+                crop_season_id=crop_data.get(
+                    "crop_season_id", f"{crop_data['field_id']}-{season_year}"
+                ),
                 crop_code=crop_data["crop_code"],
                 area_ha=crop_data["area_ha"],
                 costs=crop_data.get("costs"),
-                revenues=crop_data.get("revenues")
+                revenues=crop_data.get("revenues"),
             )
             crop_analyses.append(analysis)
 
         # Rank crops by profit per hectare
-        sorted_crops = sorted(crop_analyses, key=lambda x: x.profit_per_ha, reverse=True)
+        sorted_crops = sorted(
+            crop_analyses, key=lambda x: x.profit_per_ha, reverse=True
+        )
         for idx, crop in enumerate(sorted_crops, 1):
             crop.rank_in_portfolio = idx
 
@@ -470,7 +495,9 @@ class ProfitabilityAnalyzer:
         total_costs = sum(c.total_costs for c in crop_analyses)
         total_revenue = sum(c.total_revenue for c in crop_analyses)
         total_profit = total_revenue - total_costs
-        overall_margin = (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+        overall_margin = (
+            (total_profit / total_revenue * 100) if total_revenue > 0 else 0
+        )
 
         best_crop = sorted_crops[0].crop_name_en if sorted_crops else "None"
         worst_crop = sorted_crops[-1].crop_name_en if sorted_crops else "None"
@@ -491,14 +518,11 @@ class ProfitabilityAnalyzer:
             best_crop=best_crop,
             worst_crop=worst_crop,
             recommendations_ar=recommendations_ar,
-            recommendations_en=recommendations_en
+            recommendations_en=recommendations_en,
         )
 
     async def compare_crops(
-        self,
-        crop_codes: List[str],
-        area_ha: float = 1.0,
-        region: str = "sanaa"
+        self, crop_codes: List[str], area_ha: float = 1.0, region: str = "sanaa"
     ) -> List[Dict]:
         """
         Compare profitability of different crops.
@@ -523,31 +547,33 @@ class ProfitabilityAnalyzer:
             profit = total_revenue - total_cost
             roi = (profit / total_cost * 100) if total_cost > 0 else 0
 
-            comparisons.append({
-                "crop_code": crop_code,
-                "crop_name_en": self.CROP_NAMES_EN.get(crop_code, crop_code),
-                "crop_name_ar": self.CROP_NAMES_AR.get(crop_code, crop_code),
-                "area_ha": area_ha,
-                "estimated_costs": total_cost,
-                "estimated_revenue": total_revenue,
-                "estimated_profit": profit,
-                "profit_per_ha": profit / area_ha if area_ha > 0 else 0,
-                "roi_percent": roi,
-                "break_even_yield_kg_ha": (total_cost / regional_price) / area_ha if area_ha > 0 and regional_price > 0 else 0,
-                "expected_yield_kg_ha": regional_yield,
-                "market_price_yer_kg": regional_price
-            })
+            comparisons.append(
+                {
+                    "crop_code": crop_code,
+                    "crop_name_en": self.CROP_NAMES_EN.get(crop_code, crop_code),
+                    "crop_name_ar": self.CROP_NAMES_AR.get(crop_code, crop_code),
+                    "area_ha": area_ha,
+                    "estimated_costs": total_cost,
+                    "estimated_revenue": total_revenue,
+                    "estimated_profit": profit,
+                    "profit_per_ha": profit / area_ha if area_ha > 0 else 0,
+                    "roi_percent": roi,
+                    "break_even_yield_kg_ha": (
+                        (total_cost / regional_price) / area_ha
+                        if area_ha > 0 and regional_price > 0
+                        else 0
+                    ),
+                    "expected_yield_kg_ha": regional_yield,
+                    "market_price_yer_kg": regional_price,
+                }
+            )
 
         # Sort by profit per hectare
         comparisons.sort(key=lambda x: x["profit_per_ha"], reverse=True)
         return comparisons
 
     async def calculate_break_even(
-        self,
-        crop_code: str,
-        area_ha: float,
-        total_costs: float,
-        expected_price: float
+        self, crop_code: str, area_ha: float, total_costs: float, expected_price: float
     ) -> Dict:
         """Calculate break-even yield and price"""
         logger.info(f"Calculating break-even for {crop_code}")
@@ -575,17 +601,23 @@ class ProfitabilityAnalyzer:
             "break_even_yield_kg": break_even_yield_kg,
             "break_even_yield_kg_ha": break_even_yield_kg_ha,
             "regional_average_yield_kg_ha": regional_yield,
-            "yield_gap_percent": ((regional_yield - break_even_yield_kg_ha) / regional_yield * 100) if regional_yield > 0 else 0,
+            "yield_gap_percent": (
+                ((regional_yield - break_even_yield_kg_ha) / regional_yield * 100)
+                if regional_yield > 0
+                else 0
+            ),
             "break_even_price_yer_kg": break_even_price,
             "expected_price_yer_kg": expected_price,
             "regional_market_price_yer_kg": regional_price,
-            "price_cushion_percent": ((expected_price - break_even_price) / break_even_price * 100) if break_even_price > 0 else 0
+            "price_cushion_percent": (
+                ((expected_price - break_even_price) / break_even_price * 100)
+                if break_even_price > 0
+                else 0
+            ),
         }
 
     async def get_cost_breakdown(
-        self,
-        crop_code: str,
-        area_ha: float = 1.0
+        self, crop_code: str, area_ha: float = 1.0
     ) -> Dict[str, float]:
         """Get cost breakdown by category"""
         logger.info(f"Getting cost breakdown for {crop_code}")
@@ -594,27 +626,31 @@ class ProfitabilityAnalyzer:
             return {}
 
         regional_costs = self.REGIONAL_COSTS[crop_code]
-        breakdown = {category: cost * area_ha for category, cost in regional_costs.items()}
+        breakdown = {
+            category: cost * area_ha for category, cost in regional_costs.items()
+        }
         breakdown["total"] = sum(breakdown.values())
 
         # Add percentages
         total = breakdown["total"]
-        breakdown_pct = {f"{k}_percent": (v / total * 100) if total > 0 else 0
-                        for k, v in breakdown.items() if k != "total"}
+        breakdown_pct = {
+            f"{k}_percent": (v / total * 100) if total > 0 else 0
+            for k, v in breakdown.items()
+            if k != "total"
+        }
         breakdown.update(breakdown_pct)
 
         return breakdown
 
     async def get_historical_profitability(
-        self,
-        field_id: str,
-        crop_code: str,
-        years: int = 5
+        self, field_id: str, crop_code: str, years: int = 5
     ) -> List[Dict]:
         """Get historical profitability for a crop on a field"""
         # This would query the database in production
         # For now, return mock data
-        logger.info(f"Getting historical profitability for {crop_code} on field {field_id}")
+        logger.info(
+            f"Getting historical profitability for {crop_code} on field {field_id}"
+        )
 
         historical = []
         current_year = datetime.now().year
@@ -632,20 +668,20 @@ class ProfitabilityAnalyzer:
             costs = regional_costs * variation
             profit = revenue - costs
 
-            historical.append({
-                "year": year,
-                "revenue": revenue,
-                "costs": costs,
-                "profit": profit,
-                "roi_percent": (profit / costs * 100) if costs > 0 else 0
-            })
+            historical.append(
+                {
+                    "year": year,
+                    "revenue": revenue,
+                    "costs": costs,
+                    "profit": profit,
+                    "roi_percent": (profit / costs * 100) if costs > 0 else 0,
+                }
+            )
 
         return historical
 
     async def get_regional_benchmarks(
-        self,
-        crop_code: str,
-        region: str = "sanaa"
+        self, crop_code: str, region: str = "sanaa"
     ) -> Dict:
         """Get regional benchmark costs and revenues"""
         logger.info(f"Getting regional benchmarks for {crop_code} in {region}")
@@ -672,13 +708,12 @@ class ProfitabilityAnalyzer:
                 "price_yer_kg": price,
                 "revenue_per_ha": revenue,
                 "profit_per_ha": profit,
-                "roi_percent": (profit / total_costs * 100) if total_costs > 0 else 0
-            }
+                "roi_percent": (profit / total_costs * 100) if total_costs > 0 else 0,
+            },
         }
 
     def generate_recommendations(
-        self,
-        analysis: CropProfitability
+        self, analysis: CropProfitability
     ) -> Dict[str, List[str]]:
         """Generate improvement recommendations"""
         recommendations_en = []
@@ -737,16 +772,13 @@ class ProfitabilityAnalyzer:
                 "عائد منخفض على الاستثمار. ركز على خفض التكاليف أو زيادة الإنتاجية."
             )
 
-        return {
-            "english": recommendations_en,
-            "arabic": recommendations_ar
-        }
+        return {"english": recommendations_en, "arabic": recommendations_ar}
 
     def _generate_season_recommendations(
         self,
         crop_analyses: List[CropProfitability],
         total_profit: float,
-        overall_margin: float
+        overall_margin: float,
     ) -> tuple[List[str], List[str]]:
         """Generate season-level recommendations"""
         recommendations_en = []
@@ -756,7 +788,9 @@ class ProfitabilityAnalyzer:
             return recommendations_en, recommendations_ar
 
         # Find best and worst performing crops
-        sorted_crops = sorted(crop_analyses, key=lambda x: x.profit_per_ha, reverse=True)
+        sorted_crops = sorted(
+            crop_analyses, key=lambda x: x.profit_per_ha, reverse=True
+        )
         best = sorted_crops[0]
         worst = sorted_crops[-1]
 
@@ -814,9 +848,7 @@ class ProfitabilityAnalyzer:
         return recommendations_en, recommendations_ar
 
     async def export_report(
-        self,
-        analysis: CropProfitability,
-        format: str = "pdf"
+        self, analysis: CropProfitability, format: str = "pdf"
     ) -> str:
         """Export profitability report"""
         # This would generate actual PDF/Excel in production

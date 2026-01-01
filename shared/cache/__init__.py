@@ -20,11 +20,11 @@ from .redis_sentinel import (
 )
 
 __all__ = [
-    'RedisSentinelClient',
-    'RedisSentinelConfig',
-    'CircuitBreaker',
-    'get_redis_client',
-    'close_redis_client',
+    "RedisSentinelClient",
+    "RedisSentinelConfig",
+    "CircuitBreaker",
+    "get_redis_client",
+    "close_redis_client",
 ]
 
-__version__ = '1.0.0'
+__version__ = "1.0.0"

@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 class PolicyDecision(str, Enum):
     """Policy evaluation result"""
+
     ALLOW = "allow"
     DENY = "deny"
     REDIRECT = "redirect"
@@ -40,6 +41,7 @@ class PolicyDecision(str, Enum):
 @dataclass
 class PolicyResult:
     """Result of policy evaluation"""
+
     decision: PolicyDecision
     reason: str
     redirect_to: Optional[str] = None
@@ -67,6 +69,7 @@ class PolicyResult:
 @dataclass
 class PolicyContext:
     """Context for policy evaluation"""
+
     # User info
     user_id: Optional[str] = None
     tenant_id: Optional[str] = None
@@ -100,8 +103,10 @@ class PolicyContext:
             return cls()
 
         return cls(
-            user_id=getattr(principal, "sub", None) or getattr(principal, "user_id", None),
-            tenant_id=getattr(principal, "tid", None) or getattr(principal, "tenant_id", None),
+            user_id=getattr(principal, "sub", None)
+            or getattr(principal, "user_id", None),
+            tenant_id=getattr(principal, "tid", None)
+            or getattr(principal, "tenant_id", None),
             roles=getattr(principal, "roles", []),
             scopes=getattr(principal, "scopes", []),
             is_authenticated=True,
@@ -117,6 +122,7 @@ class PolicyContext:
 @dataclass
 class RoutePolicy:
     """Policy definition for a route"""
+
     path_pattern: str
     require_auth: bool = True
     require_roles: List[str] = field(default_factory=list)
@@ -132,18 +138,19 @@ DEFAULT_POLICIES: Dict[str, RoutePolicy] = {
     # Public routes
     "/login": RoutePolicy("/login", require_auth=False, allow_public=True),
     "/register": RoutePolicy("/register", require_auth=False, allow_public=True),
-    "/forgot-password": RoutePolicy("/forgot-password", require_auth=False, allow_public=True),
-    "/reset-password": RoutePolicy("/reset-password", require_auth=False, allow_public=True),
-
+    "/forgot-password": RoutePolicy(
+        "/forgot-password", require_auth=False, allow_public=True
+    ),
+    "/reset-password": RoutePolicy(
+        "/reset-password", require_auth=False, allow_public=True
+    ),
     # API health endpoints
     "/healthz": RoutePolicy("/healthz", require_auth=False, allow_public=True),
     "/readyz": RoutePolicy("/readyz", require_auth=False, allow_public=True),
     "/metrics": RoutePolicy("/metrics", require_auth=False, allow_public=True),
-
     # Protected routes - Dashboard
     "/dashboard": RoutePolicy("/dashboard", require_auth=True),
     "/": RoutePolicy("/", require_auth=True, redirect_to="/login"),
-
     # Admin routes
     "/admin": RoutePolicy(
         "/admin",
@@ -163,14 +170,12 @@ DEFAULT_POLICIES: Dict[str, RoutePolicy] = {
         require_permissions=["admin:tenant.manage"],
         redirect_to="/admin",
     ),
-
     # Field management
     "/fields": RoutePolicy(
         "/fields",
         require_auth=True,
         require_any_permission=["field:field.read", "field:field.list"],
     ),
-
     # Reports
     "/reports": RoutePolicy(
         "/reports",
@@ -212,7 +217,8 @@ class PolicyEngine:
 
         # Prefix match (longest first)
         matching = [
-            (p, policy) for p, policy in self._policies.items()
+            (p, policy)
+            for p, policy in self._policies.items()
             if path.startswith(p) and p != "/"
         ]
         if matching:
@@ -285,8 +291,12 @@ class PolicyEngine:
             required_roles = set(policy.require_roles)
 
             # Super admin bypasses role check
-            if not context.is_super_admin and not user_roles.intersection(required_roles):
-                logger.debug(f"Role check failed for {path}: need {required_roles}, have {user_roles}")
+            if not context.is_super_admin and not user_roles.intersection(
+                required_roles
+            ):
+                logger.debug(
+                    f"Role check failed for {path}: need {required_roles}, have {user_roles}"
+                )
                 return PolicyResult(
                     decision=PolicyDecision.REDIRECT,
                     reason="insufficient_role",

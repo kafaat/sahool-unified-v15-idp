@@ -108,4 +108,6 @@ class FieldService:
 
     def get_total_area(self, farm_id: str) -> float:
         """Get total field area for a farm"""
-        return sum(f.area_hectares for f in self._fields.values() if f.farm_id == farm_id)
+        return sum(
+            f.area_hectares for f in self._fields.values() if f.farm_id == farm_id
+        )

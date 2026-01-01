@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RevocationEntry:
     """Single revocation entry"""
+
     revoked_at: float
     expires_at: float
     reason: str = "manual"
@@ -68,14 +69,17 @@ class TokenRevocationService:
         with self._lock:
             # Cleanup expired token revocations
             expired_tokens = [
-                jti for jti, entry in self._revoked_tokens.items()
+                jti
+                for jti, entry in self._revoked_tokens.items()
                 if entry.expires_at < now
             ]
             for jti in expired_tokens:
                 del self._revoked_tokens[jti]
 
             if expired_tokens:
-                logger.info(f"Cleaned up {len(expired_tokens)} expired token revocations")
+                logger.info(
+                    f"Cleaned up {len(expired_tokens)} expired token revocations"
+                )
 
             self._last_cleanup = now
 
@@ -257,7 +261,11 @@ class TokenRevocationService:
             return True, "user_tokens_revoked"
 
         # Check tenant revocation
-        if tenant_id and issued_at and self.is_tenant_token_revoked(tenant_id, issued_at):
+        if (
+            tenant_id
+            and issued_at
+            and self.is_tenant_token_revoked(tenant_id, issued_at)
+        ):
             return True, "tenant_tokens_revoked"
 
         return False, None

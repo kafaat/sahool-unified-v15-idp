@@ -289,9 +289,7 @@ class RateLimiter:
 
             # Replenish tokens based on elapsed time
             # تجديد الرموز بناءً على الوقت المنقضي
-            self.tokens = min(
-                self.rate, self.tokens + (elapsed * self.rate / self.per)
-            )
+            self.tokens = min(self.rate, self.tokens + (elapsed * self.rate / self.per))
             self.last_update = now
 
             # Wait if no tokens available
@@ -444,7 +442,11 @@ class GlobalGAPClient:
 
         # Check if it's 13 digits and starts with 4
         # التحقق من أنه 13 رقماً ويبدأ بـ 4
-        if not clean_ggn.isdigit() or len(clean_ggn) != 13 or not clean_ggn.startswith("4"):
+        if (
+            not clean_ggn.isdigit()
+            or len(clean_ggn) != 13
+            or not clean_ggn.startswith("4")
+        ):
             raise InvalidGGN(ggn)
 
     @retry(

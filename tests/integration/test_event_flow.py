@@ -23,6 +23,7 @@ import json
 # تدفق الحدث: إنشاء حقل → تحليل الأقمار الصناعية
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 @pytest.mark.event_flow
@@ -35,7 +36,7 @@ class TestFieldCreatedEventFlow:
         service_urls: Dict[str, str],
         field_factory,
         auth_headers: Dict[str, str],
-        nats_client
+        nats_client,
     ):
         """
         Test that creating a field triggers satellite analysis request
@@ -67,16 +68,17 @@ class TestFieldCreatedEventFlow:
         # Act - Create field
         create_url = f"{service_urls['field_core']}/api/v1/fields"
         create_response = await http_client.post(
-            create_url,
-            json=field_data,
-            headers=auth_headers
+            create_url, json=field_data, headers=auth_headers
         )
 
         # Wait for event processing
         await asyncio.sleep(2)
 
         # Assert
-        assert create_response.status_code in (200, 201), f"Failed to create field: {create_response.text}"
+        assert create_response.status_code in (
+            200,
+            201,
+        ), f"Failed to create field: {create_response.text}"
         created_field = create_response.json()
         field_id = created_field.get("id") or created_field.get("field_id")
 
@@ -91,6 +93,7 @@ class TestFieldCreatedEventFlow:
 # تدفق الحدث: تنبيه طقس → إشعار
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 @pytest.mark.event_flow
@@ -102,7 +105,7 @@ class TestWeatherAlertEventFlow:
         http_client: httpx.AsyncClient,
         service_urls: Dict[str, str],
         auth_headers: Dict[str, str],
-        nats_client
+        nats_client,
     ):
         """
         Test that a weather alert triggers user notification
@@ -130,20 +133,17 @@ class TestWeatherAlertEventFlow:
         weather_alert = {
             "alert_type": "extreme_temperature",
             "severity": "high",
-            "location": {
-                "latitude": 15.3694,
-                "longitude": 44.1910
-            },
+            "location": {"latitude": 15.3694, "longitude": 44.1910},
             "message": "Extreme heat expected - protect your crops",
-            "message_ar": "حرارة شديدة متوقعة - احمِ محاصيلك"
+            "message_ar": "حرارة شديدة متوقعة - احمِ محاصيلك",
         }
 
         # Publish weather alert via API (which should trigger NATS event)
-        alert_url = f"{service_urls.get('weather_core', 'http://localhost:8108')}/api/v1/alerts"
+        alert_url = (
+            f"{service_urls.get('weather_core', 'http://localhost:8108')}/api/v1/alerts"
+        )
         response = await http_client.post(
-            alert_url,
-            json=weather_alert,
-            headers=auth_headers
+            alert_url, json=weather_alert, headers=auth_headers
         )
 
         # Wait for event processing
@@ -151,13 +151,19 @@ class TestWeatherAlertEventFlow:
 
         # Assert
         # The weather alert API might return 200, 201, or 202 (accepted for processing)
-        assert response.status_code in (200, 201, 202, 404), f"Weather alert failed: {response.text}"
+        assert response.status_code in (
+            200,
+            201,
+            202,
+            404,
+        ), f"Weather alert failed: {response.text}"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Low Stock → Alert Event Flow
 # تدفق الحدث: مخزون منخفض → تنبيه
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -171,7 +177,7 @@ class TestLowStockEventFlow:
         service_urls: Dict[str, str],
         inventory_factory,
         auth_headers: Dict[str, str],
-        nats_client
+        nats_client,
     ):
         """
         Test that low inventory stock triggers an alert
@@ -203,9 +209,7 @@ class TestLowStockEventFlow:
         # Act - Create low stock item (should trigger event)
         create_url = f"{service_urls.get('inventory_service', 'http://localhost:8116')}/api/v1/inventory"
         response = await http_client.post(
-            create_url,
-            json=item_data,
-            headers=auth_headers
+            create_url, json=item_data, headers=auth_headers
         )
 
         # Wait for event processing
@@ -226,6 +230,7 @@ class TestLowStockEventFlow:
 # تدفق الحدث: قراءة IoT → توصية ري
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 @pytest.mark.event_flow
@@ -238,7 +243,7 @@ class TestIoTReadingEventFlow:
         service_urls: Dict[str, str],
         iot_factory,
         auth_headers: Dict[str, str],
-        nats_client
+        nats_client,
     ):
         """
         Test that low soil moisture reading triggers irrigation recommendation
@@ -262,16 +267,16 @@ class TestIoTReadingEventFlow:
             received_recommendations.append(data)
 
         try:
-            await nats_client.subscribe("irrigation.recommendation", cb=recommendation_handler)
+            await nats_client.subscribe(
+                "irrigation.recommendation", cb=recommendation_handler
+            )
         except AttributeError:
             pass
 
         # Act - Send IoT reading
         reading_url = f"{service_urls.get('iot_gateway', 'http://localhost:8106')}/api/v1/readings"
         response = await http_client.post(
-            reading_url,
-            json=reading,
-            headers=auth_headers
+            reading_url, json=reading, headers=auth_headers
         )
 
         # Wait for event processing
@@ -290,6 +295,7 @@ class TestIoTReadingEventFlow:
 # اختبار صحة اتصال NATS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.mark.asyncio
 @pytest.mark.integration
 class TestNATSConnection:
@@ -304,7 +310,7 @@ class TestNATSConnection:
         # For real client, verify connection
         try:
             is_connected = nats_client.is_connected
-            if hasattr(nats_client, 'is_connected'):
+            if hasattr(nats_client, "is_connected"):
                 assert is_connected, "NATS client not connected"
         except AttributeError:
             # Mock client

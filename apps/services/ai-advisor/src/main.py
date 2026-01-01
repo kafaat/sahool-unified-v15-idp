@@ -26,7 +26,8 @@ from .rag import EmbeddingsManager, KnowledgeRetriever
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'shared'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
 try:
     from config.cors_config import setup_cors_middleware
 except ImportError:
@@ -37,6 +38,7 @@ except ImportError:
 try:
     from a2a.server import create_a2a_router
     from .a2a_adapter import create_ai_advisor_a2a_agent
+
     A2A_AVAILABLE = True
 except ImportError:
     A2A_AVAILABLE = False
@@ -50,7 +52,7 @@ structlog.configure(
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ]
 )
 
@@ -60,15 +62,20 @@ logger = structlog.get_logger()
 # Pydantic models for requests/responses
 # نماذج Pydantic للطلبات/الاستجابات
 
+
 class QuestionRequest(BaseModel):
     """General question request | طلب سؤال عام"""
+
     question: str = Field(..., description="User question")
     language: str = Field(default="en", description="Response language (en/ar)")
-    context: Optional[Dict[str, Any]] = Field(default=None, description="Additional context")
+    context: Optional[Dict[str, Any]] = Field(
+        default=None, description="Additional context"
+    )
 
 
 class DiagnoseRequest(BaseModel):
     """Disease diagnosis request | طلب تشخيص مرض"""
+
     crop_type: str = Field(..., description="Type of crop")
     symptoms: Dict[str, Any] = Field(..., description="Disease symptoms")
     image_path: Optional[str] = Field(default=None, description="Path to crop image")
@@ -77,23 +84,34 @@ class DiagnoseRequest(BaseModel):
 
 class RecommendationRequest(BaseModel):
     """Recommendation request | طلب توصيات"""
+
     crop_type: str = Field(..., description="Type of crop")
     growth_stage: str = Field(..., description="Current growth stage")
-    recommendation_type: str = Field(..., description="Type (irrigation/fertilizer/pest)")
+    recommendation_type: str = Field(
+        ..., description="Type (irrigation/fertilizer/pest)"
+    )
     field_data: Optional[Dict[str, Any]] = Field(default=None, description="Field data")
 
 
 class FieldAnalysisRequest(BaseModel):
     """Field analysis request | طلب تحليل حقل"""
+
     field_id: str = Field(..., description="Field identifier")
     crop_type: str = Field(..., description="Type of crop")
-    include_disease_check: bool = Field(default=True, description="Include disease analysis")
-    include_irrigation: bool = Field(default=True, description="Include irrigation advice")
-    include_yield_prediction: bool = Field(default=True, description="Include yield prediction")
+    include_disease_check: bool = Field(
+        default=True, description="Include disease analysis"
+    )
+    include_irrigation: bool = Field(
+        default=True, description="Include irrigation advice"
+    )
+    include_yield_prediction: bool = Field(
+        default=True, description="Include yield prediction"
+    )
 
 
 class AgentResponse(BaseModel):
     """Agent response model | نموذج استجابة الوكيل"""
+
     status: str
     data: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
@@ -124,25 +142,15 @@ async def lifespan(app: FastAPI):
         agro_tool = AgroTool()
 
         # Initialize agents | تهيئة الوكلاء
-        field_analyst = FieldAnalystAgent(
-            tools=[],
-            retriever=knowledge_retriever
-        )
+        field_analyst = FieldAnalystAgent(tools=[], retriever=knowledge_retriever)
 
-        disease_expert = DiseaseExpertAgent(
-            tools=[],
-            retriever=knowledge_retriever
-        )
+        disease_expert = DiseaseExpertAgent(tools=[], retriever=knowledge_retriever)
 
         irrigation_advisor = IrrigationAdvisorAgent(
-            tools=[],
-            retriever=knowledge_retriever
+            tools=[], retriever=knowledge_retriever
         )
 
-        yield_predictor = YieldPredictorAgent(
-            tools=[],
-            retriever=knowledge_retriever
-        )
+        yield_predictor = YieldPredictorAgent(tools=[], retriever=knowledge_retriever)
 
         # Initialize supervisor | تهيئة المشرف
         agents = {
@@ -169,11 +177,11 @@ async def lifespan(app: FastAPI):
         # Initialize A2A agent if available | تهيئة وكيل A2A إذا كان متاحاً
         if A2A_AVAILABLE:
             try:
-                base_url = os.getenv("SERVICE_BASE_URL", f"http://localhost:{settings.service_port}")
+                base_url = os.getenv(
+                    "SERVICE_BASE_URL", f"http://localhost:{settings.service_port}"
+                )
                 a2a_agent = create_ai_advisor_a2a_agent(
-                    base_url=base_url,
-                    agents=agents,
-                    supervisor=supervisor
+                    base_url=base_url, agents=agents, supervisor=supervisor
                 )
                 app_state["a2a_agent"] = a2a_agent
                 logger.info("a2a_agent_initialized", agent_id=a2a_agent.agent_id)
@@ -208,6 +216,7 @@ if setup_cors_middleware:
 else:
     # Fallback: Secure origins list when shared module unavailable
     from fastapi.middleware.cors import CORSMiddleware
+
     SECURE_ORIGINS = [
         "https://sahool.app",
         "https://admin.sahool.app",
@@ -220,11 +229,18 @@ else:
         allow_origins=SECURE_ORIGINS,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Accept", "Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
+        allow_headers=[
+            "Accept",
+            "Authorization",
+            "Content-Type",
+            "X-Request-ID",
+            "X-Tenant-ID",
+        ],
     )
 
 # Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
 if A2A_AVAILABLE:
+
     @app.on_event("startup")
     async def setup_a2a_routes():
         """Setup A2A protocol routes after startup"""
@@ -236,6 +252,7 @@ if A2A_AVAILABLE:
 
 
 # Endpoints | نقاط النهاية
+
 
 @app.get("/healthz", tags=["Health"])
 async def health_check():
@@ -264,7 +281,7 @@ async def ask_question(request: QuestionRequest):
         if not supervisor:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         # Coordinate agents to answer
@@ -274,16 +291,12 @@ async def ask_question(request: QuestionRequest):
             context=request.context,
         )
 
-        return AgentResponse(
-            status="success",
-            data=result
-        )
+        return AgentResponse(status="success", data=result)
 
     except Exception as e:
         logger.error("ask_question_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -303,7 +316,7 @@ async def diagnose_disease(request: DiagnoseRequest):
         if not agents:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         disease_expert = agents["disease_expert"]
@@ -314,8 +327,7 @@ async def diagnose_disease(request: DiagnoseRequest):
         if request.image_path:
             crop_health_tool = tools["crop_health"]
             image_analysis = await crop_health_tool.analyze_image(
-                image_path=request.image_path,
-                crop_type=request.crop_type
+                image_path=request.image_path, crop_type=request.crop_type
             )
 
         # Diagnose disease
@@ -326,16 +338,12 @@ async def diagnose_disease(request: DiagnoseRequest):
             image_analysis=image_analysis,
         )
 
-        return AgentResponse(
-            status="success",
-            data=result
-        )
+        return AgentResponse(status="success", data=result)
 
     except Exception as e:
         logger.error("diagnose_disease_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -353,7 +361,7 @@ async def get_recommendations(request: RecommendationRequest):
         if not agents:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         # Route to appropriate agent
@@ -363,34 +371,34 @@ async def get_recommendations(request: RecommendationRequest):
             result = await agent.recommend_irrigation(
                 crop_type=request.crop_type,
                 growth_stage=request.growth_stage,
-                soil_data=request.field_data.get("soil", {}) if request.field_data else {},
-                weather_data=request.field_data.get("weather", {}) if request.field_data else {},
+                soil_data=(
+                    request.field_data.get("soil", {}) if request.field_data else {}
+                ),
+                weather_data=(
+                    request.field_data.get("weather", {}) if request.field_data else {}
+                ),
             )
         elif request.recommendation_type in ["fertilizer", "pest"]:
             supervisor = app_state.get("supervisor")
             result = await supervisor.coordinate(
                 query=f"Provide {request.recommendation_type} recommendations for {request.crop_type} at {request.growth_stage}",
                 context={"field_data": request.field_data},
-                specific_agents=["disease_expert"]
+                specific_agents=["disease_expert"],
             )
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Unknown recommendation type: {request.recommendation_type}"
+                detail=f"Unknown recommendation type: {request.recommendation_type}",
             )
 
-        return AgentResponse(
-            status="success",
-            data=result
-        )
+        return AgentResponse(status="success", data=result)
 
     except HTTPException:
         raise
     except Exception as e:
         logger.error("get_recommendations_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -410,7 +418,7 @@ async def analyze_field(request: FieldAnalysisRequest):
         if not agents or not tools:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         results = {}
@@ -473,14 +481,13 @@ async def analyze_field(request: FieldAnalysisRequest):
                 "field_id": request.field_id,
                 "crop_type": request.crop_type,
                 "analysis": results,
-            }
+            },
         )
 
     except Exception as e:
         logger.error("analyze_field_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -498,7 +505,7 @@ async def list_agents():
         if not supervisor:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Service not initialized"
+                detail="Service not initialized",
             )
 
         agents_info = supervisor.get_available_agents()
@@ -512,8 +519,7 @@ async def list_agents():
     except Exception as e:
         logger.error("list_agents_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 
@@ -545,7 +551,7 @@ async def get_rag_info():
         if not retriever or not embeddings:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="RAG system not initialized"
+                detail="RAG system not initialized",
             )
 
         collection_info = retriever.get_collection_info()
@@ -560,8 +566,7 @@ async def get_rag_info():
     except Exception as e:
         logger.error("get_rag_info_failed", error=str(e))
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )
 
 

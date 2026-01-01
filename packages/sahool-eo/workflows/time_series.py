@@ -121,18 +121,14 @@ class TimeSeriesWorkflow:
                     datetime.strptime(target_date, "%Y-%m-%d") + timedelta(days=5)
                 ).strftime("%Y-%m-%d")
 
-                obs = self._fetch_observation(
-                    bbox, (window_start, window_end), indices
-                )
+                obs = self._fetch_observation(bbox, (window_start, window_end), indices)
 
                 if obs is not None:
                     obs["target_date"] = target_date
                     observations.append(obs)
 
             result["observations_count"] = len(observations)
-            result["coverage_percent"] = round(
-                len(observations) / len(dates) * 100, 1
-            )
+            result["coverage_percent"] = round(len(observations) / len(dates) * 100, 1)
 
             # Apply gap filling if needed
             if self.gap_fill_method != "none" and len(observations) < len(dates):
@@ -165,10 +161,7 @@ class TimeSeriesWorkflow:
             return result
 
     def _generate_dates(
-        self,
-        start_date: str,
-        end_date: str,
-        interval_days: int
+        self, start_date: str, end_date: str, interval_days: int
     ) -> List[str]:
         """Generate list of target dates"""
         dates = []
@@ -182,10 +175,7 @@ class TimeSeriesWorkflow:
         return dates
 
     def _fetch_observation(
-        self,
-        bbox: Tuple,
-        time_interval: Tuple[str, str],
-        indices: List[str]
+        self, bbox: Tuple, time_interval: Tuple[str, str], indices: List[str]
     ) -> Optional[Dict[str, Any]]:
         """Fetch a single observation"""
         try:
@@ -239,9 +229,7 @@ class TimeSeriesWorkflow:
             return None
 
     def _fill_gaps(
-        self,
-        observations: List[Dict],
-        target_dates: List[str]
+        self, observations: List[Dict], target_dates: List[str]
     ) -> List[Dict]:
         """Fill gaps in time series using interpolation"""
         if not observations:
@@ -269,10 +257,7 @@ class TimeSeriesWorkflow:
         return filled
 
     def _interpolate_observation(
-        self,
-        target_date: str,
-        observations: List[Dict],
-        all_dates: List[str]
+        self, target_date: str, observations: List[Dict], all_dates: List[str]
     ) -> Optional[Dict]:
         """Interpolate a single observation from neighbors"""
         target_dt = datetime.strptime(target_date, "%Y-%m-%d")
@@ -288,13 +273,12 @@ class TimeSeriesWorkflow:
             if obs_dt < target_dt:
                 if before is None or obs_dt > datetime.strptime(
                     before.get("target_date", before.get("acquisition_date")),
-                    "%Y-%m-%d"
+                    "%Y-%m-%d",
                 ):
                     before = obs
             elif obs_dt > target_dt:
                 if after is None or obs_dt < datetime.strptime(
-                    after.get("target_date", after.get("acquisition_date")),
-                    "%Y-%m-%d"
+                    after.get("target_date", after.get("acquisition_date")), "%Y-%m-%d"
                 ):
                     after = obs
 
@@ -303,12 +287,10 @@ class TimeSeriesWorkflow:
 
         # Linear interpolation
         before_dt = datetime.strptime(
-            before.get("target_date", before.get("acquisition_date")),
-            "%Y-%m-%d"
+            before.get("target_date", before.get("acquisition_date")), "%Y-%m-%d"
         )
         after_dt = datetime.strptime(
-            after.get("target_date", after.get("acquisition_date")),
-            "%Y-%m-%d"
+            after.get("target_date", after.get("acquisition_date")), "%Y-%m-%d"
         )
 
         total_days = (after_dt - before_dt).days
@@ -322,27 +304,23 @@ class TimeSeriesWorkflow:
 
         for key in ["ndvi", "evi", "lai", "ndwi", "savi", "ndmi"]:
             if key in before and key in after:
-                interpolated[key] = (
-                    before[key] * (1 - weight) + after[key] * weight
-                )
+                interpolated[key] = before[key] * (1 - weight) + after[key] * weight
 
         return interpolated
 
-    def _build_series(
-        self,
-        observations: List[Dict],
-        index_name: str
-    ) -> List[Dict]:
+    def _build_series(self, observations: List[Dict], index_name: str) -> List[Dict]:
         """Build time series for a specific index"""
         series = []
         for obs in observations:
             if index_name in obs:
-                series.append({
-                    "date": obs.get("target_date", obs.get("acquisition_date")),
-                    "value": round(obs[index_name], 4),
-                    "interpolated": obs.get("interpolated", False),
-                    "cloud_coverage": obs.get("cloud_coverage", 0),
-                })
+                series.append(
+                    {
+                        "date": obs.get("target_date", obs.get("acquisition_date")),
+                        "value": round(obs[index_name], 4),
+                        "interpolated": obs.get("interpolated", False),
+                        "cloud_coverage": obs.get("cloud_coverage", 0),
+                    }
+                )
         return sorted(series, key=lambda x: x["date"])
 
     def _analyze_patterns(self, time_series: Dict) -> Dict[str, Any]:
@@ -414,14 +392,16 @@ class TimeSeriesWorkflow:
                 z_score = (point["value"] - mean) / std if std > 0 else 0
 
                 if abs(z_score) > 2.0:
-                    anomalies.append({
-                        "index": index_name,
-                        "date": point["date"],
-                        "value": point["value"],
-                        "z_score": round(z_score, 2),
-                        "type": "high" if z_score > 0 else "low",
-                        "severity": "critical" if abs(z_score) > 3 else "warning",
-                    })
+                    anomalies.append(
+                        {
+                            "index": index_name,
+                            "date": point["date"],
+                            "value": point["value"],
+                            "z_score": round(z_score, 2),
+                            "type": "high" if z_score > 0 else "low",
+                            "severity": "critical" if abs(z_score) > 3 else "warning",
+                        }
+                    )
 
         return anomalies
 
@@ -429,6 +409,7 @@ class TimeSeriesWorkflow:
 # =============================================================================
 # Change Detection
 # =============================================================================
+
 
 class ChangeDetectionWorkflow:
     """

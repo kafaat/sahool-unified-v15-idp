@@ -30,7 +30,7 @@ def register_boundary_endpoints(app, boundary_detector):
         lat: float = Query(..., description="Latitude of center point"),
         lon: float = Query(..., description="Longitude of center point"),
         radius_m: float = Query(500, description="Search radius in meters"),
-        date: Optional[str] = Query(None, description="Date for imagery (ISO format)")
+        date: Optional[str] = Query(None, description="Date for imagery (ISO format)"),
     ):
         """
         Detect field boundaries around a point using NDVI edge detection.
@@ -58,8 +58,7 @@ def register_boundary_endpoints(app, boundary_detector):
         """
         if not boundary_detector:
             raise HTTPException(
-                status_code=503,
-                detail="Field boundary detector not initialized"
+                status_code=503, detail="Field boundary detector not initialized"
             )
 
         try:
@@ -67,19 +66,16 @@ def register_boundary_endpoints(app, boundary_detector):
             detection_date = None
             if date:
                 try:
-                    detection_date = datetime.fromisoformat(date.replace('Z', '+00:00'))
+                    detection_date = datetime.fromisoformat(date.replace("Z", "+00:00"))
                 except ValueError:
                     raise HTTPException(
                         status_code=400,
-                        detail="Invalid date format. Use ISO format (YYYY-MM-DD)"
+                        detail="Invalid date format. Use ISO format (YYYY-MM-DD)",
                     )
 
             # Detect boundaries
             boundaries = await boundary_detector.detect_boundary(
-                latitude=lat,
-                longitude=lon,
-                radius_meters=radius_m,
-                date=detection_date
+                latitude=lat, longitude=lon, radius_meters=radius_m, date=detection_date
             )
 
             # Convert to GeoJSON FeatureCollection
@@ -93,9 +89,11 @@ def register_boundary_endpoints(app, boundary_detector):
                     "radius_meters": radius_m,
                     "detection_date": (detection_date or datetime.now()).isoformat(),
                     "fields_detected": len(boundaries),
-                    "total_area_hectares": round(sum(b.area_hectares for b in boundaries), 2),
-                    "method": "ndvi_edge_detection"
-                }
+                    "total_area_hectares": round(
+                        sum(b.area_hectares for b in boundaries), 2
+                    ),
+                    "method": "ndvi_edge_detection",
+                },
             }
 
         except HTTPException:
@@ -106,8 +104,10 @@ def register_boundary_endpoints(app, boundary_detector):
 
     @app.post("/v1/boundaries/refine", response_model=dict)
     async def refine_boundary(
-        coords: List[List[float]] = Query(..., description="Initial boundary coordinates [[lon, lat], ...]"),
-        buffer_m: float = Query(50, description="Refinement buffer in meters")
+        coords: List[List[float]] = Query(
+            ..., description="Initial boundary coordinates [[lon, lat], ...]"
+        ),
+        buffer_m: float = Query(50, description="Refinement buffer in meters"),
     ):
         """
         Refine a rough field boundary by snapping to NDVI edges.
@@ -136,8 +136,7 @@ def register_boundary_endpoints(app, boundary_detector):
         """
         if not boundary_detector:
             raise HTTPException(
-                status_code=503,
-                detail="Field boundary detector not initialized"
+                status_code=503, detail="Field boundary detector not initialized"
             )
 
         try:
@@ -147,13 +146,12 @@ def register_boundary_endpoints(app, boundary_detector):
             if len(coord_tuples) < 3:
                 raise HTTPException(
                     status_code=400,
-                    detail="Need at least 3 coordinates to form a polygon"
+                    detail="Need at least 3 coordinates to form a polygon",
                 )
 
             # Refine boundary
             refined = await boundary_detector.refine_boundary(
-                initial_coords=coord_tuples,
-                buffer_meters=buffer_m
+                initial_coords=coord_tuples, buffer_meters=buffer_m
             )
 
             return {
@@ -164,8 +162,8 @@ def register_boundary_endpoints(app, boundary_detector):
                     "area_hectares": refined.area_hectares,
                     "perimeter_meters": refined.perimeter_meters,
                     "confidence": refined.detection_confidence,
-                    "quality_score": refined.quality_score
-                }
+                    "quality_score": refined.quality_score,
+                },
             }
 
         except HTTPException:
@@ -178,7 +176,9 @@ def register_boundary_endpoints(app, boundary_detector):
     async def get_boundary_changes(
         field_id: str,
         since_date: str = Query(..., description="Compare to this date (ISO format)"),
-        previous_coords: str = Query(..., description="Previous boundary coordinates (JSON array)")
+        previous_coords: str = Query(
+            ..., description="Previous boundary coordinates (JSON array)"
+        ),
     ):
         """
         Detect changes in field boundary over time.
@@ -205,8 +205,7 @@ def register_boundary_endpoints(app, boundary_detector):
         """
         if not boundary_detector:
             raise HTTPException(
-                status_code=503,
-                detail="Field boundary detector not initialized"
+                status_code=503, detail="Field boundary detector not initialized"
             )
 
         try:
@@ -217,23 +216,22 @@ def register_boundary_endpoints(app, boundary_detector):
             except (json.JSONDecodeError, ValueError):
                 raise HTTPException(
                     status_code=400,
-                    detail="Invalid previous_coords format. Expected JSON array [[lon, lat], ...]"
+                    detail="Invalid previous_coords format. Expected JSON array [[lon, lat], ...]",
                 )
 
             # Parse date
             try:
-                current_date = datetime.fromisoformat(since_date.replace('Z', '+00:00'))
+                current_date = datetime.fromisoformat(since_date.replace("Z", "+00:00"))
             except ValueError:
                 raise HTTPException(
-                    status_code=400,
-                    detail="Invalid date format. Use ISO format"
+                    status_code=400, detail="Invalid date format. Use ISO format"
                 )
 
             # Detect changes
             change = await boundary_detector.detect_boundary_change(
                 field_id=field_id,
                 previous_coords=coord_tuples,
-                current_date=current_date
+                current_date=current_date,
             )
 
             # Create response
@@ -244,19 +242,33 @@ def register_boundary_endpoints(app, boundary_detector):
                     "change_percent": round(change.change_percent, 2),
                     "previous_area_hectares": round(change.previous_area, 2),
                     "current_area_hectares": round(change.current_area, 2),
-                    "area_change_hectares": round(change.area_change_hectares, 2) if change.area_change_hectares else 0,
-                    "boundary_shift_meters": round(change.boundary_shift_meters, 2) if change.boundary_shift_meters else 0,
-                    "confidence": change.change_confidence
+                    "area_change_hectares": (
+                        round(change.area_change_hectares, 2)
+                        if change.area_change_hectares
+                        else 0
+                    ),
+                    "boundary_shift_meters": (
+                        round(change.boundary_shift_meters, 2)
+                        if change.boundary_shift_meters
+                        else 0
+                    ),
+                    "confidence": change.change_confidence,
                 },
-                "affected_area": {
-                    "type": "MultiPoint",
-                    "coordinates": [[lon, lat] for lon, lat in change.affected_coordinates]
-                } if change.affected_coordinates else None,
+                "affected_area": (
+                    {
+                        "type": "MultiPoint",
+                        "coordinates": [
+                            [lon, lat] for lon, lat in change.affected_coordinates
+                        ],
+                    }
+                    if change.affected_coordinates
+                    else None
+                ),
                 "interpretation": {
                     "en": _interpret_boundary_change(change),
-                    "ar": _interpret_boundary_change_ar(change)
+                    "ar": _interpret_boundary_change_ar(change),
                 },
-                "detection_date": change.detection_date.isoformat()
+                "detection_date": change.detection_date.isoformat(),
             }
 
         except HTTPException:

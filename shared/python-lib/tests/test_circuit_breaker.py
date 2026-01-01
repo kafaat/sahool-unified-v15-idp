@@ -48,7 +48,9 @@ class TestCircuitBreakerStates:
         cb = CircuitBreaker()
 
         assert await cb._is_circuit_open("test-service") is False
-        assert cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
+        assert (
+            cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
+        )
 
     @pytest.mark.asyncio
     async def test_circuit_opens_after_failures(self):
@@ -71,7 +73,9 @@ class TestCircuitBreakerStates:
         for _ in range(4):
             await cb._on_failure("test-service")
 
-        assert cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
+        assert (
+            cb._states.get("test-service", CircuitState.CLOSED) == CircuitState.CLOSED
+        )
 
     @pytest.mark.asyncio
     async def test_success_resets_failure_count(self):

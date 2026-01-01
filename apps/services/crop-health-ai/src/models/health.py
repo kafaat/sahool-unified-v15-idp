@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 class HealthCheckResponse(BaseModel):
     """استجابة فحص الصحة"""
+
     status: str
     service: str
     version: str

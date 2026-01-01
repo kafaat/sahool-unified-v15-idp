@@ -25,13 +25,16 @@ GGN_FORMAT_PATTERN = r"^40\d{11}$"  # 4000000000000 to 4099999999999
 GGN_LENGTH = 13
 GGN_PREFIX = "40"
 
+
 # Compliance Levels
 # مستويات الامتثال
 class ComplianceLevel(str, Enum):
     """Compliance level enumeration / تعداد مستويات الامتثال"""
+
     MAJOR_MUST = "MAJOR_MUST"
     MINOR_MUST = "MINOR_MUST"
     RECOMMENDATION = "RECOMMENDATION"
+
 
 COMPLIANCE_LEVELS = {
     "MAJOR_MUST": {
@@ -64,8 +67,8 @@ COMPLIANCE_LEVELS = {
 # عتبات الامتثال
 COMPLIANCE_THRESHOLDS = {
     "major_must": 100.0,  # Must be 100% compliant
-    "minor_must": 95.0,   # Must be at least 95% compliant
-    "overall": 95.0,      # Overall compliance threshold
+    "minor_must": 95.0,  # Must be at least 95% compliant
+    "overall": 95.0,  # Overall compliance threshold
 }
 
 # Minimum Requirements for Certification
@@ -80,16 +83,19 @@ CERTIFICATION_MINIMUM_REQUIREMENTS = {
     },
 }
 
+
 # Audit Types
 # أنواع التدقيق
 class AuditType(str, Enum):
     """Audit type enumeration / تعداد أنواع التدقيق"""
+
     INITIAL = "INITIAL"
     RENEWAL = "RENEWAL"
     SURVEILLANCE = "SURVEILLANCE"
     ANNOUNCED = "ANNOUNCED"
     UNANNOUNCED = "UNANNOUNCED"
     WITNESSED = "WITNESSED"
+
 
 AUDIT_TYPES = {
     "INITIAL": {

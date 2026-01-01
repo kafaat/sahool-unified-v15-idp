@@ -49,12 +49,14 @@ async def test_marketplace_product_listing_workflow(
 
     # Act - تنفيذ - List all products
     response = await http_client.get(
-        f"{marketplace_url}/api/v1/products",
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/products", headers=auth_headers
     )
 
     # Assert - التحقق
-    assert response.status_code in (200, 401), f"Failed to list products: {response.text}"
+    assert response.status_code in (
+        200,
+        401,
+    ), f"Failed to list products: {response.text}"
 
     if response.status_code == 200:
         products_data = response.json()
@@ -62,7 +64,11 @@ async def test_marketplace_product_listing_workflow(
 
         # If it's a paginated response
         if isinstance(products_data, dict):
-            assert "products" in products_data or "items" in products_data or "data" in products_data
+            assert (
+                "products" in products_data
+                or "items" in products_data
+                or "data" in products_data
+            )
 
 
 @pytest.mark.integration
@@ -90,13 +96,13 @@ async def test_marketplace_product_search_workflow(
         "min_price": 10,
         "max_price": 1000,
         "location": "Sana'a",
-        "in_stock": True
+        "in_stock": True,
     }
 
     response = await http_client.get(
         f"{marketplace_url}/api/v1/products/search",
         params=search_params,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 401)
@@ -120,8 +126,7 @@ async def test_marketplace_product_categories_workflow(
 
     # Get all categories - الحصول على جميع الفئات
     response = await http_client.get(
-        f"{marketplace_url}/api/v1/categories",
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/categories", headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -156,8 +161,7 @@ async def test_marketplace_product_details_workflow(
     product_id = "product-test-001"
 
     response = await http_client.get(
-        f"{marketplace_url}/api/v1/products/{product_id}",
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/products/{product_id}", headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -203,21 +207,19 @@ async def test_marketplace_seller_registration_workflow(
             "city": "Sana'a",
             "city_ar": "صنعاء",
             "governorate": "Amanat Al Asimah",
-            "governorate_ar": "أمانة العاصمة"
+            "governorate_ar": "أمانة العاصمة",
         },
         "business_license": "BL-2024-12345",
         "tax_id": "TAX-12345678",
         "bank_account": {
             "account_name": "AgroSupplies Yemen",
             "account_number": "1234567890",
-            "bank_name": "Yemen Bank"
-        }
+            "bank_name": "Yemen Bank",
+        },
     }
 
     response = await http_client.post(
-        f"{marketplace_url}/api/v1/sellers",
-        json=seller_data,
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/sellers", json=seller_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401, 422)
@@ -265,20 +267,18 @@ async def test_marketplace_create_product_workflow(
             "phosphorus_percent": 20,
             "potassium_percent": 20,
             "manufacturer": "Yemen Agro Industries",
-            "origin": "Yemen"
+            "origin": "Yemen",
         },
         "images": [
             "https://cdn.sahool.io/products/npk-20-20-20-1.jpg",
-            "https://cdn.sahool.io/products/npk-20-20-20-2.jpg"
+            "https://cdn.sahool.io/products/npk-20-20-20-2.jpg",
         ],
         "tags": ["fertilizer", "NPK", "compound", "crops"],
-        "tags_ar": ["سماد", "NPK", "مركب", "محاصيل"]
+        "tags_ar": ["سماد", "NPK", "مركب", "محاصيل"],
     }
 
     response = await http_client.post(
-        f"{marketplace_url}/api/v1/products",
-        json=product_data,
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/products", json=product_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401, 422)
@@ -311,13 +311,11 @@ async def test_marketplace_shopping_cart_workflow(
     cart_item = {
         "product_id": "product-test-001",
         "quantity": 10,
-        "notes": "Please deliver before weekend"
+        "notes": "Please deliver before weekend",
     }
 
     response = await http_client.post(
-        f"{marketplace_url}/api/v1/cart/items",
-        json=cart_item,
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/cart/items", json=cart_item, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401)
@@ -344,8 +342,7 @@ async def test_marketplace_cart_checkout_workflow(
 
     # Get cart summary - الحصول على ملخص العربة
     cart_response = await http_client.get(
-        f"{marketplace_url}/api/v1/cart",
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/cart", headers=auth_headers
     )
 
     if cart_response.status_code == 200:
@@ -378,16 +375,8 @@ async def test_marketplace_order_placement_workflow(
 
     order_data = {
         "items": [
-            {
-                "product_id": "product-npk-001",
-                "quantity": 20,
-                "unit_price": 12500
-            },
-            {
-                "product_id": "product-seeds-002",
-                "quantity": 5,
-                "unit_price": 8000
-            }
+            {"product_id": "product-npk-001", "quantity": 20, "unit_price": 12500},
+            {"product_id": "product-seeds-002", "quantity": 5, "unit_price": 8000},
         ],
         "delivery_address": {
             "name": "Ahmed's Farm",
@@ -397,17 +386,15 @@ async def test_marketplace_order_placement_workflow(
             "city": "Sana'a",
             "city_ar": "صنعاء",
             "governorate": "Amanat Al Asimah",
-            "notes": "Near the main mosque"
+            "notes": "Near the main mosque",
         },
         "payment_method": "tharwatt",
         "discount_code": "FIRST10",
-        "notes": "Please call before delivery"
+        "notes": "Please call before delivery",
     }
 
     response = await http_client.post(
-        f"{marketplace_url}/api/v1/orders",
-        json=order_data,
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/orders", json=order_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401, 422)
@@ -442,8 +429,7 @@ async def test_marketplace_order_tracking_workflow(
 
     # Get order history - الحصول على سجل الطلبات
     response = await http_client.get(
-        f"{marketplace_url}/api/v1/orders",
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/orders", headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -476,13 +462,13 @@ async def test_marketplace_order_status_update_workflow(
         "status": "confirmed",
         "estimated_delivery_date": (datetime.utcnow() + timedelta(days=3)).isoformat(),
         "tracking_number": "TRK-123456789",
-        "notes": "Your order is being prepared for shipment"
+        "notes": "Your order is being prepared for shipment",
     }
 
     response = await http_client.patch(
         f"{marketplace_url}/api/v1/orders/{order_id}/status",
         json=status_update,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 401, 404)
@@ -519,14 +505,12 @@ async def test_marketplace_payment_workflow(
         "customer_info": {
             "name": "Ahmed Al-Saleh",
             "phone": "+967777123456",
-            "email": "ahmed@example.com"
-        }
+            "email": "ahmed@example.com",
+        },
     }
 
     response = await http_client.post(
-        f"{marketplace_url}/api/v1/payments",
-        json=payment_data,
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/payments", json=payment_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401, 422)
@@ -564,15 +548,11 @@ async def test_marketplace_product_review_workflow(
         "review": "Very good quality fertilizer. My crops are thriving!",
         "review_ar": "سماد ذو جودة عالية جداً. محاصيلي تزدهر!",
         "verified_purchase": True,
-        "images": [
-            "https://cdn.sahool.io/reviews/user-photo-1.jpg"
-        ]
+        "images": ["https://cdn.sahool.io/reviews/user-photo-1.jpg"],
     }
 
     response = await http_client.post(
-        f"{marketplace_url}/api/v1/reviews",
-        json=review_data,
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/reviews", json=review_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401, 422)
@@ -602,16 +582,16 @@ async def test_marketplace_seller_rating_workflow(
             "product_quality": 5,
             "delivery_speed": 4,
             "customer_service": 5,
-            "overall": 5
+            "overall": 5,
         },
         "review": "Great seller, highly recommended!",
-        "review_ar": "بائع رائع، موصى به بشدة!"
+        "review_ar": "بائع رائع، موصى به بشدة!",
     }
 
     response = await http_client.post(
         f"{marketplace_url}/api/v1/sellers/reviews",
         json=seller_review,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 201, 401, 422)
@@ -645,13 +625,13 @@ async def test_marketplace_inventory_update_workflow(
         "quantity_available": 450,
         "low_stock_threshold": 50,
         "auto_reorder": True,
-        "reorder_quantity": 200
+        "reorder_quantity": 200,
     }
 
     response = await http_client.patch(
         f"{marketplace_url}/api/v1/products/{product_id}/inventory",
         json=inventory_update,
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code in (200, 401, 404)
@@ -684,8 +664,7 @@ async def test_marketplace_delivery_tracking_workflow(
 
     # Get delivery tracking - الحصول على تتبع التوصيل
     response = await http_client.get(
-        f"{marketplace_url}/api/v1/orders/{order_id}/delivery",
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/orders/{order_id}/delivery", headers=auth_headers
     )
 
     if response.status_code == 200:
@@ -722,15 +701,11 @@ async def test_marketplace_dispute_workflow(
         "description": "Received different product than ordered",
         "description_ar": "استلمت منتج مختلف عن المطلوب",
         "requested_resolution": "refund",
-        "evidence_urls": [
-            "https://cdn.sahool.io/disputes/photo-1.jpg"
-        ]
+        "evidence_urls": ["https://cdn.sahool.io/disputes/photo-1.jpg"],
     }
 
     response = await http_client.post(
-        f"{marketplace_url}/api/v1/disputes",
-        json=dispute_data,
-        headers=auth_headers
+        f"{marketplace_url}/api/v1/disputes", json=dispute_data, headers=auth_headers
     )
 
     assert response.status_code in (200, 201, 401, 422)

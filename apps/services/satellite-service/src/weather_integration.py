@@ -23,10 +23,12 @@ logger = logging.getLogger(__name__)
 
 # Import crop catalog for Kc values
 import sys
+
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
 try:
     from apps.services.shared.crops import get_crop
 except ImportError:
+
     def get_crop(code: str):
         return None
 
@@ -34,6 +36,7 @@ except ImportError:
 @dataclass
 class WeatherData:
     """Daily weather data point"""
+
     timestamp: datetime
     temperature_c: float
     temperature_min_c: float
@@ -51,9 +54,15 @@ class WeatherData:
             "temperature_min_c": round(self.temperature_min_c, 1),
             "temperature_max_c": round(self.temperature_max_c, 1),
             "precipitation_mm": round(self.precipitation_mm, 2),
-            "humidity_percent": round(self.humidity_percent, 1) if self.humidity_percent else None,
-            "wind_speed_ms": round(self.wind_speed_ms, 2) if self.wind_speed_ms else None,
-            "solar_radiation_wm2": round(self.solar_radiation_wm2, 1) if self.solar_radiation_wm2 else None,
+            "humidity_percent": (
+                round(self.humidity_percent, 1) if self.humidity_percent else None
+            ),
+            "wind_speed_ms": (
+                round(self.wind_speed_ms, 2) if self.wind_speed_ms else None
+            ),
+            "solar_radiation_wm2": (
+                round(self.solar_radiation_wm2, 1) if self.solar_radiation_wm2 else None
+            ),
             "et0_mm": round(self.et0_mm, 2) if self.et0_mm else None,
         }
 
@@ -61,6 +70,7 @@ class WeatherData:
 @dataclass
 class WeatherForecast:
     """Weather forecast for a location"""
+
     location: Dict[str, float]  # {"lat": ..., "lon": ...}
     generated_at: datetime
     daily: List[WeatherData]
@@ -79,6 +89,7 @@ class WeatherForecast:
 @dataclass
 class HistoricalWeather:
     """Historical weather data"""
+
     location: Dict[str, float]
     start_date: date
     end_date: date
@@ -99,6 +110,7 @@ class HistoricalWeather:
 @dataclass
 class FrostRisk:
     """Frost risk assessment"""
+
     date: date
     min_temp_c: float
     frost_probability: float  # 0-1
@@ -120,6 +132,7 @@ class FrostRisk:
 @dataclass
 class IrrigationRecommendation:
     """Irrigation recommendation based on weather and ET0"""
+
     field_id: Optional[str]
     crop_type: str
     crop_name_ar: str
@@ -166,11 +179,11 @@ class WeatherIntegration:
 
     # Growth stage to Kc mapping (crop coefficient for water requirement)
     GROWTH_STAGE_KC = {
-        "initial": 0.5,      # germination/establishment
-        "development": 0.7,   # vegetative growth
-        "mid": 1.0,          # flowering/peak growth
-        "late": 0.8,         # ripening/maturation
-        "harvest": 0.6,      # pre-harvest
+        "initial": 0.5,  # germination/establishment
+        "development": 0.7,  # vegetative growth
+        "mid": 1.0,  # flowering/peak growth
+        "late": 0.8,  # ripening/maturation
+        "harvest": 0.6,  # pre-harvest
     }
 
     def __init__(self):
@@ -181,10 +194,7 @@ class WeatherIntegration:
         await self.client.aclose()
 
     async def get_forecast(
-        self,
-        latitude: float,
-        longitude: float,
-        days: int = 7
+        self, latitude: float, longitude: float, days: int = 7
     ) -> WeatherForecast:
         """
         Get weather forecast for next N days.
@@ -239,15 +249,26 @@ class WeatherIntegration:
             daily_et0 = data.get("daily", {}).get("et0_fao_evapotranspiration", [])
 
             for i in range(len(daily_times)):
-                daily_data.append(WeatherData(
-                    timestamp=datetime.fromisoformat(daily_times[i]),
-                    temperature_c=daily_temp_mean[i] if i < len(daily_temp_mean) else
-                                 (daily_temp_max[i] + daily_temp_min[i]) / 2,
-                    temperature_min_c=daily_temp_min[i] if i < len(daily_temp_min) else 0,
-                    temperature_max_c=daily_temp_max[i] if i < len(daily_temp_max) else 0,
-                    precipitation_mm=daily_precip[i] if i < len(daily_precip) else 0,
-                    et0_mm=daily_et0[i] if i < len(daily_et0) else None,
-                ))
+                daily_data.append(
+                    WeatherData(
+                        timestamp=datetime.fromisoformat(daily_times[i]),
+                        temperature_c=(
+                            daily_temp_mean[i]
+                            if i < len(daily_temp_mean)
+                            else (daily_temp_max[i] + daily_temp_min[i]) / 2
+                        ),
+                        temperature_min_c=(
+                            daily_temp_min[i] if i < len(daily_temp_min) else 0
+                        ),
+                        temperature_max_c=(
+                            daily_temp_max[i] if i < len(daily_temp_max) else 0
+                        ),
+                        precipitation_mm=(
+                            daily_precip[i] if i < len(daily_precip) else 0
+                        ),
+                        et0_mm=daily_et0[i] if i < len(daily_et0) else None,
+                    )
+                )
 
             # Parse hourly data (optional, for detailed analysis)
             hourly_data = []
@@ -259,16 +280,24 @@ class WeatherIntegration:
             hourly_solar = data.get("hourly", {}).get("shortwave_radiation", [])
 
             for i in range(len(hourly_times)):
-                hourly_data.append(WeatherData(
-                    timestamp=datetime.fromisoformat(hourly_times[i]),
-                    temperature_c=hourly_temp[i] if i < len(hourly_temp) else 0,
-                    temperature_min_c=hourly_temp[i] if i < len(hourly_temp) else 0,
-                    temperature_max_c=hourly_temp[i] if i < len(hourly_temp) else 0,
-                    precipitation_mm=hourly_precip[i] if i < len(hourly_precip) else 0,
-                    humidity_percent=hourly_humidity[i] if i < len(hourly_humidity) else None,
-                    wind_speed_ms=hourly_wind[i] if i < len(hourly_wind) else None,
-                    solar_radiation_wm2=hourly_solar[i] if i < len(hourly_solar) else None,
-                ))
+                hourly_data.append(
+                    WeatherData(
+                        timestamp=datetime.fromisoformat(hourly_times[i]),
+                        temperature_c=hourly_temp[i] if i < len(hourly_temp) else 0,
+                        temperature_min_c=hourly_temp[i] if i < len(hourly_temp) else 0,
+                        temperature_max_c=hourly_temp[i] if i < len(hourly_temp) else 0,
+                        precipitation_mm=(
+                            hourly_precip[i] if i < len(hourly_precip) else 0
+                        ),
+                        humidity_percent=(
+                            hourly_humidity[i] if i < len(hourly_humidity) else None
+                        ),
+                        wind_speed_ms=hourly_wind[i] if i < len(hourly_wind) else None,
+                        solar_radiation_wm2=(
+                            hourly_solar[i] if i < len(hourly_solar) else None
+                        ),
+                    )
+                )
 
             return WeatherForecast(
                 location={"lat": latitude, "lon": longitude},
@@ -282,11 +311,7 @@ class WeatherIntegration:
             raise Exception(f"Weather API error: {str(e)}")
 
     async def get_historical(
-        self,
-        latitude: float,
-        longitude: float,
-        start_date: date,
-        end_date: date
+        self, latitude: float, longitude: float, start_date: date, end_date: date
     ) -> HistoricalWeather:
         """
         Get historical weather data for analysis.
@@ -332,15 +357,26 @@ class WeatherIntegration:
             daily_et0 = data.get("daily", {}).get("et0_fao_evapotranspiration", [])
 
             for i in range(len(daily_times)):
-                daily_data.append(WeatherData(
-                    timestamp=datetime.fromisoformat(daily_times[i]),
-                    temperature_c=daily_temp_mean[i] if i < len(daily_temp_mean) else
-                                 (daily_temp_max[i] + daily_temp_min[i]) / 2,
-                    temperature_min_c=daily_temp_min[i] if i < len(daily_temp_min) else 0,
-                    temperature_max_c=daily_temp_max[i] if i < len(daily_temp_max) else 0,
-                    precipitation_mm=daily_precip[i] if i < len(daily_precip) else 0,
-                    et0_mm=daily_et0[i] if i < len(daily_et0) else None,
-                ))
+                daily_data.append(
+                    WeatherData(
+                        timestamp=datetime.fromisoformat(daily_times[i]),
+                        temperature_c=(
+                            daily_temp_mean[i]
+                            if i < len(daily_temp_mean)
+                            else (daily_temp_max[i] + daily_temp_min[i]) / 2
+                        ),
+                        temperature_min_c=(
+                            daily_temp_min[i] if i < len(daily_temp_min) else 0
+                        ),
+                        temperature_max_c=(
+                            daily_temp_max[i] if i < len(daily_temp_max) else 0
+                        ),
+                        precipitation_mm=(
+                            daily_precip[i] if i < len(daily_precip) else 0
+                        ),
+                        et0_mm=daily_et0[i] if i < len(daily_et0) else None,
+                    )
+                )
 
             # Calculate summary statistics
             temps = [d.temperature_c for d in daily_data]
@@ -348,17 +384,16 @@ class WeatherIntegration:
             et0s = [d.et0_mm for d in daily_data if d.et0_mm is not None]
 
             # Calculate GDD (Growing Degree Days) with base temp 10°C
-            gdd = sum(
-                max(0, d.temperature_c - 10.0)
-                for d in daily_data
-            )
+            gdd = sum(max(0, d.temperature_c - 10.0) for d in daily_data)
 
             summary = {
                 "avg_temp_c": round(sum(temps) / len(temps), 1) if temps else 0,
                 "min_temp_c": round(min(temps), 1) if temps else 0,
                 "max_temp_c": round(max(temps), 1) if temps else 0,
                 "total_precipitation_mm": round(sum(precips), 1),
-                "avg_daily_precipitation_mm": round(sum(precips) / len(precips), 2) if precips else 0,
+                "avg_daily_precipitation_mm": (
+                    round(sum(precips) / len(precips), 2) if precips else 0
+                ),
                 "total_et0_mm": round(sum(et0s), 1) if et0s else None,
                 "avg_daily_et0_mm": round(sum(et0s) / len(et0s), 2) if et0s else None,
                 "gdd_base_10": round(gdd, 1),
@@ -383,7 +418,7 @@ class WeatherIntegration:
         longitude: float,
         start_date: date,
         end_date: date,
-        base_temp: float = 10.0
+        base_temp: float = 10.0,
     ) -> float:
         """
         Calculate accumulated Growing Degree Days (GDD).
@@ -400,7 +435,9 @@ class WeatherIntegration:
             Total accumulated GDD
         """
         # Get historical data
-        historical = await self.get_historical(latitude, longitude, start_date, end_date)
+        historical = await self.get_historical(
+            latitude, longitude, start_date, end_date
+        )
 
         # Calculate GDD
         gdd = 0.0
@@ -416,7 +453,7 @@ class WeatherIntegration:
         longitude: float,
         start_date: date,
         end_date: date,
-        kc: float = 1.0
+        kc: float = 1.0,
     ) -> Dict:
         """
         Calculate water balance: Precipitation - ET0 * Kc
@@ -433,7 +470,9 @@ class WeatherIntegration:
             Dict with water balance analysis
         """
         # Get historical data
-        historical = await self.get_historical(latitude, longitude, start_date, end_date)
+        historical = await self.get_historical(
+            latitude, longitude, start_date, end_date
+        )
 
         # Calculate water balance
         total_precipitation = 0.0
@@ -449,12 +488,14 @@ class WeatherIntegration:
             total_precipitation += precip
             total_etc += etc
 
-            daily_balance.append({
-                "date": day.timestamp.date().isoformat(),
-                "precipitation_mm": round(precip, 2),
-                "etc_mm": round(etc, 2),
-                "balance_mm": round(balance, 2),
-            })
+            daily_balance.append(
+                {
+                    "date": day.timestamp.date().isoformat(),
+                    "precipitation_mm": round(precip, 2),
+                    "etc_mm": round(etc, 2),
+                    "balance_mm": round(balance, 2),
+                }
+            )
 
         total_balance = total_precipitation - total_etc
 
@@ -481,7 +522,9 @@ class WeatherIntegration:
                 "total_precipitation_mm": round(total_precipitation, 1),
                 "total_etc_mm": round(total_etc, 1),
                 "total_balance_mm": round(total_balance, 1),
-                "avg_daily_precipitation_mm": round(total_precipitation / len(historical.daily), 2),
+                "avg_daily_precipitation_mm": round(
+                    total_precipitation / len(historical.daily), 2
+                ),
                 "avg_daily_etc_mm": round(total_etc / len(historical.daily), 2),
                 "status": status,
                 "status_ar": status_ar,
@@ -521,7 +564,11 @@ class WeatherIntegration:
             # Get Kc for growth stage
             if growth_stage == "initial" or growth_stage == "germination":
                 kc = crop_info.kc_initial or 0.5
-            elif growth_stage == "mid" or growth_stage == "flowering" or growth_stage == "fruiting":
+            elif (
+                growth_stage == "mid"
+                or growth_stage == "flowering"
+                or growth_stage == "fruiting"
+            ):
                 kc = crop_info.kc_mid or 1.0
             elif growth_stage == "late" or growth_stage == "ripening":
                 kc = crop_info.kc_end or 0.8
@@ -567,7 +614,9 @@ class WeatherIntegration:
         else:
             freq_days = 2
             recommendation_en = f"Heavy irrigation required every {freq_days} days due to high water demand."
-            recommendation_ar = f"ري كثيف مطلوب كل {freq_days} أيام بسبب الطلب المائي العالي."
+            recommendation_ar = (
+                f"ري كثيف مطلوب كل {freq_days} أيام بسبب الطلب المائي العالي."
+            )
 
         # Add growth stage specific advice
         if growth_stage in ["flowering", "mid"]:
@@ -602,10 +651,7 @@ class WeatherIntegration:
         )
 
     async def get_frost_risk(
-        self,
-        latitude: float,
-        longitude: float,
-        days: int = 7
+        self, latitude: float, longitude: float, days: int = 7
     ) -> List[FrostRisk]:
         """
         Assess frost risk for next N days.
@@ -661,14 +707,16 @@ class WeatherIntegration:
                 rec_ar = "لا يوجد خطر صقيع"
                 rec_en = "No frost risk"
 
-            frost_risks.append(FrostRisk(
-                date=day.timestamp.date(),
-                min_temp_c=min_temp,
-                frost_probability=probability,
-                risk_level=risk_level,
-                recommendation_ar=rec_ar,
-                recommendation_en=rec_en,
-            ))
+            frost_risks.append(
+                FrostRisk(
+                    date=day.timestamp.date(),
+                    min_temp_c=min_temp,
+                    frost_probability=probability,
+                    risk_level=risk_level,
+                    recommendation_ar=rec_ar,
+                    recommendation_en=rec_en,
+                )
+            )
 
         return frost_risks
 

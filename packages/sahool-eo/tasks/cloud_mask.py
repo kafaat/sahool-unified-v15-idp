@@ -19,8 +19,10 @@ logger = logging.getLogger(__name__)
 # Scene Classification Layer Values (Sentinel-2 L2A)
 # =============================================================================
 
+
 class SCLClass:
     """Sentinel-2 Scene Classification Layer classes"""
+
     NO_DATA = 0
     SATURATED_DEFECTIVE = 1
     DARK_AREA_PIXELS = 2
@@ -43,6 +45,7 @@ class SCLClass:
 # =============================================================================
 # SAHOOL Cloud Mask Task
 # =============================================================================
+
 
 class SahoolCloudMaskTask:
     """
@@ -139,7 +142,9 @@ class SahoolCloudMaskTask:
                 if clp_data is not None:
                     # CLP is typically 0-255, normalize to 0-1
                     clp_normalized = clp_data.astype(np.float32) / 255.0
-                    clp_mask = (clp_normalized > self.cloud_probability_threshold).astype(np.uint8)
+                    clp_mask = (
+                        clp_normalized > self.cloud_probability_threshold
+                    ).astype(np.uint8)
                     cloud_mask |= clp_mask
 
             # Apply buffer if specified
@@ -178,9 +183,7 @@ class SahoolCloudMaskTask:
 
         struct = ndimage.generate_binary_structure(2, 1)
         buffered = ndimage.binary_dilation(
-            mask,
-            structure=struct,
-            iterations=self.buffer_size
+            mask, structure=struct, iterations=self.buffer_size
         )
         return buffered.astype(np.uint8)
 
@@ -188,6 +191,7 @@ class SahoolCloudMaskTask:
 # =============================================================================
 # S2cloudless Task
 # =============================================================================
+
 
 class S2CloudlessTask:
     """
@@ -301,7 +305,9 @@ class S2CloudlessTask:
 
             # Add to EOPatch
             eopatch[FeatureType.MASK][self.output_feature] = cloud_mask[..., np.newaxis]
-            eopatch[FeatureType.DATA][self.probability_feature] = cloud_prob[..., np.newaxis]
+            eopatch[FeatureType.DATA][self.probability_feature] = cloud_prob[
+                ..., np.newaxis
+            ]
 
             logger.info("s2cloudless cloud detection completed")
             return eopatch
@@ -314,6 +320,7 @@ class S2CloudlessTask:
 # =============================================================================
 # Composite Cloud Mask Task
 # =============================================================================
+
 
 class CompositeCloudMaskTask:
     """

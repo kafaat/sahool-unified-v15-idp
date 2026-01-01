@@ -22,6 +22,7 @@ from typing import Iterator
 @dataclass
 class ComplianceCheck:
     """Single compliance check result"""
+
     category: str
     name: str
     status: str  # pass, fail, warning, manual
@@ -33,7 +34,10 @@ class ComplianceCheck:
 @dataclass
 class ComplianceReport:
     """Full compliance report"""
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
     checks: list[ComplianceCheck] = field(default_factory=list)
     summary: dict = field(default_factory=dict)
 
@@ -107,21 +111,25 @@ class ComplianceChecker:
             if service_file.exists():
                 content = service_file.read_text()
                 if "write_audit_log" in content:
-                    self.report.add_check(ComplianceCheck(
-                        category="Audit",
-                        name="Audit logging service",
-                        status="pass",
-                        details="write_audit_log() function found in audit service",
-                        file_path=str(service_file),
-                    ))
+                    self.report.add_check(
+                        ComplianceCheck(
+                            category="Audit",
+                            name="Audit logging service",
+                            status="pass",
+                            details="write_audit_log() function found in audit service",
+                            file_path=str(service_file),
+                        )
+                    )
                     return
 
-        self.report.add_check(ComplianceCheck(
-            category="Audit",
-            name="Audit logging service",
-            status="fail",
-            details="Audit logging service not found or incomplete",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="Audit",
+                name="Audit logging service",
+                status="fail",
+                details="Audit logging service not found or incomplete",
+            )
+        )
 
     def _check_audit_hash_chain(self) -> None:
         """Verify hash chain for tamper evidence"""
@@ -135,21 +143,25 @@ class ComplianceChecker:
                 "sha256" in content.lower(),
             ]
             if all(checks):
-                self.report.add_check(ComplianceCheck(
-                    category="Audit",
-                    name="Hash chain integrity",
-                    status="pass",
-                    details="Tamper-evident hash chain implemented with SHA-256",
-                    file_path=str(hashchain_file),
-                ))
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="Audit",
+                        name="Hash chain integrity",
+                        status="pass",
+                        details="Tamper-evident hash chain implemented with SHA-256",
+                        file_path=str(hashchain_file),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="Audit",
-            name="Hash chain integrity",
-            status="fail",
-            details="Hash chain implementation missing or incomplete",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="Audit",
+                name="Hash chain integrity",
+                status="fail",
+                details="Hash chain implementation missing or incomplete",
+            )
+        )
 
     def _check_pii_redaction(self) -> None:
         """Verify PII redaction in audit logs"""
@@ -161,21 +173,25 @@ class ComplianceChecker:
             found = sum(1 for key in sensitive_keys if key in content.lower())
 
             if found >= 3:
-                self.report.add_check(ComplianceCheck(
-                    category="Audit",
-                    name="PII redaction",
-                    status="pass",
-                    details=f"Redaction covers {found} sensitive field types",
-                    file_path=str(redact_file),
-                ))
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="Audit",
+                        name="PII redaction",
+                        status="pass",
+                        details=f"Redaction covers {found} sensitive field types",
+                        file_path=str(redact_file),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="Audit",
-            name="PII redaction",
-            status="fail",
-            details="PII redaction not implemented or insufficient",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="Audit",
+                name="PII redaction",
+                status="fail",
+                details="PII redaction not implemented or insufficient",
+            )
+        )
 
     # -------------------------------------------------------------------------
     # Security Checks
@@ -191,43 +207,54 @@ class ComplianceChecker:
 
         for path in auth_patterns:
             if path.exists():
-                self.report.add_check(ComplianceCheck(
-                    category="Security",
-                    name="Authentication",
-                    status="pass",
-                    details=f"Authentication module found at {path.relative_to(self.root)}",
-                    file_path=str(path),
-                ))
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="Security",
+                        name="Authentication",
+                        status="pass",
+                        details=f"Authentication module found at {path.relative_to(self.root)}",
+                        file_path=str(path),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="Security",
-            name="Authentication",
-            status="warning",
-            details="Authentication module location could not be verified",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="Security",
+                name="Authentication",
+                status="warning",
+                details="Authentication module location could not be verified",
+            )
+        )
 
     def _check_authorization(self) -> None:
         """Check for RBAC/ABAC implementation"""
         # Look for permission/role patterns
         for py_file in self._find_python_files():
             content = py_file.read_text()
-            if any(pattern in content for pattern in ["Permission", "Role", "RBAC", "authorize"]):
-                self.report.add_check(ComplianceCheck(
-                    category="Security",
-                    name="Authorization",
-                    status="pass",
-                    details="Authorization patterns found in codebase",
-                    file_path=str(py_file),
-                ))
+            if any(
+                pattern in content
+                for pattern in ["Permission", "Role", "RBAC", "authorize"]
+            ):
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="Security",
+                        name="Authorization",
+                        status="pass",
+                        details="Authorization patterns found in codebase",
+                        file_path=str(py_file),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="Security",
-            name="Authorization",
-            status="manual",
-            details="Manual review required for authorization implementation",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="Security",
+                name="Authorization",
+                status="manual",
+                details="Manual review required for authorization implementation",
+            )
+        )
 
     def _check_encryption(self) -> None:
         """Verify encryption is used for sensitive data"""
@@ -236,68 +263,80 @@ class ComplianceChecker:
         for py_file in self._find_python_files():
             content = py_file.read_text()
             if any(indicator in content for indicator in encryption_indicators):
-                self.report.add_check(ComplianceCheck(
-                    category="Security",
-                    name="Data encryption",
-                    status="pass",
-                    details="Encryption implementation found",
-                    file_path=str(py_file),
-                ))
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="Security",
+                        name="Data encryption",
+                        status="pass",
+                        details="Encryption implementation found",
+                        file_path=str(py_file),
+                    )
+                )
                 return
 
         # Check for TLS configuration
         tls_path = self.root / "shared" / "libs" / "tls"
         if tls_path.exists():
-            self.report.add_check(ComplianceCheck(
-                category="Security",
-                name="Data encryption",
-                status="pass",
-                details="TLS library found for transport encryption",
-                file_path=str(tls_path),
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Security",
+                    name="Data encryption",
+                    status="pass",
+                    details="TLS library found for transport encryption",
+                    file_path=str(tls_path),
+                )
+            )
             return
 
-        self.report.add_check(ComplianceCheck(
-            category="Security",
-            name="Data encryption",
-            status="warning",
-            details="Encryption implementation needs verification",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="Security",
+                name="Data encryption",
+                status="warning",
+                details="Encryption implementation needs verification",
+            )
+        )
 
     def _check_secrets_management(self) -> None:
         """Verify secrets are not hardcoded"""
         # Check for Vault integration
         vault_path = self.root / "shared" / "libs" / "vault"
         if vault_path.exists():
-            self.report.add_check(ComplianceCheck(
-                category="Security",
-                name="Secrets management",
-                status="pass",
-                details="HashiCorp Vault integration found",
-                file_path=str(vault_path),
-            ))
-            return
-
-        # Check for environment variable usage
-        env_pattern = re.compile(r'os\.environ|getenv|Settings.*env')
-        for py_file in self._find_python_files():
-            content = py_file.read_text()
-            if env_pattern.search(content):
-                self.report.add_check(ComplianceCheck(
+            self.report.add_check(
+                ComplianceCheck(
                     category="Security",
                     name="Secrets management",
                     status="pass",
-                    details="Environment-based configuration found",
-                    file_path=str(py_file),
-                ))
+                    details="HashiCorp Vault integration found",
+                    file_path=str(vault_path),
+                )
+            )
+            return
+
+        # Check for environment variable usage
+        env_pattern = re.compile(r"os\.environ|getenv|Settings.*env")
+        for py_file in self._find_python_files():
+            content = py_file.read_text()
+            if env_pattern.search(content):
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="Security",
+                        name="Secrets management",
+                        status="pass",
+                        details="Environment-based configuration found",
+                        file_path=str(py_file),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="Security",
-            name="Secrets management",
-            status="warning",
-            details="Secrets management approach needs review",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="Security",
+                name="Secrets management",
+                status="warning",
+                details="Secrets management approach needs review",
+            )
+        )
 
     # -------------------------------------------------------------------------
     # GDPR Checks
@@ -315,42 +354,52 @@ class ComplianceChecker:
                 "/consent" in content,
             ]
             if all(endpoints):
-                self.report.add_check(ComplianceCheck(
-                    category="GDPR",
-                    name="GDPR endpoints",
-                    status="pass",
-                    details="Export, delete, and consent endpoints implemented",
-                    file_path=str(gdpr_path),
-                ))
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="GDPR",
+                        name="GDPR endpoints",
+                        status="pass",
+                        details="Export, delete, and consent endpoints implemented",
+                        file_path=str(gdpr_path),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="GDPR",
-            name="GDPR endpoints",
-            status="fail",
-            details="GDPR compliance endpoints missing",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="GDPR",
+                name="GDPR endpoints",
+                status="fail",
+                details="GDPR compliance endpoints missing",
+            )
+        )
 
     def _check_consent_management(self) -> None:
         """Verify consent management"""
         for py_file in self._find_python_files():
             content = py_file.read_text()
-            if "consent" in content.lower() and ("record" in content.lower() or "grant" in content.lower()):
-                self.report.add_check(ComplianceCheck(
-                    category="GDPR",
-                    name="Consent management",
-                    status="pass",
-                    details="Consent management functionality found",
-                    file_path=str(py_file),
-                ))
+            if "consent" in content.lower() and (
+                "record" in content.lower() or "grant" in content.lower()
+            ):
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="GDPR",
+                        name="Consent management",
+                        status="pass",
+                        details="Consent management functionality found",
+                        file_path=str(py_file),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="GDPR",
-            name="Consent management",
-            status="manual",
-            details="Consent management requires manual verification",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="GDPR",
+                name="Consent management",
+                status="manual",
+                details="Consent management requires manual verification",
+            )
+        )
 
     def _check_data_retention(self) -> None:
         """Check for data retention policies"""
@@ -360,21 +409,25 @@ class ComplianceChecker:
         for py_file in self._find_python_files():
             content = py_file.read_text().lower()
             if any(pattern in content for pattern in retention_patterns):
-                self.report.add_check(ComplianceCheck(
-                    category="GDPR",
-                    name="Data retention",
-                    status="pass",
-                    details="Data retention patterns found",
-                    file_path=str(py_file),
-                ))
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="GDPR",
+                        name="Data retention",
+                        status="pass",
+                        details="Data retention patterns found",
+                        file_path=str(py_file),
+                    )
+                )
                 return
 
-        self.report.add_check(ComplianceCheck(
-            category="GDPR",
-            name="Data retention",
-            status="manual",
-            details="Data retention policy requires manual review",
-        ))
+        self.report.add_check(
+            ComplianceCheck(
+                category="GDPR",
+                name="Data retention",
+                status="manual",
+                details="Data retention policy requires manual review",
+            )
+        )
 
     # -------------------------------------------------------------------------
     # Code Quality Checks
@@ -382,7 +435,13 @@ class ComplianceChecker:
 
     def _check_input_validation(self) -> None:
         """Verify input validation is used"""
-        validation_patterns = ["pydantic", "BaseModel", "Field(", "validator", "Depends"]
+        validation_patterns = [
+            "pydantic",
+            "BaseModel",
+            "Field(",
+            "validator",
+            "Depends",
+        ]
 
         count = 0
         for py_file in self._find_python_files():
@@ -391,19 +450,23 @@ class ComplianceChecker:
                 count += 1
 
         if count > 5:
-            self.report.add_check(ComplianceCheck(
-                category="Code Quality",
-                name="Input validation",
-                status="pass",
-                details=f"Pydantic validation used in {count} files",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Code Quality",
+                    name="Input validation",
+                    status="pass",
+                    details=f"Pydantic validation used in {count} files",
+                )
+            )
         else:
-            self.report.add_check(ComplianceCheck(
-                category="Code Quality",
-                name="Input validation",
-                status="warning",
-                details="Limited input validation found",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Code Quality",
+                    name="Input validation",
+                    status="warning",
+                    details="Limited input validation found",
+                )
+            )
 
     def _check_error_handling(self) -> None:
         """Check for proper error handling"""
@@ -416,39 +479,47 @@ class ComplianceChecker:
                 count += 1
 
         if count > 10:
-            self.report.add_check(ComplianceCheck(
-                category="Code Quality",
-                name="Error handling",
-                status="pass",
-                details=f"Error handling present in {count} files",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Code Quality",
+                    name="Error handling",
+                    status="pass",
+                    details=f"Error handling present in {count} files",
+                )
+            )
         else:
-            self.report.add_check(ComplianceCheck(
-                category="Code Quality",
-                name="Error handling",
-                status="warning",
-                details="Error handling coverage needs improvement",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Code Quality",
+                    name="Error handling",
+                    status="warning",
+                    details="Error handling coverage needs improvement",
+                )
+            )
 
     def _check_logging_sanitization(self) -> None:
         """Verify logs don't leak sensitive data"""
         redact_path = self.root / "shared" / "libs" / "audit" / "redact.py"
 
         if redact_path.exists():
-            self.report.add_check(ComplianceCheck(
-                category="Code Quality",
-                name="Log sanitization",
-                status="pass",
-                details="Log redaction utility available",
-                file_path=str(redact_path),
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Code Quality",
+                    name="Log sanitization",
+                    status="pass",
+                    details="Log redaction utility available",
+                    file_path=str(redact_path),
+                )
+            )
         else:
-            self.report.add_check(ComplianceCheck(
-                category="Code Quality",
-                name="Log sanitization",
-                status="warning",
-                details="Log sanitization approach needs verification",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Code Quality",
+                    name="Log sanitization",
+                    status="warning",
+                    details="Log sanitization approach needs verification",
+                )
+            )
 
     # -------------------------------------------------------------------------
     # Documentation Checks
@@ -464,26 +535,32 @@ class ComplianceChecker:
 
         found = [doc for doc in security_docs if doc.exists()]
         if len(found) >= 2:
-            self.report.add_check(ComplianceCheck(
-                category="Documentation",
-                name="Security documentation",
-                status="pass",
-                details=f"Found {len(found)} security documents",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Documentation",
+                    name="Security documentation",
+                    status="pass",
+                    details=f"Found {len(found)} security documents",
+                )
+            )
         elif found:
-            self.report.add_check(ComplianceCheck(
-                category="Documentation",
-                name="Security documentation",
-                status="warning",
-                details="Partial security documentation",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Documentation",
+                    name="Security documentation",
+                    status="warning",
+                    details="Partial security documentation",
+                )
+            )
         else:
-            self.report.add_check(ComplianceCheck(
-                category="Documentation",
-                name="Security documentation",
-                status="fail",
-                details="Security documentation missing",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Documentation",
+                    name="Security documentation",
+                    status="fail",
+                    details="Security documentation missing",
+                )
+            )
 
     def _check_api_docs(self) -> None:
         """Verify API documentation"""
@@ -496,13 +573,15 @@ class ComplianceChecker:
 
         for doc in api_docs:
             if doc.exists():
-                self.report.add_check(ComplianceCheck(
-                    category="Documentation",
-                    name="API documentation",
-                    status="pass",
-                    details="API documentation found",
-                    file_path=str(doc),
-                ))
+                self.report.add_check(
+                    ComplianceCheck(
+                        category="Documentation",
+                        name="API documentation",
+                        status="pass",
+                        details="API documentation found",
+                        file_path=str(doc),
+                    )
+                )
                 return
 
         # Check for docstrings in routes
@@ -513,19 +592,23 @@ class ComplianceChecker:
                 docstring_count += content.count('"""')
 
         if docstring_count > 10:
-            self.report.add_check(ComplianceCheck(
-                category="Documentation",
-                name="API documentation",
-                status="pass",
-                details="Route docstrings found for API documentation",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Documentation",
+                    name="API documentation",
+                    status="pass",
+                    details="Route docstrings found for API documentation",
+                )
+            )
         else:
-            self.report.add_check(ComplianceCheck(
-                category="Documentation",
-                name="API documentation",
-                status="manual",
-                details="API documentation requires manual review",
-            ))
+            self.report.add_check(
+                ComplianceCheck(
+                    category="Documentation",
+                    name="API documentation",
+                    status="manual",
+                    details="API documentation requires manual review",
+                )
+            )
 
     # -------------------------------------------------------------------------
     # Utilities
@@ -585,38 +668,42 @@ def generate_markdown(report: ComplianceReport) -> str:
             if check.file_path:
                 file_ref = f" (`{Path(check.file_path).name}`)"
 
-            lines.append(f"| {check.name} | {status_icon} | {check.details}{file_ref} |")
+            lines.append(
+                f"| {check.name} | {status_icon} | {check.details}{file_ref} |"
+            )
 
         lines.append("")
 
     # Add compliance requirements section
-    lines.extend([
-        "## Compliance Requirements",
-        "",
-        "### GDPR (General Data Protection Regulation)",
-        "",
-        "- [x] Article 15: Right of access (data export endpoint)",
-        "- [x] Article 17: Right to erasure (deletion endpoint)",
-        "- [x] Article 20: Right to data portability (export in JSON/CSV)",
-        "- [x] Article 25: Data protection by design (PII redaction)",
-        "- [x] Article 30: Records of processing (audit logging)",
-        "",
-        "### SOC 2 Type II",
-        "",
-        "- [x] CC6.1: Logical access controls (authentication)",
-        "- [x] CC6.2: Access management (authorization/RBAC)",
-        "- [x] CC7.2: System monitoring (audit logging)",
-        "- [x] CC8.1: Change management (hash chain integrity)",
-        "",
-        "### ISO 27001",
-        "",
-        "- [x] A.12.4: Logging and monitoring",
-        "- [x] A.18.1: Compliance with legal requirements",
-        "",
-        "---",
-        "",
-        "*This checklist is auto-generated. Manual verification is recommended for production deployments.*",
-    ])
+    lines.extend(
+        [
+            "## Compliance Requirements",
+            "",
+            "### GDPR (General Data Protection Regulation)",
+            "",
+            "- [x] Article 15: Right of access (data export endpoint)",
+            "- [x] Article 17: Right to erasure (deletion endpoint)",
+            "- [x] Article 20: Right to data portability (export in JSON/CSV)",
+            "- [x] Article 25: Data protection by design (PII redaction)",
+            "- [x] Article 30: Records of processing (audit logging)",
+            "",
+            "### SOC 2 Type II",
+            "",
+            "- [x] CC6.1: Logical access controls (authentication)",
+            "- [x] CC6.2: Access management (authorization/RBAC)",
+            "- [x] CC7.2: System monitoring (audit logging)",
+            "- [x] CC8.1: Change management (hash chain integrity)",
+            "",
+            "### ISO 27001",
+            "",
+            "- [x] A.12.4: Logging and monitoring",
+            "- [x] A.18.1: Compliance with legal requirements",
+            "",
+            "---",
+            "",
+            "*This checklist is auto-generated. Manual verification is recommended for production deployments.*",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -648,20 +735,24 @@ def main():
 
     if args.json:
         import json
-        output = json.dumps({
-            "timestamp": report.timestamp,
-            "summary": report.summary,
-            "checks": [
-                {
-                    "category": c.category,
-                    "name": c.name,
-                    "status": c.status,
-                    "details": c.details,
-                    "file_path": c.file_path,
-                }
-                for c in report.checks
-            ]
-        }, indent=2)
+
+        output = json.dumps(
+            {
+                "timestamp": report.timestamp,
+                "summary": report.summary,
+                "checks": [
+                    {
+                        "category": c.category,
+                        "name": c.name,
+                        "status": c.status,
+                        "details": c.details,
+                        "file_path": c.file_path,
+                    }
+                    for c in report.checks
+                ],
+            },
+            indent=2,
+        )
     else:
         output = generate_markdown(report)
 

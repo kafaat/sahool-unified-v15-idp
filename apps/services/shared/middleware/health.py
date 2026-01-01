@@ -28,8 +28,10 @@ logger = logging.getLogger(__name__)
 # Health Status Types
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class HealthStatus(str, Enum):
     """Health status values."""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
@@ -38,6 +40,7 @@ class HealthStatus(str, Enum):
 @dataclass
 class HealthCheckResult:
     """Result of a health check."""
+
     name: str
     status: HealthStatus
     message: Optional[str] = None
@@ -48,6 +51,7 @@ class HealthCheckResult:
 @dataclass
 class ServiceHealth:
     """Overall service health status."""
+
     status: HealthStatus
     service_name: str
     version: str
@@ -77,6 +81,7 @@ class ServiceHealth:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Check Manager
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class HealthCheckManager:
     """Manages health checks for a service."""
@@ -130,16 +135,21 @@ class HealthCheckManager:
 
                 if result.status == HealthStatus.UNHEALTHY:
                     overall_status = HealthStatus.UNHEALTHY
-                elif result.status == HealthStatus.DEGRADED and overall_status != HealthStatus.UNHEALTHY:
+                elif (
+                    result.status == HealthStatus.DEGRADED
+                    and overall_status != HealthStatus.UNHEALTHY
+                ):
                     overall_status = HealthStatus.DEGRADED
 
             except Exception as e:
                 logger.error(f"Health check {name} failed: {e}")
-                results.append(HealthCheckResult(
-                    name=name,
-                    status=HealthStatus.UNHEALTHY,
-                    message=str(e),
-                ))
+                results.append(
+                    HealthCheckResult(
+                        name=name,
+                        status=HealthStatus.UNHEALTHY,
+                        message=str(e),
+                    )
+                )
                 overall_status = HealthStatus.UNHEALTHY
 
         return ServiceHealth(
@@ -177,6 +187,7 @@ class HealthCheckManager:
 # Common Health Checks
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def create_database_check(
     check_func: Callable[[], bool],
     name: str = "database",
@@ -190,6 +201,7 @@ def create_database_check(
     Returns:
         Health check function
     """
+
     def check() -> HealthCheckResult:
         try:
             if check_func():
@@ -227,6 +239,7 @@ def create_redis_check(
     Returns:
         Health check function
     """
+
     def check() -> HealthCheckResult:
         url = redis_url or os.getenv("REDIS_URL")
         if not url:
@@ -238,6 +251,7 @@ def create_redis_check(
 
         try:
             import redis
+
             r = redis.from_url(url)
             r.ping()
             return HealthCheckResult(
@@ -264,6 +278,7 @@ def create_redis_check(
 # ═══════════════════════════════════════════════════════════════════════════════
 # FastAPI Integration
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def setup_health_endpoints(
     app: FastAPI,
@@ -301,18 +316,21 @@ def setup_health_endpoints(
     manager = HealthCheckManager(service_name=name, version=ver)
 
     if include_livez:
+
         @app.get("/livez", tags=["Health"])
         async def livez():
             """Kubernetes liveness probe - is the process alive?"""
             return manager.liveness_check()
 
     if include_healthz:
+
         @app.get("/healthz", tags=["Health"])
         async def healthz():
             """Basic health check endpoint."""
             return manager.liveness_check()
 
     if include_readyz:
+
         @app.get("/readyz", tags=["Health"])
         async def readyz(response: Response):
             """Kubernetes readiness probe - is the service ready?"""

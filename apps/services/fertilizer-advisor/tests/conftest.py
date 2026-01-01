@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 def test_client():
     """Create FastAPI test client"""
     from src.main import app
+
     return TestClient(app)
 
 
@@ -28,7 +29,7 @@ def sample_soil_analysis() -> Dict[str, Any]:
         "potassium_ppm": 180.0,
         "organic_matter_percent": 3.5,
         "ec_ds_m": 1.2,
-        "texture": "loamy"
+        "texture": "loamy",
     }
 
 
@@ -45,8 +46,8 @@ def sample_recommendation_request() -> Dict[str, Any]:
             "ph": 6.5,
             "nitrogen_ppm": 120.0,
             "phosphorus_ppm": 45.0,
-            "potassium_ppm": 180.0
-        }
+            "potassium_ppm": 180.0,
+        },
     }
 
 
@@ -59,5 +60,5 @@ def sample_schedule_request() -> Dict[str, Any]:
         "planting_date": "2025-01-15",
         "area_hectares": 1.5,
         "soil_type": "clay",
-        "irrigation_method": "drip"
+        "irrigation_method": "drip",
     }

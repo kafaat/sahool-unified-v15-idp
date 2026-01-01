@@ -33,7 +33,9 @@ class EventRegistry:
         cls._events[event_type][version] = event_class
 
     @classmethod
-    def get_event_class(cls, event_type: str, version: str = None) -> Optional[Type[BaseEvent]]:
+    def get_event_class(
+        cls, event_type: str, version: str = None
+    ) -> Optional[Type[BaseEvent]]:
         """Get event class by type and optional version"""
         if event_type not in cls._events:
             return None
@@ -61,21 +63,38 @@ class EventRegistry:
     @classmethod
     def is_compatible(cls, event_type: str, version: str, min_version: str) -> bool:
         """Check if a version is compatible with minimum required version"""
+
         def parse_version(v):
-            return tuple(map(int, v.split('.')))
+            return tuple(map(int, v.split(".")))
 
         return parse_version(version) >= parse_version(min_version)
 
 
 # Auto-register all events
 def _register_all_events():
-    from . import field_events, crop_events, weather_events, iot_events, analytics_events
+    from . import (
+        field_events,
+        crop_events,
+        weather_events,
+        iot_events,
+        analytics_events,
+    )
 
-    for module in [field_events, crop_events, weather_events, iot_events, analytics_events]:
+    for module in [
+        field_events,
+        crop_events,
+        weather_events,
+        iot_events,
+        analytics_events,
+    ]:
         for name in dir(module):
             obj = getattr(module, name)
-            if isinstance(obj, type) and issubclass(obj, BaseEvent) and obj != BaseEvent:
-                if hasattr(obj, 'EVENT_TYPE') and obj.EVENT_TYPE:
+            if (
+                isinstance(obj, type)
+                and issubclass(obj, BaseEvent)
+                and obj != BaseEvent
+            ):
+                if hasattr(obj, "EVENT_TYPE") and obj.EVENT_TYPE:
                     EventRegistry.register(obj)
 
 

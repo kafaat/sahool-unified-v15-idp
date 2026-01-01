@@ -11,10 +11,7 @@ class JWTConfig:
     """JWT Configuration Settings"""
 
     # JWT Secret Key (required for HS256)
-    JWT_SECRET: str = os.getenv(
-        "JWT_SECRET_KEY",
-        os.getenv("JWT_SECRET", "")
-    )
+    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
 
     # JWT Algorithm
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
@@ -45,9 +42,9 @@ class JWTConfig:
     RATE_LIMIT_WINDOW_SECONDS: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60"))
 
     # Token revocation
-    TOKEN_REVOCATION_ENABLED: bool = os.getenv(
-        "TOKEN_REVOCATION_ENABLED", "true"
-    ).lower() == "true"
+    TOKEN_REVOCATION_ENABLED: bool = (
+        os.getenv("TOKEN_REVOCATION_ENABLED", "true").lower() == "true"
+    )
 
     # Redis configuration for token revocation
     REDIS_URL: Optional[str] = os.getenv("REDIS_URL")

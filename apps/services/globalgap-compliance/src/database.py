@@ -34,8 +34,7 @@ logger = logging.getLogger("globalgap-compliance")
 # Database connection URL from environment
 # عنوان URL للاتصال بقاعدة البيانات من البيئة
 DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://sahool:sahool@postgres:5432/sahool_globalgap"
+    "DATABASE_URL", "postgresql://sahool:sahool@postgres:5432/sahool_globalgap"
 )
 
 # Connection pool settings
@@ -44,7 +43,9 @@ MIN_POOL_SIZE = int(os.getenv("DB_MIN_POOL_SIZE", "5"))
 MAX_POOL_SIZE = int(os.getenv("DB_MAX_POOL_SIZE", "20"))
 POOL_COMMAND_TIMEOUT = int(os.getenv("DB_COMMAND_TIMEOUT", "60"))  # seconds
 POOL_MAX_QUERIES = int(os.getenv("DB_MAX_QUERIES", "50000"))  # queries per connection
-POOL_MAX_INACTIVE_CONNECTION_LIFETIME = float(os.getenv("DB_MAX_INACTIVE_LIFETIME", "300.0"))  # seconds
+POOL_MAX_INACTIVE_CONNECTION_LIFETIME = float(
+    os.getenv("DB_MAX_INACTIVE_LIFETIME", "300.0")
+)  # seconds
 
 # =============================================================================
 # Connection Pool Management
@@ -75,11 +76,13 @@ async def get_pool() -> Pool:
             max_inactive_connection_lifetime=POOL_MAX_INACTIVE_CONNECTION_LIFETIME,
             # Server settings for performance
             server_settings={
-                'application_name': 'sahool-globalgap-compliance',
-                'jit': 'off',  # Disable JIT for compatibility
-            }
+                "application_name": "sahool-globalgap-compliance",
+                "jit": "off",  # Disable JIT for compatibility
+            },
         )
-        logger.info(f"Connection pool created: min={MIN_POOL_SIZE}, max={MAX_POOL_SIZE}")
+        logger.info(
+            f"Connection pool created: min={MIN_POOL_SIZE}, max={MAX_POOL_SIZE}"
+        )
 
     return _pool
 
@@ -161,6 +164,7 @@ async def transaction() -> AsyncGenerator[asyncpg.Connection, None]:
 # فئة المستودع الأساسية
 # =============================================================================
 
+
 class BaseRepository:
     """
     Base repository class with common database operations
@@ -196,6 +200,7 @@ class BaseRepository:
 # مستودع تسجيلات GlobalGAP
 # =============================================================================
 
+
 class GlobalGAPRegistrationRepository(BaseRepository):
     """
     Repository for GlobalGAP registrations
@@ -213,7 +218,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         certificate_status: str = "PENDING",
         valid_from: Optional[date] = None,
         valid_to: Optional[date] = None,
-        scope: Optional[str] = None
+        scope: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Create a new GlobalGAP registration
@@ -241,8 +246,14 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         """
 
         row = await self._fetchrow(
-            query, farm_id, ggn, registration_date, certificate_status,
-            valid_from, valid_to, scope
+            query,
+            farm_id,
+            ggn,
+            registration_date,
+            certificate_status,
+            valid_from,
+            valid_to,
+            scope,
         )
         return dict(row) if row else None
 
@@ -277,7 +288,9 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         rows = await self._fetch(query, farm_id)
         return [dict(row) for row in rows]
 
-    async def get_active_registrations(self, farm_id: Optional[UUID] = None) -> List[Dict[str, Any]]:
+    async def get_active_registrations(
+        self, farm_id: Optional[UUID] = None
+    ) -> List[Dict[str, Any]]:
         """
         Get active registrations, optionally filtered by farm
         الحصول على التسجيلات النشطة، اختياريًا مصفاة حسب المزرعة
@@ -319,7 +332,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         registration_id: UUID,
         status: str,
         valid_from: Optional[date] = None,
-        valid_to: Optional[date] = None
+        valid_to: Optional[date] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update registration certificate status
@@ -351,6 +364,7 @@ class GlobalGAPRegistrationRepository(BaseRepository):
 # مستودع سجلات الامتثال
 # =============================================================================
 
+
 class ComplianceRecordRepository(BaseRepository):
     """
     Repository for compliance audit records
@@ -368,7 +382,7 @@ class ComplianceRecordRepository(BaseRepository):
         major_must_score: Optional[float] = None,
         minor_must_score: Optional[float] = None,
         overall_compliance: Optional[float] = None,
-        auditor_notes: Optional[str] = None
+        auditor_notes: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Create a new compliance audit record
@@ -385,9 +399,14 @@ class ComplianceRecordRepository(BaseRepository):
         """
 
         row = await self._fetchrow(
-            query, registration_id, checklist_version, audit_date,
-            major_must_score, minor_must_score, overall_compliance,
-            auditor_notes
+            query,
+            registration_id,
+            checklist_version,
+            audit_date,
+            major_must_score,
+            minor_must_score,
+            overall_compliance,
+            auditor_notes,
         )
         return dict(row) if row else None
 
@@ -398,9 +417,7 @@ class ComplianceRecordRepository(BaseRepository):
         return dict(row) if row else None
 
     async def get_by_registration(
-        self,
-        registration_id: UUID,
-        limit: Optional[int] = None
+        self, registration_id: UUID, limit: Optional[int] = None
     ) -> List[Dict[str, Any]]:
         """
         Get all compliance records for a registration
@@ -424,7 +441,9 @@ class ComplianceRecordRepository(BaseRepository):
 
         return [dict(row) for row in rows]
 
-    async def get_latest_by_registration(self, registration_id: UUID) -> Optional[Dict[str, Any]]:
+    async def get_latest_by_registration(
+        self, registration_id: UUID
+    ) -> Optional[Dict[str, Any]]:
         """
         Get the most recent compliance record for a registration
         الحصول على أحدث سجل امتثال لتسجيل
@@ -439,8 +458,7 @@ class ComplianceRecordRepository(BaseRepository):
         return dict(row) if row else None
 
     async def get_low_compliance_records(
-        self,
-        threshold: float = 80.0
+        self, threshold: float = 80.0
     ) -> List[Dict[str, Any]]:
         """
         Get records with compliance below threshold
@@ -461,7 +479,7 @@ class ComplianceRecordRepository(BaseRepository):
         record_id: UUID,
         major_must_score: Optional[float] = None,
         minor_must_score: Optional[float] = None,
-        overall_compliance: Optional[float] = None
+        overall_compliance: Optional[float] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update compliance scores
@@ -492,6 +510,7 @@ class ComplianceRecordRepository(BaseRepository):
 # مستودع استجابات قائمة التحقق
 # =============================================================================
 
+
 class ChecklistResponseRepository(BaseRepository):
     """
     Repository for checklist item responses
@@ -507,7 +526,7 @@ class ChecklistResponseRepository(BaseRepository):
         checklist_item_id: str,
         response: str,
         evidence_path: Optional[str] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Create a new checklist response
@@ -523,15 +542,17 @@ class ChecklistResponseRepository(BaseRepository):
         """
 
         row = await self._fetchrow(
-            query, compliance_record_id, checklist_item_id, response,
-            evidence_path, notes
+            query,
+            compliance_record_id,
+            checklist_item_id,
+            response,
+            evidence_path,
+            notes,
         )
         return dict(row) if row else None
 
     async def create_batch(
-        self,
-        compliance_record_id: UUID,
-        responses: List[Dict[str, Any]]
+        self, compliance_record_id: UUID, responses: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """
         Create multiple checklist responses in a batch
@@ -552,10 +573,10 @@ class ChecklistResponseRepository(BaseRepository):
                 row = await conn.fetchrow(
                     query,
                     compliance_record_id,
-                    resp.get('checklist_item_id'),
-                    resp.get('response'),
-                    resp.get('evidence_path'),
-                    resp.get('notes')
+                    resp.get("checklist_item_id"),
+                    resp.get("response"),
+                    resp.get("evidence_path"),
+                    resp.get("notes"),
                 )
                 if row:
                     results.append(dict(row))
@@ -563,8 +584,7 @@ class ChecklistResponseRepository(BaseRepository):
         return results
 
     async def get_by_compliance_record(
-        self,
-        compliance_record_id: UUID
+        self, compliance_record_id: UUID
     ) -> List[Dict[str, Any]]:
         """
         Get all responses for a compliance record
@@ -579,8 +599,7 @@ class ChecklistResponseRepository(BaseRepository):
         return [dict(row) for row in rows]
 
     async def get_non_compliant_responses(
-        self,
-        compliance_record_id: UUID
+        self, compliance_record_id: UUID
     ) -> List[Dict[str, Any]]:
         """
         Get non-compliant responses for a compliance record
@@ -596,9 +615,7 @@ class ChecklistResponseRepository(BaseRepository):
         return [dict(row) for row in rows]
 
     async def get_responses_by_item(
-        self,
-        checklist_item_id: str,
-        limit: Optional[int] = 100
+        self, checklist_item_id: str, limit: Optional[int] = 100
     ) -> List[Dict[str, Any]]:
         """
         Get all responses for a specific checklist item across audits
@@ -620,7 +637,7 @@ class ChecklistResponseRepository(BaseRepository):
         response_id: UUID,
         response: Optional[str] = None,
         evidence_path: Optional[str] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update a checklist response
@@ -643,6 +660,7 @@ class ChecklistResponseRepository(BaseRepository):
 # مستودع عدم المطابقات
 # =============================================================================
 
+
 class NonConformanceRepository(BaseRepository):
     """
     Repository for non-conformances and corrective actions
@@ -660,7 +678,7 @@ class NonConformanceRepository(BaseRepository):
         description: str,
         corrective_action: Optional[str] = None,
         due_date: Optional[date] = None,
-        status: str = "OPEN"
+        status: str = "OPEN",
     ) -> Dict[str, Any]:
         """
         Create a new non-conformance
@@ -676,8 +694,14 @@ class NonConformanceRepository(BaseRepository):
         """
 
         row = await self._fetchrow(
-            query, compliance_record_id, checklist_item_id, severity,
-            description, corrective_action, due_date, status
+            query,
+            compliance_record_id,
+            checklist_item_id,
+            severity,
+            description,
+            corrective_action,
+            due_date,
+            status,
         )
         return dict(row) if row else None
 
@@ -688,8 +712,7 @@ class NonConformanceRepository(BaseRepository):
         return dict(row) if row else None
 
     async def get_by_compliance_record(
-        self,
-        compliance_record_id: UUID
+        self, compliance_record_id: UUID
     ) -> List[Dict[str, Any]]:
         """
         Get all non-conformances for a compliance record
@@ -704,8 +727,7 @@ class NonConformanceRepository(BaseRepository):
         return [dict(row) for row in rows]
 
     async def get_open_non_conformances(
-        self,
-        severity: Optional[str] = None
+        self, severity: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get all open non-conformances, optionally filtered by severity
@@ -754,7 +776,7 @@ class NonConformanceRepository(BaseRepository):
         nc_id: UUID,
         status: str,
         corrective_action: Optional[str] = None,
-        resolved_date: Optional[date] = None
+        resolved_date: Optional[date] = None,
     ) -> Optional[Dict[str, Any]]:
         """
         Update non-conformance status
@@ -768,14 +790,13 @@ class NonConformanceRepository(BaseRepository):
             WHERE id = $1
             RETURNING *
         """
-        row = await self._fetchrow(query, nc_id, status, corrective_action, resolved_date)
+        row = await self._fetchrow(
+            query, nc_id, status, corrective_action, resolved_date
+        )
         return dict(row) if row else None
 
     async def resolve(
-        self,
-        nc_id: UUID,
-        corrective_action: str,
-        resolved_date: Optional[date] = None
+        self, nc_id: UUID, corrective_action: str, resolved_date: Optional[date] = None
     ) -> Optional[Dict[str, Any]]:
         """
         Mark non-conformance as resolved
@@ -789,9 +810,7 @@ class NonConformanceRepository(BaseRepository):
         )
 
     async def get_by_checklist_item(
-        self,
-        checklist_item_id: str,
-        limit: Optional[int] = 100
+        self, checklist_item_id: str, limit: Optional[int] = 100
     ) -> List[Dict[str, Any]]:
         """
         Get non-conformances for a specific checklist item
@@ -813,6 +832,7 @@ class NonConformanceRepository(BaseRepository):
 # Database Initialization and Health Check
 # تهيئة قاعدة البيانات والفحص الصحي
 # =============================================================================
+
 
 async def init_db() -> None:
     """
@@ -895,19 +915,16 @@ __all__ = [
     "check_connection",
     "get_connection",
     "transaction",
-
     # Repositories
     "GlobalGAPRegistrationRepository",
     "ComplianceRecordRepository",
     "ChecklistResponseRepository",
     "NonConformanceRepository",
-
     # Repository instances
     "registrations_repo",
     "compliance_repo",
     "checklist_repo",
     "non_conformance_repo",
-
     # Database utilities
     "init_db",
     "db_health_check",

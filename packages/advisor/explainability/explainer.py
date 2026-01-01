@@ -19,6 +19,7 @@ from .models import (
 # Protocol for knowledge types
 class KnowledgeChunk(Protocol):
     """Protocol for knowledge chunk."""
+
     id: str
     content: str
     source: str
@@ -27,6 +28,7 @@ class KnowledgeChunk(Protocol):
 
 class RetrievedContext(Protocol):
     """Protocol for retrieved context."""
+
     chunks: list[Any]
     scores: list[float]
     query: str
@@ -63,11 +65,7 @@ def compute_confidence_breakdown(
     recency_score = max(0.0, 1.0 - (data_age_days / 14.0))
 
     # المتوسط الموزون
-    overall = (
-        knowledge_score * 0.5 +
-        context_score * 0.3 +
-        recency_score * 0.2
-    )
+    overall = knowledge_score * 0.5 + context_score * 0.3 + recency_score * 0.2
 
     return ConfidenceBreakdown(
         knowledge_score=round(knowledge_score, 3),
@@ -103,14 +101,16 @@ def build_explanation(
 
     for i, chunk in enumerate(chunks):
         score = scores[i] if i < len(scores) else 0.0
-        content = getattr(chunk, 'content', str(chunk))
-        evidences.append(EvidenceItem(
-            source_id=getattr(chunk, 'id', f'chunk_{i}'),
-            source_name=getattr(chunk, 'source', 'Unknown'),
-            snippet=content[:200] + "..." if len(content) > 200 else content,
-            relevance_score=round(score, 3),
-            knowledge_type=str(getattr(chunk, 'knowledge_type', 'general')),
-        ))
+        content = getattr(chunk, "content", str(chunk))
+        evidences.append(
+            EvidenceItem(
+                source_id=getattr(chunk, "id", f"chunk_{i}"),
+                source_name=getattr(chunk, "source", "Unknown"),
+                snippet=content[:200] + "..." if len(content) > 200 else content,
+                relevance_score=round(score, 3),
+                knowledge_type=str(getattr(chunk, "knowledge_type", "general")),
+            )
+        )
 
     # حساب الثقة
     confidence = compute_confidence_breakdown(

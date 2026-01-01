@@ -57,14 +57,14 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
 
     # Sensitive headers to redact
     SENSITIVE_HEADERS: Set[str] = {
-        'authorization',
-        'cookie',
-        'x-api-key',
-        'x-auth-token',
-        'x-secret-key',
-        'password',
-        'secret',
-        'token',
+        "authorization",
+        "cookie",
+        "x-api-key",
+        "x-auth-token",
+        "x-secret-key",
+        "password",
+        "secret",
+        "token",
     }
 
     def __init__(
@@ -219,7 +219,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 log_level = "info"
 
             # Log response
-            message = f"{request.method} {request.url.path} {status_code} {duration_ms:.2f}ms"
+            message = (
+                f"{request.method} {request.url.path} {status_code} {duration_ms:.2f}ms"
+            )
             self._log_json(log_level, message, response_log)
 
     def _extract_tenant_id(self, request: Request) -> Optional[str]:
@@ -293,7 +295,11 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
                 redacted[key] = self._redact_sensitive_data(value)
             elif isinstance(value, list):
                 redacted[key] = [
-                    self._redact_sensitive_data(item) if isinstance(item, dict) else item
+                    (
+                        self._redact_sensitive_data(item)
+                        if isinstance(item, dict)
+                        else item
+                    )
                     for item in value
                 ]
             else:

@@ -32,11 +32,13 @@ logger = logging.getLogger(__name__)
 # Enums
 # =============================================================================
 
+
 class SCLClass(Enum):
     """
     Sentinel-2 Scene Classification Layer classes
     تصنيفات المشهد Sentinel-2
     """
+
     NO_DATA = 0
     SATURATED = 1
     DARK_AREA = 2
@@ -55,12 +57,14 @@ class SCLClass(Enum):
 # Data Models
 # =============================================================================
 
+
 @dataclass
 class CloudMaskResult:
     """
     Result of cloud mask analysis for a single observation
     نتيجة تحليل الغطاء السحابي
     """
+
     field_id: str
     timestamp: datetime
     cloud_cover_percent: float
@@ -74,7 +78,7 @@ class CloudMaskResult:
     def to_dict(self) -> Dict:
         """Convert to dictionary with datetime serialization"""
         result = asdict(self)
-        result['timestamp'] = self.timestamp.isoformat()
+        result["timestamp"] = self.timestamp.isoformat()
         return result
 
 
@@ -84,6 +88,7 @@ class ClearObservation:
     A clear (low cloud) satellite observation
     رصد صافي من الأقمار الصناعية
     """
+
     date: datetime
     cloud_cover: float
     quality_score: float
@@ -94,13 +99,14 @@ class ClearObservation:
     def to_dict(self) -> Dict:
         """Convert to dictionary with datetime serialization"""
         result = asdict(self)
-        result['date'] = self.date.isoformat()
+        result["date"] = self.date.isoformat()
         return result
 
 
 # =============================================================================
 # Cloud Masker Implementation
 # =============================================================================
+
 
 class CloudMasker:
     """
@@ -117,28 +123,13 @@ class CloudMasker:
     MIN_QUALITY_SCORE = 0.6  # Minimum quality score for usability
 
     # SCL classes to mask (consider as invalid/unusable)
-    CLOUD_CLASSES = [
-        SCLClass.CLOUD_MEDIUM,
-        SCLClass.CLOUD_HIGH,
-        SCLClass.THIN_CIRRUS
-    ]
+    CLOUD_CLASSES = [SCLClass.CLOUD_MEDIUM, SCLClass.CLOUD_HIGH, SCLClass.THIN_CIRRUS]
 
-    SHADOW_CLASSES = [
-        SCLClass.CLOUD_SHADOW,
-        SCLClass.DARK_AREA
-    ]
+    SHADOW_CLASSES = [SCLClass.CLOUD_SHADOW, SCLClass.DARK_AREA]
 
-    VALID_CLASSES = [
-        SCLClass.VEGETATION,
-        SCLClass.BARE_SOIL,
-        SCLClass.WATER
-    ]
+    VALID_CLASSES = [SCLClass.VEGETATION, SCLClass.BARE_SOIL, SCLClass.WATER]
 
-    INVALID_CLASSES = [
-        SCLClass.NO_DATA,
-        SCLClass.SATURATED,
-        SCLClass.UNCLASSIFIED
-    ]
+    INVALID_CLASSES = [SCLClass.NO_DATA, SCLClass.SATURATED, SCLClass.UNCLASSIFIED]
 
     def __init__(self):
         """Initialize cloud masker"""
@@ -150,7 +141,7 @@ class CloudMasker:
         latitude: float,
         longitude: float,
         date: Optional[datetime] = None,
-        scl_data: Optional[List[int]] = None
+        scl_data: Optional[List[int]] = None,
     ) -> CloudMaskResult:
         """
         Analyze cloud cover for a field location.
@@ -188,9 +179,9 @@ class CloudMasker:
 
         # Determine usability
         usable = (
-            cloud_cover <= self.MAX_CLOUD_COVER and
-            clear_cover >= self.MIN_CLEAR_PIXELS and
-            quality_score >= self.MIN_QUALITY_SCORE
+            cloud_cover <= self.MAX_CLOUD_COVER
+            and clear_cover >= self.MIN_CLEAR_PIXELS
+            and quality_score >= self.MIN_QUALITY_SCORE
         )
 
         # Generate recommendation
@@ -207,7 +198,7 @@ class CloudMasker:
             usable=usable,
             quality_score=round(quality_score, 3),
             scl_distribution=scl_distribution,
-            recommendation=recommendation
+            recommendation=recommendation,
         )
 
     async def find_clear_observations(
@@ -217,7 +208,7 @@ class CloudMasker:
         longitude: float,
         start_date: datetime,
         end_date: datetime,
-        max_cloud_cover: float = 20.0
+        max_cloud_cover: float = 20.0,
     ) -> List[ClearObservation]:
         """
         Find all clear (low cloud) observations in date range.
@@ -252,7 +243,7 @@ class CloudMasker:
                     quality_score=result.quality_score,
                     satellite=self._get_satellite_name(current_date),
                     shadow_cover=result.shadow_cover_percent,
-                    clear_pixels=result.clear_cover_percent
+                    clear_pixels=result.clear_cover_percent,
                 )
                 clear_observations.append(observation)
 
@@ -275,7 +266,7 @@ class CloudMasker:
         latitude: float,
         longitude: float,
         target_date: datetime,
-        days_tolerance: int = 15
+        days_tolerance: int = 15,
     ) -> Optional[ClearObservation]:
         """
         Find the best (lowest cloud) observation near target date.
@@ -317,10 +308,7 @@ class CloudMasker:
         return best
 
     def calculate_quality_score(
-        self,
-        cloud_percent: float,
-        shadow_percent: float,
-        clear_percent: float
+        self, cloud_percent: float, shadow_percent: float, clear_percent: float
     ) -> float:
         """
         Calculate overall quality score (0-1).
@@ -365,9 +353,7 @@ class CloudMasker:
         return max(0.0, min(1.0, score))
 
     async def apply_cloud_mask(
-        self,
-        ndvi_value: float,
-        scl_class: SCLClass
+        self, ndvi_value: float, scl_class: SCLClass
     ) -> Optional[float]:
         """
         Apply cloud mask to NDVI value.
@@ -400,10 +386,7 @@ class CloudMasker:
         return None
 
     async def interpolate_cloudy_pixels(
-        self,
-        field_id: str,
-        ndvi_series: List[Dict],
-        method: str = "linear"
+        self, field_id: str, ndvi_series: List[Dict], method: str = "linear"
     ) -> List[Dict]:
         """
         Interpolate cloudy observations using temporal neighbors.
@@ -426,8 +409,8 @@ class CloudMasker:
             return []
 
         # Separate valid and cloudy observations
-        valid_obs = [obs for obs in ndvi_series if not obs.get('cloudy', False)]
-        cloudy_obs = [obs for obs in ndvi_series if obs.get('cloudy', False)]
+        valid_obs = [obs for obs in ndvi_series if not obs.get("cloudy", False)]
+        cloudy_obs = [obs for obs in ndvi_series if obs.get("cloudy", False)]
 
         if not cloudy_obs:
             logger.info(f"No cloudy observations to interpolate for {field_id}")
@@ -444,10 +427,10 @@ class CloudMasker:
         interpolated = ndvi_series.copy()
 
         for i, obs in enumerate(interpolated):
-            if not obs.get('cloudy', False):
+            if not obs.get("cloudy", False):
                 continue
 
-            obs_date = datetime.fromisoformat(obs['date'])
+            obs_date = datetime.fromisoformat(obs["date"])
 
             if method == "linear":
                 interp_value = self._linear_interpolate(obs_date, valid_obs)
@@ -460,9 +443,9 @@ class CloudMasker:
                 interp_value = None
 
             if interp_value is not None:
-                interpolated[i]['ndvi'] = interp_value
-                interpolated[i]['interpolated'] = True
-                interpolated[i]['interpolation_method'] = method
+                interpolated[i]["ndvi"] = interp_value
+                interpolated[i]["interpolated"] = True
+                interpolated[i]["interpolation_method"] = method
 
         logger.info(
             f"Interpolated {len(cloudy_obs)} cloudy observations for {field_id} "
@@ -476,10 +459,7 @@ class CloudMasker:
     # =========================================================================
 
     async def _fetch_scl_data(
-        self,
-        latitude: float,
-        longitude: float,
-        date: datetime
+        self, latitude: float, longitude: float, date: datetime
     ) -> List[int]:
         """
         Fetch SCL data from satellite provider.
@@ -490,6 +470,7 @@ class CloudMasker:
 
         # Simulate seasonal and random cloud patterns
         import random
+
         random.seed(int(date.timestamp()))
 
         # Base cloud probability based on season (Yemen dry/wet seasons)
@@ -537,7 +518,7 @@ class CloudMasker:
                 class_name = scl_class.name
                 counts[class_name] = counts.get(class_name, 0) + 1
             except ValueError:
-                counts['UNKNOWN'] = counts.get('UNKNOWN', 0) + 1
+                counts["UNKNOWN"] = counts.get("UNKNOWN", 0) + 1
 
         # Convert to percentages
         distribution = {
@@ -569,11 +550,7 @@ class CloudMasker:
         return clear_percent
 
     def _generate_recommendation(
-        self,
-        cloud_cover: float,
-        shadow_cover: float,
-        clear_cover: float,
-        usable: bool
+        self, cloud_cover: float, shadow_cover: float, clear_cover: float, usable: bool
     ) -> str:
         """Generate human-readable recommendation"""
         if usable:
@@ -599,9 +576,7 @@ class CloudMasker:
         return "Sentinel-2A" if day_of_year % 10 < 5 else "Sentinel-2B"
 
     def _linear_interpolate(
-        self,
-        target_date: datetime,
-        valid_obs: List[Dict]
+        self, target_date: datetime, valid_obs: List[Dict]
     ) -> Optional[float]:
         """Linear interpolation between two valid neighbors"""
         # Find neighbors before and after target date
@@ -609,12 +584,12 @@ class CloudMasker:
         after = None
 
         for obs in valid_obs:
-            obs_date = datetime.fromisoformat(obs['date'])
+            obs_date = datetime.fromisoformat(obs["date"])
             if obs_date <= target_date:
-                if before is None or obs_date > datetime.fromisoformat(before['date']):
+                if before is None or obs_date > datetime.fromisoformat(before["date"]):
                     before = obs
             if obs_date >= target_date:
-                if after is None or obs_date < datetime.fromisoformat(after['date']):
+                if after is None or obs_date < datetime.fromisoformat(after["date"]):
                     after = obs
 
         # Need both neighbors for interpolation
@@ -622,23 +597,21 @@ class CloudMasker:
             return None
 
         # Same date (shouldn't happen, but handle it)
-        before_date = datetime.fromisoformat(before['date'])
-        after_date = datetime.fromisoformat(after['date'])
+        before_date = datetime.fromisoformat(before["date"])
+        after_date = datetime.fromisoformat(after["date"])
         if before_date == after_date:
-            return before['ndvi']
+            return before["ndvi"]
 
         # Linear interpolation
         total_days = (after_date - before_date).days
         target_days = (target_date - before_date).days
         fraction = target_days / total_days
 
-        value = before['ndvi'] + fraction * (after['ndvi'] - before['ndvi'])
+        value = before["ndvi"] + fraction * (after["ndvi"] - before["ndvi"])
         return round(value, 4)
 
     def _spline_interpolate(
-        self,
-        target_date: datetime,
-        valid_obs: List[Dict]
+        self, target_date: datetime, valid_obs: List[Dict]
     ) -> Optional[float]:
         """
         Spline interpolation using multiple neighbors.
@@ -652,12 +625,12 @@ class CloudMasker:
         # In production, would use scipy.interpolate.UnivariateSpline
 
         # Sort by date
-        sorted_obs = sorted(valid_obs, key=lambda x: x['date'])
+        sorted_obs = sorted(valid_obs, key=lambda x: x["date"])
 
         # Find 4 nearest neighbors (2 before, 2 after if possible)
         neighbors = []
         for i, obs in enumerate(sorted_obs):
-            obs_date = datetime.fromisoformat(obs['date'])
+            obs_date = datetime.fromisoformat(obs["date"])
             distance = abs((obs_date - target_date).days)
             neighbors.append((distance, obs))
 
@@ -669,24 +642,24 @@ class CloudMasker:
         return self._linear_interpolate(target_date, nearest_4)
 
     def _previous_interpolate(
-        self,
-        target_date: datetime,
-        valid_obs: List[Dict]
+        self, target_date: datetime, valid_obs: List[Dict]
     ) -> Optional[float]:
         """Use previous valid value (forward fill)"""
         # Find most recent observation before target date
         previous = None
 
         for obs in valid_obs:
-            obs_date = datetime.fromisoformat(obs['date'])
+            obs_date = datetime.fromisoformat(obs["date"])
             if obs_date <= target_date:
-                if previous is None or obs_date > datetime.fromisoformat(previous['date']):
+                if previous is None or obs_date > datetime.fromisoformat(
+                    previous["date"]
+                ):
                     previous = obs
 
         if previous is None:
             return None
 
-        return previous['ndvi']
+        return previous["ndvi"]
 
 
 # =============================================================================

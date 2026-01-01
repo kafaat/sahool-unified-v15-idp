@@ -198,7 +198,9 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Generate request ID
-        request_id = request.headers.get("X-Request-ID", f"req_{int(time.time() * 1000)}")
+        request_id = request.headers.get(
+            "X-Request-ID", f"req_{int(time.time() * 1000)}"
+        )
 
         # Extract user info (from JWT or headers)
         user_id = self._extract_user_id(request)
@@ -399,9 +401,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
                 headers=dict(response.headers),
             )
 
-    def _extract_text_fields(
-        self, data: dict, path: str = ""
-    ) -> list[tuple[str, str]]:
+    def _extract_text_fields(self, data: dict, path: str = "") -> list[tuple[str, str]]:
         """
         Recursively extract text fields from JSON data.
 
@@ -505,7 +505,7 @@ class GuardrailsMiddleware(BaseHTTPMiddleware):
 
     def _is_arabic(self, text: str) -> bool:
         """Check if text is primarily Arabic"""
-        arabic_chars = sum(1 for c in text if "\u0600" <= c <= "\u06FF")
+        arabic_chars = sum(1 for c in text if "\u0600" <= c <= "\u06ff")
         return arabic_chars > len(text) * 0.3
 
 
@@ -532,7 +532,9 @@ def setup_guardrails(
         policy_manager: Policy manager instance
     """
     config = config or GuardrailsConfig()
-    app.add_middleware(GuardrailsMiddleware, config=config, policy_manager=policy_manager)
+    app.add_middleware(
+        GuardrailsMiddleware, config=config, policy_manager=policy_manager
+    )
 
     logger.info(
         f"AI Safety Guardrails enabled: "
@@ -552,7 +554,9 @@ def get_violation_stats() -> dict:
 
     stats = {
         "total_violations": len(violations),
-        "input_violations": sum(1 for v in violations if v["type"] == "input_violation"),
+        "input_violations": sum(
+            1 for v in violations if v["type"] == "input_violation"
+        ),
         "output_warnings": sum(1 for v in violations if v["type"] == "output_warning"),
         "critical_violations": sum(
             1

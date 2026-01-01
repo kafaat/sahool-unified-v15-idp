@@ -53,8 +53,14 @@ class SahoolAnalyzer:
         py_files = list(self.root.rglob("*.py"))
 
         slow_patterns = [
-            (r"ST_DWithin.*::geometry", "Use ST_DWithin(...::geography, radius) or create GIST index"),
-            (r"SELECT\s+\*", "Specify required columns explicitly: SELECT id, name, geom"),
+            (
+                r"ST_DWithin.*::geometry",
+                "Use ST_DWithin(...::geography, radius) or create GIST index",
+            ),
+            (
+                r"SELECT\s+\*",
+                "Specify required columns explicitly: SELECT id, name, geom",
+            ),
             (r"WHERE.*LIKE\s+'%", "Use full-text search or GIN index"),
             (r"ORDER BY.*ST_Distance", "Create spatial index and use KNN operator <->"),
         ]
@@ -64,12 +70,14 @@ class SahoolAnalyzer:
                 content = file_path.read_text()
                 for pattern, fix in slow_patterns:
                     if re.search(pattern, content, re.IGNORECASE):
-                        self.report["warnings"].append({
-                            "type": "SLOW_QUERY",
-                            "file": str(file_path.relative_to(self.root)),
-                            "pattern": pattern,
-                            "fix": fix,
-                        })
+                        self.report["warnings"].append(
+                            {
+                                "type": "SLOW_QUERY",
+                                "file": str(file_path.relative_to(self.root)),
+                                "pattern": pattern,
+                                "fix": fix,
+                            }
+                        )
             except Exception:
                 continue
 
@@ -91,11 +99,13 @@ class SahoolAnalyzer:
 
                         # Check for health checks
                         if "healthchecks" not in str(service):
-                            self.report["warnings"].append({
-                                "type": "KONG_NO_HEALTHCHECK",
-                                "service": service_name,
-                                "fix": "Add: healthchecks.path: /health",
-                            })
+                            self.report["warnings"].append(
+                                {
+                                    "type": "KONG_NO_HEALTHCHECK",
+                                    "service": service_name,
+                                    "fix": "Add: healthchecks.path: /health",
+                                }
+                            )
 
                         # Check for rate limiting
                         plugins = service.get("plugins", [])
@@ -103,17 +113,21 @@ class SahoolAnalyzer:
                             p.get("name") == "rate-limiting" for p in plugins
                         )
                         if not has_rate_limit:
-                            self.report["warnings"].append({
-                                "type": "KONG_NO_RATE_LIMIT",
-                                "service": service_name,
-                                "fix": "Add rate-limiting plugin to prevent abuse",
-                            })
+                            self.report["warnings"].append(
+                                {
+                                    "type": "KONG_NO_RATE_LIMIT",
+                                    "service": service_name,
+                                    "fix": "Add rate-limiting plugin to prevent abuse",
+                                }
+                            )
                 except Exception as e:
-                    self.report["warnings"].append({
-                        "type": "KONG_PARSE_ERROR",
-                        "file": str(kong_config),
-                        "error": str(e),
-                    })
+                    self.report["warnings"].append(
+                        {
+                            "type": "KONG_PARSE_ERROR",
+                            "file": str(kong_config),
+                            "error": str(e),
+                        }
+                    )
 
     def analyze_dependencies(self) -> Dict:
         """Complete dependency analysis across all platforms."""
@@ -127,12 +141,14 @@ class SahoolAnalyzer:
         for platform, deps in analysis.items():
             conflicts = [d for d in deps if d.get("conflict", False)]
             if conflicts:
-                self.report["critical"].append({
-                    "type": "VERSION_CONFLICT",
-                    "platform": platform,
-                    "conflicts": conflicts,
-                    "impact": "Unexpected behavior in production",
-                })
+                self.report["critical"].append(
+                    {
+                        "type": "VERSION_CONFLICT",
+                        "platform": platform,
+                        "conflicts": conflicts,
+                        "impact": "Unexpected behavior in production",
+                    }
+                )
 
         return analysis
 
@@ -163,12 +179,14 @@ class SahoolAnalyzer:
                 continue
 
         for pkg, data in all_deps.items():
-            results.append({
-                "package": pkg,
-                "versions": list(data["versions"]),
-                "services": data["services"],
-                "conflict": len(data["versions"]) > 1,
-            })
+            results.append(
+                {
+                    "package": pkg,
+                    "versions": list(data["versions"]),
+                    "services": data["services"],
+                    "conflict": len(data["versions"]) > 1,
+                }
+            )
 
         return results
 
@@ -202,12 +220,14 @@ class SahoolAnalyzer:
                 continue
 
         for pkg, data in all_deps.items():
-            results.append({
-                "package": pkg,
-                "versions": list(data["versions"]),
-                "services": data["services"],
-                "conflict": len(data["versions"]) > 1,
-            })
+            results.append(
+                {
+                    "package": pkg,
+                    "versions": list(data["versions"]),
+                    "services": data["services"],
+                    "conflict": len(data["versions"]) > 1,
+                }
+            )
 
         return results
 
@@ -240,12 +260,14 @@ class SahoolAnalyzer:
                 continue
 
         for pkg, data in all_deps.items():
-            results.append({
-                "package": pkg,
-                "versions": list(data["versions"]),
-                "services": data["services"],
-                "conflict": len(data["versions"]) > 1,
-            })
+            results.append(
+                {
+                    "package": pkg,
+                    "versions": list(data["versions"]),
+                    "services": data["services"],
+                    "conflict": len(data["versions"]) > 1,
+                }
+            )
 
         return results
 
@@ -259,31 +281,37 @@ class SahoolAnalyzer:
 
                 # Check for multi-stage builds
                 if "FROM" in content and content.count("FROM") == 1:
-                    self.report["optimizations"].append({
-                        "type": "DOCKER_NO_MULTISTAGE",
-                        "file": str(dockerfile.relative_to(self.root)),
-                        "suggestion": "Use multi-stage builds to reduce image size",
-                    })
+                    self.report["optimizations"].append(
+                        {
+                            "type": "DOCKER_NO_MULTISTAGE",
+                            "file": str(dockerfile.relative_to(self.root)),
+                            "suggestion": "Use multi-stage builds to reduce image size",
+                        }
+                    )
 
                 # Check for .dockerignore
                 dockerignore = dockerfile.parent / ".dockerignore"
                 if not dockerignore.exists():
-                    self.report["optimizations"].append({
-                        "type": "DOCKER_NO_IGNORE",
-                        "file": str(dockerfile.relative_to(self.root)),
-                        "suggestion": "Add .dockerignore to speed up builds",
-                    })
+                    self.report["optimizations"].append(
+                        {
+                            "type": "DOCKER_NO_IGNORE",
+                            "file": str(dockerfile.relative_to(self.root)),
+                            "suggestion": "Add .dockerignore to speed up builds",
+                        }
+                    )
 
                 # Check for layer caching optimization
                 if "COPY . ." in content and "RUN pip install" in content:
                     copy_pos = content.find("COPY . .")
                     pip_pos = content.find("RUN pip install")
                     if copy_pos < pip_pos:
-                        self.report["optimizations"].append({
-                            "type": "DOCKER_CACHE_BUST",
-                            "file": str(dockerfile.relative_to(self.root)),
-                            "suggestion": "Copy requirements.txt first, then install, then copy rest",
-                        })
+                        self.report["optimizations"].append(
+                            {
+                                "type": "DOCKER_CACHE_BUST",
+                                "file": str(dockerfile.relative_to(self.root)),
+                                "suggestion": "Copy requirements.txt first, then install, then copy rest",
+                            }
+                        )
             except Exception:
                 continue
 
@@ -391,7 +419,9 @@ def main():
     if report["critical"]:
         print("\n🔴 Critical Issues:")
         for issue in report["critical"][:5]:
-            print(f"  - [{issue['type']}] {issue.get('platform', issue.get('file', 'N/A'))}")
+            print(
+                f"  - [{issue['type']}] {issue.get('platform', issue.get('file', 'N/A'))}"
+            )
 
     print(f"\n📄 Full report saved: analysis-report.json")
 

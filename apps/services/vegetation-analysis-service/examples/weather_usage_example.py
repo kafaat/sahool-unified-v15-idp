@@ -7,6 +7,7 @@ Demonstrates how to use the weather integration in your applications.
 
 import asyncio
 import sys
+
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service")
 
 from datetime import date, timedelta
@@ -15,18 +16,14 @@ from src.weather_integration import get_weather_service
 
 async def example_1_forecast():
     """Example 1: Get 7-day weather forecast"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Example 1: Weather Forecast for Sanaa")
-    print("="*70)
+    print("=" * 70)
 
     weather = get_weather_service()
 
     # Get forecast for Sanaa, Yemen
-    forecast = await weather.get_forecast(
-        latitude=15.3694,
-        longitude=44.1910,
-        days=7
-    )
+    forecast = await weather.get_forecast(latitude=15.3694, longitude=44.1910, days=7)
 
     print(f"\nLocation: {forecast.location}")
     print(f"Generated: {forecast.generated_at}")
@@ -41,9 +38,9 @@ async def example_1_forecast():
 
 async def example_2_irrigation():
     """Example 2: Get irrigation recommendation for a tomato field"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Example 2: Irrigation Recommendation for Tomato Field")
-    print("="*70)
+    print("=" * 70)
 
     weather = get_weather_service()
 
@@ -54,7 +51,7 @@ async def example_2_irrigation():
         crop_type="TOMATO",
         growth_stage="mid",  # Flowering stage
         soil_moisture=0.35,  # 35% (moderately dry)
-        field_id="FIELD_001"
+        field_id="FIELD_001",
     )
 
     print(f"\n🌱 Crop: {recommendation.crop_name_en} ({recommendation.crop_name_ar})")
@@ -77,9 +74,9 @@ async def example_2_irrigation():
 
 async def example_3_gdd_tracking():
     """Example 3: Track crop development using GDD"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Example 3: Growing Degree Days Tracking")
-    print("="*70)
+    print("=" * 70)
 
     weather = get_weather_service()
 
@@ -99,7 +96,7 @@ async def example_3_gdd_tracking():
         longitude=44.1667,
         start_date=planting_date,
         end_date=today,
-        base_temp=10.0
+        base_temp=10.0,
     )
 
     print(f"\n🌡️  Growing Degree Days:")
@@ -127,9 +124,9 @@ async def example_3_gdd_tracking():
 
 async def example_4_water_balance():
     """Example 4: Calculate water balance for irrigation planning"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Example 4: Water Balance Analysis")
-    print("="*70)
+    print("=" * 70)
 
     weather = get_weather_service()
 
@@ -147,21 +144,23 @@ async def example_4_water_balance():
         longitude=44.0202,
         start_date=start_date,
         end_date=end_date,
-        kc=1.1  # Potato mid-season crop coefficient
+        kc=1.1,  # Potato mid-season crop coefficient
     )
 
     print(f"\n💧 Water Balance Summary:")
     print(f"  Total Precipitation: {balance['summary']['total_precipitation_mm']} mm")
     print(f"  Total ETc (ET0 × Kc): {balance['summary']['total_etc_mm']} mm")
     print(f"  Water Balance: {balance['summary']['total_balance_mm']} mm")
-    print(f"  Status: {balance['summary']['status']} ({balance['summary']['status_ar']})")
+    print(
+        f"  Status: {balance['summary']['status']} ({balance['summary']['status_ar']})"
+    )
 
-    if balance['summary']['total_balance_mm'] < -100:
+    if balance["summary"]["total_balance_mm"] < -100:
         print(f"\n  ⚠️  SEVERE WATER DEFICIT!")
         print(f"      عجز مائي شديد!")
-        deficit = abs(balance['summary']['total_balance_mm'])
+        deficit = abs(balance["summary"]["total_balance_mm"])
         print(f"      Irrigation needed: ~{deficit} mm over next period")
-    elif balance['summary']['total_balance_mm'] < 0:
+    elif balance["summary"]["total_balance_mm"] < 0:
         print(f"\n  ⚡ Moderate water deficit")
         print(f"     عجز مائي معتدل")
         print(f"     Increase irrigation frequency")
@@ -172,9 +171,9 @@ async def example_4_water_balance():
 
 async def example_5_frost_protection():
     """Example 5: Monitor frost risk in highlands"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Example 5: Frost Risk Monitoring (Highland Coffee)")
-    print("="*70)
+    print("=" * 70)
 
     weather = get_weather_service()
 
@@ -184,9 +183,7 @@ async def example_5_frost_protection():
     print(f"🏔️  Elevation: ~2,250m (frost-prone)")
 
     frost_risks = await weather.get_frost_risk(
-        latitude=15.3694,
-        longitude=44.1910,
-        days=7
+        latitude=15.3694, longitude=44.1910, days=7
     )
 
     print(f"\n❄️  7-Day Frost Risk Assessment:")
@@ -198,11 +195,13 @@ async def example_5_frost_protection():
             "high": "🟠",
             "moderate": "🟡",
             "low": "🔵",
-            "none": "✅"
+            "none": "✅",
         }.get(risk.risk_level, "❓")
 
         print(f"\n  {icon} {risk.date}: {risk.min_temp_c}°C")
-        print(f"     Risk: {risk.risk_level.upper()} ({risk.frost_probability:.0%} probability)")
+        print(
+            f"     Risk: {risk.risk_level.upper()} ({risk.frost_probability:.0%} probability)"
+        )
         print(f"     {risk.recommendation_en}")
 
         if risk.risk_level in ["severe", "high"]:
@@ -222,9 +221,9 @@ async def example_5_frost_protection():
 
 async def example_6_seasonal_comparison():
     """Example 6: Compare current season with historical average"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Example 6: Seasonal Climate Comparison")
-    print("="*70)
+    print("=" * 70)
 
     weather = get_weather_service()
 
@@ -244,7 +243,7 @@ async def example_6_seasonal_comparison():
         latitude=12.7855,
         longitude=45.0187,
         start_date=this_year_start,
-        end_date=this_year_end
+        end_date=this_year_end,
     )
 
     # Get last year's data
@@ -252,7 +251,7 @@ async def example_6_seasonal_comparison():
         latitude=12.7855,
         longitude=45.0187,
         start_date=last_year_start,
-        end_date=last_year_end
+        end_date=last_year_end,
     )
 
     print(f"\n  This Year ({this_year_start} to {this_year_end}):")
@@ -268,14 +267,21 @@ async def example_6_seasonal_comparison():
     print(f"  GDD (base 10°C): {last_year.summary['gdd_base_10']}")
 
     # Calculate differences
-    temp_diff = this_year.summary['avg_temp_c'] - last_year.summary['avg_temp_c']
-    precip_diff = this_year.summary['total_precipitation_mm'] - last_year.summary['total_precipitation_mm']
-    gdd_diff = this_year.summary['gdd_base_10'] - last_year.summary['gdd_base_10']
+    temp_diff = this_year.summary["avg_temp_c"] - last_year.summary["avg_temp_c"]
+    precip_diff = (
+        this_year.summary["total_precipitation_mm"]
+        - last_year.summary["total_precipitation_mm"]
+    )
+    gdd_diff = this_year.summary["gdd_base_10"] - last_year.summary["gdd_base_10"]
 
     print(f"\n  📈 Year-over-Year Changes:")
     print(f"  Temperature: {temp_diff:+.1f}°C")
-    print(f"  Precipitation: {precip_diff:+.1f} mm ({precip_diff/last_year.summary['total_precipitation_mm']*100:+.1f}%)")
-    print(f"  GDD: {gdd_diff:+.1f} ({gdd_diff/last_year.summary['gdd_base_10']*100:+.1f}%)")
+    print(
+        f"  Precipitation: {precip_diff:+.1f} mm ({precip_diff/last_year.summary['total_precipitation_mm']*100:+.1f}%)"
+    )
+    print(
+        f"  GDD: {gdd_diff:+.1f} ({gdd_diff/last_year.summary['gdd_base_10']*100:+.1f}%)"
+    )
 
     if temp_diff > 1:
         print(f"\n  🌡️  This year is significantly warmer")
@@ -290,10 +296,10 @@ async def example_6_seasonal_comparison():
 
 async def main():
     """Run all examples"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("SAHOOL Weather Integration - Usage Examples")
     print("أمثلة استخدام تكامل الطقس")
-    print("="*70)
+    print("=" * 70)
 
     examples = [
         example_1_forecast,
@@ -311,9 +317,9 @@ async def main():
         except Exception as e:
             print(f"\n❌ Error in {example.__name__}: {e}")
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Examples completed! | اكتملت الأمثلة!")
-    print("="*70)
+    print("=" * 70)
 
 
 if __name__ == "__main__":

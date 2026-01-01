@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 
 try:
     import redis.asyncio as aioredis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RevocationInfo:
     """Information about a revoked token"""
+
     revoked_at: float
     reason: str
     user_id: Optional[str] = None
@@ -57,9 +59,9 @@ class RedisTokenRevocationStore:
     """
 
     # Redis key prefixes
-    TOKEN_PREFIX = "revoked:token:"        # Individual token revocation
-    USER_PREFIX = "revoked:user:"          # User-level revocation
-    TENANT_PREFIX = "revoked:tenant:"      # Tenant-level revocation
+    TOKEN_PREFIX = "revoked:token:"  # Individual token revocation
+    USER_PREFIX = "revoked:user:"  # User-level revocation
+    TENANT_PREFIX = "revoked:tenant:"  # Tenant-level revocation
 
     def __init__(self, redis_url: Optional[str] = None):
         """
@@ -174,14 +176,11 @@ class RedisTokenRevocationStore:
         try:
             # Store with TTL (auto-cleanup)
             await self._redis.setex(
-                key,
-                ttl,
-                str(value)  # Store as string for simplicity
+                key, ttl, str(value)  # Store as string for simplicity
             )
 
             logger.info(
-                f"Token revoked: jti={jti[:8]}..., "
-                f"reason={reason}, ttl={ttl}s"
+                f"Token revoked: jti={jti[:8]}..., " f"reason={reason}, ttl={ttl}s"
             )
             return True
 
@@ -293,15 +292,9 @@ class RedisTokenRevocationStore:
 
             # Store with long TTL (30 days)
             # This ensures old tokens are rejected even if they haven't expired
-            await self._redis.setex(
-                key,
-                2592000,  # 30 days
-                str(value)
-            )
+            await self._redis.setex(key, 2592000, str(value))  # 30 days
 
-            logger.info(
-                f"All user tokens revoked: user_id={user_id}, reason={reason}"
-            )
+            logger.info(f"All user tokens revoked: user_id={user_id}, reason={reason}")
             return True
 
         except Exception as e:
@@ -421,15 +414,10 @@ class RedisTokenRevocationStore:
             }
 
             # Store with long TTL (30 days)
-            await self._redis.setex(
-                key,
-                2592000,
-                str(value)
-            )
+            await self._redis.setex(key, 2592000, str(value))
 
             logger.warning(
-                f"All tenant tokens revoked: tenant_id={tenant_id}, "
-                f"reason={reason}"
+                f"All tenant tokens revoked: tenant_id={tenant_id}, " f"reason={reason}"
             )
             return True
 

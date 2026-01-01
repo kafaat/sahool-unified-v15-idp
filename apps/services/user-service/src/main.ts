@@ -1,0 +1,154 @@
+/**
+ * SAHOOL User Service v16.0.0
+ * خدمة إدارة المستخدمين
+ *
+ * Features:
+ * - User registration and authentication
+ * - User profile management
+ * - Role-based access control
+ * - Session management
+ * - Multi-tenant user isolation
+ * - Email and phone verification
+ */
+
+import { NestFactory } from '@nestjs/core';
+import {
+  ValidationPipe,
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+
+// Local HttpExceptionFilter for unified error handling
+@Catch()
+class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+    const request = ctx.getRequest();
+
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
+
+    const message =
+      exception instanceof HttpException
+        ? exception.message
+        : 'خطأ داخلي في الخادم';
+
+    response.status(status).json({
+      success: false,
+      error: {
+        code: `ERR_${status}`,
+        message,
+        timestamp: new Date().toISOString(),
+        path: request.url,
+      },
+    });
+  }
+}
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  // Global exception filter for unified error handling
+  app.useGlobalFilters(new HttpExceptionFilter());
+
+  // Global validation pipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  // CORS - Secure configuration using environment variable
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || [
+    'https://sahool.com',
+    'https://app.sahool.com',
+    'https://admin.sahool.com',
+    'http://localhost:3000',
+    'http://localhost:8080',
+  ];
+
+  app.enableCors({
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Tenant-ID',
+      'X-Request-ID',
+    ],
+    credentials: true,
+  });
+
+  // Global prefix
+  app.setGlobalPrefix('api/v1');
+
+  // Swagger/OpenAPI Documentation
+  const config = new DocumentBuilder()
+    .setTitle('SAHOOL User Service API')
+    .setDescription(
+      `
+      خدمة إدارة المستخدمين
+
+      ## Features
+      - **User Management**: Complete CRUD operations for users
+      - **Multi-tenant**: Isolated user data per tenant
+      - **Authentication**: Secure password hashing with bcrypt
+      - **User Roles**: ADMIN, MANAGER, FARMER, WORKER, VIEWER
+      - **User Status**: ACTIVE, INACTIVE, SUSPENDED, PENDING
+      - **Profile Management**: Extended user profile information
+      - **Session Management**: Track user sessions and login history
+      - **Verification**: Email and phone number verification
+      - **Refresh Tokens**: Secure token refresh mechanism
+
+      ## User Roles
+      - **ADMIN**: Full system access
+      - **MANAGER**: Manage users and operations
+      - **FARMER**: Farm owner access
+      - **WORKER**: Farm worker access
+      - **VIEWER**: Read-only access
+
+      ## User Status
+      - **ACTIVE**: User is active and can access the system
+      - **INACTIVE**: User is deactivated
+      - **SUSPENDED**: User is temporarily suspended
+      - **PENDING**: User registration pending approval
+    `,
+    )
+    .setVersion('16.0.0')
+    .addTag('Users', 'User management operations')
+    .addBearerAuth()
+    .addApiKey(
+      { type: 'apiKey', name: 'X-Tenant-ID', in: 'header' },
+      'tenant-id',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
+
+  const port = process.env.PORT || 3020;
+  await app.listen(port);
+
+  console.log(`
+  ╔═══════════════════════════════════════════════════════════════╗
+  ║   👤 SAHOOL User Service v16.0.0                              ║
+  ║   خدمة إدارة المستخدمين                                       ║
+  ╠═══════════════════════════════════════════════════════════════╣
+  ║   Server running on: http://localhost:${port}                   ║
+  ║   API Documentation: http://localhost:${port}/docs             ║
+  ║   Health Check:      http://localhost:${port}/api/v1/health    ║
+  ╚═══════════════════════════════════════════════════════════════╝
+  `);
+}
+
+bootstrap();

@@ -79,14 +79,18 @@ async def get_current_user(
             if cached_user:
                 # Validate cached user status
                 if not cached_user.get("is_active", False):
-                    logger.warning(f"Authentication failed: User {user_id} is inactive (cached)")
+                    logger.warning(
+                        f"Authentication failed: User {user_id} is inactive (cached)"
+                    )
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,
                         detail=AuthErrors.ACCOUNT_DISABLED.en,
                     )
 
                 if not cached_user.get("is_verified", False):
-                    logger.warning(f"Authentication failed: User {user_id} is not verified (cached)")
+                    logger.warning(
+                        f"Authentication failed: User {user_id} is not verified (cached)"
+                    )
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,
                         detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
@@ -117,7 +121,9 @@ async def get_current_user(
             user_data = await repository.get_user_validation_data(user_id)
 
             if not user_data:
-                logger.warning(f"Authentication failed: User {user_id} not found in database")
+                logger.warning(
+                    f"Authentication failed: User {user_id} not found in database"
+                )
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=AuthErrors.INVALID_TOKEN.en,
@@ -280,6 +286,7 @@ def require_roles(*required_roles: str) -> Callable:
             return {"reports": [...]}
         ```
     """
+
     async def role_checker(user: User = Depends(get_current_active_user)) -> User:
         if not user.has_any_role(*required_roles):
             raise HTTPException(
@@ -314,6 +321,7 @@ def require_permissions(*required_permissions: str) -> Callable:
             return {"message": "Farm deleted"}
         ```
     """
+
     async def permission_checker(user: User = Depends(get_current_active_user)) -> User:
         if not any(user.has_permission(perm) for perm in required_permissions):
             raise HTTPException(
@@ -348,9 +356,9 @@ def require_farm_access(farm_id_param: str = "farm_id") -> Callable:
             return {"fields": [...]}
         ```
     """
+
     async def farm_access_checker(
-        request: Request,
-        user: User = Depends(get_current_active_user)
+        request: Request, user: User = Depends(get_current_active_user)
     ) -> User:
         farm_id = request.path_params.get(farm_id_param)
 
@@ -407,8 +415,7 @@ class RateLimiter:
 
         # Clean old requests
         self.storage[key] = [
-            timestamp for timestamp in self.storage[key]
-            if timestamp > window_start
+            timestamp for timestamp in self.storage[key] if timestamp > window_start
         ]
 
         current_count = len(self.storage[key])
@@ -489,7 +496,9 @@ async def rate_limit_dependency(
             headers={
                 "X-RateLimit-Limit": str(_rate_limiter.requests),
                 "X-RateLimit-Remaining": "0",
-                "X-RateLimit-Reset": str(int(time.time() + _rate_limiter.window_seconds)),
+                "X-RateLimit-Reset": str(
+                    int(time.time() + _rate_limiter.window_seconds)
+                ),
             },
         )
 

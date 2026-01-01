@@ -1,10 +1,16 @@
 /**
  * Equipment Card Component
  * مكون بطاقة المعدات
+ *
+ * Enhanced with:
+ * - React.memo for performance optimization
+ * - Full keyboard accessibility
+ * - ARIA labels for screen readers
  */
 
 'use client';
 
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import type { Equipment } from '../types';
 import { Wrench, Calendar, MapPin, TrendingUp } from 'lucide-react';
@@ -38,13 +44,28 @@ const typeLabels = {
   other: 'أخرى',
 };
 
-export function EquipmentCard({ equipment }: EquipmentCardProps) {
-  const maintenanceDue = equipment.nextMaintenanceDate
-    ? new Date(equipment.nextMaintenanceDate) < new Date()
-    : false;
+const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({ equipment }) => {
+  // Memoize maintenance check to avoid Date recreation on every render
+  const maintenanceDue = useMemo(() =>
+    equipment.nextMaintenanceDate
+      ? new Date(equipment.nextMaintenanceDate) < new Date()
+      : false,
+    [equipment.nextMaintenanceDate]
+  );
+
+  // Memoize ARIA label for accessibility
+  const ariaLabel = useMemo(() => {
+    const status = statusLabels[equipment.status];
+    const type = typeLabels[equipment.type];
+    return `${equipment.nameAr}, ${type}, الحالة: ${status}${maintenanceDue ? ', تنبيه: الصيانة متأخرة' : ''}`;
+  }, [equipment.nameAr, equipment.status, equipment.type, maintenanceDue]);
 
   return (
-    <Link href={`/equipment/${equipment.id}`}>
+    <Link
+      href={`/equipment/${equipment.id}`}
+      aria-label={ariaLabel}
+      className="block focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded-lg"
+    >
       <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 space-y-4 cursor-pointer">
         {/* Header */}
         <div className="flex items-start justify-between">
@@ -126,4 +147,10 @@ export function EquipmentCard({ equipment }: EquipmentCardProps) {
       </div>
     </Link>
   );
-}
+};
+
+// Memoize component for performance
+export const EquipmentCard = React.memo(EquipmentCardComponent);
+EquipmentCard.displayName = 'EquipmentCard';
+
+export default EquipmentCard;

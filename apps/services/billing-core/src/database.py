@@ -32,7 +32,7 @@ logger = logging.getLogger("sahool-billing")
 # Database URL from environment
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_billing"
+    "postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_billing",
 )
 
 # Ensure async driver
@@ -103,7 +103,9 @@ def get_engine() -> AsyncEngine:
             },
         )
 
-        logger.info(f"Database engine created: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}")
+        logger.info(
+            f"Database engine created: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}"
+        )
 
     return _engine
 
@@ -177,6 +179,7 @@ async def get_db_context() -> AsyncGenerator[AsyncSession, None]:
 # =============================================================================
 # Database Initialization
 # =============================================================================
+
 
 async def init_db() -> None:
     """
@@ -262,6 +265,7 @@ async def close_db() -> None:
 # =============================================================================
 # Health Check
 # =============================================================================
+
 
 async def db_health_check() -> dict:
     """

@@ -34,8 +34,10 @@ logger = logging.getLogger(__name__)
 _nats_available = False
 try:
     import sys
+
     sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
     from shared.libs.events.nats_publisher import publish_analysis_completed_sync
+
     _nats_available = True
 except ImportError:
     logger.info("NATS publisher not available")
@@ -56,16 +58,18 @@ app = FastAPI(
 
 class GrowthStage(str, Enum):
     """مراحل نمو المحصول"""
-    GERMINATION = "germination"      # الإنبات
-    SEEDLING = "seedling"            # البادرة
-    VEGETATIVE = "vegetative"        # النمو الخضري
-    FLOWERING = "flowering"          # الإزهار
-    FRUITING = "fruiting"            # الإثمار
-    MATURITY = "maturity"            # النضج
+
+    GERMINATION = "germination"  # الإنبات
+    SEEDLING = "seedling"  # البادرة
+    VEGETATIVE = "vegetative"  # النمو الخضري
+    FLOWERING = "flowering"  # الإزهار
+    FRUITING = "fruiting"  # الإثمار
+    MATURITY = "maturity"  # النضج
 
 
 class RiskLevel(str, Enum):
     """مستوى المخاطر"""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -74,6 +78,7 @@ class RiskLevel(str, Enum):
 
 class CropType(str, Enum):
     """أنواع المحاصيل"""
+
     WHEAT = "wheat"
     BARLEY = "barley"
     SORGHUM = "sorghum"
@@ -179,20 +184,30 @@ STAGE_NAMES_AR = {
 
 class GrowthTimingRequest(BaseModel):
     """Request for growth timing analysis"""
+
     field_id: str = Field(..., description="معرف الحقل")
     farmer_id: Optional[str] = Field(None, description="معرف المزارع")
     tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
     crop_type: CropType = Field(..., description="نوع المحصول")
     planting_date: date = Field(..., description="تاريخ الزراعة")
-    current_ndvi: Optional[float] = Field(None, ge=-1, le=1, description="قيمة NDVI الحالية")
-    ndvi_trend: Optional[str] = Field(None, description="اتجاه NDVI: improving, stable, declining")
-    expected_temperature: Optional[float] = Field(None, description="درجة الحرارة المتوقعة")
-    expected_rainfall_mm: Optional[float] = Field(None, ge=0, description="هطول الأمطار المتوقع بالمم")
+    current_ndvi: Optional[float] = Field(
+        None, ge=-1, le=1, description="قيمة NDVI الحالية"
+    )
+    ndvi_trend: Optional[str] = Field(
+        None, description="اتجاه NDVI: improving, stable, declining"
+    )
+    expected_temperature: Optional[float] = Field(
+        None, description="درجة الحرارة المتوقعة"
+    )
+    expected_rainfall_mm: Optional[float] = Field(
+        None, ge=0, description="هطول الأمطار المتوقع بالمم"
+    )
     publish_event: bool = Field(default=True, description="نشر الحدث عبر NATS")
 
 
 class GrowthStageInfo(BaseModel):
     """Growth stage information"""
+
     current_stage: GrowthStage
     stage_name_ar: str
     days_in_stage: int
@@ -205,6 +220,7 @@ class GrowthStageInfo(BaseModel):
 
 class TimingRecommendation(BaseModel):
     """Timing recommendation"""
+
     action_type: str
     action_title_ar: str
     action_title_en: str
@@ -216,6 +232,7 @@ class TimingRecommendation(BaseModel):
 
 class GrowthTimingResponse(BaseModel):
     """Growth timing analysis response"""
+
     field_id: str
     crop_type: str
     crop_name_ar: str
@@ -253,7 +270,14 @@ def get_current_growth_stage(
     stage_start = 0
     stage_end = 0
 
-    for stage_name in ["germination", "seedling", "vegetative", "flowering", "fruiting", "maturity"]:
+    for stage_name in [
+        "germination",
+        "seedling",
+        "vegetative",
+        "flowering",
+        "fruiting",
+        "maturity",
+    ]:
         start, end = stages[stage_name]
         if start <= days_after_planting <= end:
             current_stage = GrowthStage(stage_name)
@@ -269,7 +293,9 @@ def get_current_growth_stage(
     # Determine next stage
     stage_order = list(GrowthStage)
     current_idx = stage_order.index(current_stage)
-    next_stage = stage_order[current_idx + 1] if current_idx < len(stage_order) - 1 else None
+    next_stage = (
+        stage_order[current_idx + 1] if current_idx < len(stage_order) - 1 else None
+    )
 
     # Days until next stage
     days_until_next = max(0, stage_end - days_after_planting + 1)
@@ -355,61 +381,71 @@ def generate_timing_recommendations(
     # Critical period recommendations
     if growth_stage.is_critical_period:
         if growth_stage.current_stage == GrowthStage.FLOWERING:
-            recommendations.append(TimingRecommendation(
-                action_type="fertilization",
-                action_title_ar="تسميد فوسفوري",
-                action_title_en="Phosphorus Fertilization",
-                timing_window_days=5,
-                urgency=RiskLevel.HIGH,
-                reason_ar="مرحلة الإزهار تتطلب فوسفور إضافي",
-                reason_en="Flowering stage requires additional phosphorus",
-            ))
+            recommendations.append(
+                TimingRecommendation(
+                    action_type="fertilization",
+                    action_title_ar="تسميد فوسفوري",
+                    action_title_en="Phosphorus Fertilization",
+                    timing_window_days=5,
+                    urgency=RiskLevel.HIGH,
+                    reason_ar="مرحلة الإزهار تتطلب فوسفور إضافي",
+                    reason_en="Flowering stage requires additional phosphorus",
+                )
+            )
         elif growth_stage.current_stage == GrowthStage.FRUITING:
-            recommendations.append(TimingRecommendation(
-                action_type="irrigation",
-                action_title_ar="ري منتظم",
-                action_title_en="Regular Irrigation",
-                timing_window_days=2,
-                urgency=RiskLevel.HIGH,
-                reason_ar="مرحلة الإثمار حساسة لنقص المياه",
-                reason_en="Fruiting stage is sensitive to water stress",
-            ))
+            recommendations.append(
+                TimingRecommendation(
+                    action_type="irrigation",
+                    action_title_ar="ري منتظم",
+                    action_title_en="Regular Irrigation",
+                    timing_window_days=2,
+                    urgency=RiskLevel.HIGH,
+                    reason_ar="مرحلة الإثمار حساسة لنقص المياه",
+                    reason_en="Fruiting stage is sensitive to water stress",
+                )
+            )
 
     # Stage transition recommendations
     if growth_stage.days_until_next_stage <= 5 and growth_stage.next_stage:
-        recommendations.append(TimingRecommendation(
-            action_type="inspection",
-            action_title_ar=f"فحص قبل {growth_stage.next_stage_name_ar}",
-            action_title_en=f"Pre-{growth_stage.next_stage.value} inspection",
-            timing_window_days=growth_stage.days_until_next_stage,
-            urgency=RiskLevel.MEDIUM,
-            reason_ar=f"المحصول سيدخل مرحلة {growth_stage.next_stage_name_ar} خلال {growth_stage.days_until_next_stage} أيام",
-            reason_en=f"Crop will enter {growth_stage.next_stage.value} stage in {growth_stage.days_until_next_stage} days",
-        ))
+        recommendations.append(
+            TimingRecommendation(
+                action_type="inspection",
+                action_title_ar=f"فحص قبل {growth_stage.next_stage_name_ar}",
+                action_title_en=f"Pre-{growth_stage.next_stage.value} inspection",
+                timing_window_days=growth_stage.days_until_next_stage,
+                urgency=RiskLevel.MEDIUM,
+                reason_ar=f"المحصول سيدخل مرحلة {growth_stage.next_stage_name_ar} خلال {growth_stage.days_until_next_stage} أيام",
+                reason_en=f"Crop will enter {growth_stage.next_stage.value} stage in {growth_stage.days_until_next_stage} days",
+            )
+        )
 
     # High risk recommendations
     if risk_level in [RiskLevel.HIGH, RiskLevel.CRITICAL]:
-        recommendations.append(TimingRecommendation(
-            action_type="monitoring",
-            action_title_ar="مراقبة يومية",
-            action_title_en="Daily Monitoring",
-            timing_window_days=1,
-            urgency=risk_level,
-            reason_ar="نافذة خطر مرتفعة - مراقبة مكثفة مطلوبة",
-            reason_en="High risk window - intensive monitoring required",
-        ))
+        recommendations.append(
+            TimingRecommendation(
+                action_type="monitoring",
+                action_title_ar="مراقبة يومية",
+                action_title_en="Daily Monitoring",
+                timing_window_days=1,
+                urgency=risk_level,
+                reason_ar="نافذة خطر مرتفعة - مراقبة مكثفة مطلوبة",
+                reason_en="High risk window - intensive monitoring required",
+            )
+        )
 
     # Default recommendation if none generated
     if not recommendations:
-        recommendations.append(TimingRecommendation(
-            action_type="monitoring",
-            action_title_ar="مراقبة دورية",
-            action_title_en="Periodic Monitoring",
-            timing_window_days=7,
-            urgency=RiskLevel.LOW,
-            reason_ar="نمو طبيعي - استمر في المراقبة الدورية",
-            reason_en="Normal growth - continue periodic monitoring",
-        ))
+        recommendations.append(
+            TimingRecommendation(
+                action_type="monitoring",
+                action_title_ar="مراقبة دورية",
+                action_title_en="Periodic Monitoring",
+                timing_window_days=7,
+                urgency=RiskLevel.LOW,
+                reason_ar="نمو طبيعي - استمر في المراقبة الدورية",
+                reason_en="Normal growth - continue periodic monitoring",
+            )
+        )
 
     return recommendations
 
@@ -421,7 +457,10 @@ def create_growth_timing_action(
     """Create ActionTemplate from growth timing analysis"""
 
     # Get most urgent recommendation
-    most_urgent = max(recommendations, key=lambda r: ["low", "medium", "high", "critical"].index(r.urgency.value))
+    most_urgent = max(
+        recommendations,
+        key=lambda r: ["low", "medium", "high", "critical"].index(r.urgency.value),
+    )
 
     urgency_map = {
         RiskLevel.LOW: "low",
@@ -443,10 +482,14 @@ def create_growth_timing_action(
         "confidence": 0.85,
         "urgency": urgency_map[response.risk_window],
         "field_id": response.field_id,
-        "deadline": (datetime.now() + timedelta(days=most_urgent.timing_window_days)).isoformat(),
+        "deadline": (
+            datetime.now() + timedelta(days=most_urgent.timing_window_days)
+        ).isoformat(),
         "optimal_window": {
             "start_date": date.today().isoformat(),
-            "end_date": (date.today() + timedelta(days=most_urgent.timing_window_days)).isoformat(),
+            "end_date": (
+                date.today() + timedelta(days=most_urgent.timing_window_days)
+            ).isoformat(),
         },
         "offline_executable": True,
         "fallback_instructions_ar": f"في حال عدم توفر البيانات، راقب المحصول يومياً خلال مرحلة {response.growth_stage.stage_name_ar}",
@@ -562,7 +605,9 @@ async def analyze_growth_timing(
                     farmer_id=request.farmer_id,
                     tenant_id=request.tenant_id,
                 )
-                logger.info(f"NATS: Published growth timing alert for field {request.field_id}")
+                logger.info(
+                    f"NATS: Published growth timing alert for field {request.field_id}"
+                )
             except Exception as e:
                 logger.error(f"Failed to publish NATS event: {e}")
 
@@ -594,12 +639,14 @@ async def list_supported_crops():
 
     crops = []
     for crop_type, stages in CROP_GROWTH_STAGES.items():
-        crops.append({
-            "type": crop_type.value,
-            "name_ar": stages["name_ar"],
-            "total_days": stages["total_days"],
-            "critical_stages": stages["critical_stages"],
-        })
+        crops.append(
+            {
+                "type": crop_type.value,
+                "name_ar": stages["name_ar"],
+                "total_days": stages["total_days"],
+                "critical_stages": stages["critical_stages"],
+            }
+        )
 
     return {
         "crops": crops,
@@ -609,4 +656,5 @@ async def list_supported_crops():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8098)

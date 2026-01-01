@@ -21,12 +21,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import redis
 from redis.sentinel import Sentinel
-from redis.exceptions import (
-    ConnectionError,
-    RedisError,
-    TimeoutError,
-    ResponseError
-)
+from redis.exceptions import ConnectionError, RedisError, TimeoutError, ResponseError
 
 logger = logging.getLogger(__name__)
 
@@ -49,37 +44,38 @@ class RedisSentinelConfig:
     def __init__(self):
         # Sentinel configuration
         self.sentinel_hosts = os.getenv(
-            'REDIS_SENTINEL_HOSTS',
-            'localhost,localhost,localhost'
-        ).split(',')
-        self.sentinel_port = int(os.getenv('REDIS_SENTINEL_PORT', '26379'))
+            "REDIS_SENTINEL_HOSTS", "localhost,localhost,localhost"
+        ).split(",")
+        self.sentinel_port = int(os.getenv("REDIS_SENTINEL_PORT", "26379"))
         self.sentinel_ports = [26379, 26380, 26381]  # Multiple sentinel ports
 
         # Redis configuration
-        self.password = os.getenv('REDIS_PASSWORD', 'redis_password')
-        self.master_name = os.getenv('REDIS_MASTER_NAME', 'sahool-master')
-        self.db = int(os.getenv('REDIS_DB', '0'))
+        self.password = os.getenv("REDIS_PASSWORD", "redis_password")
+        self.master_name = os.getenv("REDIS_MASTER_NAME", "sahool-master")
+        self.db = int(os.getenv("REDIS_DB", "0"))
 
         # Connection settings
-        self.socket_timeout = int(os.getenv('REDIS_SOCKET_TIMEOUT', '5'))
-        self.socket_connect_timeout = int(os.getenv('REDIS_SOCKET_CONNECT_TIMEOUT', '5'))
+        self.socket_timeout = int(os.getenv("REDIS_SOCKET_TIMEOUT", "5"))
+        self.socket_connect_timeout = int(
+            os.getenv("REDIS_SOCKET_CONNECT_TIMEOUT", "5")
+        )
         self.socket_keepalive = True
         self.socket_keepalive_options = {
             1: 1,  # TCP_KEEPIDLE
             2: 1,  # TCP_KEEPINTVL
-            3: 3   # TCP_KEEPCNT
+            3: 3,  # TCP_KEEPCNT
         }
 
         # Connection pool settings
-        self.max_connections = int(os.getenv('REDIS_MAX_CONNECTIONS', '50'))
+        self.max_connections = int(os.getenv("REDIS_MAX_CONNECTIONS", "50"))
         self.retry_on_timeout = True
         self.health_check_interval = 30
 
         # Failover settings
         self.sentinel_kwargs = {
-            'socket_timeout': self.socket_timeout,
-            'socket_connect_timeout': self.socket_connect_timeout,
-            'password': self.password,
+            "socket_timeout": self.socket_timeout,
+            "socket_connect_timeout": self.socket_connect_timeout,
+            "password": self.password,
         }
 
     def get_sentinels(self) -> List[tuple]:
@@ -91,7 +87,11 @@ class RedisSentinelConfig:
         """
         sentinels = []
         for i, host in enumerate(self.sentinel_hosts):
-            port = self.sentinel_ports[i] if i < len(self.sentinel_ports) else self.sentinel_port
+            port = (
+                self.sentinel_ports[i]
+                if i < len(self.sentinel_ports)
+                else self.sentinel_port
+            )
             sentinels.append((host.strip(), port))
         return sentinels
 
@@ -110,7 +110,7 @@ class CircuitBreaker:
         self,
         failure_threshold: int = 5,
         recovery_timeout: int = 60,
-        expected_exception: type = Exception
+        expected_exception: type = Exception,
     ):
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
@@ -118,15 +118,15 @@ class CircuitBreaker:
 
         self.failure_count = 0
         self.last_failure_time = None
-        self.state = 'CLOSED'
+        self.state = "CLOSED"
 
     def call(self, func, *args, **kwargs):
         """
         استدعاء دالة مع حماية Circuit Breaker
         """
-        if self.state == 'OPEN':
+        if self.state == "OPEN":
             if time.time() - self.last_failure_time > self.recovery_timeout:
-                self.state = 'HALF_OPEN'
+                self.state = "HALF_OPEN"
                 logger.info("Circuit breaker entering HALF_OPEN state")
             else:
                 raise Exception("Circuit breaker is OPEN")
@@ -142,7 +142,7 @@ class CircuitBreaker:
     def _on_success(self):
         """نجاح العملية"""
         self.failure_count = 0
-        self.state = 'CLOSED'
+        self.state = "CLOSED"
 
     def _on_failure(self):
         """فشل العملية"""
@@ -150,7 +150,7 @@ class CircuitBreaker:
         self.last_failure_time = time.time()
 
         if self.failure_count >= self.failure_threshold:
-            self.state = 'OPEN'
+            self.state = "OPEN"
             logger.error(f"Circuit breaker opened after {self.failure_count} failures")
 
 
@@ -183,9 +183,7 @@ class RedisSentinelClient:
         self._master = None
         self._slave = None
         self._circuit_breaker = CircuitBreaker(
-            failure_threshold=5,
-            recovery_timeout=60,
-            expected_exception=RedisError
+            failure_threshold=5, recovery_timeout=60, expected_exception=RedisError
         )
         self._initialize_sentinel()
 
@@ -226,7 +224,9 @@ class RedisSentinelClient:
                 max_connections=self.config.max_connections,
             )
 
-            logger.info(f"Successfully connected to Redis master: {self.config.master_name}")
+            logger.info(
+                f"Successfully connected to Redis master: {self.config.master_name}"
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize Sentinel: {e}")
@@ -276,12 +276,7 @@ class RedisSentinelClient:
             pass  # Connection pooling handles cleanup
 
     def _execute_with_retry(
-        self,
-        func,
-        *args,
-        max_retries: int = 3,
-        retry_delay: float = 0.5,
-        **kwargs
+        self, func, *args, max_retries: int = 3, retry_delay: float = 0.5, **kwargs
     ) -> Any:
         """
         تنفيذ عملية مع إعادة المحاولة
@@ -302,7 +297,7 @@ class RedisSentinelClient:
             except (ConnectionError, TimeoutError) as e:
                 last_exception = e
                 if attempt < max_retries - 1:
-                    delay = retry_delay * (2 ** attempt)  # Exponential backoff
+                    delay = retry_delay * (2**attempt)  # Exponential backoff
                     logger.warning(
                         f"Retry {attempt + 1}/{max_retries} after {delay}s due to: {e}"
                     )
@@ -323,7 +318,7 @@ class RedisSentinelClient:
         ex: Optional[int] = None,
         px: Optional[int] = None,
         nx: bool = False,
-        xx: bool = False
+        xx: bool = False,
     ) -> bool:
         """
         تعيين قيمة مفتاح
@@ -340,13 +335,7 @@ class RedisSentinelClient:
             True إذا نجحت العملية
         """
         return self._execute_with_retry(
-            self._master.set,
-            key,
-            value,
-            ex=ex,
-            px=px,
-            nx=nx,
-            xx=xx
+            self._master.set, key, value, ex=ex, px=px, nx=nx, xx=xx
         )
 
     def get(self, key: str, use_slave: bool = True) -> Optional[str]:
@@ -490,16 +479,12 @@ class RedisSentinelClient:
         start: int,
         end: int,
         withscores: bool = False,
-        use_slave: bool = True
+        use_slave: bool = True,
     ) -> List:
         """الحصول على نطاق من المجموعة المرتبة"""
         conn = self._slave if use_slave else self._master
         return self._execute_with_retry(
-            conn.zrange,
-            name,
-            start,
-            end,
-            withscores=withscores
+            conn.zrange, name, start, end, withscores=withscores
         )
 
     def zrem(self, name: str, *values: Any) -> int:
@@ -575,16 +560,16 @@ class RedisSentinelClient:
             slaves_addrs = self.get_slaves_addresses()
 
             return {
-                'master': master_addr,
-                'slaves': slaves_addrs,
-                'master_name': self.config.master_name,
-                'sentinel_count': len(self.config.get_sentinels()),
-                'is_connected': self.ping(),
-                'circuit_breaker_state': self._circuit_breaker.state,
+                "master": master_addr,
+                "slaves": slaves_addrs,
+                "master_name": self.config.master_name,
+                "sentinel_count": len(self.config.get_sentinels()),
+                "is_connected": self.ping(),
+                "circuit_breaker_state": self._circuit_breaker.state,
             }
         except Exception as e:
             logger.error(f"Failed to get sentinel info: {e}")
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def health_check(self) -> Dict[str, Any]:
         """
@@ -593,32 +578,28 @@ class RedisSentinelClient:
         Returns:
             تقرير الصحة
         """
-        health = {
-            'status': 'healthy',
-            'timestamp': time.time(),
-            'checks': {}
-        }
+        health = {"status": "healthy", "timestamp": time.time(), "checks": {}}
 
         # Check master connection
         try:
-            health['checks']['master_ping'] = self.ping()
+            health["checks"]["master_ping"] = self.ping()
         except Exception as e:
-            health['checks']['master_ping'] = False
-            health['status'] = 'unhealthy'
-            health['error'] = str(e)
+            health["checks"]["master_ping"] = False
+            health["status"] = "unhealthy"
+            health["error"] = str(e)
 
         # Check sentinel
         try:
             sentinel_info = self.get_sentinel_info()
-            health['checks']['sentinel'] = sentinel_info
+            health["checks"]["sentinel"] = sentinel_info
         except Exception as e:
-            health['checks']['sentinel'] = {'error': str(e)}
-            health['status'] = 'degraded'
+            health["checks"]["sentinel"] = {"error": str(e)}
+            health["status"] = "degraded"
 
         # Check circuit breaker
-        health['checks']['circuit_breaker'] = self._circuit_breaker.state
-        if self._circuit_breaker.state == 'OPEN':
-            health['status'] = 'degraded'
+        health["checks"]["circuit_breaker"] = self._circuit_breaker.state
+        if self._circuit_breaker.state == "OPEN":
+            health["status"] = "degraded"
 
         return health
 

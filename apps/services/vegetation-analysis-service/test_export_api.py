@@ -38,29 +38,31 @@ def test_export_analysis():
         print(f"\nTesting {fmt.upper()} format...")
 
         url = f"{BASE_URL}/v1/export/analysis/{field_id}"
-        params = {
-            "lat": lat,
-            "lon": lon,
-            "format": fmt
-        }
+        params = {"lat": lat, "lon": lon, "format": fmt}
 
         try:
             response = requests.get(url, params=params, timeout=30)
 
             if response.status_code == 200:
                 # Get filename from header
-                content_disp = response.headers.get('Content-Disposition', '')
-                filename = content_disp.split('filename=')[1].strip('"') if 'filename=' in content_disp else f"analysis.{fmt}"
+                content_disp = response.headers.get("Content-Disposition", "")
+                filename = (
+                    content_disp.split("filename=")[1].strip('"')
+                    if "filename=" in content_disp
+                    else f"analysis.{fmt}"
+                )
 
                 # Save to file
                 filepath = OUTPUT_DIR / filename
-                with open(filepath, 'wb') as f:
+                with open(filepath, "wb") as f:
                     f.write(response.content)
 
                 # Display info
                 print(f"  ✓ Success")
                 print(f"  File: {filename}")
-                print(f"  Size: {response.headers.get('X-Export-Size', len(response.content))} bytes")
+                print(
+                    f"  Size: {response.headers.get('X-Export-Size', len(response.content))} bytes"
+                )
                 print(f"  Generated: {response.headers.get('X-Generated-At')}")
                 print(f"  Content-Type: {response.headers.get('Content-Type')}")
 
@@ -94,7 +96,7 @@ def test_export_timeseries():
         "lon": lon,
         "start_date": "2023-12-01",
         "end_date": "2023-12-15",
-        "format": "csv"
+        "format": "csv",
     }
 
     try:
@@ -104,7 +106,7 @@ def test_export_timeseries():
             filename = "timeseries_export.csv"
             filepath = OUTPUT_DIR / filename
 
-            with open(filepath, 'wb') as f:
+            with open(filepath, "wb") as f:
                 f.write(response.content)
 
             print(f"✓ Success")
@@ -112,7 +114,7 @@ def test_export_timeseries():
             print(f"Size: {response.headers.get('X-Export-Size')} bytes")
             print(f"Data Points: {response.headers.get('X-Data-Points')}")
             print(f"\nFirst 5 lines:")
-            print(response.text.split('\n')[:5])
+            print(response.text.split("\n")[:5])
 
         else:
             print(f"✗ Failed: {response.status_code}")
@@ -129,10 +131,7 @@ def test_export_boundaries():
     print("=" * 80)
 
     url = f"{BASE_URL}/v1/export/boundaries"
-    params = {
-        "field_ids": "FIELD_001,FIELD_002,FIELD_003",
-        "format": "geojson"
-    }
+    params = {"field_ids": "FIELD_001,FIELD_002,FIELD_003", "format": "geojson"}
 
     try:
         response = requests.get(url, params=params, timeout=30)
@@ -141,7 +140,7 @@ def test_export_boundaries():
             filename = "boundaries_export.geojson"
             filepath = OUTPUT_DIR / filename
 
-            with open(filepath, 'wb') as f:
+            with open(filepath, "wb") as f:
                 f.write(response.content)
 
             print(f"✓ Success")
@@ -174,12 +173,7 @@ def test_export_report():
         print(f"\nTesting {report_type} report...")
 
         url = f"{BASE_URL}/v1/export/report/{field_id}"
-        params = {
-            "lat": lat,
-            "lon": lon,
-            "report_type": report_type,
-            "format": "json"
-        }
+        params = {"lat": lat, "lon": lon, "report_type": report_type, "format": "json"}
 
         try:
             response = requests.get(url, params=params, timeout=30)
@@ -188,7 +182,7 @@ def test_export_report():
                 filename = f"report_{report_type}.json"
                 filepath = OUTPUT_DIR / filename
 
-                with open(filepath, 'wb') as f:
+                with open(filepath, "wb") as f:
                     f.write(response.content)
 
                 print(f"  ✓ Success: {filename}")
@@ -222,7 +216,7 @@ def test_error_handling():
     print("\n1. Invalid format:")
     response = requests.get(
         f"{BASE_URL}/v1/export/analysis/FIELD_001",
-        params={"lat": 15.3694, "lon": 44.1910, "format": "invalid"}
+        params={"lat": 15.3694, "lon": 44.1910, "format": "invalid"},
     )
     print(f"  Status: {response.status_code}")
     print(f"  Message: {response.json().get('detail')}")
@@ -236,8 +230,8 @@ def test_error_handling():
             "lon": 44.1910,
             "start_date": "2023-13-45",  # Invalid date
             "end_date": "2023-12-15",
-            "format": "csv"
-        }
+            "format": "csv",
+        },
     )
     print(f"  Status: {response.status_code}")
     if response.status_code != 200:
@@ -303,4 +297,5 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n\nUnexpected error: {e}")
         import traceback
+
         traceback.print_exc()

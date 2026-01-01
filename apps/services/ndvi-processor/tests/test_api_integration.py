@@ -58,10 +58,7 @@ class TestProcessingEndpoints:
         request = {
             "tenant_id": "test_tenant",
             "field_id": "field_minimal",
-            "date_range": {
-                "start": "2025-12-01",
-                "end": "2025-12-15"
-            }
+            "date_range": {"start": "2025-12-01", "end": "2025-12-15"},
         }
 
         response = test_client.post("/process", json=request)
@@ -120,7 +117,7 @@ class TestProcessingEndpoints:
         request = {
             "tenant_id": "specific_tenant",
             "field_id": "field_001",
-            "date_range": {"start": "2025-12-01", "end": "2025-12-15"}
+            "date_range": {"start": "2025-12-01", "end": "2025-12-15"},
         }
         test_client.post("/process", json=request)
 
@@ -135,7 +132,7 @@ class TestProcessingEndpoints:
         request = {
             "tenant_id": "test_tenant",
             "field_id": "specific_field",
-            "date_range": {"start": "2025-12-01", "end": "2025-12-15"}
+            "date_range": {"start": "2025-12-01", "end": "2025-12-15"},
         }
         test_client.post("/process", json=request)
 
@@ -216,8 +213,7 @@ class TestAnalysisEndpoints:
         """Test POST /fields/{field_id}/ndvi/change endpoint"""
         field_id = sample_change_analysis_request["field_id"]
         response = test_client.post(
-            f"/fields/{field_id}/ndvi/change",
-            json=sample_change_analysis_request
+            f"/fields/{field_id}/ndvi/change", json=sample_change_analysis_request
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -239,8 +235,7 @@ class TestAnalysisEndpoints:
     def test_get_anomaly_detection(self, test_client):
         """Test GET /fields/{field_id}/ndvi/anomaly endpoint"""
         response = test_client.get(
-            "/fields/field_anomaly/ndvi/anomaly"
-            "?date=2025-12-27&current_ndvi=0.45"
+            "/fields/field_anomaly/ndvi/anomaly" "?date=2025-12-27&current_ndvi=0.45"
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -290,9 +285,7 @@ class TestExportEndpoints:
         """Test exporting single result as JSON"""
         test_client.get("/fields/field_export_json/ndvi/latest")
 
-        response = test_client.get(
-            "/fields/field_export_json/ndvi/export?format=json"
-        )
+        response = test_client.get("/fields/field_export_json/ndvi/export?format=json")
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -317,8 +310,7 @@ class TestCompositeEndpoints:
     def test_create_monthly_composite(self, test_client, sample_composite_request):
         """Test POST /composites/monthly endpoint"""
         response = test_client.post(
-            "/composites/monthly",
-            json=sample_composite_request
+            "/composites/monthly", json=sample_composite_request
         )
 
         assert response.status_code == status.HTTP_201_CREATED
@@ -359,8 +351,7 @@ class TestCompositeEndpoints:
         """Test GET /composites/{composite_id} endpoint"""
         # Create a composite
         create_response = test_client.post(
-            "/composites/monthly",
-            json=sample_composite_request
+            "/composites/monthly", json=sample_composite_request
         )
         composite_id = create_response.json()["composite_id"]
 
@@ -380,8 +371,7 @@ class TestCompositeEndpoints:
         """Test GET /composites/{composite_id}/download endpoint"""
         # Create a composite
         create_response = test_client.post(
-            "/composites/monthly",
-            json=sample_composite_request
+            "/composites/monthly", json=sample_composite_request
         )
         composite_id = create_response.json()["composite_id"]
 
@@ -414,15 +404,15 @@ class TestRequestValidation:
         request = {
             "tenant_id": "test_tenant",
             "field_id": "field_001",
-            "date_range": {
-                "start": "invalid-date",
-                "end": "2025-12-15"
-            }
+            "date_range": {"start": "invalid-date", "end": "2025-12-15"},
         }
 
         response = test_client.post("/process", json=request)
         # Should still accept as string, validation happens later
-        assert response.status_code in [status.HTTP_202_ACCEPTED, status.HTTP_422_UNPROCESSABLE_ENTITY]
+        assert response.status_code in [
+            status.HTTP_202_ACCEPTED,
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+        ]
 
     def test_composite_invalid_month(self, test_client):
         """Test composite creation with invalid month"""
@@ -432,7 +422,7 @@ class TestRequestValidation:
             "year": 2025,
             "month": 13,  # Invalid month
             "method": "max_ndvi",
-            "source": "sentinel-2"
+            "source": "sentinel-2",
         }
 
         response = test_client.post("/composites/monthly", json=request)
@@ -453,7 +443,7 @@ class TestConcurrentRequests:
             {
                 "tenant_id": "tenant_concurrent",
                 "field_id": f"field_concurrent_{i}",
-                "date_range": {"start": "2025-12-01", "end": "2025-12-15"}
+                "date_range": {"start": "2025-12-01", "end": "2025-12-15"},
             }
             for i in range(5)
         ]
@@ -475,8 +465,8 @@ class TestConcurrentRequests:
                 json={
                     "tenant_id": "test_tenant",
                     "field_id": f"field_queue_{i}",
-                    "date_range": {"start": "2025-12-01", "end": "2025-12-15"}
-                }
+                    "date_range": {"start": "2025-12-01", "end": "2025-12-15"},
+                },
             )
 
         # Check health shows queue size

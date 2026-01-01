@@ -76,8 +76,17 @@ export default function DataTable<T>({
               <tr
                 key={keyExtractor(item)}
                 onClick={() => onRowClick?.(item)}
+                onKeyDown={(e) => {
+                  if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
+                    e.preventDefault();
+                    onRowClick(item);
+                  }
+                }}
+                tabIndex={onRowClick ? 0 : undefined}
+                role={onRowClick ? 'button' : undefined}
+                aria-label={onRowClick ? 'اضغط للتفاصيل' : undefined}
                 className={cn(
-                  'hover:bg-gray-50 transition-colors',
+                  'hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-inset',
                   onRowClick && 'cursor-pointer'
                 )}
               >

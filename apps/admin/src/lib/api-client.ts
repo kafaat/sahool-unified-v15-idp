@@ -194,7 +194,7 @@ class AdminApiClient {
   // Authentication API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, totp_code?: string) {
     // Sanitize email input to prevent XSS
     const sanitizedEmail = sanitizeInput(email);
 
@@ -207,9 +207,20 @@ class AdminApiClient {
       };
     }
 
-    return this.request<{ access_token: string; token_type: string; user: User }>('/api/v1/auth/login', {
+    const body: any = { email: sanitizedEmail, password };
+    if (totp_code) {
+      body.totp_code = totp_code;
+    }
+
+    return this.request<{
+      access_token: string;
+      token_type: string;
+      user: User;
+      requires_2fa?: boolean;
+      temp_token?: string;
+    }>('/api/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email: sanitizedEmail, password }),
+      body: JSON.stringify(body),
       skipRetry: true, // Don't retry auth requests
     });
   }

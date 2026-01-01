@@ -16,6 +16,7 @@ from enum import Enum
 
 class SecurityScheme(str, Enum):
     """Security authentication schemes / مخططات المصادقة الأمنية"""
+
     API_KEY = "apiKey"
     BEARER = "bearer"
     OAUTH2 = "oauth2"
@@ -25,6 +26,7 @@ class SecurityScheme(str, Enum):
 
 class InputMode(str, Enum):
     """Agent input modes / أنماط إدخال الوكيل"""
+
     TEXT = "text"
     STRUCTURED = "structured"
     MULTIMODAL = "multimodal"
@@ -33,6 +35,7 @@ class InputMode(str, Enum):
 
 class OutputMode(str, Enum):
     """Agent output modes / أنماط إخراج الوكيل"""
+
     TEXT = "text"
     STRUCTURED = "structured"
     MULTIMODAL = "multimodal"
@@ -47,12 +50,19 @@ class AgentCapability(BaseModel):
     Describes a specific capability or function the agent can perform.
     يصف قدرة أو وظيفة محددة يمكن للوكيل أدائها.
     """
+
     name: str = Field(..., description="Capability name")
     description: str = Field(..., description="Capability description")
     description_ar: Optional[str] = Field(None, description="Arabic description")
-    input_schema: Optional[Dict[str, Any]] = Field(None, description="JSON Schema for input")
-    output_schema: Optional[Dict[str, Any]] = Field(None, description="JSON Schema for output")
-    examples: Optional[List[Dict[str, Any]]] = Field(default_factory=list, description="Usage examples")
+    input_schema: Optional[Dict[str, Any]] = Field(
+        None, description="JSON Schema for input"
+    )
+    output_schema: Optional[Dict[str, Any]] = Field(
+        None, description="JSON Schema for output"
+    )
+    examples: Optional[List[Dict[str, Any]]] = Field(
+        default_factory=list, description="Usage examples"
+    )
 
     class Config:
         json_schema_extra = {
@@ -64,16 +74,16 @@ class AgentCapability(BaseModel):
                     "type": "object",
                     "properties": {
                         "crop_type": {"type": "string"},
-                        "symptoms": {"type": "object"}
-                    }
+                        "symptoms": {"type": "object"},
+                    },
                 },
                 "output_schema": {
                     "type": "object",
                     "properties": {
                         "disease": {"type": "string"},
-                        "confidence": {"type": "number"}
-                    }
-                }
+                        "confidence": {"type": "number"},
+                    },
+                },
             }
         }
 
@@ -86,12 +96,12 @@ class AgentSkill(BaseModel):
     Represents a domain or area of expertise for the agent.
     يمثل مجالًا أو منطقة خبرة للوكيل.
     """
+
     skill_id: str = Field(..., description="Unique skill identifier")
     name: str = Field(..., description="Skill name")
     name_ar: Optional[str] = Field(None, description="Arabic name")
     level: Literal["beginner", "intermediate", "advanced", "expert"] = Field(
-        ...,
-        description="Proficiency level"
+        ..., description="Proficiency level"
     )
     keywords: List[str] = Field(default_factory=list, description="Search keywords")
 
@@ -102,7 +112,7 @@ class AgentSkill(BaseModel):
                 "name": "Crop Disease Diagnosis",
                 "name_ar": "تشخيص أمراض المحاصيل",
                 "level": "expert",
-                "keywords": ["disease", "diagnosis", "pathology", "pest"]
+                "keywords": ["disease", "diagnosis", "pathology", "pest"],
             }
         }
 
@@ -112,12 +122,14 @@ class AgentEndpoint(BaseModel):
     Agent endpoint configuration
     تكوين نقطة نهاية الوكيل
     """
+
     url: HttpUrl = Field(..., description="Endpoint URL")
     method: Literal["GET", "POST", "PUT", "DELETE", "PATCH"] = Field(
-        default="POST",
-        description="HTTP method"
+        default="POST", description="HTTP method"
     )
-    headers: Optional[Dict[str, str]] = Field(default_factory=dict, description="Required headers")
+    headers: Optional[Dict[str, str]] = Field(
+        default_factory=dict, description="Required headers"
+    )
     timeout_seconds: int = Field(default=30, description="Request timeout")
 
     class Config:
@@ -126,7 +138,7 @@ class AgentEndpoint(BaseModel):
                 "url": "https://api.sahool.app/agents/disease-expert/invoke",
                 "method": "POST",
                 "headers": {"Content-Type": "application/json"},
-                "timeout_seconds": 30
+                "timeout_seconds": 30,
             }
         }
 
@@ -136,6 +148,7 @@ class AgentMetadata(BaseModel):
     Agent metadata and discovery information
     البيانات الوصفية للوكيل ومعلومات الاكتشاف
     """
+
     tags: List[str] = Field(default_factory=list, description="Searchable tags")
     category: Optional[str] = Field(None, description="Agent category")
     organization: Optional[str] = Field(None, description="Organization/owner")
@@ -143,8 +156,12 @@ class AgentMetadata(BaseModel):
     homepage: Optional[HttpUrl] = Field(None, description="Agent homepage")
     documentation: Optional[HttpUrl] = Field(None, description="Documentation URL")
     source_code: Optional[HttpUrl] = Field(None, description="Source code repository")
-    created_at: datetime = Field(default_factory=datetime.utcnow, description="Creation timestamp")
-    updated_at: datetime = Field(default_factory=datetime.utcnow, description="Last update timestamp")
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Creation timestamp"
+    )
+    updated_at: datetime = Field(
+        default_factory=datetime.utcnow, description="Last update timestamp"
+    )
 
     class Config:
         json_schema_extra = {
@@ -154,7 +171,7 @@ class AgentMetadata(BaseModel):
                 "organization": "SAHOOL",
                 "license": "MIT",
                 "homepage": "https://sahool.app",
-                "documentation": "https://docs.sahool.app/agents/disease-expert"
+                "documentation": "https://docs.sahool.app/agents/disease-expert",
             }
         }
 
@@ -175,7 +192,9 @@ class AgentCard(BaseModel):
     agent_id: str = Field(..., description="Unique agent identifier", min_length=1)
     name: str = Field(..., description="Agent name", min_length=1)
     name_ar: Optional[str] = Field(None, description="Arabic name")
-    version: str = Field(..., description="Agent version (semver)", pattern=r'^\d+\.\d+\.\d+$')
+    version: str = Field(
+        ..., description="Agent version (semver)", pattern=r"^\d+\.\d+\.\d+$"
+    )
 
     # Description / الوصف
     description: str = Field(..., description="Agent description", min_length=1)
@@ -183,73 +202,70 @@ class AgentCard(BaseModel):
 
     # Capabilities / القدرات
     capabilities: List[AgentCapability] = Field(
-        default_factory=list,
-        description="Agent capabilities"
+        default_factory=list, description="Agent capabilities"
     )
     skills: List[AgentSkill] = Field(
-        default_factory=list,
-        description="Agent skills/expertise"
+        default_factory=list, description="Agent skills/expertise"
     )
 
     # Communication / التواصل
     input_modes: List[InputMode] = Field(
         default_factory=lambda: [InputMode.TEXT, InputMode.STRUCTURED],
-        description="Supported input modes"
+        description="Supported input modes",
     )
     output_modes: List[OutputMode] = Field(
         default_factory=lambda: [OutputMode.TEXT, OutputMode.STRUCTURED],
-        description="Supported output modes"
+        description="Supported output modes",
     )
 
     # Endpoints / نقاط النهاية
     endpoint: AgentEndpoint = Field(..., description="Primary agent endpoint")
-    health_endpoint: Optional[HttpUrl] = Field(None, description="Health check endpoint")
+    health_endpoint: Optional[HttpUrl] = Field(
+        None, description="Health check endpoint"
+    )
 
     # Security / الأمان
     security_scheme: SecurityScheme = Field(
-        default=SecurityScheme.BEARER,
-        description="Authentication scheme"
+        default=SecurityScheme.BEARER, description="Authentication scheme"
     )
     requires_authentication: bool = Field(
-        default=True,
-        description="Whether authentication is required"
+        default=True, description="Whether authentication is required"
     )
 
     # Dependencies / التبعيات
     dependencies: List[str] = Field(
-        default_factory=list,
-        description="Other agents this agent depends on"
+        default_factory=list, description="Other agents this agent depends on"
     )
 
     # Metadata / البيانات الوصفية
     metadata: AgentMetadata = Field(
-        default_factory=AgentMetadata,
-        description="Additional metadata"
+        default_factory=AgentMetadata, description="Additional metadata"
     )
 
     # Status / الحالة
     status: Literal["active", "inactive", "deprecated", "maintenance"] = Field(
-        default="active",
-        description="Agent status"
+        default="active", description="Agent status"
     )
 
-    @validator('version')
+    @validator("version")
     def validate_version(cls, v):
         """Validate semantic versioning format"""
-        parts = v.split('.')
+        parts = v.split(".")
         if len(parts) != 3:
-            raise ValueError('Version must follow semver format (e.g., 1.0.0)')
+            raise ValueError("Version must follow semver format (e.g., 1.0.0)")
         try:
             [int(p) for p in parts]
         except ValueError:
-            raise ValueError('Version parts must be integers')
+            raise ValueError("Version parts must be integers")
         return v
 
-    @validator('agent_id')
+    @validator("agent_id")
     def validate_agent_id(cls, v):
         """Validate agent ID format"""
-        if not v.replace('-', '').replace('_', '').isalnum():
-            raise ValueError('Agent ID must contain only alphanumeric characters, hyphens, and underscores')
+        if not v.replace("-", "").replace("_", "").isalnum():
+            raise ValueError(
+                "Agent ID must contain only alphanumeric characters, hyphens, and underscores"
+            )
         return v
 
     def to_dict(self) -> Dict[str, Any]:
@@ -288,7 +304,7 @@ class AgentCard(BaseModel):
                         "name": "diagnose_disease",
                         "description": "Diagnose crop diseases from symptoms",
                         "input_schema": {"type": "object"},
-                        "output_schema": {"type": "object"}
+                        "output_schema": {"type": "object"},
                     }
                 ],
                 "skills": [
@@ -296,19 +312,19 @@ class AgentCard(BaseModel):
                         "skill_id": "crop_pathology",
                         "name": "Crop Pathology",
                         "level": "expert",
-                        "keywords": ["disease", "diagnosis"]
+                        "keywords": ["disease", "diagnosis"],
                     }
                 ],
                 "input_modes": ["text", "structured", "multimodal"],
                 "output_modes": ["text", "structured"],
                 "endpoint": {
                     "url": "https://api.sahool.app/agents/disease-expert/invoke",
-                    "method": "POST"
+                    "method": "POST",
                 },
                 "health_endpoint": "https://api.sahool.app/agents/disease-expert/health",
                 "security_scheme": "bearer",
                 "requires_authentication": True,
                 "dependencies": ["crop-health-service", "satellite-service"],
-                "status": "active"
+                "status": "active",
             }
         }

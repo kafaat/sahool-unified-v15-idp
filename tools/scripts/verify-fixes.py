@@ -20,7 +20,7 @@ def print_header(title: str) -> None:
     """Print a formatted header."""
     print(f"\n{'=' * 60}")
     print(f"  {title}")
-    print('=' * 60)
+    print("=" * 60)
 
 
 def print_result(name: str, passed: bool, message: str = "") -> None:
@@ -104,6 +104,7 @@ def verify_postgis_migration() -> Tuple[bool, str]:
     missing = []
     for name, pattern in required_features:
         import re
+
         if re.search(pattern, content, re.IGNORECASE):
             found.append(name)
         else:

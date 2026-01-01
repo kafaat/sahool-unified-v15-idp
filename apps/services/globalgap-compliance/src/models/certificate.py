@@ -17,6 +17,7 @@ class CertificateStatus(str, Enum):
     Certificate status
     حالة الشهادة
     """
+
     ACTIVE = "active"  # نشطة
     EXPIRED = "expired"  # منتهية الصلاحية
     SUSPENDED = "suspended"  # معلقة
@@ -30,11 +31,16 @@ class CertificationScope(str, Enum):
     Certification scope
     نطاق الشهادة
     """
+
     CROPS_BASE = "crops_base"  # قاعدة المحاصيل - Crops Base
     FRUIT_VEGETABLES = "fruit_vegetables"  # الفواكه والخضروات - Fruit and Vegetables
     COMBINABLE_CROPS = "combinable_crops"  # المحاصيل القابلة للدمج - Combinable Crops
-    PLANT_PROPAGATION = "plant_propagation"  # إكثار النباتات - Plant Propagation Material
-    FLOWERS_ORNAMENTALS = "flowers_ornamentals"  # الزهور والنباتات الزينة - Flowers and Ornamentals
+    PLANT_PROPAGATION = (
+        "plant_propagation"  # إكثار النباتات - Plant Propagation Material
+    )
+    FLOWERS_ORNAMENTALS = (
+        "flowers_ornamentals"  # الزهور والنباتات الزينة - Flowers and Ornamentals
+    )
 
 
 class CertificationBody(BaseModel):
@@ -42,7 +48,10 @@ class CertificationBody(BaseModel):
     Certification body information
     معلومات الجهة المانحة للشهادة
     """
-    name: str = Field(..., description="Certification body name | اسم الجهة المانحة للشهادة")
+
+    name: str = Field(
+        ..., description="Certification body name | اسم الجهة المانحة للشهادة"
+    )
     code: str = Field(..., description="CB code | رمز الجهة")
     country: str = Field(..., description="Country | الدولة")
     contact_email: Optional[str] = None
@@ -56,6 +65,7 @@ class GGNCertificate(BaseModel):
     GlobalGAP GGN Certificate
     شهادة GlobalGAP GGN
     """
+
     id: Optional[str] = None
     farm_id: str = Field(..., description="Farm identifier | معرف المزرعة")
     tenant_id: str = Field(..., description="Tenant identifier | معرف المستأجر")
@@ -65,31 +75,32 @@ class GGNCertificate(BaseModel):
         ...,
         description="GlobalGAP Number (GGN) - 13 digits | رقم GlobalGAP (GGN) - 13 رقم",
         min_length=13,
-        max_length=13
+        max_length=13,
     )
     gln_number: Optional[str] = Field(
         None,
         description="Global Location Number (GLN) | رقم الموقع العالمي",
         min_length=13,
-        max_length=13
+        max_length=13,
     )
 
     # Certificate information | معلومات الشهادة
     certificate_number: str = Field(..., description="Certificate number | رقم الشهادة")
     status: CertificateStatus = Field(
         default=CertificateStatus.PENDING_APPROVAL,
-        description="Certificate status | حالة الشهادة"
+        description="Certificate status | حالة الشهادة",
     )
 
     # Certification scope | نطاق الشهادة
-    scope: CertificationScope = Field(..., description="Certification scope | نطاق الشهادة")
+    scope: CertificationScope = Field(
+        ..., description="Certification scope | نطاق الشهادة"
+    )
     products: List[str] = Field(
-        default_factory=list,
-        description="Certified products | المنتجات المعتمدة"
+        default_factory=list, description="Certified products | المنتجات المعتمدة"
     )
     production_methods: List[str] = Field(
         default_factory=list,
-        description="e.g., conventional, organic | مثل: تقليدي، عضوي"
+        description="e.g., conventional, organic | مثل: تقليدي، عضوي",
     )
 
     # Certificate dates | تواريخ الشهادة
@@ -101,35 +112,42 @@ class GGNCertificate(BaseModel):
 
     # Certification body | الجهة المانحة للشهادة
     certification_body: CertificationBody = Field(
-        ...,
-        description="Certification body details | تفاصيل الجهة المانحة للشهادة"
+        ..., description="Certification body details | تفاصيل الجهة المانحة للشهادة"
     )
 
     # Farm details | تفاصيل المزرعة
     farm_name: str = Field(..., description="Farm name | اسم المزرعة")
     farm_address: str = Field(..., description="Farm address | عنوان المزرعة")
     farm_country: str = Field(default="Yemen", description="Country | الدولة")
-    total_area_ha: float = Field(..., gt=0, description="Total certified area in hectares | المساحة الكلية المعتمدة بالهكتار")
+    total_area_ha: float = Field(
+        ...,
+        gt=0,
+        description="Total certified area in hectares | المساحة الكلية المعتمدة بالهكتار",
+    )
 
     # Producer information | معلومات المنتج
-    producer_name: str = Field(..., description="Producer/farmer name | اسم المنتج/المزارع")
+    producer_name: str = Field(
+        ..., description="Producer/farmer name | اسم المنتج/المزارع"
+    )
     producer_contact: Optional[str] = None
 
     # Compliance information | معلومات الامتثال
-    ifa_version: str = Field(default="6.0", description="IFA version | إصدار معايير IFA")
+    ifa_version: str = Field(
+        default="6.0", description="IFA version | إصدار معايير IFA"
+    )
     compliance_percentage: float = Field(
         ge=0.0,
         le=100.0,
-        description="Overall compliance percentage | نسبة الامتثال الإجمالية"
+        description="Overall compliance percentage | نسبة الامتثال الإجمالية",
     )
     major_must_compliance: bool = Field(
         default=False,
-        description="All Major Must points compliant | جميع النقاط الإلزامية الرئيسية متوافقة"
+        description="All Major Must points compliant | جميع النقاط الإلزامية الرئيسية متوافقة",
     )
     minor_must_compliance_percentage: float = Field(
         ge=0.0,
         le=100.0,
-        description="Minor Must compliance (must be >= 95%) | نسبة الامتثال للنقاط الإلزامية الثانوية (يجب أن تكون >= 95%)"
+        description="Minor Must compliance (must be >= 95%) | نسبة الامتثال للنقاط الإلزامية الثانوية (يجب أن تكون >= 95%)",
     )
 
     # Certificate documents | مستندات الشهادة
@@ -140,7 +158,7 @@ class GGNCertificate(BaseModel):
     # Public information | معلومات عامة
     publicly_searchable: bool = Field(
         default=True,
-        description="Certificate searchable in GlobalGAP database | الشهادة قابلة للبحث في قاعدة بيانات GlobalGAP"
+        description="Certificate searchable in GlobalGAP database | الشهادة قابلة للبحث في قاعدة بيانات GlobalGAP",
     )
 
     # Renewal tracking | تتبع التجديد
@@ -169,7 +187,7 @@ class GGNCertificate(BaseModel):
                 "certification_body": {
                     "name": "Yemen Certification Body",
                     "code": "CB-YE-001",
-                    "country": "Yemen"
+                    "country": "Yemen",
                 },
                 "farm_name": "مزرعة النصر للخضروات",
                 "farm_address": "صنعاء، اليمن",
@@ -178,7 +196,7 @@ class GGNCertificate(BaseModel):
                 "ifa_version": "6.0",
                 "compliance_percentage": 98.5,
                 "major_must_compliance": True,
-                "minor_must_compliance_percentage": 97.5
+                "minor_must_compliance_percentage": 97.5,
             }
         }
 
@@ -213,6 +231,7 @@ class CertificateRenewal(BaseModel):
     Certificate renewal request
     طلب تجديد الشهادة
     """
+
     id: Optional[str] = None
     certificate_id: str
     farm_id: str
@@ -231,7 +250,7 @@ class CertificateRenewal(BaseModel):
     # Renewal status | حالة التجديد
     renewal_status: str = Field(
         default="pending",
-        description="pending, in_progress, approved, rejected | معلق، قيد التنفيذ، موافق عليه، مرفوض"
+        description="pending, in_progress, approved, rejected | معلق، قيد التنفيذ، موافق عليه، مرفوض",
     )
     approval_date: Optional[datetime] = None
     approved_by: Optional[str] = None
@@ -256,6 +275,6 @@ class CertificateRenewal(BaseModel):
                 "tenant_id": "tenant_001",
                 "renewal_type": "regular",
                 "requested_by": "أحمد محمد علي",
-                "renewal_status": "pending"
+                "renewal_status": "pending",
             }
         }

@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 class DiseaseSeverity(str, Enum):
     """مستوى خطورة المرض"""
+
     HEALTHY = "healthy"
     LOW = "low"
     MEDIUM = "medium"
@@ -19,34 +20,37 @@ class DiseaseSeverity(str, Enum):
 
 class CropType(str, Enum):
     """أنواع المحاصيل المدعومة"""
-    WHEAT = "wheat"          # قمح
-    TOMATO = "tomato"        # طماطم
-    POTATO = "potato"        # بطاطس
-    CORN = "corn"            # ذرة
-    GRAPE = "grape"          # عنب
-    APPLE = "apple"          # تفاح
-    COFFEE = "coffee"        # قهوة (بن)
+
+    WHEAT = "wheat"  # قمح
+    TOMATO = "tomato"  # طماطم
+    POTATO = "potato"  # بطاطس
+    CORN = "corn"  # ذرة
+    GRAPE = "grape"  # عنب
+    APPLE = "apple"  # تفاح
+    COFFEE = "coffee"  # قهوة (بن)
     DATE_PALM = "date_palm"  # نخيل
-    MANGO = "mango"          # مانجو
-    CITRUS = "citrus"        # حمضيات
-    COTTON = "cotton"        # قطن
-    SORGHUM = "sorghum"      # ذرة رفيعة
+    MANGO = "mango"  # مانجو
+    CITRUS = "citrus"  # حمضيات
+    COTTON = "cotton"  # قطن
+    SORGHUM = "sorghum"  # ذرة رفيعة
     UNKNOWN = "unknown"
 
 
 class TreatmentType(str, Enum):
     """نوع العلاج"""
-    FUNGICIDE = "fungicide"        # مبيد فطري
-    INSECTICIDE = "insecticide"    # مبيد حشري
-    HERBICIDE = "herbicide"        # مبيد أعشاب
-    FERTILIZER = "fertilizer"      # سماد
-    IRRIGATION = "irrigation"      # ري
-    PRUNING = "pruning"            # تقليم
-    NONE = "none"                  # لا يحتاج علاج
+
+    FUNGICIDE = "fungicide"  # مبيد فطري
+    INSECTICIDE = "insecticide"  # مبيد حشري
+    HERBICIDE = "herbicide"  # مبيد أعشاب
+    FERTILIZER = "fertilizer"  # سماد
+    IRRIGATION = "irrigation"  # ري
+    PRUNING = "pruning"  # تقليم
+    NONE = "none"  # لا يحتاج علاج
 
 
 class Treatment(BaseModel):
     """معلومات العلاج المقترح"""
+
     treatment_type: TreatmentType
     product_name: str
     product_name_ar: str
@@ -62,6 +66,7 @@ class Treatment(BaseModel):
 
 class DiseaseInfo(BaseModel):
     """معلومات المرض"""
+
     disease_id: str
     name: str
     name_ar: str

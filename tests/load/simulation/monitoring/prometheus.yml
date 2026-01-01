@@ -1,0 +1,68 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - Prometheus Configuration
+# تكوين Prometheus لمنصة سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: 'simulation'
+    project: 'sahool-idp'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - sahool-alertmanager:9093
+
+# Load rules
+rule_files:
+  - /etc/prometheus/alert-rules.yml
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Nginx metrics (if nginx-prometheus-exporter is used)
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['sahool-nginx:80']
+    metrics_path: /nginx-health
+
+  # Application instances
+  - job_name: 'sahool-apps'
+    static_configs:
+      - targets:
+          - 'sahool-app-1:8080'
+          - 'sahool-app-2:8080'
+          - 'sahool-app-3:8080'
+          - 'sahool-app-4:8080'
+          - 'sahool-app-5:8080'
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['sahool-redis:6379']
+
+  # PostgreSQL metrics (if postgres_exporter is used)
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['sahool-db:5432']
+
+  # InfluxDB
+  - job_name: 'influxdb'
+    static_configs:
+      - targets: ['sahool-influxdb:8086']
+    metrics_path: /metrics
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['sahool-grafana:3000']

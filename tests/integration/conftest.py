@@ -33,13 +33,14 @@ from faker import Faker
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Initialize Faker with Arabic locale
-faker_ar = Faker('ar_SA')
-faker_en = Faker('en_US')
+faker_ar = Faker("ar_SA")
+faker_en = Faker("en_US")
 
 
 @dataclass
 class TestConfig:
     """Test environment configuration"""
+
     # Database
     postgres_host: str = os.getenv("POSTGRES_HOST", "localhost")
     postgres_port: int = int(os.getenv("POSTGRES_PORT", "5432"))
@@ -61,7 +62,10 @@ class TestConfig:
     qdrant_port: int = int(os.getenv("QDRANT_PORT", "6333"))
 
     # JWT
-    jwt_secret: str = os.getenv("JWT_SECRET_KEY", "test-secret-key-for-tests-only-do-not-use-in-production-32chars")
+    jwt_secret: str = os.getenv(
+        "JWT_SECRET_KEY",
+        "test-secret-key-for-tests-only-do-not-use-in-production-32chars",
+    )
 
     # Test timeouts
     service_startup_timeout: int = 60
@@ -93,6 +97,7 @@ def test_config() -> TestConfig:
 # Docker Compose Fixtures - إعدادات Docker Compose
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.fixture(scope="session", autouse=True)
 def docker_compose_setup():
     """
@@ -119,7 +124,9 @@ def wait_for_service(url: str, max_retries: int = 30, delay: float = 2.0) -> boo
     for attempt in range(max_retries):
         try:
             response = requests.get(url, timeout=5)
-            if response.status_code < 500:  # Any non-server error is considered "available"
+            if (
+                response.status_code < 500
+            ):  # Any non-server error is considered "available"
                 return True
         except RequestException:
             pass
@@ -134,8 +141,11 @@ def wait_for_service(url: str, max_retries: int = 30, delay: float = 2.0) -> boo
 # Database Fixtures - إعدادات قاعدة البيانات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.fixture(scope="session")
-def db_connection(test_config: TestConfig) -> Generator[psycopg2.extensions.connection, None, None]:
+def db_connection(
+    test_config: TestConfig,
+) -> Generator[psycopg2.extensions.connection, None, None]:
     """
     PostgreSQL database connection
     اتصال قاعدة بيانات PostgreSQL
@@ -150,7 +160,7 @@ def db_connection(test_config: TestConfig) -> Generator[psycopg2.extensions.conn
                 user=test_config.postgres_user,
                 password=test_config.postgres_password,
                 dbname=test_config.postgres_db,
-                cursor_factory=RealDictCursor
+                cursor_factory=RealDictCursor,
             )
             conn.autocommit = True
             yield conn
@@ -187,24 +197,26 @@ def cleanup_test_data(db_cursor):
     try:
         # Clean up test tables in reverse order of dependencies
         tables = [
-            'notifications',
-            'alerts',
-            'inventory_items',
-            'experiments',
-            'marketplace_listings',
-            'subscriptions',
-            'payments',
-            'iot_readings',
-            'satellite_analyses',
-            'ndvi_analyses',
-            'weather_forecasts',
-            'tasks',
-            'fields',
+            "notifications",
+            "alerts",
+            "inventory_items",
+            "experiments",
+            "marketplace_listings",
+            "subscriptions",
+            "payments",
+            "iot_readings",
+            "satellite_analyses",
+            "ndvi_analyses",
+            "weather_forecasts",
+            "tasks",
+            "fields",
         ]
 
         for table in tables:
             try:
-                db_cursor.execute(f"DELETE FROM {table} WHERE name LIKE '%test%' OR name LIKE '%Test%'")
+                db_cursor.execute(
+                    f"DELETE FROM {table} WHERE name LIKE '%test%' OR name LIKE '%Test%'"
+                )
             except psycopg2.errors.UndefinedTable:
                 # Table might not exist, skip
                 pass
@@ -216,6 +228,7 @@ def cleanup_test_data(db_cursor):
 # ═══════════════════════════════════════════════════════════════════════════════
 # NATS Connection Fixtures - إعدادات اتصال NATS
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture(scope="session")
 async def nats_client(test_config: TestConfig):
@@ -244,6 +257,7 @@ async def nats_client(test_config: TestConfig):
     except ImportError:
         # NATS client not installed, yield mock
         from unittest.mock import AsyncMock
+
         yield AsyncMock()
 
 
@@ -251,11 +265,13 @@ async def nats_client(test_config: TestConfig):
 # HTTP Client Fixtures - إعدادات عميل HTTP
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class RetryTransport(httpx.AsyncHTTPTransport):
     """
     HTTP transport with automatic retries
     نقل HTTP مع إعادة المحاولات التلقائية
     """
+
     def __init__(self, *args, max_retries: int = 3, **kwargs):
         super().__init__(*args, **kwargs)
         self.max_retries = max_retries
@@ -270,7 +286,7 @@ class RetryTransport(httpx.AsyncHTTPTransport):
                 if attempt == self.max_retries - 1:
                     raise
 
-            await asyncio.sleep(2 ** attempt)  # Exponential backoff
+            await asyncio.sleep(2**attempt)  # Exponential backoff
 
 
 @pytest.fixture(scope="session")
@@ -283,9 +299,7 @@ async def http_client(test_config: TestConfig) -> AsyncGenerator[AsyncClient, No
     timeout = Timeout(timeout=test_config.http_timeout)
 
     async with AsyncClient(
-        transport=transport,
-        timeout=timeout,
-        follow_redirects=True
+        transport=transport, timeout=timeout, follow_redirects=True
     ) as client:
         yield client
 
@@ -309,6 +323,7 @@ def auth_headers(test_config: TestConfig) -> Dict[str, str]:
 # Test Data Factories - مصانع بيانات الاختبار
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class FieldFactory:
     """Factory for creating test field data - مصنع لإنشاء بيانات حقول الاختبار"""
 
@@ -318,18 +333,22 @@ class FieldFactory:
         return {
             "name": name or f"Test Field {faker_en.uuid4()[:8]}",
             "name_ar": f"حقل اختبار {faker_ar.uuid4()[:8]}",
-            "area_hectares": faker_en.pyfloat(min_value=1.0, max_value=100.0, right_digits=2),
+            "area_hectares": faker_en.pyfloat(
+                min_value=1.0, max_value=100.0, right_digits=2
+            ),
             "crop_type": crop_type,
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[
-                    [44.0, 15.0],
-                    [44.1, 15.0],
-                    [44.1, 15.1],
-                    [44.0, 15.1],
-                    [44.0, 15.0]
-                ]]
-            }
+                "coordinates": [
+                    [
+                        [44.0, 15.0],
+                        [44.1, 15.0],
+                        [44.1, 15.1],
+                        [44.0, 15.1],
+                        [44.0, 15.0],
+                    ]
+                ],
+            },
         }
 
 
@@ -339,18 +358,16 @@ class WeatherQueryFactory:
     @staticmethod
     def create(latitude: float = 15.3694, longitude: float = 44.1910) -> Dict[str, Any]:
         """Create a weather query - إنشاء استعلام طقس"""
-        return {
-            "latitude": latitude,
-            "longitude": longitude,
-            "days": 7
-        }
+        return {"latitude": latitude, "longitude": longitude, "days": 7}
 
 
 class NotificationFactory:
     """Factory for creating notification data - مصنع لإنشاء بيانات الإشعارات"""
 
     @staticmethod
-    def create(user_id: str = "test-user-123", notification_type: str = "weather_alert") -> Dict[str, Any]:
+    def create(
+        user_id: str = "test-user-123", notification_type: str = "weather_alert"
+    ) -> Dict[str, Any]:
         """Create a notification - إنشاء إشعار"""
         return {
             "user_id": user_id,
@@ -360,7 +377,7 @@ class NotificationFactory:
             "message": faker_en.text(),
             "message_ar": faker_ar.text(),
             "priority": "high",
-            "channels": ["push", "email"]
+            "channels": ["push", "email"],
         }
 
 
@@ -377,7 +394,7 @@ class InventoryItemFactory:
             "quantity": faker_en.random_int(min=10, max=1000),
             "unit": "kg",
             "low_stock_threshold": 50,
-            "location": faker_en.city()
+            "location": faker_en.city(),
         }
 
 
@@ -392,20 +409,14 @@ class AIQueryFactory:
                 "question": "ما هو أفضل وقت لزراعة القمح في اليمن؟",
                 "field_id": "test-field-123",
                 "language": "ar",
-                "context": {
-                    "crop_type": "wheat",
-                    "location": "Sana'a, Yemen"
-                }
+                "context": {"crop_type": "wheat", "location": "Sana'a, Yemen"},
             }
         else:
             return {
                 "question": "What is the best time to plant wheat in Yemen?",
                 "field_id": "test-field-123",
                 "language": "en",
-                "context": {
-                    "crop_type": "wheat",
-                    "location": "Sana'a, Yemen"
-                }
+                "context": {"crop_type": "wheat", "location": "Sana'a, Yemen"},
             }
 
 
@@ -421,7 +432,7 @@ class PaymentFactory:
             "payment_method": "tharwatt",
             "description": "SAHOOL Subscription - Test",
             "customer_email": faker_en.email(),
-            "customer_phone": faker_en.phone_number()
+            "customer_phone": faker_en.phone_number(),
         }
 
 
@@ -438,7 +449,7 @@ class IoTReadingFactory:
             "unit": "%" if sensor_type == "soil_moisture" else "°C",
             "latitude": 15.3694,
             "longitude": 44.1910,
-            "timestamp": faker_en.iso8601()
+            "timestamp": faker_en.iso8601(),
         }
 
 
@@ -455,10 +466,7 @@ class ExperimentFactory:
             "description_ar": faker_ar.text(),
             "status": "active",
             "start_date": faker_en.date_this_year().isoformat(),
-            "variables": {
-                "fertilizer_type": "NPK",
-                "irrigation_frequency": "daily"
-            }
+            "variables": {"fertilizer_type": "NPK", "irrigation_frequency": "daily"},
         }
 
 
@@ -514,6 +522,7 @@ def experiment_factory() -> ExperimentFactory:
 # Service URL Fixtures - إعدادات عناوين الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.fixture
 def service_urls() -> Dict[str, str]:
     """
@@ -528,21 +537,18 @@ def service_urls() -> Dict[str, str]:
         "astronomical_calendar": "http://localhost:8111",
         "agro_advisor": "http://localhost:8105",
         "notification_service": "http://localhost:8110",
-
         # Professional Package
         "satellite_service": "http://localhost:8090",
         "ndvi_engine": "http://localhost:8107",
         "crop_health_ai": "http://localhost:8095",
         "irrigation_smart": "http://localhost:8094",
         "inventory_service": "http://localhost:8116",
-
         # Enterprise Package
         "ai_advisor": "http://localhost:8112",
         "iot_gateway": "http://localhost:8106",
         "marketplace_service": "http://localhost:3010",
         "billing_core": "http://localhost:8089",
         "research_core": "http://localhost:3015",
-
         # Additional Services
         "alert_service": "http://localhost:8113",
         "task_service": "http://localhost:8103",
@@ -557,12 +563,13 @@ def service_urls() -> Dict[str, str]:
 # Helper Functions - دوال مساعدة
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 async def wait_for_service_health(
     client: AsyncClient,
     url: str,
     health_endpoint: str = "/healthz",
     max_retries: int = 30,
-    delay: float = 2.0
+    delay: float = 2.0,
 ) -> bool:
     """
     Wait for a service to become healthy
@@ -590,6 +597,7 @@ async def wait_for_services(http_client: AsyncClient, service_urls: Dict[str, st
     Wait for all services to be ready
     انتظار حتى تصبح جميع الخدمات جاهزة
     """
+
     async def wait(service_name: str, timeout: int = 60) -> bool:
         url = service_urls.get(service_name)
         if not url:
@@ -655,8 +663,10 @@ class TaskFactory:
             "description": faker_en.text(),
             "task_type": task_type,
             "priority": faker_en.random_element(["low", "medium", "high"]),
-            "due_date": (datetime.utcnow() + timedelta(days=faker_en.random_int(1, 7))).isoformat(),
-            "status": "pending"
+            "due_date": (
+                datetime.utcnow() + timedelta(days=faker_en.random_int(1, 7))
+            ).isoformat(),
+            "status": "pending",
         }
 
 
@@ -672,7 +682,7 @@ class SubscriptionFactory:
             "email": faker_en.email(),
             "phone": faker_en.phone_number(),
             "plan_id": plan_id,
-            "billing_cycle": "monthly"
+            "billing_cycle": "monthly",
         }
 
 
@@ -684,11 +694,13 @@ class OrderFactory:
         """Create an order - إنشاء طلب"""
         items = []
         for _ in range(item_count):
-            items.append({
-                "product_id": f"product-{faker_en.uuid4()[:8]}",
-                "quantity": faker_en.random_int(min=1, max=20),
-                "unit_price": faker_en.random_int(min=5000, max=50000)
-            })
+            items.append(
+                {
+                    "product_id": f"product-{faker_en.uuid4()[:8]}",
+                    "quantity": faker_en.random_int(min=1, max=20),
+                    "unit_price": faker_en.random_int(min=5000, max=50000),
+                }
+            )
 
         return {
             "items": items,
@@ -697,9 +709,9 @@ class OrderFactory:
                 "phone": faker_en.phone_number(),
                 "street": faker_en.street_address(),
                 "city": "Sana'a",
-                "city_ar": "صنعاء"
+                "city_ar": "صنعاء",
             },
-            "payment_method": "tharwatt"
+            "payment_method": "tharwatt",
         }
 
 
@@ -716,10 +728,7 @@ class DeviceFactory:
             "manufacturer": faker_en.company(),
             "model": f"MODEL-{faker_en.random_int(100, 999)}",
             "firmware_version": f"{faker_en.random_int(1, 3)}.{faker_en.random_int(0, 9)}.0",
-            "location": {
-                "latitude": 15.3694,
-                "longitude": 44.1910
-            }
+            "location": {"latitude": 15.3694, "longitude": 44.1910},
         }
 
 
@@ -736,7 +745,7 @@ class ReviewFactory:
             "title_ar": faker_ar.sentence(),
             "review": faker_en.text(),
             "review_ar": faker_ar.text(),
-            "verified_purchase": True
+            "verified_purchase": True,
         }
 
 
@@ -799,10 +808,7 @@ def sample_field(field_factory: FieldFactory) -> Dict[str, Any]:
 @pytest.fixture
 def sample_location() -> Dict[str, float]:
     """Sample location (Sana'a, Yemen) - موقع نموذجي (صنعاء، اليمن)"""
-    return {
-        "latitude": 15.3694,
-        "longitude": 44.1910
-    }
+    return {"latitude": 15.3694, "longitude": 44.1910}
 
 
 @pytest.fixture
@@ -823,7 +829,9 @@ def sample_payment(payment_factory: PaymentFactory) -> Dict[str, Any]:
 
 
 @pytest.fixture
-async def field_ops_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+async def field_ops_client(
+    http_client: AsyncClient, service_urls: Dict[str, str]
+) -> AsyncClient:
     """HTTP client for field operations service - عميل HTTP لخدمة عمليات الحقول"""
     base_url = service_urls.get("field_core", "http://localhost:3000")
     http_client.base_url = base_url
@@ -831,7 +839,9 @@ async def field_ops_client(http_client: AsyncClient, service_urls: Dict[str, str
 
 
 @pytest.fixture
-async def weather_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+async def weather_client(
+    http_client: AsyncClient, service_urls: Dict[str, str]
+) -> AsyncClient:
     """HTTP client for weather service - عميل HTTP لخدمة الطقس"""
     base_url = service_urls.get("weather_core", "http://localhost:8108")
     http_client.base_url = base_url
@@ -839,7 +849,9 @@ async def weather_client(http_client: AsyncClient, service_urls: Dict[str, str])
 
 
 @pytest.fixture
-async def ndvi_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+async def ndvi_client(
+    http_client: AsyncClient, service_urls: Dict[str, str]
+) -> AsyncClient:
     """HTTP client for NDVI engine - عميل HTTP لمحرك NDVI"""
     base_url = service_urls.get("ndvi_engine", "http://localhost:8107")
     http_client.base_url = base_url
@@ -847,7 +859,9 @@ async def ndvi_client(http_client: AsyncClient, service_urls: Dict[str, str]) ->
 
 
 @pytest.fixture
-async def ai_advisor_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+async def ai_advisor_client(
+    http_client: AsyncClient, service_urls: Dict[str, str]
+) -> AsyncClient:
     """HTTP client for AI advisor - عميل HTTP للمستشار الذكي"""
     base_url = service_urls.get("ai_advisor", "http://localhost:8112")
     http_client.base_url = base_url
@@ -855,7 +869,9 @@ async def ai_advisor_client(http_client: AsyncClient, service_urls: Dict[str, st
 
 
 @pytest.fixture
-async def billing_client(http_client: AsyncClient, service_urls: Dict[str, str]) -> AsyncClient:
+async def billing_client(
+    http_client: AsyncClient, service_urls: Dict[str, str]
+) -> AsyncClient:
     """HTTP client for billing service - عميل HTTP لخدمة الفوترة"""
     base_url = service_urls.get("billing_core", "http://localhost:8089")
     http_client.base_url = base_url
@@ -865,7 +881,9 @@ async def billing_client(http_client: AsyncClient, service_urls: Dict[str, str])
 @pytest.fixture
 async def kong_client() -> AsyncGenerator[AsyncClient, None]:
     """HTTP client for Kong API Gateway - عميل HTTP لبوابة Kong API"""
-    async with AsyncClient(base_url="http://localhost:8000", timeout=Timeout(30.0)) as client:
+    async with AsyncClient(
+        base_url="http://localhost:8000", timeout=Timeout(30.0)
+    ) as client:
         yield client
 
 
@@ -904,8 +922,8 @@ def mock_nats_message() -> Dict[str, Any]:
         "data": {
             "event_type": "test_event",
             "timestamp": datetime.utcnow().isoformat(),
-            "payload": {"test": "data"}
-        }
+            "payload": {"test": "data"},
+        },
     }
 
 
@@ -914,6 +932,7 @@ def mock_redis_connection():
     """Mock Redis connection for testing - اتصال Redis وهمي للاختبار"""
     try:
         from unittest.mock import MagicMock
+
         mock = MagicMock()
         mock.get.return_value = None
         mock.set.return_value = True

@@ -27,6 +27,7 @@ import uvicorn
 # NOTE: In production, install shared modules as a package instead of using sys.path
 # This is a temporary solution for the template example
 import sys
+
 sys.path.insert(0, "../../../../shared")
 
 from observability import (
@@ -119,6 +120,7 @@ rate_limiter = RateLimiter(tier_config=TierConfig())
 # FastAPI Lifespan
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
@@ -128,22 +130,22 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info(f"Starting {SERVICE_NAME} v{SERVICE_VERSION}")
     logger.info(f"Environment: {get_environment()}")
-    
+
     # Register health checks
     # health_checker.add_readiness_check("database", check_database_connection)
     # health_checker.add_readiness_check("redis", check_redis_connection)
-    
+
     # Setup OpenTelemetry if configured
     otel_endpoint = get_config("OTEL_EXPORTER_OTLP_ENDPOINT")
     if otel_endpoint:
         tracer = setup_opentelemetry(SERVICE_NAME, SERVICE_VERSION, otel_endpoint)
         if tracer:
             logger.info(f"OpenTelemetry configured with endpoint: {otel_endpoint}")
-    
+
     logger.info(f"{SERVICE_NAME} started successfully")
-    
+
     yield
-    
+
     # Shutdown
     logger.info(f"Shutting down {SERVICE_NAME}")
 
@@ -185,34 +187,35 @@ async def request_context_middleware(request: Request, call_next):
     """
     # Generate or extract request ID
     request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
-    
+
     # Extract trace context if available
     trace_ctx = get_trace_context()
-    
+
     # Set logging context
     set_request_context(
         request_id=request_id,
         tenant_id=request.headers.get("X-Tenant-ID"),
         user_id=request.headers.get("X-User-ID"),
     )
-    
+
     # Log request
     logger.info(
         f"{request.method} {request.url.path}",
         request_id=request_id,
         trace_id=trace_ctx.get("trace_id"),
     )
-    
+
     # Track active connections
     metrics.increment_active_connections()
-    
+
     # Process request
     import time
+
     start_time = time.time()
-    
+
     try:
         response = await call_next(request)
-        
+
         # Record metrics
         duration = time.time() - start_time
         metrics.record_request(
@@ -221,26 +224,26 @@ async def request_context_middleware(request: Request, call_next):
             status=response.status_code,
             duration=duration,
         )
-        
+
         # Add request ID to response headers
         response.headers["X-Request-ID"] = request_id
-        
+
         # Add trace context to response headers
         if trace_ctx:
             response.headers["X-Trace-ID"] = trace_ctx.get("trace_id", "")
-        
+
         return response
-        
+
     except Exception as e:
         # Record error
         metrics.record_error(type(e).__name__)
         logger.error(f"Request failed: {str(e)}")
         raise
-        
+
     finally:
         # Decrement active connections
         metrics.decrement_active_connections()
-        
+
         # Clear logging context
         clear_request_context()
 
@@ -259,6 +262,7 @@ app.include_router(create_metrics_router(metrics.registry))
 # ═══════════════════════════════════════════════════════════════════════════════
 # Business Logic Routes
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/")
 async def root():
@@ -279,17 +283,17 @@ async def example_endpoint(request: Request):
     # Apply rate limiting
     client_ip = request.client.host
     tier = "standard"  # Could be determined by API key or user subscription
-    
+
     if not rate_limiter.check_rate_limit(client_ip, tier):
         logger.warning(f"Rate limit exceeded for {client_ip}")
         raise HTTPException(
             status_code=429,
             detail="Rate limit exceeded. Please try again later.",
         )
-    
+
     # Business logic here
     logger.info("Processing example request")
-    
+
     return {
         "message": "Example response",
         "request_id": request.headers.get("X-Request-ID"),
@@ -305,7 +309,7 @@ if __name__ == "__main__":
     otel_endpoint = get_config("OTEL_EXPORTER_OTLP_ENDPOINT")
     if otel_endpoint:
         instrument_fastapi(app, SERVICE_NAME)
-    
+
     # Run server
     uvicorn.run(
         app,

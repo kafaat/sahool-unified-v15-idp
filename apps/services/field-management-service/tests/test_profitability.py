@@ -7,14 +7,14 @@ import sys
 import os
 
 # Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from profitability_analyzer import (
     ProfitabilityAnalyzer,
     CostCategory,
     CostItem,
     RevenueItem,
-    CropProfitability
+    CropProfitability,
 )
 
 
@@ -33,7 +33,7 @@ class TestProfitabilityAnalyzer:
             field_id="field-001",
             crop_season_id="season-2025-1",
             crop_code="wheat",
-            area_ha=2.5
+            area_ha=2.5,
         )
 
         assert isinstance(result, CropProfitability)
@@ -57,7 +57,7 @@ class TestProfitabilityAnalyzer:
                 "amount": 200000,
                 "unit": "YER",
                 "quantity": 75,
-                "unit_cost": 2666.67
+                "unit_cost": 2666.67,
             },
             {
                 "category": "fertilizer",
@@ -65,8 +65,8 @@ class TestProfitabilityAnalyzer:
                 "amount": 300000,
                 "unit": "YER",
                 "quantity": 1,
-                "unit_cost": 300000
-            }
+                "unit_cost": 300000,
+            },
         ]
 
         result = await analyzer.analyze_crop(
@@ -74,7 +74,7 @@ class TestProfitabilityAnalyzer:
             crop_season_id="season-2025-1",
             crop_code="wheat",
             area_ha=2.5,
-            costs=costs
+            costs=costs,
         )
 
         assert result.total_costs == 500000
@@ -89,7 +89,7 @@ class TestProfitabilityAnalyzer:
                 "quantity": 7500,
                 "unit": "kg",
                 "unit_price": 600,
-                "grade": "premium"
+                "grade": "premium",
             }
         ]
 
@@ -98,7 +98,7 @@ class TestProfitabilityAnalyzer:
             crop_season_id="season-2025-1",
             crop_code="wheat",
             area_ha=2.5,
-            revenues=revenues
+            revenues=revenues,
         )
 
         assert result.total_revenue == 4500000
@@ -113,7 +113,7 @@ class TestProfitabilityAnalyzer:
             field_id="field-001",
             crop_season_id="season-2025-1",
             crop_code="tomato",
-            area_ha=1.0
+            area_ha=1.0,
         )
 
         # Check all metrics are calculated
@@ -124,22 +124,19 @@ class TestProfitabilityAnalyzer:
 
         # Check percentages
         if result.total_revenue > 0:
-            expected_margin = (result.gross_profit / result.total_revenue * 100)
+            expected_margin = result.gross_profit / result.total_revenue * 100
             assert abs(result.gross_margin_percent - expected_margin) < 0.01
 
         # Check ROI
         if result.total_costs > 0:
-            expected_roi = (result.net_profit / result.total_costs * 100)
+            expected_roi = result.net_profit / result.total_costs * 100
             assert abs(result.return_on_investment - expected_roi) < 0.01
 
     @pytest.mark.asyncio
     async def test_break_even_calculation(self, analyzer):
         """Test break-even yield calculation"""
         result = await analyzer.calculate_break_even(
-            crop_code="wheat",
-            area_ha=2.5,
-            total_costs=670000,
-            expected_price=550
+            crop_code="wheat", area_ha=2.5, total_costs=670000, expected_price=550
         )
 
         assert "break_even_yield_kg" in result
@@ -157,9 +154,7 @@ class TestProfitabilityAnalyzer:
         """Test crop comparison"""
         crops = ["wheat", "tomato", "potato"]
         result = await analyzer.compare_crops(
-            crop_codes=crops,
-            area_ha=1.0,
-            region="sanaa"
+            crop_codes=crops, area_ha=1.0, region="sanaa"
         )
 
         assert len(result) == 3
@@ -175,27 +170,13 @@ class TestProfitabilityAnalyzer:
     async def test_season_analysis(self, analyzer):
         """Test season analysis with multiple crops"""
         crops_data = [
-            {
-                "field_id": "field-001",
-                "crop_code": "wheat",
-                "area_ha": 2.5
-            },
-            {
-                "field_id": "field-002",
-                "crop_code": "tomato",
-                "area_ha": 1.0
-            },
-            {
-                "field_id": "field-003",
-                "crop_code": "potato",
-                "area_ha": 1.5
-            }
+            {"field_id": "field-001", "crop_code": "wheat", "area_ha": 2.5},
+            {"field_id": "field-002", "crop_code": "tomato", "area_ha": 1.0},
+            {"field_id": "field-003", "crop_code": "potato", "area_ha": 1.5},
         ]
 
         result = await analyzer.analyze_season(
-            farmer_id="farmer-001",
-            season_year="2025",
-            crops_data=crops_data
+            farmer_id="farmer-001", season_year="2025", crops_data=crops_data
         )
 
         assert result.season_year == "2025"
@@ -216,10 +197,7 @@ class TestProfitabilityAnalyzer:
     @pytest.mark.asyncio
     async def test_cost_breakdown(self, analyzer):
         """Test cost breakdown by category"""
-        result = await analyzer.get_cost_breakdown(
-            crop_code="wheat",
-            area_ha=1.0
-        )
+        result = await analyzer.get_cost_breakdown(crop_code="wheat", area_ha=1.0)
 
         assert "total" in result
         assert "seeds" in result
@@ -231,18 +209,14 @@ class TestProfitabilityAnalyzer:
         assert "fertilizer_percent" in result
 
         # Verify percentages sum to 100
-        total_pct = sum(
-            v for k, v in result.items()
-            if k.endswith("_percent")
-        )
+        total_pct = sum(v for k, v in result.items() if k.endswith("_percent"))
         assert abs(total_pct - 100) < 0.1
 
     @pytest.mark.asyncio
     async def test_regional_benchmarks(self, analyzer):
         """Test regional benchmark retrieval"""
         result = await analyzer.get_regional_benchmarks(
-            crop_code="coffee",
-            region="sanaa"
+            crop_code="coffee", region="sanaa"
         )
 
         assert result["crop_code"] == "coffee"
@@ -258,9 +232,7 @@ class TestProfitabilityAnalyzer:
     async def test_historical_profitability(self, analyzer):
         """Test historical profitability retrieval"""
         result = await analyzer.get_historical_profitability(
-            field_id="field-001",
-            crop_code="wheat",
-            years=5
+            field_id="field-001", crop_code="wheat", years=5
         )
 
         assert len(result) == 5
@@ -295,7 +267,7 @@ class TestProfitabilityAnalyzer:
             actual_yield=1800,  # Low yield
             return_on_investment=80,
             vs_regional_average=0,
-            rank_in_portfolio=1
+            rank_in_portfolio=1,
         )
 
         result = analyzer.generate_recommendations(analysis)
@@ -322,7 +294,7 @@ class TestProfitabilityAnalyzer:
                 field_id="field-001",
                 crop_season_id="season-001",
                 crop_code=crop_code,
-                area_ha=1.0
+                area_ha=1.0,
             )
 
             # High-value crops should have high revenue per ha
@@ -341,7 +313,7 @@ class TestProfitabilityAnalyzer:
                 "amount": 500000,
                 "unit": "YER",
                 "quantity": 1,
-                "unit_cost": 500000
+                "unit_cost": 500000,
             },
             {
                 "category": "fertilizer",
@@ -349,8 +321,8 @@ class TestProfitabilityAnalyzer:
                 "amount": 600000,
                 "unit": "YER",
                 "quantity": 1,
-                "unit_cost": 600000
-            }
+                "unit_cost": 600000,
+            },
         ]
 
         revenues = [
@@ -359,7 +331,7 @@ class TestProfitabilityAnalyzer:
                 "quantity": 500,  # Very low yield
                 "unit": "kg",
                 "unit_price": 400,
-                "grade": "low"
+                "grade": "low",
             }
         ]
 
@@ -369,7 +341,7 @@ class TestProfitabilityAnalyzer:
             crop_code="wheat",
             area_ha=1.0,
             costs=costs,
-            revenues=revenues
+            revenues=revenues,
         )
 
         assert result.total_costs > result.total_revenue

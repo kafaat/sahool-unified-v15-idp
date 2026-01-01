@@ -51,6 +51,21 @@ import { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 
 /**
+ * Extended Express Request with custom properties
+ */
+interface ExtendedRequest extends Request {
+  correlationId?: string;
+  tenantId?: string;
+  userId?: string;
+  user?: {
+    sub?: string;
+    id?: string;
+    tenantId?: string;
+    [key: string]: any;
+  };
+}
+
+/**
  * Request log entry structure
  */
 interface LogEntry {
@@ -116,7 +131,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const ctx = context.switchToHttp();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<ExtendedRequest>();
     const response = ctx.getResponse<Response>();
 
     // Skip excluded paths
@@ -132,9 +147,9 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     const userId = this.extractUserId(request);
 
     // Store in request for downstream use
-    (request as any).correlationId = correlationId;
-    (request as any).tenantId = tenantId;
-    (request as any).userId = userId;
+    request.correlationId = correlationId;
+    request.tenantId = tenantId;
+    request.userId = userId;
 
     // Add correlation ID to response headers
     response.setHeader('X-Correlation-ID', correlationId);
@@ -193,7 +208,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   /**
    * Get or create correlation ID
    */
-  private getOrCreateCorrelationId(request: Request): string {
+  private getOrCreateCorrelationId(request: ExtendedRequest): string {
     return (
       request.headers['x-correlation-id'] as string ||
       request.headers['x-request-id'] as string ||
@@ -204,13 +219,13 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   /**
    * Extract tenant ID from request
    */
-  private extractTenantId(request: Request): string | undefined {
+  private extractTenantId(request: ExtendedRequest): string | undefined {
     // Try header first
     let tenantId = request.headers['x-tenant-id'] as string;
 
     // Try from JWT (if decoded by auth guard)
-    if (!tenantId && (request as any).user?.tenantId) {
-      tenantId = (request as any).user.tenantId;
+    if (!tenantId && request.user?.tenantId) {
+      tenantId = request.user.tenantId;
     }
 
     return tenantId;
@@ -219,17 +234,17 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   /**
    * Extract user ID from request
    */
-  private extractUserId(request: Request): string | undefined {
+  private extractUserId(request: ExtendedRequest): string | undefined {
     // Try header first
     let userId = request.headers['x-user-id'] as string;
 
     // Try from JWT (if decoded by auth guard)
-    if (!userId && (request as any).user?.sub) {
-      userId = (request as any).user.sub;
+    if (!userId && request.user?.sub) {
+      userId = request.user.sub;
     }
 
-    if (!userId && (request as any).user?.id) {
-      userId = (request as any).user.id;
+    if (!userId && request.user?.id) {
+      userId = request.user.id;
     }
 
     return userId;
@@ -345,7 +360,8 @@ export class RequestLoggingInterceptor implements NestInterceptor {
  * Helper function to get correlation ID from request
  */
 export function getCorrelationId(request: Request): string {
-  return (request as any).correlationId || 'unknown';
+  const extReq = request as ExtendedRequest;
+  return extReq.correlationId || 'unknown';
 }
 
 /**
@@ -356,10 +372,11 @@ export function getRequestContext(request: Request): {
   tenantId?: string;
   userId?: string;
 } {
+  const extReq = request as ExtendedRequest;
   return {
-    correlationId: (request as any).correlationId,
-    tenantId: (request as any).tenantId,
-    userId: (request as any).userId,
+    correlationId: extReq.correlationId,
+    tenantId: extReq.tenantId,
+    userId: extReq.userId,
   };
 }
 

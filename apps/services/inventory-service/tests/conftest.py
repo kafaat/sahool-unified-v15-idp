@@ -14,7 +14,8 @@ from sqlalchemy.pool import StaticPool
 
 # Import models
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'shared'))
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
 from database.base import Base
 
 
@@ -26,12 +27,12 @@ async def async_engine():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-   
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-   
+
     yield engine
-   
+
     await engine.dispose()
 
 
@@ -39,11 +40,9 @@ async def async_engine():
 async def async_session(async_engine) -> AsyncGenerator[AsyncSession, None]:
     """Create an async database session for testing"""
     async_session_maker = async_sessionmaker(
-        async_engine,
-        class_=AsyncSession,
-        expire_on_commit=False
+        async_engine, class_=AsyncSession, expire_on_commit=False
     )
-   
+
     async with async_session_maker() as session:
         yield session
         await session.rollback()
@@ -58,7 +57,7 @@ def mock_env_vars():
         "CORS_ALLOWED_ORIGINS": "http://localhost:3000",
         "SERVICE_PORT": "8115",
     }
-   
+
     with patch.dict(os.environ, env_vars, clear=False):
         yield env_vars
 
@@ -76,7 +75,7 @@ def sample_item_category():
         "name_en": "Fertilizers",
         "name_ar": "الأسمدة",
         "code": "FERT",
-        "description": "Agricultural fertilizers"
+        "description": "Agricultural fertilizers",
     }
 
 
@@ -87,7 +86,7 @@ def sample_warehouse():
         "name": "Main Warehouse",
         "code": "WH001",
         "location": "Sana'a",
-        "tenant_id": "test-tenant-123"
+        "tenant_id": "test-tenant-123",
     }
 
 
@@ -100,7 +99,7 @@ def sample_supplier():
         "phone": "+967-777-123456",
         "email": "contact@agrisupply.ye",
         "lead_time_days": 7,
-        "tenant_id": "test-tenant-123"
+        "tenant_id": "test-tenant-123",
     }
 
 
@@ -121,7 +120,7 @@ def sample_inventory_item():
         "maximum_stock": Decimal("2000.0"),
         "average_cost": Decimal("15.0"),
         "has_expiry": False,
-        "tenant_id": "test-tenant-123"
+        "tenant_id": "test-tenant-123",
     }
 
 
@@ -135,7 +134,7 @@ def sample_inventory_movement():
         "total_cost": Decimal("1500.0"),
         "reference_no": "PO-2024-001",
         "movement_date": datetime.now(),
-        "tenant_id": "test-tenant-123"
+        "tenant_id": "test-tenant-123",
     }
 
 
@@ -143,7 +142,7 @@ def sample_inventory_movement():
 def sample_consumption_forecast():
     """Sample consumption forecast data"""
     from src.inventory_analytics import ConsumptionForecast
-   
+
     return ConsumptionForecast(
         item_id="item-123",
         item_name="NPK Fertilizer",
@@ -154,7 +153,7 @@ def sample_consumption_forecast():
         days_until_stockout=100,
         reorder_date=date.today() + timedelta(days=80),
         recommended_order_qty=500.0,
-        confidence=0.85
+        confidence=0.85,
     )
 
 

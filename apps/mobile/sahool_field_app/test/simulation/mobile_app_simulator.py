@@ -21,6 +21,7 @@ import random
 # Models - نماذج البيانات
 # =============================================================================
 
+
 class SyncStatus(str, Enum):
     PENDING = "pending"
     SYNCING = "syncing"
@@ -31,6 +32,7 @@ class SyncStatus(str, Enum):
 @dataclass
 class User:
     """User model - نموذج المستخدم"""
+
     id: str
     email: str
     name: str
@@ -43,6 +45,7 @@ class User:
 @dataclass
 class Field:
     """Field model - نموذج الحقل"""
+
     id: str
     tenant_id: str
     name: str
@@ -57,6 +60,7 @@ class Field:
 @dataclass
 class Task:
     """Task model - نموذج المهمة"""
+
     id: str
     field_id: str
     title: str
@@ -69,6 +73,7 @@ class Task:
 @dataclass
 class WeatherData:
     """Weather data - بيانات الطقس"""
+
     temperature: float
     humidity: float
     wind_speed: float
@@ -80,6 +85,7 @@ class WeatherData:
 @dataclass
 class SyncQueueItem:
     """Offline sync queue item - عنصر طابور المزامنة"""
+
     id: str
     entity_type: str
     entity_id: str
@@ -92,6 +98,7 @@ class SyncQueueItem:
 # =============================================================================
 # Simulated Local Storage - التخزين المحلي المحاكى
 # =============================================================================
+
 
 class LocalStorage:
     """Simulated local storage (SharedPreferences + Drift DB)"""
@@ -162,6 +169,7 @@ class LocalStorage:
 # Simulated API Client - عميل API المحاكى
 # =============================================================================
 
+
 class MockApiClient:
     """Simulated API client that mimics backend responses"""
 
@@ -210,7 +218,7 @@ class MockApiClient:
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "expires_in": 1800,
-            }
+            },
         }
 
     async def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
@@ -244,13 +252,15 @@ class MockApiClient:
                 "tenant_id": self.tenant_id,
                 "name": f"حقل {['القمح', 'الذرة', 'البن', 'القات', 'المانجو'][i % 5]} رقم {i}",
                 "area_hectares": round(random.uniform(5, 50), 2),
-                "crop_type": ['wheat', 'corn', 'coffee', 'qat', 'mango'][i % 5],
+                "crop_type": ["wheat", "corn", "coffee", "qat", "mango"][i % 5],
                 "location": {
                     "lat": 15.3694 + random.uniform(-0.5, 0.5),
                     "lng": 44.1910 + random.uniform(-0.5, 0.5),
                 },
                 "ndvi_latest": round(random.uniform(0.3, 0.8), 3),
-                "created_at": (datetime.now() - timedelta(days=random.randint(30, 365))).isoformat(),
+                "created_at": (
+                    datetime.now() - timedelta(days=random.randint(30, 365))
+                ).isoformat(),
             }
             for i in range(1, 6)
         ]
@@ -297,7 +307,9 @@ class MockApiClient:
                 },
                 "forecast": [
                     {
-                        "date": (datetime.now() + timedelta(days=i)).strftime("%Y-%m-%d"),
+                        "date": (datetime.now() + timedelta(days=i)).strftime(
+                            "%Y-%m-%d"
+                        ),
                         "high": round(random.uniform(28, 38), 1),
                         "low": round(random.uniform(18, 25), 1),
                         "condition": random.choice(conditions),
@@ -305,7 +317,7 @@ class MockApiClient:
                     for i in range(1, 8)
                 ],
                 "location": {"lat": lat, "lng": lng},
-            }
+            },
         }
 
     async def get_tasks(self, field_id: Optional[str] = None) -> Dict[str, Any]:
@@ -316,7 +328,13 @@ class MockApiClient:
         await self._simulate_network_delay()
         self._request_count += 1
 
-        task_types = ["irrigation", "fertilization", "harvest", "pest_control", "planting"]
+        task_types = [
+            "irrigation",
+            "fertilization",
+            "harvest",
+            "pest_control",
+            "planting",
+        ]
         statuses = ["pending", "in_progress", "completed"]
 
         tasks = [
@@ -326,7 +344,9 @@ class MockApiClient:
                 "title": f"مهمة {['الري', 'التسميد', 'الحصاد', 'مكافحة الآفات', 'الزراعة'][i % 5]}",
                 "description": f"وصف المهمة رقم {i}",
                 "status": statuses[i % 3],
-                "due_date": (datetime.now() + timedelta(days=random.randint(1, 14))).isoformat(),
+                "due_date": (
+                    datetime.now() + timedelta(days=random.randint(1, 14))
+                ).isoformat(),
             }
             for i in range(1, 11)
         ]
@@ -352,13 +372,14 @@ class MockApiClient:
                 "synced_count": len(changes),
                 "synced_ids": synced_ids,
                 "conflicts": [],
-            }
+            },
         }
 
 
 # =============================================================================
 # Mobile App Simulator - محاكي التطبيق
 # =============================================================================
+
 
 class MobileAppSimulator:
     """Simulates SAHOOL mobile app behavior"""
@@ -374,7 +395,13 @@ class MobileAppSimulator:
     def log(self, message: str, level: str = "INFO"):
         """Log with Arabic support"""
         timestamp = datetime.now().strftime("%H:%M:%S")
-        emoji = {"INFO": "ℹ️", "SUCCESS": "✅", "ERROR": "❌", "WARN": "⚠️", "SYNC": "🔄"}.get(level, "📝")
+        emoji = {
+            "INFO": "ℹ️",
+            "SUCCESS": "✅",
+            "ERROR": "❌",
+            "WARN": "⚠️",
+            "SYNC": "🔄",
+        }.get(level, "📝")
         print(f"[{timestamp}] {emoji} {message}")
 
     # =========================================================================
@@ -490,7 +517,9 @@ class MobileAppSimulator:
 
         return self.storage.get_fields()
 
-    async def create_field(self, name: str, area: float, crop_type: Optional[str] = None) -> Optional[Field]:
+    async def create_field(
+        self, name: str, area: float, crop_type: Optional[str] = None
+    ) -> Optional[Field]:
         """Create a new field"""
         self.log(f"جاري إنشاء حقل جديد: {name}", "INFO")
 
@@ -514,14 +543,16 @@ class MobileAppSimulator:
 
         if not self.api.is_online:
             # Queue for later sync
-            self.storage.add_to_sync_queue(SyncQueueItem(
-                id=str(uuid.uuid4()),
-                entity_type="field",
-                entity_id=local_id,
-                action="create",
-                data=field_data,
-                created_at=datetime.now().isoformat(),
-            ))
+            self.storage.add_to_sync_queue(
+                SyncQueueItem(
+                    id=str(uuid.uuid4()),
+                    entity_type="field",
+                    entity_id=local_id,
+                    action="create",
+                    data=field_data,
+                    created_at=datetime.now().isoformat(),
+                )
+            )
             self.log(f"تم إضافة الحقل للمزامنة لاحقاً: {name}", "WARN")
             return local_field
 
@@ -546,7 +577,9 @@ class MobileAppSimulator:
     # Weather - الطقس
     # =========================================================================
 
-    async def get_weather(self, lat: float = 15.3694, lng: float = 44.1910) -> Optional[WeatherData]:
+    async def get_weather(
+        self, lat: float = 15.3694, lng: float = 44.1910
+    ) -> Optional[WeatherData]:
         """Get weather data for location"""
         self.log(f"جاري جلب بيانات الطقس: ({lat:.4f}, {lng:.4f})", "INFO")
 
@@ -572,7 +605,9 @@ class MobileAppSimulator:
 
                 # Cache for 30 minutes
                 self.storage.cache_set(cache_key, asdict(weather), 1800)
-                self.log(f"الطقس: {weather.temperature}°C, {weather.condition}", "SUCCESS")
+                self.log(
+                    f"الطقس: {weather.temperature}°C, {weather.condition}", "SUCCESS"
+                )
                 return weather
 
         except ConnectionError:
@@ -633,7 +668,12 @@ class MobileAppSimulator:
 
         try:
             changes = [
-                {"id": item.id, "type": item.entity_type, "action": item.action, "data": item.data}
+                {
+                    "id": item.id,
+                    "type": item.entity_type,
+                    "action": item.action,
+                    "data": item.data,
+                }
                 for item in queue
             ]
 
@@ -694,6 +734,7 @@ class MobileAppSimulator:
 # Main Simulation - المحاكاة الرئيسية
 # =============================================================================
 
+
 async def run_simulation():
     """Run the mobile app simulation"""
 
@@ -732,7 +773,9 @@ async def run_simulation():
     assert len(fields) > 0, "No fields returned"
 
     for field in fields[:3]:
-        print(f"   🌿 {field.name}: {field.area_hectares} هكتار (NDVI: {field.ndvi_latest or 'N/A'})")
+        print(
+            f"   🌿 {field.name}: {field.area_hectares} هكتار (NDVI: {field.ndvi_latest or 'N/A'})"
+        )
 
     # Test cache
     cached_fields = await app.fetch_fields()

@@ -10,11 +10,10 @@ import os
 def pytest_configure(config):
     """Configure pytest for evaluation tests"""
     config.addinivalue_line(
-        "markers", "evaluation: marks tests as evaluation tests (deselect with '-m \"not evaluation\"')"
+        "markers",
+        "evaluation: marks tests as evaluation tests (deselect with '-m \"not evaluation\"')",
     )
-    config.addinivalue_line(
-        "markers", "slow: marks tests as slow running"
-    )
+    config.addinivalue_line("markers", "slow: marks tests as slow running")
 
 
 @pytest.fixture(scope="session")

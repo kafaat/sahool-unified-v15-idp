@@ -18,6 +18,7 @@ class TaskState(str, Enum):
     Task execution states
     حالات تنفيذ المهام
     """
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
@@ -30,6 +31,7 @@ class MessageType(str, Enum):
     A2A message types
     أنواع رسائل A2A
     """
+
     TASK = "task"
     TASK_RESULT = "task_result"
     ERROR = "error"
@@ -45,6 +47,7 @@ class A2AMessage(BaseModel):
     Following Linux Foundation A2A specification.
     وفقاً لمواصفات Linux Foundation A2A.
     """
+
     message_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     message_type: MessageType
     timestamp: datetime = Field(default_factory=datetime.utcnow)
@@ -68,6 +71,7 @@ class TaskMessage(A2AMessage):
     Sent from one agent to another to request task execution.
     ترسل من وكيل إلى آخر لطلب تنفيذ مهمة.
     """
+
     message_type: MessageType = MessageType.TASK
     task_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     task_type: str = Field(..., description="Type of task to execute")
@@ -75,8 +79,12 @@ class TaskMessage(A2AMessage):
     parameters: Dict[str, Any] = Field(default_factory=dict)
     priority: int = Field(default=5, ge=1, le=10, description="Task priority 1-10")
     timeout_seconds: Optional[int] = Field(default=300, description="Task timeout")
-    require_streaming: bool = Field(default=False, description="Request streaming response")
-    context: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Additional context")
+    require_streaming: bool = Field(
+        default=False, description="Request streaming response"
+    )
+    context: Optional[Dict[str, Any]] = Field(
+        default_factory=dict, description="Additional context"
+    )
 
 
 class TaskResultMessage(A2AMessage):
@@ -87,14 +95,21 @@ class TaskResultMessage(A2AMessage):
     Sent by the executing agent back to the requesting agent.
     ترسل من الوكيل المنفذ إلى الوكيل الطالب.
     """
+
     message_type: MessageType = MessageType.TASK_RESULT
     task_id: str
     state: TaskState
     result: Optional[Dict[str, Any]] = None
-    progress: Optional[float] = Field(default=None, ge=0.0, le=1.0, description="Task progress 0-1")
+    progress: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0, description="Task progress 0-1"
+    )
     is_final: bool = Field(default=True, description="Is this the final result?")
-    partial_result: Optional[Dict[str, Any]] = Field(default=None, description="Partial result for streaming")
-    execution_time_ms: Optional[int] = Field(default=None, description="Execution time in milliseconds")
+    partial_result: Optional[Dict[str, Any]] = Field(
+        default=None, description="Partial result for streaming"
+    )
+    execution_time_ms: Optional[int] = Field(
+        default=None, description="Execution time in milliseconds"
+    )
 
 
 class ErrorMessage(A2AMessage):
@@ -105,6 +120,7 @@ class ErrorMessage(A2AMessage):
     Sent when an error occurs during task processing.
     ترسل عند حدوث خطأ أثناء معالجة المهمة.
     """
+
     message_type: MessageType = MessageType.ERROR
     task_id: Optional[str] = None
     error_code: str
@@ -118,9 +134,12 @@ class HeartbeatMessage(A2AMessage):
     Heartbeat message for connection monitoring
     رسالة نبض لمراقبة الاتصال
     """
+
     message_type: MessageType = MessageType.HEARTBEAT
     agent_status: str = Field(default="active")
-    load: Optional[float] = Field(default=None, ge=0.0, le=1.0, description="Agent load 0-1")
+    load: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0, description="Agent load 0-1"
+    )
 
 
 class CancelMessage(A2AMessage):
@@ -128,6 +147,7 @@ class CancelMessage(A2AMessage):
     Task cancellation request
     طلب إلغاء المهمة
     """
+
     message_type: MessageType = MessageType.CANCEL
     task_id: str
     reason: Optional[str] = None
@@ -210,9 +230,10 @@ class ConversationContext:
             List of task-related messages
         """
         return [
-            msg for msg in self.messages
+            msg
+            for msg in self.messages
             if isinstance(msg, (TaskMessage, TaskResultMessage, ErrorMessage))
-            and getattr(msg, 'task_id', None) == task_id
+            and getattr(msg, "task_id", None) == task_id
         ]
 
     def get_summary(self) -> Dict[str, Any]:
@@ -228,9 +249,15 @@ class ConversationContext:
             "total_messages": len(self.messages),
             "tasks": {
                 "total": len(self.tasks),
-                "pending": sum(1 for s in self.tasks.values() if s == TaskState.PENDING),
-                "in_progress": sum(1 for s in self.tasks.values() if s == TaskState.IN_PROGRESS),
-                "completed": sum(1 for s in self.tasks.values() if s == TaskState.COMPLETED),
+                "pending": sum(
+                    1 for s in self.tasks.values() if s == TaskState.PENDING
+                ),
+                "in_progress": sum(
+                    1 for s in self.tasks.values() if s == TaskState.IN_PROGRESS
+                ),
+                "completed": sum(
+                    1 for s in self.tasks.values() if s == TaskState.COMPLETED
+                ),
                 "failed": sum(1 for s in self.tasks.values() if s == TaskState.FAILED),
             },
             "created_at": self.created_at.isoformat(),
@@ -247,7 +274,8 @@ class ConversationContext:
             Number of tasks cleared
         """
         completed_tasks = [
-            task_id for task_id, state in self.tasks.items()
+            task_id
+            for task_id, state in self.tasks.items()
             if state == TaskState.COMPLETED
         ]
         for task_id in completed_tasks:
@@ -311,7 +339,8 @@ class TaskQueue:
             List of pending tasks
         """
         pending = [
-            task for task_id, task in self.tasks.items()
+            task
+            for task_id, task in self.tasks.items()
             if self.states[task_id] == TaskState.PENDING
         ]
         return sorted(pending, key=lambda t: t.priority, reverse=True)
@@ -344,7 +373,11 @@ class TaskQueue:
         return {
             "total": len(self.tasks),
             "pending": sum(1 for s in self.states.values() if s == TaskState.PENDING),
-            "in_progress": sum(1 for s in self.states.values() if s == TaskState.IN_PROGRESS),
-            "completed": sum(1 for s in self.states.values() if s == TaskState.COMPLETED),
+            "in_progress": sum(
+                1 for s in self.states.values() if s == TaskState.IN_PROGRESS
+            ),
+            "completed": sum(
+                1 for s in self.states.values() if s == TaskState.COMPLETED
+            ),
             "failed": sum(1 for s in self.states.values() if s == TaskState.FAILED),
         }

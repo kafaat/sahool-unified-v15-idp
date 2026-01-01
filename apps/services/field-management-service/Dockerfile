@@ -14,6 +14,9 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
+# Upgrade npm to latest version for better dependency resolution
+RUN npm install -g npm@11.7.0
+
 # Install dependencies first (better caching)
 COPY package.json ./
 RUN npm install
@@ -45,6 +48,9 @@ RUN addgroup --system sahool && \
 
 # Install curl for healthcheck and OpenSSL for Prisma compatibility
 RUN apk add --no-cache curl ca-certificates openssl
+
+# Upgrade npm to latest version for better dependency resolution
+RUN npm install -g npm@11.7.0
 
 # Copy package files and install production dependencies
 COPY --from=builder /app/package.json ./

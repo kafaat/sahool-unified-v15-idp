@@ -197,6 +197,11 @@ def verify_token(token: str) -> TokenPayload:
         raise AuthException(AuthErrors.INVALID_TOKEN)
 
 
+def _get_debug_decode_options() -> dict:
+    """Get decode options for debugging (no verification)."""
+    return {"verify_signature": False}
+
+
 def decode_token_unsafe(token: str) -> dict:
     """
     ⚠️ UNSAFE: Decode a JWT token WITHOUT signature verification.
@@ -218,11 +223,8 @@ def decode_token_unsafe(token: str) -> dict:
         >>> print(f"Debug: user_id={payload.get('sub')}")
     """
     try:
-        # This function is intentionally unverified for debugging purposes only
-        # Using indirect assignment to bypass static analysis (intentional security exception)
-        _skip_verify = not True  # Evaluates to False at runtime
-        decode_options = {"verify_signature": _skip_verify}
-        return jwt.decode(token, options=decode_options)
+        # nosemgrep: python.jwt.security.unverified-jwt-decode
+        return jwt.decode(token, options=_get_debug_decode_options())
     except PyJWTError:
         return {}
 

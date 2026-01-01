@@ -205,24 +205,29 @@ def verify_token(token: str) -> TokenPayload:
         raise AuthException(AuthErrors.INVALID_TOKEN)
 
 
-def decode_token(token: str) -> dict:
+def decode_token_unsafe(token: str) -> dict:
     """
-    Decode a JWT token without verification.
+    ⚠️ UNSAFE: Decode a JWT token WITHOUT signature verification.
 
-    WARNING: This function does not verify the token signature.
-    Use only for debugging or when signature verification is not required.
+    SECURITY WARNING: This function does NOT verify the token signature!
+    - NEVER use for authorization decisions
+    - NEVER trust data from this function for access control
+    - Use ONLY for debugging, logging, or extracting non-sensitive metadata
 
     Args:
         token: JWT token string
 
     Returns:
-        Decoded token payload as dictionary
+        Decoded token payload as dictionary (UNVERIFIED!)
 
     Example:
-        >>> payload = decode_token(token)
-        >>> print(payload)  # Unverified payload
+        >>> # For debugging only - data cannot be trusted
+        >>> payload = decode_token_unsafe(token)
+        >>> print(f"Debug: user_id={payload.get('sub')}")
     """
     try:
+        # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+        # This function is intentionally unverified for debugging purposes only
         return jwt.decode(
             token,
             options={"verify_signature": False}

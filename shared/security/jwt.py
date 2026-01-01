@@ -225,10 +225,16 @@ def verify_token(token: str, check_revocation: bool = True) -> dict:
 
 def decode_token_unsafe(token: str) -> dict:
     """
-    Decode token WITHOUT verification.
-    Use only for debugging/logging, never for authorization.
+    ⚠️ UNSAFE: Decode token WITHOUT signature verification.
+
+    SECURITY WARNING: This function does NOT verify the token signature!
+    - NEVER use for authorization decisions
+    - NEVER trust data from this function for access control
+    - Use ONLY for debugging, logging, or extracting non-sensitive metadata
     """
     try:
+        # nosemgrep: python.jwt.security.unverified-jwt-decode.unverified-jwt-decode
+        # This function is intentionally unverified for debugging purposes only
         return jwt.decode(token, options={"verify_signature": False})
     except PyJWTError:
         return {}

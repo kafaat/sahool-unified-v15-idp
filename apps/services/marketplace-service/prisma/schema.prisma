@@ -184,6 +184,9 @@ model Wallet {
   dailyWithdrawnToday Float @default(0.0) @map("daily_withdrawn_today") // إجمالي السحوبات اليوم
   lastWithdrawReset DateTime? @map("last_withdraw_reset") // آخر إعادة تعيين للحد اليومي
 
+  // Optimistic locking version for double-spend prevention
+  version     Int      @default(0)
+
   // بيانات إضافية
   isVerified  Boolean  @default(false) @map("is_verified")
   kycStatus   String?  @map("kyc_status") // pending, approved, rejected
@@ -198,6 +201,7 @@ model Wallet {
   buyerEscrows Escrow[] @relation("BuyerEscrows")
   sellerEscrows Escrow[] @relation("SellerEscrows")
   scheduledPayments ScheduledPayment[]
+  auditLogs   WalletAuditLog[]
 
   @@map("wallets")
 }
@@ -220,6 +224,7 @@ model Transaction {
   type        TransactionType
   amount      Float
   balanceAfter Float   @map("balance_after")
+  balanceBefore Float?  @map("balance_before") // الرصيد قبل المعاملة
 
   // المرجع
   referenceId String?  @map("reference_id") // order_id, loan_id, etc.
@@ -230,11 +235,18 @@ model Transaction {
 
   status      TransactionStatus @default(COMPLETED)
 
+  // Idempotency and audit fields
+  idempotencyKey String? @unique @map("idempotency_key") // مفتاح منع التكرار
+  userId      String?  @map("user_id") // المستخدم الذي نفذ المعاملة
+  ipAddress   String?  @map("ip_address") // عنوان IP
+
   createdAt   DateTime @default(now()) @map("created_at")
 
   wallet      Wallet   @relation(fields: [walletId], references: [id])
   order       Order?   @relation(fields: [referenceId], references: [id])
+  auditLogs   WalletAuditLog[]
 
+  @@index([idempotencyKey])
   @@map("transactions")
 }
 
@@ -443,4 +455,47 @@ enum PaymentFrequency {
   MONTHLY      // شهري
   QUARTERLY    // ربع سنوي
   YEARLY       // سنوي
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 9. سجل التدقيق للمحفظة - Wallet Audit Log (للحماية من الصرف المزدوج)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model WalletAuditLog {
+  id              String   @id @default(uuid())
+  walletId        String   @map("wallet_id")
+  transactionId   String?  @map("transaction_id")
+
+  // معلومات العملية
+  userId          String?  @map("user_id")
+  operation       String   // DEPOSIT, WITHDRAWAL, ESCROW_HOLD, ESCROW_RELEASE, etc.
+
+  // الأرصدة قبل وبعد
+  balanceBefore   Float    @map("balance_before")
+  balanceAfter    Float    @map("balance_after")
+  amount          Float
+
+  // رصيد الإسكرو (اختياري)
+  escrowBalanceBefore Float? @map("escrow_balance_before")
+  escrowBalanceAfter  Float? @map("escrow_balance_after")
+
+  // التحكم في الإصدار للقفل المتفائل
+  versionBefore   Int?     @map("version_before")
+  versionAfter    Int?     @map("version_after")
+
+  // معلومات إضافية
+  idempotencyKey  String?  @map("idempotency_key")
+  ipAddress       String?  @map("ip_address")
+  metadata        Json?
+
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  wallet          Wallet   @relation(fields: [walletId], references: [id])
+  transaction     Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([walletId])
+  @@index([transactionId])
+  @@index([createdAt])
+  @@index([idempotencyKey])
+  @@map("wallet_audit_logs")
 }

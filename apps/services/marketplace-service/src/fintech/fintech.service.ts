@@ -11,6 +11,7 @@
 
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { LoanPurpose, CreditEventType, PaymentFrequency } from '@prisma/client';
 
 // Types
 interface FarmData {
@@ -71,7 +72,7 @@ export interface CreditReport {
 
 interface RecordCreditEventDto {
   walletId: string;
-  eventType: string;
+  eventType: CreditEventType;
   amount?: number;
   description: string;
   metadata?: any;
@@ -81,7 +82,7 @@ interface CreateLoanDto {
   walletId: string;
   amount: number;
   termMonths: number;
-  purpose: string;
+  purpose: LoanPurpose;
   purposeDetails?: string;
   collateralType?: string;
   collateralValue?: number;
@@ -2075,7 +2076,7 @@ export class FintechService {
   async createScheduledPayment(
     walletId: string,
     amount: number,
-    frequency: string,
+    frequency: PaymentFrequency,
     nextPaymentDate: Date,
     loanId?: string,
     description?: string,

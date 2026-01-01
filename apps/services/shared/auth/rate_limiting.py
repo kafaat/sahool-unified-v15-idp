@@ -132,6 +132,8 @@ class AuthRateLimiter:
             client_ip = request.client.host if request.client else "unknown"
 
         # Combine IP with identifier if provided
+        # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
+        # This is a rate limit key, not HTML content - false positive
         if identifier:
             return f"auth:{client_ip}:{identifier}"
         return f"auth:{client_ip}"

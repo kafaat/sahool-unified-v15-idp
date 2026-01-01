@@ -208,12 +208,11 @@ services:
           minute: 100
           hour: 5000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: correlation-id
         config:
@@ -252,12 +251,11 @@ services:
         config:
           minute: 100
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: response-transformer
         config:
@@ -290,12 +288,11 @@ services:
         config:
           minute: 100
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -323,12 +320,11 @@ services:
         config:
           minute: 100
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -356,12 +352,11 @@ services:
         config:
           minute: 100
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -398,12 +393,11 @@ services:
           minute: 1000
           hour: 50000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: request-size-limiting
         config:
@@ -433,12 +427,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -468,12 +461,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: request-size-limiting
         config:
@@ -503,12 +495,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -535,12 +526,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -567,12 +557,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -599,12 +588,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -631,12 +619,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -672,12 +659,11 @@ services:
           minute: 10000
           hour: 500000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: request-size-limiting
         config:
@@ -706,12 +692,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: ip-restriction
         config:
@@ -744,12 +729,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: ip-restriction
         config:
@@ -781,12 +765,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: ip-restriction
         config:
@@ -820,12 +803,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: ip-restriction
         config:
@@ -858,12 +840,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
       - name: ip-restriction
         config:
@@ -899,12 +880,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -931,12 +911,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -968,12 +947,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -998,12 +976,11 @@ services:
         config:
           minute: 5000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1031,12 +1008,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1063,12 +1039,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1090,12 +1065,11 @@ services:
         config:
           minute: 2000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1117,12 +1091,11 @@ services:
         config:
           minute: 2000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1149,12 +1122,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1176,12 +1148,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1208,12 +1179,11 @@ services:
         config:
           minute: 500
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1240,12 +1210,11 @@ services:
           minute: 50
           hour: 2000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
           hide_client_headers: false
       - name: ip-restriction
@@ -1284,12 +1253,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1311,12 +1279,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1338,12 +1305,11 @@ services:
         config:
           minute: 2000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1365,12 +1331,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1396,12 +1361,11 @@ services:
         config:
           minute: 10000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================
@@ -1428,12 +1392,11 @@ services:
         config:
           minute: 1000
           policy: redis
-          redis:
-            host: redis
-            port: 6379
-            password: ${REDIS_PASSWORD}
-            database: 1
-            timeout: 2000
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
           fault_tolerant: true
 
   # ============================================================================

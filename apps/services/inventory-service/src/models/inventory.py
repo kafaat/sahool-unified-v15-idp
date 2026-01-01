@@ -11,15 +11,50 @@ import uuid
 
 from sqlalchemy import (
     Column, String, Float, Integer, Boolean, DateTime, Date,
-    ForeignKey, Text, Numeric, Enum as SQLEnum, Index
+    ForeignKey, Text, Numeric, Enum as SQLEnum, Index, func
 )
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase
+from sqlalchemy.ext.declarative import declared_attr
 
-# Import shared base models
-import sys
-sys.path.append('/home/user/sahool-unified-v15-idp/apps/services/shared')
-from database.base import Base, TenantEntity, TimestampMixin
+
+# Define base classes locally for Docker compatibility
+class Base(DeclarativeBase):
+    """Base class for all database models"""
+    pass
+
+
+class TimestampMixin:
+    """Mixin for created_at and updated_at timestamps"""
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+
+class TenantMixin:
+    """Mixin for multi-tenant support"""
+    @declared_attr
+    def tenant_id(cls) -> Mapped[str]:
+        return mapped_column(String(50), nullable=False, index=True)
+
+
+class TenantEntity(Base, TimestampMixin, TenantMixin):
+    """Base entity with tenant support"""
+    __abstract__ = True
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
 
 
 class MovementType(str, Enum):

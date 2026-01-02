@@ -462,7 +462,7 @@ export class GeoService {
                 total_area_hectares
         `;
 
-        const params = [
+        const params: (string | number | null)[] = [
             farmData.name,
             farmData.tenant_id,
             farmData.owner_id,
@@ -475,12 +475,12 @@ export class GeoService {
         }
 
         params.push(
-            farmData.address || null,
-            farmData.phone || null,
-            farmData.email || null
+            farmData.address ?? null,
+            farmData.phone ?? null,
+            farmData.email ?? null
         );
 
-        const result = await AppDataSource.query(query, params);
+        const result = await AppDataSource.query(query, params as (string | number)[]);
         return result[0];
     }
 }

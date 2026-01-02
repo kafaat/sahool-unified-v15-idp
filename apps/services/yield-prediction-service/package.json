@@ -1,7 +1,7 @@
 {
-  "name": "@sahool/yield-prediction",
+  "name": "@sahool/yield-prediction-service",
   "version": "16.0.0",
-  "description": "SAHOOL Yield Prediction Service - خدمة التنبؤ بالإنتاجية الزراعية",
+  "description": "SAHOOL Unified Yield Prediction Service - خدمة التنبؤ بالإنتاجية الموحدة",
   "author": "SAHOOL Team",
   "private": true,
   "license": "MIT",

@@ -41,7 +41,8 @@ RUN apk add --no-cache curl openssl
 # Copy package files
 COPY package.json package-lock.json* ./
 # Install with increased retries and timeout for network resilience
-RUN npm install --only=production --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Using --omit=dev instead of deprecated --only=production
+RUN npm install --omit=dev --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy prisma schema and regenerate client for production environment
 # Add retry logic for network resilience

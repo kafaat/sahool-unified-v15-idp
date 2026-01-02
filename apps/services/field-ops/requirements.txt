@@ -19,3 +19,13 @@ passlib[bcrypt]==1.7.4
 
 # Service-specific dependencies
 python-dateutil==2.8.2
+
+# Geospatial dependencies
+shapely==2.0.6
+geojson==3.1.0
+pyproj==3.7.0
+
+# Testing dependencies
+pytest==8.3.4
+pytest-asyncio==0.24.0
+pytest-cov==4.1.0

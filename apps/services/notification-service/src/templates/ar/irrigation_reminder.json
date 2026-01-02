@@ -1,0 +1,15 @@
+{
+  "template_id": "irrigation_reminder",
+  "category": "reminder",
+  "title": "💧 تذكير: وقت الري",
+  "body": "حقل {field_name} يحتاج للري. كمية الماء المطلوبة: {water_amount} لتر. أفضل وقت للري: الصباح الباكر (5-7 صباحاً) لتقليل التبخر وزيادة امتصاص الماء.",
+  "action_url": "/fields/{field_id}/irrigation",
+  "icon": "💧",
+  "priority": "medium",
+  "metadata": {
+    "category_ar": "تذكير مجدول",
+    "requires_action": true,
+    "optimal_time": "05:00-07:00",
+    "sound": "gentle"
+  }
+}

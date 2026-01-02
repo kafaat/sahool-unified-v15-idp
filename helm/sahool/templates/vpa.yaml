@@ -1,0 +1,48 @@
+{{- if .Values.vpa.enabled }}
+{{/*
+Vertical Pod Autoscaler (VPA) Resources for SAHOOL Platform
+Automatically adjusts CPU and memory requests/limits based on actual usage
+*/}}
+
+{{- $services := list
+  (dict "name" "api-gateway" "minCpu" "100m" "maxCpu" "1000m" "minMemory" "128Mi" "maxMemory" "1Gi")
+  (dict "name" "field-management" "minCpu" "200m" "maxCpu" "2000m" "minMemory" "256Mi" "maxMemory" "2Gi")
+  (dict "name" "ai-agents-core" "minCpu" "500m" "maxCpu" "4000m" "minMemory" "512Mi" "maxMemory" "4Gi")
+  (dict "name" "weather-service" "minCpu" "100m" "maxCpu" "500m" "minMemory" "128Mi" "maxMemory" "512Mi")
+  (dict "name" "notification-service" "minCpu" "50m" "maxCpu" "250m" "minMemory" "64Mi" "maxMemory" "256Mi")
+}}
+
+{{- range $service := $services }}
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ include "sahool.fullname" $ }}-{{ $service.name }}-vpa
+  labels:
+    {{- include "sahool.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $service.name }}
+    sahool.io/autoscaler: vpa
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "sahool.fullname" $ }}-{{ $service.name }}
+  updatePolicy:
+    updateMode: {{ $.Values.vpa.updateMode | default "Auto" }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ $service.name }}
+        minAllowed:
+          cpu: {{ $service.minCpu }}
+          memory: {{ $service.minMemory }}
+        maxAllowed:
+          cpu: {{ $service.maxCpu }}
+          memory: {{ $service.maxMemory }}
+        controlledResources:
+          - cpu
+          - memory
+        {{- if $.Values.vpa.controlledValues }}
+        controlledValues: {{ $.Values.vpa.controlledValues }}
+        {{- end }}
+{{- end }}
+{{- end }}

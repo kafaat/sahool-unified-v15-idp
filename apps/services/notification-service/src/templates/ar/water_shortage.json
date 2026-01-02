@@ -1,0 +1,16 @@
+{
+  "template_id": "water_shortage",
+  "category": "alert",
+  "title": "🚰 تحذير: نقص المياه",
+  "body": "تنبيه نقص مياه في منطقة {location}. مستوى المياه الجوفية: {water_level}م. يُنصح بترشيد استهلاك المياه وتأجيل الري غير الضروري. المخزون المتبقي: {days_remaining} يوم.",
+  "action_url": "/alerts/water-shortage/{alert_id}",
+  "icon": "🚰",
+  "priority": "critical",
+  "metadata": {
+    "category_ar": "تنبيه حرج",
+    "requires_action": true,
+    "alert_type": "water_shortage",
+    "sound": "urgent",
+    "conservation_tips": true
+  }
+}

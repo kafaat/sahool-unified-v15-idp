@@ -1,0 +1,282 @@
+# SAHOOL Disease Detection CNN Configuration
+# إعدادات نموذج CNN لاكتشاف الأمراض في SAHOOL
+
+# Model Settings - إعدادات النموذج
+model:
+  # Default model version - إصدار النموذج الافتراضي
+  version: "v1.0.0"
+
+  # Model storage path - مسار تخزين النموذج
+  storage_path: "/app/models/disease_detection"
+
+  # Cache directory - مجلد الذاكرة المؤقتة
+  cache_dir: "/tmp/sahool_model_cache"
+
+  # Model download URL - رابط تحميل النموذج
+  download_url: "https://models.sahool.com/disease-detection/"
+
+  # Framework preference - تفضيل إطار العمل
+  # Options: "tensorflow", "pytorch", "auto"
+  framework: "tensorflow"
+
+  # Device configuration - إعدادات الجهاز
+  # Options: "cpu", "gpu", "cuda", "auto"
+  device: "auto"
+
+  # Enable GPU acceleration - تفعيل تسريع GPU
+  enable_gpu: true
+
+# Preprocessing Settings - إعدادات المعالجة المسبقة
+preprocessing:
+  # Input image size - حجم الصورة المدخلة
+  input_size: 224
+
+  # Normalization parameters - معاملات التطبيع
+  normalization:
+    mean: [0.485, 0.456, 0.406]  # ImageNet mean
+    std: [0.229, 0.224, 0.225]   # ImageNet std
+
+  # Image resizing method - طريقة تغيير حجم الصورة
+  # Options: "bilinear", "bicubic", "lanczos"
+  resize_method: "lanczos"
+
+# Test Time Augmentation (TTA) - التعزيز في وقت الاختبار
+tta:
+  # Enable TTA - تفعيل TTA
+  enabled: true
+
+  # Number of augmentations - عدد التعزيزات
+  n_augmentations: 5
+
+  # Augmentation types - أنواع التعزيز
+  augmentations:
+    - horizontal_flip      # قلب أفقي
+    - rotation_10         # دوران 10 درجات
+    - rotation_minus_10   # دوران -10 درجات
+    - brightness_110      # سطوع 110%
+
+# Inference Settings - إعدادات الاستدلال
+inference:
+  # Batch size for batch processing - حجم الدفعة للمعالجة الدفعية
+  batch_size: 8
+
+  # Confidence threshold - عتبة الثقة
+  min_confidence: 0.5
+
+  # Number of top predictions to return - عدد التنبؤات العليا للإرجاع
+  top_k: 3
+
+  # Enable bounding box estimation - تفعيل تقدير صندوق الحدود
+  enable_bbox: true
+
+# Disease Categories - فئات الأمراض
+diseases:
+  # Yemen crop diseases - أمراض المحاصيل اليمنية
+  supported:
+    - id: "tomato_leaf_blight"
+      name: "Tomato Leaf Blight"
+      name_ar: "لفحة أوراق الطماطم"
+      severity: "high"
+      crops: ["tomato"]
+
+    - id: "wheat_rust"
+      name: "Wheat Rust"
+      name_ar: "صدأ القمح"
+      severity: "critical"
+      crops: ["wheat"]
+
+    - id: "grape_downy_mildew"
+      name: "Grape Downy Mildew"
+      name_ar: "البياض الزغبي للعنب"
+      severity: "high"
+      crops: ["grape"]
+
+    - id: "date_palm_bayoud"
+      name: "Date Palm Bayoud"
+      name_ar: "مرض البيوض في النخيل"
+      severity: "critical"
+      crops: ["date_palm"]
+
+    - id: "coffee_leaf_rust"
+      name: "Coffee Leaf Rust"
+      name_ar: "صدأ أوراق البن"
+      severity: "high"
+      crops: ["coffee"]
+
+    - id: "banana_fusarium"
+      name: "Banana Fusarium"
+      name_ar: "فطر الفيوزاريوم في الموز"
+      severity: "critical"
+      crops: ["banana"]
+
+    - id: "mango_anthracnose"
+      name: "Mango Anthracnose"
+      name_ar: "أنثراكنوز المانجو"
+      severity: "medium"
+      crops: ["mango"]
+
+    - id: "healthy"
+      name: "Healthy"
+      name_ar: "سليم"
+      severity: "none"
+      crops: ["all"]
+
+# Field Analysis Settings - إعدادات تحليل الحقل
+field_analysis:
+  # Health status thresholds - عتبات حالة الصحة
+  thresholds:
+    healthy: 80      # >= 80% healthy plants
+    moderate: 60     # >= 60% healthy plants
+    critical: 0      # < 60% healthy plants
+
+  # Minimum images required for field analysis - الحد الأدنى للصور المطلوبة
+  min_images: 3
+
+  # Maximum images per field - الحد الأقصى للصور لكل حقل
+  max_images: 100
+
+# Performance Settings - إعدادات الأداء
+performance:
+  # Warm-up iterations - تكرارات التسخين
+  warmup_iterations: 5
+
+  # Enable model caching - تفعيل ذاكرة التخزين المؤقت للنموذج
+  enable_caching: true
+
+  # Thread pool workers - عمال مجموعة الخيوط
+  thread_pool_workers: 4
+
+  # Maximum memory per model (MB) - الحد الأقصى للذاكرة لكل نموذج
+  max_memory_mb: 2048
+
+# Logging Settings - إعدادات السجلات
+logging:
+  # Log level - مستوى السجل
+  # Options: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+  level: "INFO"
+
+  # Log prediction results - تسجيل نتائج التنبؤ
+  log_predictions: true
+
+  # Log performance metrics - تسجيل مقاييس الأداء
+  log_metrics: true
+
+  # Log file path - مسار ملف السجل
+  log_file: "/var/log/sahool/disease_detection.log"
+
+# API Integration Settings - إعدادات تكامل API
+api:
+  # Enable disease detection endpoints - تفعيل نقاط نهاية اكتشاف الأمراض
+  enabled: true
+
+  # API version - إصدار API
+  version: "v1"
+
+  # Rate limiting - حد المعدل
+  rate_limit:
+    enabled: true
+    max_requests_per_minute: 100
+
+  # Response settings - إعدادات الاستجابة
+  response:
+    include_confidence: true
+    include_bbox: true
+    include_alternatives: true
+    include_treatment: true
+
+# Monitoring Settings - إعدادات المراقبة
+monitoring:
+  # Enable metrics collection - تفعيل جمع المقاييس
+  enabled: true
+
+  # Metrics to track - المقاييس للتتبع
+  metrics:
+    - total_predictions
+    - avg_inference_time
+    - error_rate
+    - cache_hit_rate
+    - gpu_utilization
+
+  # Alert thresholds - عتبات التنبيه
+  alerts:
+    error_rate_threshold: 0.05  # Alert if error rate > 5%
+    inference_time_threshold: 500  # Alert if avg time > 500ms
+
+# Storage Settings - إعدادات التخزين
+storage:
+  # Save prediction results - حفظ نتائج التنبؤ
+  save_results: true
+
+  # Results storage path - مسار تخزين النتائج
+  results_path: "/app/data/disease_predictions"
+
+  # Save visualization images - حفظ صور التصور
+  save_visualizations: false
+
+  # Visualization output path - مسار إخراج التصور
+  visualization_path: "/app/data/visualizations"
+
+  # Retention period (days) - فترة الاحتفاظ (أيام)
+  retention_days: 30
+
+# Notification Settings - إعدادات الإشعارات
+notifications:
+  # Enable notifications for critical diseases - تفعيل الإشعارات للأمراض الحرجة
+  enabled: true
+
+  # Notification channels - قنوات الإشعارات
+  channels:
+    - email
+    - sms
+    - push_notification
+
+  # Critical disease threshold - عتبة المرض الحرج
+  critical_threshold: 0.7  # Notify if confidence >= 70% for critical disease
+
+# Security Settings - إعدادات الأمان
+security:
+  # Require API authentication - طلب مصادقة API
+  require_auth: true
+
+  # Maximum upload file size (MB) - الحد الأقصى لحجم الملف المرفوع
+  max_upload_size_mb: 10
+
+  # Allowed image formats - تنسيقات الصور المسموح بها
+  allowed_formats:
+    - jpg
+    - jpeg
+    - png
+    - bmp
+
+# Environment-specific overrides - تجاوزات خاصة بالبيئة
+environments:
+  # Development environment - بيئة التطوير
+  development:
+    model:
+      enable_gpu: false
+      device: "cpu"
+    logging:
+      level: "DEBUG"
+    performance:
+      warmup_iterations: 2
+
+  # Production environment - بيئة الإنتاج
+  production:
+    model:
+      enable_gpu: true
+      device: "gpu"
+    logging:
+      level: "INFO"
+    performance:
+      warmup_iterations: 5
+      enable_caching: true
+
+  # Testing environment - بيئة الاختبار
+  testing:
+    model:
+      enable_gpu: false
+      device: "cpu"
+    logging:
+      level: "WARNING"
+    inference:
+      min_confidence: 0.3  # Lower threshold for testing

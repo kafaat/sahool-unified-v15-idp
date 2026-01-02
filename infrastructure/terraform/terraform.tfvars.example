@@ -1,0 +1,65 @@
+# ======================================================================
+# ملف مثال للمتغيرات - انسخه وأعد تسميته إلى terraform.tfvars
+# Example variables file - copy and rename to terraform.tfvars
+# ======================================================================
+# تعليمات / Instructions:
+# 1. انسخ هذا الملف: cp terraform.tfvars.example terraform.tfvars
+# 2. عدّل القيم حسب احتياجاتك
+# 3. لا تُرفع terraform.tfvars إلى Git (مُدرج في .gitignore)
+#
+# 1. Copy this file: cp terraform.tfvars.example terraform.tfvars
+# 2. Modify values according to your needs
+# 3. Don't commit terraform.tfvars to Git (included in .gitignore)
+# ======================================================================
+
+# ======================================================================
+# الإعدادات العامة / General Settings
+# ======================================================================
+environment = "production"
+
+# المناطق / Regions
+primary_region   = "me-south-1"
+secondary_region = "me-south-1"
+
+# إصدار Kubernetes / Kubernetes version
+eks_cluster_version = "1.28"
+
+# ======================================================================
+# بيانات اعتماد قاعدة البيانات / Database Credentials
+# ⚠️ هام: لا تُخزّن كلمات المرور هنا في بيئة الإنتاج
+# ⚠️ Important: Don't store passwords here in production
+# استخدم AWS Secrets Manager أو متغيرات البيئة
+# Use AWS Secrets Manager or environment variables
+# ======================================================================
+db_username = "sahool_admin"
+# db_password يجب تمريره عبر سطر الأوامر أو متغير بيئة:
+# db_password should be passed via command line or environment variable:
+# export TF_VAR_db_password="your-secure-password"
+# أو / or:
+# terraform apply -var="db_password=your-secure-password"
+
+# ======================================================================
+# إعدادات منطقة الرياض / Riyadh Region Settings
+# ======================================================================
+riyadh_vpc_cidr           = "10.0.0.0/16"
+riyadh_node_instance_type = "t3.xlarge"
+riyadh_min_nodes          = 3
+riyadh_max_nodes          = 10
+riyadh_desired_nodes      = 5
+riyadh_db_instance_class  = "db.r6g.xlarge"
+riyadh_db_allocated_storage = 500
+riyadh_redis_node_type    = "cache.r6g.large"
+riyadh_redis_num_nodes    = 3
+
+# ======================================================================
+# إعدادات منطقة جدة / Jeddah Region Settings
+# ======================================================================
+jeddah_vpc_cidr           = "10.1.0.0/16"
+jeddah_node_instance_type = "t3.large"
+jeddah_min_nodes          = 2
+jeddah_max_nodes          = 8
+jeddah_desired_nodes      = 3
+jeddah_db_instance_class  = "db.r6g.large"
+jeddah_db_allocated_storage = 300
+jeddah_redis_node_type    = "cache.r6g.large"
+jeddah_redis_num_nodes    = 2

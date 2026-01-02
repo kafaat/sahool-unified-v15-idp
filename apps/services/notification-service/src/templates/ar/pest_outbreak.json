@@ -1,0 +1,16 @@
+{
+  "template_id": "pest_outbreak",
+  "category": "alert",
+  "title": "🐛 تحذير: انتشار آفات",
+  "body": "تم رصد انتشار {pest_name} في منطقة {location}. المحاصيل المعرضة للخطر: {affected_crops}. افحص حقولك فوراً واتخذ إجراءات وقائية. المسافة من حقلك: {distance} كم",
+  "action_url": "/alerts/pests/{pest_id}",
+  "icon": "🐛",
+  "priority": "critical",
+  "metadata": {
+    "category_ar": "تنبيه حرج",
+    "requires_action": true,
+    "alert_type": "pest_outbreak",
+    "sound": "urgent",
+    "vibration": true
+  }
+}

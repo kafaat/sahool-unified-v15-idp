@@ -1,0 +1,15 @@
+{
+  "template_id": "weekly_report",
+  "category": "report",
+  "title": "📊 تقرير أسبوعي: {week_start} - {week_end}",
+  "body": "ملخص الأسبوع: أكملت {completed_tasks} مهمة، استهلكت {water_used} متر مكعب من الماء، حققت {achievements} إنجازات. الإنتاجية: {productivity_score}%. استمر في العمل الرائع!",
+  "action_url": "/reports/weekly/{week_number}",
+  "icon": "📊",
+  "priority": "low",
+  "metadata": {
+    "category_ar": "تقرير أسبوعي",
+    "requires_action": false,
+    "report_type": "weekly_summary",
+    "sound": "default"
+  }
+}

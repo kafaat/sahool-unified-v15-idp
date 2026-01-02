@@ -1,0 +1,15 @@
+{
+  "template_id": "daily_report",
+  "category": "report",
+  "title": "📋 Daily Report: {date}",
+  "body": "Your fields summary today: {total_fields} fields, {healthy_fields} healthy, {tasks_pending} pending tasks. Expected temperature: {max_temp}°C. Rain probability: {rain_probability}%.",
+  "action_url": "/dashboard/daily-report",
+  "icon": "📋",
+  "priority": "low",
+  "metadata": {
+    "category_en": "Daily Report",
+    "requires_action": false,
+    "report_type": "daily_summary",
+    "sound": "default"
+  }
+}

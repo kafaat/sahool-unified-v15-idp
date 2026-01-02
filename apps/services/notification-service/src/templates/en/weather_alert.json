@@ -1,0 +1,20 @@
+{
+  "template_id": "weather_alert",
+  "category": "alert",
+  "title": "⚠️ Weather Alert: {weather_type}",
+  "body": "{weather_description} expected in {location} area. Temperature: {temperature}°C, Humidity: {humidity}%. Protect your crops and take necessary actions.",
+  "action_url": "/weather/{location}",
+  "icon": "⚠️",
+  "priority": "high",
+  "metadata": {
+    "category_en": "Urgent Alert",
+    "requires_action": true,
+    "weather_types": {
+      "frost": "Frost",
+      "heat_wave": "Heat Wave",
+      "storm": "Storm",
+      "flood": "Flood",
+      "drought": "Drought"
+    }
+  }
+}

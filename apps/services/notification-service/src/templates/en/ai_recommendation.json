@@ -1,0 +1,15 @@
+{
+  "template_id": "ai_recommendation",
+  "category": "recommendation",
+  "title": "🤖 Smart Recommendation: {recommendation_type}",
+  "body": "Based on analysis of field {field_name} data, we recommend: {recommendation_text}. Expected impact: {expected_impact}. Potential benefit: {benefit}.",
+  "action_url": "/fields/{field_id}/recommendations/{recommendation_id}",
+  "icon": "🤖",
+  "priority": "medium",
+  "metadata": {
+    "category_en": "AI Recommendation",
+    "requires_action": false,
+    "ai_confidence": "{confidence}",
+    "sound": "gentle"
+  }
+}

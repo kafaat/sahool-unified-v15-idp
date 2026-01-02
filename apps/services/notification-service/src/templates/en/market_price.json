@@ -1,0 +1,20 @@
+{
+  "template_id": "market_price",
+  "category": "report",
+  "title": "📈 Market Price Update",
+  "body": "{crop_type} price at {market_name} market: {current_price} YER/kg. Change: {price_change}%. This is {trend} than monthly average. {recommendation}",
+  "action_url": "/markets/{market_id}/prices",
+  "icon": "📈",
+  "priority": "medium",
+  "metadata": {
+    "category_en": "Market Report",
+    "requires_action": false,
+    "price_trend": "{trend}",
+    "sound": "default",
+    "trends": {
+      "higher": "higher",
+      "lower": "lower",
+      "stable": "stable"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "template_id": "harvest_ready",
+  "category": "reminder",
+  "title": "🌾 حان وقت الحصاد",
+  "body": "محصول {crop_type} في حقل {field_name} جاهز للحصاد! الإنتاج المتوقع: {estimated_yield} كجم. يُنصح بالحصاد خلال {days_remaining} يوم للحصول على أفضل جودة.",
+  "action_url": "/fields/{field_id}/harvest",
+  "icon": "🌾",
+  "priority": "high",
+  "metadata": {
+    "category_ar": "تذكير مهم",
+    "requires_action": true,
+    "optimal_harvest_window": true,
+    "sound": "success"
+  }
+}

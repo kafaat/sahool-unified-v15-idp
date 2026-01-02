@@ -1,0 +1,16 @@
+{
+  "template_id": "water_shortage",
+  "category": "alert",
+  "title": "🚰 Warning: Water Shortage",
+  "body": "Water shortage alert in {location} area. Groundwater level: {water_level}m. Advised to conserve water consumption and postpone non-essential irrigation. Remaining supply: {days_remaining} days.",
+  "action_url": "/alerts/water-shortage/{alert_id}",
+  "icon": "🚰",
+  "priority": "critical",
+  "metadata": {
+    "category_en": "Critical Alert",
+    "requires_action": true,
+    "alert_type": "water_shortage",
+    "sound": "urgent",
+    "conservation_tips": true
+  }
+}

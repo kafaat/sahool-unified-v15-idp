@@ -1,0 +1,20 @@
+{
+  "template_id": "market_price",
+  "category": "report",
+  "title": "📈 تحديث أسعار السوق",
+  "body": "سعر {crop_type} في سوق {market_name}: {current_price} ريال/كغ. التغيير: {price_change}%. هذا {trend} من المتوسط الشهري. {recommendation}",
+  "action_url": "/markets/{market_id}/prices",
+  "icon": "📈",
+  "priority": "medium",
+  "metadata": {
+    "category_ar": "تقرير سوق",
+    "requires_action": false,
+    "price_trend": "{trend}",
+    "sound": "default",
+    "trends": {
+      "higher": "أعلى",
+      "lower": "أقل",
+      "stable": "مستقر"
+    }
+  }
+}

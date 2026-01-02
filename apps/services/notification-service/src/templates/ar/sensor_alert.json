@@ -1,0 +1,20 @@
+{
+  "template_id": "sensor_alert",
+  "category": "alert",
+  "title": "📡 تنبيه المستشعر",
+  "body": "قراءة غير عادية من مستشعر {sensor_type} في حقل {field_name}: {value} {unit}. الحد {threshold_type}: {threshold} {unit}. تحقق من الحقل والمستشعر.",
+  "action_url": "/fields/{field_id}/sensors/{sensor_id}",
+  "icon": "📡",
+  "priority": "high",
+  "metadata": {
+    "category_ar": "تنبيه عاجل",
+    "requires_action": true,
+    "sensor_types": {
+      "soil_moisture": "رطوبة التربة",
+      "temperature": "درجة الحرارة",
+      "humidity": "الرطوبة",
+      "ph": "الحموضة",
+      "ec": "الملوحة"
+    }
+  }
+}

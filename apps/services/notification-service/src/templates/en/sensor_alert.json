@@ -1,0 +1,20 @@
+{
+  "template_id": "sensor_alert",
+  "category": "alert",
+  "title": "📡 Sensor Alert",
+  "body": "Unusual reading from {sensor_type} sensor in field {field_name}: {value} {unit}. {threshold_type} threshold: {threshold} {unit}. Check the field and sensor.",
+  "action_url": "/fields/{field_id}/sensors/{sensor_id}",
+  "icon": "📡",
+  "priority": "high",
+  "metadata": {
+    "category_en": "Urgent Alert",
+    "requires_action": true,
+    "sensor_types": {
+      "soil_moisture": "Soil Moisture",
+      "temperature": "Temperature",
+      "humidity": "Humidity",
+      "ph": "pH Level",
+      "ec": "Electrical Conductivity"
+    }
+  }
+}

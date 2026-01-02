@@ -1,0 +1,24 @@
+# SAHOOL Irrigation Scheduling Module Requirements
+# متطلبات وحدة جدولة الري
+
+# Core dependencies - المتطلبات الأساسية
+pydantic>=2.0.0        # Data validation and settings management
+python-dateutil>=2.8.0  # Date utilities
+
+# Geometry and GIS dependencies - متطلبات الهندسة والنظم الجغرافية
+shapely>=2.0.0         # Geometric operations and validation
+
+# Data export dependencies - متطلبات تصدير البيانات
+openpyxl>=3.1.0        # Excel export (xlsx)
+reportlab>=4.0.0       # PDF generation
+pandas>=2.0.0          # Data analysis and CSV export
+
+# Optional for enhanced functionality - اختياري للميزات المحسنة
+numpy>=1.24.0           # Numerical computations (optional)
+
+# Development dependencies - متطلبات التطوير
+pytest>=7.0.0           # Testing framework
+pytest-cov>=4.0.0       # Coverage plugin
+black>=23.0.0           # Code formatter
+mypy>=1.0.0            # Static type checker
+ruff>=0.1.0            # Fast linter

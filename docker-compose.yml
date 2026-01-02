@@ -60,6 +60,12 @@ services:
       DB_USER: ${POSTGRES_USER:-sahool}
       DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       DB_NAME: ${POSTGRES_DB:-sahool}
+      # PgBouncer auth_query user (for SCRAM authentication)
+      # The pgbouncer user is created in PostgreSQL init script with password 'pgbouncer_auth_query'
+      # This user is used to query pg_shadow for password verification
+      AUTH_USER: pgbouncer
+      AUTH_QUERY: SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+      # Note: The pgbouncer user password is set in infrastructure/core/postgres/init/02-pgbouncer-user.sql
       # Pool settings
       POOL_MODE: transaction
       MAX_DB_CONNECTIONS: 100
@@ -69,8 +75,7 @@ services:
       # Timeouts
       QUERY_TIMEOUT: 120
       QUERY_WAIT_TIMEOUT: 30
-      # Auth
-      AUTH_TYPE: md5
+      # Auth (handled by pgbouncer.ini with auth_query for SCRAM support)
       # Admin
       ADMIN_USERS: pgbouncer_admin
       STATS_USERS: pgbouncer_stats
@@ -181,6 +186,8 @@ services:
     volumes:
       - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - ./infrastructure/core/mqtt/passwd:/mosquitto/config/passwd:ro
+    # Fix file permissions for passwd file (Mosquitto requires proper ownership)
+    command: /bin/sh -c "chmod 600 /mosquitto/config/passwd 2>/dev/null || true; chown mosquitto:mosquitto /mosquitto/config/passwd 2>/dev/null || true; exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
     ports:

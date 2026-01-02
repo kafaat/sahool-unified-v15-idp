@@ -1421,12 +1421,11 @@ services:
               minute: 5
               hour: 20
               policy: redis
-              redis:
-                host: redis
-                port: 6379
-                password: ${REDIS_PASSWORD}
-                database: 1
-                timeout: 2000
+              redis_host: redis
+              redis_port: 6379
+              redis_password: ${REDIS_PASSWORD}
+              redis_database: 1
+              redis_timeout: 2000
               fault_tolerant: true
               hide_client_headers: false
           - name: response-transformer
@@ -1450,12 +1449,11 @@ services:
               minute: 3
               hour: 10
               policy: redis
-              redis:
-                host: redis
-                port: 6379
-                password: ${REDIS_PASSWORD}
-                database: 1
-                timeout: 2000
+              redis_host: redis
+              redis_port: 6379
+              redis_password: ${REDIS_PASSWORD}
+              redis_database: 1
+              redis_timeout: 2000
               fault_tolerant: true
               hide_client_headers: false
           - name: response-transformer
@@ -1479,12 +1477,11 @@ services:
               minute: 10
               hour: 50
               policy: redis
-              redis:
-                host: redis
-                port: 6379
-                password: ${REDIS_PASSWORD}
-                database: 1
-                timeout: 2000
+              redis_host: redis
+              redis_port: 6379
+              redis_password: ${REDIS_PASSWORD}
+              redis_database: 1
+              redis_timeout: 2000
               fault_tolerant: true
               hide_client_headers: false
           - name: response-transformer
@@ -1507,12 +1504,11 @@ services:
               minute: 10
               hour: 100
               policy: redis
-              redis:
-                host: redis
-                port: 6379
-                password: ${REDIS_PASSWORD}
-                database: 1
-                timeout: 2000
+              redis_host: redis
+              redis_port: 6379
+              redis_password: ${REDIS_PASSWORD}
+              redis_database: 1
+              redis_timeout: 2000
               fault_tolerant: true
               hide_client_headers: false
           - name: response-transformer
@@ -1621,9 +1617,10 @@ consumers:
       - key: starter-jwt-key-hs256
         algorithm: HS256
         secret: ${STARTER_JWT_SECRET}
-      - key: starter-jwt-key-rs256
-        algorithm: RS256
-        rsa_public_key: ${JWT_PUBLIC_KEY}
+      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
+      # - key: starter-jwt-key-rs256
+      #   algorithm: RS256
+      #   rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون المحترفون - Professional Users
   - username: professional-user-sample
@@ -1634,9 +1631,10 @@ consumers:
       - key: professional-jwt-key-hs256
         algorithm: HS256
         secret: ${PROFESSIONAL_JWT_SECRET}
-      - key: professional-jwt-key-rs256
-        algorithm: RS256
-        rsa_public_key: ${JWT_PUBLIC_KEY}
+      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
+      # - key: professional-jwt-key-rs256
+      #   algorithm: RS256
+      #   rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون المؤسسيون - Enterprise Users
   - username: enterprise-user-sample
@@ -1647,9 +1645,10 @@ consumers:
       - key: enterprise-jwt-key-hs256
         algorithm: HS256
         secret: ${ENTERPRISE_JWT_SECRET}
-      - key: enterprise-jwt-key-rs256
-        algorithm: RS256
-        rsa_public_key: ${JWT_PUBLIC_KEY}
+      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
+      # - key: enterprise-jwt-key-rs256
+      #   algorithm: RS256
+      #   rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون البحثيون - Research Users
   - username: research-user-sample
@@ -1660,9 +1659,10 @@ consumers:
       - key: research-jwt-key-hs256
         algorithm: HS256
         secret: ${RESEARCH_JWT_SECRET}
-      - key: research-jwt-key-rs256
-        algorithm: RS256
-        rsa_public_key: ${JWT_PUBLIC_KEY}
+      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
+      # - key: research-jwt-key-rs256
+      #   algorithm: RS256
+      #   rsa_public_key: ${JWT_PUBLIC_KEY}
 
   # المستخدمون المسؤولون - Admin Users
   - username: admin-user-sample
@@ -1673,9 +1673,10 @@ consumers:
       - key: admin-jwt-key-hs256
         algorithm: HS256
         secret: ${ADMIN_JWT_SECRET}
-      - key: admin-jwt-key-rs256
-        algorithm: RS256
-        rsa_public_key: ${JWT_PUBLIC_KEY}
+      # RS256 disabled until valid JWT_PUBLIC_KEY is configured
+      # - key: admin-jwt-key-rs256
+      #   algorithm: RS256
+      #   rsa_public_key: ${JWT_PUBLIC_KEY}
 
 # ============================================================================
 # مجموعات التحكم في الوصول - ACL Groups

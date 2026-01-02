@@ -4,7 +4,7 @@
 
 # Web Framework
 fastapi==0.115.5
-uvicorn[standard]==0.32.1
+uvicorn[standard]>=0.30.0,<1.0.0
 python-multipart==0.0.18
 
 # Image Processing

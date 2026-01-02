@@ -1,0 +1,400 @@
+# ═══════════════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP - Canary Deployment Configuration
+# إعدادات النشر التدريجي (الكناري)
+# ═══════════════════════════════════════════════════════════════════════════════════════
+#
+# Implements gradual rollout strategy:
+# 1. Deploy to 5% of users
+# 2. Monitor error rates and latency
+# 3. Increase to 20%, then 50%, then 100%
+# 4. Automatic rollback on error threshold breach
+#
+# ═══════════════════════════════════════════════════════════════════════════════════════
+
+# Kubernetes Canary Deployment with Argo Rollouts
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: sahool-auth-service
+  namespace: sahool-production
+  labels:
+    app: auth-service
+    version: v16.0.0
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - name: auth-service
+        image: sahool/auth-service:v16.0.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_POOL_SIZE
+          value: "25"
+        - name: REDIS_MAX_CONNECTIONS
+          value: "100"
+        - name: CIRCUIT_BREAKER_ENABLED
+          value: "true"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector:4317"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # CANARY STRATEGY
+  # ─────────────────────────────────────────────────────────────────────────────
+  strategy:
+    canary:
+      # Traffic splitting steps
+      steps:
+      # Step 1: 5% traffic to canary
+      - setWeight: 5
+      - pause:
+          duration: 5m  # Monitor for 5 minutes
+
+      # Step 2: Run analysis to check error rates
+      - analysis:
+          templates:
+          - templateName: success-rate-check
+          args:
+          - name: service-name
+            value: auth-service
+
+      # Step 3: Increase to 20%
+      - setWeight: 20
+      - pause:
+          duration: 10m  # Monitor for 10 minutes
+
+      # Step 4: Run another analysis
+      - analysis:
+          templates:
+          - templateName: success-rate-check
+
+      # Step 5: Increase to 50%
+      - setWeight: 50
+      - pause:
+          duration: 15m  # Monitor for 15 minutes
+
+      # Step 6: Final analysis before full rollout
+      - analysis:
+          templates:
+          - templateName: comprehensive-check
+
+      # Step 7: Full rollout
+      - setWeight: 100
+
+      # Canary service for traffic splitting
+      canaryService: auth-service-canary
+      stableService: auth-service-stable
+
+      # Traffic routing via Istio/Kong
+      trafficRouting:
+        nginx:
+          stableIngress: auth-service-ingress
+          additionalIngressAnnotations:
+            canary-by-header: "X-Canary"
+            canary-by-header-value: "true"
+
+      # Anti-affinity: don't schedule canary on same nodes as stable
+      antiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          weight: 100
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ANALYSIS TEMPLATES
+# ─────────────────────────────────────────────────────────────────────────────
+
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate-check
+  namespace: sahool-production
+spec:
+  args:
+  - name: service-name
+  metrics:
+  - name: success-rate
+    # Success rate must be > 99%
+    successCondition: result[0] >= 0.99
+    failureLimit: 3
+    interval: 60s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          sum(rate(http_requests_total{service="{{args.service-name}}", status=~"2.."}[5m])) /
+          sum(rate(http_requests_total{service="{{args.service-name}}"}[5m]))
+
+  - name: error-rate
+    # Error rate must be < 1%
+    successCondition: result[0] <= 0.01
+    failureLimit: 3
+    interval: 60s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          sum(rate(http_requests_total{service="{{args.service-name}}", status=~"5.."}[5m])) /
+          sum(rate(http_requests_total{service="{{args.service-name}}"}[5m]))
+
+  - name: latency-p95
+    # P95 latency must be < 500ms
+    successCondition: result[0] <= 500
+    failureLimit: 3
+    interval: 60s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="{{args.service-name}}"}[5m])) by (le)) * 1000
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: comprehensive-check
+  namespace: sahool-production
+spec:
+  metrics:
+  # All metrics from success-rate-check plus:
+
+  - name: success-rate
+    successCondition: result[0] >= 0.99
+    failureLimit: 2
+    interval: 60s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          sum(rate(http_requests_total{service="auth-service", status=~"2.."}[10m])) /
+          sum(rate(http_requests_total{service="auth-service"}[10m]))
+
+  - name: circuit-breaker-state
+    # Circuit breaker should not be open
+    successCondition: result[0] == 0
+    failureLimit: 1
+    interval: 30s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          sum(circuit_breaker_state{service="auth-service", state="open"})
+
+  - name: database-connection-pool
+    # Connection pool should not be exhausted
+    successCondition: result[0] < 0.9
+    failureLimit: 2
+    interval: 60s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          sum(db_connection_pool_active{service="auth-service"}) /
+          sum(db_connection_pool_max{service="auth-service"})
+
+  - name: redis-connection-pool
+    # Redis connections should not be exhausted
+    successCondition: result[0] < 0.9
+    failureLimit: 2
+    interval: 60s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          sum(redis_connections_active{service="auth-service"}) /
+          sum(redis_connections_max{service="auth-service"})
+
+  - name: login-latency
+    # Login endpoint specifically must be fast
+    successCondition: result[0] <= 200
+    failureLimit: 3
+    interval: 60s
+    provider:
+      prometheus:
+        address: http://prometheus:9090
+        query: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{service="auth-service", endpoint="/api/auth/login"}[5m])) by (le)) * 1000
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# SERVICES FOR TRAFFIC SPLITTING
+# ─────────────────────────────────────────────────────────────────────────────
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service-stable
+  namespace: sahool-production
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service-canary
+  namespace: sahool-production
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# INGRESS FOR CANARY ROUTING
+# ─────────────────────────────────────────────────────────────────────────────
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: auth-service-ingress
+  namespace: sahool-production
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "5"
+spec:
+  rules:
+  - host: api.sahool.sa
+    http:
+      paths:
+      - path: /api/auth
+        pathType: Prefix
+        backend:
+          service:
+            name: auth-service-stable
+            port:
+              number: 8080
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# ROLLBACK CONFIGURATION
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Automatic rollback triggers
+# This ConfigMap defines when to automatically rollback
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: canary-rollback-config
+  namespace: sahool-production
+data:
+  rollback-triggers.yaml: |
+    # Rollback automatically if any of these conditions are met:
+    triggers:
+      # Error rate exceeds 5%
+      - name: high-error-rate
+        condition: error_rate > 0.05
+        action: rollback
+
+      # P95 latency exceeds 1 second
+      - name: high-latency
+        condition: latency_p95 > 1000
+        action: rollback
+
+      # Circuit breaker is open
+      - name: circuit-breaker-open
+        condition: circuit_breaker_state == "open"
+        action: pause  # Pause rollout, don't fully rollback yet
+
+      # Connection pool exhausted
+      - name: pool-exhaustion
+        condition: connection_pool_utilization > 0.95
+        action: pause
+
+      # Multiple consecutive failures
+      - name: consecutive-failures
+        condition: consecutive_failures >= 3
+        action: rollback
+
+    # Notification settings
+    notifications:
+      slack:
+        channel: "#sahool-deployments"
+        on_rollback: true
+        on_pause: true
+        on_success: true
+
+      email:
+        recipients:
+          - devops@sahool.sa
+          - platform-team@sahool.sa
+        on_rollback: true
+
+---
+# ─────────────────────────────────────────────────────────────────────────────
+# MONITORING DASHBOARD ANNOTATIONS
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Grafana annotations for deployment tracking
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-deployment-annotations
+  namespace: sahool-production
+data:
+  annotations.json: |
+    {
+      "annotations": [
+        {
+          "name": "Canary Deployment Started",
+          "event": "canary_start",
+          "tags": ["deployment", "canary"],
+          "color": "#3498db"
+        },
+        {
+          "name": "Canary Weight Increased",
+          "event": "canary_weight_change",
+          "tags": ["deployment", "canary", "weight"],
+          "color": "#2ecc71"
+        },
+        {
+          "name": "Canary Rollback",
+          "event": "canary_rollback",
+          "tags": ["deployment", "canary", "rollback"],
+          "color": "#e74c3c"
+        },
+        {
+          "name": "Full Rollout Complete",
+          "event": "rollout_complete",
+          "tags": ["deployment", "success"],
+          "color": "#27ae60"
+        }
+      ]
+    }

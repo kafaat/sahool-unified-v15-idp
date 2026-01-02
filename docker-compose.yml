@@ -183,13 +183,16 @@ services:
   mqtt:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
+    environment:
+      - MQTT_USER=${MQTT_USER:-sahool_iot}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-sahool_mqtt_secure_2024}
     volumes:
       - ./infrastructure/core/mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
-      - ./infrastructure/core/mqtt/passwd:/mosquitto/config/passwd:ro
+      - mqtt_passwd:/mosquitto/config
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
-    # Fix file permissions for passwd file (Mosquitto requires proper ownership)
-    command: /bin/sh -c "chmod 600 /mosquitto/config/passwd 2>/dev/null || true; chown mosquitto:mosquitto /mosquitto/config/passwd 2>/dev/null || true; exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
+    # Generate passwd file dynamically from environment variables
+    command: /bin/sh -c "mosquitto_passwd -b -c /mosquitto/config/passwd $${MQTT_USER} $${MQTT_PASSWORD} && chmod 600 /mosquitto/config/passwd && exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"
     ports:
       - "127.0.0.1:1883:1883"
       - "127.0.0.1:9001:9001"
@@ -2235,6 +2238,8 @@ volumes:
     name: sahool-mqtt-data
   mqtt_logs:
     name: sahool-mqtt-logs
+  mqtt_passwd:
+    name: sahool-mqtt-passwd
   kong_logs:
     driver: local
   # Ollama LLM Server Volume

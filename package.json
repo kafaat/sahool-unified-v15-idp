@@ -12,8 +12,28 @@
     "packages/typescript-config",
     "packages/design-system",
     "packages/i18n",
+    "packages/field-shared",
+    "packages/mock-data",
+    "packages/nestjs-auth",
+    "packages/shared-audit",
+    "packages/shared-crypto",
+    "packages/shared-db",
+    "packages/shared-events",
+    "packages/shared-types",
     "apps/web",
-    "apps/admin"
+    "apps/admin",
+    "apps/services/field-management-service",
+    "apps/services/field-core",
+    "apps/services/chat-service",
+    "apps/services/community-chat",
+    "apps/services/crop-growth-model",
+    "apps/services/disaster-assessment",
+    "apps/services/iot-service",
+    "apps/services/lai-estimation",
+    "apps/services/marketplace-service",
+    "apps/services/research-core",
+    "apps/services/yield-prediction",
+    "apps/services/yield-prediction-service"
   ],
   "scripts": {
     "dev:web": "npm run dev --workspace=apps/web",
@@ -45,7 +65,11 @@
   },
   "overrides": {
     "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3"
+    "@types/react-dom": "19.2.3",
+    "glob": "^10.5.0",
+    "qs": "^6.14.1",
+    "js-yaml": "^4.1.1",
+    "tmp": "^0.2.4"
   },
   "engines": {
     "node": ">=20.0.0",

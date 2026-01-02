@@ -289,8 +289,8 @@ services:
     networks:
       - sahool-network
 
-  # Ollama Model Loader - Downloads deepseek-coder:6.7b on startup
-  # تحميل نموذج DeepSeek Coder عند بدء التشغيل
+  # Ollama Model Loader - Downloads deepseek model on startup
+  # تحميل نموذج DeepSeek عند بدء التشغيل
   ollama-model-loader:
     image: curlimages/curl:latest
     container_name: sahool-ollama-model-loader
@@ -302,14 +302,46 @@ services:
       - |
         echo "Waiting for Ollama to be ready..."
         sleep 5
-        echo "Pulling deepseek-coder:6.7b model..."
-        curl -X POST http://ollama:11434/api/pull -d '{"name":"deepseek-coder:6.7b"}' --max-time 3600
+        echo "Pulling deepseek model..."
+        curl -X POST http://ollama:11434/api/pull -d '{"name":"deepseek"}' --max-time 3600
         echo "Model download complete!"
         # Keep container running to show completion
         sleep 10
     restart: "no"
     networks:
       - sahool-network
+
+  # Real-time Code Review Service - Monitors codebase and reviews with DeepSeek
+  # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
+  code-review-service:
+    build:
+      context: ./apps/services/code-review-service
+      dockerfile: Dockerfile
+    container_name: sahool-code-review
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=deepseek
+      - WATCH_PATHS=infrastructure:docker-compose.yml:docker
+      - LOG_LEVEL=INFO
+      - REVIEW_ON_CHANGE=true
+      - MAX_FILE_SIZE=1000000
+    volumes:
+      - .:/app/codebase:ro
+      - code_review_logs:/app/logs
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - sahool-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Milvus Vector Database - Alternative to Qdrant for RAG & Semantic Search
@@ -2208,6 +2240,8 @@ volumes:
   # Ollama LLM Server Volume
   ollama_data:
     name: sahool-ollama-data
+  code_review_logs:
+    name: sahool-code-review-logs
   # Milvus Vector Database Volumes
   etcd_data:
     name: sahool-etcd-data

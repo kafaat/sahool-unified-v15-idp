@@ -53,6 +53,13 @@ if not DATABASE_URL:
             "Set ALLOW_DEV_DEFAULTS=true for local development only."
         )
 
+# Fix: Convert postgres:// to postgresql+asyncpg:// for SQLAlchemy
+# إصلاح: تحويل postgres:// إلى postgresql+asyncpg:// لـ SQLAlchemy
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 engine = create_async_engine(
     DATABASE_URL,
     echo=os.getenv("SQL_ECHO", "false").lower() == "true",

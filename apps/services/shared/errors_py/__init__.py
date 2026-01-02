@@ -64,6 +64,7 @@ from .response_models import (
 from .exception_handlers import (
     setup_exception_handlers,
     get_request_id,
+    add_request_id_middleware,
 )
 
 __all__ = [
@@ -98,4 +99,5 @@ __all__ = [
     # Exception handlers
     "setup_exception_handlers",
     "get_request_id",
+    "add_request_id_middleware",
 ]

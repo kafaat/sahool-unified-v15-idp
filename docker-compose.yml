@@ -852,7 +852,7 @@ services:
     ports:
       - "8114:8114"
     depends_on:
-      postgres:
+      pgbouncer:
         condition: service_healthy
       redis:
         condition: service_healthy

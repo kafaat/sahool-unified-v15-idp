@@ -61,11 +61,11 @@ services:
       DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       DB_NAME: ${POSTGRES_DB:-sahool}
       # PgBouncer auth_query user (for SCRAM authentication)
-      # The pgbouncer user is created in PostgreSQL init script with password 'pgbouncer_auth_query'
+      # The pgbouncer user is created in PostgreSQL and uses POSTGRES_PASSWORD
       # This user is used to query pg_shadow for password verification
       AUTH_USER: pgbouncer
+      AUTH_USER_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       AUTH_QUERY: SELECT usename, passwd FROM pg_shadow WHERE usename=$1
-      # Note: The pgbouncer user password is set in infrastructure/core/postgres/init/02-pgbouncer-user.sql
       # Pool settings
       POOL_MODE: transaction
       MAX_DB_CONNECTIONS: 100

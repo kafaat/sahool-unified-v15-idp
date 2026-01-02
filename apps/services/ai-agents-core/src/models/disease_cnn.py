@@ -228,32 +228,42 @@ class DiseaseCNNModel:
                 logger.info("Model loaded successfully with TensorFlow")
 
             elif self.framework == "pytorch":
-                # Security: Use TorchScript or state_dict loading for safety
-                # الأمان: استخدام TorchScript أو state_dict للتحميل الآمن
-                if model_path.endswith('.pt') or model_path.endswith('.jit'):
-                    # Load TorchScript model (safer - no pickle execution)
-                    # تحميل نموذج TorchScript (أكثر أماناً - لا تنفيذ pickle)
-                    self.model = torch.jit.load(model_path, map_location=self.device)
-                elif model_path.endswith('.onnx'):
-                    # ONNX format - safest option
-                    # صيغة ONNX - الخيار الأكثر أماناً
-                    import onnxruntime as ort
-                    self.model = ort.InferenceSession(model_path)
-                    self._is_onnx = True
+                # Security: Only support safe serialization formats (no pickle)
+                # الأمان: دعم صيغ التسلسل الآمنة فقط (بدون pickle)
+                if model_path.endswith('.onnx'):
+                    # ONNX format - safest and recommended option
+                    # صيغة ONNX - الخيار الأكثر أماناً والموصى به
+                    try:
+                        import onnxruntime as ort
+                        self.model = ort.InferenceSession(model_path)
+                        self._is_onnx = True
+                        logger.info("Model loaded successfully with ONNX Runtime")
+                    except ImportError:
+                        raise RuntimeError("onnxruntime required for ONNX models: pip install onnxruntime")
+                elif model_path.endswith('.safetensors'):
+                    # SafeTensors format - safe alternative to pickle
+                    # صيغة SafeTensors - بديل آمن لـ pickle
+                    try:
+                        from safetensors.torch import load_file
+                        from torchvision import models
+                        self.model = models.resnet50(weights=None)
+                        self.model.fc = torch.nn.Linear(2048, len(self.config.SUPPORTED_DISEASES))
+                        state_dict = load_file(model_path)
+                        self.model.load_state_dict(state_dict)
+                        self.model.to(self.device)
+                        self.model.eval()
+                        logger.info("Model loaded successfully with SafeTensors")
+                    except ImportError:
+                        raise RuntimeError("safetensors required: pip install safetensors")
                 else:
-                    # For .pth files, load state_dict into predefined architecture
-                    # لملفات .pth، تحميل state_dict في بنية محددة مسبقاً
-                    from torchvision import models
-                    self.model = models.resnet50(weights=None)
-                    self.model.fc = torch.nn.Linear(2048, len(self.config.SUPPORTED_DISEASES))
-                    # nosemgrep: trailofbits.python.pickles-in-pytorch.pickles-in-pytorch
-                    state_dict = torch.load(model_path, map_location=self.device, weights_only=True)
-                    self.model.load_state_dict(state_dict)
-                    self.model.to(self.device)
-
-                if hasattr(self.model, 'eval'):
-                    self.model.eval()
-                logger.info("Model loaded successfully with PyTorch")
+                    # Unsupported format - recommend conversion to ONNX or SafeTensors
+                    # صيغة غير مدعومة - يُنصح بالتحويل إلى ONNX أو SafeTensors
+                    supported = ['.onnx', '.safetensors']
+                    raise ValueError(
+                        f"Unsupported model format. For security, only {supported} are allowed. "
+                        f"صيغة غير مدعومة. للأمان، الصيغ المسموحة فقط: {supported}. "
+                        f"Convert using: torch.onnx.export() or safetensors.torch.save_file()"
+                    )
 
             # Extract model version from metadata - استخراج إصدار النموذج
             self.model_version = self._extract_model_version(model_path)

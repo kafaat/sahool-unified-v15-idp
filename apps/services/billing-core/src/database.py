@@ -20,8 +20,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     async_sessionmaker,
 )
-from sqlalchemy.pool import NullPool
-from sqlalchemy.pool.impl import AsyncQueuePool
+from sqlalchemy.pool import NullPool, QueuePool
 from sqlalchemy.orm import declarative_base
 
 logger = logging.getLogger("sahool-billing")
@@ -77,15 +76,16 @@ def get_engine() -> AsyncEngine:
 
     if _engine is None:
         # Determine pool class based on environment
-        # For async engines, we must use async pool classes
+        # For async engines, SQLAlchemy 2.0+ automatically adapts sync pools
         if IS_DEV:
             # Development: Use NullPool (no pooling) for simplicity
             pool_class = NullPool
             logger.info("Using NullPool for development environment")
         else:
-            # Production: Use AsyncQueuePool for async connections
-            pool_class = AsyncQueuePool
-            logger.info("Using AsyncQueuePool for production environment")
+            # Production: Use QueuePool for connection pooling
+            # SQLAlchemy 2.0+ async engines automatically wrap sync pools
+            pool_class = QueuePool
+            logger.info("Using QueuePool for production environment")
 
         # Create engine with connection pooling
         _engine = create_async_engine(

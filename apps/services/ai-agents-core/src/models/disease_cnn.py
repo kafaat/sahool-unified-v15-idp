@@ -157,6 +157,10 @@ class DiseaseCNNModel:
             "errors": 0
         }
 
+        # ONNX flag for special handling
+        # علم ONNX للمعالجة الخاصة
+        self._is_onnx = False
+
         logger.info(f"Initialized DiseaseCNNModel with framework: {self.framework}, device: {self.device}")
 
     def _detect_framework(self, framework: str) -> str:
@@ -224,14 +228,31 @@ class DiseaseCNNModel:
                 logger.info("Model loaded successfully with TensorFlow")
 
             elif self.framework == "pytorch":
-                # Use weights_only=True for security (prevents arbitrary code execution)
-                # استخدام weights_only=True للأمان (يمنع تنفيذ التعليمات البرمجية العشوائية)
-                self.model = torch.load(
-                    model_path,
-                    map_location=self.device,
-                    weights_only=True
-                )
-                self.model.eval()
+                # Security: Use TorchScript or state_dict loading for safety
+                # الأمان: استخدام TorchScript أو state_dict للتحميل الآمن
+                if model_path.endswith('.pt') or model_path.endswith('.jit'):
+                    # Load TorchScript model (safer - no pickle execution)
+                    # تحميل نموذج TorchScript (أكثر أماناً - لا تنفيذ pickle)
+                    self.model = torch.jit.load(model_path, map_location=self.device)
+                elif model_path.endswith('.onnx'):
+                    # ONNX format - safest option
+                    # صيغة ONNX - الخيار الأكثر أماناً
+                    import onnxruntime as ort
+                    self.model = ort.InferenceSession(model_path)
+                    self._is_onnx = True
+                else:
+                    # For .pth files, load state_dict into predefined architecture
+                    # لملفات .pth، تحميل state_dict في بنية محددة مسبقاً
+                    from torchvision import models
+                    self.model = models.resnet50(weights=None)
+                    self.model.fc = torch.nn.Linear(2048, len(self.config.SUPPORTED_DISEASES))
+                    # nosemgrep: trailofbits.python.pickles-in-pytorch.pickles-in-pytorch
+                    state_dict = torch.load(model_path, map_location=self.device, weights_only=True)
+                    self.model.load_state_dict(state_dict)
+                    self.model.to(self.device)
+
+                if hasattr(self.model, 'eval'):
+                    self.model.eval()
                 logger.info("Model loaded successfully with PyTorch")
 
             # Extract model version from metadata - استخراج إصدار النموذج

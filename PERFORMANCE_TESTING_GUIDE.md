@@ -303,16 +303,17 @@ ls -la results/
 ### InfluxDB Queries
 
 ```sql
--- Average response time by endpoint
+-- Average response time by endpoint (with time bucketing)
 SELECT mean("value") FROM "http_req_duration" 
 WHERE time > now() - 1h 
-GROUP BY "url"
+GROUP BY time(1m), "url"
 
--- Error rate
+-- Error rate over time
 SELECT count("value") FROM "http_req_failed" 
 WHERE "value" = 1 AND time > now() - 1h
+GROUP BY time(1m)
 
--- Request rate
+-- Request rate per minute
 SELECT count("value") FROM "http_reqs" 
 WHERE time > now() - 1h 
 GROUP BY time(1m)

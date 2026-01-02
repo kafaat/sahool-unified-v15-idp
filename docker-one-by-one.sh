@@ -109,10 +109,12 @@ for service in "${service_array[@]}"; do
     print_info "[$build_count/$service_count] Building: $service"
     print_separator
     
-    if docker compose build --no-cache "$service" 2>&1; then
+    # Capture output for error reporting
+    if output=$(docker compose build --no-cache "$service" 2>&1); then
         print_success "[OK] Successfully built: $service"
     else
         print_error "[FAIL] Failed to build: $service"
+        echo "$output" | tail -20  # Show last 20 lines of error
         build_failures+=("$service")
     fi
     
@@ -157,10 +159,12 @@ for service in "${service_array[@]}"; do
     print_info "[$up_count/$service_count] Starting: $service"
     print_separator
     
-    if docker compose up -d "$service" 2>&1; then
+    # Capture output for error reporting
+    if output=$(docker compose up -d "$service" 2>&1); then
         print_success "[OK] Successfully started: $service"
     else
         print_error "[FAIL] Failed to start: $service"
+        echo "$output" | tail -20  # Show last 20 lines of error
         up_failures+=("$service")
     fi
     

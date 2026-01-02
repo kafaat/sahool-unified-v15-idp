@@ -2,7 +2,8 @@
 ## ملخص نتائج الاختبار
 
 **Test Date**: 2026-01-02  
-**PR**: #315 - Claude/docker sequential build script m1s hl  
+**PR**: #315 - "Claude/docker sequential build script m1s hl"  
+**Full PR Title**: Docker sequential build scripts and comprehensive test infrastructure  
 **Tester**: GitHub Copilot Agent  
 **Environment**: Linux Ubuntu (Sandboxed CI/CD Environment)
 

@@ -7,3 +7,17 @@ This package contains database migration scripts for SAHOOL.
 """
 
 __version__ = "1.0.0"
+
+# Export from parent module
+# تصدير من الوحدة الأب
+try:
+    from ..migrations import (
+        MigrationManager,
+        MigrationInfo,
+        PostGISMigrationHelper,
+    )
+    __all__ = ["MigrationManager", "MigrationInfo", "PostGISMigrationHelper"]
+except ImportError:
+    # Parent module not available, exports will be empty
+    # الوحدة الأب غير متوفرة
+    __all__ = []

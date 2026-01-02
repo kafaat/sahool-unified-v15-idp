@@ -19,15 +19,15 @@ from typing import Optional, List, Dict, Any, Tuple
 from enum import Enum
 
 from .config import get_config, AlertThresholds, AgriculturalIndicesConfig
-from .providers.multi_provider import (
+from .providers import (
     WeatherProvider,
-    OpenMeteoProvider,
     OpenWeatherMapProvider,
     WeatherAPIProvider,
     DailyForecast,
     HourlyForecast,
     WeatherData,
 )
+from .providers import OpenMeteoProvider
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

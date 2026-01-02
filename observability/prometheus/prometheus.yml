@@ -59,7 +59,7 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets:
-        - 'crop-health-ai:8080'
+        - 'crop-health-ai:8095'
         - 'fertilizer-advisor:8080'
         - 'irrigation-smart:8080'
         - 'satellite-service:8080'

@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahol Atmosphere - Living Earth Dashboard</title>
+    <meta name="description" content="نظام المراقبة الزراعية العالمي - Sahol Agricultural Monitoring System">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════════
+           SAHOL ATMOSPHERE - Design System Variables
+           ═══════════════════════════════════════════════════════════════════════ */
+        :root {
+            /* Deep Earthy Tones - الألوان الترابية العميقة */
+            --color-bg-primary: #0f172a;
+            --color-bg-secondary: #1e293b;
+            --color-bg-tertiary: #334155;
+
+            /* Bio-Luminescent Accents - لمسات نيون نباتية */
+            --color-success: #4ade80;
+            --color-success-glow: rgba(74, 222, 128, 0.3);
+            --color-warning: #fbbf24;
+            --color-warning-glow: rgba(251, 191, 36, 0.3);
+            --color-alert: #f87171;
+            --color-alert-glow: rgba(248, 113, 113, 0.3);
+            --color-info: #60a5fa;
+            --color-info-glow: rgba(96, 165, 250, 0.3);
+
+            /* Text Colors */
+            --color-text-primary: #f8fafc;
+            --color-text-secondary: #94a3b8;
+            --color-text-muted: #64748b;
+
+            /* Glassmorphism */
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: 12px;
+
+            /* Typography */
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            --space-xl: 32px;
+            --space-2xl: 48px;
+
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-full: 9999px;
+
+            /* Transitions */
+            --transition-fast: 150ms ease;
+            --transition-normal: 300ms ease;
+            --transition-slow: 500ms ease;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           BASE STYLES
+           ═══════════════════════════════════════════════════════════════════════ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            overflow: hidden;
+            min-height: 100vh;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           CANVAS CONTAINER - 3D Scene
+           ═══════════════════════════════════════════════════════════════════════ */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           UI OVERLAY - Glass Panels
+           ═══════════════════════════════════════════════════════════════════════ */
+        .ui-overlay {
+            position: fixed;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .ui-overlay > * {
+            pointer-events: auto;
+        }
+
+        /* Header Panel - Top Right */
+        .header-panel {
+            top: var(--space-xl);
+            right: var(--space-xl);
+        }
+
+        .logo-section h1 {
+            font-family: var(--font-display);
+            font-weight: 300;
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            margin-bottom: var(--space-xs);
+        }
+
+        .logo-section .tagline {
+            color: var(--color-success);
+            font-size: 0.875rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        /* Glass Panel Component */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            transition: all var(--transition-normal);
+        }
+
+        .glass-panel:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Stats Panel - Right Side */
+        .stats-panel {
+            top: 180px;
+            right: var(--space-xl);
+            width: 280px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .stat-value.success { color: var(--color-success); }
+        .stat-value.warning { color: var(--color-warning); }
+        .stat-value.alert { color: var(--color-alert); }
+
+        /* Live Indicator */
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color-success);
+            border-radius: var(--radius-full);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--color-success-glow); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 8px transparent; }
+        }
+
+        .live-text {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--color-success);
+        }
+
+        /* Fields Panel - Bottom Left */
+        .fields-panel {
+            bottom: var(--space-xl);
+            left: var(--space-xl);
+            width: 360px;
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .panel-title-icon {
+            width: 24px;
+            height: 24px;
+            fill: var(--color-success);
+        }
+
+        /* Field Cards */
+        .field-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            border-left: 3px solid var(--color-success);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .field-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(-4px);
+        }
+
+        .field-card.warning {
+            border-left-color: var(--color-warning);
+        }
+
+        .field-card.alert {
+            border-left-color: var(--color-alert);
+        }
+
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-sm);
+        }
+
+        .field-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+
+        .field-status {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            background: var(--color-success-glow);
+            color: var(--color-success);
+        }
+
+        .field-status.warning {
+            background: var(--color-warning-glow);
+            color: var(--color-warning);
+        }
+
+        .field-metrics {
+            display: flex;
+            gap: var(--space-lg);
+        }
+
+        .metric {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-size: 0.8125rem;
+            color: var(--color-text-secondary);
+        }
+
+        .metric-icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+        }
+
+        /* Controls Panel - Bottom Right */
+        .controls-panel {
+            bottom: var(--space-xl);
+            right: var(--space-xl);
+        }
+
+        .control-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-md) var(--space-lg);
+            background: transparent;
+            border: 1px solid var(--color-success);
+            color: var(--color-success);
+            border-radius: var(--radius-md);
+            font-family: var(--font-body);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .control-btn:hover {
+            background: var(--color-success);
+            color: var(--color-bg-primary);
+        }
+
+        .control-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Voice Button */
+        .voice-btn {
+            position: fixed;
+            bottom: var(--space-xl);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-success), #22c55e);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--color-success-glow);
+            transition: all var(--transition-normal);
+        }
+
+        .voice-btn:hover {
+            transform: translateX(-50%) scale(1.1);
+            box-shadow: 0 0 50px var(--color-success-glow);
+        }
+
+        .voice-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--color-bg-primary);
+        }
+
+        .voice-hint {
+            position: fixed;
+            bottom: calc(var(--space-xl) + 80px);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+            text-align: center;
+        }
+
+        /* Weather Widget - Top Left */
+        .weather-panel {
+            top: var(--space-xl);
+            left: var(--space-xl);
+        }
+
+        .weather-content {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .weather-icon {
+            width: 48px;
+            height: 48px;
+            fill: var(--color-warning);
+        }
+
+        .weather-temp {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .weather-desc {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-panel { right: var(--space-md); top: var(--space-md); }
+            .stats-panel { display: none; }
+            .fields-panel { left: var(--space-md); right: var(--space-md); width: auto; }
+            .weather-panel { display: none; }
+            .controls-panel { display: none; }
+
+            .logo-section h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Weather Widget - Top Left -->
+    <div class="ui-overlay weather-panel glass-panel">
+        <div class="weather-content">
+            <svg class="weather-icon" viewBox="0 0 24 24">
+                <path d="M12 7a5 5 0 1 1-4.995 5.217L7 12l.005-.217A5 5 0 0 1 12 7zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0-7a1 1 0 0 1 .993.883L13 3v1a1 1 0 0 1-1.993.117L11 4V3a1 1 0 0 1 1-1zm6.364 2.05l.707.707a1 1 0 0 1-1.414 1.414l-.707-.707a1 1 0 0 1 1.414-1.414zM21 11a1 1 0 0 1 .117 1.993L21 13h-1a1 1 0 0 1-.117-1.993L20 11h1zm-2.05 6.364l-.707.707a1 1 0 0 1-1.414-1.414l.707-.707a1 1 0 0 1 1.414 1.414zM13 20a1 1 0 0 1-.883.993L12 21h-1a1 1 0 0 1-.117-1.993L11 19v1a1 1 0 0 1 1 1zm-6.364-2.05l-.707-.707a1 1 0 0 1 1.414-1.414l.707.707a1 1 0 0 1-1.414 1.414zM4 13a1 1 0 0 1-.117-1.993L4 11h1a1 1 0 0 1 .117 1.993L5 13H4zm.636-8.364l.707.707A1 1 0 0 1 3.93 6.757l-.707-.707a1 1 0 0 1 1.414-1.414z"/>
+            </svg>
+            <div>
+                <div class="weather-temp">32°C</div>
+                <div class="weather-desc">مشمس - الرياض</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Panel - Top Right -->
+    <div class="ui-overlay header-panel">
+        <div class="logo-section">
+            <h1>ساهول أتموسفير</h1>
+            <p class="tagline">SAHOL ATMOSPHERE - Global Farm Intelligence</p>
+        </div>
+    </div>
+
+    <!-- Stats Panel - Right Side -->
+    <div class="ui-overlay stats-panel glass-panel">
+        <div class="live-indicator">
+            <div class="live-dot"></div>
+            <span class="live-text">مباشر</span>
+        </div>
+
+        <div class="stat-row">
+            <span class="stat-label">الحقول النشطة</span>
+            <span class="stat-value">1,247</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">المستشعرات المتصلة</span>
+            <span class="stat-value success">3,892</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">صحة المحاصيل</span>
+            <span class="stat-value success">94.7%</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">تنبيهات اليوم</span>
+            <span class="stat-value warning">12</span>
+        </div>
+        <div class="stat-row">
+            <span class="stat-label">توفير المياه</span>
+            <span class="stat-value success">+23%</span>
+        </div>
+    </div>
+
+    <!-- Active Fields Panel - Bottom Left -->
+    <div class="ui-overlay fields-panel glass-panel">
+        <h3 class="panel-title">
+            <svg class="panel-title-icon" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+            الحقول النشطة
+        </h3>
+
+        <div class="field-card">
+            <div class="field-header">
+                <span class="field-name">حقل رقم 04 - قمح</span>
+                <span class="field-status">نشط</span>
+            </div>
+            <div class="field-metrics">
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8zm0 18c-3.35 0-6-2.57-6-6.2 0-2.34 1.95-5.44 6-9.14 4.05 3.7 6 6.79 6 9.14 0 3.63-2.65 6.2-6 6.2z"/>
+                    </svg>
+                    64%
+                </div>
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15 13V5a3 3 0 0 0-6 0v8a5 5 0 1 0 6 0zm-3-8a1 1 0 0 1 1 1v3h-2V6a1 1 0 0 1 1-1z"/>
+                    </svg>
+                    28°C
+                </div>
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    كافية
+                </div>
+            </div>
+        </div>
+
+        <div class="field-card warning">
+            <div class="field-header">
+                <span class="field-name">حقل رقم 07 - طماطم</span>
+                <span class="field-status warning">تحذير</span>
+            </div>
+            <div class="field-metrics">
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+                    </svg>
+                    38%
+                </div>
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15 13V5a3 3 0 0 0-6 0v8a5 5 0 1 0 6 0z"/>
+                    </svg>
+                    34°C
+                </div>
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v1m0 16v1m9-9h-1M4 12H3"/>
+                    </svg>
+                    يحتاج ري
+                </div>
+            </div>
+        </div>
+
+        <div class="field-card">
+            <div class="field-header">
+                <span class="field-name">حقل رقم 12 - نخيل</span>
+                <span class="field-status">نشط</span>
+            </div>
+            <div class="field-metrics">
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2c-5.33 4.55-8 8.48-8 11.8 0 4.98 3.8 8.2 8 8.2s8-3.22 8-8.2c0-3.32-2.67-7.25-8-11.8z"/>
+                    </svg>
+                    72%
+                </div>
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15 13V5a3 3 0 0 0-6 0v8a5 5 0 1 0 6 0z"/>
+                    </svg>
+                    29°C
+                </div>
+                <div class="metric">
+                    <svg class="metric-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v1m0 16v1m9-9h-1M4 12H3"/>
+                    </svg>
+                    ممتازة
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls Panel - Bottom Right -->
+    <div class="ui-overlay controls-panel">
+        <button class="control-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+            </svg>
+            عرض المستقبل
+        </button>
+    </div>
+
+    <!-- Voice Control Button -->
+    <button class="voice-btn" id="voiceBtn" title="التحكم الصوتي">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+    </button>
+    <div class="voice-hint">اضغط للتحكم الصوتي - "كيف حالة الحقل؟"</div>
+
+    <!-- Three.js Scene -->
+    <script type="module">
+        import * as THREE from 'https://esm.sh/three@0.160.0';
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SCENE SETUP
+        // ═══════════════════════════════════════════════════════════════════════
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x0f172a, 0.0015);
+
+        const camera = new THREE.PerspectiveCamera(
+            60,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        camera.position.z = 20;
+        camera.position.y = 5;
+
+        const renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            alpha: true,
+            powerPreference: "high-performance"
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // LIVING PLANET - Main Earth Sphere
+        // ═══════════════════════════════════════════════════════════════════════
+        const earthGeometry = new THREE.IcosahedronGeometry(8, 3);
+        const earthMaterial = new THREE.MeshBasicMaterial({
+            color: 0x1e293b,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.4
+        });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        scene.add(earth);
+
+        // Inner glow sphere
+        const glowGeometry = new THREE.IcosahedronGeometry(7.5, 2);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0x4ade80,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.1
+        });
+        const glowSphere = new THREE.Mesh(glowGeometry, glowMaterial);
+        scene.add(glowSphere);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // FIELD BEACONS - Active Farms Points
+        // ═══════════════════════════════════════════════════════════════════════
+        const createFieldBeacons = (count, color, size) => {
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+
+            for (let i = 0; i < count; i++) {
+                // Distribute on sphere surface
+                const phi = Math.acos(-1 + (2 * i) / count);
+                const theta = Math.sqrt(count * Math.PI) * phi;
+
+                const radius = 8.5 + Math.random() * 0.5;
+                positions[i * 3] = radius * Math.cos(theta) * Math.sin(phi);
+                positions[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: size,
+                color: color,
+                transparent: true,
+                opacity: 0.9,
+                sizeAttenuation: true
+            });
+
+            return new THREE.Points(geometry, material);
+        };
+
+        // Green beacons - healthy fields
+        const greenBeacons = createFieldBeacons(150, 0x4ade80, 0.15);
+        scene.add(greenBeacons);
+
+        // Yellow beacons - warning fields
+        const yellowBeacons = createFieldBeacons(30, 0xfbbf24, 0.12);
+        scene.add(yellowBeacons);
+
+        // Red beacons - alert fields
+        const redBeacons = createFieldBeacons(10, 0xf87171, 0.1);
+        scene.add(redBeacons);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // ORBITAL RINGS - Data Flow Visualization
+        // ═══════════════════════════════════════════════════════════════════════
+        const createOrbitalRing = (radius, color, segments) => {
+            const geometry = new THREE.RingGeometry(radius - 0.02, radius + 0.02, segments);
+            const material = new THREE.MeshBasicMaterial({
+                color: color,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.2
+            });
+            return new THREE.Mesh(geometry, material);
+        };
+
+        const ring1 = createOrbitalRing(10, 0x4ade80, 64);
+        ring1.rotation.x = Math.PI / 2;
+        scene.add(ring1);
+
+        const ring2 = createOrbitalRing(11, 0x60a5fa, 64);
+        ring2.rotation.x = Math.PI / 3;
+        ring2.rotation.y = Math.PI / 4;
+        scene.add(ring2);
+
+        const ring3 = createOrbitalRing(12, 0xfbbf24, 64);
+        ring3.rotation.x = Math.PI / 4;
+        ring3.rotation.z = Math.PI / 3;
+        scene.add(ring3);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // BACKGROUND STARS
+        // ═══════════════════════════════════════════════════════════════════════
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 2000;
+        const starsPositions = new Float32Array(starsCount * 3);
+
+        for (let i = 0; i < starsCount * 3; i++) {
+            starsPositions[i] = (Math.random() - 0.5) * 200;
+        }
+
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(starsPositions, 3));
+        const starsMaterial = new THREE.PointsMaterial({
+            size: 0.1,
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.6
+        });
+        const stars = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(stars);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // LIGHTING
+        // ═══════════════════════════════════════════════════════════════════════
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0x4ade80, 1, 50);
+        pointLight.position.set(10, 10, 10);
+        scene.add(pointLight);
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // MOUSE INTERACTION - Parallax Effect
+        // ═══════════════════════════════════════════════════════════════════════
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX) / windowHalfX;
+            mouseY = (event.clientY - windowHalfY) / windowHalfY;
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // ANIMATION LOOP
+        // ═══════════════════════════════════════════════════════════════════════
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Smooth mouse follow
+            targetX += (mouseX - targetX) * 0.02;
+            targetY += (mouseY - targetY) * 0.02;
+
+            // Rotate planet
+            earth.rotation.y += 0.001;
+            earth.rotation.x = targetY * 0.3;
+            earth.rotation.y += targetX * 0.02;
+
+            glowSphere.rotation.y = earth.rotation.y * 0.8;
+            glowSphere.rotation.x = earth.rotation.x * 0.8;
+
+            // Rotate beacons with planet
+            greenBeacons.rotation.y = earth.rotation.y;
+            greenBeacons.rotation.x = earth.rotation.x;
+            yellowBeacons.rotation.y = earth.rotation.y;
+            yellowBeacons.rotation.x = earth.rotation.x;
+            redBeacons.rotation.y = earth.rotation.y;
+            redBeacons.rotation.x = earth.rotation.x;
+
+            // Animate rings
+            ring1.rotation.z += 0.001;
+            ring2.rotation.z -= 0.0008;
+            ring3.rotation.z += 0.0005;
+
+            // Pulsing effect on beacons
+            const pulse = Math.sin(elapsedTime * 2) * 0.02 + 0.15;
+            greenBeacons.material.size = pulse;
+            yellowBeacons.material.size = pulse * 0.8;
+            redBeacons.material.size = pulse * 0.7;
+
+            // Subtle camera movement
+            camera.position.x = Math.sin(elapsedTime * 0.1) * 2;
+            camera.position.y = 5 + Math.cos(elapsedTime * 0.1) * 1;
+            camera.lookAt(0, 0, 0);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // RESPONSIVE HANDLING
+        // ═══════════════════════════════════════════════════════════════════════
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // VOICE CONTROL SIMULATION
+        // ═══════════════════════════════════════════════════════════════════════
+        const voiceBtn = document.getElementById('voiceBtn');
+
+        voiceBtn.addEventListener('click', () => {
+            voiceBtn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+            voiceBtn.style.boxShadow = '0 0 60px rgba(74, 222, 128, 0.6)';
+
+            // Simulate voice activation
+            setTimeout(() => {
+                alert('🎤 التحكم الصوتي نشط\n\nقل: "كيف حالة الحقل رقم 4؟"\n\nالرد: الحقل سليم، رطوبة التربة 64%، تحتاج سقاية خفيفة اليوم.');
+                voiceBtn.style.background = 'linear-gradient(135deg, #4ade80, #22c55e)';
+                voiceBtn.style.boxShadow = '0 0 30px rgba(74, 222, 128, 0.3)';
+            }, 500);
+        });
+    </script>
+</body>
+</html>

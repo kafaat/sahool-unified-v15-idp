@@ -1,0 +1,82 @@
+name: sahol_atmosphere
+description: "Sahol Atmosphere - Revolutionary Agricultural UX Platform"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Sensors for gyroscope/accelerometer
+  sensors_plus: ^4.0.2
+
+  # State management
+  flutter_riverpod: ^2.4.9
+
+  # Animations
+  flutter_animate: ^4.3.0
+
+  # Icons
+  flutter_svg: ^2.0.9
+  iconsax: ^0.0.8
+
+  # Glassmorphism effects
+  glassmorphism: ^3.0.0
+
+  # Charts
+  fl_chart: ^0.66.0
+
+  # Haptic feedback
+  vibration: ^1.8.4
+
+  # Voice recognition (for future)
+  speech_to_text: ^6.5.1
+
+  # AR Kit (for future)
+  # arkit_plugin: ^1.0.7
+
+  # HTTP client
+  dio: ^5.4.0
+
+  # Environment config
+  flutter_dotenv: ^5.1.0
+
+  # Internationalization
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - .env
+
+  fonts:
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/SpaceGrotesk-Regular.ttf
+        - asset: assets/fonts/SpaceGrotesk-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/SpaceGrotesk-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/SpaceGrotesk-Bold.ttf
+          weight: 700
+
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700

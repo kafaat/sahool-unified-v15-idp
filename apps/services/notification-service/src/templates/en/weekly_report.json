@@ -1,0 +1,15 @@
+{
+  "template_id": "weekly_report",
+  "category": "report",
+  "title": "📊 Weekly Report: {week_start} - {week_end}",
+  "body": "Week summary: Completed {completed_tasks} tasks, used {water_used} cubic meters of water, achieved {achievements} accomplishments. Productivity: {productivity_score}%. Keep up the great work!",
+  "action_url": "/reports/weekly/{week_number}",
+  "icon": "📊",
+  "priority": "low",
+  "metadata": {
+    "category_en": "Weekly Report",
+    "requires_action": false,
+    "report_type": "weekly_summary",
+    "sound": "default"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "template_id": "yield_prediction",
+  "category": "report",
+  "title": "📊 Yield Prediction",
+  "body": "New predictions for field {field_name}: Expected yield {predicted_yield} kg of {crop_type}. Improvement from previous forecast: {improvement_percentage}%. Expected harvest date: {harvest_date}",
+  "action_url": "/fields/{field_id}/analytics",
+  "icon": "📊",
+  "priority": "medium",
+  "metadata": {
+    "category_en": "Report",
+    "requires_action": false,
+    "report_type": "yield_forecast",
+    "sound": "default"
+  }
+}

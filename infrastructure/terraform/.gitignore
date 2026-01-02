@@ -1,0 +1,56 @@
+# ======================================================================
+# ملفات Terraform التي يجب تجاهلها في Git
+# Terraform files to ignore in Git
+# ======================================================================
+
+# الملفات المحلية / Local files
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfplan
+*.tfvars
+!environments/*.tfvars
+!terraform.tfvars.example
+
+# سجلات / Logs
+crash.log
+crash.*.log
+
+# الملفات الحساسة / Sensitive files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.auto.tfvars
+*.auto.tfvars.json
+
+# أسرار وبيانات اعتماد / Secrets and credentials
+secret.tfvars
+secrets.tfvars
+*.secret
+*.secrets
+credentials.json
+*.pem
+*.key
+.env
+.env.*
+
+# ملفات IDE / IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ملفات مؤقتة / Temporary files
+*.tmp
+*.bak
+tmp/
+temp/
+
+# ملفات النسخ الاحتياطي / Backup files
+backup/
+*.backup

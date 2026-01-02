@@ -1,0 +1,15 @@
+{
+  "template_id": "disease_detected",
+  "category": "alert",
+  "title": "🦠 Alert: Disease Detected",
+  "body": "{disease_name} detected in field {field_name}. Take immediate action to prevent the disease from spreading to other crops. Confidence: {confidence}%",
+  "action_url": "/fields/{field_id}/diseases",
+  "icon": "🦠",
+  "priority": "high",
+  "metadata": {
+    "category_en": "Urgent Alert",
+    "requires_action": true,
+    "sound": "alert",
+    "vibration": true
+  }
+}

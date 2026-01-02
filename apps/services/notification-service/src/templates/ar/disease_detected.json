@@ -1,0 +1,15 @@
+{
+  "template_id": "disease_detected",
+  "category": "alert",
+  "title": "🦠 تنبيه: مرض مكتشف",
+  "body": "تم اكتشاف {disease_name} في حقل {field_name}. اتخذ إجراءات فورية لمنع انتشار المرض إلى المحاصيل الأخرى. درجة الثقة: {confidence}%",
+  "action_url": "/fields/{field_id}/diseases",
+  "icon": "🦠",
+  "priority": "high",
+  "metadata": {
+    "category_ar": "تنبيه عاجل",
+    "requires_action": true,
+    "sound": "alert",
+    "vibration": true
+  }
+}

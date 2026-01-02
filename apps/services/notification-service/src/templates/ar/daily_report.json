@@ -1,0 +1,15 @@
+{
+  "template_id": "daily_report",
+  "category": "report",
+  "title": "📋 تقرير يومي: {date}",
+  "body": "ملخص حقولك اليوم: {total_fields} حقل، {healthy_fields} بصحة جيدة، {tasks_pending} مهمة معلقة. درجة الحرارة المتوقعة: {max_temp}°م. احتمال الأمطار: {rain_probability}%.",
+  "action_url": "/dashboard/daily-report",
+  "icon": "📋",
+  "priority": "low",
+  "metadata": {
+    "category_ar": "تقرير يومي",
+    "requires_action": false,
+    "report_type": "daily_summary",
+    "sound": "default"
+  }
+}

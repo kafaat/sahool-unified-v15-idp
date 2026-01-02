@@ -1,0 +1,15 @@
+{
+  "template_id": "fertilizer_reminder",
+  "category": "reminder",
+  "title": "🌱 تذكير: وقت التسميد",
+  "body": "حقل {field_name} يحتاج للتسميد. نوع السماد الموصى به: {fertilizer_type}. الكمية المطلوبة: {amount} كجم. أفضل وقت للتطبيق: بعد الري أو قبل المطر المتوقع.",
+  "action_url": "/fields/{field_id}/fertilization",
+  "icon": "🌱",
+  "priority": "medium",
+  "metadata": {
+    "category_ar": "تذكير مجدول",
+    "requires_action": true,
+    "task_type": "fertilization",
+    "sound": "gentle"
+  }
+}

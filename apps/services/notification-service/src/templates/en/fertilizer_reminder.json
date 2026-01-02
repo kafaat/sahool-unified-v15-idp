@@ -1,0 +1,15 @@
+{
+  "template_id": "fertilizer_reminder",
+  "category": "reminder",
+  "title": "🌱 Reminder: Fertilization Time",
+  "body": "Field {field_name} needs fertilization. Recommended fertilizer type: {fertilizer_type}. Required amount: {amount} kg. Best time to apply: After irrigation or before expected rain.",
+  "action_url": "/fields/{field_id}/fertilization",
+  "icon": "🌱",
+  "priority": "medium",
+  "metadata": {
+    "category_en": "Scheduled Reminder",
+    "requires_action": true,
+    "task_type": "fertilization",
+    "sound": "gentle"
+  }
+}

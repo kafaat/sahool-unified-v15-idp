@@ -45,6 +45,9 @@ dependencies:
   flutter_svg: ^2.0.16
   cached_network_image: ^3.4.1
 
+  # Image Processing & Compression - معالجة وضغط الصور
+  image: ^4.3.0  # For WebP compression and image manipulation
+
   # Charts
   fl_chart: ^0.69.2
 

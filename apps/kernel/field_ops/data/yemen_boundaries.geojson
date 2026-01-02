@@ -1,0 +1,570 @@
+{
+  "type": "FeatureCollection",
+  "name": "yemen_boundaries",
+  "description": "Simplified boundaries of Yemen including country borders and major governorates",
+  "metadata": {
+    "version": "1.0.0",
+    "source": "SAHOOL Platform",
+    "created_at": "2024-01-02",
+    "coordinate_system": "WGS84",
+    "note_ar": "حدود مبسطة لليمن والمحافظات الرئيسية",
+    "note_en": "Simplified boundaries for Yemen and major governorates"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "country",
+        "name_ar": "الجمهورية اليمنية",
+        "name_en": "Republic of Yemen",
+        "iso_code": "YE",
+        "area_km2": 527968,
+        "population": 30000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [42.5, 12.5],
+            [43.5, 12.1],
+            [45.0, 12.6],
+            [47.0, 13.0],
+            [48.5, 14.0],
+            [49.5, 14.5],
+            [51.0, 15.0],
+            [52.0, 15.5],
+            [53.0, 16.0],
+            [53.5, 16.5],
+            [54.0, 17.0],
+            [54.0, 17.5],
+            [53.5, 18.0],
+            [52.5, 18.5],
+            [51.0, 18.8],
+            [49.5, 19.0],
+            [48.0, 18.8],
+            [46.5, 18.5],
+            [45.0, 18.0],
+            [44.0, 17.5],
+            [43.5, 17.0],
+            [43.2, 16.5],
+            [43.0, 16.0],
+            [42.8, 15.5],
+            [42.6, 15.0],
+            [42.5, 14.5],
+            [42.5, 14.0],
+            [42.5, 13.5],
+            [42.5, 13.0],
+            [42.5, 12.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "صنعاء",
+        "name_en": "Sana'a",
+        "capital": "صنعاء - Sana'a City",
+        "area_km2": 11877,
+        "population": 3000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.5, 15.0],
+            [44.5, 15.0],
+            [44.5, 16.0],
+            [43.5, 16.0],
+            [43.5, 15.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "أمانة العاصمة",
+        "name_en": "Amanat Al Asimah",
+        "capital": "صنعاء - Sana'a",
+        "area_km2": 126,
+        "population": 2500000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [44.15, 15.3],
+            [44.25, 15.3],
+            [44.25, 15.4],
+            [44.15, 15.4],
+            [44.15, 15.3]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "عدن",
+        "name_en": "Aden",
+        "capital": "عدن - Aden City",
+        "area_km2": 760,
+        "population": 1000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [44.8, 12.6],
+            [45.2, 12.6],
+            [45.2, 13.0],
+            [44.8, 13.0],
+            [44.8, 12.6]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "تعز",
+        "name_en": "Taiz",
+        "capital": "تعز - Taiz City",
+        "area_km2": 10677,
+        "population": 3000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.5, 12.8],
+            [44.5, 12.8],
+            [44.5, 13.8],
+            [43.5, 13.8],
+            [43.5, 12.8]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "الحديدة",
+        "name_en": "Al Hudaydah",
+        "capital": "الحديدة - Hudaydah City",
+        "area_km2": 17509,
+        "population": 3000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [42.5, 14.0],
+            [43.5, 14.0],
+            [43.5, 15.5],
+            [42.5, 15.5],
+            [42.5, 14.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "إب",
+        "name_en": "Ibb",
+        "capital": "إب - Ibb City",
+        "area_km2": 5552,
+        "population": 2800000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [44.0, 13.5],
+            [44.5, 13.5],
+            [44.5, 14.3],
+            [44.0, 14.3],
+            [44.0, 13.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "ذمار",
+        "name_en": "Dhamar",
+        "capital": "ذمار - Dhamar City",
+        "area_km2": 7586,
+        "population": 1500000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [44.2, 14.3],
+            [45.0, 14.3],
+            [45.0, 15.0],
+            [44.2, 15.0],
+            [44.2, 14.3]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "حضرموت",
+        "name_en": "Hadramaut",
+        "capital": "المكلا - Al Mukalla",
+        "area_km2": 193032,
+        "population": 1500000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [48.0, 13.5],
+            [53.0, 13.5],
+            [53.0, 18.0],
+            [48.0, 18.0],
+            [48.0, 13.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "صعدة",
+        "name_en": "Sa'dah",
+        "capital": "صعدة - Sa'dah City",
+        "area_km2": 11463,
+        "population": 950000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.5, 16.5],
+            [45.0, 16.5],
+            [45.0, 17.5],
+            [43.5, 17.5],
+            [43.5, 16.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "حجة",
+        "name_en": "Hajjah",
+        "capital": "حجة - Hajjah City",
+        "area_km2": 9781,
+        "population": 2000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.0, 15.5],
+            [44.0, 15.5],
+            [44.0, 16.5],
+            [43.0, 16.5],
+            [43.0, 15.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "عمران",
+        "name_en": "Amran",
+        "capital": "عمران - Amran City",
+        "area_km2": 9587,
+        "population": 1000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.8, 15.5],
+            [44.5, 15.5],
+            [44.5, 16.3],
+            [43.8, 16.3],
+            [43.8, 15.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "مأرب",
+        "name_en": "Marib",
+        "capital": "مأرب - Marib City",
+        "area_km2": 17405,
+        "population": 400000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [45.0, 15.0],
+            [47.0, 15.0],
+            [47.0, 16.5],
+            [45.0, 16.5],
+            [45.0, 15.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "الجوف",
+        "name_en": "Al Jawf",
+        "capital": "الحزم - Al Hazm",
+        "area_km2": 39496,
+        "population": 550000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [45.0, 16.5],
+            [47.5, 16.5],
+            [47.5, 17.5],
+            [45.0, 17.5],
+            [45.0, 16.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "المحويت",
+        "name_en": "Al Mahwit",
+        "capital": "المحويت - Al Mahwit City",
+        "area_km2": 2858,
+        "population": 600000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.3, 15.0],
+            [43.8, 15.0],
+            [43.8, 15.5],
+            [43.3, 15.5],
+            [43.3, 15.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "البيضاء",
+        "name_en": "Al Bayda",
+        "capital": "البيضاء - Al Bayda City",
+        "area_km2": 10746,
+        "population": 700000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [45.0, 13.8],
+            [46.5, 13.8],
+            [46.5, 15.0],
+            [45.0, 15.0],
+            [45.0, 13.8]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "أبين",
+        "name_en": "Abyan",
+        "capital": "زنجبار - Zinjibar",
+        "area_km2": 17352,
+        "population": 500000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [45.2, 12.8],
+            [46.5, 12.8],
+            [46.5, 13.8],
+            [45.2, 13.8],
+            [45.2, 12.8]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "شبوة",
+        "name_en": "Shabwah",
+        "capital": "عتق - Ataq",
+        "area_km2": 47728,
+        "population": 600000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [46.5, 13.5],
+            [48.5, 13.5],
+            [48.5, 15.5],
+            [46.5, 15.5],
+            [46.5, 13.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "لحج",
+        "name_en": "Lahj",
+        "capital": "الحوطة - Al Houta",
+        "area_km2": 12766,
+        "population": 1000000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [44.5, 12.8],
+            [45.2, 12.8],
+            [45.2, 13.5],
+            [44.5, 13.5],
+            [44.5, 12.8]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "الضالع",
+        "name_en": "Al Dhale'e",
+        "capital": "الضالع - Ad Dali City",
+        "area_km2": 4442,
+        "population": 600000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [44.3, 13.5],
+            [44.8, 13.5],
+            [44.8, 14.0],
+            [44.3, 14.0],
+            [44.3, 13.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "ريمة",
+        "name_en": "Raymah",
+        "capital": "الجبين - Al Jabin",
+        "area_km2": 1915,
+        "population": 500000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [43.5, 14.3],
+            [43.9, 14.3],
+            [43.9, 14.7],
+            [43.5, 14.7],
+            [43.5, 14.3]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "المهرة",
+        "name_en": "Al Mahrah",
+        "capital": "الغيضة - Al Ghaydah",
+        "area_km2": 67297,
+        "population": 150000
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [51.0, 15.5],
+            [53.5, 15.5],
+            [53.5, 17.5],
+            [51.0, 17.5],
+            [51.0, 15.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "governorate",
+        "name_ar": "سقطرى",
+        "name_en": "Socotra",
+        "capital": "حديبو - Hadibo",
+        "area_km2": 3796,
+        "population": 60000,
+        "note": "Island governorate"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [53.2, 12.3],
+            [54.5, 12.3],
+            [54.5, 12.7],
+            [53.2, 12.7],
+            [53.2, 12.3]
+          ]
+        ]
+      }
+    }
+  ]
+}

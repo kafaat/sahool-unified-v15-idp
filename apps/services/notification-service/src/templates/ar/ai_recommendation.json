@@ -1,0 +1,15 @@
+{
+  "template_id": "ai_recommendation",
+  "category": "recommendation",
+  "title": "🤖 توصية ذكية: {recommendation_type}",
+  "body": "بناءً على تحليل بيانات حقل {field_name}، نوصي بـ: {recommendation_text}. التأثير المتوقع: {expected_impact}. الفائدة المحتملة: {benefit}.",
+  "action_url": "/fields/{field_id}/recommendations/{recommendation_id}",
+  "icon": "🤖",
+  "priority": "medium",
+  "metadata": {
+    "category_ar": "توصية من الذكاء الاصطناعي",
+    "requires_action": false,
+    "ai_confidence": "{confidence}",
+    "sound": "gentle"
+  }
+}

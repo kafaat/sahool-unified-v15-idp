@@ -1,0 +1,1142 @@
+{
+  "crops": {
+    "sorghum": {
+      "name_en": "Sorghum",
+      "name_ar": "ذرة رفيعة",
+      "type": "cereal",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 3, "end_month": 4, "description": "Spring planting"},
+          "secondary": {"start_month": 8, "end_month": 9, "description": "Autumn planting"}
+        },
+        "highlands": {
+          "main": {"start_month": 3, "end_month": 4, "description": "After winter rains"}
+        },
+        "hadhramaut": {
+          "main": {"start_month": 2, "end_month": 3, "description": "Early spring"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 7,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["ensure_soil_moisture", "weed_control"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 35,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["fertilization", "irrigation", "pest_monitoring"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 30,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["pollination_support", "irrigation", "pest_control"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 25,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["irrigation", "nutrient_boost", "bird_protection"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 20,
+          "order": 5,
+          "water_requirement": "moderate",
+          "critical_tasks": ["reduce_irrigation", "harvest_preparation"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 8,
+          "order": 6,
+          "water_requirement": "low",
+          "critical_tasks": ["timely_harvest", "drying", "storage"]
+        }
+      },
+      "total_cycle_days": 125
+    },
+    "wheat": {
+      "name_en": "Wheat",
+      "name_ar": "قمح",
+      "type": "cereal",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 10, "end_month": 11, "description": "Cool season planting"}
+        },
+        "highlands": {
+          "main": {"start_month": 10, "end_month": 11, "description": "Winter planting"}
+        },
+        "hadhramaut": {
+          "main": {"start_month": 11, "end_month": 12, "description": "Late autumn"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 10,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seed_treatment", "soil_preparation"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 45,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["nitrogen_application", "weed_control", "irrigation"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 25,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["pollination", "disease_prevention", "irrigation"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 25,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["grain_filling", "pest_monitoring"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 15,
+          "order": 5,
+          "water_requirement": "low",
+          "critical_tasks": ["reduce_irrigation", "monitor_moisture"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 5,
+          "order": 6,
+          "water_requirement": "none",
+          "critical_tasks": ["timely_harvest", "threshing", "storage"]
+        }
+      },
+      "total_cycle_days": 125
+    },
+    "tomato": {
+      "name_en": "Tomato",
+      "name_ar": "طماطم",
+      "type": "vegetable",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 1, "end_month": 12, "description": "Year-round production"},
+          "best": {"start_month": 9, "end_month": 3, "description": "Cooler months preferred"}
+        },
+        "highlands": {
+          "main": {"start_month": 2, "end_month": 5, "description": "Spring planting"},
+          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+        },
+        "hadhramaut": {
+          "main": {"start_month": 9, "end_month": 3, "description": "Cool season"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 7,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seedling_care", "temperature_control"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 30,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["transplanting", "staking", "fertilization"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 20,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["pollination", "calcium_spray", "irrigation"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 35,
+          "order": 4,
+          "water_requirement": "very_high",
+          "critical_tasks": ["consistent_irrigation", "fertilization", "pest_control"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 25,
+          "order": 5,
+          "water_requirement": "high",
+          "critical_tasks": ["harvest_timing", "disease_prevention"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 28,
+          "order": 6,
+          "water_requirement": "high",
+          "critical_tasks": ["continuous_harvest", "quality_check", "packaging"]
+        }
+      },
+      "total_cycle_days": 145
+    },
+    "coffee": {
+      "name_en": "Coffee",
+      "name_ar": "بن",
+      "type": "perennial",
+      "planting_windows": {
+        "highlands": {
+          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting for new trees"}
+        }
+      },
+      "harvest_season": {
+        "highlands": {"start_month": 10, "end_month": 12, "description": "Main harvest period"}
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 60,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["shade_management", "nursery_care"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 365,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["pruning", "fertilization", "shade_trees"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 30,
+          "order": 3,
+          "water_requirement": "high",
+          "critical_tasks": ["irrigation", "pollination_support"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 180,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["pest_control", "consistent_irrigation"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 45,
+          "order": 5,
+          "water_requirement": "moderate",
+          "critical_tasks": ["monitor_ripeness", "harvest_preparation"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 60,
+          "order": 6,
+          "water_requirement": "moderate",
+          "critical_tasks": ["selective_picking", "processing", "drying"]
+        }
+      },
+      "perennial": true,
+      "productive_years": 25
+    },
+    "qat": {
+      "name_en": "Qat",
+      "name_ar": "قات",
+      "type": "perennial",
+      "planting_windows": {
+        "highlands": {
+          "main": {"start_month": 3, "end_month": 5, "description": "Rainy season planting"}
+        }
+      },
+      "harvest_season": {
+        "highlands": {"start_month": 1, "end_month": 12, "description": "Year-round harvest"}
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 30,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["nursery_management", "watering"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 365,
+          "order": 2,
+          "water_requirement": "very_high",
+          "critical_tasks": ["frequent_irrigation", "fertilization", "pruning"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 20,
+          "order": 3,
+          "water_requirement": "high",
+          "critical_tasks": ["irrigation", "nutrient_management"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 90,
+          "order": 4,
+          "water_requirement": "very_high",
+          "critical_tasks": ["water_quality", "pest_control"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 30,
+          "order": 5,
+          "water_requirement": "very_high",
+          "critical_tasks": ["maintain_irrigation", "quality_monitoring"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 365,
+          "order": 6,
+          "water_requirement": "very_high",
+          "critical_tasks": ["continuous_picking", "quality_selection", "immediate_market"]
+        }
+      },
+      "perennial": true,
+      "harvest_frequency_days": 45
+    },
+    "dates": {
+      "name_en": "Date Palm",
+      "name_ar": "نخيل",
+      "type": "perennial",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"}
+        },
+        "hadhramaut": {
+          "main": {"start_month": 2, "end_month": 4, "description": "Early spring"}
+        }
+      },
+      "harvest_season": {
+        "tihama": {"start_month": 7, "end_month": 10, "description": "Summer harvest"},
+        "hadhramaut": {"start_month": 7, "end_month": 10, "description": "Main harvest"}
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 90,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["offshoots_selection", "planting"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 1825,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["deep_irrigation", "fertilization", "pruning"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 30,
+          "order": 3,
+          "water_requirement": "high",
+          "critical_tasks": ["pollination", "male_tree_management"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 120,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["thinning", "bunch_management", "irrigation"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 60,
+          "order": 5,
+          "water_requirement": "moderate",
+          "critical_tasks": ["reduce_irrigation", "protection_from_rain"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 60,
+          "order": 6,
+          "water_requirement": "low",
+          "critical_tasks": ["staged_harvest", "sorting", "drying"]
+        }
+      },
+      "perennial": true,
+      "productive_years": 60
+    },
+    "mango": {
+      "name_en": "Mango",
+      "name_ar": "مانجو",
+      "type": "perennial",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+        }
+      },
+      "harvest_season": {
+        "tihama": {"start_month": 4, "end_month": 8, "description": "Spring to summer harvest"}
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 60,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["grafting", "nursery_care"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 270,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["pruning", "fertilization", "pest_control"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 40,
+          "order": 3,
+          "water_requirement": "moderate",
+          "critical_tasks": ["pollination", "disease_prevention"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 90,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["fruit_thinning", "irrigation", "pest_monitoring"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 30,
+          "order": 5,
+          "water_requirement": "moderate",
+          "critical_tasks": ["maturity_monitoring", "harvest_planning"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 45,
+          "order": 6,
+          "water_requirement": "moderate",
+          "critical_tasks": ["careful_picking", "ripening", "packaging"]
+        }
+      },
+      "perennial": true,
+      "productive_years": 40
+    },
+    "banana": {
+      "name_en": "Banana",
+      "name_ar": "موز",
+      "type": "perennial",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 1, "end_month": 12, "description": "Year-round planting"}
+        }
+      },
+      "harvest_season": {
+        "tihama": {"start_month": 1, "end_month": 12, "description": "Year-round harvest"}
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 30,
+          "order": 1,
+          "water_requirement": "high",
+          "critical_tasks": ["sucker_selection", "planting"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 180,
+          "order": 2,
+          "water_requirement": "very_high",
+          "critical_tasks": ["frequent_irrigation", "fertilization", "sucker_removal"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 20,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["flower_protection", "irrigation"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 90,
+          "order": 4,
+          "water_requirement": "very_high",
+          "critical_tasks": ["bunch_support", "consistent_irrigation", "pest_control"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 30,
+          "order": 5,
+          "water_requirement": "high",
+          "critical_tasks": ["bunch_bagging", "maturity_check"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 10,
+          "order": 6,
+          "water_requirement": "high",
+          "critical_tasks": ["proper_cutting", "ripening_management", "packaging"]
+        }
+      },
+      "perennial": true,
+      "productive_years": 25
+    },
+    "grapes": {
+      "name_en": "Grapes",
+      "name_ar": "عنب",
+      "type": "perennial",
+      "planting_windows": {
+        "highlands": {
+          "main": {"start_month": 2, "end_month": 3, "description": "Late winter planting"}
+        }
+      },
+      "harvest_season": {
+        "highlands": {"start_month": 6, "end_month": 8, "description": "Summer harvest"}
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 30,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["cutting_preparation", "rooting"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 60,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["training", "pruning", "trellis_management"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 20,
+          "order": 3,
+          "water_requirement": "moderate",
+          "critical_tasks": ["pollination", "disease_prevention"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 70,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["cluster_thinning", "irrigation", "pest_control"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 30,
+          "order": 5,
+          "water_requirement": "moderate",
+          "critical_tasks": ["sugar_monitoring", "reduce_irrigation"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 10,
+          "order": 6,
+          "water_requirement": "low",
+          "critical_tasks": ["selective_picking", "packaging", "storage"]
+        }
+      },
+      "perennial": true,
+      "productive_years": 30
+    },
+    "potato": {
+      "name_en": "Potato",
+      "name_ar": "بطاطس",
+      "type": "vegetable",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 10, "end_month": 2, "description": "Cool season"}
+        },
+        "highlands": {
+          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
+          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 15,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seed_selection", "soil_preparation"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 35,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["hilling", "fertilization", "irrigation"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 20,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["consistent_irrigation", "pest_monitoring"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 30,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["tuber_formation", "irrigation", "disease_control"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 20,
+          "order": 5,
+          "water_requirement": "low",
+          "critical_tasks": ["stop_irrigation", "vine_desiccation"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 5,
+          "order": 6,
+          "water_requirement": "none",
+          "critical_tasks": ["careful_digging", "curing", "storage"]
+        }
+      },
+      "total_cycle_days": 125
+    },
+    "onion": {
+      "name_en": "Onion",
+      "name_ar": "بصل",
+      "type": "vegetable",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 9, "end_month": 11, "description": "Cool season planting"}
+        },
+        "highlands": {
+          "main": {"start_month": 10, "end_month": 12, "description": "Winter planting"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 10,
+          "order": 1,
+          "water_requirement": "high",
+          "critical_tasks": ["seed_bed_preparation", "uniform_sowing"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 45,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["transplanting", "weed_control", "fertilization"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 25,
+          "order": 3,
+          "water_requirement": "moderate",
+          "critical_tasks": ["prevent_bolting", "irrigation"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 50,
+          "order": 4,
+          "water_requirement": "moderate",
+          "critical_tasks": ["bulb_formation", "consistent_moisture"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 20,
+          "order": 5,
+          "water_requirement": "low",
+          "critical_tasks": ["reduce_irrigation", "monitor_tops"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 5,
+          "order": 6,
+          "water_requirement": "none",
+          "critical_tasks": ["proper_timing", "curing", "storage"]
+        }
+      },
+      "total_cycle_days": 155
+    },
+    "cucumber": {
+      "name_en": "Cucumber",
+      "name_ar": "خيار",
+      "type": "vegetable",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
+          "secondary": {"start_month": 9, "end_month": 10, "description": "Autumn planting"}
+        },
+        "highlands": {
+          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 5,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seed_treatment", "soil_warming"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 25,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["trellis_support", "fertilization", "irrigation"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 15,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["pollination", "consistent_irrigation"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 30,
+          "order": 4,
+          "water_requirement": "very_high",
+          "critical_tasks": ["frequent_harvest", "pest_control", "irrigation"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 20,
+          "order": 5,
+          "water_requirement": "high",
+          "critical_tasks": ["continuous_picking", "quality_check"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 15,
+          "order": 6,
+          "water_requirement": "high",
+          "critical_tasks": ["daily_harvest", "cooling", "packaging"]
+        }
+      },
+      "total_cycle_days": 110
+    },
+    "eggplant": {
+      "name_en": "Eggplant",
+      "name_ar": "باذنجان",
+      "type": "vegetable",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
+          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+        },
+        "highlands": {
+          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 10,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["temperature_control", "seedling_care"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 35,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["transplanting", "staking", "fertilization"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 25,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["pollination", "irrigation", "pest_control"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 40,
+          "order": 4,
+          "water_requirement": "very_high",
+          "critical_tasks": ["consistent_irrigation", "fertilization", "pest_monitoring"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 25,
+          "order": 5,
+          "water_requirement": "high",
+          "critical_tasks": ["harvest_timing", "quality_monitoring"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 30,
+          "order": 6,
+          "water_requirement": "high",
+          "critical_tasks": ["regular_picking", "careful_handling", "packaging"]
+        }
+      },
+      "total_cycle_days": 165
+    },
+    "pepper": {
+      "name_en": "Pepper",
+      "name_ar": "فلفل",
+      "type": "vegetable",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 2, "end_month": 4, "description": "Spring planting"},
+          "secondary": {"start_month": 8, "end_month": 9, "description": "Late summer"}
+        },
+        "highlands": {
+          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 10,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seed_treatment", "temperature_control"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 35,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["transplanting", "support", "fertilization"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 20,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["pollination", "irrigation", "calcium_application"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 35,
+          "order": 4,
+          "water_requirement": "very_high",
+          "critical_tasks": ["consistent_irrigation", "pest_control", "fertilization"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 25,
+          "order": 5,
+          "water_requirement": "high",
+          "critical_tasks": ["color_development", "harvest_planning"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 30,
+          "order": 6,
+          "water_requirement": "high",
+          "critical_tasks": ["multiple_pickings", "careful_handling", "packaging"]
+        }
+      },
+      "total_cycle_days": 155
+    },
+    "beans": {
+      "name_en": "Beans",
+      "name_ar": "فول",
+      "type": "legume",
+      "planting_windows": {
+        "tihama": {
+          "main": {"start_month": 10, "end_month": 12, "description": "Cool season"}
+        },
+        "highlands": {
+          "main": {"start_month": 3, "end_month": 5, "description": "Spring planting"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 7,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seed_inoculation", "soil_preparation"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 30,
+          "order": 2,
+          "water_requirement": "high",
+          "critical_tasks": ["nitrogen_fixation", "support", "irrigation"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 20,
+          "order": 3,
+          "water_requirement": "very_high",
+          "critical_tasks": ["pollination", "irrigation", "pest_monitoring"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 25,
+          "order": 4,
+          "water_requirement": "high",
+          "critical_tasks": ["pod_formation", "consistent_irrigation"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 15,
+          "order": 5,
+          "water_requirement": "moderate",
+          "critical_tasks": ["pod_monitoring", "harvest_timing"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 13,
+          "order": 6,
+          "water_requirement": "low",
+          "critical_tasks": ["timely_picking", "drying", "storage"]
+        }
+      },
+      "total_cycle_days": 110
+    },
+    "chickpeas": {
+      "name_en": "Chickpeas",
+      "name_ar": "حمص",
+      "type": "legume",
+      "planting_windows": {
+        "highlands": {
+          "main": {"start_month": 10, "end_month": 11, "description": "Cool season planting"}
+        },
+        "hadhramaut": {
+          "main": {"start_month": 11, "end_month": 12, "description": "Winter planting"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 10,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seed_treatment", "rhizobium_inoculation"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 40,
+          "order": 2,
+          "water_requirement": "moderate",
+          "critical_tasks": ["weed_control", "minimal_nitrogen"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 30,
+          "order": 3,
+          "water_requirement": "high",
+          "critical_tasks": ["irrigation", "disease_prevention"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 30,
+          "order": 4,
+          "water_requirement": "moderate",
+          "critical_tasks": ["pod_formation", "pest_control"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 15,
+          "order": 5,
+          "water_requirement": "low",
+          "critical_tasks": ["reduce_irrigation", "monitor_pods"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 5,
+          "order": 6,
+          "water_requirement": "none",
+          "critical_tasks": ["timely_harvest", "threshing", "storage"]
+        }
+      },
+      "total_cycle_days": 130
+    },
+    "lentils": {
+      "name_en": "Lentils",
+      "name_ar": "عدس",
+      "type": "legume",
+      "planting_windows": {
+        "highlands": {
+          "main": {"start_month": 10, "end_month": 11, "description": "Cool season"}
+        }
+      },
+      "growth_stages": {
+        "germination": {
+          "name_ar": "إنبات",
+          "duration_days": 8,
+          "order": 1,
+          "water_requirement": "moderate",
+          "critical_tasks": ["seed_inoculation", "shallow_planting"]
+        },
+        "vegetative": {
+          "name_ar": "نمو خضري",
+          "duration_days": 35,
+          "order": 2,
+          "water_requirement": "moderate",
+          "critical_tasks": ["weed_control", "support"]
+        },
+        "flowering": {
+          "name_ar": "إزهار",
+          "duration_days": 25,
+          "order": 3,
+          "water_requirement": "high",
+          "critical_tasks": ["irrigation", "disease_prevention"]
+        },
+        "fruiting": {
+          "name_ar": "إثمار",
+          "duration_days": 30,
+          "order": 4,
+          "water_requirement": "moderate",
+          "critical_tasks": ["pod_formation", "consistent_moisture"]
+        },
+        "maturity": {
+          "name_ar": "نضج",
+          "duration_days": 15,
+          "order": 5,
+          "water_requirement": "low",
+          "critical_tasks": ["stop_irrigation", "monitor_drying"]
+        },
+        "harvest": {
+          "name_ar": "حصاد",
+          "duration_days": 7,
+          "order": 6,
+          "water_requirement": "none",
+          "critical_tasks": ["careful_harvest", "threshing", "storage"]
+        }
+      },
+      "total_cycle_days": 120
+    }
+  },
+  "regions": {
+    "tihama": {
+      "name_ar": "تهامة",
+      "name_en": "Tihama",
+      "description": "Coastal plain region",
+      "description_ar": "السهل الساحلي",
+      "climate": "hot_humid",
+      "average_temp_range": {"min": 25, "max": 40},
+      "rainfall_pattern": "low_irregular",
+      "growing_seasons": ["year_round"],
+      "characteristics": [
+        "high_temperatures",
+        "year_round_production",
+        "tropical_crops",
+        "high_water_demand"
+      ]
+    },
+    "highlands": {
+      "name_ar": "المرتفعات",
+      "name_en": "Highlands",
+      "description": "Mountain highlands region",
+      "description_ar": "المناطق الجبلية المرتفعة",
+      "climate": "temperate_seasonal",
+      "average_temp_range": {"min": 10, "max": 28},
+      "rainfall_pattern": "seasonal_bimodal",
+      "growing_seasons": ["spring", "autumn"],
+      "characteristics": [
+        "cooler_temperatures",
+        "seasonal_crops",
+        "coffee_qat_growing",
+        "terraced_agriculture"
+      ]
+    },
+    "hadhramaut": {
+      "name_ar": "حضرموت",
+      "name_en": "Hadhramaut",
+      "description": "Eastern desert and valleys",
+      "description_ar": "الصحراء والوديان الشرقية",
+      "climate": "arid_desert",
+      "average_temp_range": {"min": 15, "max": 42},
+      "rainfall_pattern": "very_low",
+      "growing_seasons": ["winter", "spring"],
+      "characteristics": [
+        "date_palm_production",
+        "oasis_agriculture",
+        "water_scarcity",
+        "heat_tolerant_crops"
+      ]
+    }
+  },
+  "task_schedules": {
+    "irrigation": {
+      "germination": {
+        "frequency_days": 2,
+        "description_ar": "ري منتظم للإنبات",
+        "description_en": "Regular irrigation for germination"
+      },
+      "vegetative": {
+        "frequency_days": 3,
+        "description_ar": "ري متكرر للنمو الخضري",
+        "description_en": "Frequent irrigation for vegetative growth"
+      },
+      "flowering": {
+        "frequency_days": 2,
+        "description_ar": "ري حرج خلال الإزهار",
+        "description_en": "Critical irrigation during flowering"
+      },
+      "fruiting": {
+        "frequency_days": 3,
+        "description_ar": "ري منتظم للإثمار",
+        "description_en": "Regular irrigation for fruiting"
+      },
+      "maturity": {
+        "frequency_days": 5,
+        "description_ar": "تقليل الري عند النضج",
+        "description_en": "Reduced irrigation at maturity"
+      },
+      "harvest": {
+        "frequency_days": 7,
+        "description_ar": "ري محدود خلال الحصاد",
+        "description_en": "Limited irrigation during harvest"
+      }
+    },
+    "fertilization": {
+      "sorghum": [
+        {"stage": "vegetative", "day": 15, "type": "nitrogen", "amount_kg_ha": 50, "description_ar": "تسميد نيتروجيني"},
+        {"stage": "vegetative", "day": 30, "type": "npk", "amount_kg_ha": 40, "description_ar": "تسميد مركب"}
+      ],
+      "wheat": [
+        {"stage": "vegetative", "day": 20, "type": "nitrogen", "amount_kg_ha": 60, "description_ar": "تسميد نيتروجيني"},
+        {"stage": "flowering", "day": 5, "type": "phosphate", "amount_kg_ha": 30, "description_ar": "تسميد فوسفاتي"}
+      ],
+      "tomato": [
+        {"stage": "vegetative", "day": 14, "type": "npk", "amount_kg_ha": 80, "description_ar": "تسميد مركب"},
+        {"stage": "flowering", "day": 7, "type": "calcium", "amount_kg_ha": 20, "description_ar": "كالسيوم لمنع التعفن"},
+        {"stage": "fruiting", "day": 14, "type": "potassium", "amount_kg_ha": 50, "description_ar": "بوتاسيوم للثمار"}
+      ],
+      "coffee": [
+        {"stage": "vegetative", "day": 60, "type": "organic", "amount_kg_ha": 200, "description_ar": "سماد عضوي"},
+        {"stage": "flowering", "day": 10, "type": "npk", "amount_kg_ha": 100, "description_ar": "تسميد مركب"}
+      ],
+      "dates": [
+        {"stage": "vegetative", "day": 90, "type": "organic", "amount_kg_ha": 300, "description_ar": "سماد عضوي"},
+        {"stage": "fruiting", "day": 30, "type": "potassium", "amount_kg_ha": 80, "description_ar": "بوتاسيوم للثمار"}
+      ]
+    },
+    "pest_monitoring": {
+      "spring": {
+        "frequency_days": 7,
+        "common_pests_ar": ["حشرات المن", "الذبابة البيضاء", "ديدان الأوراق"],
+        "common_pests_en": ["aphids", "whitefly", "leaf_worms"]
+      },
+      "summer": {
+        "frequency_days": 5,
+        "common_pests_ar": ["العنكبوت الأحمر", "ذبابة الفاكهة", "حفار الساق"],
+        "common_pests_en": ["red_spider_mite", "fruit_fly", "stem_borer"]
+      },
+      "autumn": {
+        "frequency_days": 7,
+        "common_pests_ar": ["حشرات المن", "الديدان القارضة"],
+        "common_pests_en": ["aphids", "cutworms"]
+      },
+      "winter": {
+        "frequency_days": 10,
+        "common_pests_ar": ["الفطريات", "الأمراض الجذرية"],
+        "common_pests_en": ["fungal_diseases", "root_diseases"]
+      }
+    }
+  }
+}

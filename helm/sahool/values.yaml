@@ -840,6 +840,22 @@ monitoring:
         memory: 256Mi
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Vertical Pod Autoscaler (VPA)
+# ─────────────────────────────────────────────────────────────────────────────
+
+vpa:
+  enabled: true
+  # Update mode: "Off", "Initial", "Recreate", or "Auto"
+  # - Off: Only provides recommendations, doesn't update pods
+  # - Initial: Only applies recommendations when pods are created
+  # - Recreate: Updates running pods by evicting and recreating them
+  # - Auto: Same as Recreate, automatically updates running pods
+  updateMode: "Auto"
+  # controlledValues: "RequestsAndLimits" or "RequestsOnly"
+  # Determines whether VPA updates both requests and limits or only requests
+  controlledValues: "RequestsAndLimits"
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Configuration Management
 # ─────────────────────────────────────────────────────────────────────────────
 

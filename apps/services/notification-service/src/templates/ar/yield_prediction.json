@@ -1,0 +1,15 @@
+{
+  "template_id": "yield_prediction",
+  "category": "report",
+  "title": "📊 توقع الإنتاج",
+  "body": "التوقعات الجديدة لحقل {field_name}: الإنتاج المتوقع {predicted_yield} كجم من {crop_type}. التحسن عن التوقع السابق: {improvement_percentage}%. تاريخ الحصاد المتوقع: {harvest_date}",
+  "action_url": "/fields/{field_id}/analytics",
+  "icon": "📊",
+  "priority": "medium",
+  "metadata": {
+    "category_ar": "تقرير",
+    "requires_action": false,
+    "report_type": "yield_forecast",
+    "sound": "default"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "template_id": "irrigation_reminder",
+  "category": "reminder",
+  "title": "💧 Reminder: Irrigation Time",
+  "body": "Field {field_name} needs watering. Required water amount: {water_amount} liters. Best time for irrigation: Early morning (5-7 AM) to reduce evaporation and increase water absorption.",
+  "action_url": "/fields/{field_id}/irrigation",
+  "icon": "💧",
+  "priority": "medium",
+  "metadata": {
+    "category_en": "Scheduled Reminder",
+    "requires_action": true,
+    "optimal_time": "05:00-07:00",
+    "sound": "gentle"
+  }
+}

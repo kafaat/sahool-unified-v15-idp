@@ -1,0 +1,20 @@
+{
+  "template_id": "weather_alert",
+  "category": "alert",
+  "title": "⚠️ تنبيه طقس: {weather_type}",
+  "body": "{weather_description} متوقع في منطقة {location}. درجة الحرارة: {temperature}°م، الرطوبة: {humidity}%. احمِ محاصيلك واتخذ الإجراءات اللازمة.",
+  "action_url": "/weather/{location}",
+  "icon": "⚠️",
+  "priority": "high",
+  "metadata": {
+    "category_ar": "تنبيه عاجل",
+    "requires_action": true,
+    "weather_types": {
+      "frost": "صقيع",
+      "heat_wave": "موجة حر",
+      "storm": "عاصفة",
+      "flood": "فيضان",
+      "drought": "جفاف"
+    }
+  }
+}

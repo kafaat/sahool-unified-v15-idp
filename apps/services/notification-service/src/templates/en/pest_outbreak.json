@@ -1,0 +1,16 @@
+{
+  "template_id": "pest_outbreak",
+  "category": "alert",
+  "title": "🐛 Warning: Pest Outbreak",
+  "body": "{pest_name} outbreak detected in {location} area. Crops at risk: {affected_crops}. Inspect your fields immediately and take preventive measures. Distance from your field: {distance} km",
+  "action_url": "/alerts/pests/{pest_id}",
+  "icon": "🐛",
+  "priority": "critical",
+  "metadata": {
+    "category_en": "Critical Alert",
+    "requires_action": true,
+    "alert_type": "pest_outbreak",
+    "sound": "urgent",
+    "vibration": true
+  }
+}

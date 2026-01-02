@@ -1,0 +1,15 @@
+{
+  "template_id": "harvest_ready",
+  "category": "reminder",
+  "title": "🌾 Harvest Time",
+  "body": "{crop_type} crop in field {field_name} is ready for harvest! Estimated yield: {estimated_yield} kg. Recommended to harvest within {days_remaining} days for best quality.",
+  "action_url": "/fields/{field_id}/harvest",
+  "icon": "🌾",
+  "priority": "high",
+  "metadata": {
+    "category_en": "Important Reminder",
+    "requires_action": true,
+    "optimal_harvest_window": true,
+    "sound": "success"
+  }
+}

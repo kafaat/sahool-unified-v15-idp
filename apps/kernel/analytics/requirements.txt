@@ -1,0 +1,18 @@
+# متطلبات نظام تحليلات SAHOOL - SAHOOL Analytics System Requirements
+# ================================================================
+
+# التحقق من البيانات - Data Validation
+pydantic>=2.0.0
+
+# تحليل البيانات (اختياري) - Data Analysis (Optional)
+# pandas>=1.5.0  # للتحليلات المتقدمة - For advanced analytics
+# numpy>=1.24.0  # للحسابات الإحصائية - For statistical calculations
+
+# قاعدة البيانات (اختياري) - Database (Optional)
+# psycopg2-binary>=2.9.0  # PostgreSQL
+# pymongo>=4.0.0  # MongoDB
+# redis>=4.5.0  # Redis للتخزين المؤقت - For caching
+
+# التصور (اختياري) - Visualization (Optional)
+# matplotlib>=3.7.0  # للرسوم البيانية - For charts
+# plotly>=5.14.0  # للرسوم التفاعلية - For interactive charts

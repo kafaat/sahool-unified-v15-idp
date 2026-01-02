@@ -13,6 +13,8 @@ from uuid import uuid4
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+# Import API routers - استيراد موجهات الواجهة البرمجية
+from .api.v1.field_health import router as field_health_router
 
 import logging
 
@@ -75,6 +77,12 @@ app = FastAPI(
     version="15.3.3",
     lifespan=lifespan,
 )
+
+# ============== Register API Routers ==============
+# تسجيل موجهات الواجهة البرمجية
+
+# Field Health API - واجهة صحة الحقل
+app.include_router(field_health_router)
 
 
 # ============== Health Check ==============

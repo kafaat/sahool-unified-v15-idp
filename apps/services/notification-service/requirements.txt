@@ -3,9 +3,9 @@
 # Updated: December 2025
 
 # Web Framework
-fastapi==0.115.5
-uvicorn[standard]==0.32.1
-pydantic==2.9.2
+fastapi>=0.109.0,<1.0.0
+uvicorn[standard]>=0.27.0,<1.0.0
+pydantic>=2.5.0,<3.0.0
 
 # HTTP Client
 httpx==0.28.1

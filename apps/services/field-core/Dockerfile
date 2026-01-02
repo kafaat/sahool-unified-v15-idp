@@ -14,12 +14,24 @@ FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
+# Copy shared packages first (needed for file: protocol dependencies)
+# This must be done BEFORE npm install to resolve @sahool/field-shared
+COPY packages/field-shared ./packages/field-shared
+
+# Build the shared package
+WORKDIR /app/packages/field-shared
+RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm run build
+
+# Return to app directory
+WORKDIR /app
+
 # Install dependencies first (better caching) with retry for network resilience
-COPY package*.json ./
+COPY apps/services/field-core/package*.json ./
 RUN npm install --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Copy Prisma schema and generate client
-COPY prisma ./prisma
+COPY apps/services/field-core/prisma ./prisma
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 RUN npx prisma generate || \
     (sleep 5 && npx prisma generate) || \
@@ -27,8 +39,8 @@ RUN npx prisma generate || \
     (echo "Prisma generate failed after retries" && exit 1)
 
 # Copy source and build
-COPY tsconfig.json ./
-COPY src ./src
+COPY apps/services/field-core/tsconfig.json ./
+COPY apps/services/field-core/src ./src
 RUN npm run build
 
 # Stage 2: Production
@@ -49,6 +61,9 @@ RUN addgroup --system sahool && \
 
 # Install curl for healthcheck and OpenSSL for Prisma compatibility
 RUN apk add --no-cache curl ca-certificates openssl
+
+# Copy shared packages (needed for file: protocol dependencies)
+COPY --from=builder /app/packages ./packages
 
 # Copy package files and install production dependencies
 COPY --from=builder /app/package*.json ./

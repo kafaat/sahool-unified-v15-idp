@@ -42,7 +42,8 @@ FROM base AS dependencies
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production
+# Using --omit=dev instead of deprecated --only=production
+RUN npm ci --omit=dev
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Build Stage (for TypeScript)

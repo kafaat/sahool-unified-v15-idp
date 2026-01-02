@@ -242,6 +242,67 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Ollama - Local LLM Server for Log Analysis
+  # خادم نماذج الذكاء الاصطناعي المحلي لتحليل السجلات
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Ollama with DeepSeek Coder - Local LLM for Docker Log Analysis
+  # Supports 20+ concurrent agents for parallel analysis
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sahool-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "127.0.0.1:11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_NUM_PARALLEL=24
+      - OLLAMA_MAX_LOADED_MODELS=2
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - sahool-network
+
+  # Ollama Model Loader - Downloads deepseek-coder:6.7b on startup
+  # تحميل نموذج DeepSeek Coder عند بدء التشغيل
+  ollama-model-loader:
+    image: curlimages/curl:latest
+    container_name: sahool-ollama-model-loader
+    depends_on:
+      ollama:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Waiting for Ollama to be ready..."
+        sleep 5
+        echo "Pulling deepseek-coder:6.7b model..."
+        curl -X POST http://ollama:11434/api/pull -d '{"name":"deepseek-coder:6.7b"}' --max-time 3600
+        echo "Model download complete!"
+        # Keep container running to show completion
+        sleep 10
+    restart: "no"
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Milvus Vector Database - Alternative to Qdrant for RAG & Semantic Search
   # Requires: etcd (metadata), minio (object storage)
   # قاعدة بيانات Milvus الشعاعية - بديل لـ Qdrant للبحث الدلالي
@@ -2135,6 +2196,9 @@ volumes:
     name: sahool-mqtt-logs
   kong_logs:
     driver: local
+  # Ollama LLM Server Volume
+  ollama_data:
+    name: sahool-ollama-data
   # Milvus Vector Database Volumes
   etcd_data:
     name: sahool-etcd-data

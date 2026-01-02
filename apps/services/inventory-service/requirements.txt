@@ -4,7 +4,7 @@
 
 # Base requirements
 fastapi==0.115.5
-uvicorn[standard]==0.32.1
+uvicorn[standard]==0.27.0
 pydantic==2.9.2
 python-dotenv==1.0.1
 

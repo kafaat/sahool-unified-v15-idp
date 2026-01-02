@@ -586,6 +586,38 @@ services:
     profiles:
       - production-test
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW: MQTT/IoT Device Simulation (10-100+ devices)
+  # Simulates IoT devices: Soil sensors, Weather stations, Irrigation, GPS
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  sahool-k6-mqtt:
+    image: grafana/k6:0.48.0
+    container_name: sahool_k6_mqtt
+    environment:
+      K6_OUT: influxdb=http://sahool-influxdb:8086/k6
+      K6_INFLUXDB_ORGANIZATION: sahool
+      K6_INFLUXDB_BUCKET: k6
+      K6_INFLUXDB_TOKEN: sahool-advanced-k6-token
+      BASE_URL: http://sahool-nginx:80
+      IOT_GATEWAY_URL: http://sahool-nginx:80/api/iot
+      TOTAL_DEVICES: "${TOTAL_DEVICES:-50}"
+      TEST_DURATION: "${TEST_DURATION:-5m}"
+      MQTT_TOPIC_PREFIX: sahool/iot
+      ENVIRONMENT: "advanced"
+    volumes:
+      - ./scripts:/scripts:ro
+      - ./results:/results
+    networks:
+      sahool-advanced-network:
+        ipv4_address: 172.31.0.48
+    depends_on:
+      - sahool-nginx
+      - sahool-influxdb
+    command: ["run", "/scripts/mqtt-iot-simulation.js"]
+    profiles:
+      - mqtt-test
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # USAGE:
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -627,6 +659,9 @@ services:
 #
 # Run Full Production Simulation (50-100+ agents):
 #   TOTAL_VUS=50 docker-compose -f docker-compose-advanced.yml --profile production-test run --rm sahool-k6-production
+#
+# Run MQTT/IoT Device Simulation (10-100+ devices):
+#   TOTAL_DEVICES=50 docker-compose -f docker-compose-advanced.yml --profile mqtt-test run --rm sahool-k6-mqtt
 #
 # ═════════════════════════════════════════════════════════════════════════════
 # ACCESS POINTS:

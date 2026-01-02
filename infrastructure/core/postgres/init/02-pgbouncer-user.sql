@@ -22,6 +22,34 @@ BEGIN
 END
 $$;
 
--- Note: PgBouncer auth_query uses pg_shadow directly
--- The pgbouncer user has pg_monitor role which allows reading pg_shadow
--- auth_query in pgbouncer.ini: SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Create the pgbouncer schema first (needed for function creation)
+-- ═══════════════════════════════════════════════════════════════════════════════
+CREATE SCHEMA IF NOT EXISTS pgbouncer AUTHORIZATION pgbouncer;
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Create a SECURITY DEFINER function for auth_query
+-- This is the recommended approach for PostgreSQL 14+ with SCRAM authentication
+-- ═══════════════════════════════════════════════════════════════════════════════
+CREATE OR REPLACE FUNCTION pgbouncer.get_auth(p_usename TEXT)
+RETURNS TABLE(usename NAME, passwd TEXT) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        u.usename::NAME,
+        u.passwd::TEXT
+    FROM pg_catalog.pg_shadow u
+    WHERE u.usename = p_usename;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Set the search path for security
+ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
+
+-- Grant execute permission to pgbouncer user
+GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO pgbouncer;
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Note for pgbouncer.ini auth_query:
+-- Use: auth_query = SELECT usename, passwd FROM pgbouncer.get_auth($1)
+-- ═══════════════════════════════════════════════════════════════════════════════

@@ -19,7 +19,8 @@ except ImportError:
 
 MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
-MQTT_USERNAME = os.getenv("MQTT_USERNAME", "")
+# Support both MQTT_USER (docker-compose) and MQTT_USERNAME (legacy) env vars
+MQTT_USERNAME = os.getenv("MQTT_USER", os.getenv("MQTT_USERNAME", ""))
 MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
 
 

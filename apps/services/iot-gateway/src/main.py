@@ -29,6 +29,9 @@ logger = logging.getLogger("iot-gateway")
 MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 MQTT_TOPIC = os.getenv("MQTT_TOPIC", "sahool/sensors/#")
+# Support both MQTT_USER (docker-compose) and MQTT_USERNAME (legacy) env vars
+MQTT_USER = os.getenv("MQTT_USER", os.getenv("MQTT_USERNAME", ""))
+MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
 DEFAULT_TENANT = os.getenv("DEFAULT_TENANT", "default")
 
 
@@ -170,9 +173,13 @@ async def start_mqtt_listener():
     mqtt_client = MqttClient(
         broker=MQTT_BROKER,
         port=MQTT_PORT,
+        username=MQTT_USER if MQTT_USER else None,
+        password=MQTT_PASSWORD if MQTT_PASSWORD else None,
     )
 
     print(f"🔌 Starting MQTT listener on {MQTT_BROKER}:{MQTT_PORT}")
+    if MQTT_USER:
+        print(f"🔐 MQTT authentication enabled for user: {MQTT_USER}")
     print(f"📥 Subscribing to: {MQTT_TOPIC}")
 
     await mqtt_client.subscribe(MQTT_TOPIC, handle_mqtt_message)

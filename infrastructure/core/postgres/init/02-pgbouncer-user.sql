@@ -5,13 +5,27 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Create pgbouncer user if it doesn't exist
+-- Password will be set to match POSTGRES_PASSWORD for compatibility with edoburu/pgbouncer image
 DO $$
+DECLARE
+    postgres_password TEXT;
 BEGIN
+    -- Get POSTGRES_PASSWORD from environment (set via ALTER USER after creation)
+    -- For now, create with a placeholder that will be updated
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
-        CREATE USER pgbouncer WITH PASSWORD 'pgbouncer_auth_query';
+        -- Create user - password will be set to POSTGRES_PASSWORD via ALTER USER
+        -- This allows edoburu/pgbouncer image to use DB_PASSWORD for auth_user connection
+        CREATE USER pgbouncer WITH PASSWORD 'temp_password_will_be_updated';
+        -- Grant necessary permissions for auth_query to read pg_shadow
+        GRANT pg_monitor TO pgbouncer;
     END IF;
 END
 $$;
+
+-- ═══════════════════════════════════════════════════════════════════════════════
+-- Create the pgbouncer schema first (needed for function creation)
+-- ═══════════════════════════════════════════════════════════════════════════════
+CREATE SCHEMA IF NOT EXISTS pgbouncer AUTHORIZATION pgbouncer;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Create a SECURITY DEFINER function for auth_query
@@ -29,19 +43,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- Set the search path for security
+ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
+
 -- Grant execute permission to pgbouncer user
 GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO pgbouncer;
 
--- Create the pgbouncer schema if not exists
-CREATE SCHEMA IF NOT EXISTS pgbouncer AUTHORIZATION pgbouncer;
-
--- Move function to pgbouncer schema
-ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
-
--- Alternative: Direct GRANT for pg_shadow access (simpler but requires superuser)
--- This grants the pgbouncer user permission to read pg_authid
--- GRANT pg_read_all_data TO pgbouncer;
-
+-- ═══════════════════════════════════════════════════════════════════════════════
 -- Note for pgbouncer.ini auth_query:
 -- Use: auth_query = SELECT usename, passwd FROM pgbouncer.get_auth($1)
--- Or if using GRANT: auth_query = SELECT usename, passwd FROM pg_shadow WHERE usename=$1
+-- ═══════════════════════════════════════════════════════════════════════════════

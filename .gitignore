@@ -149,6 +149,14 @@ test-results/
 playwright-report/
 cypress/videos/
 cypress/screenshots/
+# Load testing artifacts (k6, simulation)
+tests/load/results/*.json
+tests/load/results/*.html
+tests/load/simulation/results/*
+!tests/load/simulation/results/.gitkeep
+# Debug reports
+debug-report.txt
+docker-logs.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Misc

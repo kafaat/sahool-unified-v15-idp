@@ -73,12 +73,14 @@ def get_engine() -> AsyncEngine:
 
     if _engine is None:
         # Determine pool class based on environment
+        # For async engines, SQLAlchemy 2.0+ automatically adapts sync pools
         if IS_DEV:
             # Development: Use smaller pool
             pool_class = QueuePool
             logger.info("Using QueuePool for development environment")
         else:
-            # Production: Use larger pool
+            # Production: Use QueuePool for connection pooling
+            # SQLAlchemy 2.0+ async engines automatically wrap sync pools
             pool_class = QueuePool
             logger.info("Using QueuePool for production environment")
 

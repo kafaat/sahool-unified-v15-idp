@@ -21,7 +21,13 @@ RUN npm install -g npm@11.7.0
 # Copy shared packages first (needed for file: protocol dependencies)
 COPY packages/field-shared ./packages/field-shared
 
-# Install dependencies first (better caching)
+# Build field-shared package first (needed for TypeScript compilation)
+# Install its dependencies and build it
+WORKDIR /app/packages/field-shared
+RUN npm install --legacy-peer-deps && npm run build
+
+# Return to app directory and install dependencies
+WORKDIR /app
 COPY apps/services/field-management-service/package.json ./
 RUN npm install --legacy-peer-deps
 

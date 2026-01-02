@@ -119,9 +119,14 @@ upstreams:
       - target: marketplace-service:3010
         weight: 100
     healthchecks:
-      active:
+      passive:
         type: http
-        http_path: /healthz
+        healthy:
+          successes: 2
+        unhealthy:
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
 
   - name: billing-core-upstream
     algorithm: round-robin
@@ -129,9 +134,14 @@ upstreams:
       - target: billing-core:8089
         weight: 100
     healthchecks:
-      active:
+      passive:
         type: http
-        http_path: /healthz
+        healthy:
+          successes: 2
+        unhealthy:
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
 
   - name: notification-service-upstream
     algorithm: round-robin
@@ -149,9 +159,14 @@ upstreams:
       - target: research-core:3015
         weight: 100
     healthchecks:
-      active:
+      passive:
         type: http
-        http_path: /healthz
+        healthy:
+          successes: 2
+        unhealthy:
+          http_failures: 3
+          tcp_failures: 3
+          timeouts: 3
 
   - name: disaster-assessment-upstream
     algorithm: round-robin

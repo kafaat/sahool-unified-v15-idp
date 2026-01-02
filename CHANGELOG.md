@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Docker Sequential Build Scripts** (PR #315)
+  - `docker-one-by-one.ps1`: PowerShell script for sequential container builds
+  - `docker-one-by-one.sh`: Bash equivalent for Linux/macOS users
+  - Prevents resource conflicts on M1/M2 Macs and constrained environments
+  - Two-phase build approach with comprehensive error handling
+
+- **Comprehensive Test Infrastructure** (PR #315)
+  - 24 integration test files covering all major workflows
+  - Load testing framework with k6 (smoke, load, stress, spike, soak scenarios)
+  - Multi-client simulation for realistic testing
+  - Unit tests for AI, kernel, NDVI, and shared modules
+  - Smoke tests for quick sanity checks
+  - Performance testing with Grafana dashboards and InfluxDB metrics
+
+- **Developer Tools** (PR #315)
+  - Architecture validation: `tools/arch/check_imports.py`
+  - Compliance checklist generator: `tools/compliance/generate_checklist.py`
+  - Environment validation: `tools/env/validate_env.py`
+  - Event catalog generator: `tools/events/generate_catalog.py`
+  - Security certificate generators: `tools/security/certs/`
+  - IoT sensor simulator: `tools/sensor-simulator/simulator.py`
+
+- **Documentation**
+  - POST_MERGE_VERIFICATION.md: Comprehensive post-merge checklist
+  - Enhanced test documentation in tests/README.md
+  - Load testing guides: tests/load/README.md and QUICKSTART.md
+
 ## [16.0.1] - 2024-12-24
 
 ### Security

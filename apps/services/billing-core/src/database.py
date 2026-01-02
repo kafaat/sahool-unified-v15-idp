@@ -38,6 +38,9 @@ DATABASE_URL = os.getenv(
 # Ensure async driver
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif DATABASE_URL.startswith("postgresql+psycopg2://"):
+    # Convert sync driver to async
+    DATABASE_URL = DATABASE_URL.replace("postgresql+psycopg2://", "postgresql+asyncpg://", 1)
 
 # Environment settings
 ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()
@@ -75,9 +78,9 @@ def get_engine() -> AsyncEngine:
         # Determine pool class based on environment
         # For async engines, SQLAlchemy 2.0+ automatically adapts sync pools
         if IS_DEV:
-            # Development: Use smaller pool
-            pool_class = QueuePool
-            logger.info("Using QueuePool for development environment")
+            # Development: Use NullPool (no pooling) for simplicity
+            pool_class = NullPool
+            logger.info("Using NullPool for development environment")
         else:
             # Production: Use QueuePool for connection pooling
             # SQLAlchemy 2.0+ async engines automatically wrap sync pools

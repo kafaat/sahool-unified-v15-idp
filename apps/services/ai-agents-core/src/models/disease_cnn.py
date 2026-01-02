@@ -224,7 +224,13 @@ class DiseaseCNNModel:
                 logger.info("Model loaded successfully with TensorFlow")
 
             elif self.framework == "pytorch":
-                self.model = torch.load(model_path, map_location=self.device)
+                # Use weights_only=True for security (prevents arbitrary code execution)
+                # استخدام weights_only=True للأمان (يمنع تنفيذ التعليمات البرمجية العشوائية)
+                self.model = torch.load(
+                    model_path,
+                    map_location=self.device,
+                    weights_only=True
+                )
                 self.model.eval()
                 logger.info("Model loaded successfully with PyTorch")
 

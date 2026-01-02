@@ -1057,14 +1057,14 @@ For service-to-service communication, use API keys:
 ### Request Header
 
 ```
-X-API-Key: sahool_sk_live_abc123def456
+X-API-Key: YOUR_API_KEY_HERE
 ```
 
 ### Example
 
 ```bash
 curl -X GET http://localhost:8090/v1/internal/metrics \\
-  -H "X-API-Key: sahool_sk_live_abc123def456"
+  -H "X-API-Key: $SAHOOL_API_KEY"
 ```
 
 ## Security Best Practices | أفضل ممارسات الأمان

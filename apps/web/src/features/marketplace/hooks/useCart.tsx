@@ -7,6 +7,7 @@
 
 import * as React from 'react';
 import type { Product, CartItem, Cart } from '../types';
+import { logger } from '@/lib/logger';
 
 interface CartContextType {
   cart: Cart;
@@ -50,7 +51,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       try {
         setItems(JSON.parse(savedCart));
       } catch (error) {
-        console.error('Failed to load cart:', error);
+        logger.error('Failed to load cart:', error);
       }
     }
   }, []);

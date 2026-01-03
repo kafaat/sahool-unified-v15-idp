@@ -65,6 +65,15 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const isProduction = process.env.NODE_ENV === 'production';
 
 // ═══════════════════════════════════════════════════════════════════════════
+// Development Port Configuration
+// ═══════════════════════════════════════════════════════════════════════════
+
+const DEV_API_PORT = process.env.DEV_API_PORT || '8000';
+const DEV_WS_PORT = process.env.DEV_WS_PORT || '8081';
+const DEV_WEB_PORT = process.env.DEV_WEB_PORT || '3000';
+const DEV_ADMIN_PORT = process.env.DEV_ADMIN_PORT || '3001';
+
+// ═══════════════════════════════════════════════════════════════════════════
 // CSP Directives Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -123,12 +132,19 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
     // Connect sources (API, WebSocket, etc.)
     'connect-src': [
       "'self'",
-      // Backend API
-      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
-      // WebSocket for real-time features
+      // Backend API - require environment variable or use localhost in dev only
+      ...(process.env.NEXT_PUBLIC_API_URL ? [process.env.NEXT_PUBLIC_API_URL] :
+          isDevelopment ? [`http://localhost:${DEV_API_PORT}`] : []),
+      // Development-only localhost connections with specific ports
       ...(isDevelopment ? [
-        'ws://localhost:*',
-        'http://localhost:*',
+        // WebSocket for hot module replacement and real-time features
+        `ws://localhost:${DEV_WS_PORT}`,
+        // API backend
+        `http://localhost:${DEV_API_PORT}`,
+        // Next.js dev server
+        `http://localhost:${DEV_WEB_PORT}`,
+        // Admin dev server
+        `http://localhost:${DEV_ADMIN_PORT}`,
       ] : []),
       // External services
       'https://tile.openstreetmap.org',

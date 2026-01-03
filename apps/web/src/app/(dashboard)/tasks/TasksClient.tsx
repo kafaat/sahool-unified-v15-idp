@@ -11,14 +11,20 @@ import { TaskForm } from '@/features/tasks/components/TaskForm';
 import { TaskFiltersComponent as TaskFilters } from '@/features/tasks/components/TaskFilters';
 import { Modal } from '@/components/ui/modal';
 import { Plus, Filter } from 'lucide-react';
-import type { TaskFilters as TaskFiltersType } from '@/features/tasks/types';
+import type { TaskFilters as TaskFiltersType, TaskFormData } from '@/features/tasks/types';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
+import { useCreateTask } from '@/features/tasks/hooks/useTasks';
+import { useToast } from '@/components/ui/toast';
 
 export default function TasksClient() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<TaskFiltersType>({});
   const [, setSelectedTaskId] = useState<string | null>(null);
+
+  // Task creation mutation
+  const createTaskMutation = useCreateTask();
+  const { showToast } = useToast();
 
   const handleTaskClick = (taskId: string) => {
     setSelectedTaskId(taskId);
@@ -42,7 +48,7 @@ export default function TasksClient() {
     setFilters(newFilters);
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: TaskFormData) => {
     try {
       ErrorTracking.addBreadcrumb({
         type: 'click',
@@ -50,10 +56,27 @@ export default function TasksClient() {
         message: 'Creating task',
         data: { taskTitle: data?.title },
       });
-      // TODO: Implement actual task creation
-      // For now, just close the modal
+
+      // Create the task using the mutation
+      await createTaskMutation.mutateAsync(data);
+
+      // Show success message
+      showToast({
+        type: 'success',
+        messageAr: 'تم إنشاء المهمة بنجاح',
+        message: 'Task created successfully',
+      });
+
+      // Close the modal
       setShowCreateModal(false);
     } catch (error) {
+      // Show error message
+      showToast({
+        type: 'error',
+        messageAr: 'فشل في إنشاء المهمة',
+        message: error instanceof Error ? error.message : 'Failed to create task',
+      });
+
       ErrorTracking.captureError(
         error instanceof Error ? error : new Error('Failed to create task'),
         undefined,
@@ -122,6 +145,7 @@ export default function TasksClient() {
         <TaskForm
           onSubmit={handleSubmit}
           onCancel={handleCloseModal}
+          isSubmitting={createTaskMutation.isPending}
         />
       </Modal>
     </div>

@@ -6,24 +6,12 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import type {
-  HealthSummary,
   HealthRecord,
   DiagnosisRequest,
-  DiagnosisResult,
-  Disease,
-  DiseaseAlert,
   HealthFilters,
-  ExpertConsultation,
 } from '../types';
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { cropHealthApi } from '../api';
 
 // Query Keys
 const HEALTH_KEYS = {
@@ -45,17 +33,7 @@ const HEALTH_KEYS = {
 export function useHealthSummary(filters?: HealthFilters) {
   return useQuery({
     queryKey: HEALTH_KEYS.summary(filters),
-    queryFn: async (): Promise<HealthSummary> => {
-      const params = new URLSearchParams();
-      if (filters?.fieldIds?.length) params.set('field_ids', filters.fieldIds.join(','));
-      if (filters?.cropTypes?.length) params.set('crop_types', filters.cropTypes.join(','));
-      if (filters?.status?.length) params.set('status', filters.status.join(','));
-      if (filters?.dateFrom) params.set('date_from', filters.dateFrom);
-      if (filters?.dateTo) params.set('date_to', filters.dateTo);
-
-      const response = await api.get(`/v1/crop-health/summary?${params.toString()}`);
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getHealthSummary(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -66,18 +44,7 @@ export function useHealthSummary(filters?: HealthFilters) {
 export function useHealthRecords(filters?: HealthFilters) {
   return useQuery({
     queryKey: HEALTH_KEYS.records(filters),
-    queryFn: async (): Promise<HealthRecord[]> => {
-      const params = new URLSearchParams();
-      if (filters?.fieldIds?.length) params.set('field_ids', filters.fieldIds.join(','));
-      if (filters?.cropTypes?.length) params.set('crop_types', filters.cropTypes.join(','));
-      if (filters?.status?.length) params.set('status', filters.status.join(','));
-      if (filters?.dateFrom) params.set('date_from', filters.dateFrom);
-      if (filters?.dateTo) params.set('date_to', filters.dateTo);
-      if (filters?.severity?.length) params.set('severity', filters.severity.join(','));
-
-      const response = await api.get(`/v1/crop-health/records?${params.toString()}`);
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getHealthRecords(filters),
     staleTime: 2 * 60 * 1000,
   });
 }
@@ -88,10 +55,7 @@ export function useHealthRecords(filters?: HealthFilters) {
 export function useHealthRecord(id: string) {
   return useQuery({
     queryKey: HEALTH_KEYS.record(id),
-    queryFn: async (): Promise<HealthRecord> => {
-      const response = await api.get(`/v1/crop-health/records/${id}`);
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getHealthRecord(id),
     enabled: !!id,
   });
 }
@@ -103,10 +67,7 @@ export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<HealthRecord>): Promise<HealthRecord> => {
-      const response = await api.post('/v1/crop-health/records', data);
-      return response.data;
-    },
+    mutationFn: (data: Partial<HealthRecord>) => cropHealthApi.createHealthRecord(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.all });
     },
@@ -120,10 +81,8 @@ export function useUpdateHealthRecord() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<HealthRecord> }): Promise<HealthRecord> => {
-      const response = await api.put(`/v1/crop-health/records/${id}`, data);
-      return response.data;
-    },
+    mutationFn: ({ id, data }: { id: string; data: Partial<HealthRecord> }) =>
+      cropHealthApi.updateHealthRecord(id, data),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.record(id) });
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.records() });
@@ -138,10 +97,7 @@ export function useUpdateHealthRecord() {
 export function useDiagnosisRequests() {
   return useQuery({
     queryKey: HEALTH_KEYS.diagnoses(),
-    queryFn: async (): Promise<DiagnosisRequest[]> => {
-      const response = await api.get('/v1/crop-health/diagnoses');
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getDiagnosisRequests(),
     staleTime: 2 * 60 * 1000,
   });
 }
@@ -152,10 +108,7 @@ export function useDiagnosisRequests() {
 export function useDiagnosisRequest(id: string) {
   return useQuery({
     queryKey: HEALTH_KEYS.diagnosis(id),
-    queryFn: async (): Promise<DiagnosisRequest> => {
-      const response = await api.get(`/v1/crop-health/diagnoses/${id}`);
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getDiagnosisRequest(id),
     enabled: !!id,
   });
 }
@@ -167,10 +120,7 @@ export function useCreateDiagnosis() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<DiagnosisRequest>): Promise<DiagnosisRequest> => {
-      const response = await api.post('/v1/crop-health/diagnoses', data);
-      return response.data;
-    },
+    mutationFn: (data: Partial<DiagnosisRequest>) => cropHealthApi.submitDiagnosis(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.diagnoses() });
     },
@@ -182,17 +132,7 @@ export function useCreateDiagnosis() {
  */
 export function useUploadDiagnosisImages() {
   return useMutation({
-    mutationFn: async (files: File[]): Promise<string[]> => {
-      const formData = new FormData();
-      files.forEach((file) => formData.append('images', file));
-
-      const response = await api.post('/v1/crop-health/diagnoses/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data.urls;
-    },
+    mutationFn: (files: File[]) => cropHealthApi.uploadDiagnosisImages(files),
   });
 }
 
@@ -202,10 +142,7 @@ export function useUploadDiagnosisImages() {
 export function useDiagnosisResult(requestId: string) {
   return useQuery({
     queryKey: HEALTH_KEYS.result(requestId),
-    queryFn: async (): Promise<DiagnosisResult> => {
-      const response = await api.get(`/v1/crop-health/diagnoses/${requestId}/result`);
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getDiagnosisResult(requestId),
     enabled: !!requestId,
     refetchInterval: (query) => {
       // Poll every 5 seconds if we don't have a result yet (no analyzedAt means still processing)
@@ -222,10 +159,7 @@ export function useDiagnosisResult(requestId: string) {
 export function useDiseases() {
   return useQuery({
     queryKey: HEALTH_KEYS.diseases(),
-    queryFn: async (): Promise<Disease[]> => {
-      const response = await api.get('/v1/crop-health/diseases');
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getDiseases(),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 }
@@ -236,10 +170,7 @@ export function useDiseases() {
 export function useDiseaseAlerts() {
   return useQuery({
     queryKey: HEALTH_KEYS.alerts(),
-    queryFn: async (): Promise<DiseaseAlert[]> => {
-      const response = await api.get('/v1/crop-health/alerts');
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getDiseaseAlerts(),
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
@@ -251,9 +182,7 @@ export function useDismissAlert() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (alertId: string): Promise<void> => {
-      await api.post(`/v1/crop-health/alerts/${alertId}/dismiss`);
-    },
+    mutationFn: (alertId: string) => cropHealthApi.dismissAlert(alertId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.alerts() });
     },
@@ -267,14 +196,11 @@ export function useRequestConsultation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: (data: {
       diagnosisId: string;
       question?: string;
       questionAr?: string;
-    }): Promise<ExpertConsultation> => {
-      const response = await api.post('/v1/crop-health/consultations', data);
-      return response.data;
-    },
+    }) => cropHealthApi.requestConsultation(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HEALTH_KEYS.consultations() });
     },
@@ -287,10 +213,7 @@ export function useRequestConsultation() {
 export function useConsultations() {
   return useQuery({
     queryKey: HEALTH_KEYS.consultations(),
-    queryFn: async (): Promise<ExpertConsultation[]> => {
-      const response = await api.get('/v1/crop-health/consultations');
-      return response.data;
-    },
+    queryFn: () => cropHealthApi.getConsultations(),
     staleTime: 2 * 60 * 1000,
   });
 }

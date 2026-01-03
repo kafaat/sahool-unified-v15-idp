@@ -8,6 +8,7 @@
 import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { logger } from '@/lib/logger';
 
 export default function DashboardError({
   error,
@@ -20,7 +21,7 @@ export default function DashboardError({
 
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('Dashboard error:', error);
+    logger.error('Dashboard error:', error);
   }, [error]);
 
   return (

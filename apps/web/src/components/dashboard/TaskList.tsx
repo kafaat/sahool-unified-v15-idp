@@ -5,6 +5,7 @@ import { apiClient } from '@/lib/api';
 import type { Task } from '@/lib/api/types';
 import { TaskCard } from './TaskCard';
 import { SkeletonTaskItem } from './ui/Skeleton';
+import { logger } from '@/lib/logger';
 
 interface TaskListProps {
   tenantId?: string;
@@ -32,7 +33,7 @@ export function TaskList({ tenantId, fieldId, limit = 10 }: TaskListProps) {
           setTasks(response.data);
         }
       } catch (error) {
-        console.error('Failed to fetch tasks:', error);
+        logger.error('Failed to fetch tasks:', error);
         // Fallback to demo data
         setTasks([
           {

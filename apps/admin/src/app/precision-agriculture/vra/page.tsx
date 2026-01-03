@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
+import { logger } from '../../../lib/logger';
 
 interface VRAPrescription {
   id: string;
@@ -61,7 +62,7 @@ export default function VRAPage() {
       });
       setPrescriptions(data);
     } catch (error) {
-      console.error('Failed to load VRA prescriptions:', error);
+      logger.error('Failed to load VRA prescriptions:', error);
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +73,7 @@ export default function VRAPage() {
       await approvePrescription(id);
       loadPrescriptions();
     } catch (error) {
-      console.error('Failed to approve prescription:', error);
+      logger.error('Failed to approve prescription:', error);
     }
   }
 
@@ -81,7 +82,7 @@ export default function VRAPage() {
       await rejectPrescription(id);
       loadPrescriptions();
     } catch (error) {
-      console.error('Failed to reject prescription:', error);
+      logger.error('Failed to reject prescription:', error);
     }
   }
 

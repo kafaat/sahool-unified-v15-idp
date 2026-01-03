@@ -96,9 +96,9 @@ export function useCancelOrder() {
 
   return useMutation({
     mutationFn: (id: string) => marketplaceApi.cancelOrder(id),
-    onSuccess: (cancelledOrder) => {
+    onSuccess: (_result, orderId) => {
       queryClient.invalidateQueries({ queryKey: marketplaceKeys.orders.lists() });
-      queryClient.setQueryData(marketplaceKeys.orders.detail(cancelledOrder.id), cancelledOrder);
+      queryClient.invalidateQueries({ queryKey: marketplaceKeys.orders.detail(orderId) });
     },
   });
 }

@@ -20,6 +20,9 @@ export { ComparisonChart } from './components/ComparisonChart';
 export { ReportGenerator } from './components/ReportGenerator';
 export { KPICards } from './components/KPICards';
 
+// API exports
+export { analyticsApi, ERROR_MESSAGES as ANALYTICS_ERROR_MESSAGES } from './api';
+
 // Hook exports
 export {
   useAnalyticsSummary,

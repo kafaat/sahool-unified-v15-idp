@@ -9,6 +9,8 @@
  * - Farm events
  */
 
+import { logger } from './logger';
+
 type WebSocketEventType =
   | 'alert'
   | 'sensor'
@@ -377,7 +379,7 @@ export class WebSocketClient {
 
   private log(...args: unknown[]): void {
     if (this.debug) {
-      console.log('[WebSocket]', ...args);
+      logger.log('[WebSocket]', ...args);
     }
   }
 }

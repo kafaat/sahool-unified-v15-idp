@@ -8,41 +8,18 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { isValidCSPReport, sanitizeCSPReport, type CSPReportBody } from '@/lib/security/csp-config';
+import { isRateLimited } from '@/lib/rate-limiter';
+import { logger } from '@/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
 // ═══════════════════════════════════════════════════════════════════════════
 
-const MAX_REPORTS_PER_MINUTE = 100;
-const reportCounts = new Map<string, { count: number; resetTime: number }>();
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Rate Limiting
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Check if client is rate limited
- * التحقق مما إذا كان العميل محدودًا
- */
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const entry = reportCounts.get(ip);
-
-  if (!entry || now > entry.resetTime) {
-    reportCounts.set(ip, {
-      count: 1,
-      resetTime: now + 60000, // 1 minute
-    });
-    return false;
-  }
-
-  if (entry.count >= MAX_REPORTS_PER_MINUTE) {
-    return true;
-  }
-
-  entry.count++;
-  return false;
-}
+const RATE_LIMIT_CONFIG = {
+  windowMs: 60000, // 1 minute
+  maxRequests: 100,
+  keyPrefix: 'csp-report',
+};
 
 /**
  * Get client IP address
@@ -76,7 +53,9 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limiting
     const clientIP = getClientIP(request);
-    if (isRateLimited(clientIP)) {
+    const rateLimited = await isRateLimited(clientIP, RATE_LIMIT_CONFIG);
+
+    if (rateLimited) {
       return NextResponse.json(
         { error: 'Too many reports' },
         { status: 429 }
@@ -122,7 +101,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log CSP violation
-    console.warn('[CSP Violation]', {
+    logger.warn('[CSP Violation]', {
       ...sanitized,
       clientIP,
       userAgent: request.headers.get('user-agent'),
@@ -134,18 +113,20 @@ export async function POST(request: NextRequest) {
       // Example: Send to external monitoring service
       // await sendToMonitoringService(sanitized);
 
-      // Log to stderr for container log aggregation
-      console.error('[CSP Violation - Production]', JSON.stringify({
+      // Log to stderr for container log aggregation (always log in production)
+      logger.production({
+        type: 'csp-violation',
         ...sanitized,
         clientIP,
         userAgent: request.headers.get('user-agent'),
         environment: process.env.NODE_ENV,
-      }));
+      });
     }
 
     return NextResponse.json({ status: 'reported' }, { status: 204 });
   } catch (error) {
-    console.error('[CSP Report Handler Error]', error);
+    // Critical error - always log
+    logger.critical('[CSP Report Handler Error]', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

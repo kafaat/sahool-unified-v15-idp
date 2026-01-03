@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { apiClient } from '@/lib/api';
 import { SkeletonCard } from './ui/Skeleton';
+import { logger } from '@/lib/logger';
 
 // Constants for health thresholds
 const HEALTH_THRESHOLDS = {
@@ -181,7 +182,7 @@ export const StatsCards = React.memo<StatsCardsProps>(function StatsCards({ tena
         ? `خطأ في تحميل البيانات: ${err.message}`
         : 'فشل تحميل الإحصائيات. يرجى المحاولة مرة أخرى.';
       setError(errorMessage);
-      console.error('Error fetching stats:', err);
+      logger.error('Error fetching stats:', err);
     } finally {
       setLoading(false);
       setRetrying(false);

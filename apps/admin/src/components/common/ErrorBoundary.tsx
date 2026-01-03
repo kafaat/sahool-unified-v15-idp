@@ -1,6 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { logger } from '../../lib/logger';
 
 interface Props {
   children: ReactNode;
@@ -29,7 +30,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('Admin ErrorBoundary caught an error:', error, errorInfo);
+    logger.error('Admin ErrorBoundary caught an error:', error, errorInfo);
     this.setState({ errorInfo });
 
     if (this.props.onError) {
@@ -42,20 +43,21 @@ export class ErrorBoundary extends Component<Props, State> {
 
   private logErrorToServer = async (error: Error, errorInfo: ErrorInfo): Promise<void> => {
     try {
-      // TODO: Implement error logging endpoint
-      // await fetch('/api/log-error', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     message: error.message,
-      //     stack: error.stack,
-      //     componentStack: errorInfo.componentStack,
-      //     url: window.location.href,
-      //     timestamp: new Date().toISOString(),
-      //   }),
-      // });
+      await fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          url: window.location.href,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+        }),
+      });
     } catch (e) {
-      console.error('Failed to log error to server:', e);
+      // Silent fail in production, log in development
+      logger.error('Failed to log error:', e);
     }
   };
 

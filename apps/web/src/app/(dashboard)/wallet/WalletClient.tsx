@@ -17,6 +17,13 @@ type ViewMode = 'dashboard' | 'transfer' | 'deposit' | 'withdraw';
 
 export default function WalletClient() {
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
+  const [showComingSoon, setShowComingSoon] = useState<{
+    type: 'deposit' | 'withdraw' | null;
+  }>({ type: null });
+
+  // Feature flags - set to true when features are implemented
+  const isDepositEnabled = false;
+  const isWithdrawEnabled = false;
 
   const handleTransferSuccess = () => {
     setViewMode('dashboard');
@@ -25,13 +32,21 @@ export default function WalletClient() {
   };
 
   const handleDepositClick = () => {
-    // TODO: Implement deposit flow
-    alert('ميزة الإيداع قيد التطوير | Deposit feature coming soon');
+    if (isDepositEnabled) {
+      setViewMode('deposit');
+    } else {
+      setShowComingSoon({ type: 'deposit' });
+      setTimeout(() => setShowComingSoon({ type: null }), 3000);
+    }
   };
 
   const handleWithdrawClick = () => {
-    // TODO: Implement withdrawal flow
-    alert('ميزة السحب قيد التطوير | Withdrawal feature coming soon');
+    if (isWithdrawEnabled) {
+      setViewMode('withdraw');
+    } else {
+      setShowComingSoon({ type: 'withdraw' });
+      setTimeout(() => setShowComingSoon({ type: null }), 3000);
+    }
   };
 
   return (
@@ -104,6 +119,27 @@ export default function WalletClient() {
           <ArrowUpRight className="w-6 h-6" />
         </button>
       </div>
+
+      {/* Coming Soon Notification */}
+      {showComingSoon.type && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
+          <div className="bg-blue-600 text-white px-6 py-4 rounded-lg shadow-xl border-2 border-blue-500">
+            <div className="flex items-center gap-3">
+              <div className="text-2xl">🚀</div>
+              <div>
+                <p className="font-bold">
+                  {showComingSoon.type === 'deposit' ? 'قريباً: ميزة الإيداع' : 'قريباً: ميزة السحب'}
+                </p>
+                <p className="text-sm opacity-90">
+                  {showComingSoon.type === 'deposit'
+                    ? 'Coming Soon: Deposit Feature'
+                    : 'Coming Soon: Withdrawal Feature'}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

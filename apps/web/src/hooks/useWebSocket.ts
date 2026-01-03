@@ -5,6 +5,7 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { WSMessage } from '../types';
+import { logger } from '../lib/logger';
 
 interface UseWebSocketOptions {
   url: string;
@@ -51,7 +52,7 @@ export function useWebSocket({
         }
         setIsConnected(true);
         setError(null);
-        console.log('WebSocket connected');
+        logger.log('WebSocket connected');
       };
 
       wsRef.current.onmessage = (event) => {
@@ -60,14 +61,14 @@ export function useWebSocket({
           const message: WSMessage = JSON.parse(event.data);
           onMessageRef.current?.(message);
         } catch (err) {
-          console.error('Failed to parse WebSocket message:', err);
+          logger.error('Failed to parse WebSocket message:', err);
         }
       };
 
       wsRef.current.onclose = () => {
         if (!isMountedRef.current) return;
         setIsConnected(false);
-        console.log('WebSocket disconnected, reconnecting...');
+        logger.log('WebSocket disconnected, reconnecting...');
 
         // Clear any existing timeout before setting new one
         if (reconnectTimeoutRef.current) {
@@ -78,11 +79,11 @@ export function useWebSocket({
 
       wsRef.current.onerror = (event) => {
         if (!isMountedRef.current) return;
-        console.error('WebSocket error:', event);
+        logger.error('WebSocket error:', event);
         setError('Connection error');
       };
     } catch (err) {
-      console.error('Failed to connect WebSocket:', err);
+      logger.error('Failed to connect WebSocket:', err);
       setError(err instanceof Error ? err.message : 'Failed to connect');
     }
   }, [url, reconnectInterval, enabled]);

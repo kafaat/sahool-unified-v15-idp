@@ -3,6 +3,8 @@
  * Unified API client for admin dashboard with centralized token management
  */
 
+import { logger } from './logger';
+
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
@@ -37,7 +39,7 @@ if (
   !API_BASE_URL.startsWith('https://') &&
   !API_BASE_URL.includes('localhost')
 ) {
-  console.warn('Warning: API_BASE_URL should use HTTPS in production environment');
+  logger.warn('Warning: API_BASE_URL should use HTTPS in production environment');
 }
 
 // Helper function to sanitize HTML and prevent XSS

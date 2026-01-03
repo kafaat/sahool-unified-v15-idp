@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import Header from '@/components/layout/Header';
 import DataTable from '@/components/ui/DataTable';
 import { cn } from '@/lib/utils';
+import { logger } from '../../lib/logger';
 import {
   User,
   Lock,
@@ -121,7 +122,7 @@ export default function SettingsPage() {
 
   // Save handlers
   const handleSaveProfile = () => {
-    console.log('Saving profile:', profileData);
+    logger.log('Saving profile:', profileData);
     alert('تم حفظ الملف الشخصي بنجاح');
   };
 
@@ -130,18 +131,18 @@ export default function SettingsPage() {
       alert('كلمة المرور الجديدة وتأكيد كلمة المرور غير متطابقين');
       return;
     }
-    console.log('Changing password');
+    logger.log('Changing password');
     alert('تم تغيير كلمة المرور بنجاح');
     setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
   };
 
   const handleSavePreferences = () => {
-    console.log('Saving preferences:', preferences);
+    logger.log('Saving preferences:', preferences);
     alert('تم حفظ التفضيلات بنجاح');
   };
 
   const handleSaveSystemSettings = () => {
-    console.log('Saving system settings:', systemSettings);
+    logger.log('Saving system settings:', systemSettings);
     alert('تم حفظ إعدادات النظام بنجاح');
   };
 

@@ -8,6 +8,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/stores/auth.store';
 import { apiClient } from '@/lib/api-client';
+import { validators, validationErrors } from '@/lib/validation';
+import { logger } from '../../../lib/logger';
 import {
   Shield,
   Smartphone,
@@ -76,7 +78,7 @@ export default function SecuritySettingsPage() {
         setBackupCodesRemaining(response.data.backup_codes_remaining);
       }
     } catch (err) {
-      console.error('Error loading 2FA status:', err);
+      logger.error('Error loading 2FA status:', err);
     }
   };
 
@@ -100,8 +102,9 @@ export default function SecuritySettingsPage() {
   };
 
   const handleVerifyAndEnable = async () => {
-    if (!verificationCode || verificationCode.length !== 6) {
-      setError('الرجاء إدخال رمز صحيح مكون من 6 أرقام');
+    // Validate 2FA code format
+    if (!validators.twoFactorCode(verificationCode)) {
+      setError(validationErrors.twoFactorCode);
       return;
     }
 
@@ -163,6 +166,12 @@ export default function SecuritySettingsPage() {
   const handleRegenerateBackupCodes = async () => {
     const code = prompt('أدخل رمز التحقق من تطبيق المصادقة:');
     if (!code) return;
+
+    // Validate 2FA code format before sending
+    if (!validators.twoFactorCode(code)) {
+      setError(validationErrors.twoFactorCode);
+      return;
+    }
 
     setIsLoading(true);
     setError('');
@@ -350,12 +359,14 @@ export default function SecuritySettingsPage() {
                 </h3>
                 <input
                   type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   value={verificationCode}
-                  onChange={(e) =>
-                    setVerificationCode(
-                      e.target.value.replace(/\D/g, '').slice(0, 6)
-                    )
-                  }
+                  onChange={(e) => {
+                    // Only allow digits, max 6 characters
+                    const sanitized = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setVerificationCode(sanitized);
+                  }}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg text-center text-2xl tracking-widest"
                   placeholder="000000"
                   maxLength={6}

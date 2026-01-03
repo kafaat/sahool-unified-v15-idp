@@ -8,6 +8,8 @@
  * - اختبار الخدمات قبل الترقية
  */
 
+import { logger } from '@/lib/logger';
+
 export type ServiceType =
   | 'satellite'
   | 'weather'
@@ -241,7 +243,7 @@ export function getServiceVersions(): Record<ServiceType, ServiceVersion> {
       return { ...DEFAULT_SERVICE_VERSIONS, ...JSON.parse(stored) };
     }
   } catch (e) {
-    console.error('Failed to load service versions:', e);
+    logger.error('Failed to load service versions:', e);
   }
 
   return DEFAULT_SERVICE_VERSIONS;
@@ -261,7 +263,7 @@ export function setServiceVersions(versions: Partial<Record<ServiceType, Service
     // إرسال حدث للتحديث
     window.dispatchEvent(new CustomEvent('service-versions-changed', { detail: updated }));
   } catch (e) {
-    console.error('Failed to save service versions:', e);
+    logger.error('Failed to save service versions:', e);
   }
 }
 

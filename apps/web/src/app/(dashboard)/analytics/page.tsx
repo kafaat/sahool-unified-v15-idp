@@ -4,7 +4,7 @@
  */
 
 import { Metadata } from 'next';
-import { AnalyticsDashboard } from '@/features/analytics';
+import AnalyticsDashboard from './AnalyticsDashboardClient';
 
 export const metadata: Metadata = {
   title: 'Analytics & Reports | SAHOOL',

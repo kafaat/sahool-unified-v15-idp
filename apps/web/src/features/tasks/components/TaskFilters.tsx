@@ -20,7 +20,10 @@ export const TaskFiltersComponent: React.FC<TaskFiltersProps> = ({
   onChange,
   onReset,
 }) => {
-  const handleChange = (key: keyof TaskFilters, value: any) => {
+  const handleChange = <K extends keyof TaskFilters>(
+    key: K,
+    value: TaskFilters[K]
+  ) => {
     onChange({ ...filters, [key]: value || undefined });
   };
 

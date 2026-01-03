@@ -25,6 +25,7 @@ import {
   Eye,
 } from 'lucide-react';
 import Link from 'next/link';
+import { logger } from '../../lib/logger';
 
 // Dynamic import for map (no SSR)
 const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {
@@ -59,7 +60,7 @@ export default function FarmsPage() {
       const data = await fetchFarms();
       setFarms(data);
     } catch (error) {
-      console.error('Failed to load farms:', error);
+      logger.error('Failed to load farms:', error);
     } finally {
       setIsLoading(false);
     }

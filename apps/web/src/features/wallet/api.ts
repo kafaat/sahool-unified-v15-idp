@@ -3,6 +3,7 @@
  * واجهة برمجية لميزة المحفظة
  */
 
+import { logger } from '@/lib/logger';
 import type {
   Wallet,
   Transaction,
@@ -142,7 +143,7 @@ async function apiRequest<T>(
 
     return { data };
   } catch (error) {
-    console.error('API request error:', error);
+    logger.error('API request error:', error);
     return {
       error: error instanceof Error ? error.message : 'Network error',
       errorAr: errorMessages.networkError,
@@ -197,7 +198,7 @@ export const walletApi = {
     const response = await apiRequest<Wallet>('/wallet');
 
     if (response.error || !response.data) {
-      console.warn('Failed to fetch wallet, using mock data:', response.error);
+      logger.warn('Failed to fetch wallet, using mock data:', response.error);
       return mockWallet;
     }
 
@@ -212,7 +213,7 @@ export const walletApi = {
     const response = await apiRequest<WalletStats>('/wallet/stats');
 
     if (response.error || !response.data) {
-      console.warn('Failed to fetch wallet stats, using mock data:', response.error);
+      logger.warn('Failed to fetch wallet stats, using mock data:', response.error);
 
       // Calculate stats from mock wallet
       const stats: WalletStats = {
@@ -252,7 +253,7 @@ export const walletApi = {
     const response = await apiRequest<Transaction[]>(endpoint);
 
     if (response.error || !response.data) {
-      console.warn('Failed to fetch transactions, using mock data:', response.error);
+      logger.warn('Failed to fetch transactions, using mock data:', response.error);
       return filterTransactions(mockTransactions, filters);
     }
 
@@ -267,7 +268,7 @@ export const walletApi = {
     const response = await apiRequest<Transaction>(`/transactions/${id}`);
 
     if (response.error || !response.data) {
-      console.warn('Failed to fetch transaction, using mock data:', response.error);
+      logger.warn('Failed to fetch transaction, using mock data:', response.error);
 
       const transaction = mockTransactions.find((t) => t.id === id);
       if (!transaction) {

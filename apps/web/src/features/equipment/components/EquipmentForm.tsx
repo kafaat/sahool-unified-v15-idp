@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useCreateEquipment, useUpdateEquipment } from '../hooks/useEquipment';
 import type { Equipment, EquipmentFormData, EquipmentType, EquipmentStatus } from '../types';
 import { Loader2, Save } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface EquipmentFormProps {
   equipment?: Equipment;
@@ -44,7 +45,7 @@ export function EquipmentForm({ equipment, onSuccess, onCancel }: EquipmentFormP
       }
       onSuccess?.();
     } catch (error) {
-      console.error('Failed to save equipment:', error);
+      logger.error('Failed to save equipment:', error);
     }
   };
 

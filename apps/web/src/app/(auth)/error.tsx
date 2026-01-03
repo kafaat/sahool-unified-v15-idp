@@ -7,6 +7,7 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 export default function AuthError({
   error,
@@ -17,7 +18,7 @@ export default function AuthError({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error('Auth error:', error);
+    logger.error('Auth error:', error);
   }, [error]);
 
   return (

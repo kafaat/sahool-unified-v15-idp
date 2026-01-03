@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { Send, User, DollarSign, AlertCircle } from 'lucide-react';
 import { useTransfer } from '../hooks/useWallet';
 import type { TransferFormData } from '../types';
+import { logger } from '@/lib/logger';
 
 interface TransferFormProps {
   onSuccess?: () => void;
@@ -52,7 +53,7 @@ export const TransferForm: React.FC<TransferFormProps> = ({ onSuccess, onCancel 
       await transfer.mutateAsync(formData);
       onSuccess?.();
     } catch (error) {
-      console.error('Transfer failed:', error);
+      logger.error('Transfer failed:', error);
     }
   };
 

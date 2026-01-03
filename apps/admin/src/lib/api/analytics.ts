@@ -2,6 +2,7 @@
 // عميل API للتحليلات
 
 import { apiClient, API_URLS } from '../api';
+import { logger } from '../logger';
 
 // Profitability Analytics Types
 export interface ProfitabilityData {
@@ -90,7 +91,7 @@ export async function fetchProfitabilityData(params?: {
     const response = await apiClient.get(`${API_URLS.yieldEngine}/v1/profitability`, { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch profitability data:', error);
+    logger.error('Failed to fetch profitability data:', error);
     return generateMockProfitabilityData();
   }
 }
@@ -104,7 +105,7 @@ export async function fetchSatelliteData(params?: {
     const response = await apiClient.get(`${API_URLS.satellite}/v1/analysis`, { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch satellite data:', error);
+    logger.error('Failed to fetch satellite data:', error);
     return generateMockSatelliteData();
   }
 }
@@ -118,7 +119,7 @@ export async function fetchNDVITrends(params?: {
     const response = await apiClient.get(`${API_URLS.satellite}/v1/ndvi-trends`, { params });
     return response.data;
   } catch (error) {
-    console.error('Failed to fetch NDVI trends:', error);
+    logger.error('Failed to fetch NDVI trends:', error);
     return [];
   }
 }

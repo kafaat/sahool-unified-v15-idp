@@ -6,6 +6,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   ThumbsUp,
   MessageCircle,
@@ -134,12 +135,18 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         {post.images && post.images.length > 0 && (
           <div className="mt-4 grid grid-cols-2 gap-2">
             {post.images.slice(0, 4).map((image, index) => (
-              <img
-                key={index}
-                src={image}
-                alt=""
-                className="w-full h-48 object-cover rounded-lg"
-              />
+              <div key={index} className="relative w-full h-48">
+                <Image
+                  src={image}
+                  alt={`Post image ${index + 1}`}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover rounded-lg"
+                  loading="lazy"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+                />
+              </div>
             ))}
           </div>
         )}

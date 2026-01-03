@@ -11,6 +11,7 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import { fetchDiagnoses, updateDiagnosisStatus } from '@/lib/api';
 import { formatDate, cn } from '@/lib/utils';
 import type { DiagnosisRecord } from '@/types';
+import { logger } from '../../lib/logger';
 import {
   Bug,
   Filter,
@@ -74,7 +75,7 @@ function DiseasesContent() {
       const data = await fetchDiagnoses();
       setDiagnoses(data);
     } catch (error) {
-      console.error('Failed to load diagnoses:', error);
+      logger.error('Failed to load diagnoses:', error);
     } finally {
       setIsLoading(false);
     }
@@ -132,7 +133,7 @@ function DiseasesContent() {
         setSelectedDiagnosis({ ...selectedDiagnosis, status });
       }
     } catch (error) {
-      console.error('Failed to update status:', error);
+      logger.error('Failed to update status:', error);
     } finally {
       setIsUpdating(false);
     }

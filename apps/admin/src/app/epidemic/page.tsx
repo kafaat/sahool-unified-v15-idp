@@ -10,6 +10,7 @@ import DataTable from '@/components/ui/DataTable';
 import { fetchDiagnoses, fetchDiagnosisStats } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import type { DiagnosisRecord } from '@/types';
+import { logger } from '../../lib/logger';
 import {
   Bug,
   AlertTriangle,
@@ -70,7 +71,7 @@ export default function EpidemicCenterPage() {
       setDiagnoses(diagnosesData);
       setStats(statsData);
     } catch (error) {
-      console.error('Failed to load epidemic data:', error);
+      logger.error('Failed to load epidemic data:', error);
     } finally {
       setIsLoading(false);
     }

@@ -6,6 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { FieldFormData, FieldFilters } from '../types';
 import { fieldsApi } from '../api';
+import { logger } from '@/lib/logger';
 
 // Query Keys
 export const fieldKeys = {
@@ -71,13 +72,13 @@ export function useCreateField() {
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        console.error('Create field error:', errorData.messageAr || errorData.message);
+        logger.error('Create field error:', errorData.messageAr || errorData.message);
       } catch {
-        console.error('Create field error:', error.message);
+        logger.error('Create field error:', error.message);
       }
     },
   });
@@ -108,13 +109,13 @@ export function useUpdateField() {
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        console.error('Update field error:', errorData.messageAr || errorData.message);
+        logger.error('Update field error:', errorData.messageAr || errorData.message);
       } catch {
-        console.error('Update field error:', error.message);
+        logger.error('Update field error:', error.message);
       }
     },
   });
@@ -137,13 +138,13 @@ export function useDeleteField() {
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        console.error('Delete field error:', errorData.messageAr || errorData.message);
+        logger.error('Delete field error:', errorData.messageAr || errorData.message);
       } catch {
-        console.error('Delete field error:', error.message);
+        logger.error('Delete field error:', error.message);
       }
     },
   });

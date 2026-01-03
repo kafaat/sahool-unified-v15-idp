@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../../../core/storage/database.dart';
 import '../../../../core/sync/network_status.dart';
 import '../../../../core/geo/geojson.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../../domain/entities/field.dart' as domain;
 import '../remote/fields_api.dart';
 
@@ -121,8 +122,10 @@ class FieldsRepo {
       ),
     );
 
-    print(
-        '✅ Field "$name" created locally (${areaHectares.toStringAsFixed(2)} ha)');
+    AppLogger.i('Field created locally', tag: 'FieldsRepo', data: {
+      'name': name,
+      'area_ha': areaHectares.toStringAsFixed(2),
+    });
 
     return domain.Field(
       id: fieldId,
@@ -184,7 +187,10 @@ class FieldsRepo {
       ),
     );
 
-    print('✅ Field boundary updated (${areaHectares.toStringAsFixed(2)} ha)');
+    AppLogger.i('Field boundary updated', tag: 'FieldsRepo', data: {
+      'fieldId': fieldId,
+      'area_ha': areaHectares.toStringAsFixed(2),
+    });
   }
 
   /// Update field properties (name, crop type, etc.)
@@ -253,7 +259,7 @@ class FieldsRepo {
       ),
     );
 
-    print('🗑️ Field soft-deleted: $fieldId');
+    AppLogger.i('Field soft-deleted', tag: 'FieldsRepo', data: {'fieldId': fieldId});
   }
 
   // ============================================================
@@ -295,7 +301,7 @@ class FieldsRepo {
 
       return fieldMaps.length;
     } catch (e) {
-      print('❌ Failed to refresh fields: $e');
+      AppLogger.e('Failed to refresh fields', tag: 'FieldsRepo', error: e);
       rethrow;
     }
   }

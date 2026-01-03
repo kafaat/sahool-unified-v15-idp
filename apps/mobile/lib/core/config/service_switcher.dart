@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
+import '../utils/app_logger.dart';
+import 'env_config.dart';
 
 /// أنواع الخدمات المتاحة
 enum ServiceType {
@@ -305,7 +307,7 @@ class ServiceSwitcher {
           _versions[serviceType] = version;
         }
       } catch (e) {
-        print('Failed to load service versions: $e');
+        AppLogger.e('Failed to load service versions', tag: 'ServiceSwitcher', error: e);
       }
     }
 
@@ -367,7 +369,10 @@ class ServiceSwitcher {
   }
 
   /// الحصول على URL الخدمة
-  String getServiceUrl(ServiceType service, {String baseHost = '10.0.2.2'}) {
+  String getServiceUrl(ServiceType service, {String? baseHost}) {
+    // Use EnvConfig for default host
+    baseHost ??= EnvConfig.developmentHost;
+
     final config = ServiceRegistry.services[service];
     if (config == null) return '';
 
@@ -388,15 +393,20 @@ class ServiceSwitcher {
 
     endpointConfig ??= config.modern;
 
-    return 'http://$baseHost:${endpointConfig.port}${endpointConfig.endpoint}';
+    // Use EnvConfig for protocol
+    final protocol = EnvConfig.apiProtocol;
+    return '$protocol://$baseHost:${endpointConfig.port}${endpointConfig.endpoint}';
   }
 
   /// فحص صحة خدمة
   Future<HealthCheckResult> checkHealth(
     ServiceType service,
     ServiceVersion version, {
-    String baseHost = '10.0.2.2',
+    String? baseHost,
   }) async {
+    // Use EnvConfig for default host
+    baseHost ??= EnvConfig.developmentHost;
+
     final config = ServiceRegistry.services[service];
     if (config == null) {
       return const HealthCheckResult(
@@ -427,7 +437,9 @@ class ServiceSwitcher {
       );
     }
 
-    final url = 'http://$baseHost:${endpointConfig.port}/healthz';
+    // Use EnvConfig for protocol
+    final protocol = EnvConfig.apiProtocol;
+    final url = '$protocol://$baseHost:${endpointConfig.port}/healthz';
     final stopwatch = Stopwatch()..start();
 
     try {
@@ -452,7 +464,9 @@ class ServiceSwitcher {
 
   /// فحص صحة جميع الخدمات
   Future<Map<ServiceType, Map<ServiceVersion, HealthCheckResult>>>
-      checkAllHealth({String baseHost = '10.0.2.2'}) async {
+      checkAllHealth({String? baseHost}) async {
+    // Use EnvConfig for default host
+    baseHost ??= EnvConfig.developmentHost;
     final results = <ServiceType, Map<ServiceVersion, HealthCheckResult>>{};
 
     for (final entry in ServiceRegistry.services.entries) {

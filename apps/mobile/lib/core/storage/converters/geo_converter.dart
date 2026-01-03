@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:latlong2/latlong.dart';
+import '../../utils/app_logger.dart';
 
 /// GeoPolygon TypeConverter for Drift
 ///
@@ -29,7 +30,7 @@ class GeoPolygonConverter extends TypeConverter<List<LatLng>, String> {
         return const LatLng(0, 0);
       }).toList();
     } catch (e) {
-      print('GeoPolygonConverter: Failed to parse polygon: $e');
+      AppLogger.e('Failed to parse polygon', tag: 'GeoPolygonConverter', error: e);
       return [];
     }
   }
@@ -67,7 +68,7 @@ class GeoPointConverter extends TypeConverter<LatLng?, String?> {
       }
       return null;
     } catch (e) {
-      print('GeoPointConverter: Failed to parse point: $e');
+      AppLogger.e('Failed to parse point', tag: 'GeoPointConverter', error: e);
       return null;
     }
   }

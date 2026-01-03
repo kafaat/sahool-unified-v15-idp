@@ -1,7 +1,7 @@
 # ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - PORT CONFLICT                                         ║
-# ║ Port Conflict with: globalgap-compliance (port 8120)                       ║
-# ║ Suggested new port: 8122                                                    ║
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has port conflict with: globalgap-compliance (port 8120)      ║
+# ║ Port Conflict: 8120 → Suggested new port: 8122                             ║
 # ║ See: docs/DEPRECATED_SERVICES.md                                           ║
 # ╚════════════════════════════════════════════════════════════════════════════╝
 

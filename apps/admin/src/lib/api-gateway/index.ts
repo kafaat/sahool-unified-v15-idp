@@ -11,6 +11,7 @@
  */
 
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
+import { logger } from '../../lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -239,7 +240,7 @@ function recordFailure(service: ServiceName): void {
   if (breaker.failures >= CIRCUIT_BREAKER_THRESHOLD) {
     breaker.state = 'open';
     breaker.nextRetry = new Date(Date.now() + CIRCUIT_BREAKER_TIMEOUT);
-    console.warn(`🔴 Circuit breaker OPEN for ${service}`);
+    logger.warn(`🔴 Circuit breaker OPEN for ${service}`);
   }
 }
 
@@ -258,7 +259,7 @@ function canRequest(service: ServiceName): boolean {
   if (breaker.state === 'open' && breaker.nextRetry) {
     if (new Date() >= breaker.nextRetry) {
       breaker.state = 'half-open';
-      console.log(`🟡 Circuit breaker HALF-OPEN for ${service}`);
+      logger.log(`🟡 Circuit breaker HALF-OPEN for ${service}`);
       return true;
     }
     return false;

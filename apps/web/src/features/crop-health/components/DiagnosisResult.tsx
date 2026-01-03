@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useDiagnosisResult, useRequestConsultation } from '../hooks/useCropHealth';
 import type { DiagnosedDisease, Treatment } from '../types';
+import { logger } from '@/lib/logger';
 
 interface DiagnosisResultProps {
   requestId: string;
@@ -78,7 +79,7 @@ export const DiagnosisResult: React.FC<DiagnosisResultProps> = ({ requestId }) =
       alert('تم إرسال طلب الاستشارة بنجاح');
     } catch (err) {
       alert('حدث خطأ أثناء إرسال طلب الاستشارة');
-      console.error(err);
+      logger.error(err);
     }
   };
 

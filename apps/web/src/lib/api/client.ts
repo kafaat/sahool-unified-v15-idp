@@ -3,6 +3,8 @@
  * Unified API client for connecting frontend to backend services
  */
 
+import { sanitizers, validators, validationErrors } from './validation';
+import { logger } from '../logger';
 import type {
   ApiResponse,
   Field,
@@ -29,7 +31,11 @@ import type {
   User,
 } from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL environment variable is required');
+}
 
 // Enforce HTTPS in production (only at runtime in browser, not during build)
 if (
@@ -38,7 +44,7 @@ if (
   !API_BASE_URL.startsWith('https://') &&
   !API_BASE_URL.includes('localhost')
 ) {
-  console.warn('Warning: API_BASE_URL should use HTTPS in production environment');
+  logger.warn('Warning: API_BASE_URL should use HTTPS in production environment');
 }
 
 interface RequestOptions extends RequestInit {
@@ -53,11 +59,10 @@ const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000; // 1 second
 
 // Helper function to sanitize HTML and prevent XSS
+// Now using comprehensive sanitization from validation utility
 function sanitizeInput(input: string): string {
   if (typeof input !== 'string') return input;
-  return input
-    .replace(/[<>]/g, '') // Remove < and > to prevent HTML injection
-    .trim();
+  return sanitizers.html(input);
 }
 
 // Helper function to delay for retry logic
@@ -198,14 +203,13 @@ class SahoolApiClient {
 
   async login(email: string, password: string) {
     // Sanitize email input to prevent XSS
-    const sanitizedEmail = sanitizeInput(email);
+    const sanitizedEmail = sanitizers.email(email);
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(sanitizedEmail)) {
+    // Validate email format using comprehensive validator
+    if (!validators.email(sanitizedEmail)) {
       return {
         success: false,
-        error: 'Invalid email format',
+        error: validationErrors.email,
       };
     }
 
@@ -557,21 +561,29 @@ class SahoolApiClient {
   }
 
   async sendFieldMessage(fieldId: string, message: string) {
-    // Sanitize message to prevent XSS
-    const sanitizedMessage = sanitizeInput(message);
+    // Sanitize message to prevent XSS using comprehensive sanitizer
+    const sanitizedMessage = sanitizers.html(message);
+
+    // Validate message is safe text
+    if (!validators.safeText(message)) {
+      return {
+        success: false,
+        error: validationErrors.unsafeText,
+      };
+    }
 
     // Validate message length
     if (sanitizedMessage.length === 0) {
       return {
         success: false,
-        error: 'Message cannot be empty',
+        error: validationErrors.required,
       };
     }
 
     if (sanitizedMessage.length > 2000) {
       return {
         success: false,
-        error: 'Message exceeds maximum length of 2000 characters',
+        error: validationErrors.tooLong,
       };
     }
 

@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { apiClient, API_URLS } from '@/lib/api';
 import { TrendingUp, Loader2, DollarSign, Scale, Droplets, Thermometer } from 'lucide-react';
+import { logger } from '../../lib/logger';
 
 interface YieldPrediction {
   prediction_id: string;
@@ -73,7 +74,7 @@ export default function YieldPage() {
       const response = await apiClient.post(`${API_URLS.yieldEngine}/v1/predict`, formData);
       setPrediction(response.data);
     } catch (err) {
-      console.error('Prediction failed:', err);
+      logger.error('Prediction failed:', err);
       // Mock prediction for development
       setPrediction({
         prediction_id: 'mock-1',

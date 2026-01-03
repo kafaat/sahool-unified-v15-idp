@@ -8,6 +8,7 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
+import { logger } from '@/lib/logger';
 
 // Types
 type Permission = string;
@@ -106,11 +107,11 @@ export async function getCurrentUser(): Promise<User | null> {
     // Log specific JWT errors for debugging (in development only)
     if (process.env.NODE_ENV === 'development') {
       if (error instanceof jose.errors.JWTExpired) {
-        console.error('JWT token has expired');
+        logger.error('JWT token has expired');
       } else if (error instanceof jose.errors.JWTClaimValidationFailed) {
-        console.error('JWT claim validation failed');
+        logger.error('JWT claim validation failed');
       } else if (error instanceof jose.errors.JWSSignatureVerificationFailed) {
-        console.error('JWT signature verification failed');
+        logger.error('JWT signature verification failed');
       }
     }
     // Return null without exposing details in production

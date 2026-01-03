@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { User, MapPin, Building2, Upload, Loader2, Check } from 'lucide-react';
 import { useUserProfile, useUpdateProfile, useUploadAvatar } from '../hooks/useSettings';
 import type { UpdateProfilePayload } from '../types';
+import { logger } from '@/lib/logger';
 
 export const ProfileForm: React.FC = () => {
   const { data: profile, isLoading } = useUserProfile();
@@ -70,7 +71,7 @@ export const ProfileForm: React.FC = () => {
       alert('تم تحديث الملف الشخصي بنجاح');
     } catch (err) {
       alert('حدث خطأ أثناء تحديث الملف الشخصي');
-      console.error(err);
+      logger.error(err);
     }
   };
 

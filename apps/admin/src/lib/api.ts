@@ -5,6 +5,7 @@ import axios, { type AxiosResponse, type AxiosError, type InternalAxiosRequestCo
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
 import { apiClient as authApiClient } from './api-client';
 import Cookies from 'js-cookie';
+import { logger } from '../lib/logger';
 
 // Service ports
 const PORTS = {
@@ -176,7 +177,7 @@ export async function fetchDiagnoses(params?: {
       } : undefined
     }));
   } catch (error) {
-    console.log('Falling back to mock diagnoses data');
+    logger.log('Falling back to mock diagnoses data');
     return generateMockDiagnoses();
   }
 }
@@ -236,7 +237,7 @@ export async function updateDiagnosisStatus(
     );
     return response.data;
   } catch (error) {
-    console.error('Failed to update diagnosis status:', error);
+    logger.error('Failed to update diagnosis status:', error);
     // Return mock success for development
     return { success: true, diagnosis_id: id, status };
   }

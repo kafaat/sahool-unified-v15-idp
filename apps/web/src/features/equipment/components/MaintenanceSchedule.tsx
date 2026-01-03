@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useMaintenanceRecords, useCompleteMaintenance } from '../hooks/useEquipment';
 import type { MaintenanceRecord, MaintenanceStatus } from '../types';
 import { Calendar, CheckCircle, AlertCircle, Loader2, Plus } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface MaintenanceScheduleProps {
   equipmentId?: string;
@@ -45,7 +46,7 @@ export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleP
     try {
       await completeMutation.mutateAsync({ id: recordId });
     } catch (error) {
-      console.error('Failed to complete maintenance:', error);
+      logger.error('Failed to complete maintenance:', error);
     }
   };
 

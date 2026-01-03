@@ -9,6 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { sensorsApi } from '../api';
 import type { SensorFilters, SensorReadingsQuery, SensorReading } from '../types';
+import { logger } from '@/lib/logger';
 
 // Query Keys
 export const sensorKeys = {
@@ -125,7 +126,7 @@ export function useSensorStream(
         queryClient.setQueryData(sensorKeys.latest(sensorId), reading);
         queryClient.invalidateQueries({ queryKey: sensorKeys.detail(sensorId) });
       } catch (e) {
-        console.error('Failed to parse sensor reading:', e);
+        logger.error('Failed to parse sensor reading:', e);
       }
     };
 

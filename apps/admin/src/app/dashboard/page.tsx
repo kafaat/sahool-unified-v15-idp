@@ -32,6 +32,7 @@ import { useWebSocket, useWebSocketEvent } from '@/hooks/useWebSocket';
 import { useRealTimeAlerts } from '@/hooks/useRealTimeAlerts';
 import type { SensorMessage, DiagnosisMessage } from '@/hooks/useWebSocket';
 import {
+import { logger } from '../../lib/logger';
   BarChart,
   Bar,
   XAxis,
@@ -124,7 +125,7 @@ export default function DashboardPage() {
         setFarms(farmsData);
         setRecentDiagnoses(diagnosesData.slice(0, 5));
       } catch (error) {
-        console.error('Failed to load dashboard data:', error);
+        logger.error('Failed to load dashboard data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -168,7 +169,7 @@ export default function DashboardPage() {
   // Real-time sensor updates via WebSocket
   useWebSocketEvent<SensorMessage>('sensor', (sensor) => {
     // Log sensor readings - can be extended to show live sensor data
-    console.log('New sensor reading:', sensor);
+    logger.log('New sensor reading:', sensor);
   });
 
   // Update critical alerts count from real-time data

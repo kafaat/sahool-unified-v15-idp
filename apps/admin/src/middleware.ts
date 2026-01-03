@@ -8,6 +8,12 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import {
+  generateNonce,
+  getCSPHeader,
+  getCSPHeaderName,
+  getCSPConfig,
+} from '@/lib/security/csp-config';
 
 // Routes that don't require authentication
 const publicRoutes = ['/login', '/api/auth'];
@@ -42,6 +48,12 @@ export function middleware(request: NextRequest) {
   // Token exists - add security headers
   const response = NextResponse.next();
 
+  // Generate nonce for CSP
+  const nonce = generateNonce();
+
+  // Store nonce in response headers for use in HTML
+  response.headers.set('X-Nonce', nonce);
+
   // Add security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -50,8 +62,18 @@ export function middleware(request: NextRequest) {
 
   // HSTS - only in production with HTTPS
   if (process.env.NODE_ENV === 'production') {
-    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains'
+    );
   }
+
+  // Content Security Policy with nonce-based security
+  const cspConfig = getCSPConfig(nonce);
+  const cspHeader = getCSPHeader(nonce);
+  const cspHeaderName = getCSPHeaderName(cspConfig.reportOnly);
+
+  response.headers.set(cspHeaderName, cspHeader);
 
   return response;
 }

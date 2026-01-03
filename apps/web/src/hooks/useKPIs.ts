@@ -7,6 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api';
+import { logger } from '@/lib/logger';
 import type { KPI } from '../types';
 
 // Default KPIs for fallback
@@ -122,7 +123,7 @@ async function fetchKPIs(tenantId?: string): Promise<KPI[]> {
 
     return kpis.length > 0 ? kpis : DEFAULT_KPIS;
   } catch {
-    console.warn('[useKPIs] API unavailable, using default KPIs');
+    logger.warn('[useKPIs] API unavailable, using default KPIs');
     return DEFAULT_KPIS;
   }
 }

@@ -9,6 +9,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import {
+import { logger } from '../lib/logger';
   getWebSocketClient,
   ConnectionStatus,
   type AlertMessage,
@@ -81,7 +82,7 @@ interface UseWebSocketReturn {
  *
  *   useEffect(() => {
  *     const unsubscribe = subscribe('alert', (alert: AlertMessage) => {
- *       console.log('New alert:', alert);
+ *       logger.log('New alert:', alert);
  *     });
  *
  *     return unsubscribe;

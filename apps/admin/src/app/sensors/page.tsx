@@ -10,6 +10,7 @@ import DataTable from '@/components/ui/DataTable';
 import { API_URLS, apiClient } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
+import { logger } from '../../lib/logger';
   Cpu,
   Thermometer,
   Droplets,
@@ -145,7 +146,7 @@ export default function SensorsPage() {
       setFarmsData(response.data);
     } catch (error) {
       // Fallback to mock data
-      console.log('Using mock sensor data');
+      logger.log('Using mock sensor data');
       setFarmsData(generateMockSensors());
     } finally {
       setIsLoading(false);

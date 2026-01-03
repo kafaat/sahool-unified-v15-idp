@@ -8,6 +8,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useCallback, useState, useRef } from 'react';
 import { alertsApi, type Alert, type AlertFilters } from '../api';
+import { logger } from '@/lib/logger';
 
 // Query Keys
 export const alertKeys = {
@@ -154,7 +155,7 @@ export function useAlertStream(onAlert: (alert: Alert) => void) {
         queryClient.invalidateQueries({ queryKey: alertKeys.lists() });
         queryClient.invalidateQueries({ queryKey: alertKeys.count() });
       } catch (e) {
-        console.error('Failed to parse alert:', e);
+        logger.error('Failed to parse alert:', e);
       }
     };
 

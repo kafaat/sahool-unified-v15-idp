@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import {
+import { logger } from '../../../lib/logger';
   BarChart,
   Bar,
   XAxis,
@@ -97,7 +98,7 @@ export default function SprayPage() {
       setWindows(windowsData);
       setHistory(historyData);
     } catch (error) {
-      console.error('Failed to load spray data:', error);
+      logger.error('Failed to load spray data:', error);
     } finally {
       setIsLoading(false);
     }

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import {
+import { logger } from '../../../lib/logger';
   LineChart,
   Line,
   XAxis,
@@ -124,7 +125,7 @@ export default function SatellitePage() {
         setSelectedField(satelliteData.fields[0].id);
       }
     } catch (error) {
-      console.error('Failed to load satellite data:', error);
+      logger.error('Failed to load satellite data:', error);
     } finally {
       setIsLoading(false);
     }

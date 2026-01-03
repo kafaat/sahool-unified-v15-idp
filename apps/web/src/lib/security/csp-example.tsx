@@ -7,6 +7,7 @@
  */
 
 import { getNonce, createInlineScript, createInlineStyle } from './nonce';
+import { logger } from '@/lib/logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Example 1: Server Component with Inline Script
@@ -16,7 +17,7 @@ export async function ExampleWithInlineScript() {
   const nonce = await getNonce();
 
   const initScript = `
-    console.log('Initializing component...');
+    logger.log('Initializing component...');
     window.SAHOOL_CONFIG = {
       apiUrl: '${process.env.NEXT_PUBLIC_API_URL}',
       version: '16.0.0'
@@ -122,7 +123,7 @@ export async function ExampleAnalyticsComponent() {
     (function() {
       window.analytics = {
         track: function(event, properties) {
-          console.log('Track:', event, properties);
+          logger.log('Track:', event, properties);
           // Send to your analytics service
           fetch('/api/analytics', {
             method: 'POST',
@@ -158,7 +159,7 @@ export async function ExampleConditionalScript({ enableFeature }: ConditionalScr
   }
 
   const featureScript = `
-    console.log('Feature enabled');
+    logger.log('Feature enabled');
     // Initialize feature
   `;
 
@@ -204,7 +205,7 @@ export async function ExampleErrorLogging() {
 
   const errorLoggingScript = `
     window.addEventListener('error', function(event) {
-      console.error('Global error:', event.error);
+      logger.error('Global error:', event.error);
 
       // Send to error tracking service
       fetch('/api/log-error', {

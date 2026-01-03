@@ -38,7 +38,10 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     await onSubmit(formData);
   };
 
-  const handleChange = (field: keyof FieldFormData, value: any) => {
+  const handleChange = <K extends keyof FieldFormData>(
+    field: K,
+    value: FieldFormData[K]
+  ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

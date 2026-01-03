@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useAlertRules, useToggleAlertRule, useDeleteAlertRule } from '../hooks/useActuators';
 import type { AlertRule } from '../types';
 import { Bell, AlertCircle, Plus, Trash2, Power, Loader2 } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 const severityColors = {
   info: 'bg-blue-100 text-blue-800',
@@ -39,7 +40,7 @@ export function AlertRules() {
     try {
       await toggleMutation.mutateAsync({ id: ruleId, enabled: !currentEnabled });
     } catch (error) {
-      console.error('Failed to toggle alert rule:', error);
+      logger.error('Failed to toggle alert rule:', error);
     }
   };
 
@@ -49,7 +50,7 @@ export function AlertRules() {
     try {
       await deleteMutation.mutateAsync(ruleId);
     } catch (error) {
-      console.error('Failed to delete alert rule:', error);
+      logger.error('Failed to delete alert rule:', error);
     }
   };
 

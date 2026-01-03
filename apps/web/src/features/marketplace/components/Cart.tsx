@@ -6,6 +6,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 
@@ -152,9 +153,18 @@ const CartItem: React.FC<CartItemProps> = ({ item, onRemove, onUpdateQuantity })
   return (
     <div className="flex gap-3 p-3 bg-gray-50 rounded-lg">
       {/* Image */}
-      <div className="w-20 h-20 flex-shrink-0 bg-white rounded-lg overflow-hidden">
+      <div className="relative w-20 h-20 flex-shrink-0 bg-white rounded-lg overflow-hidden">
         {product.imageUrl ? (
-          <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            fill
+            sizes="80px"
+            className="object-cover"
+            loading="lazy"
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWEREiMxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <ShoppingCart className="w-8 h-8 text-gray-300" />

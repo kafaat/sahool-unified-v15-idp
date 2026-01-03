@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { FileText, Download, CheckCircle } from 'lucide-react';
 import { useGenerateReport, useDownloadReport } from '../hooks/useAnalytics';
 import type { AnalyticsFilters, ReportConfig, ReportSectionType } from '../types';
+import { logger } from '@/lib/logger';
 
 interface ReportGeneratorProps {
   filters?: AnalyticsFilters;
@@ -103,7 +104,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = ({ }) => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Failed to generate report:', error);
+      logger.error('Failed to generate report:', error);
     }
   };
 

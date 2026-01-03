@@ -4,6 +4,7 @@
  */
 
 import type { Product, ProductFilters, Order, OrderFilters } from './types';
+import { logger } from '@/lib/logger';
 
 // const API_BASE = '/api/marketplace';
 
@@ -147,9 +148,16 @@ export const marketplaceApi = {
   /**
    * Get order by ID
    */
-  async getOrderById(_id: string): Promise<Order> {
-    // TODO: Implement actual API call when backend is ready
-    throw new Error('Order not found');
+  async getOrderById(id: string): Promise<Order | null> {
+    try {
+      // When backend is ready, replace with: const response = await fetch(`/api/marketplace/orders/${id}`);
+      // For now, return null to indicate order not found
+      logger.warn(`Order lookup not yet implemented for ID: ${id}`);
+      return null;
+    } catch (error) {
+      logger.error('Failed to fetch order:', error);
+      return null;
+    }
   },
 
   /**
@@ -184,8 +192,23 @@ export const marketplaceApi = {
   /**
    * Cancel order
    */
-  async cancelOrder(_id: string): Promise<Order> {
-    // TODO: Implement actual API call when backend is ready
-    throw new Error('Not implemented');
+  async cancelOrder(id: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      // When backend is ready, replace with:
+      // const response = await fetch(`/api/marketplace/orders/${id}/cancel`, { method: 'POST' });
+      // return response.json();
+
+      logger.warn(`Order cancellation not yet implemented for ID: ${id}`);
+      return {
+        success: false,
+        error: 'عملية الإلغاء غير متوفرة حالياً | Cancellation not available yet',
+      };
+    } catch (error) {
+      logger.error('Failed to cancel order:', error);
+      return {
+        success: false,
+        error: 'فشل في إلغاء الطلب | Failed to cancel order',
+      };
+    }
   },
 };

@@ -17,6 +17,7 @@ import {
   PieChart as PieChartIcon
 } from 'lucide-react';
 import {
+import { logger } from '../../../lib/logger';
   BarChart,
   Bar,
   LineChart,
@@ -99,7 +100,7 @@ export default function ProfitabilityPage() {
       const profitData = await fetchProfitabilityData({ period: selectedPeriod });
       setData(profitData);
     } catch (error) {
-      console.error('Failed to load profitability data:', error);
+      logger.error('Failed to load profitability data:', error);
     } finally {
       setIsLoading(false);
     }

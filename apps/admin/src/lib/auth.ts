@@ -7,6 +7,7 @@
  */
 
 import Cookies from 'js-cookie';
+import { logger } from '../lib/logger';
 
 const AUTH_TOKEN_KEY = 'sahool_admin_token';
 const AUTH_USER_KEY = 'sahool_admin_user';
@@ -16,7 +17,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Enforce HTTPS in production
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production' && !API_URL.startsWith('https://')) {
-  console.warn('Warning: API_URL should use HTTPS in production environment');
+  logger.warn('Warning: API_URL should use HTTPS in production environment');
 }
 
 export interface User {

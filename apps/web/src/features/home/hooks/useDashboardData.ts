@@ -4,6 +4,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
+import { logger } from '@/lib/logger';
 
 export interface DashboardData {
   stats: {
@@ -40,12 +41,16 @@ export interface DashboardData {
 }
 
 async function fetchDashboardData(): Promise<DashboardData> {
-  // TODO: Replace with actual API call
-  // const response = await fetch('/api/dashboard');
-  // return response.json();
+  try {
+    // When backend is ready, replace with:
+    // const response = await fetch('/api/dashboard');
+    // if (!response.ok) {
+    //   throw new Error('Failed to fetch dashboard data');
+    // }
+    // return response.json();
 
-  // Mock data for now
-  return {
+    // Mock data for now
+    return {
     stats: {
       totalFields: 12,
       activeTasks: 8,
@@ -116,6 +121,21 @@ async function fetchDashboardData(): Promise<DashboardData> {
       },
     ],
   };
+  } catch (error) {
+    logger.error('Failed to fetch dashboard data:', error);
+    // Return default/empty data structure on error
+    return {
+      stats: {
+        totalFields: 0,
+        activeTasks: 0,
+        activeAlerts: 0,
+        completedTasks: 0,
+      },
+      weather: null,
+      recentActivity: [],
+      upcomingTasks: [],
+    };
+  }
 }
 
 export function useDashboardData() {

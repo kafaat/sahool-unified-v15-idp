@@ -1,15 +1,25 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import maplibregl from 'maplibre-gl';
+import { createRoot } from 'react-dom/client';
+import maplibregl, { type MapLayerMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { apiClient } from '@/lib/api';
 import type { Field } from '@/lib/api/types';
+import { logger } from '@/lib/logger';
 
 interface MapViewProps {
   tenantId?: string;
   onFieldSelect?: (fieldId: string | null) => void;
   fields?: Field[];
+}
+
+interface PopupData {
+  name: string;
+  crop: string;
+  area: number | string;
+  ndvi: number | null;
+  status: 'healthy' | 'warning' | 'critical';
 }
 
 // Status colors for NDVI/health
@@ -26,9 +36,42 @@ function getFieldStatus(ndviValue?: number): 'healthy' | 'warning' | 'critical' 
   return 'critical';
 }
 
+// Secure popup content component using React instead of raw HTML
+const PopupContent: React.FC<PopupData> = ({ name, crop, area, ndvi, status }) => {
+  const statusClasses = {
+    healthy: 'bg-green-100 text-green-800',
+    warning: 'bg-yellow-100 text-yellow-800',
+    critical: 'bg-red-100 text-red-800',
+  };
+
+  const statusLabels = {
+    healthy: 'صحي',
+    warning: 'تحذير',
+    critical: 'حرج',
+  };
+
+  return (
+    <div className="p-2 text-right" dir="rtl">
+      <h4 className="font-bold text-sm">{name || 'حقل'}</h4>
+      <p className="text-xs text-gray-600">المحصول: {crop || '-'}</p>
+      <p className="text-xs text-gray-600">المساحة: {area || '0'} هكتار</p>
+      <p className="text-xs text-gray-600">
+        NDVI: {ndvi !== null && ndvi !== undefined ? ndvi.toFixed(2) : 'N/A'}
+      </p>
+      <div className="mt-2">
+        <span className={`text-xs px-2 py-0.5 rounded-full ${statusClasses[status]}`}>
+          {statusLabels[status]}
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSelect, fields: propFields }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<InstanceType<typeof maplibregl.Map> | null>(null);
+  const popupRef = useRef<maplibregl.Popup | null>(null);
+  const popupRootRef = useRef<ReturnType<typeof createRoot> | null>(null);
   const [, setSelectedField] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fields, setFields] = useState<Field[]>(propFields || []);
@@ -47,7 +90,7 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
             setFields(response.data);
           }
         })
-        .catch(console.error);
+        .catch(logger.error);
     }
   }, [tenantId, propFields]);
 
@@ -183,8 +226,8 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
       },
     });
 
-    // Click handler
-    map.current.on('click', 'fields-fill', (e: any) => {
+    // Click handler - using React createRoot for secure popup rendering
+    map.current.on('click', 'fields-fill', (e: MapLayerMouseEvent) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         const props = feature.properties;
@@ -193,41 +236,53 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
         setSelectedField(fieldId);
         onFieldSelect?.(fieldId);
 
-        // Show popup with escaped content to prevent XSS
-        const escapeHtml = (text: string | number | undefined): string => {
-          if (text === undefined || text === null) return '';
-          const str = String(text);
-          const div = document.createElement('div');
-          div.textContent = str;
-          return div.innerHTML;
-        };
+        // Clean up existing popup and React root
+        if (popupRef.current) {
+          popupRef.current.remove();
+        }
+        if (popupRootRef.current) {
+          popupRootRef.current.unmount();
+          popupRootRef.current = null;
+        }
 
-        const safeName = escapeHtml(props?.name) || 'حقل';
-        const safeCrop = escapeHtml(props?.crop) || '-';
-        const safeArea = escapeHtml(props?.area) || '0';
-        const safeNdvi = props?.ndvi ? escapeHtml(props.ndvi.toFixed(2)) : 'N/A';
-        const statusClass = props?.status === 'healthy' ? 'bg-green-100 text-green-800' :
-                           props?.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                           'bg-red-100 text-red-800';
-        const statusText = props?.status === 'healthy' ? 'صحي' :
-                          props?.status === 'warning' ? 'تحذير' : 'حرج';
+        // Create popup container
+        const popupContainer = document.createElement('div');
 
-        new maplibregl.Popup()
+        // Create new popup with the container element
+        popupRef.current = new maplibregl.Popup({
+          closeButton: true,
+          closeOnClick: false,
+        })
           .setLngLat(e.lngLat)
-          .setHTML(`
-            <div class="p-2 text-right" dir="rtl">
-              <h4 class="font-bold text-sm">${safeName}</h4>
-              <p class="text-xs text-gray-600">المحصول: ${safeCrop}</p>
-              <p class="text-xs text-gray-600">المساحة: ${safeArea} هكتار</p>
-              <p class="text-xs text-gray-600">NDVI: ${safeNdvi}</p>
-              <div class="mt-2">
-                <span class="text-xs px-2 py-0.5 rounded-full ${statusClass}">
-                  ${statusText}
-                </span>
-              </div>
-            </div>
-          `)
+          .setHTML(popupContainer.outerHTML)
           .addTo(map.current!);
+
+        // Get the actual popup element from the DOM
+        const popupElement = popupRef.current.getElement();
+        const contentContainer = popupElement?.querySelector('.maplibregl-popup-content > div');
+
+        if (contentContainer) {
+          // Create React root and render the secure PopupContent component
+          popupRootRef.current = createRoot(contentContainer);
+          popupRootRef.current.render(
+            <PopupContent
+              name={props?.name || 'حقل'}
+              crop={props?.crop || '-'}
+              area={props?.area || '0'}
+              ndvi={props?.ndvi ?? null}
+              status={props?.status || 'warning'}
+            />
+          );
+        }
+
+        // Clean up React root when popup is closed
+        popupRef.current.on('close', () => {
+          if (popupRootRef.current) {
+            popupRootRef.current.unmount();
+            popupRootRef.current = null;
+          }
+          popupRef.current = null;
+        });
       }
     });
 

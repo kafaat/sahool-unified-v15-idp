@@ -8,6 +8,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '@/lib/api';
 import { Alert } from '../types';
+import { logger } from '@/lib/logger';
 
 // API Alert response type
 interface ApiAlert {
@@ -120,7 +121,7 @@ export function useAlerts(tenantId?: string) {
         setAlerts(DEFAULT_ALERTS);
         setError(null);
       } catch (err) {
-        console.error('[useAlerts] Failed to fetch alerts:', err);
+        logger.error('[useAlerts] Failed to fetch alerts:', err);
         setAlerts(DEFAULT_ALERTS);
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -139,7 +140,7 @@ export function useAlerts(tenantId?: string) {
     try {
       await apiClient.acknowledgeAlert(id);
     } catch (error) {
-      console.error('Failed to acknowledge alert:', error);
+      logger.error('Failed to acknowledge alert:', error);
     }
   }, []);
 
@@ -154,7 +155,7 @@ export function useAlerts(tenantId?: string) {
         await apiClient.acknowledgeAlert(id);
       } catch (err) {
         // Log individual failures but don't throw
-        console.warn(`Failed to acknowledge alert ${id}:`, err);
+        logger.warn(`Failed to acknowledge alert ${id}:`, err);
       }
     }
   }, []);

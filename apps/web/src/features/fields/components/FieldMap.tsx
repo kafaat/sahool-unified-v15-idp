@@ -22,8 +22,9 @@ export const FieldMap: React.FC<FieldMapProps> = ({
   height = '400px',
 
 }) => {
-  // TODO: Implement actual map with Leaflet
-  // For now, showing a placeholder
+  // Interactive map with Leaflet will be implemented in future release
+  // Current implementation shows a placeholder with field count
+  // When ready, integrate with: react-leaflet and OpenStreetMap/Google Maps
 
   const displayFields = field ? [field] : fields || [];
 

@@ -3,11 +3,44 @@
  * طبقة API لميزة الحقول
  */
 
-import axios from 'axios';
-import type { Field, FieldFormData, FieldFilters } from './types';
+import axios, { type AxiosError } from 'axios';
+import type { Field, FieldFormData, FieldFilters, GeoPolygon } from './types';
+import { logger } from '@/lib/logger';
+
+/**
+ * API Field Response Type
+ */
+interface ApiFieldResponse {
+  id: string;
+  name?: string;
+  nameAr?: string;
+  areaHectares?: number;
+  area?: number;
+  cropType?: string;
+  crop?: string;
+  cropTypeAr?: string;
+  cropAr?: string;
+  tenantId?: string;
+  farmId?: string;
+  boundary?: GeoPolygon;
+  polygon?: GeoPolygon;
+  metadata?: {
+    description?: string;
+    descriptionAr?: string;
+    [key: string]: unknown;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+if (!API_BASE_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL environment variable is required');
+}
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -110,7 +143,7 @@ const MOCK_FIELDS: Field[] = [
 /**
  * Map API field to feature field
  */
-function mapApiFieldToField(apiField: any): Field {
+function mapApiFieldToField(apiField: ApiFieldResponse): Field {
   return {
     id: apiField.id,
     name: apiField.name || '',
@@ -128,9 +161,27 @@ function mapApiFieldToField(apiField: any): Field {
 }
 
 /**
+ * API Field Request Type
+ */
+interface ApiFieldRequest {
+  name: string;
+  nameAr: string;
+  tenantId: string;
+  cropType: string;
+  cropTypeAr?: string;
+  coordinates?: number[][];
+  boundary?: GeoPolygon;
+  areaHectares: number;
+  metadata: {
+    description?: string;
+    descriptionAr?: string;
+  };
+}
+
+/**
  * Map feature field to API field
  */
-function mapFieldToApiField(field: FieldFormData, tenantId?: string): any {
+function mapFieldToApiField(field: FieldFormData, tenantId?: string): ApiFieldRequest {
   return {
     name: field.name,
     nameAr: field.nameAr,
@@ -171,10 +222,10 @@ export const fieldsApi = {
         return fields.map(mapApiFieldToField);
       }
 
-      console.warn('API returned unexpected format, using mock data');
+      logger.warn('API returned unexpected format, using mock data');
       return MOCK_FIELDS;
     } catch (error) {
-      console.warn('Failed to fetch fields from API, using mock data:', error);
+      logger.warn('Failed to fetch fields from API, using mock data:', error);
       return MOCK_FIELDS;
     }
   },
@@ -187,8 +238,8 @@ export const fieldsApi = {
       const response = await api.get(`/api/v1/fields/${id}`);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error: any) {
-      console.warn(`Failed to fetch field ${id} from API, using mock data:`, error);
+    } catch (error) {
+      logger.warn(`Failed to fetch field ${id} from API, using mock data:`, error);
 
       // Fallback to mock data
       const mockField = MOCK_FIELDS.find(f => f.id === id);
@@ -209,12 +260,13 @@ export const fieldsApi = {
       const response = await api.post('/api/v1/fields', apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error: any) {
-      console.error('Failed to create field:', error);
+    } catch (error) {
+      logger.error('Failed to create field:', error);
 
       // Return error with Arabic message
-      const errorMessage = error.response?.data?.message || ERROR_MESSAGES.CREATE_FAILED.en;
-      const errorMessageAr = error.response?.data?.message_ar || ERROR_MESSAGES.CREATE_FAILED.ar;
+      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
+      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.CREATE_FAILED.en;
+      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.CREATE_FAILED.ar;
 
       throw new Error(JSON.stringify({
         message: errorMessage,
@@ -232,12 +284,13 @@ export const fieldsApi = {
       const response = await api.put(`/api/v1/fields/${id}`, apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
-    } catch (error: any) {
-      console.error(`Failed to update field ${id}:`, error);
+    } catch (error) {
+      logger.error(`Failed to update field ${id}:`, error);
 
       // Return error with Arabic message
-      const errorMessage = error.response?.data?.message || ERROR_MESSAGES.UPDATE_FAILED.en;
-      const errorMessageAr = error.response?.data?.message_ar || ERROR_MESSAGES.UPDATE_FAILED.ar;
+      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
+      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.UPDATE_FAILED.en;
+      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.UPDATE_FAILED.ar;
 
       throw new Error(JSON.stringify({
         message: errorMessage,
@@ -252,12 +305,13 @@ export const fieldsApi = {
   deleteField: async (id: string): Promise<void> => {
     try {
       await api.delete(`/api/v1/fields/${id}`);
-    } catch (error: any) {
-      console.error(`Failed to delete field ${id}:`, error);
+    } catch (error) {
+      logger.error(`Failed to delete field ${id}:`, error);
 
       // Return error with Arabic message
-      const errorMessage = error.response?.data?.message || ERROR_MESSAGES.DELETE_FAILED.en;
-      const errorMessageAr = error.response?.data?.message_ar || ERROR_MESSAGES.DELETE_FAILED.ar;
+      const axiosError = error as AxiosError<{ message?: string; message_ar?: string }>;
+      const errorMessage = axiosError.response?.data?.message || ERROR_MESSAGES.DELETE_FAILED.en;
+      const errorMessageAr = axiosError.response?.data?.message_ar || ERROR_MESSAGES.DELETE_FAILED.ar;
 
       throw new Error(JSON.stringify({
         message: errorMessage,
@@ -281,7 +335,7 @@ export const fieldsApi = {
       const response = await api.get(`/api/v1/fields/stats?${params.toString()}`);
       return response.data.data || response.data;
     } catch (error) {
-      console.warn('Failed to fetch field stats from API, calculating from mock data');
+      logger.warn('Failed to fetch field stats from API, calculating from mock data');
 
       // Calculate stats from mock data
       const total = MOCK_FIELDS.length;

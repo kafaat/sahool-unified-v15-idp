@@ -11,7 +11,7 @@ import { TaskForm } from '@/features/tasks/components/TaskForm';
 import { TaskFiltersComponent as TaskFilters } from '@/features/tasks/components/TaskFilters';
 import { Modal } from '@/components/ui/modal';
 import { Plus, Filter } from 'lucide-react';
-import type { TaskFilters as TaskFiltersType } from '@/features/tasks/types';
+import type { TaskFilters as TaskFiltersType, TaskFormData } from '@/features/tasks/types';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 
 export default function TasksClient() {
@@ -42,7 +42,7 @@ export default function TasksClient() {
     setFilters(newFilters);
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: TaskFormData) => {
     try {
       ErrorTracking.addBreadcrumb({
         type: 'click',

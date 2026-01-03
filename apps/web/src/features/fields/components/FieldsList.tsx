@@ -17,7 +17,7 @@ interface FieldsListProps {
 }
 
 export const FieldsList: React.FC<FieldsListProps> = ({ onFieldClick, onCreateClick }) => {
-  const [viewMode, setViewMode] = useState<FieldViewMode['mode']>('grid');
+  const [viewMode, setViewMode] = useState<FieldViewMode>('grid');
   const [filters, setFilters] = useState<FieldFilters>({});
   const { data: fields, isLoading } = useFields(filters);
 

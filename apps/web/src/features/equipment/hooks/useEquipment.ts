@@ -204,3 +204,19 @@ export function useCompleteMaintenance() {
     },
   });
 }
+
+/**
+ * Hook to delete maintenance record
+ */
+export function useDeleteMaintenance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => equipmentApi.deleteMaintenance(id),
+    onSuccess: (_: void, id: string) => {
+      queryClient.invalidateQueries({ queryKey: equipmentKeys.maintenance.lists() });
+      queryClient.removeQueries({ queryKey: equipmentKeys.maintenance.detail(id) });
+      queryClient.invalidateQueries({ queryKey: equipmentKeys.stats() });
+    },
+  });
+}

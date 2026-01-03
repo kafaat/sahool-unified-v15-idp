@@ -6,6 +6,7 @@ import { logger } from '@/lib/logger';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
 interface State {
@@ -28,6 +29,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Call user-provided error handler
+    if (this.props.onError) {
+      this.props.onError(error, errorInfo);
+    }
     // Log to error service
     this.logErrorToServer(error, errorInfo);
   }

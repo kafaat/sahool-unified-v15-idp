@@ -117,8 +117,9 @@ const DANGEROUS_PATTERNS = [
   /document\.write\s*\(/gi,
   /document\.writeln\s*\(/gi,
 
-  // Potential XSS vectors
-  /on\w+\s*=/gi, // Event handlers like onclick=, onerror=, etc.
+  // Potential XSS vectors - Event handlers like onclick=, onerror=, etc.
+  // Must start with word boundary to avoid matching "CONFIG=" etc.
+  /\bon[a-z]+\s*=/gi,
   /<iframe[\s>]/gi,
   /<embed[\s>]/gi,
   /<object[\s>]/gi,

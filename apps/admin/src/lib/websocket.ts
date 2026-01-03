@@ -9,6 +9,8 @@
  * - Farm events
  */
 
+import { logger } from './logger';
+
 type WebSocketEventType =
   | 'alert'
   | 'sensor'

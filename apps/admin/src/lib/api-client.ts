@@ -3,6 +3,8 @@
  * Unified API client for admin dashboard with centralized token management
  */
 
+import { logger } from './logger';
+
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;

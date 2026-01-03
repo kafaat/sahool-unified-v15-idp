@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import maplibregl, { type MapLayerMouseEvent } from 'maplibre-gl';
+import maplibregl, { type MapMouseEvent } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { apiClient } from '@/lib/api';
 import type { Field } from '@/lib/api/types';
@@ -227,7 +227,7 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     });
 
     // Click handler - using React createRoot for secure popup rendering
-    map.current.on('click', 'fields-fill', (e: MapLayerMouseEvent) => {
+    map.current.on('click', 'fields-fill', (e: MapMouseEvent) => {
       if (e.features && e.features[0]) {
         const feature = e.features[0];
         const props = feature.properties;

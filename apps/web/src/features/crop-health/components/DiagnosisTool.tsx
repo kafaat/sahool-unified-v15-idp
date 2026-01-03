@@ -158,7 +158,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated
           </label>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {previews.map((preview, index) => (
-              <div key={index} className="relative group">
+              <div key={preview} className="relative group">
                 <img
                   src={preview}
                   alt={`Preview ${index + 1}`}

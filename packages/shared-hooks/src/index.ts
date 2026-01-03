@@ -7,7 +7,30 @@
 export { useWebSocket, type UseWebSocketOptions, type UseWebSocketReturn, type WSMessage } from './useWebSocket';
 
 // Authentication
-export { useAuth, type UseAuthOptions, type UseAuthReturn, type User, type UserRole, type LoginCredentials, type AuthResponse } from './useAuth';
+export {
+  useAuth,
+  useCan,
+  useCanAny,
+  useCanAll,
+  useHasRole,
+  AuthContext,
+  createAuthContextValue,
+  type User,
+  type AuthState,
+  type AuthContextValue,
+  type AuthProviderProps,
+  type Permission,
+  type Role,
+  PERMISSIONS,
+  ROLES,
+  ROLE_PERMISSIONS,
+  roleHasPermission,
+  getRolePermissions,
+  hasPermission,
+  hasAnyPermission,
+  hasAllPermissions,
+  getPermissionsForRoles,
+} from './auth';
 
 // Storage
 export { useLocalStorage } from './useLocalStorage';

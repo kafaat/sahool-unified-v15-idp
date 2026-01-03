@@ -230,7 +230,7 @@ class Milestone {
 
 /// ملف المستخدم في نظام الإنجازات
 class UserGamificationProfile {
-  final String odoo;
+  final String userId;
   final int totalPoints;
   final int level;
   final String rank;
@@ -265,7 +265,7 @@ class UserGamificationProfile {
   }
 
   Map<String, dynamic> toJson() => {
-    'userId': odoo,
+    'userId': userId,
     'totalPoints': totalPoints,
     'level': level,
     'rank': rank,
@@ -296,7 +296,7 @@ class UserGamificationProfile {
 
 /// ترتيب في لوحة المتصدرين
 class LeaderboardEntry {
-  final String odoo;
+  final String userId;
   final String userName;
   final String? avatarUrl;
   final int rank;
@@ -315,7 +315,7 @@ class LeaderboardEntry {
   });
 
   Map<String, dynamic> toJson() => {
-    'userId': odoo,
+    'userId': userId,
     'userName': userName,
     'avatarUrl': avatarUrl,
     'rank': rank,

@@ -42,11 +42,15 @@ export interface AuthenticatedUser extends User {
 
 export type UserRole =
   | 'admin'
+  | 'super_admin'
+  | 'manager'
+  | 'operator'
+  | 'expert'
   | 'farmer'
   | 'agronomist'
   | 'researcher'
   | 'field_officer'
-  | 'super_admin';
+  | 'viewer';
 
 export interface Permission {
   id: string;

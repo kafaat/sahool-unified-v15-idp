@@ -123,7 +123,7 @@ class SahoolTheme {
       primary: SahoolTokens.primary500,
       secondary: SahoolTokens.secondary500,
       surface: SahoolTokens.neutral0,
-      error: SahoolTokens.errorMain ?? SahoolTokens.primary500,
+      error: SahoolTokens.errormain ?? SahoolTokens.primary500,
     ),
     fontFamily: 'IBMPlexSansArabic',
   );

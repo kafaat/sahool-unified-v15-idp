@@ -5,7 +5,7 @@
 
 import { generateId, randomItem, randomFloat, randomNumber, arabicNames } from './utils';
 
-export type FieldStatus = 'active' | 'fallow' | 'preparing' | 'harvested';
+export type FieldStatus = 'active' | 'inactive' | 'deleted';
 export type CropStage = 'seeding' | 'growing' | 'flowering' | 'ripening' | 'harvest';
 
 export interface MockField {
@@ -58,7 +58,7 @@ export function generateMockField(overrides: Partial<MockField> = {}): MockField
     area: randomFloat(0.5, 50, 1),
     areaUnit: 'hectare',
     crop,
-    status: randomItem<FieldStatus>(['active', 'fallow', 'preparing', 'harvested']),
+    status: randomItem<FieldStatus>(['active', 'inactive', 'deleted']),
     cropStage: randomItem<CropStage>(['seeding', 'growing', 'flowering', 'ripening', 'harvest']),
     plantingDate: plantingDate.toISOString(),
     expectedHarvest: harvestDate.toISOString(),

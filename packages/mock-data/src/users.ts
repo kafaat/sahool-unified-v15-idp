@@ -5,7 +5,7 @@
 
 import { generateId, randomItem, arabicNames } from './utils';
 
-export type UserRole = 'admin' | 'farmer' | 'agronomist' | 'viewer';
+export type UserRole = 'admin' | 'manager' | 'operator' | 'viewer';
 
 export interface MockUser {
   id: string;
@@ -34,7 +34,7 @@ export function generateMockUser(overrides: Partial<MockUser> = {}): MockUser {
     id: generateId(),
     email: `user${Math.floor(Math.random() * 1000)}@sahool.ye`,
     name,
-    role: randomItem<UserRole>(['admin', 'farmer', 'agronomist', 'viewer']),
+    role: randomItem<UserRole>(['admin', 'manager', 'operator', 'viewer']),
     tenantId: generateId(),
     tenantName: `مزرعة ${randomItem(arabicNames.lastNames)}`,
     phone: `+967${Math.floor(Math.random() * 900000000 + 100000000)}`,

@@ -556,8 +556,12 @@ class SeasonSummary {
       netProfit: (json['net_profit'] as num).toDouble(),
       profitMargin: (json['profit_margin'] as num).toDouble(),
       avgRoi: (json['avg_roi'] as num).toDouble(),
-      costsByCategory: Map<String, double>.from(json['costs_by_category'] as Map),
-      revenuesByCrop: Map<String, double>.from(json['revenues_by_crop'] as Map),
+      costsByCategory: (json['costs_by_category'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ) ?? {},
+      revenuesByCrop: (json['revenues_by_crop'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ) ?? {},
       startDate: DateTime.parse(json['start_date'] as String),
       endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -620,11 +624,21 @@ class ProfitabilityComparison {
       crops: (json['crops'] as List)
           .map((e) => CropProfitability.fromJson(e as Map<String, dynamic>))
           .toList(),
-      avgYieldByCrop: Map<String, double>.from(json['avg_yield_by_crop'] as Map),
-      avgCostByCrop: Map<String, double>.from(json['avg_cost_by_crop'] as Map),
-      avgRevenueByCrop: Map<String, double>.from(json['avg_revenue_by_crop'] as Map),
-      avgProfitByCrop: Map<String, double>.from(json['avg_profit_by_crop'] as Map),
-      avgRoiByCrop: Map<String, double>.from(json['avg_roi_by_crop'] as Map),
+      avgYieldByCrop: (json['avg_yield_by_crop'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ) ?? {},
+      avgCostByCrop: (json['avg_cost_by_crop'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ) ?? {},
+      avgRevenueByCrop: (json['avg_revenue_by_crop'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ) ?? {},
+      avgProfitByCrop: (json['avg_profit_by_crop'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ) ?? {},
+      avgRoiByCrop: (json['avg_roi_by_crop'] as Map<String, dynamic>?)?.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      ) ?? {},
       bestCropByProfit: json['best_crop_by_profit'] as String?,
       bestCropByRoi: json['best_crop_by_roi'] as String?,
       lowestCostCrop: json['lowest_cost_crop'] as String?,

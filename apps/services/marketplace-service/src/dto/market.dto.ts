@@ -5,7 +5,7 @@
  * These DTOs must match the interfaces defined in the service files
  */
 
-import { IsString, IsNumber, IsOptional, IsPositive, IsArray, ValidateNested, IsBoolean, IsIn, Min, Max, IsNotEmpty, IsEnum } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsPositive, IsArray, ValidateNested, IsBoolean, IsIn, Min, Max, IsNotEmpty, IsEnum, IsDateString, IsObject } from 'class-validator';
 import { Type } from 'class-transformer';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -300,6 +300,23 @@ export class CalculateAdvancedCreditScoreDto {
 }
 
 /**
+ * Metadata for RecordCreditEventDto - provides structured metadata information
+ */
+export class MetadataDto {
+  @IsString()
+  @IsOptional()
+  source?: string;
+
+  @IsString()
+  @IsOptional()
+  timestamp?: string;
+
+  @IsObject()
+  @IsOptional()
+  additionalInfo?: Record<string, unknown>;
+}
+
+/**
  * Record Credit Event DTO - matches RecordCreditEventDto in fintech.service.ts
  */
 export class RecordCreditEventDto {
@@ -320,7 +337,9 @@ export class RecordCreditEventDto {
   description: string;
 
   @IsOptional()
-  metadata?: any;
+  @ValidateNested()
+  @Type(() => MetadataDto)
+  metadata?: MetadataDto;
 }
 
 /**
@@ -434,6 +453,7 @@ export class CreateScheduledPaymentDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsDateString()
   nextPaymentDate: string;
 
   @IsString()

@@ -15,7 +15,10 @@ import {
   HttpStatus,
   UseGuards,
   ValidationPipe,
+  Req,
+  ForbiddenException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { MarketService } from './market/market.service';
 import { FintechService } from './fintech/fintech.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -45,6 +48,7 @@ export class AppController {
   // Health Check
   // ═══════════════════════════════════════════════════════════════════════════
 
+  @Throttle(10, 60)
   @Get('healthz')
   healthCheck() {
     return {
@@ -127,10 +131,23 @@ export class AppController {
    * GET /api/v1/market/orders/:userId
    */
   @Get('market/orders/:userId')
+  @UseGuards(JwtAuthGuard)
   async getUserOrders(
+    @Req() request: any,
     @Param('userId') userId: string,
     @Query('role') role: 'buyer' | 'seller' = 'buyer',
   ) {
+    // Resource ownership validation
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes('admin');
+    const isOwner = authenticatedUser.id === userId;
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException(
+        'You are not authorized to access orders for this user',
+      );
+    }
+
     return this.marketService.getUserOrders(userId, role);
   }
 

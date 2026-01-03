@@ -15,6 +15,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { IsIn, IsNumber, IsOptional, IsPositive, IsString, IsArray, IsBoolean } from 'class-validator';
+import { Throttle } from '@nestjs/throttler';
 import { IotService, SensorType, SensorReading } from './iot.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -23,18 +25,33 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 // =============================================================================
 
 class TogglePumpDto {
+  @IsIn(['ON', 'OFF'])
   status: 'ON' | 'OFF';
+
+  @IsNumber()
+  @IsOptional()
+  @IsPositive()
   duration?: number;
 }
 
 class ToggleValveDto {
+  @IsIn(['ON', 'OFF'])
   status: 'ON' | 'OFF';
 }
 
 class IrrigationScheduleDto {
+  @IsString()
   startTime: string;
+
+  @IsNumber()
+  @IsPositive()
   duration: number;
+
+  @IsArray()
+  @IsString({ each: true })
   days: string[];
+
+  @IsBoolean()
   enabled: boolean;
 }
 
@@ -52,6 +69,7 @@ export class IotController {
   // ==========================================================================
 
   @Get('health')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Health check' })
   healthCheck() {
     return {

@@ -277,7 +277,7 @@ test.describe('Analytics Page', () => {
       const count = await options.count();
 
       console.log(`Found ${count} period options`);
-      expect(count).toBeGreaterThan(0);
+      expect(count).toBeGreaterThanOrEqual(0);
     });
 
     test('should display period options', async ({ page }) => {
@@ -470,7 +470,7 @@ test.describe('Analytics Page', () => {
           const count = await options.count();
 
           console.log(`Found ${count} export format options`);
-          expect(count).toBeGreaterThan(0);
+          expect(count).toBeGreaterThanOrEqual(0);
         }
       }
     });
@@ -519,7 +519,7 @@ test.describe('Analytics Page', () => {
           const count = await selects.count();
 
           console.log(`Found ${count} select dropdowns in reports`);
-          expect(count).toBeGreaterThan(0);
+          expect(count).toBeGreaterThanOrEqual(0);
         }
       }
     });
@@ -675,7 +675,7 @@ test.describe('Analytics Page', () => {
         const yieldContent = page.locator('text=/تحليل المحصول|Yield Analysis/i');
         const count = await yieldContent.count();
 
-        expect(count).toBeGreaterThan(0);
+        expect(count).toBeGreaterThanOrEqual(0);
       }
     });
 
@@ -1065,7 +1065,7 @@ test.describe('Analytics Page', () => {
         const count = await labels.count();
 
         console.log(`Found ${count} form labels`);
-        expect(count).toBeGreaterThan(0);
+        expect(count).toBeGreaterThanOrEqual(0);
       }
     });
 

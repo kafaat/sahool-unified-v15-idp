@@ -245,30 +245,32 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
           popupRootRef.current = null;
         }
 
-        // Create popup container for React content
-        const popupContainer = document.createElement('div');
-        popupContainer.className = 'sahool-popup-content';
-
-        // Create React root and render the secure PopupContent component
-        popupRootRef.current = createRoot(popupContainer);
-        popupRootRef.current.render(
-          <PopupContent
-            name={props?.name || 'حقل'}
-            crop={props?.crop || '-'}
-            area={props?.area || '0'}
-            ndvi={props?.ndvi ?? null}
-            status={props?.status || 'warning'}
-          />
-        );
-
-        // Create new popup with the DOM content
+        // Create popup with placeholder for React content
+        const popupId = `popup-${Date.now()}`;
         popupRef.current = new maplibregl.Popup({
           closeButton: true,
           closeOnClick: false,
         })
           .setLngLat(e.lngLat)
-          .setDOMContent(popupContainer)
+          .setHTML(`<div id="${popupId}" class="sahool-popup-content"></div>`)
           .addTo(map.current!);
+
+        // Mount React component to the popup container after it's in the DOM
+        requestAnimationFrame(() => {
+          const popupContainer = document.getElementById(popupId);
+          if (popupContainer) {
+            popupRootRef.current = createRoot(popupContainer);
+            popupRootRef.current.render(
+              <PopupContent
+                name={props?.name || 'حقل'}
+                crop={props?.crop || '-'}
+                area={props?.area || '0'}
+                ndvi={props?.ndvi ?? null}
+                status={props?.status || 'warning'}
+              />
+            );
+          }
+        });
 
         // Clean up React root when popup is closed
         popupRef.current.on('close', () => {

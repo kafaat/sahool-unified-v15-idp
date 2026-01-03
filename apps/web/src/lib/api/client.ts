@@ -3,7 +3,7 @@
  * Unified API client for connecting frontend to backend services
  */
 
-import { sanitizers, validators, validationErrors } from './validation';
+import { sanitizers, validators, validationErrors } from '../validation';
 import { logger } from '../logger';
 import type {
   ApiResponse,

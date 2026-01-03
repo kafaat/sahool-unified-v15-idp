@@ -1,7 +1,7 @@
 # ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - PORT CONFLICT                                         ║
-# ║ Port Conflict with: ai-agents-core (port 8120)                             ║
-# ║ Suggested new port: 8123                                                    ║
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has port conflict with: ai-agents-core (port 8120)            ║
+# ║ Port Conflict: 8120 → Suggested new port: 8123                             ║
 # ║ See: docs/DEPRECATED_SERVICES.md                                           ║
 # ╚════════════════════════════════════════════════════════════════════════════╝
 #

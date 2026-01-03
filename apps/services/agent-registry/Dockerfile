@@ -1,7 +1,7 @@
 # ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - PORT CONFLICT                                         ║
-# ║ Port Conflict with: field-ops (port 8080)                                  ║
-# ║ Suggested new port: 8121                                                    ║
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has port conflict with: field-ops (port 8080)                 ║
+# ║ Port Conflict: 8080 → Suggested new port: 8121                             ║
 # ║ See: docs/DEPRECATED_SERVICES.md                                           ║
 # ╚════════════════════════════════════════════════════════════════════════════╝
 #

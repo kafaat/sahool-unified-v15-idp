@@ -1,7 +1,7 @@
 # ╔════════════════════════════════════════════════════════════════════════════╗
-# ║ ⚠️  FROZEN SERVICE - PORT CONFLICT                                         ║
-# ║ Port Conflict with: disaster-assessment (port 3020)                        ║
-# ║ Suggested new port: 3025                                                    ║
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has port conflict with: disaster-assessment (port 3020)       ║
+# ║ Port Conflict: 3020 → Suggested new port: 3025                             ║
 # ║ See: docs/DEPRECATED_SERVICES.md                                           ║
 # ╚════════════════════════════════════════════════════════════════════════════╝
 #

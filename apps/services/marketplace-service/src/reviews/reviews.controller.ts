@@ -86,8 +86,7 @@ export class ReviewsController {
   @ApiResponse({ status: 200, description: 'List of reviews' })
   async getProductReviews(
     @Param('productId') productId: string,
-    @Query(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }))
-    query: GetProductReviewsQueryDto,
+    @Query() query: GetProductReviewsQueryDto,
   ) {
     return this.reviewsService.getProductReviews(productId, query);
   }
@@ -115,8 +114,7 @@ export class ReviewsController {
   @ApiResponse({ status: 200, description: 'List of buyer reviews' })
   async getBuyerReviews(
     @Param('buyerId') buyerId: string,
-    @Query(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }))
-    query: PaginationQueryDto,
+    @Query() query: PaginationQueryDto,
   ) {
     return this.reviewsService.getBuyerReviews(buyerId, query.limit, query.offset);
   }
@@ -228,8 +226,7 @@ export class ReviewsController {
   @ApiResponse({ status: 200, description: 'List of seller responses' })
   async getSellerResponses(
     @Param('sellerId') sellerId: string,
-    @Query(new ValidationPipe({ transform: true, transformOptions: { enableImplicitConversion: true } }))
-    query: PaginationQueryDto,
+    @Query() query: PaginationQueryDto,
   ) {
     return this.reviewsService.getSellerResponses(sellerId, query.limit, query.offset);
   }

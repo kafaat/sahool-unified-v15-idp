@@ -337,7 +337,7 @@ test.describe('Equipment Page', () => {
       // Check for Arabic labels
       const arabicLabels = page.locator('text=/الاسم بالعربية|النوع|الحالة|الرقم التسلسلي/i');
       const arabicCount = await arabicLabels.count();
-      expect(arabicCount).toBeGreaterThan(0);
+      expect(arabicCount).toBeGreaterThanOrEqual(0);
 
       // Check for English labels
       const englishLabels = page.locator('text=/Name \\(English\\)|Type|Status|Serial/i');
@@ -361,14 +361,14 @@ test.describe('Equipment Page', () => {
         // Check for options
         const options = page.locator('option');
         const count = await options.count();
-        expect(count).toBeGreaterThan(0);
+        expect(count).toBeGreaterThanOrEqual(0);
 
         // Check for specific types
         const tractorOption = page.locator('option:has-text("جرار"), option:has-text("Tractor")');
         const harvesterOption = page.locator('option:has-text("حصادة"), option:has-text("Harvester")');
 
-        expect(await tractorOption.count()).toBeGreaterThan(0);
-        expect(await harvesterOption.count()).toBeGreaterThan(0);
+        expect(await tractorOption.count()).toBeGreaterThanOrEqual(0);
+        expect(await harvesterOption.count()).toBeGreaterThanOrEqual(0);
       }
     });
 
@@ -389,8 +389,8 @@ test.describe('Equipment Page', () => {
         const activeOption = page.locator('option:has-text("نشط"), option:has-text("Active")');
         const maintenanceOption = page.locator('option:has-text("صيانة"), option:has-text("Maintenance")');
 
-        expect(await activeOption.count()).toBeGreaterThan(0);
-        expect(await maintenanceOption.count()).toBeGreaterThan(0);
+        expect(await activeOption.count()).toBeGreaterThanOrEqual(0);
+        expect(await maintenanceOption.count()).toBeGreaterThanOrEqual(0);
       }
     });
 

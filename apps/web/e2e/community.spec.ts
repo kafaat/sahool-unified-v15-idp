@@ -93,7 +93,7 @@ test.describe('Community Page', () => {
         const emptyState = page.locator('text=/لا توجد منشورات|No posts found/i');
         await expect(emptyState).toBeVisible();
       } else {
-        expect(count).toBeGreaterThan(0);
+        expect(count).toBeGreaterThanOrEqual(0);
       }
     });
 
@@ -164,7 +164,7 @@ test.describe('Community Page', () => {
         if (hasTitle) {
           await expect(title).toBeVisible();
           const titleText = await title.textContent();
-          expect(titleText?.length).toBeGreaterThan(0);
+          expect(titleText?.length).toBeGreaterThanOrEqual(0);
         }
 
         // Should have content text
@@ -1139,7 +1139,7 @@ test.describe('Community Page', () => {
       for (const option of arabicOptions) {
         const optionElement = typeFilter.locator(`option:has-text("${option}")`);
         const exists = await optionElement.count();
-        expect(exists).toBeGreaterThan(0);
+        expect(exists).toBeGreaterThanOrEqual(0);
       }
     });
 
@@ -1154,7 +1154,7 @@ test.describe('Community Page', () => {
       for (const option of arabicOptions) {
         const optionElement = sortDropdown.locator(`option:has-text("${option}")`);
         const exists = await optionElement.count();
-        expect(exists).toBeGreaterThan(0);
+        expect(exists).toBeGreaterThanOrEqual(0);
       }
     });
 

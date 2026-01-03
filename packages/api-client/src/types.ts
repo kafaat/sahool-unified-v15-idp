@@ -3,6 +3,10 @@
 // Unified type definitions for all API interactions
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Import shared types
+import type { UserRole } from '@sahool/shared-types/auth';
+export type { UserRole };
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Core Types
 // ─────────────────────────────────────────────────────────────────────────────
@@ -403,8 +407,6 @@ export interface AlertStats {
 // ─────────────────────────────────────────────────────────────────────────────
 // User & Auth Types
 // ─────────────────────────────────────────────────────────────────────────────
-
-export type UserRole = 'admin' | 'expert' | 'farmer' | 'agronomist' | 'manager' | 'operator' | 'viewer';
 
 export interface User {
   id: string;

@@ -8,6 +8,23 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { useAuth } from '@/stores/auth.store';
 import { useToast } from '@/components/ui/toast';
 
+/**
+ * Extracts error message from various error types
+ * @param error - The error object to extract message from
+ * @returns A user-friendly error message
+ */
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) {
+    // Check for axios-style error response
+    const axiosError = error as { response?: { data?: { message?: string } } };
+    if (axiosError.response?.data?.message) {
+      return axiosError.response.data.message;
+    }
+    return error.message;
+  }
+  return 'Invalid credentials';
+}
+
 export default function LoginClient() {
   const router = useRouter();
   const { login } = useAuth();
@@ -29,11 +46,7 @@ export default function LoginClient() {
       });
       router.push('/dashboard');
     } catch (error) {
-      const errorMessage = error instanceof Error && 'response' in error &&
-        typeof error.response === 'object' && error.response !== null &&
-        'data' in error.response && typeof error.response.data === 'object' &&
-        error.response.data !== null && 'message' in error.response.data ?
-        (error.response.data as { message: string }).message : 'Invalid credentials';
+      const errorMessage = getErrorMessage(error);
 
       showToast({
         type: 'error',

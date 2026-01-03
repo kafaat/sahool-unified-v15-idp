@@ -4,6 +4,7 @@
   "description": "SAHOOL Shared TypeScript Configuration",
   "license": "MIT",
   "main": "base.json",
+  "types": "./base.json",
   "files": [
     "base.json",
     "nextjs.json",

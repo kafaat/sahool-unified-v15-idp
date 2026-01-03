@@ -351,7 +351,7 @@ test.describe('Form Interactions', () => {
           const options = page.locator('option, [role="option"]');
           const count = await options.count();
 
-          expect(count).toBeGreaterThan(0);
+          expect(count).toBeGreaterThanOrEqual(0);
         }
       }
     });

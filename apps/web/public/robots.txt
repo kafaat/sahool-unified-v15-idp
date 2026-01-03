@@ -1,0 +1,8 @@
+# robots.txt for SAHOOL Web Application
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Sitemap reference
+Sitemap: https://sahool.example.com/sitemap.xml

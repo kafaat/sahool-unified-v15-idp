@@ -6,6 +6,7 @@
  */
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { FieldsList } from '@/features/fields';
 import { FieldForm } from '@/features/fields/components/FieldForm';
 import type { FieldFormData } from '@/features/fields/types';
@@ -15,12 +16,10 @@ import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 import { logger } from '@/lib/logger';
 
 export default function FieldsClient() {
+  const router = useRouter();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [_selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
-  const [showComingSoon, setShowComingSoon] = useState(false);
 
   const handleFieldClick = (fieldId: string) => {
-    setSelectedFieldId(fieldId);
     ErrorTracking.addBreadcrumb({
       type: 'click',
       category: 'ui',
@@ -28,10 +27,8 @@ export default function FieldsClient() {
       data: { fieldId },
     });
 
-    // Show coming soon notification for field details
-    // When field details page is ready, navigate to: `/fields/${fieldId}`
-    setShowComingSoon(true);
-    setTimeout(() => setShowComingSoon(false), 3000);
+    // Navigate to field details page
+    router.push(`/fields/${fieldId}`);
   };
 
   const handleCreateClick = () => {
@@ -111,21 +108,6 @@ export default function FieldsClient() {
           onCancel={handleCloseModal}
         />
       </Modal>
-
-      {/* Coming Soon Notification */}
-      {showComingSoon && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in">
-          <div className="bg-blue-600 text-white px-6 py-4 rounded-lg shadow-xl border-2 border-blue-500">
-            <div className="flex items-center gap-3">
-              <div className="text-2xl">🚀</div>
-              <div>
-                <p className="font-bold">قريباً: صفحة تفاصيل الحقل</p>
-                <p className="text-sm opacity-90">Coming Soon: Field Details Page</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

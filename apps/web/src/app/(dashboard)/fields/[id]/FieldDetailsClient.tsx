@@ -450,19 +450,7 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
         title="Edit Field"
       >
         <FieldForm
-          initialData={{
-            name: field.name,
-            nameAr: field.nameAr,
-            area: field.area,
-            crop: field.crop,
-            cropAr: field.cropAr,
-            description: field.description,
-            descriptionAr: field.descriptionAr,
-            soilType: field.soilType,
-            irrigationType: field.irrigationType,
-            plantingDate: field.plantingDate,
-            expectedHarvest: field.expectedHarvest,
-          }}
+          field={field}
           onSubmit={handleEditSubmit}
           onCancel={() => setShowEditModal(false)}
         />

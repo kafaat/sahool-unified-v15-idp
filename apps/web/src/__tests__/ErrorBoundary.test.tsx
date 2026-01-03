@@ -38,8 +38,8 @@ describe('Web App ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeInTheDocument();
-    expect(screen.getByText('إعادة المحاولة')).toBeInTheDocument();
+    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('حاول مرة أخرى')).toBeInTheDocument();
     expect(screen.getByText('تحديث الصفحة')).toBeInTheDocument();
   });
 
@@ -52,7 +52,7 @@ describe('Web App ErrorBoundary', () => {
     );
 
     // The error UI should be displayed - checking for the main error message
-    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
   });
 
   it('calls onError callback', () => {
@@ -76,7 +76,7 @@ describe('Web App ErrorBoundary', () => {
     );
 
     // Should show error UI
-    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
 
     // Re-render with new key and without error
     rerender(
@@ -97,10 +97,10 @@ describe('Web App ErrorBoundary', () => {
     );
 
     // Should show error UI
-    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
 
     // Retry button should be present and clickable
-    const retryButton = screen.getByText('إعادة المحاولة');
+    const retryButton = screen.getByText('حاول مرة أخرى');
     expect(retryButton).toBeInTheDocument();
 
     // Click should not throw

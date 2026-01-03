@@ -7,6 +7,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { POST } from './route';
 import { NextRequest } from 'next/server';
 
+// Mock the rate limiter to always allow requests in tests
+vi.mock('@/lib/rate-limiter', () => ({
+  isRateLimited: vi.fn().mockResolvedValue(false),
+}));
+
 // Helper to create mock NextRequest
 function createMockRequest(body: unknown, headers: Record<string, string> = {}): NextRequest {
   const url = 'http://localhost:3000/api/log-error';

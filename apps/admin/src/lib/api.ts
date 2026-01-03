@@ -5,7 +5,7 @@ import axios, { type AxiosResponse, type AxiosError, type InternalAxiosRequestCo
 import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
 import { apiClient as authApiClient } from './api-client';
 import Cookies from 'js-cookie';
-import { logger } from '../lib/logger';
+import { logger } from './logger';
 
 // Service ports
 const PORTS = {

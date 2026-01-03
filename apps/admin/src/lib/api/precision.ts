@@ -2,7 +2,7 @@
 // عميل API للزراعة الدقيقة
 
 import { apiClient, API_URLS } from '../api';
-import { logger } from '../../lib/logger';
+import { logger } from '../logger';
 
 // VRA (Variable Rate Application) Types
 export interface VRAPrescription {

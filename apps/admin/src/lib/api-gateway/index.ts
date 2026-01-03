@@ -11,7 +11,7 @@
  */
 
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
-import { logger } from '../../lib/logger';
+import { logger } from '../logger';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types

@@ -2,7 +2,7 @@
 // عميل API للتحليلات
 
 import { apiClient, API_URLS } from '../api';
-import { logger } from '../../lib/logger';
+import { logger } from '../logger';
 
 // Profitability Analytics Types
 export interface ProfitabilityData {

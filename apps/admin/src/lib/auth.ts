@@ -7,7 +7,7 @@
  */
 
 import Cookies from 'js-cookie';
-import { logger } from '../lib/logger';
+import { logger } from './logger';
 
 const AUTH_TOKEN_KEY = 'sahool_admin_token';
 const AUTH_USER_KEY = 'sahool_admin_user';

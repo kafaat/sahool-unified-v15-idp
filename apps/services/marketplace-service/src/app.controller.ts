@@ -48,7 +48,7 @@ export class AppController {
   // Health Check
   // ═══════════════════════════════════════════════════════════════════════════
 
-  @Throttle(10, 60)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get('healthz')
   healthCheck() {
     return {

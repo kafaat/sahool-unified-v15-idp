@@ -129,6 +129,17 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
     });
 
     return () => {
+      // Clean up React root first
+      if (popupRootRef.current) {
+        popupRootRef.current.unmount();
+        popupRootRef.current = null;
+      }
+      // Clean up popup
+      if (popupRef.current) {
+        popupRef.current.remove();
+        popupRef.current = null;
+      }
+      // Clean up map
       if (map.current) {
         map.current.remove();
         map.current = null;
@@ -272,14 +283,8 @@ const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSel
           }
         });
 
-        // Clean up React root when popup is closed
-        popupRef.current.on('close', () => {
-          if (popupRootRef.current) {
-            popupRootRef.current.unmount();
-            popupRootRef.current = null;
-          }
-          popupRef.current = null;
-        });
+        // Track popup for cleanup - cleanup happens when new popup is created
+        // or when component unmounts
       }
     });
 

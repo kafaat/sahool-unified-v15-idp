@@ -58,7 +58,7 @@ class InputSanitizer {
 
     // Remove inline event handlers (onclick, onerror, etc.)
     result = result.replaceAll(
-      RegExp(r'\son\w+\s*=\s*["\']?[^"\']*["\']?', caseSensitive: false),
+      RegExp(r'''\son\w+\s*=\s*["']?[^"']*["']?''', caseSensitive: false),
       '',
     );
 

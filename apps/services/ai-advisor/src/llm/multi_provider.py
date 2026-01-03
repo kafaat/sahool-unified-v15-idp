@@ -10,13 +10,122 @@ Supported Providers:
 
 import os
 import logging
+import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import Optional, List, Dict, Any, Union
 from enum import Enum
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+    before_sleep_log,
+)
+
+from ..monitoring.cost_tracker import cost_tracker
 
 logger = logging.getLogger(__name__)
+
+# Retry configuration for LLM API calls
+RETRY_CONFIG = {
+    "stop": stop_after_attempt(3),
+    "wait": wait_exponential(multiplier=1, min=2, max=30),
+    "retry": retry_if_exception_type((Exception,)),
+    "before_sleep": before_sleep_log(logger, logging.WARNING),
+}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Circuit Breaker Pattern
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class CircuitBreaker:
+    """
+    Circuit Breaker pattern to prevent cascading failures
+    نمط قاطع الدائرة لمنع الفشل المتتالي
+
+    States:
+    - CLOSED: Normal operation (requests pass through)
+    - OPEN: Circuit is open (requests fail immediately)
+    - HALF_OPEN: Testing if service recovered
+    """
+
+    def __init__(
+        self,
+        failure_threshold: int = 5,
+        recovery_timeout: int = 60,
+        expected_exception: type = Exception,
+    ):
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.expected_exception = expected_exception
+        self.failure_count = 0
+        self.last_failure_time: Optional[datetime] = None
+        self.state = "CLOSED"
+
+    def call(self, func, *args, **kwargs):
+        """Execute function through circuit breaker"""
+        if self.state == "OPEN":
+            if self._should_attempt_reset():
+                self.state = "HALF_OPEN"
+            else:
+                raise Exception(
+                    f"Circuit breaker is OPEN. Service unavailable. "
+                    f"Will retry after {self.recovery_timeout}s"
+                )
+
+        try:
+            result = func(*args, **kwargs)
+            self._on_success()
+            return result
+        except self.expected_exception as e:
+            self._on_failure()
+            raise e
+
+    async def call_async(self, func, *args, **kwargs):
+        """Execute async function through circuit breaker"""
+        if self.state == "OPEN":
+            if self._should_attempt_reset():
+                self.state = "HALF_OPEN"
+            else:
+                raise Exception(
+                    f"Circuit breaker is OPEN. Service unavailable. "
+                    f"Will retry after {self.recovery_timeout}s"
+                )
+
+        try:
+            result = await func(*args, **kwargs)
+            self._on_success()
+            return result
+        except self.expected_exception as e:
+            self._on_failure()
+            raise e
+
+    def _should_attempt_reset(self) -> bool:
+        """Check if enough time has passed to attempt reset"""
+        if self.last_failure_time is None:
+            return True
+        return (datetime.now() - self.last_failure_time).total_seconds() >= self.recovery_timeout
+
+    def _on_success(self):
+        """Reset circuit breaker on success"""
+        self.failure_count = 0
+        self.state = "CLOSED"
+
+    def _on_failure(self):
+        """Record failure and potentially open circuit"""
+        self.failure_count += 1
+        self.last_failure_time = datetime.now()
+
+        if self.failure_count >= self.failure_threshold:
+            self.state = "OPEN"
+            logger.warning(
+                f"Circuit breaker opened after {self.failure_count} failures. "
+                f"Will recover in {self.recovery_timeout}s"
+            )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -48,6 +157,9 @@ class LLMResponse:
     tokens_used: int = 0
     latency_ms: float = 0
     finish_reason: str = "stop"
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost: float = 0.0
 
 
 @dataclass
@@ -123,6 +235,9 @@ class AnthropicProvider(LLMProvider):
         super().__init__("Anthropic Claude", "أنثروبيك كلود")
         self.api_key = os.getenv("ANTHROPIC_API_KEY")
         self._client = None
+        self.circuit_breaker = CircuitBreaker(
+            failure_threshold=5, recovery_timeout=60
+        )
 
     @property
     def is_configured(self) -> bool:
@@ -143,6 +258,7 @@ class AnthropicProvider(LLMProvider):
                 return None
         return self._client
 
+    @retry(**RETRY_CONFIG)
     async def chat(
         self,
         messages: List[LLMMessage],
@@ -150,6 +266,18 @@ class AnthropicProvider(LLMProvider):
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
+        return await self.circuit_breaker.call_async(
+            self._chat_impl, messages, model, max_tokens, temperature
+        )
+
+    async def _chat_impl(
+        self,
+        messages: List[LLMMessage],
+        model: Optional[str] = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+    ) -> LLMResponse:
+        """Internal chat implementation with retry and circuit breaker"""
         client = self._get_client()
         if not client:
             raise ValueError("Anthropic client not configured")
@@ -177,13 +305,31 @@ class AnthropicProvider(LLMProvider):
 
         latency = (time.time() - start) * 1000
 
+        input_tokens = response.usage.input_tokens
+        output_tokens = response.usage.output_tokens
+
+        # Calculate cost
+        cost = cost_tracker.calculate_cost(response.model, input_tokens, output_tokens)
+
+        # Record usage (async, don't await to avoid blocking)
+        asyncio.create_task(
+            cost_tracker.record_usage(
+                model=response.model,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+            )
+        )
+
         return LLMResponse(
             content=response.content[0].text,
             provider=self.name,
             model=response.model,
-            tokens_used=response.usage.input_tokens + response.usage.output_tokens,
+            tokens_used=input_tokens + output_tokens,
             latency_ms=latency,
             finish_reason=response.stop_reason or "stop",
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost=cost,
         )
 
     async def complete(
@@ -212,6 +358,9 @@ class OpenAIProvider(LLMProvider):
         super().__init__("OpenAI GPT", "أوبن إيه آي")
         self.api_key = os.getenv("OPENAI_API_KEY")
         self._client = None
+        self.circuit_breaker = CircuitBreaker(
+            failure_threshold=5, recovery_timeout=60
+        )
 
     @property
     def is_configured(self) -> bool:
@@ -232,6 +381,7 @@ class OpenAIProvider(LLMProvider):
                 return None
         return self._client
 
+    @retry(**RETRY_CONFIG)
     async def chat(
         self,
         messages: List[LLMMessage],
@@ -239,6 +389,18 @@ class OpenAIProvider(LLMProvider):
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
+        return await self.circuit_breaker.call_async(
+            self._chat_impl, messages, model, max_tokens, temperature
+        )
+
+    async def _chat_impl(
+        self,
+        messages: List[LLMMessage],
+        model: Optional[str] = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+    ) -> LLMResponse:
+        """Internal chat implementation with retry and circuit breaker"""
         client = self._get_client()
         if not client:
             raise ValueError("OpenAI client not configured")
@@ -258,13 +420,31 @@ class OpenAIProvider(LLMProvider):
 
         latency = (time.time() - start) * 1000
 
+        input_tokens = response.usage.prompt_tokens if response.usage else 0
+        output_tokens = response.usage.completion_tokens if response.usage else 0
+
+        # Calculate cost
+        cost = cost_tracker.calculate_cost(response.model, input_tokens, output_tokens)
+
+        # Record usage (async, don't await to avoid blocking)
+        asyncio.create_task(
+            cost_tracker.record_usage(
+                model=response.model,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+            )
+        )
+
         return LLMResponse(
             content=response.choices[0].message.content,
             provider=self.name,
             model=response.model,
-            tokens_used=response.usage.total_tokens if response.usage else 0,
+            tokens_used=input_tokens + output_tokens,
             latency_ms=latency,
             finish_reason=response.choices[0].finish_reason or "stop",
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost=cost,
         )
 
     async def complete(
@@ -293,6 +473,9 @@ class GoogleGeminiProvider(LLMProvider):
         super().__init__("Google Gemini", "جوجل جيميني")
         self.api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
         self._client = None
+        self.circuit_breaker = CircuitBreaker(
+            failure_threshold=5, recovery_timeout=60
+        )
 
     @property
     def is_configured(self) -> bool:
@@ -314,6 +497,7 @@ class GoogleGeminiProvider(LLMProvider):
                 return None
         return self._client
 
+    @retry(**RETRY_CONFIG)
     async def chat(
         self,
         messages: List[LLMMessage],
@@ -321,6 +505,18 @@ class GoogleGeminiProvider(LLMProvider):
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
+        return await self.circuit_breaker.call_async(
+            self._chat_impl, messages, model, max_tokens, temperature
+        )
+
+    async def _chat_impl(
+        self,
+        messages: List[LLMMessage],
+        model: Optional[str] = None,
+        max_tokens: int = 4096,
+        temperature: float = 0.7,
+    ) -> LLMResponse:
+        """Internal chat implementation with retry and circuit breaker"""
         client = self._get_client()
         if not client:
             raise ValueError("Gemini client not configured")
@@ -360,13 +556,35 @@ class GoogleGeminiProvider(LLMProvider):
         if response is None:
             raise ValueError("No user messages found in the conversation")
 
+        # Estimate token counts (Gemini doesn't provide them easily)
+        # Rough estimate: 1 token ≈ 4 characters
+        input_text = " ".join([msg.content for msg in messages])
+        input_tokens = len(input_text) // 4
+        output_tokens = len(response.text) // 4
+
+        # Calculate cost
+        model_name = model or self.default_model
+        cost = cost_tracker.calculate_cost(model_name, input_tokens, output_tokens)
+
+        # Record usage (async, don't await to avoid blocking)
+        asyncio.create_task(
+            cost_tracker.record_usage(
+                model=model_name,
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+            )
+        )
+
         return LLMResponse(
             content=response.text,
             provider=self.name,
-            model=model or self.default_model,
-            tokens_used=0,  # Gemini doesn't provide token count easily
+            model=model_name,
+            tokens_used=input_tokens + output_tokens,
             latency_ms=latency,
             finish_reason="stop",
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            cost=cost,
         )
 
     async def complete(

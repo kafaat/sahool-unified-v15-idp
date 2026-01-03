@@ -148,7 +148,7 @@ export class DisasterController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Get('health')
-  @Throttle({ limit: 10, ttl: 60000 })
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: 'Health check' })
   healthCheck() {
     return { status: 'ok', service: 'disaster-assessment', timestamp: new Date().toISOString() };

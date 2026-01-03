@@ -19,6 +19,7 @@ from ..agents import (
     IrrigationAdvisorAgent,
     YieldPredictorAgent,
 )
+from ..security import PromptGuard
 
 logger = structlog.get_logger()
 
@@ -124,9 +125,22 @@ Respond with a JSON object containing:
             Routing decision | قرار التوجيه
         """
         try:
+            # Guard against prompt injection
+            # الحماية من حقن الأوامر
+            sanitized_query, is_safe, warnings = PromptGuard.validate_and_sanitize(
+                query, strict=False
+            )
+
+            if not is_safe:
+                logger.warning(
+                    "potential_injection_detected",
+                    query_length=len(query),
+                    warnings=warnings,
+                )
+
             messages = [
                 SystemMessage(content=self._get_routing_prompt()),
-                HumanMessage(content=f"Query: {query}\n\nContext: {context or {}}"),
+                HumanMessage(content=f"Query: {sanitized_query}\n\nContext: {context or {}}"),
             ]
 
             response = await self.llm.ainvoke(messages)
@@ -177,15 +191,28 @@ Respond with a JSON object containing:
             Coordinated response | استجابة منسقة
         """
         try:
+            # Guard against prompt injection at coordination level
+            # الحماية من حقن الأوامر على مستوى التنسيق
+            sanitized_query, is_safe, warnings = PromptGuard.validate_and_sanitize(
+                query, strict=False
+            )
+
+            if not is_safe:
+                logger.warning(
+                    "potential_injection_in_coordinate",
+                    query_length=len(query),
+                    warnings=warnings,
+                )
+
             # Route query if specific agents not provided
             # توجيه الاستفسار إذا لم يتم توفير وكلاء محددين
             if not specific_agents:
-                routing = await self.route_query(query, context)
+                routing = await self.route_query(sanitized_query, context)
                 agents_to_use = routing.get("agents_needed", [])
                 query_breakdown = routing.get("query_breakdown", {})
             else:
                 agents_to_use = specific_agents
-                query_breakdown = {agent: query for agent in agents_to_use}
+                query_breakdown = {agent: sanitized_query for agent in agents_to_use}
 
             # Collect responses from agents
             # جمع الاستجابات من الوكلاء
@@ -213,11 +240,16 @@ Respond with a JSON object containing:
             )
 
             return {
-                "query": query,
+                "query": sanitized_query,
+                "original_query": query,
                 "agents_consulted": list(agent_responses.keys()),
                 "agent_responses": agent_responses,
                 "synthesized_answer": synthesized,
                 "status": "success",
+                "security": {
+                    "injection_detected": not is_safe,
+                    "warnings": warnings if not is_safe else [],
+                },
             }
 
         except Exception as e:

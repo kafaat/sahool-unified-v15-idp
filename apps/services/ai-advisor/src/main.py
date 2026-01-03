@@ -22,6 +22,15 @@ from .agents import (
 from .tools import CropHealthTool, WeatherTool, SatelliteTool, AgroTool
 from .orchestration import Supervisor
 from .rag import EmbeddingsManager, KnowledgeRetriever
+from .middleware import (
+    RateLimitMiddleware,
+    rate_limiter,
+    InputValidationMiddleware,
+    validate_query_input,
+)
+from .security import PromptGuard
+from .utils import pii_masking_processor
+from .monitoring import cost_tracker
 
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import sys
@@ -34,7 +43,7 @@ except ImportError:
     # Fallback: define secure origins locally if shared module not available
     setup_cors_middleware = None
 
-# Configure structured logging | تكوين السجلات المنظمة
+# Configure structured logging with PII masking | تكوين السجلات المنظمة مع إخفاء المعلومات الشخصية
 structlog.configure(
     processors=[
         structlog.stdlib.add_log_level,
@@ -42,6 +51,7 @@ structlog.configure(
         structlog.processors.TimeStamper(fmt="iso"),
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
+        pii_masking_processor,  # Mask PII before rendering
         structlog.processors.JSONRenderer(),
     ]
 )
@@ -238,6 +248,14 @@ else:
         ],
     )
 
+# Add input validation middleware | إضافة middleware التحقق من المدخلات
+# Security: Validate and sanitize all incoming requests
+app.add_middleware(InputValidationMiddleware)
+
+# Add rate limiting middleware | إضافة middleware تحديد المعدل
+# Security: Rate limiting to prevent abuse of AI endpoints
+app.add_middleware(RateLimitMiddleware, rate_limiter=rate_limiter)
+
 # Add A2A router if available | إضافة موجه A2A إذا كان متاحاً
 if A2A_AVAILABLE:
 
@@ -284,10 +302,23 @@ async def ask_question(request: QuestionRequest):
                 detail="Service not initialized",
             )
 
+        # Guard against prompt injection at API level (defense in depth)
+        # الحماية من حقن الأوامر على مستوى API (دفاع متعدد الطبقات)
+        sanitized_question, is_safe, warnings = PromptGuard.validate_and_sanitize(
+            request.question, strict=False
+        )
+
+        if not is_safe:
+            logger.warning(
+                "potential_injection_at_api",
+                endpoint="ask",
+                warnings=warnings,
+            )
+
         # Coordinate agents to answer
         # تنسيق الوكلاء للإجابة
         result = await supervisor.coordinate(
-            query=request.question,
+            query=sanitized_question,
             context=request.context,
         )
 
@@ -565,6 +596,40 @@ async def get_rag_info():
 
     except Exception as e:
         logger.error("get_rag_info_failed", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        )
+
+
+@app.get("/v1/advisor/cost/usage", tags=["Monitoring"])
+async def get_cost_usage(user_id: Optional[str] = None):
+    """
+    Get LLM cost usage statistics
+    الحصول على إحصائيات تكلفة استخدام نماذج اللغة
+
+    Args:
+        user_id: Optional user ID to filter statistics
+    """
+    try:
+        stats = cost_tracker.get_usage_stats(user_id=user_id)
+
+        return {
+            "status": "success",
+            "data": {
+                "daily_cost_usd": round(stats["daily_cost"], 4),
+                "monthly_cost_usd": round(stats["monthly_cost"], 4),
+                "daily_limit_usd": stats["daily_limit"],
+                "monthly_limit_usd": stats["monthly_limit"],
+                "total_requests": stats["total_requests"],
+                "daily_remaining_usd": round(stats["daily_limit"] - stats["daily_cost"], 4),
+                "monthly_remaining_usd": round(stats["monthly_limit"] - stats["monthly_cost"], 4),
+                "daily_usage_percent": round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2) if stats["daily_limit"] > 0 else 0,
+                "monthly_usage_percent": round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2) if stats["monthly_limit"] > 0 else 0,
+            },
+            "user_id": user_id or "anonymous",
+        }
+    except Exception as e:
+        logger.error("get_cost_usage_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
         )

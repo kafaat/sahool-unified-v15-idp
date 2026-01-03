@@ -59,7 +59,7 @@ export class ChatController {
    * Health check endpoint
    */
   @Get('/health')
-  @Throttle({ limit: 10, ttl: 60000 }) // 10 requests per minute
+  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
   @ApiOperation({ summary: 'Health check' })
   @ApiResponse({ status: 200, description: 'Service is healthy' })
   healthCheck() {

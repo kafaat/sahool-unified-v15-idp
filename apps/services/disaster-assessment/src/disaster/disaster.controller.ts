@@ -11,14 +11,17 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { DisasterService } from './disaster.service';
 import {
   CreateDisasterReportDto,
   DisasterAssessmentDto,
   DisasterType,
 } from './disaster.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('disasters')
 @Controller('api/v1/disasters')
@@ -65,6 +68,7 @@ export class DisasterController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Post('report')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Report a new disaster',
@@ -80,6 +84,7 @@ export class DisasterController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Post('assess/:fieldId')
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Assess field damage',
     description: 'تقييم أضرار حقل معين من كارثة',
@@ -143,6 +148,7 @@ export class DisasterController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Get('health')
+  @Throttle({ limit: 10, ttl: 60000 })
   @ApiOperation({ summary: 'Health check' })
   healthCheck() {
     return { status: 'ok', service: 'disaster-assessment', timestamp: new Date().toISOString() };

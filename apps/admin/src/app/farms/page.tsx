@@ -26,7 +26,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { logger } from '../../lib/logger';
-import {
 
 // Dynamic import for map (no SSR)
 const FarmsMap = dynamic(() => import('@/components/maps/FarmsMap'), {

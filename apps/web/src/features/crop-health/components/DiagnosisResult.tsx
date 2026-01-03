@@ -20,7 +20,6 @@ import {
 import { useDiagnosisResult, useRequestConsultation } from '../hooks/useCropHealth';
 import type { DiagnosedDisease, Treatment } from '../types';
 import { logger } from '@/lib/logger';
-import {
 
 interface DiagnosisResultProps {
   requestId: string;

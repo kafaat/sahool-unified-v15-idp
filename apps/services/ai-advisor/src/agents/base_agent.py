@@ -8,6 +8,8 @@ Base class for all AI agents in the system.
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional
+from collections import deque
+import sys
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from langchain_core.tools import Tool
@@ -16,6 +18,49 @@ import structlog
 from ..config import settings
 
 logger = structlog.get_logger()
+
+
+class ConversationMemory:
+    """Manages conversation history with size limits"""
+
+    def __init__(self, max_messages: int = 50, max_tokens: int = 8000):
+        self.max_messages = max_messages
+        self.max_tokens = max_tokens
+        self._messages = deque(maxlen=max_messages)
+        self._token_count = 0
+
+    def add_message(self, role: str, content: str):
+        """Add a message to history"""
+        # Estimate token count (rough: 4 chars per token)
+        tokens = len(content) // 4
+
+        # Remove old messages if needed
+        while self._token_count + tokens > self.max_tokens and self._messages:
+            old_msg = self._messages.popleft()
+            self._token_count -= len(old_msg.get('content', '')) // 4
+
+        self._messages.append({
+            'role': role,
+            'content': content
+        })
+        self._token_count += tokens
+
+    def get_messages(self) -> list:
+        """Get all messages"""
+        return list(self._messages)
+
+    def clear(self):
+        """Clear all messages"""
+        self._messages.clear()
+        self._token_count = 0
+
+    def get_memory_usage(self) -> dict:
+        """Get current memory usage stats"""
+        return {
+            'message_count': len(self._messages),
+            'estimated_tokens': self._token_count,
+            'memory_bytes': sys.getsizeof(self._messages)
+        }
 
 
 class BaseAgent(ABC):
@@ -66,8 +111,11 @@ class BaseAgent(ABC):
             temperature=settings.temperature,
         )
 
-        # Conversation history | سجل المحادثة
-        self.conversation_history: List[Any] = []
+        # Conversation memory with cleanup | ذاكرة المحادثة مع التنظيف
+        self.conversation_memory = ConversationMemory(
+            max_messages=50,  # Maximum 50 messages
+            max_tokens=8000   # Maximum ~8000 tokens
+        )
 
         logger.info(
             "agent_initialized",
@@ -147,14 +195,16 @@ class BaseAgent(ABC):
             # Get response from Claude | الحصول على استجابة من Claude
             response = await self.llm.ainvoke(messages)
 
-            # Store in conversation history | تخزين في سجل المحادثة
-            self.conversation_history.extend([HumanMessage(content=query), response])
+            # Store in conversation memory | تخزين في ذاكرة المحادثة
+            self.conversation_memory.add_message('user', query)
+            self.conversation_memory.add_message('assistant', response.content)
 
             logger.info(
                 "agent_response_generated",
                 agent_name=self.name,
                 query_length=len(query),
                 response_length=len(response.content),
+                memory_usage=self.conversation_memory.get_memory_usage(),
             )
 
             return {
@@ -257,10 +307,10 @@ class BaseAgent(ABC):
 
     def reset_conversation(self):
         """
-        Clear conversation history
-        مسح سجل المحادثة
+        Clear conversation memory
+        مسح ذاكرة المحادثة
         """
-        self.conversation_history = []
+        self.conversation_memory.clear()
         logger.debug("conversation_reset", agent_name=self.name)
 
     def get_info(self) -> Dict[str, Any]:
@@ -271,10 +321,12 @@ class BaseAgent(ABC):
         Returns:
             Agent metadata | بيانات تعريف الوكيل
         """
+        memory_usage = self.conversation_memory.get_memory_usage()
         return {
             "name": self.name,
             "role": self.role,
             "tools": [tool.name for tool in self.tools],
             "has_rag": self.retriever is not None,
-            "conversation_length": len(self.conversation_history),
+            "conversation_length": memory_usage['message_count'],
+            "memory_usage": memory_usage,
         }

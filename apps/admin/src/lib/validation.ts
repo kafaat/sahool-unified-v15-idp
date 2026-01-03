@@ -208,15 +208,15 @@ export const sanitizers = {
 // Error Messages (Arabic)
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const validationErrors = {
+export const validationErrors: Record<keyof typeof validators | 'required' | 'tooLong' | 'tooShort', string> = {
   twoFactorCode: 'الرجاء إدخال رمز صحيح مكون من 6 أرقام',
   email: 'الرجاء إدخال بريد إلكتروني صحيح',
   phone: 'الرجاء إدخال رقم هاتف صحيح',
-  unsafeText: 'النص يحتوي على محتوى غير آمن',
-  invalidUrl: 'الرجاء إدخال رابط صحيح',
-  weakPassword: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص',
-  invalidNumber: 'الرجاء إدخال رقم صحيح',
-  notAlphanumeric: 'يجب أن يحتوي على أحرف وأرقام فقط',
+  safeText: 'النص يحتوي على محتوى غير آمن',
+  url: 'الرجاء إدخال رابط صحيح',
+  password: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص',
+  number: 'الرجاء إدخال رقم صحيح',
+  alphanumeric: 'يجب أن يحتوي على أحرف وأرقام فقط',
   required: 'هذا الحقل مطلوب',
   tooLong: 'النص طويل جداً',
   tooShort: 'النص قصير جداً',

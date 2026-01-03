@@ -49,9 +49,13 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "clean": "rm -rf node_modules **/node_modules **/dist"
+    "clean": "rm -rf node_modules **/node_modules **/dist",
+    "docs": "./scripts/generate-docs.sh",
+    "docs:web": "npm run docs --workspace=apps/web",
+    "docs:admin": "npm run docs --workspace=apps/admin"
   },
   "devDependencies": {
+    "typedoc": "^0.27.6",
     "typescript": "5.7.2",
     "@types/node": "22.10.2",
     "@types/react": "19.2.7",

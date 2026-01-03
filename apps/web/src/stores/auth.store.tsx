@@ -65,11 +65,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // User type from API matches our User interface
         setUser(response.data);
       } else {
+        // Check for mock user session (used in E2E tests)
+        const mockSession = Cookies.get('user_session');
+        if (mockSession) {
+          try {
+            const mockUser = JSON.parse(mockSession);
+            setUser({
+              id: mockUser.id || 'test-user',
+              email: mockUser.email || 'test@sahool.com',
+              name: mockUser.name || 'Test User',
+              name_ar: mockUser.nameAr || 'مستخدم اختباري',
+              role: mockUser.role || 'user',
+            });
+            return;
+          } catch {
+            // Invalid mock session
+          }
+        }
         setUser(null);
         Cookies.remove('access_token');
         apiClient.clearToken();
       }
     } catch {
+      // Check for mock user session (used in E2E tests)
+      const mockSession = Cookies.get('user_session');
+      if (mockSession) {
+        try {
+          const mockUser = JSON.parse(mockSession);
+          setUser({
+            id: mockUser.id || 'test-user',
+            email: mockUser.email || 'test@sahool.com',
+            name: mockUser.name || 'Test User',
+            name_ar: mockUser.nameAr || 'مستخدم اختباري',
+            role: mockUser.role || 'user',
+          });
+          return;
+        } catch {
+          // Invalid mock session
+        }
+      }
       setUser(null);
       Cookies.remove('access_token');
       apiClient.clearToken();

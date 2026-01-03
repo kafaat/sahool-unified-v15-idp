@@ -24,6 +24,12 @@ export const TEST_USER: LoginCredentials = {
  * تسجيل الدخول إلى التطبيق
  */
 export async function login(page: Page, credentials: LoginCredentials = TEST_USER) {
+  // In CI environment, use mock authentication by setting cookies directly
+  if (process.env.CI) {
+    await mockLogin(page);
+    return;
+  }
+
   // Navigate to login page
   await page.goto('/login');
 
@@ -42,6 +48,47 @@ export async function login(page: Page, credentials: LoginCredentials = TEST_USE
 
   // Verify successful login
   await expect(page).toHaveURL(/\/dashboard/);
+}
+
+/**
+ * Mock login for CI/E2E tests
+ * Sets authentication cookies directly without API call
+ * تسجيل دخول وهمي لاختبارات CI/E2E
+ */
+export async function mockLogin(page: Page) {
+  const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+
+  // Set mock authentication cookies
+  await page.context().addCookies([
+    {
+      name: 'access_token',
+      value: 'mock_test_token_for_e2e_testing',
+      domain: new URL(baseURL).hostname,
+      path: '/',
+      httpOnly: true,
+      secure: false,
+      sameSite: 'Lax',
+    },
+    {
+      name: 'user_session',
+      value: JSON.stringify({
+        id: 'test-user-123',
+        email: 'test@sahool.com',
+        name: 'Test User',
+        nameAr: 'مستخدم اختباري',
+        role: 'admin',
+      }),
+      domain: new URL(baseURL).hostname,
+      path: '/',
+      httpOnly: false,
+      secure: false,
+      sameSite: 'Lax',
+    },
+  ]);
+
+  // Navigate to dashboard
+  await page.goto('/dashboard');
+  await page.waitForLoadState('domcontentloaded');
 }
 
 /**

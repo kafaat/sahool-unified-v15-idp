@@ -9,7 +9,9 @@ Sahool Vision - Disease Service
 """
 
 from typing import List, Optional, Dict, Any
-from models.disease import (
+
+# Fixed relative import - إصلاح الاستيراد النسبي
+from ..models.disease import (
     DiseaseSeverity,
     CropType,
     TreatmentType,

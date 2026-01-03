@@ -31,20 +31,19 @@ import type {
   User,
 } from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
-if (!API_BASE_URL) {
-  throw new Error('NEXT_PUBLIC_API_URL environment variable is required');
-}
-
-// Enforce HTTPS in production (only at runtime in browser, not during build)
-if (
-  typeof window !== 'undefined' &&
-  process.env.NODE_ENV === 'production' &&
-  !API_BASE_URL.startsWith('https://') &&
-  !API_BASE_URL.includes('localhost')
-) {
-  logger.warn('Warning: API_BASE_URL should use HTTPS in production environment');
+// Only warn during development, don't throw during build
+if (typeof window !== 'undefined') {
+  if (!API_BASE_URL) {
+    console.warn('NEXT_PUBLIC_API_URL environment variable is not set');
+  } else if (
+    process.env.NODE_ENV === 'production' &&
+    !API_BASE_URL.startsWith('https://') &&
+    !API_BASE_URL.includes('localhost')
+  ) {
+    logger.warn('Warning: API_BASE_URL should use HTTPS in production environment');
+  }
 }
 
 interface RequestOptions extends RequestInit {
@@ -67,7 +66,7 @@ class SahoolApiClient {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor(baseUrl: string = API_BASE_URL!) {
+  constructor(baseUrl: string = API_BASE_URL) {
     this.baseUrl = baseUrl;
   }
 

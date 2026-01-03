@@ -70,7 +70,7 @@ const PopupContent: React.FC<PopupData> = ({ name, crop, area, ndvi, status }) =
 const MapView = React.memo<MapViewProps>(function MapView({ tenantId, onFieldSelect, fields: propFields }) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<InstanceType<typeof maplibregl.Map> | null>(null);
-  const popupRef = useRef<maplibregl.Popup | null>(null);
+  const popupRef = useRef<InstanceType<typeof maplibregl.Popup> | null>(null);
   const popupRootRef = useRef<ReturnType<typeof createRoot> | null>(null);
   const [, setSelectedField] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);

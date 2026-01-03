@@ -1,8 +1,16 @@
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
+import 'pii_filter.dart';
 
-/// SAHOOL App Logger - Structured Logging System
-/// نظام تسجيل مهيكل للتطبيق
+/// SAHOOL App Logger - Structured Logging System with PII Protection
+/// نظام تسجيل مهيكل للتطبيق مع حماية البيانات الشخصية
+///
+/// Features:
+/// - Automatic PII filtering for sensitive data
+/// - Structured logging with levels
+/// - Log buffering for crash reports
+/// - Environment-based configuration
+/// - Performance tracking
 ///
 /// Usage:
 /// ```dart
@@ -20,13 +28,33 @@ class AppLogger {
   static final List<LogEntry> _logBuffer = [];
   static const int _maxBufferSize = 1000;
 
+  /// PII filtering configuration
+  /// CRITICAL: Always enabled in production to prevent data leaks
+  static bool _piiFilteringEnabled = true;
+
+  /// PII stats for monitoring
+  static int _piiFilteredCount = 0;
+
   /// Configure logger settings
   static void configure({
     bool? enabled,
     LogLevel? minLevel,
+    bool? enablePiiFiltering,
   }) {
     if (enabled != null) _enabled = enabled;
     if (minLevel != null) _minLevel = minLevel;
+    if (enablePiiFiltering != null) {
+      // Always enable PII filtering in release mode
+      _piiFilteringEnabled = kReleaseMode ? true : enablePiiFiltering;
+    }
+  }
+
+  /// Get PII filtering statistics
+  static Map<String, dynamic> getPiiStats() {
+    return {
+      'enabled': _piiFilteringEnabled,
+      'filtered_count': _piiFilteredCount,
+    };
   }
 
   /// Debug log - للتطوير فقط
@@ -80,22 +108,43 @@ class AppLogger {
     );
   }
 
-  /// Network request log
+  /// Network request log with automatic PII sanitization
   static void network(
     String method,
     String url, {
     int? statusCode,
     Duration? duration,
     Map<String, dynamic>? data,
+    Map<String, dynamic>? headers,
+    dynamic body,
   }) {
     final emoji = _getNetworkEmoji(statusCode);
     final durationStr = duration != null ? ' (${duration.inMilliseconds}ms)' : '';
+
+    // Sanitize network data
+    final sanitizedData = _piiFilteringEnabled && data != null
+        ? PiiFilter.sanitize(data)
+        : data;
+
+    final sanitizedHeaders = _piiFilteringEnabled && headers != null
+        ? PiiFilter.sanitizeHeaders(headers)
+        : headers;
+
+    final sanitizedBody = _piiFilteringEnabled && body != null
+        ? PiiFilter.sanitizeRequestBody(body)
+        : body;
+
+    final networkData = <String, dynamic>{
+      if (sanitizedData != null) ...sanitizedData,
+      if (sanitizedHeaders != null) 'headers': sanitizedHeaders,
+      if (sanitizedBody != null) 'body': sanitizedBody,
+    };
 
     _log(
       statusCode != null && statusCode >= 400 ? LogLevel.error : LogLevel.info,
       '$emoji $method $url ${statusCode ?? ""}$durationStr',
       tag: 'NETWORK',
-      data: data,
+      data: networkData.isNotEmpty ? networkData : null,
     );
   }
 
@@ -141,8 +190,26 @@ class AppLogger {
   }
 
   /// Export logs as string (for crash reports)
-  static String exportLogs() {
-    return _logBuffer.map((e) => e.toString()).join('\n');
+  /// Always applies PII filtering for safety
+  static String exportLogs({bool sanitize = true}) {
+    if (!sanitize) {
+      return _logBuffer.map((e) => e.toString()).join('\n');
+    }
+
+    // Apply additional PII filtering to exported logs
+    final logs = _logBuffer.map((e) => e.toString()).join('\n');
+    return PiiFilter.sanitize(logs);
+  }
+
+  /// Export logs as JSON (for analytics/monitoring)
+  static String exportLogsAsJson({bool sanitize = true}) {
+    final logs = _logBuffer.map((e) => e.toJson()).toList();
+
+    if (sanitize) {
+      return PiiFilter.sanitize(logs).toString();
+    }
+
+    return logs.toString();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -160,13 +227,40 @@ class AppLogger {
     if (!_enabled) return;
     if (level.index < _minLevel.index) return;
 
+    // Apply PII filtering if enabled
+    String sanitizedMessage = message;
+    Map<String, dynamic>? sanitizedData = data;
+    Object? sanitizedError = error;
+
+    if (_piiFilteringEnabled) {
+      // Check if message contains PII
+      if (PiiFilter.containsPii(message)) {
+        sanitizedMessage = PiiFilter.sanitize(message);
+        _piiFilteredCount++;
+      }
+
+      // Sanitize data map
+      if (data != null) {
+        sanitizedData = PiiFilter.sanitize(data);
+      }
+
+      // Sanitize error message
+      if (error != null) {
+        final errorStr = error.toString();
+        if (PiiFilter.containsPii(errorStr)) {
+          sanitizedError = PiiFilter.sanitizeError(error);
+          _piiFilteredCount++;
+        }
+      }
+    }
+
     final entry = LogEntry(
       level: level,
-      message: message,
+      message: sanitizedMessage,
       tag: tag,
-      error: error,
+      error: sanitizedError,
       stackTrace: stackTrace,
-      data: data,
+      data: sanitizedData,
       timestamp: DateTime.now(),
     );
 
@@ -186,7 +280,7 @@ class AppLogger {
       entry.formattedMessage,
       name: entry.tag ?? 'SAHOOL',
       level: _getLevelValue(level),
-      error: error,
+      error: sanitizedError,
       stackTrace: stackTrace,
     );
   }

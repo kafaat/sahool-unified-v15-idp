@@ -1,36 +1,441 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.kts.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+##############################################################################
+# SAHOOL Field App - Production ProGuard Configuration
+# Aggressive obfuscation for release builds
+# Generated: 2026-01-03
+##############################################################################
 
-# Flutter wrapper
+##############################################################################
+# GENERAL OPTIMIZATION & OBFUSCATION SETTINGS
+##############################################################################
+
+# Enable aggressive optimization
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-verbose
+
+# Remove logging calls (production security)
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** i(...);
+    public static *** w(...);
+    public static *** e(...);
+}
+
+# Remove print statements from Dart/Flutter code
+-assumenosideeffects class io.flutter.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** i(...);
+    public static *** w(...);
+    public static *** e(...);
+}
+
+# Remove source file names and line numbers for maximum obfuscation
+-renamesourcefileattribute SourceFile
+-keepattributes Exceptions,InnerClasses,Signature,Deprecated,EnclosingMethod
+
+# Note: We intentionally DO NOT keep SourceFile,LineNumberTable in production
+# This prevents reverse engineering from seeing original file names and line numbers
+
+##############################################################################
+# FLUTTER FRAMEWORK - Essential Rules
+##############################################################################
+
 -keep class io.flutter.app.** { *; }
 -keep class io.flutter.plugin.** { *; }
 -keep class io.flutter.util.** { *; }
 -keep class io.flutter.view.** { *; }
 -keep class io.flutter.** { *; }
 -keep class io.flutter.plugins.** { *; }
+-keep class io.flutter.embedding.** { *; }
+
+# Flutter JNI
+-keepclassmembers class * {
+    native <methods>;
+}
+
+# Flutter plugin registry
+-keep class io.flutter.plugin.common.** { *; }
+-keep class io.flutter.plugin.platform.** { *; }
+
+##############################################################################
+# ANDROID CORE LIBRARIES
+##############################################################################
 
 # AndroidX
 -keep class androidx.** { *; }
 -keep interface androidx.** { *; }
 -dontwarn androidx.**
+-keepattributes *Annotation*
 
-# Keep generic signature of Call, Response (R8 full mode strips signatures from non-kept items).
+# Android Architecture Components
+-keep class * extends androidx.lifecycle.ViewModel { *; }
+-keep class * extends androidx.lifecycle.AndroidViewModel { *; }
+
+# Android Work Manager (for background tasks)
+-keep class * extends androidx.work.Worker
+-keep class * extends androidx.work.InputMerger
+-keep class androidx.work.** { *; }
+-dontwarn androidx.work.**
+
+##############################################################################
+# KOTLIN & COROUTINES
+##############################################################################
+
+# Kotlin reflection
+-keep class kotlin.** { *; }
+-keep class kotlin.Metadata { *; }
+-dontwarn kotlin.**
+-keepclassmembers class **$WhenMappings {
+    <fields>;
+}
+-keepclassmembers class kotlin.Metadata {
+    public <methods>;
+}
+
+# Kotlin Coroutines
+-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
+
+# Keep Continuation for R8 full mode
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+
+##############################################################################
+# DIO HTTP CLIENT
+##############################################################################
+
+# Dio core
+-keep class io.flutter.plugins.** { *; }
+-dontwarn io.flutter.plugins.**
+
+# OkHttp (used by Dio)
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
+
+# OkHttp platform used only on JVM and when Conscrypt dependency is available
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+
+##############################################################################
+# JSON SERIALIZATION (json_serializable, Freezed)
+##############################################################################
+
+# Keep all model classes with JSON annotations
+-keep @interface com.google.gson.annotations.SerializedName
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# Gson specific rules
+-keep class com.google.gson.** { *; }
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.stream.** { *; }
+
+# Keep generic signature of Call, Response (R8 full mode)
 -keep,allowobfuscation,allowshrinking interface retrofit2.Call
 -keep,allowobfuscation,allowshrinking class retrofit2.Response
 
-# With R8 full mode generic signatures are stripped for classes that are not
-# kept. Suspend functions are wrapped in continuations where the type argument
-# is used.
--keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
+# Keep data classes generated by Freezed
+-keep class * extends java.lang.Enum { *; }
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
--keepattributes SourceFile,LineNumberTable
+# Keep model classes - adjust package name to match your project
+-keep class io.sahool.sahool_field_app.data.models.** { *; }
+-keep class io.sahool.sahool_field_app.domain.entities.** { *; }
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Keep all classes with JSON annotations
+-keepclasseswithmembers class * {
+    @com.google.gson.annotations.* <fields>;
+}
+
+##############################################################################
+# DRIFT DATABASE (SQLite)
+##############################################################################
+
+# Drift core
+-keep class drift.** { *; }
+-keep class com.simolus.** { *; }
+-dontwarn drift.**
+
+# SQLite & SQLCipher
+-keep class org.sqlite.** { *; }
+-keep class net.sqlcipher.** { *; }
+-dontwarn org.sqlite.**
+-dontwarn net.sqlcipher.**
+
+# Keep database classes - adjust package name
+-keep class io.sahool.sahool_field_app.data.database.** { *; }
+
+##############################################################################
+# FLUTTER SECURE STORAGE
+##############################################################################
+
+-keep class com.it_nomads.fluttersecurestorage.** { *; }
+-dontwarn com.it_nomads.fluttersecurestorage.**
+
+# Android KeyStore
+-keep class android.security.keystore.** { *; }
+-keep class javax.crypto.** { *; }
+-keep class javax.crypto.spec.** { *; }
+
+##############################################################################
+# SOCKET.IO CLIENT
+##############################################################################
+
+# Socket.IO core
+-keep class io.socket.** { *; }
+-keep interface io.socket.** { *; }
+-dontwarn io.socket.**
+
+# Engine.IO
+-keep class io.socket.engineio.** { *; }
+-dontwarn io.socket.engineio.**
+
+# Socket.IO parser
+-keep class io.socket.parser.** { *; }
+-dontwarn io.socket.parser.**
+
+# JSON (used by Socket.IO)
+-keep class org.json.** { *; }
+
+##############################################################################
+# RIVERPOD STATE MANAGEMENT
+##############################################################################
+
+# Keep provider classes
+-keep class * extends com.flutter.plugins.** { *; }
+-keepclassmembers class * {
+    @riverpod.annotation.* <methods>;
+}
+
+# Keep all generated Riverpod providers
+-keep class **Provider { *; }
+-keep class **NotifierProvider { *; }
+-keep class **StateNotifierProvider { *; }
+
+##############################################################################
+# FLUTTER LOCAL NOTIFICATIONS
+##############################################################################
+
+-keep class com.dexterous.** { *; }
+-dontwarn com.dexterous.**
+
+# Notification channels
+-keep class android.app.NotificationChannel { *; }
+-keep class android.app.NotificationManager { *; }
+
+##############################################################################
+# IMAGE PROCESSING & MEDIA
+##############################################################################
+
+# Image Picker
+-keep class io.flutter.plugins.imagepicker.** { *; }
+-dontwarn io.flutter.plugins.imagepicker.**
+
+# Camera
+-keep class io.flutter.plugins.camera.** { *; }
+-dontwarn io.flutter.plugins.camera.**
+
+# CameraX
+-keep class androidx.camera.** { *; }
+-dontwarn androidx.camera.**
+
+# Cached Network Image
+-keep class com.ryanheise.** { *; }
+-dontwarn com.ryanheise.**
+
+##############################################################################
+# MOBILE SCANNER (QR/Barcode)
+##############################################################################
+
+-keep class dev.steenbakker.mobile_scanner.** { *; }
+-dontwarn dev.steenbakker.mobile_scanner.**
+
+# Google ML Kit / Barcode Scanning
+-keep class com.google.mlkit.** { *; }
+-keep class com.google.android.gms.vision.** { *; }
+-dontwarn com.google.mlkit.**
+-dontwarn com.google.android.gms.vision.**
+
+##############################################################################
+# MAPS (Flutter Map, MapLibre GL)
+##############################################################################
+
+# Flutter Map
+-keep class net.touchcapture.** { *; }
+-dontwarn net.touchcapture.**
+
+# MapLibre GL
+-keep class com.mapbox.** { *; }
+-keep class org.maplibre.** { *; }
+-dontwarn com.mapbox.**
+-dontwarn org.maplibre.**
+
+# Vector Map Tiles
+-keep class com.github.** { *; }
+
+##############################################################################
+# SECURITY - ROOT/JAILBREAK DETECTION
+##############################################################################
+
+# Flutter Jailbreak Detection
+-keep class com.pichillilorenzo.** { *; }
+-dontwarn com.pichillilorenzo.**
+
+# Device Info Plus
+-keep class dev.fluttercommunity.plus.device_info.** { *; }
+
+# Package Info Plus
+-keep class dev.fluttercommunity.plus.package_info.** { *; }
+
+##############################################################################
+# STORAGE & PREFERENCES
+##############################################################################
+
+# Shared Preferences
+-keep class io.flutter.plugins.sharedpreferences.** { *; }
+-dontwarn io.flutter.plugins.sharedpreferences.**
+
+# Path Provider
+-keep class io.flutter.plugins.pathprovider.** { *; }
+-dontwarn io.flutter.plugins.pathprovider.**
+
+##############################################################################
+# CONNECTIVITY & NETWORK
+##############################################################################
+
+# Connectivity Plus
+-keep class dev.fluttercommunity.plus.connectivity.** { *; }
+-dontwarn dev.fluttercommunity.plus.connectivity.**
+
+# Network Info
+-keep class android.net.** { *; }
+
+##############################################################################
+# UI LIBRARIES
+##############################################################################
+
+# SVG
+-keep class com.caverock.androidsvg.** { *; }
+-dontwarn com.caverock.androidsvg.**
+
+# Charts (FL Chart)
+-keep class io.flutter.plugins.** { *; }
+
+##############################################################################
+# WEBVIEW (if used)
+##############################################################################
+
+-keep class android.webkit.** { *; }
+-keepclassmembers class * extends android.webkit.WebViewClient {
+    public void *(android.webkit.WebView, java.lang.String, android.graphics.Bitmap);
+    public boolean *(android.webkit.WebView, java.lang.String);
+}
+-keepclassmembers class * extends android.webkit.WebViewClient {
+    public void *(android.webkit.WebView, java.lang.String);
+}
+
+##############################################################################
+# JAVA 8+ DESUGARING
+##############################################################################
+
+-dontwarn java.lang.invoke.**
+-keep class java.lang.invoke.** { *; }
+
+##############################################################################
+# CUSTOM APP CLASSES (Adjust package names as needed)
+##############################################################################
+
+# Keep your app's main activity
+-keep class io.sahool.sahool_field_app.MainActivity { *; }
+
+# Keep custom Application class if you have one
+-keep class io.sahool.sahool_field_app.** extends android.app.Application { *; }
+
+# Keep all native methods
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Keep all classes with special annotations
+-keep @interface *
+-keepclasseswithmembers class * {
+    @* <methods>;
+}
+-keepclasseswithmembers class * {
+    @* <fields>;
+}
+-keepclasseswithmembers class * {
+    @* <init>(...);
+}
+
+##############################################################################
+# REMOVE DEBUG INFORMATION (Production Only)
+##############################################################################
+
+# Strip debug info from third-party libraries
+-dontwarn javax.annotation.**
+-dontwarn javax.inject.**
+-dontwarn sun.misc.Unsafe
+
+# Remove all debugging attributes for maximum obfuscation
+# DO NOT include SourceFile,LineNumberTable in production
+
+##############################################################################
+# ENUM OPTIMIZATION
+##############################################################################
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+##############################################################################
+# PARCELABLE & SERIALIZABLE
+##############################################################################
+
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
+
+##############################################################################
+# R8 FULL MODE COMPATIBILITY
+##############################################################################
+
+# Keep generic signatures for reflection
+-keepattributes Signature
+
+# Keep inner classes relationship
+-keepattributes InnerClasses
+
+# Keep runtime visible annotations
+-keepattributes RuntimeVisibleAnnotations
+-keepattributes RuntimeInvisibleAnnotations
+-keepattributes RuntimeVisibleParameterAnnotations
+-keepattributes RuntimeInvisibleParameterAnnotations
+
+# Keep annotation default values
+-keepattributes AnnotationDefault
+
+##############################################################################
+# END OF PRODUCTION PROGUARD RULES
+##############################################################################

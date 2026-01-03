@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+import '../../../../core/utils/app_logger.dart';
 import '../models/crop_model.dart';
 import '../remote/crops_api.dart';
 
@@ -37,7 +38,7 @@ class CropsRepository {
   Future<List<Crop>> getAllCrops({bool forceRefresh = false}) async {
     // Return from memory cache if available and not force refresh
     if (!forceRefresh && _cachedCrops != null && _cachedCrops!.isNotEmpty) {
-      print('📦 Returning crops from memory cache');
+      AppLogger.d('Returning crops from memory cache', tag: 'CropsRepository');
       return _cachedCrops!;
     }
 
@@ -46,14 +47,14 @@ class CropsRepository {
       final cachedCrops = await _loadFromCache();
       if (cachedCrops != null && cachedCrops.isNotEmpty) {
         _cachedCrops = cachedCrops;
-        print('📦 Returning crops from local cache (${cachedCrops.length} crops)');
+        AppLogger.d('Returning crops from local cache', tag: 'CropsRepository', data: {'count': cachedCrops.length});
         return cachedCrops;
       }
     }
 
     // Fetch from API
     try {
-      print('🌐 Fetching crops from API...');
+      AppLogger.i('Fetching crops from API...', tag: 'CropsRepository');
       final cropsJson = await _api.fetchAllCrops();
       final crops = cropsJson.map((json) => Crop.fromJson(json)).toList();
 
@@ -61,21 +62,21 @@ class CropsRepository {
       await _saveToCache(crops);
       _cachedCrops = crops;
 
-      print('✅ Fetched ${crops.length} crops from API');
+      AppLogger.i('Fetched crops from API', tag: 'CropsRepository', data: {'count': crops.length});
       return crops;
     } catch (e) {
-      print('❌ Failed to fetch crops from API: $e');
+      AppLogger.e('Failed to fetch crops from API', tag: 'CropsRepository', error: e);
 
       // Try to return stale cache as fallback
       final cachedCrops = await _loadFromCache();
       if (cachedCrops != null && cachedCrops.isNotEmpty) {
         _cachedCrops = cachedCrops;
-        print('⚠️ Returning stale cached crops (${cachedCrops.length} crops)');
+        AppLogger.w('Returning stale cached crops', tag: 'CropsRepository', data: {'count': cachedCrops.length});
         return cachedCrops;
       }
 
       // If all fails, return empty list
-      print('⚠️ No cached crops available, returning empty list');
+      AppLogger.w('No cached crops available, returning empty list', tag: 'CropsRepository');
       return [];
     }
   }
@@ -116,7 +117,7 @@ class CropsRepository {
     await _prefs.remove(_cacheKey);
     await _prefs.remove(_cacheTimestampKey);
     _cachedCrops = null;
-    print('🗑️ Crops cache cleared');
+    AppLogger.d('Crops cache cleared', tag: 'CropsRepository');
   }
 
   // ============================================================
@@ -144,7 +145,7 @@ class CropsRepository {
       final List<dynamic> decoded = jsonDecode(cachedJson);
       return decoded.map((json) => Crop.fromJson(json as Map<String, dynamic>)).toList();
     } catch (e) {
-      print('❌ Failed to load crops from cache: $e');
+      AppLogger.e('Failed to load crops from cache', tag: 'CropsRepository', error: e);
       return null;
     }
   }
@@ -158,9 +159,9 @@ class CropsRepository {
       await _prefs.setString(_cacheKey, encoded);
       await _prefs.setString(_cacheTimestampKey, DateTime.now().toIso8601String());
 
-      print('💾 Saved ${crops.length} crops to cache');
+      AppLogger.d('Saved crops to cache', tag: 'CropsRepository', data: {'count': crops.length});
     } catch (e) {
-      print('❌ Failed to save crops to cache: $e');
+      AppLogger.e('Failed to save crops to cache', tag: 'CropsRepository', error: e);
     }
   }
 

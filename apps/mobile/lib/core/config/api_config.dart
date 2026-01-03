@@ -2,101 +2,72 @@
 /// إعدادات الاتصال بالخادم
 library;
 
-import 'dart:io';
+import 'env_config.dart';
 
 /// Service ports for local development
 /// منافذ الخدمات للتطوير المحلي
+/// @deprecated Use EnvConfig.{serviceName}Port instead
 class ServicePorts {
-  static const int fieldCore = 3000;
-  static const int marketplace = 3010; // Marketplace & FinTech Service
-  static const int chat = 3011; // Chat/Messaging Service (REST + Socket.io)
-  static const int satellite = 8090;
-  static const int indicators = 8091;
-  static const int weather = 8092;
-  static const int fertilizer = 8093;
-  static const int irrigation = 8094;
-  static const int cropHealth = 8095; // Sahool Vision AI
-  static const int virtualSensors = 8096; // Virtual Sensors Engine
-  static const int communityChat = 8097; // Community Chat (Socket.io)
-  static const int equipment = 8101;
-  static const int inventory = 8102; // Inventory Management Service
-  static const int notifications = 8110; // Notification Service
-  static const int spray = 8098; // Spray Advisor Service
-  static const int gateway = 8000; // Kong API Gateway
+  static int get fieldCore => EnvConfig.fieldCorePort;
+  static int get marketplace => EnvConfig.marketplacePort;
+  static int get chat => EnvConfig.chatPort;
+  static int get satellite => EnvConfig.satellitePort;
+  static int get indicators => EnvConfig.indicatorsPort;
+  static int get weather => EnvConfig.weatherPort;
+  static int get fertilizer => EnvConfig.fertilizerPort;
+  static int get irrigation => EnvConfig.irrigationPort;
+  static int get cropHealth => EnvConfig.cropHealthPort;
+  static int get virtualSensors => EnvConfig.virtualSensorsPort;
+  static int get communityChat => EnvConfig.communityChatPort;
+  static int get equipment => EnvConfig.equipmentPort;
+  static int get inventory => EnvConfig.inventoryPort;
+  static int get notifications => EnvConfig.notificationsPort;
+  static int get spray => EnvConfig.sprayPort;
+  static int get gateway => EnvConfig.gatewayPort;
 }
 
 /// API configuration class
-/// 10.0.2.2 للمحاكي الأندرويد، localhost للـ iOS Simulator
-/// لأجهزة Android الحقيقية: استخدم IP الكمبيوتر (192.168.x.x)
+/// Uses EnvConfig for all environment-specific values
 class ApiConfig {
   ApiConfig._();
 
-  /// ⚠️ للتجربة على جهاز حقيقي:
-  /// 1. اكتب `ipconfig` (Windows) أو `ifconfig` (Mac/Linux)
-  /// 2. انسخ عنوان IPv4 (مثل 192.168.1.5)
-  /// 3. ضعه في المتغير أدناه
-  static const String? _customHost = null; // مثال: '192.168.1.5'
-
-  /// Production API URL
-  static const String _productionHost = 'api.sahool.io';
-
   /// Check if running in release mode
-  static bool get isProduction => const bool.fromEnvironment('dart.vm.product');
-
-  /// Get host based on platform and environment
-  static String get _host {
-    // In production, always use production host
-    if (isProduction && _customHost == null) {
-      return _productionHost;
-    }
-
-    // If custom host is set (for real device testing)
-    if (_customHost != null && _customHost!.isNotEmpty) {
-      return _customHost!;
-    }
-
-    // Development mode
-    if (Platform.isAndroid) {
-      // Android Emulator sees host machine as 10.0.2.2
-      return '10.0.2.2';
-    }
-    // iOS Simulator
-    return 'localhost';
-  }
+  static bool get isProduction => EnvConfig.isProduction;
 
   /// Get protocol (https for production, http for development)
-  static String get _protocol => isProduction ? 'https' : 'http';
+  static String get _protocol => EnvConfig.apiProtocol;
+
+  /// Get host based on environment
+  static String get _host => EnvConfig.apiHost;
 
   /// Base URL for field-core service (legacy)
-  static String get baseUrl => '$_protocol://$_host:${ServicePorts.fieldCore}';
+  static String get baseUrl => EnvConfig.fieldCoreUrl;
 
   /// Gateway URL (production-like routing)
-  static String get gatewayUrl => '$_protocol://$_host:${ServicePorts.gateway}';
+  static String get gatewayUrl => EnvConfig.gatewayUrl;
 
   /// Service-specific URLs for direct access
-  static String get satelliteServiceUrl => '$_protocol://$_host:${ServicePorts.satellite}';
-  static String get indicatorsServiceUrl => '$_protocol://$_host:${ServicePorts.indicators}';
-  static String get weatherServiceUrl => '$_protocol://$_host:${ServicePorts.weather}';
-  static String get fertilizerServiceUrl => '$_protocol://$_host:${ServicePorts.fertilizer}';
-  static String get irrigationServiceUrl => '$_protocol://$_host:${ServicePorts.irrigation}';
-  static String get cropHealthServiceUrl => '$_protocol://$_host:${ServicePorts.cropHealth}';
-  static String get virtualSensorsServiceUrl => '$_protocol://$_host:${ServicePorts.virtualSensors}';
-  static String get communityChatServiceUrl => '$_protocol://$_host:${ServicePorts.communityChat}';
-  static String get chatServiceUrl => '$_protocol://$_host:${ServicePorts.chat}';
-  static String get equipmentServiceUrl => '$_protocol://$_host:${ServicePorts.equipment}';
-  static String get inventoryServiceUrl => '$_protocol://$_host:${ServicePorts.inventory}';
-  static String get notificationsServiceUrl => '$_protocol://$_host:${ServicePorts.notifications}';
-  static String get sprayServiceUrl => '$_protocol://$_host:${ServicePorts.spray}';
-  static String get marketplaceServiceUrl => '$_protocol://$_host:${ServicePorts.marketplace}';
+  static String get satelliteServiceUrl => EnvConfig.satelliteUrl;
+  static String get indicatorsServiceUrl => EnvConfig.indicatorsUrl;
+  static String get weatherServiceUrl => EnvConfig.weatherUrl;
+  static String get fertilizerServiceUrl => EnvConfig.fertilizerUrl;
+  static String get irrigationServiceUrl => EnvConfig.irrigationUrl;
+  static String get cropHealthServiceUrl => EnvConfig.cropHealthUrl;
+  static String get virtualSensorsServiceUrl => EnvConfig.virtualSensorsUrl;
+  static String get communityChatServiceUrl => EnvConfig.communityChatUrl;
+  static String get chatServiceUrl => EnvConfig.chatUrl;
+  static String get equipmentServiceUrl => EnvConfig.equipmentUrl;
+  static String get inventoryServiceUrl => EnvConfig.inventoryUrl;
+  static String get notificationsServiceUrl => EnvConfig.notificationsUrl;
+  static String get sprayServiceUrl => EnvConfig.sprayUrl;
+  static String get marketplaceServiceUrl => EnvConfig.marketplaceUrl;
 
   /// Production base URL (Kong Gateway)
-  static const String productionBaseUrl = 'https://api.sahool.io';
+  /// @deprecated Use EnvConfig.gatewayUrl instead
+  static String get productionBaseUrl => 'https://${EnvConfig.productionHost}';
 
   /// Use production URL in release mode
-  static String get effectiveBaseUrl {
-    const isProduction = bool.fromEnvironment('dart.vm.product');
-    return isProduction ? productionBaseUrl : gatewayUrl;
-  }
+  static String get effectiveBaseUrl => gatewayUrl;
 
   /// Use direct service URLs in development (bypass gateway)
   /// Set to false to use the unified gateway (mock-server on port 8000)

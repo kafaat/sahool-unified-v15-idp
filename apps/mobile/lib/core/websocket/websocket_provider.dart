@@ -2,23 +2,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'websocket_service.dart';
 import '../auth/auth_service.dart';
 import '../config/env_config.dart';
+import '../utils/app_logger.dart';
 
 /// WebSocket Service Provider
 /// مزود خدمة WebSocket
 final webSocketServiceProvider = Provider<WebSocketService>((ref) {
-  final authService = ref.watch(authServiceProvider);
+  final authState = ref.watch(authStateProvider);
 
   return WebSocketService(
     baseUrl: EnvConfig.wsGatewayUrl,
     getToken: () {
-      // Get token from auth service - implementation depends on your AuthService
-      // This is a placeholder that should be updated based on your actual implementation
-      return ''; // TODO: Implement token retrieval
+      // Get access token from auth state (cached in memory)
+      final token = authState.accessToken;
+      if (token == null || token.isEmpty) {
+        AppLogger.w('WebSocket: No access token available', tag: 'WS');
+        return '';
+      }
+      return token;
     },
     getTenantId: () {
-      // Get tenant ID from auth service
-      // This is a placeholder that should be updated based on your actual implementation
-      return ''; // TODO: Implement tenant ID retrieval
+      // Get tenant ID from current user
+      final tenantId = authState.user?.tenantId;
+      if (tenantId == null || tenantId.isEmpty) {
+        AppLogger.w('WebSocket: No tenant ID available', tag: 'WS');
+        return '';
+      }
+      return tenantId;
     },
   );
 });
@@ -198,10 +207,20 @@ class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
   }
 
   /// Reconnect to WebSocket
+  /// Call this when the auth token is refreshed to reconnect with new credentials
   Future<void> reconnect() async {
     await _service.disconnect();
     await Future.delayed(const Duration(milliseconds: 500));
     await _service.connect();
+  }
+
+  /// Refresh connection after token update
+  /// This method ensures the WebSocket uses the latest access token
+  Future<void> refreshConnection() async {
+    if (state == ConnectionState.connected) {
+      AppLogger.i('Refreshing WebSocket connection with new token', tag: 'WS');
+      await reconnect();
+    }
   }
 }
 
@@ -209,5 +228,24 @@ class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
 final webSocketConnectionProvider =
     StateNotifierProvider<WebSocketConnectionNotifier, ConnectionState>((ref) {
   final service = ref.watch(webSocketServiceProvider);
-  return WebSocketConnectionNotifier(service);
+  final notifier = WebSocketConnectionNotifier(service);
+
+  // Listen for auth state changes to handle token refresh
+  String? lastToken;
+  ref.listen<AuthState>(authStateProvider, (previous, next) {
+    final newToken = next.accessToken;
+
+    // If token changed and we have a connection, reconnect with new token
+    if (lastToken != null &&
+        newToken != null &&
+        lastToken != newToken &&
+        notifier.state == ConnectionState.connected) {
+      AppLogger.i('Token refreshed, reconnecting WebSocket', tag: 'WS');
+      notifier.refreshConnection();
+    }
+
+    lastToken = newToken;
+  });
+
+  return notifier;
 });

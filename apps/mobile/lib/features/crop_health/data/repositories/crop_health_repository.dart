@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/config/env_config.dart';
 import '../../../../core/network/api_result.dart';
 import '../models/diagnosis_models.dart';
 
@@ -19,7 +20,7 @@ class CropHealthRepository {
 
   /// Base URL for crop health service (port 8095)
   static String get _baseUrl => ApiConfig.useDirectServices
-      ? 'http://${ApiConfig.useDirectServices ? "localhost" : "10.0.2.2"}:8095'
+      ? EnvConfig.cropHealthUrl
       : ApiConfig.effectiveBaseUrl;
 
   CropHealthRepository({

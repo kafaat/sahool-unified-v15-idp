@@ -45,5 +45,110 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Global settings -->
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
+		<!-- Pinned domains configuration -->
+		<key>NSPinnedDomains</key>
+		<dict>
+			<!-- Production API domain: api.sahool.io -->
+			<key>api.sahool.io</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSPinnedLeafIdentities</key>
+				<array>
+					<dict>
+						<!-- Primary SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<!-- Get using: openssl s_client -connect api.sahool.io:443 | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64 -->
+						<key>SPKI-SHA256-BASE64</key>
+						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
+					</dict>
+					<dict>
+						<!-- Backup SPKI hash for rotation - REPLACE WITH ACTUAL VALUE -->
+						<key>SPKI-SHA256-BASE64</key>
+						<string>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</string>
+					</dict>
+				</array>
+			</dict>
+			<!-- Production API domain: api.sahool.app -->
+			<key>api.sahool.app</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSPinnedLeafIdentities</key>
+				<array>
+					<dict>
+						<!-- Primary SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<key>SPKI-SHA256-BASE64</key>
+						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
+					</dict>
+					<dict>
+						<!-- Backup SPKI hash for rotation - REPLACE WITH ACTUAL VALUE -->
+						<key>SPKI-SHA256-BASE64</key>
+						<string>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</string>
+					</dict>
+				</array>
+			</dict>
+			<!-- Staging API domain: api-staging.sahool.app -->
+			<key>api-staging.sahool.app</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSPinnedLeafIdentities</key>
+				<array>
+					<dict>
+						<!-- Staging SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<key>SPKI-SHA256-BASE64</key>
+						<string>EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE=</string>
+					</dict>
+				</array>
+			</dict>
+			<!-- WebSocket production: ws.sahool.app -->
+			<key>ws.sahool.app</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSPinnedLeafIdentities</key>
+				<array>
+					<dict>
+						<!-- WebSocket SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<key>SPKI-SHA256-BASE64</key>
+						<string>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=</string>
+					</dict>
+				</array>
+			</dict>
+			<!-- WebSocket staging: ws-staging.sahool.app -->
+			<key>ws-staging.sahool.app</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSPinnedLeafIdentities</key>
+				<array>
+					<dict>
+						<!-- Staging WebSocket SPKI hash - REPLACE WITH ACTUAL VALUE -->
+						<key>SPKI-SHA256-BASE64</key>
+						<string>FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF=</string>
+					</dict>
+				</array>
+			</dict>
+		</dict>
+		<!-- Exception for localhost in development -->
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>10.0.2.2</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

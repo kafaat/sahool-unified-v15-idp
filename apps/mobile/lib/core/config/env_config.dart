@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../utils/app_logger.dart';
 
 /// SAHOOL Environment Configuration
 /// تكوين البيئة - يدعم dart-define و dotenv
@@ -26,11 +27,11 @@ class EnvConfig {
     try {
       await dotenv.load(fileName: '.env');
       if (kDebugMode) {
-        print('✅ Environment configuration loaded from .env');
+        AppLogger.i('Environment configuration loaded from .env', tag: 'EnvConfig');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('⚠️ Could not load .env file. Using dart-define/defaults.');
+        AppLogger.w('Could not load .env file. Using dart-define/defaults.', tag: 'EnvConfig');
       }
     }
 
@@ -75,6 +76,50 @@ class EnvConfig {
         return const String.fromEnvironment('WS_URL');
       case 'WS_GATEWAY_URL':
         return const String.fromEnvironment('WS_GATEWAY_URL');
+      // Host Configuration
+      case 'DEV_HOST':
+        return const String.fromEnvironment('DEV_HOST');
+      case 'PROD_HOST':
+        return const String.fromEnvironment('PROD_HOST');
+      case 'STAGING_HOST':
+        return const String.fromEnvironment('STAGING_HOST');
+      // Service Ports
+      case 'FIELD_CORE_PORT':
+        return const String.fromEnvironment('FIELD_CORE_PORT');
+      case 'MARKETPLACE_PORT':
+        return const String.fromEnvironment('MARKETPLACE_PORT');
+      case 'CHAT_PORT':
+        return const String.fromEnvironment('CHAT_PORT');
+      case 'SATELLITE_PORT':
+        return const String.fromEnvironment('SATELLITE_PORT');
+      case 'INDICATORS_PORT':
+        return const String.fromEnvironment('INDICATORS_PORT');
+      case 'WEATHER_PORT':
+        return const String.fromEnvironment('WEATHER_PORT');
+      case 'FERTILIZER_PORT':
+        return const String.fromEnvironment('FERTILIZER_PORT');
+      case 'IRRIGATION_PORT':
+        return const String.fromEnvironment('IRRIGATION_PORT');
+      case 'CROP_HEALTH_PORT':
+        return const String.fromEnvironment('CROP_HEALTH_PORT');
+      case 'VIRTUAL_SENSORS_PORT':
+        return const String.fromEnvironment('VIRTUAL_SENSORS_PORT');
+      case 'COMMUNITY_CHAT_PORT':
+        return const String.fromEnvironment('COMMUNITY_CHAT_PORT');
+      case 'SPRAY_PORT':
+        return const String.fromEnvironment('SPRAY_PORT');
+      case 'EQUIPMENT_PORT':
+        return const String.fromEnvironment('EQUIPMENT_PORT');
+      case 'INVENTORY_PORT':
+        return const String.fromEnvironment('INVENTORY_PORT');
+      case 'NOTIFICATIONS_PORT':
+        return const String.fromEnvironment('NOTIFICATIONS_PORT');
+      case 'GATEWAY_PORT':
+        return const String.fromEnvironment('GATEWAY_PORT');
+      // Service URL Overrides
+      case 'MARKETPLACE_URL':
+        return const String.fromEnvironment('MARKETPLACE_URL');
+      // Maps Configuration
       case 'MAPBOX_ACCESS_TOKEN':
         return const String.fromEnvironment('MAPBOX_ACCESS_TOKEN');
       case 'MAPBOX_STYLE_URL':
@@ -83,6 +128,7 @@ class EnvConfig {
         return const String.fromEnvironment('MAP_TILE_URL');
       case 'ENABLE_OFFLINE_MAPS':
         return const String.fromEnvironment('ENABLE_OFFLINE_MAPS');
+      // Feature Flags
       case 'ENABLE_OFFLINE_MODE':
         return const String.fromEnvironment('ENABLE_OFFLINE_MODE');
       case 'ENABLE_BACKGROUND_SYNC':
@@ -101,6 +147,7 @@ class EnvConfig {
         return const String.fromEnvironment('ENABLE_VOICE');
       case 'ENABLE_AR':
         return const String.fromEnvironment('ENABLE_AR');
+      // Sync Configuration
       case 'SYNC_INTERVAL_SECONDS':
         return const String.fromEnvironment('SYNC_INTERVAL_SECONDS');
       case 'BG_SYNC_INTERVAL_MINUTES':
@@ -109,6 +156,7 @@ class EnvConfig {
         return const String.fromEnvironment('MAX_RETRY_COUNT');
       case 'OUTBOX_BATCH_SIZE':
         return const String.fromEnvironment('OUTBOX_BATCH_SIZE');
+      // App Info
       case 'APP_NAME':
         return const String.fromEnvironment('APP_NAME');
       case 'APP_VERSION':
@@ -163,6 +211,41 @@ class EnvConfig {
   // API Configuration
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /// Development host configuration
+  /// For Android Emulator: 10.0.2.2
+  /// For iOS Simulator: localhost
+  /// For Physical Devices: Set your machine's IP (e.g., 192.168.1.5)
+  static String get developmentHost {
+    return _getString('DEV_HOST', '10.0.2.2');
+  }
+
+  /// Production host
+  static String get productionHost {
+    return _getString('PROD_HOST', 'api.sahool.io');
+  }
+
+  /// Staging host
+  static String get stagingHost {
+    return _getString('STAGING_HOST', 'api-staging.sahool.app');
+  }
+
+  /// Get current host based on environment
+  static String get apiHost {
+    switch (environment) {
+      case AppEnvironment.production:
+        return productionHost;
+      case AppEnvironment.staging:
+        return stagingHost;
+      case AppEnvironment.development:
+        return developmentHost;
+    }
+  }
+
+  /// Get protocol (https for production/staging, http for development)
+  static String get apiProtocol {
+    return isProduction || isStaging ? 'https' : 'http';
+  }
+
   static String get apiBaseUrl {
     final url = _getString('API_URL', _getString('API_BASE_URL', ''));
     if (url.isNotEmpty) return url;
@@ -173,8 +256,164 @@ class EnvConfig {
       case AppEnvironment.staging:
         return 'https://api-staging.sahool.app/api/v1';
       case AppEnvironment.development:
-        return 'http://10.0.2.2:8000/api/v1';
+        return 'http://$developmentHost:8000/api/v1';
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Service Ports Configuration
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  static int get fieldCorePort => _getInt('FIELD_CORE_PORT', 3000);
+  static int get marketplacePort => _getInt('MARKETPLACE_PORT', 3010);
+  static int get chatPort => _getInt('CHAT_PORT', 3011);
+  static int get satellitePort => _getInt('SATELLITE_PORT', 8090);
+  static int get indicatorsPort => _getInt('INDICATORS_PORT', 8091);
+  static int get weatherPort => _getInt('WEATHER_PORT', 8092);
+  static int get fertilizerPort => _getInt('FERTILIZER_PORT', 8093);
+  static int get irrigationPort => _getInt('IRRIGATION_PORT', 8094);
+  static int get cropHealthPort => _getInt('CROP_HEALTH_PORT', 8095);
+  static int get virtualSensorsPort => _getInt('VIRTUAL_SENSORS_PORT', 8096);
+  static int get communityChatPort => _getInt('COMMUNITY_CHAT_PORT', 8097);
+  static int get sprayPort => _getInt('SPRAY_PORT', 8098);
+  static int get equipmentPort => _getInt('EQUIPMENT_PORT', 8101);
+  static int get inventoryPort => _getInt('INVENTORY_PORT', 8102);
+  static int get notificationsPort => _getInt('NOTIFICATIONS_PORT', 8110);
+  static int get gatewayPort => _getInt('GATEWAY_PORT', 8000);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Service URLs
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Base URL for field-core service
+  static String get fieldCoreUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$fieldCorePort';
+  }
+
+  /// Gateway URL (Kong API Gateway)
+  static String get gatewayUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$gatewayPort';
+  }
+
+  /// Marketplace service URL
+  static String get marketplaceUrl {
+    final override = _getString('MARKETPLACE_URL', '');
+    if (override.isNotEmpty) return override;
+
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$marketplacePort';
+  }
+
+  /// Chat service URL
+  static String get chatUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$chatPort';
+  }
+
+  /// Satellite service URL
+  static String get satelliteUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$satellitePort';
+  }
+
+  /// Indicators service URL
+  static String get indicatorsUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$indicatorsPort';
+  }
+
+  /// Weather service URL
+  static String get weatherUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$weatherPort';
+  }
+
+  /// Fertilizer service URL
+  static String get fertilizerUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$fertilizerPort';
+  }
+
+  /// Irrigation service URL
+  static String get irrigationUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$irrigationPort';
+  }
+
+  /// Crop health service URL
+  static String get cropHealthUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$cropHealthPort';
+  }
+
+  /// Virtual sensors service URL
+  static String get virtualSensorsUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$virtualSensorsPort';
+  }
+
+  /// Community chat service URL
+  static String get communityChatUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$communityChatPort';
+  }
+
+  /// Spray service URL
+  static String get sprayUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$sprayPort';
+  }
+
+  /// Equipment service URL
+  static String get equipmentUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$equipmentPort';
+  }
+
+  /// Inventory service URL
+  static String get inventoryUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$inventoryPort';
+  }
+
+  /// Notifications service URL
+  static String get notificationsUrl {
+    if (isProduction || isStaging) {
+      return '$apiProtocol://$apiHost';
+    }
+    return 'http://$developmentHost:$notificationsPort';
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -362,21 +601,24 @@ class EnvConfig {
   static void printConfig() {
     if (!kDebugMode) return;
 
-    print('');
-    print('╔════════════════════════════════════════════════════════════╗');
-    print('║           SAHOOL Environment Configuration                 ║');
-    print('╠════════════════════════════════════════════════════════════╣');
-    print('║ Environment: ${environment.name.padRight(45)}║');
-    print('║ Version: ${fullVersion.padRight(49)}║');
-    print('╠════════════════════════════════════════════════════════════╣');
-    print('║ API: ${apiBaseUrl.padRight(52)}║');
-    print('║ WS: ${wsBaseUrl.padRight(53)}║');
-    print('╠════════════════════════════════════════════════════════════╣');
-    print('║ Features:                                                  ║');
-    print('║   Offline: ${(enableOfflineMode ? "✓" : "✗").padRight(47)}║');
-    print('║   Push: ${(enablePushNotifications ? "✓" : "✗").padRight(50)}║');
-    print('║   Analytics: ${(enableAnalytics ? "✓" : "✗").padRight(45)}║');
-    print('╚════════════════════════════════════════════════════════════╝');
-    print('');
+    final configOutput = '''
+
+╔════════════════════════════════════════════════════════════╗
+║           SAHOOL Environment Configuration                 ║
+╠════════════════════════════════════════════════════════════╣
+║ Environment: ${environment.name.padRight(45)}║
+║ Version: ${fullVersion.padRight(49)}║
+╠════════════════════════════════════════════════════════════╣
+║ API: ${apiBaseUrl.padRight(52)}║
+║ WS: ${wsBaseUrl.padRight(53)}║
+╠════════════════════════════════════════════════════════════╣
+║ Features:                                                  ║
+║   Offline: ${(enableOfflineMode ? "✓" : "✗").padRight(47)}║
+║   Push: ${(enablePushNotifications ? "✓" : "✗").padRight(50)}║
+║   Analytics: ${(enableAnalytics ? "✓" : "✗").padRight(45)}║
+╚════════════════════════════════════════════════════════════╝
+''';
+
+    AppLogger.d(configOutput, tag: 'EnvConfig');
   }
 }

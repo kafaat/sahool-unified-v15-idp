@@ -5,6 +5,7 @@ library;
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
+import '../../../../core/config/env_config.dart';
 import '../models/virtual_sensor_models.dart';
 
 /// Exception for virtual sensors API errors
@@ -28,7 +29,7 @@ class VirtualSensorsRepository {
 
   /// Base URL for virtual sensors service (port 8096)
   static String get _baseUrl => ApiConfig.useDirectServices
-      ? 'http://${ApiConfig.useDirectServices ? "localhost" : "10.0.2.2"}:8096'
+      ? EnvConfig.virtualSensorsUrl
       : ApiConfig.effectiveBaseUrl;
 
   VirtualSensorsRepository({

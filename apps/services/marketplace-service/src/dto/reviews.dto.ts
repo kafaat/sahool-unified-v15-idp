@@ -13,6 +13,7 @@ import {
   Min,
   Max,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -147,6 +148,7 @@ export class GetProductReviewsQueryDto {
     maximum: 5,
     example: 3,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(5)
@@ -159,6 +161,7 @@ export class GetProductReviewsQueryDto {
     maximum: 5,
     example: 5,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(5)
@@ -169,6 +172,7 @@ export class GetProductReviewsQueryDto {
     description: 'Filter by verified purchases',
     example: true,
   })
+  @Type(() => Boolean)
   @IsBoolean()
   @IsOptional()
   verified?: boolean;
@@ -179,6 +183,7 @@ export class GetProductReviewsQueryDto {
     maximum: 100,
     example: 20,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -190,6 +195,7 @@ export class GetProductReviewsQueryDto {
     minimum: 0,
     example: 0,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()
@@ -203,6 +209,7 @@ export class PaginationQueryDto {
     maximum: 100,
     example: 20,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
@@ -214,6 +221,7 @@ export class PaginationQueryDto {
     minimum: 0,
     example: 0,
   })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @IsOptional()

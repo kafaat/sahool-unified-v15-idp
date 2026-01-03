@@ -15,10 +15,11 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pathlib import Path
 
-from models.disease import DiseaseSeverity, CropType
-from models.diagnosis import DiagnosisResult, DiagnosisHistoryRecord
-from services.disease_service import disease_service
-from services.prediction_service import prediction_service
+# Fixed relative imports - إصلاح الاستيرادات النسبية
+from ..models.disease import DiseaseSeverity, CropType
+from ..models.diagnosis import DiagnosisResult, DiagnosisHistoryRecord
+from .disease_service import disease_service
+from .prediction_service import prediction_service
 
 logger = logging.getLogger("sahool-vision")
 

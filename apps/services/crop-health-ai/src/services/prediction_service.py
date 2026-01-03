@@ -15,7 +15,8 @@ from typing import Tuple, List, Dict, Any, Optional
 
 import numpy as np
 
-from services.disease_service import disease_service
+# Fixed relative import - إصلاح الاستيراد النسبي
+from .disease_service import disease_service
 
 logger = logging.getLogger("sahool-vision")
 

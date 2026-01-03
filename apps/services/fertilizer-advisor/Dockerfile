@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has been replaced by: advisory-service (port 8093)            ║
+# ║ Port Conflict: 8093                                                         ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+
 FROM python:3.11-slim
 
 WORKDIR /app

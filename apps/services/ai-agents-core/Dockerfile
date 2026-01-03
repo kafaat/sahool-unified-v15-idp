@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - PORT CONFLICT                                         ║
+# ║ Port Conflict with: globalgap-compliance (port 8120)                       ║
+# ║ Suggested new port: 8122                                                    ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+
 FROM python:3.11-slim
 
 WORKDIR /app

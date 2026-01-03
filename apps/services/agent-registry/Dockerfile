@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - PORT CONFLICT                                         ║
+# ║ Port Conflict with: field-ops (port 8080)                                  ║
+# ║ Suggested new port: 8121                                                    ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+#
 # SAHOOL Agent Registry Service - Dockerfile
 # ===========================================
 

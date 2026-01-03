@@ -1,3 +1,10 @@
+# ╔════════════════════════════════════════════════════════════════════════════╗
+# ║ ⚠️  FROZEN SERVICE - DO NOT USE IN PRODUCTION                              ║
+# ║ This service has been replaced by: yield-prediction-service (port 8098)   ║
+# ║ Port Conflict: 8098                                                         ║
+# ║ See: docs/DEPRECATED_SERVICES.md                                           ║
+# ╚════════════════════════════════════════════════════════════════════════════╝
+#
 # ═══════════════════════════════════════════════════════════════════════════════
 # Sahool Yield Engine - ML Crop Yield Prediction
 # محرك توقع الإنتاجية

@@ -16,7 +16,7 @@ import { logger } from '@/lib/logger';
 
 export default function FieldsClient() {
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
+  const [_selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [showComingSoon, setShowComingSoon] = useState(false);
 
   const handleFieldClick = (fieldId: string) => {

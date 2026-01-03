@@ -10,7 +10,7 @@
  */
 
 // API
-export { walletApi } from './api';
+export { walletApi, ERROR_MESSAGES } from './api';
 
 // Types
 export type {
@@ -24,6 +24,9 @@ export type {
   TransferFormData,
   DepositFormData,
   WithdrawalFormData,
+  WalletApiResponse,
+  TransactionsApiResponse,
+  TransactionApiResponse,
 } from './types';
 
 // Hooks

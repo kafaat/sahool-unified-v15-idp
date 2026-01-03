@@ -3,7 +3,10 @@
  * أنواع ميزة الحقول
  */
 
-// GeoJSON types
+// ═══════════════════════════════════════════════════════════════════════════
+// GeoJSON Types
+// ═══════════════════════════════════════════════════════════════════════════
+
 export interface GeoPolygon {
   type: 'Polygon';
   coordinates: number[][][];
@@ -14,7 +17,14 @@ export interface GeoPoint {
   coordinates: [number, number]; // [lng, lat]
 }
 
-// Field type
+// ═══════════════════════════════════════════════════════════════════════════
+// Field Core Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export type FieldStatus = 'active' | 'inactive' | 'deleted';
+export type IrrigationType = 'drip' | 'sprinkler' | 'flood' | 'manual' | 'other';
+export type SoilType = 'clay' | 'sandy' | 'loam' | 'silt' | 'peat' | 'chalk' | 'other';
+
 export interface Field {
   id: string;
   name: string;
@@ -27,17 +37,21 @@ export interface Field {
   centroid?: GeoPoint;
   description?: string;
   descriptionAr?: string;
-  status?: 'active' | 'inactive' | 'deleted';
+  status?: FieldStatus;
   soilType?: string;
   irrigationType?: string;
   plantingDate?: string;
   expectedHarvest?: string;
   ndviValue?: number;
   healthScore?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Form & Input Types
+// ═══════════════════════════════════════════════════════════════════════════
 
 export interface FieldFormData {
   name: string;
@@ -54,7 +68,7 @@ export interface FieldFormData {
   irrigationType?: string;
   plantingDate?: string;
   expectedHarvest?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface FieldFilters {
@@ -64,19 +78,119 @@ export interface FieldFilters {
   minArea?: number;
   maxArea?: number;
   status?: string;
+  soilType?: string;
+  irrigationType?: string;
+  healthScore?: {
+    min?: number;
+    max?: number;
+  };
 }
 
-export interface FieldViewMode {
-  mode: 'grid' | 'list' | 'map';
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// Statistics Types
+// ═══════════════════════════════════════════════════════════════════════════
 
 export interface FieldStats {
   total: number;
   totalArea: number;
   byCrop: Record<string, number>;
+  byStatus?: Record<FieldStatus, number>;
+  averageArea?: number;
+  healthyFields?: number;
+  averageHealthScore?: number;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// View & UI Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export type FieldViewMode = 'grid' | 'list' | 'map';
+
+export interface FieldViewSettings {
+  mode: FieldViewMode;
+  sortBy?: 'name' | 'area' | 'crop' | 'createdAt' | 'healthScore';
+  sortOrder?: 'asc' | 'desc';
+  showInactive?: boolean;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Error Types
+// ═══════════════════════════════════════════════════════════════════════════
 
 export interface FieldError {
   message: string;
   messageAr: string;
+  code?: string;
+  field?: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// API Response Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface ApiFieldResponse {
+  success: boolean;
+  data?: Field;
+  error?: FieldError;
+}
+
+export interface ApiFieldsListResponse {
+  success: boolean;
+  data?: Field[];
+  total?: number;
+  error?: FieldError;
+}
+
+export interface ApiFieldStatsResponse {
+  success: boolean;
+  data?: FieldStats;
+  error?: FieldError;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Mutation Payload Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface CreateFieldPayload {
+  data: FieldFormData;
+  tenantId?: string;
+}
+
+export interface UpdateFieldPayload {
+  id: string;
+  data: Partial<FieldFormData>;
+  tenantId?: string;
+}
+
+export interface DeleteFieldPayload {
+  id: string;
+  reason?: string;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Hook Return Types
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface UseFieldsReturn {
+  data: Field[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+
+export interface UseFieldReturn {
+  data: Field | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+
+export interface UseFieldStatsReturn {
+  data: FieldStats | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  refetch: () => void;
 }

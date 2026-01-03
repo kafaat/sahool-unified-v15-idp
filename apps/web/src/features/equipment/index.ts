@@ -10,7 +10,7 @@
  */
 
 // API
-export { equipmentApi } from './api';
+export { equipmentApi, ERROR_MESSAGES } from './api';
 export type {
   Equipment,
   EquipmentType,
@@ -35,6 +35,7 @@ export {
   useMaintenanceDetails,
   useCreateMaintenance,
   useUpdateMaintenance,
+  useDeleteMaintenance,
   useCompleteMaintenance,
   equipmentKeys,
 } from './hooks/useEquipment';

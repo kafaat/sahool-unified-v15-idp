@@ -10,8 +10,8 @@ import DataTable from '@/components/ui/DataTable';
 import { fetchDiagnoses, fetchDiagnosisStats } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import type { DiagnosisRecord } from '@/types';
-import {
 import { logger } from '../../lib/logger';
+import {
   Bug,
   AlertTriangle,
   TrendingUp,

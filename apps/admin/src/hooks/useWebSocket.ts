@@ -8,8 +8,8 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef } from 'react';
-import {
 import { logger } from '../lib/logger';
+import {
   getWebSocketClient,
   ConnectionStatus,
   type AlertMessage,

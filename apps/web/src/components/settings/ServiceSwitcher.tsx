@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import {
 import { logger } from '@/lib/logger';
+import {
   SERVICE_REGISTRY,
   ServiceType,
   ServiceVersion,

@@ -11,8 +11,8 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import { fetchDiagnoses, updateDiagnosisStatus } from '@/lib/api';
 import { formatDate, cn } from '@/lib/utils';
 import type { DiagnosisRecord } from '@/types';
-import {
 import { logger } from '../../lib/logger';
+import {
   Bug,
   Filter,
   Search,

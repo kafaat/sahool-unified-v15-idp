@@ -20,8 +20,8 @@ import {
   Activity
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
-import {
 import { logger } from '../../../lib/logger';
+import {
   LineChart,
   Line,
   XAxis,

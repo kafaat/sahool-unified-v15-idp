@@ -20,8 +20,8 @@ import {
   Sun
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
-import {
 import { logger } from '../../../lib/logger';
+import {
   BarChart,
   Bar,
   XAxis,

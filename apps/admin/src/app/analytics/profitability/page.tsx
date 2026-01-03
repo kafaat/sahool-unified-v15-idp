@@ -16,8 +16,8 @@ import {
   Target,
   PieChart as PieChartIcon
 } from 'lucide-react';
-import {
 import { logger } from '../../../lib/logger';
+import {
   BarChart,
   Bar,
   LineChart,

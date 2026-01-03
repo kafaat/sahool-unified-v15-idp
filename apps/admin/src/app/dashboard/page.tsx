@@ -31,8 +31,8 @@ import Link from 'next/link';
 import { useWebSocket, useWebSocketEvent } from '@/hooks/useWebSocket';
 import { useRealTimeAlerts } from '@/hooks/useRealTimeAlerts';
 import type { SensorMessage, DiagnosisMessage } from '@/hooks/useWebSocket';
-import {
 import { logger } from '../../lib/logger';
+import {
   BarChart,
   Bar,
   XAxis,

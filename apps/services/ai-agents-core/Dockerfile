@@ -28,5 +28,5 @@ USER sahool
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')"
 
-# Run
-CMD ["python", "src/main.py"]
+# Run with uvicorn for production ASGI server
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8120"]

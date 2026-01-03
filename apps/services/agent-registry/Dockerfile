@@ -21,9 +21,6 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy shared registry code
-COPY ../shared/registry /app/shared/registry
-
 # Copy service code
 COPY src /app/src
 

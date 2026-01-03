@@ -258,4 +258,147 @@ export const dashboardApi = {
       return MOCK_DASHBOARD_DATA.upcomingTasks;
     }
   },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Mutation Methods
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Mark a task as complete
+   * تحديد مهمة كمكتملة
+   */
+  markTaskComplete: async (taskId: string, notes?: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await api.post(`/api/v1/tasks/${taskId}/complete`, {
+        notes,
+        completedAt: new Date().toISOString(),
+      });
+
+      if (response.data.success !== false) {
+        return { success: true };
+      }
+
+      return { success: false, error: response.data.error || 'Failed to complete task' };
+    } catch (error) {
+      logger.error('Failed to mark task as complete:', error);
+      return { success: false, error: 'Network error while completing task' };
+    }
+  },
+
+  /**
+   * Dismiss an alert
+   * تجاهل تنبيه
+   */
+  dismissAlert: async (alertId: string, reason?: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await api.post(`/api/v1/alerts/${alertId}/dismiss`, {
+        reason,
+        dismissedAt: new Date().toISOString(),
+      });
+
+      if (response.data.success !== false) {
+        return { success: true };
+      }
+
+      return { success: false, error: response.data.error || 'Failed to dismiss alert' };
+    } catch (error) {
+      logger.error('Failed to dismiss alert:', error);
+      return { success: false, error: 'Network error while dismissing alert' };
+    }
+  },
+
+  /**
+   * Mark activities as read
+   * تحديد الأنشطة كمقروءة
+   */
+  markActivityRead: async (activityIds: string[]): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await api.post('/api/v1/dashboard/activity/mark-read', {
+        activityIds,
+      });
+
+      if (response.data.success !== false) {
+        return { success: true };
+      }
+
+      return { success: false, error: response.data.error || 'Failed to mark activity as read' };
+    } catch (error) {
+      logger.error('Failed to mark activity as read:', error);
+      return { success: false, error: 'Network error while marking activity' };
+    }
+  },
+
+  /**
+   * Acknowledge an alert
+   * الإقرار بتنبيه
+   */
+  acknowledgeAlert: async (alertId: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const response = await api.post(`/api/v1/alerts/${alertId}/acknowledge`);
+
+      if (response.data.success !== false) {
+        return { success: true };
+      }
+
+      return { success: false, error: response.data.error || 'Failed to acknowledge alert' };
+    } catch (error) {
+      logger.error('Failed to acknowledge alert:', error);
+      return { success: false, error: 'Network error while acknowledging alert' };
+    }
+  },
+
+  /**
+   * Get dashboard alerts
+   * جلب تنبيهات لوحة التحكم
+   */
+  getAlerts: async (options?: { limit?: number; severity?: string }): Promise<Array<{
+    id: string;
+    title: string;
+    titleAr: string;
+    message: string;
+    messageAr: string;
+    severity: 'critical' | 'warning' | 'info';
+    category: string;
+    createdAt: string;
+  }>> => {
+    try {
+      const params = new URLSearchParams();
+      if (options?.limit) params.set('limit', options.limit.toString());
+      if (options?.severity) params.set('severity', options.severity);
+
+      const response = await api.get(`/api/v1/dashboard/alerts?${params.toString()}`);
+      const alerts = response.data.data || response.data;
+
+      if (Array.isArray(alerts)) {
+        return alerts;
+      }
+
+      return [];
+    } catch (error) {
+      logger.warn('Failed to fetch alerts from API:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Get enhanced stats with trends
+   * جلب الإحصائيات المحسنة مع الاتجاهات
+   */
+  getEnhancedStats: async (): Promise<{
+    stats: DashboardData['stats'];
+    trends?: {
+      fields?: { value: number; direction: 'up' | 'down' | 'stable'; percentage: number };
+      tasks?: { value: number; direction: 'up' | 'down' | 'stable'; percentage: number };
+      alerts?: { value: number; direction: 'up' | 'down' | 'stable'; percentage: number };
+    };
+  }> => {
+    try {
+      const response = await api.get('/api/v1/dashboard/stats/enhanced');
+      const data = response.data.data || response.data;
+      return data;
+    } catch (error) {
+      logger.warn('Failed to fetch enhanced stats, falling back to basic stats:', error);
+      return { stats: MOCK_DASHBOARD_DATA.stats };
+    }
+  },
 };

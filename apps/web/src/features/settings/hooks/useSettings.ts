@@ -8,13 +8,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { settingsApi } from '../api';
 import type {
-  UserProfile,
   NotificationPreferences,
-  SecuritySettings,
   PrivacySettings,
   DisplayPreferences,
   IntegrationSettings,
-  SubscriptionInfo,
   UpdateProfilePayload,
   UpdatePasswordPayload,
 } from '../types';

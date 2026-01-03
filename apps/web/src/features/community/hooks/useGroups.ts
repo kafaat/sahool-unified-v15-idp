@@ -6,7 +6,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Group, GroupMember, GroupFilters, ChatMessage, Expert, ExpertQuestion } from '../types';
+import type { Group, GroupFilters, ExpertQuestion } from '../types';
 import { communityApi } from '../api';
 
 // Query Keys

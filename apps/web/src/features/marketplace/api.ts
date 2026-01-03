@@ -378,8 +378,8 @@ export const marketplaceApi = {
     try {
       const params = new URLSearchParams();
       if (filters?.status) params.append('status', filters.status);
-      if (filters?.fromDate) params.append('fromDate', filters.fromDate);
-      if (filters?.toDate) params.append('toDate', filters.toDate);
+      if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
+      if (filters?.dateTo) params.append('dateTo', filters.dateTo);
 
       const response = await api.get(`/api/v1/marketplace/orders?${params.toString()}`);
       return response.data.data || response.data;

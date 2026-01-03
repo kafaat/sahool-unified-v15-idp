@@ -24,6 +24,8 @@ interface ApiFieldResponse {
   farmId?: string;
   boundary?: GeoPolygon;
   polygon?: GeoPolygon;
+  description?: string;
+  descriptionAr?: string;
   metadata?: {
     description?: string;
     descriptionAr?: string;

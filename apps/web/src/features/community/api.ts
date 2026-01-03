@@ -14,8 +14,6 @@ import type {
   ExpertQuestion,
   CommunityFilters,
   GroupFilters,
-  PostType,
-  GroupCategory,
 } from './types';
 import { logger } from '@/lib/logger';
 

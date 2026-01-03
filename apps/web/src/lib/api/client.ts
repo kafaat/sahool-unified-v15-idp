@@ -58,13 +58,6 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const MAX_RETRY_ATTEMPTS = 3;
 const RETRY_DELAY = 1000; // 1 second
 
-// Helper function to sanitize HTML and prevent XSS
-// Now using comprehensive sanitization from validation utility
-function sanitizeInput(input: string): string {
-  if (typeof input !== 'string') return input;
-  return sanitizers.html(input);
-}
-
 // Helper function to delay for retry logic
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -74,7 +67,7 @@ class SahoolApiClient {
   private baseUrl: string;
   private token: string | null = null;
 
-  constructor(baseUrl: string = API_BASE_URL) {
+  constructor(baseUrl: string = API_BASE_URL!) {
     this.baseUrl = baseUrl;
   }
 

@@ -6,7 +6,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Post, Comment, CommunityFilters } from '../types';
+import type { Post, CommunityFilters } from '../types';
 import { communityApi } from '../api';
 
 // Query Keys

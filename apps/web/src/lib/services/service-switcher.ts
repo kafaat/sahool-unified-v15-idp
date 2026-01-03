@@ -8,6 +8,8 @@
  * - اختبار الخدمات قبل الترقية
  */
 
+import { logger } from '@/lib/logger';
+
 export type ServiceType =
   | 'satellite'
   | 'weather'

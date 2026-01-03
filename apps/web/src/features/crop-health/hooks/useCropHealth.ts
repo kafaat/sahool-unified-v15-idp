@@ -7,14 +7,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type {
-  HealthSummary,
   HealthRecord,
   DiagnosisRequest,
-  DiagnosisResult,
-  Disease,
-  DiseaseAlert,
   HealthFilters,
-  ExpertConsultation,
 } from '../types';
 import { cropHealthApi } from '../api';
 

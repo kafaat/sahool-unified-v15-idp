@@ -208,10 +208,16 @@ export const sanitizers = {
 // Error Messages (Arabic)
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const validationErrors = {
+export const validationErrors: Record<keyof typeof validators | 'required' | 'tooLong' | 'tooShort' | 'unsafeText' | 'invalidUrl' | 'weakPassword' | 'invalidNumber' | 'notAlphanumeric', string> = {
   twoFactorCode: 'الرجاء إدخال رمز صحيح مكون من 6 أرقام',
   email: 'الرجاء إدخال بريد إلكتروني صحيح',
   phone: 'الرجاء إدخال رقم هاتف صحيح',
+  safeText: 'النص يحتوي على محتوى غير آمن',
+  url: 'الرجاء إدخال رابط صحيح',
+  password: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص',
+  number: 'الرجاء إدخال رقم صحيح',
+  alphanumeric: 'يجب أن يحتوي على أحرف وأرقام فقط',
+  // Legacy error keys for backwards compatibility
   unsafeText: 'النص يحتوي على محتوى غير آمن',
   invalidUrl: 'الرجاء إدخال رابط صحيح',
   weakPassword: 'كلمة المرور يجب أن تحتوي على 8 أحرف على الأقل، حرف كبير، حرف صغير، رقم، ورمز خاص',
@@ -269,10 +275,10 @@ export function validateForm(
 
   // ES5-compatible iteration
   for (const field in inputs) {
-    if (inputs.hasOwnProperty(field)) {
+    if (Object.prototype.hasOwnProperty.call(inputs, field)) {
       const value = inputs[field];
       const rule = rules[field];
-      if (rule) {
+      if (rule && value !== undefined) {
         results[field] = validateInput(value, rule);
       }
     }
@@ -291,8 +297,9 @@ export function isFormValid(
 ): boolean {
   // ES5-compatible iteration
   for (const field in validationResults) {
-    if (validationResults.hasOwnProperty(field)) {
-      if (!validationResults[field].isValid) {
+    if (Object.prototype.hasOwnProperty.call(validationResults, field)) {
+      const result = validationResults[field];
+      if (result && !result.isValid) {
         return false;
       }
     }

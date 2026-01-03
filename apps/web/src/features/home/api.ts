@@ -3,7 +3,7 @@
  * طبقة API لميزة لوحة التحكم
  */
 
-import axios, { type AxiosError } from 'axios';
+import axios from 'axios';
 import { logger } from '@/lib/logger';
 
 /**

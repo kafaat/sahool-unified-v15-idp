@@ -96,16 +96,16 @@ def handle_data_export(payload: dict[str, Any]) -> dict[str, Any]:
                     "ndvi_score",
                     "health_score",
                     "irrigation_volume",
-                    "last_updated"
+                    "last_updated",
                 ],
-                "checksum": "sha256:abc123..."
+                "checksum": "sha256:abc123...",
             },
             "download_info": {
                 "url_expires_in_hours": 24,
                 "requires_authentication": True,
-                "max_downloads": 5
+                "max_downloads": 5,
             },
-            "status": "success"
+            "status": "success",
         }
 
         logger.info(

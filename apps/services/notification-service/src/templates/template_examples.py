@@ -21,7 +21,7 @@ def example_disease_detection():
         "disease_name": "البياض الدقيقي",  # Powdery Mildew
         "field_name": "حقل القمح الشمالي",
         "field_id": "field_123",
-        "confidence": 92
+        "confidence": 92,
     }
 
     # Render for different channels
@@ -41,7 +41,9 @@ def example_disease_detection():
     print(f"SMS ({len(sms_ar)} chars): {sms_ar}")
 
     print("\n4. Arabic WhatsApp:")
-    whatsapp_ar = manager.format_for_whatsapp("disease_detected", context, language="ar")
+    whatsapp_ar = manager.format_for_whatsapp(
+        "disease_detected", context, language="ar"
+    )
     print(f"WhatsApp:\n{whatsapp_ar}")
 
 
@@ -56,7 +58,7 @@ def example_irrigation_reminder():
     context = {
         "field_name": "حقل الطماطم",
         "field_id": "field_456",
-        "water_amount": 5000
+        "water_amount": 5000,
     }
 
     print("\n1. Arabic Push:")
@@ -83,7 +85,7 @@ def example_harvest_ready():
         "field_name": "الحقل الأول",
         "field_id": "field_789",
         "estimated_yield": 2500,
-        "days_remaining": 3
+        "days_remaining": 3,
     }
 
     # Multi-channel delivery
@@ -93,7 +95,9 @@ def example_harvest_ready():
     print(f"Body: {push_ar['notification']['body']}")
 
     print("\n2. English SMS:")
-    sms_en = manager.format_for_sms("harvest_ready", context, language="en", max_length=160)
+    sms_en = manager.format_for_sms(
+        "harvest_ready", context, language="en", max_length=160
+    )
     print(f"SMS: {sms_en}")
 
 
@@ -110,7 +114,7 @@ def example_weather_alert():
         "weather_description": "أمطار غزيرة ورياح قوية",
         "location": "صنعاء",
         "temperature": 18,
-        "humidity": 85
+        "humidity": 85,
     }
 
     print("\n1. Arabic Push:")
@@ -140,7 +144,7 @@ def example_ai_recommendation():
         "recommendation_text": "تقليل كمية الري بنسبة 20% لتحسين جودة المحصول",
         "expected_impact": "تحسين جودة الثمار بنسبة 15%",
         "benefit": "توفير 1000 لتر ماء أسبوعياً",
-        "confidence": 88
+        "confidence": 88,
     }
 
     print("\n1. Arabic Push:")
@@ -162,6 +166,7 @@ def example_daily_report():
     manager = get_template_manager()
 
     from datetime import datetime
+
     today = datetime.now().strftime("%Y-%m-%d")
 
     context = {
@@ -170,7 +175,7 @@ def example_daily_report():
         "healthy_fields": 4,
         "tasks_pending": 3,
         "max_temp": 28,
-        "rain_probability": 15
+        "rain_probability": 15,
     }
 
     print("\n1. Arabic Push:")
@@ -192,7 +197,9 @@ def example_list_templates():
     for template_id in all_templates:
         template = manager.get_template(template_id)
         if template:
-            print(f"  - {template_id} ({template.category.value}): {template.title.get('ar', 'N/A')}")
+            print(
+                f"  - {template_id} ({template.category.value}): {template.title.get('ar', 'N/A')}"
+            )
 
     print("\nALERT Templates:")
     alerts = manager.list_templates(category=TemplateCategory.ALERT)
@@ -233,16 +240,13 @@ def example_custom_template():
     custom_template = NotificationTemplate(
         template_id="custom_celebration",
         category=TemplateCategory.REPORT,
-        title={
-            "ar": "🎉 تهانينا!",
-            "en": "🎉 Congratulations!"
-        },
+        title={"ar": "🎉 تهانينا!", "en": "🎉 Congratulations!"},
         body={
             "ar": "لقد حققت إنجازاً رائعاً في {achievement}! استمر في العمل المتميز.",
-            "en": "You've achieved great success in {achievement}! Keep up the excellent work."
+            "en": "You've achieved great success in {achievement}! Keep up the excellent work.",
         },
         icon="🎉",
-        priority="low"
+        priority="low",
     )
 
     # Register it
@@ -260,10 +264,18 @@ def example_custom_template():
 def main():
     """تشغيل جميع الأمثلة"""
     print("\n")
-    print("╔════════════════════════════════════════════════════════════════════════════╗")
-    print("║  SAHOOL Notification Template System - Usage Examples                     ║")
-    print("║  نظام قوالب الإشعارات - أمثلة الاستخدام                                  ║")
-    print("╚════════════════════════════════════════════════════════════════════════════╝")
+    print(
+        "╔════════════════════════════════════════════════════════════════════════════╗"
+    )
+    print(
+        "║  SAHOOL Notification Template System - Usage Examples                     ║"
+    )
+    print(
+        "║  نظام قوالب الإشعارات - أمثلة الاستخدام                                  ║"
+    )
+    print(
+        "╚════════════════════════════════════════════════════════════════════════════╝"
+    )
 
     try:
         example_disease_detection()
@@ -282,6 +294,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Error running examples: {e}")
         import traceback
+
         traceback.print_exc()
 
 

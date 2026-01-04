@@ -40,8 +40,7 @@ def example_custom_paths():
 
     # Custom directories
     generator = APIDocsGenerator(
-        services_dir="/custom/path/to/services",
-        output_dir="/custom/path/to/output"
+        services_dir="/custom/path/to/services", output_dir="/custom/path/to/output"
     )
 
     # Scan and generate
@@ -62,8 +61,7 @@ def example_single_service():
 
     # Scan a specific service
     service = generator._scan_service(
-        "weather-core",
-        Path("apps/services/weather-core/src/main.py")
+        "weather-core", Path("apps/services/weather-core/src/main.py")
     )
 
     if service:
@@ -115,21 +113,25 @@ def example_export_service_list():
     # Create service list
     services_list = []
     for name, service in sorted(generator.services.items()):
-        services_list.append({
-            "name": name,
-            "title": service.title,
-            "description": service.description,
-            "description_ar": service.description_ar,
-            "port": service.port,
-            "endpoint_count": len(service.endpoints),
-            "version": service.version
-        })
+        services_list.append(
+            {
+                "name": name,
+                "title": service.title,
+                "description": service.description,
+                "description_ar": service.description_ar,
+                "port": service.port,
+                "endpoint_count": len(service.endpoints),
+                "version": service.version,
+            }
+        )
 
     # Print as table
     print(f"\n{'Service':<30} {'Port':<6} {'Endpoints':<10} {'Version':<10}")
     print("-" * 60)
     for svc in services_list:
-        print(f"{svc['name']:<30} {svc['port']:<6} {svc['endpoint_count']:<10} {svc['version']:<10}")
+        print(
+            f"{svc['name']:<30} {svc['port']:<6} {svc['endpoint_count']:<10} {svc['version']:<10}"
+        )
 
 
 def example_search_endpoints():
@@ -149,13 +151,18 @@ def example_search_endpoints():
 
     for service in generator.services.values():
         for endpoint in service.endpoints:
-            if search_term in endpoint.path.lower() or search_term in endpoint.summary.lower():
-                matching_endpoints.append({
-                    "service": service.name,
-                    "method": endpoint.method,
-                    "path": endpoint.path,
-                    "summary": endpoint.summary
-                })
+            if (
+                search_term in endpoint.path.lower()
+                or search_term in endpoint.summary.lower()
+            ):
+                matching_endpoints.append(
+                    {
+                        "service": service.name,
+                        "method": endpoint.method,
+                        "path": endpoint.path,
+                        "summary": endpoint.summary,
+                    }
+                )
 
     print(f"\nFound {len(matching_endpoints)} endpoints matching '{search_term}':")
     print("-" * 60)
@@ -193,7 +200,7 @@ def example_generate_statistics():
         "8010-8019": 0,
         "8020-8099": 0,
         "8100-8199": 0,
-        "Other": 0
+        "Other": 0,
     }
 
     for service in generator.services.values():

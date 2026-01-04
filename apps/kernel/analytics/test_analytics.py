@@ -37,7 +37,7 @@ def test_event_tracking():
         event_type=EventType.FIELD_VIEWED,
         field_id="field_test_001",
         governorate=Governorate.SANAA,
-        metadata={"test": True}
+        metadata={"test": True},
     )
 
     assert event.event_id is not None, "Event ID should be generated"
@@ -71,14 +71,22 @@ def test_user_metrics():
     # عدة أحداث - Multiple events
     analytics.track_event(user_id, EventType.FIELD_VIEWED, field_id="field_001")
     analytics.track_event(user_id, EventType.FIELD_CREATED, field_id="field_002")
-    analytics.track_event(user_id, EventType.RECOMMENDATION_VIEWED,
-                         metadata={"recommendation_id": "rec_001"})
-    analytics.track_event(user_id, EventType.RECOMMENDATION_APPLIED,
-                         metadata={"recommendation_id": "rec_001"})
-    analytics.track_event(user_id, EventType.ALERT_RECEIVED,
-                         metadata={"alert_id": "alert_001"})
-    analytics.track_event(user_id, EventType.ALERT_ACKNOWLEDGED,
-                         metadata={"alert_id": "alert_001"})
+    analytics.track_event(
+        user_id,
+        EventType.RECOMMENDATION_VIEWED,
+        metadata={"recommendation_id": "rec_001"},
+    )
+    analytics.track_event(
+        user_id,
+        EventType.RECOMMENDATION_APPLIED,
+        metadata={"recommendation_id": "rec_001"},
+    )
+    analytics.track_event(
+        user_id, EventType.ALERT_RECEIVED, metadata={"alert_id": "alert_001"}
+    )
+    analytics.track_event(
+        user_id, EventType.ALERT_ACKNOWLEDGED, metadata={"alert_id": "alert_001"}
+    )
 
     # تسجيل الخروج - Logout
     analytics.track_session(user_id, "session_001", "end")
@@ -88,7 +96,9 @@ def test_user_metrics():
 
     assert metrics.total_events >= 7, "Should have at least 7 events"
     assert metrics.fields_created >= 1, "Should have created at least 1 field"
-    assert metrics.recommendation_application_rate == 1.0, "Should have 100% recommendation rate"
+    assert (
+        metrics.recommendation_application_rate == 1.0
+    ), "Should have 100% recommendation rate"
 
     print("✓ تم حساب المقاييس بنجاح - Metrics calculated successfully")
     print(f"  Total Events: {metrics.total_events}")
@@ -149,8 +159,9 @@ def test_feature_usage():
     # إنشاء أحداث لميزة معينة - Create events for a specific feature
     for i in range(10):
         user_id = f"test_user_{i:03d}"
-        analytics.track_event(user_id, EventType.FIELD_VIEWED,
-                             metadata={"feature": "field_management"})
+        analytics.track_event(
+            user_id, EventType.FIELD_VIEWED, metadata={"feature": "field_management"}
+        )
 
     # الحصول على إحصائيات الميزة - Get feature statistics
     feature_usage = analytics.get_feature_usage("field_management")
@@ -177,16 +188,24 @@ def test_farmer_analytics():
     user_id = "farmer_test_001"
 
     # إنشاء أحداث مزارع - Create farmer events
-    analytics.track_event(user_id, EventType.CROP_PLANTED,
-                         crop_type="tomato", field_id="field_001")
-    analytics.track_event(user_id, EventType.CROP_PLANTED,
-                         crop_type="cucumber", field_id="field_002")
+    analytics.track_event(
+        user_id, EventType.CROP_PLANTED, crop_type="tomato", field_id="field_001"
+    )
+    analytics.track_event(
+        user_id, EventType.CROP_PLANTED, crop_type="cucumber", field_id="field_002"
+    )
 
     # التوصيات - Recommendations
-    analytics.track_event(user_id, EventType.RECOMMENDATION_VIEWED,
-                         metadata={"recommendation_id": "rec_001"})
-    analytics.track_event(user_id, EventType.RECOMMENDATION_APPLIED,
-                         metadata={"recommendation_id": "rec_001"})
+    analytics.track_event(
+        user_id,
+        EventType.RECOMMENDATION_VIEWED,
+        metadata={"recommendation_id": "rec_001"},
+    )
+    analytics.track_event(
+        user_id,
+        EventType.RECOMMENDATION_APPLIED,
+        metadata={"recommendation_id": "rec_001"},
+    )
 
     # اختبار المقاييس - Test metrics
     crops_count = analytics.crops_monitored_count(user_id)
@@ -195,7 +214,9 @@ def test_farmer_analytics():
     assert crops_count >= 2, "Should have at least 2 crops"
     assert follow_rate == 1.0, "Should have 100% follow rate"
 
-    print("✓ تم حساب تحليلات المزارعين بنجاح - Farmer analytics calculated successfully")
+    print(
+        "✓ تم حساب تحليلات المزارعين بنجاح - Farmer analytics calculated successfully"
+    )
     print(f"  Crops Monitored: {crops_count}")
     print(f"  Recommendation Follow Rate: {follow_rate:.2%}")
     print()
@@ -217,10 +238,12 @@ def test_regional_analytics():
 
     for i, gov in enumerate(governorates):
         user_id = f"user_{gov.value}_{i}"
-        analytics.track_event(user_id, EventType.FIELD_VIEWED,
-                             governorate=gov, field_id=f"field_{i}")
-        analytics.track_event(user_id, EventType.CROP_PLANTED,
-                             governorate=gov, crop_type="tomato")
+        analytics.track_event(
+            user_id, EventType.FIELD_VIEWED, governorate=gov, field_id=f"field_{i}"
+        )
+        analytics.track_event(
+            user_id, EventType.CROP_PLANTED, governorate=gov, crop_type="tomato"
+        )
 
     # اختبار التوزيع الإقليمي - Test regional distribution
     users_by_gov = analytics.users_by_governorate()
@@ -230,7 +253,9 @@ def test_regional_analytics():
     assert len(users_by_gov) >= 3, "Should have users in at least 3 governorates"
     assert len(crop_dist) >= 1, "Should have at least 1 crop type"
 
-    print("✓ تم حساب التحليلات الإقليمية بنجاح - Regional analytics calculated successfully")
+    print(
+        "✓ تم حساب التحليلات الإقليمية بنجاح - Regional analytics calculated successfully"
+    )
     print(f"  Users by Governorate: {dict(users_by_gov)}")
     print(f"  Fields by Region: {dict(fields_by_region)}")
     print(f"  Crop Distribution: {crop_dist}")
@@ -267,6 +292,7 @@ def run_all_tests():
     except Exception as e:
         print(f"\n✗ خطأ غير متوقع - Unexpected Error: {str(e)}\n")
         import traceback
+
         traceback.print_exc()
         return False
 

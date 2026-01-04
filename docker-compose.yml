@@ -1692,9 +1692,9 @@ services:
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8106/healthz')"]
       interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1702,7 +1702,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 384M
+          memory: 512M
         reservations:
           cpus: '0.25'
           memory: 128M

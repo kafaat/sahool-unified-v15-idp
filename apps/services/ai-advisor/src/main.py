@@ -6,6 +6,9 @@ Multi-agent AI system for agricultural advisory.
 نظام ذكاء اصطناعي متعدد الوكلاء للاستشارات الزراعية.
 """
 
+# Import shared CORS configuration | استيراد تكوين CORS المشترك
+import os
+import sys
 from contextlib import asynccontextmanager
 from typing import Any
 
@@ -31,10 +34,6 @@ from .rag import EmbeddingsManager, KnowledgeRetriever
 from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
-
-# Import shared CORS configuration | استيراد تكوين CORS المشترك
-import os
-import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
 try:

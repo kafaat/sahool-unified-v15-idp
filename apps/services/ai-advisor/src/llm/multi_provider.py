@@ -109,7 +109,9 @@ class CircuitBreaker:
         """Check if enough time has passed to attempt reset"""
         if self.last_failure_time is None:
             return True
-        return (datetime.now() - self.last_failure_time).total_seconds() >= self.recovery_timeout
+        return (
+            datetime.now() - self.last_failure_time
+        ).total_seconds() >= self.recovery_timeout
 
     def _on_success(self):
         """Reset circuit breaker on success"""
@@ -236,9 +238,7 @@ class AnthropicProvider(LLMProvider):
         super().__init__("Anthropic Claude", "أنثروبيك كلود")
         self.api_key = os.getenv("ANTHROPIC_API_KEY")
         self._client = None
-        self.circuit_breaker = CircuitBreaker(
-            failure_threshold=5, recovery_timeout=60
-        )
+        self.circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
 
     @property
     def is_configured(self) -> bool:
@@ -359,9 +359,7 @@ class OpenAIProvider(LLMProvider):
         super().__init__("OpenAI GPT", "أوبن إيه آي")
         self.api_key = os.getenv("OPENAI_API_KEY")
         self._client = None
-        self.circuit_breaker = CircuitBreaker(
-            failure_threshold=5, recovery_timeout=60
-        )
+        self.circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
 
     @property
     def is_configured(self) -> bool:
@@ -474,9 +472,7 @@ class GoogleGeminiProvider(LLMProvider):
         super().__init__("Google Gemini", "جوجل جيميني")
         self.api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
         self._client = None
-        self.circuit_breaker = CircuitBreaker(
-            failure_threshold=5, recovery_timeout=60
-        )
+        self.circuit_breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
 
     @property
     def is_configured(self) -> bool:

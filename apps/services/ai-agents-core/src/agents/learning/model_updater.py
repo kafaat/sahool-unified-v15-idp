@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ModelVersion:
     """إصدار النموذج"""
+
     version_id: str
     model_type: str
     created_at: datetime
@@ -41,7 +42,7 @@ class ModelUpdaterAgent(BaseAgent):
             agent_type=AgentType.LEARNING,
             layer=AgentLayer.LEARNING,
             description="Manages model updates and versioning",
-            description_ar="يدير تحديثات النماذج والإصدارات"
+            description_ar="يدير تحديثات النماذج والإصدارات",
         )
 
         # Model versions
@@ -82,12 +83,12 @@ class ModelUpdaterAgent(BaseAgent):
                     "model_type": model_type,
                     "update_data": update,
                     "current_score": current_score,
-                    "expected_new_score": current_score + expected_improvement
+                    "expected_new_score": current_score + expected_improvement,
                 },
                 confidence=0.8,
                 priority=3,
                 reasoning=f"تحديث نموذج {model_type} لتحسين الأداء",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         return None
@@ -104,7 +105,9 @@ class ModelUpdaterAgent(BaseAgent):
                 created_at=datetime.now(),
                 performance_score=action.parameters.get("expected_new_score", 0),
                 is_active=True,
-                training_samples=action.parameters.get("update_data", {}).get("samples", 0)
+                training_samples=action.parameters.get("update_data", {}).get(
+                    "samples", 0
+                ),
             )
 
             if model_type not in self.model_versions:
@@ -119,7 +122,7 @@ class ModelUpdaterAgent(BaseAgent):
             return {
                 "success": True,
                 "new_version": version.version_id,
-                "model_type": model_type
+                "model_type": model_type,
             }
 
         return {"success": False}

@@ -77,13 +77,15 @@ def yemen_test_polygon():
     Test polygon within Yemen boundaries
     مضلع اختبار ضمن حدود اليمن
     """
-    return Polygon([
-        [44.1910, 15.3694],
-        [44.1920, 15.3694],
-        [44.1920, 15.3704],
-        [44.1910, 15.3704],
-        [44.1910, 15.3694],
-    ])
+    return Polygon(
+        [
+            [44.1910, 15.3694],
+            [44.1920, 15.3694],
+            [44.1920, 15.3704],
+            [44.1910, 15.3704],
+            [44.1910, 15.3694],
+        ]
+    )
 
 
 @pytest.fixture
@@ -92,20 +94,24 @@ def multipolygon_geometry():
     MultiPolygon geometry for testing
     هندسة متعددة المضلعات للاختبار
     """
-    poly1 = Polygon([
-        [44.1910, 15.3694],
-        [44.1915, 15.3694],
-        [44.1915, 15.3699],
-        [44.1910, 15.3699],
-        [44.1910, 15.3694],
-    ])
-    poly2 = Polygon([
-        [44.1920, 15.3700],
-        [44.1925, 15.3700],
-        [44.1925, 15.3705],
-        [44.1920, 15.3705],
-        [44.1920, 15.3700],
-    ])
+    poly1 = Polygon(
+        [
+            [44.1910, 15.3694],
+            [44.1915, 15.3694],
+            [44.1915, 15.3699],
+            [44.1910, 15.3699],
+            [44.1910, 15.3694],
+        ]
+    )
+    poly2 = Polygon(
+        [
+            [44.1920, 15.3700],
+            [44.1925, 15.3700],
+            [44.1925, 15.3705],
+            [44.1920, 15.3705],
+            [44.1920, 15.3700],
+        ]
+    )
     return MultiPolygon([poly1, poly2])
 
 
@@ -138,7 +144,9 @@ class TestGeometryValidation:
         assert coords[0] == coords[-1], "Polygon should be closed (first == last point)"
 
         # Verify minimum points
-        assert len(coords) >= 4, "Polygon must have at least 4 points (including closure)"
+        assert (
+            len(coords) >= 4
+        ), "Polygon must have at least 4 points (including closure)"
 
     def test_invalid_self_intersecting_polygon(self, self_intersecting_polygon_coords):
         """
@@ -153,7 +161,10 @@ class TestGeometryValidation:
 
         # Get validation error message
         validation_msg = explain_validity(polygon)
-        assert "Self-intersection" in validation_msg or "Ring Self-intersection" in validation_msg
+        assert (
+            "Self-intersection" in validation_msg
+            or "Ring Self-intersection" in validation_msg
+        )
 
         # Test ST_MakeValid equivalent (buffer(0) trick)
         fixed_polygon = polygon.buffer(0)
@@ -220,17 +231,23 @@ class TestSpatialOperations:
         """
         # Point inside polygon
         point_inside = Point(44.1915, 15.3699)
-        assert yemen_test_polygon.contains(point_inside), "Point should be inside polygon"
+        assert yemen_test_polygon.contains(
+            point_inside
+        ), "Point should be inside polygon"
 
         # Point outside polygon
         point_outside = Point(44.2000, 15.4000)
-        assert not yemen_test_polygon.contains(point_outside), "Point should be outside polygon"
+        assert not yemen_test_polygon.contains(
+            point_outside
+        ), "Point should be outside polygon"
 
         # Point on boundary
         point_on_boundary = Point(44.1910, 15.3694)
-        assert yemen_test_polygon.touches(point_on_boundary) or \
-               yemen_test_polygon.contains(point_on_boundary), \
-               "Point on boundary should touch or be contained"
+        assert yemen_test_polygon.touches(
+            point_on_boundary
+        ) or yemen_test_polygon.contains(
+            point_on_boundary
+        ), "Point on boundary should touch or be contained"
 
     def test_polygon_intersection(self, yemen_test_polygon):
         """
@@ -238,13 +255,15 @@ class TestSpatialOperations:
         اختبار ST_Intersection - تقاطع المضلعات
         """
         # Create overlapping polygon
-        overlapping_polygon = Polygon([
-            [44.1915, 15.3699],
-            [44.1925, 15.3699],
-            [44.1925, 15.3709],
-            [44.1915, 15.3709],
-            [44.1915, 15.3699],
-        ])
+        overlapping_polygon = Polygon(
+            [
+                [44.1915, 15.3699],
+                [44.1925, 15.3699],
+                [44.1925, 15.3709],
+                [44.1915, 15.3709],
+                [44.1915, 15.3699],
+            ]
+        )
 
         # Test intersection
         intersection = yemen_test_polygon.intersection(overlapping_polygon)
@@ -254,13 +273,15 @@ class TestSpatialOperations:
         assert intersection.area > 0, "Intersection should have area"
 
         # Test non-overlapping polygon
-        non_overlapping = Polygon([
-            [44.3000, 15.5000],
-            [44.3010, 15.5000],
-            [44.3010, 15.5010],
-            [44.3000, 15.5010],
-            [44.3000, 15.5000],
-        ])
+        non_overlapping = Polygon(
+            [
+                [44.3000, 15.5000],
+                [44.3010, 15.5000],
+                [44.3010, 15.5010],
+                [44.3000, 15.5010],
+                [44.3000, 15.5000],
+            ]
+        )
 
         no_intersection = yemen_test_polygon.intersection(non_overlapping)
         assert no_intersection.is_empty, "Should have no intersection"
@@ -283,7 +304,9 @@ class TestSpatialOperations:
         # Test negative buffer (erosion)
         eroded = yemen_test_polygon.buffer(-0.0001)
         if not eroded.is_empty:
-            assert eroded.area < yemen_test_polygon.area, "Eroded area should be smaller"
+            assert (
+                eroded.area < yemen_test_polygon.area
+            ), "Eroded area should be smaller"
 
     def test_centroid_calculation(self, yemen_test_polygon):
         """
@@ -295,14 +318,20 @@ class TestSpatialOperations:
         assert centroid.geom_type == "Point", "Centroid should be a Point"
 
         # For a rectangular polygon, centroid should be inside
-        assert yemen_test_polygon.contains(centroid), "Centroid should be inside polygon"
+        assert yemen_test_polygon.contains(
+            centroid
+        ), "Centroid should be inside polygon"
 
         # Verify approximate coordinates for our test rectangle
         expected_x = (44.1910 + 44.1920) / 2  # 44.1915
         expected_y = (15.3694 + 15.3704) / 2  # 15.3699
 
-        assert abs(centroid.x - expected_x) < 0.0001, f"Centroid X should be ~{expected_x}"
-        assert abs(centroid.y - expected_y) < 0.0001, f"Centroid Y should be ~{expected_y}"
+        assert (
+            abs(centroid.x - expected_x) < 0.0001
+        ), f"Centroid X should be ~{expected_x}"
+        assert (
+            abs(centroid.y - expected_y) < 0.0001
+        ), f"Centroid Y should be ~{expected_y}"
 
     def test_area_calculation_hectares(self, yemen_test_polygon):
         """
@@ -389,12 +418,18 @@ class TestCoordinateReferenceSystems:
         assert 0 <= utm_y <= 10000000, "UTM Y (northing) should be in valid range"
 
         # Test reverse transformation
-        transformer_reverse = Transformer.from_crs("EPSG:32638", "EPSG:4326", always_xy=True)
+        transformer_reverse = Transformer.from_crs(
+            "EPSG:32638", "EPSG:4326", always_xy=True
+        )
         lon_back, lat_back = transformer_reverse.transform(utm_x, utm_y)
 
         # Should get back original coordinates (within precision)
-        assert abs(lon_back - lon) < 0.000001, "Reverse transform should match original lon"
-        assert abs(lat_back - lat) < 0.000001, "Reverse transform should match original lat"
+        assert (
+            abs(lon_back - lon) < 0.000001
+        ), "Reverse transform should match original lon"
+        assert (
+            abs(lat_back - lat) < 0.000001
+        ), "Reverse transform should match original lat"
 
     def test_yemen_bounds_validation(self):
         """
@@ -416,24 +451,29 @@ class TestCoordinateReferenceSystems:
         ]
 
         for lon, lat in valid_coords:
-            assert YEMEN_MIN_LON <= lon <= YEMEN_MAX_LON, \
-                f"Longitude {lon} should be within Yemen bounds"
-            assert YEMEN_MIN_LAT <= lat <= YEMEN_MAX_LAT, \
-                f"Latitude {lat} should be within Yemen bounds"
+            assert (
+                YEMEN_MIN_LON <= lon <= YEMEN_MAX_LON
+            ), f"Longitude {lon} should be within Yemen bounds"
+            assert (
+                YEMEN_MIN_LAT <= lat <= YEMEN_MAX_LAT
+            ), f"Latitude {lat} should be within Yemen bounds"
 
         # Test invalid coordinates (outside Yemen)
         invalid_coords = [
-            (35.0, 15.0),   # Too far west (Iraq/Saudi)
-            (60.0, 15.0),   # Too far east (Oman)
-            (44.0, 10.0),   # Too far south (Gulf of Aden)
-            (44.0, 25.0),   # Too far north (Saudi Arabia)
+            (35.0, 15.0),  # Too far west (Iraq/Saudi)
+            (60.0, 15.0),  # Too far east (Oman)
+            (44.0, 10.0),  # Too far south (Gulf of Aden)
+            (44.0, 25.0),  # Too far north (Saudi Arabia)
         ]
 
         for lon, lat in invalid_coords:
-            is_in_yemen = (YEMEN_MIN_LON <= lon <= YEMEN_MAX_LON and
-                          YEMEN_MIN_LAT <= lat <= YEMEN_MAX_LAT)
-            assert not is_in_yemen, \
-                f"Coordinates ({lon}, {lat}) should be outside Yemen"
+            is_in_yemen = (
+                YEMEN_MIN_LON <= lon <= YEMEN_MAX_LON
+                and YEMEN_MIN_LAT <= lat <= YEMEN_MAX_LAT
+            )
+            assert (
+                not is_in_yemen
+            ), f"Coordinates ({lon}, {lat}) should be outside Yemen"
 
 
 # ============================================================================
@@ -460,13 +500,15 @@ class TestFieldBoundaryValidation:
         geod = Geod(ellps="WGS84")
 
         # Create small polygon (~0.05 hectares - below minimum)
-        small_polygon = Polygon([
-            [44.1910, 15.3694],
-            [44.1912, 15.3694],
-            [44.1912, 15.3696],
-            [44.1910, 15.3696],
-            [44.1910, 15.3694],
-        ])
+        small_polygon = Polygon(
+            [
+                [44.1910, 15.3694],
+                [44.1912, 15.3694],
+                [44.1912, 15.3696],
+                [44.1910, 15.3696],
+                [44.1910, 15.3694],
+            ]
+        )
 
         coords = list(small_polygon.exterior.coords)
         lons = [c[0] for c in coords]
@@ -475,17 +517,20 @@ class TestFieldBoundaryValidation:
         area_hectares = area_m2 / 10000
 
         # Should be below minimum
-        assert area_hectares < MIN_AREA_HECTARES, \
-            f"Small polygon area {area_hectares:.4f} ha should be below minimum"
+        assert (
+            area_hectares < MIN_AREA_HECTARES
+        ), f"Small polygon area {area_hectares:.4f} ha should be below minimum"
 
         # Create larger polygon (~0.15 hectares - above minimum)
-        large_polygon = Polygon([
-            [44.1910, 15.3694],
-            [44.1915, 15.3694],
-            [44.1915, 15.3699],
-            [44.1910, 15.3699],
-            [44.1910, 15.3694],
-        ])
+        large_polygon = Polygon(
+            [
+                [44.1910, 15.3694],
+                [44.1915, 15.3694],
+                [44.1915, 15.3699],
+                [44.1910, 15.3699],
+                [44.1910, 15.3694],
+            ]
+        )
 
         coords = list(large_polygon.exterior.coords)
         lons = [c[0] for c in coords]
@@ -494,8 +539,9 @@ class TestFieldBoundaryValidation:
         area_hectares = area_m2 / 10000
 
         # Should be above minimum
-        assert area_hectares > MIN_AREA_HECTARES, \
-            f"Large polygon area {area_hectares:.4f} ha should be above minimum"
+        assert (
+            area_hectares > MIN_AREA_HECTARES
+        ), f"Large polygon area {area_hectares:.4f} ha should be above minimum"
 
     def test_field_maximum_area(self):
         """
@@ -510,13 +556,15 @@ class TestFieldBoundaryValidation:
 
         # Create very large polygon (~1200 hectares - above maximum)
         # Roughly 0.1° x 0.1° at Yemen's latitude
-        huge_polygon = Polygon([
-            [44.0000, 15.0000],
-            [44.1000, 15.0000],
-            [44.1000, 15.1000],
-            [44.0000, 15.1000],
-            [44.0000, 15.0000],
-        ])
+        huge_polygon = Polygon(
+            [
+                [44.0000, 15.0000],
+                [44.1000, 15.0000],
+                [44.1000, 15.1000],
+                [44.0000, 15.1000],
+                [44.0000, 15.0000],
+            ]
+        )
 
         coords = list(huge_polygon.exterior.coords)
         lons = [c[0] for c in coords]
@@ -525,8 +573,9 @@ class TestFieldBoundaryValidation:
         area_hectares = area_m2 / 10000
 
         # Should be above maximum
-        assert area_hectares > MAX_AREA_HECTARES, \
-            f"Huge polygon area {area_hectares:.2f} ha should be above maximum"
+        assert (
+            area_hectares > MAX_AREA_HECTARES
+        ), f"Huge polygon area {area_hectares:.2f} ha should be above maximum"
 
     def test_overlapping_fields_detection(self):
         """
@@ -534,21 +583,25 @@ class TestFieldBoundaryValidation:
         اختبار كشف تداخل حدود الحقول
         """
         # Create two overlapping fields
-        field1 = Polygon([
-            [44.1910, 15.3694],
-            [44.1920, 15.3694],
-            [44.1920, 15.3704],
-            [44.1910, 15.3704],
-            [44.1910, 15.3694],
-        ])
+        field1 = Polygon(
+            [
+                [44.1910, 15.3694],
+                [44.1920, 15.3694],
+                [44.1920, 15.3704],
+                [44.1910, 15.3704],
+                [44.1910, 15.3694],
+            ]
+        )
 
-        field2 = Polygon([
-            [44.1915, 15.3699],
-            [44.1925, 15.3699],
-            [44.1925, 15.3709],
-            [44.1915, 15.3709],
-            [44.1915, 15.3699],
-        ])
+        field2 = Polygon(
+            [
+                [44.1915, 15.3699],
+                [44.1925, 15.3699],
+                [44.1925, 15.3709],
+                [44.1915, 15.3709],
+                [44.1915, 15.3699],
+            ]
+        )
 
         # Test for overlap
         assert field1.intersects(field2), "Fields should intersect"
@@ -564,13 +617,15 @@ class TestFieldBoundaryValidation:
         assert overlap_percentage > 0, "Overlap percentage should be positive"
 
         # Test non-overlapping fields
-        field3 = Polygon([
-            [44.3000, 15.5000],
-            [44.3010, 15.5000],
-            [44.3010, 15.5010],
-            [44.3000, 15.5010],
-            [44.3000, 15.5000],
-        ])
+        field3 = Polygon(
+            [
+                [44.3000, 15.5000],
+                [44.3010, 15.5000],
+                [44.3010, 15.5010],
+                [44.3000, 15.5010],
+                [44.3000, 15.5000],
+            ]
+        )
 
         assert not field1.intersects(field3), "Distant fields should not intersect"
 
@@ -607,8 +662,9 @@ class TestFieldBoundaryValidation:
         simplified_points = len(list(simplified.exterior.coords))
 
         # Simplified should have fewer points
-        assert simplified_points < original_points, \
-            f"Simplified polygon should have fewer points ({simplified_points} < {original_points})"
+        assert (
+            simplified_points < original_points
+        ), f"Simplified polygon should have fewer points ({simplified_points} < {original_points})"
 
         # Simplified should still be valid
         assert simplified.is_valid, "Simplified polygon should be valid"
@@ -639,10 +695,22 @@ class TestIndexPerformance:
 
         # Mock response for index check query
         mock_result = [
-            {"indexname": "idx_fields_boundary", "indexdef": "CREATE INDEX idx_fields_boundary ON fields USING gist (boundary)"},
-            {"indexname": "idx_fields_centroid", "indexdef": "CREATE INDEX idx_fields_centroid ON fields USING gist (centroid)"},
-            {"indexname": "idx_farms_location", "indexdef": "CREATE INDEX idx_farms_location ON farms USING gist (location)"},
-            {"indexname": "idx_farms_boundary", "indexdef": "CREATE INDEX idx_farms_boundary ON farms USING gist (boundary)"},
+            {
+                "indexname": "idx_fields_boundary",
+                "indexdef": "CREATE INDEX idx_fields_boundary ON fields USING gist (boundary)",
+            },
+            {
+                "indexname": "idx_fields_centroid",
+                "indexdef": "CREATE INDEX idx_fields_centroid ON fields USING gist (centroid)",
+            },
+            {
+                "indexname": "idx_farms_location",
+                "indexdef": "CREATE INDEX idx_farms_location ON farms USING gist (location)",
+            },
+            {
+                "indexname": "idx_farms_boundary",
+                "indexdef": "CREATE INDEX idx_farms_boundary ON farms USING gist (boundary)",
+            },
         ]
 
         connection.fetch = AsyncMock(return_value=mock_result)
@@ -677,8 +745,9 @@ class TestIndexPerformance:
 
         # Verify all are GIST indexes
         for row in results:
-            assert "gist" in row["indexdef"].lower(), \
-                f"Index {row['indexname']} should be GIST type"
+            assert (
+                "gist" in row["indexdef"].lower()
+            ), f"Index {row['indexname']} should be GIST type"
 
     @pytest.mark.asyncio
     async def test_query_performance_with_index(self, mock_db_pool):
@@ -693,15 +762,9 @@ class TestIndexPerformance:
             {
                 "QUERY PLAN": "Index Scan using idx_fields_boundary on fields  (cost=0.29..8.31 rows=1 width=1234) (actual time=0.012..0.015 rows=5 loops=1)"
             },
-            {
-                "QUERY PLAN": "  Index Cond: (boundary && '01030000...'::geometry)"
-            },
-            {
-                "QUERY PLAN": "Planning Time: 0.123 ms"
-            },
-            {
-                "QUERY PLAN": "Execution Time: 0.045 ms"
-            },
+            {"QUERY PLAN": "  Index Cond: (boundary && '01030000...'::geometry)"},
+            {"QUERY PLAN": "Planning Time: 0.123 ms"},
+            {"QUERY PLAN": "Execution Time: 0.045 ms"},
         ]
 
         connection.fetch = AsyncMock(return_value=mock_explain_result)
@@ -723,11 +786,13 @@ class TestIndexPerformance:
         plan_text = "\n".join([row["QUERY PLAN"] for row in explain_result])
 
         # Verify index is being used
-        assert "Index Scan" in plan_text or "Bitmap Index Scan" in plan_text, \
-            "Query should use spatial index"
+        assert (
+            "Index Scan" in plan_text or "Bitmap Index Scan" in plan_text
+        ), "Query should use spatial index"
 
-        assert "idx_fields_boundary" in plan_text or "gist" in plan_text.lower(), \
-            "Query should use GIST spatial index"
+        assert (
+            "idx_fields_boundary" in plan_text or "gist" in plan_text.lower()
+        ), "Query should use GIST spatial index"
 
         # Verify performance
         # Extract execution time
@@ -741,8 +806,9 @@ class TestIndexPerformance:
                     execution_time = float(time_str)
 
         # With proper index, query should be fast (< 100ms for most cases)
-        assert execution_time < 100.0, \
-            f"Spatial query should be fast with index (was {execution_time}ms)"
+        assert (
+            execution_time < 100.0
+        ), f"Spatial query should be fast with index (was {execution_time}ms)"
 
 
 # ============================================================================
@@ -770,6 +836,7 @@ class TestPostGISIntegration:
 
         # Step 2: Calculate area
         from pyproj import Geod
+
         geod = Geod(ellps="WGS84")
         coords = list(polygon.exterior.coords)
         lons = [c[0] for c in coords]
@@ -778,8 +845,9 @@ class TestPostGISIntegration:
         area_hectares = area_m2 / 10000
 
         # Step 3: Validate area constraints
-        assert 0.1 <= area_hectares <= 1000, \
-            f"Area {area_hectares:.2f} ha must be between 0.1 and 1000 hectares"
+        assert (
+            0.1 <= area_hectares <= 1000
+        ), f"Area {area_hectares:.2f} ha must be between 0.1 and 1000 hectares"
 
         # Step 4: Calculate centroid
         centroid = polygon.centroid
@@ -849,8 +917,9 @@ class TestPostGISIntegration:
         # Test reverse conversion
         reconstructed = shape(geojson)
         assert reconstructed.is_valid, "Reconstructed geometry should be valid"
-        assert reconstructed.equals(yemen_test_polygon), \
-            "Reconstructed geometry should match original"
+        assert reconstructed.equals(
+            yemen_test_polygon
+        ), "Reconstructed geometry should match original"
 
 
 # ============================================================================
@@ -869,13 +938,16 @@ class TestUtilityFunctions:
         Test Yemen coordinates validation utility
         اختبار أداة التحقق من إحداثيات اليمن
         """
+
         def validate_yemen_coords(lon: float, lat: float) -> bool:
             """Validate if coordinates are within Yemen bounds"""
             YEMEN_MIN_LAT, YEMEN_MAX_LAT = 12.0, 19.0
             YEMEN_MIN_LON, YEMEN_MAX_LON = 42.0, 54.0
 
-            return (YEMEN_MIN_LON <= lon <= YEMEN_MAX_LON and
-                   YEMEN_MIN_LAT <= lat <= YEMEN_MAX_LAT)
+            return (
+                YEMEN_MIN_LON <= lon <= YEMEN_MAX_LON
+                and YEMEN_MIN_LAT <= lat <= YEMEN_MAX_LAT
+            )
 
         # Valid Yemen coordinates
         assert validate_yemen_coords(44.2075, 15.3547), "Sana'a should be valid"
@@ -894,8 +966,9 @@ class TestUtilityFunctions:
         """
         from math import atan2, cos, radians, sin, sqrt
 
-        def haversine_distance(lon1: float, lat1: float,
-                             lon2: float, lat2: float) -> float:
+        def haversine_distance(
+            lon1: float, lat1: float, lon2: float, lat2: float
+        ) -> float:
             """Calculate distance between two points in kilometers"""
             R = 6371  # Earth radius in kilometers
 
@@ -903,8 +976,8 @@ class TestUtilityFunctions:
             dlat = lat2 - lat1
             dlon = lon2 - lon1
 
-            a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-            c = 2 * atan2(sqrt(a), sqrt(1-a))
+            a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
 
             return R * c
 
@@ -915,8 +988,9 @@ class TestUtilityFunctions:
         distance = haversine_distance(sanaa[0], sanaa[1], aden[0], aden[1])
 
         # Distance should be approximately 290-300 km
-        assert 280 < distance < 310, \
-            f"Distance between Sana'a and Aden should be ~295 km (got {distance:.2f} km)"
+        assert (
+            280 < distance < 310
+        ), f"Distance between Sana'a and Aden should be ~295 km (got {distance:.2f} km)"
 
         # Test distance to same point (should be 0)
         distance_same = haversine_distance(sanaa[0], sanaa[1], sanaa[0], sanaa[1])
@@ -947,13 +1021,15 @@ class TestPerformanceBenchmarks:
             base_lon = 44.0 + (i % 10) * 0.01
             base_lat = 15.0 + (i // 10) * 0.01
 
-            polygon = Polygon([
-                [base_lon, base_lat],
-                [base_lon + 0.005, base_lat],
-                [base_lon + 0.005, base_lat + 0.005],
-                [base_lon, base_lat + 0.005],
-                [base_lon, base_lat],
-            ])
+            polygon = Polygon(
+                [
+                    [base_lon, base_lat],
+                    [base_lon + 0.005, base_lat],
+                    [base_lon + 0.005, base_lat + 0.005],
+                    [base_lon, base_lat + 0.005],
+                    [base_lon, base_lat],
+                ]
+            )
             test_polygons.append(polygon)
 
         # Measure validation time
@@ -971,13 +1047,15 @@ class TestPerformanceBenchmarks:
         assert valid_count == 1000, "All test polygons should be valid"
 
         # Should complete in reasonable time (< 1 second for 1000 polygons)
-        assert elapsed_time < 1.0, \
-            f"Bulk validation should be fast (took {elapsed_time:.3f}s for 1000 polygons)"
+        assert (
+            elapsed_time < 1.0
+        ), f"Bulk validation should be fast (took {elapsed_time:.3f}s for 1000 polygons)"
 
         # Calculate throughput
         throughput = 1000 / elapsed_time
-        assert throughput > 1000, \
-            f"Should validate >1000 polygons/sec (got {throughput:.0f}/sec)"
+        assert (
+            throughput > 1000
+        ), f"Should validate >1000 polygons/sec (got {throughput:.0f}/sec)"
 
 
 # ============================================================================
@@ -1015,10 +1093,10 @@ class TestErrorHandling:
         """
         # Test various invalid coordinates
         invalid_coords = [
-            (200.0, 15.0),    # Longitude out of range
-            (44.0, 100.0),    # Latitude out of range
-            (None, 15.0),     # None value
-            (44.0, None),     # None value
+            (200.0, 15.0),  # Longitude out of range
+            (44.0, 100.0),  # Latitude out of range
+            (None, 15.0),  # None value
+            (44.0, None),  # None value
         ]
 
         for lon, lat in invalid_coords:

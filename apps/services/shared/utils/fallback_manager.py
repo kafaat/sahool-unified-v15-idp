@@ -33,9 +33,12 @@ class CircuitState(Enum):
     OPEN: النظام معطل مؤقتاً - System temporarily disabled
     HALF_OPEN: النظام في وضع الاختبار - System in testing mode
     """
+
     CLOSED = "closed"  # يسمح بجميع الطلبات - Allows all requests
     OPEN = "open"  # يرفض جميع الطلبات - Rejects all requests
-    HALF_OPEN = "half_open"  # يسمح ببعض الطلبات للاختبار - Allows limited requests for testing
+    HALF_OPEN = (
+        "half_open"  # يسمح ببعض الطلبات للاختبار - Allows limited requests for testing
+    )
 
 
 class CircuitBreaker:
@@ -55,7 +58,7 @@ class CircuitBreaker:
         self,
         failure_threshold: int = 5,
         recovery_timeout: int = 30,
-        success_threshold: int = 3
+        success_threshold: int = 3,
     ):
         """
         تهيئة قاطع الدائرة
@@ -253,9 +256,14 @@ class CircuitBreaker:
                 "failure_threshold": self.failure_threshold,
                 "success_threshold": self.success_threshold,
                 "recovery_timeout": self.recovery_timeout,
-                "time_until_retry": self._time_until_retry() if self.state == CircuitState.OPEN else 0,
-                "last_failure_time": datetime.fromtimestamp(self.last_failure_time).isoformat()
-                    if self.last_failure_time else None
+                "time_until_retry": (
+                    self._time_until_retry() if self.state == CircuitState.OPEN else 0
+                ),
+                "last_failure_time": (
+                    datetime.fromtimestamp(self.last_failure_time).isoformat()
+                    if self.last_failure_time
+                    else None
+                ),
             }
 
 
@@ -295,7 +303,7 @@ class FallbackManager:
         fallback_fn: Callable,
         failure_threshold: int = 5,
         recovery_timeout: int = 30,
-        success_threshold: int = 3
+        success_threshold: int = 3,
     ):
         """
         تسجيل دالة احتياطية لخدمة
@@ -313,16 +321,14 @@ class FallbackManager:
             self._circuit_breakers[service_name] = CircuitBreaker(
                 failure_threshold=failure_threshold,
                 recovery_timeout=recovery_timeout,
-                success_threshold=success_threshold
+                success_threshold=success_threshold,
             )
-            logger.info(f"✅ تم تسجيل احتياطي للخدمة - Registered fallback for: {service_name}")
+            logger.info(
+                f"✅ تم تسجيل احتياطي للخدمة - Registered fallback for: {service_name}"
+            )
 
     def execute_with_fallback(
-        self,
-        service_name: str,
-        primary_fn: Callable,
-        *args,
-        **kwargs
+        self, service_name: str, primary_fn: Callable, *args, **kwargs
     ) -> Any:
         """
         تنفيذ دالة مع احتياطي
@@ -357,13 +363,13 @@ class FallbackManager:
             return result
 
         except Exception as e:
-            logger.warning(
-                f"⚠️ فشل الدالة الأساسية للخدمة {service_name}: {str(e)}"
-            )
+            logger.warning(f"⚠️ فشل الدالة الأساسية للخدمة {service_name}: {str(e)}")
 
             # محاولة استخدام الدالة الاحتياطية - Try fallback function
             if service_name in self._fallbacks:
-                logger.info(f"🔄 استخدام الدالة الاحتياطية - Using fallback for: {service_name}")
+                logger.info(
+                    f"🔄 استخدام الدالة الاحتياطية - Using fallback for: {service_name}"
+                )
                 try:
                     fallback_fn = self._fallbacks[service_name]
                     result = fallback_fn(*args, **kwargs)
@@ -376,7 +382,9 @@ class FallbackManager:
             # محاولة استخدام النتيجة المخزنة - Try cached result
             cached_result = self._get_cached_result(service_name)
             if cached_result is not None:
-                logger.info(f"💾 استخدام النتيجة المخزنة - Using cached result for: {service_name}")
+                logger.info(
+                    f"💾 استخدام النتيجة المخزنة - Using cached result for: {service_name}"
+                )
                 return cached_result
 
             # إذا فشل كل شيء - If everything fails
@@ -447,7 +455,9 @@ class FallbackManager:
         """
         if service_name in self._circuit_breakers:
             self._circuit_breakers[service_name].reset()
-            logger.info(f"🔧 تم إعادة تعيين قاطع الدائرة - Circuit reset for: {service_name}")
+            logger.info(
+                f"🔧 تم إعادة تعيين قاطع الدائرة - Circuit reset for: {service_name}"
+            )
 
     def get_all_statuses(self) -> dict[str, dict[str, Any]]:
         """
@@ -465,10 +475,9 @@ class FallbackManager:
 
 # ===== الديكوريتورز - Decorators =====
 
+
 def circuit_breaker(
-    failure_threshold: int = 5,
-    recovery_timeout: int = 30,
-    success_threshold: int = 3
+    failure_threshold: int = 5, recovery_timeout: int = 30, success_threshold: int = 3
 ):
     """
     ديكوريتور قاطع الدائرة
@@ -488,11 +497,12 @@ def circuit_breaker(
             # استدعاء واجهة برمجة تطبيقات خارجية
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         cb = CircuitBreaker(
             failure_threshold=failure_threshold,
             recovery_timeout=recovery_timeout,
-            success_threshold=success_threshold
+            success_threshold=success_threshold,
         )
 
         @wraps(func)
@@ -528,6 +538,7 @@ def with_fallback(fallback_fn: Callable):
             # الحصول على الطقس من واجهة برمجة تطبيقات
             pass
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -552,6 +563,7 @@ def with_fallback(fallback_fn: Callable):
 
 
 # ===== احتياطيات خاصة بالخدمات - Service-Specific Fallbacks =====
+
 
 class ServiceFallbacks:
     """
@@ -580,7 +592,7 @@ class ServiceFallbacks:
             "precipitation": 0.0,
             "source": "fallback",
             "message": "بيانات افتراضية - استخدم بحذر - Default data - Use with caution",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     @staticmethod
@@ -600,7 +612,7 @@ class ServiceFallbacks:
             "last_update": None,
             "source": "fallback",
             "message": "صور الأقمار الصناعية غير متوفرة حالياً - Satellite imagery currently unavailable",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     @staticmethod
@@ -622,19 +634,19 @@ class ServiceFallbacks:
                     "type": "general",
                     "priority": "medium",
                     "message_ar": "تابع مراقبة المحاصيل بانتظام",
-                    "message_en": "Continue monitoring crops regularly"
+                    "message_en": "Continue monitoring crops regularly",
                 },
                 {
                     "type": "general",
                     "priority": "low",
                     "message_ar": "تحقق من نظام الري",
-                    "message_en": "Check irrigation system"
-                }
+                    "message_en": "Check irrigation system",
+                },
             ],
             "confidence": 0.3,
             "source": "fallback_rules",
             "message": "توصيات عامة - مطلوب تحليل متقدم - General recommendations - Advanced analysis required",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     @staticmethod
@@ -651,7 +663,7 @@ class ServiceFallbacks:
             "issues": [],
             "source": "fallback",
             "message": "حالة صحة المحصول غير معروفة - يرجى الفحص اليدوي - Crop health unknown - Manual inspection required",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     @staticmethod
@@ -668,7 +680,7 @@ class ServiceFallbacks:
             "schedule": None,
             "source": "fallback",
             "message": "توصيات الري غير متوفرة - استخدم الخبرة المحلية - Irrigation recommendations unavailable - Use local expertise",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
 
@@ -683,41 +695,41 @@ global_fallback_manager.register_fallback(
     "weather",
     ServiceFallbacks.weather_fallback,
     failure_threshold=5,
-    recovery_timeout=30
+    recovery_timeout=30,
 )
 
 global_fallback_manager.register_fallback(
     "satellite",
     ServiceFallbacks.satellite_fallback,
     failure_threshold=3,
-    recovery_timeout=60
+    recovery_timeout=60,
 )
 
 global_fallback_manager.register_fallback(
-    "ai",
-    ServiceFallbacks.ai_fallback,
-    failure_threshold=5,
-    recovery_timeout=30
+    "ai", ServiceFallbacks.ai_fallback, failure_threshold=5, recovery_timeout=30
 )
 
 global_fallback_manager.register_fallback(
     "crop_health",
     ServiceFallbacks.crop_health_fallback,
     failure_threshold=4,
-    recovery_timeout=45
+    recovery_timeout=45,
 )
 
 global_fallback_manager.register_fallback(
     "irrigation",
     ServiceFallbacks.irrigation_fallback,
     failure_threshold=4,
-    recovery_timeout=45
+    recovery_timeout=45,
 )
 
-logger.info("✅ تم تسجيل جميع الاحتياطيات الافتراضية - All default fallbacks registered")
+logger.info(
+    "✅ تم تسجيل جميع الاحتياطيات الافتراضية - All default fallbacks registered"
+)
 
 
 # ===== دوال مساعدة - Helper Functions =====
+
 
 def get_fallback_manager() -> FallbackManager:
     """

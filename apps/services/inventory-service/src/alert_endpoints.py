@@ -150,13 +150,13 @@ async def get_alerts(
         raise
     except ValueError as e:
         logger.error(f"Validation error getting alerts: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except RuntimeError as e:
         logger.error(f"Runtime error getting alerts: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Unexpected error getting alerts: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.get("/{alert_id}", response_model=InventoryAlertResponse)
@@ -172,10 +172,10 @@ async def get_alert(alert_id: str):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error getting alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Unexpected error getting alert: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.get("/summary")
@@ -186,10 +186,10 @@ async def get_alerts_summary():
         return await manager.get_alert_summary()
     except RuntimeError as e:
         logger.error(f"Runtime error getting alert summary: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Unexpected error getting alert summary: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/{alert_id}/acknowledge")
@@ -207,10 +207,10 @@ async def acknowledge_alert(alert_id: str, data: AcknowledgeAlertRequest):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error acknowledging alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Unexpected error acknowledging alert: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/{alert_id}/resolve")
@@ -230,10 +230,10 @@ async def resolve_alert(alert_id: str, data: ResolveAlertRequest):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error resolving alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Unexpected error resolving alert: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/{alert_id}/snooze")
@@ -251,10 +251,10 @@ async def snooze_alert(alert_id: str, data: SnoozeAlertRequest):
         raise
     except RuntimeError as e:
         logger.error(f"Runtime error snoozing alert: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Unexpected error snoozing alert: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/check-now")

@@ -67,7 +67,9 @@ class TestSensorAggregator(unittest.TestCase):
         )
         readings.append(outlier)
 
-        outliers = self.aggregator.detect_outliers(readings, method="zscore", threshold=2.0)
+        outliers = self.aggregator.detect_outliers(
+            readings, method="zscore", threshold=2.0
+        )
 
         # يجب أن يكتشف على الأقل قيمة شاذة واحدة
         # Should detect at least one outlier
@@ -140,9 +142,7 @@ class TestSensorAggregator(unittest.TestCase):
             "device_001", "field_001", "soil_moisture", count=24
         )
         readings.extend(
-            create_sample_readings(
-                "device_002", "field_002", "soil_moisture", count=24
-            )
+            create_sample_readings("device_002", "field_002", "soil_moisture", count=24)
         )
 
         time_range = (
@@ -192,7 +192,12 @@ class TestSensorAggregator(unittest.TestCase):
         """اختبار فحص حالة المستشعر (سليم)"""
         # إنشاء قراءات صحيحة
         readings = create_sample_readings(
-            self.device_id, self.field_id, "air_temperature", count=96, base_value=25.0, noise=1.0
+            self.device_id,
+            self.field_id,
+            "air_temperature",
+            count=96,
+            base_value=25.0,
+            noise=1.0,
         )
 
         health = self.aggregator.check_sensor_status(self.device_id, readings)
@@ -235,7 +240,9 @@ class TestSensorAggregator(unittest.TestCase):
             )
             readings.append(reading)
 
-        drift_detected, drift_magnitude = self.aggregator.detect_sensor_drift(readings, window_size=10)
+        drift_detected, drift_magnitude = self.aggregator.detect_sensor_drift(
+            readings, window_size=10
+        )
 
         # يجب اكتشاف الانحراف - Should detect drift
         self.assertTrue(drift_detected)
@@ -246,7 +253,12 @@ class TestSensorAggregator(unittest.TestCase):
         """اختبار حساب نقاط جودة البيانات"""
         # قراءات عالية الجودة - High quality readings
         good_readings = create_sample_readings(
-            self.device_id, self.field_id, self.sensor_type, count=96, base_value=25.0, noise=0.5
+            self.device_id,
+            self.field_id,
+            self.sensor_type,
+            count=96,
+            base_value=25.0,
+            noise=0.5,
         )
 
         good_score = self.aggregator.calculate_data_quality_score(good_readings)
@@ -327,7 +339,9 @@ class TestSensorAggregator(unittest.TestCase):
         # المجموع التراكمي يجب أن يساوي مجموع القيم
         # Cumulative sum should equal sum of values
         self.assertIsNotNone(aggregated.cumulative_sum)
-        self.assertAlmostEqual(aggregated.cumulative_sum, sum(rainfall_values), places=1)
+        self.assertAlmostEqual(
+            aggregated.cumulative_sum, sum(rainfall_values), places=1
+        )
 
 
 class TestSensorReadingModel(unittest.TestCase):

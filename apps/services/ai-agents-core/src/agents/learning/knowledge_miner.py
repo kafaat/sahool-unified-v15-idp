@@ -30,7 +30,7 @@ class KnowledgeMinerAgent(BaseAgent):
             agent_type=AgentType.LEARNING,
             layer=AgentLayer.LEARNING,
             description="Discovers patterns and extracts knowledge",
-            description_ar="يكتشف الأنماط ويستخرج المعرفة"
+            description_ar="يكتشف الأنماط ويستخرج المعرفة",
         )
 
         # Discovered patterns
@@ -82,7 +82,7 @@ class KnowledgeMinerAgent(BaseAgent):
                 self.patterns[pattern] = {
                     "frequency": count,
                     "confidence": count / len(self.data_buffer),
-                    "discovered_at": datetime.now().isoformat()
+                    "discovered_at": datetime.now().isoformat(),
                 }
 
         # Clear buffer
@@ -101,7 +101,7 @@ class KnowledgeMinerAgent(BaseAgent):
                         "if": {"crop_type": crop},
                         "then": {"recommended_action": action},
                         "confidence": info["confidence"],
-                        "support": info["frequency"]
+                        "support": info["frequency"],
                     }
                     self.rules.append(rule)
 
@@ -118,12 +118,12 @@ class KnowledgeMinerAgent(BaseAgent):
                     parameters={
                         "rules": new_rules[:5],
                         "patterns_count": len(self.patterns),
-                        "graph_size": len(self.knowledge_graph)
+                        "graph_size": len(self.knowledge_graph),
                     },
                     confidence=0.75,
                     priority=4,
                     reasoning=f"تم اكتشاف {len(new_rules)} قاعدة جديدة",
-                    source_agent=self.agent_id
+                    source_agent=self.agent_id,
                 )
 
         return None
@@ -133,7 +133,7 @@ class KnowledgeMinerAgent(BaseAgent):
         return {
             "action_type": action.action_type,
             "knowledge_extracted": action.parameters,
-            "success": True
+            "success": True,
         }
 
     def query_knowledge(self, entity: str) -> list[str]:
@@ -142,7 +142,4 @@ class KnowledgeMinerAgent(BaseAgent):
 
     def get_rule_for_crop(self, crop_type: str) -> list[dict[str, Any]]:
         """الحصول على القواعد للمحصول"""
-        return [
-            r for r in self.rules
-            if r.get("if", {}).get("crop_type") == crop_type
-        ]
+        return [r for r in self.rules if r.get("if", {}).get("crop_type") == crop_type]

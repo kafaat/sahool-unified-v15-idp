@@ -14,8 +14,4 @@ from .feedback_learner import FeedbackLearnerAgent
 from .knowledge_miner import KnowledgeMinerAgent
 from .model_updater import ModelUpdaterAgent
 
-__all__ = [
-    "FeedbackLearnerAgent",
-    "ModelUpdaterAgent",
-    "KnowledgeMinerAgent"
-]
+__all__ = ["FeedbackLearnerAgent", "ModelUpdaterAgent", "KnowledgeMinerAgent"]

@@ -10,13 +10,14 @@ Revision ID: 002
 Revises: 001
 Create Date: 2026-01-02
 """
+
 from alembic import op
 from sqlalchemy import text
 
 # معرفات المراجعة، تستخدم بواسطة Alembic
 # Revision identifiers, used by Alembic
-revision = '002'
-down_revision = '001'
+revision = "002"
+down_revision = "001"
 branch_labels = None
 depends_on = None
 
@@ -56,8 +57,9 @@ def upgrade() -> None:
 
     # إضافة عمود الموقع (نقطة المركز)
     # Add location column (center point)
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         SELECT AddGeometryColumn(
             'fields',        -- table_name
             'location',      -- column_name
@@ -66,12 +68,14 @@ def upgrade() -> None:
             2                -- dimension
         )
         """
-    ))
+        )
+    )
 
     # إضافة عمود الحدود (مضلع)
     # Add boundary column (polygon)
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         SELECT AddGeometryColumn(
             'fields',        -- table_name
             'boundary',      -- column_name
@@ -80,7 +84,8 @@ def upgrade() -> None:
             2                -- dimension
         )
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -88,19 +93,23 @@ def upgrade() -> None:
     print("Creating spatial indexes for fields...")
     print("إنشاء فهارس مكانية للحقول...")
 
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE INDEX idx_fields_location_gist
         ON fields USING GIST (location)
         """
-    ))
+        )
+    )
 
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE INDEX idx_fields_boundary_gist
         ON fields USING GIST (boundary)
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -112,8 +121,9 @@ def upgrade() -> None:
 
     # إضافة عمود الموقع للاستشعار
     # Add location column for sensors
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         SELECT AddGeometryColumn(
             'sensors',       -- table_name
             'location',      -- column_name
@@ -122,7 +132,8 @@ def upgrade() -> None:
             2                -- dimension
         )
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -130,12 +141,14 @@ def upgrade() -> None:
     print("Creating spatial index for sensors...")
     print("إنشاء فهرس مكاني لأجهزة الاستشعار...")
 
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE INDEX idx_sensors_location_gist
         ON sensors USING GIST (location)
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -147,8 +160,9 @@ def upgrade() -> None:
 
     # تحديث مواقع الحقول من center_latitude/center_longitude
     # Update field locations from center_latitude/center_longitude
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         UPDATE fields
         SET location = ST_SetSRID(
             ST_MakePoint(center_longitude, center_latitude),
@@ -157,12 +171,14 @@ def upgrade() -> None:
         WHERE center_latitude IS NOT NULL
         AND center_longitude IS NOT NULL
         """
-    ))
+        )
+    )
 
     # تحديث حدود الحقول من boundary_geojson
     # Update field boundaries from boundary_geojson
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         UPDATE fields
         SET boundary = ST_SetSRID(
             ST_GeomFromGeoJSON(boundary_geojson::text),
@@ -170,12 +186,14 @@ def upgrade() -> None:
         )
         WHERE boundary_geojson IS NOT NULL
         """
-    ))
+        )
+    )
 
     # تحديث مواقع أجهزة الاستشعار من latitude/longitude
     # Update sensor locations from latitude/longitude
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         UPDATE sensors
         SET location = ST_SetSRID(
             ST_MakePoint(longitude, latitude),
@@ -184,7 +202,8 @@ def upgrade() -> None:
         WHERE latitude IS NOT NULL
         AND longitude IS NOT NULL
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -196,8 +215,9 @@ def upgrade() -> None:
 
     # دالة لحساب مساحة الحقل بالهكتار
     # Function to calculate field area in hectares
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE OR REPLACE FUNCTION calculate_field_area_hectares(boundary_geom geometry)
         RETURNS FLOAT AS $$
         BEGIN
@@ -207,12 +227,14 @@ def upgrade() -> None:
         END;
         $$ LANGUAGE plpgsql IMMUTABLE;
         """
-    ))
+        )
+    )
 
     # دالة لحساب المركز من الحدود
     # Function to calculate center from boundary
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE OR REPLACE FUNCTION calculate_field_center(boundary_geom geometry)
         RETURNS geometry AS $$
         BEGIN
@@ -222,12 +244,14 @@ def upgrade() -> None:
         END;
         $$ LANGUAGE plpgsql IMMUTABLE;
         """
-    ))
+        )
+    )
 
     # دالة لحساب المسافة بين نقطتين بالمتر
     # Function to calculate distance between two points in meters
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE OR REPLACE FUNCTION calculate_distance_meters(
             point1 geometry,
             point2 geometry
@@ -240,12 +264,14 @@ def upgrade() -> None:
         END;
         $$ LANGUAGE plpgsql IMMUTABLE;
         """
-    ))
+        )
+    )
 
     # دالة للتحقق مما إذا كانت نقطة داخل مضلع
     # Function to check if point is within polygon
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE OR REPLACE FUNCTION is_point_in_field(
             point_geom geometry,
             field_boundary geometry
@@ -258,12 +284,14 @@ def upgrade() -> None:
         END;
         $$ LANGUAGE plpgsql IMMUTABLE;
         """
-    ))
+        )
+    )
 
     # دالة للعثور على الحقول القريبة
     # Function to find nearby fields
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE OR REPLACE FUNCTION find_nearby_fields(
             reference_location geometry,
             radius_meters FLOAT
@@ -285,7 +313,8 @@ def upgrade() -> None:
         END;
         $$ LANGUAGE plpgsql STABLE;
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -297,31 +326,37 @@ def upgrade() -> None:
 
     # التأكد من أن الحدود صالحة
     # Ensure boundaries are valid
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         ALTER TABLE fields
         ADD CONSTRAINT chk_fields_boundary_valid
         CHECK (boundary IS NULL OR ST_IsValid(boundary))
         """
-    ))
+        )
+    )
 
     # التأكد من أن المواقع صالحة
     # Ensure locations are valid
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         ALTER TABLE fields
         ADD CONSTRAINT chk_fields_location_valid
         CHECK (location IS NULL OR ST_IsValid(location))
         """
-    ))
+        )
+    )
 
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         ALTER TABLE sensors
         ADD CONSTRAINT chk_sensors_location_valid
         CHECK (location IS NULL OR ST_IsValid(location))
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -331,8 +366,9 @@ def upgrade() -> None:
     print("Creating spatial data views...")
     print("إنشاء عروض البيانات المكانية...")
 
-    conn.execute(text(
-        """
+    conn.execute(
+        text(
+            """
         CREATE OR REPLACE VIEW field_spatial_info AS
         SELECT
             f.id,
@@ -362,7 +398,8 @@ def upgrade() -> None:
             END as perimeter_meters
         FROM fields f
         """
-    ))
+        )
+    )
 
     conn.commit()
 
@@ -391,15 +428,15 @@ def downgrade() -> None:
     # =========================================================================
     # إزالة القيود / Drop Constraints
     # =========================================================================
-    conn.execute(text(
-        "ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_boundary_valid"
-    ))
-    conn.execute(text(
-        "ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_location_valid"
-    ))
-    conn.execute(text(
-        "ALTER TABLE sensors DROP CONSTRAINT IF EXISTS chk_sensors_location_valid"
-    ))
+    conn.execute(
+        text("ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_boundary_valid")
+    )
+    conn.execute(
+        text("ALTER TABLE fields DROP CONSTRAINT IF EXISTS chk_fields_location_valid")
+    )
+    conn.execute(
+        text("ALTER TABLE sensors DROP CONSTRAINT IF EXISTS chk_sensors_location_valid")
+    )
 
     # =========================================================================
     # إزالة الدوال المساعدة / Drop Helper Functions
@@ -421,17 +458,11 @@ def downgrade() -> None:
     # إزالة الأعمدة المكانية / Drop Spatial Columns
     # =========================================================================
     # من جدول الحقول / From fields table
-    conn.execute(text(
-        "SELECT DropGeometryColumn('fields', 'location')"
-    ))
-    conn.execute(text(
-        "SELECT DropGeometryColumn('fields', 'boundary')"
-    ))
+    conn.execute(text("SELECT DropGeometryColumn('fields', 'location')"))
+    conn.execute(text("SELECT DropGeometryColumn('fields', 'boundary')"))
 
     # من جدول أجهزة الاستشعار / From sensors table
-    conn.execute(text(
-        "SELECT DropGeometryColumn('sensors', 'location')"
-    ))
+    conn.execute(text("SELECT DropGeometryColumn('sensors', 'location')"))
 
     conn.commit()
 

@@ -76,7 +76,7 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
                     "affected_area_sqm": 150.5,
                     "severity": "medium",
                     "image_url": image_urls[0] if image_urls else None,
-                    "detected_at": "2024-01-15T10:30:00Z"
+                    "detected_at": "2024-01-15T10:30:00Z",
                 },
                 {
                     "disease_name": "الصدأ الأصفر",  # Yellow Rust
@@ -86,18 +86,14 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
                     "affected_area_sqm": 85.2,
                     "severity": "low",
                     "image_url": image_urls[0] if image_urls else None,
-                    "detected_at": "2024-01-15T10:30:00Z"
-                }
+                    "detected_at": "2024-01-15T10:30:00Z",
+                },
             ],
             "summary": {
                 "total_detections": 2,
                 "total_affected_area_sqm": 235.7,
-                "severity_distribution": {
-                    "low": 1,
-                    "medium": 1,
-                    "high": 0
-                },
-                "most_common_disease": "بقع الأوراق البنية"
+                "severity_distribution": {"low": 1, "medium": 1, "high": 0},
+                "most_common_disease": "بقع الأوراق البنية",
             },
             "recommendations": [
                 {
@@ -108,19 +104,19 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
                     "dosage": "1 لتر/فدان",
                     "timing": "خلال 48 ساعة",  # Within 48 hours
                     "priority": "high",
-                    "estimated_cost_sar": 450.0
+                    "estimated_cost_sar": 450.0,
                 },
                 {
                     "disease": "الصدأ الأصفر",
                     "action": "مراقبة وفحص دوري",  # Monitor and inspect regularly
                     "action_en": "Monitor and inspect regularly",
                     "timing": "كل 3 أيام",  # Every 3 days
-                    "priority": "medium"
-                }
+                    "priority": "medium",
+                },
             ],
             "severity_score": 4.5,  # من 10 / out of 10
             "risk_level": "medium",
-            "next_inspection_date": "2024-01-18T00:00:00Z"
+            "next_inspection_date": "2024-01-18T00:00:00Z",
         }
 
         logger.info(

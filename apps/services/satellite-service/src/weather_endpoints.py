@@ -55,7 +55,9 @@ def register_weather_endpoints(app):
             return forecast.to_dict()
         except Exception as e:
             logger.error(f"Failed to get forecast: {e}")
-            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Weather API error: {str(e)}"
+            ) from e
 
     @app.get("/v1/weather/historical")
     async def get_historical_weather(
@@ -101,10 +103,12 @@ def register_weather_endpoints(app):
         except ValueError as e:
             raise HTTPException(
                 status_code=400, detail=f"Invalid date format: {str(e)}"
-            )
+            ) from e
         except Exception as e:
             logger.error(f"Failed to get historical weather: {e}")
-            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Weather API error: {str(e)}"
+            ) from e
 
     @app.get("/v1/weather/gdd")
     async def get_gdd(
@@ -169,10 +173,12 @@ def register_weather_endpoints(app):
         except ValueError as e:
             raise HTTPException(
                 status_code=400, detail=f"Invalid date format: {str(e)}"
-            )
+            ) from e
         except Exception as e:
             logger.error(f"Failed to calculate GDD: {e}")
-            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Weather API error: {str(e)}"
+            ) from e
 
     @app.get("/v1/weather/water-balance")
     async def get_water_balance(
@@ -236,10 +242,12 @@ def register_weather_endpoints(app):
         except ValueError as e:
             raise HTTPException(
                 status_code=400, detail=f"Invalid date format: {str(e)}"
-            )
+            ) from e
         except Exception as e:
             logger.error(f"Failed to calculate water balance: {e}")
-            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Weather API error: {str(e)}"
+            ) from e
 
     @app.get("/v1/weather/irrigation-advice")
     async def get_irrigation_advice(
@@ -314,7 +322,9 @@ def register_weather_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to get irrigation advice: {e}")
-            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Weather API error: {str(e)}"
+            ) from e
 
     @app.get("/v1/weather/frost-risk")
     async def get_frost_risk(
@@ -388,6 +398,8 @@ def register_weather_endpoints(app):
             }
         except Exception as e:
             logger.error(f"Failed to assess frost risk: {e}")
-            raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+            raise HTTPException(
+                status_code=500, detail=f"Weather API error: {str(e)}"
+            ) from e
 
     logger.info("Weather API endpoints registered successfully")

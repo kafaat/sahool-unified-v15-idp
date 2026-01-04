@@ -15,12 +15,11 @@ from pathlib import Path
 
 import aiohttp
 import uvicorn
+from config.settings import Settings
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
-
-from config.settings import Settings
 
 # Configure logging
 logging.basicConfig(

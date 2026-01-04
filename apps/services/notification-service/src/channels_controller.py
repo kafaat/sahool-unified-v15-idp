@@ -117,10 +117,10 @@ async def add_channel(request: AddChannelRequest):
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error in add_channel endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/verify", summary="تحقق من قناة - Verify Channel")
@@ -150,10 +150,10 @@ async def verify_channel(request: VerifyChannelRequest):
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error in verify_channel endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.delete("/remove", summary="حذف قناة - Remove Channel")
@@ -182,10 +182,10 @@ async def remove_channel(
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error in remove_channel endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.get("/list", summary="قائمة قنوات المستخدم - List User Channels")
@@ -219,10 +219,10 @@ async def list_channels(
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error in list_channels endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.patch("/update-status", summary="تحديث حالة قناة - Update Channel Status")
@@ -246,7 +246,7 @@ async def update_channel_status(request: UpdateChannelStatusRequest):
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error in update_channel_status endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e

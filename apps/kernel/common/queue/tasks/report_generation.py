@@ -91,14 +91,14 @@ def handle_report_generation(payload: dict[str, Any]) -> dict[str, Any]:
                     "disease_detection",
                     "irrigation_summary",
                     "weather_data",
-                    "recommendations"
+                    "recommendations",
                 ],
                 "data_sources": [
                     "satellite_imagery",
                     "iot_sensors",
                     "weather_api",
-                    "manual_observations"
-                ]
+                    "manual_observations",
+                ],
             },
             "summary_stats": {
                 "field_health_score": 7.8,
@@ -106,10 +106,10 @@ def handle_report_generation(payload: dict[str, Any]) -> dict[str, Any]:
                 "disease_incidents": 2,
                 "average_ndvi": 0.68,
                 "water_usage_m3": 1250.5,
-                "cost_estimate_sar": 3450.0
+                "cost_estimate_sar": 3450.0,
             },
             "generation_time": 12.5,
-            "status": "success"
+            "status": "success",
         }
 
         logger.info(

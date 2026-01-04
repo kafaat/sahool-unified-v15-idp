@@ -20,5 +20,5 @@ __all__ = [
     "TemplateCategory",
     "NotificationChannel",
     "get_template_manager",
-    "render_notification"
+    "render_notification",
 ]

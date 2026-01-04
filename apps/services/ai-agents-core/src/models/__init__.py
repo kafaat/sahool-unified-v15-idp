@@ -9,6 +9,7 @@ This module provides AI/ML models for various agricultural tasks.
 # Try importing disease detection model (requires PIL/cv2)
 try:
     from .disease_cnn import DiseaseCNNModel, DiseaseConfig
+
     _disease_available = True
 except ImportError:
     _disease_available = False
@@ -46,7 +47,6 @@ __all__ = [
     # Disease detection - كشف الأمراض
     "DiseaseCNNModel",
     "DiseaseConfig",
-
     # Crop parameters - معلمات المحاصيل
     "CropParameters",
     "GrowthParameters",
@@ -60,7 +60,6 @@ __all__ = [
     "get_crops_by_region",
     "get_all_crop_ids",
     "YEMEN_CROPS",
-
     # Yield prediction ensemble - مجموعة التنبؤ بالإنتاج
     "YieldEnsembleModel",
     "YieldPrediction",

@@ -77,7 +77,7 @@ class MetricsRegistry:
                 "description": description,
                 "labels": labels or {},
                 "buckets": buckets or default_buckets,
-                "bucket_counts": {b: 0 for b in (buckets or default_buckets)},
+                "bucket_counts": dict.fromkeys(buckets or default_buckets, 0),
                 "sum": 0,
                 "count": 0,
             }

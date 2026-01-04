@@ -688,7 +688,7 @@ class SprayAdvisor:
 
         except httpx.HTTPError as e:
             logger.error(f"Failed to fetch hourly forecast: {e}")
-            raise Exception(f"Weather API error: {str(e)}")
+            raise Exception(f"Weather API error: {str(e)}") from e
 
     def _group_by_day(self, hourly_data: list[dict]) -> dict[date, list[dict]]:
         """Group hourly data by day"""

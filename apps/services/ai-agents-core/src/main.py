@@ -31,13 +31,13 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="SAHOOL AI Agents Core",
     description="Hierarchical Multi-Agent System for Smart Agriculture",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # CORS - Configure allowed origins from environment
 CORS_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS",
-    "http://localhost:3000,http://localhost:8080,https://sahool.com,https://app.sahool.com"
+    "http://localhost:3000,http://localhost:8080,https://sahool.com,https://app.sahool.com",
 ).split(",")
 
 app.add_middleware(
@@ -88,7 +88,7 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "ai-agents-core",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -103,7 +103,7 @@ async def analyze_field(request: AnalysisRequest):
             crop_type=request.crop_type,
             sensor_data=request.sensor_data or {},
             weather_data=request.weather_data or {},
-            metadata={"image_data": request.image_data}
+            metadata={"image_data": request.image_data},
         )
 
         # Run coordinated analysis
@@ -112,12 +112,12 @@ async def analyze_field(request: AnalysisRequest):
         return {
             "success": True,
             "analysis": result,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     except Exception as e:
         logger.error(f"Analysis error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # Edge agent endpoints
@@ -127,11 +127,8 @@ async def process_sensor_data(request: SensorDataRequest):
     try:
         percept = AgentPercept(
             percept_type="single_sensor",
-            data={
-                "type": request.sensor_type,
-                "value": request.value
-            },
-            source=request.device_id
+            data={"type": request.sensor_type, "value": request.value},
+            source=request.device_id,
         )
 
         result = await iot_agent.run(percept)
@@ -139,12 +136,12 @@ async def process_sensor_data(request: SensorDataRequest):
         return {
             "success": True,
             "result": result,
-            "response_time_ms": result.get("response_time_ms", 0)
+            "response_time_ms": result.get("response_time_ms", 0),
         }
 
     except Exception as e:
         logger.error(f"Sensor processing error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/api/v1/edge/mobile")
@@ -154,7 +151,7 @@ async def mobile_quick_action(data: dict[str, Any]):
         percept = AgentPercept(
             percept_type=data.get("type", "sensor_reading"),
             data=data.get("data", {}),
-            source="mobile_app"
+            source="mobile_app",
         )
 
         result = await mobile_agent.run(percept)
@@ -162,12 +159,12 @@ async def mobile_quick_action(data: dict[str, Any]):
         return {
             "success": True,
             "result": result,
-            "response_time_ms": result.get("response_time_ms", 0)
+            "response_time_ms": result.get("response_time_ms", 0),
         }
 
     except Exception as e:
         logger.error(f"Mobile action error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # Learning endpoints
@@ -184,9 +181,9 @@ async def submit_feedback(request: FeedbackRequest):
                 "rating": request.rating,
                 "success": request.success,
                 "actual_result": request.actual_result or {},
-                "comments": request.comments
+                "comments": request.comments,
             },
-            source="user"
+            source="user",
         )
 
         result = await feedback_learner.run(percept)
@@ -194,12 +191,12 @@ async def submit_feedback(request: FeedbackRequest):
         return {
             "success": True,
             "learning_result": result,
-            "message": "تم استلام التغذية الراجعة"
+            "message": "تم استلام التغذية الراجعة",
         }
 
     except Exception as e:
         logger.error(f"Feedback error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # System status
@@ -211,10 +208,10 @@ async def get_system_status():
         "edge_agents": {
             "mobile": mobile_agent.get_metrics(),
             "iot": iot_agent.get_metrics(),
-            "drone": drone_agent.get_metrics()
+            "drone": drone_agent.get_metrics(),
         },
         "learning": feedback_learner.get_learning_stats(),
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -227,7 +224,7 @@ async def get_agent_metrics(agent_id: str):
         "mobile": mobile_agent,
         "iot": iot_agent,
         "drone": drone_agent,
-        "feedback": feedback_learner
+        "feedback": feedback_learner,
     }
 
     agent = agents.get(agent_id)

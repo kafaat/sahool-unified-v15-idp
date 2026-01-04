@@ -25,16 +25,18 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DronePosition:
     """موقع الطائرة"""
+
     latitude: float
     longitude: float
     altitude: float  # meters
-    heading: float   # degrees
-    speed: float     # m/s
+    heading: float  # degrees
+    speed: float  # m/s
 
 
 @dataclass
 class ImageTile:
     """قطعة صورة"""
+
     tile_id: str
     center_lat: float
     center_lon: float
@@ -56,7 +58,7 @@ class DroneAgent(BaseAgent):
         "moderate_stress": (0.2, 0.3),
         "moderate_health": (0.3, 0.5),
         "healthy": (0.5, 0.7),
-        "very_healthy": (0.7, 1.0)
+        "very_healthy": (0.7, 1.0),
     }
 
     # Mission types
@@ -65,7 +67,7 @@ class DroneAgent(BaseAgent):
         "health_check": "فحص صحة المحصول",
         "irrigation_map": "خريطة الري",
         "pest_detection": "كشف الآفات",
-        "boundary_map": "رسم الحدود"
+        "boundary_map": "رسم الحدود",
     }
 
     def __init__(self, agent_id: str = "drone_edge_001", drone_id: str = ""):
@@ -76,7 +78,7 @@ class DroneAgent(BaseAgent):
             agent_type=AgentType.GOAL_BASED,  # Works towards mission goals
             layer=AgentLayer.EDGE,
             description="On-board drone processing for aerial field analysis",
-            description_ar="معالجة على متن الطائرة لتحليل الحقل الجوي"
+            description_ar="معالجة على متن الطائرة لتحليل الحقل الجوي",
         )
 
         self.drone_id = drone_id
@@ -98,7 +100,7 @@ class DroneAgent(BaseAgent):
             "health_zones": [],
             "stress_hotspots": [],
             "irrigation_zones": [],
-            "boundaries": []
+            "boundaries": [],
         }
 
         # Battery and safety
@@ -134,8 +136,7 @@ class DroneAgent(BaseAgent):
         elif percept.percept_type == "multispectral_data":
             # Direct NDVI from multispectral camera
             ndvi = self._calculate_ndvi(
-                percept.data.get("red"),
-                percept.data.get("nir")
+                percept.data.get("red"), percept.data.get("nir")
             )
             if self.context:
                 self.context.satellite_data["live_ndvi"] = ndvi
@@ -147,10 +148,7 @@ class DroneAgent(BaseAgent):
         # Quick NDVI calculation if multispectral data available
         ndvi = None
         if "red_band" in image_data and "nir_band" in image_data:
-            ndvi = self._calculate_ndvi(
-                image_data["red_band"],
-                image_data["nir_band"]
-            )
+            ndvi = self._calculate_ndvi(image_data["red_band"], image_data["nir_band"])
 
         # Determine health status
         health_status = self._classify_ndvi(ndvi) if ndvi else "unknown"
@@ -164,7 +162,7 @@ class DroneAgent(BaseAgent):
             center_lon=image_data.get("lon", 0),
             ndvi_value=ndvi,
             health_status=health_status,
-            anomaly_detected=anomaly
+            anomaly_detected=anomaly,
         )
 
     def _calculate_ndvi(self, red: float, nir: float) -> float:
@@ -195,21 +193,21 @@ class DroneAgent(BaseAgent):
                 "cover_entire_field",
                 "capture_all_tiles",
                 "calculate_ndvi_map",
-                "return_safely"
+                "return_safely",
             ]
         elif mission_type == "health_check":
             self.state.goals = [
                 "scan_problem_areas",
                 "identify_stress_zones",
                 "capture_detailed_images",
-                "return_safely"
+                "return_safely",
             ]
         elif mission_type == "pest_detection":
             self.state.goals = [
                 "low_altitude_scan",
                 "detect_pest_patterns",
                 "mark_hotspots",
-                "return_safely"
+                "return_safely",
             ]
 
     async def think(self) -> AgentAction | None:
@@ -222,7 +220,7 @@ class DroneAgent(BaseAgent):
                 confidence=1.0,
                 priority=1,
                 reasoning="مستوى البطارية منخفض - العودة للقاعدة",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         # No mission - idle
@@ -237,7 +235,7 @@ class DroneAgent(BaseAgent):
                 confidence=0.95,
                 priority=2,
                 reasoning="اكتملت المهمة - العودة للقاعدة",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         # Check for urgent findings
@@ -254,7 +252,7 @@ class DroneAgent(BaseAgent):
                 confidence=0.9,
                 priority=3,
                 reasoning="متابعة مسار المهمة",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         return None
@@ -272,35 +270,43 @@ class DroneAgent(BaseAgent):
         # Check latest tiles for critical issues
         recent_tiles = self.tiles[-5:] if len(self.tiles) >= 5 else self.tiles
 
-        stress_count = sum(1 for t in recent_tiles if t.health_status in ["stressed", "moderate_stress"])
+        stress_count = sum(
+            1
+            for t in recent_tiles
+            if t.health_status in ["stressed", "moderate_stress"]
+        )
         anomaly_count = sum(1 for t in recent_tiles if t.anomaly_detected)
 
         if anomaly_count >= 2:
             return AgentAction(
                 action_type="anomaly_cluster_alert",
                 parameters={
-                    "location": self.current_position.__dict__ if self.current_position else {},
+                    "location": (
+                        self.current_position.__dict__ if self.current_position else {}
+                    ),
                     "anomaly_count": anomaly_count,
-                    "tiles": [t.tile_id for t in recent_tiles if t.anomaly_detected]
+                    "tiles": [t.tile_id for t in recent_tiles if t.anomaly_detected],
                 },
                 confidence=0.85,
                 priority=1,
                 reasoning=f"تم اكتشاف {anomaly_count} شذوذ في المنطقة الحالية",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         if stress_count >= 3:
             return AgentAction(
                 action_type="stress_zone_detected",
                 parameters={
-                    "location": self.current_position.__dict__ if self.current_position else {},
+                    "location": (
+                        self.current_position.__dict__ if self.current_position else {}
+                    ),
                     "stress_level": "high",
-                    "affected_tiles": stress_count
+                    "affected_tiles": stress_count,
                 },
                 confidence=0.8,
                 priority=2,
                 reasoning=f"منطقة إجهاد مرتفع - {stress_count} قطع متأثرة",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         return None
@@ -325,20 +331,24 @@ class DroneAgent(BaseAgent):
         result = {
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
-            "success": True
+            "success": True,
         }
 
         if action.action_type == "navigate_to":
             result["flight_command"] = {
                 "type": "goto",
                 "waypoint": action.parameters.get("waypoint"),
-                "speed": "normal"
+                "speed": "normal",
             }
 
         elif action.action_type == "return_to_base":
             result["flight_command"] = {
                 "type": "rtl",  # Return to Launch
-                "reason": "mission_complete" if action.parameters.get("mission_complete") else "manual"
+                "reason": (
+                    "mission_complete"
+                    if action.parameters.get("mission_complete")
+                    else "manual"
+                ),
             }
             # Generate mission report
             result["mission_report"] = await self._generate_mission_report()
@@ -347,12 +357,12 @@ class DroneAgent(BaseAgent):
             result["flight_command"] = {
                 "type": "rtl",
                 "speed": "fast",
-                "reason": action.parameters.get("reason")
+                "reason": action.parameters.get("reason"),
             }
             result["notification"] = {
                 "type": "warning",
                 "title": "عودة طارئة",
-                "body": action.reasoning
+                "body": action.reasoning,
             }
 
         elif action.action_type in ["anomaly_cluster_alert", "stress_zone_detected"]:
@@ -360,7 +370,7 @@ class DroneAgent(BaseAgent):
                 "type": "alert",
                 "title": "اكتشاف مهم",
                 "body": action.reasoning,
-                "data": action.parameters
+                "data": action.parameters,
             }
             # Mark location for detailed inspection
             result["marked_location"] = action.parameters.get("location")
@@ -381,13 +391,15 @@ class DroneAgent(BaseAgent):
         anomalies = [t for t in self.tiles if t.anomaly_detected]
 
         return {
-            "mission_id": self.current_mission.get("id") if self.current_mission else "unknown",
+            "mission_id": (
+                self.current_mission.get("id") if self.current_mission else "unknown"
+            ),
             "tiles_captured": len(self.tiles),
             "coverage_percent": self.mission_progress,
             "ndvi_stats": {
                 "mean": sum(ndvi_values) / len(ndvi_values) if ndvi_values else 0,
                 "min": min(ndvi_values) if ndvi_values else 0,
-                "max": max(ndvi_values) if ndvi_values else 0
+                "max": max(ndvi_values) if ndvi_values else 0,
             },
             "health_distribution": health_counts,
             "anomalies_detected": len(anomalies),
@@ -397,16 +409,18 @@ class DroneAgent(BaseAgent):
             ],
             "flight_duration_minutes": len(self.flight_path) * 0.5,  # Approximate
             "battery_remaining": self.battery_level,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
     def get_live_status(self) -> dict[str, Any]:
         """الحصول على الحالة المباشرة"""
         return {
-            "position": self.current_position.__dict__ if self.current_position else None,
+            "position": (
+                self.current_position.__dict__ if self.current_position else None
+            ),
             "battery": self.battery_level,
             "mission_progress": self.mission_progress,
             "tiles_captured": len(self.tiles),
             "current_goals": self.state.goals,
-            "status": self.status.value
+            "status": self.status.value,
         }

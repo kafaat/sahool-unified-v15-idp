@@ -156,6 +156,7 @@ class TestEdgeCases:
 
 # ============== Integration Tests ==============
 
+
 class TestIntegration:
     """اختبارات التكامل - Integration tests"""
 
@@ -174,6 +175,7 @@ class TestIntegration:
 
 # ============== Performance Tests ==============
 
+
 class TestPerformance:
     """اختبارات الأداء - Performance tests"""
 
@@ -187,6 +189,7 @@ class TestPerformance:
 
 
 # ============== Validation Tests ==============
+
 
 class TestValidation:
     """اختبارات التحقق من الصحة - Validation tests"""

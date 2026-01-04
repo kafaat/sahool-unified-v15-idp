@@ -103,9 +103,7 @@ async def test_fixed_window_allows_within_limit(redis_client):
     redis_client.pipeline.return_value = mock_pipe
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/api/test",
-        config=config
+        client_id="test:user", endpoint="/api/test", config=config
     )
 
     assert allowed is True
@@ -129,9 +127,7 @@ async def test_fixed_window_blocks_over_limit(redis_client):
     redis_client.pipeline.return_value = mock_pipe
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/api/test",
-        config=config
+        client_id="test:user", endpoint="/api/test", config=config
     )
 
     assert allowed is False
@@ -148,9 +144,7 @@ async def test_fixed_window_unlimited_endpoint(redis_client):
     config = EndpointConfig(requests=0, period=60)  # unlimited
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/healthz",
-        config=config
+        client_id="test:user", endpoint="/healthz", config=config
     )
 
     assert allowed is True
@@ -175,13 +169,13 @@ async def test_sliding_window_allows_within_limit(redis_client):
     # محاكاة استجابة Redis
     # Mock Redis response
     mock_pipe = AsyncMock()
-    mock_pipe.execute = AsyncMock(return_value=[0, 5, 1, True])  # removed=0, count=5, added=1
+    mock_pipe.execute = AsyncMock(
+        return_value=[0, 5, 1, True]
+    )  # removed=0, count=5, added=1
     redis_client.pipeline.return_value = mock_pipe
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/api/test",
-        config=config
+        client_id="test:user", endpoint="/api/test", config=config
     )
 
     assert allowed is True
@@ -205,9 +199,7 @@ async def test_sliding_window_blocks_over_limit(redis_client):
     redis_client.zrem = AsyncMock()
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/api/test",
-        config=config
+        client_id="test:user", endpoint="/api/test", config=config
     )
 
     assert allowed is False
@@ -235,16 +227,17 @@ async def test_token_bucket_allows_with_tokens(redis_client):
     # محاكاة استجابة Redis - دلو ممتلئ
     # Mock Redis response - full bucket
     mock_pipe = AsyncMock()
-    mock_pipe.execute = AsyncMock(return_value=[
-        {"tokens": "15.0", "last_update": str(time.time())},  # hgetall
-        None, None  # hset, expire
-    ])
+    mock_pipe.execute = AsyncMock(
+        return_value=[
+            {"tokens": "15.0", "last_update": str(time.time())},  # hgetall
+            None,
+            None,  # hset, expire
+        ]
+    )
     redis_client.pipeline.return_value = mock_pipe
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/api/test",
-        config=config
+        client_id="test:user", endpoint="/api/test", config=config
     )
 
     assert allowed is True
@@ -263,16 +256,20 @@ async def test_token_bucket_blocks_without_tokens(redis_client):
     # محاكاة استجابة Redis - دلو فارغ
     # Mock Redis response - empty bucket
     mock_pipe = AsyncMock()
-    mock_pipe.execute = AsyncMock(return_value=[
-        {"tokens": "0.5", "last_update": str(time.time())},  # hgetall - less than 1 token
-        None, None  # hset, expire
-    ])
+    mock_pipe.execute = AsyncMock(
+        return_value=[
+            {
+                "tokens": "0.5",
+                "last_update": str(time.time()),
+            },  # hgetall - less than 1 token
+            None,
+            None,  # hset, expire
+        ]
+    )
     redis_client.pipeline.return_value = mock_pipe
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/api/test",
-        config=config
+        client_id="test:user", endpoint="/api/test", config=config
     )
 
     assert allowed is False
@@ -291,16 +288,17 @@ async def test_token_bucket_refills_over_time(redis_client):
     # Mock Redis response - old bucket needs refill
     old_time = time.time() - 30  # 30 seconds ago
     mock_pipe = AsyncMock()
-    mock_pipe.execute = AsyncMock(return_value=[
-        {"tokens": "0.0", "last_update": str(old_time)},  # hgetall
-        None, None  # hset, expire
-    ])
+    mock_pipe.execute = AsyncMock(
+        return_value=[
+            {"tokens": "0.0", "last_update": str(old_time)},  # hgetall
+            None,
+            None,  # hset, expire
+        ]
+    )
     redis_client.pipeline.return_value = mock_pipe
 
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id="test:user",
-        endpoint="/api/test",
-        config=config
+        client_id="test:user", endpoint="/api/test", config=config
     )
 
     # يجب أن يكون مسموحًا لأن الرموز قد أعيد ملؤها
@@ -444,9 +442,7 @@ async def test_middleware_allows_excluded_paths(app, rate_limiter):
     Test: Middleware allows excluded paths.
     """
     app.add_middleware(
-        RateLimitMiddleware,
-        limiter=rate_limiter,
-        exclude_paths=["/healthz"]
+        RateLimitMiddleware, limiter=rate_limiter, exclude_paths=["/healthz"]
     )
 
     client = TestClient(app)
@@ -463,6 +459,7 @@ async def test_middleware_adds_rate_limit_headers(app, rate_limiter):
     اختبار: الميدلوير يضيف رؤوس حد المعدل
     Test: Middleware adds rate limit headers.
     """
+
     # محاكاة استجابة الفحص
     # Mock check response
     async def mock_check(*args, **kwargs):

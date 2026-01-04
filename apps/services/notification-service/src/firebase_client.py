@@ -440,9 +440,7 @@ class FirebaseClient:
                 "error": str(e),
             }
 
-    def subscribe_to_topic(
-        self, tokens: str | list[str], topic: str
-    ) -> dict[str, int]:
+    def subscribe_to_topic(self, tokens: str | list[str], topic: str) -> dict[str, int]:
         """
         اشتراك أجهزة في موضوع
 

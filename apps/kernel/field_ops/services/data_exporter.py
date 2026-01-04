@@ -16,6 +16,7 @@ from pathlib import Path
 
 try:
     import pandas as pd
+
     PANDAS_AVAILABLE = True
 except ImportError:
     PANDAS_AVAILABLE = False
@@ -25,10 +26,19 @@ try:
     from reportlab.lib.pagesizes import letter, A4
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.units import inch
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image
+    from reportlab.platypus import (
+        SimpleDocTemplate,
+        Table,
+        TableStyle,
+        Paragraph,
+        Spacer,
+        PageBreak,
+        Image,
+    )
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
     from reportlab.lib.enums import TA_RIGHT, TA_CENTER, TA_LEFT
+
     REPORTLAB_AVAILABLE = True
 except ImportError:
     REPORTLAB_AVAILABLE = False
@@ -43,6 +53,7 @@ try:
     from openpyxl import Workbook
     from openpyxl.styles import Font, Alignment, PatternFill
     from openpyxl.chart import LineChart, Reference
+
     OPENPYXL_AVAILABLE = True
 except ImportError:
     OPENPYXL_AVAILABLE = False
@@ -50,11 +61,13 @@ except ImportError:
 
 # ============== Enums ==============
 
+
 class ExportFormat(str, Enum):
     """
     صيغ التصدير المدعومة
     Supported export formats
     """
+
     CSV = "csv"
     EXCEL = "xlsx"
     JSON = "json"
@@ -67,6 +80,7 @@ class ReportType(str, Enum):
     أنواع التقارير
     Report types
     """
+
     DAILY_SUMMARY = "daily_summary"
     WEEKLY_ANALYSIS = "weekly_analysis"
     MONTHLY_REPORT = "monthly_report"
@@ -76,11 +90,13 @@ class ReportType(str, Enum):
 
 # ============== Data Models ==============
 
+
 class ExportResult:
     """
     نتيجة التصدير
     Export result container
     """
+
     def __init__(
         self,
         format: ExportFormat,
@@ -89,7 +105,7 @@ class ExportResult:
         data: Union[str, bytes],
         size_bytes: int,
         generated_at: datetime,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         self.format = format
         self.filename = filename
@@ -101,6 +117,7 @@ class ExportResult:
 
 
 # ============== Main Data Exporter ==============
+
 
 class DataExporter:
     """
@@ -155,9 +172,13 @@ class DataExporter:
 
     def _setup_pdf_fonts(self):
         """Setup Arabic fonts for PDF generation"""
-        if REPORTLAB_AVAILABLE and self.arabic_font_path and Path(self.arabic_font_path).exists():
+        if (
+            REPORTLAB_AVAILABLE
+            and self.arabic_font_path
+            and Path(self.arabic_font_path).exists()
+        ):
             try:
-                pdfmetrics.registerFont(TTFont('Arabic', self.arabic_font_path))
+                pdfmetrics.registerFont(TTFont("Arabic", self.arabic_font_path))
                 self.arabic_font_available = True
             except Exception:
                 self.arabic_font_available = False
@@ -200,10 +221,14 @@ class DataExporter:
         field_data = {
             "field_id": field_id,
             "export_date": datetime.now().isoformat(),
-            "date_range": {
-                "start": date_range[0].isoformat() if date_range else None,
-                "end": date_range[1].isoformat() if date_range else None,
-            } if date_range else None,
+            "date_range": (
+                {
+                    "start": date_range[0].isoformat() if date_range else None,
+                    "end": date_range[1].isoformat() if date_range else None,
+                }
+                if date_range
+                else None
+            ),
         }
 
         if include_metadata:
@@ -213,13 +238,17 @@ class DataExporter:
             field_data["ndvi_history"] = self._get_ndvi_history(field_id, date_range)
 
         if include_sensors:
-            field_data["sensor_readings"] = self._get_sensor_readings(field_id, date_range)
+            field_data["sensor_readings"] = self._get_sensor_readings(
+                field_id, date_range
+            )
 
         if include_weather:
             field_data["weather_data"] = self._get_weather_data(field_id, date_range)
 
         if include_recommendations:
-            field_data["recommendations"] = self._get_recommendations(field_id, date_range)
+            field_data["recommendations"] = self._get_recommendations(
+                field_id, date_range
+            )
 
         if include_actions:
             field_data["actions"] = self._get_actions_taken(field_id, date_range)
@@ -245,9 +274,11 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode("utf-8")) if isinstance(data, str) else len(data),
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
             generated_at=datetime.now(),
-            metadata={"field_id": field_id}
+            metadata={"field_id": field_id},
         )
 
     def export_sensor_readings(
@@ -286,9 +317,11 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode("utf-8")) if isinstance(data, str) else len(data),
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
             generated_at=datetime.now(),
-            metadata={"field_id": field_id, "type": "sensors"}
+            metadata={"field_id": field_id, "type": "sensors"},
         )
 
     def export_recommendations(
@@ -316,7 +349,9 @@ class DataExporter:
         elif format == ExportFormat.EXCEL:
             data = self._recommendations_to_excel(recommendations)
         elif format == ExportFormat.JSON:
-            data = self._to_json({"field_id": field_id, "recommendations": recommendations})
+            data = self._to_json(
+                {"field_id": field_id, "recommendations": recommendations}
+            )
         elif format == ExportFormat.PDF:
             data = self._recommendations_to_pdf(field_id, recommendations)
         else:
@@ -329,9 +364,11 @@ class DataExporter:
             filename=filename,
             content_type=self.CONTENT_TYPES[format],
             data=data,
-            size_bytes=len(data.encode("utf-8")) if isinstance(data, str) else len(data),
+            size_bytes=(
+                len(data.encode("utf-8")) if isinstance(data, str) else len(data)
+            ),
             generated_at=datetime.now(),
-            metadata={"field_id": field_id, "type": "recommendations"}
+            metadata={"field_id": field_id, "type": "recommendations"},
         )
 
     # ============== Report Generation ==============
@@ -380,14 +417,12 @@ class DataExporter:
             "location": {
                 "region": "صنعاء",
                 "district": "بني حشيش",
-                "coordinates": {"lat": 15.3694, "lng": 44.1910}
-            }
+                "coordinates": {"lat": 15.3694, "lng": 44.1910},
+            },
         }
 
     def _get_ndvi_history(
-        self,
-        field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
+        self, field_id: str, date_range: Optional[Tuple[date, date]] = None
     ) -> List[Dict[str, Any]]:
         """Get NDVI history - placeholder"""
         # In real implementation, fetch from database
@@ -397,22 +432,22 @@ class DataExporter:
 
         current = start_date
         while current <= end_date:
-            history.append({
-                "date": current.isoformat(),
-                "mean": 0.65,
-                "min": 0.45,
-                "max": 0.85,
-                "std": 0.08,
-                "cloud_cover": 10.0
-            })
+            history.append(
+                {
+                    "date": current.isoformat(),
+                    "mean": 0.65,
+                    "min": 0.45,
+                    "max": 0.85,
+                    "std": 0.08,
+                    "cloud_cover": 10.0,
+                }
+            )
             current += timedelta(days=7)
 
         return history
 
     def _get_sensor_readings(
-        self,
-        field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
+        self, field_id: str, date_range: Optional[Tuple[date, date]] = None
     ) -> List[Dict[str, Any]]:
         """Get sensor readings - placeholder"""
         return [
@@ -422,14 +457,12 @@ class DataExporter:
                 "sensor_type_en": "soil_moisture",
                 "value": 35.5,
                 "unit": "%",
-                "location": "منطقة A"
+                "location": "منطقة A",
             }
         ]
 
     def _get_weather_data(
-        self,
-        field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
+        self, field_id: str, date_range: Optional[Tuple[date, date]] = None
     ) -> List[Dict[str, Any]]:
         """Get weather data - placeholder"""
         return [
@@ -439,14 +472,12 @@ class DataExporter:
                 "temp_min": 18.0,
                 "humidity": 45.0,
                 "rainfall": 0.0,
-                "wind_speed": 2.5
+                "wind_speed": 2.5,
             }
         ]
 
     def _get_recommendations(
-        self,
-        field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
+        self, field_id: str, date_range: Optional[Tuple[date, date]] = None
     ) -> List[Dict[str, Any]]:
         """Get recommendations - placeholder"""
         return [
@@ -457,14 +488,12 @@ class DataExporter:
                 "recommendation": "يُنصح بالري خلال 24 ساعة",
                 "recommendation_en": "Irrigation recommended within 24 hours",
                 "priority": "high",
-                "amount": "30mm"
+                "amount": "30mm",
             }
         ]
 
     def _get_actions_taken(
-        self,
-        field_id: str,
-        date_range: Optional[Tuple[date, date]] = None
+        self, field_id: str, date_range: Optional[Tuple[date, date]] = None
     ) -> List[Dict[str, Any]]:
         """Get actions taken - placeholder"""
         return [
@@ -474,7 +503,7 @@ class DataExporter:
                 "action_type_ar": "ري",
                 "description": "تم الري",
                 "description_en": "Irrigation performed",
-                "amount": "28mm"
+                "amount": "28mm",
             }
         ]
 
@@ -485,7 +514,7 @@ class DataExporter:
         output = io.StringIO()
 
         # Add BOM for UTF-8 Excel compatibility
-        output.write('\ufeff')
+        output.write("\ufeff")
 
         # Create flattened rows
         rows = self._flatten_for_csv(data)
@@ -497,9 +526,7 @@ class DataExporter:
         fieldnames = list(rows[0].keys())
 
         # Translate to Arabic if available
-        translated_fieldnames = [
-            self.ARABIC_HEADERS.get(f, f) for f in fieldnames
-        ]
+        translated_fieldnames = [self.ARABIC_HEADERS.get(f, f) for f in fieldnames]
 
         writer = csv.DictWriter(output, fieldnames=fieldnames)
 
@@ -517,7 +544,7 @@ class DataExporter:
             return ""
 
         output = io.StringIO()
-        output.write('\ufeff')  # BOM
+        output.write("\ufeff")  # BOM
 
         fieldnames = list(sensors[0].keys())
         translated = [self.ARABIC_HEADERS.get(f, f) for f in fieldnames]
@@ -592,7 +619,9 @@ class DataExporter:
     def _add_metadata_sheet(self, ws, metadata: Dict):
         """Add metadata to Excel sheet"""
         # Header styling
-        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_fill = PatternFill(
+            start_color="366092", end_color="366092", fill_type="solid"
+        )
         header_font = Font(bold=True, color="FFFFFF", size=12)
 
         # Add header
@@ -609,8 +638,8 @@ class DataExporter:
             ws.append([self.ARABIC_HEADERS.get(key, key), value])
 
         # Adjust column widths
-        ws.column_dimensions['A'].width = 25
-        ws.column_dimensions['B'].width = 40
+        ws.column_dimensions["A"].width = 25
+        ws.column_dimensions["B"].width = 40
 
     def _add_data_sheet(self, ws, data: List[Dict]):
         """Add data list to Excel sheet"""
@@ -618,7 +647,9 @@ class DataExporter:
             return
 
         # Header styling
-        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_fill = PatternFill(
+            start_color="366092", end_color="366092", fill_type="solid"
+        )
         header_font = Font(bold=True, color="FFFFFF", size=11)
 
         # Get headers
@@ -699,18 +730,21 @@ class DataExporter:
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [coords.get("lng", 0), coords.get("lat", 0)]
+                "coordinates": [coords.get("lng", 0), coords.get("lat", 0)],
             },
             "properties": {
-                k: v for k, v in data.items()
+                k: v
+                for k, v in data.items()
                 if k not in ["metadata"] and not isinstance(v, (list, dict))
-            }
+            },
         }
 
         # Add time series as properties
         if "ndvi_history" in data:
             feature["properties"]["ndvi_count"] = len(data["ndvi_history"])
-            feature["properties"]["latest_ndvi"] = data["ndvi_history"][-1] if data["ndvi_history"] else None
+            feature["properties"]["latest_ndvi"] = (
+                data["ndvi_history"][-1] if data["ndvi_history"] else None
+            )
 
         return json.dumps(feature, indent=2, ensure_ascii=False, default=str)
 
@@ -729,34 +763,36 @@ class DataExporter:
 
         # Add title
         title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
+            "CustomTitle",
+            parent=styles["Heading1"],
             fontSize=20,
-            textColor=colors.HexColor('#366092'),
+            textColor=colors.HexColor("#366092"),
             spaceAfter=30,
-            alignment=TA_CENTER
+            alignment=TA_CENTER,
         )
 
         story.append(Paragraph("تقرير بيانات الحقل - SAHOOL Field Report", title_style))
-        story.append(Spacer(1, 0.3*inch))
+        story.append(Spacer(1, 0.3 * inch))
 
         # Add metadata
         if "metadata" in data:
-            story.append(Paragraph("معلومات الحقل - Field Information", styles['Heading2']))
+            story.append(
+                Paragraph("معلومات الحقل - Field Information", styles["Heading2"])
+            )
             metadata_table = self._create_metadata_table(data["metadata"])
             story.append(metadata_table)
-            story.append(Spacer(1, 0.2*inch))
+            story.append(Spacer(1, 0.2 * inch))
 
         # Add NDVI summary
         if "ndvi_history" in data and data["ndvi_history"]:
-            story.append(Paragraph("سجل NDVI - NDVI History", styles['Heading2']))
+            story.append(Paragraph("سجل NDVI - NDVI History", styles["Heading2"]))
             ndvi_summary = self._create_ndvi_summary_table(data["ndvi_history"])
             story.append(ndvi_summary)
-            story.append(Spacer(1, 0.2*inch))
+            story.append(Spacer(1, 0.2 * inch))
 
         # Add recommendations
         if "recommendations" in data and data["recommendations"]:
-            story.append(Paragraph("التوصيات - Recommendations", styles['Heading2']))
+            story.append(Paragraph("التوصيات - Recommendations", styles["Heading2"]))
             rec_table = self._create_recommendations_table(data["recommendations"])
             story.append(rec_table)
 
@@ -764,7 +800,9 @@ class DataExporter:
         doc.build(story)
         return buffer.getvalue()
 
-    def _recommendations_to_pdf(self, field_id: str, recommendations: List[Dict]) -> bytes:
+    def _recommendations_to_pdf(
+        self, field_id: str, recommendations: List[Dict]
+    ) -> bytes:
         """Generate PDF for recommendations"""
         if not REPORTLAB_AVAILABLE:
             raise RuntimeError("reportlab is required for PDF export")
@@ -777,11 +815,10 @@ class DataExporter:
 
         # Title
         title = Paragraph(
-            f"التوصيات - Recommendations<br/>Field: {field_id}",
-            styles['Title']
+            f"التوصيات - Recommendations<br/>Field: {field_id}", styles["Title"]
         )
         story.append(title)
-        story.append(Spacer(1, 0.3*inch))
+        story.append(Spacer(1, 0.3 * inch))
 
         # Recommendations table
         rec_table = self._create_recommendations_table(recommendations)
@@ -799,17 +836,21 @@ class DataExporter:
                 value = str(value)
             data.append([self.ARABIC_HEADERS.get(key, key), str(value)])
 
-        table = Table(data, colWidths=[2.5*inch, 4*inch])
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 12),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ]))
+        table = Table(data, colWidths=[2.5 * inch, 4 * inch])
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#366092")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 12),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ]
+            )
+        )
 
         return table
 
@@ -818,25 +859,31 @@ class DataExporter:
         data = [["Date", "Mean", "Min", "Max", "Cloud %"]]
 
         for record in ndvi_history[-10:]:  # Last 10 records
-            data.append([
-                record.get("date", ""),
-                f"{record.get('mean', 0):.3f}",
-                f"{record.get('min', 0):.3f}",
-                f"{record.get('max', 0):.3f}",
-                f"{record.get('cloud_cover', 0):.1f}",
-            ])
+            data.append(
+                [
+                    record.get("date", ""),
+                    f"{record.get('mean', 0):.3f}",
+                    f"{record.get('min', 0):.3f}",
+                    f"{record.get('max', 0):.3f}",
+                    f"{record.get('cloud_cover', 0):.1f}",
+                ]
+            )
 
         table = Table(data)
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ]))
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#366092")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 10),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ]
+            )
+        )
 
         return table
 
@@ -845,24 +892,30 @@ class DataExporter:
         data = [["Date", "Type", "Recommendation", "Priority"]]
 
         for rec in recommendations:
-            data.append([
-                rec.get("date", ""),
-                rec.get("type_ar", rec.get("type", "")),
-                rec.get("recommendation", ""),
-                rec.get("priority", ""),
-            ])
+            data.append(
+                [
+                    rec.get("date", ""),
+                    rec.get("type_ar", rec.get("type", "")),
+                    rec.get("recommendation", ""),
+                    rec.get("priority", ""),
+                ]
+            )
 
-        table = Table(data, colWidths=[1.2*inch, 1.2*inch, 3*inch, 1*inch])
-        table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-        ]))
+        table = Table(data, colWidths=[1.2 * inch, 1.2 * inch, 3 * inch, 1 * inch])
+        table.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#366092")),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                    ("ALIGN", (0, 0), (-1, -1), "LEFT"),
+                    ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                    ("FONTSIZE", (0, 0), (-1, 0), 10),
+                    ("BOTTOMPADDING", (0, 0), (-1, 0), 12),
+                    ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ]
+            )
+        )
 
         return table
 
@@ -883,6 +936,7 @@ class DataExporter:
 
         # Use template
         from .report_templates.daily_summary import DailySummaryReport
+
         report = DailySummaryReport(self)
         return report.generate(field_id, report_date)
 
@@ -899,11 +953,15 @@ class DataExporter:
             "metadata": self._get_field_metadata(field_id),
             "ndvi_history": self._get_ndvi_history(field_id, (start_date, end_date)),
             "weather_summary": self._get_weather_data(field_id, (start_date, end_date)),
-            "recommendations": self._get_recommendations(field_id, (start_date, end_date)),
+            "recommendations": self._get_recommendations(
+                field_id, (start_date, end_date)
+            ),
         }
 
         pdf_data = self._to_pdf_field_report(data)
-        filename = self._generate_filename("weekly_analysis", field_id, ExportFormat.PDF)
+        filename = self._generate_filename(
+            "weekly_analysis", field_id, ExportFormat.PDF
+        )
 
         return ExportResult(
             format=ExportFormat.PDF,
@@ -912,7 +970,7 @@ class DataExporter:
             data=pdf_data,
             size_bytes=len(pdf_data),
             generated_at=datetime.now(),
-            metadata={"field_id": field_id, "report_type": "weekly_analysis"}
+            metadata={"field_id": field_id, "report_type": "weekly_analysis"},
         )
 
     def _generate_monthly_report(self, params: Dict[str, Any]) -> ExportResult:
@@ -931,7 +989,7 @@ class DataExporter:
         data = self.export_field_data(
             field_id=field_id,
             format=ExportFormat.EXCEL,
-            date_range=(start_date, end_date)
+            date_range=(start_date, end_date),
         )
 
         return data
@@ -942,22 +1000,21 @@ class DataExporter:
         seasons = params.get("seasons", [])
 
         # Compare data across seasons
-        comparison_data = {
-            "field_id": field_id,
-            "seasons": []
-        }
+        comparison_data = {"field_id": field_id, "seasons": []}
 
         for season in seasons:
             season_data = {
                 "season": season,
                 "ndvi_avg": 0.65,  # Placeholder
                 "yield": 4500,  # kg/ha
-                "actions_count": 12
+                "actions_count": 12,
             }
             comparison_data["seasons"].append(season_data)
 
         json_data = self._to_json(comparison_data)
-        filename = self._generate_filename("seasonal_comparison", field_id, ExportFormat.JSON)
+        filename = self._generate_filename(
+            "seasonal_comparison", field_id, ExportFormat.JSON
+        )
 
         return ExportResult(
             format=ExportFormat.JSON,
@@ -966,7 +1023,7 @@ class DataExporter:
             data=json_data,
             size_bytes=len(json_data.encode("utf-8")),
             generated_at=datetime.now(),
-            metadata={"field_id": field_id, "report_type": "seasonal_comparison"}
+            metadata={"field_id": field_id, "report_type": "seasonal_comparison"},
         )
 
     def _generate_yield_forecast(self, params: Dict[str, Any]) -> ExportResult:
@@ -981,12 +1038,12 @@ class DataExporter:
             "factors": {
                 "ndvi_trend": "positive",
                 "weather_conditions": "favorable",
-                "soil_health": "good"
+                "soil_health": "good",
             },
             "recommendations": [
                 "Continue current irrigation schedule",
-                "Monitor for pests in next 2 weeks"
-            ]
+                "Monitor for pests in next 2 weeks",
+            ],
         }
 
         pdf_data = self._to_pdf_field_report({"metadata": forecast_data})
@@ -999,7 +1056,7 @@ class DataExporter:
             data=pdf_data,
             size_bytes=len(pdf_data),
             generated_at=datetime.now(),
-            metadata={"field_id": field_id, "report_type": "yield_forecast"}
+            metadata={"field_id": field_id, "report_type": "yield_forecast"},
         )
 
     # ============== Helper Methods ==============
@@ -1029,10 +1086,7 @@ class DataExporter:
         return rows
 
     def _generate_filename(
-        self,
-        prefix: str,
-        field_id: str,
-        format: ExportFormat
+        self, prefix: str, field_id: str, format: ExportFormat
     ) -> str:
         """Generate filename with timestamp"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -1044,22 +1098,29 @@ class DataExporter:
 
 # ============== Convenience Functions ==============
 
-def export_field_csv(field_id: str, date_range: Optional[Tuple[date, date]] = None) -> ExportResult:
+
+def export_field_csv(
+    field_id: str, date_range: Optional[Tuple[date, date]] = None
+) -> ExportResult:
     """Quick export field data to CSV"""
     exporter = DataExporter()
     return exporter.export_field_data(field_id, ExportFormat.CSV, date_range)
 
 
-def export_field_excel(field_id: str, date_range: Optional[Tuple[date, date]] = None) -> ExportResult:
+def export_field_excel(
+    field_id: str, date_range: Optional[Tuple[date, date]] = None
+) -> ExportResult:
     """Quick export field data to Excel"""
     exporter = DataExporter()
     return exporter.export_field_data(field_id, ExportFormat.EXCEL, date_range)
 
 
-def generate_daily_report(field_id: str, report_date: Optional[date] = None) -> ExportResult:
+def generate_daily_report(
+    field_id: str, report_date: Optional[date] = None
+) -> ExportResult:
     """Quick generate daily report"""
     exporter = DataExporter()
     return exporter.generate_report(
         ReportType.DAILY_SUMMARY,
-        {"field_id": field_id, "date": report_date or date.today()}
+        {"field_id": field_id, "date": report_date or date.today()},
     )

@@ -13,7 +13,14 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
+from ..base_agent import (
+    AgentAction,
+    AgentContext,
+    AgentLayer,
+    AgentPercept,
+    AgentType,
+    BaseAgent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +36,7 @@ class IrrigationAdvisorAgent(BaseAgent):
         "date_palm": {"initial": 0.9, "mid": 0.95, "late": 0.95},
         "coffee": {"initial": 0.9, "mid": 0.95, "late": 0.9},
         "alfalfa": {"initial": 0.4, "mid": 1.2, "late": 1.15},
-        "grape": {"initial": 0.3, "mid": 0.85, "late": 0.45}
+        "grape": {"initial": 0.3, "mid": 0.85, "late": 0.45},
     }
 
     def __init__(self, agent_id: str = "irrigation_advisor_001"):
@@ -40,13 +47,13 @@ class IrrigationAdvisorAgent(BaseAgent):
             agent_type=AgentType.GOAL_BASED,
             layer=AgentLayer.SPECIALIST,
             description="Expert agent for irrigation optimization",
-            description_ar="وكيل خبير لتحسين الري"
+            description_ar="وكيل خبير لتحسين الري",
         )
 
         self.state.goals = [
             "optimize_water_use",
             "prevent_water_stress",
-            "maximize_water_efficiency"
+            "maximize_water_efficiency",
         ]
 
     async def perceive(self, percept: AgentPercept) -> None:
@@ -103,12 +110,12 @@ class IrrigationAdvisorAgent(BaseAgent):
                 "etc_mm": round(etc, 1),
                 "soil_moisture": soil_moisture,
                 "rain_expected": rain_expected,
-                "duration_minutes": round(amount * 6, 0)  # Approx based on system
+                "duration_minutes": round(amount * 6, 0),  # Approx based on system
             },
             confidence=0.85,
             priority=1 if urgency == "immediate" else 2,
             reasoning=f"احتياج الري: {amount:.1f} مم - {'عاجل' if urgency == 'immediate' else 'مجدول'}",
-            source_agent=self.agent_id
+            source_agent=self.agent_id,
         )
 
     async def act(self, action: AgentAction) -> dict[str, Any]:
@@ -120,7 +127,7 @@ class IrrigationAdvisorAgent(BaseAgent):
                 "water_amount_mm": action.parameters.get("amount_mm"),
                 "duration_minutes": action.parameters.get("duration_minutes"),
                 "urgency": action.parameters.get("urgency"),
-                "message_ar": action.reasoning
+                "message_ar": action.reasoning,
             },
-            "success": True
+            "success": True,
         }

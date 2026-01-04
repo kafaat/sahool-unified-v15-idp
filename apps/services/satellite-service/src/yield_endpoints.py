@@ -31,6 +31,7 @@ async def get_timeseries(field_id: str, days: int, satellite) -> dict:
     """Placeholder - this function is defined in main.py"""
     return {"timeseries": []}
 
+
 # Yemen regions data
 YEMEN_REGIONS = {
     "ibb": {"name_ar": "إب", "region": "highland"},

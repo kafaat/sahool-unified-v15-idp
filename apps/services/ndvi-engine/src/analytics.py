@@ -366,7 +366,11 @@ def compare_to_historical_mean(
     Returns:
         Comparison dictionary with z-score and interpretation
     """
-    z_score = 0.0 if historical_std == 0 else (current_value - historical_mean) / historical_std
+    z_score = (
+        0.0
+        if historical_std == 0
+        else (current_value - historical_mean) / historical_std
+    )
 
     deviation_pct = (
         ((current_value - historical_mean) / historical_mean * 100)

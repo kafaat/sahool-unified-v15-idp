@@ -35,7 +35,7 @@ def test_basic_validation():
         "properties": {
             "name": "حقل القمح - Wheat Field",
             "crop": "wheat",
-            "farmer": "أحمد محمد"
+            "farmer": "أحمد محمد",
         },
         "geometry": {
             "type": "Polygon",
@@ -45,10 +45,10 @@ def test_basic_validation():
                     [44.21, 15.35],  # نقطة 2
                     [44.21, 15.36],  # نقطة 3
                     [44.2, 15.36],  # نقطة 4
-                    [44.2, 15.35]  # نقطة الإغلاق
+                    [44.2, 15.35],  # نقطة الإغلاق
                 ]
-            ]
-        }
+            ],
+        },
     }
 
     # التحقق من الحقل - Validate field
@@ -100,9 +100,9 @@ def test_self_intersection():
                 [44.21, 15.36],  # يتقاطع مع الخط التالي
                 [44.21, 15.35],
                 [44.2, 15.36],
-                [44.2, 15.35]
+                [44.2, 15.35],
             ]
-        ]
+        ],
     }
 
     result = validator.validate_geometry(self_intersecting_field)
@@ -144,9 +144,9 @@ def test_area_limits():
                 [44.201, 15.35],  # صغير جداً
                 [44.201, 15.351],
                 [44.2, 15.351],
-                [44.2, 15.35]
+                [44.2, 15.35],
             ]
-        ]
+        ],
     }
 
     result = validator.validate_geometry(small_field)
@@ -156,7 +156,9 @@ def test_area_limits():
     print(f"الحد الأدنى: {AREA_LIMITS['min_hectares']} هكتار")
     print(f"Minimum: {AREA_LIMITS['min_hectares']} hectares")
 
-    area_issues = [issue for issue in result.issues if "area" in issue.issue_type.lower()]
+    area_issues = [
+        issue for issue in result.issues if "area" in issue.issue_type.lower()
+    ]
     if area_issues:
         for issue in area_issues:
             print(f"\n  [{issue.severity.value}] {issue.message_ar}")
@@ -186,22 +188,32 @@ def test_yemen_bounds():
                 [30.1, 20.0],
                 [30.1, 20.1],
                 [30.0, 20.1],
-                [30.0, 20.0]
+                [30.0, 20.0],
             ]
-        ]
+        ],
     }
 
     result = validator.validate_geometry(outside_field)
 
     print(f"\nحدود اليمن - Yemen bounds:")
-    print(f"  خط العرض: {YEMEN_BOUNDS['latitude']['min']} - {YEMEN_BOUNDS['latitude']['max']}")
-    print(f"  Latitude: {YEMEN_BOUNDS['latitude']['min']} - {YEMEN_BOUNDS['latitude']['max']}")
-    print(f"  خط الطول: {YEMEN_BOUNDS['longitude']['min']} - {YEMEN_BOUNDS['longitude']['max']}")
-    print(f"  Longitude: {YEMEN_BOUNDS['longitude']['min']} - {YEMEN_BOUNDS['longitude']['max']}")
+    print(
+        f"  خط العرض: {YEMEN_BOUNDS['latitude']['min']} - {YEMEN_BOUNDS['latitude']['max']}"
+    )
+    print(
+        f"  Latitude: {YEMEN_BOUNDS['latitude']['min']} - {YEMEN_BOUNDS['latitude']['max']}"
+    )
+    print(
+        f"  خط الطول: {YEMEN_BOUNDS['longitude']['min']} - {YEMEN_BOUNDS['longitude']['max']}"
+    )
+    print(
+        f"  Longitude: {YEMEN_BOUNDS['longitude']['min']} - {YEMEN_BOUNDS['longitude']['max']}"
+    )
 
     print(f"\nحدود الحقل - Field bounds: {result.bounding_box}")
 
-    yemen_issues = [issue for issue in result.issues if "yemen" in issue.issue_type.lower()]
+    yemen_issues = [
+        issue for issue in result.issues if "yemen" in issue.issue_type.lower()
+    ]
     if yemen_issues:
         for issue in yemen_issues:
             print(f"\n  [{issue.severity.value}] {issue.message_ar}")
@@ -231,9 +243,9 @@ def test_overlap_detection():
                 [44.22, 15.35],
                 [44.22, 15.37],
                 [44.2, 15.37],
-                [44.2, 15.35]
+                [44.2, 15.35],
             ]
-        ]
+        ],
     }
 
     # قاعدة بيانات الحقول الموجودة - Existing fields database
@@ -250,10 +262,10 @@ def test_overlap_detection():
                         [44.23, 15.36],
                         [44.23, 15.38],
                         [44.21, 15.38],
-                        [44.21, 15.36]
+                        [44.21, 15.36],
                     ]
-                ]
-            }
+                ],
+            },
         },
         {
             "field_id": "field_002",
@@ -267,18 +279,18 @@ def test_overlap_detection():
                         [44.2, 15.34],
                         [44.2, 15.36],
                         [44.19, 15.36],
-                        [44.19, 15.34]
+                        [44.19, 15.34],
                     ]
-                ]
-            }
-        }
+                ],
+            },
+        },
     ]
 
     # فحص التداخل - Check overlap
     overlap_result = validator.check_overlap_with_existing(
         new_boundary=new_field,
         existing_fields=existing_fields,
-        tolerance_percentage=5.0
+        tolerance_percentage=5.0,
     )
 
     print(f"\nيوجد تداخل: {overlap_result.has_overlap}")
@@ -287,8 +299,12 @@ def test_overlap_detection():
     if overlap_result.has_overlap:
         print(f"\nعدد الحقول المتداخلة: {len(overlap_result.overlapping_fields)}")
         print(f"Overlapping field count: {len(overlap_result.overlapping_fields)}")
-        print(f"\nمساحة التداخل الكلية: {overlap_result.total_overlap_area_hectares:.4f} هكتار")
-        print(f"Total overlap area: {overlap_result.total_overlap_area_hectares:.4f} hectares")
+        print(
+            f"\nمساحة التداخل الكلية: {overlap_result.total_overlap_area_hectares:.4f} هكتار"
+        )
+        print(
+            f"Total overlap area: {overlap_result.total_overlap_area_hectares:.4f} hectares"
+        )
         print(f"\nأقصى نسبة تداخل: {overlap_result.max_overlap_percentage:.2f}%")
         print(f"Max overlap percentage: {overlap_result.max_overlap_percentage:.2f}%")
 
@@ -328,9 +344,9 @@ def test_geometry_fixing():
                 [44.21, 15.35],  # نقطة مكررة
                 [44.21, 15.36],
                 [44.2, 15.36],
-                [44.2, 15.35]
+                [44.2, 15.35],
             ]
-        ]
+        ],
     }
 
     result = validator.validate_geometry(field_with_issues)
@@ -338,7 +354,9 @@ def test_geometry_fixing():
     print(f"\nالهندسة الأصلية صالحة: {result.is_valid}")
     print(f"Original geometry valid: {result.is_valid}")
 
-    duplicate_issues = [issue for issue in result.issues if issue.issue_type == "duplicate_points"]
+    duplicate_issues = [
+        issue for issue in result.issues if issue.issue_type == "duplicate_points"
+    ]
     if duplicate_issues:
         print(f"\nمشاكل النقاط المكررة: {len(duplicate_issues)}")
         print(f"Duplicate point issues: {len(duplicate_issues)}")
@@ -386,9 +404,9 @@ def test_with_yemen_boundaries():
                     [44.22, 15.35],
                     [44.22, 15.37],
                     [44.2, 15.37],
-                    [44.2, 15.35]
+                    [44.2, 15.35],
                 ]
-            ]
+            ],
         }
 
         result = validator.validate_geometry(field_in_sanaa)
@@ -400,6 +418,7 @@ def test_with_yemen_boundaries():
 
         # التحقق من المحافظة - Check governorate
         from shapely.geometry import shape
+
         polygon = shape(field_in_sanaa)
 
         print("\nالمحافظات المتاحة للتحقق:")
@@ -447,9 +466,9 @@ def test_simplification():
                 [44.2, 15.365],
                 [44.2, 15.36],
                 [44.2, 15.355],
-                [44.2, 15.35]
+                [44.2, 15.35],
             ]
-        ]
+        ],
     }
 
     result = validator.validate_geometry(complex_field)
@@ -458,14 +477,19 @@ def test_simplification():
     print(f"Original point count: {len(complex_field['coordinates'][0])}")
 
     if result.simplified_geometry:
-        print(f"عدد النقاط المبسطة: {len(result.simplified_geometry['coordinates'][0])}")
-        print(f"Simplified point count: {len(result.simplified_geometry['coordinates'][0])}")
+        print(
+            f"عدد النقاط المبسطة: {len(result.simplified_geometry['coordinates'][0])}"
+        )
+        print(
+            f"Simplified point count: {len(result.simplified_geometry['coordinates'][0])}"
+        )
 
         print(f"\nالمساحة الأصلية: {result.area_hectares:.6f} هكتار")
         print(f"Original area: {result.area_hectares:.6f} hectares")
 
         # حساب مساحة الهندسة المبسطة
         from shapely.geometry import shape
+
         simplified_polygon = shape(result.simplified_geometry)
         simplified_area = validator.calculate_area_hectares(simplified_polygon)
 
@@ -473,8 +497,12 @@ def test_simplification():
         print(f"Simplified area: {simplified_area:.6f} hectares")
 
         difference = abs(result.area_hectares - simplified_area)
-        print(f"\nالفرق في المساحة: {difference:.6f} هكتار ({difference/result.area_hectares*100:.2f}%)")
-        print(f"Area difference: {difference:.6f} hectares ({difference/result.area_hectares*100:.2f}%)")
+        print(
+            f"\nالفرق في المساحة: {difference:.6f} هكتار ({difference/result.area_hectares*100:.2f}%)"
+        )
+        print(
+            f"Area difference: {difference:.6f} hectares ({difference/result.area_hectares*100:.2f}%)"
+        )
 
     return result
 
@@ -508,6 +536,7 @@ def main():
         print(f"\n✗ خطأ في الاختبارات: {e}")
         print(f"✗ Test error: {e}")
         import traceback
+
         traceback.print_exc()
 
 

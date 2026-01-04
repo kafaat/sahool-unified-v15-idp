@@ -61,9 +61,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
-) -> str:
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
     """Extract and validate tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")

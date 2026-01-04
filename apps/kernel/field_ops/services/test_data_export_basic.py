@@ -22,8 +22,9 @@ def test_imports():
             ExportResult,
             export_field_csv,
             export_field_excel,
-            generate_daily_report
+            generate_daily_report,
         )
+
         print("✓ All imports successful")
         return True
     except ImportError as e:
@@ -72,15 +73,15 @@ def test_exporter_initialization():
         print("✓ Basic initialization successful")
 
         # Check attributes
-        assert hasattr(exporter, 'CONTENT_TYPES')
-        assert hasattr(exporter, 'ARABIC_HEADERS')
+        assert hasattr(exporter, "CONTENT_TYPES")
+        assert hasattr(exporter, "ARABIC_HEADERS")
         print("✓ Required attributes present")
 
         # Check methods
-        assert hasattr(exporter, 'export_field_data')
-        assert hasattr(exporter, 'export_sensor_readings')
-        assert hasattr(exporter, 'export_recommendations')
-        assert hasattr(exporter, 'generate_report')
+        assert hasattr(exporter, "export_field_data")
+        assert hasattr(exporter, "export_sensor_readings")
+        assert hasattr(exporter, "export_recommendations")
+        assert hasattr(exporter, "generate_report")
         print("✓ Required methods present")
 
         return True
@@ -106,12 +107,12 @@ def test_csv_export():
             include_sensors=False,
             include_weather=False,
             include_recommendations=False,
-            include_actions=False
+            include_actions=False,
         )
 
         # Verify result
         assert result.format == ExportFormat.CSV
-        assert result.filename.endswith('.csv')
+        assert result.filename.endswith(".csv")
         assert isinstance(result.data, str)
         assert result.size_bytes > 0
         assert result.generated_at is not None
@@ -124,6 +125,7 @@ def test_csv_export():
     except Exception as e:
         print(f"✗ CSV export test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -142,18 +144,18 @@ def test_json_export():
             field_id="TEST_FIELD",
             format=ExportFormat.JSON,
             include_metadata=True,
-            include_ndvi=True
+            include_ndvi=True,
         )
 
         # Verify result
         assert result.format == ExportFormat.JSON
-        assert result.filename.endswith('.json')
+        assert result.filename.endswith(".json")
         assert isinstance(result.data, str)
 
         # Verify JSON is valid
         data = json.loads(result.data)
-        assert 'field_id' in data
-        assert data['field_id'] == "TEST_FIELD"
+        assert "field_id" in data
+        assert data["field_id"] == "TEST_FIELD"
 
         print(f"✓ JSON export successful")
         print(f"  Filename: {result.filename}")
@@ -163,6 +165,7 @@ def test_json_export():
     except Exception as e:
         print(f"✗ JSON export test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -177,7 +180,7 @@ def test_convenience_functions():
         result = export_field_csv("TEST_FIELD")
 
         assert result.format.value == "csv"
-        assert result.filename.endswith('.csv')
+        assert result.filename.endswith(".csv")
 
         print(f"✓ Convenience function works")
         print(f"  Filename: {result.filename}")
@@ -186,6 +189,7 @@ def test_convenience_functions():
     except Exception as e:
         print(f"✗ Convenience function test failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -200,9 +204,9 @@ def test_arabic_headers():
         exporter = DataExporter()
 
         # Check some Arabic headers
-        assert 'field_id' in exporter.ARABIC_HEADERS
-        assert exporter.ARABIC_HEADERS['field_id'] == "معرف الحقل"
-        assert exporter.ARABIC_HEADERS['crop_type'] == "نوع المحصول"
+        assert "field_id" in exporter.ARABIC_HEADERS
+        assert exporter.ARABIC_HEADERS["field_id"] == "معرف الحقل"
+        assert exporter.ARABIC_HEADERS["crop_type"] == "نوع المحصول"
 
         print(f"✓ Arabic headers configured")
         print(f"  Headers count: {len(exporter.ARABIC_HEADERS)}")
@@ -235,26 +239,29 @@ def check_dependencies():
 
     try:
         import openpyxl
-        results['openpyxl'] = True
+
+        results["openpyxl"] = True
         print("✓ openpyxl installed (Excel support)")
     except ImportError:
-        results['openpyxl'] = False
+        results["openpyxl"] = False
         print("✗ openpyxl not installed (Excel export unavailable)")
 
     try:
         import reportlab
-        results['reportlab'] = True
+
+        results["reportlab"] = True
         print("✓ reportlab installed (PDF support)")
     except ImportError:
-        results['reportlab'] = False
+        results["reportlab"] = False
         print("✗ reportlab not installed (PDF export unavailable)")
 
     try:
         import pandas
-        results['pandas'] = True
+
+        results["pandas"] = True
         print("✓ pandas installed (Advanced data manipulation)")
     except ImportError:
-        results['pandas'] = False
+        results["pandas"] = False
         print("✗ pandas not installed")
 
     return results

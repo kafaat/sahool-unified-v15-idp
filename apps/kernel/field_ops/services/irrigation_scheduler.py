@@ -58,7 +58,6 @@ YEMEN_CROP_KC_TABLE: Dict[CropType, Dict[GrowthStage, Dict[str, float]]] = {
         GrowthStage.MID_SEASON: {"kc": 1.0, "duration_days": 40, "p": 0.55},
         GrowthStage.LATE_SEASON: {"kc": 0.3, "duration_days": 25, "p": 0.55},
     },
-
     # البقوليات - Legumes
     CropType.LENTILS: {
         GrowthStage.INITIAL: {"kc": 0.4, "duration_days": 15, "p": 0.45},
@@ -78,7 +77,6 @@ YEMEN_CROP_KC_TABLE: Dict[CropType, Dict[GrowthStage, Dict[str, float]]] = {
         GrowthStage.MID_SEASON: {"kc": 1.1, "duration_days": 50, "p": 0.50},
         GrowthStage.LATE_SEASON: {"kc": 0.3, "duration_days": 25, "p": 0.50},
     },
-
     # الخضروات - Vegetables
     CropType.TOMATO: {
         GrowthStage.INITIAL: {"kc": 0.6, "duration_days": 30, "p": 0.40},
@@ -116,7 +114,6 @@ YEMEN_CROP_KC_TABLE: Dict[CropType, Dict[GrowthStage, Dict[str, float]]] = {
         GrowthStage.MID_SEASON: {"kc": 1.05, "duration_days": 40, "p": 0.30},
         GrowthStage.LATE_SEASON: {"kc": 0.9, "duration_days": 25, "p": 0.30},
     },
-
     # المحاصيل النقدية - Cash crops
     CropType.COTTON: {
         GrowthStage.INITIAL: {"kc": 0.35, "duration_days": 30, "p": 0.65},
@@ -136,7 +133,6 @@ YEMEN_CROP_KC_TABLE: Dict[CropType, Dict[GrowthStage, Dict[str, float]]] = {
         GrowthStage.MID_SEASON: {"kc": 1.1, "duration_days": 40, "p": 0.60},
         GrowthStage.LATE_SEASON: {"kc": 0.25, "duration_days": 20, "p": 0.60},
     },
-
     # الفواكه - Fruits
     CropType.MANGO: {
         GrowthStage.INITIAL: {"kc": 0.6, "duration_days": 60, "p": 0.50},
@@ -162,7 +158,6 @@ YEMEN_CROP_KC_TABLE: Dict[CropType, Dict[GrowthStage, Dict[str, float]]] = {
         GrowthStage.MID_SEASON: {"kc": 0.95, "duration_days": 120, "p": 0.50},
         GrowthStage.LATE_SEASON: {"kc": 0.95, "duration_days": 75, "p": 0.50},
     },
-
     # المحاصيل العطرية - Aromatic crops
     CropType.COFFEE: {
         GrowthStage.INITIAL: {"kc": 0.9, "duration_days": 60, "p": 0.40},
@@ -225,6 +220,7 @@ IRRIGATION_EFFICIENCY: Dict[IrrigationType, float] = {
 
 
 # ============== فئة جدولة الري - Irrigation Scheduler Class ==============
+
 
 class IrrigationScheduler:
     """
@@ -297,9 +293,7 @@ class IrrigationScheduler:
         return gross_irrigation
 
     def adjust_for_soil_type(
-        self,
-        base_requirement: float,
-        soil_type: SoilType
+        self, base_requirement: float, soil_type: SoilType
     ) -> float:
         """
         تعديل احتياجات المياه حسب نوع التربة
@@ -316,8 +310,8 @@ class IrrigationScheduler:
         # Adjustment factors by soil type
         adjustment_factors = {
             SoilType.SANDY: 1.15,  # تحتاج المزيد من المياه - Needs more water
-            SoilType.LOAMY: 1.0,   # مثالية - Ideal
-            SoilType.CLAY: 0.95,   # تحتفظ بالمياه - Retains water
+            SoilType.LOAMY: 1.0,  # مثالية - Ideal
+            SoilType.CLAY: 0.95,  # تحتفظ بالمياه - Retains water
             SoilType.SILTY: 1.05,  # متوسط
             SoilType.ROCKY: 1.20,  # تحتاج المزيد - Needs more
         }
@@ -327,10 +321,7 @@ class IrrigationScheduler:
 
     # ============== حساب التبخر - ET0 Calculation ==============
 
-    def calculate_et0_penman_monteith(
-        self,
-        weather_data: WeatherData
-    ) -> float:
+    def calculate_et0_penman_monteith(self, weather_data: WeatherData) -> float:
         """
         حساب التبخر المرجعي بطريقة Penman-Monteith (FAO-56)
         Calculate reference evapotranspiration using Penman-Monteith method
@@ -346,7 +337,10 @@ class IrrigationScheduler:
             float: التبخر المرجعي (مم/يوم) - Reference ET0 (mm/day)
         """
         # معاملات الحساب - Calculation parameters
-        T = weather_data.temp_mean or (weather_data.temp_max + weather_data.temp_min) / 2
+        T = (
+            weather_data.temp_mean
+            or (weather_data.temp_max + weather_data.temp_min) / 2
+        )
         T_max = weather_data.temp_max
         T_min = weather_data.temp_min
         u2 = weather_data.wind_speed
@@ -361,8 +355,7 @@ class IrrigationScheduler:
 
         # ميل منحنى ضغط البخار - Slope of saturation vapour pressure curve (kPa/°C)
         delta = (
-            4098 * (0.6108 * math.exp((17.27 * T) / (T + 237.3)))
-            / ((T + 237.3) ** 2)
+            4098 * (0.6108 * math.exp((17.27 * T) / (T + 237.3))) / ((T + 237.3) ** 2)
         )
 
         # ضغط البخار المشبع - Saturation vapour pressure (kPa)
@@ -401,9 +394,12 @@ class IrrigationScheduler:
 
         # الإشعاع طويل الموجة الصافي - Net longwave radiation
         stefan_boltzmann = 4.903e-9  # MJ/K⁴/m²/day
-        Rnl = stefan_boltzmann * (
-            ((T_max + 273.16) ** 4 + (T_min + 273.16) ** 4) / 2
-        ) * (0.34 - 0.14 * math.sqrt(ea)) * (1.35 * (Rs / Ra) - 0.35)
+        Rnl = (
+            stefan_boltzmann
+            * (((T_max + 273.16) ** 4 + (T_min + 273.16) ** 4) / 2)
+            * (0.34 - 0.14 * math.sqrt(ea))
+            * (1.35 * (Rs / Ra) - 0.35)
+        )
 
         Rn = Rns - Rnl
 
@@ -412,9 +408,8 @@ class IrrigationScheduler:
         G = 0
 
         # معادلة Penman-Monteith الكاملة - Full Penman-Monteith equation
-        numerator = (
-            0.408 * delta * (Rn - G)
-            + gamma * (900 / (T + 273)) * u2 * (es - ea)
+        numerator = 0.408 * delta * (Rn - G) + gamma * (900 / (T + 273)) * u2 * (
+            es - ea
         )
         denominator = delta + gamma * (1 + 0.34 * u2)
 
@@ -426,10 +421,7 @@ class IrrigationScheduler:
         return et0
 
     def _estimate_solar_radiation(
-        self,
-        latitude: float,
-        date_val: date,
-        sunshine_hours: float
+        self, latitude: float, date_val: date, sunshine_hours: float
     ) -> float:
         """
         تقدير الإشعاع الشمسي من ساعات السطوع
@@ -452,9 +444,7 @@ class IrrigationScheduler:
         return Rs
 
     def _calculate_extraterrestrial_radiation(
-        self,
-        latitude: float,
-        date_val: date
+        self, latitude: float, date_val: date
     ) -> float:
         """
         حساب الإشعاع خارج الغلاف الجوي
@@ -480,18 +470,18 @@ class IrrigationScheduler:
 
         # الإشعاع خارج الغلاف الجوي
         Ra = (
-            (24 * 60 / math.pi) * Gsc * dr
-            * (ws * math.sin(lat_rad) * math.sin(delta)
-               + math.cos(lat_rad) * math.cos(delta) * math.sin(ws))
+            (24 * 60 / math.pi)
+            * Gsc
+            * dr
+            * (
+                ws * math.sin(lat_rad) * math.sin(delta)
+                + math.cos(lat_rad) * math.cos(delta) * math.sin(ws)
+            )
         )
 
         return Ra
 
-    def _calculate_daylight_hours(
-        self,
-        latitude: float,
-        date_val: date
-    ) -> float:
+    def _calculate_daylight_hours(self, latitude: float, date_val: date) -> float:
         """
         حساب أقصى ساعات النهار
         Calculate maximum daylight hours
@@ -508,9 +498,7 @@ class IrrigationScheduler:
     # ============== حساب الأمطار الفعالة - Effective Rainfall ==============
 
     def calculate_effective_rainfall(
-        self,
-        total_rainfall: float,
-        soil_type: SoilType
+        self, total_rainfall: float, soil_type: SoilType
     ) -> float:
         """
         حساب الأمطار الفعالة (الجزء الذي يستفيد منه المحصول)
@@ -531,11 +519,11 @@ class IrrigationScheduler:
 
         # تعديل حسب نوع التربة - Adjust for soil type
         soil_efficiency = {
-            SoilType.SANDY: 0.7,    # تسرب عالي - High percolation
-            SoilType.LOAMY: 0.9,    # مثالي
-            SoilType.CLAY: 0.95,    # احتفاظ عالي - High retention
+            SoilType.SANDY: 0.7,  # تسرب عالي - High percolation
+            SoilType.LOAMY: 0.9,  # مثالي
+            SoilType.CLAY: 0.95,  # احتفاظ عالي - High retention
             SoilType.SILTY: 0.85,
-            SoilType.ROCKY: 0.5,    # جريان سطحي عالي - High runoff
+            SoilType.ROCKY: 0.5,  # جريان سطحي عالي - High runoff
         }
 
         efficiency = soil_efficiency.get(soil_type, 0.8)
@@ -702,18 +690,13 @@ class IrrigationScheduler:
 
             # تحديد ما إذا كان الري مطلوباً - Determine if irrigation is needed
             irrigation_needed = self._is_irrigation_needed(
-                temp_balance,
-                soil_properties,
-                crop_type,
-                growth_stage
+                temp_balance, soil_properties, crop_type, growth_stage
             )
 
             if irrigation_needed:
                 # حساب كمية الري المطلوبة - Calculate required irrigation
                 irrigation_amount = self._calculate_irrigation_amount(
-                    temp_balance,
-                    soil_properties,
-                    irrigation_type
+                    temp_balance, soil_properties, irrigation_type
                 )
 
                 # إعادة حساب التوازن مع الري - Recalculate with irrigation
@@ -732,12 +715,16 @@ class IrrigationScheduler:
                 if optimize_for_cost:
                     # الري الليلي (23:00 - 05:00) لتوفير الكهرباء
                     # Night irrigation (23:00 - 05:00) to save electricity
-                    scheduled_time = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=23)
+                    scheduled_time = datetime.combine(
+                        current_date, datetime.min.time()
+                    ) + timedelta(hours=23)
                     is_night = True
                 else:
                     # الري الصباحي (06:00) لتقليل التبخر
                     # Morning irrigation (06:00) to reduce evaporation
-                    scheduled_time = datetime.combine(current_date, datetime.min.time()) + timedelta(hours=6)
+                    scheduled_time = datetime.combine(
+                        current_date, datetime.min.time()
+                    ) + timedelta(hours=6)
                     is_night = False
 
                 # حساب مدة الري - Calculate irrigation duration
@@ -754,7 +741,10 @@ class IrrigationScheduler:
                     irrigation_type=irrigation_type,
                     is_night_irrigation=is_night,
                     priority=self._calculate_priority(current_balance, soil_properties),
-                    metadata={"field_area_ha": field_area_ha, "deficit": temp_balance.water_deficit},
+                    metadata={
+                        "field_area_ha": field_area_ha,
+                        "deficit": temp_balance.water_deficit,
+                    },
                 )
 
                 schedule.add_event(event)
@@ -823,8 +813,7 @@ class IrrigationScheduler:
         """
         # النسبة المئوية للمحتوى المائي - Water content percentage
         water_percent = (
-            water_balance.soil_water_content
-            / soil_properties.total_available_water
+            water_balance.soil_water_content / soil_properties.total_available_water
         )
 
         if water_percent < 0.3:
@@ -837,9 +826,7 @@ class IrrigationScheduler:
             return 4  # منخفض - Low
 
     def _estimate_flow_rate(
-        self,
-        irrigation_type: IrrigationType,
-        area_ha: float
+        self, irrigation_type: IrrigationType, area_ha: float
     ) -> float:
         """
         تقدير معدل التدفق (م³/ساعة)
@@ -847,7 +834,7 @@ class IrrigationScheduler:
         """
         # معدلات تدفق تقريبية - Approximate flow rates
         base_rates = {
-            IrrigationType.DRIP: 2.0,          # م³/ساعة/هكتار
+            IrrigationType.DRIP: 2.0,  # م³/ساعة/هكتار
             IrrigationType.SPRINKLER: 15.0,
             IrrigationType.SURFACE: 30.0,
             IrrigationType.SUBSURFACE: 2.5,
@@ -872,7 +859,7 @@ class IrrigationScheduler:
         # متوسط الفترة بين الريات - Average interval
         dates = sorted([e.scheduled_date.date() for e in schedule.events])
         if len(dates) > 1:
-            intervals = [(dates[i+1] - dates[i]).days for i in range(len(dates)-1)]
+            intervals = [(dates[i + 1] - dates[i]).days for i in range(len(dates) - 1)]
             schedule.average_interval_days = sum(intervals) / len(intervals)
 
         # تكاليف الكهرباء - Electricity costs
@@ -884,7 +871,7 @@ class IrrigationScheduler:
         for event in schedule.events:
             cost_per_m3 = 0.5  # ريال/م³
             if event.is_night_irrigation:
-                cost_per_m3 *= (1 - electricity_discount)
+                cost_per_m3 *= 1 - electricity_discount
                 night_events += 1
 
             if event.water_amount_m3:
@@ -902,7 +889,9 @@ class IrrigationScheduler:
         # بناءً على تقليل الهدر وتوقيت الري
         schedule.water_efficiency_score = min(
             100,
-            60 + night_ratio * 20 + (1 if schedule.average_interval_days > 3 else 0) * 20
+            60
+            + night_ratio * 20
+            + (1 if schedule.average_interval_days > 3 else 0) * 20,
         )
 
         return schedule
@@ -910,9 +899,7 @@ class IrrigationScheduler:
     # ============== دوال مساعدة - Helper Functions ==============
 
     def _get_crop_coefficient(
-        self,
-        crop_type: CropType,
-        growth_stage: GrowthStage
+        self, crop_type: CropType, growth_stage: GrowthStage
     ) -> float:
         """
         الحصول على معامل المحصول
@@ -952,8 +939,7 @@ class IrrigationScheduler:
 
             # تحديد الأهمية
             water_percent = (
-                water_balance.soil_water_content
-                / soil_properties.total_available_water
+                water_balance.soil_water_content / soil_properties.total_available_water
             )
 
             if water_percent < 0.3:
@@ -971,7 +957,9 @@ class IrrigationScheduler:
         if should_irrigate:
             # الليل للتوفير في الكهرباء
             tomorrow = date.today() + timedelta(days=1)
-            best_time = datetime.combine(tomorrow, datetime.min.time()) + timedelta(hours=23)
+            best_time = datetime.combine(tomorrow, datetime.min.time()) + timedelta(
+                hours=23
+            )
 
         return IrrigationRecommendation(
             field_id=field_id,

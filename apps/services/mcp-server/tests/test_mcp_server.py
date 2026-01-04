@@ -2,7 +2,6 @@
 Tests for SAHOOL MCP Server
 """
 
-
 import os
 
 # Import after adding to path

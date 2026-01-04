@@ -12,7 +12,6 @@ from .models import (
     UserRole,
     Governorate,
     TimePeriod,
-
     # Models
     AnalyticsEvent,
     UserMetrics,
@@ -34,7 +33,6 @@ __all__ = [
     "UserRole",
     "Governorate",
     "TimePeriod",
-
     # Models
     "AnalyticsEvent",
     "UserMetrics",
@@ -42,7 +40,6 @@ __all__ = [
     "FeatureUsage",
     "RegionalMetrics",
     "FarmerAnalytics",
-
     # Services
     "UserAnalyticsService",
     "InMemoryStorage",

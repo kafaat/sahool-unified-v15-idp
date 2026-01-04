@@ -37,7 +37,9 @@ async def main():
     config = get_config()
 
     print("📊 Configuration loaded:")
-    print(f"   - Enabled providers: {len([p for p in config.providers.values() if p.enabled])}")
+    print(
+        f"   - Enabled providers: {len([p for p in config.providers.values() if p.enabled])}"
+    )
     print(f"   - Alerts enabled: {config.enable_alerts}")
     print(f"   - Agricultural indices enabled: {config.enable_ag_indices}")
     print()
@@ -70,7 +72,9 @@ async def main():
         # عرض ملخص التوقعات
         print("🌤️  7-Day Forecast Summary:")
         print("   " + "-" * 76)
-        print(f"   {'Date':<12} {'Min°C':<8} {'Max°C':<8} {'Rain(mm)':<10} {'Condition':<20}")
+        print(
+            f"   {'Date':<12} {'Min°C':<8} {'Max°C':<8} {'Rain(mm)':<10} {'Condition':<20}"
+        )
         print("   " + "-" * 76)
 
         for day in daily:
@@ -140,7 +144,9 @@ async def main():
         print("🌾 Agricultural Weather Indices:")
         print()
         print("   " + "-" * 76)
-        print(f"   {'Date':<12} {'GDD':<8} {'ET0(mm)':<10} {'Heat Hrs':<10} {'Deficit(mm)':<12}")
+        print(
+            f"   {'Date':<12} {'GDD':<8} {'ET0(mm)':<10} {'Heat Hrs':<10} {'Deficit(mm)':<12}"
+        )
         print("   " + "-" * 76)
 
         for i, day in enumerate(daily[:7]):
@@ -148,10 +154,7 @@ async def main():
             # الحصول على البيانات الساعية المقابلة إن وجدت
             day_hourly = None
             if hourly:
-                day_hourly = [
-                    h for h in hourly
-                    if h.datetime.startswith(day.date)
-                ]
+                day_hourly = [h for h in hourly if h.datetime.startswith(day.date)]
 
             indices = calculate_agricultural_indices(day, day_hourly)
 
@@ -164,20 +167,20 @@ async def main():
 
         # Summary statistics
         # إحصائيات ملخصة
-        total_gdd = sum(
-            calculate_agricultural_indices(day).gdd for day in daily
+        total_gdd = sum(calculate_agricultural_indices(day).gdd for day in daily)
+        avg_eto = sum(calculate_agricultural_indices(day).eto for day in daily) / len(
+            daily
         )
-        avg_eto = sum(
-            calculate_agricultural_indices(day).eto for day in daily
-        ) / len(daily)
         total_rain = sum(day.precipitation_mm for day in daily)
 
         print("📈 Week Summary:")
         print(f"   - Total Growing Degree Days (GDD): {total_gdd:.1f}")
         print(f"   - Average Daily ET0: {avg_eto:.2f} mm")
         print(f"   - Total Precipitation: {total_rain:.1f} mm")
-        print(f"   - Temperature Range: {min(d.temp_min_c for d in daily):.1f}°C - "
-              f"{max(d.temp_max_c for d in daily):.1f}°C")
+        print(
+            f"   - Temperature Range: {min(d.temp_min_c for d in daily):.1f}°C - "
+            f"{max(d.temp_max_c for d in daily):.1f}°C"
+        )
         print()
 
         # Irrigation recommendation
@@ -196,6 +199,7 @@ async def main():
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:

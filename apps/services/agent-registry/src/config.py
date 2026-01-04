@@ -3,7 +3,6 @@ Agent Registry Service Configuration
 تكوين خدمة سجل الوكلاء
 """
 
-
 from pydantic_settings import BaseSettings
 
 

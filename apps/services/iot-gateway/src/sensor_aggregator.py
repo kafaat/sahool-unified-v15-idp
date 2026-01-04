@@ -365,9 +365,7 @@ class SensorAggregator:
 
         return outliers
 
-    def _calculate_rate_of_change(
-        self, readings: list[SensorReading]
-    ) -> float | None:
+    def _calculate_rate_of_change(self, readings: list[SensorReading]) -> float | None:
         """
         حساب معدل التغيير
         Calculate rate of change (units per hour)
@@ -557,7 +555,10 @@ class SensorAggregator:
     # ============ Sensor Health Monitoring ============
 
     def check_sensor_status(
-        self, device_id: str, readings: list[SensorReading], expected_interval_minutes: int = 15
+        self,
+        device_id: str,
+        readings: list[SensorReading],
+        expected_interval_minutes: int = 15,
     ) -> SensorHealth:
         """
         فحص حالة المستشعر
@@ -607,8 +608,15 @@ class SensorAggregator:
         )
 
         # جمع التنبيهات والتوصيات - Collect alerts and recommendations
-        alerts, recommendations_ar, recommendations_en = self._generate_alerts_and_recommendations(
-            status, quality_score, uptime_percentage, drift_detected, outlier_percentage, sensor_type
+        alerts, recommendations_ar, recommendations_en = (
+            self._generate_alerts_and_recommendations(
+                status,
+                quality_score,
+                uptime_percentage,
+                drift_detected,
+                outlier_percentage,
+                sensor_type,
+            )
         )
 
         # آخر قراءة ناجحة - Last successful reading
@@ -789,13 +797,21 @@ class SensorAggregator:
                 recommendations_ar.append("جودة البيانات منخفضة جداً - تحقق من المستشعر")
                 recommendations_en.append("Data quality very low - Check sensor")
             if uptime_percentage < 50:
-                recommendations_ar.append("المستشعر غير متصل بشكل متكرر - تحقق من الاتصال")
-                recommendations_en.append("Sensor frequently offline - Check connectivity")
+                recommendations_ar.append(
+                    "المستشعر غير متصل بشكل متكرر - تحقق من الاتصال"
+                )
+                recommendations_en.append(
+                    "Sensor frequently offline - Check connectivity"
+                )
 
         if drift_detected:
             alerts.append("انحراف مكتشف - Drift detected")
-            recommendations_ar.append("المستشعر يظهر انحرافاً تدريجياً - قد يحتاج إلى معايرة")
-            recommendations_en.append("Sensor showing gradual drift - May need calibration")
+            recommendations_ar.append(
+                "المستشعر يظهر انحرافاً تدريجياً - قد يحتاج إلى معايرة"
+            )
+            recommendations_en.append(
+                "Sensor showing gradual drift - May need calibration"
+            )
 
         if outlier_percentage > 10:
             alerts.append(f"نسبة عالية من القيم الشاذة: {outlier_percentage:.1f}%")
@@ -805,7 +821,9 @@ class SensorAggregator:
         if uptime_percentage < 80:
             alerts.append(f"وقت التشغيل منخفض: {uptime_percentage:.1f}%")
             recommendations_ar.append("قراءات متقطعة - تحقق من البطارية والإشارة")
-            recommendations_en.append("Intermittent readings - Check battery and signal")
+            recommendations_en.append(
+                "Intermittent readings - Check battery and signal"
+            )
 
         # توصيات خاصة بنوع المستشعر - Sensor-type specific recommendations
         threshold = get_threshold(sensor_type)
@@ -867,7 +885,10 @@ def create_sample_readings(
             value=round(value, 2),
             unit="°C",
             timestamp=timestamp.isoformat(),
-            metadata={"battery": random.randint(80, 100), "rssi": random.randint(-80, -50)},
+            metadata={
+                "battery": random.randint(80, 100),
+                "rssi": random.randint(-80, -50),
+            },
         )
         readings.append(reading)
 

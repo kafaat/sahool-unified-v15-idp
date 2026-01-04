@@ -46,19 +46,9 @@ Usage:
     >>> worker.start()
 """
 
-from .task_queue import (
-    TaskQueue,
-    Task,
-    TaskType,
-    TaskStatus,
-    TaskPriority
-)
+from .task_queue import TaskQueue, Task, TaskType, TaskStatus, TaskPriority
 
-from .worker import (
-    TaskWorker,
-    WorkerManager,
-    WorkerStatus
-)
+from .worker import TaskWorker, WorkerManager, WorkerStatus
 
 # إعادة تصدير معالجات المهام
 # Re-export task handlers
@@ -69,7 +59,7 @@ from .tasks import (
     handle_report_generation,
     handle_notification_send,
     handle_data_export,
-    handle_model_inference
+    handle_model_inference,
 )
 
 __version__ = "1.0.0"
@@ -80,13 +70,11 @@ __all__ = [
     "Task",
     "TaskWorker",
     "WorkerManager",
-
     # Enums
     "TaskType",
     "TaskStatus",
     "TaskPriority",
     "WorkerStatus",
-
     # Task Handlers
     "handle_satellite_image_processing",
     "handle_ndvi_calculation",
@@ -122,13 +110,11 @@ def get_default_task_priority(task_type: TaskType) -> int:
         # High priority - alerts and real-time
         TaskType.DISEASE_DETECTION: TaskPriority.HIGH.value,
         TaskType.NOTIFICATION_SEND: TaskPriority.HIGH.value,
-
         # أولوية عادية - تحليلات
         # Normal priority - analytics
         TaskType.SATELLITE_IMAGE_PROCESSING: TaskPriority.NORMAL.value,
         TaskType.NDVI_CALCULATION: TaskPriority.NORMAL.value,
         TaskType.MODEL_INFERENCE: TaskPriority.NORMAL.value,
-
         # أولوية منخفضة - تقارير وتصدير
         # Low priority - reports and exports
         TaskType.REPORT_GENERATION: TaskPriority.LOW.value,
@@ -158,12 +144,10 @@ def get_default_task_timeout(task_type: TaskType) -> int:
         TaskType.MODEL_INFERENCE: 300,  # 5 minutes
         TaskType.REPORT_GENERATION: 180,  # 3 minutes
         TaskType.DATA_EXPORT: 180,  # 3 minutes
-
         # مهلات متوسطة - تحليلات
         # Medium timeouts - analytics
         TaskType.NDVI_CALCULATION: 120,  # 2 minutes
         TaskType.DISEASE_DETECTION: 120,  # 2 minutes
-
         # مهلات قصيرة - عمليات سريعة
         # Short timeouts - quick operations
         TaskType.NOTIFICATION_SEND: 30,  # 30 seconds
@@ -181,33 +165,14 @@ def register_all_handlers(worker: TaskWorker):
         worker: TaskWorker instance
     """
     worker.register_handler(
-        TaskType.SATELLITE_IMAGE_PROCESSING,
-        handle_satellite_image_processing
+        TaskType.SATELLITE_IMAGE_PROCESSING, handle_satellite_image_processing
     )
-    worker.register_handler(
-        TaskType.NDVI_CALCULATION,
-        handle_ndvi_calculation
-    )
-    worker.register_handler(
-        TaskType.DISEASE_DETECTION,
-        handle_disease_detection
-    )
-    worker.register_handler(
-        TaskType.REPORT_GENERATION,
-        handle_report_generation
-    )
-    worker.register_handler(
-        TaskType.NOTIFICATION_SEND,
-        handle_notification_send
-    )
-    worker.register_handler(
-        TaskType.DATA_EXPORT,
-        handle_data_export
-    )
-    worker.register_handler(
-        TaskType.MODEL_INFERENCE,
-        handle_model_inference
-    )
+    worker.register_handler(TaskType.NDVI_CALCULATION, handle_ndvi_calculation)
+    worker.register_handler(TaskType.DISEASE_DETECTION, handle_disease_detection)
+    worker.register_handler(TaskType.REPORT_GENERATION, handle_report_generation)
+    worker.register_handler(TaskType.NOTIFICATION_SEND, handle_notification_send)
+    worker.register_handler(TaskType.DATA_EXPORT, handle_data_export)
+    worker.register_handler(TaskType.MODEL_INFERENCE, handle_model_inference)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -217,9 +182,7 @@ def register_all_handlers(worker: TaskWorker):
 
 
 def create_queue_with_workers(
-    redis_client,
-    worker_count: int = 3,
-    namespace: str = "sahool"
+    redis_client, worker_count: int = 3, namespace: str = "sahool"
 ):
     """
     إنشاء قائمة انتظار مع عمال جاهزين
@@ -281,13 +244,13 @@ def get_module_info():
             "Dead letter queue for failed tasks",
             "Task timeout handling",
             "Support for 7 task types",
-            "Arabic and English support"
+            "Arabic and English support",
         ],
         "task_types": [t.value for t in TaskType],
         "priority_levels": {
             "LOW": "1-3 (reports, exports)",
             "NORMAL": "4-6 (analysis)",
             "HIGH": "7-9 (alerts, real-time)",
-            "CRITICAL": "10 (emergencies)"
-        }
+            "CRITICAL": "10 (emergencies)",
+        },
     }

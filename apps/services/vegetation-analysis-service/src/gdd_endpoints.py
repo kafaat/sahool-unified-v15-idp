@@ -268,7 +268,9 @@ def register_gdd_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to generate GDD forecast: {e}")
-            raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}") from e
+            raise HTTPException(
+                status_code=500, detail=f"Forecast error: {str(e)}"
+            ) from e
 
     @app.get("/v1/gdd/requirements/{crop_code}")
     async def get_crop_gdd_requirements(

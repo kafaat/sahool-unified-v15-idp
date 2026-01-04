@@ -221,9 +221,7 @@ class AgentCard(BaseModel):
 
     # Endpoints / نقاط النهاية
     endpoint: AgentEndpoint = Field(..., description="Primary agent endpoint")
-    health_endpoint: HttpUrl | None = Field(
-        None, description="Health check endpoint"
-    )
+    health_endpoint: HttpUrl | None = Field(None, description="Health check endpoint")
 
     # Security / الأمان
     security_scheme: SecurityScheme = Field(

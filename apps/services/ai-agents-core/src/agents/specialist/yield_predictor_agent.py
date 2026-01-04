@@ -16,7 +16,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 
-from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
+from ..base_agent import (
+    AgentAction,
+    AgentContext,
+    AgentLayer,
+    AgentPercept,
+    AgentType,
+    BaseAgent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +31,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class YieldPrediction:
     """توقع الإنتاج"""
+
     crop_type: str
     predicted_yield_tons: float
     yield_per_hectare: float
@@ -61,7 +69,7 @@ class YieldPredictorAgent(BaseAgent):
         "banana": 20.0,
         "grape": 8.0,
         "coffee": 0.8,
-        "alfalfa": 18.0
+        "alfalfa": 18.0,
     }
 
     # Crop growth parameters
@@ -70,32 +78,32 @@ class YieldPredictorAgent(BaseAgent):
             "gdd_required": 2000,
             "optimal_ndvi_peak": 0.75,
             "water_requirement_mm": 450,
-            "growth_days": 120
+            "growth_days": 120,
         },
         "tomato": {
             "gdd_required": 1500,
             "optimal_ndvi_peak": 0.70,
             "water_requirement_mm": 600,
-            "growth_days": 90
+            "growth_days": 90,
         },
         "corn": {
             "gdd_required": 2500,
             "optimal_ndvi_peak": 0.80,
             "water_requirement_mm": 550,
-            "growth_days": 100
+            "growth_days": 100,
         },
         "date_palm": {
             "gdd_required": 3500,
             "optimal_ndvi_peak": 0.60,
             "water_requirement_mm": 1500,
-            "growth_days": 180
+            "growth_days": 180,
         },
         "coffee": {
             "gdd_required": 2000,
             "optimal_ndvi_peak": 0.65,
             "water_requirement_mm": 1200,
-            "growth_days": 270
-        }
+            "growth_days": 270,
+        },
     }
 
     # Model weights for ensemble
@@ -103,7 +111,7 @@ class YieldPredictorAgent(BaseAgent):
         "ndvi_model": 0.40,
         "gdd_model": 0.30,
         "water_model": 0.20,
-        "soil_model": 0.10
+        "soil_model": 0.10,
     }
 
     def __init__(self, agent_id: str = "yield_predictor_001"):
@@ -114,7 +122,7 @@ class YieldPredictorAgent(BaseAgent):
             agent_type=AgentType.UTILITY_BASED,
             layer=AgentLayer.SPECIALIST,
             description="Expert agent for crop yield prediction and optimization",
-            description_ar="وكيل خبير لتوقع إنتاج المحاصيل وتحسينها"
+            description_ar="وكيل خبير لتوقع إنتاج المحاصيل وتحسينها",
         )
 
         # Prediction history for learning
@@ -123,7 +131,9 @@ class YieldPredictorAgent(BaseAgent):
         # Set utility function
         self.set_utility_function(self._recommendation_utility)
 
-    def _recommendation_utility(self, action: AgentAction, context: AgentContext) -> float:
+    def _recommendation_utility(
+        self, action: AgentAction, context: AgentContext
+    ) -> float:
         """دالة المنفعة لتقييم التوصيات"""
         if action.action_type not in ["yield_optimization", "harvest_timing"]:
             return 0.0
@@ -171,7 +181,7 @@ class YieldPredictorAgent(BaseAgent):
                 confidence=0.5,
                 priority=3,
                 reasoning="لا توجد بيانات كافية لإجراء توقع دقيق",
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         # Generate recommendations
@@ -186,21 +196,18 @@ class YieldPredictorAgent(BaseAgent):
                 "confidence": prediction.confidence,
                 "harvest_date": prediction.harvest_date.isoformat(),
                 "days_to_harvest": prediction.days_to_harvest,
-                "growth_stage": prediction.growth_stage
+                "growth_stage": prediction.growth_stage,
             }
             return best_action
 
         # Default: return prediction only
         return AgentAction(
             action_type="yield_prediction",
-            parameters={
-                "prediction": prediction.__dict__,
-                "crop_type": crop_type
-            },
+            parameters={"prediction": prediction.__dict__, "crop_type": crop_type},
             confidence=prediction.confidence,
             priority=2,
             reasoning=f"توقع إنتاج {crop_type}: {prediction.yield_per_hectare:.1f} طن/هكتار",
-            source_agent=self.agent_id
+            source_agent=self.agent_id,
         )
 
     async def _predict_yield(self, crop_type: str) -> YieldPrediction | None:
@@ -225,10 +232,10 @@ class YieldPredictorAgent(BaseAgent):
 
         # Ensemble prediction
         ensemble_yield = (
-            self.MODEL_WEIGHTS["ndvi_model"] * ndvi_yield["yield"] +
-            self.MODEL_WEIGHTS["gdd_model"] * gdd_yield["yield"] +
-            self.MODEL_WEIGHTS["water_model"] * water_yield["yield"] +
-            self.MODEL_WEIGHTS["soil_model"] * soil_yield["yield"]
+            self.MODEL_WEIGHTS["ndvi_model"] * ndvi_yield["yield"]
+            + self.MODEL_WEIGHTS["gdd_model"] * gdd_yield["yield"]
+            + self.MODEL_WEIGHTS["water_model"] * water_yield["yield"]
+            + self.MODEL_WEIGHTS["soil_model"] * soil_yield["yield"]
         )
 
         # Calculate confidence
@@ -236,12 +243,14 @@ class YieldPredictorAgent(BaseAgent):
             ndvi_yield["confidence"],
             gdd_yield["confidence"],
             water_yield["confidence"],
-            soil_yield["confidence"]
+            soil_yield["confidence"],
         ]
         avg_confidence = sum(confidences) / len(confidences)
 
         # Variance penalty
-        variance = sum((c - avg_confidence) ** 2 for c in confidences) / len(confidences)
+        variance = sum((c - avg_confidence) ** 2 for c in confidences) / len(
+            confidences
+        )
         final_confidence = avg_confidence * (1 - variance)
 
         # Identify limiting factors
@@ -284,7 +293,7 @@ class YieldPredictorAgent(BaseAgent):
             days_to_harvest=days_remaining,
             growth_stage=growth_stage,
             limiting_factors=limiting_factors,
-            recommendations=[]
+            recommendations=[],
         )
 
     async def _ndvi_model(self, base_yield: float, params: dict) -> dict[str, float]:
@@ -309,7 +318,7 @@ class YieldPredictorAgent(BaseAgent):
         ratio = min(accumulated_gdd / required_gdd, 1.0)
 
         # Quadratic response
-        yield_estimate = base_yield * (2 * ratio - ratio ** 2)
+        yield_estimate = base_yield * (2 * ratio - ratio**2)
 
         confidence = 0.6 if weather else 0.3
 
@@ -368,50 +377,58 @@ class YieldPredictorAgent(BaseAgent):
 
         return {"yield": yield_estimate, "confidence": confidence}
 
-    async def _generate_recommendations(self, prediction: YieldPrediction) -> list[AgentAction]:
+    async def _generate_recommendations(
+        self, prediction: YieldPrediction
+    ) -> list[AgentAction]:
         """توليد التوصيات"""
         actions = []
 
         # Yield optimization recommendations
         for factor in prediction.limiting_factors:
             if "مائي" in factor:
-                actions.append(AgentAction(
-                    action_type="yield_optimization",
-                    parameters={
-                        "factor": "irrigation",
-                        "recommendation_ar": "زيادة معدل الري",
-                        "yield_impact": 15
-                    },
-                    confidence=0.8,
-                    priority=2,
-                    reasoning="تحسين الإنتاج عبر زيادة الري"
-                ))
+                actions.append(
+                    AgentAction(
+                        action_type="yield_optimization",
+                        parameters={
+                            "factor": "irrigation",
+                            "recommendation_ar": "زيادة معدل الري",
+                            "yield_impact": 15,
+                        },
+                        confidence=0.8,
+                        priority=2,
+                        reasoning="تحسين الإنتاج عبر زيادة الري",
+                    )
+                )
             elif "تربة" in factor:
-                actions.append(AgentAction(
-                    action_type="yield_optimization",
-                    parameters={
-                        "factor": "fertilization",
-                        "recommendation_ar": "إضافة سماد عضوي",
-                        "yield_impact": 10
-                    },
-                    confidence=0.75,
-                    priority=3,
-                    reasoning="تحسين جودة التربة"
-                ))
+                actions.append(
+                    AgentAction(
+                        action_type="yield_optimization",
+                        parameters={
+                            "factor": "fertilization",
+                            "recommendation_ar": "إضافة سماد عضوي",
+                            "yield_impact": 10,
+                        },
+                        confidence=0.75,
+                        priority=3,
+                        reasoning="تحسين جودة التربة",
+                    )
+                )
 
         # Harvest timing
         if prediction.days_to_harvest <= 14:
-            actions.append(AgentAction(
-                action_type="harvest_timing",
-                parameters={
-                    "days_to_harvest": prediction.days_to_harvest,
-                    "optimal_date": prediction.harvest_date.isoformat(),
-                    "recommendation_ar": "استعد للحصاد"
-                },
-                confidence=0.85,
-                priority=1,
-                reasoning=f"موعد الحصاد خلال {prediction.days_to_harvest} يوم"
-            ))
+            actions.append(
+                AgentAction(
+                    action_type="harvest_timing",
+                    parameters={
+                        "days_to_harvest": prediction.days_to_harvest,
+                        "optimal_date": prediction.harvest_date.isoformat(),
+                        "recommendation_ar": "استعد للحصاد",
+                    },
+                    confidence=0.85,
+                    priority=1,
+                    reasoning=f"موعد الحصاد خلال {prediction.days_to_harvest} يوم",
+                )
+            )
 
         return actions
 
@@ -420,7 +437,7 @@ class YieldPredictorAgent(BaseAgent):
         result = {
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
-            "success": True
+            "success": True,
         }
 
         if action.action_type == "yield_prediction":
@@ -430,21 +447,23 @@ class YieldPredictorAgent(BaseAgent):
             result["recommendation"] = {
                 "factor": action.parameters.get("factor"),
                 "action_ar": action.parameters.get("recommendation_ar"),
-                "expected_yield_increase": f"{action.parameters.get('yield_impact', 0)}%"
+                "expected_yield_increase": f"{action.parameters.get('yield_impact', 0)}%",
             }
 
         elif action.action_type == "harvest_timing":
             result["harvest_plan"] = {
                 "days_remaining": action.parameters.get("days_to_harvest"),
                 "optimal_date": action.parameters.get("optimal_date"),
-                "recommendation_ar": action.parameters.get("recommendation_ar")
+                "recommendation_ar": action.parameters.get("recommendation_ar"),
             }
 
         # Store for learning
-        self.prediction_history.append({
-            "action": action.action_type,
-            "prediction": action.parameters.get("prediction"),
-            "timestamp": datetime.now().isoformat()
-        })
+        self.prediction_history.append(
+            {
+                "action": action.action_type,
+                "prediction": action.parameters.get("prediction"),
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
 
         return result

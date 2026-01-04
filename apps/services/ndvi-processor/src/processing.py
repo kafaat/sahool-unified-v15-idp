@@ -43,9 +43,7 @@ def create_job(
 
     # تقدير وقت الإنجاز
     estimated_minutes = random.randint(2, 10)
-    estimated = (
-        datetime.now(UTC) + timedelta(minutes=estimated_minutes)
-    ).isoformat()
+    estimated = (datetime.now(UTC) + timedelta(minutes=estimated_minutes)).isoformat()
 
     job = {
         "job_id": job_id,

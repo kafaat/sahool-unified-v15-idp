@@ -1550,7 +1550,7 @@ async def analyze_phenology_with_action(
         result=result,
         farmer_id=request.farmer_id,
         tenant_id=request.tenant_id,
-    ) from e
+    )
 
     # Publish event to NATS (in background)
     if request.publish_event and _nats_available and publish_analysis_completed_sync:
@@ -3620,7 +3620,9 @@ async def detect_changes(
         return ChangeReportResponse(**report.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
+        raise HTTPException(
+            status_code=400, detail=f"Invalid date format: {str(e)}"
+        ) from e
     except Exception as e:
         logger.error(f"Error detecting changes: {str(e)}")
         raise HTTPException(
@@ -3682,10 +3684,14 @@ async def compare_dates(
         return ChangeEventResponse(**event.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
+        raise HTTPException(
+            status_code=400, detail=f"Invalid date format: {str(e)}"
+        ) from e
     except Exception as e:
         logger.error(f"Error comparing dates: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Date comparison failed: {str(e)}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Date comparison failed: {str(e)}"
+        ) from e
 
 
 @app.get("/v1/changes/{field_id}/anomalies")

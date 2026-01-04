@@ -1383,9 +1383,7 @@ def list_hijri_months():
 
 
 @app.get("/v1/zodiac", response_model=ZodiacInfo, tags=["Astronomy"])
-def get_zodiac(
-    date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")
-):
+def get_zodiac(date_str: str | None = Query(None, description="التاريخ (YYYY-MM-DD)")):
     """الحصول على البرج الشمسي"""
     if date_str:
         try:

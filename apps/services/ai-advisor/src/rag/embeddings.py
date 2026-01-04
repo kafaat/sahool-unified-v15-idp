@@ -6,7 +6,6 @@ Manages text embeddings using sentence-transformers.
 يدير تضمينات النصوص باستخدام sentence-transformers.
 """
 
-
 import numpy as np
 import structlog
 from sentence_transformers import SentenceTransformer

@@ -2,7 +2,6 @@
 Tests for NDVI Compute Module
 """
 
-
 import pytest
 from src.compute import (
     NdviResult,

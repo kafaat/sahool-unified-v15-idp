@@ -13,24 +13,43 @@ class PIIMasker:
 
     # PII patterns
     PATTERNS = {
-        'email': (r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', '[EMAIL]'),
-        'phone': (r'(\+?[\d\s\-\(\)]{10,})', '[PHONE]'),
-        'ip_address': (r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b', '[IP]'),
-        'credit_card': (r'\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b', '[CARD]'),
-        'ssn': (r'\b\d{3}[\s\-]?\d{2}[\s\-]?\d{4}\b', '[SSN]'),
-        'api_key': (r'(sk-[a-zA-Z0-9]{20,}|api[_-]?key["\s:=]+["\']?[a-zA-Z0-9]{20,})', '[API_KEY]'),
-        'jwt': (r'eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*', '[JWT]'),
-        'password': (r'(password|passwd|pwd)["\s:=]+["\']?[^\s"\']+', '[PASSWORD]'),
+        "email": (r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", "[EMAIL]"),
+        "phone": (r"(\+?[\d\s\-\(\)]{10,})", "[PHONE]"),
+        "ip_address": (r"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", "[IP]"),
+        "credit_card": (r"\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b", "[CARD]"),
+        "ssn": (r"\b\d{3}[\s\-]?\d{2}[\s\-]?\d{4}\b", "[SSN]"),
+        "api_key": (
+            r'(sk-[a-zA-Z0-9]{20,}|api[_-]?key["\s:=]+["\']?[a-zA-Z0-9]{20,})',
+            "[API_KEY]",
+        ),
+        "jwt": (r"eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*", "[JWT]"),
+        "password": (r'(password|passwd|pwd)["\s:=]+["\']?[^\s"\']+', "[PASSWORD]"),
         # Arabic phone numbers
-        'arabic_phone': (r'[\u0660-\u0669]{10,}', '[PHONE]'),
+        "arabic_phone": (r"[\u0660-\u0669]{10,}", "[PHONE]"),
     }
 
     # Sensitive field names to mask entirely
     SENSITIVE_FIELDS = {
-        'password', 'passwd', 'pwd', 'secret', 'token', 'api_key', 'apikey',
-        'authorization', 'auth', 'credential', 'private_key', 'access_token',
-        'refresh_token', 'session_id', 'cookie', 'ssn', 'credit_card',
-        'card_number', 'cvv', 'pin'
+        "password",
+        "passwd",
+        "pwd",
+        "secret",
+        "token",
+        "api_key",
+        "apikey",
+        "authorization",
+        "auth",
+        "credential",
+        "private_key",
+        "access_token",
+        "refresh_token",
+        "session_id",
+        "cookie",
+        "ssn",
+        "credit_card",
+        "card_number",
+        "cvv",
+        "pin",
     }
 
     _compiled_patterns = None
@@ -66,16 +85,18 @@ class PIIMasker:
         for key, value in data.items():
             # Check if field name is sensitive
             if key.lower() in cls.SENSITIVE_FIELDS:
-                masked[key] = '[REDACTED]'
+                masked[key] = "[REDACTED]"
             elif isinstance(value, str):
                 masked[key] = cls.mask_text(value)
             elif isinstance(value, dict):
                 masked[key] = cls.mask_dict(value, depth + 1)
             elif isinstance(value, list):
                 masked[key] = [
-                    cls.mask_dict(item, depth + 1) if isinstance(item, dict)
-                    else cls.mask_text(item) if isinstance(item, str)
-                    else item
+                    (
+                        cls.mask_dict(item, depth + 1)
+                        if isinstance(item, dict)
+                        else cls.mask_text(item) if isinstance(item, str) else item
+                    )
                     for item in value
                 ]
             else:

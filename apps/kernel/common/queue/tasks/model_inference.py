@@ -75,14 +75,14 @@ def handle_model_inference(payload: Dict[str, Any]) -> Dict[str, Any]:
                     "class": "قمح",  # Wheat
                     "class_en": "wheat",
                     "confidence": 0.94,
-                    "bounding_box": {"x": 100, "y": 150, "width": 200, "height": 180}
+                    "bounding_box": {"x": 100, "y": 150, "width": 200, "height": 180},
                 },
                 {
                     "class": "شعير",  # Barley
                     "class_en": "barley",
                     "confidence": 0.87,
-                    "bounding_box": {"x": 350, "y": 200, "width": 180, "height": 160}
-                }
+                    "bounding_box": {"x": 350, "y": 200, "width": 180, "height": 160},
+                },
             ]
         elif "yield_prediction" in model_name:
             predictions = [
@@ -94,8 +94,8 @@ def handle_model_inference(payload: Dict[str, Any]) -> Dict[str, Any]:
                         "ndvi_score": 0.68,
                         "soil_moisture": 0.35,
                         "weather_conditions": "favorable",
-                        "historical_avg": 4200.0
-                    }
+                        "historical_avg": 4200.0,
+                    },
                 }
             ]
         elif "pest_detection" in model_name:
@@ -106,16 +106,12 @@ def handle_model_inference(payload: Dict[str, Any]) -> Dict[str, Any]:
                     "confidence": 0.88,
                     "severity": "medium",
                     "location": {"lat": 24.5123, "lon": 46.3456},
-                    "recommended_action": "رش مبيد حشري"
+                    "recommended_action": "رش مبيد حشري",
                 }
             ]
         else:
             predictions = [
-                {
-                    "prediction": "general_result",
-                    "confidence": 0.85,
-                    "value": 0.75
-                }
+                {"prediction": "general_result", "confidence": 0.85, "value": 0.75}
             ]
 
         result = {
@@ -127,22 +123,29 @@ def handle_model_inference(payload: Dict[str, Any]) -> Dict[str, Any]:
                 "framework": "PyTorch",
                 "input_shape": [224, 224, 3],
                 "output_classes": len(predictions),
-                "trained_on": "SAHOOL Dataset v2.3"
+                "trained_on": "SAHOOL Dataset v2.3",
             },
             "inference_time": 1.35,  # seconds
             "confidence_scores": [p.get("confidence", 0.0) for p in predictions],
             "statistics": {
                 "total_predictions": len(predictions),
-                "high_confidence_count": len([p for p in predictions if p.get("confidence", 0) > 0.9]),
-                "average_confidence": sum([p.get("confidence", 0) for p in predictions]) / len(predictions) if predictions else 0,
-                "below_threshold_count": 0
+                "high_confidence_count": len(
+                    [p for p in predictions if p.get("confidence", 0) > 0.9]
+                ),
+                "average_confidence": (
+                    sum([p.get("confidence", 0) for p in predictions])
+                    / len(predictions)
+                    if predictions
+                    else 0
+                ),
+                "below_threshold_count": 0,
             },
             "metadata": {
                 "processed_inputs": len(input_urls) if input_urls else 1,
                 "batch_size": payload.get("batch_size", 1),
                 "device": "cuda:0",
-                "timestamp": "2024-01-15T10:30:00Z"
-            }
+                "timestamp": "2024-01-15T10:30:00Z",
+            },
         }
 
         logger.info(

@@ -8,7 +8,9 @@ from typing import Any
 from .pii_masker import PIIMasker
 
 
-def pii_masking_processor(logger, method_name, event_dict: dict[str, Any]) -> dict[str, Any]:
+def pii_masking_processor(
+    logger, method_name, event_dict: dict[str, Any]
+) -> dict[str, Any]:
     """
     Structlog processor that masks PII in all log events
     معالج Structlog يخفي المعلومات الشخصية في جميع أحداث السجل
@@ -25,13 +27,13 @@ def pii_masking_processor(logger, method_name, event_dict: dict[str, Any]) -> di
         The event dictionary with PII masked
     """
     # Mask the main event message if it's a string
-    if 'event' in event_dict and isinstance(event_dict['event'], str):
-        event_dict['event'] = PIIMasker.mask_text(event_dict['event'])
+    if "event" in event_dict and isinstance(event_dict["event"], str):
+        event_dict["event"] = PIIMasker.mask_text(event_dict["event"])
 
     # Mask all other fields in the event dictionary
     masked_dict = {}
     for key, value in event_dict.items():
-        if key == 'event':
+        if key == "event":
             # Already masked above
             masked_dict[key] = event_dict[key]
         elif isinstance(value, str):
@@ -40,9 +42,11 @@ def pii_masking_processor(logger, method_name, event_dict: dict[str, Any]) -> di
             masked_dict[key] = PIIMasker.mask_dict(value)
         elif isinstance(value, list):
             masked_dict[key] = [
-                PIIMasker.mask_dict(item) if isinstance(item, dict)
-                else PIIMasker.mask_text(item) if isinstance(item, str)
-                else item
+                (
+                    PIIMasker.mask_dict(item)
+                    if isinstance(item, dict)
+                    else PIIMasker.mask_text(item) if isinstance(item, str) else item
+                )
                 for item in value
             ]
         else:

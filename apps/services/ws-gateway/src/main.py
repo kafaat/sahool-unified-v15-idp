@@ -205,7 +205,7 @@ async def websocket_endpoint(
         logger.error(
             f"JWT validation failed for connection {connection_id}. "
             f"Error: {str(e)}, Tenant: {tenant_id}"
-        ) from e
+        )
         await websocket.close(code=4001, reason="Invalid authentication token")
         return
     except Exception as e:

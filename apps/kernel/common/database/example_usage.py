@@ -21,11 +21,11 @@ from apps.kernel.common.database import MigrationManager
 
 def print_section(title: str, title_ar: str = ""):
     """طباعة عنوان القسم / Print section title"""
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print(f"  {title}")
     if title_ar:
         print(f"  {title_ar}")
-    print("="*80 + "\n")
+    print("=" * 80 + "\n")
 
 
 def example_migration_status():
@@ -37,7 +37,9 @@ def example_migration_status():
 
     # الحصول على عنوان URL من البيئة
     # Get database URL from environment
-    database_url = os.getenv('DATABASE_URL', 'postgresql://sahool:password@localhost/sahool')
+    database_url = os.getenv(
+        "DATABASE_URL", "postgresql://sahool:password@localhost/sahool"
+    )
 
     # إنشاء مدير الهجرة
     # Create migration manager
@@ -58,16 +60,16 @@ def example_migration_status():
 
     # عرض الهجرات المتاحة
     # Show available migrations
-    if status['available_migrations']:
+    if status["available_migrations"]:
         print("\nAvailable Migrations / الهجرات المتاحة:")
-        for migration in status['available_migrations']:
+        for migration in status["available_migrations"]:
             print(f"  - {migration['revision']}: {migration['description']}")
 
     # عرض الهجرات المطبقة
     # Show applied migrations
-    if status['applied_migrations']:
+    if status["applied_migrations"]:
         print("\nApplied Migrations / الهجرات المطبقة:")
-        for migration in status['applied_migrations']:
+        for migration in status["applied_migrations"]:
             print(f"  - {migration['revision']}: {migration['description']}")
             print(f"    Applied at: {migration['applied_at']}")
 
@@ -79,7 +81,9 @@ def example_run_migrations():
     """
     print_section("Run Migrations Example", "مثال: تشغيل الهجرات")
 
-    database_url = os.getenv('DATABASE_URL', 'postgresql://sahool:password@localhost/sahool')
+    database_url = os.getenv(
+        "DATABASE_URL", "postgresql://sahool:password@localhost/sahool"
+    )
     manager = MigrationManager(database_url)
 
     print("Running migrations to latest version...")
@@ -88,7 +92,7 @@ def example_run_migrations():
     try:
         result = manager.run_migrations()
 
-        if result['success']:
+        if result["success"]:
             print(f"\n✓ Success! / ✓ نجاح!")
             print(f"Target Version: {result['target_version']}")
             print(f"Execution Time: {result['execution_time_ms']}ms")
@@ -109,7 +113,9 @@ def example_rollback():
     """
     print_section("Rollback Example", "مثال: التراجع")
 
-    database_url = os.getenv('DATABASE_URL', 'postgresql://sahool:password@localhost/sahool')
+    database_url = os.getenv(
+        "DATABASE_URL", "postgresql://sahool:password@localhost/sahool"
+    )
     manager = MigrationManager(database_url)
 
     steps = 1
@@ -119,7 +125,7 @@ def example_rollback():
     try:
         result = manager.rollback(steps=steps)
 
-        if result['success']:
+        if result["success"]:
             print(f"\n✓ Rollback successful! / ✓ التراجع ناجح!")
             print(f"Steps: {result['steps']}")
             print(f"Execution Time: {result['execution_time_ms']}ms")
@@ -139,7 +145,9 @@ def example_validate_checksums():
     """
     print_section("Checksum Validation Example", "مثال: التحقق من Checksum")
 
-    database_url = os.getenv('DATABASE_URL', 'postgresql://sahool:password@localhost/sahool')
+    database_url = os.getenv(
+        "DATABASE_URL", "postgresql://sahool:password@localhost/sahool"
+    )
     manager = MigrationManager(database_url)
 
     print("Validating migration checksums...")
@@ -148,11 +156,11 @@ def example_validate_checksums():
     try:
         result = manager.validate_checksums()
 
-        if result['has_conflicts']:
+        if result["has_conflicts"]:
             print("\n⚠️  Warning: Migration file conflicts detected!")
             print("⚠️  تحذير: تم اكتشاف تعارضات في ملفات الهجرة!")
             print("\nConflicts / التعارضات:")
-            for conflict in result['conflicts']:
+            for conflict in result["conflicts"]:
                 print(f"  - Revision: {conflict['revision']}")
                 print(f"    Stored:  {conflict['stored_checksum'][:16]}...")
                 print(f"    Current: {conflict['current_checksum'][:16]}...")
@@ -172,7 +180,9 @@ def example_seed_data():
     """
     print_section("Seed Data Example", "مثال: تعبئة البيانات")
 
-    database_url = os.getenv('DATABASE_URL', 'postgresql://sahool:password@localhost/sahool')
+    database_url = os.getenv(
+        "DATABASE_URL", "postgresql://sahool:password@localhost/sahool"
+    )
     manager = MigrationManager(database_url)
 
     print("Seeding development data...")
@@ -181,7 +191,7 @@ def example_seed_data():
     try:
         result = manager.seed_data(environment="development")
 
-        if result['success']:
+        if result["success"]:
             print("\n✓ Seeding successful! / ✓ التعبئة ناجحة!")
             print(f"\nCreated / تم إنشاء:")
             print(f"  - Tenants: {result['tenants']}")
@@ -214,7 +224,9 @@ def example_create_migration():
     """
     print_section("Create Migration Example", "مثال: إنشاء هجرة")
 
-    database_url = os.getenv('DATABASE_URL', 'postgresql://sahool:password@localhost/sahool')
+    database_url = os.getenv(
+        "DATABASE_URL", "postgresql://sahool:password@localhost/sahool"
+    )
     manager = MigrationManager(database_url)
 
     migration_name = "add_weather_data"
@@ -225,9 +237,7 @@ def example_create_migration():
 
     try:
         result = manager.create_migration(
-            name=migration_name,
-            description=description,
-            autogenerate=False
+            name=migration_name, description=description, autogenerate=False
         )
 
         print(f"\n✓ {result}")
@@ -242,14 +252,14 @@ def main():
     الدالة الرئيسية
     Main function
     """
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("  SAHOOL Database Migration - Example Usage")
     print("  مثال على استخدام هجرة قاعدة بيانات SAHOOL")
-    print("="*80)
+    print("=" * 80)
 
     # التحقق من وجود متغير البيئة
     # Check for environment variable
-    if not os.getenv('DATABASE_URL'):
+    if not os.getenv("DATABASE_URL"):
         print("\n⚠️  Warning: DATABASE_URL not set, using default")
         print("⚠️  تحذير: DATABASE_URL غير محدد، استخدام الافتراضي")
         print("Default: postgresql://sahool:password@localhost/sahool\n")
@@ -275,11 +285,11 @@ def main():
     while True:
         choice = input("\nSelect example (number or 'q' to quit): ").strip()
 
-        if choice.lower() == 'q':
+        if choice.lower() == "q":
             print("\nGoodbye! / وداعاً!")
             break
 
-        if choice == '0':
+        if choice == "0":
             # تشغيل جميع الأمثلة
             # Run all examples
             for _, _, _, example_func in examples:
@@ -304,5 +314,5 @@ def main():
             print("Invalid choice / اختيار غير صالح")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -78,30 +78,30 @@ def handle_notification_send(payload: Dict[str, Any]) -> Dict[str, Any]:
                 "push": {
                     "sent": len(user_ids) if "push" in channels else 0,
                     "delivered": len(user_ids) if "push" in channels else 0,
-                    "failed": 0
+                    "failed": 0,
                 },
                 "sms": {
                     "sent": len(user_ids) if "sms" in channels else 0,
                     "delivered": len(user_ids) if "sms" in channels else 0,
-                    "failed": 0
+                    "failed": 0,
                 },
                 "email": {
                     "sent": len(user_ids) if "email" in channels else 0,
                     "delivered": len(user_ids) if "email" in channels else 0,
-                    "failed": 0
+                    "failed": 0,
                 },
                 "in_app": {
                     "sent": len(user_ids) if "in_app" in channels else 0,
-                    "read": 0
-                }
+                    "read": 0,
+                },
             },
             "notification_ids": notification_ids,
             "metadata": {
                 "notification_type": notification_type,
                 "priority": priority,
                 "channels_used": channels,
-                "sent_at": "2024-01-15T10:30:00Z"
-            }
+                "sent_at": "2024-01-15T10:30:00Z",
+            },
         }
 
         logger.info(

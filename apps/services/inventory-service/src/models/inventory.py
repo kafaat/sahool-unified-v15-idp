@@ -169,9 +169,7 @@ class InventoryItem(TenantEntity):
     name_en: Mapped[str] = mapped_column(String(200), nullable=False)
     name_ar: Mapped[str] = mapped_column(String(200), nullable=False)
     sku: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    barcode: Mapped[str | None] = mapped_column(
-        String(100), nullable=True, index=True
-    )
+    barcode: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
 
     # Category and classification
     category_id: Mapped[uuid.UUID] = mapped_column(

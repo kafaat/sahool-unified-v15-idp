@@ -147,8 +147,7 @@ async def check_offline_devices():
                     device_id=device.device_id,
                     field_id=device.field_id,
                     status=DeviceStatus.OFFLINE.value,
-                    last_seen=device.last_seen
-                    or datetime.now(UTC).isoformat(),
+                    last_seen=device.last_seen or datetime.now(UTC).isoformat(),
                 )
 
                 # Also publish alert

@@ -635,10 +635,22 @@ async def get_cost_usage(user_id: str | None = None):
                 "daily_limit_usd": stats["daily_limit"],
                 "monthly_limit_usd": stats["monthly_limit"],
                 "total_requests": stats["total_requests"],
-                "daily_remaining_usd": round(stats["daily_limit"] - stats["daily_cost"], 4),
-                "monthly_remaining_usd": round(stats["monthly_limit"] - stats["monthly_cost"], 4),
-                "daily_usage_percent": round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2) if stats["daily_limit"] > 0 else 0,
-                "monthly_usage_percent": round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2) if stats["monthly_limit"] > 0 else 0,
+                "daily_remaining_usd": round(
+                    stats["daily_limit"] - stats["daily_cost"], 4
+                ),
+                "monthly_remaining_usd": round(
+                    stats["monthly_limit"] - stats["monthly_cost"], 4
+                ),
+                "daily_usage_percent": (
+                    round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2)
+                    if stats["daily_limit"] > 0
+                    else 0
+                ),
+                "monthly_usage_percent": (
+                    round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2)
+                    if stats["monthly_limit"] > 0
+                    else 0
+                ),
             },
             "user_id": user_id or "anonymous",
         }

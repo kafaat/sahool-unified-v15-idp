@@ -29,6 +29,7 @@ class MetricPoint:
     نقطة بيانات مقياس واحدة
     Single metric data point
     """
+
     timestamp: datetime
     value: float
     labels: Dict[str, str] = field(default_factory=dict)
@@ -40,6 +41,7 @@ class PerformanceAlert:
     تنبيه أداء
     Performance alert
     """
+
     alert_type: str
     severity: Literal["warning", "critical"]
     message: str
@@ -65,14 +67,17 @@ class CircularBuffer:
         with self._lock:
             self.data.append(item)
 
-    def get_range(self, start_time: datetime, end_time: Optional[datetime] = None) -> List[MetricPoint]:
+    def get_range(
+        self, start_time: datetime, end_time: Optional[datetime] = None
+    ) -> List[MetricPoint]:
         """الحصول على البيانات في نطاق زمني محدد"""
         if end_time is None:
             end_time = datetime.now()
 
         with self._lock:
             return [
-                point for point in self.data
+                point
+                for point in self.data
                 if start_time <= point.timestamp <= end_time
             ]
 
@@ -161,11 +166,7 @@ class PerformanceMonitor:
         logger.info("Performance monitor initialized - تم تهيئة مراقب الأداء")
 
     def track_request(
-        self,
-        endpoint: str,
-        duration_ms: float,
-        status: int,
-        method: str = "GET"
+        self, endpoint: str, duration_ms: float, status: int, method: str = "GET"
     ):
         """
         تتبع طلب HTTP
@@ -183,7 +184,7 @@ class PerformanceMonitor:
             point = MetricPoint(
                 timestamp=datetime.now(),
                 value=duration_ms,
-                labels={"endpoint": endpoint, "method": method, "status": str(status)}
+                labels={"endpoint": endpoint, "method": method, "status": str(status)},
             )
             self.request_latencies[key].append(point)
 
@@ -200,14 +201,16 @@ class PerformanceMonitor:
             self._check_response_time_alert(endpoint, duration_ms)
             self._check_error_rate_alert(key)
 
-        logger.debug(f"Tracked request: {method} {endpoint} - {duration_ms}ms - {status}")
+        logger.debug(
+            f"Tracked request: {method} {endpoint} - {duration_ms}ms - {status}"
+        )
 
     def track_db_query(
         self,
         query_type: str,
         duration_ms: float,
         success: bool = True,
-        table: Optional[str] = None
+        table: Optional[str] = None,
     ):
         """
         تتبع استعلام قاعدة البيانات
@@ -230,8 +233,8 @@ class PerformanceMonitor:
                 labels={
                     "query_type": query_type,
                     "success": str(success),
-                    "table": table or "unknown"
-                }
+                    "table": table or "unknown",
+                },
             )
             self.db_query_times[key].append(point)
 
@@ -245,7 +248,7 @@ class PerformanceMonitor:
         service: str,
         duration_ms: float,
         success: bool,
-        endpoint: Optional[str] = None
+        endpoint: Optional[str] = None,
     ):
         """
         تتبع استدعاء خدمة خارجية
@@ -268,8 +271,8 @@ class PerformanceMonitor:
                 labels={
                     "service": service,
                     "success": str(success),
-                    "endpoint": endpoint or "unknown"
-                }
+                    "endpoint": endpoint or "unknown",
+                },
             )
             self.external_api_latencies[key].append(point)
 
@@ -279,7 +282,9 @@ class PerformanceMonitor:
             else:
                 self.external_api_failures[key] += 1
 
-        logger.debug(f"Tracked external API: {key} - {duration_ms}ms - success={success}")
+        logger.debug(
+            f"Tracked external API: {key} - {duration_ms}ms - success={success}"
+        )
 
     def record_system_metrics(self):
         """
@@ -292,7 +297,7 @@ class PerformanceMonitor:
             memory_point = MetricPoint(
                 timestamp=datetime.now(),
                 value=memory.percent / 100.0,  # Convert to ratio
-                labels={"type": "memory"}
+                labels={"type": "memory"},
             )
             self.memory_usage.append(memory_point)
 
@@ -301,7 +306,7 @@ class PerformanceMonitor:
             cpu_point = MetricPoint(
                 timestamp=datetime.now(),
                 value=cpu_percent / 100.0,  # Convert to ratio
-                labels={"type": "cpu"}
+                labels={"type": "cpu"},
             )
             self.cpu_usage.append(cpu_point)
 
@@ -309,14 +314,14 @@ class PerformanceMonitor:
             self._check_memory_alert(memory.percent / 100.0)
             self._check_cpu_alert(cpu_percent / 100.0)
 
-            logger.debug(f"System metrics: Memory={memory.percent:.1f}%, CPU={cpu_percent:.1f}%")
+            logger.debug(
+                f"System metrics: Memory={memory.percent:.1f}%, CPU={cpu_percent:.1f}%"
+            )
         except Exception as e:
             logger.error(f"Error recording system metrics: {e}")
 
     def get_metrics_summary(
-        self,
-        period: str = "1h",
-        endpoint: Optional[str] = None
+        self, period: str = "1h", endpoint: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         الحصول على ملخص المقاييس لفترة زمنية محددة
@@ -351,18 +356,16 @@ class PerformanceMonitor:
                         "message_ar": alert.message_ar,
                         "timestamp": alert.timestamp.isoformat(),
                         "value": alert.value,
-                        "threshold": alert.threshold
+                        "threshold": alert.threshold,
                     }
                     for alert in self.active_alerts
-                ]
+                ],
             }
 
         return summary
 
     def _get_request_summary(
-        self,
-        start_time: datetime,
-        endpoint_filter: Optional[str] = None
+        self, start_time: datetime, endpoint_filter: Optional[str] = None
     ) -> Dict[str, Any]:
         """Get summary of HTTP request metrics"""
         all_latencies = []
@@ -396,7 +399,11 @@ class PerformanceMonitor:
         # Calculate throughput and error rate
         period_seconds = (datetime.now() - start_time).total_seconds()
         throughput = total_requests / period_seconds if period_seconds > 0 else 0
-        error_rate = (total_errors_4xx + total_errors_5xx) / total_requests if total_requests > 0 else 0
+        error_rate = (
+            (total_errors_4xx + total_errors_5xx) / total_requests
+            if total_requests > 0
+            else 0
+        )
 
         return {
             "total_requests": total_requests,
@@ -405,14 +412,16 @@ class PerformanceMonitor:
                 "p50_ms": round(p50, 2),
                 "p95_ms": round(p95, 2),
                 "p99_ms": round(p99, 2),
-                "avg_ms": round(statistics.mean(all_latencies), 2) if all_latencies else 0,
+                "avg_ms": (
+                    round(statistics.mean(all_latencies), 2) if all_latencies else 0
+                ),
             },
             "errors": {
                 "4xx": total_errors_4xx,
                 "5xx": total_errors_5xx,
                 "total": total_errors_4xx + total_errors_5xx,
-                "error_rate_percent": round(error_rate * 100, 2)
-            }
+                "error_rate_percent": round(error_rate * 100, 2),
+            },
         }
 
     def _get_database_summary(self, start_time: datetime) -> Dict[str, Any]:
@@ -440,9 +449,11 @@ class PerformanceMonitor:
                 "p50_ms": round(p50, 2),
                 "p95_ms": round(p95, 2),
                 "p99_ms": round(p99, 2),
-                "avg_ms": round(statistics.mean(all_query_times), 2) if all_query_times else 0,
+                "avg_ms": (
+                    round(statistics.mean(all_query_times), 2) if all_query_times else 0
+                ),
             },
-            "by_type": query_counts
+            "by_type": query_counts,
         }
 
     def _get_external_api_summary(self, start_time: datetime) -> Dict[str, Any]:
@@ -475,8 +486,10 @@ class PerformanceMonitor:
                 "p50_ms": round(p50, 2),
                 "p95_ms": round(p95, 2),
                 "p99_ms": round(p99, 2),
-                "avg_ms": round(statistics.mean(all_latencies), 2) if all_latencies else 0,
-            }
+                "avg_ms": (
+                    round(statistics.mean(all_latencies), 2) if all_latencies else 0
+                ),
+            },
         }
 
     def _get_system_summary(self, start_time: datetime) -> Dict[str, Any]:
@@ -489,15 +502,25 @@ class PerformanceMonitor:
 
         return {
             "memory": {
-                "current_percent": round(memory_values[-1] * 100, 2) if memory_values else 0,
-                "avg_percent": round(statistics.mean(memory_values) * 100, 2) if memory_values else 0,
-                "max_percent": round(max(memory_values) * 100, 2) if memory_values else 0,
+                "current_percent": (
+                    round(memory_values[-1] * 100, 2) if memory_values else 0
+                ),
+                "avg_percent": (
+                    round(statistics.mean(memory_values) * 100, 2)
+                    if memory_values
+                    else 0
+                ),
+                "max_percent": (
+                    round(max(memory_values) * 100, 2) if memory_values else 0
+                ),
             },
             "cpu": {
                 "current_percent": round(cpu_values[-1] * 100, 2) if cpu_values else 0,
-                "avg_percent": round(statistics.mean(cpu_values) * 100, 2) if cpu_values else 0,
+                "avg_percent": (
+                    round(statistics.mean(cpu_values) * 100, 2) if cpu_values else 0
+                ),
                 "max_percent": round(max(cpu_values) * 100, 2) if cpu_values else 0,
-            }
+            },
         }
 
     def _check_response_time_alert(self, endpoint: str, duration_ms: float):
@@ -512,7 +535,7 @@ class PerformanceMonitor:
                 message_ar=f"حرج: زمن الاستجابة {duration_s:.2f}ث يتجاوز الحد المسموح لـ {endpoint}",
                 timestamp=datetime.now(),
                 value=duration_s,
-                threshold=self.THRESHOLDS["response_time_critical"]
+                threshold=self.THRESHOLDS["response_time_critical"],
             )
             self._add_alert(alert)
         elif duration_s >= self.THRESHOLDS["response_time_warning"]:
@@ -523,7 +546,7 @@ class PerformanceMonitor:
                 message_ar=f"تحذير: زمن الاستجابة {duration_s:.2f}ث يقترب من الحد المسموح لـ {endpoint}",
                 timestamp=datetime.now(),
                 value=duration_s,
-                threshold=self.THRESHOLDS["response_time_warning"]
+                threshold=self.THRESHOLDS["response_time_warning"],
             )
             self._add_alert(alert)
 
@@ -544,7 +567,7 @@ class PerformanceMonitor:
                 message_ar=f"حرج: معدل الأخطاء {error_rate*100:.1f}% يتجاوز الحد المسموح لـ {key}",
                 timestamp=datetime.now(),
                 value=error_rate,
-                threshold=self.THRESHOLDS["error_rate_critical"]
+                threshold=self.THRESHOLDS["error_rate_critical"],
             )
             self._add_alert(alert)
         elif error_rate >= self.THRESHOLDS["error_rate_warning"]:
@@ -555,7 +578,7 @@ class PerformanceMonitor:
                 message_ar=f"تحذير: معدل الأخطاء {error_rate*100:.1f}% يقترب من الحد المسموح لـ {key}",
                 timestamp=datetime.now(),
                 value=error_rate,
-                threshold=self.THRESHOLDS["error_rate_warning"]
+                threshold=self.THRESHOLDS["error_rate_warning"],
             )
             self._add_alert(alert)
 
@@ -571,7 +594,7 @@ class PerformanceMonitor:
                 message_ar=f"حرج: استعلام قاعدة البيانات {key} استغرق {duration_s:.2f}ث",
                 timestamp=datetime.now(),
                 value=duration_s,
-                threshold=self.THRESHOLDS["db_query_critical"]
+                threshold=self.THRESHOLDS["db_query_critical"],
             )
             self._add_alert(alert)
         elif duration_s >= self.THRESHOLDS["db_query_warning"]:
@@ -582,7 +605,7 @@ class PerformanceMonitor:
                 message_ar=f"تحذير: استعلام قاعدة البيانات {key} استغرق {duration_s:.2f}ث",
                 timestamp=datetime.now(),
                 value=duration_s,
-                threshold=self.THRESHOLDS["db_query_warning"]
+                threshold=self.THRESHOLDS["db_query_warning"],
             )
             self._add_alert(alert)
 
@@ -596,7 +619,7 @@ class PerformanceMonitor:
                 message_ar=f"حرج: استخدام الذاكرة {memory_ratio*100:.1f}% يتجاوز الحد المسموح",
                 timestamp=datetime.now(),
                 value=memory_ratio,
-                threshold=self.THRESHOLDS["memory_critical"]
+                threshold=self.THRESHOLDS["memory_critical"],
             )
             self._add_alert(alert)
         elif memory_ratio >= self.THRESHOLDS["memory_warning"]:
@@ -607,7 +630,7 @@ class PerformanceMonitor:
                 message_ar=f"تحذير: استخدام الذاكرة {memory_ratio*100:.1f}% يقترب من الحد المسموح",
                 timestamp=datetime.now(),
                 value=memory_ratio,
-                threshold=self.THRESHOLDS["memory_warning"]
+                threshold=self.THRESHOLDS["memory_warning"],
             )
             self._add_alert(alert)
 
@@ -621,7 +644,7 @@ class PerformanceMonitor:
                 message_ar=f"حرج: استخدام المعالج {cpu_ratio*100:.1f}% يتجاوز الحد المسموح",
                 timestamp=datetime.now(),
                 value=cpu_ratio,
-                threshold=self.THRESHOLDS["cpu_critical"]
+                threshold=self.THRESHOLDS["cpu_critical"],
             )
             self._add_alert(alert)
         elif cpu_ratio >= self.THRESHOLDS["cpu_warning"]:
@@ -632,7 +655,7 @@ class PerformanceMonitor:
                 message_ar=f"تحذير: استخدام المعالج {cpu_ratio*100:.1f}% يقترب من الحد المسموح",
                 timestamp=datetime.now(),
                 value=cpu_ratio,
-                threshold=self.THRESHOLDS["cpu_warning"]
+                threshold=self.THRESHOLDS["cpu_warning"],
             )
             self._add_alert(alert)
 
@@ -672,13 +695,13 @@ class PerformanceMonitor:
         except ValueError:
             return timedelta(hours=1)
 
-        if unit == 'h':
+        if unit == "h":
             return timedelta(hours=value)
-        elif unit == 'm':
+        elif unit == "m":
             return timedelta(minutes=value)
-        elif unit == 's':
+        elif unit == "s":
             return timedelta(seconds=value)
-        elif unit == 'd':
+        elif unit == "d":
             return timedelta(days=value)
         else:
             return timedelta(hours=1)

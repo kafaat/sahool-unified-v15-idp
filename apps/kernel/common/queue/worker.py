@@ -35,6 +35,7 @@ class WorkerStatus:
     حالة العامل
     Worker status
     """
+
     IDLE = "idle"  # خامل
     BUSY = "busy"  # مشغول
     STOPPED = "stopped"  # متوقف
@@ -67,7 +68,7 @@ class TaskWorker:
         task_types: Optional[List[TaskType]] = None,
         namespace: str = "sahool",
         poll_interval: int = 1,
-        max_tasks: int = 10
+        max_tasks: int = 10,
     ):
         """
         تهيئة عامل المهام
@@ -107,7 +108,7 @@ class TaskWorker:
             "total_processed": 0,
             "total_succeeded": 0,
             "total_failed": 0,
-            "current_load": 0
+            "current_load": 0,
         }
 
         # Redis keys
@@ -171,8 +172,7 @@ class TaskWorker:
                 # معالجة المهمة التالية
                 # Process next task
                 task = self.task_queue.process_next(
-                    worker_id=self.worker_id,
-                    task_types=self.task_types
+                    worker_id=self.worker_id, task_types=self.task_types
                 )
 
                 if task:
@@ -181,7 +181,7 @@ class TaskWorker:
                     thread = threading.Thread(
                         target=self._execute_task,
                         args=(task,),
-                        name=f"task-{task.task_id[:8]}"
+                        name=f"task-{task.task_id[:8]}",
                     )
                     thread.start()
                     self.current_tasks[task.task_id] = thread
@@ -200,7 +200,9 @@ class TaskWorker:
                     time.sleep(self.poll_interval)
 
         except Exception as e:
-            logger.error(f"Worker {self.worker_id} encountered error: {e}", exc_info=True)
+            logger.error(
+                f"Worker {self.worker_id} encountered error: {e}", exc_info=True
+            )
             self.status = WorkerStatus.ERROR
         finally:
             self._shutdown()
@@ -263,7 +265,9 @@ class TaskWorker:
             self._cleanup_completed_tasks()
 
             if time.time() - start_time > timeout:
-                logger.warning(f"Timeout waiting for tasks, {len(self.current_tasks)} tasks still running")
+                logger.warning(
+                    f"Timeout waiting for tasks, {len(self.current_tasks)} tasks still running"
+                )
                 break
 
             time.sleep(1)
@@ -301,7 +305,9 @@ class TaskWorker:
             handler = self.task_handlers.get(task.task_type)
 
             if not handler:
-                raise ValueError(f"No handler registered for task type: {task.task_type.value}")
+                raise ValueError(
+                    f"No handler registered for task type: {task.task_type.value}"
+                )
 
             # تنفيذ المهمة
             # Execute task
@@ -310,9 +316,7 @@ class TaskWorker:
             # تمييز المهمة كمكتملة
             # Mark task as completed
             self.task_queue.complete_task(
-                task_id=task.task_id,
-                result=result,
-                worker_id=self.worker_id
+                task_id=task.task_id, result=result, worker_id=self.worker_id
             )
 
             # تحديث الإحصائيات
@@ -330,7 +334,7 @@ class TaskWorker:
                 task_id=task.task_id,
                 error_message=error_message,
                 worker_id=self.worker_id,
-                retry=True
+                retry=True,
             )
 
             # تحديث الإحصائيات
@@ -338,7 +342,9 @@ class TaskWorker:
             self.stats["total_processed"] += 1
             self.stats["total_failed"] += 1
 
-            logger.error(f"Task failed: {task.task_id} - {error_message}", exc_info=True)
+            logger.error(
+                f"Task failed: {task.task_id} - {error_message}", exc_info=True
+            )
 
     def _cleanup_completed_tasks(self):
         """
@@ -346,7 +352,8 @@ class TaskWorker:
         Clean up completed tasks
         """
         completed = [
-            task_id for task_id, thread in self.current_tasks.items()
+            task_id
+            for task_id, thread in self.current_tasks.items()
             if not thread.is_alive()
         ]
 
@@ -370,10 +377,14 @@ class TaskWorker:
         worker_data = {
             "worker_id": self.worker_id,
             "status": self.status,
-            "task_types": ",".join([t.value for t in self.task_types]) if self.task_types else "all",
+            "task_types": (
+                ",".join([t.value for t in self.task_types])
+                if self.task_types
+                else "all"
+            ),
             "max_tasks": self.max_tasks,
             "started_at": self.stats["started_at"].isoformat(),
-            "last_heartbeat": datetime.utcnow().isoformat()
+            "last_heartbeat": datetime.utcnow().isoformat(),
         }
 
         self.redis.hset(self.worker_key, mapping=worker_data)
@@ -386,14 +397,17 @@ class TaskWorker:
         تحديث حالة العامل
         Update worker status
         """
-        self.redis.hset(self.worker_key, mapping={
-            "status": self.status,
-            "current_load": self.stats["current_load"],
-            "total_processed": self.stats["total_processed"],
-            "total_succeeded": self.stats["total_succeeded"],
-            "total_failed": self.stats["total_failed"],
-            "last_heartbeat": datetime.utcnow().isoformat()
-        })
+        self.redis.hset(
+            self.worker_key,
+            mapping={
+                "status": self.status,
+                "current_load": self.stats["current_load"],
+                "total_processed": self.stats["total_processed"],
+                "total_succeeded": self.stats["total_succeeded"],
+                "total_failed": self.stats["total_failed"],
+                "last_heartbeat": datetime.utcnow().isoformat(),
+            },
+        )
         self.redis.expire(self.worker_key, 3600)
 
     def _unregister_worker(self):
@@ -416,10 +430,12 @@ class TaskWorker:
             "worker_id": self.worker_id,
             "status": self.status,
             "is_running": self.is_running,
-            "task_types": [t.value for t in self.task_types] if self.task_types else None,
+            "task_types": (
+                [t.value for t in self.task_types] if self.task_types else None
+            ),
             "max_tasks": self.max_tasks,
             "current_tasks": len(self.current_tasks),
-            "stats": self.stats.copy()
+            "stats": self.stats.copy(),
         }
 
 
@@ -456,7 +472,7 @@ class WorkerManager:
         self,
         worker_id: Optional[str] = None,
         task_types: Optional[List[TaskType]] = None,
-        max_tasks: int = 10
+        max_tasks: int = 10,
     ) -> str:
         """
         بدء عامل جديد
@@ -475,15 +491,13 @@ class WorkerManager:
             worker_id=worker_id,
             task_types=task_types,
             namespace=self.namespace,
-            max_tasks=max_tasks
+            max_tasks=max_tasks,
         )
 
         # بدء العامل في خيط منفصل
         # Start worker in separate thread
         thread = threading.Thread(
-            target=worker.start,
-            name=f"worker-{worker.worker_id}",
-            daemon=True
+            target=worker.start, name=f"worker-{worker.worker_id}", daemon=True
         )
         thread.start()
 
@@ -558,7 +572,7 @@ class WorkerManager:
         elif count < current_count:
             # إزالة عمال
             # Remove workers
-            workers_to_stop = list(self.workers.keys())[:current_count - count]
+            workers_to_stop = list(self.workers.keys())[: current_count - count]
             for worker_id in workers_to_stop:
                 self.stop_worker(worker_id)
             logger.info(f"Scaled down: {current_count} -> {count} workers")
@@ -583,9 +597,8 @@ class WorkerManager:
             return {
                 "total_workers": len(self.workers),
                 "workers": {
-                    wid: worker.get_status()
-                    for wid, worker in self.workers.items()
-                }
+                    wid: worker.get_status() for wid, worker in self.workers.items()
+                },
             }
 
     def register_handler(self, task_type: TaskType, handler: Callable):

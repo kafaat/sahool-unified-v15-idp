@@ -210,9 +210,7 @@ def load_config_from_env() -> WeatherServiceConfig:
 
     # Alert thresholds customization
     # تخصيص عتبات التنبيهات
-    config.thresholds.frost_critical_c = float(
-        os.getenv("FROST_CRITICAL_TEMP", "0")
-    )
+    config.thresholds.frost_critical_c = float(os.getenv("FROST_CRITICAL_TEMP", "0"))
     config.thresholds.heat_wave_critical_c = float(
         os.getenv("HEAT_WAVE_CRITICAL_TEMP", "45")
     )
@@ -222,9 +220,7 @@ def load_config_from_env() -> WeatherServiceConfig:
 
     # Agricultural indices settings
     # إعدادات المؤشرات الزراعية
-    config.ag_indices.gdd_base_temp_c = float(
-        os.getenv("GDD_BASE_TEMP", "10")
-    )
+    config.ag_indices.gdd_base_temp_c = float(os.getenv("GDD_BASE_TEMP", "10"))
     config.ag_indices.chill_hours_threshold_c = float(
         os.getenv("CHILL_HOURS_THRESHOLD", "7.2")
     )

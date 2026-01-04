@@ -46,9 +46,11 @@ try:
         track_db_operation,
         track_external_api,
     )
+
     PROMETHEUS_AVAILABLE = True
 except ImportError:
     PROMETHEUS_AVAILABLE = False
+
     # Provide dummy functions when prometheus_client is not installed
     def get_exporter(*args, **kwargs):
         raise ImportError("prometheus_client not installed")
@@ -59,11 +61,13 @@ except ImportError:
     def track_db_operation(*args, **kwargs):
         def decorator(func):
             return func
+
         return decorator
 
     def track_external_api(*args, **kwargs):
         def decorator(func):
             return func
+
         return decorator
 
     PrometheusExporter = None
@@ -76,14 +80,12 @@ __all__ = [
     "PerformanceAlert",
     "CircularBuffer",
     "get_monitor",
-
     # Prometheus integration (if available)
     "PrometheusExporter",
     "get_exporter",
     "setup_prometheus_endpoint",
     "track_db_operation",
     "track_external_api",
-
     # Feature flag
     "PROMETHEUS_AVAILABLE",
 ]

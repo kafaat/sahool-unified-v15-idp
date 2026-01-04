@@ -23,23 +23,26 @@ logger = logging.getLogger(__name__)
 
 class AgentType(Enum):
     """أنواع الوكلاء"""
-    SIMPLE_REFLEX = "simple_reflex"      # If condition → Action
-    MODEL_BASED = "model_based"          # Internal model of environment
-    GOAL_BASED = "goal_based"            # Decision based on goal
-    UTILITY_BASED = "utility_based"      # Best outcome selection
-    LEARNING = "learning"                # Learns from experience
+
+    SIMPLE_REFLEX = "simple_reflex"  # If condition → Action
+    MODEL_BASED = "model_based"  # Internal model of environment
+    GOAL_BASED = "goal_based"  # Decision based on goal
+    UTILITY_BASED = "utility_based"  # Best outcome selection
+    LEARNING = "learning"  # Learns from experience
 
 
 class AgentLayer(Enum):
     """طبقات الوكلاء"""
-    EDGE = "edge"                        # < 100ms response
-    SPECIALIST = "specialist"            # Domain expert
-    COORDINATOR = "coordinator"          # Integration & decisions
-    LEARNING = "learning"                # Continuous improvement
+
+    EDGE = "edge"  # < 100ms response
+    SPECIALIST = "specialist"  # Domain expert
+    COORDINATOR = "coordinator"  # Integration & decisions
+    LEARNING = "learning"  # Continuous improvement
 
 
 class AgentStatus(Enum):
     """حالة الوكيل"""
+
     IDLE = "idle"
     PROCESSING = "processing"
     WAITING = "waiting"
@@ -50,6 +53,7 @@ class AgentStatus(Enum):
 @dataclass
 class AgentContext:
     """سياق الوكيل - البيئة والمعلومات"""
+
     field_id: str | None = None
     crop_type: str | None = None
     location: dict[str, float] | None = None  # lat, lon
@@ -65,6 +69,7 @@ class AgentContext:
 @dataclass
 class AgentAction:
     """إجراء الوكيل"""
+
     action_type: str
     parameters: dict[str, Any]
     confidence: float  # 0.0 - 1.0
@@ -78,6 +83,7 @@ class AgentAction:
 @dataclass
 class AgentPercept:
     """إدراك الوكيل - المدخلات"""
+
     percept_type: str
     data: Any
     source: str
@@ -88,6 +94,7 @@ class AgentPercept:
 @dataclass
 class AgentState:
     """حالة الوكيل الداخلية"""
+
     beliefs: dict[str, Any] = field(default_factory=dict)
     goals: list[str] = field(default_factory=list)
     intentions: list[str] = field(default_factory=list)
@@ -110,7 +117,7 @@ class BaseAgent(ABC):
         agent_type: AgentType,
         layer: AgentLayer,
         description: str = "",
-        description_ar: str = ""
+        description_ar: str = "",
     ):
         self.agent_id = agent_id
         self.name = name
@@ -187,7 +194,7 @@ class BaseAgent(ABC):
                 return {
                     "success": False,
                     "message": "No action determined",
-                    "agent_id": self.agent_id
+                    "agent_id": self.agent_id,
                 }
 
             # 3. Act - فعل
@@ -206,27 +213,20 @@ class BaseAgent(ABC):
                 "action": action,
                 "result": result,
                 "agent_id": self.agent_id,
-                "response_time_ms": response_time
+                "response_time_ms": response_time,
             }
 
         except Exception as e:
             self.status = AgentStatus.ERROR
             logger.error(f"Agent {self.agent_id} error: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "agent_id": self.agent_id
-            }
+            return {"success": False, "error": str(e), "agent_id": self.agent_id}
 
     def add_rule(self, condition: Callable, action: AgentAction) -> None:
         """
         إضافة قاعدة للوكيل البسيط
         Add rule for Simple Reflex Agent
         """
-        self.rules.append({
-            "condition": condition,
-            "action": action
-        })
+        self.rules.append({"condition": condition, "action": action})
 
     def evaluate_rules(self, context: AgentContext) -> AgentAction | None:
         """
@@ -238,7 +238,9 @@ class BaseAgent(ABC):
                 return rule["action"]
         return None
 
-    def set_utility_function(self, func: Callable[[AgentAction, AgentContext], float]) -> None:
+    def set_utility_function(
+        self, func: Callable[[AgentAction, AgentContext], float]
+    ) -> None:
         """
         تعيين دالة المنفعة للوكيل القائم على المنفعة
         Set utility function for Utility-Based Agent
@@ -254,7 +256,9 @@ class BaseAgent(ABC):
             return self.utility_function(action, context)
         return 0.0
 
-    def select_best_action(self, actions: list[AgentAction], context: AgentContext) -> AgentAction:
+    def select_best_action(
+        self, actions: list[AgentAction], context: AgentContext
+    ) -> AgentAction:
         """
         اختيار أفضل إجراء بناءً على المنفعة
         Select best action based on utility
@@ -281,10 +285,9 @@ class BaseAgent(ABC):
         self.status = AgentStatus.LEARNING
 
         # Store feedback
-        self.feedback_history.append({
-            "feedback": feedback,
-            "timestamp": datetime.now().isoformat()
-        })
+        self.feedback_history.append(
+            {"feedback": feedback, "timestamp": datetime.now().isoformat()}
+        )
 
         # Calculate reward
         reward = feedback.get("reward", 0.0)
@@ -311,15 +314,18 @@ class BaseAgent(ABC):
         """الحصول على مقاييس الأداء"""
         avg_response_time = (
             self.total_response_time_ms / self.total_requests
-            if self.total_requests > 0 else 0
+            if self.total_requests > 0
+            else 0
         )
         success_rate = (
             self.successful_requests / self.total_requests * 100
-            if self.total_requests > 0 else 0
+            if self.total_requests > 0
+            else 0
         )
         avg_reward = (
             sum(self.reward_history) / len(self.reward_history)
-            if self.reward_history else 0
+            if self.reward_history
+            else 0
         )
 
         return {
@@ -333,7 +339,9 @@ class BaseAgent(ABC):
             "success_rate_percent": round(success_rate, 2),
             "avg_response_time_ms": round(avg_response_time, 2),
             "avg_reward": round(avg_reward, 4),
-            "last_action_time": self.last_action_time.isoformat() if self.last_action_time else None
+            "last_action_time": (
+                self.last_action_time.isoformat() if self.last_action_time else None
+            ),
         }
 
     def to_dict(self) -> dict[str, Any]:
@@ -347,7 +355,7 @@ class BaseAgent(ABC):
             "description": self.description,
             "description_ar": self.description_ar,
             "status": self.status.value,
-            "metrics": self.get_metrics()
+            "metrics": self.get_metrics(),
         }
 
     def __repr__(self) -> str:

@@ -13,6 +13,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 logger = logging.getLogger(__name__)
 
+
 class RateLimiter:
     """Token bucket rate limiter"""
 
@@ -20,7 +21,7 @@ class RateLimiter:
         self,
         requests_per_minute: int = 60,
         requests_per_hour: int = 1000,
-        burst_size: int = 10
+        burst_size: int = 10,
     ):
         self.requests_per_minute = requests_per_minute
         self.requests_per_hour = requests_per_hour
@@ -34,12 +35,12 @@ class RateLimiter:
     def _get_client_id(self, request: Request) -> str:
         """Get unique client identifier"""
         # Try to get user ID from auth header
-        auth_header = request.headers.get('authorization', '')
+        auth_header = request.headers.get("authorization", "")
         if auth_header:
             return f"auth:{hash(auth_header)}"
 
         # Fall back to IP
-        forwarded = request.headers.get('x-forwarded-for')
+        forwarded = request.headers.get("x-forwarded-for")
         if forwarded:
             return f"ip:{forwarded.split(',')[0].strip()}"
 
@@ -61,12 +62,10 @@ class RateLimiter:
         async with self._lock:
             # Clean up old requests
             self._minute_requests[client_id] = self._cleanup_old_requests(
-                self._minute_requests[client_id],
-                timedelta(minutes=1)
+                self._minute_requests[client_id], timedelta(minutes=1)
             )
             self._hour_requests[client_id] = self._cleanup_old_requests(
-                self._hour_requests[client_id],
-                timedelta(hours=1)
+                self._hour_requests[client_id], timedelta(hours=1)
             )
 
             # Check minute limit
@@ -90,7 +89,7 @@ class RateLimiter:
 
         return {
             "minute_remaining": max(0, self.requests_per_minute - minute_used),
-            "hour_remaining": max(0, self.requests_per_hour - hour_used)
+            "hour_remaining": max(0, self.requests_per_hour - hour_used),
         }
 
 
@@ -103,7 +102,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         # Skip rate limiting for health checks
-        if request.url.path in ['/health', '/healthz', '/ready']:
+        if request.url.path in ["/health", "/healthz", "/ready"]:
             return await call_next(request)
 
         is_allowed, reason = await self.rate_limiter.check_rate_limit(request)
@@ -111,9 +110,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         if not is_allowed:
             logger.warning(f"Rate limit exceeded for {request.client.host}: {reason}")
             raise HTTPException(
-                status_code=429,
-                detail=reason,
-                headers={"Retry-After": "60"}
+                status_code=429, detail=reason, headers={"Retry-After": "60"}
             )
 
         response = await call_next(request)
@@ -124,5 +121,5 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 rate_limiter = RateLimiter(
     requests_per_minute=30,  # Conservative for AI endpoints
     requests_per_hour=500,
-    burst_size=5
+    burst_size=5,
 )

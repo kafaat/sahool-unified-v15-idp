@@ -40,7 +40,7 @@ try:
         "properties": {
             "name": "حقل القمح - Wheat Field",
             "crop": "wheat",
-            "area_ha": 2.5
+            "area_ha": 2.5,
         },
         "geometry": {
             "type": "Polygon",
@@ -50,10 +50,10 @@ try:
                     [44.22, 15.35],
                     [44.22, 15.37],
                     [44.2, 15.37],
-                    [44.2, 15.35]
+                    [44.2, 15.35],
                 ]
-            ]
-        }
+            ],
+        },
     }
 
     result = validator.validate_geometry(valid_field)
@@ -74,10 +74,18 @@ try:
 
     # عرض معلومات اليمن - Display Yemen info
     print("\n3. معلومات حدود اليمن - Yemen bounds information:")
-    print(f"   - خط الطول / Longitude: {YEMEN_BOUNDS['longitude']['min']}° - {YEMEN_BOUNDS['longitude']['max']}°")
-    print(f"   - خط العرض / Latitude: {YEMEN_BOUNDS['latitude']['min']}° - {YEMEN_BOUNDS['latitude']['max']}°")
-    print(f"   - الحد الأدنى للمساحة / Min area: {AREA_LIMITS['min_hectares']} هكتار / ha")
-    print(f"   - الحد الأقصى للمساحة / Max area: {AREA_LIMITS['max_hectares']} هكتار / ha")
+    print(
+        f"   - خط الطول / Longitude: {YEMEN_BOUNDS['longitude']['min']}° - {YEMEN_BOUNDS['longitude']['max']}°"
+    )
+    print(
+        f"   - خط العرض / Latitude: {YEMEN_BOUNDS['latitude']['min']}° - {YEMEN_BOUNDS['latitude']['max']}°"
+    )
+    print(
+        f"   - الحد الأدنى للمساحة / Min area: {AREA_LIMITS['min_hectares']} هكتار / ha"
+    )
+    print(
+        f"   - الحد الأقصى للمساحة / Max area: {AREA_LIMITS['max_hectares']} هكتار / ha"
+    )
 
     # مثال على حقل صغير جداً - Example of too small field
     print("\n4. اختبار حقل صغير جداً - Testing too small field...")
@@ -89,16 +97,18 @@ try:
                 [44.201, 15.35],
                 [44.201, 15.351],
                 [44.2, 15.351],
-                [44.2, 15.35]
+                [44.2, 15.35],
             ]
-        ]
+        ],
     }
 
     result2 = validator.validate_geometry(small_field)
     print(f"   - المساحة / Area: {result2.area_hectares:.6f} هكتار / hectares")
     print(f"   - صالح / Valid: {result2.is_valid}")
 
-    area_issues = [issue for issue in result2.issues if "area" in issue.issue_type.lower()]
+    area_issues = [
+        issue for issue in result2.issues if "area" in issue.issue_type.lower()
+    ]
     if area_issues:
         print(f"   - المشاكل / Issues:")
         for issue in area_issues:
@@ -115,9 +125,9 @@ try:
                 [44.22, 15.35],
                 [44.22, 15.37],
                 [44.2, 15.37],
-                [44.2, 15.35]
+                [44.2, 15.35],
             ]
-        ]
+        ],
     }
 
     existing_fields = [
@@ -133,30 +143,34 @@ try:
                         [44.23, 15.36],
                         [44.23, 15.38],
                         [44.21, 15.38],
-                        [44.21, 15.36]
+                        [44.21, 15.36],
                     ]
-                ]
-            }
+                ],
+            },
         }
     ]
 
     overlap_result = validator.check_overlap_with_existing(
         new_boundary=new_field,
         existing_fields=existing_fields,
-        tolerance_percentage=5.0
+        tolerance_percentage=5.0,
     )
 
     print(f"   - يوجد تداخل / Has overlap: {overlap_result.has_overlap}")
     if overlap_result.has_overlap:
-        print(f"   - عدد الحقول المتداخلة / Overlapping fields: {len(overlap_result.overlapping_fields)}")
-        print(f"   - أقصى نسبة تداخل / Max overlap: {overlap_result.max_overlap_percentage:.2f}%")
+        print(
+            f"   - عدد الحقول المتداخلة / Overlapping fields: {len(overlap_result.overlapping_fields)}"
+        )
+        print(
+            f"   - أقصى نسبة تداخل / Max overlap: {overlap_result.max_overlap_percentage:.2f}%"
+        )
 
     # عرض ملف حدود اليمن - Display Yemen boundaries file
     print("\n6. ملف حدود اليمن - Yemen boundaries file:")
     yemen_file = Path(__file__).parent / "data" / "yemen_boundaries.geojson"
     if yemen_file.exists():
         print(f"   ✓ الملف موجود / File exists: {yemen_file}")
-        with open(yemen_file, 'r', encoding='utf-8') as f:
+        with open(yemen_file, "r", encoding="utf-8") as f:
             data = json.load(f)
             print(f"   - عدد المعالم / Feature count: {len(data.get('features', []))}")
             print(f"   - النوع / Type: {data.get('type')}")
@@ -184,4 +198,5 @@ except ImportError as e:
 except Exception as e:
     print(f"\n✗ خطأ / Error: {e}")
     import traceback
+
     traceback.print_exc()

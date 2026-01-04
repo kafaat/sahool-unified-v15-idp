@@ -27,7 +27,9 @@ from typing import Any
 try:
     import numpy as np
 except ImportError:
-    raise ImportError("NumPy is required for NDVI time-series analysis. Install with: pip install numpy")
+    raise ImportError(
+        "NumPy is required for NDVI time-series analysis. Install with: pip install numpy"
+    )
 
 
 # =============================================================================
@@ -160,13 +162,19 @@ class SeasonalMetrics:
     def to_dict(self) -> dict:
         """تحويل إلى قاموس - Convert to dictionary"""
         return {
-            "season_start": self.season_start.isoformat() if self.season_start else None,
+            "season_start": (
+                self.season_start.isoformat() if self.season_start else None
+            ),
             "peak_date": self.peak_date.isoformat() if self.peak_date else None,
             "season_end": self.season_end.isoformat() if self.season_end else None,
             "season_length": self.season_length,
             "peak_ndvi": round(self.peak_ndvi, 4) if self.peak_ndvi else None,
-            "seasonal_amplitude": round(self.seasonal_amplitude, 4) if self.seasonal_amplitude else None,
-            "integrated_ndvi": round(self.integrated_ndvi, 2) if self.integrated_ndvi else None,
+            "seasonal_amplitude": (
+                round(self.seasonal_amplitude, 4) if self.seasonal_amplitude else None
+            ),
+            "integrated_ndvi": (
+                round(self.integrated_ndvi, 2) if self.integrated_ndvi else None
+            ),
         }
 
 
@@ -257,11 +265,7 @@ class NDVITimeSeriesAnalyzer:
     # NDVI Calculation - حساب NDVI
     # =========================================================================
 
-    def calculate_ndvi(
-        self,
-        red_band: np.ndarray,
-        nir_band: np.ndarray
-    ) -> np.ndarray:
+    def calculate_ndvi(self, red_band: np.ndarray, nir_band: np.ndarray) -> np.ndarray:
         """
         حساب مؤشر NDVI من نطاقي الأحمر والأشعة تحت الحمراء القريبة
         Calculate NDVI from RED and NIR bands
@@ -283,11 +287,7 @@ class NDVITimeSeriesAnalyzer:
         # حساب NDVI مع معالجة القسمة على صفر
         # Calculate NDVI with zero-division handling
         denominator = nir + red
-        ndvi = np.where(
-            denominator != 0,
-            (nir - red) / denominator,
-            0
-        )
+        ndvi = np.where(denominator != 0, (nir - red) / denominator, 0)
 
         # قص القيم ضمن النطاق المنطقي [-1, 1]
         # Clip values to valid range
@@ -300,9 +300,7 @@ class NDVITimeSeriesAnalyzer:
     # =========================================================================
 
     def detect_anomalies(
-        self,
-        ndvi_series: list[NDVIPoint],
-        threshold: float = 2.0
+        self, ndvi_series: list[NDVIPoint], threshold: float = 2.0
     ) -> list[AnomalyResult]:
         """
         كشف الشذوذ في سلسلة NDVI الزمنية باستخدام Z-score
@@ -342,7 +340,9 @@ class NDVITimeSeriesAnalyzer:
         # كشف الشذوذات
         # Detect anomalies
         anomalies = []
-        for i, (z_score, value, expected, date_val) in enumerate(zip(z_scores, values, smoothed, dates)):
+        for i, (z_score, value, expected, date_val) in enumerate(
+            zip(z_scores, values, smoothed, dates)
+        ):
             if abs(z_score) > threshold:
                 # تحديد نوع الشذوذ
                 # Determine anomaly type
@@ -374,7 +374,7 @@ class NDVITimeSeriesAnalyzer:
                     anomaly_type=anomaly_type,
                     severity=severity,
                     description_ar=desc_ar,
-                    description_en=desc_en
+                    description_en=desc_en,
                 )
                 anomalies.append(anomaly)
 
@@ -385,9 +385,7 @@ class NDVITimeSeriesAnalyzer:
     # =========================================================================
 
     def calculate_trend(
-        self,
-        ndvi_values: list[float],
-        dates: list[date]
+        self, ndvi_values: list[float], dates: list[date]
     ) -> TrendResult:
         """
         حساب اتجاه السلسلة الزمنية باستخدام الانحدار الخطي
@@ -409,7 +407,7 @@ class NDVITimeSeriesAnalyzer:
                 confidence=0.0,
                 prediction_equation="N/A",
                 description_ar="بيانات غير كافية",
-                description_en="Insufficient data"
+                description_en="Insufficient data",
             )
 
         # تحويل التواريخ إلى أرقام (أيام من البداية)
@@ -434,7 +432,9 @@ class NDVITimeSeriesAnalyzer:
         # في التطبيق الحقيقي، استخدم scipy.stats
         # In real application, use scipy.stats
         se = np.sqrt(ss_res / (n - 2)) if n > 2 else 1.0
-        t_stat = abs(slope) / (se / np.sqrt(np.sum((x - np.mean(x)) ** 2))) if se > 0 else 0
+        t_stat = (
+            abs(slope) / (se / np.sqrt(np.sum((x - np.mean(x)) ** 2))) if se > 0 else 0
+        )
         p_value = max(0.001, 1.0 / (1.0 + t_stat))  # تقريب
 
         # تحديد نوع الاتجاه
@@ -468,7 +468,7 @@ class NDVITimeSeriesAnalyzer:
             confidence=confidence,
             prediction_equation=prediction_equation,
             description_ar=desc_ar,
-            description_en=desc_en
+            description_en=desc_en,
         )
 
     # =========================================================================
@@ -476,9 +476,7 @@ class NDVITimeSeriesAnalyzer:
     # =========================================================================
 
     def predict_next_values(
-        self,
-        ndvi_series: list[NDVIPoint],
-        periods: int = 7
+        self, ndvi_series: list[NDVIPoint], periods: int = 7
     ) -> list[tuple[date, float]]:
         """
         التنبؤ بقيم NDVI المستقبلية باستخدام المتوسط المتحرك والاتجاه
@@ -506,7 +504,9 @@ class NDVITimeSeriesAnalyzer:
 
         # حساب الموسمية (متوسط التغير الأسبوعي)
         # Calculate seasonality (average weekly change)
-        weekly_pattern = self._extract_weekly_pattern(values) if len(values) >= 7 else [0] * 7
+        weekly_pattern = (
+            self._extract_weekly_pattern(values) if len(values) >= 7 else [0] * 7
+        )
 
         # التنبؤ
         # Forecast
@@ -539,8 +539,7 @@ class NDVITimeSeriesAnalyzer:
     # =========================================================================
 
     def detect_phenological_stages(
-        self,
-        ndvi_curve: list[NDVIPoint]
+        self, ndvi_curve: list[NDVIPoint]
     ) -> list[tuple[date, PhenologicalStage, float]]:
         """
         كشف مراحل النمو الفينولوجية من منحنى NDVI
@@ -602,7 +601,7 @@ class NDVITimeSeriesAnalyzer:
 
             # خامل: NDVI منخفض بعد انخفاض
             # Dormant: Low NDVI after decline
-            elif smoothed[i] < 0.25 and i > 0 and smoothed[i-1] > smoothed[i]:
+            elif smoothed[i] < 0.25 and i > 0 and smoothed[i - 1] > smoothed[i]:
                 stage = PhenologicalStage.DORMANT
                 confidence = 0.7
 
@@ -616,9 +615,7 @@ class NDVITimeSeriesAnalyzer:
     # =========================================================================
 
     def identify_growing_season_start(
-        self,
-        ndvi_series: list[NDVIPoint],
-        threshold: float = 0.2
+        self, ndvi_series: list[NDVIPoint], threshold: float = 0.2
     ) -> date | None:
         """
         تحديد بداية موسم النمو
@@ -652,8 +649,7 @@ class NDVITimeSeriesAnalyzer:
         return None
 
     def identify_peak_greenness(
-        self,
-        ndvi_series: list[NDVIPoint]
+        self, ndvi_series: list[NDVIPoint]
     ) -> tuple[date, float] | None:
         """
         تحديد ذروة الاخضرار (أعلى قيمة NDVI)
@@ -673,10 +669,7 @@ class NDVITimeSeriesAnalyzer:
         max_point = max(ndvi_series, key=lambda p: p.value)
         return (max_point.date, max_point.value)
 
-    def calculate_seasonal_integral(
-        self,
-        ndvi_series: list[NDVIPoint]
-    ) -> float:
+    def calculate_seasonal_integral(self, ndvi_series: list[NDVIPoint]) -> float:
         """
         حساب التكامل الموسمي (مجموع قيم NDVI عبر الموسم)
         Calculate seasonal integral (sum of NDVI values across season)
@@ -712,9 +705,7 @@ class NDVITimeSeriesAnalyzer:
     # =========================================================================
 
     def compare_periods(
-        self,
-        period1_ndvi: list[float],
-        period2_ndvi: list[float]
+        self, period1_ndvi: list[float], period2_ndvi: list[float]
     ) -> ChangeDetectionResult:
         """
         مقارنة فترتين لكشف التغييرات
@@ -735,7 +726,7 @@ class NDVITimeSeriesAnalyzer:
                 statistical_significance=1.0,
                 affected_area_percent=0.0,
                 description_ar="بيانات غير كافية",
-                description_en="Insufficient data"
+                description_en="Insufficient data",
             )
 
         # تحويل إلى numpy arrays
@@ -798,13 +789,11 @@ class NDVITimeSeriesAnalyzer:
             statistical_significance=p_value,
             affected_area_percent=affected_area_percent,
             description_ar=desc_ar,
-            description_en=desc_en
+            description_en=desc_en,
         )
 
     def detect_sudden_changes(
-        self,
-        ndvi_series: list[NDVIPoint],
-        sensitivity: float = 0.15
+        self, ndvi_series: list[NDVIPoint], sensitivity: float = 0.15
     ) -> list[tuple[date, float, str]]:
         """
         كشف التغييرات المفاجئة في سلسلة NDVI
@@ -843,9 +832,7 @@ class NDVITimeSeriesAnalyzer:
         return sudden_changes
 
     def generate_change_map(
-        self,
-        before_image: np.ndarray,
-        after_image: np.ndarray
+        self, before_image: np.ndarray, after_image: np.ndarray
     ) -> dict[str, Any]:
         """
         إنشاء خريطة التغيير بين صورتين
@@ -895,17 +882,14 @@ class NDVITimeSeriesAnalyzer:
                 "mean_change": float(np.mean(change_map)),
                 "max_improvement": float(np.max(change_map)),
                 "max_degradation": float(np.min(change_map)),
-            }
+            },
         }
 
     # =========================================================================
     # Cloud Masking - إخفاء السحب
     # =========================================================================
 
-    def detect_clouds(
-        self,
-        image_data: dict[str, np.ndarray]
-    ) -> CloudMaskResult:
+    def detect_clouds(self, image_data: dict[str, np.ndarray]) -> CloudMaskResult:
         """
         كشف السحب في بيانات الصورة
         Detect clouds in image data
@@ -925,15 +909,15 @@ class NDVITimeSeriesAnalyzer:
         """
         # التحقق من النطاقات المطلوبة
         # Check required bands
-        required_bands = ['blue', 'green', 'red', 'nir']
+        required_bands = ["blue", "green", "red", "nir"]
         for band in required_bands:
             if band not in image_data:
                 raise ValueError(f"Required band '{band}' not found in image_data")
 
-        blue = image_data['blue'].astype(np.float32)
-        green = image_data['green'].astype(np.float32)
-        red = image_data['red'].astype(np.float32)
-        nir = image_data['nir'].astype(np.float32)
+        blue = image_data["blue"].astype(np.float32)
+        green = image_data["green"].astype(np.float32)
+        red = image_data["red"].astype(np.float32)
+        nir = image_data["nir"].astype(np.float32)
 
         # تهيئة قناع السحب
         # Initialize cloud mask
@@ -963,8 +947,8 @@ class NDVITimeSeriesAnalyzer:
         # كشف ظلال السحب (اختياري)
         # Detect cloud shadows (optional)
         shadow_mask = None
-        if 'swir1' in image_data:
-            swir1 = image_data['swir1'].astype(np.float32)
+        if "swir1" in image_data:
+            swir1 = image_data["swir1"].astype(np.float32)
             # الظلال: انعكاسية منخفضة في جميع النطاقات
             # Shadows: low reflectance in all bands
             darkness = (blue + green + red + nir + swir1) / 5
@@ -985,14 +969,11 @@ class NDVITimeSeriesAnalyzer:
             cloud_mask=cloud_mask,
             cloud_percentage=cloud_percentage,
             shadow_mask=shadow_mask,
-            quality_mask=quality_mask
+            quality_mask=quality_mask,
         )
 
     def interpolate_cloudy_pixels(
-        self,
-        ndvi_image: np.ndarray,
-        cloud_mask: np.ndarray,
-        method: str = 'nearest'
+        self, ndvi_image: np.ndarray, cloud_mask: np.ndarray, method: str = "nearest"
     ) -> np.ndarray:
         """
         استيفاء البكسلات المغطاة بالسحب
@@ -1012,10 +993,10 @@ class NDVITimeSeriesAnalyzer:
 
         # إيجاد البكسلات الصافية والمغطاة
         # Find clear and cloudy pixels
-        clear_mask = (cloud_mask == 0)
-        cloudy_mask = (cloud_mask == 1)
+        clear_mask = cloud_mask == 0
+        cloudy_mask = cloud_mask == 1
 
-        if method == 'nearest':
+        if method == "nearest":
             # استيفاء بأقرب قيمة صافية
             # Interpolate using nearest clear value
             # تطبيق توسيع بسيط (dilation-like)
@@ -1033,15 +1014,18 @@ class NDVITimeSeriesAnalyzer:
                         for di in range(-half_k, half_k + 1):
                             for dj in range(-half_k, half_k + 1):
                                 ni, nj = i + di, j + dj
-                                if (0 <= ni < height and 0 <= nj < width and
-                                    clear_mask[ni, nj]):
+                                if (
+                                    0 <= ni < height
+                                    and 0 <= nj < width
+                                    and clear_mask[ni, nj]
+                                ):
                                     interpolated[i, j] = ndvi_image[ni, nj]
                                     found = True
                                     break
                             if found:
                                 break
 
-        elif method == 'linear':
+        elif method == "linear":
             # استيفاء خطي باستخدام متوسط القيم المحيطة
             # Linear interpolation using average of surrounding values
             kernel_size = 3
@@ -1057,8 +1041,11 @@ class NDVITimeSeriesAnalyzer:
                         for di in range(-half_k, half_k + 1):
                             for dj in range(-half_k, half_k + 1):
                                 ni, nj = i + di, j + dj
-                                if (0 <= ni < height and 0 <= nj < width and
-                                    clear_mask[ni, nj]):
+                                if (
+                                    0 <= ni < height
+                                    and 0 <= nj < width
+                                    and clear_mask[ni, nj]
+                                ):
                                     clear_values.append(ndvi_image[ni, nj])
 
                         # حساب المتوسط
@@ -1089,9 +1076,7 @@ class NDVITimeSeriesAnalyzer:
         # تطبيق المتوسط المتحرك
         # Apply moving average
         smoothed = np.convolve(
-            values,
-            np.ones(self.smoothing_window) / self.smoothing_window,
-            mode='same'
+            values, np.ones(self.smoothing_window) / self.smoothing_window, mode="same"
         )
 
         return smoothed
@@ -1174,7 +1159,7 @@ def create_ndvi_timeseries(
     dates: list[date],
     values: list[float],
     quality_scores: list[float] | None = None,
-    cloud_coverage: list[float] | None = None
+    cloud_coverage: list[float] | None = None,
 ) -> list[NDVIPoint]:
     """
     إنشاء سلسلة زمنية من NDVI من القوائم
@@ -1198,12 +1183,7 @@ def create_ndvi_timeseries(
         raise ValueError("All input lists must have the same length")
 
     return [
-        NDVIPoint(
-            date=d,
-            value=v,
-            quality=q,
-            cloud_coverage=c
-        )
+        NDVIPoint(date=d, value=v, quality=q, cloud_coverage=c)
         for d, v, q, c in zip(dates, values, quality_scores, cloud_coverage)
     ]
 
@@ -1212,7 +1192,7 @@ def export_results_to_dict(
     anomalies: list[AnomalyResult],
     trend: TrendResult,
     seasonal_metrics: SeasonalMetrics,
-    changes: ChangeDetectionResult | None = None
+    changes: ChangeDetectionResult | None = None,
 ) -> dict[str, Any]:
     """
     تصدير نتائج التحليل إلى قاموس
@@ -1237,7 +1217,7 @@ def export_results_to_dict(
             "total_anomalies": len(anomalies),
             "has_trend": trend.trend_type != TrendType.NO_TREND,
             "season_detected": seasonal_metrics.season_start is not None,
-        }
+        },
     }
 
 
@@ -1342,10 +1322,10 @@ if __name__ == "__main__":
     # Test cloud detection
     print("\nTesting cloud detection...")
     image_data = {
-        'blue': np.random.rand(50, 50) * 0.3,
-        'green': np.random.rand(50, 50) * 0.3,
-        'red': red_band[:50, :50],
-        'nir': nir_band[:50, :50],
+        "blue": np.random.rand(50, 50) * 0.3,
+        "green": np.random.rand(50, 50) * 0.3,
+        "red": red_band[:50, :50],
+        "nir": nir_band[:50, :50],
     }
     cloud_result = analyzer.detect_clouds(image_data)
     print(f"Cloud coverage: {cloud_result.cloud_percentage:.2f}%")

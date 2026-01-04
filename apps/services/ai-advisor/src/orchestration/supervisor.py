@@ -137,7 +137,9 @@ Respond with a JSON object containing:
 
             messages = [
                 SystemMessage(content=self._get_routing_prompt()),
-                HumanMessage(content=f"Query: {sanitized_query}\n\nContext: {context or {}}"),
+                HumanMessage(
+                    content=f"Query: {sanitized_query}\n\nContext: {context or {}}"
+                ),
             ]
 
             response = await self.llm.ainvoke(messages)

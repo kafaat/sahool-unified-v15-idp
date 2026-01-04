@@ -312,9 +312,7 @@ class ApplicationTracker:
         # Convert to dataclass
         return self._db_to_dataclass(application_record)
 
-    async def _deduct_from_batches(
-        self, item_id: str, quantity: float
-    ) -> str | None:
+    async def _deduct_from_batches(self, item_id: str, quantity: float) -> str | None:
         """
         Deduct quantity from batches using FIFO (First In, First Out)
 

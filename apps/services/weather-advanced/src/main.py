@@ -524,9 +524,7 @@ async def fetch_open_meteo_forecast(
         return None
 
 
-async def fetch_openweathermap_current(
-    lat: float, lon: float
-) -> dict[str, Any] | None:
+async def fetch_openweathermap_current(lat: float, lon: float) -> dict[str, Any] | None:
     """
     Fetch current weather from OpenWeatherMap API
     جلب الطقس الحالي من OpenWeatherMap API
@@ -1356,14 +1354,10 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
         irrig_en = f"💧 High irrigation need today ({et0} mm) - morning and evening irrigation required"
     elif et0 > 4:
         irrig_ar = f"💧 احتياج ري متوسط ({et0} ملم) - ري واحد كافي"
-        irrig_en = (
-            f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
-        )
+        irrig_en = f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
     else:
         irrig_ar = f"💧 احتياج ري منخفض ({et0} ملم) - تقليل الري ممكن"
-        irrig_en = (
-            f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
-        )
+        irrig_en = f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
 
     return AgriculturalWeatherReport(
         location_id=location_id,

@@ -27,6 +27,7 @@ from fallback_manager import (
 
 # ===== اختبارات قاطع الدائرة - Circuit Breaker Tests =====
 
+
 class TestCircuitBreaker:
     """
     اختبارات قاطع الدائرة
@@ -38,7 +39,9 @@ class TestCircuitBreaker:
         اختبار: تهيئة قاطع الدائرة
         Test: Circuit breaker initialization
         """
-        cb = CircuitBreaker(failure_threshold=5, recovery_timeout=30, success_threshold=3)
+        cb = CircuitBreaker(
+            failure_threshold=5, recovery_timeout=30, success_threshold=3
+        )
 
         assert cb.state == CircuitState.CLOSED
         assert cb.failure_count == 0
@@ -125,7 +128,9 @@ class TestCircuitBreaker:
         اختبار: إغلاق الدائرة بعد تحقيق عتبة النجاح
         Test: Circuit closes after success threshold
         """
-        cb = CircuitBreaker(failure_threshold=2, recovery_timeout=1, success_threshold=2)
+        cb = CircuitBreaker(
+            failure_threshold=2, recovery_timeout=1, success_threshold=2
+        )
 
         def failing_func():
             raise Exception("فشل - failure")
@@ -227,6 +232,7 @@ class TestCircuitBreaker:
 
 
 # ===== اختبارات مدير الاحتياطي - Fallback Manager Tests =====
+
 
 class TestFallbackManager:
     """
@@ -395,6 +401,7 @@ class TestFallbackManager:
 
 # ===== اختبارات الديكوريتورز - Decorator Tests =====
 
+
 class TestDecorators:
     """
     اختبارات الديكوريتورز
@@ -406,6 +413,7 @@ class TestDecorators:
         اختبار: ديكوريتور قاطع الدائرة مع نجاح
         Test: Circuit breaker decorator with success
         """
+
         @circuit_breaker(failure_threshold=3)
         def successful_func():
             return "نجاح - success"
@@ -418,6 +426,7 @@ class TestDecorators:
         اختبار: ديكوريتور قاطع الدائرة مع فشل
         Test: Circuit breaker decorator with failure
         """
+
         @circuit_breaker(failure_threshold=2)
         def failing_func():
             raise Exception("فشل - failure")
@@ -436,11 +445,12 @@ class TestDecorators:
         اختبار: الديكوريتور يحتوي على خاصية قاطع الدائرة
         Test: Decorator has circuit_breaker attribute
         """
+
         @circuit_breaker(failure_threshold=3)
         def test_func():
             return "test"
 
-        assert hasattr(test_func, 'circuit_breaker')
+        assert hasattr(test_func, "circuit_breaker")
         assert isinstance(test_func.circuit_breaker, CircuitBreaker)
 
     def test_with_fallback_decorator_success(self):
@@ -448,6 +458,7 @@ class TestDecorators:
         اختبار: ديكوريتور الاحتياطي مع نجاح
         Test: Fallback decorator with success
         """
+
         def fallback_func():
             return "احتياطي - fallback"
 
@@ -463,6 +474,7 @@ class TestDecorators:
         اختبار: ديكوريتور الاحتياطي يستخدم الاحتياطي عند الفشل
         Test: Fallback decorator uses fallback on failure
         """
+
         def fallback_func():
             return "احتياطي - fallback"
 
@@ -478,6 +490,7 @@ class TestDecorators:
         اختبار: ديكوريتور الاحتياطي يرفع استثناء عند فشل الاثنين
         Test: Fallback decorator raises when both fail
         """
+
         def failing_fallback():
             raise Exception("فشل الاحتياطي - fallback failure")
 
@@ -490,6 +503,7 @@ class TestDecorators:
 
 
 # ===== اختبارات الاحتياطيات الخاصة بالخدمات - Service Fallbacks Tests =====
+
 
 class TestServiceFallbacks:
     """
@@ -562,6 +576,7 @@ class TestServiceFallbacks:
 
 # ===== اختبارات التكامل - Integration Tests =====
 
+
 class TestIntegration:
     """
     اختبارات التكامل
@@ -587,7 +602,9 @@ class TestIntegration:
                 raise Exception("فشل - failure")
             return "نجاح - success"
 
-        fm.register_fallback("test_service", my_fallback, failure_threshold=3, recovery_timeout=1)
+        fm.register_fallback(
+            "test_service", my_fallback, failure_threshold=3, recovery_timeout=1
+        )
 
         # 3 فشل - 3 failures
         for i in range(3):
@@ -659,6 +676,7 @@ class TestIntegration:
 
 
 # ===== اختبارات الأداء - Performance Tests =====
+
 
 class TestPerformance:
     """

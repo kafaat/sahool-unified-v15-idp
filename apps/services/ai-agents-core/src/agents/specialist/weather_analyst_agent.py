@@ -13,7 +13,14 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
+from ..base_agent import (
+    AgentAction,
+    AgentContext,
+    AgentLayer,
+    AgentPercept,
+    AgentType,
+    BaseAgent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +37,7 @@ class WeatherAnalystAgent(BaseAgent):
         "heavy_rain": {"mm": 30, "severity": "warning"},
         "drought_risk": {"days_no_rain": 14, "severity": "warning"},
         "high_wind": {"speed_kmh": 40, "severity": "warning"},
-        "sandstorm": {"visibility_km": 1, "severity": "critical"}
+        "sandstorm": {"visibility_km": 1, "severity": "critical"},
     }
 
     def __init__(self, agent_id: str = "weather_analyst_001"):
@@ -41,14 +48,14 @@ class WeatherAnalystAgent(BaseAgent):
             agent_type=AgentType.MODEL_BASED,
             layer=AgentLayer.SPECIALIST,
             description="Expert agent for agricultural weather analysis",
-            description_ar="وكيل خبير لتحليل الطقس الزراعي"
+            description_ar="وكيل خبير لتحليل الطقس الزراعي",
         )
 
         self.internal_model = {
             "gdd_accumulated": 0,
             "rain_deficit": 0,
             "heat_stress_days": 0,
-            "cold_stress_days": 0
+            "cold_stress_days": 0,
         }
 
     async def perceive(self, percept: AgentPercept) -> None:
@@ -120,7 +127,13 @@ class WeatherAnalystAgent(BaseAgent):
 
         # Check drought risk
         if self.internal_model["rain_deficit"] >= 14:
-            alerts.append(("drought_risk", "warning", f"خطر جفاف - {self.internal_model['rain_deficit']} يوم بدون مطر"))
+            alerts.append(
+                (
+                    "drought_risk",
+                    "warning",
+                    f"خطر جفاف - {self.internal_model['rain_deficit']} يوم بدون مطر",
+                )
+            )
 
         if alerts:
             # Return most critical alert
@@ -132,13 +145,16 @@ class WeatherAnalystAgent(BaseAgent):
                     "alert_type": alert[0],
                     "severity": alert[1],
                     "message_ar": alert[2],
-                    "all_alerts": [{"type": a[0], "severity": a[1], "message": a[2]} for a in alerts],
-                    "gdd_accumulated": self.internal_model["gdd_accumulated"]
+                    "all_alerts": [
+                        {"type": a[0], "severity": a[1], "message": a[2]}
+                        for a in alerts
+                    ],
+                    "gdd_accumulated": self.internal_model["gdd_accumulated"],
                 },
                 confidence=0.9,
                 priority=1 if alert[1] == "critical" else 2,
                 reasoning=alert[2],
-                source_agent=self.agent_id
+                source_agent=self.agent_id,
             )
 
         # Normal weather report
@@ -149,12 +165,12 @@ class WeatherAnalystAgent(BaseAgent):
                 "temperature": current.get("temperature"),
                 "humidity": current.get("humidity"),
                 "gdd_accumulated": self.internal_model["gdd_accumulated"],
-                "message_ar": "الظروف الجوية طبيعية"
+                "message_ar": "الظروف الجوية طبيعية",
             },
             confidence=0.85,
             priority=4,
             reasoning="الطقس مناسب للزراعة",
-            source_agent=self.agent_id
+            source_agent=self.agent_id,
         )
 
     async def act(self, action: AgentAction) -> dict[str, Any]:
@@ -162,9 +178,13 @@ class WeatherAnalystAgent(BaseAgent):
         return {
             "action_type": action.action_type,
             "executed_at": datetime.now().isoformat(),
-            "alert": action.parameters if action.action_type == "weather_alert" else None,
-            "report": action.parameters if action.action_type == "weather_report" else None,
-            "success": True
+            "alert": (
+                action.parameters if action.action_type == "weather_alert" else None
+            ),
+            "report": (
+                action.parameters if action.action_type == "weather_report" else None
+            ),
+            "success": True,
         }
 
     def get_gdd(self) -> float:

@@ -38,12 +38,9 @@ class ConversationMemory:
         # Remove old messages if needed
         while self._token_count + tokens > self.max_tokens and self._messages:
             old_msg = self._messages.popleft()
-            self._token_count -= len(old_msg.get('content', '')) // 4
+            self._token_count -= len(old_msg.get("content", "")) // 4
 
-        self._messages.append({
-            'role': role,
-            'content': content
-        })
+        self._messages.append({"role": role, "content": content})
         self._token_count += tokens
 
     def get_messages(self) -> list:
@@ -58,9 +55,9 @@ class ConversationMemory:
     def get_memory_usage(self) -> dict:
         """Get current memory usage stats"""
         return {
-            'message_count': len(self._messages),
-            'estimated_tokens': self._token_count,
-            'memory_bytes': sys.getsizeof(self._messages)
+            "message_count": len(self._messages),
+            "estimated_tokens": self._token_count,
+            "memory_bytes": sys.getsizeof(self._messages),
         }
 
 
@@ -115,7 +112,7 @@ class BaseAgent(ABC):
         # Conversation memory with cleanup | ذاكرة المحادثة مع التنظيف
         self.conversation_memory = ConversationMemory(
             max_messages=50,  # Maximum 50 messages
-            max_tokens=8000   # Maximum ~8000 tokens
+            max_tokens=8000,  # Maximum ~8000 tokens
         )
 
         logger.info(
@@ -197,8 +194,8 @@ class BaseAgent(ABC):
             response = await self.llm.ainvoke(messages)
 
             # Store in conversation memory | تخزين في ذاكرة المحادثة
-            self.conversation_memory.add_message('user', query)
-            self.conversation_memory.add_message('assistant', response.content)
+            self.conversation_memory.add_message("user", query)
+            self.conversation_memory.add_message("assistant", response.content)
 
             logger.info(
                 "agent_response_generated",
@@ -328,6 +325,6 @@ class BaseAgent(ABC):
             "role": self.role,
             "tools": [tool.name for tool in self.tools],
             "has_rag": self.retriever is not None,
-            "conversation_length": memory_usage['message_count'],
+            "conversation_length": memory_usage["message_count"],
             "memory_usage": memory_usage,
         }

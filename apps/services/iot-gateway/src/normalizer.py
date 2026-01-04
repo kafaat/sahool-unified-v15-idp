@@ -141,7 +141,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         or raw.get("d")
         or raw.get("id")
         or _extract_device_from_topic(topic)
-    ) from e
+    )
 
     if not device_id:
         raise ValueError("Missing device_id in payload")

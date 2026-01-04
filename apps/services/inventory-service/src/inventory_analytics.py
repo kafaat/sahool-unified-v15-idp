@@ -164,7 +164,9 @@ class InventoryAnalytics:
         avg_monthly = avg_daily * 30
 
         # Calculate days until stockout - prevent division by zero
-        days_until_stockout = int(item.available_stock / avg_daily) if avg_daily > 0 else 999
+        days_until_stockout = (
+            int(item.available_stock / avg_daily) if avg_daily > 0 else 999
+        )
 
         # Calculate reorder date (considering lead time)
         supplier_lead_time = 7  # Default

@@ -57,9 +57,7 @@ class ErrorDetailsModel(BaseModel):
     retryable: bool = Field(..., description="Whether the operation can be retried")
     timestamp: str = Field(..., description="Timestamp when error occurred")
     path: str | None = Field(None, description="Request path where error occurred")
-    details: dict[str, Any] | None = Field(
-        None, description="Additional error details"
-    )
+    details: dict[str, Any] | None = Field(None, description="Additional error details")
     requestId: str | None = Field(None, description="Request ID for tracking")
     stack: str | None = Field(None, description="Stack trace (only in development)")
 

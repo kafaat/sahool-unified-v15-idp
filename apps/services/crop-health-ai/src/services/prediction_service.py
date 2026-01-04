@@ -209,7 +209,11 @@ class PredictionService:
         تشغيل استدلال محاكاة للتطوير
         Run simulated inference for development
         """
-        seed = hash(image_bytes[:100]) % 2 ** 32 if image_bytes else np.random.randint(0, 2 ** 32)
+        seed = (
+            hash(image_bytes[:100]) % 2**32
+            if image_bytes
+            else np.random.randint(0, 2**32)
+        )
         np.random.seed(seed)
 
         weights = np.ones(len(self.class_names))

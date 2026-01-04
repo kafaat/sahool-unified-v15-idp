@@ -3,7 +3,6 @@ Extended Tests for Equipment Service
 اختبارات موسعة لخدمة المعدات
 """
 
-
 import pytest
 
 

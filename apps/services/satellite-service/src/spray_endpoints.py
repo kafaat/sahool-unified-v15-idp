@@ -232,9 +232,7 @@ def register_spray_endpoints(app):
         target_datetime: str = Query(
             ..., description="Target spray time (ISO 8601 format)"
         ),
-        product_type: str | None = Query(
-            None, description="Product type (optional)"
-        ),
+        product_type: str | None = Query(None, description="Product type (optional)"),
     ):
         """
         تقييم وقت محدد للرش | Evaluate Specific Spray Time

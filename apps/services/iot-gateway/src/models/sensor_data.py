@@ -299,9 +299,7 @@ def get_threshold(sensor_type: str) -> AlertThreshold | None:
     return YEMEN_THRESHOLDS.get(sensor_type.lower())
 
 
-def check_value_in_range(
-    sensor_type: str, value: float
-) -> tuple[bool, str | None]:
+def check_value_in_range(sensor_type: str, value: float) -> tuple[bool, str | None]:
     """
     التحقق من القيمة ضمن النطاق المقبول
     Check if value is within acceptable range

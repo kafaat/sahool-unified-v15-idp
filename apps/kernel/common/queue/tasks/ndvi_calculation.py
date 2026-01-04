@@ -75,7 +75,7 @@ def handle_ndvi_calculation(payload: Dict[str, Any]) -> Dict[str, Any]:
                 "min": 0.12,
                 "max": 0.89,
                 "std_dev": 0.15,
-                "coverage_percent": 95.3
+                "coverage_percent": 95.3,
             },
             "health_score": 7.8,  # من 10 / out of 10
             "alerts": [
@@ -84,17 +84,19 @@ def handle_ndvi_calculation(payload: Dict[str, Any]) -> Dict[str, Any]:
                     "severity": "medium",
                     "location": {"lat": 24.5, "lon": 46.3},
                     "area_percent": 8.2,
-                    "message": "منطقة ذات غطاء نباتي منخفض تحتاج للفحص"
+                    "message": "منطقة ذات غطاء نباتي منخفض تحتاج للفحص",
                 }
             ],
             "zones": {
                 "healthy": 78.5,  # نسبة المنطقة الصحية / Healthy area %
                 "stressed": 15.3,  # نسبة المنطقة المجهدة / Stressed area %
-                "critical": 6.2   # نسبة المنطقة الحرجة / Critical area %
-            }
+                "critical": 6.2,  # نسبة المنطقة الحرجة / Critical area %
+            },
         }
 
-        logger.info(f"NDVI calculation completed for field: {field_id} (score={result['health_score']})")
+        logger.info(
+            f"NDVI calculation completed for field: {field_id} (score={result['health_score']})"
+        )
         return result
 
     except Exception as e:

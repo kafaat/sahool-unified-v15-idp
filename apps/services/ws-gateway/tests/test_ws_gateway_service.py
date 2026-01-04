@@ -69,7 +69,10 @@ class TestWebSocketConnection:
 
     def test_websocket_connection_without_token(self, client):
         """Test WebSocket connection without token"""
-        with pytest.raises(Exception), client.websocket_connect("/ws?tenant_id=tenant_123"):
+        with (
+            pytest.raises(Exception),
+            client.websocket_connect("/ws?tenant_id=tenant_123"),
+        ):
             pass
 
     @patch("src.main.validate_jwt_token")
@@ -77,8 +80,9 @@ class TestWebSocketConnection:
         """Test WebSocket connection with invalid token"""
         mock_validate.side_effect = ValueError("Invalid token")
 
-        with pytest.raises(Exception), client.websocket_connect(
-            "/ws?tenant_id=tenant_123&token=invalid_token"
+        with (
+            pytest.raises(Exception),
+            client.websocket_connect("/ws?tenant_id=tenant_123&token=invalid_token"),
         ):
             pass
 

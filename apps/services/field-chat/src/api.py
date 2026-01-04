@@ -37,9 +37,7 @@ class CreateThreadRequest(BaseModel):
     scope_id: str = Field(..., description="ID of the scope entity")
     created_by: str = Field(..., description="User ID creating the thread")
     title: str | None = Field(None, description="Optional thread title")
-    correlation_id: str | None = Field(
-        None, description="Correlation ID for tracing"
-    )
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
 
 class ThreadResponse(BaseModel):
@@ -63,13 +61,9 @@ class SendMessageRequest(BaseModel):
     tenant_id: str = Field(..., description="Tenant identifier")
     sender_id: str = Field(..., description="User ID sending the message")
     text: str | None = Field(None, description="Message text")
-    attachments: list[str] | None = Field(
-        None, description="List of attachment URLs"
-    )
+    attachments: list[str] | None = Field(None, description="List of attachment URLs")
     reply_to_id: str | None = Field(None, description="Message ID being replied to")
-    correlation_id: str | None = Field(
-        None, description="Correlation ID for tracing"
-    )
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
 
 
 class MessageResponse(BaseModel):
@@ -89,9 +83,7 @@ class MarkReadRequest(BaseModel):
     """Request to mark messages as read"""
 
     user_id: str = Field(..., description="User ID marking as read")
-    last_read_message_id: str | None = Field(
-        None, description="Last read message ID"
-    )
+    last_read_message_id: str | None = Field(None, description="Last read message ID")
 
 
 class AddParticipantRequest(BaseModel):

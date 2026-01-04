@@ -3,7 +3,6 @@ Comprehensive Tests for Inventory Service
 اختبارات شاملة لخدمة المخزون
 """
 
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine

@@ -37,7 +37,7 @@ class TestDiseaseCNNModel(unittest.TestCase):
         self.pil_image = Image.fromarray(self.test_image)
 
         # Save to temporary file - حفظ في ملف مؤقت
-        self.temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
+        self.temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".jpg")
         self.pil_image.save(self.temp_file.name)
         self.temp_file.close()
 
@@ -189,7 +189,7 @@ class TestDiseaseCNNModel(unittest.TestCase):
                 self.assertIn(
                     field,
                     disease_info,
-                    f"Disease '{disease_name}' missing field '{field}'"
+                    f"Disease '{disease_name}' missing field '{field}'",
                 )
 
     def test_batch_preprocessing(self):
@@ -199,8 +199,7 @@ class TestDiseaseCNNModel(unittest.TestCase):
         """
         # Create multiple test images - إنشاء صور اختبار متعددة
         images = [
-            np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8)
-            for _ in range(5)
+            np.random.randint(0, 255, (224, 224, 3), dtype=np.uint8) for _ in range(5)
         ]
 
         # Preprocess all - معالجة الكل مسبقاً
@@ -231,7 +230,7 @@ class TestDiseaseCNNModel(unittest.TestCase):
             "coffee_leaf_rust",
             "banana_fusarium",
             "mango_anthracnose",
-            "healthy"
+            "healthy",
         ]
 
         for disease in expected_diseases:
@@ -250,7 +249,7 @@ class TestDiseaseCNNModel(unittest.TestCase):
             self.assertIn(
                 severity,
                 valid_severities,
-                f"Invalid severity '{severity}' for disease '{disease_name}'"
+                f"Invalid severity '{severity}' for disease '{disease_name}'",
             )
 
 
@@ -269,11 +268,7 @@ class TestDiseaseRecommendations(unittest.TestCase):
         Test recommendation generation
         اختبار إنشاء التوصيات
         """
-        disease_counts = {
-            "wheat_rust": 5,
-            "tomato_leaf_blight": 3,
-            "healthy": 10
-        }
+        disease_counts = {"wheat_rust": 5, "tomato_leaf_blight": 3, "healthy": 10}
 
         recommendations = self.model._generate_recommendations(disease_counts)
 

@@ -41,6 +41,7 @@ limiter = setup_rate_limiting(
 # Example 2: Using Decorator for Custom Rate Limit
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.get("/api/v1/heavy-processing")
 @rate_limit(requests=5, period=60, strategy="token_bucket", burst=2)
 async def heavy_processing(request: Request):
@@ -53,7 +54,7 @@ async def heavy_processing(request: Request):
     """
     return {
         "status": "processing",
-        "message": "تم بدء المعالجة الثقيلة - Heavy processing started"
+        "message": "تم بدء المعالجة الثقيلة - Heavy processing started",
     }
 
 
@@ -67,10 +68,7 @@ async def quick_query(request: Request):
     Rate Limit: 100 requests/minute
     Strategy: Fixed Window (fast and simple)
     """
-    return {
-        "status": "success",
-        "data": "نتيجة الاستعلام السريع - Quick query result"
-    }
+    return {"status": "success", "data": "نتيجة الاستعلام السريع - Quick query result"}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -81,17 +79,11 @@ async def quick_query(request: Request):
 # إضافة تكوينات مخصصة إلى نقاط نهاية محددة
 # Add custom configurations to specific endpoints
 ENDPOINT_CONFIGS["/api/v1/satellite-analysis"] = EndpointConfig(
-    requests=3,
-    period=60,
-    burst=1,
-    strategy="sliding_window"
+    requests=3, period=60, burst=1, strategy="sliding_window"
 )
 
 ENDPOINT_CONFIGS["/api/v1/crop-recommendations"] = EndpointConfig(
-    requests=20,
-    period=60,
-    burst=5,
-    strategy="token_bucket"
+    requests=20, period=60, burst=5, strategy="token_bucket"
 )
 
 
@@ -106,7 +98,7 @@ async def satellite_analysis(request: Request):
     """
     return {
         "status": "analyzing",
-        "message": "جاري تحليل صور الأقمار الصناعية - Analyzing satellite imagery"
+        "message": "جاري تحليل صور الأقمار الصناعية - Analyzing satellite imagery",
     }
 
 
@@ -114,6 +106,7 @@ async def satellite_analysis(request: Request):
 # مثال 4: الاستخدام اليدوي لحد المعدل
 # Example 4: Manual Rate Limit Usage
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.post("/api/v1/manual-check")
 async def manual_rate_limit_check(request: Request):
@@ -130,8 +123,7 @@ async def manual_rate_limit_check(request: Request):
     # التحقق من حد المعدل يدويًا
     # Check rate limit manually
     allowed, remaining, reset = await limiter.check_rate_limit(
-        client_id=client_id,
-        endpoint="/api/v1/manual-check"
+        client_id=client_id, endpoint="/api/v1/manual-check"
     )
 
     if not allowed:
@@ -145,7 +137,7 @@ async def manual_rate_limit_check(request: Request):
             headers={
                 "Retry-After": str(reset),
                 "X-RateLimit-Remaining": "0",
-            }
+            },
         )
 
     return {
@@ -153,7 +145,7 @@ async def manual_rate_limit_check(request: Request):
         "rate_limit": {
             "remaining": remaining,
             "reset_in": reset,
-        }
+        },
     }
 
 
@@ -161,6 +153,7 @@ async def manual_rate_limit_check(request: Request):
 # مثال 5: الحصول على إحصائيات حد المعدل
 # Example 5: Get Rate Limit Statistics
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/api/v1/rate-limit-stats")
 async def get_my_rate_limit_stats(request: Request):
@@ -173,16 +166,14 @@ async def get_my_rate_limit_stats(request: Request):
     client_id = ClientIdentifier.get_client_id(request)
     stats = await get_rate_limit_stats(limiter, client_id)
 
-    return {
-        "status": "success",
-        "stats": stats
-    }
+    return {"status": "success", "stats": stats}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # مثال 6: إعادة تعيين حدود المعدل (للإدارة)
 # Example 6: Reset Rate Limits (for administration)
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.post("/api/v1/admin/reset-rate-limit")
 async def reset_client_rate_limit(
@@ -198,23 +189,20 @@ async def reset_client_rate_limit(
         client_id: معرف العميل - Client identifier
         endpoint: نقطة نهاية محددة (اختياري) - Specific endpoint (optional)
     """
-    success = await limiter.reset_limits(
-        client_id=client_id,
-        endpoint=endpoint
-    )
+    success = await limiter.reset_limits(client_id=client_id, endpoint=endpoint)
 
     if success:
         return {
             "status": "success",
-            "message": f"تم إعادة تعيين حدود المعدل - Rate limits reset for {client_id}"
+            "message": f"تم إعادة تعيين حدود المعدل - Rate limits reset for {client_id}",
         }
     else:
         return JSONResponse(
             status_code=500,
             content={
                 "status": "error",
-                "message": "فشل إعادة تعيين حدود المعدل - Failed to reset rate limits"
-            }
+                "message": "فشل إعادة تعيين حدود المعدل - Failed to reset rate limits",
+            },
         )
 
 
@@ -222,6 +210,7 @@ async def reset_client_rate_limit(
 # مثال 7: تحديد هوية العميل المخصص
 # Example 7: Custom Client Identification
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def custom_client_identifier(request: Request) -> str:
     """
@@ -240,6 +229,7 @@ def custom_client_identifier(request: Request) -> str:
     # الرجوع إلى الطريقة الافتراضية
     # Fallback to default method
     from apps.kernel.common.middleware import ClientIdentifier
+
     return ClientIdentifier.get_client_id(request)
 
 
@@ -255,6 +245,7 @@ def custom_client_identifier(request: Request) -> str:
 # مثال 8: نقاط نهاية محمية بمستويات مختلفة
 # Example 8: Protected Endpoints with Different Levels
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/api/v1/analyze")
 async def analyze_field(request: Request):
@@ -306,6 +297,7 @@ async def health_check():
 # Example 9: Custom Rate Limit Error Handling
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.exception_handler(429)
 async def rate_limit_handler(request: Request, exc):
     """
@@ -322,7 +314,7 @@ async def rate_limit_handler(request: Request, exc):
         },
         headers={
             "Retry-After": str(getattr(exc, "retry_after", 60)),
-        }
+        },
     )
 
 
@@ -330,6 +322,7 @@ async def rate_limit_handler(request: Request, exc):
 # مثال 10: اختبار استراتيجيات مختلفة
 # Example 10: Testing Different Strategies
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/api/v1/test/fixed-window")
 @rate_limit(requests=10, period=60, strategy="fixed_window")
@@ -360,12 +353,7 @@ async def test_token_bucket(request: Request):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(
-        app,
-        host="0.0.0.0",
-        port=8000,
-        log_level="info"
-    )
+    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
 
 """
 مثال على الاستخدام من سطر الأوامر:

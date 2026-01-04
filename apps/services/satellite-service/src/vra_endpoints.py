@@ -41,9 +41,7 @@ class VRARequest(BaseModel):
     zone_method: str = Field(default="ndvi", description="طريقة تصنيف المناطق")
     min_rate: float | None = Field(None, gt=0, description="الحد الأدنى للمعدل")
     max_rate: float | None = Field(None, gt=0, description="الحد الأقصى للمعدل")
-    product_price_per_unit: float | None = Field(
-        None, description="سعر الوحدة للمنتج"
-    )
+    product_price_per_unit: float | None = Field(None, description="سعر الوحدة للمنتج")
     notes: str | None = Field(None, description="ملاحظات (إنجليزي)")
     notes_ar: str | None = Field(None, description="ملاحظات (عربي)")
 

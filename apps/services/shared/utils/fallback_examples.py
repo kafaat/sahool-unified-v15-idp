@@ -6,19 +6,19 @@ Real-world examples for integrating fallback manager in SAHOOL services
 أمثلة واقعية لدمج مدير الاحتياطي في خدمات سهول
 """
 
-import time
+import builtins
+import contextlib
 import random
+import time
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Any
 
 from fallback_manager import (
     FallbackManager,
     circuit_breaker,
-    with_fallback,
     get_fallback_manager,
-    ServiceFallbacks
+    with_fallback,
 )
-
 
 # ===== مثال 1: خدمة الطقس - Example 1: Weather Service =====
 
@@ -26,7 +26,7 @@ print("\n" + "="*60)
 print("مثال 1: خدمة الطقس مع الاحتياطي - Example 1: Weather with Fallback")
 print("="*60)
 
-def weather_api_call(location: str) -> Dict[str, Any]:
+def weather_api_call(location: str) -> dict[str, Any]:
     """
     محاكاة استدعاء واجهة برمجة تطبيقات الطقس
     Simulate weather API call
@@ -61,7 +61,7 @@ for i in range(5):
 
 # عرض حالة الدائرة - Display circuit status
 weather_status = fm.get_circuit_status("weather")
-print(f"\n📊 حالة دائرة الطقس - Weather Circuit Status:")
+print("\n📊 حالة دائرة الطقس - Weather Circuit Status:")
 print(f"  الحالة - State: {weather_status['state']}")
 print(f"  الفشل - Failures: {weather_status['failure_count']}/{weather_status['failure_threshold']}")
 
@@ -75,7 +75,7 @@ print("="*60)
 # إنشاء مدير احتياطي مخصص - Create custom fallback manager
 satellite_fm = FallbackManager()
 
-def satellite_fallback_custom(field_id: str) -> Dict[str, Any]:
+def satellite_fallback_custom(field_id: str) -> dict[str, Any]:
     """
     احتياطي مخصص للأقمار الصناعية
     Custom satellite fallback
@@ -96,7 +96,7 @@ satellite_fm.register_fallback(
     recovery_timeout=60
 )
 
-def get_satellite_ndvi(field_id: str) -> Dict[str, Any]:
+def get_satellite_ndvi(field_id: str) -> dict[str, Any]:
     """
     الحصول على NDVI من الأقمار الصناعية
     Get NDVI from satellite
@@ -129,7 +129,7 @@ print("\n" + "="*60)
 print("مثال 3: استخدام الديكوريتورز - Example 3: Using Decorators")
 print("="*60)
 
-def ai_recommendations_fallback(field_id: str, crop_type: str) -> Dict[str, Any]:
+def ai_recommendations_fallback(field_id: str, crop_type: str) -> dict[str, Any]:
     """
     توصيات احتياطية مبنية على القواعد
     Rule-based fallback recommendations
@@ -157,7 +157,7 @@ def ai_recommendations_fallback(field_id: str, crop_type: str) -> Dict[str, Any]
 
 @with_fallback(ai_recommendations_fallback)
 @circuit_breaker(failure_threshold=4, recovery_timeout=30)
-def get_ai_recommendations(field_id: str, crop_type: str) -> Dict[str, Any]:
+def get_ai_recommendations(field_id: str, crop_type: str) -> dict[str, Any]:
     """
     الحصول على توصيات الذكاء الاصطناعي
     Get AI recommendations
@@ -200,7 +200,7 @@ print("\n" + "="*60)
 print("مثال 4: تحليل شامل للحقل - Example 4: Comprehensive Field Analysis")
 print("="*60)
 
-def get_comprehensive_field_analysis(field_id: str) -> Dict[str, Any]:
+def get_comprehensive_field_analysis(field_id: str) -> dict[str, Any]:
     """
     تحليل شامل يجمع بيانات من خدمات متعددة
     Comprehensive analysis combining multiple services
@@ -253,7 +253,7 @@ print("\nتحليل الحقل F123 - Analyzing field F123:")
 field_analysis = get_comprehensive_field_analysis("F123")
 
 print(f"  الطابع الزمني - Timestamp: {field_analysis['timestamp']}")
-print(f"  حالة الخدمات - Services Status:")
+print("  حالة الخدمات - Services Status:")
 for service, status in field_analysis["services_status"].items():
     icon = "✅" if status == "success" else "⚠️"
     print(f"    {icon} {service}: {status}")
@@ -296,12 +296,12 @@ for i in range(3):
     status = test_fm.get_circuit_status("test_service")
     print(f"  محاولة {i+1} - Attempt {i+1}: الحالة - State={status['state']}, الفشل - Failures={status['failure_count']}")
 
-print(f"\n  ⏸️  الدائرة الآن مفتوحة - Circuit is now OPEN")
+print("\n  ⏸️  الدائرة الآن مفتوحة - Circuit is now OPEN")
 print(f"  ⏳ الانتظار {2} ثانية للاستعادة - Waiting 2 seconds for recovery...")
 time.sleep(2.1)
 
 # محاولة بعد الاستعادة (OPEN → HALF_OPEN → CLOSED) - Attempt after recovery
-print(f"\n  🔄 محاولة بعد الاستعادة - Attempting after recovery:")
+print("\n  🔄 محاولة بعد الاستعادة - Attempting after recovery:")
 result = test_fm.execute_with_fallback("test_service", flaky_service)
 status = test_fm.get_circuit_status("test_service")
 print(f"  الحالة - State: {status['state']}")
@@ -314,7 +314,7 @@ print("\n" + "="*60)
 print("مثال 6: مراقبة صحة الخدمات - Example 6: Service Health Monitoring")
 print("="*60)
 
-def generate_health_report() -> Dict[str, Any]:
+def generate_health_report() -> dict[str, Any]:
     """
     توليد تقرير صحة شامل
     Generate comprehensive health report
@@ -351,7 +351,7 @@ def generate_health_report() -> Dict[str, Any]:
     }
 
 health_report = generate_health_report()
-print(f"\n📊 تقرير صحة الخدمات - Service Health Report:")
+print("\n📊 تقرير صحة الخدمات - Service Health Report:")
 print(f"  الحالة العامة - Overall Health: {health_report['overall_health'].upper()}")
 print(f"  إجمالي الخدمات - Total Services: {health_report['total_services']}")
 print(f"  ✅ سليمة - Healthy: {len(health_report['healthy_services'])}")
@@ -376,22 +376,20 @@ def always_fails():
 
 # فتح الدائرة - Open the circuit
 for i in range(2):
-    try:
+    with contextlib.suppress(builtins.BaseException):
         reset_fm.execute_with_fallback("test_reset", always_fails)
-    except:
-        pass
 
 status_before = reset_fm.get_circuit_status("test_reset")
-print(f"\n  قبل إعادة التعيين - Before reset:")
+print("\n  قبل إعادة التعيين - Before reset:")
 print(f"    الحالة - State: {status_before['state']}")
 print(f"    الفشل - Failures: {status_before['failure_count']}")
 
 # إعادة تعيين يدوية - Manual reset
-print(f"\n  🔧 إعادة تعيين الدائرة - Resetting circuit...")
+print("\n  🔧 إعادة تعيين الدائرة - Resetting circuit...")
 reset_fm.reset_circuit("test_reset")
 
 status_after = reset_fm.get_circuit_status("test_reset")
-print(f"\n  بعد إعادة التعيين - After reset:")
+print("\n  بعد إعادة التعيين - After reset:")
 print(f"    الحالة - State: {status_after['state']}")
 print(f"    الفشل - Failures: {status_after['failure_count']}")
 

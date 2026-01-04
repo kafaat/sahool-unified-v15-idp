@@ -13,11 +13,11 @@ Free weather data for crop modeling and irrigation scheduling:
 Based on Open-Meteo free API: https://open-meteo.com
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-from datetime import datetime, date, timedelta
-import httpx
 import logging
+from dataclasses import dataclass
+from datetime import date, datetime
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -42,12 +42,12 @@ class WeatherData:
     temperature_min_c: float
     temperature_max_c: float
     precipitation_mm: float
-    humidity_percent: Optional[float] = None
-    wind_speed_ms: Optional[float] = None
-    solar_radiation_wm2: Optional[float] = None
-    et0_mm: Optional[float] = None  # Reference evapotranspiration
+    humidity_percent: float | None = None
+    wind_speed_ms: float | None = None
+    solar_radiation_wm2: float | None = None
+    et0_mm: float | None = None  # Reference evapotranspiration
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "timestamp": self.timestamp.isoformat(),
             "temperature_c": round(self.temperature_c, 1),
@@ -71,12 +71,12 @@ class WeatherData:
 class WeatherForecast:
     """Weather forecast for a location"""
 
-    location: Dict[str, float]  # {"lat": ..., "lon": ...}
+    location: dict[str, float]  # {"lat": ..., "lon": ...}
     generated_at: datetime
-    daily: List[WeatherData]
-    hourly: Optional[List[WeatherData]] = None
+    daily: list[WeatherData]
+    hourly: list[WeatherData] | None = None
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "location": self.location,
             "generated_at": self.generated_at.isoformat(),
@@ -90,13 +90,13 @@ class WeatherForecast:
 class HistoricalWeather:
     """Historical weather data"""
 
-    location: Dict[str, float]
+    location: dict[str, float]
     start_date: date
     end_date: date
-    daily: List[WeatherData]
-    summary: Dict  # avg_temp, total_precip, total_et0, gdd
+    daily: list[WeatherData]
+    summary: dict  # avg_temp, total_precip, total_et0, gdd
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "location": self.location,
             "start_date": self.start_date.isoformat(),
@@ -118,7 +118,7 @@ class FrostRisk:
     recommendation_ar: str
     recommendation_en: str
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "date": self.date.isoformat(),
             "min_temp_c": round(self.min_temp_c, 1),
@@ -133,7 +133,7 @@ class FrostRisk:
 class IrrigationRecommendation:
     """Irrigation recommendation based on weather and ET0"""
 
-    field_id: Optional[str]
+    field_id: str | None
     crop_type: str
     crop_name_ar: str
     crop_name_en: str
@@ -147,7 +147,7 @@ class IrrigationRecommendation:
     recommendation_en: str
     confidence: float  # 0-1
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "field_id": self.field_id,
             "crop_type": self.crop_type,
@@ -454,7 +454,7 @@ class WeatherIntegration:
         start_date: date,
         end_date: date,
         kc: float = 1.0,
-    ) -> Dict:
+    ) -> dict:
         """
         Calculate water balance: Precipitation - ET0 * Kc
         Returns deficit/surplus in mm.
@@ -538,8 +538,8 @@ class WeatherIntegration:
         longitude: float,
         crop_type: str,
         growth_stage: str,
-        soil_moisture: Optional[float] = None,
-        field_id: Optional[str] = None,
+        soil_moisture: float | None = None,
+        field_id: str | None = None,
     ) -> IrrigationRecommendation:
         """
         Get irrigation recommendation based on weather and ET0.
@@ -601,8 +601,8 @@ class WeatherIntegration:
         # Calculate irrigation frequency
         if irrigation_needed < 10:
             freq_days = 7
-            recommendation_en = f"Minimal irrigation needed. Monitor soil moisture."
-            recommendation_ar = f"حاجة ري ضئيلة. راقب رطوبة التربة."
+            recommendation_en = "Minimal irrigation needed. Monitor soil moisture."
+            recommendation_ar = "حاجة ري ضئيلة. راقب رطوبة التربة."
         elif irrigation_needed < 30:
             freq_days = 5
             recommendation_en = f"Light irrigation recommended every {freq_days} days."
@@ -652,7 +652,7 @@ class WeatherIntegration:
 
     async def get_frost_risk(
         self, latitude: float, longitude: float, days: int = 7
-    ) -> List[FrostRisk]:
+    ) -> list[FrostRisk]:
         """
         Assess frost risk for next N days.
         Important for Yemen highlands (Sanaa, Ibb, Dhamar).

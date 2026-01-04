@@ -6,13 +6,11 @@ Comprehensive tests for Circuit Breaker pattern and Fallback Manager
 اختبارات شاملة لنمط قاطع الدائرة ومدير الاحتياطي
 """
 
-import pytest
-import time
-from unittest.mock import Mock, patch
-from datetime import datetime
-
-import sys
 import os
+import sys
+import time
+
+import pytest
 
 # إضافة المسار للوحدة - Add module path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -23,10 +21,9 @@ from fallback_manager import (
     FallbackManager,
     ServiceFallbacks,
     circuit_breaker,
+    get_fallback_manager,
     with_fallback,
-    get_fallback_manager
 )
-
 
 # ===== اختبارات قاطع الدائرة - Circuit Breaker Tests =====
 

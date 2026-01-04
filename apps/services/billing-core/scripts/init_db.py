@@ -14,21 +14,22 @@ Usage:
     python scripts/init_db.py --drop --seed
 """
 
+import argparse
 import asyncio
 import sys
-import argparse
-from pathlib import Path
 from datetime import date, timedelta
 from decimal import Decimal
+from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from database import init_db, drop_db, check_db_connection, get_db_context
-from repository import BillingRepository
-from models import SubscriptionStatus, BillingCycle, Currency
-
 import logging
+
+from repository import BillingRepository
+
+from database import check_db_connection, drop_db, get_db_context, init_db
+from models import BillingCycle, Currency, SubscriptionStatus
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("init_db")

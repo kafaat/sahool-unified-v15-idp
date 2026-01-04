@@ -5,8 +5,7 @@ Automatically creates FieldOps tasks from recommendations and plans
 
 import json
 import os
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import httpx
 from nats.aio.client import Client as NATS
@@ -76,7 +75,7 @@ class FieldOpsClient:
 
     def __init__(self, base_url: str = None):
         self.base_url = base_url or FIELDOPS_URL
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         if self._client is None:
@@ -130,7 +129,7 @@ class TaskAutomationHook:
     """
 
     def __init__(self):
-        self.nc: Optional[NATS] = None
+        self.nc: NATS | None = None
         self.fieldops = FieldOpsClient()
         self._running = False
 
@@ -191,7 +190,7 @@ class TaskAutomationHook:
                     continue
 
                 # Calculate due date based on urgency
-                due_date = datetime.now(timezone.utc) + timedelta(hours=urgency_hours)
+                due_date = datetime.now(UTC) + timedelta(hours=urgency_hours)
 
                 # Adjust priority based on severity
                 priority = task_info["priority"]
@@ -237,7 +236,7 @@ class TaskAutomationHook:
             # Create task for each application
             for app in plan:
                 timing_days = app.get("timing_days", 0)
-                due_date = datetime.now(timezone.utc) + timedelta(days=timing_days)
+                due_date = datetime.now(UTC) + timedelta(days=timing_days)
 
                 product = app.get("product", "")
                 product_ar = app.get("product_ar", product)
@@ -286,7 +285,7 @@ class TaskAutomationHook:
             corrections = payload.get("corrections", [])
 
             # Create inspection task
-            due_date = datetime.now(timezone.utc) + timedelta(
+            due_date = datetime.now(UTC) + timedelta(
                 hours=24 if severity == "high" else 48
             )
 

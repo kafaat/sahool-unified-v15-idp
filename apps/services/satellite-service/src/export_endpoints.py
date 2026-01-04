@@ -81,7 +81,7 @@ async def export_timeseries(
             raise HTTPException(
                 status_code=400,
                 detail="KML format not supported for timeseries. Use csv, json, or geojson"
-            ) from e
+            )
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -164,7 +164,7 @@ async def export_boundaries(
             raise HTTPException(
                 status_code=400,
                 detail="CSV format not supported for boundaries. Use geojson, json, or kml"
-            ) from e
+            )
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -249,7 +249,7 @@ async def export_report(
         raise HTTPException(
             status_code=400,
             detail=f"Invalid format '{format}'. Supported: json, csv, geojson"
-        ) from e
+        )
 
     if report_type not in ["full", "summary", "changes"]:
         raise HTTPException(

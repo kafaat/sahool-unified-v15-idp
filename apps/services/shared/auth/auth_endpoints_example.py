@@ -16,14 +16,12 @@ Usage:
 """
 
 import logging
-from typing import Optional
-from datetime import datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
-from .rate_limiting import get_auth_rate_limiter, AuthRateLimiter
 from ..middleware.rate_limiter import get_rate_limit_headers
+from .rate_limiting import AuthRateLimiter, get_auth_rate_limiter
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +43,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., min_length=8, description="User password")
     full_name: str = Field(..., min_length=2, max_length=100, description="Full name")
-    phone: Optional[str] = Field(None, description="Phone number")
+    phone: str | None = Field(None, description="Phone number")
 
 
 class ForgotPasswordRequest(BaseModel):

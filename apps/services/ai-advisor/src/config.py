@@ -6,8 +6,8 @@ This module manages all environment variables and service configuration.
 تدير هذه الوحدة جميع متغيرات البيئة وإعدادات الخدمة.
 """
 
+
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -26,15 +26,15 @@ class Settings(BaseSettings):
     primary_llm_provider: str = "anthropic"  # anthropic, openai, google
 
     # Anthropic Claude API | واجهة برمجة Claude
-    anthropic_api_key: Optional[str] = None
+    anthropic_api_key: str | None = None
     claude_model: str = "claude-3-5-sonnet-20241022"
 
     # OpenAI GPT API (Fallback) | واجهة برمجة OpenAI
-    openai_api_key: Optional[str] = None
+    openai_api_key: str | None = None
     openai_model: str = "gpt-4o"
 
     # Google Gemini API (Optional) | واجهة برمجة Gemini
-    google_api_key: Optional[str] = None
+    google_api_key: str | None = None
     gemini_model: str = "gemini-1.5-pro"
 
     # LLM Generation Settings | إعدادات التوليد
@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     qdrant_host: str = "qdrant"
     qdrant_port: int = 6333
     qdrant_collection: str = "agricultural_knowledge"
-    qdrant_api_key: Optional[str] = None
+    qdrant_api_key: str | None = None
 
     # NATS Messaging | نظام الرسائل NATS
     nats_url: str = "nats://nats:4222"

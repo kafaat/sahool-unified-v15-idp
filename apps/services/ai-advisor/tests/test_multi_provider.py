@@ -3,9 +3,10 @@ Unit Tests for Multi-Provider LLM Service
 اختبارات الوحدة لخدمة نماذج اللغة متعددة المزودين
 """
 
-import pytest
-from unittest.mock import Mock, AsyncMock, patch, MagicMock
 import os
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 
 @pytest.fixture
@@ -78,7 +79,7 @@ class TestOpenAIProvider:
     @pytest.mark.asyncio
     async def test_chat_with_openai(self, mock_env_vars, mock_openai_client):
         """Test chat completion with OpenAI"""
-        from src.llm.multi_provider import OpenAIProvider, LLMMessage
+        from src.llm.multi_provider import LLMMessage, OpenAIProvider
 
         with patch("src.llm.multi_provider.AsyncOpenAI") as mock_openai:
             mock_openai.return_value = mock_openai_client
@@ -125,7 +126,7 @@ class TestMultiLLMService:
         self, mock_env_vars, mock_anthropic_client
     ):
         """Test chat with primary provider (Anthropic)"""
-        from src.llm.multi_provider import MultiLLMService, LLMMessage
+        from src.llm.multi_provider import LLMMessage, MultiLLMService
 
         with patch("src.llm.multi_provider.AsyncAnthropic") as mock_anthropic:
             mock_anthropic.return_value = mock_anthropic_client
@@ -147,7 +148,7 @@ class TestMultiLLMService:
         self, mock_env_vars, mock_openai_client
     ):
         """Test fallback when primary provider fails"""
-        from src.llm.multi_provider import MultiLLMService, LLMMessage
+        from src.llm.multi_provider import LLMMessage, MultiLLMService
 
         # Mock Anthropic to fail
         with patch("src.llm.multi_provider.AsyncAnthropic") as mock_anthropic:
@@ -170,7 +171,7 @@ class TestMultiLLMService:
     @pytest.mark.asyncio
     async def test_all_providers_fail(self, mock_env_vars):
         """Test when all providers fail"""
-        from src.llm.multi_provider import MultiLLMService, LLMMessage
+        from src.llm.multi_provider import LLMMessage, MultiLLMService
 
         # Mock all providers to fail
         with patch("src.llm.multi_provider.AsyncAnthropic") as mock_anthropic:
@@ -193,7 +194,7 @@ class TestMultiLLMService:
     @pytest.mark.asyncio
     async def test_specific_provider_selection(self, mock_env_vars, mock_openai_client):
         """Test forcing a specific provider"""
-        from src.llm.multi_provider import MultiLLMService, LLMMessage
+        from src.llm.multi_provider import LLMMessage, MultiLLMService
 
         with patch("src.llm.multi_provider.AsyncOpenAI") as mock_openai:
             mock_openai.return_value = mock_openai_client
@@ -288,7 +289,7 @@ class TestLLMDataModels:
 
     def test_llm_result_success(self):
         """Test LLMResult success property"""
-        from src.llm.multi_provider import LLMResult, LLMResponse
+        from src.llm.multi_provider import LLMResponse, LLMResult
 
         response = LLMResponse(content="Success", provider="Test", model="test-1")
 

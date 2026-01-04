@@ -3,12 +3,10 @@ SAHOOL Field Service - Data Models
 نماذج بيانات خدمة الحقول
 """
 
-from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any, Tuple
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator
-
 
 # ============== Enums ==============
 
@@ -81,13 +79,13 @@ class GeoPolygon(BaseModel):
     """مضلع جغرافي - GeoJSON Polygon"""
 
     type: str = Field(default="Polygon")
-    coordinates: List[List[List[float]]] = Field(
+    coordinates: list[list[list[float]]] = Field(
         ..., description="إحداثيات المضلع [[lng, lat], ...]"
     )
 
     @field_validator("coordinates")
     @classmethod
-    def validate_polygon(cls, v: List[List[List[float]]]) -> List[List[List[float]]]:
+    def validate_polygon(cls, v: list[list[list[float]]]) -> list[list[list[float]]]:
         """التحقق من صحة المضلع"""
         if not v or not v[0]:
             raise ValueError("يجب أن يحتوي المضلع على حلقة خارجية واحدة على الأقل")
@@ -112,10 +110,10 @@ class FieldLocation(BaseModel):
     """موقع الحقل"""
 
     region: str = Field(..., description="المنطقة/المحافظة")
-    region_ar: Optional[str] = Field(None, description="اسم المنطقة بالعربية")
-    district: Optional[str] = Field(None, description="المديرية")
-    village: Optional[str] = Field(None, description="القرية")
-    coordinates: Optional[GeoPoint] = Field(None, description="مركز الحقل")
+    region_ar: str | None = Field(None, description="اسم المنطقة بالعربية")
+    district: str | None = Field(None, description="المديرية")
+    village: str | None = Field(None, description="القرية")
+    coordinates: GeoPoint | None = Field(None, description="مركز الحقل")
 
 
 # ============== Field Request Models ==============
@@ -127,34 +125,34 @@ class FieldCreate(BaseModel):
     tenant_id: str = Field(..., description="معرف المستأجر")
     user_id: str = Field(..., description="معرف المزارع")
     name: str = Field(..., min_length=1, max_length=200, description="اسم الحقل")
-    name_en: Optional[str] = Field(
+    name_en: str | None = Field(
         None, max_length=200, description="الاسم بالإنجليزية"
     )
 
     location: FieldLocation = Field(..., description="موقع الحقل")
-    boundary: Optional[GeoPolygon] = Field(None, description="حدود الحقل")
+    boundary: GeoPolygon | None = Field(None, description="حدود الحقل")
     area_hectares: float = Field(..., gt=0, description="المساحة بالهكتار")
 
-    soil_type: Optional[SoilType] = Field(SoilType.UNKNOWN, description="نوع التربة")
-    irrigation_source: Optional[IrrigationSource] = Field(
+    soil_type: SoilType | None = Field(SoilType.UNKNOWN, description="نوع التربة")
+    irrigation_source: IrrigationSource | None = Field(
         IrrigationSource.NONE, description="مصدر الري"
     )
 
-    current_crop: Optional[str] = Field(None, description="المحصول الحالي")
-    metadata: Optional[Dict[str, Any]] = Field(None, description="بيانات إضافية")
+    current_crop: str | None = Field(None, description="المحصول الحالي")
+    metadata: dict[str, Any] | None = Field(None, description="بيانات إضافية")
 
 
 class FieldUpdate(BaseModel):
     """تحديث بيانات الحقل"""
 
-    name: Optional[str] = Field(None, min_length=1, max_length=200)
-    name_en: Optional[str] = Field(None, max_length=200)
-    location: Optional[FieldLocation] = None
-    area_hectares: Optional[float] = Field(None, gt=0)
-    soil_type: Optional[SoilType] = None
-    irrigation_source: Optional[IrrigationSource] = None
-    status: Optional[FieldStatus] = None
-    metadata: Optional[Dict[str, Any]] = None
+    name: str | None = Field(None, min_length=1, max_length=200)
+    name_en: str | None = Field(None, max_length=200)
+    location: FieldLocation | None = None
+    area_hectares: float | None = Field(None, gt=0)
+    soil_type: SoilType | None = None
+    irrigation_source: IrrigationSource | None = None
+    status: FieldStatus | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class BoundaryUpdate(BaseModel):
@@ -171,22 +169,22 @@ class CropSeasonCreate(BaseModel):
     """إنشاء موسم محصول"""
 
     crop_type: str = Field(..., description="نوع المحصول")
-    variety: Optional[str] = Field(None, description="الصنف")
+    variety: str | None = Field(None, description="الصنف")
     planting_date: str = Field(..., description="تاريخ الزراعة")
-    expected_harvest: Optional[str] = Field(None, description="التاريخ المتوقع للحصاد")
-    seed_source: Optional[str] = Field(None, description="مصدر البذور")
-    notes: Optional[str] = Field(None, description="ملاحظات")
+    expected_harvest: str | None = Field(None, description="التاريخ المتوقع للحصاد")
+    seed_source: str | None = Field(None, description="مصدر البذور")
+    notes: str | None = Field(None, description="ملاحظات")
 
 
 class CropSeasonClose(BaseModel):
     """إنهاء موسم المحصول"""
 
     harvest_date: str = Field(..., description="تاريخ الحصاد")
-    actual_yield_kg: Optional[float] = Field(
+    actual_yield_kg: float | None = Field(
         None, ge=0, description="الإنتاج الفعلي بالكيلوغرام"
     )
-    quality_grade: Optional[str] = Field(None, description="درجة الجودة")
-    notes: Optional[str] = Field(None, description="ملاحظات")
+    quality_grade: str | None = Field(None, description="درجة الجودة")
+    notes: str | None = Field(None, description="ملاحظات")
 
 
 class CropSeasonResponse(BaseModel):
@@ -195,14 +193,14 @@ class CropSeasonResponse(BaseModel):
     id: str
     field_id: str
     crop_type: str
-    variety: Optional[str]
+    variety: str | None
     planting_date: str
-    expected_harvest: Optional[str]
-    harvest_date: Optional[str]
+    expected_harvest: str | None
+    harvest_date: str | None
     status: CropSeasonStatus
-    expected_yield_kg: Optional[float]
-    actual_yield_kg: Optional[float]
-    seed_source: Optional[str]
+    expected_yield_kg: float | None
+    actual_yield_kg: float | None
+    seed_source: str | None
     created_at: str
 
 
@@ -213,10 +211,10 @@ class ZoneCreate(BaseModel):
     """إنشاء منطقة داخل الحقل"""
 
     name: str = Field(..., min_length=1, max_length=100)
-    name_ar: Optional[str] = Field(None, max_length=100)
+    name_ar: str | None = Field(None, max_length=100)
     boundary: GeoPolygon = Field(..., description="حدود المنطقة")
     purpose: ZonePurpose = Field(..., description="غرض التقسيم")
-    notes: Optional[str] = None
+    notes: str | None = None
 
 
 class ZoneResponse(BaseModel):
@@ -225,8 +223,8 @@ class ZoneResponse(BaseModel):
     id: str
     field_id: str
     name: str
-    name_ar: Optional[str]
-    boundary: Dict[str, Any]
+    name_ar: str | None
+    boundary: dict[str, Any]
     area_hectares: float
     purpose: str
     created_at: str
@@ -242,9 +240,9 @@ class NDVIRecord(BaseModel):
     mean: float = Field(..., ge=-1, le=1)
     min: float = Field(..., ge=-1, le=1)
     max: float = Field(..., ge=-1, le=1)
-    std: Optional[float] = Field(None, ge=0)
-    cloud_cover_pct: Optional[float] = Field(None, ge=0, le=100)
-    source: Optional[str] = None
+    std: float | None = Field(None, ge=0)
+    cloud_cover_pct: float | None = Field(None, ge=0, le=100)
+    source: str | None = None
 
 
 class NDVITrend(BaseModel):
@@ -267,13 +265,13 @@ class FieldResponse(BaseModel):
     tenant_id: str
     user_id: str
     name: str
-    name_en: Optional[str]
+    name_en: str | None
     status: FieldStatus
-    location: Dict[str, Any]
+    location: dict[str, Any]
     area_hectares: float
-    soil_type: Optional[str]
-    irrigation_source: Optional[str]
-    current_crop: Optional[str]
+    soil_type: str | None
+    irrigation_source: str | None
+    current_crop: str | None
     created_at: str
     updated_at: str
 
@@ -281,11 +279,11 @@ class FieldResponse(BaseModel):
 class FieldDetailResponse(FieldResponse):
     """استجابة تفصيلية للحقل"""
 
-    boundary: Optional[Dict[str, Any]]
+    boundary: dict[str, Any] | None
     zones_count: int = 0
     seasons_count: int = 0
-    latest_ndvi: Optional[NDVIRecord] = None
-    ndvi_trend: Optional[NDVITrend] = None
+    latest_ndvi: NDVIRecord | None = None
+    ndvi_trend: NDVITrend | None = None
 
 
 class FieldStatsResponse(BaseModel):
@@ -294,10 +292,10 @@ class FieldStatsResponse(BaseModel):
     field_id: str
     area_hectares: float
     seasons_count: int
-    crops_grown: List[str]
-    average_yield_kg_ha: Optional[float]
-    best_season: Optional[Dict[str, Any]]
-    ndvi_stats: Optional[Dict[str, float]]
+    crops_grown: list[str]
+    average_yield_kg_ha: float | None
+    best_season: dict[str, Any] | None
+    ndvi_stats: dict[str, float] | None
 
 
 # ============== User Stats ==============
@@ -312,7 +310,7 @@ class UserFieldsStats(BaseModel):
     total_area_hectares: float
     active_fields: int
     active_seasons: int
-    crops_summary: Dict[str, int]
+    crops_summary: dict[str, int]
 
 
 # ============== Boundary Operations ==============
@@ -322,14 +320,14 @@ class OverlapCheckRequest(BaseModel):
     """طلب فحص التداخل"""
 
     boundary: GeoPolygon
-    exclude_field_id: Optional[str] = None
+    exclude_field_id: str | None = None
 
 
 class OverlapCheckResponse(BaseModel):
     """نتيجة فحص التداخل"""
 
     has_overlap: bool
-    overlapping_fields: List[Dict[str, Any]]
+    overlapping_fields: list[dict[str, Any]]
     overlap_area_hectares: float
 
 
@@ -349,7 +347,7 @@ class AreaCalculationResponse(BaseModel):
 class PaginatedResponse(BaseModel):
     """استجابة مُرقّمة"""
 
-    items: List[Any]
+    items: list[Any]
     total: int
     skip: int
     limit: int

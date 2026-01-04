@@ -1352,7 +1352,7 @@ async def get_phenology(
     if not _phenology_detector:
         raise HTTPException(
             status_code=500, detail="Phenology detector not initialized"
-        ) from e
+        )
 
     # Get NDVI time series
     timeseries_data = await get_timeseries(field_id, days)
@@ -1435,7 +1435,7 @@ async def get_phenology_timeline(
     if not _phenology_detector:
         raise HTTPException(
             status_code=500, detail="Phenology detector not initialized"
-        ) from e
+        )
 
     # Parse planting date
     try:
@@ -1475,7 +1475,7 @@ async def get_stage_recommendations(crop_type: str, stage: str):
     if not _phenology_detector:
         raise HTTPException(
             status_code=500, detail="Phenology detector not initialized"
-        ) from e
+        )
 
     # Validate crop type
     crop_type = crop_type.lower()
@@ -1799,7 +1799,7 @@ async def get_soil_moisture(
         except ValueError:
             raise HTTPException(
                 status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            ) from e
+            )
 
     # Get soil moisture estimate
     result = await _sar_processor.get_soil_moisture(
@@ -2852,7 +2852,7 @@ async def get_regional_yields(
     if not crops_to_show:
         raise HTTPException(
             status_code=404, detail=f"No crop data available for {governorate}"
-        ) from e
+        )
 
     # Generate regional statistics
     regional_stats = []
@@ -2876,7 +2876,7 @@ async def get_regional_yields(
                 max_yield_ton_ha=round(max_yield, 2),
                 field_count=field_count,
                 data_source="simulated_regional_data",
-            ) from e
+            )
         )
 
     return {
@@ -2990,7 +2990,7 @@ async def find_clear_observations(
         except ValueError:
             raise HTTPException(
                 status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            ) from e
+            )
 
         # Validate date range
         if end_dt < start_dt:
@@ -3056,7 +3056,7 @@ async def get_best_observation(
         except ValueError:
             raise HTTPException(
                 status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            ) from e
+            )
 
         # Find best observation
         best_obs = await _cloud_masker.get_best_observation(
@@ -3196,7 +3196,7 @@ async def export_analysis(
         raise HTTPException(
             status_code=400,
             detail=f"Invalid format '{format}'. Supported: geojson, csv, json, kml",
-        ) from e
+        )
 
     # Get analysis data
     try:
@@ -3248,7 +3248,7 @@ async def export_timeseries(
             raise HTTPException(
                 status_code=400,
                 detail="KML format not supported for timeseries. Use csv, json, or geojson",
-            ) from e
+            )
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -3338,7 +3338,7 @@ async def export_boundaries(
             raise HTTPException(
                 status_code=400,
                 detail="CSV format not supported for boundaries. Use geojson, json, or kml",
-            ) from e
+            )
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -3428,7 +3428,7 @@ async def export_report(
         raise HTTPException(
             status_code=400,
             detail=f"Invalid format '{format}'. Supported: json, csv, geojson",
-        ) from e
+        )
 
     if report_type not in ["full", "summary", "changes"]:
         raise HTTPException(
@@ -3641,7 +3641,7 @@ async def detect_changes(
         if end < start:
             raise HTTPException(
                 status_code=400, detail="End date must be after start date"
-            ) from e
+            )
 
         if (end - start).days > 365:
             raise HTTPException(

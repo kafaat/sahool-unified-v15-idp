@@ -3,10 +3,10 @@ Base Repository Pattern
 نمط المستودع الأساسي
 """
 
-from typing import Generic, TypeVar, Type, List, Optional, Any, Dict
+from typing import Any, Generic, TypeVar
 from uuid import UUID
 
-from sqlalchemy import select, update, delete, func
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .base import Base
@@ -28,7 +28,7 @@ class BaseRepository(Generic[ModelType]):
         users = repo.get_all()
     """
 
-    def __init__(self, db: Session, model: Type[ModelType]):
+    def __init__(self, db: Session, model: type[ModelType]):
         self.db = db
         self.model = model
 
@@ -36,7 +36,7 @@ class BaseRepository(Generic[ModelType]):
     # Read Operations
     # =============================================================================
 
-    def get_by_id(self, id: UUID | str) -> Optional[ModelType]:
+    def get_by_id(self, id: UUID | str) -> ModelType | None:
         """Get a single record by ID"""
         return self.db.query(self.model).filter(self.model.id == id).first()
 
@@ -44,9 +44,9 @@ class BaseRepository(Generic[ModelType]):
         self,
         skip: int = 0,
         limit: int = 100,
-        order_by: Optional[str] = None,
+        order_by: str | None = None,
         order_desc: bool = False,
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         """Get all records with pagination"""
         query = self.db.query(self.model)
 
@@ -61,7 +61,7 @@ class BaseRepository(Generic[ModelType]):
         tenant_id: str,
         skip: int = 0,
         limit: int = 100,
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         """Get all records for a specific tenant"""
         return (
             self.db.query(self.model)
@@ -76,7 +76,7 @@ class BaseRepository(Generic[ModelType]):
         field_name: str,
         value: Any,
         limit: int = 100,
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         """Get records by a specific field value"""
         if not hasattr(self.model, field_name):
             raise ValueError(f"Model {self.model.__name__} has no field '{field_name}'")
@@ -88,7 +88,7 @@ class BaseRepository(Generic[ModelType]):
         self,
         field_name: str,
         value: Any,
-    ) -> Optional[ModelType]:
+    ) -> ModelType | None:
         """Get a single record by a specific field value"""
         if not hasattr(self.model, field_name):
             raise ValueError(f"Model {self.model.__name__} has no field '{field_name}'")
@@ -96,7 +96,7 @@ class BaseRepository(Generic[ModelType]):
         field = getattr(self.model, field_name)
         return self.db.query(self.model).filter(field == value).first()
 
-    def count(self, tenant_id: Optional[str] = None) -> int:
+    def count(self, tenant_id: str | None = None) -> int:
         """Count all records"""
         query = self.db.query(func.count(self.model.id))
         if tenant_id and hasattr(self.model, "tenant_id"):
@@ -113,7 +113,7 @@ class BaseRepository(Generic[ModelType]):
     # Write Operations
     # =============================================================================
 
-    def create(self, obj_in: Dict[str, Any]) -> ModelType:
+    def create(self, obj_in: dict[str, Any]) -> ModelType:
         """Create a new record"""
         db_obj = self.model(**obj_in)
         self.db.add(db_obj)
@@ -121,7 +121,7 @@ class BaseRepository(Generic[ModelType]):
         self.db.refresh(db_obj)
         return db_obj
 
-    def create_many(self, objects: List[Dict[str, Any]]) -> List[ModelType]:
+    def create_many(self, objects: list[dict[str, Any]]) -> list[ModelType]:
         """Create multiple records"""
         db_objects = [self.model(**obj) for obj in objects]
         self.db.add_all(db_objects)
@@ -130,7 +130,7 @@ class BaseRepository(Generic[ModelType]):
             self.db.refresh(obj)
         return db_objects
 
-    def update(self, id: UUID | str, obj_in: Dict[str, Any]) -> Optional[ModelType]:
+    def update(self, id: UUID | str, obj_in: dict[str, Any]) -> ModelType | None:
         """Update an existing record"""
         db_obj = self.get_by_id(id)
         if db_obj is None:
@@ -146,8 +146,8 @@ class BaseRepository(Generic[ModelType]):
 
     def update_many(
         self,
-        filters: Dict[str, Any],
-        values: Dict[str, Any],
+        filters: dict[str, Any],
+        values: dict[str, Any],
     ) -> int:
         """Update multiple records matching filters"""
         query = self.db.query(self.model)
@@ -170,7 +170,7 @@ class BaseRepository(Generic[ModelType]):
         self.db.commit()
         return True
 
-    def delete_many(self, filters: Dict[str, Any]) -> int:
+    def delete_many(self, filters: dict[str, Any]) -> int:
         """Delete multiple records matching filters"""
         query = self.db.query(self.model)
 
@@ -202,8 +202,8 @@ class BaseRepository(Generic[ModelType]):
         self,
         skip: int = 0,
         limit: int = 100,
-        tenant_id: Optional[str] = None,
-    ) -> List[ModelType]:
+        tenant_id: str | None = None,
+    ) -> list[ModelType]:
         """Get all active (non-deleted) records"""
         if not hasattr(self.model, "is_deleted"):
             return self.get_all(skip, limit)
@@ -229,7 +229,7 @@ class TenantRepository(BaseRepository[ModelType]):
     مستودع مع تصفية المستأجر المدمجة
     """
 
-    def __init__(self, db: Session, model: Type[ModelType], tenant_id: str):
+    def __init__(self, db: Session, model: type[ModelType], tenant_id: str):
         super().__init__(db, model)
         self.tenant_id = tenant_id
 
@@ -237,9 +237,9 @@ class TenantRepository(BaseRepository[ModelType]):
         self,
         skip: int = 0,
         limit: int = 100,
-        order_by: Optional[str] = None,
+        order_by: str | None = None,
         order_desc: bool = False,
-    ) -> List[ModelType]:
+    ) -> list[ModelType]:
         """Get all records for current tenant"""
         query = self.db.query(self.model).filter(self.model.tenant_id == self.tenant_id)
 
@@ -249,7 +249,7 @@ class TenantRepository(BaseRepository[ModelType]):
 
         return query.offset(skip).limit(limit).all()
 
-    def get_by_id(self, id: UUID | str) -> Optional[ModelType]:
+    def get_by_id(self, id: UUID | str) -> ModelType | None:
         """Get a single record by ID (tenant-scoped)"""
         return (
             self.db.query(self.model)
@@ -257,11 +257,11 @@ class TenantRepository(BaseRepository[ModelType]):
             .first()
         )
 
-    def create(self, obj_in: Dict[str, Any]) -> ModelType:
+    def create(self, obj_in: dict[str, Any]) -> ModelType:
         """Create a new record with tenant_id"""
         obj_in["tenant_id"] = self.tenant_id
         return super().create(obj_in)
 
-    def count(self, tenant_id: Optional[str] = None) -> int:
+    def count(self, tenant_id: str | None = None) -> int:
         """Count records for current tenant"""
         return super().count(self.tenant_id)

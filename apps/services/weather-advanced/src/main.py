@@ -7,20 +7,17 @@ Real Weather API Integration: Open-Meteo & OpenWeatherMap
 Please use 'weather-service' instead.
 """
 
-import os
 import logging
-import httpx
-import asyncio
-from functools import lru_cache
-
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, Request
-from fastapi.responses import Response
-from pydantic import BaseModel, Field
-from datetime import datetime, date, timedelta
-from typing import Optional, List, Dict, Any
-from enum import Enum
-import uuid
 import math
+import os
+import uuid
+from datetime import date, datetime, timedelta
+from enum import Enum
+from typing import Any
+
+import httpx
+from fastapi import FastAPI, HTTPException, Query, Request
+from pydantic import BaseModel
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +31,7 @@ OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY", "")
 WEATHER_CACHE_TTL_MINUTES = int(os.getenv("WEATHER_CACHE_TTL_MINUTES", "30"))
 
 # Weather data cache
-_weather_cache: Dict[str, Dict[str, Any]] = {}
+_weather_cache: dict[str, dict[str, Any]] = {}
 
 app = FastAPI(
     title="SAHOOL Advanced Weather Service | خدمة الطقس المتقدمة",
@@ -171,9 +168,9 @@ class WeatherAlert(BaseModel):
     description_en: str
     start_time: datetime
     end_time: datetime
-    affected_crops_ar: List[str]
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    affected_crops_ar: list[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
 
 
 class AgriculturalWeatherReport(BaseModel):
@@ -181,12 +178,12 @@ class AgriculturalWeatherReport(BaseModel):
     location_name_ar: str
     generated_at: datetime
     current: CurrentWeather
-    hourly_forecast: List[HourlyForecast]
-    daily_forecast: List[DailyForecast]
-    alerts: List[WeatherAlert]
+    hourly_forecast: list[HourlyForecast]
+    daily_forecast: list[DailyForecast]
+    alerts: list[WeatherAlert]
     growing_degree_days: float
     evapotranspiration_mm: float
-    spray_window_hours: List[str]
+    spray_window_hours: list[str]
     irrigation_recommendation_ar: str
     irrigation_recommendation_en: str
 
@@ -430,7 +427,7 @@ def get_cache_key(location_id: str, data_type: str) -> str:
     return f"{location_id}:{data_type}"
 
 
-def is_cache_valid(cache_entry: Dict[str, Any]) -> bool:
+def is_cache_valid(cache_entry: dict[str, Any]) -> bool:
     """Check if cache entry is still valid"""
     if not cache_entry:
         return False
@@ -441,7 +438,7 @@ def is_cache_valid(cache_entry: Dict[str, Any]) -> bool:
     return age_minutes < WEATHER_CACHE_TTL_MINUTES
 
 
-async def fetch_open_meteo_current(lat: float, lon: float) -> Optional[Dict[str, Any]]:
+async def fetch_open_meteo_current(lat: float, lon: float) -> dict[str, Any] | None:
     """
     Fetch current weather from Open-Meteo API (free, no API key required)
     جلب الطقس الحالي من Open-Meteo API
@@ -479,7 +476,7 @@ async def fetch_open_meteo_current(lat: float, lon: float) -> Optional[Dict[str,
 
 async def fetch_open_meteo_forecast(
     lat: float, lon: float, days: int = 7
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Fetch weather forecast from Open-Meteo API
     جلب توقعات الطقس من Open-Meteo API
@@ -529,7 +526,7 @@ async def fetch_open_meteo_forecast(
 
 async def fetch_openweathermap_current(
     lat: float, lon: float
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Fetch current weather from OpenWeatherMap API
     جلب الطقس الحالي من OpenWeatherMap API
@@ -560,7 +557,7 @@ async def fetch_openweathermap_current(
 
 async def fetch_openweathermap_forecast(
     lat: float, lon: float
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Fetch 5-day forecast from OpenWeatherMap API (free tier)
     جلب توقعات 5 أيام من OpenWeatherMap API
@@ -588,7 +585,7 @@ async def fetch_openweathermap_forecast(
         return None
 
 
-def parse_open_meteo_current(data: Dict[str, Any], location_id: str) -> CurrentWeather:
+def parse_open_meteo_current(data: dict[str, Any], location_id: str) -> CurrentWeather:
     """Parse Open-Meteo current weather response"""
     location = YEMEN_LOCATIONS[location_id]
     current = data.get("current", {})
@@ -625,10 +622,10 @@ def parse_open_meteo_current(data: Dict[str, Any], location_id: str) -> CurrentW
 
 
 def parse_open_meteo_forecast(
-    data: Dict[str, Any],
+    data: dict[str, Any],
     location_id: str,
     days: int,
-) -> tuple[List[HourlyForecast], List[DailyForecast]]:
+) -> tuple[list[HourlyForecast], list[DailyForecast]]:
     """Parse Open-Meteo forecast response"""
     hourly_data = data.get("hourly", {})
     daily_data = data.get("daily", {})
@@ -731,7 +728,7 @@ def parse_open_meteo_forecast(
     return hourly_forecast, daily_forecast
 
 
-async def get_real_current_weather(location_id: str) -> Optional[CurrentWeather]:
+async def get_real_current_weather(location_id: str) -> CurrentWeather | None:
     """
     Get real current weather from configured API provider
     جلب الطقس الحالي الحقيقي من مزود API المكون
@@ -802,7 +799,7 @@ async def get_real_current_weather(location_id: str) -> Optional[CurrentWeather]
 
 async def get_real_forecast(
     location_id: str, days: int = 7
-) -> Optional[tuple[List[HourlyForecast], List[DailyForecast]]]:
+) -> tuple[list[HourlyForecast], list[DailyForecast]] | None:
     """
     Get real weather forecast from configured API provider
     جلب توقعات الطقس الحقيقية من مزود API المكون
@@ -866,13 +863,11 @@ def generate_weather_condition(
         elif random.random() < 0.2:
             return WeatherCondition.HEAVY_RAIN
 
-    if humidity < 30:
-        if random.random() < 0.2:
-            return WeatherCondition.DUST
+    if humidity < 30 and random.random() < 0.2:
+        return WeatherCondition.DUST
 
-    if humidity > 80 and temp < 20:
-        if random.random() < 0.3:
-            return WeatherCondition.FOG
+    if humidity > 80 and temp < 20 and random.random() < 0.3:
+        return WeatherCondition.FOG
 
     if random.random() < 0.6:
         return WeatherCondition.CLEAR
@@ -905,8 +900,8 @@ def calculate_growing_degree_days(
 
 
 def check_for_alerts(
-    forecast: List[DailyForecast], location_id: str
-) -> List[WeatherAlert]:
+    forecast: list[DailyForecast], location_id: str
+) -> list[WeatherAlert]:
     """Check forecast for agricultural weather alerts"""
     alerts = []
 
@@ -1038,7 +1033,7 @@ def check_for_alerts(
     return alerts
 
 
-def get_spray_windows(hourly: List[HourlyForecast]) -> List[str]:
+def get_spray_windows(hourly: list[HourlyForecast]) -> list[str]:
     """Identify optimal spray windows (low wind, no rain, moderate temp)"""
     windows = []
     for hour in hourly[:48]:  # Next 48 hours
@@ -1357,21 +1352,17 @@ async def get_forecast(location_id: str, days: int = Query(default=7, ge=1, le=1
 
     # Irrigation recommendation
     if et0 > 6:
-        irrig_ar = "💧 احتياج ري عالي اليوم ({} ملم) - ري صباحي ومسائي مطلوب".format(
-            et0
-        )
-        irrig_en = "💧 High irrigation need today ({} mm) - morning and evening irrigation required".format(
-            et0
-        )
+        irrig_ar = f"💧 احتياج ري عالي اليوم ({et0} ملم) - ري صباحي ومسائي مطلوب"
+        irrig_en = f"💧 High irrigation need today ({et0} mm) - morning and evening irrigation required"
     elif et0 > 4:
-        irrig_ar = "💧 احتياج ري متوسط ({} ملم) - ري واحد كافي".format(et0)
+        irrig_ar = f"💧 احتياج ري متوسط ({et0} ملم) - ري واحد كافي"
         irrig_en = (
-            "💧 Medium irrigation need ({} mm) - one irrigation sufficient".format(et0)
+            f"💧 Medium irrigation need ({et0} mm) - one irrigation sufficient"
         )
     else:
-        irrig_ar = "💧 احتياج ري منخفض ({} ملم) - تقليل الري ممكن".format(et0)
+        irrig_ar = f"💧 احتياج ري منخفض ({et0} ملم) - تقليل الري ممكن"
         irrig_en = (
-            "💧 Low irrigation need ({} mm) - reduced irrigation possible".format(et0)
+            f"💧 Low irrigation need ({et0} mm) - reduced irrigation possible"
         )
 
     return AgriculturalWeatherReport(

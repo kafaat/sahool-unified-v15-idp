@@ -5,20 +5,15 @@ SAHOOL Satellite Service - VRA Endpoints
 API endpoints for Variable Rate Application prescription maps.
 """
 
+import logging
+
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime
-import logging
 
 from .vra_generator import (
     VRAGenerator,
     VRAType,
     ZoneMethod,
-    ZoneLevel,
-    ManagementZone,
-    PrescriptionMap,
-    ZoneStatistics,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,13 +39,13 @@ class VRARequest(BaseModel):
         default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)"
     )
     zone_method: str = Field(default="ndvi", description="طريقة تصنيف المناطق")
-    min_rate: Optional[float] = Field(None, gt=0, description="الحد الأدنى للمعدل")
-    max_rate: Optional[float] = Field(None, gt=0, description="الحد الأقصى للمعدل")
-    product_price_per_unit: Optional[float] = Field(
+    min_rate: float | None = Field(None, gt=0, description="الحد الأدنى للمعدل")
+    max_rate: float | None = Field(None, gt=0, description="الحد الأقصى للمعدل")
+    product_price_per_unit: float | None = Field(
         None, description="سعر الوحدة للمنتج"
     )
-    notes: Optional[str] = Field(None, description="ملاحظات (إنجليزي)")
-    notes_ar: Optional[str] = Field(None, description="ملاحظات (عربي)")
+    notes: str | None = Field(None, description="ملاحظات (إنجليزي)")
+    notes_ar: str | None = Field(None, description="ملاحظات (عربي)")
 
 
 class ManagementZoneResponse(BaseModel):
@@ -64,7 +59,7 @@ class ManagementZoneResponse(BaseModel):
     ndvi_max: float
     area_ha: float
     percentage: float
-    centroid: List[float]  # [lon, lat]
+    centroid: list[float]  # [lon, lat]
     recommended_rate: float
     unit: str
     total_product: float
@@ -84,18 +79,18 @@ class PrescriptionMapResponse(BaseModel):
     unit: str
     num_zones: int
     zone_method: str
-    zones: List[ManagementZoneResponse]
+    zones: list[ManagementZoneResponse]
     total_area_ha: float
     total_product_needed: float
     flat_rate_product: float
     savings_percent: float
     savings_amount: float
-    cost_savings: Optional[float]
-    notes: Optional[str]
-    notes_ar: Optional[str]
-    geojson_url: Optional[str]
-    shapefile_url: Optional[str]
-    isoxml_url: Optional[str]
+    cost_savings: float | None
+    notes: str | None
+    notes_ar: str | None
+    geojson_url: str | None
+    shapefile_url: str | None
+    isoxml_url: str | None
 
 
 # =============================================================================
@@ -452,8 +447,8 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             else:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Invalid format. Must be one of: geojson, shapefile, isoxml",
-                ) from e
+                    detail="Invalid format. Must be one of: geojson, shapefile, isoxml",
+                )
 
         except HTTPException:
             raise

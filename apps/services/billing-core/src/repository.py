@@ -10,30 +10,29 @@ This module provides database operations for:
 """
 
 import uuid
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional, List, Dict, Any, Sequence
+from typing import Any
 
-from sqlalchemy import select, update, delete, func, and_, or_, desc, asc
+from sqlalchemy import and_, asc, desc, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from .models import (
-    Plan,
-    Tenant,
-    Subscription,
-    Invoice,
-    Payment,
-    UsageRecord,
-    PlanTier,
-    SubscriptionStatus,
-    InvoiceStatus,
-    PaymentStatus,
-    PaymentMethod,
-    Currency,
     BillingCycle,
+    Currency,
+    Invoice,
+    InvoiceStatus,
+    Payment,
+    PaymentMethod,
+    PaymentStatus,
+    Plan,
+    PlanTier,
+    Subscription,
+    SubscriptionStatus,
+    Tenant,
+    UsageRecord,
 )
-
 
 # =============================================================================
 # Plan Repository
@@ -57,9 +56,9 @@ class PlanRepository:
         description: str,
         description_ar: str,
         tier: PlanTier,
-        pricing: Dict[str, Any],
-        features: Dict[str, Any],
-        limits: Dict[str, Any],
+        pricing: dict[str, Any],
+        features: dict[str, Any],
+        limits: dict[str, Any],
         trial_days: int = 14,
         is_active: bool = True,
     ) -> Plan:
@@ -84,12 +83,12 @@ class PlanRepository:
 
         return plan
 
-    async def get_by_id(self, plan_id: uuid.UUID) -> Optional[Plan]:
+    async def get_by_id(self, plan_id: uuid.UUID) -> Plan | None:
         """Get plan by UUID - الحصول على خطة بواسطة المعرف UUID"""
         result = await self.db.execute(select(Plan).where(Plan.id == plan_id))
         return result.scalar_one_or_none()
 
-    async def get_by_plan_id(self, plan_id: str) -> Optional[Plan]:
+    async def get_by_plan_id(self, plan_id: str) -> Plan | None:
         """Get plan by plan_id - الحصول على خطة بواسطة معرف الخطة"""
         result = await self.db.execute(select(Plan).where(Plan.plan_id == plan_id))
         return result.scalar_one_or_none()
@@ -99,7 +98,7 @@ class PlanRepository:
         active_only: bool = True,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Plan]:
+    ) -> list[Plan]:
         """List all plans - قائمة جميع الخطط"""
         query = select(Plan)
 
@@ -115,7 +114,7 @@ class PlanRepository:
         self,
         plan_id: str,
         **kwargs,
-    ) -> Optional[Plan]:
+    ) -> Plan | None:
         """Update plan - تحديث الخطة"""
         kwargs["updated_at"] = datetime.utcnow()
 
@@ -145,9 +144,9 @@ class PlanRepository:
         description: str,
         description_ar: str,
         tier: PlanTier,
-        pricing: Dict[str, Any],
-        features: Dict[str, Any],
-        limits: Dict[str, Any],
+        pricing: dict[str, Any],
+        features: dict[str, Any],
+        limits: dict[str, Any],
         trial_days: int = 14,
         is_active: bool = True,
     ) -> Plan:
@@ -203,9 +202,9 @@ class TenantRepository:
         tenant_id: str,
         name: str,
         name_ar: str,
-        contact: Dict[str, Any],
-        tax_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        contact: dict[str, Any],
+        tax_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
         is_active: bool = True,
     ) -> Tenant:
         """Create a new tenant - إنشاء مستأجر جديد"""
@@ -225,12 +224,12 @@ class TenantRepository:
 
         return tenant
 
-    async def get_by_id(self, tenant_id: uuid.UUID) -> Optional[Tenant]:
+    async def get_by_id(self, tenant_id: uuid.UUID) -> Tenant | None:
         """Get tenant by UUID - الحصول على مستأجر بواسطة المعرف UUID"""
         result = await self.db.execute(select(Tenant).where(Tenant.id == tenant_id))
         return result.scalar_one_or_none()
 
-    async def get_by_tenant_id(self, tenant_id: str) -> Optional[Tenant]:
+    async def get_by_tenant_id(self, tenant_id: str) -> Tenant | None:
         """Get tenant by tenant_id - الحصول على مستأجر بواسطة معرف المستأجر"""
         result = await self.db.execute(
             select(Tenant).where(Tenant.tenant_id == tenant_id)
@@ -242,7 +241,7 @@ class TenantRepository:
         active_only: bool = True,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Tenant]:
+    ) -> list[Tenant]:
         """List all tenants - قائمة جميع المستأجرين"""
         query = select(Tenant)
 
@@ -258,7 +257,7 @@ class TenantRepository:
         self,
         tenant_id: str,
         **kwargs,
-    ) -> Optional[Tenant]:
+    ) -> Tenant | None:
         """Update tenant - تحديث المستأجر"""
         kwargs["updated_at"] = datetime.utcnow()
 
@@ -314,9 +313,9 @@ class SubscriptionRepository:
         end_date: date,
         status: SubscriptionStatus = SubscriptionStatus.ACTIVE,
         currency: Currency = Currency.USD,
-        trial_end_date: Optional[date] = None,
-        payment_method: Optional[PaymentMethod] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        trial_end_date: date | None = None,
+        payment_method: PaymentMethod | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Subscription:
         """Create a new subscription - إنشاء اشتراك جديد"""
         subscription = Subscription(
@@ -339,7 +338,7 @@ class SubscriptionRepository:
 
         return subscription
 
-    async def get_by_id(self, subscription_id: uuid.UUID) -> Optional[Subscription]:
+    async def get_by_id(self, subscription_id: uuid.UUID) -> Subscription | None:
         """Get subscription by ID - الحصول على اشتراك بواسطة المعرف"""
         result = await self.db.execute(
             select(Subscription).where(Subscription.id == subscription_id)
@@ -349,8 +348,8 @@ class SubscriptionRepository:
     async def get_by_tenant(
         self,
         tenant_id: str,
-        status: Optional[SubscriptionStatus] = None,
-    ) -> Optional[Subscription]:
+        status: SubscriptionStatus | None = None,
+    ) -> Subscription | None:
         """Get active subscription for tenant - الحصول على اشتراك نشط للمستأجر"""
         query = select(Subscription).where(Subscription.tenant_id == tenant_id)
 
@@ -374,7 +373,7 @@ class SubscriptionRepository:
         tenant_id: str,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Subscription]:
+    ) -> list[Subscription]:
         """List all subscriptions for tenant - قائمة جميع اشتراكات المستأجر"""
         result = await self.db.execute(
             select(Subscription)
@@ -389,7 +388,7 @@ class SubscriptionRepository:
         self,
         subscription_id: uuid.UUID,
         **kwargs,
-    ) -> Optional[Subscription]:
+    ) -> Subscription | None:
         """Update subscription - تحديث الاشتراك"""
         # Add updated_at timestamp
         kwargs["updated_at"] = datetime.utcnow()
@@ -407,7 +406,7 @@ class SubscriptionRepository:
         self,
         subscription_id: uuid.UUID,
         immediate: bool = False,
-    ) -> Optional[Subscription]:
+    ) -> Subscription | None:
         """Cancel subscription - إلغاء الاشتراك"""
         subscription = await self.get_by_id(subscription_id)
         if not subscription:
@@ -434,7 +433,7 @@ class SubscriptionRepository:
     async def get_due_for_billing(
         self,
         billing_date: date = None,
-    ) -> List[Subscription]:
+    ) -> list[Subscription]:
         """Get subscriptions due for billing - الحصول على الاشتراكات المستحقة للفوترة"""
         if billing_date is None:
             billing_date = date.today()
@@ -451,7 +450,7 @@ class SubscriptionRepository:
         )
         return list(result.scalars().all())
 
-    async def count_by_status(self) -> Dict[str, int]:
+    async def count_by_status(self) -> dict[str, int]:
         """Count subscriptions by status - عد الاشتراكات حسب الحالة"""
         result = await self.db.execute(
             select(Subscription.status, func.count(Subscription.id)).group_by(
@@ -461,7 +460,7 @@ class SubscriptionRepository:
 
         return {status.value: count for status, count in result.all()}
 
-    async def count_by_plan(self) -> Dict[str, int]:
+    async def count_by_plan(self) -> dict[str, int]:
         """Count subscriptions by plan - عد الاشتراكات حسب الخطة"""
         result = await self.db.execute(
             select(Subscription.plan_id, func.count(Subscription.id)).group_by(
@@ -469,7 +468,7 @@ class SubscriptionRepository:
             )
         )
 
-        return {plan_id: count for plan_id, count in result.all()}
+        return dict(result.all())
 
 
 # =============================================================================
@@ -497,14 +496,14 @@ class InvoiceRepository:
         subtotal: Decimal,
         total: Decimal,
         amount_due: Decimal,
-        line_items: List[Dict[str, Any]],
+        line_items: list[dict[str, Any]],
         status: InvoiceStatus = InvoiceStatus.DRAFT,
         tax_rate: Decimal = Decimal("0"),
         tax_amount: Decimal = Decimal("0"),
         discount_amount: Decimal = Decimal("0"),
-        notes: Optional[str] = None,
-        notes_ar: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        notes: str | None = None,
+        notes_ar: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Invoice:
         """Create a new invoice - إنشاء فاتورة جديدة"""
         invoice = Invoice(
@@ -537,7 +536,7 @@ class InvoiceRepository:
         self,
         invoice_id: uuid.UUID,
         include_payments: bool = False,
-    ) -> Optional[Invoice]:
+    ) -> Invoice | None:
         """Get invoice by ID - الحصول على فاتورة بواسطة المعرف"""
         query = select(Invoice).where(Invoice.id == invoice_id)
 
@@ -547,7 +546,7 @@ class InvoiceRepository:
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_by_invoice_number(self, invoice_number: str) -> Optional[Invoice]:
+    async def get_by_invoice_number(self, invoice_number: str) -> Invoice | None:
         """Get invoice by invoice number - الحصول على فاتورة بواسطة رقم الفاتورة"""
         result = await self.db.execute(
             select(Invoice).where(Invoice.invoice_number == invoice_number)
@@ -557,10 +556,10 @@ class InvoiceRepository:
     async def list_by_tenant(
         self,
         tenant_id: str,
-        status: Optional[InvoiceStatus] = None,
+        status: InvoiceStatus | None = None,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Invoice]:
+    ) -> list[Invoice]:
         """List invoices for tenant - قائمة فواتير المستأجر"""
         query = select(Invoice).where(Invoice.tenant_id == tenant_id)
 
@@ -577,7 +576,7 @@ class InvoiceRepository:
         subscription_id: uuid.UUID,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Invoice]:
+    ) -> list[Invoice]:
         """List invoices for subscription - قائمة فواتير الاشتراك"""
         result = await self.db.execute(
             select(Invoice)
@@ -592,7 +591,7 @@ class InvoiceRepository:
         self,
         invoice_id: uuid.UUID,
         **kwargs,
-    ) -> Optional[Invoice]:
+    ) -> Invoice | None:
         """Update invoice - تحديث الفاتورة"""
         await self.db.execute(
             update(Invoice).where(Invoice.id == invoice_id).values(**kwargs)
@@ -605,7 +604,7 @@ class InvoiceRepository:
         self,
         invoice_id: uuid.UUID,
         amount: Decimal,
-    ) -> Optional[Invoice]:
+    ) -> Invoice | None:
         """Mark invoice as paid - تحديد الفاتورة كمدفوعة"""
         invoice = await self.get_by_id(invoice_id)
         if not invoice:
@@ -634,7 +633,7 @@ class InvoiceRepository:
     async def get_overdue(
         self,
         as_of_date: date = None,
-    ) -> List[Invoice]:
+    ) -> list[Invoice]:
         """Get overdue invoices - الحصول على الفواتير المتأخرة"""
         if as_of_date is None:
             as_of_date = date.today()
@@ -652,9 +651,9 @@ class InvoiceRepository:
 
     async def get_total_revenue(
         self,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
-        currency: Optional[Currency] = None,
+        start_date: date | None = None,
+        end_date: date | None = None,
+        currency: Currency | None = None,
     ) -> Decimal:
         """Calculate total revenue - حساب إجمالي الإيرادات"""
         query = select(func.sum(Invoice.total)).where(
@@ -698,7 +697,7 @@ class PaymentRepository:
         currency: Currency,
         method: PaymentMethod,
         status: PaymentStatus = PaymentStatus.PENDING,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Payment:
         """Create a new payment - إنشاء دفعة جديدة"""
         payment = Payment(
@@ -717,7 +716,7 @@ class PaymentRepository:
 
         return payment
 
-    async def get_by_id(self, payment_id: uuid.UUID) -> Optional[Payment]:
+    async def get_by_id(self, payment_id: uuid.UUID) -> Payment | None:
         """Get payment by ID - الحصول على دفعة بواسطة المعرف"""
         result = await self.db.execute(select(Payment).where(Payment.id == payment_id))
         return result.scalar_one_or_none()
@@ -727,7 +726,7 @@ class PaymentRepository:
         invoice_id: uuid.UUID,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Payment]:
+    ) -> list[Payment]:
         """List payments for invoice - قائمة دفعات الفاتورة"""
         result = await self.db.execute(
             select(Payment)
@@ -741,10 +740,10 @@ class PaymentRepository:
     async def list_by_tenant(
         self,
         tenant_id: str,
-        status: Optional[PaymentStatus] = None,
+        status: PaymentStatus | None = None,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[Payment]:
+    ) -> list[Payment]:
         """List payments for tenant - قائمة دفعات المستأجر"""
         query = select(Payment).where(Payment.tenant_id == tenant_id)
 
@@ -760,7 +759,7 @@ class PaymentRepository:
         self,
         payment_id: uuid.UUID,
         **kwargs,
-    ) -> Optional[Payment]:
+    ) -> Payment | None:
         """Update payment - تحديث الدفعة"""
         await self.db.execute(
             update(Payment).where(Payment.id == payment_id).values(**kwargs)
@@ -772,9 +771,9 @@ class PaymentRepository:
     async def mark_succeeded(
         self,
         payment_id: uuid.UUID,
-        processed_at: Optional[datetime] = None,
-        external_id: Optional[str] = None,
-    ) -> Optional[Payment]:
+        processed_at: datetime | None = None,
+        external_id: str | None = None,
+    ) -> Payment | None:
         """Mark payment as succeeded - تحديد الدفعة كناجحة"""
         update_data = {
             "status": PaymentStatus.SUCCEEDED,
@@ -796,7 +795,7 @@ class PaymentRepository:
         self,
         payment_id: uuid.UUID,
         failure_reason: str,
-    ) -> Optional[Payment]:
+    ) -> Payment | None:
         """Mark payment as failed - تحديد الدفعة كفاشلة"""
         await self.db.execute(
             update(Payment)
@@ -812,9 +811,9 @@ class PaymentRepository:
 
     async def get_total_by_method(
         self,
-        start_date: Optional[date] = None,
-        end_date: Optional[date] = None,
-    ) -> Dict[str, Decimal]:
+        start_date: date | None = None,
+        end_date: date | None = None,
+    ) -> dict[str, Decimal]:
         """Get total payments by method - إجمالي المدفوعات حسب الطريقة"""
         query = select(Payment.method, func.sum(Payment.amount)).where(
             Payment.status == PaymentStatus.SUCCEEDED
@@ -852,7 +851,7 @@ class UsageRecordRepository:
         tenant_id: str,
         metric_type: str,
         quantity: int = 1,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> UsageRecord:
         """Create a new usage record - إنشاء سجل استخدام جديد"""
         record = UsageRecord(
@@ -869,7 +868,7 @@ class UsageRecordRepository:
 
         return record
 
-    async def get_by_id(self, record_id: uuid.UUID) -> Optional[UsageRecord]:
+    async def get_by_id(self, record_id: uuid.UUID) -> UsageRecord | None:
         """Get usage record by ID - الحصول على سجل استخدام بواسطة المعرف"""
         result = await self.db.execute(
             select(UsageRecord).where(UsageRecord.id == record_id)
@@ -879,12 +878,12 @@ class UsageRecordRepository:
     async def list_by_subscription(
         self,
         subscription_id: uuid.UUID,
-        metric_type: Optional[str] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        metric_type: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         limit: int = 1000,
         offset: int = 0,
-    ) -> List[UsageRecord]:
+    ) -> list[UsageRecord]:
         """List usage records for subscription - قائمة سجلات استخدام الاشتراك"""
         query = select(UsageRecord).where(
             UsageRecord.subscription_id == subscription_id
@@ -909,12 +908,12 @@ class UsageRecordRepository:
     async def list_by_tenant(
         self,
         tenant_id: str,
-        metric_type: Optional[str] = None,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        metric_type: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         limit: int = 1000,
         offset: int = 0,
-    ) -> List[UsageRecord]:
+    ) -> list[UsageRecord]:
         """List usage records for tenant - قائمة سجلات استخدام المستأجر"""
         query = select(UsageRecord).where(UsageRecord.tenant_id == tenant_id)
 
@@ -937,9 +936,9 @@ class UsageRecordRepository:
     async def get_usage_summary(
         self,
         tenant_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-    ) -> Dict[str, int]:
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+    ) -> dict[str, int]:
         """Get usage summary by metric - ملخص الاستخدام حسب المقياس"""
         query = select(UsageRecord.metric_type, func.sum(UsageRecord.quantity)).where(
             UsageRecord.tenant_id == tenant_id
@@ -960,8 +959,8 @@ class UsageRecordRepository:
         self,
         tenant_id: str,
         metric_type: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> int:
         """Get total count for specific metric - إجمالي العدد لمقياس محدد"""
         query = select(func.sum(UsageRecord.quantity)).where(

@@ -2,10 +2,11 @@
 Integration tests for Profitability API endpoints
 """
 
+import os
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
-import sys
-import os
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -311,7 +312,7 @@ class TestProfitabilityEdgeCases:
         for crop in crops:
             if crop["has_regional_data"]:
                 response = client.get(
-                    f"/v1/profitability/crop/season-001",
+                    "/v1/profitability/crop/season-001",
                     params={
                         "field_id": "field-001",
                         "crop_code": crop["crop_code"],

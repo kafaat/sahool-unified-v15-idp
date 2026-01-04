@@ -3,31 +3,31 @@ Inventory Database Models
 نماذج قاعدة بيانات المخزون
 """
 
-from datetime import datetime, date
+import uuid
+from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
-from typing import Optional
-import uuid
 
+import sqlalchemy as sa
 from sqlalchemy import (
-    Column,
-    String,
-    Float,
-    Integer,
     Boolean,
-    DateTime,
     Date,
+    DateTime,
+    Float,
     ForeignKey,
-    Text,
-    Numeric,
-    Enum as SQLEnum,
     Index,
+    Integer,
+    Numeric,
+    String,
+    Text,
     func,
 )
-import sqlalchemy as sa
+from sqlalchemy import (
+    Enum as SQLEnum,
+)
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 # Define base classes locally for Docker compatibility
@@ -115,7 +115,7 @@ class ItemCategory(Base, TimestampMixin):
     name_en: Mapped[str] = mapped_column(String(100), nullable=False)
     name_ar: Mapped[str] = mapped_column(String(100), nullable=False)
     code: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     # Relationships
@@ -129,8 +129,8 @@ class Warehouse(TenantEntity):
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     code: Mapped[str] = mapped_column(String(50), nullable=False)
-    location: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-    capacity: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    location: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    capacity: Mapped[float | None] = mapped_column(Float, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     # Relationships
@@ -149,10 +149,10 @@ class Supplier(TenantEntity):
 
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     code: Mapped[str] = mapped_column(String(50), nullable=False)
-    contact_person: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    phone: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    email: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    address: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    contact_person: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    email: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    address: Mapped[str | None] = mapped_column(Text, nullable=True)
     lead_time_days: Mapped[int] = mapped_column(Integer, default=7)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
@@ -169,7 +169,7 @@ class InventoryItem(TenantEntity):
     name_en: Mapped[str] = mapped_column(String(200), nullable=False)
     name_ar: Mapped[str] = mapped_column(String(200), nullable=False)
     sku: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
-    barcode: Mapped[Optional[str]] = mapped_column(
+    barcode: Mapped[str | None] = mapped_column(
         String(100), nullable=True, index=True
     )
 
@@ -179,12 +179,12 @@ class InventoryItem(TenantEntity):
     )
 
     # Storage
-    warehouse_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    warehouse_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("inventory_warehouses.id"), nullable=True
     )
 
     # Supplier
-    supplier_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    supplier_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("inventory_suppliers.id"), nullable=True
     )
 
@@ -211,12 +211,12 @@ class InventoryItem(TenantEntity):
 
     # Expiry tracking
     has_expiry: Mapped[bool] = mapped_column(Boolean, default=False)
-    expiry_date: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
-    shelf_life_days: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    expiry_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    shelf_life_days: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Additional attributes
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     # Relationships
@@ -288,7 +288,7 @@ class InventoryMovement(TenantEntity):
     )
 
     # For transfers
-    to_warehouse_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+    to_warehouse_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("inventory_warehouses.id"), nullable=True
     )
 
@@ -298,13 +298,13 @@ class InventoryMovement(TenantEntity):
     total_cost: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
 
     # Field/operation reference (for issues)
-    field_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    crop_season_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    operation_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    field_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    crop_season_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    operation_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Additional info
-    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    created_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Relationships
     item = relationship("InventoryItem", back_populates="movements")
@@ -363,16 +363,16 @@ class InventoryTransaction(TenantEntity):
     )
 
     # Field/crop reference
-    field_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    crop_season_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    field_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    crop_season_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Customer/Supplier reference
-    party_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    party_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    party_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    party_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
 
     # Notes
-    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    created_by: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_by: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Relationships
     item = relationship("InventoryItem", back_populates="transactions")

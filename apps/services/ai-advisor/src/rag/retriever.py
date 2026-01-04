@@ -6,18 +6,19 @@ Retrieves relevant knowledge from Qdrant vector database.
 يسترجع المعرفة ذات الصلة من قاعدة بيانات المتجهات Qdrant.
 """
 
-from typing import List, Dict, Any, Optional
+from dataclasses import dataclass
+from typing import Any
+
+import structlog
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
-    VectorParams,
-    PointStruct,
-    Filter,
     FieldCondition,
+    Filter,
     MatchValue,
+    PointStruct,
+    VectorParams,
 )
-import structlog
-from dataclasses import dataclass
 
 from ..config import settings
 from .embeddings import EmbeddingsManager
@@ -33,7 +34,7 @@ class Document:
     """
 
     content: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     score: float
     id: str
 
@@ -49,8 +50,8 @@ class KnowledgeRetriever:
 
     def __init__(
         self,
-        embeddings_manager: Optional[EmbeddingsManager] = None,
-        collection_name: Optional[str] = None,
+        embeddings_manager: EmbeddingsManager | None = None,
+        collection_name: str | None = None,
     ):
         """
         Initialize knowledge retriever
@@ -115,9 +116,9 @@ class KnowledgeRetriever:
 
     def add_documents(
         self,
-        documents: List[str],
-        metadatas: Optional[List[Dict[str, Any]]] = None,
-        ids: Optional[List[str]] = None,
+        documents: list[str],
+        metadatas: list[dict[str, Any]] | None = None,
+        ids: list[str] | None = None,
     ) -> bool:
         """
         Add documents to the knowledge base
@@ -190,8 +191,8 @@ class KnowledgeRetriever:
         query: str,
         top_k: int = None,
         score_threshold: float = None,
-        filters: Optional[Dict[str, Any]] = None,
-    ) -> List[Document]:
+        filters: dict[str, Any] | None = None,
+    ) -> list[Document]:
         """
         Retrieve relevant documents
         استرجاع المستندات ذات الصلة
@@ -268,7 +269,7 @@ class KnowledgeRetriever:
 
     def delete_documents(
         self,
-        ids: List[str],
+        ids: list[str],
     ) -> bool:
         """
         Delete documents from the knowledge base
@@ -298,7 +299,7 @@ class KnowledgeRetriever:
             logger.error("document_deletion_failed", error=str(e), num_ids=len(ids))
             return False
 
-    def get_collection_info(self) -> Dict[str, Any]:
+    def get_collection_info(self) -> dict[str, Any]:
         """
         Get information about the collection
         الحصول على معلومات حول المجموعة

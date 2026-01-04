@@ -12,21 +12,17 @@ Central coordination agent for:
 This agent implements a Goal-Based + Utility-Based hybrid approach.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
-from datetime import datetime
-from dataclasses import dataclass
-from enum import Enum
-import asyncio
 import logging
+from dataclasses import dataclass
+from datetime import datetime
+from enum import Enum
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer, AgentStatus,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
 from ..specialist.disease_expert_agent import DiseaseExpertAgent
-from ..specialist.yield_predictor_agent import YieldPredictorAgent
 from ..specialist.irrigation_advisor_agent import IrrigationAdvisorAgent
 from ..specialist.weather_analyst_agent import WeatherAnalystAgent
+from ..specialist.yield_predictor_agent import YieldPredictorAgent
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +48,7 @@ class AgentRecommendation:
 class ConflictResolution:
     """حل التعارض"""
     conflict_type: ConflictType
-    conflicting_actions: List[AgentAction]
+    conflicting_actions: list[AgentAction]
     resolution: str
     selected_action: AgentAction
     reasoning: str
@@ -62,12 +58,12 @@ class ConflictResolution:
 class UnifiedRecommendation:
     """التوصية الموحدة"""
     primary_action: AgentAction
-    supporting_actions: List[AgentAction]
-    conflicts_resolved: List[ConflictResolution]
+    supporting_actions: list[AgentAction]
+    conflicts_resolved: list[ConflictResolution]
     priority_score: float
     confidence: float
     summary_ar: str
-    details: Dict[str, Any]
+    details: dict[str, Any]
 
 
 class MasterCoordinatorAgent(BaseAgent):
@@ -110,14 +106,14 @@ class MasterCoordinatorAgent(BaseAgent):
         )
 
         # Initialize specialist agents
-        self.specialists: Dict[str, BaseAgent] = {}
+        self.specialists: dict[str, BaseAgent] = {}
         self._init_specialists()
 
         # Collected recommendations
-        self.pending_recommendations: List[AgentRecommendation] = []
+        self.pending_recommendations: list[AgentRecommendation] = []
 
         # Resolution history
-        self.resolution_history: List[ConflictResolution] = []
+        self.resolution_history: list[ConflictResolution] = []
 
         # Goals
         self.state.goals = [
@@ -223,7 +219,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         self.context.metadata[percept.percept_type] = percept.data
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """
         جمع التوصيات وحل التعارضات
         Collect recommendations and resolve conflicts
@@ -272,7 +268,7 @@ class MasterCoordinatorAgent(BaseAgent):
             source_agent=self.agent_id
         )
 
-    async def _collect_all_recommendations(self) -> List[AgentRecommendation]:
+    async def _collect_all_recommendations(self) -> list[AgentRecommendation]:
         """جمع التوصيات من جميع الوكلاء"""
         recommendations = []
 
@@ -291,7 +287,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         return recommendations
 
-    def _detect_conflicts(self, recommendations: List[AgentRecommendation]) -> List[Dict[str, Any]]:
+    def _detect_conflicts(self, recommendations: list[AgentRecommendation]) -> list[dict[str, Any]]:
         """اكتشاف التعارضات"""
         conflicts = []
 
@@ -307,7 +303,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         return conflicts
 
-    def _check_conflict(self, action1: AgentAction, action2: AgentAction) -> Optional[ConflictType]:
+    def _check_conflict(self, action1: AgentAction, action2: AgentAction) -> ConflictType | None:
         """التحقق من وجود تعارض"""
         # Resource conflict
         if ("irrigation" in action1.action_type.lower() and
@@ -325,7 +321,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         return None
 
-    async def _resolve_conflict(self, conflict: Dict[str, Any]) -> ConflictResolution:
+    async def _resolve_conflict(self, conflict: dict[str, Any]) -> ConflictResolution:
         """حل التعارض"""
         conflict_type = conflict["type"]
         action1 = conflict["action1"].action
@@ -359,12 +355,12 @@ class MasterCoordinatorAgent(BaseAgent):
 
     async def _create_unified_recommendation(
         self,
-        recommendations: List[AgentRecommendation],
-        resolutions: List[ConflictResolution]
+        recommendations: list[AgentRecommendation],
+        resolutions: list[ConflictResolution]
     ) -> UnifiedRecommendation:
         """إنشاء التوصية الموحدة"""
         # Get resolved actions
-        resolved_actions = {r.selected_action for r in resolutions}
+        {r.selected_action for r in resolutions}
         excluded_actions = set()
         for r in resolutions:
             for a in r.conflicting_actions:
@@ -420,7 +416,7 @@ class MasterCoordinatorAgent(BaseAgent):
             }
         )
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ التوصية المنسقة"""
         result = {
             "action_type": action.action_type,
@@ -442,7 +438,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         return result
 
-    async def run_full_analysis(self, context: AgentContext) -> Dict[str, Any]:
+    async def run_full_analysis(self, context: AgentContext) -> dict[str, Any]:
         """تشغيل تحليل كامل"""
         self.context = context
 
@@ -459,7 +455,7 @@ class MasterCoordinatorAgent(BaseAgent):
 
         return result
 
-    def get_system_status(self) -> Dict[str, Any]:
+    def get_system_status(self) -> dict[str, Any]:
         """الحصول على حالة النظام"""
         return {
             "coordinator": self.get_metrics(),

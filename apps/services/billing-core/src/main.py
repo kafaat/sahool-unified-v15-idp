@@ -12,39 +12,38 @@ Features:
 - NATS event publishing for billing events
 """
 
+import hashlib
+import hmac
+import logging
 import os
 import uuid
-import hmac
-import hashlib
-import json
-import logging
-import asyncio
-from datetime import datetime, date, timedelta
-from decimal import Decimal
-from typing import Optional, List, Dict, Any
-from enum import Enum
 from contextlib import asynccontextmanager
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+from enum import Enum
 from pathlib import Path
+from typing import Any
 
 import httpx
 import nats
-from nats.js.api import StreamConfig, RetentionPolicy
 from fastapi import (
+    BackgroundTasks,
+    Depends,
     FastAPI,
+    Header,
     HTTPException,
     Query,
-    Header,
-    Depends,
-    BackgroundTasks,
     Request,
 )
-from pydantic import BaseModel, Field, EmailStr
+from nats.js.api import RetentionPolicy
+from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-# Database imports
-from .database import get_db, init_db, close_db, check_db_connection, db_health_check
-from .repository import BillingRepository
 from . import models as db_models
+
+# Database imports
+from .database import check_db_connection, close_db, db_health_check, get_db, init_db
+from .repository import BillingRepository
 
 # Configure logging early - needed for import error handling
 logging.basicConfig(level=logging.INFO)
@@ -56,9 +55,9 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
 try:
     from auth.dependencies import (
+        api_key_auth,
         get_current_active_user,
         require_roles,
-        api_key_auth,
     )
     from auth.models import User
 
@@ -257,7 +256,7 @@ def require_tenant_or_admin(current_user, tenant_id: str):
     if not verify_tenant_access(current_user, tenant_id):
         raise HTTPException(
             status_code=403, detail="Access denied - cannot access this tenant's data"
-        ) from e
+        )
 
 
 # =============================================================================
@@ -328,7 +327,7 @@ class PlanFeature(BaseModel):
     name: str
     name_ar: str
     included: bool
-    limit: Optional[int] = None  # None = unlimited
+    limit: int | None = None  # None = unlimited
 
 
 class PlanPricing(BaseModel):
@@ -350,8 +349,8 @@ class Plan(BaseModel):
     description_ar: str
     tier: PlanTier
     pricing: PlanPricing
-    features: Dict[str, PlanFeature]
-    limits: Dict[str, int]  # Feature limits
+    features: dict[str, PlanFeature]
+    limits: dict[str, int]  # Feature limits
     is_active: bool = True
     trial_days: int = 14
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -364,9 +363,9 @@ class TenantContact(BaseModel):
     name_ar: str
     email: EmailStr
     phone: str
-    address: Optional[str] = None
-    city: Optional[str] = None
-    governorate: Optional[str] = None
+    address: str | None = None
+    city: str | None = None
+    governorate: str | None = None
 
 
 class Tenant(BaseModel):
@@ -376,10 +375,10 @@ class Tenant(BaseModel):
     name: str
     name_ar: str
     contact: TenantContact
-    tax_id: Optional[str] = None
+    tax_id: str | None = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     is_active: bool = True
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
 
 class Subscription(BaseModel):
@@ -395,16 +394,16 @@ class Subscription(BaseModel):
     # Dates
     start_date: date
     end_date: date
-    trial_end_date: Optional[date] = None
-    canceled_at: Optional[datetime] = None
+    trial_end_date: date | None = None
+    canceled_at: datetime | None = None
 
     # Billing
     next_billing_date: date
-    last_billing_date: Optional[date] = None
+    last_billing_date: date | None = None
 
     # Payment
-    payment_method: Optional[PaymentMethod] = None
-    stripe_subscription_id: Optional[str] = None
+    payment_method: PaymentMethod | None = None
+    stripe_subscription_id: str | None = None
 
     # Metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -436,7 +435,7 @@ class Invoice(BaseModel):
     # Dates
     issue_date: date
     due_date: date
-    paid_date: Optional[date] = None
+    paid_date: date | None = None
 
     # Amounts
     subtotal: Decimal
@@ -448,15 +447,15 @@ class Invoice(BaseModel):
     amount_due: Decimal
 
     # Line items
-    line_items: List[InvoiceLineItem]
+    line_items: list[InvoiceLineItem]
 
     # Notes
-    notes: Optional[str] = None
-    notes_ar: Optional[str] = None
+    notes: str | None = None
+    notes_ar: str | None = None
 
     # Metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    stripe_invoice_id: Optional[str] = None
+    stripe_invoice_id: str | None = None
 
 
 class Payment(BaseModel):
@@ -472,12 +471,12 @@ class Payment(BaseModel):
     method: PaymentMethod
 
     # Processing
-    processed_at: Optional[datetime] = None
-    failure_reason: Optional[str] = None
+    processed_at: datetime | None = None
+    failure_reason: str | None = None
 
     # External references
-    stripe_payment_id: Optional[str] = None
-    receipt_url: Optional[str] = None
+    stripe_payment_id: str | None = None
+    receipt_url: str | None = None
 
     # Metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -491,7 +490,7 @@ class UsageRecord(BaseModel):
     metric: str
     quantity: int
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
 
 # =============================================================================
@@ -506,8 +505,8 @@ class CreatePlanRequest(BaseModel):
     description_ar: str
     tier: PlanTier
     monthly_price_usd: Decimal
-    features: Dict[str, bool]
-    limits: Dict[str, int]
+    features: dict[str, bool]
+    limits: dict[str, int]
     trial_days: int = 14
 
 
@@ -521,22 +520,22 @@ class CreateTenantRequest(BaseModel):
 
 
 class UpdateSubscriptionRequest(BaseModel):
-    plan_id: Optional[str] = None
-    billing_cycle: Optional[BillingCycle] = None
-    payment_method: Optional[PaymentMethod] = None
+    plan_id: str | None = None
+    billing_cycle: BillingCycle | None = None
+    payment_method: PaymentMethod | None = None
 
 
 class RecordUsageRequest(BaseModel):
     metric: str
     quantity: int = 1
-    metadata: Dict[str, Any] = {}
+    metadata: dict[str, Any] = {}
 
 
 class CreatePaymentRequest(BaseModel):
     invoice_id: str
     amount: Decimal
     method: PaymentMethod
-    stripe_token: Optional[str] = None
+    stripe_token: str | None = None
 
 
 # =============================================================================
@@ -550,11 +549,11 @@ INVOICE_COUNTER: int = 0
 # In-memory caches for webhook handlers (legacy support)
 # These are used by webhook handlers that haven't been migrated to database
 # TODO: Migrate webhook handlers to use database repository
-PLANS: Dict[str, Any] = {}
-TENANTS: Dict[str, Any] = {}
-SUBSCRIPTIONS: Dict[str, Any] = {}
-INVOICES: Dict[str, Any] = {}
-PAYMENTS: Dict[str, Any] = {}
+PLANS: dict[str, Any] = {}
+TENANTS: dict[str, Any] = {}
+SUBSCRIPTIONS: dict[str, Any] = {}
+INVOICES: dict[str, Any] = {}
+PAYMENTS: dict[str, Any] = {}
 
 
 async def init_default_plans_in_db():
@@ -921,7 +920,7 @@ def get_billing_period_end(start_date: date, cycle: BillingCycle) -> date:
 
 async def check_usage_limit_db(
     db: AsyncSession, tenant_id: str, metric: str
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Check usage limits for a tenant (database version)
     التحقق من حدود الاستخدام للمستأجر (نسخة قاعدة البيانات)
@@ -1201,7 +1200,7 @@ async def create_tenant(
         raise HTTPException(400, "الخطة غير موجودة")
 
     # Create tenant in database
-    tenant = await repo.tenants.create(
+    await repo.tenants.create(
         tenant_id=tenant_id,
         name=request.name,
         name_ar=request.name_ar,
@@ -1268,7 +1267,7 @@ async def get_tenant(
     if subscription:
         plan = await repo.plans.get_by_plan_id(subscription.plan_id)
         if plan:
-            for metric in plan.limits.keys():
+            for metric in plan.limits:
                 usage[metric] = await check_usage_limit_db(db, tenant_id, metric)
 
     return {
@@ -1542,7 +1541,7 @@ async def get_quota(
 
 @app.get("/v1/enforce")
 async def enforce_quota(
-    x_tenant_id: Optional[str] = Header(default=None),
+    x_tenant_id: str | None = Header(default=None),
     metric: str = Query(...),
     api_key: str = Depends(api_key_auth),  # Service-to-service auth
     db: AsyncSession = Depends(get_db),
@@ -1580,7 +1579,7 @@ async def enforce_quota(
 @app.get("/v1/tenants/{tenant_id}/invoices")
 async def list_invoices(
     tenant_id: str,
-    status: Optional[InvoiceStatus] = None,
+    status: InvoiceStatus | None = None,
     limit: int = Query(default=20, le=100),
     current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
@@ -2002,10 +2001,10 @@ class TharwattWebhookPayload(BaseModel):
     status: str  # 'completed', 'failed', 'cancelled'
     amount: Decimal
     currency: str = "YER"
-    phone_number: Optional[str] = None
-    reference: Optional[str] = None  # Our payment_id
-    timestamp: Optional[str] = None
-    error_message: Optional[str] = None
+    phone_number: str | None = None
+    reference: str | None = None  # Our payment_id
+    timestamp: str | None = None
+    error_message: str | None = None
 
 
 def verify_tharwatt_signature(payload: bytes, signature: str) -> bool:
@@ -2117,7 +2116,7 @@ async def tharwatt_webhook(
                 "method": "tharwatt",
                 "transaction_id": payload.transaction_id,
             },
-        ) from e
+        )
 
     elif payload.status == "failed":
         payment.status = PaymentStatus.FAILED
@@ -2159,7 +2158,7 @@ class StripeWebhookPayload(BaseModel):
 
     id: str
     type: str
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
 
 def verify_stripe_signature(payload: bytes, signature: str) -> bool:
@@ -2308,8 +2307,8 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
 
 @app.get("/v1/reports/revenue")
 async def get_revenue_report(
-    start_date: Optional[date] = None,
-    end_date: Optional[date] = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
     current_user=Depends(require_roles(["super_admin", "tenant_admin"])),
 ):
     """تقرير الإيرادات (للمسؤولين)"""

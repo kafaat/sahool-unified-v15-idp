@@ -4,7 +4,6 @@ Data access layer for chat operations
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID, uuid4
 
 from .models import ChatMessage, ChatParticipant, ChatThread
@@ -23,7 +22,7 @@ class ChatRepository:
         scope_type: str,
         scope_id: str,
         created_by: str,
-        title: Optional[str] = None,
+        title: str | None = None,
     ) -> tuple[ChatThread, bool]:
         """
         Get existing thread or create new one (idempotent)
@@ -56,7 +55,7 @@ class ChatRepository:
         self,
         thread_id: UUID,
         tenant_id: str,
-    ) -> Optional[ChatThread]:
+    ) -> ChatThread | None:
         """Get thread by ID"""
         return await ChatThread.get_or_none(
             id=thread_id,
@@ -68,7 +67,7 @@ class ChatRepository:
         tenant_id: str,
         scope_type: str,
         scope_id: str,
-    ) -> Optional[ChatThread]:
+    ) -> ChatThread | None:
         """Get thread by scope"""
         return await ChatThread.get_or_none(
             tenant_id=tenant_id,
@@ -79,8 +78,8 @@ class ChatRepository:
     async def list_threads(
         self,
         tenant_id: str,
-        user_id: Optional[str] = None,
-        scope_type: Optional[str] = None,
+        user_id: str | None = None,
+        scope_type: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> list[ChatThread]:
@@ -121,9 +120,9 @@ class ChatRepository:
         tenant_id: str,
         thread_id: UUID,
         sender_id: str,
-        text: Optional[str] = None,
-        attachments: Optional[list[str]] = None,
-        reply_to_id: Optional[UUID] = None,
+        text: str | None = None,
+        attachments: list[str] | None = None,
+        reply_to_id: UUID | None = None,
         message_type: str = "text",
     ) -> ChatMessage:
         """Create a new message"""
@@ -157,7 +156,7 @@ class ChatRepository:
         self,
         message_id: UUID,
         tenant_id: str,
-    ) -> Optional[ChatMessage]:
+    ) -> ChatMessage | None:
         """Get message by ID"""
         return await ChatMessage.get_or_none(
             id=message_id,
@@ -169,8 +168,8 @@ class ChatRepository:
         thread_id: UUID,
         tenant_id: str,
         limit: int = 50,
-        before: Optional[datetime] = None,
-        after: Optional[datetime] = None,
+        before: datetime | None = None,
+        after: datetime | None = None,
     ) -> list[ChatMessage]:
         """List messages in a thread with pagination"""
         query = ChatMessage.filter(
@@ -189,8 +188,8 @@ class ChatRepository:
         self,
         tenant_id: str,
         query_text: str,
-        thread_id: Optional[UUID] = None,
-        sender_id: Optional[str] = None,
+        thread_id: UUID | None = None,
+        sender_id: str | None = None,
         limit: int = 50,
     ) -> list[ChatMessage]:
         """Search messages by text content"""
@@ -241,7 +240,7 @@ class ChatRepository:
         self,
         thread_id: UUID,
         user_id: str,
-        message_id: Optional[UUID] = None,
+        message_id: UUID | None = None,
     ) -> bool:
         """Mark thread as read up to message"""
         now = datetime.utcnow()

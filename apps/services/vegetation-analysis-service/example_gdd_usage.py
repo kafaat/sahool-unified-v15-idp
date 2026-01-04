@@ -11,11 +11,10 @@ Then run this script:
   python3 example_gdd_usage.py
 """
 
-import httpx
 import asyncio
 from datetime import date, timedelta
-import json
 
+import httpx
 
 BASE_URL = "http://localhost:8090"
 
@@ -90,11 +89,11 @@ async def example_3_track_wheat_field():
     sanaa_lat = 15.3694
     sanaa_lon = 44.1910
 
-    print(f"\nField Details:")
+    print("\nField Details:")
     print(f"  Location: Sanaa, Yemen ({sanaa_lat}, {sanaa_lon})")
-    print(f"  Crop: Wheat")
+    print("  Crop: Wheat")
     print(f"  Planting Date: {planting_date}")
-    print(f"  Days Since Planting: 60")
+    print("  Days Since Planting: 60")
 
     async with httpx.AsyncClient(timeout=30.0) as client:
         try:
@@ -112,7 +111,7 @@ async def example_3_track_wheat_field():
             if response.status_code == 200:
                 chart = response.json()
 
-                print(f"\nCurrent Status:")
+                print("\nCurrent Status:")
                 print(f"  Date: {chart['current_status']['date']}")
                 print(f"  Total GDD: {chart['current_status']['total_gdd']:.1f}")
                 print(
@@ -122,7 +121,7 @@ async def example_3_track_wheat_field():
                     f"  Days Since Planting: {chart['current_status']['days_since_planting']}"
                 )
 
-                print(f"\nCurrent Stage:")
+                print("\nCurrent Stage:")
                 print(
                     f"  {chart['current_stage']['name_en']} ({chart['current_stage']['name_ar']})"
                 )
@@ -133,7 +132,7 @@ async def example_3_track_wheat_field():
                     f"  GDD to Next Stage: {chart['current_stage']['gdd_to_next_stage']:.1f}"
                 )
 
-                print(f"\nHarvest Prediction:")
+                print("\nHarvest Prediction:")
                 print(
                     f"  Estimated Date: {chart['harvest_prediction']['estimated_date']}"
                 )
@@ -144,11 +143,11 @@ async def example_3_track_wheat_field():
                     f"  GDD Remaining: {chart['harvest_prediction']['gdd_remaining']:.1f}"
                 )
 
-                print(f"\nComparison to Normal:")
+                print("\nComparison to Normal:")
                 print(f"  {chart['comparison']['description_en']}")
                 print(f"  {chart['comparison']['description_ar']}")
 
-                print(f"\nMilestones:")
+                print("\nMilestones:")
                 print(f"{'Stage':<25} {'Required GDD':<15} {'Status':<15} {'Date'}")
                 print("-" * 80)
 
@@ -170,7 +169,7 @@ async def example_3_track_wheat_field():
                     print(f"... and {len(chart['milestones']) - 5} more milestones")
 
                 # Show last 5 days of GDD data
-                print(f"\nRecent Daily GDD (last 5 days):")
+                print("\nRecent Daily GDD (last 5 days):")
                 print(
                     f"{'Date':<12} {'Tmin':<8} {'Tmax':<8} {'Daily GDD':<12} {'Total GDD'}"
                 )
@@ -207,8 +206,8 @@ async def example_4_forecast_flowering():
     sanaa_lat = 15.3694
     sanaa_lon = 44.1910
 
-    print(f"\nScenario:")
-    print(f"  Location: Sanaa, Yemen")
+    print("\nScenario:")
+    print("  Location: Sanaa, Yemen")
     print(f"  Current GDD: {current_gdd}")
     print(f"  Flowering Requires: {flowering_gdd} GDD")
     print(f"  GDD Needed: {flowering_gdd - current_gdd}")
@@ -230,13 +229,13 @@ async def example_4_forecast_flowering():
             if response.status_code == 200:
                 forecast = response.json()
 
-                print(f"\nForecast Result:")
+                print("\nForecast Result:")
                 print(f"  Estimated Flowering Date: {forecast['estimated_date']}")
                 print(
                     f"  Is Estimated: {'Yes (beyond forecast period)' if forecast['is_estimated'] else 'No (within forecast)'}"
                 )
 
-                print(f"\nNext 7 Days GDD Forecast:")
+                print("\nNext 7 Days GDD Forecast:")
                 print(
                     f"{'Date':<12} {'Tmin':<8} {'Tmax':<8} {'Daily GDD':<12} {'Total GDD'}"
                 )
@@ -280,7 +279,7 @@ async def example_5_quick_stage_lookup():
             if response.status_code == 200:
                 result = response.json()
 
-                print(f"\nResult:")
+                print("\nResult:")
                 print(
                     f"  Current Stage: {result['current_stage']['name_en']} ({result['current_stage']['name_ar']})"
                 )

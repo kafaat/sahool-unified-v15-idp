@@ -3,16 +3,15 @@ SAHOOL Equipment Service - Unit Tests
 اختبارات خدمة إدارة المعدات
 """
 
+import os
+import sys
+
 import pytest
 from fastapi.testclient import TestClient
-from datetime import datetime
-
-import sys
-import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from src.main import app, equipment_db, EquipmentType, EquipmentStatus
+from src.main import app
 
 
 @pytest.fixture

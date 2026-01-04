@@ -7,8 +7,8 @@ Contains specialized agents for different agricultural tasks.
 """
 
 from .base_agent import BaseAgent
-from .field_analyst import FieldAnalystAgent
 from .disease_expert import DiseaseExpertAgent
+from .field_analyst import FieldAnalystAgent
 from .irrigation_advisor import IrrigationAdvisorAgent
 from .yield_predictor import YieldPredictorAgent
 

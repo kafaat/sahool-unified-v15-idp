@@ -4,12 +4,12 @@ JWT Token Management
 """
 
 import logging
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Dict, Any, List
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import jwt
-from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
 from .config import get_auth_config
 
@@ -21,13 +21,13 @@ class TokenData:
     """Decoded token data"""
 
     user_id: str
-    email: Optional[str] = None
-    tenant_id: Optional[str] = None
-    roles: List[str] = None
-    permissions: List[str] = None
+    email: str | None = None
+    tenant_id: str | None = None
+    roles: list[str] = None
+    permissions: list[str] = None
     token_type: str = "access"
-    exp: Optional[datetime] = None
-    iat: Optional[datetime] = None
+    exp: datetime | None = None
+    iat: datetime | None = None
 
     def __post_init__(self):
         if self.roles is None:
@@ -43,23 +43,23 @@ class TokenData:
         """Check if user has a specific permission"""
         return permission in self.permissions
 
-    def has_any_role(self, roles: List[str]) -> bool:
+    def has_any_role(self, roles: list[str]) -> bool:
         """Check if user has any of the specified roles"""
         return any(role in self.roles for role in roles)
 
-    def has_all_roles(self, roles: List[str]) -> bool:
+    def has_all_roles(self, roles: list[str]) -> bool:
         """Check if user has all specified roles"""
         return all(role in self.roles for role in roles)
 
 
 def create_access_token(
     user_id: str,
-    email: Optional[str] = None,
-    tenant_id: Optional[str] = None,
-    roles: Optional[List[str]] = None,
-    permissions: Optional[List[str]] = None,
-    expires_delta: Optional[timedelta] = None,
-    additional_claims: Optional[Dict[str, Any]] = None,
+    email: str | None = None,
+    tenant_id: str | None = None,
+    roles: list[str] | None = None,
+    permissions: list[str] | None = None,
+    expires_delta: timedelta | None = None,
+    additional_claims: dict[str, Any] | None = None,
 ) -> str:
     """
     Create a new access token
@@ -70,7 +70,7 @@ def create_access_token(
     if expires_delta is None:
         expires_delta = timedelta(minutes=config.access_token_expire_minutes)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + expires_delta
 
     payload = {
@@ -99,8 +99,8 @@ def create_access_token(
 
 def create_refresh_token(
     user_id: str,
-    tenant_id: Optional[str] = None,
-    expires_delta: Optional[timedelta] = None,
+    tenant_id: str | None = None,
+    expires_delta: timedelta | None = None,
 ) -> str:
     """
     Create a new refresh token
@@ -111,7 +111,7 @@ def create_refresh_token(
     if expires_delta is None:
         expires_delta = timedelta(days=config.refresh_token_expire_days)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     expire = now + expires_delta
 
     payload = {
@@ -196,8 +196,8 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
             token_type=payload.get("type", "access"),
-            exp=datetime.fromtimestamp(payload.get("exp", 0), tz=timezone.utc),
-            iat=datetime.fromtimestamp(payload.get("iat", 0), tz=timezone.utc),
+            exp=datetime.fromtimestamp(payload.get("exp", 0), tz=UTC),
+            iat=datetime.fromtimestamp(payload.get("iat", 0), tz=UTC),
         )
 
     except ExpiredSignatureError:

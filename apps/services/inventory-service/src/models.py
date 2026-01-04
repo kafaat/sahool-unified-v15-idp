@@ -3,9 +3,9 @@ Pydantic models for Inventory Service
 """
 
 from datetime import datetime
-from typing import Optional, List
-from pydantic import BaseModel, Field
 from enum import Enum
+
+from pydantic import BaseModel
 
 
 # Enums
@@ -51,24 +51,24 @@ class MovementType(str, Enum):
 # Inventory Item Models
 class InventoryItemBase(BaseModel):
     sku: str
-    barcode: Optional[str] = None
+    barcode: str | None = None
     name_ar: str
     name_en: str
-    description_ar: Optional[str] = None
-    description_en: Optional[str] = None
+    description_ar: str | None = None
+    description_en: str | None = None
     category: ItemCategory
-    subcategory: Optional[str] = None
+    subcategory: str | None = None
     unit: Unit
     unitSize: float = 1.0
-    reorderLevel: Optional[float] = None
-    reorderQuantity: Optional[float] = None
-    unitCost: Optional[float] = None
-    sellingPrice: Optional[float] = None
+    reorderLevel: float | None = None
+    reorderQuantity: float | None = None
+    unitCost: float | None = None
+    sellingPrice: float | None = None
     currency: str = "YER"
-    supplierId: Optional[str] = None
-    warehouseId: Optional[str] = None
-    storageLocation: Optional[str] = None
-    expiryDate: Optional[datetime] = None
+    supplierId: str | None = None
+    warehouseId: str | None = None
+    storageLocation: str | None = None
+    expiryDate: datetime | None = None
 
 
 class InventoryItemCreate(InventoryItemBase):
@@ -76,25 +76,25 @@ class InventoryItemCreate(InventoryItemBase):
 
 
 class InventoryItemUpdate(BaseModel):
-    sku: Optional[str] = None
-    barcode: Optional[str] = None
-    name_ar: Optional[str] = None
-    name_en: Optional[str] = None
-    description_ar: Optional[str] = None
-    description_en: Optional[str] = None
-    category: Optional[ItemCategory] = None
-    subcategory: Optional[str] = None
-    unit: Optional[Unit] = None
-    unitSize: Optional[float] = None
-    reorderLevel: Optional[float] = None
-    reorderQuantity: Optional[float] = None
-    unitCost: Optional[float] = None
-    sellingPrice: Optional[float] = None
-    currency: Optional[str] = None
-    supplierId: Optional[str] = None
-    warehouseId: Optional[str] = None
-    storageLocation: Optional[str] = None
-    expiryDate: Optional[datetime] = None
+    sku: str | None = None
+    barcode: str | None = None
+    name_ar: str | None = None
+    name_en: str | None = None
+    description_ar: str | None = None
+    description_en: str | None = None
+    category: ItemCategory | None = None
+    subcategory: str | None = None
+    unit: Unit | None = None
+    unitSize: float | None = None
+    reorderLevel: float | None = None
+    reorderQuantity: float | None = None
+    unitCost: float | None = None
+    sellingPrice: float | None = None
+    currency: str | None = None
+    supplierId: str | None = None
+    warehouseId: str | None = None
+    storageLocation: str | None = None
+    expiryDate: datetime | None = None
 
 
 class InventoryItemResponse(InventoryItemBase):
@@ -102,7 +102,7 @@ class InventoryItemResponse(InventoryItemBase):
     currentQuantity: float
     reservedQuantity: float
     availableQuantity: float
-    lastRestocked: Optional[datetime]
+    lastRestocked: datetime | None
     createdAt: datetime
     updatedAt: datetime
 
@@ -115,13 +115,13 @@ class StockMovementBase(BaseModel):
     itemId: str
     movementType: MovementType
     quantity: float
-    unitCost: Optional[float] = None
-    referenceType: Optional[str] = None
-    referenceId: Optional[str] = None
-    fieldId: Optional[str] = None
-    cropSeasonId: Optional[str] = None
-    performedBy: Optional[str] = None
-    notes: Optional[str] = None
+    unitCost: float | None = None
+    referenceType: str | None = None
+    referenceId: str | None = None
+    fieldId: str | None = None
+    cropSeasonId: str | None = None
+    performedBy: str | None = None
+    notes: str | None = None
 
 
 class StockInRequest(BaseModel):
@@ -129,18 +129,18 @@ class StockInRequest(BaseModel):
 
     itemId: str
     quantity: float
-    unitCost: Optional[float] = None
-    batchNumber: Optional[str] = None
-    lotNumber: Optional[str] = None
-    expiryDate: Optional[datetime] = None
-    productionDate: Optional[datetime] = None
-    invoiceNumber: Optional[str] = None
-    supplierId: Optional[str] = None
-    qualityGrade: Optional[str] = None
-    certifications: Optional[List[str]] = None
-    referenceId: Optional[str] = None
-    performedBy: Optional[str] = None
-    notes: Optional[str] = None
+    unitCost: float | None = None
+    batchNumber: str | None = None
+    lotNumber: str | None = None
+    expiryDate: datetime | None = None
+    productionDate: datetime | None = None
+    invoiceNumber: str | None = None
+    supplierId: str | None = None
+    qualityGrade: str | None = None
+    certifications: list[str] | None = None
+    referenceId: str | None = None
+    performedBy: str | None = None
+    notes: str | None = None
 
 
 class StockOutRequest(BaseModel):
@@ -149,10 +149,10 @@ class StockOutRequest(BaseModel):
     itemId: str
     quantity: float
     movementType: MovementType = MovementType.SALE
-    referenceType: Optional[str] = None
-    referenceId: Optional[str] = None
-    performedBy: Optional[str] = None
-    notes: Optional[str] = None
+    referenceType: str | None = None
+    referenceId: str | None = None
+    performedBy: str | None = None
+    notes: str | None = None
 
 
 class StockApplyRequest(BaseModel):
@@ -161,9 +161,9 @@ class StockApplyRequest(BaseModel):
     itemId: str
     quantity: float
     fieldId: str
-    cropSeasonId: Optional[str] = None
-    performedBy: Optional[str] = None
-    notes: Optional[str] = None
+    cropSeasonId: str | None = None
+    performedBy: str | None = None
+    notes: str | None = None
 
 
 class StockAdjustRequest(BaseModel):
@@ -172,7 +172,7 @@ class StockAdjustRequest(BaseModel):
     itemId: str
     newQuantity: float
     reason: str
-    performedBy: Optional[str] = None
+    performedBy: str | None = None
 
 
 class StockMovementResponse(BaseModel):
@@ -182,14 +182,14 @@ class StockMovementResponse(BaseModel):
     quantity: float
     previousQty: float
     newQty: float
-    unitCost: Optional[float]
-    totalCost: Optional[float]
-    referenceType: Optional[str]
-    referenceId: Optional[str]
-    fieldId: Optional[str]
-    cropSeasonId: Optional[str]
-    performedBy: Optional[str]
-    notes: Optional[str]
+    unitCost: float | None
+    totalCost: float | None
+    referenceType: str | None
+    referenceId: str | None
+    fieldId: str | None
+    cropSeasonId: str | None
+    performedBy: str | None
+    notes: str | None
     createdAt: datetime
 
     class Config:
@@ -200,15 +200,15 @@ class StockMovementResponse(BaseModel):
 class BatchLotBase(BaseModel):
     itemId: str
     lotNumber: str
-    batchNumber: Optional[str] = None
+    batchNumber: str | None = None
     quantity: float
-    productionDate: Optional[datetime] = None
-    expiryDate: Optional[datetime] = None
-    qualityGrade: Optional[str] = None
-    certifications: Optional[List[str]] = []
-    supplierId: Optional[str] = None
-    invoiceNumber: Optional[str] = None
-    unitCost: Optional[float] = None
+    productionDate: datetime | None = None
+    expiryDate: datetime | None = None
+    qualityGrade: str | None = None
+    certifications: list[str] | None = []
+    supplierId: str | None = None
+    invoiceNumber: str | None = None
+    unitCost: float | None = None
 
 
 class BatchLotCreate(BatchLotBase):
@@ -227,15 +227,15 @@ class BatchLotResponse(BatchLotBase):
 # Supplier Models
 class SupplierBase(BaseModel):
     name: str
-    nameAr: Optional[str] = None
-    contactName: Optional[str] = None
-    phone: Optional[str] = None
-    email: Optional[str] = None
-    address: Optional[str] = None
-    governorate: Optional[str] = None
+    nameAr: str | None = None
+    contactName: str | None = None
+    phone: str | None = None
+    email: str | None = None
+    address: str | None = None
+    governorate: str | None = None
     country: str = "Yemen"
-    rating: Optional[float] = None
-    leadTimeDays: Optional[int] = None
+    rating: float | None = None
+    leadTimeDays: int | None = None
 
 
 class SupplierCreate(SupplierBase):
@@ -243,16 +243,16 @@ class SupplierCreate(SupplierBase):
 
 
 class SupplierUpdate(BaseModel):
-    name: Optional[str] = None
-    nameAr: Optional[str] = None
-    contactName: Optional[str] = None
-    phone: Optional[str] = None
-    email: Optional[str] = None
-    address: Optional[str] = None
-    governorate: Optional[str] = None
-    country: Optional[str] = None
-    rating: Optional[float] = None
-    leadTimeDays: Optional[int] = None
+    name: str | None = None
+    nameAr: str | None = None
+    contactName: str | None = None
+    phone: str | None = None
+    email: str | None = None
+    address: str | None = None
+    governorate: str | None = None
+    country: str | None = None
+    rating: float | None = None
+    leadTimeDays: int | None = None
 
 
 class SupplierResponse(SupplierBase):
@@ -285,19 +285,19 @@ class ConsumptionReport(BaseModel):
     period: str
     totalConsumed: float
     averageDaily: float
-    movements: List[StockMovementResponse]
+    movements: list[StockMovementResponse]
 
 
 # List Responses
 class InventoryItemListResponse(BaseModel):
-    items: List[InventoryItemResponse]
+    items: list[InventoryItemResponse]
     total: int
     page: int
     pageSize: int
 
 
 class SupplierListResponse(BaseModel):
-    suppliers: List[SupplierResponse]
+    suppliers: list[SupplierResponse]
     total: int
     page: int
     pageSize: int

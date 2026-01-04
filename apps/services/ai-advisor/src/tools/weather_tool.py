@@ -6,9 +6,9 @@ Tool for calling the weather-core service.
 أداة لاستدعاء خدمة الطقس الأساسية.
 """
 
+from typing import Any
+
 import httpx
-from typing import Dict, Any, Optional
-from datetime import datetime, timedelta
 import structlog
 
 from ..config import settings
@@ -30,7 +30,7 @@ class WeatherTool:
         self,
         latitude: float,
         longitude: float,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get current weather conditions
         الحصول على ظروف الطقس الحالية
@@ -73,7 +73,7 @@ class WeatherTool:
         latitude: float,
         longitude: float,
         days: int = 7,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get weather forecast
         الحصول على توقعات الطقس
@@ -122,7 +122,7 @@ class WeatherTool:
         longitude: float,
         start_date: str,
         end_date: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get historical weather data
         الحصول على بيانات الطقس التاريخية
@@ -171,8 +171,8 @@ class WeatherTool:
         self,
         latitude: float,
         longitude: float,
-        date: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        date: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get reference evapotranspiration (ET0)
         الحصول على التبخر النتح المرجعي
@@ -221,7 +221,7 @@ class WeatherTool:
         self,
         latitude: float,
         longitude: float,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get weather alerts and warnings
         الحصول على تنبيهات وتحذيرات الطقس

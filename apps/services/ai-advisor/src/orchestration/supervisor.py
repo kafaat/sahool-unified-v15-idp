@@ -6,19 +6,16 @@ Coordinates multiple specialized agents to answer complex queries.
 ينسق بين وكلاء متخصصين متعددين للإجابة على استفسارات معقدة.
 """
 
-from typing import Dict, Any, List, Optional
-from langchain_anthropic import ChatAnthropic
-from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
-import structlog
+from typing import Any
 
-from ..config import settings
+import structlog
+from langchain_anthropic import ChatAnthropic
+from langchain_core.messages import HumanMessage, SystemMessage
+
 from ..agents import (
     BaseAgent,
-    FieldAnalystAgent,
-    DiseaseExpertAgent,
-    IrrigationAdvisorAgent,
-    YieldPredictorAgent,
 )
+from ..config import settings
 from ..security import PromptGuard
 
 logger = structlog.get_logger()
@@ -42,7 +39,7 @@ class Supervisor:
     - يدمج الاستجابات في إجابات متماسكة
     """
 
-    def __init__(self, agents: Dict[str, BaseAgent]):
+    def __init__(self, agents: dict[str, BaseAgent]):
         """
         Initialize Supervisor
         تهيئة المشرف
@@ -111,8 +108,8 @@ Respond with a JSON object containing:
     async def route_query(
         self,
         query: str,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Route query to appropriate agents
         توجيه الاستفسار إلى الوكلاء المناسبين
@@ -157,7 +154,7 @@ Respond with a JSON object containing:
                 routing = {
                     "agents_needed": list(self.agents.keys()),
                     "reasoning": "Fallback routing due to parsing error",
-                    "query_breakdown": {name: query for name in self.agents.keys()},
+                    "query_breakdown": dict.fromkeys(self.agents.keys(), query),
                 }
 
             logger.info(
@@ -175,9 +172,9 @@ Respond with a JSON object containing:
     async def coordinate(
         self,
         query: str,
-        context: Optional[Dict[str, Any]] = None,
-        specific_agents: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        context: dict[str, Any] | None = None,
+        specific_agents: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Coordinate agents to answer a query
         تنسيق الوكلاء للإجابة على استفسار
@@ -212,7 +209,7 @@ Respond with a JSON object containing:
                 query_breakdown = routing.get("query_breakdown", {})
             else:
                 agents_to_use = specific_agents
-                query_breakdown = {agent: sanitized_query for agent in agents_to_use}
+                query_breakdown = dict.fromkeys(agents_to_use, sanitized_query)
 
             # Collect responses from agents
             # جمع الاستجابات من الوكلاء
@@ -259,8 +256,8 @@ Respond with a JSON object containing:
     async def _synthesize_responses(
         self,
         query: str,
-        agent_responses: Dict[str, Dict[str, Any]],
-        context: Optional[Dict[str, Any]] = None,
+        agent_responses: dict[str, dict[str, Any]],
+        context: dict[str, Any] | None = None,
     ) -> str:
         """
         Synthesize multiple agent responses into a coherent answer
@@ -315,7 +312,7 @@ Provide a well-structured, comprehensive answer that addresses the user's query.
         response = await self.llm.ainvoke(messages)
         return response.content
 
-    def get_available_agents(self) -> List[Dict[str, str]]:
+    def get_available_agents(self) -> list[dict[str, str]]:
         """
         Get list of available agents
         الحصول على قائمة الوكلاء المتاحين

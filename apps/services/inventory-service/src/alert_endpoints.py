@@ -3,17 +3,15 @@ Alert Endpoints for Inventory Service
 Manages low stock alerts, expiry warnings, and notifications
 """
 
-from typing import Optional
-from fastapi import APIRouter, HTTPException, Query, BackgroundTasks
-from pydantic import BaseModel, Field
 import logging
 
 from alert_manager import (
     AlertManager,
-    AlertType,
     AlertPriority,
-    AlertStatus,
+    AlertType,
 )
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -44,14 +42,14 @@ class InventoryAlertResponse(BaseModel):
     threshold_value: float
     recommended_action_en: str
     recommended_action_ar: str
-    action_url: Optional[str] = None
+    action_url: str | None = None
     created_at: str
-    acknowledged_at: Optional[str] = None
-    acknowledged_by: Optional[str] = None
-    resolved_at: Optional[str] = None
-    resolved_by: Optional[str] = None
-    resolution_notes: Optional[str] = None
-    snooze_until: Optional[str] = None
+    acknowledged_at: str | None = None
+    acknowledged_by: str | None = None
+    resolved_at: str | None = None
+    resolved_by: str | None = None
+    resolution_notes: str | None = None
+    snooze_until: str | None = None
 
 
 class AlertSettingsModel(BaseModel):
@@ -74,7 +72,7 @@ class ResolveAlertRequest(BaseModel):
     """Resolve alert request"""
 
     resolved_by: str
-    resolution_notes: Optional[str] = None
+    resolution_notes: str | None = None
 
 
 class SnoozeAlertRequest(BaseModel):
@@ -84,7 +82,7 @@ class SnoozeAlertRequest(BaseModel):
 
 
 # Global alert manager (will be initialized by main app)
-_alert_manager: Optional[AlertManager] = None
+_alert_manager: AlertManager | None = None
 
 
 def init_alert_manager(manager: AlertManager):
@@ -107,8 +105,8 @@ def get_alert_manager() -> AlertManager:
 
 @router.get("", response_model=dict)
 async def get_alerts(
-    priority: Optional[str] = Query(None, description="Filter by priority"),
-    alert_type: Optional[str] = Query(None, description="Filter by type"),
+    priority: str | None = Query(None, description="Filter by priority"),
+    alert_type: str | None = Query(None, description="Filter by type"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
 ):

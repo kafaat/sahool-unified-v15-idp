@@ -7,10 +7,9 @@ Port: 8101
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 
-from fastapi import FastAPI, HTTPException, Query, Response, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Response
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../shared/config"))
@@ -20,43 +19,39 @@ except ImportError:
     # Fallback: define secure origins locally if shared module not available
     setup_cors_middleware = None
 
+import logging
+
 from .models import (
-    ProcessRequest,
-    CompositeRequest,
-    ChangeAnalysisRequest,
-    SeasonalAnalysisRequest,
-    JobStatus,
-    SatelliteSource,
-    CompositeMethod,
-    ExportFormat,
-    JobResponse,
-    JobListResponse,
-    NDVIResult,
-    TimeseriesResponse,
-    ChangeAnalysisResponse,
-    SeasonalAnalysisResponse,
     AnomalyResponse,
-    CompositeResponse,
+    ChangeAnalysisRequest,
+    ChangeAnalysisResponse,
     CompositeListResponse,
+    CompositeRequest,
+    CompositeResponse,
+    ExportFormat,
+    JobListResponse,
+    JobResponse,
+    JobStatus,
+    ProcessRequest,
+    SatelliteSource,
+    SeasonalAnalysisResponse,
+    TimeseriesResponse,
 )
 from .processing import (
-    create_job,
-    get_job,
-    update_job_status,
-    cancel_job,
-    list_jobs,
-    process_ndvi_mock,
-    get_field_ndvi,
-    get_ndvi_timeseries,
     analyze_change,
     analyze_seasonal,
-    detect_anomaly,
+    cancel_job,
     create_composite,
+    create_job,
+    detect_anomaly,
     get_composites,
+    get_field_ndvi,
+    get_job,
+    get_ndvi_timeseries,
+    list_jobs,
+    process_ndvi_mock,
+    update_job_status,
 )
-
-
-import logging
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -194,7 +189,7 @@ def health():
         "status": "healthy",
         "service": "ndvi-processor",
         "version": "16.0.0",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "metrics": {"queue_size": active_jobs, "total_jobs": len(list_jobs())},
     }
 
@@ -210,7 +205,7 @@ def healthz():
         "service": "ndvi-processor",
         "version": "16.0.0",
         "queue_size": active_jobs,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -267,7 +262,7 @@ async def cancel_processing(job_id: str):
 async def list_processing_jobs(
     tenant_id: str = Query(None),
     field_id: str = Query(None),
-    status: Optional[str] = Query(None),
+    status: str | None = Query(None),
 ):
     """قائمة المهام"""
     jobs = list_jobs(tenant_id=tenant_id, field_id=field_id, status=status)
@@ -286,7 +281,7 @@ async def list_processing_jobs(
 @app.get("/fields/{field_id}/ndvi")
 async def get_ndvi(
     field_id: str,
-    date: Optional[str] = Query(None),
+    date: str | None = Query(None),
 ):
     """الحصول على NDVI"""
     result = get_field_ndvi(field_id, date)
@@ -333,7 +328,7 @@ async def get_timeseries(
     """السلسلة الزمنية"""
     data = get_ndvi_timeseries(field_id, start, end)
 
-    sources = list(set(p.source for p in data))
+    sources = list({p.source for p in data})
 
     return TimeseriesResponse(
         field_id=field_id,
@@ -386,7 +381,7 @@ async def get_seasonal_analysis(
 async def get_anomaly_detection(
     field_id: str,
     date: str = Query(...),
-    current_ndvi: Optional[float] = Query(None, ge=-1, le=1),
+    current_ndvi: float | None = Query(None, ge=-1, le=1),
 ):
     """كشف الشذوذ"""
     result = detect_anomaly(field_id, date, current_ndvi)
@@ -399,9 +394,9 @@ async def get_anomaly_detection(
 @app.get("/fields/{field_id}/ndvi/export")
 async def export_ndvi(
     field_id: str,
-    date: Optional[str] = Query(None),
-    start: Optional[str] = Query(None),
-    end: Optional[str] = Query(None),
+    date: str | None = Query(None),
+    start: str | None = Query(None),
+    end: str | None = Query(None),
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
 ):
     """تصدير NDVI"""
@@ -409,7 +404,7 @@ async def export_ndvi(
         if not start or not end:
             raise HTTPException(
                 status_code=400, detail="start و end مطلوبان لتصدير CSV"
-            ) from e
+            )
 
         data = get_ndvi_timeseries(field_id, start, end)
         csv_content = "date,ndvi_mean,ndvi_min,ndvi_max,cloud_cover_percent,source\n"
@@ -471,7 +466,7 @@ async def create_monthly_composite(request: CompositeRequest):
 @app.get("/fields/{field_id}/composites", response_model=CompositeListResponse)
 async def list_composites(
     field_id: str,
-    year: Optional[int] = Query(None),
+    year: int | None = Query(None),
 ):
     """قائمة المركبات"""
     composites = get_composites(field_id, year)

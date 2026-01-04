@@ -7,9 +7,9 @@ for Yemen agricultural applications.
 """
 
 import asyncio
-import httpx
 from datetime import datetime, timedelta
 
+import httpx
 
 # API base URL (adjust if needed)
 BASE_URL = "http://localhost:8090"
@@ -40,7 +40,7 @@ async def example_1_get_weekly_forecast():
             data = response.json()
             print(f"📍 Location: {data['location']}")
             print(f"🌿 Product: {data['product_type']}")
-            print(f"📊 Summary:")
+            print("📊 Summary:")
             print(
                 f"   - Total suitable hours: {data['summary']['total_suitable_hours']:.1f}"
             )
@@ -96,14 +96,14 @@ async def example_2_find_best_time_insecticide():
             data = response.json()
             window = data["best_window"]
 
-            print(f"✅ BEST TIME FOUND!\n")
+            print("✅ BEST TIME FOUND!\n")
             print(f"🕐 Start: {window['start_time']}")
             print(f"🕐 End: {window['end_time']}")
             print(f"⏱️  Duration: {window['duration_hours']} hours")
             print(f"📊 Score: {window['score']}/100")
             print(f"🎯 Condition: {window['condition'].upper()}\n")
 
-            print(f"🌡️  Weather Conditions:")
+            print("🌡️  Weather Conditions:")
             weather = window["weather"]
             print(f"   Temperature: {weather['temperature_c']}°C")
             print(f"   Humidity: {weather['humidity_percent']}%")
@@ -113,11 +113,11 @@ async def example_2_find_best_time_insecticide():
             if window["risks"]:
                 print(f"⚠️  Risks: {', '.join(window['risks'])}\n")
 
-            print(f"💡 Recommendations:")
+            print("💡 Recommendations:")
             for rec in window["recommendations_en"]:
                 print(f"   • {rec}")
 
-            print(f"\n💡 التوصيات:")
+            print("\n💡 التوصيات:")
             for rec in window["recommendations_ar"]:
                 print(f"   • {rec}")
 
@@ -144,8 +144,8 @@ async def example_3_evaluate_planned_time():
     target_time = tomorrow_7am.isoformat()
 
     print(f"Checking: {target_time}")
-    print(f"Product: Fungicide (مبيد فطري)")
-    print(f"Location: Taiz (تعز)\n")
+    print("Product: Fungicide (مبيد فطري)")
+    print("Location: Taiz (تعز)\n")
 
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -181,19 +181,19 @@ async def example_3_evaluate_planned_time():
             print(f"Condition: {condition.upper()}\n")
 
             weather = eval_data["weather"]
-            print(f"Expected Weather:")
+            print("Expected Weather:")
             print(f"   Temperature: {weather['temperature_c']}°C")
             print(f"   Humidity: {weather['humidity_percent']}%")
             print(f"   Wind: {weather['wind_speed_kmh']} km/h")
             print(f"   Rain probability: {weather['precipitation_probability']}%\n")
 
             if eval_data["risks"]:
-                print(f"⚠️  Risk Factors:")
+                print("⚠️  Risk Factors:")
                 for risk in eval_data["risks"]:
                     print(f"   • {risk}")
                 print()
 
-            print(f"Recommendations:")
+            print("Recommendations:")
             for rec in eval_data["recommendations_en"][:3]:
                 print(f"   • {rec}")
 
@@ -220,7 +220,7 @@ async def example_4_compare_products():
     ]
 
     print(f"Time: {target_time}")
-    print(f"Location: Sanaa highlands\n")
+    print("Location: Sanaa highlands\n")
     print(f"{'Product':<35} {'Score':<10} {'Condition':<15}")
     print(f"{'-'*60}")
 

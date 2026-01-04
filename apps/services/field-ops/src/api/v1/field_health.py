@@ -6,11 +6,11 @@ POST /api/v1/field-health - تحليل صحة الحقل الزراعي
 Field health analysis endpoint with AI-powered insights
 """
 
-from typing import List, Optional, Dict, Any
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Any
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-
 
 # ============== Request/Response Models ==============
 # نماذج الطلب والاستجابة
@@ -48,11 +48,11 @@ class NDVIData(BaseModel):
         le=1,
         description="قيمة مؤشر NDVI - NDVI value (-1 to 1)"
     )
-    image_date: Optional[str] = Field(
+    image_date: str | None = Field(
         None,
         description="تاريخ التقاط صورة القمر الصناعي - Satellite image capture date"
     )
-    cloud_coverage: Optional[float] = Field(
+    cloud_coverage: float | None = Field(
         None,
         ge=0,
         le=100,
@@ -68,12 +68,12 @@ class WeatherData(BaseModel):
         ge=0,
         description="هطول الأمطار بالملليمتر - Precipitation in mm"
     )
-    wind_speed: Optional[float] = Field(
+    wind_speed: float | None = Field(
         None,
         ge=0,
         description="سرعة الرياح بالكيلومتر/ساعة - Wind speed in km/h"
     )
-    forecast_days: Optional[int] = Field(
+    forecast_days: int | None = Field(
         7,
         ge=1,
         le=14,
@@ -127,15 +127,15 @@ class FieldHealthResponse(BaseModel):
     weather_score: float = Field(..., ge=0, le=100, description="درجة الطقس - Weather score")
     sensor_anomaly_score: float = Field(..., ge=0, le=100, description="درجة شذوذ الأجهزة - Sensor anomaly score")
 
-    risk_factors: List[RiskFactor] = Field(
+    risk_factors: list[RiskFactor] = Field(
         default_factory=list,
         description="عوامل الخطر المحددة - Identified risk factors"
     )
-    recommendations_ar: List[str] = Field(
+    recommendations_ar: list[str] = Field(
         default_factory=list,
         description="التوصيات بالعربية - Recommendations in Arabic"
     )
-    recommendations_en: List[str] = Field(
+    recommendations_en: list[str] = Field(
         default_factory=list,
         description="التوصيات بالإنجليزية - Recommendations in English"
     )
@@ -144,7 +144,7 @@ class FieldHealthResponse(BaseModel):
         ...,
         description="وقت التحليل - Analysis timestamp"
     )
-    metadata: Optional[Dict[str, Any]] = Field(
+    metadata: dict[str, Any] | None = Field(
         None,
         description="بيانات إضافية - Additional metadata"
     )
@@ -334,7 +334,7 @@ def identify_risk_factors(
     soil_score: float,
     weather_score: float,
     sensor_score: float
-) -> List[RiskFactor]:
+) -> list[RiskFactor]:
     """
     تحديد عوامل الخطر
     Identify risk factors based on analysis
@@ -418,10 +418,10 @@ def identify_risk_factors(
 def generate_recommendations(
     request: FieldHealthRequest,
     overall_score: float,
-    risk_factors: List[RiskFactor],
+    risk_factors: list[RiskFactor],
     soil_score: float,
     ndvi_score: float
-) -> tuple[List[str], List[str]]:
+) -> tuple[list[str], list[str]]:
     """
     توليد التوصيات الزراعية
     Generate agricultural recommendations
@@ -587,7 +587,7 @@ async def analyze_field_health(request: FieldHealthRequest) -> FieldHealthRespon
             risk_factors=risk_factors,
             recommendations_ar=recommendations_ar,
             recommendations_en=recommendations_en,
-            analysis_timestamp=datetime.now(timezone.utc).isoformat(),
+            analysis_timestamp=datetime.now(UTC).isoformat(),
             metadata={
                 "ndvi_weight": 0.40,
                 "soil_moisture_weight": 0.25,

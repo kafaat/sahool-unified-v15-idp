@@ -3,9 +3,9 @@ NDVI Calculator Tests
 اختبارات حاسبة NDVI
 """
 
-import pytest
+
 import numpy as np
-from unittest.mock import Mock, patch, MagicMock
+import pytest
 
 
 class TestNDVICalculator:

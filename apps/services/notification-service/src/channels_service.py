@@ -5,11 +5,11 @@ SAHOOL Notification Service - Channels Service
 Handles business logic for managing user notification channels
 """
 
-from typing import List, Optional, Dict, Any
-from uuid import UUID
 import logging
 import random
 import string
+from typing import Any
+from uuid import UUID
 
 from .models import ChannelType
 from .repository import NotificationChannelRepository
@@ -33,9 +33,9 @@ class ChannelsService:
         user_id: str,
         channel_type: str,
         address: str,
-        tenant_id: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        tenant_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         إضافة قناة إشعار جديدة
         Add a new notification channel for a user
@@ -109,7 +109,7 @@ class ChannelsService:
         channel_id: str,
         verification_code: str,
         user_id: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         تحقق من قناة إشعار
         Verify a notification channel
@@ -172,7 +172,7 @@ class ChannelsService:
     async def remove_channel(
         channel_id: str,
         user_id: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         حذف قناة إشعار
         Remove a notification channel
@@ -221,10 +221,10 @@ class ChannelsService:
     @staticmethod
     async def list_user_channels(
         user_id: str,
-        tenant_id: Optional[str] = None,
-        channel_type: Optional[str] = None,
+        tenant_id: str | None = None,
+        channel_type: str | None = None,
         enabled_only: bool = False,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         الحصول على قنوات المستخدم
         Get user's notification channels
@@ -285,7 +285,7 @@ class ChannelsService:
         channel_id: str,
         user_id: str,
         enabled: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         تحديث حالة قناة
         Update channel enabled/disabled status

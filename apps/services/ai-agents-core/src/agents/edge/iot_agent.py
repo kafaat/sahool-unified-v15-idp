@@ -12,16 +12,12 @@ Real-time sensor processing for:
 Target response time: < 50ms
 """
 
-from typing import Any, Dict, List, Optional, Tuple
-from datetime import datetime, timedelta
-from collections import deque
-import asyncio
 import logging
+from collections import deque
+from datetime import datetime, timedelta
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer, AgentStatus,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentContext, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +84,7 @@ class IoTAgent(BaseAgent):
         self.device_id = device_id
 
         # Sensor data buffers (sliding window for trend analysis)
-        self.sensor_buffers: Dict[str, deque] = {
+        self.sensor_buffers: dict[str, deque] = {
             "soil_moisture": deque(maxlen=60),      # Last 60 readings
             "temperature": deque(maxlen=60),
             "humidity": deque(maxlen=60),
@@ -115,7 +111,7 @@ class IoTAgent(BaseAgent):
         }
 
         # Alert cooldown to prevent spam
-        self.alert_cooldown: Dict[str, datetime] = {}
+        self.alert_cooldown: dict[str, datetime] = {}
         self.cooldown_period = timedelta(minutes=15)
 
         self._init_rules()
@@ -243,19 +239,19 @@ class IoTAgent(BaseAgent):
         # Current state
         self.internal_model["current_state"] = {
             sensor: self._get_latest_value(sensor)
-            for sensor in self.sensor_buffers.keys()
+            for sensor in self.sensor_buffers
         }
 
         # Calculate trends
         self.internal_model["trend"] = {
             sensor: self._calculate_trend(sensor)
-            for sensor in self.sensor_buffers.keys()
+            for sensor in self.sensor_buffers
         }
 
         # Predict next state
         self.internal_model["predicted_state"] = {
             sensor: self._predict_next_value(sensor)
-            for sensor in self.sensor_buffers.keys()
+            for sensor in self.sensor_buffers
         }
 
         # Detect anomalies
@@ -263,14 +259,14 @@ class IoTAgent(BaseAgent):
         if anomalies:
             self.internal_model["anomalies"] = anomalies
 
-    def _get_latest_value(self, sensor: str) -> Optional[float]:
+    def _get_latest_value(self, sensor: str) -> float | None:
         """الحصول على آخر قيمة للمستشعر"""
         buffer = self.sensor_buffers.get(sensor)
         if buffer and len(buffer) > 0:
             return buffer[-1]["value"]
         return None
 
-    def _calculate_trend(self, sensor: str) -> Dict[str, Any]:
+    def _calculate_trend(self, sensor: str) -> dict[str, Any]:
         """حساب الاتجاه"""
         buffer = self.sensor_buffers.get(sensor)
         if not buffer or len(buffer) < 5:
@@ -294,7 +290,7 @@ class IoTAgent(BaseAgent):
             "rate_per_hour": diff * 6  # Assuming 10-min intervals
         }
 
-    def _predict_next_value(self, sensor: str) -> Optional[float]:
+    def _predict_next_value(self, sensor: str) -> float | None:
         """توقع القيمة التالية"""
         buffer = self.sensor_buffers.get(sensor)
         if not buffer or len(buffer) < 3:
@@ -307,7 +303,7 @@ class IoTAgent(BaseAgent):
             return values[-1] + trend
         return values[-1]
 
-    async def _detect_anomalies(self) -> List[Dict[str, Any]]:
+    async def _detect_anomalies(self) -> list[dict[str, Any]]:
         """اكتشاف الشذوذ"""
         anomalies = []
 
@@ -336,7 +332,7 @@ class IoTAgent(BaseAgent):
 
         return anomalies
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """التفكير واتخاذ القرار"""
         if not self.context:
             return None
@@ -366,7 +362,7 @@ class IoTAgent(BaseAgent):
 
         return None
 
-    async def _predictive_action(self) -> Optional[AgentAction]:
+    async def _predictive_action(self) -> AgentAction | None:
         """إجراء استباقي بناءً على التوقعات"""
         moisture_trend = self.internal_model["trend"].get("soil_moisture", {})
         moisture_predicted = self.internal_model["predicted_state"].get("soil_moisture")
@@ -389,7 +385,7 @@ class IoTAgent(BaseAgent):
 
         return None
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ الإجراء"""
         result = {
             "action_type": action.action_type,
@@ -448,7 +444,7 @@ class IoTAgent(BaseAgent):
 
         return result
 
-    def get_sensor_status(self) -> Dict[str, Any]:
+    def get_sensor_status(self) -> dict[str, Any]:
         """الحصول على حالة المستشعرات"""
         return {
             "current_values": self.internal_model["current_state"],

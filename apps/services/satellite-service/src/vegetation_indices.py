@@ -11,11 +11,9 @@ References:
 - NDVI/NDRE handbook for precision agriculture
 """
 
-from dataclasses import dataclass, asdict
-from typing import Dict, Optional, List, Tuple
-from enum import Enum
 import math
-
+from dataclasses import asdict, dataclass
+from enum import Enum
 
 # =============================================================================
 # Enums
@@ -124,7 +122,7 @@ class IndexInterpretation:
     description_ar: str
     description_en: str
     confidence: float  # 0-1
-    threshold_info: Dict[str, float]
+    threshold_info: dict[str, float]
 
 
 @dataclass
@@ -157,7 +155,7 @@ class AllIndices:
     osavi: float
     arvi: float
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert to dictionary"""
         return asdict(self)
 
@@ -881,7 +879,7 @@ class IndexInterpreter:
             threshold_info={},
         )
 
-    def get_recommended_indices(self, growth_stage: GrowthStage) -> List[str]:
+    def get_recommended_indices(self, growth_stage: GrowthStage) -> list[str]:
         """
         Get recommended indices for a specific growth stage
         الحصول على المؤشرات الموصى بها حسب مرحلة النمو

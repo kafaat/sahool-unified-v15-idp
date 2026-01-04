@@ -4,14 +4,14 @@ FastAPI Authentication Dependencies
 """
 
 import logging
-from typing import Optional, List, Callable
+from collections.abc import Callable
 
-from fastapi import Depends, HTTPException, Header, Security, status
-from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
+from fastapi import Depends, Header, HTTPException, Security, status
+from fastapi.security import APIKeyHeader, OAuth2PasswordBearer
 
 from .config import get_auth_config
-from .jwt import decode_token, TokenData
-from .models import User, UserStatus, SYSTEM_ROLES
+from .jwt import TokenData, decode_token
+from .models import SYSTEM_ROLES, User, UserStatus
 from .rbac import get_permission_checker
 
 logger = logging.getLogger(__name__)
@@ -27,8 +27,8 @@ api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 async def get_token_data(
-    token: Optional[str] = Depends(oauth2_scheme),
-) -> Optional[TokenData]:
+    token: str | None = Depends(oauth2_scheme),
+) -> TokenData | None:
     """
     Extract and validate token data from request
     استخراج والتحقق من بيانات الرمز من الطلب
@@ -48,7 +48,7 @@ async def get_token_data(
 
 
 async def get_current_user(
-    token_data: Optional[TokenData] = Depends(get_token_data),
+    token_data: TokenData | None = Depends(get_token_data),
 ) -> User:
     """
     Get the current authenticated user
@@ -62,7 +62,7 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
-        ) from e
+        )
 
     # Create user from token data
     # In production, fetch from database using token_data.user_id
@@ -99,8 +99,8 @@ async def get_current_active_user(
 
 
 async def get_optional_user(
-    token_data: Optional[TokenData] = Depends(get_token_data),
-) -> Optional[User]:
+    token_data: TokenData | None = Depends(get_token_data),
+) -> User | None:
     """
     Get current user if authenticated, None otherwise
     الحصول على المستخدم الحالي إذا كان مصادقاً، وإلا None
@@ -123,7 +123,7 @@ async def get_optional_user(
     )
 
 
-def require_roles(allowed_roles: List[str]) -> Callable:
+def require_roles(allowed_roles: list[str]) -> Callable:
     """
     Dependency factory that requires user to have at least one of the roles
     مصنع اعتماديات يتطلب أن يكون لدى المستخدم دور واحد على الأقل
@@ -147,7 +147,7 @@ def require_roles(allowed_roles: List[str]) -> Callable:
     return role_checker
 
 
-def require_permissions(required_permissions: List[str]) -> Callable:
+def require_permissions(required_permissions: list[str]) -> Callable:
     """
     Dependency factory that requires user to have all specified permissions
     مصنع اعتماديات يتطلب أن يكون لدى المستخدم جميع الصلاحيات المحددة
@@ -207,7 +207,7 @@ def require_tenant_access(tenant_id_param: str = "tenant_id") -> Callable:
 
 
 async def api_key_auth(
-    api_key: Optional[str] = Security(api_key_header),
+    api_key: str | None = Security(api_key_header),
 ) -> str:
     """
     Validate API key for service-to-service communication
@@ -237,7 +237,7 @@ async def api_key_auth(
 
 async def get_tenant_id(
     current_user: User = Depends(get_current_user),
-    x_tenant_id: Optional[str] = Header(None),
+    x_tenant_id: str | None = Header(None),
 ) -> str:
     """
     Get tenant ID from user or header

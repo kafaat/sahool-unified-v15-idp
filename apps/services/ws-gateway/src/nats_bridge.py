@@ -5,13 +5,16 @@ NATS to WebSocket Bridge
 Subscribes to NATS events and forwards them to WebSocket clients
 """
 
+import builtins
+import contextlib
 import json
 import logging
-from typing import Optional, Callable, Dict, Any
+from collections.abc import Callable
 from datetime import datetime
+from typing import Any
 
-from .rooms import RoomManager, RoomType
 from .events import EventType, get_event_message, get_event_priority
+from .rooms import RoomManager, RoomType
 
 logger = logging.getLogger("ws-gateway.nats-bridge")
 
@@ -26,7 +29,7 @@ class NATSBridge:
         self.room_manager = room_manager
         self.nc = None  # NATS connection
         self.subscriptions = []
-        self.event_filters: Dict[str, Callable] = {}
+        self.event_filters: dict[str, Callable] = {}
 
     async def connect(self, nats_url: str):
         """
@@ -53,10 +56,8 @@ class NATSBridge:
         """
         # Unsubscribe from all
         for sub in self.subscriptions:
-            try:
+            with contextlib.suppress(builtins.BaseException):
                 await sub.unsubscribe()
-            except:
-                pass
 
         # Close connection
         if self.nc:
@@ -430,8 +431,8 @@ class NATSBridge:
             logger.error(f"Error handling alert event: {e}", exc_info=True)
 
     def _create_event_message(
-        self, event_type: EventType, data: Dict[str, Any], subject: str
-    ) -> Dict:
+        self, event_type: EventType, data: dict[str, Any], subject: str
+    ) -> dict:
         """
         Create standardized WebSocket event message
         إنشاء رسالة حدث موحدة
@@ -452,7 +453,7 @@ class NATSBridge:
         """Check if connected to NATS"""
         return self.nc is not None and self.nc.is_connected
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get bridge statistics"""
         return {
             "connected": self.is_connected,

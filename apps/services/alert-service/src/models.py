@@ -5,10 +5,9 @@ SAHOOL Alert Service - Data Models
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field
-from uuid import UUID
+from typing import Any
 
+from pydantic import BaseModel, Field
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Enums - التعدادات
@@ -71,37 +70,37 @@ class AlertCreate(BaseModel):
     """إنشاء تنبيه جديد"""
 
     field_id: str = Field(..., description="معرف الحقل")
-    tenant_id: Optional[str] = Field(None, description="معرف المستأجر")
+    tenant_id: str | None = Field(None, description="معرف المستأجر")
     type: AlertType = Field(..., description="نوع التنبيه")
     severity: AlertSeverity = Field(..., description="مستوى الخطورة")
     title: str = Field(..., min_length=1, max_length=200, description="عنوان التنبيه")
-    title_en: Optional[str] = Field(
+    title_en: str | None = Field(
         None, max_length=200, description="العنوان بالإنجليزية"
     )
     message: str = Field(
         ..., min_length=1, max_length=2000, description="رسالة التنبيه"
     )
-    message_en: Optional[str] = Field(
+    message_en: str | None = Field(
         None, max_length=2000, description="الرسالة بالإنجليزية"
     )
-    recommendations: Optional[List[str]] = Field(default=[], description="التوصيات")
-    recommendations_en: Optional[List[str]] = Field(
+    recommendations: list[str] | None = Field(default=[], description="التوصيات")
+    recommendations_en: list[str] | None = Field(
         default=[], description="التوصيات بالإنجليزية"
     )
-    metadata: Optional[Dict[str, Any]] = Field(default={}, description="بيانات إضافية")
-    expires_at: Optional[datetime] = Field(None, description="تاريخ انتهاء الصلاحية")
-    source_service: Optional[str] = Field(None, description="الخدمة المصدر")
-    correlation_id: Optional[str] = Field(None, description="معرف الارتباط")
+    metadata: dict[str, Any] | None = Field(default={}, description="بيانات إضافية")
+    expires_at: datetime | None = Field(None, description="تاريخ انتهاء الصلاحية")
+    source_service: str | None = Field(None, description="الخدمة المصدر")
+    correlation_id: str | None = Field(None, description="معرف الارتباط")
 
 
 class AlertUpdate(BaseModel):
     """تحديث تنبيه"""
 
-    status: Optional[AlertStatus] = None
-    acknowledged_by: Optional[str] = None
-    dismissed_by: Optional[str] = None
-    resolved_by: Optional[str] = None
-    resolution_note: Optional[str] = Field(None, max_length=1000)
+    status: AlertStatus | None = None
+    acknowledged_by: str | None = None
+    dismissed_by: str | None = None
+    resolved_by: str | None = None
+    resolution_note: str | None = Field(None, max_length=1000)
 
 
 class RuleCondition(BaseModel):
@@ -110,7 +109,7 @@ class RuleCondition(BaseModel):
     metric: str = Field(..., description="اسم المقياس (مثل: soil_moisture, ndvi)")
     operator: ConditionOperator = Field(..., description="عامل المقارنة")
     value: float = Field(..., description="القيمة للمقارنة")
-    duration_minutes: Optional[int] = Field(
+    duration_minutes: int | None = Field(
         0, ge=0, description="المدة بالدقائق قبل الإطلاق"
     )
 
@@ -121,17 +120,17 @@ class AlertRuleConfig(BaseModel):
     type: AlertType
     severity: AlertSeverity
     title: str = Field(..., max_length=200)
-    title_en: Optional[str] = None
-    message_template: Optional[str] = None
+    title_en: str | None = None
+    message_template: str | None = None
 
 
 class AlertRuleCreate(BaseModel):
     """إنشاء قاعدة تنبيه"""
 
     field_id: str
-    tenant_id: Optional[str] = None
+    tenant_id: str | None = None
     name: str = Field(..., min_length=1, max_length=100)
-    name_en: Optional[str] = None
+    name_en: str | None = None
     enabled: bool = True
     condition: RuleCondition
     alert_config: AlertRuleConfig
@@ -148,28 +147,28 @@ class AlertResponse(BaseModel):
 
     id: str
     field_id: str
-    tenant_id: Optional[str]
+    tenant_id: str | None
     type: AlertType
     severity: AlertSeverity
     status: AlertStatus
     title: str
-    title_en: Optional[str]
+    title_en: str | None
     message: str
-    message_en: Optional[str]
-    recommendations: List[str]
-    recommendations_en: List[str]
-    metadata: Dict[str, Any]
-    source_service: Optional[str]
-    correlation_id: Optional[str]
+    message_en: str | None
+    recommendations: list[str]
+    recommendations_en: list[str]
+    metadata: dict[str, Any]
+    source_service: str | None
+    correlation_id: str | None
     created_at: datetime
-    expires_at: Optional[datetime]
-    acknowledged_at: Optional[datetime]
-    acknowledged_by: Optional[str]
-    dismissed_at: Optional[datetime]
-    dismissed_by: Optional[str]
-    resolved_at: Optional[datetime]
-    resolved_by: Optional[str]
-    resolution_note: Optional[str]
+    expires_at: datetime | None
+    acknowledged_at: datetime | None
+    acknowledged_by: str | None
+    dismissed_at: datetime | None
+    dismissed_by: str | None
+    resolved_at: datetime | None
+    resolved_by: str | None
+    resolution_note: str | None
 
     class Config:
         from_attributes = True
@@ -180,14 +179,14 @@ class AlertRuleResponse(BaseModel):
 
     id: str
     field_id: str
-    tenant_id: Optional[str]
+    tenant_id: str | None
     name: str
-    name_en: Optional[str]
+    name_en: str | None
     enabled: bool
     condition: RuleCondition
     alert_config: AlertRuleConfig
     cooldown_hours: int
-    last_triggered_at: Optional[datetime]
+    last_triggered_at: datetime | None
     created_at: datetime
     updated_at: datetime
 
@@ -200,18 +199,18 @@ class AlertStats(BaseModel):
 
     total_alerts: int
     active_alerts: int
-    by_type: Dict[str, int]
-    by_severity: Dict[str, int]
-    by_status: Dict[str, int]
+    by_type: dict[str, int]
+    by_severity: dict[str, int]
+    by_status: dict[str, int]
     acknowledged_rate: float
     resolved_rate: float
-    average_resolution_hours: Optional[float]
+    average_resolution_hours: float | None
 
 
 class PaginatedResponse(BaseModel):
     """استجابة مع ترقيم الصفحات"""
 
-    items: List[AlertResponse]
+    items: list[AlertResponse]
     total: int
     skip: int
     limit: int

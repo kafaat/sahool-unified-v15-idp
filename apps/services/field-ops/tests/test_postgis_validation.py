@@ -10,17 +10,12 @@ Tests cover:
 5. Index Performance - أداء الفهارس المكانية
 """
 
-import asyncio
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
-from unittest.mock import AsyncMock, MagicMock, Mock, patch
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
-from shapely.geometry import Point, Polygon, MultiPolygon, mapping, shape
+from shapely.geometry import MultiPolygon, Point, Polygon, mapping, shape
 from shapely.validation import explain_validity
-from shapely.ops import unary_union
-
 
 # ============================================================================
 # Test Fixtures - إعداد الاختبارات
@@ -460,7 +455,7 @@ class TestFieldBoundaryValidation:
         from pyproj import Geod
 
         MIN_AREA_HECTARES = 0.1
-        MIN_AREA_M2 = MIN_AREA_HECTARES * 10000  # 1000 m²
+        MIN_AREA_HECTARES * 10000  # 1000 m²
 
         geod = Geod(ellps="WGS84")
 
@@ -897,7 +892,7 @@ class TestUtilityFunctions:
         Test Haversine distance calculation
         اختبار حساب المسافة باستخدام صيغة Haversine
         """
-        from math import radians, sin, cos, sqrt, atan2
+        from math import atan2, cos, radians, sin, sqrt
 
         def haversine_distance(lon1: float, lat1: float,
                              lon2: float, lat2: float) -> float:
@@ -1031,10 +1026,10 @@ class TestErrorHandling:
             try:
                 if lon is None or lat is None:
                     with pytest.raises(TypeError):
-                        point = Point(lon, lat)
+                        Point(lon, lat)
                 elif not (-180 <= lon <= 180 and -90 <= lat <= 90):
                     # Invalid WGS84 coordinates
-                    point = Point(lon, lat)
+                    Point(lon, lat)
                     # Point will be created but coordinates are invalid for WGS84
                     assert lon < -180 or lon > 180 or lat < -90 or lat > 90
             except (TypeError, ValueError):

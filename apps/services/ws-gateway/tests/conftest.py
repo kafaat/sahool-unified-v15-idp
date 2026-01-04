@@ -3,13 +3,13 @@ Pytest Configuration and Fixtures for WS Gateway
 تكوين pytest والتجهيزات لبوابة WebSocket
 """
 
-import pytest
 import os
-from typing import Dict, Any
-from unittest.mock import Mock, AsyncMock, patch
-from fastapi.testclient import TestClient
-from jose import jwt
 from datetime import datetime, timedelta
+from typing import Any
+from unittest.mock import AsyncMock, patch
+
+import pytest
+from jose import jwt
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def sample_jwt_secret() -> str:
 
 
 @pytest.fixture
-def sample_user_payload() -> Dict[str, Any]:
+def sample_user_payload() -> dict[str, Any]:
     """Sample user payload for JWT"""
     return {
         "sub": "user-123",
@@ -45,7 +45,7 @@ def sample_user_payload() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_admin_payload() -> Dict[str, Any]:
+def sample_admin_payload() -> dict[str, Any]:
     """Sample admin payload for JWT"""
     return {
         "sub": "admin-789",
@@ -97,7 +97,7 @@ def mock_websocket():
 
 
 @pytest.fixture
-def sample_broadcast_request() -> Dict[str, Any]:
+def sample_broadcast_request() -> dict[str, Any]:
     """Sample broadcast request"""
     return {
         "tenant_id": "tenant-456",
@@ -110,6 +110,6 @@ def sample_broadcast_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_room_message() -> Dict[str, Any]:
+def sample_room_message() -> dict[str, Any]:
     """Sample room message"""
     return {"action": "join", "room": "field:field-123"}

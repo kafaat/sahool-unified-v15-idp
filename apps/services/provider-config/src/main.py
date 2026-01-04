@@ -6,14 +6,14 @@ Port: 8104
 ═══════════════════════════════════════════════════════════════════════════════
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Header
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any
+
 import httpx
-import asyncio
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",
@@ -601,44 +601,44 @@ NOTIFICATION_PROVIDERS = {
 
 class ProviderConfig(BaseModel):
     provider_name: str
-    api_key: Optional[str] = None
+    api_key: str | None = None
     priority: ProviderPriority = ProviderPriority.PRIMARY
     enabled: bool = True
 
 
 class TenantProviderConfig(BaseModel):
     tenant_id: str
-    map_providers: List[ProviderConfig] = []
-    weather_providers: List[ProviderConfig] = []
-    satellite_providers: List[ProviderConfig] = []
+    map_providers: list[ProviderConfig] = []
+    weather_providers: list[ProviderConfig] = []
+    satellite_providers: list[ProviderConfig] = []
 
 
 class ProviderStatusResponse(BaseModel):
     provider_name: str
     status: ProviderStatus
     last_check: datetime
-    response_time_ms: Optional[float] = None
-    error_message: Optional[str] = None
+    response_time_ms: float | None = None
+    error_message: str | None = None
 
 
 class HealthCheckRequest(BaseModel):
     provider_type: ProviderType
     provider_name: str
-    api_key: Optional[str] = None
+    api_key: str | None = None
 
 
 class ProvidersListResponse(BaseModel):
-    map_providers: List[Dict[str, Any]]
-    weather_providers: List[Dict[str, Any]]
-    satellite_providers: List[Dict[str, Any]]
+    map_providers: list[dict[str, Any]]
+    weather_providers: list[dict[str, Any]]
+    satellite_providers: list[dict[str, Any]]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # IN-MEMORY STORAGE (Replace with database in production)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-tenant_configs: Dict[str, TenantProviderConfig] = {}
-provider_status_cache: Dict[str, ProviderStatusResponse] = {}
+tenant_configs: dict[str, TenantProviderConfig] = {}
+provider_status_cache: dict[str, ProviderStatusResponse] = {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -647,7 +647,7 @@ provider_status_cache: Dict[str, ProviderStatusResponse] = {}
 
 
 async def check_map_provider_health(
-    provider_name: MapProviderName, api_key: Optional[str] = None
+    provider_name: MapProviderName, api_key: str | None = None
 ) -> ProviderStatusResponse:
     """Check if a map provider is available"""
     provider = MAP_PROVIDERS.get(provider_name)
@@ -704,7 +704,7 @@ async def check_map_provider_health(
 
 
 async def check_weather_provider_health(
-    provider_name: WeatherProviderName, api_key: Optional[str] = None
+    provider_name: WeatherProviderName, api_key: str | None = None
 ) -> ProviderStatusResponse:
     """Check if a weather provider is available"""
     provider = WEATHER_PROVIDERS.get(provider_name)
@@ -1081,7 +1081,7 @@ async def check_provider_health(request: HealthCheckRequest):
         except ValueError:
             raise HTTPException(
                 status_code=400, detail=f"Unknown map provider: {request.provider_name}"
-            ) from client
+            )
 
     elif request.provider_type == ProviderType.WEATHER:
         try:

@@ -11,16 +11,15 @@ import os
 import traceback
 import uuid
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .error_codes import ErrorCode, ERROR_REGISTRY, ErrorCategory
+from .error_codes import ERROR_REGISTRY, ErrorCategory, ErrorCode
 from .exceptions import AppException
-from .response_models import ErrorDetailsModel, ErrorResponseModel, FieldErrorModel
 
 logger = logging.getLogger(__name__)
 
@@ -82,11 +81,11 @@ def create_error_response(
     message: str,
     message_ar: str,
     request: Request,
-    category: Optional[ErrorCategory] = None,
+    category: ErrorCategory | None = None,
     retryable: bool = False,
-    details: Optional[Dict[str, Any]] = None,
-    stack_trace: Optional[str] = None,
-) -> Dict[str, Any]:
+    details: dict[str, Any] | None = None,
+    stack_trace: str | None = None,
+) -> dict[str, Any]:
     """
     Create a consistent error response format
     إنشاء تنسيق استجابة خطأ متسق

@@ -6,8 +6,9 @@ Tool for calling the agro-advisor service.
 أداة لاستدعاء خدمة المستشار الزراعي.
 """
 
+from typing import Any
+
 import httpx
-from typing import Dict, Any, Optional, List
 import structlog
 
 from ..config import settings
@@ -29,7 +30,7 @@ class AgroTool:
         self,
         crop_type: str,
         language: str = "en",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get information about a crop
         الحصول على معلومات عن محصول
@@ -63,7 +64,7 @@ class AgroTool:
         self,
         crop_type: str,
         growth_stage: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get information about a specific growth stage
         الحصول على معلومات عن مرحلة نمو معينة
@@ -103,8 +104,8 @@ class AgroTool:
         self,
         crop_type: str,
         growth_stage: str,
-        soil_analysis: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        soil_analysis: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Get fertilizer recommendations
         الحصول على توصيات التسميد
@@ -147,8 +148,8 @@ class AgroTool:
         self,
         crop_type: str,
         pest_type: str,
-        infestation_level: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        infestation_level: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get pest control advice
         الحصول على نصائح مكافحة الآفات
@@ -195,9 +196,9 @@ class AgroTool:
     async def get_best_practices(
         self,
         crop_type: str,
-        region: Optional[str] = None,
-        season: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        region: str | None = None,
+        season: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get best agricultural practices
         الحصول على أفضل الممارسات الزراعية
@@ -239,8 +240,8 @@ class AgroTool:
     async def get_market_prices(
         self,
         crop_type: str,
-        region: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        region: str | None = None,
+    ) -> dict[str, Any]:
         """
         Get market price information
         الحصول على معلومات أسعار السوق

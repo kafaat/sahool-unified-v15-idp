@@ -3,11 +3,10 @@ Password Hashing & Validation
 تشفير والتحقق من كلمات المرور
 """
 
-import re
-import secrets
 import hashlib
 import logging
-from typing import Tuple
+import re
+import secrets
 
 from .config import get_auth_config
 
@@ -67,7 +66,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
         return False
 
 
-def validate_password(password: str) -> Tuple[bool, str]:
+def validate_password(password: str) -> tuple[bool, str]:
     """
     Validate password strength according to policy
     التحقق من قوة كلمة المرور حسب السياسة

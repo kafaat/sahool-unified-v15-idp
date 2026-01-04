@@ -288,7 +288,7 @@ async def broadcast_message(
     if not token:
         raise HTTPException(
             status_code=401, detail="Authorization token required for broadcast"
-        ) from e
+        )
 
     try:
         # Validate token and check tenant ownership

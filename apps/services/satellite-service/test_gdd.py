@@ -8,7 +8,7 @@ import sys
 
 sys.path.insert(0, "src")
 
-from src.gdd_tracker import GDDTracker, GDDMethod
+from src.gdd_tracker import GDDTracker
 
 
 def test_gdd_calculations():
@@ -24,7 +24,7 @@ def test_gdd_calculations():
     base_temp = 10.0
     upper_temp = 30.0
 
-    print(f"\nTest Case:")
+    print("\nTest Case:")
     print(f"  Tmax: {temp_max}°C")
     print(f"  Tmin: {temp_min}°C")
     print(f"  Base: {base_temp}°C")
@@ -36,7 +36,7 @@ def test_gdd_calculations():
         temp_min, temp_max, base_temp, method="simple"
     )
     print(f"Simple Method: {gdd_simple:.1f} GDD")
-    print(f"  Formula: ((25 + 15) / 2) - 10 = 10.0")
+    print("  Formula: ((25 + 15) / 2) - 10 = 10.0")
 
     # Modified method
     gdd_modified = tracker.calculate_daily_gdd(
@@ -95,7 +95,7 @@ def test_crop_data():
     wheat_params = tracker.CROP_GDD_REQUIREMENTS["WHEAT"]
     print(f"Crop: {wheat_params['name_en']} ({wheat_params['name_ar']})")
     print(f"Total GDD Required: {wheat_params['total']}")
-    print(f"\nGrowth Stages:")
+    print("\nGrowth Stages:")
 
     for i, stage in enumerate(wheat_params["stages"], 1):
         print(
@@ -116,7 +116,7 @@ def test_growth_stages():
     test_gdds = [0, 150, 500, 1100, 1500, 2000, 2500]
 
     print(f"\nCrop: {crop}")
-    print(f"GDD → Stage\n")
+    print("GDD → Stage\n")
 
     for gdd in test_gdds:
         current_en, current_ar, next_en, next_ar, gdd_to_next = (
@@ -138,7 +138,7 @@ def test_all_crops_valid():
 
     errors = []
 
-    for crop_code in tracker.CROP_GDD_REQUIREMENTS.keys():
+    for crop_code in tracker.CROP_GDD_REQUIREMENTS:
         try:
             # Check base temp exists
             if crop_code not in tracker.CROP_BASE_TEMPS:

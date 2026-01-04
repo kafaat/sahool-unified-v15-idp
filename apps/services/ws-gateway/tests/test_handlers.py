@@ -3,9 +3,10 @@ Unit Tests for WebSocket Message Handlers
 اختبارات الوحدة لمعالجات رسائل WebSocket
 """
 
-import pytest
 from unittest.mock import AsyncMock
-from src.handlers import WebSocketMessageHandler, MessageType
+
+import pytest
+from src.handlers import WebSocketMessageHandler
 from src.rooms import RoomManager
 
 

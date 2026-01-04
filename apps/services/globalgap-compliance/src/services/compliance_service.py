@@ -7,15 +7,15 @@ Business logic for tracking farm compliance against IFA v6 standards.
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional, Dict, Any
+from typing import Any
+
 from ..models import (
+    ChecklistAssessment,
     ComplianceRecord,
     ComplianceStatus,
+    ControlPointStatus,
     NonConformity,
     SeverityLevel,
-    ChecklistAssessment,
-    ControlPointStatus,
-    ComplianceLevel,
 )
 
 
@@ -29,11 +29,11 @@ class ComplianceService:
         """Initialize compliance service"""
         # In a real implementation, this would connect to database
         # في التطبيق الفعلي، سيتصل هذا بقاعدة البيانات
-        self.compliance_records: Dict[str, ComplianceRecord] = {}
-        self.non_conformities: Dict[str, List[NonConformity]] = {}
+        self.compliance_records: dict[str, ComplianceRecord] = {}
+        self.non_conformities: dict[str, list[NonConformity]] = {}
 
     async def calculate_compliance_status(
-        self, farm_id: str, assessments: List[ChecklistAssessment]
+        self, farm_id: str, assessments: list[ChecklistAssessment]
     ) -> ComplianceRecord:
         """
         Calculate overall compliance status based on assessments
@@ -150,7 +150,7 @@ class ComplianceService:
 
     async def get_farm_compliance(
         self, farm_id: str, tenant_id: str
-    ) -> Optional[ComplianceRecord]:
+    ) -> ComplianceRecord | None:
         """
         Get current compliance record for a farm
         الحصول على سجل الامتثال الحالي للمزرعة
@@ -192,9 +192,9 @@ class ComplianceService:
         self,
         farm_id: str,
         tenant_id: str,
-        severity: Optional[SeverityLevel] = None,
-        resolved: Optional[bool] = None,
-    ) -> List[NonConformity]:
+        severity: SeverityLevel | None = None,
+        resolved: bool | None = None,
+    ) -> list[NonConformity]:
         """
         Get non-conformities for a farm
         الحصول على عدم المطابقات للمزرعة
@@ -262,7 +262,7 @@ class ComplianceService:
         action_plan: str,
         deadline: datetime,
         status: str = "in_progress",
-    ) -> Optional[NonConformity]:
+    ) -> NonConformity | None:
         """
         Update corrective action for a non-conformity
         تحديث الإجراء التصحيحي لعدم المطابقة
@@ -293,7 +293,7 @@ class ComplianceService:
 
     async def get_compliance_trends(
         self, farm_id: str, tenant_id: str, months: int = 12
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get compliance trends over time
         الحصول على اتجاهات الامتثال عبر الزمن

@@ -3,14 +3,15 @@ Pytest Configuration and Fixtures for NDVI Processor
 إعدادات وتجهيزات Pytest لمعالج NDVI
 """
 
-import pytest
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any
+
+import pytest
 from fastapi.testclient import TestClient
 
 
 @pytest.fixture
-def sample_process_request() -> Dict[str, Any]:
+def sample_process_request() -> dict[str, Any]:
     """Sample NDVI processing request"""
     return {
         "tenant_id": "test_tenant",
@@ -28,7 +29,7 @@ def sample_process_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_composite_request() -> Dict[str, Any]:
+def sample_composite_request() -> dict[str, Any]:
     """Sample composite creation request"""
     return {
         "tenant_id": "test_tenant",
@@ -41,7 +42,7 @@ def sample_composite_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_change_analysis_request() -> Dict[str, Any]:
+def sample_change_analysis_request() -> dict[str, Any]:
     """Sample change analysis request"""
     return {
         "tenant_id": "test_tenant",
@@ -53,7 +54,7 @@ def sample_change_analysis_request() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def sample_ndvi_result() -> Dict[str, Any]:
+def sample_ndvi_result() -> dict[str, Any]:
     """Sample NDVI calculation result"""
     return {
         "id": "result_001",

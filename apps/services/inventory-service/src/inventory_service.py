@@ -3,24 +3,24 @@ Inventory Service - Main business logic layer
 """
 
 from datetime import datetime, timedelta
-from typing import List, Optional
+
 from prisma import Prisma
-from prisma.models import InventoryItem, Supplier, BatchLot, StockMovement
+from prisma.models import BatchLot, InventoryItem, StockMovement, Supplier
+from stock_manager import StockManager
 
 from models import (
+    ConsumptionReport,
     InventoryItemCreate,
     InventoryItemUpdate,
+    InventorySummary,
+    MovementType,
+    StockAdjustRequest,
+    StockApplyRequest,
     StockInRequest,
     StockOutRequest,
-    StockApplyRequest,
-    StockAdjustRequest,
     SupplierCreate,
     SupplierUpdate,
-    MovementType,
-    InventorySummary,
-    ConsumptionReport,
 )
-from stock_manager import StockManager
 
 
 class InventoryService:
@@ -55,7 +55,7 @@ class InventoryService:
 
         return item
 
-    async def get_item(self, item_id: str) -> Optional[InventoryItem]:
+    async def get_item(self, item_id: str) -> InventoryItem | None:
         """Get item by ID"""
         item = await self.db.inventoryitem.find_unique(
             where={"id": item_id}, include={"supplier": True}
@@ -66,9 +66,9 @@ class InventoryService:
         self,
         skip: int = 0,
         limit: int = 100,
-        category: Optional[str] = None,
-        search: Optional[str] = None,
-    ) -> tuple[List[InventoryItem], int]:
+        category: str | None = None,
+        search: str | None = None,
+    ) -> tuple[list[InventoryItem], int]:
         """List items with pagination and filters"""
         where_clause = {}
 
@@ -131,11 +131,11 @@ class InventoryService:
         await self.db.inventoryitem.delete(where={"id": item_id})
         return True
 
-    async def get_low_stock_items(self) -> List[InventoryItem]:
+    async def get_low_stock_items(self) -> list[InventoryItem]:
         """Get items below reorder level"""
         return await self.stock_manager.check_low_stock()
 
-    async def get_expiring_items(self, days: int = 30) -> List[BatchLot]:
+    async def get_expiring_items(self, days: int = 30) -> list[BatchLot]:
         """Get items expiring within specified days"""
         return await self.stock_manager.check_expiring_items(days)
 
@@ -336,7 +336,7 @@ class InventoryService:
 
     async def get_item_movements(
         self, item_id: str, skip: int = 0, limit: int = 100
-    ) -> tuple[List[StockMovement], int]:
+    ) -> tuple[list[StockMovement], int]:
         """Get movement history for an item"""
         movements = await self.db.stockmovement.find_many(
             where={"itemId": item_id},
@@ -353,7 +353,7 @@ class InventoryService:
 
     async def get_item_batches(
         self, item_id: str, include_empty: bool = False
-    ) -> List[BatchLot]:
+    ) -> list[BatchLot]:
         """Get batches for an item"""
         return await self.stock_manager.get_batches_for_item(item_id, include_empty)
 
@@ -364,7 +364,7 @@ class InventoryService:
         supplier = await self.db.supplier.create(data=supplier_data.model_dump())
         return supplier
 
-    async def get_supplier(self, supplier_id: str) -> Optional[Supplier]:
+    async def get_supplier(self, supplier_id: str) -> Supplier | None:
         """Get supplier by ID"""
         supplier = await self.db.supplier.find_unique(
             where={"id": supplier_id}, include={"items": True}
@@ -373,7 +373,7 @@ class InventoryService:
 
     async def list_suppliers(
         self, skip: int = 0, limit: int = 100
-    ) -> tuple[List[Supplier], int]:
+    ) -> tuple[list[Supplier], int]:
         """List suppliers with pagination"""
         suppliers = await self.db.supplier.find_many(
             skip=skip, take=limit, order={"createdAt": "desc"}
@@ -475,5 +475,5 @@ class InventoryService:
             period=f"Last {days} days",
             totalConsumed=total_consumed,
             averageDaily=average_daily,
-            movements=[m for m in movements],
+            movements=list(movements),
         )

@@ -6,18 +6,17 @@ This script demonstrates how to use the crop rotation planning service.
 """
 
 import asyncio
-from datetime import date
 import sys
+from datetime import date
 from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from crop_rotation import (
-    CropRotationPlanner,
     CropFamily,
+    CropRotationPlanner,
     SeasonPlan,
-    to_dict,
 )
 
 
@@ -129,17 +128,17 @@ async def main():
         field_id="FIELD_002", history=history, season="winter"
     )
 
-    print(f"Top 5 Crop Suggestions for Winter 2025:")
+    print("Top 5 Crop Suggestions for Winter 2025:")
     print()
     for i, suggestion in enumerate(suggestions[:5], 1):
         print(f"{i}. {suggestion.crop_name_en} ({suggestion.crop_name_ar})")
         print(f"   Family: {suggestion.crop_family.value}")
         print(f"   Suitability: {suggestion.suitability_score:.1f}/100")
-        print(f"   Reasons:")
+        print("   Reasons:")
         for reason in suggestion.reasons_en:
             print(f"     ✓ {reason}")
         if suggestion.warnings_en:
-            print(f"   Warnings:")
+            print("   Warnings:")
             for warning in suggestion.warnings_en:
                 print(f"     ⚠ {warning}")
         print()

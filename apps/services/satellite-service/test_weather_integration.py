@@ -9,8 +9,8 @@ Usage:
 """
 
 import asyncio
-from datetime import date, timedelta
 import sys
+from datetime import date, timedelta
 
 sys.path.insert(0, "/home/user/sahool-unified-v15-idp/apps/services/satellite-service")
 
@@ -34,7 +34,7 @@ async def test_forecast():
             latitude=15.3694, longitude=44.1910, days=7
         )
 
-        print(f"\n✅ Forecast retrieved successfully!")
+        print("\n✅ Forecast retrieved successfully!")
         print(f"   Forecast days: {len(forecast.daily)}")
         print(f"   Generated at: {forecast.generated_at}")
 
@@ -83,7 +83,7 @@ async def test_historical():
             end_date=end_date,
         )
 
-        print(f"\n✅ Historical data retrieved successfully!")
+        print("\n✅ Historical data retrieved successfully!")
         print(f"   Days: {len(historical.daily)}")
 
         # Show summary
@@ -165,7 +165,7 @@ async def test_water_balance():
     start_date = end_date - timedelta(days=60)  # 60 days
 
     print(f"\n   Period: {start_date} to {end_date}")
-    print(f"   Crop Coefficient (Kc): 1.0 (mid-season vegetable)")
+    print("   Crop Coefficient (Kc): 1.0 (mid-season vegetable)")
 
     try:
         balance = await weather.get_water_balance(
@@ -176,8 +176,8 @@ async def test_water_balance():
             kc=1.0,
         )
 
-        print(f"\n✅ Water balance calculated successfully!")
-        print(f"\n   Summary:")
+        print("\n✅ Water balance calculated successfully!")
+        print("\n   Summary:")
         print(
             f"   Total Precipitation: {balance['summary']['total_precipitation_mm']} mm"
         )
@@ -188,11 +188,11 @@ async def test_water_balance():
         )
 
         if balance["summary"]["total_balance_mm"] < 0:
-            print(f"\n   ⚠️  Water deficit detected! Irrigation needed.")
-            print(f"       عجز مائي! الري مطلوب.")
+            print("\n   ⚠️  Water deficit detected! Irrigation needed.")
+            print("       عجز مائي! الري مطلوب.")
         else:
-            print(f"\n   ✅ Water surplus or balanced.")
-            print(f"       فائض أو توازن مائي.")
+            print("\n   ✅ Water surplus or balanced.")
+            print("       فائض أو توازن مائي.")
 
         await weather.close()
         return True
@@ -228,7 +228,7 @@ async def test_irrigation_recommendation():
             field_id="TEST_FIELD_001",
         )
 
-        print(f"\n✅ Irrigation recommendation generated!")
+        print("\n✅ Irrigation recommendation generated!")
         print(
             f"\n   Crop: {recommendation.crop_name_en} ({recommendation.crop_name_ar})"
         )
@@ -245,9 +245,9 @@ async def test_irrigation_recommendation():
         )
         print(f"   Confidence: {recommendation.confidence:.1%}")
 
-        print(f"\n   📋 Recommendation (English):")
+        print("\n   📋 Recommendation (English):")
         print(f"       {recommendation.recommendation_en}")
-        print(f"\n   📋 Recommendation (Arabic):")
+        print("\n   📋 Recommendation (Arabic):")
         print(f"       {recommendation.recommendation_ar}")
 
         await weather.close()
@@ -277,7 +277,7 @@ async def test_frost_risk():
             latitude=15.3694, longitude=44.1910, days=7
         )
 
-        print(f"\n✅ Frost risk assessment completed!")
+        print("\n✅ Frost risk assessment completed!")
         print(f"   Days assessed: {len(frost_risks)}")
 
         # Check for any frost risk
@@ -295,10 +295,10 @@ async def test_frost_risk():
         elif moderate_risk_days:
             print(f"\n   ⚡ Moderate frost risk for {len(moderate_risk_days)} day(s)")
         else:
-            print(f"\n   ✅ No significant frost risk detected")
+            print("\n   ✅ No significant frost risk detected")
 
         # Show all days summary
-        print(f"\n   7-Day Frost Risk Summary:")
+        print("\n   7-Day Frost Risk Summary:")
         for risk in frost_risks:
             icon = (
                 "❄️"

@@ -3,12 +3,11 @@ SAHOOL Inventory Alert Manager - مدير تنبيهات المخزون
 Manages low stock alerts, expiring items, and reorder notifications
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-from datetime import datetime, date, timedelta, timezone
-from enum import Enum
-import uuid
 import logging
+import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, date, datetime, timedelta
+from enum import Enum
 
 logger = logging.getLogger(__name__)
 
@@ -64,18 +63,18 @@ class InventoryAlert:
     # Actions
     recommended_action_en: str
     recommended_action_ar: str
-    action_url: Optional[str] = None
+    action_url: str | None = None
 
     # Timing
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    acknowledged_at: Optional[datetime] = None
-    acknowledged_by: Optional[str] = None
-    resolved_at: Optional[datetime] = None
-    resolved_by: Optional[str] = None
-    resolution_notes: Optional[str] = None
-    snooze_until: Optional[datetime] = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    acknowledged_at: datetime | None = None
+    acknowledged_by: str | None = None
+    resolved_at: datetime | None = None
+    resolved_by: str | None = None
+    resolution_notes: str | None = None
+    snooze_until: datetime | None = None
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary"""
         return {
             "id": self.id,
@@ -111,7 +110,7 @@ class InventoryAlert:
 class AlertManager:
     """Manage inventory alerts and notifications"""
 
-    def __init__(self, inventory_db: Dict = None, alerts_db: Dict = None):
+    def __init__(self, inventory_db: dict = None, alerts_db: dict = None):
         """
         Initialize alert manager
 
@@ -122,7 +121,7 @@ class AlertManager:
         self.inventory_db = inventory_db or {}
         self.alerts_db = alerts_db or {}
 
-    async def check_all_alerts(self) -> List[InventoryAlert]:
+    async def check_all_alerts(self) -> list[InventoryAlert]:
         """
         Run all alert checks and create/update alerts.
         Called by scheduler every hour.
@@ -142,7 +141,7 @@ class AlertManager:
 
         return alerts
 
-    async def check_low_stock(self) -> List[InventoryAlert]:
+    async def check_low_stock(self) -> list[InventoryAlert]:
         """
         Check items below reorder level.
         Priority based on how far below:
@@ -210,7 +209,7 @@ class AlertManager:
         logger.info(f"Low stock check: Found {len(alerts)} alerts")
         return alerts
 
-    async def check_out_of_stock(self) -> List[InventoryAlert]:
+    async def check_out_of_stock(self) -> list[InventoryAlert]:
         """Check items with zero available quantity"""
         alerts = []
 
@@ -254,7 +253,7 @@ class AlertManager:
 
     async def check_expiring_items(
         self, warning_days: int = 30, critical_days: int = 7
-    ) -> List[InventoryAlert]:
+    ) -> list[InventoryAlert]:
         """
         Check items expiring soon.
         - 7-30 days: MEDIUM (warning)
@@ -262,7 +261,7 @@ class AlertManager:
         - Expired: CRITICAL
         """
         alerts = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         today = now.date()
 
         for item_id, item in self.inventory_db.items():
@@ -361,7 +360,7 @@ class AlertManager:
         logger.info(f"Expiring items check: Found {len(alerts)} alerts")
         return alerts
 
-    async def check_reorder_points(self) -> List[InventoryAlert]:
+    async def check_reorder_points(self) -> list[InventoryAlert]:
         """Check items that need reordering based on forecast"""
         alerts = []
 
@@ -412,7 +411,7 @@ class AlertManager:
         logger.info(f"Reorder point check: Found {len(alerts)} alerts")
         return alerts
 
-    async def check_storage_conditions(self) -> List[InventoryAlert]:
+    async def check_storage_conditions(self) -> list[InventoryAlert]:
         """Check if storage conditions are out of range"""
         alerts = []
 
@@ -496,7 +495,7 @@ class AlertManager:
     def _create_storage_alert(
         self,
         item_id: str,
-        item: Dict,
+        item: dict,
         title_en: str,
         title_ar: str,
         message_en: str,
@@ -526,11 +525,11 @@ class AlertManager:
 
     async def get_active_alerts(
         self,
-        priority: Optional[AlertPriority] = None,
-        alert_type: Optional[AlertType] = None,
-    ) -> List[InventoryAlert]:
+        priority: AlertPriority | None = None,
+        alert_type: AlertType | None = None,
+    ) -> list[InventoryAlert]:
         """Get all active alerts"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         alerts = []
 
         for alert in self.alerts_db.values():
@@ -565,29 +564,29 @@ class AlertManager:
 
     async def acknowledge_alert(
         self, alert_id: str, acknowledged_by: str
-    ) -> Optional[InventoryAlert]:
+    ) -> InventoryAlert | None:
         """Acknowledge an alert"""
         alert = self.alerts_db.get(alert_id)
         if not alert:
             return None
 
         alert.status = AlertStatus.ACKNOWLEDGED
-        alert.acknowledged_at = datetime.now(timezone.utc)
+        alert.acknowledged_at = datetime.now(UTC)
         alert.acknowledged_by = acknowledged_by
 
         logger.info(f"Alert {alert_id} acknowledged by {acknowledged_by}")
         return alert
 
     async def resolve_alert(
-        self, alert_id: str, resolved_by: str, resolution_notes: Optional[str] = None
-    ) -> Optional[InventoryAlert]:
+        self, alert_id: str, resolved_by: str, resolution_notes: str | None = None
+    ) -> InventoryAlert | None:
         """Mark alert as resolved"""
         alert = self.alerts_db.get(alert_id)
         if not alert:
             return None
 
         alert.status = AlertStatus.RESOLVED
-        alert.resolved_at = datetime.now(timezone.utc)
+        alert.resolved_at = datetime.now(UTC)
         alert.resolved_by = resolved_by
         alert.resolution_notes = resolution_notes
 
@@ -596,19 +595,19 @@ class AlertManager:
 
     async def snooze_alert(
         self, alert_id: str, snooze_hours: int = 24
-    ) -> Optional[InventoryAlert]:
+    ) -> InventoryAlert | None:
         """Snooze alert for N hours"""
         alert = self.alerts_db.get(alert_id)
         if not alert:
             return None
 
         alert.status = AlertStatus.SNOOZED
-        alert.snooze_until = datetime.now(timezone.utc) + timedelta(hours=snooze_hours)
+        alert.snooze_until = datetime.now(UTC) + timedelta(hours=snooze_hours)
 
         logger.info(f"Alert {alert_id} snoozed for {snooze_hours} hours")
         return alert
 
-    async def get_alert_summary(self) -> Dict:
+    async def get_alert_summary(self) -> dict:
         """
         Get summary counts:
         - Total active
@@ -643,8 +642,8 @@ class AlertManager:
         }
 
     async def send_notifications(
-        self, alerts: List[InventoryAlert], nats_client=None
-    ) -> Dict:
+        self, alerts: list[InventoryAlert], nats_client=None
+    ) -> dict:
         """
         Send notifications via NATS to notification service.
         Groups by user/farm for batch sending.
@@ -662,7 +661,7 @@ class AlertManager:
                     "event_type": "inventory_alert",
                     "event_id": alert.id,
                     "source_service": "inventory-service",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "alert": alert.to_dict(),
                     "recipients": ["farm_manager", "owner"],
                     "notification_priority": alert.priority.value,
@@ -691,7 +690,7 @@ class AlertManager:
 
     def _find_existing_alert(
         self, item_id: str, alert_type: AlertType
-    ) -> Optional[InventoryAlert]:
+    ) -> InventoryAlert | None:
         """Find existing active alert for item and type"""
         for alert in self.alerts_db.values():
             if (

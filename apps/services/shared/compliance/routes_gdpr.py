@@ -6,13 +6,11 @@ Data export and deletion endpoints for GDPR Article 15, 17, 20
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, status
 from pydantic import BaseModel, Field
-
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +35,8 @@ class DataExportResponse(BaseModel):
 
     request_id: UUID
     status: str = Field(..., description="pending, processing, completed, failed")
-    download_url: Optional[str] = None
-    expires_at: Optional[datetime] = None
+    download_url: str | None = None
+    expires_at: datetime | None = None
     message: str
 
 
@@ -67,9 +65,9 @@ class ConsentRecord(BaseModel):
     user_id: UUID
     purpose: str = Field(..., description="Purpose of data processing")
     granted: bool
-    granted_at: Optional[datetime] = None
-    revoked_at: Optional[datetime] = None
-    ip_address: Optional[str] = None
+    granted_at: datetime | None = None
+    revoked_at: datetime | None = None
+    ip_address: str | None = None
 
 
 class ConsentResponse(BaseModel):
@@ -153,7 +151,7 @@ async def _process_data_export(
         export_data = {
             "export_id": str(request_id),
             "user_id": str(user_id),
-            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "exported_at": datetime.now(UTC).isoformat(),
             "format": export_format,
             "data": {
                 "profile": {},  # Would fetch from user service
@@ -381,7 +379,7 @@ async def get_compliance_status() -> dict:
     """
     return {
         "status": "compliant",
-        "last_audit": datetime.now(timezone.utc).isoformat(),
+        "last_audit": datetime.now(UTC).isoformat(),
         "metrics": {
             "pending_exports": 0,
             "pending_deletions": 0,

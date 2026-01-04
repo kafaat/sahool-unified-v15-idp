@@ -3,11 +3,12 @@ Unit Tests for AI Agents
 اختبارات وحدة للوكلاء الذكيين
 """
 
+from unittest.mock import AsyncMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, Mock, patch
 from src.agents import (
-    FieldAnalystAgent,
     DiseaseExpertAgent,
+    FieldAnalystAgent,
     IrrigationAdvisorAgent,
     YieldPredictorAgent,
 )

@@ -4,7 +4,6 @@ Fertilizer Planner Tests - Agro Advisor
 
 import pytest
 from fastapi.testclient import TestClient
-
 from kernel.services.agro_advisor.src.engine.planner import (
     CROP_REQUIREMENTS,
     fertilizer_plan,

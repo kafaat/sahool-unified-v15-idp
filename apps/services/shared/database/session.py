@@ -4,27 +4,27 @@ Database Session Management
 """
 
 import logging
-from contextlib import contextmanager, asynccontextmanager
-from typing import Generator, AsyncGenerator, Optional
+from collections.abc import AsyncGenerator, Generator
+from contextlib import asynccontextmanager, contextmanager
 
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import QueuePool
 
 # Try async imports
 try:
     from sqlalchemy.ext.asyncio import (
-        create_async_engine,
         AsyncSession,
         async_sessionmaker,
+        create_async_engine,
     )
 
     ASYNC_AVAILABLE = True
 except ImportError:
     ASYNC_AVAILABLE = False
 
-from .config import DatabaseConfig, get_database_url
 from .base import Base
+from .config import DatabaseConfig
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ _AsyncSessionLocal = None
 
 
 def init_db(
-    config: Optional[DatabaseConfig] = None,
+    config: DatabaseConfig | None = None,
     create_tables: bool = False,
     async_mode: bool = False,
 ) -> None:

@@ -15,13 +15,12 @@ References:
 - "Remote Sensing for Precision Agriculture" (FAO 2021)
 """
 
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Optional, Tuple
-from datetime import datetime, date, timedelta
-from enum import Enum
-import math
 import logging
+import math
 import statistics
+from dataclasses import asdict, dataclass
+from datetime import date
+from enum import Enum
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +76,7 @@ class ChangeEvent:
     change_type: ChangeType
     severity: SeverityLevel
     detected_date: date
-    location: Dict[str, float]  # {lat, lon, affected_area_ha}
+    location: dict[str, float]  # {lat, lon, affected_area_ha}
     ndvi_before: float
     ndvi_after: float
     ndvi_change: float
@@ -87,9 +86,9 @@ class ChangeEvent:
     description_en: str
     recommended_action_ar: str
     recommended_action_en: str
-    additional_metrics: Dict[str, float] = None  # Optional NDWI, NDMI, etc.
+    additional_metrics: dict[str, float] = None  # Optional NDWI, NDMI, etc.
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary"""
         result = asdict(self)
         result["change_type"] = self.change_type.value
@@ -103,19 +102,19 @@ class ChangeReport:
     """Comprehensive change detection report for a field"""
 
     field_id: str
-    analysis_period: Dict[str, str]  # {start_date, end_date}
-    events: List[ChangeEvent]
+    analysis_period: dict[str, str]  # {start_date, end_date}
+    events: list[ChangeEvent]
     overall_trend: TrendDirection
     ndvi_trend: float  # Slope of NDVI over time (positive = improving)
     anomaly_count: int
-    severity_summary: Dict[str, int]  # Count by severity level
-    change_type_summary: Dict[str, int]  # Count by change type
+    severity_summary: dict[str, int]  # Count by severity level
+    change_type_summary: dict[str, int]  # Count by change type
     summary_ar: str
     summary_en: str
-    recommendations_ar: List[str]
-    recommendations_en: List[str]
+    recommendations_ar: list[str]
+    recommendations_en: list[str]
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary"""
         result = {
             "field_id": self.field_id,
@@ -140,8 +139,8 @@ class NDVIDataPoint:
 
     date: date
     ndvi: float
-    ndwi: Optional[float] = None
-    ndmi: Optional[float] = None
+    ndwi: float | None = None
+    ndmi: float | None = None
     cloud_cover: float = 0.0
 
 
@@ -209,8 +208,8 @@ class ChangeDetector:
         longitude: float,
         start_date: date,
         end_date: date,
-        crop_type: Optional[str] = None,
-        ndvi_timeseries: Optional[List[NDVIDataPoint]] = None,
+        crop_type: str | None = None,
+        ndvi_timeseries: list[NDVIDataPoint] | None = None,
     ) -> ChangeReport:
         """
         Detect all significant changes in the time period.
@@ -327,8 +326,8 @@ class ChangeDetector:
         date2: date,
         ndvi1: float,
         ndvi2: float,
-        ndwi1: Optional[float] = None,
-        ndwi2: Optional[float] = None,
+        ndwi1: float | None = None,
+        ndwi2: float | None = None,
     ) -> ChangeEvent:
         """
         Compare two specific dates and identify change.
@@ -413,9 +412,9 @@ class ChangeDetector:
 
     async def detect_anomalies(
         self,
-        ndvi_series: List[NDVIDataPoint],
-        expected_pattern: Optional[List[float]] = None,
-    ) -> List[Dict]:
+        ndvi_series: list[NDVIDataPoint],
+        expected_pattern: list[float] | None = None,
+    ) -> list[dict]:
         """
         Detect anomalies in NDVI time series.
         Uses Z-score or deviation from expected pattern.
@@ -493,8 +492,8 @@ class ChangeDetector:
         ndvi_after: float,
         days_between: int,
         season: str,
-        ndwi_before: Optional[float] = None,
-        ndwi_after: Optional[float] = None,
+        ndwi_before: float | None = None,
+        ndwi_after: float | None = None,
     ) -> ChangeType:
         """
         Classify the type of change based on NDVI pattern.
@@ -583,8 +582,8 @@ class ChangeDetector:
             return ChangeType.VEGETATION_DECREASE
 
     def generate_recommendation(
-        self, change_type: ChangeType, severity: SeverityLevel, crop_type: Optional[str]
-    ) -> Tuple[str, str]:
+        self, change_type: ChangeType, severity: SeverityLevel, crop_type: str | None
+    ) -> tuple[str, str]:
         """
         Generate actionable recommendation in Arabic and English.
 
@@ -695,8 +694,8 @@ class ChangeDetector:
         )
 
     def _calculate_expected_pattern(
-        self, data_points: List[NDVIDataPoint], crop_type: str
-    ) -> List[float]:
+        self, data_points: list[NDVIDataPoint], crop_type: str
+    ) -> list[float]:
         """Calculate expected seasonal NDVI pattern for a crop"""
         pattern_info = self.SEASONAL_PATTERNS.get(crop_type, {})
 
@@ -735,7 +734,7 @@ class ChangeDetector:
 
         return expected
 
-    def _calculate_trend(self, values: List[float]) -> float:
+    def _calculate_trend(self, values: list[float]) -> float:
         """Calculate linear trend (slope) of values"""
         if len(values) < 2:
             return 0.0
@@ -757,7 +756,7 @@ class ChangeDetector:
         return round(slope, 6)
 
     def _determine_overall_trend(
-        self, ndvi_trend: float, anomalies: List[Dict]
+        self, ndvi_trend: float, anomalies: list[dict]
     ) -> TrendDirection:
         """Determine overall trend direction"""
         # Count negative vs positive anomalies
@@ -780,10 +779,10 @@ class ChangeDetector:
         field_id: str,
         latitude: float,
         longitude: float,
-        anomaly: Dict,
-        crop_type: Optional[str],
-        clean_data: List[NDVIDataPoint],
-    ) -> Optional[ChangeEvent]:
+        anomaly: dict,
+        crop_type: str | None,
+        clean_data: list[NDVIDataPoint],
+    ) -> ChangeEvent | None:
         """Create a ChangeEvent from an anomaly"""
         index = anomaly["index"]
 
@@ -920,7 +919,7 @@ class ChangeDetector:
         change_percent: float,
         date1: date,
         date2: date,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Generate human-readable description of the change"""
         days = (date2 - date1).days
 
@@ -938,12 +937,12 @@ class ChangeDetector:
                 f"Water stress detected - NDVI decreased by {abs(change_percent):.1f}%",
             ),
             ChangeType.DROUGHT_STRESS: (
-                f"إجهاد جفاف شديد - انخفاض حاد في NDVI وNDWI",
-                f"Severe drought stress - sharp decline in NDVI and NDWI",
+                "إجهاد جفاف شديد - انخفاض حاد في NDVI وNDWI",
+                "Severe drought stress - sharp decline in NDVI and NDWI",
             ),
             ChangeType.FLOODING: (
-                f"فيضان محتمل - انخفاض NDVI مع زيادة NDWI",
-                f"Potential flooding - NDVI decrease with NDWI increase",
+                "فيضان محتمل - انخفاض NDVI مع زيادة NDWI",
+                "Potential flooding - NDVI decrease with NDWI increase",
             ),
             ChangeType.HARVEST: (
                 f"حصاد مكتشف - انخفاض سريع في NDVI من {abs(change_percent):.1f}٪",
@@ -954,16 +953,16 @@ class ChangeDetector:
                 f"New planting detected - NDVI increase of {abs(change_percent):.1f}%",
             ),
             ChangeType.LAND_CLEARING: (
-                f"تجريف أرض محتمل - انخفاض سريع جداً في NDVI",
-                f"Potential land clearing - very rapid NDVI decrease",
+                "تجريف أرض محتمل - انخفاض سريع جداً في NDVI",
+                "Potential land clearing - very rapid NDVI decrease",
             ),
             ChangeType.CROP_DAMAGE: (
                 f"تلف محتمل في المحصول - انخفاض سريع بنسبة {abs(change_percent):.1f}٪",
                 f"Potential crop damage - rapid decrease of {abs(change_percent):.1f}%",
             ),
             ChangeType.PEST_DISEASE: (
-                f"احتمال آفات أو أمراض - انخفاض تدريجي في الصحة النباتية",
-                f"Possible pest/disease - gradual decline in plant health",
+                "احتمال آفات أو أمراض - انخفاض تدريجي في الصحة النباتية",
+                "Possible pest/disease - gradual decline in plant health",
             ),
             ChangeType.NO_CHANGE: (
                 "لا توجد تغييرات كبيرة مكتشفة",
@@ -979,7 +978,7 @@ class ChangeDetector:
             ),
         )
 
-    def _count_by_severity(self, events: List[ChangeEvent]) -> Dict[str, int]:
+    def _count_by_severity(self, events: list[ChangeEvent]) -> dict[str, int]:
         """Count events by severity level"""
         counts = {
             SeverityLevel.LOW.value: 0,
@@ -991,7 +990,7 @@ class ChangeDetector:
             counts[event.severity.value] = counts.get(event.severity.value, 0) + 1
         return counts
 
-    def _count_by_change_type(self, events: List[ChangeEvent]) -> Dict[str, int]:
+    def _count_by_change_type(self, events: list[ChangeEvent]) -> dict[str, int]:
         """Count events by change type"""
         counts = {}
         for event in events:
@@ -1001,12 +1000,12 @@ class ChangeDetector:
 
     def _generate_summary(
         self,
-        events: List[ChangeEvent],
+        events: list[ChangeEvent],
         ndvi_trend: float,
         overall_trend: TrendDirection,
         start_date: date,
         end_date: date,
-    ) -> Tuple[str, str]:
+    ) -> tuple[str, str]:
         """Generate summary text for the report"""
         days = (end_date - start_date).days
 
@@ -1049,10 +1048,10 @@ class ChangeDetector:
 
     def _generate_recommendations(
         self,
-        events: List[ChangeEvent],
+        events: list[ChangeEvent],
         overall_trend: TrendDirection,
-        crop_type: Optional[str],
-    ) -> Tuple[List[str], List[str]]:
+        crop_type: str | None,
+    ) -> tuple[list[str], list[str]]:
         """Generate list of recommendations"""
         recommendations_ar = []
         recommendations_en = []
@@ -1064,7 +1063,7 @@ class ChangeDetector:
             )
 
         # Get unique change types
-        change_types = list(set(e.change_type for e in events))
+        list({e.change_type for e in events})
 
         # Priority recommendations based on severity
         critical_events = [e for e in events if e.severity == SeverityLevel.CRITICAL]

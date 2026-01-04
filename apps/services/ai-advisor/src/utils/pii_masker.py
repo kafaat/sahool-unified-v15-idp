@@ -3,9 +3,9 @@ PII Masker for Logging
 إخفاء المعلومات الشخصية في السجلات
 """
 
-import re
-from typing import Any, Dict, Union
 import json
+import re
+from typing import Any
 
 
 class PIIMasker:
@@ -57,7 +57,7 @@ class PIIMasker:
         return masked
 
     @classmethod
-    def mask_dict(cls, data: Dict[str, Any], depth: int = 0) -> Dict[str, Any]:
+    def mask_dict(cls, data: dict[str, Any], depth: int = 0) -> dict[str, Any]:
         """Recursively mask PII in dictionary"""
         if depth > 10:  # Prevent infinite recursion
             return data
@@ -94,7 +94,7 @@ class PIIMasker:
             return cls.mask_text(json_str)
 
 
-def safe_log(data: Union[str, dict, Any]) -> str:
+def safe_log(data: str | dict | Any) -> str:
     """Safe logging helper that masks PII"""
     if isinstance(data, str):
         return PIIMasker.mask_text(data)

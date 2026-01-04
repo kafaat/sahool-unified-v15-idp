@@ -382,7 +382,7 @@ class FallbackManager:
             raise Exception(
                 f"كل المحاولات فشلت للخدمة {service_name} - "
                 f"All attempts failed for service {service_name}"
-            ) from e
+            )
 
     def _cache_result(self, service_name: str, result: Any):
         """

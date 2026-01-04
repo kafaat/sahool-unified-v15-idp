@@ -11,19 +11,13 @@ Learns from user feedback and outcomes:
 True Learning Agent implementation.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
-from datetime import datetime, timedelta
-from dataclasses import dataclass, field
-from collections import defaultdict
-import asyncio
 import logging
-import json
-import math
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any
 
-from ..base_agent import (
-    BaseAgent, AgentType, AgentLayer, AgentStatus,
-    AgentContext, AgentAction, AgentPercept
-)
+from ..base_agent import AgentAction, AgentLayer, AgentPercept, AgentType, BaseAgent
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +31,10 @@ class FeedbackEntry:
     action_type: str
     user_rating: float  # -1 to 1
     outcome_success: bool
-    actual_result: Dict[str, Any]
-    expected_result: Dict[str, Any]
+    actual_result: dict[str, Any]
+    expected_result: dict[str, Any]
     timestamp: datetime
-    context_snapshot: Dict[str, Any]
+    context_snapshot: dict[str, Any]
 
 
 @dataclass
@@ -78,19 +72,19 @@ class FeedbackLearnerAgent(BaseAgent):
         )
 
         # Feedback storage
-        self.feedback_history: List[FeedbackEntry] = []
+        self.feedback_history: list[FeedbackEntry] = []
 
         # Learning policies per action type
-        self.policies: Dict[str, LearningPolicy] = {}
+        self.policies: dict[str, LearningPolicy] = {}
 
         # Q-values for state-action pairs (simplified)
-        self.q_table: Dict[str, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+        self.q_table: dict[str, dict[str, float]] = defaultdict(lambda: defaultdict(float))
 
         # Reward history per agent
-        self.agent_rewards: Dict[str, List[float]] = defaultdict(list)
+        self.agent_rewards: dict[str, list[float]] = defaultdict(list)
 
         # Model adjustment queue
-        self.adjustment_queue: List[Dict[str, Any]] = []
+        self.adjustment_queue: list[dict[str, Any]] = []
 
     async def perceive(self, percept: AgentPercept) -> None:
         """استقبال التغذية الراجعة"""
@@ -107,7 +101,7 @@ class FeedbackLearnerAgent(BaseAgent):
             # User correction of recommendation
             await self._process_correction(percept.data)
 
-    def _create_feedback_entry(self, data: Dict[str, Any]) -> FeedbackEntry:
+    def _create_feedback_entry(self, data: dict[str, Any]) -> FeedbackEntry:
         """إنشاء إدخال التغذية الراجعة"""
         return FeedbackEntry(
             feedback_id=f"fb_{datetime.now().strftime('%Y%m%d%H%M%S')}",
@@ -164,7 +158,7 @@ class FeedbackLearnerAgent(BaseAgent):
         # Normalize to [-1, 1]
         return max(-1, min(1, reward))
 
-    def _extract_state(self, context: Dict[str, Any]) -> str:
+    def _extract_state(self, context: dict[str, Any]) -> str:
         """استخراج الحالة من السياق"""
         # Simplified state representation
         crop = context.get("crop_type", "unknown")
@@ -212,7 +206,7 @@ class FeedbackLearnerAgent(BaseAgent):
                     "timestamp": datetime.now().isoformat()
                 })
 
-    async def _process_outcome(self, data: Dict[str, Any]) -> None:
+    async def _process_outcome(self, data: dict[str, Any]) -> None:
         """معالجة النتيجة الفعلية"""
         recommendation_id = data.get("recommendation_id")
         actual = data.get("actual")
@@ -236,7 +230,7 @@ class FeedbackLearnerAgent(BaseAgent):
                     penalty_reward = -0.5 * error_rate
                     await self._update_policy(original_feedback.action_type, penalty_reward, False)
 
-    async def _process_correction(self, data: Dict[str, Any]) -> None:
+    async def _process_correction(self, data: dict[str, Any]) -> None:
         """معالجة التصحيح"""
         original_action = data.get("original_action")
         corrected_action = data.get("corrected_action")
@@ -255,7 +249,7 @@ class FeedbackLearnerAgent(BaseAgent):
         # Positive reward for corrected
         await self._update_policy(corrected_action, 0.5, True)
 
-    async def think(self) -> Optional[AgentAction]:
+    async def think(self) -> AgentAction | None:
         """التفكير في التحسينات"""
         # Check if model updates are needed
         if self.adjustment_queue:
@@ -295,7 +289,7 @@ class FeedbackLearnerAgent(BaseAgent):
 
         return None
 
-    async def _generate_insights(self) -> List[Dict[str, Any]]:
+    async def _generate_insights(self) -> list[dict[str, Any]]:
         """توليد رؤى من التعلم"""
         insights = []
 
@@ -326,7 +320,7 @@ class FeedbackLearnerAgent(BaseAgent):
 
         return insights
 
-    async def act(self, action: AgentAction) -> Dict[str, Any]:
+    async def act(self, action: AgentAction) -> dict[str, Any]:
         """تنفيذ الإجراء"""
         return {
             "action_type": action.action_type,
@@ -342,7 +336,7 @@ class FeedbackLearnerAgent(BaseAgent):
             return policy.adjustment_factor
         return 1.0
 
-    def get_best_action(self, state: str) -> Optional[str]:
+    def get_best_action(self, state: str) -> str | None:
         """الحصول على أفضل إجراء للحالة"""
         if state in self.q_table:
             actions = self.q_table[state]
@@ -350,7 +344,7 @@ class FeedbackLearnerAgent(BaseAgent):
                 return max(actions, key=actions.get)
         return None
 
-    def get_learning_stats(self) -> Dict[str, Any]:
+    def get_learning_stats(self) -> dict[str, Any]:
         """إحصائيات التعلم"""
         return {
             "total_feedback": len(self.feedback_history),

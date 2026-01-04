@@ -8,15 +8,15 @@ Spray time recommendation endpoints:
 - Evaluate specific time (check if a time is suitable)
 """
 
-from fastapi import HTTPException, Query
-from typing import Optional
-from datetime import datetime
 import logging
+from datetime import datetime
+
+from fastapi import HTTPException, Query
 
 from .spray_advisor import (
-    get_spray_advisor,
-    SprayProduct,
     SprayCondition,
+    SprayProduct,
+    get_spray_advisor,
 )
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ def register_spray_endpoints(app):
         lat: float = Query(..., description="Latitude", ge=-90, le=90),
         lon: float = Query(..., description="Longitude", ge=-180, le=180),
         days: int = Query(7, description="Forecast days (1-16)", ge=1, le=16),
-        product_type: Optional[str] = Query(
+        product_type: str | None = Query(
             None,
             description="Product type: herbicide, insecticide, fungicide, foliar_fertilizer, growth_regulator",
         ),
@@ -208,7 +208,7 @@ def register_spray_endpoints(app):
                     status_code=404,
                     detail=f"No suitable spray windows found in next {within_days} days. "
                     f"Try increasing the search period or checking specific conditions.",
-                ) from e
+                )
 
             return {
                 "location": {"lat": lat, "lon": lon},
@@ -232,7 +232,7 @@ def register_spray_endpoints(app):
         target_datetime: str = Query(
             ..., description="Target spray time (ISO 8601 format)"
         ),
-        product_type: Optional[str] = Query(
+        product_type: str | None = Query(
             None, description="Product type (optional)"
         ),
     ):
@@ -297,7 +297,7 @@ def register_spray_endpoints(app):
             if days_ahead < 0:
                 raise HTTPException(
                     status_code=400, detail="target_datetime must be in the future"
-                ) from e
+                )
             if days_ahead > 16:
                 raise HTTPException(
                     status_code=400,

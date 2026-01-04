@@ -22,10 +22,9 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Optional, List
 from pathlib import Path
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Request
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, "../../../../shared")
@@ -40,6 +39,8 @@ try:
     from shared.contracts.actions import (
         ActionTemplate,
         ActionTemplateFactory,
+    )
+    from shared.contracts.actions import (
         UrgencyLevel as ActionUrgency,
     )
 
@@ -48,17 +49,17 @@ except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False
 
 # Import models
+# Import services
+from services import (
+    diagnosis_service,
+    disease_service,
+    prediction_service,
+)
+
 from models import (
     CropType,
     DiagnosisResult,
     HealthCheckResponse,
-)
-
-# Import services
-from services import (
-    disease_service,
-    prediction_service,
-    diagnosis_service,
 )
 
 # Configure logging
@@ -158,13 +159,13 @@ async def health_check():
 @app.post("/v1/diagnose", response_model=DiagnosisResult)
 async def diagnose_plant_disease(
     image: UploadFile = File(..., description="صورة النبات المصاب"),
-    field_id: Optional[str] = Query(None, description="معرف الحقل"),
-    crop_type: Optional[CropType] = Query(None, description="نوع المحصول"),
-    symptoms: Optional[str] = Query(None, description="وصف الأعراض"),
-    governorate: Optional[str] = Query(None, description="المحافظة"),
-    lat: Optional[float] = Query(None, description="خط العرض"),
-    lng: Optional[float] = Query(None, description="خط الطول"),
-    farmer_id: Optional[str] = Query(None, description="معرف المزارع"),
+    field_id: str | None = Query(None, description="معرف الحقل"),
+    crop_type: CropType | None = Query(None, description="نوع المحصول"),
+    symptoms: str | None = Query(None, description="وصف الأعراض"),
+    governorate: str | None = Query(None, description="المحافظة"),
+    lat: float | None = Query(None, description="خط العرض"),
+    lng: float | None = Query(None, description="خط الطول"),
+    farmer_id: str | None = Query(None, description="معرف المزارع"),
 ):
     """
     🔬 تشخيص أمراض النباتات بالذكاء الاصطناعي
@@ -198,8 +199,8 @@ async def diagnose_plant_disease(
 
 @app.post("/v1/diagnose/batch")
 async def batch_diagnose(
-    images: List[UploadFile] = File(..., description="قائمة صور للتشخيص"),
-    field_id: Optional[str] = Query(None),
+    images: list[UploadFile] = File(..., description="قائمة صور للتشخيص"),
+    field_id: str | None = Query(None),
 ):
     """📦 تشخيص دفعة من الصور"""
     if len(images) > 20:
@@ -221,15 +222,15 @@ async def batch_diagnose(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-@app.get("/v1/diseases", response_model=List[dict])
+@app.get("/v1/diseases", response_model=list[dict])
 async def list_diseases(
-    crop_type: Optional[CropType] = Query(None, description="فلترة حسب نوع المحصول")
+    crop_type: CropType | None = Query(None, description="فلترة حسب نوع المحصول")
 ):
     """📋 قائمة الأمراض المدعومة"""
     return disease_service.get_all_diseases(crop_type)
 
 
-@app.get("/v1/crops", response_model=List[dict])
+@app.get("/v1/crops", response_model=list[dict])
 async def list_supported_crops():
     """🌾 قائمة المحاصيل المدعومة"""
     return disease_service.get_supported_crops()
@@ -253,7 +254,7 @@ async def get_treatment_details(disease_id: str):
 async def request_expert_review(
     diagnosis_id: str = Query(..., description="معرف التشخيص"),
     image: UploadFile = File(...),
-    farmer_notes: Optional[str] = Query(None, description="ملاحظات المزارع"),
+    farmer_notes: str | None = Query(None, description="ملاحظات المزارع"),
     urgency: str = Query("normal", enum=["low", "normal", "high", "urgent"]),
 ):
     """👨‍🔬 طلب مراجعة خبير"""
@@ -276,11 +277,11 @@ async def request_expert_review(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-@app.get("/v1/diagnoses", response_model=List[dict])
+@app.get("/v1/diagnoses", response_model=list[dict])
 async def get_diagnosis_history(
-    status: Optional[str] = Query(None, description="فلترة حسب الحالة"),
-    severity: Optional[str] = Query(None, description="فلترة حسب الخطورة"),
-    governorate: Optional[str] = Query(None, description="فلترة حسب المحافظة"),
+    status: str | None = Query(None, description="فلترة حسب الحالة"),
+    severity: str | None = Query(None, description="فلترة حسب الخطورة"),
+    governorate: str | None = Query(None, description="فلترة حسب المحافظة"),
     limit: int = Query(50, ge=1, le=200, description="عدد النتائج"),
     offset: int = Query(0, ge=0, description="بداية النتائج"),
 ):
@@ -311,7 +312,7 @@ async def update_diagnosis_status(
         description="الحالة الجديدة",
         enum=["pending", "confirmed", "rejected", "treated"],
     ),
-    expert_notes: Optional[str] = Query(None, description="ملاحظات الخبير"),
+    expert_notes: str | None = Query(None, description="ملاحظات الخبير"),
 ):
     """✏️ تحديث حالة التشخيص"""
     result = diagnosis_service.update_diagnosis_status(
@@ -330,13 +331,13 @@ async def update_diagnosis_status(
 @app.post("/v1/diagnose-with-action")
 async def diagnose_with_action(
     image: UploadFile = File(..., description="صورة النبات المصاب"),
-    field_id: Optional[str] = Query(None, description="معرف الحقل"),
-    crop_type: Optional[CropType] = Query(None, description="نوع المحصول"),
-    symptoms: Optional[str] = Query(None, description="وصف الأعراض"),
-    governorate: Optional[str] = Query(None, description="المحافظة"),
-    lat: Optional[float] = Query(None, description="خط العرض"),
-    lng: Optional[float] = Query(None, description="خط الطول"),
-    farmer_id: Optional[str] = Query(None, description="معرف المزارع"),
+    field_id: str | None = Query(None, description="معرف الحقل"),
+    crop_type: CropType | None = Query(None, description="نوع المحصول"),
+    symptoms: str | None = Query(None, description="وصف الأعراض"),
+    governorate: str | None = Query(None, description="المحافظة"),
+    lat: float | None = Query(None, description="خط العرض"),
+    lng: float | None = Query(None, description="خط الطول"),
+    farmer_id: str | None = Query(None, description="معرف المزارع"),
 ):
     """
     🔬 تشخيص أمراض النباتات مع ActionTemplate

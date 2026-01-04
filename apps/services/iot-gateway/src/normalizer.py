@@ -153,7 +153,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         or raw.get("f")
         or raw.get("field")
         or _extract_field_from_topic(topic)
-    ) from e
+    )
 
     if not field_id:
         raise ValueError("Missing field_id in payload")
@@ -165,7 +165,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         or raw.get("sensorType")
         or raw.get("t")
         or _extract_type_from_topic(topic)
-    ) from e
+    )
 
     if not sensor_type_raw:
         raise ValueError("Missing sensor type in payload")

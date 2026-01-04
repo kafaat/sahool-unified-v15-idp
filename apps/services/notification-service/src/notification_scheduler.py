@@ -12,16 +12,17 @@ Features:
 """
 
 import asyncio
-import logging
-from datetime import datetime, time, timedelta
-from typing import List, Dict, Any, Optional, Callable
-from dataclasses import dataclass, field
-from enum import Enum
+import contextlib
 import heapq
+import logging
 from collections import defaultdict
+from dataclasses import dataclass, field
+from datetime import datetime, time, timedelta
+from enum import Enum
+from typing import Any
 
-from .firebase_client import FirebaseClient, get_firebase_client, NotificationPriority
-from .notification_types import NotificationPayload, NotificationType
+from .firebase_client import FirebaseClient, NotificationPriority, get_firebase_client
+from .notification_types import NotificationPayload
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ class ScheduledNotification:
     # Retry configuration
     max_retries: int = field(compare=False, default=3)
     retry_count: int = field(compare=False, default=0)
-    last_attempt: Optional[datetime] = field(compare=False, default=None)
+    last_attempt: datetime | None = field(compare=False, default=None)
 
     # Status
     status: str = field(
@@ -65,7 +66,7 @@ class ScheduledNotification:
         """هل يجب إعادة المحاولة؟"""
         return self.retry_count < self.max_retries and self.status == "failed"
 
-    def get_next_scheduled_time(self) -> Optional[datetime]:
+    def get_next_scheduled_time(self) -> datetime | None:
         """الحصول على الوقت المجدول التالي"""
         if self.frequency == ScheduleFrequency.ONCE:
             return None
@@ -93,7 +94,7 @@ class NotificationScheduler:
 
     def __init__(
         self,
-        firebase_client: Optional[FirebaseClient] = None,
+        firebase_client: FirebaseClient | None = None,
         batch_size: int = 500,  # Firebase multicast limit
         rate_limit_per_minute: int = 100,
         quiet_hours_start: time = time(22, 0),  # 10 PM
@@ -106,15 +107,15 @@ class NotificationScheduler:
         self.quiet_hours_end = quiet_hours_end
 
         # Priority queue for scheduled notifications
-        self._queue: List[ScheduledNotification] = []
-        self._notification_map: Dict[str, ScheduledNotification] = {}
+        self._queue: list[ScheduledNotification] = []
+        self._notification_map: dict[str, ScheduledNotification] = {}
 
         # Rate limiting
-        self._send_timestamps: Dict[str, List[datetime]] = defaultdict(list)
+        self._send_timestamps: dict[str, list[datetime]] = defaultdict(list)
 
         # Running state
         self._running = False
-        self._worker_task: Optional[asyncio.Task] = None
+        self._worker_task: asyncio.Task | None = None
 
         logger.info("NotificationScheduler initialized")
 
@@ -173,7 +174,7 @@ class NotificationScheduler:
     def schedule_batch(
         self,
         payload: NotificationPayload,
-        recipient_tokens: List[str],
+        recipient_tokens: list[str],
         scheduled_time: datetime,
         frequency: ScheduleFrequency = ScheduleFrequency.ONCE,
     ) -> int:
@@ -223,7 +224,7 @@ class NotificationScheduler:
             return True
         return False
 
-    def is_quiet_hours(self, check_time: Optional[datetime] = None) -> bool:
+    def is_quiet_hours(self, check_time: datetime | None = None) -> bool:
         """
         هل الوقت الحالي ضمن ساعات الهدوء؟
 
@@ -347,8 +348,8 @@ class NotificationScheduler:
             return False
 
     async def _process_batch(
-        self, notifications: List[ScheduledNotification]
-    ) -> Dict[str, int]:
+        self, notifications: list[ScheduledNotification]
+    ) -> dict[str, int]:
         """
         معالجة دفعة من الإشعارات
 
@@ -359,7 +360,7 @@ class NotificationScheduler:
             Stats dict with success/failure counts
         """
         # Group by payload (same notification content)
-        grouped: Dict[str, List[ScheduledNotification]] = defaultdict(list)
+        grouped: dict[str, list[ScheduledNotification]] = defaultdict(list)
         for notif in notifications:
             # Create a key from notification content
             key = f"{notif.payload.notification_type}_{notif.payload.title_ar}"
@@ -418,7 +419,7 @@ class NotificationScheduler:
         while self._running:
             try:
                 now = datetime.utcnow()
-                batch: List[ScheduledNotification] = []
+                batch: list[ScheduledNotification] = []
 
                 # Collect due notifications
                 while self._queue and self._queue[0].scheduled_time <= now:
@@ -484,14 +485,12 @@ class NotificationScheduler:
         self._running = False
         if self._worker_task:
             self._worker_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._worker_task
-            except asyncio.CancelledError:
-                pass
 
         logger.info("⏹️ Notification scheduler stopped")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """الحصول على إحصائيات الجدولة"""
         pending = sum(
             1 for n in self._notification_map.values() if n.status == "pending"
@@ -515,7 +514,7 @@ class NotificationScheduler:
 
 
 # Global scheduler instance
-_scheduler: Optional[NotificationScheduler] = None
+_scheduler: NotificationScheduler | None = None
 
 
 def get_scheduler() -> NotificationScheduler:

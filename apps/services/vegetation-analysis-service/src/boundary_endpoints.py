@@ -5,12 +5,12 @@ SAHOOL Field Boundary Detection Endpoints
 API endpoints for automatic field boundary detection, refinement, and change detection.
 """
 
-from fastapi import Query, HTTPException
-from pydantic import BaseModel, Field
-from typing import List, Optional
-from datetime import datetime
 import json
 import logging
+from datetime import datetime
+
+from fastapi import HTTPException, Query
+from pydantic import BaseModel, Field
 
 from .field_boundary_detector import BoundaryChange
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class RefineBoundaryRequest(BaseModel):
     """Request model for boundary refinement"""
 
-    coords: List[List[float]] = Field(
+    coords: list[list[float]] = Field(
         ..., description="Initial boundary coordinates [[lon, lat], ...]"
     )
     buffer_m: float = Field(50, description="Refinement buffer in meters")
@@ -40,7 +40,7 @@ def register_boundary_endpoints(app, boundary_detector):
         lat: float = Query(..., description="Latitude of center point"),
         lon: float = Query(..., description="Longitude of center point"),
         radius_m: float = Query(500, description="Search radius in meters"),
-        date: Optional[str] = Query(None, description="Date for imagery (ISO format)"),
+        date: str | None = Query(None, description="Date for imagery (ISO format)"),
     ):
         """
         Detect field boundaries around a point using NDVI edge detection.
@@ -142,7 +142,7 @@ def register_boundary_endpoints(app, boundary_detector):
         if not boundary_detector:
             raise HTTPException(
                 status_code=503, detail="Field boundary detector not initialized"
-            ) from e
+            )
 
         try:
             # Convert to tuple format
@@ -211,7 +211,7 @@ def register_boundary_endpoints(app, boundary_detector):
         if not boundary_detector:
             raise HTTPException(
                 status_code=503, detail="Field boundary detector not initialized"
-            ) from e
+            )
 
         try:
             # Parse previous coordinates

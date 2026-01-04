@@ -6,8 +6,15 @@ import { defineConfig, devices } from '@playwright/test';
  *
  * @see https://playwright.dev/docs/test-configuration
  */
+// Skip E2E tests in CI when backend is not available
+const skipE2E = process.env.SKIP_E2E_TESTS === 'true' ||
+  (process.env.CI && !process.env.API_AVAILABLE);
+
 export default defineConfig({
   testDir: './e2e',
+
+  /* Skip all tests if backend is not available */
+  testMatch: skipE2E ? [] : '**/*.spec.ts',
 
   /* Run tests in files in parallel */
   fullyParallel: true,

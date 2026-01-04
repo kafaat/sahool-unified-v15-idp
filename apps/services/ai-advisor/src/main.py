@@ -23,6 +23,19 @@ from .tools import CropHealthTool, WeatherTool, SatelliteTool, AgroTool
 from .orchestration import Supervisor
 from .rag import EmbeddingsManager, KnowledgeRetriever
 
+# Configure structured logging | تكوين السجلات المنظمة
+structlog.configure(
+    processors=[
+        structlog.stdlib.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.JSONRenderer(),
+    ]
+)
+
+logger = structlog.get_logger()
+
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import sys
 import os
@@ -43,20 +56,6 @@ try:
 except ImportError:
     A2A_AVAILABLE = False
     logger.warning("A2A protocol support not available")
-
-# Configure structured logging | تكوين السجلات المنظمة
-structlog.configure(
-    processors=[
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.add_logger_name,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer(),
-    ]
-)
-
-logger = structlog.get_logger()
 
 
 # Pydantic models for requests/responses

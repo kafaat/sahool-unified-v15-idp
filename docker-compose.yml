@@ -476,6 +476,20 @@ services:
       # KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
       KONG_PLUGINS: "bundled,prometheus"
       REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
+      # DNS Configuration for Docker internal DNS resolution
+      # Use Docker's internal DNS resolver (127.0.0.11) for service discovery
+      KONG_DNS_RESOLVER: 127.0.0.11:53
+      KONG_DNS_ORDER: LAST,A,CNAME
+      # DNS cache settings to reduce resolution attempts and improve resilience
+      # Increased TTL values to reduce DNS queries for unstable services
+      KONG_DNS_CACHE_TTL: 300
+      KONG_DNS_STALE_TTL: 30
+      KONG_DNS_ERROR_TTL: 30
+      # DNS no-sync: Allow Kong to use stale DNS entries when resolution fails
+      # This prevents Kong from blocking when services are temporarily unavailable
+      KONG_DNS_NO_SYNC: "off"
+      # DNS not-found TTL: Cache "not found" responses to reduce repeated queries
+      KONG_DNS_NOT_FOUND_TTL: 30
     ports:
       - "8000:8000"
       # SSL port disabled for development

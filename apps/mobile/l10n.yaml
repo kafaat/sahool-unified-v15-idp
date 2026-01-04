@@ -23,9 +23,6 @@ use-escaping: true
 preferred-supported-locales:
   - ar
 
-# Generate synthetic package
-synthetic-package: false
-
 # Header to add to generated files
 header: |
   /// SAHOOL Mobile App - Generated Localization Files

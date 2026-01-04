@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import '../config/config.dart';
+import '../config/config.dart' as config;
 import '../config/env_config.dart';
 import '../security/security_config.dart';
 import '../security/certificate_pinning_service.dart';
@@ -11,7 +11,7 @@ import '../security/certificate_config.dart';
 class ApiClient {
   late final Dio _dio;
   String? _authToken;
-  String _tenantId = AppConfig.defaultTenantId;
+  String _tenantId = config.AppConfig.defaultTenantId;
   CertificatePinningService? _certificatePinningService;
 
   ApiClient({
@@ -20,12 +20,12 @@ class ApiClient {
     CertificatePinningService? certificatePinningService,
   }) {
     // Use security config based on environment or build mode
-    final config = securityConfig ?? SecurityConfig.fromBuildMode();
+    final secConfig = securityConfig ?? SecurityConfig.fromBuildMode();
 
     _dio = Dio(BaseOptions(
-      baseUrl: baseUrl ?? AppConfig.apiBaseUrl,
+      baseUrl: baseUrl ?? config.AppConfig.apiBaseUrl,
       connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: config.requestTimeout,
+      receiveTimeout: secConfig.requestTimeout,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -33,7 +33,7 @@ class ApiClient {
     ));
 
     // Configure certificate pinning if enabled
-    if (config.enableCertificatePinning) {
+    if (secConfig.enableCertificatePinning) {
       // Determine environment for pin configuration
       final environment = EnvConfig.isProduction ? 'production'
           : EnvConfig.isStaging ? 'staging'
@@ -44,16 +44,16 @@ class ApiClient {
       _certificatePinningService = certificatePinningService ??
           CertificatePinningService(
             certificatePins: pins,
-            allowDebugBypass: config.allowPinningDebugBypass,
-            enforceStrict: config.strictCertificatePinning,
+            allowDebugBypass: secConfig.allowPinningDebugBypass,
+            enforceStrict: secConfig.strictCertificatePinning,
           );
       _certificatePinningService!.configureDio(_dio);
 
       if (kDebugMode) {
         print('🔒 SSL Certificate Pinning enabled');
         print('   Environment: $environment');
-        print('   Strict mode: ${config.strictCertificatePinning}');
-        print('   Debug bypass: ${config.allowPinningDebugBypass}');
+        print('   Strict mode: ${secConfig.strictCertificatePinning}');
+        print('   Debug bypass: ${secConfig.allowPinningDebugBypass}');
         print('   Configured domains: ${_certificatePinningService!.getConfiguredDomains()}');
       }
     } else if (kDebugMode) {

@@ -20,9 +20,9 @@ from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     async_sessionmaker,
 )
-from sqlalchemy.pool import NullPool
-from sqlalchemy.pool.impl import AsyncQueuePool
+from sqlalchemy.pool import NullPool, QueuePool
 from sqlalchemy.orm import declarative_base
+from sqlalchemy import text
 
 logger = logging.getLogger("sahool-billing")
 
@@ -78,27 +78,13 @@ def get_engine() -> AsyncEngine:
     if _engine is None:
         # Determine pool class based on environment
         # For async engines, we must use async pool classes
-        if IS_DEV:
-            # Development: Use NullPool (no pooling) for simplicity
-            pool_class = NullPool
-            logger.info("Using NullPool for development environment")
-        else:
-            # Production: Use AsyncQueuePool for async connections
-            pool_class = AsyncQueuePool
-            logger.info("Using AsyncQueuePool for production environment")
-
         # Create engine with connection pooling
-        _engine = create_async_engine(
-            DATABASE_URL,
-            echo=IS_DEV,  # Log SQL queries in dev mode
-            pool_pre_ping=True,  # Verify connections before using
-            pool_size=POOL_SIZE,
-            max_overflow=MAX_OVERFLOW,
-            pool_timeout=POOL_TIMEOUT,
-            pool_recycle=POOL_RECYCLE,
-            poolclass=pool_class,
-            # Performance optimizations
-            connect_args={
+        # For async engines, SQLAlchemy automatically uses async pool classes
+        engine_kwargs = {
+            "echo": IS_DEV,  # Log SQL queries in dev mode
+            "pool_pre_ping": True,  # Verify connections before using
+            "pool_recycle": POOL_RECYCLE,
+            "connect_args": {
                 "server_settings": {
                     "application_name": "sahool-billing-core",
                     "jit": "off",  # Disable JIT for better compatibility
@@ -106,7 +92,21 @@ def get_engine() -> AsyncEngine:
                 "command_timeout": 60,  # Query timeout in seconds
                 "timeout": 10,  # Connection timeout in seconds
             },
-        )
+        }
+        
+        if IS_DEV:
+            # Development: Use NullPool (no pooling) for simplicity
+            engine_kwargs["poolclass"] = NullPool
+            logger.info("Using NullPool for development environment")
+        else:
+            # Production: Use default async pool with size limits
+            # create_async_engine uses QueuePool by default for async drivers
+            engine_kwargs["pool_size"] = POOL_SIZE
+            engine_kwargs["max_overflow"] = MAX_OVERFLOW
+            engine_kwargs["pool_timeout"] = POOL_TIMEOUT
+            logger.info(f"Using async QueuePool for production: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}")
+
+        _engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 
         logger.info(
             f"Database engine created: pool_size={POOL_SIZE}, max_overflow={MAX_OVERFLOW}"
@@ -244,7 +244,7 @@ async def check_db_connection() -> bool:
     """
     try:
         async with get_db_context() as db:
-            result = await db.execute("SELECT 1")
+            result = await db.execute(text("SELECT 1"))
             result.scalar()
             logger.info("Database connection successful")
             return True

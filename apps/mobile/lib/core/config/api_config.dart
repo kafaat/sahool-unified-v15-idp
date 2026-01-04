@@ -409,17 +409,17 @@ class ApiConfig {
   // خدمة المحادثات والرسائل
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _chatBase => useDirectServices ? chatServiceUrl : effectiveBaseUrl;
+  static String get _messagingBase => useDirectServices ? chatServiceUrl : effectiveBaseUrl;
 
   /// Chat REST endpoints
-  static String get chatConversations => '$_chatBase/api/v1/conversations';
-  static String chatConversationById(String id) => '$_chatBase/api/v1/conversations/$id';
-  static String chatMessages(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/messages';
-  static String chatSendMessage(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/messages';
-  static String chatMarkRead(String conversationId) => '$_chatBase/api/v1/conversations/$conversationId/read';
-  static String get chatCreateConversation => '$_chatBase/api/v1/conversations';
-  static String get chatUnreadCount => '$_chatBase/api/v1/conversations/unread-count';
-  static String get chatHealthz => '$_chatBase/healthz';
+  static String get chatConversations => '$_messagingBase/api/v1/conversations';
+  static String chatConversationById(String id) => '$_messagingBase/api/v1/conversations/$id';
+  static String chatMessages(String conversationId) => '$_messagingBase/api/v1/conversations/$conversationId/messages';
+  static String chatSendMessage(String conversationId) => '$_messagingBase/api/v1/conversations/$conversationId/messages';
+  static String chatMarkRead(String conversationId) => '$_messagingBase/api/v1/conversations/$conversationId/read';
+  static String get chatCreateConversation => '$_messagingBase/api/v1/conversations';
+  static String get chatUnreadCount => '$_messagingBase/api/v1/conversations/unread-count';
+  static String get messagingHealthz => '$_messagingBase/healthz';
 
   /// Chat Socket.io URL
   static String get chatSocketUrl => chatServiceUrl;

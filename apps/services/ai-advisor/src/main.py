@@ -32,19 +32,6 @@ from .security import PromptGuard
 from .tools import AgroTool, CropHealthTool, SatelliteTool, WeatherTool
 from .utils import pii_masking_processor
 
-# Configure structured logging | تكوين السجلات المنظمة
-structlog.configure(
-    processors=[
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer(),
-    ]
-)
-
-logger = structlog.get_logger()
-
 # Import shared CORS configuration | استيراد تكوين CORS المشترك
 import os
 import sys

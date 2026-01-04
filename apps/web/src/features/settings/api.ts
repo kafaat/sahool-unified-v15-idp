@@ -431,7 +431,7 @@ export const settingsApi = {
    */
   terminateSession: async (sessionId: string): Promise<void> => {
     try {
-      await api.delete(`/v1/users/settings/security/sessions/${sessionId}`);
+      await api.delete(`/api/v1/users/settings/security/sessions/${sessionId}`);
     } catch (error) {
       logger.error(`Failed to terminate session ${sessionId}:`, error);
 
@@ -553,7 +553,7 @@ export const settingsApi = {
    */
   disconnectAccount: async (accountId: string): Promise<void> => {
     try {
-      await api.delete(`/v1/users/settings/integrations/accounts/${accountId}`);
+      await api.delete(`/api/v1/users/settings/integrations/accounts/${accountId}`);
     } catch (error) {
       logger.error(`Failed to disconnect account ${accountId}:`, error);
 

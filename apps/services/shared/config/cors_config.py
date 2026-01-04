@@ -296,3 +296,36 @@ def validate_origin(origin: str) -> bool:
     """
     allowed = get_allowed_origins()
     return origin in allowed or "*" in allowed
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Legacy CORS_SETTINGS for backward compatibility
+# ═══════════════════════════════════════════════════════════════════════════════
+
+CORS_SETTINGS = {
+    "allow_origins": get_allowed_origins(),
+    "allow_credentials": True,
+    "allow_methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+    "allow_headers": [
+        "Accept",
+        "Accept-Language",
+        "Authorization",
+        "Content-Type",
+        "Content-Language",
+        "X-Request-ID",
+        "X-Correlation-ID",
+        "X-Tenant-ID",
+        "X-API-Key",
+        "X-User-ID",
+    ],
+    "expose_headers": [
+        "X-Request-ID",
+        "X-Correlation-ID",
+        "X-Total-Count",
+        "X-Page-Count",
+        "X-RateLimit-Limit",
+        "X-RateLimit-Remaining",
+        "X-RateLimit-Reset",
+    ],
+    "max_age": 3600,
+}

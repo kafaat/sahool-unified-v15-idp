@@ -80,7 +80,7 @@ export const fieldMapApi = {
     if (filters?.status) params.set('status', filters.status);
     if (filters?.search) params.set('search', filters.search);
 
-    const response = await api.get(`/v1/fields?${params.toString()}`);
+    const response = await api.get(`/api/v1/fields?${params.toString()}`);
     return response.data;
   },
 
@@ -88,7 +88,7 @@ export const fieldMapApi = {
    * Get field by ID
    */
   getFieldById: async (id: string): Promise<Field> => {
-    const response = await api.get(`/v1/fields/${id}`);
+    const response = await api.get(`/api/v1/fields/${id}`);
     return response.data;
   },
 
@@ -96,7 +96,7 @@ export const fieldMapApi = {
    * Create new field
    */
   createField: async (data: FieldCreate): Promise<Field> => {
-    const response = await api.post('/v1/fields', data);
+    const response = await api.post('/api/v1/fields', data);
     return response.data;
   },
 
@@ -104,7 +104,7 @@ export const fieldMapApi = {
    * Update field
    */
   updateField: async (id: string, data: FieldUpdate): Promise<Field> => {
-    const response = await api.patch(`/v1/fields/${id}`, data);
+    const response = await api.patch(`/api/v1/fields/${id}`, data);
     return response.data;
   },
 
@@ -112,7 +112,7 @@ export const fieldMapApi = {
    * Delete field
    */
   deleteField: async (id: string): Promise<void> => {
-    await api.delete(`/v1/fields/${id}`);
+    await api.delete(`/api/v1/fields/${id}`);
   },
 
   /**
@@ -123,7 +123,7 @@ export const fieldMapApi = {
     if (filters?.governorate) params.set('governorate', filters.governorate);
     if (filters?.status) params.set('status', filters.status);
 
-    const response = await api.get(`/v1/fields/geojson?${params.toString()}`);
+    const response = await api.get(`/api/v1/fields/geojson?${params.toString()}`);
     return response.data;
   },
 
@@ -136,7 +136,7 @@ export const fieldMapApi = {
     byCrop: Record<string, number>;
     byGovernorate: Record<string, number>;
   }> => {
-    const response = await api.get('/v1/fields/stats');
+    const response = await api.get('/api/v1/fields/stats');
     return response.data;
   },
 };

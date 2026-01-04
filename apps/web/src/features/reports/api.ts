@@ -96,7 +96,7 @@ export const reportsApi = {
     if (filters?.startDate) params.set('start_date', filters.startDate);
     if (filters?.endDate) params.set('end_date', filters.endDate);
 
-    const response = await api.get(`/v1/reports?${params.toString()}`);
+    const response = await api.get(`/api/v1/reports?${params.toString()}`);
     return response.data;
   },
 
@@ -104,7 +104,7 @@ export const reportsApi = {
    * Get a specific report
    */
   getReport: async (id: string): Promise<Report> => {
-    const response = await api.get(`/v1/reports/${id}`);
+    const response = await api.get(`/api/v1/reports/${id}`);
     return response.data;
   },
 
@@ -112,7 +112,7 @@ export const reportsApi = {
    * Generate a new report
    */
   generateReport: async (request: GenerateReportRequest): Promise<Report> => {
-    const response = await api.post('/v1/reports/generate', request);
+    const response = await api.post('/api/v1/reports/generate', request);
     return response.data;
   },
 
@@ -120,7 +120,7 @@ export const reportsApi = {
    * Get report download URL
    */
   getDownloadUrl: async (id: string): Promise<{ url: string; expiresAt: string }> => {
-    const response = await api.get(`/v1/reports/${id}/download`);
+    const response = await api.get(`/api/v1/reports/${id}/download`);
     return response.data;
   },
 
@@ -128,14 +128,14 @@ export const reportsApi = {
    * Delete a report
    */
   deleteReport: async (id: string): Promise<void> => {
-    await api.delete(`/v1/reports/${id}`);
+    await api.delete(`/api/v1/reports/${id}`);
   },
 
   /**
    * Get available report templates
    */
   getTemplates: async (): Promise<ReportTemplate[]> => {
-    const response = await api.get('/v1/reports/templates');
+    const response = await api.get('/api/v1/reports/templates');
     return response.data;
   },
 
@@ -143,7 +143,7 @@ export const reportsApi = {
    * Get report statistics
    */
   getStats: async (): Promise<ReportStats> => {
-    const response = await api.get('/v1/reports/stats');
+    const response = await api.get('/api/v1/reports/stats');
     return response.data;
   },
 
@@ -153,7 +153,7 @@ export const reportsApi = {
   scheduleReport: async (
     request: GenerateReportRequest & { schedule: string; recipients: string[] }
   ): Promise<{ scheduleId: string }> => {
-    const response = await api.post('/v1/reports/schedule', request);
+    const response = await api.post('/api/v1/reports/schedule', request);
     return response.data;
   },
 
@@ -169,7 +169,7 @@ export const reportsApi = {
     nextRun: string;
     isActive: boolean;
   }>> => {
-    const response = await api.get('/v1/reports/scheduled');
+    const response = await api.get('/api/v1/reports/scheduled');
     return response.data;
   },
 };

@@ -118,7 +118,7 @@ async def analyze_field(request: AnalysisRequest):
 
     except Exception as e:
         logger.error(f"Analysis error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # Edge agent endpoints
@@ -145,7 +145,7 @@ async def process_sensor_data(request: SensorDataRequest):
 
     except Exception as e:
         logger.error(f"Sensor processing error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/api/v1/edge/mobile")
@@ -168,7 +168,7 @@ async def mobile_quick_action(data: Dict[str, Any]):
 
     except Exception as e:
         logger.error(f"Mobile action error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # Learning endpoints
@@ -200,7 +200,7 @@ async def submit_feedback(request: FeedbackRequest):
 
     except Exception as e:
         logger.error(f"Feedback error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # System status

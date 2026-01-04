@@ -205,7 +205,7 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
         raise ValueError("Token has expired")
     except InvalidTokenError as e:
         logger.warning(f"Invalid token: {e}")
-        raise ValueError(f"Invalid token: {e}")
+        raise ValueError(f"Invalid token: {e}") from e
 
 
 def refresh_access_token(refresh_token: str) -> str:

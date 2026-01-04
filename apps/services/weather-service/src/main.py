@@ -258,7 +258,7 @@ async def get_current_weather(req: LocationRequest):
     except (ExternalServiceException, InternalServerException):
         raise
     except Exception as e:
-        raise ExternalServiceException.weather_service(e)
+        raise ExternalServiceException.weather_service(e) from e
 
 
 @app.post("/weather/forecast")
@@ -317,7 +317,7 @@ async def get_forecast(req: LocationRequest, days: int = 7):
     except (ExternalServiceException, InternalServerException):
         raise
     except Exception as e:
-        raise ExternalServiceException.weather_service(e)
+        raise ExternalServiceException.weather_service(e) from e
 
 
 @app.post("/weather/irrigation")

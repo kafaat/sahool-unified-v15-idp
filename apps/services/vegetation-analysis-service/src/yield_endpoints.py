@@ -465,7 +465,7 @@ async def get_regional_yields(
     if not crops_to_show:
         raise HTTPException(
             status_code=404, detail=f"No crop data available for {governorate}"
-        )
+        ) from e
 
     # Generate regional statistics
     regional_stats = []
@@ -489,7 +489,7 @@ async def get_regional_yields(
                 max_yield_ton_ha=round(max_yield, 2),
                 field_count=field_count,
                 data_source="simulated_regional_data",
-            )
+            ) from e
         )
 
     return {

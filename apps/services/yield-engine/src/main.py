@@ -699,7 +699,7 @@ async def predict_yield(request: YieldRequest):
         return prediction
     except Exception as e:
         logger.error(f"Prediction failed: {e}")
-        raise HTTPException(status_code=500, detail=f"فشل التنبؤ: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"فشل التنبؤ: {str(e)}") from e
 
 
 @app.get("/v1/crops", response_model=List[Dict])

@@ -323,7 +323,7 @@ async def get_seasonal_patterns(
     if not pattern:
         raise HTTPException(
             status_code=404, detail="Item not found or insufficient historical data"
-        )
+        ) from conn
     return pattern.to_dict()
 
 

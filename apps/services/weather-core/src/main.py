@@ -178,7 +178,7 @@ async def get_current_weather(req: LocationRequest):
                         "error_ar": result.error_ar,
                         "failed_providers": result.failed_providers,
                     },
-                )
+                ) from e
             weather = result.data
             provider = result.provider
         else:
@@ -235,7 +235,7 @@ async def get_current_weather(req: LocationRequest):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Weather API error: {str(e)}") from e
 
 
 @app.post("/weather/forecast")
@@ -260,7 +260,7 @@ async def get_forecast(req: LocationRequest, days: int = 7):
                         "error_ar": result.error_ar,
                         "failed_providers": result.failed_providers,
                     },
-                )
+                ) from e
             forecast = result.data
             provider = result.provider
         else:
@@ -295,7 +295,7 @@ async def get_forecast(req: LocationRequest, days: int = 7):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}") from e
 
 
 @app.post("/weather/irrigation")

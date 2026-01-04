@@ -138,7 +138,7 @@ def register_spray_endpoints(app):
             logger.error(f"Failed to get spray forecast: {e}")
             raise HTTPException(
                 status_code=500, detail=f"Spray advisor error: {str(e)}"
-            )
+            ) from e
 
     @app.get("/v1/spray/best-time")
     async def get_best_spray_time(
@@ -208,7 +208,7 @@ def register_spray_endpoints(app):
                     status_code=404,
                     detail=f"No suitable spray windows found in next {within_days} days. "
                     f"Try increasing the search period or checking specific conditions.",
-                )
+                ) from e
 
             return {
                 "location": {"lat": lat, "lon": lon},
@@ -223,7 +223,7 @@ def register_spray_endpoints(app):
             logger.error(f"Failed to find best spray time: {e}")
             raise HTTPException(
                 status_code=500, detail=f"Spray advisor error: {str(e)}"
-            )
+            ) from e
 
     @app.post("/v1/spray/evaluate")
     async def evaluate_spray_time(
@@ -297,7 +297,7 @@ def register_spray_endpoints(app):
             if days_ahead < 0:
                 raise HTTPException(
                     status_code=400, detail="target_datetime must be in the future"
-                )
+                ) from e
             if days_ahead > 16:
                 raise HTTPException(
                     status_code=400,
@@ -334,7 +334,7 @@ def register_spray_endpoints(app):
             logger.error(f"Failed to evaluate spray time: {e}")
             raise HTTPException(
                 status_code=500, detail=f"Spray advisor error: {str(e)}"
-            )
+            ) from e
 
     @app.get("/v1/spray/conditions")
     async def get_spray_conditions_info():

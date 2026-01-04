@@ -341,7 +341,7 @@ class RegistryClient:
             if request.capability not in capability_names:
                 raise ValueError(
                     f"Agent {agent_id} does not have capability: {request.capability}"
-                )
+                ) from e
 
             # Prepare headers
             headers = {"Content-Type": "application/json"}

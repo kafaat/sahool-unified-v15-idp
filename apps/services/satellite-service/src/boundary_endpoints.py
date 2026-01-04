@@ -100,7 +100,7 @@ def register_boundary_endpoints(app, boundary_detector):
             raise
         except Exception as e:
             logger.error(f"Boundary detection failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     @app.post("/v1/boundaries/refine", response_model=dict)
     async def refine_boundary(
@@ -137,7 +137,7 @@ def register_boundary_endpoints(app, boundary_detector):
         if not boundary_detector:
             raise HTTPException(
                 status_code=503, detail="Field boundary detector not initialized"
-            )
+            ) from e
 
         try:
             # Convert to tuple format
@@ -170,7 +170,7 @@ def register_boundary_endpoints(app, boundary_detector):
             raise
         except Exception as e:
             logger.error(f"Boundary refinement failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     @app.get("/v1/boundaries/{field_id}/changes", response_model=dict)
     async def get_boundary_changes(
@@ -206,7 +206,7 @@ def register_boundary_endpoints(app, boundary_detector):
         if not boundary_detector:
             raise HTTPException(
                 status_code=503, detail="Field boundary detector not initialized"
-            )
+            ) from e
 
         try:
             # Parse previous coordinates
@@ -275,7 +275,7 @@ def register_boundary_endpoints(app, boundary_detector):
             raise
         except Exception as e:
             logger.error(f"Change detection failed: {e}")
-            raise HTTPException(status_code=500, detail=str(e))
+            raise HTTPException(status_code=500, detail=str(e)) from e
 
     logger.info("Field boundary detection endpoints registered")
 

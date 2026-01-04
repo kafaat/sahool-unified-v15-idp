@@ -94,7 +94,7 @@ class CircuitBreaker:
                 raise Exception(
                     f"Circuit breaker is OPEN. Service unavailable. "
                     f"Will retry after {self.recovery_timeout}s"
-                )
+                ) from e
 
         try:
             result = await func(*args, **kwargs)

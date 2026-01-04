@@ -1081,7 +1081,7 @@ async def check_provider_health(request: HealthCheckRequest):
         except ValueError:
             raise HTTPException(
                 status_code=400, detail=f"Unknown map provider: {request.provider_name}"
-            )
+            ) from client
 
     elif request.provider_type == ProviderType.WEATHER:
         try:

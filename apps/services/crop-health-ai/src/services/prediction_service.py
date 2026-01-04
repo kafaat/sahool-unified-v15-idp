@@ -179,7 +179,7 @@ class PredictionService:
             return np.random.rand(1, 224, 224, 3).astype(np.float32)
         except Exception as e:
             logger.error(f"Image preprocessing failed: {e}")
-            raise ValueError(f"صورة غير صالحة: {str(e)}")
+            raise ValueError(f"صورة غير صالحة: {str(e)}") from e
 
     def _run_real_inference(self, img_array: np.ndarray) -> np.ndarray:
         """تشغيل استدلال حقيقي باستخدام TensorFlow"""

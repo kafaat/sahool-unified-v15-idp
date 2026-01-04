@@ -228,13 +228,13 @@ class CodeReviewService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
-            )
+            ) from e
         except Exception as e:
             logger.error(f"Error reviewing code: {e}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"An error occurred during review: {str(e)}"
-            )
+            ) from e
     
     def _create_review_prompt(self, file_path: Path, content: str, language: Optional[str] = None) -> str:
         """Create a review prompt for Ollama"""
@@ -508,7 +508,7 @@ async def review_file_endpoint(request: FileReviewRequest):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"File not found: {request.file_path}"
-        )
+        ) from response
     
     # Verify file is within codebase
     try:
@@ -534,7 +534,7 @@ async def review_file_endpoint(request: FileReviewRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to read file: {str(e)}"
-        )
+        ) from e
     
     review = await service.review_code(
         code=content,

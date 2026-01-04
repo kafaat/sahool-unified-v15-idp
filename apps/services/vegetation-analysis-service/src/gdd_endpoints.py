@@ -161,13 +161,13 @@ def register_gdd_endpoints(app):
                 raise HTTPException(
                     status_code=400,
                     detail=f"Unknown crop: {crop_code}. Available crops: {', '.join(crop_codes[:10])}...",
-                )
-            raise HTTPException(status_code=400, detail=str(e))
+                ) from e
+            raise HTTPException(status_code=400, detail=str(e)) from e
         except Exception as e:
             logger.error(f"Failed to generate GDD chart: {e}")
             raise HTTPException(
                 status_code=500, detail=f"GDD calculation error: {str(e)}"
-            )
+            ) from e
 
     @app.get("/v1/gdd/forecast")
     async def get_gdd_forecast(
@@ -239,7 +239,7 @@ def register_gdd_endpoints(app):
             if current_gdd >= target_gdd:
                 raise HTTPException(
                     status_code=400, detail="current_gdd must be less than target_gdd"
-                )
+                ) from e
 
             valid_methods = ["simple", "modified", "sine"]
             if method not in valid_methods:
@@ -268,7 +268,7 @@ def register_gdd_endpoints(app):
             raise
         except Exception as e:
             logger.error(f"Failed to generate GDD forecast: {e}")
-            raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Forecast error: {str(e)}") from e
 
     @app.get("/v1/gdd/requirements/{crop_code}")
     async def get_crop_gdd_requirements(
@@ -348,10 +348,10 @@ def register_gdd_endpoints(app):
             raise HTTPException(
                 status_code=404,
                 detail=f"Crop '{crop_code}' not found. Available crops: {', '.join(crop_codes[:15])}...",
-            )
+            ) from e
         except Exception as e:
             logger.error(f"Failed to get crop requirements: {e}")
-            raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e
 
     @app.get("/v1/gdd/stage/{crop_code}")
     async def get_growth_stage_from_gdd(
@@ -489,10 +489,10 @@ def register_gdd_endpoints(app):
             raise HTTPException(
                 status_code=404,
                 detail=f"Crop '{crop_code}' not found. Available: {', '.join(crop_codes[:10])}...",
-            )
+            ) from e
         except Exception as e:
             logger.error(f"Failed to get growth stage: {e}")
-            raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e
 
     @app.get("/v1/gdd/crops")
     async def list_supported_crops():
@@ -545,6 +545,6 @@ def register_gdd_endpoints(app):
             return {"total_crops": len(crops), "crops": crops}
         except Exception as e:
             logger.error(f"Failed to list crops: {e}")
-            raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error: {str(e)}") from e
 
     logger.info("GDD API endpoints registered successfully")

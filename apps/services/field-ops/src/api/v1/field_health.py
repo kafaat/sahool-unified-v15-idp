@@ -605,9 +605,9 @@ async def analyze_field_health(request: FieldHealthRequest) -> FieldHealthRespon
         raise HTTPException(
             status_code=400,
             detail=f"Invalid input data: {str(e)}"
-        )
+        ) from e
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Internal server error during health analysis: {str(e)}"
-        )
+        ) from e

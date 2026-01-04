@@ -313,7 +313,7 @@ async def ask_question(request: QuestionRequest):
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized",
-            )
+            ) from e
 
         # Guard against prompt injection at API level (defense in depth)
         # الحماية من حقن الأوامر على مستوى API (دفاع متعدد الطبقات)
@@ -341,7 +341,7 @@ async def ask_question(request: QuestionRequest):
         logger.error("ask_question_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        ) from e
 
 
 @app.post("/v1/advisor/diagnose", response_model=AgentResponse, tags=["Advisor"])
@@ -361,7 +361,7 @@ async def diagnose_disease(request: DiagnoseRequest):
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized",
-            )
+            ) from e
 
         disease_expert = agents["disease_expert"]
 
@@ -388,7 +388,7 @@ async def diagnose_disease(request: DiagnoseRequest):
         logger.error("diagnose_disease_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        ) from e
 
 
 @app.post("/v1/advisor/recommend", response_model=AgentResponse, tags=["Advisor"])
@@ -406,7 +406,7 @@ async def get_recommendations(request: RecommendationRequest):
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized",
-            )
+            ) from e
 
         # Route to appropriate agent
         # التوجيه إلى الوكيل المناسب
@@ -443,7 +443,7 @@ async def get_recommendations(request: RecommendationRequest):
         logger.error("get_recommendations_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        ) from e
 
 
 @app.post("/v1/advisor/analyze-field", response_model=AgentResponse, tags=["Advisor"])
@@ -463,7 +463,7 @@ async def analyze_field(request: FieldAnalysisRequest):
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized",
-            )
+            ) from e
 
         results = {}
 
@@ -532,7 +532,7 @@ async def analyze_field(request: FieldAnalysisRequest):
         logger.error("analyze_field_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        ) from e
 
 
 @app.get("/v1/advisor/agents", tags=["Advisor"])
@@ -550,7 +550,7 @@ async def list_agents():
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Service not initialized",
-            )
+            ) from e
 
         agents_info = supervisor.get_available_agents()
 
@@ -564,7 +564,7 @@ async def list_agents():
         logger.error("list_agents_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        ) from e
 
 
 @app.get("/v1/advisor/tools", tags=["Advisor"])
@@ -596,7 +596,7 @@ async def get_rag_info():
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="RAG system not initialized",
-            )
+            ) from e
 
         collection_info = retriever.get_collection_info()
         model_info = embeddings.get_model_info()
@@ -611,7 +611,7 @@ async def get_rag_info():
         logger.error("get_rag_info_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        ) from e
 
 
 @app.get("/v1/advisor/cost/usage", tags=["Monitoring"])
@@ -645,7 +645,7 @@ async def get_cost_usage(user_id: Optional[str] = None):
         logger.error("get_cost_usage_failed", error=str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        )
+        ) from e
 
 
 if __name__ == "__main__":

@@ -423,7 +423,7 @@ async def create_audit(
         raise HTTPException(
             status_code=404,
             detail="No compliance record found for this farm. Please assess compliance first.",
-        )
+        ) from e
 
     # Get non-conformities | الحصول على عدم المطابقات
     non_conformities = await compliance_service.get_non_conformities(farm_id, tenant_id)

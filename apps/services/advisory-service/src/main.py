@@ -270,7 +270,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
         raise NotFoundException(
             ErrorCode.RESOURCE_NOT_FOUND,
             details={"resource": "disease", "disease_id": disease_id},
-        )
+        ) from e
 
     return create_success_response(
         {

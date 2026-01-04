@@ -595,7 +595,7 @@ async def acknowledge_alert(
         raise HTTPException(
             status_code=400,
             detail=f"Cannot acknowledge alert with status: {alert['status']}",
-        )
+        ) from e
 
     alert["status"] = AlertStatus.ACKNOWLEDGED.value
     alert["acknowledged_at"] = datetime.now(timezone.utc).isoformat()

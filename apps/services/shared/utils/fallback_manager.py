@@ -382,7 +382,7 @@ class FallbackManager:
             raise Exception(
                 f"كل المحاولات فشلت للخدمة {service_name} - "
                 f"All attempts failed for service {service_name}"
-            )
+            ) from e
 
     def _cache_result(self, service_name: str, result: Any):
         """
@@ -536,7 +536,7 @@ def with_fallback(fallback_fn: Callable):
                 logger.warning(
                     f"⚠️ فشل {func.__name__}، استخدام الاحتياطي - "
                     f"{func.__name__} failed, using fallback: {str(e)}"
-                )
+                ) from e
                 try:
                     return fallback_fn(*args, **kwargs)
                 except Exception as fallback_error:

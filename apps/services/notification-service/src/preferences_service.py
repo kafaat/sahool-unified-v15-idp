@@ -169,7 +169,7 @@ class PreferencesService:
                 except (ValueError, AttributeError):
                     raise ValueError(
                         f"Invalid time format for quiet_hours_start: {quiet_hours_start}. Expected HH:MM"
-                    )
+                    ) from e
 
             if quiet_hours_end:
                 try:

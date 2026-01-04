@@ -75,7 +75,7 @@ async def validate_jwt_token(token: str) -> dict:
         payload = jwt.decode(token, JWT_SECRET, algorithms=ALLOWED_ALGORITHMS)
         return payload
     except JWTError as e:
-        raise ValueError(f"Invalid token: {str(e)}")
+        raise ValueError(f"Invalid token: {str(e)}") from e
 
 
 # Initialize managers
@@ -205,7 +205,7 @@ async def websocket_endpoint(
         logger.error(
             f"JWT validation failed for connection {connection_id}. "
             f"Error: {str(e)}, Tenant: {tenant_id}"
-        )
+        ) from e
         await websocket.close(code=4001, reason="Invalid authentication token")
         return
     except Exception as e:
@@ -288,7 +288,7 @@ async def broadcast_message(
     if not token:
         raise HTTPException(
             status_code=401, detail="Authorization token required for broadcast"
-        )
+        ) from e
 
     try:
         # Validate token and check tenant ownership
@@ -307,7 +307,7 @@ async def broadcast_message(
         logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")
 
     except ValueError as e:
-        raise HTTPException(status_code=401, detail=str(e))
+        raise HTTPException(status_code=401, detail=str(e)) from e
 
     ws_message = {
         "type": "broadcast",

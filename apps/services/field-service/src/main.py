@@ -597,7 +597,7 @@ async def start_crop_season(field_id: str, season: CropSeasonCreate):
     if active_seasons:
         raise HTTPException(
             status_code=400, detail="يوجد موسم نشط بالفعل. يجب إنهاءه أولاً"
-        )
+        ) from e
 
     season_id = str(uuid4())
     now = datetime.now(timezone.utc).isoformat()

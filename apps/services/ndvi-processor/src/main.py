@@ -409,7 +409,7 @@ async def export_ndvi(
         if not start or not end:
             raise HTTPException(
                 status_code=400, detail="start و end مطلوبان لتصدير CSV"
-            )
+            ) from e
 
         data = get_ndvi_timeseries(field_id, start, end)
         csv_content = "date,ndvi_mean,ndvi_min,ndvi_max,cloud_cover_percent,source\n"

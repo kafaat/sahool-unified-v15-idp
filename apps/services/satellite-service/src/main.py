@@ -1352,7 +1352,7 @@ async def get_phenology(
     if not _phenology_detector:
         raise HTTPException(
             status_code=500, detail="Phenology detector not initialized"
-        )
+        ) from e
 
     # Get NDVI time series
     timeseries_data = await get_timeseries(field_id, days)
@@ -1380,7 +1380,7 @@ async def get_phenology(
             planting_date=planting_dt,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     return {
         "field_id": result.field_id,
@@ -1435,7 +1435,7 @@ async def get_phenology_timeline(
     if not _phenology_detector:
         raise HTTPException(
             status_code=500, detail="Phenology detector not initialized"
-        )
+        ) from e
 
     # Parse planting date
     try:
@@ -1451,7 +1451,7 @@ async def get_phenology_timeline(
             field_id=field_id, crop_type=crop_type, planting_date=planting_dt
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     return {
         "field_id": timeline.field_id,
@@ -1475,7 +1475,7 @@ async def get_stage_recommendations(crop_type: str, stage: str):
     if not _phenology_detector:
         raise HTTPException(
             status_code=500, detail="Phenology detector not initialized"
-        )
+        ) from e
 
     # Validate crop type
     crop_type = crop_type.lower()
@@ -1594,14 +1594,14 @@ async def analyze_phenology_with_action(
             planting_date=planting_dt,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
 
     # Create ActionTemplate based on growth stage
     action_template = _create_phenology_action_template(
         result=result,
         farmer_id=request.farmer_id,
         tenant_id=request.tenant_id,
-    )
+    ) from e
 
     # Publish event to NATS (in background)
     if request.publish_event and _nats_available and publish_analysis_completed_sync:
@@ -1799,7 +1799,7 @@ async def get_soil_moisture(
         except ValueError:
             raise HTTPException(
                 status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            )
+            ) from e
 
     # Get soil moisture estimate
     result = await _sar_processor.get_soil_moisture(
@@ -2852,7 +2852,7 @@ async def get_regional_yields(
     if not crops_to_show:
         raise HTTPException(
             status_code=404, detail=f"No crop data available for {governorate}"
-        )
+        ) from e
 
     # Generate regional statistics
     regional_stats = []
@@ -2876,7 +2876,7 @@ async def get_regional_yields(
                 max_yield_ton_ha=round(max_yield, 2),
                 field_count=field_count,
                 data_source="simulated_regional_data",
-            )
+            ) from e
         )
 
     return {
@@ -2957,7 +2957,7 @@ async def get_cloud_cover(
 
     except Exception as e:
         logger.error(f"Cloud cover analysis failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/clear-observations/{field_id}")
@@ -2990,7 +2990,7 @@ async def find_clear_observations(
         except ValueError:
             raise HTTPException(
                 status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            )
+            ) from e
 
         # Validate date range
         if end_dt < start_dt:
@@ -3023,7 +3023,7 @@ async def find_clear_observations(
         raise
     except Exception as e:
         logger.error(f"Clear observations search failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/best-observation/{field_id}")
@@ -3056,7 +3056,7 @@ async def get_best_observation(
         except ValueError:
             raise HTTPException(
                 status_code=400, detail="Invalid date format. Use YYYY-MM-DD"
-            )
+            ) from e
 
         # Find best observation
         best_obs = await _cloud_masker.get_best_observation(
@@ -3094,7 +3094,7 @@ async def get_best_observation(
         raise
     except Exception as e:
         logger.error(f"Best observation search failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/v1/interpolate-cloudy")
@@ -3164,7 +3164,7 @@ async def interpolate_cloudy_pixels(
         raise
     except Exception as e:
         logger.error(f"Interpolation failed for {field_id}: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # =============================================================================
@@ -3196,7 +3196,7 @@ async def export_analysis(
         raise HTTPException(
             status_code=400,
             detail=f"Invalid format '{format}'. Supported: geojson, csv, json, kml",
-        )
+        ) from e
 
     # Get analysis data
     try:
@@ -3225,7 +3225,7 @@ async def export_analysis(
         )
     except Exception as e:
         logger.error(f"Export analysis error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/timeseries/{field_id}")
@@ -3248,7 +3248,7 @@ async def export_timeseries(
             raise HTTPException(
                 status_code=400,
                 detail="KML format not supported for timeseries. Use csv, json, or geojson",
-            )
+            ) from e
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -3317,7 +3317,7 @@ async def export_timeseries(
         )
     except Exception as e:
         logger.error(f"Export timeseries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/boundaries")
@@ -3338,7 +3338,7 @@ async def export_boundaries(
             raise HTTPException(
                 status_code=400,
                 detail="CSV format not supported for boundaries. Use geojson, json, or kml",
-            )
+            ) from e
     except ValueError:
         raise HTTPException(
             status_code=400,
@@ -3399,7 +3399,7 @@ async def export_boundaries(
         )
     except Exception as e:
         logger.error(f"Export boundaries error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 @app.get("/v1/export/report/{field_id}")
@@ -3428,7 +3428,7 @@ async def export_report(
         raise HTTPException(
             status_code=400,
             detail=f"Invalid format '{format}'. Supported: json, csv, geojson",
-        )
+        ) from e
 
     if report_type not in ["full", "summary", "changes"]:
         raise HTTPException(
@@ -3518,7 +3518,7 @@ async def export_report(
         )
     except Exception as e:
         logger.error(f"Export report error: {e}")
-        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
 async def _perform_analysis(
@@ -3641,7 +3641,7 @@ async def detect_changes(
         if end < start:
             raise HTTPException(
                 status_code=400, detail="End date must be after start date"
-            )
+            ) from e
 
         if (end - start).days > 365:
             raise HTTPException(
@@ -3671,12 +3671,12 @@ async def detect_changes(
         return ChangeReportResponse(**report.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
     except Exception as e:
         logger.error(f"Error detecting changes: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Change detection failed: {str(e)}"
-        )
+        ) from e
 
 
 @app.get("/v1/changes/{field_id}/compare", response_model=ChangeEventResponse)
@@ -3733,10 +3733,10 @@ async def compare_dates(
         return ChangeEventResponse(**event.to_dict())
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Invalid date format: {str(e)}") from e
     except Exception as e:
         logger.error(f"Error comparing dates: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Date comparison failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Date comparison failed: {str(e)}") from e
 
 
 @app.get("/v1/changes/{field_id}/anomalies")
@@ -3835,7 +3835,7 @@ async def get_anomalies(
         logger.error(f"Error detecting anomalies: {str(e)}")
         raise HTTPException(
             status_code=500, detail=f"Anomaly detection failed: {str(e)}"
-        )
+        ) from e
 
 
 # =============================================================================

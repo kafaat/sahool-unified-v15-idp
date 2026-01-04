@@ -132,7 +132,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
     try:
         raw = json.loads(payload)
     except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON payload: {e}")
+        raise ValueError(f"Invalid JSON payload: {e}") from e
 
     # Extract device_id (try multiple field names)
     device_id = (
@@ -141,7 +141,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         or raw.get("d")
         or raw.get("id")
         or _extract_device_from_topic(topic)
-    )
+    ) from e
 
     if not device_id:
         raise ValueError("Missing device_id in payload")
@@ -153,7 +153,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         or raw.get("f")
         or raw.get("field")
         or _extract_field_from_topic(topic)
-    )
+    ) from e
 
     if not field_id:
         raise ValueError("Missing field_id in payload")
@@ -165,7 +165,7 @@ def normalize(payload: str, topic: str = None) -> NormalizedReading:
         or raw.get("sensorType")
         or raw.get("t")
         or _extract_type_from_topic(topic)
-    )
+    ) from e
 
     if not sensor_type_raw:
         raise ValueError("Missing sensor type in payload")
@@ -236,7 +236,7 @@ def normalize_batch(payload: str, topic: str = None) -> list[NormalizedReading]:
     try:
         raw = json.loads(payload)
     except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON payload: {e}")
+        raise ValueError(f"Invalid JSON payload: {e}") from e
 
     # Find readings array
     if isinstance(raw, list):

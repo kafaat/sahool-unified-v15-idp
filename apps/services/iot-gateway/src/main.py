@@ -305,7 +305,7 @@ class SensorReadingRequest(BaseModel):
                     raise ValueError(
                         f"Value {v} out of range for {sensor_type}. "
                         f"Expected {range_config['min']} to {range_config['max']}"
-                    )
+                    ) from e
         return v
 
 
@@ -543,7 +543,7 @@ async def post_batch_readings(req: BatchReadingRequest):
             )
             raise HTTPException(
                 status_code=400, detail=f"Error processing reading {idx}: {str(e)}"
-            )
+            ) from e
 
     # Update device status
     registry.update_status(device_id=req.device_id)

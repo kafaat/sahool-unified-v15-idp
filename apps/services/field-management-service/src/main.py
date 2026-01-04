@@ -205,7 +205,7 @@ async def get_crop_profitability(
         return analysis
     except Exception as e:
         logger.error(f"Error analyzing crop: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/v1/profitability/analyze")
@@ -260,7 +260,7 @@ async def analyze_profitability(request: AnalyzeCropRequest):
         return {"analysis": analysis, "recommendations": recommendations}
     except Exception as e:
         logger.error(f"Error analyzing profitability: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/v1/profitability/season")
@@ -295,7 +295,7 @@ async def get_season_summary(request: AnalyzeSeasonRequest):
         return summary
     except Exception as e:
         logger.error(f"Error analyzing season: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/profitability/compare")
@@ -327,7 +327,7 @@ async def compare_crops(
         }
     except Exception as e:
         logger.error(f"Error comparing crops: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/profitability/break-even")
@@ -356,7 +356,7 @@ async def calculate_break_even(
         return result
     except Exception as e:
         logger.error(f"Error calculating break-even: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/profitability/history/{field_id}/{crop_code}")
@@ -384,7 +384,7 @@ async def get_historical(
         }
     except Exception as e:
         logger.error(f"Error getting historical data: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/profitability/benchmarks/{crop_code}")
@@ -406,14 +406,14 @@ async def get_benchmarks(
             raise HTTPException(
                 status_code=404,
                 detail=f"No benchmark data available for crop {crop_code}",
-            )
+            ) from e
 
         return benchmarks
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting benchmarks: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/v1/profitability/cost-breakdown/{crop_code}")
@@ -434,14 +434,14 @@ async def get_cost_breakdown(
         if not breakdown:
             raise HTTPException(
                 status_code=404, detail=f"No cost data available for crop {crop_code}"
-            )
+            ) from e
 
         return {"crop_code": crop_code, "area_ha": area_ha, "breakdown": breakdown}
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error getting cost breakdown: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # ============== Utility Endpoints ==============

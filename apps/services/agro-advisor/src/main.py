@@ -431,7 +431,7 @@ def search_crops_endpoint(q: str):
     if not q or len(q) < 2:
         raise HTTPException(
             status_code=400, detail="Query must be at least 2 characters"
-        )
+        ) from e
 
     results = search_crops_catalog(q)
 

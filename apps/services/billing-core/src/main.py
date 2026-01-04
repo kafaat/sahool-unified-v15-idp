@@ -257,7 +257,7 @@ def require_tenant_or_admin(current_user, tenant_id: str):
     if not verify_tenant_access(current_user, tenant_id):
         raise HTTPException(
             status_code=403, detail="Access denied - cannot access this tenant's data"
-        )
+        ) from e
 
 
 # =============================================================================
@@ -1792,7 +1792,7 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
             # Security: Don't expose internal error details to client
             raise HTTPException(
                 502, "Payment gateway temporarily unavailable. Please try again."
-            )
+            ) from e
 
 
 async def call_stripe_api(payment: Any, token: str) -> dict:
@@ -1819,7 +1819,7 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
         # Security: Don't expose internal error details to client
         raise HTTPException(
             502, "Payment processing failed. Please try again or contact support."
-        )
+        ) from e
 
 
 @app.post("/v1/payments")
@@ -2074,7 +2074,7 @@ async def tharwatt_webhook(
         payload = TharwattWebhookPayload(**payload_dict)
     except Exception as e:
         logger.error(f"Tharwatt webhook: Invalid payload: {e}")
-        raise HTTPException(400, "Invalid payload format")
+        raise HTTPException(400, "Invalid payload format") from e
 
     # Find payment by reference
     payment = None
@@ -2117,7 +2117,7 @@ async def tharwatt_webhook(
                 "method": "tharwatt",
                 "transaction_id": payload.transaction_id,
             },
-        )
+        ) from e
 
     elif payload.status == "failed":
         payment.status = PaymentStatus.FAILED

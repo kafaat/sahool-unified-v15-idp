@@ -136,12 +136,12 @@ async def get_preferences(
 
     except Exception as e:
         logger.error(f"Error in get_preferences endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.get(
     "/event/{event_type}", summary="الحصول على تفضيلات حدث معين - Get Event Preference"
-)
+) from e
 async def get_event_preference(
     event_type: str,
     user_id: str = Query(..., description="User ID"),
@@ -185,7 +185,7 @@ async def get_event_preference(
 
     except Exception as e:
         logger.error(f"Error in get_event_preference endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/update", summary="تحديث تفضيلات حدث - Update Event Preference")
@@ -215,10 +215,10 @@ async def update_preference(request: UpdateEventPreferenceRequest):
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error in update_preference endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/quiet-hours", summary="تحديد ساعات الهدوء - Set Quiet Hours")
@@ -251,10 +251,10 @@ async def set_quiet_hours(request: SetQuietHoursRequest):
         }
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Error in set_quiet_hours endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e
 
 
 @router.post("/bulk-update", summary="تحديث تفضيلات متعددة - Bulk Update Preferences")
@@ -281,4 +281,4 @@ async def bulk_update_preferences(request: BulkUpdatePreferencesRequest):
 
     except Exception as e:
         logger.error(f"Error in bulk_update_preferences endpoint: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        raise HTTPException(status_code=500, detail="Internal server error") from e

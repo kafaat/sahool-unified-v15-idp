@@ -1218,7 +1218,7 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
         if notification.user_id != farmer_id:
             raise HTTPException(
                 status_code=403, detail="Not authorized to mark this notification"
-            )
+            ) from e
 
         # Mark as read
         success = await NotificationRepository.mark_as_read(notif_uuid)

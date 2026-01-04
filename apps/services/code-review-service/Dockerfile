@@ -24,12 +24,15 @@ COPY config/ ./config/
 RUN mkdir -p /app/logs && \
     chown -R sahool:sahool /app
 
+# Expose API port
+EXPOSE 8096
+
 # Switch to non-root user
 USER sahool
 
-# Health check - verify process is running
+# Health check - verify API is responding
 HEALTHCHECK --interval=60s --timeout=10s --start-period=30s --retries=3 \
-    CMD pgrep -f "python.*src.main" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8096/health').read()" || exit 1
 
 # Run the service
 CMD ["python", "-m", "src.main"]

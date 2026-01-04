@@ -328,6 +328,10 @@ services:
       - LOG_LEVEL=INFO
       - REVIEW_ON_CHANGE=true
       - MAX_FILE_SIZE=1000000
+      - API_HOST=0.0.0.0
+      - API_PORT=8096
+    ports:
+      - "8096:8096"
     volumes:
       - .:/app/codebase:ro
       - code_review_logs:/app/logs

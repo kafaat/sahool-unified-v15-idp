@@ -96,7 +96,7 @@ export const fieldMapApi = {
    * Create new field
    */
   createField: async (data: FieldCreate): Promise<Field> => {
-    const response = await api.post('/v1/fields', data);
+    const response = await api.post('/api/v1/fields', data);
     return response.data;
   },
 
@@ -136,7 +136,7 @@ export const fieldMapApi = {
     byCrop: Record<string, number>;
     byGovernorate: Record<string, number>;
   }> => {
-    const response = await api.get('/v1/fields/stats');
+    const response = await api.get('/api/v1/fields/stats');
     return response.data;
   },
 };

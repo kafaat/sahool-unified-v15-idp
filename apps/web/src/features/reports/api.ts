@@ -112,7 +112,7 @@ export const reportsApi = {
    * Generate a new report
    */
   generateReport: async (request: GenerateReportRequest): Promise<Report> => {
-    const response = await api.post('/v1/reports/generate', request);
+    const response = await api.post('/api/v1/reports/generate', request);
     return response.data;
   },
 
@@ -135,7 +135,7 @@ export const reportsApi = {
    * Get available report templates
    */
   getTemplates: async (): Promise<ReportTemplate[]> => {
-    const response = await api.get('/v1/reports/templates');
+    const response = await api.get('/api/v1/reports/templates');
     return response.data;
   },
 
@@ -143,7 +143,7 @@ export const reportsApi = {
    * Get report statistics
    */
   getStats: async (): Promise<ReportStats> => {
-    const response = await api.get('/v1/reports/stats');
+    const response = await api.get('/api/v1/reports/stats');
     return response.data;
   },
 
@@ -153,7 +153,7 @@ export const reportsApi = {
   scheduleReport: async (
     request: GenerateReportRequest & { schedule: string; recipients: string[] }
   ): Promise<{ scheduleId: string }> => {
-    const response = await api.post('/v1/reports/schedule', request);
+    const response = await api.post('/api/v1/reports/schedule', request);
     return response.data;
   },
 
@@ -169,7 +169,7 @@ export const reportsApi = {
     nextRun: string;
     isActive: boolean;
   }>> => {
-    const response = await api.get('/v1/reports/scheduled');
+    const response = await api.get('/api/v1/reports/scheduled');
     return response.data;
   },
 };
